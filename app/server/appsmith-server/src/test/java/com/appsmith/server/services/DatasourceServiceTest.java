@@ -88,8 +88,8 @@ public class DatasourceServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-        Workspace testOrg = workspaceRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        orgId = testOrg == null ? "" : testOrg.getId();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
+        orgId = testWorkspace == null ? "" : testWorkspace.getId();
     }
 
     @Test
@@ -519,7 +519,7 @@ public class DatasourceServiceTest {
 
         Mono<Datasource> datasourceMono = Mono
                 .zip(
-                        workspaceRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS),
+                        workspaceRepository.findByName("Spring Test Workspace", AclPermission.READ_ORGANIZATIONS),
                         pluginService.findByName("Installed Plugin Name")
                 )
                 .flatMap(objects -> {
@@ -585,7 +585,7 @@ public class DatasourceServiceTest {
 
         Mono<Datasource> datasourceMono = Mono
                 .zip(
-                        workspaceRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS),
+                        workspaceRepository.findByName("Spring Test Workspace", AclPermission.READ_ORGANIZATIONS),
                         pluginService.findByName("Installed Plugin Name")
                 )
                 .flatMap(objects -> {

@@ -92,8 +92,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Mono<Datasource> create(@NotNull Datasource datasource) {
-        String orgId = datasource.getOrganizationId();
-        if (orgId == null) {
+        String workspaceId = datasource.getOrganizationId();
+        if (workspaceId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
         if (datasource.getId() != null) {
@@ -106,7 +106,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         Mono<Datasource> datasourceMono = Mono.just(datasource);
         if (!StringUtils.hasLength(datasource.getName())) {
             datasourceMono = sequenceService
-                    .getNextAsSuffix(Datasource.class, " for organization with _id : " + orgId)
+                    .getNextAsSuffix(Datasource.class, " for workspace with _id : " + workspaceId)
                     .zipWith(datasourceMono, (sequenceNumber, datasource1) -> {
                         datasource1.setName(Datasource.DEFAULT_NAME_PREFIX + sequenceNumber);
                         return datasource1;
@@ -231,7 +231,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
             return Mono.just(datasource);
         }
 
-        Mono<Workspace> checkPluginInstallationAndThenReturnOrganizationMono = workspaceService
+        Mono<Workspace> checkPluginInstallationAndThenReturnWorkspaceMono = workspaceService
                 .findByIdAndPluginsPluginId(datasource.getOrganizationId(), datasource.getPluginId())
                 .switchIfEmpty(Mono.defer(() -> {
                     invalids.add(AppsmithError.PLUGIN_NOT_INSTALLED.getMessage(datasource.getPluginId()));
@@ -246,7 +246,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())));
 
-        return checkPluginInstallationAndThenReturnOrganizationMono
+        return checkPluginInstallationAndThenReturnWorkspaceMono
                 .then(pluginExecutorMono)
                 .flatMap(pluginExecutor -> {
                     DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
@@ -379,7 +379,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     @Override
     public Flux<Datasource> get(MultiValueMap<String, String> params) {
         /**
-         * Note : Currently this API is ONLY used to fetch datasources for an organization.
+         * Note : Currently this API is ONLY used to fetch datasources for an workspace.
          */
         // Remove branch name as datasources are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);

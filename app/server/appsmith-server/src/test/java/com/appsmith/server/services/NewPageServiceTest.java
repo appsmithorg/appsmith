@@ -46,9 +46,9 @@ class NewPageServiceTest {
     @WithUserDetails("api_user")
     void findApplicationPages_WhenApplicationIdPresent_ReturnsPages() {
         String randomId = UUID.randomUUID().toString();
-        Workspace organization = new Workspace();
-        organization.setName("org_" + randomId);
-        Mono<ApplicationPagesDTO> applicationPagesDTOMono = workspaceService.create(organization).flatMap(createdOrg -> {
+        Workspace workspace = new Workspace();
+        workspace.setName("org_" + randomId);
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = workspaceService.create(workspace).flatMap(createdOrg -> {
             Application application = new Application();
             application.setName("app_" + randomId);
             return applicationPageService.createApplication(application, createdOrg.getId());

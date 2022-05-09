@@ -156,9 +156,9 @@ public class ActionCollectionServiceTest {
             layout.setPublishedDsl(dsl);
         }
 
-        Workspace testOrg = workspaceRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        assert testOrg != null;
-        orgId = testOrg.getId();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
+        assert testWorkspace != null;
+        orgId = testWorkspace.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setOrganizationId(orgId);

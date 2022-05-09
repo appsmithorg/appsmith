@@ -210,8 +210,8 @@ public class LayoutActionServiceTest {
             branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
         }
 
-        Workspace testOrg = workspaceRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        orgId = testOrg.getId();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
+        orgId = testWorkspace.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setOrganizationId(orgId);

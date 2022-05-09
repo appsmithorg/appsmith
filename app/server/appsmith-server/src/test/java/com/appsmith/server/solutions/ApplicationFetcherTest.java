@@ -38,13 +38,13 @@ class ApplicationFetcherTest {
     @WithUserDetails("api_user")
     void getAllApplications_WhenUnpublishedPageExists_ReturnsApplications() {
         String randomUUID = UUID.randomUUID().toString();
-        Workspace newOrg = new Workspace();
-        newOrg.setName("org_" + randomUUID);
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("org_" + randomUUID);
 
-        Mono<UserHomepageDTO> homepageDTOMono = workspaceService.create(newOrg).flatMap(organization -> {
+        Mono<UserHomepageDTO> homepageDTOMono = workspaceService.create(newWorkspace).flatMap(workspace -> {
             Application application = new Application();
             application.setName("app_" + randomUUID);
-            return applicationPageService.createApplication(application, organization.getId());
+            return applicationPageService.createApplication(application, workspace.getId());
         }).flatMap(application -> {
             PageDTO pageDTO = new PageDTO();
             pageDTO.setName("New page");
@@ -55,7 +55,7 @@ class ApplicationFetcherTest {
             assertThat(userHomepageDTO.getOrganizationApplications()).isNotNull();
 
             WorkspaceApplicationsDTO orgApps = userHomepageDTO.getOrganizationApplications().stream().filter(
-                    x -> x.getOrganization().getName().equals(newOrg.getName())
+                    x -> x.getOrganization().getName().equals(newWorkspace.getName())
             ).findFirst().orElse(new WorkspaceApplicationsDTO());
 
             assertThat(orgApps.getApplications().size()).isEqualTo(1);

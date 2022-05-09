@@ -58,7 +58,7 @@ public class AuthenticationServiceTest {
     PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
-    WorkspaceRepository organizationRepository;
+    WorkspaceRepository workspaceRepository;
 
     @Autowired
     UserService userService;
@@ -85,14 +85,14 @@ public class AuthenticationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_invalidDatasourceWithNullAuthentication() {
-        Workspace testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        String orgId = testOrg == null ? "" : testOrg.getId();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
+        String workspaceId = testWorkspace == null ? "" : testWorkspace.getId();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("Missing OAuth2 datasource");
-        datasource.setOrganizationId(orgId);
+        datasource.setOrganizationId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -122,18 +122,18 @@ public class AuthenticationServiceTest {
 
         MockServerHttpRequest httpRequest = MockServerHttpRequest.get("").headers(mockHeaders).build();
 
-        Workspace testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        String orgId = testOrg == null ? "" : testOrg.getId();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
+        String workspaceId = testWorkspace == null ? "" : testWorkspace.getId();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         PageDTO testPage = new PageDTO();
         testPage.setName("PageServiceTest TestApp");
         User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
+        workspaceId = apiUser.getOrganizationIds().iterator().next();
 
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
-        Application application = applicationPageService.createApplication(newApp, orgId).block();
+        Application application = applicationPageService.createApplication(newApp, workspaceId).block();
 
         testPage.setApplicationId(application.getId());
 
@@ -142,7 +142,7 @@ public class AuthenticationServiceTest {
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("Valid datasource for OAuth2");
-        datasource.setOrganizationId(orgId);
+        datasource.setOrganizationId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         OAuth2 authenticationDTO = new OAuth2();

@@ -79,7 +79,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private final ApplicationService applicationService;
     private final SessionUserService sessionUserService;
-    private final WorkspaceRepository organizationRepository;
+    private final WorkspaceRepository workspaceRepository;
     private final LayoutActionService layoutActionService;
 
     private final AnalyticsService analyticsService;
@@ -356,11 +356,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     @Override
-    public Mono<Application> setApplicationPolicies(Mono<User> userMono, String orgId, Application application) {
+    public Mono<Application> setApplicationPolicies(Mono<User> userMono, String workspaceId, Application application) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Workspace> orgMono = organizationRepository.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
+                    Mono<Workspace> orgMono = workspaceRepository.findById(workspaceId, ORGANIZATION_MANAGE_APPLICATIONS)
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, workspaceId)));
 
                     return orgMono.map(org -> {
                         application.setOrganizationId(org.getId());

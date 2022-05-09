@@ -68,10 +68,10 @@ public class DatasourceTriggerSolutionTest {
     @WithUserDetails(value = "api_user")
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-        Workspace organization = new Workspace();
-        organization.setName("Datasource Trigger Test Organization");
-        Workspace savedOrganization = workspaceService.create(organization).block();
-        orgId = savedOrganization.getId();
+        Workspace workspace = new Workspace();
+        workspace.setName("Datasource Trigger Test Organization");
+        Workspace savedWorkspace = workspaceService.create(workspace).block();
+        orgId = savedWorkspace.getId();
 
         Datasource datasource = new Datasource();
         datasource.setName("Datasource Trigger Database");

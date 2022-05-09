@@ -33,7 +33,7 @@ public class DatasourceContextServiceTest {
     EncryptionService encryptionService;
 
     @Autowired
-    WorkspaceRepository organizationRepository;
+    WorkspaceRepository workspaceRepository;
 
     @Autowired
     PluginService pluginService;
@@ -49,8 +49,8 @@ public class DatasourceContextServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-        Workspace testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        orgId = testOrg.getId();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
+        orgId = testWorkspace.getId();
     }
 
     @Test

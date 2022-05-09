@@ -120,9 +120,9 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         }
 
         // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
-        Mono<Workspace> organizationMono = workspaceService.getById(organizationId);
+        Mono<Workspace> workspaceMono = workspaceService.getById(organizationId);
 
-        return organizationMono
+        return workspaceMono
                 .flatMapMany(org -> {
                     log.debug("Fetching plugins by params: {} for org: {}", params, org.getName());
                     if (org.getPlugins() == null) {
@@ -185,13 +185,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
 
-        return storeOrganizationPlugin(pluginOrgDTO, pluginOrgDTO.getStatus())
+        return storeWorkspacePlugin(pluginOrgDTO, pluginOrgDTO.getStatus())
                 .switchIfEmpty(Mono.empty());
     }
 
     @Override
     public Flux<Workspace> installDefaultPlugins(List<Plugin> plugins) {
-        final List<WorkspacePlugin> newOrganizationPlugins = plugins
+        final List<WorkspacePlugin> newWorkspacePlugins = plugins
                 .stream()
                 .filter(plugin -> Boolean.TRUE.equals(plugin.getDefaultInstall()))
                 .map(plugin -> {
@@ -199,13 +199,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                 })
                 .collect(Collectors.toList());
         return workspaceService.getAll()
-                .flatMap(organization -> {
+                .flatMap(workspace -> {
                     // Only perform a DB op if plugins associated to this org have changed
-                    if (organization.getPlugins().containsAll(newOrganizationPlugins)) {
-                        return Mono.just(organization);
+                    if (workspace.getPlugins().containsAll(newWorkspacePlugins)) {
+                        return Mono.just(workspace);
                     } else {
-                        organization.getPlugins().addAll(newOrganizationPlugins);
-                        return workspaceService.save(organization);
+                        workspace.getPlugins().addAll(newWorkspacePlugins);
+                        return workspaceService.save(workspace);
                     }
                 });
     }
@@ -219,34 +219,34 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
 
-        //Find the organization using id and plugin id -> This is to find if the organization has the plugin installed
-        Mono<Workspace> organizationMono = workspaceService.findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(),
+        //Find the workspace using id and plugin id -> This is to find if the workspace has the plugin installed
+        Mono<Workspace> workspaceMono = workspaceService.findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(),
                 pluginDTO.getPluginId());
 
-        return organizationMono
+        return workspaceMono
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, pluginDTO.getPluginId())))
-                //In case the plugin is not found for the organization, the organizationMono would not emit and the rest of the flow would stop
-                //i.e. the rest of the code flow would only happen when there is a plugin found for the organization that can
+                //In case the plugin is not found for the workspace, the workspaceMono would not emit and the rest of the flow would stop
+                //i.e. the rest of the code flow would only happen when there is a plugin found for the workspace that can
                 //be uninstalled.
-                .flatMap(organization -> {
-                    Set<WorkspacePlugin> organizationPluginList = organization.getPlugins();
-                    organizationPluginList.removeIf(listPlugin -> listPlugin.getPluginId().equals(pluginDTO.getPluginId()));
-                    organization.setPlugins(organizationPluginList);
-                    return workspaceService.save(organization);
+                .flatMap(workspace -> {
+                    Set<WorkspacePlugin> workspacePluginList = workspace.getPlugins();
+                    workspacePluginList.removeIf(listPlugin -> listPlugin.getPluginId().equals(pluginDTO.getPluginId()));
+                    workspace.setPlugins(workspacePluginList);
+                    return workspaceService.save(workspace);
                 });
     }
 
-    private Mono<Workspace> storeOrganizationPlugin(PluginOrgDTO pluginDTO, WorkspacePluginStatus status) {
+    private Mono<Workspace> storeWorkspacePlugin(PluginOrgDTO pluginDTO, WorkspacePluginStatus status) {
 
-        Mono<Workspace> pluginInOrganizationMono = workspaceService
+        Mono<Workspace> pluginInWorkspaceMono = workspaceService
                 .findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(), pluginDTO.getPluginId());
 
 
-        //If plugin is already present for the organization, just return the organization, else install and return organization
-        return pluginInOrganizationMono
+        //If plugin is already present for the workspace, just return the workspace, else install and return workspace
+        return pluginInWorkspaceMono
                 .switchIfEmpty(Mono.defer(() -> {
                     log.debug("Plugin {} not already installed. Installing now", pluginDTO.getPluginId());
-                    //If the plugin is not found in the organization, its not installed already. Install now.
+                    //If the plugin is not found in the workspace, its not installed already. Install now.
                     return repository
                             .findById(pluginDTO.getPluginId())
                             .map(plugin -> {
@@ -267,24 +267,24 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                                         .convertAndSend(topic.getTopic(), jsonString)
                                         .subscribe();
                             })
-                            //Now that the plugin jar has been successfully downloaded, go on and add the plugin to the organization
+                            //Now that the plugin jar has been successfully downloaded, go on and add the plugin to the workspace
                             .then(workspaceService.getById(pluginDTO.getOrganizationId()))
-                            .flatMap(organization -> {
+                            .flatMap(workspace -> {
 
-                                Set<WorkspacePlugin> organizationPluginList = organization.getPlugins();
-                                if (organizationPluginList == null) {
-                                    organizationPluginList = new HashSet<>();
+                                Set<WorkspacePlugin> workspacePluginList = workspace.getPlugins();
+                                if (workspacePluginList == null) {
+                                    workspacePluginList = new HashSet<>();
                                 }
 
-                                WorkspacePlugin organizationPlugin = new WorkspacePlugin();
-                                organizationPlugin.setPluginId(pluginDTO.getPluginId());
-                                organizationPlugin.setStatus(status);
-                                organizationPluginList.add(organizationPlugin);
-                                organization.setPlugins(organizationPluginList);
+                                WorkspacePlugin workspacePlugin = new WorkspacePlugin();
+                                workspacePlugin.setPluginId(pluginDTO.getPluginId());
+                                workspacePlugin.setStatus(status);
+                                workspacePluginList.add(workspacePlugin);
+                                workspace.setPlugins(workspacePluginList);
 
-                                log.debug("Going to save the organization with install plugin. This means that installation has been successful");
+                                log.debug("Going to save the workspace with install plugin. This means that installation has been successful");
 
-                                return workspaceService.save(organization);
+                                return workspaceService.save(workspace);
                             });
                 }));
     }

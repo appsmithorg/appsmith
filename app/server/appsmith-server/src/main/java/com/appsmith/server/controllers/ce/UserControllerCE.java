@@ -99,7 +99,7 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
 
     @PutMapping("/switchOrganization/{workspaceId}")
     public Mono<ResponseDTO<User>> setCurrentOrganization(@PathVariable String workspaceId) {
-        return service.switchCurrentOrganization(workspaceId)
+        return service.switchCurrentWorkspace(workspaceId)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 

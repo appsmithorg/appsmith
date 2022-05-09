@@ -15,19 +15,19 @@ import java.util.Set;
 
 public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
 
-    Mono<Workspace> create(Workspace organization);
+    Mono<Workspace> create(Workspace workspace);
 
     Mono<Workspace> getBySlug(String slug);
 
     Mono<String> getNextUniqueSlug(String initialSlug);
 
-    Mono<Workspace> createDefault(Workspace organization, User user);
+    Mono<Workspace> createDefault(Workspace workspace, User user);
 
-    Mono<Workspace> create(Workspace organization, User user);
+    Mono<Workspace> create(Workspace workspace, User user);
 
     Mono<Workspace> findById(String id, AclPermission permission);
 
-    Mono<Workspace> save(Workspace organization);
+    Mono<Workspace> save(Workspace workspace);
 
     Mono<Workspace> findByIdAndPluginsPluginId(String organizationId, String pluginId);
 
@@ -37,9 +37,9 @@ public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
 
     Mono<List<UserRole>> getWorkspaceMembers(String orgId);
 
-    Mono<Workspace> uploadLogo(String organizationId, Part filePart);
+    Mono<Workspace> uploadLogo(String workspaceId, Part filePart);
 
-    Mono<Workspace> deleteLogo(String organizationId);
+    Mono<Workspace> deleteLogo(String workspaceId);
 
     Flux<Workspace> getAll();
 

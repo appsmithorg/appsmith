@@ -74,7 +74,7 @@ public class ExampleApplicationsAreMarked {
                     Mockito.doNothing().when(instanceConfig).onApplicationEvent(
                             Mockito.any(ApplicationReadyEvent.class)
                     );
-                    // Create 4 applications inside the example organization but only mark three applications as example
+                    // Create 4 applications inside the example workspace but only mark three applications as example
                     final Application app1 = new Application();
                     app1.setName("first application");
                     app1.setOrganizationId(workspace.getId());

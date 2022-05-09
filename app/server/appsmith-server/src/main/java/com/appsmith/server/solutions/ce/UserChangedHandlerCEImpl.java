@@ -21,7 +21,7 @@ public class UserChangedHandlerCEImpl implements UserChangedHandlerCE {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final CommentRepository commentRepository;
     private final NotificationRepository notificationRepository;
-    private final WorkspaceRepository organizationRepository;
+    private final WorkspaceRepository workspaceRepository;
 
     public User publish(User user) {
         applicationEventPublisher.publishEvent(new UserChangedEvent(user));
@@ -92,11 +92,11 @@ public class UserChangedHandlerCEImpl implements UserChangedHandlerCE {
 
     private Mono<Void> updateNameInUserRoles(User user) {
         if (user.getId() == null) {
-            log.warn("Attempt to update name in userRoles of organization for user with null ID.");
+            log.warn("Attempt to update name in userRoles of workspace for user with null ID.");
             return Mono.empty();
         }
 
-        log.debug("Updating name in userRoles of organization for user {}", user.getId());
-        return organizationRepository.updateUserRoleNames(user.getId(), user.getName());
+        log.debug("Updating name in userRoles of workspace for user {}", user.getId());
+        return workspaceRepository.updateUserRoleNames(user.getId(), user.getName());
     }
 }

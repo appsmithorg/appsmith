@@ -174,13 +174,13 @@ public class ActionServiceCE_Test {
 
         User apiUser = userService.findByEmail("api_user").block();
         orgId = apiUser.getOrganizationIds().iterator().next();
-        Workspace organization = workspaceService.getById(orgId).block();
+        Workspace workspace = workspaceService.getById(orgId).block();
 
         if (testApp == null && testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
-            testApp = applicationPageService.createApplication(application, organization.getId()).block();
+            testApp = applicationPageService.createApplication(application, workspace.getId()).block();
 
             final String pageId = testApp.getPages().get(0).getId();
 
@@ -229,8 +229,8 @@ public class ActionServiceCE_Test {
             branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
         }
 
-        Workspace testOrg = workspaceRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        orgId = testOrg.getId();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
+        orgId = testWorkspace.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setOrganizationId(orgId);

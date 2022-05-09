@@ -94,7 +94,7 @@ public class UserServiceTest {
 
     Mono<User> userMono;
 
-    Mono<Workspace> organizationMono;
+    Mono<Workspace> workspaceMono;
 
     @Autowired
     UserSignup userSignup;
@@ -102,15 +102,15 @@ public class UserServiceTest {
     @Before
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
-        organizationMono = workspaceService.getBySlug("spring-test-organization");
+        workspaceMono = workspaceService.getBySlug("spring-test-workspace");
     }
 
     //Test if email params are updating correctly
     @Test
     public void checkEmailParamsForExistingUser() {
-        Workspace organization = new Workspace();
-        organization.setName("UserServiceTest Update Org");
-        organization.setSlug("userservicetest-update-org");
+        Workspace workspace = new Workspace();
+        workspace.setName("UserServiceTest Update Org");
+        workspace.setSlug("userservicetest-update-org");
 
         User inviter = new User();
         inviter.setName("inviterUserToApplication");
@@ -118,7 +118,7 @@ public class UserServiceTest {
         String inviteUrl = "http://localhost:8080";
         String expectedUrl = inviteUrl + "/applications#userservicetest-update-org";
 
-        Map<String, String> params = userService.getEmailParams(organization, inviter, inviteUrl, false);
+        Map<String, String> params = userService.getEmailParams(workspace, inviter, inviteUrl, false);
         assertEquals(expectedUrl, params.get("inviteUrl"));
         assertEquals("inviterUserToApplication", params.get("Inviter_First_Name"));
         assertEquals("UserServiceTest Update Org", params.get("inviter_org_name"));
@@ -126,22 +126,22 @@ public class UserServiceTest {
 
     @Test
     public void checkEmailParamsForNewUser() {
-        Workspace organization = new Workspace();
-        organization.setName("UserServiceTest Update Org");
-        organization.setSlug("userservicetest-update-org");
+        Workspace workspace = new Workspace();
+        workspace.setName("UserServiceTest Update Org");
+        workspace.setSlug("userservicetest-update-org");
 
         User inviter = new User();
         inviter.setName("inviterUserToApplication");
 
         String inviteUrl = "http://localhost:8080";
 
-        Map<String, String> params = userService.getEmailParams(organization, inviter, inviteUrl, true);
+        Map<String, String> params = userService.getEmailParams(workspace, inviter, inviteUrl, true);
         assertEquals(inviteUrl, params.get("inviteUrl"));
         assertEquals("inviterUserToApplication", params.get("Inviter_First_Name"));
         assertEquals("UserServiceTest Update Org", params.get("inviter_org_name"));
     }
 
-    //Test the update organization flow.
+    //Test the update workspace flow.
     @Test
     public void updateInvalidUserWithAnything() {
         User updateUser = new User();
@@ -159,12 +159,12 @@ public class UserServiceTest {
     }
 
     /**
-     * The following function tests for switch organization
+     * The following function tests for switch workspace
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateUserWithValidOrganization() {
-        // Create a new organization
+    public void updateUserWithValidWorkspace() {
+        // Create a new workspace
         Workspace updateWorkspace = new Workspace();
         updateWorkspace.setName("UserServiceTest Update Org");
 
@@ -173,7 +173,7 @@ public class UserServiceTest {
         Mono<User> userMono1 = userService.findByEmail("api_user")
                 .switchIfEmpty(Mono.error(new Exception("Unable to find user")));
 
-        //Add valid organization id to the updateUser object.
+        //Add valid workspace id to the updateUser object.
         Mono<User> userMono = workspaceService.create(updateWorkspace)
                 .flatMap(org -> {
                     updateUser.setCurrentOrganizationId(org.getId());
@@ -234,8 +234,8 @@ public class UserServiceTest {
                     assertThat(user.getName()).isNullOrEmpty();
                     assertThat(user.getPolicies()).isNotEmpty();
                     assertThat(user.getPolicies()).containsAll(Set.of(manageUserPolicy, manageUserOrgPolicy, readUserPolicy, readUserOrgPolicy));
-                    // Since there is a template organization, the user won't have an empty default organization. They
-                    // will get a clone of the default organization when they first login. So, we expect it to be
+                    // Since there is a template workspace, the user won't have an empty default workspace. They
+                    // will get a clone of the default workspace when they first login. So, we expect it to be
                     // empty here.
                     assertThat(user.getOrganizationIds()).hasSize(1);
                 })
@@ -280,8 +280,8 @@ public class UserServiceTest {
                     assertThat(user.getPolicies()).containsAll(
                             Set.of(manageUserPolicy, manageUserOrgPolicy, readUserPolicy, readUserOrgPolicy)
                     );
-                    // Since there is a template organization, the user won't have an empty default organization. They
-                    // will get a clone of the default organization when they first login. So, we expect it to be
+                    // Since there is a template workspace, the user won't have an empty default workspace. They
+                    // will get a clone of the default workspace when they first login. So, we expect it to be
                     // empty here.
                     assertThat(user.getOrganizationIds()).hasSize(1);
                 })
@@ -425,25 +425,25 @@ public class UserServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void signUpAfterBeingInvitedToAppsmithOrganization() {
-        Workspace organization = new Workspace();
-        organization.setName("SignUp after adding user to Test Organization");
-        organization.setDomain("example.com");
-        organization.setWebsite("https://example.com");
+        Workspace workspace = new Workspace();
+        workspace.setName("SignUp after adding user to Test Organization");
+        workspace.setDomain("example.com");
+        workspace.setWebsite("https://example.com");
 
-        Mono<Workspace> organizationMono = workspaceService
-                .create(organization)
+        Mono<Workspace> workspaceMono = workspaceService
+                .create(workspace)
                 .cache();
 
         String newUserEmail = "inviteUserToApplicationWithoutExisting@test.com";
 
-        organizationMono
-                .flatMap(organization1 -> {
-                    // Add user to organization
+        workspaceMono
+                .flatMap(workspace1 -> {
+                    // Add user to workspace
                     InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
                     ArrayList<String> users = new ArrayList<>();
                     users.add(newUserEmail);
                     inviteUsersDTO.setUsernames(users);
-                    inviteUsersDTO.setOrgId(organization1.getId());
+                    inviteUsersDTO.setOrgId(workspace1.getId());
                     inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");

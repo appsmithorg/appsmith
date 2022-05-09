@@ -19,7 +19,7 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<User> findByEmail(String email);
 
-    Mono<User> switchCurrentOrganization(String orgId);
+    Mono<User> switchCurrentWorkspace(String workspaceId);
 
     Mono<Boolean> forgotPasswordTokenGenerate(ResetUserPasswordDTO resetUserPasswordDTO);
 
@@ -37,7 +37,7 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<User> updateCurrentUser(UserUpdateDTO updates, ServerWebExchange exchange);
 
-    Map<String, String> getEmailParams(Workspace organization, User inviterUser, String inviteUrl, boolean isNewUser);
+    Map<String, String> getEmailParams(Workspace workspace, User inviterUser, String inviteUrl, boolean isNewUser);
 
     Mono<Boolean> isUsersEmpty();
 

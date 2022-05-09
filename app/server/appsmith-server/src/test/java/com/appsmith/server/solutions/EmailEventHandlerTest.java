@@ -47,7 +47,7 @@ public class EmailEventHandlerTest {
     @MockBean
     private EmailSender emailSender;
     @MockBean
-    private WorkspaceRepository organizationRepository;
+    private WorkspaceRepository workspaceRepository;
     @MockBean
     private ApplicationRepository applicationRepository;
     @MockBean
@@ -60,7 +60,7 @@ public class EmailEventHandlerTest {
     EmailEventHandler emailEventHandler;
 
     private Application application;
-    private Workspace organization;
+    private Workspace workspace;
 
     String authorUserName = "abc";
     String originHeader = "efg";
@@ -71,22 +71,22 @@ public class EmailEventHandlerTest {
     @Before
     public void setUp() {
 
-        emailEventHandler = new EmailEventHandlerImpl(applicationEventPublisher, emailSender, organizationRepository,
+        emailEventHandler = new EmailEventHandlerImpl(applicationEventPublisher, emailSender, workspaceRepository,
                 applicationRepository, newPageRepository, policyUtils, emailConfig);
 
         application = new Application();
         application.setName("Test application for comment");
         application.setOrganizationId(organizationId);
-        organization = new Workspace();
+        workspace = new Workspace();
 
         // add a role with email receiver username
         UserRole userRole = new UserRole();
         userRole.setUsername(emailReceiverUsername);
         userRole.setRole(AppsmithRole.ORGANIZATION_ADMIN);
-        organization.setUserRoles(List.of(userRole));
+        workspace.setUserRoles(List.of(userRole));
 
         Mockito.when(applicationRepository.findById(applicationId)).thenReturn(Mono.just(application));
-        Mockito.when(organizationRepository.findById(organizationId)).thenReturn(Mono.just(organization));
+        Mockito.when(workspaceRepository.findById(organizationId)).thenReturn(Mono.just(workspace));
 
         NewPage newPage = new NewPage();
         newPage.setUnpublishedPage(new PageDTO());
@@ -100,7 +100,7 @@ public class EmailEventHandlerTest {
         comment.setPageId("page-id");
         Set<String> subscribers = Set.of("dummy-username1");
         CommentAddedEvent commentAddedEvent = new CommentAddedEvent(
-                organization, application, originHeader, comment, subscribers, "Page1"
+                workspace, application, originHeader, comment, subscribers, "Page1"
         );
 
         Mockito.doNothing().when(applicationEventPublisher).publishEvent(commentAddedEvent);
@@ -137,7 +137,7 @@ public class EmailEventHandlerTest {
     public void publish_WhenCommentThreadHasNoPublishersProvided_ReturnsFalse() {
         CommentThread commentThread = new CommentThread();
         CommentThreadClosedEvent commentThreadClosedEvent = new CommentThreadClosedEvent(
-                authorUserName, organization, application, originHeader, commentThread, "Page1"
+                authorUserName, workspace, application, originHeader, commentThread, "Page1"
         );
         Mockito.doNothing().when(applicationEventPublisher).publishEvent(commentThreadClosedEvent);
 
@@ -153,7 +153,7 @@ public class EmailEventHandlerTest {
         commentThread.setPageId("page-id");
         commentThread.setSubscribers(Set.of("abc"));
         CommentThreadClosedEvent commentThreadClosedEvent = new CommentThreadClosedEvent(
-                authorUserName, organization, application, originHeader, commentThread, "Page1"
+                authorUserName, workspace, application, originHeader, commentThread, "Page1"
         );
         Mockito.doNothing().when(applicationEventPublisher).publishEvent(commentThreadClosedEvent);
 
@@ -173,7 +173,7 @@ public class EmailEventHandlerTest {
 
         // send the event
         CommentAddedEvent commentAddedEvent = new CommentAddedEvent(
-                organization, application, originHeader, sampleComment, subscribers, "Page1"
+                workspace, application, originHeader, sampleComment, subscribers, "Page1"
         );
         emailEventHandler.handle(commentAddedEvent);
 
@@ -195,7 +195,7 @@ public class EmailEventHandlerTest {
 
         // send the event
         CommentAddedEvent commentAddedEvent = new CommentAddedEvent(
-                organization, application, originHeader, sampleComment, subscribers, "Page1"
+                workspace, application, originHeader, sampleComment, subscribers, "Page1"
         );
         emailEventHandler.handle(commentAddedEvent);
 
@@ -245,7 +245,7 @@ public class EmailEventHandlerTest {
 
         // send the event
         CommentAddedEvent commentAddedEvent = new CommentAddedEvent(
-                organization, application, originHeader, sampleComment, subscribers, "Page1"
+                workspace, application, originHeader, sampleComment, subscribers, "Page1"
         );
         emailEventHandler.handle(commentAddedEvent);
 
@@ -274,7 +274,7 @@ public class EmailEventHandlerTest {
 
         // send the event
         CommentThreadClosedEvent commentAddedEvent = new CommentThreadClosedEvent(
-                authorUserName, organization, application, originHeader, commentThread, "Page1"
+                authorUserName, workspace, application, originHeader, commentThread, "Page1"
         );
         emailEventHandler.handle(commentAddedEvent);
 

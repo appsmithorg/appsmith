@@ -566,19 +566,19 @@ public class ApplicationServiceTest {
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
-                    List<WorkspaceApplicationsDTO> organizationApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
-                    assertThat(organizationApplicationsDTOs.size()).isPositive();
+                    List<WorkspaceApplicationsDTO> workspaceApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
+                    assertThat(workspaceApplicationsDTOs.size()).isPositive();
 
-                    for (WorkspaceApplicationsDTO organizationApplicationDTO : organizationApplicationsDTOs) {
-                        if (organizationApplicationDTO.getOrganization().getName().equals("Spring Test Organization")) {
-                            assertThat(organizationApplicationDTO.getOrganization().getUserPermissions()).contains("read:organizations");
+                    for (WorkspaceApplicationsDTO workspaceApplicationDTO : workspaceApplicationsDTOs) {
+                        if (workspaceApplicationDTO.getOrganization().getName().equals("Spring Test Workspace")) {
+                            assertThat(workspaceApplicationDTO.getOrganization().getUserPermissions()).contains("read:organizations");
 
-                            Application application = organizationApplicationDTO.getApplications().get(0);
+                            Application application = workspaceApplicationDTO.getApplications().get(0);
                             assertThat(application.getUserPermissions()).contains("read:applications");
                             assertThat(application.isAppIsExample()).isFalse();
 
-                            assertThat(organizationApplicationDTO.getUserRoles().get(0).getRole().getName()).isEqualTo("Administrator");
-                            log.debug(organizationApplicationDTO.getUserRoles().toString());
+                            assertThat(workspaceApplicationDTO.getUserRoles().get(0).getRole().getName()).isEqualTo("Administrator");
+                            log.debug(workspaceApplicationDTO.getUserRoles().toString());
                         }
                     }
 
@@ -619,12 +619,12 @@ public class ApplicationServiceTest {
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
-                    List<WorkspaceApplicationsDTO> organizationApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
-                    assertThat(organizationApplicationsDTOs.size()).isPositive();
+                    List<WorkspaceApplicationsDTO> workspaceApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
+                    assertThat(workspaceApplicationsDTOs.size()).isPositive();
 
-                    for (WorkspaceApplicationsDTO organizationApplicationDTO : organizationApplicationsDTOs) {
-                        if (organizationApplicationDTO.getOrganization().getId().equals(orgId)) {
-                            List<Application> applications = organizationApplicationDTO
+                    for (WorkspaceApplicationsDTO workspaceApplicationDTO : workspaceApplicationsDTOs) {
+                        if (workspaceApplicationDTO.getOrganization().getId().equals(orgId)) {
+                            List<Application> applications = workspaceApplicationDTO
                                     .getApplications()
                                     .stream()
                                     .filter(application -> application.getGitApplicationMetadata() != null)
@@ -644,12 +644,12 @@ public class ApplicationServiceTest {
     public void getAllApplicationsForHomeWhenNoApplicationPresent() {
         Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
 
-        // Create an organization for this user first.
-        Workspace organization = new Workspace();
-        organization.setName("usertest's organization");
-        Mono<Workspace> organizationMono = workspaceService.create(organization);
+        // Create an workspace for this user first.
+        Workspace workspace = new Workspace();
+        workspace.setName("usertest's organization");
+        Mono<Workspace> workspaceMono = workspaceService.create(workspace);
 
-        Mono<UserHomepageDTO> allApplications = organizationMono
+        Mono<UserHomepageDTO> allApplications = workspaceMono
                 .then(applicationFetcher.getAllApplications());
 
         StepVerifier
@@ -659,10 +659,10 @@ public class ApplicationServiceTest {
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
-                    List<WorkspaceApplicationsDTO> organizationApplications = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getOrganizationApplications();
 
-                    // There should be atleast one organization present in the output.
-                    WorkspaceApplicationsDTO orgAppDto = organizationApplications.get(0);
+                    // There should be atleast one workspace present in the output.
+                    WorkspaceApplicationsDTO orgAppDto = workspaceApplications.get(0);
                     assertThat(orgAppDto.getOrganization().getUserPermissions().contains("read:organizations"));
                 })
                 .verifyComplete();

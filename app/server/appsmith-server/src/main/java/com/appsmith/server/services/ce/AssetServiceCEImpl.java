@@ -84,7 +84,7 @@ public class AssetServiceCEImpl implements AssetServiceCE {
 
     /**
      * This function hard-deletes (read: not archive) the asset given by the ID. It is intended to be used to delete an
-     * old asset when a user uploads a new one. For example, when a new profile photo or an organization logo is,
+     * old asset when a user uploads a new one. For example, when a new profile photo or an workspace logo is,
      * uploaded, this method is used to completely delete the old one, if any.
      * @param assetId The ID string of the asset to delete.
      * @return empty Mono

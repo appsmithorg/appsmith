@@ -372,14 +372,14 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getAllMembersForWorkspace() {
-        Workspace testOrg = new Workspace();
-        testOrg.setName("Get All Members For Organization Test");
-        testOrg.setDomain("test.com");
-        testOrg.setWebsite("https://test.com");
+        Workspace testWorkspace = new Workspace();
+        testWorkspace.setName("Get All Members For Organization Test");
+        testWorkspace.setDomain("test.com");
+        testWorkspace.setWebsite("https://test.com");
 
-        Mono<Workspace> createWorkspaceMono = workspaceService.create(testOrg);
+        Mono<Workspace> createWorkspaceMono = workspaceService.create(testWorkspace);
         Mono<List<UserRole>> usersMono = createWorkspaceMono
-                .flatMap(organization -> workspaceService.getWorkspaceMembers(organization.getId()));
+                .flatMap(workspace -> workspaceService.getWorkspaceMembers(workspace.getId()));
 
         StepVerifier
                 .create(usersMono)
@@ -395,17 +395,17 @@ public class WorkspaceServiceTest {
 
     /**
      * This test tests for an existing user being added to an organzation as admin.
-     * The organization object should have permissions to manage the org for the invited user.
+     * The workspace object should have permissions to manage the org for the invited user.
      */
     @Test
     @WithUserDetails(value = "api_user")
     public void addExistingUserToWorkspaceAsAdmin() {
-        Mono<Workspace> seedWorkspace = workspaceRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS)
+        Mono<Workspace> seedWorkspace = workspaceRepository.findByName("Spring Test Workspace", AclPermission.READ_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
 
         Mono<List<User>> usersAddedToOrgMono = seedWorkspace
                 .flatMap(workspace1 -> {
-                    // Add user to organization
+                    // Add user to workspace
                     InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
                     ArrayList<String> users = new ArrayList<>();
                     users.add("usertest@usertest.com");
@@ -427,7 +427,7 @@ public class WorkspaceServiceTest {
                     Workspace org = tuple.getT2();
 
                     assertThat(org).isNotNull();
-                    assertThat(org.getName()).isEqualTo("Spring Test Organization");
+                    assertThat(org.getName()).isEqualTo("Spring Test Workspace");
                     assertThat(org.getUserRoles().get(1).getUsername()).isEqualTo("usertest@usertest.com");
 
                     Policy manageOrgAppPolicy = Policy.builder().permission(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
@@ -459,12 +459,12 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void addNewUserToWorkspaceAsAdmin() {
-        Mono<Workspace> seedWorkspace = workspaceRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS)
+        Mono<Workspace> seedWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
 
         Mono<List<User>> userAddedToOrgMono = seedWorkspace
                 .flatMap(workspace1 -> {
-                    // Add user to organization
+                    // Add user to workspace
                     InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
                     ArrayList<String> users = new ArrayList<>();
                     users.add("newEmailWhichShouldntExist@usertest.com");
@@ -487,7 +487,7 @@ public class WorkspaceServiceTest {
                     log.debug("org user roles : {}", org.getUserRoles());
 
                     assertThat(org).isNotNull();
-                    assertThat(org.getName()).isEqualTo("Another Test Organization");
+                    assertThat(org.getName()).isEqualTo("Another Test Workspace");
                     assertThat(org.getUserRoles().stream()
                             .map(role -> role.getUsername())
                             .filter(username -> username.equals("newemailwhichshouldntexist@usertest.com"))

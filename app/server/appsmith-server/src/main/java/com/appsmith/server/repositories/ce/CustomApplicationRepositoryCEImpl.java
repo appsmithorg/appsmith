@@ -154,15 +154,15 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     /**
-     * Returns a list of application ids which are under the organization with provided organizationId
+     * Returns a list of application ids which are under the workspace with provided organizationId
      *
-     * @param organizationId organization id
+     * @param workspaceId workspace id
      * @return list of String
      */
     @Override
-    public Mono<List<String>> getAllApplicationId(String organizationId) {
+    public Mono<List<String>> getAllApplicationId(String workspaceId) {
         Query query = new Query();
-        query.addCriteria(where(fieldName(QApplication.application.organizationId)).is(organizationId));
+        query.addCriteria(where(fieldName(QApplication.application.organizationId)).is(workspaceId));
         query.fields().include(fieldName(QApplication.application.id));
         return mongoOperations.find(query, Application.class)
                 .map(BaseDomain::getId)

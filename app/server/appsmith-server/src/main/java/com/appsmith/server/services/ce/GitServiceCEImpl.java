@@ -1802,8 +1802,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<ApplicationImportDTO> importApplicationFromGit(String organizationId, GitConnectDTO gitConnectDTO) {
-        // 1. Check private repo limit for organization
+    public Mono<ApplicationImportDTO> importApplicationFromGit(String workspaceId, GitConnectDTO gitConnectDTO) {
+        // 1. Check private repo limit for workspace
         // 2. Create dummy application, clone repo from remote
         // 3. Re-hydrate application to DB from local repo
         //    1. Save the ssh keys in application object with other details
@@ -1814,8 +1814,8 @@ public class GitServiceCEImpl implements GitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Remote Url"));
         }
 
-        if (StringUtils.isEmptyOrNull(organizationId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid organization id"));
+        if (StringUtils.isEmptyOrNull(workspaceId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid workspace id"));
         }
 
         final String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
@@ -1829,7 +1829,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     // Check if the repo is public
                     Application newApplication = new Application();
                     newApplication.setName(repoName);
-                    newApplication.setOrganizationId(organizationId);
+                    newApplication.setOrganizationId(workspaceId);
                     newApplication.setGitApplicationMetadata(new GitApplicationMetadata());
                     GitAuth gitAuth = tuple.getT1();
                     boolean isRepoPrivate = tuple.getT2();
@@ -1838,14 +1838,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if(!isRepoPrivate) {
                         return Mono.just(gitAuth).zipWith(applicationMono);
                     }
-                    return gitCloudServicesUtils.getPrivateRepoLimitForOrg(organizationId, true)
+                    return gitCloudServicesUtils.getPrivateRepoLimitForOrg(workspaceId, true)
                             .flatMap(limitCount -> {
                                 // CS will respond with count -1 for unlimited git repos
                                 if (limitCount == -1) {
                                     return Mono.just(gitAuth).zipWith(applicationMono);
                                 }
                                 // get git connected apps count from db
-                                return this.getApplicationCountWithPrivateRepo(organizationId)
+                                return this.getApplicationCountWithPrivateRepo(workspaceId)
                                         .flatMap(count -> {
                                             if (limitCount <= count) {
                                                 return addAnalyticsForGitOperation(
@@ -1920,10 +1920,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     String defaultBranch = gitApplicationMetadata.getDefaultBranchName();
 
 
-                    Mono<List<Datasource>> datasourceMono = datasourceService.findAllByOrganizationId(organizationId, MANAGE_DATASOURCES).collectList();
+                    Mono<List<Datasource>> datasourceMono = datasourceService.findAllByOrganizationId(workspaceId, MANAGE_DATASOURCES).collectList();
                     Mono<List<Plugin>> pluginMono = pluginService.getDefaultPlugins().collectList();
                     Mono<ApplicationJson> applicationJsonMono = fileUtils
-                            .reconstructApplicationJsonFromGitRepo(organizationId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch)
+                            .reconstructApplicationJsonFromGitRepo(workspaceId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch)
                             .onErrorResume(error -> {
                                 log.error("Error while constructing application from git repo", error);
                                 return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
@@ -1952,7 +1952,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                                 applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
                                 return importExportApplicationService
-                                        .importApplicationInWorkspace(organizationId, applicationJson, application.getId(), defaultBranch)
+                                        .importApplicationInWorkspace(workspaceId, applicationJson, application.getId(), defaultBranch)
                                         .onErrorResume(throwable ->
                                                 deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
                                                     .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage())))
@@ -2189,7 +2189,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                   List<Plugin> pluginList) {
         // If we have an existing datasource with the same name but a different type from that in the repo, the import api should fail
         for( Datasource datasource : importedDatasources) {
-            // Collect the datasource(existing in organization) which has same as of imported datasource
+            // Collect the datasource(existing in workspace) which has same as of imported datasource
             // As names are unique we will need filter first element to check if the plugin id is matched
              Datasource filteredDatasource = existingDatasources
                      .stream()

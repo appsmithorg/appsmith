@@ -41,7 +41,7 @@ public class WorkspaceServiceUnitTest {
     @MockBean Scheduler scheduler;
     @MockBean MongoConverter mongoConverter;
     @MockBean ReactiveMongoTemplate reactiveMongoTemplate;
-    @MockBean WorkspaceRepository organizationRepository;
+    @MockBean WorkspaceRepository workspaceRepository;
     @MockBean Validator validator;
     @MockBean AnalyticsService analyticsService;
     @MockBean ApplicationRepository applicationRepository;
@@ -51,27 +51,27 @@ public class WorkspaceServiceUnitTest {
     @Before
     public void setUp() {
         workspaceService = new WorkspaceServiceImpl(scheduler, validator, mongoConverter, reactiveMongoTemplate,
-                organizationRepository, analyticsService, pluginRepository, sessionUserService, userWorkspaceService,
+                workspaceRepository, analyticsService, pluginRepository, sessionUserService, userWorkspaceService,
                 userRepository, roleGraph, assetRepository, assetService,
                 applicationRepository);
     }
 
     @Test
     public void getWorkspaceMembers_WhenRoleIsNull_ReturnsEmptyList() {
-        // create a organization object
-        Workspace testOrg = new Workspace();
-        testOrg.setName("Get All Members For Organization Test");
-        testOrg.setDomain("test.com");
-        testOrg.setWebsite("https://test.com");
-        testOrg.setId("test-org-id");
+        // create a workspace object
+        Workspace testWorkspace = new Workspace();
+        testWorkspace.setName("Get All Members For Organization Test");
+        testWorkspace.setDomain("test.com");
+        testWorkspace.setWebsite("https://test.com");
+        testWorkspace.setId("test-org-id");
 
         // mock repository methods so that they return the objects we've created
-        Mockito.when(organizationRepository.findById("test-org-id", ORGANIZATION_INVITE_USERS))
-                .thenReturn(Mono.just(testOrg));
+        Mockito.when(workspaceRepository.findById("test-org-id", ORGANIZATION_INVITE_USERS))
+                .thenReturn(Mono.just(testWorkspace));
 
-        Mono<List<UserRole>> organizationMembers = workspaceService.getWorkspaceMembers(testOrg.getId());
+        Mono<List<UserRole>> workspaceMembers = workspaceService.getWorkspaceMembers(testWorkspace.getId());
         StepVerifier
-                .create(organizationMembers)
+                .create(workspaceMembers)
                 .assertNext(userRoles -> {
                     Assert.assertEquals(0, userRoles.size());
                 })
@@ -82,12 +82,12 @@ public class WorkspaceServiceUnitTest {
     public void getWorkspaceMembers_WhenNoOrgFound_ThrowsException() {
         String sampleOrgId = "test-org-id";
         // mock repository methods so that they return the objects we've created
-        Mockito.when(organizationRepository.findById(sampleOrgId, ORGANIZATION_INVITE_USERS))
+        Mockito.when(workspaceRepository.findById(sampleOrgId, ORGANIZATION_INVITE_USERS))
                 .thenReturn(Mono.empty());
 
-        Mono<List<UserRole>> organizationMembers = workspaceService.getWorkspaceMembers(sampleOrgId);
+        Mono<List<UserRole>> workspaceMembers = workspaceService.getWorkspaceMembers(sampleOrgId);
         StepVerifier
-                .create(organizationMembers)
+                .create(workspaceMembers)
                 .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.ORGANIZATION, sampleOrgId))
                 .verify();
     }

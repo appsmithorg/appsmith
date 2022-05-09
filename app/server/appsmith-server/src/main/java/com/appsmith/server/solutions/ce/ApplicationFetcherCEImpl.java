@@ -65,7 +65,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
     private final NewPageService newPageService;
 
     /**
-     * For the current user, it first fetches all the organizations that its part of. For each organization, in turn all
+     * For the current user, it first fetches all the workspaces that its part of. For each workspace, in turn all
      * the applications are fetched. These applications are then returned grouped by Organizations in a special DTO and returned
      *
      * @return List of UserHomepageDTO
@@ -109,7 +109,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                     }
                     orgIdSortedSet.addAll(orgIds); // add all other if not added already
 
-                    // Collect all the applications as a map with organization id as a key
+                    // Collect all the applications as a map with workspace id as a key
                     Flux<Application> applicationFlux = applicationRepository
                             .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
                             // Git connected apps will have gitApplicationMetadat
@@ -148,39 +148,39 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             .collectMap(Workspace::getId, v -> v)
                             .zipWith(applicationsMapMono)
                             .map(tuple -> {
-                                Map<String, Workspace> organizations = tuple.getT1();
+                                Map<String, Workspace> workspace = tuple.getT1();
 
                                 Map<String, Collection<Application>> applicationsCollectionByOrgId = tuple.getT2();
 
-                                List<WorkspaceApplicationsDTO> organizationApplicationsDTOS = new ArrayList<>();
+                                List<WorkspaceApplicationsDTO> workspaceApplicationsDTOS = new ArrayList<>();
 
                                 for(String orgId : orgIdSortedSet) {
-                                    Workspace organization = organizations.get(orgId);
-                                    if(organization != null) {
-                                        Collection<Application> applicationCollection = applicationsCollectionByOrgId.get(organization.getId());
+                                    Workspace workspace1 = workspace.get(orgId);
+                                    if(workspace1 != null) {
+                                        Collection<Application> applicationCollection = applicationsCollectionByOrgId.get(workspace1.getId());
 
                                         final List<Application> applicationList = new ArrayList<>();
                                         if (!CollectionUtils.isEmpty(applicationCollection)) {
                                             applicationList.addAll(applicationCollection);
                                         }
 
-                                        WorkspaceApplicationsDTO organizationApplicationsDTO = new WorkspaceApplicationsDTO();
-                                        organizationApplicationsDTO.setOrganization(organization);
-                                        organizationApplicationsDTO.setApplications(applicationList);
-                                        organizationApplicationsDTO.setUserRoles(organization.getUserRoles());
+                                        WorkspaceApplicationsDTO workspaceApplicationsDTO = new WorkspaceApplicationsDTO();
+                                        workspaceApplicationsDTO.setOrganization(workspace1);
+                                        workspaceApplicationsDTO.setApplications(applicationList);
+                                        workspaceApplicationsDTO.setUserRoles(workspace1.getUserRoles());
 
-                                        organizationApplicationsDTOS.add(organizationApplicationsDTO);
+                                        workspaceApplicationsDTOS.add(workspaceApplicationsDTO);
                                     }
                                 }
 
-                                userHomepageDTO.setOrganizationApplications(organizationApplicationsDTOS);
+                                userHomepageDTO.setOrganizationApplications(workspaceApplicationsDTOS);
                                 return userHomepageDTO;
                             });
                 })
                 .flatMap(userHomepageDTO -> {
                     List<String> applicationIds = userHomepageDTO.getOrganizationApplications().stream()
-                            .map(organizationApplicationsDTO ->
-                                    organizationApplicationsDTO.getApplications().stream()
+                            .map(workspaceApplicationsDTO ->
+                                    workspaceApplicationsDTO.getApplications().stream()
                                             .map(BaseDomain::getId).collect(Collectors.toList())
                             ).flatMap(Collection::stream).collect(Collectors.toList());
 
@@ -188,8 +188,8 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                     return newPageService.findPageSlugsByApplicationIds(applicationIds, READ_PAGES)
                             .collectMultimap(NewPage::getApplicationId)
                             .map(applicationPageMap -> {
-                                for (WorkspaceApplicationsDTO orgApps : userHomepageDTO.getOrganizationApplications()) {
-                                    for (Application application : orgApps.getApplications()) {
+                                for (WorkspaceApplicationsDTO workspaceApps : userHomepageDTO.getOrganizationApplications()) {
+                                    for (Application application : workspaceApps.getApplications()) {
                                         setDefaultPageSlug(application, applicationPageMap, Application::getPages, NewPage::getUnpublishedPage);
                                         setDefaultPageSlug(application, applicationPageMap, Application::getPublishedPages, NewPage::getPublishedPage);
                                     }
