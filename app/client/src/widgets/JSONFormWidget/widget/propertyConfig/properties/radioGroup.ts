@@ -6,7 +6,12 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import { optionsCustomValidation } from "widgets/RadioGroupWidget/widget";
-import { HiddenFnParams, getSchemaItem, getStylesheetValue } from "../helper";
+import {
+  HiddenFnParams,
+  getSchemaItem,
+  getAutocompleteProperties,
+  getStylesheetValue,
+} from "../helper";
 
 /**
  * Alias function is used to test the optionsCustomValidation separately
@@ -104,7 +109,7 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      additionalAutoComplete: getAutocompleteProperties,
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.RADIO_GROUP),
       dependencies: ["schema", "sourceData"],
