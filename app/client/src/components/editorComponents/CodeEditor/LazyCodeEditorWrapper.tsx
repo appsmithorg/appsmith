@@ -32,7 +32,7 @@ function LazyCodeEditorWrapper(props: any) {
       size={props.size}
     >
       <ReadOnlyInput
-        className="t--code-editor-wrapper"
+        className="t--code-editor-wrapper unfocused-code-editor"
         data-testid="lazy-code-editor"
         onFocus={handleFocus}
         placeholder={props.placeholder}
