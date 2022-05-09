@@ -282,7 +282,7 @@ describe("getReactivePathsOfAction", () => {
     });
   });
 
-  it("returns default list of no config is sent", () => {
+  it.only("returns default list of no config is sent", () => {
     const response = getBindingAndReactivePathsOfAction(
       DEFAULT_ACTION,
       undefined,
@@ -290,7 +290,7 @@ describe("getReactivePathsOfAction", () => {
     expect(response).toStrictEqual({});
   });
 
-  it("returns correct values for basic config", () => {
+  it.only("returns correct values for basic config", () => {
     const config = [
       {
         sectionName: "",
