@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { CommonComponentProps } from "./common";
 import Text, { Case, TextType } from "./Text";
@@ -65,6 +65,10 @@ export default function MultiSwitch<T>(props: MultiSwitchProps<T>) {
   const selectedTab = props.tabs.find(
     (tab) => tab.key === props.selected.value,
   );
+
+  useEffect(() => {
+    props.onSelect(props.selected.value);
+  }, []);
 
   return (
     <div data-cy={props.cypressSelector}>
