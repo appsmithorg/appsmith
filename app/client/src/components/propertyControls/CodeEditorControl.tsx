@@ -1,12 +1,12 @@
 import React, { ChangeEvent } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import CodeEditor from "components/editorComponents/CodeEditor";
 import { EventOrValueHandler } from "redux-form";
 import {
   EditorModes,
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import LazyCodeEditorWrapper from "components/editorComponents/CodeEditor/LazyCodeEditorWrapper";
 
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {
@@ -25,7 +25,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     if (expected) props.expected = expected;
 
     return (
-      <CodeEditor
+      <LazyCodeEditorWrapper
         additionalDynamicData={this.props.additionalAutoComplete}
         input={{ value: propertyValue, onChange: this.onChange }}
         mode={EditorModes.TEXT_WITH_BINDING}

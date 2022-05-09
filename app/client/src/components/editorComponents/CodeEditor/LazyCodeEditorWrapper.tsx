@@ -1,38 +1,16 @@
 import React, { useState } from "react";
-import CodeEditor, {
-  CodeEditorExpected,
-} from "components/editorComponents/CodeEditor";
-import {
-  CodeEditorBorder,
-  EditorModes,
-  EditorSize,
-  EditorTheme,
-  TabBehaviour,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+import CodeEditor from "components/editorComponents/CodeEditor";
 import { EditorWrapper, ReadOnlyInput } from "./styledComponents";
 import { replayHighlightClass } from "globalStyles/portals";
 
-function CodeEditorWrapper(props: any) {
+// Lazy load CodeEditor upon focus
+function LazyCodeEditorWrapper(props: any) {
   const [isFocused, setFocus] = useState<boolean>(false);
   const handleFocus = (): void => {
     setFocus(true);
   };
   return isFocused ? (
-    <CodeEditor
-      {...props}
-      additionalDynamicData={props.additionalAutocomplete}
-      border={CodeEditorBorder.ALL_SIDE}
-      hoverInteraction
-      input={{
-        value: props.value,
-        onChange: props.onChange,
-      }}
-      isEditorHidden={!props.isOpen}
-      mode={EditorModes.TEXT_WITH_BINDING}
-      size={EditorSize.EXTENDED}
-      tabBehaviour={TabBehaviour.INDENT}
-      theme={props.theme || EditorTheme.LIGHT}
-    />
+    <CodeEditor {...props} />
   ) : (
     <EditorWrapper
       border={props.border}
@@ -55,13 +33,14 @@ function CodeEditorWrapper(props: any) {
     >
       <ReadOnlyInput
         className="t--code-editor-wrapper"
+        data-testid="lazy-code-editor"
         onFocus={handleFocus}
         placeholder={props.placeholder}
         type="text"
-        value={props.value}
+        value={JSON.stringify(props.input.value, null, 2)}
       />
     </EditorWrapper>
   );
 }
 
-export default CodeEditorWrapper;
+export default LazyCodeEditorWrapper;

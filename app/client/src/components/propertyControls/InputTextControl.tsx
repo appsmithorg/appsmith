@@ -2,9 +2,7 @@ import React, { useContext } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import { InputType } from "components/constants";
-import CodeEditor, {
-  CodeEditorExpected,
-} from "components/editorComponents/CodeEditor";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import {
   CodeEditorBorder,
   EditorModes,
@@ -13,7 +11,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
-import CodeEditorWrapper from "../editorComponents/CodeEditor/CodeEditorWrapper";
+import LazyCodeEditorWrapper from "../editorComponents/CodeEditor/LazyCodeEditorWrapper";
 
 export function InputText(props: {
   label: string;
@@ -42,7 +40,7 @@ export function InputText(props: {
 
   return (
     <StyledDynamicInput>
-      {/* <CodeEditor
+      <LazyCodeEditorWrapper
         additionalDynamicData={props.additionalAutocomplete}
         border={CodeEditorBorder.ALL_SIDE}
         dataTreePath={dataTreePath}
@@ -60,8 +58,7 @@ export function InputText(props: {
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={props.theme || EditorTheme.LIGHT}
-      /> */}
-      <CodeEditorWrapper {...props} isOpen={isOpen} />
+      />
     </StyledDynamicInput>
   );
 }
