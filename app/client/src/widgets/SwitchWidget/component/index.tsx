@@ -1,6 +1,6 @@
 import { Alignment, Classes, Switch } from "@blueprintjs/core";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
-import React, { memo } from "react";
+import React from "react";
 import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { AlignWidget } from "widgets/constants";
@@ -48,7 +48,7 @@ export const StyledSwitch = styled(Switch)<{
   }
 `;
 
-function SwitchComponent({
+export default function SwitchComponent({
   accentColor,
   alignWidget,
   inputRef,
@@ -87,5 +87,3 @@ function SwitchComponent({
     </SwitchComponentContainer>
   );
 }
-
-export default memo(SwitchComponent);
