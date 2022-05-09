@@ -311,6 +311,7 @@
     }
   },
   "resolutions": {
-    "react-error-overlay": "6.0.9"
+    "react-error-overlay": "6.0.9",
+    "focus-trap-react/**/tabbable": "5.2.1"
   }
 }

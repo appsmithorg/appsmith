@@ -58,59 +58,6 @@ const PropertyPaneConfig = [
     ],
   },
   {
-    sectionName: "Styles",
-    children: [
-      {
-        propertyName: "backgroundColor",
-        label: "Background Color",
-        controlType: "COLOR_PICKER",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            expected: {
-              type: "Color name | hex code",
-              example: "#FFFFFF",
-              autocompleteDataType: AutocompleteDataType.STRING,
-            },
-          },
-        },
-      },
-      {
-        propertyName: "itemBackgroundColor",
-        label: "Item Background Color",
-        controlType: "COLOR_PICKER",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        defaultValue: "#FFFFFF",
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            expected: {
-              type: "Color name | hex code",
-              example: "#FFFFFF",
-              autocompleteDataType: AutocompleteDataType.STRING,
-            },
-          },
-        },
-      },
-      {
-        helpText: "Spacing between items in Pixels",
-        placeholderText: "0",
-        propertyName: "gridGap",
-        label: "Item Spacing (px)",
-        controlType: "INPUT_TEXT",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        inputType: "INTEGER",
-        validation: { type: ValidationTypes.NUMBER, params: { min: -8 } },
-      },
-    ],
-  },
-  {
     sectionName: "Events",
     children: [
       {
@@ -172,7 +119,7 @@ const PropertyPaneConfig = [
     children: [
       {
         propertyName: "backgroundColor",
-        label: "Background",
+        label: "Background Color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -187,6 +134,36 @@ const PropertyPaneConfig = [
             },
           },
         },
+      },
+      {
+        propertyName: "itemBackgroundColor",
+        label: "Item Background Color",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        defaultValue: "#FFFFFF",
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            expected: {
+              type: "Color name | hex code",
+              example: "#FFFFFF",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
+      },
+      {
+        helpText: "Spacing between items in Pixels",
+        placeholderText: "0",
+        propertyName: "gridGap",
+        label: "Item Spacing (px)",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        inputType: "INTEGER",
+        validation: { type: ValidationTypes.NUMBER, params: { min: -8 } },
       },
       {
         propertyName: "borderRadius",
