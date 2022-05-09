@@ -3,11 +3,7 @@ import styled, { css } from "styled-components";
 import { Alignment, Classes, Label, Position } from "@blueprintjs/core";
 
 import { LabelPosition } from "components/constants";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+import { FontStyleTypes } from "constants/WidgetConstants";
 import Tooltip from "./Tooltip";
 import { isEllipsisActive } from "utils/helpers";
 import { Colors } from "constants/Colors";
@@ -20,7 +16,7 @@ export interface LabelWithTooltipProps {
   color?: string;
   compact: boolean;
   disabled?: boolean;
-  fontSize?: TextSize;
+  fontSize?: string;
   fontStyle?: string;
   helpText?: string;
   cyHelpTextClassName?: string;
@@ -45,7 +41,7 @@ export interface StyledLabelProps {
   color?: string;
   compact: boolean;
   disabled?: boolean;
-  fontSize?: TextSize;
+  fontSize?: string;
   fontStyle?: string;
   hasHelpText: boolean;
   position?: LabelPosition;
@@ -124,8 +120,6 @@ export const multiSelectInputContainerStyles = css<{
     if (compactMode) return "center";
     return "flex-start";
   }};
-  ${({ compactMode, labelPosition }) =>
-    labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
 `;
 
 export const LabelContainer = styled.div<LabelContainerProps>`
@@ -180,7 +174,7 @@ export const StyledLabel = styled(Label)<StyledLabelProps>`
 
     ${({ color, disabled, fontSize, fontStyle }) => `
       color: ${disabled ? Colors.GREY_8 : color || "inherit"};
-      font-size: ${fontSize ? TEXT_SIZES[fontSize] : TEXT_SIZES.PARAGRAPH};
+      font-size: ${fontSize ?? "inherit"};
       font-weight: ${
         fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"
       };

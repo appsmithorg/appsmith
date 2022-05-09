@@ -944,7 +944,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("PUT", "/api/v1/organizations/*").as("updateOrganization");
   cy.route("GET", "/api/v1/pages/view/application/*").as("viewApp");
-  cy.route("GET", "/api/v1/pages/*/view").as("viewPage");
+  cy.route("GET", "/api/v1/pages/*/view?*").as("viewPage");
   cy.route("POST", "/api/v1/organizations/*/logo").as("updateLogo");
   cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
   cy.route("POST", "/api/v1/applications/*/fork/*").as("postForkAppOrg");

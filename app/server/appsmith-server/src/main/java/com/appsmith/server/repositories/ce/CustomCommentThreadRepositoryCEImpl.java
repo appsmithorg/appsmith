@@ -78,7 +78,7 @@ public class CustomCommentThreadRepositoryCEImpl extends BaseAppsmithRepositoryI
         Criteria criteria = where(fieldName(QCommentThread.commentThread.pageId)).is(pageId)
                 .and(fieldName(QCommentThread.commentThread.mode)).is(commentMode);
 
-        return this.updateByCriteria(criteria, update);
+        return this.updateByCriteria(List.of(criteria), update);
     }
 
     @Override

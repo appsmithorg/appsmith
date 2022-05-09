@@ -22,19 +22,13 @@ import { GitSyncModalTab } from "entities/GitSync";
 import { createMessage, GIT_IMPORT } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
-const StyledDialog = styled(Dialog)`
-  .bp3-dialog-body {
-    margin-top: 0px !important;
-  }
-`;
-
 const Container = styled.div`
   height: 600px;
   width: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow-y: hidden;
+  overflow: hidden;
 `;
 
 const BodyContainer = styled.div`
@@ -134,12 +128,13 @@ function GitSyncModal(props: { isImport?: boolean }) {
 
   return (
     <>
-      <StyledDialog
+      <Dialog
         canEscapeKeyClose
         canOutsideClickClose
         className={Classes.GIT_SYNC_MODAL}
         isOpen={isModalOpen}
         maxWidth={"900px"}
+        noModalBodyMarginTop
         onClose={handleClose}
         width={"535px"}
       >
@@ -181,7 +176,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
             />
           </CloseBtnContainer>
         </Container>
-      </StyledDialog>
+      </Dialog>
       <GitErrorPopup />
     </>
   );

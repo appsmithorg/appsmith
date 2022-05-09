@@ -166,7 +166,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             enableSearch: true,
             dropdownHeight: "195px",
             controlType: "DROP_DOWN",
-            placeholderText: "Search by code or country name",
+            searchPlaceholderText: "Search by code or country name",
             options: ISDCodeDropdownOptions,
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.PHONE_NUMBER;
@@ -182,7 +182,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             enableSearch: true,
             dropdownHeight: "195px",
             controlType: "DROP_DOWN",
-            placeholderText: "Search by code or name",
+            searchPlaceholderText: "Search by code or name",
             options: CurrencyDropdownOptions,
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
@@ -498,40 +498,43 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             propertyName: "labelTextSize",
             label: "Text Size",
             controlType: "DROP_DOWN",
+            defaultValue: "0.875rem",
             options: [
               {
-                label: "Heading 1",
-                value: "HEADING1",
-                subText: "24px",
-                icon: "HEADING_ONE",
+                label: "S",
+                value: "0.875rem",
+                subText: "0.875rem",
               },
               {
-                label: "Heading 2",
-                value: "HEADING2",
-                subText: "18px",
-                icon: "HEADING_TWO",
+                label: "M",
+                value: "1rem",
+                subText: "1rem",
               },
               {
-                label: "Heading 3",
-                value: "HEADING3",
-                subText: "16px",
-                icon: "HEADING_THREE",
+                label: "L",
+                value: "1.25rem",
+                subText: "1.25rem",
               },
               {
-                label: "Paragraph",
-                value: "PARAGRAPH",
-                subText: "14px",
-                icon: "PARAGRAPH",
+                label: "XL",
+                value: "1.875rem",
+                subText: "1.875rem",
               },
               {
-                label: "Paragraph 2",
-                value: "PARAGRAPH2",
-                subText: "12px",
-                icon: "PARAGRAPH_TWO",
+                label: "XXL",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3XL",
+                value: "3.75rem",
+                subText: "3.75rem",
               },
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "labelStyle",
@@ -591,6 +594,43 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.TEXT },
             hidden: (props: InputWidgetProps) => !props.iconName,
             dependencies: ["iconName"],
+          },
+        ],
+      },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "backgroundColor",
+            helpText: "Sets the background color of the widget",
+            label: "Background color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -830,8 +870,12 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
     return (
       <InputComponent
+        accentColor={this.props.accentColor}
         allowCurrencyChange={this.props.allowCurrencyChange}
         autoFocus={this.props.autoFocus}
+        backgroundColor={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         // show label and Input side by side if true
         compactMode={
           !(
@@ -926,6 +970,10 @@ export interface InputWidgetProps extends WidgetProps {
   iconName?: IconName;
   iconAlign?: Omit<Alignment, "center">;
   onSubmit?: string;
+  backgroundColor: string;
+  borderRadius: string;
+  boxShadow?: string;
+  primaryColor: string;
 }
 
 export default InputWidget;

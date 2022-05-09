@@ -113,8 +113,7 @@ export function MainContainerLayoutControl() {
   };
 
   return (
-    <div className="px-3 space-y-2 t--layout-control-wrapper">
-      <p className="text-sm text-gray-700">Canvas Size</p>
+    <div className="space-y-2 t--layout-control-wrapper">
       <div
         className="flex justify-around"
         onBlur={() => setFocusedIndex(selectedIndex)}
