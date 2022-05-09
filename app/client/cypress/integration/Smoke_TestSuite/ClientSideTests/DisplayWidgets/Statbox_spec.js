@@ -23,7 +23,9 @@ describe("Statbox Widget Functionality", function() {
     // changing the background color of statbox and verying it
     cy.get(".t--property-pane-section-general").then(() => {
       cy.get(".bp3-input-group")
+        .first()
         .clear()
+        .wait(400)
         .type("#FFC13D");
       cy.get(".bp3-input").should("have.value", "#FFC13D");
     });

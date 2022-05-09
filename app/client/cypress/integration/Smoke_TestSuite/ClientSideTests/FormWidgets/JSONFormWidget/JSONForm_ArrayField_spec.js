@@ -140,4 +140,77 @@ describe("JSON Form Widget Array Field", () => {
         cy.get(`${education}-1--year input`).should("have.value", "");
       });
   });
+
+  it("phone input dropdown should update the selected value", () => {
+    cy.closePropertyPane();
+    cy.openPropertyPane("jsonformwidget");
+
+    cy.openFieldConfiguration("education");
+    cy.openFieldConfiguration("__array_item__");
+
+    // Add new custom field
+    cy.get(".t--property-pane-section-general button")
+      .contains("Add a new field")
+      .click({ force: true });
+
+    cy.openFieldConfiguration("customField1");
+    cy.selectDropdownValue(
+      commonlocators.jsonFormFieldType,
+      /^Phone Number Input/,
+    );
+
+    // Enable Allow Country Code Change
+    cy.togglebar(
+      ".t--property-control-allowcountrycodechange input[type='checkbox']",
+    );
+    // Change the label of the field to Phone Number
+    cy.testJsontext("label", "Phone Number");
+
+    // Open country code dropdown and select +91
+    cy.get(".t--input-country-code-change")
+      .first()
+      .click();
+    cy.get(".t--search-input input").type("+91");
+    cy.wait(500);
+    cy.get(".t--dropdown-option")
+      .last()
+      .click();
+
+    cy.get(".t--input-country-code-change").should("contain", "🇮🇳+91");
+  });
+
+  it("currency input dropdown should update the selected value", () => {
+    cy.closePropertyPane();
+    cy.openPropertyPane("jsonformwidget");
+
+    cy.openFieldConfiguration("education");
+    cy.openFieldConfiguration("__array_item__");
+
+    // Add new custom field
+    cy.get(".t--property-pane-section-general button")
+      .contains("Add a new field")
+      .click({ force: true });
+
+    cy.openFieldConfiguration("customField1");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Currency Input/);
+
+    // Enable Allow Country Code Change
+    cy.togglebar(
+      ".t--property-control-allowcurrencychange input[type='checkbox']",
+    );
+    // Change the label of the field to Phone Number
+    cy.testJsontext("label", "Currency");
+
+    // Open country code dropdown and select gbp
+    cy.get(".t--input-currency-change")
+      .first()
+      .click();
+    cy.get(".t--search-input input").type("gbp");
+    cy.wait(500);
+    cy.get(".t--dropdown-option")
+      .first()
+      .click();
+
+    cy.get(".t--input-currency-change").should("contain", "£");
+  });
 });

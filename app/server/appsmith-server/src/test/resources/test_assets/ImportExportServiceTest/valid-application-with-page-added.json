@@ -39,23 +39,6 @@
         "manage:datasources",
         "read:datasources"
       ],
-      "gitSyncId": "61fad216fb6b230875cd65cd_623d57db1d2ab8254f017305",
-      "name": "airtable",
-      "pluginId": "airtable-plugin",
-      "invalids": [
-        "No datasource configuration found. Please configure it and try again."
-      ],
-      "messages": [],
-      "isConfigured": false,
-      "isValid": false,
-      "new": true
-    },
-    {
-      "userPermissions": [
-        "execute:datasources",
-        "manage:datasources",
-        "read:datasources"
-      ],
       "gitSyncId": "61fad216fb6b230875cd65cd_62023e4d3bb8d7269dcab4c5",
       "name": "gsheet",
       "pluginId": "google-sheets-plugin",
@@ -1114,98 +1097,6 @@
       "new": false
     },
     {
-      "id": "Page1_airtableAPI",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
-      "gitSyncId": "6200bd7937230472baba663b_623d58a51d2ab8254f017307",
-      "pluginType": "REMOTE",
-      "pluginId": "airtable-plugin",
-      "unpublishedAction": {
-        "name": "airtableAPI",
-        "datasource": {
-          "id": "airtable",
-          "userPermissions": [],
-          "pluginId": "airtable-plugin",
-          "messages": [],
-          "isValid": true,
-          "new": false
-        },
-        "pageId": "Page1",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "formData": {
-            "baseId": "",
-            "recordId": "",
-            "fields": "",
-            "filterByFormula": "",
-            "maxRecords": "",
-            "pageSize": "",
-            "sort": "",
-            "view": "",
-            "cellFormat": "",
-            "timeZone": "",
-            "userLocale": "",
-            "command": "LIST_RECORDS"
-          }
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [],
-        "confirmBeforeExecute": false,
-        "userPermissions": [],
-        "validName": "airtableAPI"
-      },
-      "publishedAction": {
-        "name": "airtableAPI",
-        "datasource": {
-          "id": "airtable",
-          "userPermissions": [],
-          "pluginId": "airtable-plugin",
-          "messages": [],
-          "isValid": true,
-          "new": false
-        },
-        "pageId": "Page1",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "formData": {
-            "baseId": "",
-            "recordId": "",
-            "fields": "",
-            "filterByFormula": "",
-            "maxRecords": "",
-            "pageSize": "",
-            "sort": "",
-            "view": "",
-            "cellFormat": "",
-            "timeZone": "",
-            "userLocale": "",
-            "command": "LIST_RECORDS"
-          }
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [],
-        "confirmBeforeExecute": false,
-        "userPermissions": [],
-        "validName": "airtableAPI"
-      },
-      "new": false
-    },
-    {
       "id": "Page1_Api1",
       "userPermissions": [
         "read:actions",
@@ -1875,10 +1766,6 @@
       "publishedUserSetOnLoad": false
     },
     "Page1_Query1": {
-      "unpublishedUserSetOnLoad": false,
-      "publishedUserSetOnLoad": false
-    },
-    "Page1_airtableAPI": {
       "unpublishedUserSetOnLoad": false,
       "publishedUserSetOnLoad": false
     },
