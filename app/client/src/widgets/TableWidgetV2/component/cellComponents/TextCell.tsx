@@ -1,7 +1,7 @@
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
 import AutoToolTipComponent from "./AutoToolTipComponent";
-import { RenderDefaultPropsType } from "../renderHelpers/DefaultRenderer";
+import { RenderDefaultPropsType } from "./DefaultCell";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
 import { Colors } from "constants/Colors";
 import { InlineCellEditor } from "./InlineCellEditor";
@@ -88,6 +88,7 @@ interface PropType extends RenderDefaultPropsType {
   onChange: (text: string) => void;
   onDiscard: () => void;
   onSave: () => void;
+  onEdit: () => void;
 }
 
 export function TextCell({
@@ -102,7 +103,10 @@ export function TextCell({
   isCellEditMode,
   isCellVisible,
   isHidden,
-  onCellTextChange,
+  onChange,
+  onDiscard,
+  onEdit,
+  onSave,
   tableWidth,
   textColor,
   textSize,
@@ -112,11 +116,11 @@ export function TextCell({
 }: PropType) {
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const onEdit = useCallback(
+  const onEditHandler = useCallback(
     (e: React.MouseEvent<SVGElement | HTMLDivElement>) => {
       if (isCellEditable) {
         e.stopPropagation();
-        toggleCellEditMode(true);
+        onEdit();
       }
     },
     [toggleCellEditMode],
@@ -138,9 +142,9 @@ export function TextCell({
           !!contentRef.current?.offsetHeight &&
           contentRef.current?.offsetHeight > TABLE_SIZES[compactMode].ROW_HEIGHT
         }
-        onChange={(text: string) => onCellTextChange(text)}
-        onDiscard={() => toggleCellEditMode(false, EditableCellActions.DISCARD)}
-        onSave={() => toggleCellEditMode(false, EditableCellActions.SAVE)}
+        onChange={onChange}
+        onDiscard={onDiscard}
+        onSave={onSave}
         value={value}
         verticalAlignment={verticalAlignment}
       />
@@ -157,7 +161,7 @@ export function TextCell({
         allowWrapping={allowCellWrapping}
         compactMode={compactMode}
         isCellEditMode={isCellEditMode}
-        onDoubleClick={onEdit}
+        onDoubleClick={onEditHandler}
         ref={contentRef}
       >
         {hasUnsavedChanged && <UnsavedChangesMarker />}
@@ -184,7 +188,7 @@ export function TextCell({
             backgroundColor={cellBackground}
             className="editable-cell-icon"
             compactMode={compactMode}
-            onMouseUp={onEdit}
+            onMouseUp={onEditHandler}
           >
             <EditIcon />
           </StyledEditIcon>
