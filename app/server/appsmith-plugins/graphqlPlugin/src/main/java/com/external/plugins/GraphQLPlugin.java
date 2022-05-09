@@ -3,7 +3,6 @@ package com.external.plugins;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.helpers.RequestCaptureFilter;
 import com.appsmith.external.models.ActionConfiguration;
@@ -30,7 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static java.lang.Boolean.TRUE;
+import static com.external.utils.BodyUtils.convertToGraphQLPOSTBodyFormat;
+import static com.external.utils.BodyUtils.getGraphQLQueryParamsForBodyAndVariables;
+import static com.external.utils.BodyUtils.validateBodyAndVariablesSyntax;
 
 public class GraphQLPlugin extends BasePlugin {
 
@@ -72,6 +73,13 @@ public class GraphQLPlugin extends BasePlugin {
 
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
+            /* Check if the query body and query variables have the correct GraphQL syntax. */
+            try {
+                validateBodyAndVariablesSyntax(actionConfiguration);
+            } catch (AppsmithPluginException e) {
+                return Mono.error(e);
+            }
+
             // Filter out any empty headers
             headerUtils.removeEmptyHeaders(actionConfiguration);
 
@@ -97,7 +105,7 @@ public class GraphQLPlugin extends BasePlugin {
 
             URI uri;
             try {
-                uri = uriUtils.createFinalUriWithQueryParams(actionConfiguration, datasourceConfiguration, url,
+                uri = uriUtils.createUriWithQueryParams(actionConfiguration, datasourceConfiguration, url,
                         encodeParamsToggle);
             } catch (URISyntaxException e) {
                 ActionExecutionRequest actionExecutionRequest =
@@ -141,6 +149,28 @@ public class GraphQLPlugin extends BasePlugin {
                 errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("HTTPMethod must be set."));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
+            }
+
+            if (HttpMethod.POST.equals(httpMethod)) {
+                /**
+                 * When a GraphQL request is sent using HTTP POST method, then the request body needs to be in the
+                 * following format:
+                 * {
+                 *     "query": "... graphql query body ...",
+                 *     "variables": {"var1": val1, "var2": val2 ...},
+                 *     "operationName": "name of operation" // only required if multiple operations are defined in a
+                 *     single query body
+                 * }
+                 */
+                try {
+                    actionConfiguration.setBody(convertToGraphQLPOSTBodyFormat(actionConfiguration));
+                } catch (AppsmithPluginException e) {
+                    return Mono.error(e);
+                }
+            }
+            else if (HttpMethod.GET.equals(httpMethod)) {
+                List<Property> additionalQueryParams = getGraphQLQueryParamsForBodyAndVariables(actionConfiguration);
+                uri = uriUtils.addQueryParamsToURI(uri, additionalQueryParams, encodeParamsToggle);
             }
 
             final RequestCaptureFilter requestCaptureFilter = new RequestCaptureFilter(objectMapper);

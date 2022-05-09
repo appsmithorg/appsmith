@@ -9,6 +9,9 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -30,6 +33,7 @@ import static com.appsmith.external.constants.FieldName.CHILDREN;
 import static com.appsmith.external.constants.FieldName.CONDITION;
 import static com.appsmith.external.constants.FieldName.KEY;
 import static com.appsmith.external.constants.FieldName.VALUE;
+import static net.minidev.json.parser.JSONParser.MODE_PERMISSIVE;
 
 @Slf4j
 public class PluginUtils {
@@ -306,5 +310,10 @@ public class PluginUtils {
 
     public static Object getValueSafelyFromPropertyList(List<Property> properties, int index) {
         return getValueSafelyFromPropertyList(properties, index, Object.class);
+    }
+
+    public static JSONObject parseStringIntoJSONObject(String body) throws ParseException {
+        JSONParser parser = new JSONParser(MODE_PERMISSIVE);
+        return (JSONObject) parser.parse(body);
     }
 }
