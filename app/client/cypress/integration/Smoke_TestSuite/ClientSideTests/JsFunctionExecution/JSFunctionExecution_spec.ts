@@ -1,18 +1,14 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, jsName: any;
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  dataSources = ObjectsRegistry.DataSources,
-  jsEditor = ObjectsRegistry.JSEditor,
-  table = ObjectsRegistry.Table;
+const ee = ObjectsRegistry.EntityExplorer,
+  jsEditor = ObjectsRegistry.JSEditor;
 
-describe("JSObjects OnLoad Actions tests", function() {
+describe("JS Function Execution", function() {
   before(() => {
     ee.DragDropWidgetNVerify("tablewidget", 300, 300);
   });
 
-  it(" Allows execution of js function when lint warnings(not errors) are present in code", function() {
+  it("Allows execution of js function when lint warnings(not errors) are present in code", function() {
     jsEditor.CreateJSObject(
       `export default {
 	myFun1: ()=>{
@@ -25,72 +21,40 @@ describe("JSObjects OnLoad Actions tests", function() {
       false,
     );
 
-    // Assert that
-    jsEditor.EnableDisableOnPageLoad("getId", false, true); //Only before calling confirmation is enabled by User here
-    dataSources.NavigateToActiveDSQueryPane(guid);
-    agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("GetUser");
-    cy.get("@jsObjName").then((jsObjName) => {
-      jsName = jsObjName;
-      agHelper.EnterValue(
-        "SELECT * FROM public.users where id = {{" +
-          jsObjName +
-          ".getId.data}}",
-      );
-      ee.SelectEntityByName("Table1", "WIDGETS");
-      jsEditor.EnterJSContext("Table Data", "{{GetUser.data}}");
-      agHelper.ValidateToastMessage(
-        (("[" + jsName) as string) +
-          ".getId, GetUser] will be executed automatically on page load",
-      );
-      agHelper.DeployApp();
-      agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
-      agHelper.AssertElementPresence(
-        jsEditor._dialogBody((jsName as string) + ".getId"),
-      );
-      agHelper.ClickButton("Yes");
-      agHelper.Sleep(1000);
-    });
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("8");
-    });
-    agHelper.NavigateBacktoEditor();
+    jsEditor.AssertParseError(false);
   });
 
-  it("3. Verify OnPage Load - auto enabeld from above case for JSOBject", function() {
-    agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
-    agHelper.AssertElementPresence(
-      jsEditor._dialogBody((jsName as string) + ".getId"),
+  it("Prevents execution of js function when parse errors are present in code", function() {
+    jsEditor.CreateJSObject(
+      `export default {
+	myFun1: ()=>{
+		return "yes"
+	},
+  myFun2: ()
+}`,
+      true,
+      true,
+      false,
     );
-    agHelper.ClickButton("Yes");
-    agHelper.Sleep(1000);
-    ee.SelectEntityByName(jsName as string, "QUERIES/JS");
-    jsEditor.VerifyOnPageLoadSetting("getId", true, true);
+
+    jsEditor.AssertParseError(true);
   });
 
-  it("4. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function() {
-    ee.SelectEntityByName(jsName as string, "QUERIES/JS");
-    jsEditor.EnableDisableOnPageLoad("getId", false, true);
-    agHelper.DeployApp();
-    agHelper.ValidateToastMessage('The action "GetUser" has failed');
-    agHelper.NavigateBacktoEditor();
-  });
-
-  it("5. Verify OnPage Load - Enabling back & Before Function calling disabled for JSOBject", function() {
-    ee.SelectEntityByName(jsName as string, "QUERIES/JS");
-    jsEditor.EnableDisableOnPageLoad("getId", true, false);
-    agHelper.DeployApp();
-    agHelper.AssertElementAbsence(jsEditor._dialog("Confirmation Dialog"));
-    agHelper.AssertElementAbsence(
-      jsEditor._dialogBody((jsName as string) + ".getId"),
+  it("Allows execution of other JS functions when lint error is present in code one JS function", function() {
+    jsEditor.CreateJSObject(
+      `export default {
+        myFun1:  (a ,b)=>{ 
+        return f
+        },
+        myFun2 :()=>{
+          return "yes"
+        }
+      }`,
+      true,
+      true,
+      false,
     );
-    // agHelper.ClickButton("Yes");
-    // agHelper.Sleep(1000)
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("8");
-    });
-    agHelper.NavigateBacktoEditor();
+
+    jsEditor.AssertParseError(false);
   });
 });

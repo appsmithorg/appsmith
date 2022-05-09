@@ -19,7 +19,7 @@ import {
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_JS_RESPONSE_LAST_HALF,
   NO_JS_FUNCTION_RETURN_VALUE,
-  JS_ACTION_PARSING_ERROR,
+  JS_ACTION_EXECUTION_ERROR,
 } from "@appsmith/constants/messages";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
@@ -222,7 +222,7 @@ function JSResponseView(props: Props) {
         <>
           {(errors.length > 0 ||
             responseStatus === JSResponseState.IsDirty) && (
-            <HelpSection>
+            <HelpSection className=".t--js-response-parse-error-call-out">
               <StyledCallout
                 fill
                 label={
@@ -233,7 +233,7 @@ function JSResponseView(props: Props) {
                 text={
                   responseStatus === JSResponseState.IsDirty
                     ? createMessage(
-                        JS_ACTION_PARSING_ERROR,
+                        JS_ACTION_EXECUTION_ERROR,
                         `${jsObject.name}.${currentFunction?.name}`,
                       )
                     : createMessage(PARSING_ERROR)
