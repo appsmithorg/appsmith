@@ -7,7 +7,6 @@ import com.appsmith.external.models.Property;
 import graphql.parser.InvalidSyntaxException;
 import graphql.parser.Parser;
 import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 
 import java.util.ArrayList;
@@ -17,17 +16,19 @@ import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromProper
 import static com.appsmith.external.helpers.PluginUtils.parseStringIntoJSONObject;
 
 public class BodyUtils {
-    public static final int QUERY_VARIABLES_INDEX = 0;
+    public static final int QUERY_VARIABLES_INDEX = 1;
+    public static final String QUERY_KEY = "query";
+    public static final String VARIABLES_KEY = "variables";
 
     public static String convertToGraphQLPOSTBodyFormat(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
         JSONObject query = new JSONObject();
-        query.put("query", actionConfiguration.getBody());
+        query.put(QUERY_KEY, actionConfiguration.getBody());
 
         final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
         String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
         try {
             JSONObject json = parseStringIntoJSONObject(variables);
-            query.put("variables", json);
+            query.put(VARIABLES_KEY, json);
         } catch (ParseException e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "GraphQL query " +
                     "variables are not in proper JSON format: " + e.getMessage());
@@ -60,11 +61,11 @@ public class BodyUtils {
 
     public static List<Property> getGraphQLQueryParamsForBodyAndVariables(ActionConfiguration actionConfiguration) {
         List<Property> queryParams = new ArrayList<>();
-        queryParams.add(new Property("query", actionConfiguration.getBody()));
+        queryParams.add(new Property(QUERY_KEY, actionConfiguration.getBody()));
 
         final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
         String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
-        queryParams.add(new Property("variables", variables);
+        queryParams.add(new Property(VARIABLES_KEY, variables));
 
         return queryParams;
     }

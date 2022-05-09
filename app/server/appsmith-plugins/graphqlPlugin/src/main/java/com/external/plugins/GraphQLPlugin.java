@@ -68,6 +68,21 @@ public class GraphQLPlugin extends BasePlugin {
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
+            //TODO: remove after test
+            String testBody = "query Launches($limit: Int) {\n" +
+                    "  capsules(limit: $limit) {\n" +
+                    "    dragon {\n" +
+                    "      dry_mass_kg\n" +
+                    "    }\n" +
+                    "  }\n" +
+                    "}\n";
+            actionConfiguration.setBody(testBody);
+
+            String variables = "{\n" +
+                    "  \"limit\": 2\n" +
+                    "}";
+            properties.add(new Property("variables", variables));
+
             // TODO: handle smart substitution for query body and query variables
             // TODO: handle cursor pagination
 
@@ -161,6 +176,7 @@ public class GraphQLPlugin extends BasePlugin {
                  *     "operationName": "name of operation" // only required if multiple operations are defined in a
                  *     single query body
                  * }
+                 * Ref: https://graphql.org/learn/serving-over-http/
                  */
                 try {
                     actionConfiguration.setBody(convertToGraphQLPOSTBodyFormat(actionConfiguration));
@@ -169,8 +185,26 @@ public class GraphQLPlugin extends BasePlugin {
                 }
             }
             else if (HttpMethod.GET.equals(httpMethod)) {
+                /**
+                 * When a GraphQL request is sent using GET method, the GraphQL body and variables are sent as part of
+                 * query parameters in the URL.
+                 * Ref: https://graphql.org/learn/serving-over-http/
+                 */
                 List<Property> additionalQueryParams = getGraphQLQueryParamsForBodyAndVariables(actionConfiguration);
                 uri = uriUtils.addQueryParamsToURI(uri, additionalQueryParams, encodeParamsToggle);
+            }
+            else {
+                /**
+                 * Only POST and GET HTTP methods are supported by GraphQL specifications.
+                 * Ref: https://graphql.org/learn/serving-over-http/
+                 */
+                return Mono.error(
+                        new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Appsmith server has found an unexpected HTTP method configured with the GraphQL " +
+                                        "plugin query: " + httpMethod
+                        )
+                );
             }
 
             final RequestCaptureFilter requestCaptureFilter = new RequestCaptureFilter(objectMapper);
