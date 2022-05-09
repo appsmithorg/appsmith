@@ -1,7 +1,7 @@
 import { parse, Node } from "acorn";
 import { ancestor } from "acorn-walk";
+import { ECMA_VERSION, NodeTypes } from "constants/ast";
 import _ from "lodash";
-import { ECMA_VERSION } from "workers/constants";
 import { sanitizeScript } from "./evaluate";
 
 /*
@@ -22,19 +22,6 @@ import { sanitizeScript } from "./evaluate";
  * https://astexplorer.net/
  *
  */
-
-// Each node has an attached type property which further defines
-// what all properties can the node have.
-// We will just define the ones we are working with
-enum NodeTypes {
-  MemberExpression = "MemberExpression",
-  Identifier = "Identifier",
-  VariableDeclarator = "VariableDeclarator",
-  FunctionDeclaration = "FunctionDeclaration",
-  FunctionExpression = "FunctionExpression",
-  AssignmentPattern = "AssignmentPattern",
-  Literal = "Literal",
-}
 
 type Pattern = IdentifierNode | AssignmentPatternNode;
 
@@ -88,8 +75,16 @@ interface LiteralNode extends Node {
   value: string | boolean | null | number | RegExp;
 }
 
+// https://github.com/estree/estree/blob/master/es5.md#property
+export interface PropertyNode extends Node {
+  type: NodeTypes.Property;
+  key: LiteralNode | IdentifierNode;
+  value: Node;
+  kind: "init" | "get" | "set";
+}
+
 /* We need these functions to typescript casts the nodes with the correct types */
-const isIdentifierNode = (node: Node): node is IdentifierNode => {
+export const isIdentifierNode = (node: Node): node is IdentifierNode => {
   return node.type === NodeTypes.Identifier;
 };
 
@@ -113,8 +108,12 @@ const isAssignmentPatternNode = (node: Node): node is AssignmentPatternNode => {
   return node.type === NodeTypes.AssignmentPattern;
 };
 
-const isLiteralNode = (node: Node): node is LiteralNode => {
+export const isLiteralNode = (node: Node): node is LiteralNode => {
   return node.type === NodeTypes.Literal;
+};
+
+export const isPropertyNode = (node: Node): node is PropertyNode => {
+  return node.type === NodeTypes.Property;
 };
 
 const isArrayAccessorNode = (node: Node): node is MemberExpressionNode => {

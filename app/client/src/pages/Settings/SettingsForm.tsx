@@ -13,16 +13,15 @@ import {
   getSettingsSavingState,
   getShowReleaseNotes,
 } from "selectors/settingsSelectors";
-import styled from "styled-components";
 import Group from "./FormGroup/group";
 import RestartBanner from "./RestartBanner";
-import AdminConfig from "./config";
 import SaveAdminSettings from "./SaveSettings";
+import { DisconnectService } from "./DisconnectService";
+import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import {
   SettingTypes,
   Setting,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { DisconnectService } from "./DisconnectService";
 import {
   createMessage,
   DISCONNECT_AUTH_ERROR,
@@ -36,37 +35,14 @@ import {
   saveAllowed,
 } from "@appsmith/utils/adminSettingsHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
-const Wrapper = styled.div`
-  flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  margin-left: ${(props) => props.theme.homePage.main.marginLeft}px;
-  padding-top: 40px;
-  height: calc(100vh - ${(props) => props.theme.homePage.header}px);
-  overflow: auto;
-`;
-
-const SettingsFormWrapper = styled.div`
-  max-width: 40rem;
-`;
-
-export const BottomSpace = styled.div`
-  height: ${(props) => props.theme.settings.footerHeight + 20}px;
-`;
-
-export const HeaderWrapper = styled.div`
-  margin-bottom: 16px;
-`;
-
-export const SettingsHeader = styled.h2`
-  font-size: 24px;
-  font-weight: 500;
-  text-transform: capitalize;
-  margin-bottom: 0px;
-`;
-
-export const SettingsSubHeader = styled.div`
-  font-size: 12px;
-`;
+import {
+  Wrapper,
+  BottomSpace,
+  HeaderWrapper,
+  SettingsHeader,
+  SettingsSubHeader,
+  SettingsFormWrapper,
+} from "./components";
 
 type FormProps = {
   settings: Record<string, string>;
@@ -111,9 +87,6 @@ export function SettingsForm(
         });
         dispatch(saveSettings(props.settings));
       } else {
-        AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
-          error: createMessage(DISCONNECT_AUTH_ERROR),
-        });
         saveBlocked();
       }
     } else {
@@ -150,7 +123,12 @@ export function SettingsForm(
     return !(requiredFields.length > 0);
   };
 
-  const onClear = () => {
+  const onClear = (event?: React.FocusEvent<any, any>) => {
+    if (event?.type === "click") {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_RESET", {
+        method: pageTitle,
+      });
+    }
     _.forEach(props.settingsConfig, (value, settingName) => {
       const setting = AdminConfig.settingsMap[settingName];
       if (setting && setting.controlType == SettingTypes.TOGGLE) {
@@ -171,6 +149,9 @@ export function SettingsForm(
   }, []);
 
   const saveBlocked = () => {
+    AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
+      error: createMessage(DISCONNECT_AUTH_ERROR),
+    });
     Toaster.show({
       text: createMessage(DISCONNECT_AUTH_ERROR),
       variant: Variant.danger,

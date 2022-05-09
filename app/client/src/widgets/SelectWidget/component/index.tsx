@@ -130,7 +130,11 @@ class SelectComponent extends React.Component<
     const focusClassName = `${isFocused && "has-focus"}`;
     const selectedClassName = `${isSelected && "menu-item-active"}`;
     return (
-      <MenuItem key={option.value} onClick={itemProps.handleClick}>
+      <MenuItem
+        accentColor={this.props.accentColor}
+        key={option.value}
+        onClick={itemProps.handleClick}
+      >
         <a
           className={`menu-item-link ${selectedClassName} ${focusClassName}`}
           tabIndex={0}
@@ -154,7 +158,7 @@ class SelectComponent extends React.Component<
     }
   };
   noResultsUI = (
-    <MenuItem>
+    <MenuItem accentColor={this.props.accentColor}>
       <a className="menu-item-link">
         <div className="menu-item-text">No Results Found</div>
       </a>
@@ -229,6 +233,9 @@ class SelectComponent extends React.Component<
 
   render() {
     const {
+      accentColor,
+      borderRadius,
+      boxShadow,
       compactMode,
       disabled,
       isLoading,
@@ -280,7 +287,12 @@ class SelectComponent extends React.Component<
         data-testid="select-container"
         labelPosition={labelPosition}
       >
-        <DropdownStyles dropDownWidth={this.getDropdownWidth()} id={widgetId} />
+        <DropdownStyles
+          accentColor={accentColor}
+          borderRadius={borderRadius}
+          dropDownWidth={this.getDropdownWidth()}
+          id={widgetId}
+        />
         {labelText && (
           <LabelWithTooltip
             alignment={labelAlignment}
@@ -303,7 +315,10 @@ class SelectComponent extends React.Component<
           labelPosition={labelPosition}
         >
           <StyledSingleDropDown
+            accentColor={accentColor}
             activeItem={activeItem()}
+            borderRadius={borderRadius}
+            boxShadow={boxShadow}
             className={isLoading ? Classes.SKELETON : ""}
             disabled={disabled}
             filterable={this.props.isFilterable}
@@ -322,6 +337,8 @@ class SelectComponent extends React.Component<
             onItemSelect={this.onItemSelect}
             onQueryChange={this.onQueryChange}
             popoverProps={{
+              portalContainer:
+                document.getElementById("art-board") || undefined,
               boundary: "window",
               isOpen: this.state.isOpen,
               minimal: true,
@@ -389,6 +406,9 @@ export interface SelectComponentProps extends ComponentProps {
   value?: string;
   label?: string;
   filterText?: string;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor?: string;
 }
 
 export default React.memo(SelectComponent);

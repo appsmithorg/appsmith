@@ -150,6 +150,7 @@ import EditBoxLineIcon from "remixicon-react/EditBoxLineIcon";
 import StarLineIcon from "remixicon-react/StarLineIcon";
 import StarFillIcon from "remixicon-react/StarFillIcon";
 import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
+import DownloadIcon from "remixicon-react/DownloadLineIcon";
 import UploadCloud2LineIcon from "remixicon-react/UploadCloud2LineIcon";
 import DownloadLineIcon from "remixicon-react/DownloadLineIcon";
 import FileListLineIcon from "remixicon-react/FileListLineIcon";
@@ -380,6 +381,7 @@ const ICON_LOOKUP = {
   warning: <WarningIcon />,
   widget: <WidgetIcon />,
   workspace: <WorkspaceIcon />,
+  download2: <DownloadIcon />,
   upgrade: <DvdLineIcon />,
 };
 

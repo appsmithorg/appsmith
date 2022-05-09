@@ -1,79 +1,86 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { CurrencyTypeOptions, CurrencyOptionProps } from "constants/Currency";
 import Icon, { IconSize } from "components/ads/Icon";
+import { Classes } from "@blueprintjs/core";
 import { countryToFlag } from "./utilities";
 import { Colors } from "constants/Colors";
+import { lightenColor } from "widgets/WidgetUtils";
 
-const DropdownContainer = styled.div`
-  .currency-type-filter,
-  .currency-type-trigger {
-    position: static;
-    background: rgb(255, 255, 255);
-    border-width: 1.2px 0px 1.2px 1.2px;
-    border-top-style: solid;
-    border-bottom-style: solid;
-    border-left-style: solid;
-    border-top-color: rgb(235, 235, 235);
-    border-bottom-color: rgb(235, 235, 235);
-    border-left-color: rgb(235, 235, 235);
-    border-image: initial;
-    color: rgb(9, 7, 7);
-    border-right-style: initial;
-    border-right-color: initial;
-  }
-
-  &&&&& + input {
-    padding-left: 10px;
-  }
-`;
-
-const DropdownTriggerIconWrapper = styled.div`
-  height: 19px;
-  padding: 9px 5px 9px 12px;
+const DropdownTriggerIconWrapper = styled.button`
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 14px;
-  line-height: 18px;
+  line-height: normal;
   letter-spacing: -0.24px;
   color: #090707;
-  > * {
-    margin-left: 5px;
+  border-right: 1px solid ${Colors.GREY_3};
+  gap: 0.25rem;
+  padding: 0 0.75rem;
+  height: 100%;
+  margin-right: 0.625rem;
+
+  &:focus {
+    background-color: ${Colors.GREY_1};
   }
 
-  &&& .dropdown {
+  .dropdown {
     svg {
       width: 14px;
       height: 14px;
 
       path {
-        fill: ${Colors.GREY_10};
+        fill: ${Colors.GREY_10} !important;
       }
     }
   }
 `;
 
-const CurrencyIconWrapper = styled.span`
-  position: static;
-  background: rgb(255, 255, 255);
-  border-width: 1.2px 0px 1.2px 1.2px;
-  border-top-style: solid;
-  border-bottom-style: solid;
-  border-left-style: solid;
-  border-top-color: rgb(235, 235, 235);
-  border-bottom-color: rgb(235, 235, 235);
-  border-left-color: rgb(235, 235, 235);
-  border-image: initial;
-  color: rgb(9, 7, 7);
-  border-right-style: initial;
-  border-right-color: initial;
-  padding: 6px 12px 0px 12px;
+export const PopoverStyles = createGlobalStyle<{
+  borderRadius?: string;
+  portalClassName: string;
+  accentColor?: string;
+}>`
+  ${(props) => `
+    .${props.portalClassName} .${Classes.POPOVER} {
+      border-radius: ${
+        props.borderRadius === "1.5rem" ? `0.375rem` : props.borderRadius
+      } !important;
+      overflow: hidden;
+      box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+      margin-top: 4px !important;
+    }
 
-  &&&&& + input {
-    padding-left: 10px;
-  }
+    .${props.portalClassName} .${Classes.BUTTON} {
+      border-radius: ${
+        props.borderRadius === "1.5rem" ? `0.375rem` : props.borderRadius
+      } !important;
+    }
+
+    .${props.portalClassName}  .${Classes.INPUT} {
+      border-radius: ${
+        props.borderRadius === "1.5rem" ? `0.375rem` : props.borderRadius
+      } !important;
+    }
+
+    .${props.portalClassName}  .${Classes.INPUT}:focus, .${
+    props.portalClassName
+  }  .${Classes.INPUT}:active {
+      border: 1px solid ${props.accentColor} !important;
+      box-shadow: 0px 0px 0px 3px ${lightenColor(props.accentColor)} !important;
+    }
+
+    .${props.portalClassName} .t--dropdown-option:hover,
+    .${props.portalClassName} .t--dropdown-option.selected {
+      background-color: ${lightenColor(props.accentColor)} !important;
+    }
+
+    .${props.portalClassName} .ads-dropdown-options-wrapper {
+      border: 0px solid !important;
+    }
+  `}
 `;
 
 const getCurrencyOptions = (): Array<DropdownOption> => {
@@ -135,40 +142,53 @@ interface CurrencyDropdownProps {
   options: Array<DropdownOption>;
   selected?: string;
   allowCurrencyChange?: boolean;
+  accentColor?: string;
+  borderRadius?: string;
+  widgetId: string;
 }
 
 export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
   const selectedOption = getSelectedCurrency(props.selected);
   const selectedCurrency = selectedOption.id;
-  if (!props.allowCurrencyChange) {
-    return (
-      <CurrencyIconWrapper className="currency-type-trigger">
-        {selectedCurrency}
-      </CurrencyIconWrapper>
-    );
-  }
-  const dropdownTriggerIcon = (
-    <DropdownTriggerIconWrapper className="t--input-currency-change">
+  const dropdownTrigger = (
+    <DropdownTriggerIconWrapper
+      className="t--input-currency-change currency-change-dropdown-trigger"
+      tabIndex={0}
+      type="button"
+    >
       {selectedCurrency}
-      <Icon className="dropdown" name="downArrow" size={IconSize.XXS} />
+      {props.allowCurrencyChange && (
+        <Icon className="dropdown" name="downArrow" size={IconSize.XXS} />
+      )}
     </DropdownTriggerIconWrapper>
   );
+
+  if (!props.allowCurrencyChange) {
+    return dropdownTrigger;
+  }
+
   return (
-    <DropdownContainer>
+    <>
       <Dropdown
         closeOnSpace={false}
         containerClassName="currency-type-filter"
         dropdownHeight="139px"
-        dropdownTriggerIcon={dropdownTriggerIcon}
+        dropdownTriggerIcon={dropdownTrigger}
         enableSearch
         height="36px"
         onSelect={props.onCurrencyTypeChange}
         optionWidth="340px"
         options={props.options}
+        portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
         searchPlaceholder="Search by currency or country"
         selected={selectedOption}
         showLabelOnly
       />
-    </DropdownContainer>
+      <PopoverStyles
+        accentColor={props.accentColor}
+        borderRadius={props.borderRadius}
+        portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
+      />
+    </>
   );
 }

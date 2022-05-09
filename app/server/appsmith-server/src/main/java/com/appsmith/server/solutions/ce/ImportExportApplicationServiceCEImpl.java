@@ -184,6 +184,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         applicationJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
         applicationJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
 
+        Mono<Theme> defaultThemeMono = themeService.getSystemTheme(Theme.DEFAULT_THEME_NAME).cache();
+
         return pluginRepository
                 .findAll()
                 .map(plugin -> {
@@ -192,10 +194,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .then(applicationMono)
                 .flatMap(application -> themeService.getThemeById(application.getEditModeThemeId(), READ_THEMES)
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.THEME, application.getEditModeThemeId())))
+                        .switchIfEmpty(defaultThemeMono) // setting default theme if theme is missing
                         .zipWith(themeService
                                 .getThemeById(application.getPublishedModeThemeId(), READ_THEMES)
-                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.THEME, application.getPublishedModeThemeId())))
+                                .switchIfEmpty(defaultThemeMono)// setting default theme if theme is missing
                         )
                         .map(themesTuple -> {
                             Theme editModeTheme = exportTheme(themesTuple.getT1());
@@ -663,7 +665,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository
-                .findAllByOrganizationId(organizationId, AclPermission.MANAGE_DATASOURCES)
+                .findAllByOrganizationId(organizationId, MANAGE_DATASOURCES)
                 .cache();
 
         String errorField = "";
@@ -680,7 +682,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         if (!errorField.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
         }
-        assert importedApplication != null;
+        assert importedApplication != null: "Received invalid application object!";
         if(importedApplication.getApplicationVersion() == null) {
             importedApplication.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
         }
@@ -705,12 +707,22 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return Mono.just(new ArrayList<Datasource>());
                 })
                 .flatMapMany(existingDatasources -> {
+
+                    if (CollectionUtils.isEmpty(importedDatasourceList)) {
+                        return Mono.empty();
+                    }
                     Map<String, Datasource> savedDatasourcesGitIdToDatasourceMap = new HashMap<>();
 
                     existingDatasources.stream()
                             .filter(datasource -> datasource.getGitSyncId() != null)
                             .forEach(datasource -> savedDatasourcesGitIdToDatasourceMap.put(datasource.getGitSyncId(), datasource));
 
+                    // Check if the destination org have all the required plugins installed
+                    for (Datasource datasource : importedDatasourceList) {
+                        if (StringUtils.isEmpty(pluginMap.get(datasource.getPluginId()))) {
+                            return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE, datasource.getPluginId()));
+                        }
+                    }
                     return Flux.fromIterable(importedDatasourceList)
                             // Check for duplicate datasources to avoid duplicates in target organization
                             .flatMap(datasource -> {
@@ -846,7 +858,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
 
                     // Import and save pages, also update the pages related fields in saved application
-                    assert importedNewPageList != null;
+                    assert importedNewPageList != null: "Unable to find pages in the imported application";
 
                     // For git-sync this will not be empty
                     Mono<List<NewPage>> existingPagesMono = newPageService
@@ -962,7 +974,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 // This does not apply to the traditional import via file approach
                                                 return Flux.fromIterable(invalidPageIds)
                                                         .flatMap(applicationPageService::deleteUnpublishedPage)
-                                                        .flatMap(page -> newPageService.archiveById(page.getId()))
+                                                        .flatMap(page -> newPageService.archiveById(page.getId())
+                                                                .onErrorResume(e -> {
+                                                                    log.debug("Unable to archive page {} with error {}", page.getId(), e.getMessage());
+                                                                    return Mono.empty();
+                                                                })
+                                                        )
                                                         .then()
                                                         .thenReturn(applicationPages);
                                             });
@@ -1268,11 +1285,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Map<String, NewAction> savedActionsGitIdToActionsMap = new HashMap<>();
         final String organizationId = importedApplication.getOrganizationId();
+        if (CollectionUtils.isEmpty(importedNewActionList)) {
+            return Flux.fromIterable(new ArrayList<>());
+        }
         existingActions.stream()
                 .filter(newAction -> newAction.getGitSyncId() != null)
                 .forEach(newAction -> savedActionsGitIdToActionsMap.put(newAction.getGitSyncId(), newAction));
 
-        assert importedNewActionList != null;
 
         return Flux.fromIterable(importedNewActionList)
                 .filter(action -> action.getUnpublishedAction() != null
