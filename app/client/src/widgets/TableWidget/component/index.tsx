@@ -81,7 +81,10 @@ interface ReactTableComponentProps {
   boxShadow?: string;
 }
 
-function ReactTableComponent(props: ReactTableComponentProps) {
+const ReactTableComponent = React.forwardRef<
+  HTMLDivElement,
+  ReactTableComponentProps
+>((props, ref) => {
   const {
     applyFilter,
     columns,
@@ -280,6 +283,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
       prevPageClick={prevPageClick}
+      ref={ref}
       searchKey={searchKey}
       searchTableData={searchTableData}
       selectTableRow={selectTableRow}
@@ -296,7 +300,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       width={width}
     />
   );
-}
+});
 
 export default React.memo(ReactTableComponent, (prev, next) => {
   return (
@@ -342,3 +346,5 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     JSON.stringify(prev.columns) === JSON.stringify(next.columns)
   );
 });
+
+ReactTableComponent.displayName = "ReactTableComponent";
