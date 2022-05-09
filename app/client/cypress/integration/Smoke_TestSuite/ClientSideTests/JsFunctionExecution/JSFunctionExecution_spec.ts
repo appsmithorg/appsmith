@@ -1,21 +1,16 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const ee = ObjectsRegistry.EntityExplorer,
-  jsEditor = ObjectsRegistry.JSEditor;
+const jsEditor = ObjectsRegistry.JSEditor;
 
 describe("JS Function Execution", function() {
-  before(() => {
-    ee.DragDropWidgetNVerify("tablewidget", 300, 300);
-  });
-
   it("Allows execution of js function when lint warnings(not errors) are present in code", function() {
     jsEditor.CreateJSObject(
       `export default {
-	myFun1: ()=>{
-		debugger;
-		return "yes"
-	}
-}`,
+  	myFun1: ()=>{
+  		debugger;
+  		return "yes"
+  	}
+  }`,
       true,
       true,
       false,
@@ -30,7 +25,7 @@ describe("JS Function Execution", function() {
 	myFun1: ()=>{
 		return "yes"
 	},
-  myFun2: ()
+  myFun2: ()==>{}
 }`,
       true,
       true,
@@ -43,7 +38,7 @@ describe("JS Function Execution", function() {
   it("Allows execution of other JS functions when lint error is present in code one JS function", function() {
     jsEditor.CreateJSObject(
       `export default {
-        myFun1:  (a ,b)=>{ 
+        myFun1:  (a ,b)=>{
         return f
         },
         myFun2 :()=>{

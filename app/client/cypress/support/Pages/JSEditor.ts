@@ -9,7 +9,8 @@ export class JSEditor {
   private _runButton = "button.run-js-action";
   private _settingsTab = ".tab-title:contains('Settings')";
   private _codeTab = ".tab-title:contains('Code')";
-  private _jsObjectParseErrorCallout = ".t--js-response-parse-error-call-out";
+  private _jsObjectParseErrorCallout =
+    "//div[contains(@class,'t--js-response-parse-error-call-out')]";
   private _onPageLoadRadioButton = (functionName: string, onLoad: boolean) =>
     `.${functionName}-on-page-load-setting label:contains(${
       onLoad ? "Yes" : "No"
@@ -362,15 +363,10 @@ export class JSEditor {
   }
 
   public AssertParseError(exists: boolean) {
-    const { AssertElementAbsence, AssertElementPresence } = this.agHelper;
     // Assert presence/absence of parse error
-    if (exists) {
-      AssertElementPresence(this._jsObjectParseErrorCallout);
-      cy.get(this._runButton).should("not.be.disabled");
-    } else {
-      AssertElementAbsence(this._jsObjectParseErrorCallout);
-      cy.get(this._runButton).should("be.disabled");
-    }
+    cy.xpath(this._jsObjectParseErrorCallout).should(
+      exists ? "exist" : "not.exist",
+    );
   }
 
   //#endregion
