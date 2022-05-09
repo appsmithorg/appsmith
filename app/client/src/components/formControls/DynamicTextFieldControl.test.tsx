@@ -23,7 +23,7 @@ describe("DynamicTextFieldControl", () => {
   beforeEach(() => {
     mockCodemirrorRender();
   });
-  it("renders template menu correctly", () => {
+  it("renders template menu correctly", async () => {
     render(
       <ReduxFormDecorator>
         <DynamicTextFieldControl
@@ -67,7 +67,7 @@ describe("DynamicTextFieldControl", () => {
       },
     );
     const createTemplateButton = screen.getByText("Create");
-    userEvent.click(createTemplateButton);
+    await userEvent.click(createTemplateButton);
     // Test each word separately because they are in different spans
     expect(screen.getByText("test")).toBeDefined();
     expect(screen.getByText("plugin")).toBeDefined();

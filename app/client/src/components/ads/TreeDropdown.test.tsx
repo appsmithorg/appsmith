@@ -103,31 +103,31 @@ describe("<TreeDropdown/>", () => {
     async (key) => {
       render(testComponent());
       expect(screen.queryByRole("list")).toBeNull();
-      userEvent.tab();
+      await userEvent.tab();
 
-      userEvent.keyboard(key);
+      await userEvent.keyboard(key);
       expect(screen.queryAllByRole("list")).not.toBeNull();
 
       // Escape to close opened dropdown
-      userEvent.keyboard("{Escape}");
+      await userEvent.keyboard("{Escape}");
       await waitForElementToBeRemoved(screen.getAllByRole("list"));
     },
   );
 
   it("Pressing tab once dropdown is opened should close dropdown", async () => {
     render(testComponent());
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
     expect(screen.getAllByRole("list")).not.toBeNull();
-    userEvent.tab();
+    await userEvent.tab();
     await waitForElementToBeRemoved(screen.getAllByRole("list"));
   });
 
-  it("{ArrowDown} should select next item", () => {
+  it("{ArrowDown} should select next item", async () => {
     render(testComponent());
-    userEvent.tab();
+    await userEvent.tab();
     expect(screen.getByRole("button")).toHaveTextContent("No Action");
-    userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{Enter}");
 
     // Make sure first item is selected by default and not any other items
     expect(screen.getAllByRole("listitem")[0].querySelector("a")).toHaveClass(
@@ -137,7 +137,7 @@ describe("<TreeDropdown/>", () => {
       if (i !== 0) expect(item).not.toHaveClass("bp3-active");
     }
 
-    userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
     expect(screen.getAllByRole("listitem")[1].querySelector("a")).toHaveClass(
       "bp3-active",
     );
@@ -147,11 +147,11 @@ describe("<TreeDropdown/>", () => {
     }
   });
 
-  it("{ArrowUp} should select next item", () => {
+  it("{ArrowUp} should select next item", async () => {
     render(testComponent());
-    userEvent.tab();
+    await userEvent.tab();
     expect(screen.getByRole("button")).toHaveTextContent("No Action");
-    userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{Enter}");
 
     // Make sure first item is selected by default and not any other items
     expect(screen.getAllByRole("listitem")[0].querySelector("a")).toHaveClass(
@@ -161,7 +161,7 @@ describe("<TreeDropdown/>", () => {
       if (i !== 0) expect(item).not.toHaveClass("bp3-active");
     }
 
-    userEvent.keyboard("{ArrowUp}");
+    await userEvent.keyboard("{ArrowUp}");
     expect(
       screen.getAllByRole("listitem")[optionTree.length - 1].querySelector("a"),
     ).toHaveClass("bp3-active");
@@ -174,10 +174,10 @@ describe("<TreeDropdown/>", () => {
   it("After selecting an option using arrow, {enter} or ' ' should trigger onSelect", async () => {
     const handleOnSelect = jest.fn();
     render(testComponent(handleOnSelect));
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Enter}");
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       {
         label: optionTree[1].label,
@@ -187,12 +187,12 @@ describe("<TreeDropdown/>", () => {
       undefined,
     );
 
-    userEvent.keyboard("{Enter}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard(" ");
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       {
         label: optionTree[4].label,
@@ -206,34 +206,34 @@ describe("<TreeDropdown/>", () => {
   it("{enter} or '{ArrowRight}' or ' ' on an item with children should open child menu", async () => {
     const handleOnSelect = jest.fn();
     render(testComponent(handleOnSelect));
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
     expect(queryByRole(screen.queryAllByRole("list")[0], "list")).toBeNull();
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Enter}");
     expect(handleOnSelect).not.toBeCalled();
     expect(
       queryByRole(screen.queryAllByRole("list")[0], "list"),
     ).toBeInTheDocument();
 
     // {ArrowLeft} should close the child menu
-    userEvent.keyboard("{ArrowLeft}");
-    await waitForElementToBeRemoved(
+    await userEvent.keyboard("{ArrowDown}");
+    waitForElementToBeRemoved(
       queryByRole(screen.queryAllByRole("list")[0], "list"),
     );
 
-    userEvent.keyboard(" ");
-    expect(
+    await userEvent.keyboard(" ");
+    await expect(
       queryByRole(screen.queryAllByRole("list")[0], "list"),
     ).toBeInTheDocument();
 
     // {ArrowLeft} should close the child menu
-    userEvent.keyboard("{ArrowLeft}");
-    await waitForElementToBeRemoved(
+    // await userEvent.keyboard("{ArrowLeft}");
+    waitForElementToBeRemoved(
       queryByRole(screen.queryAllByRole("list")[0], "list"),
     );
-    userEvent.keyboard("{ArrowRight}");
+    // await userEvent.keyboard("{ArrowRight}");
     expect(
       queryByRole(screen.queryAllByRole("list")[0], "list"),
     ).toBeInTheDocument();
@@ -241,11 +241,11 @@ describe("<TreeDropdown/>", () => {
 
   it("When a child menu is opened, first item of the menu should be active", async () => {
     render(testComponent());
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Enter}");
     expect(
       queryByRole(screen.queryAllByRole("list")[0], "list"),
     ).toBeInTheDocument();
@@ -259,13 +259,13 @@ describe("<TreeDropdown/>", () => {
     }
   });
 
-  it("child menu should be navigatable using arrow keys", () => {
+  it("child menu should be navigatable using arrow keys", async () => {
     render(testComponent());
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Enter}");
     expect(
       queryByRole(screen.queryAllByRole("list")[0], "list"),
     ).toBeInTheDocument();
@@ -276,7 +276,7 @@ describe("<TreeDropdown/>", () => {
       if (i === 0) expect(item.querySelector("a")).toHaveClass("bp3-active");
       else expect(item.querySelector("a")).not.toHaveClass("bp3-active");
     }
-    userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
     for (const [i, item] of queryAllByRole(
       screen.queryAllByRole("list")[1],
       "listitem",
@@ -284,7 +284,7 @@ describe("<TreeDropdown/>", () => {
       if (i === 1) expect(item.querySelector("a")).toHaveClass("bp3-active");
       else expect(item.querySelector("a")).not.toHaveClass("bp3-active");
     }
-    userEvent.keyboard("{ArrowUp}");
+    await userEvent.keyboard("{ArrowUp}");
     for (const [i, item] of queryAllByRole(
       screen.queryAllByRole("list")[1],
       "listitem",
@@ -294,16 +294,16 @@ describe("<TreeDropdown/>", () => {
     }
   });
 
-  it("{enter} or ' ' on a child menu item should trigger onSelect", () => {
+  it("{enter} or ' ' on a child menu item should trigger onSelect", async () => {
     const handleOnSelect = jest.fn();
     render(testComponent(handleOnSelect));
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{Enter}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Enter}");
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       {
         // @ts-expect-error: Object is possibly undefined
@@ -316,22 +316,22 @@ describe("<TreeDropdown/>", () => {
     );
   });
 
-  it("{enter} or ' ' on a child menu item with children should open it's child menu", () => {
+  it("{enter} or ' ' on a child menu item with children should open it's child menu", async () => {
     const handleOnSelect = jest.fn();
     render(testComponent(handleOnSelect));
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
     expect(queryByRole(screen.queryAllByRole("list")[0], "list")).toBeNull();
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Enter}");
     expect(handleOnSelect).not.toBeCalled();
     expect(
       queryByRole(screen.queryAllByRole("list")[0], "list"),
     ).toBeInTheDocument();
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Enter}");
     expect(
       queryAllByRole(screen.queryAllByRole("list")[0], "list")[0],
     ).toBeInTheDocument();
@@ -346,19 +346,19 @@ describe("<TreeDropdown/>", () => {
   it("'{Escape}' when a child menu item is open should close child menu", async () => {
     const handleOnSelect = jest.fn();
     render(testComponent(handleOnSelect));
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
     expect(queryByRole(screen.queryAllByRole("list")[0], "list")).toBeNull();
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Enter}");
     expect(handleOnSelect).not.toBeCalled();
     expect(
       queryByRole(screen.queryAllByRole("list")[0], "list"),
     ).toBeInTheDocument();
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Enter}");
     expect(
       queryAllByRole(screen.queryAllByRole("list")[0], "list")[0],
     ).toBeInTheDocument();
@@ -368,14 +368,14 @@ describe("<TreeDropdown/>", () => {
         "list",
       ),
     ).toBeInTheDocument();
-    userEvent.keyboard("{Escape}");
+    await userEvent.keyboard("{Escape}");
     await waitForElementToBeRemoved(
       queryByRole(
         queryAllByRole(screen.queryAllByRole("list")[0], "list")[0],
         "list",
       ),
     );
-    userEvent.keyboard("{Escape}");
+    await userEvent.keyboard("{Escape}");
     await waitForElementToBeRemoved(
       queryAllByRole(screen.queryAllByRole("list")[0], "list")[0],
     );

@@ -1,3 +1,4 @@
+import * as utils from "utils/helpers";
 import {
   countryToFlag,
   formatCurrencyNumber,
@@ -7,20 +8,13 @@ import {
   parseLocaleFormattedStringToNumber,
 } from "./utilities";
 
-let locale = "en-US";
-
-jest.mock("utils/helpers", () => {
-  const originalModule = jest.requireActual("utils/helpers");
-  return {
-    __esModule: true,
-    ...originalModule,
-    getLocale: () => {
-      return locale;
-    },
-  };
-});
+const getLocaleMock = jest.spyOn(utils, "getLocale");
 
 describe("Utilities - ", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("should test test countryToFlag", () => {
     [
       ["IN", "🇮🇳"],
@@ -103,23 +97,25 @@ describe("Utilities - ", () => {
 
   it("should test getLocaleDecimalSeperator", () => {
     expect(getLocaleDecimalSeperator()).toBe(".");
-    locale = "en-IN";
+    getLocaleMock.mockReturnValueOnce("en-IN").mockReturnValueOnce("hr-HR");
     expect(getLocaleDecimalSeperator()).toBe(".");
-    locale = "hr-HR";
     expect(getLocaleDecimalSeperator()).toBe(",");
   });
 
   it("should test getLocaleThousandSeparator", () => {
-    locale = "en-US";
+    getLocaleMock
+      .mockReturnValueOnce("en-US")
+      .mockReturnValueOnce("en-IN")
+      .mockReturnValueOnce("hr-HR");
+
     expect(getLocaleThousandSeparator()).toBe(",");
-    locale = "en-IN";
     expect(getLocaleThousandSeparator()).toBe(",");
-    locale = "hr-HR";
     expect(getLocaleThousandSeparator()).toBe(".");
   });
 
-  it("shoud test parseLocaleFormattedStringToNumber", () => {
-    locale = "en-US";
+  it("shoud test parseLocaleFormattedStringToNumber for locale en-US", () => {
+    getLocaleMock.mockReturnValue("en-US");
+
     [
       ["123", 123],
       ["123.12", 123.12],
@@ -130,8 +126,11 @@ describe("Utilities - ", () => {
     ].forEach((d) => {
       expect(parseLocaleFormattedStringToNumber(d[0] as string)).toBe(d[1]);
     });
+  });
 
-    locale = "hr-HR";
+  it("shoud test parseLocaleFormattedStringToNumber for locale hr-HR", () => {
+    getLocaleMock.mockReturnValue("hr-HR");
+
     [
       ["123", 123],
       ["123,12", 123.12],

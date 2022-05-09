@@ -4,40 +4,33 @@ import { builderURL, integrationEditorURL } from "RouteBuilder";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { INTEGRATION_TABS } from "constants/routes";
 import React from "react";
-import { Provider } from "react-redux";
 import { fireEvent, render, screen } from "test/testUtils";
 import OnboardingChecklist from "./Checklist";
 import { getStore, initialState } from "./testUtils";
+import * as reactRedux from "react-redux";
+import history from "utils/history";
+import { BrowserRouter } from "react-router-dom";
+import * as utils from "pages/Editor/utils";
 
 let container: any = null;
 
-let useIsWidgetActionConnectionPresent = false;
-jest.mock("pages/Editor/utils", () => ({
-  useIsWidgetActionConnectionPresent: () => useIsWidgetActionConnectionPresent,
-}));
+const useDispatchMock = jest.spyOn(reactRedux, "useDispatch");
+const dummyDispatch = jest.fn();
+useDispatchMock.mockReturnValue(dummyDispatch);
 
-const dispatch = jest.fn();
-jest.mock("react-redux", () => {
-  const originalModule = jest.requireActual("react-redux");
-  return {
-    ...originalModule,
-    useDispatch: () => dispatch,
-  };
-});
-
-let history: any;
 jest.mock("utils/history", () => {
-  history = jest.fn();
   return {
-    push: history,
+    push: jest.fn(),
   };
 });
 
 function renderComponent(store: any) {
   render(
-    <Provider store={store}>
-      <OnboardingChecklist />
-    </Provider>,
+    <BrowserRouter>
+      <reactRedux.Provider store={store}>
+        <OnboardingChecklist />
+      </reactRedux.Provider>
+    </BrowserRouter>,
     container,
   );
 }
@@ -81,7 +74,7 @@ describe("Checklist", () => {
     const banner = screen.queryAllByTestId("checklist-completion-banner");
     expect(banner.length).toBe(0);
     fireEvent.click(datasourceButton[0]);
-    expect(history).toHaveBeenCalledWith(
+    expect(history.push).toHaveBeenCalledWith(
       integrationEditorURL({
         selectedTab: INTEGRATION_TABS.NEW,
       }),
@@ -96,7 +89,7 @@ describe("Checklist", () => {
     expect(datasourceButton.length).toBe(0);
     const actionButton = screen.queryAllByTestId("checklist-action-button");
     fireEvent.click(actionButton[0]);
-    expect(history).toHaveBeenCalledWith(
+    expect(history.push).toHaveBeenCalledWith(
       integrationEditorURL({
         selectedTab: INTEGRATION_TABS.ACTIVE,
       }),
@@ -109,12 +102,12 @@ describe("Checklist", () => {
     expect(actionButton.length).toBe(0);
     const widgetButton = screen.queryAllByTestId("checklist-widget-button");
     fireEvent.click(widgetButton[0]);
-    expect(history).toHaveBeenCalledWith(builderURL());
-    expect(dispatch).toHaveBeenCalledWith({
+    expect(history.push).toHaveBeenCalledWith(builderURL());
+    expect(dummyDispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.TOGGLE_ONBOARDING_WIDGET_SELECTION,
       payload: true,
     });
-    expect(dispatch).toHaveBeenCalledWith({
+    expect(dummyDispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.SET_FORCE_WIDGET_PANEL_OPEN,
       payload: true,
     });
@@ -129,7 +122,7 @@ describe("Checklist", () => {
       "checklist-connection-button",
     );
     fireEvent.click(connectionButton[0]);
-    expect(dispatch).toHaveBeenCalledWith(
+    expect(dummyDispatch).toHaveBeenCalledWith(
       bindDataOnCanvas({
         queryId: store.getState().entities.actions[0].config.id,
         applicationId: store.getState().entities.pageList.applicationId,
@@ -139,7 +132,9 @@ describe("Checklist", () => {
   });
 
   it("with `connect your data` task checked off", () => {
-    useIsWidgetActionConnectionPresent = true;
+    jest
+      .spyOn(utils, "useIsWidgetActionConnectionPresent")
+      .mockReturnValueOnce(true);
     renderComponent(getStore(4));
     const connectionButton = screen.queryAllByTestId(
       "checklist-connection-button",
@@ -147,7 +142,7 @@ describe("Checklist", () => {
     expect(connectionButton.length).toBe(0);
     const deployButton = screen.queryAllByTestId("checklist-deploy-button");
     fireEvent.click(deployButton[0]);
-    expect(dispatch).toHaveBeenCalledWith({
+    expect(dummyDispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
       payload: {
         applicationId: initialState.entities.pageList.applicationId,

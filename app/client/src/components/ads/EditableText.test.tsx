@@ -24,8 +24,8 @@ describe("<EditableText />", () => {
     const renderResult = render(component);
     const EditableTextElement = renderResult.container.firstElementChild;
     if (EditableTextElement) {
-      userEvent.click(EditableTextElement);
-      userEvent.tab();
+      await userEvent.click(EditableTextElement);
+      await userEvent.tab();
       expect(handleBlur).toHaveBeenCalled();
     } else {
       throw new Error("Failed");

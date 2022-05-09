@@ -6,24 +6,18 @@ import { Provider } from "react-redux";
 import { fireEvent, render, screen } from "test/testUtils";
 import OnboardingTasks from "./Tasks";
 import { getStore, initialState } from "./testUtils";
+import * as reactRedux from "react-redux";
+import history from "utils/history";
 
-const dispatch = jest.fn();
-jest.mock("react-redux", () => {
-  const originalModule = jest.requireActual("react-redux");
-  return {
-    ...originalModule,
-    useDispatch: () => dispatch,
-  };
-});
+const useDispatchMock = jest.spyOn(reactRedux, "useDispatch");
+const dummyDispatch = jest.fn();
+useDispatchMock.mockReturnValue(dummyDispatch);
 
-let history: any;
 jest.mock("utils/history", () => {
-  history = jest.fn();
   return {
-    push: history,
+    push: jest.fn(),
   };
 });
-
 let container: any;
 
 function renderComponent(store: any) {
@@ -63,7 +57,7 @@ describe("Tasks", () => {
     );
     expect(button.length).toBe(1);
     fireEvent.click(button[0]);
-    expect(history).toHaveBeenCalledWith(
+    expect(history.push).toHaveBeenCalledWith(
       integrationEditorURL({
         selectedTab: INTEGRATION_TABS.NEW,
       }),
@@ -71,11 +65,11 @@ describe("Tasks", () => {
     const alt = await screen.findAllByTestId("onboarding-tasks-datasource-alt");
     expect(alt.length).toBe(1);
     fireEvent.click(alt[0]);
-    expect(dispatch).toHaveBeenCalledWith({
+    expect(dummyDispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.TOGGLE_ONBOARDING_WIDGET_SELECTION,
       payload: true,
     });
-    expect(dispatch).toHaveBeenCalledWith({
+    expect(dummyDispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.SET_FORCE_WIDGET_PANEL_OPEN,
       payload: true,
     });
@@ -91,7 +85,7 @@ describe("Tasks", () => {
     );
     expect(button.length).toBe(1);
     fireEvent.click(button[0]);
-    expect(history).toHaveBeenCalledWith(
+    expect(history.push).toHaveBeenCalledWith(
       integrationEditorURL({
         selectedTab: INTEGRATION_TABS.ACTIVE,
       }),
@@ -99,11 +93,11 @@ describe("Tasks", () => {
     const alt = await screen.findAllByTestId("onboarding-tasks-action-alt");
     expect(alt.length).toBe(1);
     fireEvent.click(alt[0]);
-    expect(dispatch).toHaveBeenCalledWith({
+    expect(dummyDispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.TOGGLE_ONBOARDING_WIDGET_SELECTION,
       payload: true,
     });
-    expect(dispatch).toHaveBeenCalledWith({
+    expect(dummyDispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.SET_FORCE_WIDGET_PANEL_OPEN,
       payload: true,
     });
@@ -119,18 +113,18 @@ describe("Tasks", () => {
     );
     expect(button.length).toBe(1);
     fireEvent.click(button[0]);
-    expect(dispatch).toHaveBeenCalledWith({
+    expect(dummyDispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.TOGGLE_ONBOARDING_WIDGET_SELECTION,
       payload: true,
     });
-    expect(dispatch).toHaveBeenCalledWith({
+    expect(dummyDispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.SET_FORCE_WIDGET_PANEL_OPEN,
       payload: true,
     });
     const alt = await screen.findAllByTestId("onboarding-tasks-widget-alt");
     expect(alt.length).toBe(1);
     fireEvent.click(alt[0]);
-    expect(dispatch).toHaveBeenCalledWith({
+    expect(dummyDispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
       payload: {
         applicationId: initialState.entities.pageList.applicationId,

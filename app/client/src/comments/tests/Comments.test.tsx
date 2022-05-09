@@ -34,7 +34,8 @@ describe("Comment threads", () => {
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });
   });
-  it("are rendered", async (done) => {
+
+  it("are rendered", async () => {
     // find is a combination of get and waitFor
     // follows a approach waiting for the element to appear on screen
     // instead of waiting for the api execution
@@ -46,10 +47,9 @@ describe("Comment threads", () => {
     );
     const commentPins = await findAllByDataCy("inline-comment-pin");
     expect(commentPins).toHaveLength(8);
-    done();
   });
 
-  it("can be created", async (done) => {
+  it("can be created", async () => {
     const { findByDataCy, findByText, getAllByDataCy, getByDataCy } = render(
       <OverlayCommentsWrapper refId="0" widgetType={"BUTTON_WIDGET"}>
         <div style={{ height: 100, width: 100 }} />
@@ -57,7 +57,7 @@ describe("Comment threads", () => {
       container,
     );
     // clicking creates a new unpublished comment
-    userEvent.click(getByDataCy("overlay-comments-wrapper"));
+    await userEvent.click(getByDataCy("overlay-comments-wrapper"));
     const textAreas = await waitFor(() =>
       document.querySelectorAll(".public-DraftEditor-content"),
     );
@@ -77,7 +77,7 @@ describe("Comment threads", () => {
       });
       // wait for text change to be propogated
       await findByText(newComment);
-      userEvent.click(getByDataCy("add-comment-submit"));
+      await userEvent.click(getByDataCy("add-comment-submit"));
       const createdThreadId = createNewThreadMockResponse.data.id;
       // wait for the new thread to be rendered
       await findByDataCy(`t--inline-comment-pin-trigger-${createdThreadId}`);
@@ -85,9 +85,9 @@ describe("Comment threads", () => {
       // now we should have 9 threads rendered
       expect(commentPins).toHaveLength(9);
     }
-    done();
   });
-  it("accept replies", async (done) => {
+
+  it("accept replies", async () => {
     const { findByDataCy, findByText, getByDataCy } = render(
       <OverlayCommentsWrapper refId="0" widgetType={"BUTTON_WIDGET"}>
         <div style={{ height: 100, width: 100 }} />
@@ -99,7 +99,7 @@ describe("Comment threads", () => {
       `t--inline-comment-pin-trigger-${existingThreadId}`,
     );
     // show comment thread popover
-    userEvent.click(pin);
+    await userEvent.click(pin);
 
     const textAreas = await waitFor(() =>
       document.querySelectorAll(".public-DraftEditor-content"),
@@ -114,15 +114,14 @@ describe("Comment threads", () => {
           getData: () => "new",
         },
       });
-      fireEvent(textArea, event);
+      await fireEvent(textArea, event);
       // wait for text change to be propogated
       await findByText("new");
-      userEvent.click(getByDataCy("add-comment-submit"));
+      await userEvent.click(getByDataCy("add-comment-submit"));
       // newly created comment should be visible
       const createdCommentId = addCommentToThreadMockResponse.data.id;
       await findByDataCy(`t--comment-card-${createdCommentId}`);
     }
-    done();
   });
 
   afterEach(() => {

@@ -1,4 +1,5 @@
 import { setWidgetDynamicPropertySaga } from "./WidgetOperationSagas";
+import { updateAndSaveLayout } from "actions/pageActions";
 
 const widget = {
   isVisible: "true",
@@ -32,16 +33,13 @@ jest.mock("redux-saga/effects", () => {
   };
 });
 
-let updateAndSaveLayoutMock: any;
-
 jest.mock("actions/pageActions", () => {
   const originalModule = jest.requireActual("actions/pageActions");
-  updateAndSaveLayoutMock = jest.fn();
 
   return {
     __esModule: true,
     ...originalModule,
-    updateAndSaveLayout: updateAndSaveLayoutMock,
+    updateAndSaveLayout: jest.fn(),
   };
 });
 
@@ -63,7 +61,7 @@ describe("WidgetOperationSaga - ", () => {
         test: widget,
       } as any); // yield select
       value.next(); //yield put
-      expect(updateAndSaveLayoutMock).toHaveBeenCalledWith({
+      expect(updateAndSaveLayout).toHaveBeenCalledWith({
         test: {
           ...widget,
           dynamicPropertyPathList: [
@@ -91,7 +89,7 @@ describe("WidgetOperationSaga - ", () => {
         test: widget1,
       } as any); // yield select
       value.next(); //yield put
-      expect(updateAndSaveLayoutMock).toHaveBeenCalledWith({
+      expect(updateAndSaveLayout).toHaveBeenCalledWith({
         test: {
           dynamicPropertyPathList: [],
           dynamicBindingPathList: [],
