@@ -5,7 +5,7 @@ import {
   ButtonColumnActions,
   EditableCellActions,
 } from "widgets/TableWidgetV2/constants";
-import { Button } from "../cellComponents/Button";
+import { Button } from "./Button";
 import { CellAlignment, VerticalAlignment } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import { TextSize } from "constants/WidgetConstants";
@@ -25,10 +25,10 @@ type RenderEditActionsProps = {
   allowCellWrapping?: boolean;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
-  fontStyle: string;
-  textColor: string;
-  cellBackground: string;
-  textSize: TextSize;
+  fontStyle?: string;
+  textColor?: string;
+  cellBackground?: string;
+  textSize?: TextSize;
 };
 
 export function EditActionCell(props: RenderEditActionsProps) {

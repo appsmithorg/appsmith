@@ -1,5 +1,5 @@
 import React from "react";
-import { renderBodyCheckBoxCell } from "./CheckboxCellRenderer";
+import { renderBodyCheckBoxCell } from "./CheckboxCell";
 
 export const renderEmptyRows = (
   rowCount: number,

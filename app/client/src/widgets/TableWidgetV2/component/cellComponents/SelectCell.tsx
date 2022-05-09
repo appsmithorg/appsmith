@@ -11,7 +11,7 @@ import {
 import { getSelectColumnTypeOptions } from "widgets/TableWidgetV2/widget/utilities";
 import { CellWrapper } from "../TableStyledWrappers";
 import styled from "constants/DefaultTheme";
-import AutoToolTipComponent from "../cellComponents/AutoToolTipComponent";
+import AutoToolTipComponent from "./AutoToolTipComponent";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { TextSize } from "constants/WidgetConstants";
 
@@ -38,9 +38,9 @@ type SelectProps = {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   textColor?: string;
-  fontStyle: string;
-  cellBackground: string;
-  textSize: TextSize;
+  fontStyle?: string;
+  cellBackground?: string;
+  textSize?: TextSize;
 };
 
 export const SelectCell = (props: SelectProps) => {

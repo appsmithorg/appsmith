@@ -15,10 +15,10 @@ type renderImageType = {
   allowCellWrapping?: boolean;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
-  fontStyle: string;
-  textColor: string;
-  cellBackground: string;
-  textSize: TextSize;
+  fontStyle?: string;
+  textColor?: string;
+  cellBackground?: string;
+  textSize?: TextSize;
 };
 
 export function ImageCell(args: renderImageType) {

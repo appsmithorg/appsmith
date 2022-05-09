@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useMemo, useRef } from "react";
 import { pick, reduce } from "lodash";
 import {
   useTable,
@@ -27,11 +27,11 @@ import { Colors } from "constants/Colors";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
-import { renderEmptyRows } from "./renderHelpers/EmptyCellRenderer";
+import { renderEmptyRows } from "./cellComponents/EmptyCell";
 import {
   renderBodyCheckBoxCell,
   renderHeaderCheckBoxCell,
-} from "./renderHelpers/CheckboxCellRenderer";
+} from "./cellComponents/CheckboxCell";
 import { HeaderCell } from "./cellComponents/HeaderCell";
 import { EditableCell } from "../constants";
 
@@ -80,6 +80,9 @@ interface TableProps {
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
   delimiter: string;
+  accentColor: string;
+  borderRadius: string;
+  boxShadow?: string;
   onBulkEditDiscard: () => void;
   onBulkEditSave: () => void;
 }
@@ -213,6 +216,14 @@ export function Table(props: TableProps) {
     props.isVisibleDownload ||
     props.isVisiblePagination;
 
+  const style = useMemo(
+    () => ({
+      width: props.width,
+      height: 38,
+    }),
+    [],
+  );
+
   return (
     <TableWrapper
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
@@ -235,10 +246,7 @@ export function Table(props: TableProps) {
             autoHide
             renderThumbHorizontal={ScrollbarHorizontalThumb}
             renderThumbVertical={ScrollbarVerticalThumb}
-            style={{
-              width: props.width,
-              height: 38,
-            }}
+            style={style}
           >
             <TableHeaderInnerWrapper
               backgroundColor={Colors.WHITE}
@@ -265,7 +273,7 @@ export function Table(props: TableProps) {
                 searchTableData={props.searchTableData}
                 serverSidePaginationEnabled={props.serverSidePaginationEnabled}
                 tableColumns={columns}
-                tableData={props.data}
+                tableData={data}
                 tableSizes={tableSizes}
                 totalRecordsCount={props.totalRecordsCount}
                 updatePageNo={props.updatePageNo}

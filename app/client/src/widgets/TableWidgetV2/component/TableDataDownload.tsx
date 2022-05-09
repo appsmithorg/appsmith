@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import {
   Popover,
   Classes,
@@ -7,13 +7,13 @@ import {
 } from "@blueprintjs/core";
 import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
-import { ReactComponent as DownloadIcon } from "assets/icons/control/download-data-icon.svg";
 import { ReactTableColumnProps } from "./Constants";
 import { TableIconWrapper } from "./TableStyledWrappers";
 import TableAction from "./TableAction";
 import styled from "styled-components";
 import { transformTableDataIntoCsv } from "./CommonUtilities";
 import zipcelx from "zipcelx";
+import { ReactComponent as DownloadIcon } from "assets/icons/control/download-data-icon.svg";
 
 const DropDownWrapper = styled.div`
   display: flex;
@@ -200,12 +200,11 @@ function TableDataDownload(props: TableDataDownloadProps) {
     >
       <TableAction
         className="t--table-download-btn"
+        icon="download"
         selectMenu={selectMenu}
         selected={selected}
         title="Download"
-      >
-        <DownloadIcon />
-      </TableAction>
+      />
       <DropDownWrapper>
         {dowloadOptions.map((item: DownloadOptionProps, index: number) => {
           return (
@@ -225,4 +224,4 @@ function TableDataDownload(props: TableDataDownloadProps) {
   );
 }
 
-export default TableDataDownload;
+export default memo(TableDataDownload);

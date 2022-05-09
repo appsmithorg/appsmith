@@ -1,4 +1,4 @@
-import { getCellText } from "./DefaultRenderer";
+import { getCellText } from "./DefaultCell";
 import { CellLayoutProperties } from "../Constants";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 
