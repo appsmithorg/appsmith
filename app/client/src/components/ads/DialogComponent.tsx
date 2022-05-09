@@ -105,6 +105,7 @@ const HeaderIconWrapper = styled.div<{ bgColor?: string }>`
 `;
 
 type DialogComponentProps = {
+  isCloseButtonShown?: boolean;
   isOpen?: boolean;
   canOutsideClickClose?: boolean;
   title?: string;
@@ -177,6 +178,7 @@ export function DialogComponent(props: DialogComponentProps) {
         canOutsideClickClose={!!props.canOutsideClickClose}
         className={props.className}
         icon={headerIcon}
+        isCloseButtonShown={props.isCloseButtonShown}
         isOpen={isOpen}
         maxHeight={props.maxHeight}
         maxWidth={props.maxWidth}

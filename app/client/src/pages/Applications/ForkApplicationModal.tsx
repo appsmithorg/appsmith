@@ -98,9 +98,10 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
 
   return (
     <StyledDialog
-      canOutsideClickClose
+      canOutsideClickClose={!forkingApplication}
       className={"fork-modal"}
       headerIcon={{ name: "fork-2", bgColor: Colors.GEYSER_LIGHT }}
+      isCloseButtonShown={!forkingApplication}
       isOpen={isModalOpen || showBasedOnURL}
       setModalClose={setModalClose}
       title={modalHeading}
