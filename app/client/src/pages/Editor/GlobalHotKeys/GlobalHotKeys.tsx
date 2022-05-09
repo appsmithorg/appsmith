@@ -16,7 +16,7 @@ import {
   deselectAllInitAction,
   selectAllWidgetsInCanvasInitAction,
 } from "actions/widgetSelectionActions";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { isMac } from "utils/helpers";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -59,7 +59,7 @@ type Props = {
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
   groupSelectedWidget: () => void;
-  toggleShowGlobalSearchModal: (category: SearchCategory) => void;
+  setGlobalSearchCategory: (category: SearchCategory) => void;
   resetSnipingMode: () => void;
   openDebugger: () => void;
   closeProppane: () => void;
@@ -112,7 +112,7 @@ class GlobalHotKeys extends React.Component<Props> {
     if (this.props.isPreviewMode) return;
 
     const category = filterCategories[categoryId];
-    this.props.toggleShowGlobalSearchModal(category);
+    this.props.setGlobalSearchCategory(category);
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
       source: "HOTKEY_COMBO",
       category: category.title,
@@ -428,8 +428,8 @@ const mapDispatchToProps = (dispatch: any) => {
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
     groupSelectedWidget: () => dispatch(groupWidgets()),
-    toggleShowGlobalSearchModal: (category: SearchCategory) =>
-      dispatch(toggleShowGlobalSearchModal(category)),
+    setGlobalSearchCategory: (category: SearchCategory) =>
+      dispatch(setGlobalSearchCategory(category)),
     resetSnipingMode: () => dispatch(resetSnipingModeAction()),
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
