@@ -26,6 +26,7 @@ import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
+  EvaluationError,
   EVAL_WORKER_ACTIONS,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
@@ -318,7 +319,11 @@ export function* clearEvalCache() {
 export function* executeFunction(collectionName: string, action: JSAction) {
   const functionCall = `${collectionName}.${action.name}()`;
   const { isAsync } = action.actionConfiguration;
-  let response;
+  let response: {
+    errors: any[];
+    result: any;
+  };
+
   if (isAsync) {
     try {
       response = yield call(
@@ -340,8 +345,10 @@ export function* executeFunction(collectionName: string, action: JSAction) {
   }
 
   const { errors, result } = response;
+  const isDirty = !!errors.length;
+
   yield call(evalErrorHandler, errors);
-  return result;
+  return { result, isDirty };
 }
 
 export function* validateProperty(

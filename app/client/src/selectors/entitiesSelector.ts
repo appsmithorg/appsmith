@@ -24,7 +24,12 @@ import { APP_MODE } from "entities/App";
 import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { selectFeatureFlags } from "./usersSelectors";
-import { EvaluationError, EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
+import {
+  EvalErrorTypes,
+  EvaluationError,
+  EVAL_ERROR_PATH,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
@@ -830,6 +835,6 @@ export const getJSCollectionParseErrors = (
     [],
   ) as EvaluationError[];
   return allErrors.filter((error) => {
-    return error.severity === Severity.ERROR;
+    return error.errorType === PropertyEvaluationErrorType.PARSE;
   });
 };
