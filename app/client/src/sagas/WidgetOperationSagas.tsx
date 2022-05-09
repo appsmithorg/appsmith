@@ -1485,7 +1485,7 @@ function* pasteWidgetSaga(
   yield put(updateAndSaveLayout(reflowedWidgets));
 
   yield put({
-    type: "ADD_NEW_WIDGET",
+    type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
     payload: newlyCreatedWidgetIds,
   });
 

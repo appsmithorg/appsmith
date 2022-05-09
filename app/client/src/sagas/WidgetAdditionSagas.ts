@@ -323,7 +323,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);
     yield put(updateAndSaveLayout(updatedWidgets));
     yield put({
-      type: "ADD_NEW_WIDGET",
+      type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
       payload: [addChildAction.payload.newWidgetId],
     });
     log.debug("add child computations took", performance.now() - start, "ms");

@@ -25,6 +25,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 type PropertyPaneTitleProps = {
   title: string;
@@ -52,7 +53,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   const isNew = useSelector((state: AppState) => state.ui.propertyPane.isNew);
   const newWidgetId = useSelector(
     (state: AppState) =>
-      state.ui.canvasSelection.newWidgets[props.widgetId || ""],
+      state.ui.canvasSelection.recentlyAddedWidget[props.widgetId || ""],
   );
   const guidedTourEnabled = useSelector(inGuidedTour);
 
@@ -139,7 +140,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
 
     return () => {
       dispatch({
-        type: "REMOVE_NEW_WIDGET",
+        type: ReduxActionTypes.REMOVE_FROM_RECENTLY_ADDED_WIDGET,
         payload: props.widgetId,
       });
     };
