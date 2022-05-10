@@ -289,15 +289,12 @@ describe("generateDataTreeWidget", () => {
       privateWidgets: {},
       deepObj: {
         level1: {
-          value: 10,
           metaValue: 10,
         },
       },
     };
 
     const result = generateDataTreeWidget(widget, widgetMetaProps);
-    // console.log(diff(expected, result));
-    expect(expected).toStrictEqual(expected);
-    expect(result).toStrictEqual(result);
+    expect(result).toStrictEqual(expected);
   });
 });

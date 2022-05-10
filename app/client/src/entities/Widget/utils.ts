@@ -4,9 +4,7 @@ import {
 } from "constants/PropertyControlConstants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { get, isObject, isUndefined, omitBy } from "lodash";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import memoizee from "memoizee/weak";
+import memoize from "micro-memoize";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 
@@ -279,18 +277,10 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
   return { reactivePaths, triggerPaths, validationPaths, bindingPaths };
 };
 
-export const getAllPathsFromPropertyConfig = memoizee(
+export const getAllPathsFromPropertyConfig = memoize(
   getAllPathsFromPropertyConfigWithoutMemo,
   {
-    max: 1000,
-    length: false,
-    normalizer: (args: Array<any>) => {
-      return (
-        JSON.stringify(args[0]) +
-        JSON.stringify(args[1]) +
-        JSON.stringify(args[2])
-      );
-    },
+    maxSize: 1000,
   },
 );
 
