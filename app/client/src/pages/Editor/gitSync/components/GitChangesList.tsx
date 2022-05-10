@@ -83,7 +83,7 @@ const STATUS_MAP: StatusMap = {
   [Kind.PAGE]: (status: GitStatusData) => ({
     message: `${status?.modifiedPages || 0} ${
       (status?.modifiedPages || 0) <= 1 ? "page" : "pages"
-    } updated`,
+    } modified`,
     iconName: "widget",
     hasValue: (status?.modifiedPages || 0) > 0,
   }),

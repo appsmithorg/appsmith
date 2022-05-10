@@ -1105,37 +1105,6 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void listBranchForApplication_applicationWithDefaultBranch_returnsLocalAndRemoteDefaultBranch() throws IOException {
-        List<GitBranchDTO> branchList = new ArrayList<>();
-        GitBranchDTO gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("defaultBranch");
-        branchList.add(gitBranchDTO);
-        gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("origin/defaultBranch");
-        branchList.add(gitBranchDTO);
-
-        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq(false)))
-                .thenReturn(Mono.just(branchList));
-        Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just("defaultBranchName"));
-        Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class))).thenReturn(Mono.just(true));
-        Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just(Paths.get("textPath")));
-
-        Application application1 = createApplicationConnectedToGit("listBranchForApplication_applicationWithDefaultBranch_returnsLocalAndRemoteDefaultBranch", null);
-
-        Mono<List<GitBranchDTO>> listMono = gitService.listBranchForApplication(application1.getId(), false, "defaultBranch");
-
-        StepVerifier
-                .create(listMono)
-                .assertNext(listBranch -> {
-                    assertThat(listBranch).isEqualTo(branchList);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
     public void listBranchForApplication_emptyGitMetadata_throwError() {
 
         Application testApplication = new Application();
@@ -1178,104 +1147,16 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void listBranchForApplication_pruneBranchWithCurrentCheckedOutBranchRemoteDeleted_Success() throws IOException {
+    public void listBranchForApplication_defaultBranchNotChangesInRemote_Success() throws IOException {
         List<GitBranchDTO> branchList = new ArrayList<>();
         GitBranchDTO gitBranchDTO = new GitBranchDTO();
         gitBranchDTO.setBranchName("defaultBranch");
-        gitBranchDTO.setDefault(false);
-        branchList.add(gitBranchDTO);
-        gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("origin/defaultBranch");
         gitBranchDTO.setDefault(true);
-        branchList.add(gitBranchDTO);
-        gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("defaultBranchName");
-        gitBranchDTO.setDefault(false);
-        branchList.add(gitBranchDTO);
-
-        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq(true)))
-                .thenReturn(Mono.just(branchList));
-        Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just("defaultBranch"));
-        Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class))).thenReturn(Mono.just(true));
-        Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just(Paths.get("textPath")));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(false)))
-                .thenReturn(Mono.just("status"));
-
-        Application application1 = createApplicationConnectedToGit("listBranchForApplication", null);
-
-        Mono<List<GitBranchDTO>> listMono = gitService.listBranchForApplication(application1.getId(), true, "defaultBranchName");
-
-        StepVerifier
-                .create(listMono)
-                .assertNext(listBranch -> {
-                    assertThat(listBranch).isEqualTo(branchList);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void listBranchForApplication_pruneBranchWithAppsmithDefaultBranchFromRemoteDeleted_Success() throws IOException {
-        List<GitBranchDTO> branchList = new ArrayList<>();
-        GitBranchDTO gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("defaultBranch");
-        gitBranchDTO.setDefault(false);
-        branchList.add(gitBranchDTO);
-        gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("origin/defaultBranchName");
-        gitBranchDTO.setDefault(true);
-        branchList.add(gitBranchDTO);
-        gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("defaultBranchName");
-        gitBranchDTO.setDefault(false);
-        branchList.add(gitBranchDTO);
-
-        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq(true)))
-                .thenReturn(Mono.just(branchList));
-        Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just("defaultBranch"));
-        Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class))).thenReturn(Mono.just(true));
-        Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just(Paths.get("textPath")));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(false)))
-                .thenReturn(Mono.just("status"));
-        Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
-                .thenReturn(Mono.just(true));
-
-        Application application1 = createApplicationConnectedToGit("listBranchForApplication_pruneBranchWithAppsmithDefaultBranchFromRemoteDeleted_Success", "defaultBranch");
-
-        Mono<List<GitBranchDTO>> listMono = gitService.listBranchForApplication(application1.getId(), true, "defaultBranchName");
-
-        StepVerifier
-                .create(listMono)
-                .assertNext(listBranch -> {
-                    assertThat(listBranch).isEqualTo(branchList);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void listBranchForApplication_pruneBranchDefaultBranchUpdatedInRemote_SuccessWithDbUpdatedDefaultBranch() throws IOException {
-        List<GitBranchDTO> branchList = new ArrayList<>();
-        GitBranchDTO gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("defaultBranch");
-        gitBranchDTO.setDefault(false);
         branchList.add(gitBranchDTO);
         gitBranchDTO = new GitBranchDTO();
         gitBranchDTO.setBranchName("origin/defaultBranch");
         gitBranchDTO.setDefault(false);
         branchList.add(gitBranchDTO);
-        gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("defaultBranchName");
-        gitBranchDTO.setDefault(true);
-        branchList.add(gitBranchDTO);
-        gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("origin/defaultBranchName");
-        gitBranchDTO.setDefault(false);
-        branchList.add(gitBranchDTO);
 
         Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq(true)))
                 .thenReturn(Mono.just(branchList));
@@ -1287,92 +1168,7 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(false)))
                 .thenReturn(Mono.just("status"));
 
-        Application application1 = createApplicationConnectedToGit("listBranchForApplication_pruneBranchDefaultBranchUpdatedInRemote_SuccessWithDbUpdatedDefaultBranch", null);
-
-        Mono<Application> applicationMono = gitService.listBranchForApplication(application1.getId(), true, "defaultBranchName").then(applicationService.getById(application1.getId()));
-
-        StepVerifier
-                .create(applicationMono)
-                .assertNext(application -> {
-                    assertThat(application.getGitApplicationMetadata().getDefaultBranchName()).isEqualTo("defaultBranchName");
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void listBranchForApplication_pruneBranchWithStaleLocalBranches_SuccessWithDeleteLocalBranch() throws IOException {
-        List<GitBranchDTO> branchList = new ArrayList<>();
-        GitBranchDTO gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("defaultBranch");
-        gitBranchDTO.setDefault(false);
-        branchList.add(gitBranchDTO);
-        gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("origin/defaultBranch");
-        gitBranchDTO.setDefault(true);
-        branchList.add(gitBranchDTO);
-        gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("defaultBranchName");
-        gitBranchDTO.setDefault(false);
-        branchList.add(gitBranchDTO);
-
-        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq(true)))
-                .thenReturn(Mono.just(branchList));
-        Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just("defaultBranch"));
-        Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class))).thenReturn(Mono.just(true));
-        Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just(Paths.get("textPath")));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(false)))
-                .thenReturn(Mono.just("status"));
-        Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
-                .thenReturn(Mono.just(true));
-
-        Application application1 = createApplicationConnectedToGit("listBranchForApplication_pruneBranchWithStaleLocalBranches_SuccessWithDeleteLocalBranch", "defaultBranch");
-
-        Application childApplication = new Application();
-        childApplication.setName("listBranchForApplication_pruneBranchWithStaleLocalBranches_SuccessWithDeleteLocalBranch_branch");
-        childApplication.setOrganizationId(orgId);
-        Application branchApplication = applicationPageService.createApplication(childApplication).block();
-        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-        gitApplicationMetadata.setDefaultApplicationId(application1.getId());
-        gitApplicationMetadata.setBranchName("defaultBranchName");
-        branchApplication.setGitApplicationMetadata(gitApplicationMetadata);
-        branchApplication = applicationService.save(branchApplication).block();
-
-        Mono<Application> applicationMono = gitService.listBranchForApplication(application1.getId(), true, "defaultBranch")
-                .then(applicationService.getById(branchApplication.getId()));
-
-        StepVerifier
-                .create(applicationMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException && throwable.getMessage().contains("Unable to find application"))
-                .verify();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void listBranchForApplication_pruneBranchNoChangesInRemote_Success() throws IOException {
-        List<GitBranchDTO> branchList = new ArrayList<>();
-        GitBranchDTO gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("defaultBranch");
-        gitBranchDTO.setDefault(false);
-        branchList.add(gitBranchDTO);
-        gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("origin/defaultBranch");
-        gitBranchDTO.setDefault(true);
-        branchList.add(gitBranchDTO);
-
-        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq(true)))
-                .thenReturn(Mono.just(branchList));
-        Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just("defaultBranch"));
-        Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class))).thenReturn(Mono.just(true));
-        Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just(Paths.get("textPath")));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(false)))
-                .thenReturn(Mono.just("status"));
-
-        Application application1 = createApplicationConnectedToGit("listBranchForApplication_pruneBranchNoChangesInRemote_Success", null);
+        Application application1 = createApplicationConnectedToGit("listBranchForApplication_pruneBranchNoChangesInRemote_Success", "defaultBranch");
 
         Mono<List<GitBranchDTO>> listMono = gitService.listBranchForApplication(application1.getId(), true, "defaultBranch");
 
@@ -1386,19 +1182,23 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void listBranchForApplication_pruneBranchWithBranchNotExistsInDB_Success() throws IOException {
+    public void listBranchForApplication_defaultBranchChangesInRemoteExistsInDB_Success() throws IOException {
         List<GitBranchDTO> branchList = new ArrayList<>();
         GitBranchDTO gitBranchDTO = new GitBranchDTO();
         gitBranchDTO.setBranchName("defaultBranch");
         gitBranchDTO.setDefault(false);
         branchList.add(gitBranchDTO);
         gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("localBranchOnly");
-        gitBranchDTO.setDefault(false);
+        gitBranchDTO.setBranchName("feature1");
+        gitBranchDTO.setDefault(true);
         branchList.add(gitBranchDTO);
         gitBranchDTO = new GitBranchDTO();
         gitBranchDTO.setBranchName("origin/defaultBranch");
-        gitBranchDTO.setDefault(true);
+        gitBranchDTO.setDefault(false);
+        branchList.add(gitBranchDTO);
+        gitBranchDTO = new GitBranchDTO();
+        gitBranchDTO.setBranchName("origin/feature1");
+        gitBranchDTO.setDefault(false);
         branchList.add(gitBranchDTO);
 
         Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq(true)))
@@ -1414,15 +1214,73 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(true));
 
         Application application1 = createApplicationConnectedToGit("listBranchForApplication_pruneBranchWithBranchNotExistsInDB_Success", "defaultBranch");
+        // Create branch
+        Application application2 = createApplicationConnectedToGit("listBranchForApplication_defaultBranchChangesInRemoteExistsInDB_Success",
+                "feature1");
+        application2.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+        applicationService.save(application2).block();
 
-        Mono<List<GitBranchDTO>> listMono = gitService.listBranchForApplication(application1.getId(), true, "defaultBranch");
+        Mono<Application> applicationUpdatedMono = gitService.listBranchForApplication(application1.getId(), true, "defaultBranch")
+                .then(applicationService.findById(application1.getId()));
 
         StepVerifier
-                .create(listMono)
-                .assertNext(listBranch -> {
-                    assertThat(listBranch).isNotEqualTo(branchList);
+                .create(applicationUpdatedMono)
+                .assertNext(application -> {
+                    assertThat(application.getGitApplicationMetadata().getDefaultBranchName()).isEqualTo("feature1");
+                    assertThat(application.getGitApplicationMetadata().getBranchName()).isEqualTo("defaultBranch");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void listBranchForApplication_defaultBranchChangesInRemoteDoesNotExistsInDB_Success() throws IOException {
+        List<GitBranchDTO> branchList = new ArrayList<>();
+        GitBranchDTO gitBranchDTO = new GitBranchDTO();
+        gitBranchDTO.setBranchName("defaultBranch");
+        gitBranchDTO.setDefault(false);
+        branchList.add(gitBranchDTO);
+        gitBranchDTO = new GitBranchDTO();
+        gitBranchDTO.setBranchName("feature1");
+        gitBranchDTO.setDefault(true);
+        branchList.add(gitBranchDTO);
+        gitBranchDTO = new GitBranchDTO();
+        gitBranchDTO.setBranchName("origin/defaultBranch");
+        gitBranchDTO.setDefault(false);
+        branchList.add(gitBranchDTO);
+        gitBranchDTO = new GitBranchDTO();
+        gitBranchDTO.setBranchName("origin/feature1");
+        gitBranchDTO.setDefault(false);
+        branchList.add(gitBranchDTO);
+
+        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq(true)))
+                .thenReturn(Mono.just(branchList));
+        Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("defaultBranch"));
+        Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class))).thenReturn(Mono.just(true));
+        Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("textPath")));
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(false)))
+                .thenReturn(Mono.just("status"));
+        Mockito.when(gitExecutor.checkoutRemoteBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just("feature1"));
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(validAppJson));
+
+        Application application1 = createApplicationConnectedToGit("listBranchForApplication_defaultBranchChangesInRemoteDoesNotExistsInDB_Success", "defaultBranch");
+
+        Mono<Application> applicationUpdatedMono = gitService.listBranchForApplication(application1.getId(), true, "defaultBranch")
+                .then(applicationService.findById(application1.getId()));
+
+        StepVerifier
+                .create(applicationUpdatedMono)
+                .assertNext(application -> {
+                    assertThat(application.getGitApplicationMetadata().getDefaultBranchName()).isEqualTo("feature1");
+                    assertThat(application.getGitApplicationMetadata().getBranchName()).isEqualTo("defaultBranch");
+                })
+                .verifyComplete();
+
+        // Check for the branch application in db with name feature1
     }
 
     @Test
@@ -2397,6 +2255,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_emptyRepo_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+        GitAuth gitAuth = gitService.generateSSHKey().block();
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.setExportedApplication(null);
@@ -2418,7 +2277,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_validRequest_Success() throws GitAPIException, IOException {
+    public void importApplicationFromGit_validRequest_Success() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey().block();
 
@@ -2451,7 +2310,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_validRequestWithDuplicateApplicationName_Success() throws GitAPIException, IOException {
+    public void importApplicationFromGit_validRequestWithDuplicateApplicationName_Success() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey().block();
 
@@ -2489,7 +2348,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfSameType_Success() throws GitAPIException, IOException {
+    public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfSameType_Success() {
         Organization organization = new Organization();
         organization.setName("gitImportOrg");
         final String testOrgId = organizationService.create(organization)
@@ -2602,7 +2461,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfDifferentType_ThrowError() throws GitAPIException, IOException {
+    public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfDifferentType_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo1.git", testUserProfile);
         gitService.generateSSHKey().block();
         ApplicationJson applicationJson =  createAppJson(filePath).block();
@@ -2629,6 +2488,29 @@ public class GitServiceTest {
                 .create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable.getMessage().contains("Datasource already exists with the same name"))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromGit_validRequestWithEmptyRepo_ThrowError() {
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/emptyRepo.git", testUserProfile);
+        GitAuth gitAuth = gitService.generateSSHKey().block();
+
+        ApplicationJson applicationJson =new ApplicationJson();
+
+        Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("defaultBranch"));
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(applicationJson));
+        Mockito.when(gitFileUtils.detachRemote(Mockito.any(Path.class))).thenReturn(Mono.just(true));
+
+        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+
+        StepVerifier
+                .create(applicationMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains("Cannot import app from an empty repo"))
                 .verify();
     }
 
