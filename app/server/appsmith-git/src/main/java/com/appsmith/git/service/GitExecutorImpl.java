@@ -628,7 +628,6 @@ public class GitExecutorImpl implements GitExecutor {
                     mergeStatus.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT);
                 }
                 mergeStatus.setStatus(mergeResult.getMergeStatus().name());
-                git.close();
                 return mergeStatus;
             }
         })
