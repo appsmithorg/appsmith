@@ -911,93 +911,36 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         importedNewPagesMono = updateNewPagesBeforeMerge(existingPagesMono, importedNewPageList)
                                 .flatMapMany(newToOldNameMap->
                                                 importNewPageFlux.map(newPage -> {
-                                                        // we need to map the newly created page with old name
-                                                        // because other related resources e.g. actions will refer the page with old name
-                                                        String oldPageName = newToOldNameMap.get(newPage.getUnpublishedPage().getName());
-                                                        pageNameMap.put(oldPageName, newPage);
-                                                        return newPage;
+                                                    // we need to map the newly created page with old name
+                                                    // because other related resources e.g. actions will refer the page with old name
+                                                    String newPageName = newPage.getUnpublishedPage().getName();
+                                                    String oldPageName = newToOldNameMap.get(newPageName);
+                                                    if(!newPageName.equals(oldPageName)) {
+                                                        renamePageInActions(importedNewActionList, oldPageName, newPageName);
+                                                        renamePageInActionCollections(importedActionCollectionList, oldPageName, newPageName);
+                                                    }
+                                                    return newPage;
                                                 })
                                         );
                     } else {
-                        importedNewPagesMono = importNewPageFlux
-.map(newPage -> {
-                            // Save the map of pageName and NewPage
-                            if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
-                                pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
-                            }
-                            if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
-                                pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
-                            }
-                            return newPage;
-                        });
+                        importedNewPagesMono = importNewPageFlux;
                     }
+                    importedNewPagesMono = importedNewPagesMono
+                            .map(newPage -> {
+                                // Save the map of pageName and NewPage
+                                if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
+                                    pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
+                                }
+                                if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
+                                    pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
+                                }
+                                return newPage;
+                            });
 
                     return importedNewPagesMono
                             .collectList()
                             .map(newPageList -> {
-                                Map<PublishType, List<ApplicationPage>> applicationPages = Map.of(
-                                        PublishType.UNPUBLISHED, new ArrayList<>(),
-                                        PublishType.PUBLISHED, new ArrayList<>()
-                                );
-                                // Reorder the pages based on edit mode page sequence
-                                List<String> pageOrderList;
-                                if(!CollectionUtils.isEmpty(applicationJson.getPageOrder())) {
-                                    pageOrderList = applicationJson.getPageOrder();
-                                } else {
-                                    pageOrderList = pageNameMap.values()
-                                            .stream()
-                                            .map(newPage -> newPage.getUnpublishedPage().getName())
-                                            .collect(Collectors.toList());
-                                }
-                                for(String pageName : pageOrderList) {
-                                    NewPage newPage = pageNameMap.get(pageName);
-                                    ApplicationPage unpublishedAppPage = new ApplicationPage();
-                                    if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
-                                        unpublishedAppPage.setIsDefault(
-                                                StringUtils.equals(
-                                                        newPage.getUnpublishedPage().getName(), importedDoc.getUnpublishedDefaultPageName()
-                                                )
-                                        );
-                                        unpublishedAppPage.setId(newPage.getId());
-                                        if (newPage.getDefaultResources() != null) {
-                                            unpublishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
-                                        }
-                                    }
-                                    if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
-                                        applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
-                                    }
-                                }
-
-                                // Reorder the pages based on view mode page sequence
-                                List<String> publishedPageOrderList;
-                                if(!CollectionUtils.isEmpty(applicationJson.getPublishedPageOrder())) {
-                                    publishedPageOrderList = applicationJson.getPublishedPageOrder();
-                                } else {
-                                    publishedPageOrderList = pageNameMap.values()
-                                            .stream()
-                                            .filter(newPage -> Optional.ofNullable(newPage.getPublishedPage()).isPresent())
-                                            .map(newPage -> newPage.getPublishedPage().getName()).collect(Collectors.toList());
-                                }
-                                for(String pageName : publishedPageOrderList) {
-                                    NewPage newPage = pageNameMap.get(pageName);
-                                    ApplicationPage publishedAppPage = new ApplicationPage();
-                                    if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
-                                        publishedAppPage.setIsDefault(
-                                                StringUtils.equals(
-                                                        newPage.getPublishedPage().getName(), importedDoc.getPublishedDefaultPageName()
-                                                )
-                                        );
-                                        publishedAppPage.setId(newPage.getId());
-                                        if (newPage.getDefaultResources() != null) {
-                                            publishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
-                                        }
-                                    }
-
-                                    if (publishedAppPage.getId() != null && newPage.getPublishedPage().getDeletedAt() == null) {
-                                        applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
-                                    }
-                                }
-                                return applicationPages;
+                                return reorderPages(applicationJson, importedDoc, pageNameMap);
                             })
                             .flatMap(applicationPages -> {
                                 if (!StringUtils.isEmpty(applicationId) && !appendToApp) {
@@ -1183,6 +1126,88 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         return Mono.create(sink -> importedApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
         );
+    }
+
+    private void renamePageInActions(List<NewAction> newActionList, String oldPageName, String newPageName) {
+        for(NewAction newAction : newActionList) {
+            if(newAction.getUnpublishedAction().getPageId().equals(oldPageName)) {
+                newAction.getUnpublishedAction().setPageId(newPageName);
+            }
+        }
+    }
+
+    private void renamePageInActionCollections(List<ActionCollection> actionCollectionList, String oldPageName, String newPageName) {
+        for(ActionCollection actionCollection : actionCollectionList) {
+            if(actionCollection.getUnpublishedCollection().getPageId().equals(oldPageName)) {
+                actionCollection.getUnpublishedCollection().setPageId(newPageName);
+            }
+        }
+    }
+
+    private Map<PublishType, List<ApplicationPage>> reorderPages(ApplicationJson applicationJson, ApplicationJson importedDoc, Map<String, NewPage> pageNameMap) {
+        Map<PublishType, List<ApplicationPage>> applicationPages = Map.of(
+                PublishType.UNPUBLISHED, new ArrayList<>(),
+                PublishType.PUBLISHED, new ArrayList<>()
+        );
+        // Reorder the pages based on edit mode page sequence
+        List<String> pageOrderList;
+        if(!CollectionUtils.isEmpty(applicationJson.getPageOrder())) {
+            pageOrderList = applicationJson.getPageOrder();
+        } else {
+            pageOrderList = pageNameMap.values()
+                    .stream()
+                    .map(newPage -> newPage.getUnpublishedPage().getName())
+                    .collect(Collectors.toList());
+        }
+        for(String pageName : pageOrderList) {
+            NewPage newPage = pageNameMap.get(pageName);
+            ApplicationPage unpublishedAppPage = new ApplicationPage();
+            if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
+                unpublishedAppPage.setIsDefault(
+                        StringUtils.equals(
+                                newPage.getUnpublishedPage().getName(), importedDoc.getUnpublishedDefaultPageName()
+                        )
+                );
+                unpublishedAppPage.setId(newPage.getId());
+                if (newPage.getDefaultResources() != null) {
+                    unpublishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
+                }
+            }
+            if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
+                applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
+            }
+        }
+
+        // Reorder the pages based on view mode page sequence
+        List<String> publishedPageOrderList;
+        if(!CollectionUtils.isEmpty(applicationJson.getPublishedPageOrder())) {
+            publishedPageOrderList = applicationJson.getPublishedPageOrder();
+        } else {
+            publishedPageOrderList = pageNameMap.values()
+                    .stream()
+                    .filter(newPage -> Optional.ofNullable(newPage.getPublishedPage()).isPresent())
+                    .map(newPage -> newPage.getPublishedPage().getName()).collect(Collectors.toList());
+        }
+        for(String pageName : publishedPageOrderList) {
+            NewPage newPage = pageNameMap.get(pageName);
+            ApplicationPage publishedAppPage = new ApplicationPage();
+            if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
+                publishedAppPage.setIsDefault(
+                        StringUtils.equals(
+                                newPage.getPublishedPage().getName(), importedDoc.getPublishedDefaultPageName()
+                        )
+                );
+                publishedAppPage.setId(newPage.getId());
+                if (newPage.getDefaultResources() != null) {
+                    publishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
+                }
+            }
+
+            if (publishedAppPage.getId() != null && newPage.getPublishedPage().getDeletedAt() == null) {
+                applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
+            }
+        }
+        return applicationPages;
     }
 
     /**
