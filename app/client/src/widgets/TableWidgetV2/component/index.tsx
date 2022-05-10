@@ -78,6 +78,9 @@ interface ReactTableComponentProps {
   isVisiblePagination?: boolean;
   delimiter: string;
   isSortable?: boolean;
+  accentColor: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -252,7 +255,10 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 
   return (
     <Table
+      accentColor={props.accentColor}
       applyFilter={applyFilter}
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
       columnWidthMap={columnWidthMap}
       columns={columns}
       compactMode={compactMode}
@@ -334,6 +340,9 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.widgetId === next.widgetId &&
     prev.widgetName === next.widgetName &&
     prev.width === next.width &&
+    prev.borderRadius === next.borderRadius &&
+    prev.boxShadow === next.boxShadow &&
+    prev.accentColor === next.accentColor &&
     isEqual(prev.columnWidthMap, next.columnWidthMap) &&
     isEqual(prev.tableData, next.tableData) &&
     // Using JSON stringify becuase isEqual doesnt work with functions,

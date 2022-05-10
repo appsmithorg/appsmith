@@ -226,7 +226,10 @@ export function Table(props: TableProps) {
 
   return (
     <TableWrapper
+      accentColor={props.accentColor}
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
       height={props.height}
       id={`table${props.widgetId}`}
       isHeaderVisible={isHeaderVisible}
@@ -255,7 +258,10 @@ export function Table(props: TableProps) {
               width={props.width}
             >
               <TableHeader
+                accentColor={props.accentColor}
                 applyFilter={props.applyFilter}
+                borderRadius={props.borderRadius}
+                boxShadow={props.boxShadow}
                 columns={tableHeadercolumns}
                 currentPageIndex={currentPageIndex}
                 delimiter={props.delimiter}
@@ -312,6 +318,8 @@ export function Table(props: TableProps) {
                       renderHeaderCheckBoxCell(
                         handleAllRowSelectClick,
                         rowSelectionState,
+                        props.accentColor,
+                        props.borderRadius,
                       )}
                     {headerGroup.headers.map(
                       (column: any, columnIndex: number) => {
@@ -342,6 +350,8 @@ export function Table(props: TableProps) {
                   subPage,
                   prepareRow,
                   props.multiRowSelection,
+                  props.accentColor,
+                  props.borderRadius,
                 )}
             </div>
             <div
@@ -372,7 +382,11 @@ export function Table(props: TableProps) {
                     }}
                   >
                     {props.multiRowSelection &&
-                      renderBodyCheckBoxCell(isRowSelected)}
+                      renderBodyCheckBoxCell(
+                        isRowSelected,
+                        props.accentColor,
+                        props.borderRadius,
+                      )}
                     {row.cells.map((cell, cellIndex) => {
                       return (
                         <div
@@ -397,6 +411,8 @@ export function Table(props: TableProps) {
                   subPage,
                   prepareRow,
                   props.multiRowSelection,
+                  props.accentColor,
+                  props.borderRadius,
                 )}
             </div>
           </div>
