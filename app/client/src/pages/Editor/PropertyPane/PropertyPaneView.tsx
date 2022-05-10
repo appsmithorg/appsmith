@@ -1,4 +1,10 @@
-import React, { ReactElement, useCallback, useMemo } from "react";
+import React, {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { IPanelProps, Position } from "@blueprintjs/core";
@@ -12,6 +18,11 @@ import PropertyPaneConnections from "./PropertyPaneConnections";
 import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 import { WidgetType } from "constants/WidgetConstants";
+import {
+  PropertyPaneKbdEventDetail,
+  PROPERTY_PANE_KEYBOARD_EVENT,
+} from "utils/AppsmithUtils";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -39,6 +50,7 @@ function PropertyPaneView(
   const { ...panel } = props;
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
   const doActionsExist = useSelector(actionsExist);
+  const containerRef = useRef<HTMLDivElement>(null);
   const hideConnectDataCTA = useMemo(() => {
     if (widgetProperties) {
       return excludeList.includes(widgetProperties.type);
@@ -46,6 +58,26 @@ function PropertyPaneView(
 
     return true;
   }, [widgetProperties?.type, excludeList]);
+
+  const handleKbdEvent = (e: Event) => {
+    const event = e as CustomEvent<PropertyPaneKbdEventDetail>;
+    AnalyticsUtil.logEvent("PROPERTY_PANE_KEYPRESS", {
+      key: event.detail.key,
+    });
+  };
+
+  useEffect(() => {
+    containerRef.current?.addEventListener(
+      PROPERTY_PANE_KEYBOARD_EVENT,
+      handleKbdEvent,
+    );
+    return () => {
+      containerRef.current?.removeEventListener(
+        PROPERTY_PANE_KEYBOARD_EVENT,
+        handleKbdEvent,
+      );
+    };
+  }, []);
 
   /**
    * on delete button click
@@ -101,6 +133,7 @@ function PropertyPaneView(
     <div
       className="relative flex flex-col w-full pt-3 overflow-y-auto"
       key={`property-pane-${widgetProperties.widgetId}`}
+      ref={containerRef}
     >
       <PropertyPaneTitle
         actions={actions}

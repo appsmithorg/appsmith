@@ -234,7 +234,8 @@ export type EventName =
   | "MANUAL_UPGRADE_CLICK"
   | "PAGE_NOT_FOUND"
   | "SIMILAR_TEMPLATE_CLICK"
-  | "RUN_JS_FUNCTION";
+  | "RUN_JS_FUNCTION"
+  | "PROPERTY_PANE_KEYPRESS";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

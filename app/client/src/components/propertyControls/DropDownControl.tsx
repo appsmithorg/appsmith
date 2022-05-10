@@ -4,8 +4,43 @@ import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
 import { DropdownOption } from "components/ads/Dropdown";
 import { isNil } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import {
+  propertyPaneKbdEvent,
+  PropertyPaneKbdEventDetail,
+  PROPERTY_PANE_KEYBOARD_EVENT,
+} from "utils/AppsmithUtils";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
+  containerRef = React.createRef<HTMLDivElement>();
+
+  componentDidMount() {
+    this.containerRef.current?.addEventListener(
+      PROPERTY_PANE_KEYBOARD_EVENT,
+      this.handleKbdEvent,
+    );
+  }
+
+  componentWillUnmount() {
+    this.containerRef.current?.removeEventListener(
+      PROPERTY_PANE_KEYBOARD_EVENT,
+      this.handleKbdEvent,
+    );
+  }
+
+  handleKbdEvent = (e: Event) => {
+    const event = e as CustomEvent<PropertyPaneKbdEventDetail>;
+    if (!event.detail?.propertyType) {
+      e.stopPropagation();
+      this.containerRef.current?.dispatchEvent(
+        propertyPaneKbdEvent({
+          key: event.detail.key,
+          propertyType: DropDownControl.getControlType(),
+          propertyName: this.props.propertyName,
+        }),
+      );
+    }
+  };
+
   render() {
     let defaultSelected: DropdownOption | DropdownOption[] = {
       label: "No selection.",
@@ -51,7 +86,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     }
 
     return (
-      <StyledDropDownContainer>
+      <StyledDropDownContainer ref={this.containerRef}>
         <StyledDropDown
           dropdownHeight={this.props.dropdownHeight}
           dropdownMaxHeight="200px"

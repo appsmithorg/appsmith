@@ -22,6 +22,8 @@ import { trimQueryString } from "./helpers";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { builderURL, viewerURL } from "RouteBuilder";
 
+export const PROPERTY_PANE_KEYBOARD_EVENT = "PROPERTY_PANE_KEYBOARD_EVENT";
+
 export const createReducer = (
   initialState: any,
   handlers: { [type: string]: (state: any, action: any) => any },
@@ -114,6 +116,19 @@ export const mapToPropList = (map: Record<string, string>): Property[] => {
     return { key: key, value: value };
   });
 };
+
+export type PropertyPaneKbdEventDetail = {
+  key?: string;
+  propertyName?: string;
+  propertyType?: string;
+  widgetType?: string;
+};
+
+export const propertyPaneKbdEvent = (detail: PropertyPaneKbdEventDetail = {}) =>
+  new CustomEvent(PROPERTY_PANE_KEYBOARD_EVENT, {
+    bubbles: true,
+    detail,
+  });
 
 export const getNextEntityName = (
   prefix: string,
