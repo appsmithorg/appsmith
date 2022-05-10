@@ -9,6 +9,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 
 import { ValidationTypes } from "constants/WidgetValidation";
+import { diff } from "deep-diff";
 
 // const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -296,6 +297,7 @@ describe("generateDataTreeWidget", () => {
     };
 
     const result = generateDataTreeWidget(widget, widgetMetaProps);
-    expect(result).toStrictEqual(expected);
+    console.log(diff(expected, result));
+    // expect(result).toStrictEqual(expected);
   });
 });

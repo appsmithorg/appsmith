@@ -1,5 +1,5 @@
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
-import _, { isObject } from "lodash";
+import _ from "lodash";
 import memoize from "micro-memoize";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
@@ -203,15 +203,15 @@ export const generateDataTreeWidget = (
   //   overridingMetaProps,
   // });
 
-  const partial = { ...partial_ };
+  const partial = partial_;
   const meta = _.merge(overridingMetaProps, widgetMetaProps);
 
   Object.entries(widgetMetaProps).forEach(([key, value]) => {
-    if (isObject(value)) {
-      partial[key] = _.merge(partial[key], value);
-    } else {
-      partial[key] = value;
-    }
+    // if (isObject(value)) {
+    //   partial[key] = _.merge(partial[key], value);
+    // } else {
+    partial[key] = value;
+    // }
   });
 
   partial["meta"] = meta;
