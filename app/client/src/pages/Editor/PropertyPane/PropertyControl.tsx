@@ -325,12 +325,17 @@ const PropertyControl = memo((props: Props) => {
    * It also calls the beforeChildPropertyUpdate hook
    */
   const onPropertyChange = useCallback(
-    (propertyName: string, propertyValue: any) => {
+    (
+      propertyName: string,
+      propertyValue: any,
+      isUpdatedViaKeyboard?: boolean,
+    ) => {
       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
         widgetType: widgetProperties.type,
         widgetName: widgetProperties.widgetName,
         propertyName: propertyName,
         updatedValue: propertyValue,
+        isUpdatedViaKeyboard,
       });
 
       const selfUpdates:

@@ -25,7 +25,11 @@ import { findIndex, isArray } from "lodash";
 import { SubTextPosition } from "components/constants";
 import { propertyPaneKbdEvent } from "utils/AppsmithUtils";
 
-export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
+export type DropdownOnSelect = (
+  value?: string,
+  dropdownOption?: any,
+  isUpdatedViaKeyboard?: boolean,
+) => void;
 
 export type DropdownOption = {
   label?: string;
@@ -888,7 +892,7 @@ export default function Dropdown(props: DropdownProps) {
   }, [props.selected]);
 
   const optionClickHandler = useCallback(
-    (option: DropdownOption) => {
+    (option: DropdownOption, isUpdatedViaKeyboard?: boolean) => {
       if (props.isMultiSelect) {
         // Multi select -> typeof selected is array of objects
         if (isArray(selected) && selected.length < 1) {
@@ -909,7 +913,7 @@ export default function Dropdown(props: DropdownProps) {
         setSelected(option);
         setIsOpen(false);
       }
-      onSelect && onSelect(option.value, option);
+      onSelect && onSelect(option.value, option, isUpdatedViaKeyboard);
       option.onSelect && option.onSelect(option.value, option);
     },
     [onSelect],
@@ -971,9 +975,9 @@ export default function Dropdown(props: DropdownProps) {
             if (isOpen) {
               if (props.isMultiSelect) {
                 if (highlight >= 0)
-                  optionClickHandler(props.options[highlight]);
+                  optionClickHandler(props.options[highlight], true);
               } else {
-                optionClickHandler(selected as DropdownOption);
+                optionClickHandler(selected as DropdownOption, true);
               }
             } else {
               onClickHandler();
@@ -987,9 +991,10 @@ export default function Dropdown(props: DropdownProps) {
           e.preventDefault();
           if (isOpen) {
             if (props.isMultiSelect) {
-              if (highlight >= 0) optionClickHandler(props.options[highlight]);
+              if (highlight >= 0)
+                optionClickHandler(props.options[highlight], true);
             } else {
-              optionClickHandler(selected as DropdownOption);
+              optionClickHandler(selected as DropdownOption, true);
             }
           } else {
             onClickHandler();

@@ -29,7 +29,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
   handleKbdEvent = (e: Event) => {
     const event = e as CustomEvent<PropertyPaneKbdEventDetail>;
-    if (!event.detail?.propertyType) {
+    if (!event.detail?.propertyName) {
       e.stopPropagation();
       this.containerRef.current?.dispatchEvent(
         propertyPaneKbdEvent({
@@ -110,7 +110,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     );
   }
 
-  onItemSelect = (value?: string): void => {
+  onItemSelect = (
+    value?: string,
+    _option?: DropdownOption,
+    isUpdatedViaKeyboard?: boolean,
+  ): void => {
     if (!isNil(value)) {
       let selectedValue: string | string[] = this.props.propertyValue;
       if (this.props.isMultiSelect) {
@@ -130,7 +134,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       } else {
         selectedValue = value;
       }
-      this.updateProperty(this.props.propertyName, selectedValue);
+      this.updateProperty(
+        this.props.propertyName,
+        selectedValue,
+        isUpdatedViaKeyboard,
+      );
     }
   };
 

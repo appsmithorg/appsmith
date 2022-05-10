@@ -144,6 +144,7 @@ describe("<Dropdown /> - Keyboard Navigation", () => {
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       optionsProps.options[1].value,
       optionsProps.options[1],
+      true,
     );
     userEvent.keyboard("{Enter}");
     userEvent.keyboard("{ArrowDown}");
@@ -151,6 +152,7 @@ describe("<Dropdown /> - Keyboard Navigation", () => {
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       optionsProps.options[2].value,
       optionsProps.options[2],
+      true,
     );
   });
 
@@ -179,12 +181,14 @@ describe("<Dropdown isMultiSelect /> - Keyboard Navigation", () => {
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       optionsProps.options[0].value,
       optionsProps.options[0],
+      true,
     );
     userEvent.keyboard("{ArrowDown}");
     userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       optionsProps.options[1].value,
       optionsProps.options[1],
+      true,
     );
     userEvent.keyboard("{ArrowDown}");
     userEvent.keyboard("{ArrowDown}");
@@ -192,18 +196,21 @@ describe("<Dropdown isMultiSelect /> - Keyboard Navigation", () => {
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       optionsProps.options[0].value,
       optionsProps.options[0],
+      true,
     );
     userEvent.keyboard("{ArrowUp}");
     userEvent.keyboard("{Enter}");
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       optionsProps.options[2].value,
       optionsProps.options[2],
+      true,
     );
     userEvent.keyboard("{ArrowUp}");
     userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       optionsProps.options[1].value,
       optionsProps.options[1],
+      true,
     );
   });
 });
