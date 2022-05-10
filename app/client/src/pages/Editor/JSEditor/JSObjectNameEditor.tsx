@@ -3,11 +3,6 @@ import { useSelector } from "react-redux";
 
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-// import {
-//   EditableText as NewEditableText,
-//   EditInteractionKind as NewEditInteractionKind,
-//   SavingState,
-// } from "components/ads/EditableText";
 import { removeSpecialChars } from "utils/helpers";
 import { AppState } from "reducers";
 import { JSCollection } from "entities/JSCollection";
@@ -119,7 +114,6 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
               editInteractionKind={EditInteractionKind.SINGLE}
               errorTooltipClass="t--action-name-edit-error"
               forceDefault={forceUpdate}
-              hideEditIcon
               isEditingDefault={isNew}
               isInvalid={isInvalidNameForEntity}
               onTextChanged={handleNameChange}
