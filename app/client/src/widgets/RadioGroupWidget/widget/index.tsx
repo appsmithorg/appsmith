@@ -515,6 +515,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         loading={isLoading}
         onRadioSelectionChange={this.onRadioSelectionChange}
         options={isArray(options) ? compact(options) : []}
+        ref={this.contentRef}
         selectedOptionValue={selectedOptionValue}
         widgetId={widgetId}
       />
