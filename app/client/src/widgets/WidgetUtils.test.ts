@@ -428,6 +428,9 @@ describe("Test widget utility functions", () => {
       tableWidgetProps.primaryColumns.action.boxShadowColor[0],
     );
     expect(newBoxShadow).toEqual("0px 0px 4px 3px rgba(0, 0, 0, 0.25)");
+  });
+});
+
 type composePropertyUpdateHookInputType = Array<
   (
     props: unknown,

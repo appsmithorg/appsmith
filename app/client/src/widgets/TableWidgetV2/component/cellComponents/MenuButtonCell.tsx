@@ -25,7 +25,6 @@ interface MenuButtonProps extends Omit<RenderMenuButtonProps, "columnActions"> {
 function MenuButton({
   borderRadius,
   boxShadow,
-  boxShadowColor,
   iconAlign,
   iconName,
   isCompact,
@@ -55,7 +54,6 @@ function MenuButton({
       <MenuButtonTableComponent
         borderRadius={borderRadius}
         boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
         iconAlign={iconAlign}
         iconName={iconName}
         isCompact={isCompact}
@@ -81,9 +79,8 @@ export interface RenderMenuButtonProps {
   menuItems: MenuItems;
   menuVariant?: ButtonVariant;
   menuColor?: string;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius?: string;
+  boxShadow?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
   isHidden: boolean;
@@ -93,7 +90,7 @@ export interface RenderMenuButtonProps {
   fontStyle?: string;
   textColor?: string;
   cellBackground?: string;
-  textSize?: TextSize;
+  textSize?: string;
 }
 
 export function MenuButtonCell(props: RenderMenuButtonProps) {

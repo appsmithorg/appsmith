@@ -26,7 +26,7 @@ type renderCellType = {
   fontStyle?: string;
   textColor?: string;
   cellBackground?: string;
-  textSize?: TextSize;
+  textSize?: string;
 };
 
 export const VideoCell = (props: renderCellType) => {

@@ -13,6 +13,7 @@ import _, {
   xorWith,
   isEmpty,
   union,
+  find,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -21,7 +22,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import { DynamicPath, getDynamicBindings } from "utils/DynamicBindingUtils";
 import { ReactTableFilter, OperatorTypes } from "../component/Constants";
 import {
   ColumnTypes,
@@ -68,7 +69,8 @@ import { ImageCell } from "../component/cellComponents/ImageCell";
 import { VideoCell } from "../component/cellComponents/VideoCell";
 import { IconButtonCell } from "../component/cellComponents/IconButtonCell";
 import { EditActionCell } from "../component/cellComponents/EditActionsCell";
-import { klona as clone } from "klona/full";
+import { klona as clone } from "klona";
+import { borderRadiusUtility, boxShadowMigration } from "widgets/WidgetUtils";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -742,7 +744,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
+          accentColor={this.props.accentColor}
           applyFilter={this.updateFilters}
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
           columnWidthMap={this.props.columnWidthMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
@@ -1205,17 +1210,20 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         return (
           <ButtonCell
             allowCellWrapping={cellProperties.allowCellWrapping}
-            backgroundColor={cellProperties.buttonColor || DEFAULT_BUTTON_COLOR}
             cellBackground={cellProperties.cellBackground}
             columnActions={[
               {
-                backgroundColor: cellProperties.buttonColor,
+                backgroundColor:
+                  cellProperties.buttonColor || this.props.accentColor,
                 eventType: EventType.ON_CLICK,
                 id: column.id,
                 isVisible: true,
                 label: cellProperties.buttonLabel || DEFAULT_BUTTON_LABEL,
                 dynamicTrigger: column.onClick || "",
                 variant: cellProperties.buttonVariant,
+                borderRadius:
+                  cellProperties.borderRadius || this.props.borderRadius,
+                boxShadow: cellProperties.boxShadow,
               },
             ]}
             compactMode={compactMode}
@@ -1253,11 +1261,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 eventType: EventType.ON_ROW_SAVE,
                 iconName: cellProperties.saveActionIconName,
                 variant: cellProperties.saveButtonVariant,
-                backgroundColor: cellProperties.saveButtonColor,
+                backgroundColor:
+                  cellProperties.saveButtonColor || this.props.accentColor,
                 iconAlign: cellProperties.saveIconAlign,
-                borderRadius: cellProperties.saveBorderRadius,
+                borderRadius:
+                  cellProperties.saveBorderRadius || this.props.borderRadius,
                 isVisible: cellProperties.isSaveVisible,
                 isDisabled: cellProperties.isSaveDisabled,
+                boxShadow: cellProperties.boxShadow,
               },
               {
                 id: EditableCellActions.DISCARD,
@@ -1266,11 +1277,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 eventType: EventType.ON_ROW_DISCARD,
                 iconName: cellProperties.discardActionIconName,
                 variant: cellProperties.discardButtonVariant,
-                backgroundColor: cellProperties.discardButtonColor,
+                backgroundColor:
+                  cellProperties.discardButtonColor || this.props.accentColor,
                 iconAlign: cellProperties.discardIconAlign,
-                borderRadius: cellProperties.discardBorderRadius,
+                borderRadius:
+                  cellProperties.discardBorderRadius || this.props.borderRadius,
                 isVisible: cellProperties.isDiscardVisible,
                 isDisabled: cellProperties.isDiscardDisabled,
+                boxShadow: cellProperties.boxShadow,
               },
             ]}
             compactMode={compactMode}
@@ -1321,6 +1335,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         return (
           <SelectCell
             allowCellWrapping={cellProperties.allowCellWrapping}
+            borderRadius={cellProperties.borderRadius}
             cellBackground={cellProperties.cellBackground}
             compactMode={compactMode}
             fontStyle={cellProperties.fontStyle}
@@ -1375,9 +1390,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         return (
           <MenuButtonCell
             allowCellWrapping={cellProperties.allowCellWrapping}
-            borderRadius={cellProperties.borderRadius}
+            borderRadius={
+              cellProperties.borderRadius || this.props.borderRadius
+            }
             boxShadow={cellProperties.boxShadow}
-            boxShadowColor={cellProperties.boxShadowColor}
             cellBackground={cellProperties.cellBackground}
             compactMode={compactMode}
             fontStyle={cellProperties.fontStyle}
@@ -1390,7 +1406,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isHidden={isHidden}
             isSelected={isSelected}
             label={cellProperties.menuButtonLabel ?? DEFAULT_MENU_BUTTON_LABEL}
-            menuColor={cellProperties.menuColor || Colors.GREEN}
+            menuColor={
+              cellProperties.menuColor || this.props.accentColor || Colors.GREEN
+            }
             menuItems={cellProperties.menuItems}
             menuVariant={cellProperties.menuVariant ?? DEFAULT_MENU_VARIANT}
             onCommandClick={(action: string, onComplete?: () => void) =>
@@ -1412,10 +1430,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         return (
           <IconButtonCell
             allowCellWrapping={cellProperties.allowCellWrapping}
-            borderRadius={cellProperties.borderRadius || "SHARP"}
+            borderRadius={
+              cellProperties.borderRadius || this.props.borderRadius
+            }
             boxShadow={cellProperties.boxShadow || "NONE"}
-            boxShadowColor={cellProperties.boxShadowColor || ""}
-            buttonColor={cellProperties.buttonColor || Colors.GREEN}
+            buttonColor={
+              cellProperties.buttonColor ||
+              this.props.accentColor ||
+              Colors.GREEN
+            }
             buttonVariant={cellProperties.buttonVariant || "PRIMARY"}
             cellBackground={cellProperties.cellBackground}
             columnActions={[

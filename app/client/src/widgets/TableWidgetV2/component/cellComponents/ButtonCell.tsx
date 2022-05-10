@@ -10,7 +10,6 @@ export interface RenderActionProps {
   compactMode: string;
   isSelected: boolean;
   columnActions?: ButtonColumnActions[];
-  backgroundColor: string;
   isDisabled: boolean;
   isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
@@ -21,7 +20,7 @@ export interface RenderActionProps {
   fontStyle?: string;
   textColor?: string;
   cellBackground?: string;
-  textSize?: TextSize;
+  textSize?: string;
 }
 
 export function ButtonCell(props: RenderActionProps) {

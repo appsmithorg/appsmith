@@ -69,7 +69,7 @@ export default {
         updateEditActionsColumnEventsHook,
         updateNumberColumnTypeTextAlignment,
       ]),
-      dependencies: ["primaryColumns", "columnOrder"],
+      dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
       isBindProperty: false,
       isTriggerProperty: false,
     },
