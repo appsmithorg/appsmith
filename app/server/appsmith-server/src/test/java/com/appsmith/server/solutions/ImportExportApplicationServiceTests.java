@@ -2682,8 +2682,8 @@ public class ImportExportApplicationServiceTests {
                 });
 
         StepVerifier.create(exportedAppJson).assertNext(applicationJson -> {
-            assertThat(applicationJson.getEditModeTheme().getName()).isEqualTo(Theme.DEFAULT_THEME_NAME);
-            assertThat(applicationJson.getPublishedTheme().getName()).isEqualTo(Theme.DEFAULT_THEME_NAME);
+            assertThat(applicationJson.getEditModeTheme().getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
+            assertThat(applicationJson.getPublishedTheme().getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
         }).verifyComplete();
     }
 
