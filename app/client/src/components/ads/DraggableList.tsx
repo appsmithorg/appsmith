@@ -237,6 +237,8 @@ function DraggableList(props: any) {
           <animated.div
             {...bind(i)}
             data-rbd-draggable-id={items[i].id}
+            //having a key of items[i].id will break in few places,
+            //eg, primary columns in propertyPane of Table widget
             key={items[i][keyAccessor] || i}
             style={{
               zIndex,
