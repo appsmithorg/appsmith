@@ -12,7 +12,7 @@ import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
 import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
 import {
   generateDataTreeWidget,
-  generateDataTreeWidget_,
+  // generateDataTreeWidget_,
 } from "entities/DataTree/dataTreeWidget";
 import { Variable } from "entities/JSCollection";
 import log from "loglevel";
@@ -27,7 +27,7 @@ import { MetaState } from "reducers/entityReducers/metaReducer";
 import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { AppTheme } from "entities/AppTheming";
-import { diff } from "deep-diff";
+// import { diff } from "deep-diff";
 
 export type ActionDispatcher = (
   ...args: any[]
