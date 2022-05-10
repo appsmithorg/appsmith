@@ -872,7 +872,9 @@ function* executePluginActionSaga(
         setActionResponseDisplayFormat({
           id: actionId,
           field: "responseDisplayFormat",
-          value: responseType ? responseType?.dataType : "JSON",
+          value: responseType
+            ? responseType?.dataType
+            : payload?.dataTypes[0].dataType,
         }),
       );
     }

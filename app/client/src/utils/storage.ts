@@ -2,7 +2,9 @@ import log from "loglevel";
 import moment from "moment";
 import localforage from "localforage";
 
-const STORAGE_KEYS: { [id: string]: string } = {
+export const STORAGE_KEYS: {
+  [id: string]: string;
+} = {
   AUTH_EXPIRATION: "Auth.expiration",
   ROUTE_BEFORE_LOGIN: "RedirectPath",
   COPIED_WIDGET: "CopiedWidget",
@@ -18,6 +20,7 @@ const STORAGE_KEYS: { [id: string]: string } = {
   FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
   HIDE_CONCURRENT_EDITOR_WARNING_TOAST: "HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
+  APP_THEMING_BETA_SHOWN: "APP_THEMING_BETA_SHOWN",
 };
 
 const store = localforage.createInstance({
@@ -52,6 +55,36 @@ export const saveCopiedWidgets = async (widgetJSON: string) => {
     log.error("An error occurred when storing copied widget: ", error);
     return false;
   }
+};
+
+const getStoredUsersBetaFlags = (email: any) => {
+  return store.getItem(email);
+};
+
+const setStoredUsersBetaFlags = (email: any, userBetaFlagsObj: any) => {
+  return store.setItem(email, userBetaFlagsObj);
+};
+
+export const setBetaFlag = async (email: any, key: string, value: any) => {
+  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
+  const updatedObj = {
+    ...userBetaFlagsObj,
+    [key]: value,
+  };
+  setStoredUsersBetaFlags(email, updatedObj);
+};
+
+export const getBetaFlag = async (email: any, key: string) => {
+  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
+
+  return userBetaFlagsObj && userBetaFlagsObj[key];
+};
+
+export const getReflowOnBoardingFlag = async (email: any) => {
+  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
+  return (
+    userBetaFlagsObj && userBetaFlagsObj[STORAGE_KEYS.REFLOW_ONBOARDED_FLAG]
+  );
 };
 
 export const getCopiedWidgets = async () => {

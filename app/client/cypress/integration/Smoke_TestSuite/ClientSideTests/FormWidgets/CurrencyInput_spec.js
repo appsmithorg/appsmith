@@ -66,7 +66,7 @@ describe("Currency widget - ", () => {
     ].forEach((d) => {
       enterAndTest(d[0], d[1]);
     });
-    cy.get(".currency-type-trigger").should("contain", "$");
+    cy.get(".currency-change-dropdown-trigger").should("contain", "$");
 
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(
@@ -74,7 +74,7 @@ describe("Currency widget - ", () => {
       "INR - Indian Rupee",
     );
     enterAndTest("100.22", "100.22:100.22:true:string:number:IN:INR");
-    cy.get(".currency-type-trigger").should("contain", "₹");
+    cy.get(".currency-change-dropdown-trigger").should("contain", "₹");
 
     cy.openPropertyPane(widgetName);
     cy.get(".t--property-control-allowcurrencychange label")

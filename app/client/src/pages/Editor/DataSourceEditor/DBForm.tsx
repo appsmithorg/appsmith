@@ -152,19 +152,22 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               variant={Variant.warning}
             />
           ))}
-        {cloudHosting && pluginType === PluginType.DB && !viewMode && (
-          <CollapsibleWrapper>
-            <CollapsibleHelp>
-              <span>{`Whitelist the IP ${convertArrayToSentence(
-                APPSMITH_IP_ADDRESSES,
-              )}  on your database instance to connect to it. `}</span>
-              <a onClick={this.openOmnibarReadMore}>
-                {"Read more "}
-                <StyledOpenDocsIcon icon="document-open" />
-              </a>
-            </CollapsibleHelp>
-          </CollapsibleWrapper>
-        )}
+        {!this.props.hiddenHeader &&
+          cloudHosting &&
+          pluginType === PluginType.DB &&
+          !viewMode && (
+            <CollapsibleWrapper>
+              <CollapsibleHelp>
+                <span>{`Whitelist the IP ${convertArrayToSentence(
+                  APPSMITH_IP_ADDRESSES,
+                )}  on your database instance to connect to it. `}</span>
+                <a onClick={this.openOmnibarReadMore}>
+                  {"Read more "}
+                  <StyledOpenDocsIcon icon="document-open" />
+                </a>
+              </CollapsibleHelp>
+            </CollapsibleWrapper>
+          )}
         {!viewMode ? (
           <>
             {!_.isNil(sections)

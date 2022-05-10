@@ -27,6 +27,7 @@
     "@sentry/webpack-plugin": "^1.12.1",
     "@tinymce/tinymce-react": "^3.13.0",
     "@types/react-responsive": "8.0.5",
+    "@types/webfontloader": "^1.6.33",
     "@uppy/core": "^1.16.0",
     "@uppy/dashboard": "^1.16.0",
     "@uppy/file-input": "^1.4.22",
@@ -58,6 +59,7 @@
     "fast-deep-equal": "^3.1.1",
     "fast-xml-parser": "^3.17.5",
     "flow-bin": "^0.148.0",
+    "focus-trap-react": "^8.9.2",
     "fuse.js": "^3.4.5",
     "fusioncharts": "^3.18.0",
     "fusionmaps": "^3.18.0",
@@ -158,6 +160,7 @@
     "typescript": "^4.2.4",
     "unescape-js": "^1.1.4",
     "url-search-params-polyfill": "^8.0.0",
+    "webfontloader": "^1.6.28",
     "yjs": "^13.5.12",
     "zipcelx": "^1.6.2"
   },
@@ -310,5 +313,8 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
+  },
+  "resolutions": {
+    "focus-trap-react/**/tabbable": "5.2.1"
   }
 }

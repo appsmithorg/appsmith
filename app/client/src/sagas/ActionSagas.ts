@@ -82,7 +82,10 @@ import {
   ERROR_ACTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
 import { merge, get } from "lodash";
-import { getConfigInitialValues } from "components/formControls/utils";
+import {
+  fixActionPayloadForMongoQuery,
+  getConfigInitialValues,
+} from "components/formControls/utils";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -94,7 +97,7 @@ import {
 } from "utils/AppsmithUtils";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 import {
-  toggleShowGlobalSearchModal,
+  setGlobalSearchCategory,
   setGlobalSearchFilterContext,
 } from "actions/globalSearchActions";
 import {
@@ -118,6 +121,7 @@ import {
   queryEditorIdURL,
   saasEditorApiIdURL,
 } from "RouteBuilder";
+import { PLUGIN_PACKAGE_MONGO } from "constants/QueryEditorConstants";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -323,7 +327,18 @@ export function* updateActionSaga(
       action = transformRestAction(action);
     }
 
-    const response: ApiResponse<Action> = yield ActionAPI.updateAction(action);
+    /* NOTE: This  is fix for a missing command config */
+    const plugin: Plugin | undefined = yield select(getPlugin, action.pluginId);
+    if (action && plugin && plugin.packageName === PLUGIN_PACKAGE_MONGO) {
+      /* eslint-disable-next-line */
+      //@ts-ignore
+      action = fixActionPayloadForMongoQuery(action);
+    }
+    const response: ApiResponse<Action> = yield ActionAPI.updateAction(
+      /* eslint-disable-next-line */
+      //@ts-ignore
+      action,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const pageName: string = yield select(
@@ -331,18 +346,18 @@ export function* updateActionSaga(
         response.data.id,
       );
 
-      if (action.pluginType === PluginType.DB) {
+      if (action?.pluginType === PluginType.DB) {
         AnalyticsUtil.logEvent("SAVE_QUERY", {
           queryName: action.name,
           pageName,
         });
-      } else if (action.pluginType === PluginType.API) {
+      } else if (action?.pluginType === PluginType.API) {
         AnalyticsUtil.logEvent("SAVE_API", {
           apiId: response.data.id,
           apiName: response.data.name,
           pageName: pageName,
         });
-      } else if (action.pluginType === PluginType.SAAS) {
+      } else if (action?.pluginType === PluginType.SAAS) {
         AnalyticsUtil.logEvent("SAVE_SAAS", {
           apiId: response.data.id,
           apiName: response.data.name,
@@ -906,9 +921,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       );
 
       yield put(
-        toggleShowGlobalSearchModal(
-          filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
-        ),
+        setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.SNIPPETS]),
       );
       yield put(
         setGlobalSearchFilterContext({

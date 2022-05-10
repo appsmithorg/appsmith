@@ -300,10 +300,45 @@ const paginatorCss = css`
 
 const StyledPagination = styled(Pagination)<{
   disabled?: boolean;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }>`
   ${paginatorCss}
   pointer-events: ${(props) => (props.disabled ? "none" : "all")};
   opacity: ${(props) => (props.disabled ? "0.4" : "1")};
+
+  .rc-pagination-item {
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+    color:  ${({ accentColor }) => accentColor} !important;
+    border-color:  transparent !important;
+
+  }
+
+  .rc-pagination-prev .rc-pagination-item-link, .rc-pagination-next .rc-pagination-item-link  {
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+    border-color:  transparent !important;
+    color:  ${({ accentColor }) => accentColor} !important;
+  }
+
+  .rc-pagination-item:hover {
+    background-color: ${({ accentColor }) => accentColor} !important;
+    a {
+      color: white;
+    }
+  }
+
+  .rc-pagination-item-active {
+    background-color: ${({ accentColor }) => accentColor} !important;
+    a {
+      color: white;
+    }
+
+    .rc-pagination-item-active:hover a {
+      color: white !important;
+    }
 `;
 
 interface ListPaginationProps {
@@ -312,11 +347,17 @@ interface ListPaginationProps {
   perPage: number;
   disabled?: boolean;
   onChange: (page: number) => void;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }
 
 function ListPagination(props: ListPaginationProps) {
   return (
     <StyledPagination
+      accentColor={props.accentColor}
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
       current={props.current}
       disabled={props.disabled}
       locale={locale}

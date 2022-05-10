@@ -57,6 +57,7 @@ import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
 import { CrudInfoModalReduxState } from "./uiReducers/crudInfoModalReducer";
 import { FormEvaluationState } from "./evaluationReducers/formEvaluationReducer";
 import { widgetReflow } from "./uiReducers/reflowReducer";
+import { AppThemingState } from "./uiReducers/appThemingReducer";
 import { MainCanvasReduxState } from "./uiReducers/mainCanvasReducer";
 import SettingsReducer, {
   SettingsReduxState,
@@ -114,6 +115,7 @@ export interface AppState {
     appCollab: AppCollabReducerState;
     crudInfoModal: CrudInfoModalReduxState;
     widgetReflow: widgetReflow;
+    appTheming: AppThemingState;
     mainCanvas: MainCanvasReduxState;
   };
   entities: {
