@@ -1,5 +1,5 @@
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
-import _ from "lodash";
+import _, { isObject } from "lodash";
 import memoize from "micro-memoize";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
@@ -187,7 +187,7 @@ export const generateDataTreeWidget = (
   const {
     defaultMetaProps,
     overridingMetaPropsMap,
-    partial,
+    partial: partial_,
   } = generatePartialDataTreeWidgetMemoized(widget);
   const overridingMetaProps: Record<string, unknown> = {};
 
@@ -203,15 +203,27 @@ export const generateDataTreeWidget = (
   //   overridingMetaProps,
   // });
 
-  const temp = _.merge(partial, widgetMetaProps, {
-    meta: _.merge(overridingMetaProps, widgetMetaProps),
+  const partial = { ...partial_ };
+  const meta = _.merge(overridingMetaProps, widgetMetaProps);
+
+  Object.entries(widgetMetaProps).forEach(([key, value]) => {
+    if (isObject(value)) {
+      partial[key] = _.merge(partial[key], value);
+    } else {
+      partial[key] = value;
+    }
   });
+
+  partial["meta"] = meta;
+  // const temp = _.merge(partial, widgetMetaProps, {
+  //   meta: _.merge(overridingMetaProps, widgetMetaProps),
+  // });
   // console.log("#### temp is", {
   //   temp,
   //   overridingMetaPropsMap,
   //   widgetMetaProps,
   // });
-  return temp;
+  return partial;
 };
 
 export const generateDataTreeWidget_ = (
