@@ -58,7 +58,8 @@ describe("Icon Button Widget Functionality", function() {
     cy.get(widgetsPage.iconWidgetBtn).click({ force: true });
     cy.get(commonlocators.toastmsg).contains("Icon Button Clicked");
     cy.PublishtheApp();
-    cy.get(publishPage.iconWidgetBtn).click({ force: true });
+    cy.wait(2000);
+    cy.get(publishPage.iconWidgetBtn).click();
     cy.get(commonlocators.toastmsg).contains("Icon Button Clicked");
     cy.goToEditFromPublish();
   });
