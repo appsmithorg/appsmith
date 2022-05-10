@@ -236,7 +236,7 @@ function DraggableList(props: any) {
           <animated.div
             {...bind(i)}
             data-rbd-draggable-id={items[i].id}
-            key={i}
+            key={items[i].id}
             style={{
               zIndex,
               width: "100%",
