@@ -17,5 +17,6 @@ jobs:
     steps:
       - uses: docker://agilepathway/pull-request-label-checker:latest
         with:
+          one_of: FE Coders Pod,BE Coders Pod
           all_of: Test Plan Approved
           repo_token: ${{ secrets.GITHUB_TOKEN }}
