@@ -28,7 +28,7 @@ type RenderEditActionsProps = {
   fontStyle?: string;
   textColor?: string;
   cellBackground?: string;
-  textSize?: TextSize;
+  textSize?: string;
 };
 
 export function EditActionCell(props: RenderEditActionsProps) {
