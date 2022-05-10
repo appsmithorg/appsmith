@@ -22,6 +22,7 @@ import get from "lodash/get";
 import { Datasource } from "entities/Datasource";
 import {
   getAction,
+  getActionData,
   getActionResponses,
 } from "../../../../selectors/entitiesSelector";
 import { isEmpty } from "lodash";
@@ -101,10 +102,10 @@ function GraphQLEditorForm(props: Props) {
         <BodyWrapper>
           <QueryEditor
             {...props}
-            dataTreePath={`${actionName}.config.query`}
+            dataTreePath={`${actionName}.config.body`}
             height="100%"
             mode={EditorModes.GRAPHQL}
-            name="actionConfiguration.query"
+            name="actionConfiguration.body"
             showLineNumbers
             theme={theme}
           />
@@ -131,6 +132,7 @@ function GraphQLEditorForm(props: Props) {
           </ResizeableDiv>
         </BodyWrapper>
       }
+      defaultTabSelected={2}
       formName={API_EDITOR_FORM_NAME}
       paginationUIComponent={
         <div style={{ padding: "16px" }}>Will be available soon</div>
@@ -229,6 +231,28 @@ export default connect(
       suggestedWidgets = response.suggestedWidgets;
     }
 
+    const actionData = getActionData(state, apiId);
+    let responseDisplayFormat: { title: string; value: string };
+    let responseDataTypes: { key: string; title: string }[];
+    if (!!actionData && actionData.responseDisplayFormat) {
+      responseDataTypes = actionData.dataTypes.map((data) => {
+        return {
+          key: data.dataType,
+          title: data.dataType,
+        };
+      });
+      responseDisplayFormat = {
+        title: actionData.responseDisplayFormat,
+        value: actionData.responseDisplayFormat,
+      };
+    } else {
+      responseDataTypes = [];
+      responseDisplayFormat = {
+        title: "",
+        value: "",
+      };
+    }
+
     return {
       actionName,
       apiId,
@@ -246,6 +270,8 @@ export default connect(
       ),
       currentPageId: state.entities.pageList.currentPageId,
       applicationId: state.entities.pageList.applicationId,
+      responseDataTypes,
+      responseDisplayFormat,
       suggestedWidgets,
       hasResponse,
     };
