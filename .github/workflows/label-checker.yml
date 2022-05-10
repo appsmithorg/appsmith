@@ -12,11 +12,11 @@ on:
 jobs:
 
   check_labels:
-    name: Check labels
+    name: Check for Test Plan Approved label
     runs-on: ubuntu-latest
     steps:
       - uses: docker://agilepathway/pull-request-label-checker:latest
         with:
-          one_of: FE Coders Pod,BE Coders Pod
-          all_of: Test Plan Approved
+          # Needs to have a Test Plan Approved label if not part of any of the pods below
+          any_of: Test Plan Approved, App Viewers Pod, User Education Pod, New Developers Pod, Team Managers Pod, UI Builders Pod
           repo_token: ${{ secrets.GITHUB_TOKEN }}
