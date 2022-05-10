@@ -15,29 +15,26 @@ export class JSEditor {
   private _onPageLoadRadioButtonStatus = (functionName: string, onLoad: boolean) =>
     `.${functionName}-on-page-load-setting label:contains(${onLoad ? "Yes" : "No"
     })>input`;
-  private _confirmBeforeExecuteRadioButton = (
-    functionName: string,
-    shouldConfirm: boolean,
-  ) =>
+  private _confirmBeforeExecuteRadioButton = (functionName: string, shouldConfirm: boolean) =>
     `.${functionName}-confirm-before-execute label:contains(${shouldConfirm ? "Yes" : "No"
     }) span.checkbox`;
-  private _confirmBeforeExecuteRadioButtonStatus = (
-    functionName: string,
-    shouldConfirm: boolean,
-  ) =>
+  private _confirmBeforeExecuteRadioButtonStatus = (functionName: string, shouldConfirm: boolean) =>
     `.${functionName}-confirm-before-execute label:contains(${shouldConfirm ? "Yes" : "No"
     })>input`;
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
-  private _newJSobj = "span:contains('New JS Object')"
-  private _bindingsClose = ".t--entity-property-close"
-  private _propertyList = ".t--entity-property"
-  private _responseTabAction = (funName: string) => "//div[@class='function-name'][text()='" + funName + "']/following-sibling::div//*[local-name()='svg']"
-  private _functionSetting = (settingTxt: string) => "//span[text()='" + settingTxt + "']/parent::div/following-sibling::input[@type='checkbox']"
-  _dialog = (dialogHeader: string) => "//div[contains(@class, 'bp3-dialog')]//h4[contains(text(), '" + dialogHeader + "')]"
-  private _closeSettings = "span[icon='small-cross']"
-  _dialogBody = (jsFuncName: string) => "//div[@class='bp3-dialog-body']//*[contains(text(), '" + Cypress.env('MESSAGES').QUERY_CONFIRMATION_MODAL_MESSAGE() + "')]//*[contains(text(),'" + jsFuncName + "')]"
+  private _newJSobj = "span:contains('New JS Object')";
+  private _bindingsClose = ".t--entity-property-close";
+  private _propertyList = ".t--entity-property";
+  private _responseTabAction = (funName: string) => "//div[@class='function-name'][text()='" + funName + "']/following-sibling::div//*[local-name()='svg']";
+  private _functionSetting = (settingTxt: string) => "//span[text()='" + settingTxt + "']/parent::div/following-sibling::input[@type='checkbox']";
+  _dialog = (dialogHeader: string) => "//div[contains(@class, 'bp3-dialog')]//h4[contains(text(), '" + dialogHeader + "')]";
+  private _closeSettings = "span[icon='small-cross']";
+  _dialogBody = (jsFuncName: string) => "//div[@class='bp3-dialog-body']//*[contains(text(), '" + Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +
+    "')]//*[contains(text(),'" + jsFuncName + "')]";
+  _funcDropdown = ".t--formActionButtons div[role='listbox']"
+  _funcDropdownOptions = ".ads-dropdown-options-wrapper div > div";
 
   //#endregion
 
@@ -111,7 +108,7 @@ export class JSEditor {
           input.type(JSCode, {
             parseSpecialCharSequences: false,
             delay: 150,
-            force: true
+            force: true,
           });
         }
       });
@@ -289,7 +286,6 @@ export class JSEditor {
     cy.get(this._bindingsClose).click({ force: true });
   }
 
-
   // public EnableDisableOnPageLoad(funName: string, onLoad: 'enable' | 'disable' | '', bfrCalling: 'enable' | 'disable' | '') {
   //   this.agHelper.GetNClick(this._responseTabAction(funName))
   //   this.agHelper.AssertElementPresence(this._dialog('Function settings'))
@@ -301,7 +297,7 @@ export class JSEditor {
   //   this.agHelper.GetNClick(this._closeSettings)
   // }
 
-  public VerifyOnPageLoadSetting(funName: string, onLoad = true, bfrCalling = true) {
+  public VerifyAsyncFuncSettings(funName: string, onLoad = true, bfrCalling = true) {
     // this.agHelper.GetNClick(this._responseTabAction(funName))
     // this.agHelper.AssertElementPresence(this._dialog('Function settings'))
     // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), onLoad)
@@ -309,21 +305,19 @@ export class JSEditor {
     // this.agHelper.GetNClick(this._closeSettings)
 
     this.agHelper.GetNClick(this._settingsTab);
-    this.agHelper.AssertExistingToggleState(this._onPageLoadRadioButtonStatus(funName, onLoad), onLoad == true ? 'checked' : 'unchecked')
-    this.agHelper.AssertExistingToggleState(this._confirmBeforeExecuteRadioButtonStatus(funName, bfrCalling), bfrCalling == true ? 'checked' : 'unchecked')
+    this.agHelper.AssertExistingToggleState(this._onPageLoadRadioButtonStatus(funName, onLoad), "checked");
+    this.agHelper.AssertExistingToggleState(this._confirmBeforeExecuteRadioButtonStatus(funName, bfrCalling), "checked");
   }
 
-  public EnableDisableOnPageLoad(
-    funName: string,
-    onLoad = true,
-    bfrCalling = true,
-  ) {
+  public EnableDisableAsyncFuncSettings(funName: string, onLoad = true, bfrCalling = true) {
     // Navigate to Settings tab
     this.agHelper.GetNClick(this._settingsTab);
     // Set onPageLoad
     this.agHelper.GetNClick(this._onPageLoadRadioButton(funName, onLoad));
     // Set confirmBeforeExecute
-    this.agHelper.GetNClick(this._confirmBeforeExecuteRadioButton(funName, bfrCalling));
+    this.agHelper.GetNClick(
+      this._confirmBeforeExecuteRadioButton(funName, bfrCalling),
+    );
     // Return to code tab
     this.agHelper.GetNClick(this._codeTab);
   }
