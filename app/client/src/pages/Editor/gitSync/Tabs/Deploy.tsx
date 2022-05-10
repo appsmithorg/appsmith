@@ -1,9 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   ARE_YOU_SURE,
-  CHANGES_ONLY_MIGRATION,
-  CHANGES_ONLY_USER,
-  CHANGES_USER_AND_MIGRATION,
   COMMIT_AND_PUSH,
   COMMIT_TO,
   COMMITTING_AND_PUSHING_CHANGES,
@@ -71,6 +68,7 @@ import useAutoGrow from "utils/hooks/useAutoGrow";
 import { Space, Title } from "../components/StyledComponents";
 import { Variant } from "components/ads";
 import DiscardChangesWarning from "../components/DiscardChangesWarning";
+import { changeInfoSinceLastCommit } from "../utils";
 
 const Section = styled.div`
   margin-top: ${(props) => props.theme.spaces[11]}px;
@@ -161,14 +159,11 @@ function Deploy() {
   const dispatch = useDispatch();
 
   const currentApplication = useSelector(getCurrentApplication);
-  const isAutoUpdate = currentApplication?.isAutoUpdate || false;
-  const isManualUpdate = currentApplication?.isManualUpdate || true;
-  const changeReason = isAutoUpdate
-    ? isManualUpdate
-      ? CHANGES_USER_AND_MIGRATION
-      : CHANGES_ONLY_MIGRATION
-    : CHANGES_ONLY_USER;
-  const changeReasonText = createMessage(changeReason);
+  const {
+    changeReasonText,
+    isAutoUpdate,
+    isManualUpdate,
+  } = changeInfoSinceLastCommit(currentApplication);
 
   const handleCommit = (doPush: boolean) => {
     setShowDiscardWarning(false);
@@ -208,12 +203,18 @@ function Deploy() {
   const commitButtonLoading = isCommittingInProgress;
   const commitInputDisabled = !hasChangesToCommit || isCommittingInProgress;
 
-  const commitRequired = gitStatus?.modifiedPages || gitStatus?.modifiedQueries;
+  const commitRequired =
+    !!gitStatus?.modifiedPages ||
+    !!gitStatus?.modifiedQueries ||
+    !!gitStatus?.modifiedJSObjects ||
+    !!gitStatus?.modifiedDatasources;
   const isConflicting = !isFetchingGitStatus && !!pullFailed;
 
   const pullRequired =
-    gitError &&
-    gitError.code === GIT_ERROR_CODES.PUSH_FAILED_REMOTE_COUNTERPART_IS_AHEAD;
+    (gitError &&
+      gitError.code ===
+        GIT_ERROR_CODES.PUSH_FAILED_REMOTE_COUNTERPART_IS_AHEAD) ||
+    !!gitStatus?.behindCount;
   const showCommitButton =
     !isConflicting &&
     !pullRequired &&
@@ -222,7 +223,7 @@ function Deploy() {
     !isDiscarding;
   const isCommitting =
     !!commitButtonLoading &&
-    (!!commitRequired || showCommitButton) &&
+    (commitRequired || showCommitButton) &&
     !isDiscarding;
   const showDiscardChangesButton =
     !isFetchingGitStatus &&
