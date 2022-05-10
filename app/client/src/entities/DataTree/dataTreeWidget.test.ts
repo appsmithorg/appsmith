@@ -297,7 +297,7 @@ describe("generateDataTreeWidget", () => {
     };
 
     const result = generateDataTreeWidget(widget, widgetMetaProps);
-    console.log(diff(expected, result));
+    // console.log(diff(expected, result));
     // expect(result).toStrictEqual(expected);
   });
 });
