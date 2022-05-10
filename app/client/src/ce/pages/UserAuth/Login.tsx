@@ -1,7 +1,13 @@
 import React from "react";
 import { Link, Redirect, useLocation } from "react-router-dom";
 import { connect, useSelector } from "react-redux";
-import { InjectedFormProps, reduxForm, formValueSelector } from "redux-form";
+import {
+  InjectedFormProps,
+  reduxForm,
+  formValueSelector,
+  isDirty,
+  DecoratedFormProps,
+} from "redux-form";
 import {
   LOGIN_FORM_NAME,
   LOGIN_FORM_EMAIL_FIELD_NAME,
@@ -51,18 +57,22 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
+import { AppState } from "reducers";
 const { disableLoginForm } = getAppsmithConfigs();
 
-const validate = (values: LoginFormValues) => {
+const validate = (values: LoginFormValues, props: ValidateProps) => {
   const errors: LoginFormValues = {};
   const email = values[LOGIN_FORM_EMAIL_FIELD_NAME] || "";
   const password = values[LOGIN_FORM_PASSWORD_FIELD_NAME];
+  const { isPasswordFieldDirty, touch } = props;
   if (!password || isEmptyString(password)) {
+    isPasswordFieldDirty && touch?.(LOGIN_FORM_PASSWORD_FIELD_NAME);
     errors[LOGIN_FORM_PASSWORD_FIELD_NAME] = createMessage(
       FORM_VALIDATION_EMPTY_PASSWORD,
     );
   }
   if (!isEmptyString(email) && !isEmail(email)) {
+    touch?.(LOGIN_FORM_EMAIL_FIELD_NAME);
     errors[LOGIN_FORM_EMAIL_FIELD_NAME] = createMessage(
       FORM_VALIDATION_INVALID_EMAIL,
     );
@@ -71,12 +81,18 @@ const validate = (values: LoginFormValues) => {
   return errors;
 };
 
-type LoginFormProps = { emailValue: string } & InjectedFormProps<
-  LoginFormValues,
-  { emailValue: string }
-> & {
+type LoginFormProps = {
+  emailValue: string;
+} & InjectedFormProps<LoginFormValues, { emailValue: string }> & {
     theme: Theme;
   };
+
+type ValidateProps = {
+  isPasswordFieldDirty?: boolean;
+} & DecoratedFormProps<
+  LoginFormValues,
+  { emailValue: string; isPasswordFieldDirty?: boolean }
+>;
 
 export function Login(props: LoginFormProps) {
   const { emailValue: email, error, valid } = props;
@@ -210,7 +226,8 @@ export function Login(props: LoginFormProps) {
 }
 
 const selector = formValueSelector(LOGIN_FORM_NAME);
-export default connect((state) => {
+
+const mapStateToProps = (state: AppState) => {
   const queryParams = new URLSearchParams(location.search);
 
   return {
@@ -224,11 +241,17 @@ export default connect((state) => {
         : "",
     },
     emailValue: selector(state, LOGIN_FORM_EMAIL_FIELD_NAME),
+    isPasswordFieldDirty: isDirty(LOGIN_FORM_NAME)(
+      state,
+      LOGIN_FORM_PASSWORD_FIELD_NAME,
+    ),
   };
-})(
+};
+
+export default connect(mapStateToProps)(
   reduxForm<LoginFormValues, { emailValue: string }>({
     validate,
-    touchOnBlur: true,
+    touchOnBlur: false,
     form: LOGIN_FORM_NAME,
   })(withTheme(Login)),
 );

@@ -72,6 +72,10 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "appsmith.fullname" . }}
+            {{- if .Values.secretName }}
+            - secretRef:
+                name: {{ .Values.secretName }}
+            {{- end }}
       volumes:
   {{- if not .Values.persistence.enabled }}
       - name: data
