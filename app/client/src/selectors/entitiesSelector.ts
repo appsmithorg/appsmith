@@ -25,12 +25,10 @@ import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { selectFeatureFlags } from "./usersSelectors";
 import {
-  EvalErrorTypes,
   EvaluationError,
   EVAL_ERROR_PATH,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { Severity } from "entities/AppsmithConsole";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
