@@ -4,7 +4,6 @@ export default {
   advancedTab: ".t--settings-category-advanced",
   authenticationTab: ".t--settings-category-authentication",
   emailTab: ".t--settings-category-email",
-  oidcTab: ".t--settings-sub-category-oidc-auth",
   googleMapsTab: ".t--settings-category-google-maps",
   googleButton: ".t--settings-sub-category-google-auth",
   githubButton: ".t--settings-sub-category-github-auth",

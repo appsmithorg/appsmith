@@ -5,7 +5,7 @@
     "tokenURL": "https://dev-5zrx-d73.us.auth0.com/oauth/token",
     "userInfo": "https://dev-5zrx-d73.us.auth0.com/userinfo",
     "jwtSetURI": "https://dev-5zrx-d73.us.auth0.com/.well-known/jwks.json",
-    "scope": "email",
+    "scope": "openid, profile, email",
     "userAttribute": "email"
 }
 
