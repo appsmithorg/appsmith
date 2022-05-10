@@ -1936,6 +1936,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 List<Datasource> datasourceList = data.getT2();
                                 List<Plugin> pluginList = data.getT3();
 
+                                if(Optional.ofNullable(applicationJson.getExportedApplication()).isEmpty()
+                                        || applicationJson.getPageList().isEmpty()) {
+                                    return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
+                                            .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "import", "Cannot import app from an empty repo")));
+                                }
+
                                 // If there is an existing datasource with the same name but a different type from that in the repo, the import api should fail
                                 if(checkIsDatasourceNameConflict(datasourceList, applicationJson.getDatasourceList(), pluginList)) {
                                     return deleteApplicationCreatedFromGitImport(application.getId(), application.getOrganizationId(), gitApplicationMetadata.getRepoName())
@@ -1943,11 +1949,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                     "import",
                                                     "Datasource already exists with the same name"))
                                             );
-                                }
-
-                                if(Optional.ofNullable(applicationJson.getExportedApplication()).isEmpty()
-                                        || applicationJson.getPageList().isEmpty()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "import", "Cannot import app from an empty repo"));
                                 }
 
                                 applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
@@ -2148,27 +2149,6 @@ public class GitServiceCEImpl implements GitServiceCE {
         return Mono.create(sink -> discardChangeMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
         );
-    }
-
-    private Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId,
-                                                                             List<Datasource> datasourceList) {
-        return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
-                .collectList()
-                .flatMap(actionList -> {
-                    List<String> usedDatasource = actionList.stream()
-                            .map(newAction -> newAction.getUnpublishedAction().getDatasource().getId())
-                            .collect(Collectors.toList());
-
-                    datasourceList.removeIf(datasource -> !usedDatasource.contains(datasource.getId()));
-
-                    return Mono.just(datasourceList);
-                })
-                .map(datasources -> {
-                    for (Datasource datasource:datasources) {
-                        datasource.setIsConfigured(Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
-                    }
-                    return datasources;
-                });
     }
 
     private Mono<Application> deleteApplicationCreatedFromGitImport(String applicationId, String organizationId, String repoName) {
