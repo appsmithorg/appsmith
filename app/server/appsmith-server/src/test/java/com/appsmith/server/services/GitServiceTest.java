@@ -160,7 +160,7 @@ public class GitServiceTest {
             "with git to use version control service";
 
     @Before
-    public void setup() throws IOException {
+    public void setup() throws IOException, GitAPIException {
 
         if (StringUtils.isEmpty(orgId)) {
             orgId = organizationRepository
@@ -226,11 +226,11 @@ public class GitServiceTest {
         return gitConnectDTO;
     }
 
-    private Application createApplicationConnectedToGit(String name, String branchName) throws IOException {
+    private Application createApplicationConnectedToGit(String name, String branchName) throws IOException, GitAPIException {
         return createApplicationConnectedToGit(name, branchName, orgId);
     }
 
-    private Application createApplicationConnectedToGit(String name, String branchName, String organizationId) throws IOException {
+    private Application createApplicationConnectedToGit(String name, String branchName, String organizationId) throws IOException, GitAPIException {
 
         if (StringUtils.isEmpty(branchName)) {
             branchName = DEFAULT_BRANCH;
@@ -251,6 +251,8 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class))).thenReturn(Mono.just(true));
         Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("textPath")));
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("path")));
 
         Application testApplication = new Application();
         testApplication.setName(name);
@@ -688,7 +690,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_moreThanThreePrivateRepos_throwException() throws IOException {
+    public void connectApplicationToGit_moreThanThreePrivateRepos_throwException() throws IOException, GitAPIException {
         Organization organization = new Organization();
         organization.setName("Limit Private Repo Test Organization");
         String limitPrivateRepoTestOrgId = organizationService.create(organization).map(Organization::getId).block();
@@ -737,7 +739,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_toggleAccessibilityToPublicForConnectedApp_connectSuccessful() throws IOException {
+    public void connectApplicationToGit_toggleAccessibilityToPublicForConnectedApp_connectSuccessful() throws IOException, GitAPIException {
         Organization organization = new Organization();
         organization.setName("Toggle Accessibility To Public From Private Repo Test Organization");
         String limitPrivateRepoTestOrgId = organizationService.create(organization).map(Organization::getId).block();
@@ -1147,7 +1149,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void listBranchForApplication_defaultBranchNotChangesInRemote_Success() throws IOException {
+    public void listBranchForApplication_defaultBranchNotChangesInRemote_Success() throws IOException, GitAPIException {
         List<GitBranchDTO> branchList = new ArrayList<>();
         GitBranchDTO gitBranchDTO = new GitBranchDTO();
         gitBranchDTO.setBranchName("defaultBranch");
@@ -1182,7 +1184,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void listBranchForApplication_defaultBranchChangesInRemoteExistsInDB_Success() throws IOException {
+    public void listBranchForApplication_defaultBranchChangesInRemoteExistsInDB_Success() throws IOException, GitAPIException {
         List<GitBranchDTO> branchList = new ArrayList<>();
         GitBranchDTO gitBranchDTO = new GitBranchDTO();
         gitBranchDTO.setBranchName("defaultBranch");
@@ -1234,7 +1236,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void listBranchForApplication_defaultBranchChangesInRemoteDoesNotExistsInDB_Success() throws IOException {
+    public void listBranchForApplication_defaultBranchChangesInRemoteDoesNotExistsInDB_Success() throws IOException, GitAPIException {
         List<GitBranchDTO> branchList = new ArrayList<>();
         GitBranchDTO gitBranchDTO = new GitBranchDTO();
         gitBranchDTO.setBranchName("defaultBranch");
@@ -2518,7 +2520,7 @@ public class GitServiceTest {
     
     @Test
     @WithUserDetails(value ="api_user")
-    public void deleteBranch_staleBranchNotInDB_Success() throws IOException {
+    public void deleteBranch_staleBranchNotInDB_Success() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("deleteBranch_staleBranchNotInDB_Success", "master");
         application.getGitApplicationMetadata().setDefaultBranchName("master");
         applicationService.save(application).block();
@@ -2538,7 +2540,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value ="api_user")
-    public void deleteBranch_existsInDB_Success() throws IOException {
+    public void deleteBranch_existsInDB_Success() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("deleteBranch_existsInDB_Success", "master");
         application.getGitApplicationMetadata().setDefaultBranchName("test");
         applicationService.save(application).block();
@@ -2558,7 +2560,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void deleteBranch_branchDoesNotExist_ThrowError() throws IOException {
+    public void deleteBranch_branchDoesNotExist_ThrowError() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("deleteBranch_branchDoesNotExist_ThrowError", "master");
         application.getGitApplicationMetadata().setDefaultBranchName("test");
         applicationService.save(application).block();
@@ -2576,7 +2578,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void deleteBranch_defaultBranch_ThrowError() throws IOException {
+    public void deleteBranch_defaultBranch_ThrowError() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("deleteBranch_defaultBranch_ThrowError", "master");
         application.getGitApplicationMetadata().setDefaultBranchName("master");
         applicationService.save(application).block();
@@ -2594,7 +2596,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void deleteBranch_defaultBranchUpdated_Success() throws IOException {
+    public void deleteBranch_defaultBranchUpdated_Success() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("deleteBranch_defaultBranchUpdated_Success", "master");
         application.getGitApplicationMetadata().setDefaultBranchName("f1");
         applicationService.save(application).block();
