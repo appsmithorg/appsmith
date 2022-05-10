@@ -11,14 +11,13 @@ describe("Application Settings", () => {
     container = document.createElement("div");
     document.body.appendChild(container);
   });
-  it("checks that organization settings have correct styling", async (done) => {
+  it("checks that organization settings have correct styling", async () => {
     const { findByText } = render(<GeneralSettings />);
 
     const orgNameField = await findByText("Organization Name");
     expect(orgNameField.closest("div")).toHaveStyle({ width: "150px;" });
-
-    await done();
   });
+
   afterEach(() => {
     // cleanup on exiting
     unmountComponentAtNode(container);

@@ -5,7 +5,7 @@ import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 // import AppsmithLogo from "assets/images/appsmith_logo.png";
 import {
   ApplicationPayload,
-  PageListPayload,
+  Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -22,7 +22,7 @@ import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import { IconWrapper } from "components/ads/Icon";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
-import PageTabsContainer from "./PageTabsContainer";
+import { PageTabsContainer } from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import ToggleCommentModeButton, {
   useHideComments,
@@ -118,7 +118,7 @@ const HeaderRightItemContainer = styled.div`
 type AppViewerHeaderProps = {
   url?: string;
   currentApplicationDetails?: ApplicationPayload;
-  pages: PageListPayload;
+  pages: Page[];
   currentOrgId: string;
   currentUser?: User;
   lightTheme: Theme;

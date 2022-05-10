@@ -61,7 +61,7 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       release: process.env.REACT_APP_SENTRY_RELEASE || "",
       environment:
         process.env.REACT_APP_SENTRY_ENVIRONMENT ||
-        capitalizeText(process.env.NODE_ENV),
+        capitalizeText(process.env.NODE_ENV || ""),
     },
     smartLook: {
       id: process.env.REACT_APP_SMART_LOOK_ID || "",

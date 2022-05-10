@@ -3,7 +3,7 @@ import classNames from "classnames";
 import { useSelector } from "react-redux";
 
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import PageTabsContainer from "pages/AppViewer/PageTabsContainer";
+import { PageTabsContainer } from "pages/AppViewer/PageTabsContainer";
 import {
   getViewModePageList,
   previewModeSelector,

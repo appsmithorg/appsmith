@@ -51,7 +51,7 @@ import {
 declare module "react-table" {
   // take this file as-is, or comment out the sections that don't apply to your plugin configuration
 
-  export interface TableOptions<D extends object>
+  export interface TableOptions<D extends Record<string, unknown>>
     extends UseExpandedOptions<D>,
       UseFiltersOptions<D>,
       UseGlobalFiltersOptions<D>,
@@ -66,13 +66,17 @@ declare module "react-table" {
       // feature set, this is a safe default.
       Record<string, any> {}
 
-  export interface Hooks<D extends object = {}>
+  export interface Hooks<
+    D extends Record<string, unknown> = Record<string, unknown>
+  >
     extends UseExpandedHooks<D>,
       UseGroupByHooks<D>,
       UseRowSelectHooks<D>,
       UseSortByHooks<D> {}
 
-  export interface TableInstance<D extends object = {}>
+  export interface TableInstance<
+    D extends Record<string, unknown> = Record<string, unknown>
+  >
     extends UseColumnOrderInstanceProps<D>,
       UseExpandedInstanceProps<D>,
       UseFiltersInstanceProps<D>,
@@ -83,7 +87,9 @@ declare module "react-table" {
       UseRowStateInstanceProps<D>,
       UseSortByInstanceProps<D> {}
 
-  export interface TableState<D extends object = {}>
+  export interface TableState<
+    D extends Record<string, unknown> = Record<string, unknown>
+  >
     extends UseColumnOrderState<D>,
       UseExpandedState<D>,
       UseFiltersState<D>,
@@ -95,24 +101,30 @@ declare module "react-table" {
       UseRowStateState<D>,
       UseSortByState<D> {}
 
-  export interface Column<D extends object = {}>
+  export interface Column<
+    D extends Record<string, unknown> = Record<string, unknown>
+  >
     extends UseFiltersColumnOptions<D>,
       UseGlobalFiltersColumnOptions<D>,
       UseGroupByColumnOptions<D>,
       UseResizeColumnsColumnOptions<D>,
       UseSortByColumnOptions<D> {}
 
-  export interface ColumnInstance<D extends object = {}>
+  export interface ColumnInstance<
+    D extends Record<string, unknown> = Record<string, unknown>
+  >
     extends UseFiltersColumnProps<D>,
       UseGroupByColumnProps<D>,
       UseResizeColumnsColumnProps<D>,
       UseSortByColumnProps<D> {}
 
-  export interface Cell<D extends object = {}>
-    extends UseGroupByCellProps<D>,
-      UseRowStateCellProps<D> {}
+  export interface Cell<
+    D extends Record<string, unknown> = Record<string, unknown>
+  > extends UseGroupByCellProps<D>, UseRowStateCellProps<D> {}
 
-  export interface Row<D extends object = {}>
+  export interface Row<
+    D extends Record<string, unknown> = Record<string, unknown>
+  >
     extends UseExpandedRowProps<D>,
       UseGroupByRowProps<D>,
       UseRowSelectRowProps<D>,

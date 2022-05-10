@@ -2,7 +2,7 @@
   "extends": "./tsconfig.path.json",
   "compilerOptions": {
     "target": "ES6",
-    "lib": ["DOM", "ES6", "DOM.Iterable", "ScriptHost", "ES2016.Array.Include"],
+    "lib": ["DOM", "ES6", "DOM.Iterable", "ScriptHost", "ES2016.Array.Include", "es2020.string", "esnext"],
     "strict": true,
     "outDir": "./out/js/src",
     "allowJs": true,
@@ -19,16 +19,16 @@
     "downlevelIteration": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "typeRoots": [
-      "./typings",
-      "./node_modules/@types"
+    "types": [
+      "vite/client",   
     ],
-    "types": ["vite/client"],
     "sourceMap": true,
-    "baseUrl": "./src",
+    "baseUrl": "./src",  
     "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "./typings",
+    "./node_modules/@types"
   ]
 }

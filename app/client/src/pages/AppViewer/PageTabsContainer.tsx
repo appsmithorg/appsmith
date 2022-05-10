@@ -161,5 +161,3 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
     </Container>
   ) : null;
 }
-
-export default PageTabsContainer;

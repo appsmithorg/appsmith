@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   ApplicationPayload,
-  PageListPayload,
+  Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { NavLink } from "react-router-dom";
 import { getPageURL } from "utils/AppsmithUtils";
@@ -24,7 +24,7 @@ import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
 type AppViewerHeaderProps = {
   isOpen?: boolean;
   application?: ApplicationPayload;
-  pages: PageListPayload;
+  pages: Page[];
   url?: string;
   setMenuOpen?: (shouldOpen: boolean) => void;
   headerRef?: React.RefObject<HTMLDivElement>;

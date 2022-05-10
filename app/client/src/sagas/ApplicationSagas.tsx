@@ -415,16 +415,15 @@ export function* duplicateApplicationSaga(
       text: createMessage(DUPLICATING_APPLICATION),
     });
     const request: DuplicateApplicationRequest = action.payload;
-    const response: ApiResponse = yield call(
+    const response: ApiResponse<Record<string, unknown>> = yield call(
       ApplicationApi.duplicateApplication,
       request,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const application: ApplicationPayload = {
-        // @ts-expect-error: response is of type unknown
         ...response.data,
-        // @ts-expect-error: response is of type unknown
+        // @ts-expect-error: response.data is of type unknown
         defaultPageId: getDefaultPageId(response.data.pages),
       };
       yield put({
@@ -609,7 +608,7 @@ export function* forkApplicationSaga(
   action: ReduxAction<ForkApplicationRequest>,
 ) {
   try {
-    const response: ApiResponse = yield call(
+    const response: ApiResponse<Record<string, unknown>> = yield call(
       ApplicationApi.forkApplication,
       action.payload,
     );
@@ -617,7 +616,6 @@ export function* forkApplicationSaga(
     if (isValidResponse) {
       yield put(resetCurrentApplication());
       const application: ApplicationPayload = {
-        // @ts-expect-error: response is of type unknown
         ...response.data,
         // @ts-expect-error: response is of type unknown
         defaultPageId: getDefaultPageId(response.data.pages),

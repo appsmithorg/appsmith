@@ -3,6 +3,10 @@ import _ from "lodash";
 
 describe("#defaultValueValidation", () => {
   const defaultInputWidgetProps: InputWidgetProps = {
+    accentColor: "",
+    borderRadius: "",
+    backgroundColor: "",
+    primaryColor: "",
     bottomRow: 2,
     inputType: "NUMBER",
     inputValidators: [],

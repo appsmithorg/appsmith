@@ -26,6 +26,8 @@ describe("<InputComponent />", () => {
         <Provider store={store}>
           <ThemeProvider theme={theme}>
             <InputComponent
+              accentColor=""
+              borderRadius=""
               compactMode={false}
               inputType="TEXT"
               isInvalid={false}
