@@ -5004,6 +5004,10 @@ public class DatabaseChangelog {
     /**
      * Adding this migration again because we've added permission to themes.
      * Also there are couple of changes in the system theme properties.
+     *
+     * Note : This migration needs to update the system theme properties whenever there is a new widget. So instead of
+     * adding a new migration every time, `runAlways=true` has been set.
+     *
      * @param mongockTemplate
      * @throws IOException
      */
