@@ -35,6 +35,7 @@ export function hideDynamicHeightPropertyControl(props: WidgetProps) {
   return props.dynamicHeight !== DynamicHeight.HUG_CONTENTS;
 }
 
+// TODO FEATURE:(abhinav) Add validations to these properties
 export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
   DYNAMIC_HEIGHT: {
     sectionName: "Layout Features",
