@@ -193,7 +193,7 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitUntilTableLoad()
 
     //One filter
-    table.FilterTable("Type", "is exactly", "Bug")
+    table.OpenNFilterTable("Type", "is exactly", "Bug")
     table.ReadTableRowColumnData(0, 1).then(($cellData) => {
       expect($cellData).to.eq("[Bug]: Postgres queries unable to execute with more than 9 placeholders");
     });
@@ -203,7 +203,7 @@ describe("AForce - Community Issues page validations", function () {
     table.RemoveFilterNVerify("Question", true, false)
 
     //Two filters - OR
-    table.FilterTable("Type", "starts with", "Trouble")
+    table.OpenNFilterTable("Type", "starts with", "Trouble")
     table.ReadTableRowColumnData(0, 0).then(($cellData) => {
       expect($cellData).to.eq("Troubleshooting");
     });
@@ -211,7 +211,7 @@ describe("AForce - Community Issues page validations", function () {
       expect($cellData).to.eq("Renew expired SSL certificate on a self-hosted instance");
     });
 
-    table.FilterTable("Title", "contains", "query", 'OR', 1)
+    table.OpenNFilterTable("Title", "contains", "query", 'OR', 1)
     table.ReadTableRowColumnData(1, 0).then(($cellData) => {
       expect($cellData).to.eq("Question");
     });
@@ -221,12 +221,12 @@ describe("AForce - Community Issues page validations", function () {
     table.RemoveFilterNVerify("Question", true, false)
 
      //Two filters - AND
-     table.FilterTable("Votes", "greater than", "3")
+     table.OpenNFilterTable("Votes", "greater than", "3")
      table.ReadTableRowColumnData(1, 1).then(($cellData) => {
        expect($cellData).to.eq("Combine queries from different datasources");
      });
  
-     table.FilterTable("Title", "contains", "button", 'AND', 1)
+     table.OpenNFilterTable("Title", "contains", "button", 'AND', 1)
      table.ReadTableRowColumnData(0, 1).then(($cellData) => {
        expect($cellData).to.eq("Change the video in the video player with a button click");
      });
