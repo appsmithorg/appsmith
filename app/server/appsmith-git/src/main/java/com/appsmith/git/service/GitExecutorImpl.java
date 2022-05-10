@@ -696,7 +696,6 @@ public class GitExecutorImpl implements GitExecutor {
             Ref ref = git.reset().setMode(ResetCommand.ResetType.HARD).call();
             // Remove untracked files
             git.clean().setForce(true).setCleanDirectories(true).call();
-            git.close();
             return ref;
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
