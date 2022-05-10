@@ -66,6 +66,9 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
     [key: string]: Record<string, string>;
   };
   editableCell: EditableCell;
+  primaryColor: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export const getCurrentRowBinding = (
@@ -141,7 +144,8 @@ export type ButtonColumnActions = ColumnAction & {
   variant: ButtonVariant;
   backgroundColor?: string;
   iconAlign?: Alignment;
-  borderRadius?: ButtonBorderRadius;
+  borderRadius?: string;
   isVisible?: boolean;
   isDisabled?: boolean;
+  boxShadow?: string;
 };

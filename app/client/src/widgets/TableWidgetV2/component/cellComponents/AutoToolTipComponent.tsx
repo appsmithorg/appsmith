@@ -42,7 +42,7 @@ interface Props {
   textColor?: string;
   fontStyle?: string;
   cellBackground?: string;
-  textSize?: TextSize;
+  textSize?: string;
 }
 
 function LinkWrapper(props: Props) {

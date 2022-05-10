@@ -40,7 +40,7 @@ export default {
       controlType: "PRIMARY_COLUMNS_V2",
       label: "Columns",
       updateHook: updateColumnOrderHook,
-      dependencies: ["columnOrder"],
+      dependencies: ["columnOrder", "childStylesheet"],
       isBindProperty: false,
       isTriggerProperty: false,
       validation: {

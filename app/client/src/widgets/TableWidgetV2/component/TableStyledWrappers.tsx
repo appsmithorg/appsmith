@@ -14,6 +14,11 @@ import {
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
 import {
+  fontSizeUtility,
+  lightenColor,
+  darkenColor,
+} from "widgets/WidgetUtils";
+import {
   FontStyleTypes,
   TextSize,
   TEXT_SIZES,
@@ -24,14 +29,20 @@ export const TableWrapper = styled.div<{
   width: number;
   height: number;
   tableSizes: TableSizes;
+  accentColor: string;
   backgroundColor?: Color;
   triggerRowSelection: boolean;
   isHeaderVisible?: boolean;
+  borderRadius: string;
+  boxShadow?: string;
 }>`
   width: 100%;
   height: 100%;
   background: white;
-  border: 1px solid ${Colors.GEYSER_LIGHT};
+  border: ${({ boxShadow }) =>
+    boxShadow === "none" ? `1px solid ${Colors.GEYSER_LIGHT}` : `none`};
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
@@ -77,10 +88,12 @@ export const TableWrapper = styled.div<{
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
       &.selected-row {
-        background: ${Colors.NARVIK_GREEN}!important;
+        background: ${({ accentColor }) =>
+          `${lightenColor(accentColor)}`} !important;
       }
       &:hover {
-        background: ${Colors.NARVIK_GREEN};
+        background: ${({ accentColor }) =>
+          `${lightenColor(accentColor)}`} !important;
       }
     }
     .th,
@@ -127,12 +140,12 @@ export const TableWrapper = styled.div<{
       top: 0;
       z-index: 1;
     }
-    .thead {
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
   }
+
+  .tbody .tr:last-child .td {
+    border-bottom: none;
+  }
+
   .draggable-header,
   .hidden-header {
     width: 100%;
@@ -240,6 +253,8 @@ export const PaginationWrapper = styled.div`
 export const PaginationItemWrapper = styled.div<{
   disabled?: boolean;
   selected?: boolean;
+  borderRadius: string;
+  accentColor: string;
 }>`
   background: ${(props) => (props.disabled ? Colors.MERCURY : Colors.WHITE)};
   border: 1px solid ${Colors.ALTO2};
@@ -252,8 +267,9 @@ export const PaginationItemWrapper = styled.div<{
   margin: 0 4px;
   pointer-events: ${(props) => props.disabled && "none"};
   cursor: pointer;
+  border-radius: ${({ borderRadius }) => borderRadius};
   &:hover {
-    border-color: ${Colors.GREEN};
+    border-color: ${({ accentColor }) => accentColor};
   }
   .bp3-icon svg {
     fill: ${(props) => (props.disabled ? Colors.GREY_4 : "")};
@@ -317,7 +333,7 @@ export const CellWrapper = styled.div<{
   fontStyle?: string;
   textColor?: string;
   cellBackground?: string;
-  textSize?: TextSize;
+  textSize?: string;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
   align-items: center;
@@ -339,7 +355,7 @@ export const CellWrapper = styled.div<{
   align-items: ${(props) =>
     props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
   background: ${(props) => props.cellBackground};
-  font-size: ${(props) => props.textSize && TEXT_SIZES[props.textSize]};
+  font-size: ${(props) => props.textSize};
 
   padding: ${(props) =>
       props.compactMode ? TABLE_SIZES[props.compactMode].VERTICAL_PADDING : 0}px
@@ -413,17 +429,22 @@ export const CellWrapper = styled.div<{
   }
 `;
 
-export const CellCheckboxWrapper = styled(CellWrapper)<{ isChecked?: boolean }>`
+export const CellCheckboxWrapper = styled(CellWrapper)<{
+  isChecked?: boolean;
+  accentColor: string;
+  borderRadius: string;
+}>`
   justify-content: center;
   width: 40px;
   & > div {
+    border-radius: ${({ borderRadius }) => borderRadius};
+
     ${(props) =>
       props.isChecked
         ? `
-          background: ${Colors.FERN_GREEN};
+          background: ${props.accentColor};
           &:hover {
-            background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
-            ${Colors.FERN_GREEN};
+            background: ${darkenColor(props.accentColor)};
           } 
             `
         : `
