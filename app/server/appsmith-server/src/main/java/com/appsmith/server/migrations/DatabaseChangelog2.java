@@ -11,10 +11,12 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QPlugin;
+import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -744,6 +746,18 @@ public class DatabaseChangelog2 {
                 )
                 .named("defaultApplicationId_gitSyncId_deleted_compound_index")
         );
+    }
+
+    @ChangeSet(order = "008", id = "add-default-tenant", author = "")
+    public void addDefaultTenant(MongockTemplate mongockTemplate) {
+
+        Tenant defaultTenant = new Tenant();
+        defaultTenant.setDisplayName("Appsmith");
+        defaultTenant.setSlug("default");
+        defaultTenant.setPricingPlan(PricingPlan.FREE);
+
+        mongockTemplate.save(defaultTenant);
+
     }
 
 }
