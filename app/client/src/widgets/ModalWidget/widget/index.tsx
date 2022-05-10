@@ -8,17 +8,12 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import ModalComponent from "../component";
-import {
-  RenderMode,
-  MAIN_CONTAINER_WIDGET_ID,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
+import { RenderMode, WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import { AppState } from "reducers";
-import { getWidget } from "sagas/selectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
-import { snipingModeSelector } from "selectors/editorSelectors";
+import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
 
@@ -73,6 +68,34 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
           },
         ],
       },
+
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "backgroundColor",
+            helpText: "Sets the background color of the widget",
+            label: "Background color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
     ];
   }
   static defaultProps = {
@@ -81,7 +104,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   getMaxModalWidth() {
-    return this.props.mainContainer.rightColumn * 0.95;
+    return this.props.mainCanvasWidth * 0.95;
   }
 
   getModalWidth(width: number) {
@@ -189,6 +212,8 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
     return (
       <ModalComponent
+        backgroundColor={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
         canOutsideClickClose={!!this.props.canOutsideClickClose}
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
@@ -203,6 +228,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         portalContainer={portalContainer}
         resizeModal={this.onModalResize}
         scrollContents={!!this.props.shouldScrollContents}
+        widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}
         width={this.getModalWidth(this.props.width)}
       >
@@ -242,6 +268,9 @@ export interface ModalWidgetProps extends WidgetProps {
   size: string;
   onClose: string;
   mainContainer: WidgetProps;
+  backgroundColor: string;
+  borderRadius: string;
+  mainCanvasWidth: number;
 }
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -267,7 +296,7 @@ const mapDispatchToProps = (dispatch: any) => ({
 
 const mapStateToProps = (state: AppState) => {
   const props = {
-    mainContainer: getWidget(state, MAIN_CONTAINER_WIDGET_ID),
+    mainCanvasWidth: getCanvasWidth(state),
     isCommentMode: commentModeSelector(state),
     isSnipingMode: snipingModeSelector(state),
     selectedWidget: state.ui.widgetDragResize.lastSelectedWidget,

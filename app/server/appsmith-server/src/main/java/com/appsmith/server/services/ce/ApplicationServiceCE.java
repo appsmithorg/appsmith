@@ -65,4 +65,6 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission);
 
+    Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);
+
 }

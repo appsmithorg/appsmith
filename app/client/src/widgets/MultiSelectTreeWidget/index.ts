@@ -1,3 +1,5 @@
+import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -38,7 +40,11 @@ export const CONFIG = {
     allowClear: false,
     expandAll: false,
     placeholderText: "Select option(s)",
-    labelText: "",
+    labelText: "Label",
+    labelPosition: LabelPosition.Left,
+    labelAlignment: Alignment.LEFT,
+    labelWidth: 5,
+    labelTextSize: "0.875rem",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

@@ -7,6 +7,8 @@ import {
   sortBy,
   startCase,
 } from "lodash";
+import { klona } from "klona";
+
 import { sanitizeKey } from "widgets/WidgetUtils";
 import {
   ARRAY_ITEM_KEY,
@@ -21,15 +23,16 @@ import {
   ROOT_SCHEMA_KEY,
   Schema,
   SchemaItem,
+  FieldThemeStylesheet,
 } from "./constants";
-
-const clone = require("rfdc/default");
+import { getFieldStylesheet } from "./helper";
 
 type Obj = Record<string, any>;
 type JSON = Obj | Obj[];
 
 type ParserOptions = {
   currSourceData?: JSON | string;
+  fieldThemeStylesheets?: FieldThemeStylesheet;
   fieldType?: FieldType;
   isCustomField?: boolean;
   prevSchema?: Schema;
@@ -44,15 +47,22 @@ type ParserOptions = {
 };
 
 type SchemaItemsByFieldOptions = {
+  fieldThemeStylesheets?: FieldThemeStylesheet;
+  schema: Schema;
   schemaItem: SchemaItem;
   schemaItemPath: string;
-  schema: Schema;
   widgetName: string;
 };
 
 type GetKeysFromSchemaOptions = {
   onlyNonCustomFieldKeys?: boolean;
   onlyCustomFieldKeys?: boolean;
+};
+
+type ParseOptions = {
+  currSourceData?: JSON;
+  schema?: Schema;
+  fieldThemeStylesheets?: FieldThemeStylesheet;
 };
 
 /**
@@ -120,7 +130,7 @@ export const getSourceDataPathFromSchemaItemPath = (
   schemaItemPath: string,
 ) => {
   const keys = schemaItemPath.split("."); //schema.__root_schema__.children.name -> ["schema", ROOT_SCHEMA_KEY, "children", "name"]
-  let clonedSchema = clone(schema);
+  let clonedSchema = klona(schema);
   let sourceDataPath = "sourceData";
   let schemaItem: SchemaItem;
   let skipIteration = false;
@@ -196,7 +206,7 @@ export const normalizeArrayValue = (data: any[]) => {
   return data[0];
 };
 
-export const fieldTypeFor = (value: any) => {
+export const fieldTypeFor = (value: any): FieldType => {
   const dataType = dataTypeFor(value);
   const potentialFieldType = DATA_TYPE_POTENTIAL_FIELD[dataType];
   const subDataType = subDataTypeFor(value);
@@ -348,11 +358,8 @@ class SchemaParser {
    * @param currSourceData The source data for parsing
    * @param schema Previous generated schema if present.
    */
-  static parse = (
-    widgetName: string,
-    currSourceData?: JSON,
-    schema: Schema = {},
-  ) => {
+  static parse = (widgetName: string, options: ParseOptions) => {
+    const { currSourceData, schema = {}, fieldThemeStylesheets } = options;
     if (!currSourceData) return schema;
 
     const prevSchema = (() => {
@@ -364,11 +371,12 @@ class SchemaParser {
 
     const rootSchemaItem = SchemaParser.getSchemaItemFor("", {
       currSourceData,
+      fieldThemeStylesheets,
+      identifier: ROOT_SCHEMA_KEY,
       prevSchema,
+      skipDefaultValueProcessing: false,
       sourceDataPath: "sourceData",
       widgetName,
-      skipDefaultValueProcessing: false,
-      identifier: ROOT_SCHEMA_KEY,
     });
 
     rootSchemaItem.originalIdentifier = ROOT_SCHEMA_KEY;
@@ -390,7 +398,13 @@ class SchemaParser {
     fieldType: FieldType,
     options: SchemaItemsByFieldOptions,
   ) => {
-    const { schema, schemaItem, schemaItemPath, widgetName } = options;
+    const {
+      fieldThemeStylesheets,
+      schema,
+      schemaItem,
+      schemaItemPath,
+      widgetName,
+    } = options;
 
     const sourceDataPath = getSourceDataPathFromSchemaItemPath(
       schema,
@@ -418,13 +432,14 @@ class SchemaParser {
     })();
 
     const newSchemaItem = SchemaParser.getSchemaItemFor(schemaItem.identifier, {
-      isCustomField: schemaItem.isCustomField,
       currSourceData,
+      fieldThemeStylesheets,
       fieldType,
-      widgetName,
-      sourceDataPath,
-      skipDefaultValueProcessing: false,
       identifier: schemaItem.identifier,
+      isCustomField: schemaItem.isCustomField,
+      skipDefaultValueProcessing: false,
+      sourceDataPath,
+      widgetName,
     });
 
     // We try to salvage some of the properties that we do not want to get modified by the
@@ -461,6 +476,7 @@ class SchemaParser {
   ): SchemaItem => {
     const {
       currSourceData,
+      fieldThemeStylesheets,
       identifier,
       isCustomField = false,
       skipDefaultValueProcessing,
@@ -472,6 +488,10 @@ class SchemaParser {
     const fieldType = options.fieldType || fieldTypeFor(currSourceData);
     const FieldComponent = FIELD_MAP[fieldType];
     const bindingTemplate = getBindingTemplate(widgetName);
+    const fieldStylesheet = getFieldStylesheet(
+      fieldType,
+      fieldThemeStylesheets,
+    );
 
     const defaultValue = (() => {
       if (isCustomField || skipDefaultValueProcessing) return;
@@ -544,6 +564,7 @@ class SchemaParser {
       identifier,
       position: -1,
       originalIdentifier: key,
+      ...fieldStylesheet,
       ...componentDefaultValues,
     };
   };
@@ -584,12 +605,13 @@ class SchemaParser {
   // This method deals with the conversion of array data to a schema
   static convertArrayToSchema = ({
     currSourceData = [],
+    fieldThemeStylesheets,
     prevSchema = {},
     sourceDataPath,
     widgetName,
     ...rest
   }: Omit<ParserOptions, "identifier">): Schema => {
-    const schema = clone(prevSchema);
+    const schema = klona(prevSchema);
     const currData = normalizeArrayValue(currSourceData as any[]);
 
     const prevDataType = schema[ARRAY_ITEM_KEY]?.dataType;
@@ -598,20 +620,22 @@ class SchemaParser {
     if (currDataType !== prevDataType) {
       schema[ARRAY_ITEM_KEY] = SchemaParser.getSchemaItemFor(ARRAY_ITEM_KEY, {
         ...rest,
-        widgetName,
         currSourceData: currData,
-        sourceDataPath: getSourcePath(0, sourceDataPath),
-        skipDefaultValueProcessing: true,
+        fieldThemeStylesheets,
         identifier: ARRAY_ITEM_KEY,
+        skipDefaultValueProcessing: true,
+        sourceDataPath: getSourcePath(0, sourceDataPath),
+        widgetName,
       });
     } else {
       schema[ARRAY_ITEM_KEY] = SchemaParser.getUnModifiedSchemaItemFor({
         currSourceData: currData,
+        fieldThemeStylesheets,
+        identifier: ARRAY_ITEM_KEY,
         schemaItem: schema[ARRAY_ITEM_KEY],
+        skipDefaultValueProcessing: true,
         sourceDataPath: getSourcePath(0, sourceDataPath),
         widgetName,
-        skipDefaultValueProcessing: true,
-        identifier: ARRAY_ITEM_KEY,
       });
     }
 
@@ -626,7 +650,7 @@ class SchemaParser {
     widgetName,
     ...rest
   }: Omit<ParserOptions, "identifier">): Schema => {
-    const schema = clone(prevSchema);
+    const schema = klona(prevSchema);
     const origIdentifierToIdentifierMap = mapOriginalIdentifierToSanitizedIdentifier(
       schema,
     );
@@ -658,7 +682,7 @@ class SchemaParser {
 
     modifiedKeys.forEach((modifiedKey) => {
       const identifier = origIdentifierToIdentifierMap[modifiedKey];
-      const prevSchemaItem = clone(schema[identifier]);
+      const prevSchemaItem = klona(schema[identifier]);
       const currData = currObj[modifiedKey];
       const prevData = prevSchemaItem.sourceData;
       const currDataType = dataTypeFor(currData);

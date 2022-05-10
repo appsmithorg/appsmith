@@ -60,6 +60,11 @@ const pageCanvasStructureReducer = createImmerReducer(initialState, {
   ) => {
     return { ...state, [action.payload.pageId]: false };
   },
+  [ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST]: (
+    state: PageCanvasStructureReduxState,
+  ) => {
+    Object.keys(state).forEach((key) => delete state[key]);
+  },
 });
 
 export default pageCanvasStructureReducer;

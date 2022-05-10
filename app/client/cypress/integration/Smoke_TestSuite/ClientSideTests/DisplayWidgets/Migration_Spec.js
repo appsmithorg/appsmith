@@ -35,9 +35,8 @@ describe("Migration Validate", function() {
       const uuid = () => Cypress._.random(0, 1e4);
       const name = uuid();
       cy.wait(2000);
-      cy.get(homePage.applicationName)
-        .clear()
-        .type(`app${name}`);
+      cy.AppSetupForRename();
+      cy.get(homePage.applicationName).type(`app${name}`);
       cy.wrap(`app${name}`).as("appname");
       cy.wait(2000);
 
@@ -502,7 +501,7 @@ describe("Migration Validate", function() {
       .first()
       .invoke("attr", "value")
       .should("contain", "#FFC13D");
-    cy.get(widgetsPage.selectedTextSize).should("have.text", "24px");
+    cy.validateCodeEditorContent(".t--property-control-textsize", "1.5rem");
   });
 
   // it("2. Add dsl and Validate Migration on pageload", function () {

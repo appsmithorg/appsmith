@@ -1,5 +1,7 @@
 import IconSVG from "./icon.svg";
+import { Alignment } from "@blueprintjs/core";
 import Widget from "./widget";
+import { LabelPosition } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -10,16 +12,22 @@ export const CONFIG = {
     rows: 8,
     columns: 20,
     animateLoading: true,
-    label: "",
+    label: "Label",
+    labelPosition: LabelPosition.Left,
+    labelAlignment: Alignment.LEFT,
+    labelTextSize: "0.875rem",
+    labelWidth: 5,
     options: [
       { label: "Yes", value: "Y" },
       { label: "No", value: "N" },
     ],
     defaultOptionValue: "Y",
-    widgetName: "RadioGroup",
-    version: 1,
     isRequired: false,
     isDisabled: false,
+    isInline: true,
+    alignment: Alignment.LEFT,
+    widgetName: "RadioGroup",
+    version: 1,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

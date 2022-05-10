@@ -209,7 +209,7 @@ describe("Git sync:", function() {
     cy.get(gitSyncLocators.syncBranches).click();
     cy.get(gitSyncLocators.branchListItem)
       .contains(tempBranchRegex)
-      .should("not.exist");
+      .should("exist");
     cy.get(gitSyncLocators.branchListItem)
       .contains(remoteTempBranchRenamedRegex)
       .should("exist");

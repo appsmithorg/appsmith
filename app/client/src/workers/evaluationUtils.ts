@@ -28,7 +28,7 @@ import { Severity } from "entities/AppsmithConsole";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { Variable } from "entities/JSCollection";
 import { PluginType } from "entities/Action";
-const clone = require("rfdc/default");
+import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
@@ -895,7 +895,7 @@ export const overrideWidgetProperties = (
   value: unknown,
   currentTree: DataTree,
 ) => {
-  const clonedValue = clone(value);
+  const clonedValue = klona(value);
   if (propertyPath in entity.overridingPropertyPaths) {
     const overridingPropertyPaths =
       entity.overridingPropertyPaths[propertyPath];
@@ -918,7 +918,7 @@ export const overrideWidgetProperties = (
       entity.propertyOverrideDependency[propertyPath];
     if (propertyOverridingKeyMap.DEFAULT) {
       const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
-      const clonedDefaultValue = clone(defaultValue);
+      const clonedDefaultValue = klona(defaultValue);
       if (defaultValue !== undefined) {
         const propertyPathArray = propertyPath.split(".");
         _.set(

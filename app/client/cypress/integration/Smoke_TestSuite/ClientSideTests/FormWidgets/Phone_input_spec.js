@@ -91,7 +91,7 @@ describe("Phone input widget - ", () => {
       ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
     ).click();
     cy.selectShowMsg();
-    cy.addSuccessMessage("Submitted!!");
+    cy.addSuccessMessage("Submitted!!", ".t--property-control-onsubmit");
 
     cy.get(widgetInput).clear();
     cy.wait(500);

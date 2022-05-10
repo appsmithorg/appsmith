@@ -39,6 +39,8 @@ import gitSyncReducer from "./gitSyncReducer";
 import crudInfoModalReducer from "./crudInfoModalReducer";
 import { widgetReflowReducer } from "./reflowReducer";
 import jsObjectNameReducer from "./jsObjectNameReducer";
+import appThemingReducer from "./appThemingReducer";
+import mainCanvasReducer from "./mainCanvasReducer";
 
 const uiReducer = combineReducers({
   editor: editorReducer,
@@ -81,6 +83,8 @@ const uiReducer = combineReducers({
   appCollab: appCollabReducer,
   crudInfoModal: crudInfoModalReducer,
   widgetReflow: widgetReflowReducer,
+  appTheming: appThemingReducer,
+  mainCanvas: mainCanvasReducer,
 });
 
 export default uiReducer;

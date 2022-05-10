@@ -2,7 +2,7 @@ import _, { get } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
-import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
+import { invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import {
   ChartDataPoint,
@@ -14,6 +14,7 @@ import {
   LABEL_ORIENTATION_COMPATIBLE_CHARTS,
 } from "../constants";
 import log from "loglevel";
+import { Colors } from "constants/Colors";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
 // FusionCharts comes with its own typings so there is no need to separately import them. But an import from fusioncharts/core still requires a declaration file.
 const FusionCharts = require("fusioncharts");
@@ -59,16 +60,21 @@ export interface ChartComponentProps {
   widgetId: string;
   xAxisName: string;
   yAxisName: string;
+  backgroundColor: string;
+  borderRadius: string;
+  boxShadow?: string;
+  primaryColor?: string;
 }
 
 const CanvasContainer = styled.div<
   Omit<ChartComponentProps, "onDataPointClick">
 >`
-  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-  border-radius: 0;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+
   height: 100%;
   width: 100%;
-  background: white;
+  background: ${({ backgroundColor }) => `${backgroundColor || Colors.WHITE}`};
   overflow: hidden;
   position: relative;
   ${(props) => (!props.isVisible ? invisible : "")};
@@ -263,6 +269,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       captionAlignment: "left",
       captionHorizontalPadding: 10,
       alignCaptionWithCanvas: 0,
+      bgColor: this.props.backgroundColor || Colors.WHITE,
       setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
     };
 
@@ -302,6 +309,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   getCustomFusionChartDataSource = () => {
+    // in case of evaluation error, customFusionChartConfig can be undefined
     let config = this.props.customFusionChartConfig as CustomFusionChartConfig;
     if (config && config.dataSource) {
       config = {
@@ -316,7 +324,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         },
       };
     }
-    return config;
+    return config || {};
   };
 
   getScrollChartDataSource = () => {
@@ -437,31 +445,16 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   componentDidUpdate(prevProps: ChartComponentProps) {
     if (!_.isEqual(prevProps, this.props)) {
-      if (this.props.chartType === "CUSTOM_FUSION_CHART") {
-        const chartConfig = {
-          renderAt: this.chartContainerId,
-          width: "100%",
-          height: "100%",
-          events: {
-            dataPlotClick: (evt: any) => {
-              const data = evt.data;
-              const seriesTitle = this.getSeriesTitle(data);
-              this.props.onDataPointClick({
-                x: data.categoryLabel,
-                y: data.dataValue,
-                seriesTitle,
-              });
-            },
-          },
-          ...this.getCustomFusionChartDataSource(),
-        };
-        this.chartInstance = new FusionCharts(chartConfig);
-        this.chartInstance.render();
-        return;
-      }
       const chartType = this.getChartType();
       this.chartInstance.chartType(chartType);
-      if (this.props.allowScroll && this.props.chartType !== "PIE_CHART") {
+      if (this.props.chartType === "CUSTOM_FUSION_CHART") {
+        const { dataSource, type } = this.getCustomFusionChartDataSource();
+        this.chartInstance.chartType(type);
+        this.chartInstance.setChartData(dataSource);
+      } else if (
+        this.props.allowScroll &&
+        this.props.chartType !== "PIE_CHART"
+      ) {
         this.chartInstance.setChartData(this.getScrollChartDataSource());
       } else {
         this.chartInstance.setChartData(this.getChartDataSource());

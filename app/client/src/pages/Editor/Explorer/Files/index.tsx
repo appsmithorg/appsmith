@@ -1,9 +1,8 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useActiveAction } from "../hooks";
-import { Entity } from "../Entity/index";
+import { Entity, EntityClassNames } from "../Entity/index";
 import {
   createMessage,
-  ADD_QUERY_JS_TOOLTIP,
   ADD_QUERY_JS_BUTTON,
   EMPTY_QUERY_JS_BUTTON_TEXT,
   EMPTY_QUERY_JS_MAIN_TEXT,
@@ -15,10 +14,9 @@ import {
 } from "selectors/editorSelectors";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { Colors } from "constants/Colors";
 import {
-  comboHelpText,
   filterCategories,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
@@ -27,6 +25,7 @@ import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 import Icon from "components/ads/Icon";
 import { noop } from "lodash";
 import { AddEntity, EmptyComponent } from "../common";
+import ExplorerSubMenu from "./Submenu";
 
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -37,13 +36,21 @@ function Files() {
 
   const onCreate = useCallback(() => {
     dispatch(
-      toggleShowGlobalSearchModal(
+      setGlobalSearchCategory(
         filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
       ),
     );
   }, [dispatch]);
 
   const activeActionId = useActiveAction();
+
+  useEffect(() => {
+    if (!activeActionId) return;
+    document.getElementById(`entity-${activeActionId}`)?.scrollIntoView({
+      block: "nearest",
+      inline: "nearest",
+    });
+  }, [activeActionId]);
 
   const onFilesToggle = useCallback(
     (isOpen: boolean) => {
@@ -93,14 +100,13 @@ function Files() {
 
   return (
     <Entity
-      addButtonHelptext={
-        <>
-          {createMessage(ADD_QUERY_JS_TOOLTIP)} (
-          {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
-        </>
-      }
       alwaysShowRightIcon
       className={`group files`}
+      customAddButton={
+        <ExplorerSubMenu
+          className={`${EntityClassNames.ADD_BUTTON} group files`}
+        />
+      }
       disabled={false}
       entityId={pageId + "_widgets"}
       icon={null}

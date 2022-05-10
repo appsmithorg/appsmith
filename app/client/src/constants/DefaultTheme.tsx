@@ -2,11 +2,13 @@ import * as styledComponents from "styled-components";
 import { Colors, Color } from "./Colors";
 import * as FontFamilies from "./Fonts";
 import tinycolor from "tinycolor2";
-import { Classes } from "@blueprintjs/core";
+import { Alignment, Classes } from "@blueprintjs/core";
 import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
 import { typography, Typography, TypographyKeys } from "./typography";
+
+import { LabelPosition } from "components/constants";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
 const {
@@ -258,6 +260,88 @@ export const BlueprintInputTransform = css`
       &:focus {
         border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
         box-shadow: none;
+      }
+    }
+  }
+`;
+
+export const BlueprintRadioSwitchGroupTransform = css<{
+  alignment: Alignment;
+  height?: number;
+  inline: boolean;
+  labelPosition?: LabelPosition;
+  optionCount: number;
+}>`
+  width: 100%;
+  height: 100%;
+
+  ${({ alignment, inline, optionCount }) => `
+    display: ${
+      inline ? "inline-flex" : alignment === Alignment.RIGHT ? "block" : "flex"
+    };
+    flex-direction: ${inline ? "row" : "column"};
+    align-items: ${inline ? "center" : "flex-start"};
+    ${inline && "flex-wrap: wrap"};
+    justify-content: ${
+      optionCount > 1 ? `space-between` : inline ? `flex-start` : `center`
+    };
+  `}
+
+  ${BlueprintControlTransform};
+  .${Classes.CONTROL} {
+    display: ${({ alignment, inline }) => {
+      if (alignment === Alignment.RIGHT) {
+        return inline ? "inline-block" : "block";
+      }
+      return "flex";
+    }};
+    align-items: center;
+    border: 1px solid transparent;
+    color: ${Colors.GREY_10};
+    line-height: 16px;
+    min-height: ${({ alignment }) =>
+      alignment === Alignment.RIGHT ? 23 : 30}px;
+    margin-top: ${({ alignment }) => (alignment === Alignment.RIGHT ? 7 : 0)}px;
+
+    margin-bottom: ${({
+      alignment,
+      height,
+      inline,
+      labelPosition,
+      optionCount,
+    }) => {
+      if (
+        alignment === Alignment.RIGHT &&
+        !inline &&
+        optionCount > 1 &&
+        height
+      ) {
+        return Math.max(
+          (height -
+            (labelPosition === LabelPosition.Left ? 0 : 35) -
+            optionCount * 31) /
+            (optionCount - 1),
+          8,
+        );
+      } else {
+        return 0;
+      }
+    }}px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+    .bp3-control-indicator {
+      margin-top: 0;
+      border: 1px solid ${Colors.GREY_3};
+    }
+    input:checked ~ .bp3-control-indicator,
+    &:hover input:checked ~ .bp3-control-indicator {
+      background-color: ${Colors.GREEN};
+    }
+    &:hover {
+      & input:not(:checked) ~ .bp3-control-indicator {
+        border: 1px solid ${Colors.GREY_5} !important;
       }
     }
   }
@@ -569,6 +653,7 @@ const lightShades = [
   "#F86A2B",
   "#FFDEDE",
   "#575757",
+  "#191919",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -1290,13 +1375,14 @@ const editorBottomBar = {
 const gitSyncModal = {
   menuBackgroundColor: Colors.ALABASTER_ALT,
   separator: Colors.ALTO2,
-  closeIcon: "rgba(29, 28, 29, 0.7);",
+  closeIcon: Colors.SCORPION,
+  closeIconHover: Colors.GREY_900,
 };
 type GitSyncModalColors = typeof gitSyncModal;
 
 const tabItemBackgroundFill = {
   highlightBackground: Colors.Gallery,
-  highlightTextColor: Colors.CODE_GRAY,
+  highlightTextColor: Colors.COD_GRAY,
   textColor: Colors.CHARCOAL,
 };
 
@@ -2387,7 +2473,7 @@ export const light: ColorType = {
     },
     menu: {
       border: lightShades[13],
-      bg: lightShades[0],
+      bg: lightShades[11],
       text: lightShades[8],
       hover: lightShades[2],
       hoverText: lightShades[10],
@@ -2529,7 +2615,7 @@ export const light: ColorType = {
   },
   modal: {
     bg: lightShades[11],
-    headerText: lightShades[10],
+    headerText: lightShades[20],
     iconColor: lightShades[5],
     iconBg: lightShades[18],
     user: {
@@ -2607,7 +2693,7 @@ export const light: ColorType = {
     bg: lightShades[11],
     tabBg: lightShades[11],
     text: lightShades[16],
-    dividerBg: lightShades[13],
+    dividerBg: lightShades[3],
     iconHoverBg: lightShades[1],
     requestTree: {
       bg: lightShades[11],

@@ -51,11 +51,14 @@ import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget"
 import { DSLWidget } from "widgets/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
+import { migrateStylingPropertiesForTheming } from "./migrations/ThemingMigrations";
+
 import {
   migratePhoneInputWidgetAllowFormatting,
   migratePhoneInputWidgetDefaultDialCode,
 } from "./migrations/PhoneInputWidgetMigrations";
 import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/CurrencyInputWidgetMigrations";
+import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 
 /**
  * adds logBlackList key for all list widget children
@@ -101,7 +104,7 @@ const addLogBlackListToAllListWidgetChildren = (
  * @param currentDSL
  * @returns
  */
-const addPrivateWidgetsToAllListWidgets = (
+export const addPrivateWidgetsToAllListWidgets = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
@@ -1053,6 +1056,7 @@ export const transformDSL = (
      * We're skipping this to fix a bad table migration - migrateTableWidgetNumericColumnName
      * it overwrites the computedValue of the table columns
      */
+
     currentDSL.version = 51;
   }
 
@@ -1078,6 +1082,16 @@ export const transformDSL = (
 
   if (currentDSL.version === 55) {
     currentDSL = migrateCurrencyInputWidgetDefaultCurrencyCode(currentDSL);
+    currentDSL.version = 56;
+  }
+
+  if (currentDSL.version === 56) {
+    currentDSL = migrateRadioGroupAlignmentProperty(currentDSL);
+    currentDSL.version = 57;
+  }
+
+  if (currentDSL.version === 57) {
+    currentDSL = migrateStylingPropertiesForTheming(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

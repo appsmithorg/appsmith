@@ -9,7 +9,7 @@ import KeyLogo from "assets/icons/ads/key-2-line.svg";
 export type SocialLoginButtonProps = CE_SocialLoginButtonProps;
 export const KeycloakSocialLoginButtonProps: SocialLoginButtonProps = {
   url: KeycloakOAuthURL,
-  name: "Keycloak",
+  name: "SAML",
   logo: KeyLogo,
   label: "Sign In with SAML SSO",
 };
@@ -26,7 +26,7 @@ export const SocialLoginButtonPropsList: Record<
   SocialLoginButtonProps
 > = {
   ...CE_SocialLoginButtonPropsList,
-  keycloak: KeycloakSocialLoginButtonProps,
+  saml: KeycloakSocialLoginButtonProps,
   oidc: OidcSocialLoginButtonProps,
 };
 

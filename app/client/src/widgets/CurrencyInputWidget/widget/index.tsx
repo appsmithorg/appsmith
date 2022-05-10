@@ -32,6 +32,7 @@ import {
   limitDecimalValue,
 } from "../component/utilities";
 import { mergeWidgetConfig } from "utils/helpers";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -116,9 +117,9 @@ class CurrencyInputWidget extends BaseInputWidget<
               propertyName: "defaultCurrencyCode",
               label: "Currency",
               enableSearch: true,
-              dropdownHeight: "195px",
+              dropdownHeight: "156px",
               controlType: "DROP_DOWN",
-              placeholderText: "Search by code or name",
+              searchPlaceholderText: "Search by code or name",
               options: CurrencyDropdownOptions,
               isJSConvertible: true,
               isBindProperty: true,
@@ -345,9 +346,18 @@ class CurrencyInputWidget extends BaseInputWidget<
 
     return (
       <CurrencyInputComponent
+        accentColor={this.props.accentColor}
         allowCurrencyChange={this.props.allowCurrencyChange}
         autoFocus={this.props.autoFocus}
-        compactMode
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        compactMode={
+          !(
+            (this.props.bottomRow - this.props.topRow) /
+              GRID_DENSITY_MIGRATION_V1 >
+            1
+          )
+        }
         currencyCode={currencyCode}
         decimals={this.props.decimals}
         defaultValue={this.props.defaultText}
@@ -359,9 +369,12 @@ class CurrencyInputWidget extends BaseInputWidget<
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={this.getLabelWidth()}
         onCurrencyTypeChange={this.onCurrencyTypeChange}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}

@@ -12,6 +12,11 @@ export interface DropdownOption {
   intent?: BlueprintIntent;
 }
 
+export enum SubTextPosition {
+  BOTTOM,
+  LEFT,
+}
+
 export const InputTypes: { [key: string]: string } = {
   TEXT: "TEXT",
   NUMBER: "NUMBER",
@@ -30,6 +35,7 @@ export enum ButtonBorderRadiusTypes {
   ROUNDED = "ROUNDED",
   CIRCLE = "CIRCLE",
 }
+
 export type ButtonBorderRadius = keyof typeof ButtonBorderRadiusTypes;
 
 export enum ButtonBoxShadowTypes {
@@ -87,3 +93,19 @@ export enum ButtonPlacementTypes {
   CENTER = "CENTER",
 }
 export type ButtonPlacement = keyof typeof ButtonPlacementTypes;
+
+export enum LabelPosition {
+  Auto = "Auto",
+  Top = "Top",
+  Left = "Left",
+}
+
+/**
+ * Default height for Select, MultiSelect, SingleTreeSelect and MultiTreeSelect
+ */
+export const SELECT_DEFAULT_HEIGHT = "32px";
+
+/**
+ * Default margin bottom value for old select widgets
+ */
+export const LABEL_MARGIN_OLD_SELECT = "5px";

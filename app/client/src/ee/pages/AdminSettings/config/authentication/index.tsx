@@ -4,7 +4,6 @@ import {
   Form_Auth_Callout,
   Github_Auth_Callout,
   Google_Auth_Callout,
-  Saml_Auth_Callout,
 } from "ce/pages/AdminSettings/config/authentication";
 import {
   AdminConfigType,
@@ -13,7 +12,9 @@ import {
   SettingTypes,
   SettingSubtype,
 } from "@appsmith/pages/AdminSettings/config/types";
+import { Sso } from "@appsmith/pages/AdminSettings/saml";
 import { AuthMethodType, AuthPage } from "./AuthPage";
+import SamlSso from "assets/images/saml.svg";
 import OIDC from "assets/images/oidc.svg";
 import React from "react";
 import { getAppsmithConfigs } from "@appsmith/configs";
@@ -21,7 +22,18 @@ import Oidc from "@appsmith/pages/AdminSettings/oidc";
 import { OIDC_SIGNUP_SETUP_DOC } from "constants/ThirdPartyConstants";
 import { REDIRECT_URL_FORM } from "constants/forms";
 
-const { enableOidcOAuth } = getAppsmithConfigs();
+const { enableOidcOAuth, enableSamlOAuth } = getAppsmithConfigs();
+
+const SSO_Auth: AdminConfigType = {
+  type: SettingCategories.SAML_AUTH,
+  controlType: SettingTypes.PAGE,
+  title: "SAML 2.0",
+  component: Sso,
+  subText:
+    "Enable your organization to sign in with your preferred SAML2 compliant provider.",
+  canSave: true,
+  isConnected: enableSamlOAuth,
+};
 
 const OIDC_Auth: AdminConfigType = {
   type: SettingCategories.OIDC_AUTH,
@@ -126,7 +138,44 @@ const OIDC_Auth: AdminConfigType = {
       subText: "Name of the claim which represents the email of the user",
       isRequired: true,
     },
+    {
+      id: "APPSMITH_OAUTH2_OIDC_ADVANCED",
+      category: SettingCategories.OIDC_AUTH,
+      subCategory: SettingSubCategories.OIDC,
+      controlType: SettingTypes.ACCORDION,
+      label: "Advanced",
+      advanced: [
+        {
+          id: "APPSMITH_OAUTH2_OIDC_SIGNING_ALGO",
+          category: SettingCategories.OIDC_AUTH,
+          subCategory: SettingSubCategories.OIDC,
+          controlType: SettingTypes.DROPDOWN,
+          label: "Token Signing Algorithm",
+          dropdownOptions: [
+            { id: "RS256", value: "RS256" },
+            { id: "RS384", value: "RS384" },
+            { id: "RS512", value: "RS512" },
+            { id: "ES256", value: "ES256" },
+            { id: "ES384", value: "ES384" },
+            { id: "ES512", value: "ES512" },
+            { id: "PS256", value: "PS256" },
+            { id: "PS384", value: "PS384" },
+            { id: "PS512", value: "PS512" },
+          ],
+        },
+      ],
+    },
   ],
+};
+
+export const Saml_Auth_Callout: AuthMethodType = {
+  id: "APPSMITH_SAML_AUTH",
+  category: SettingCategories.SAML_AUTH,
+  label: "SAML 2.0",
+  subText: `Enable your organization to sign in with your preferred SAML2 compliant provider.`,
+  image: SamlSso,
+  type: "LINK",
+  isConnected: enableSamlOAuth,
 };
 
 export const Oidc_Auth_Callout: AuthMethodType = {
@@ -154,7 +203,7 @@ function AuthMain() {
 export const config: AdminConfigType = {
   ...CE_config,
   children: Array.isArray(CE_config.children)
-    ? [...CE_config.children, OIDC_Auth]
+    ? [...CE_config.children, SSO_Auth, OIDC_Auth]
     : [],
   component: AuthMain,
 };

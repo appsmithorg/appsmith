@@ -233,13 +233,30 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
     );
 
     if (nameInput && emailInput && countryInput && imageWidget) {
-      yield put(updateWidgetName(nameInput.widgetId, "NameInput"));
+      yield put(
+        updateWidgetName(nameInput.widgetId, GuidedTourEntityNames.NAME_INPUT),
+      );
       yield take(ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS);
-      yield put(updateWidgetName(emailInput.widgetId, "EmailInput"));
+      yield put(
+        updateWidgetName(
+          emailInput.widgetId,
+          GuidedTourEntityNames.EMAIL_INPUT,
+        ),
+      );
       yield take(ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS);
-      yield put(updateWidgetName(countryInput.widgetId, "CountryInput"));
+      yield put(
+        updateWidgetName(
+          countryInput.widgetId,
+          GuidedTourEntityNames.COUNTRY_INPUT,
+        ),
+      );
       yield take(ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS);
-      yield put(updateWidgetName(imageWidget.widgetId, "ImageWidget"));
+      yield put(
+        updateWidgetName(
+          imageWidget.widgetId,
+          GuidedTourEntityNames.DISPLAY_IMAGE,
+        ),
+      );
     }
   } catch (error) {
     log.error(error);
