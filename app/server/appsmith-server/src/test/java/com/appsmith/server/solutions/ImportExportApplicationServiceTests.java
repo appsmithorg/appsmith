@@ -2544,8 +2544,30 @@ public class ImportExportApplicationServiceTests {
                 });
 
         StepVerifier.create(exportedAppJson).assertNext(applicationJson -> {
-            assertThat(applicationJson.getEditModeTheme().getName()).isEqualTo(Theme.DEFAULT_THEME_NAME);
-            assertThat(applicationJson.getPublishedTheme().getName()).isEqualTo(Theme.DEFAULT_THEME_NAME);
+            assertThat(applicationJson.getEditModeTheme().getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
+            assertThat(applicationJson.getPublishedTheme().getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
         }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_invalidPluginReferenceForDatasource_throwException() {
+
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Template Organization");
+
+        ApplicationJson appJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
+        assert appJson != null;
+        final String randomId = UUID.randomUUID().toString();
+        appJson.getDatasourceList().get(0).setPluginId(randomId);
+        final Mono<Application> resultMono = organizationService
+                .create(newOrganization)
+                .flatMap(organization -> importExportApplicationService.importApplicationInOrganization(organization.getId(), appJson));
+
+        StepVerifier
+                .create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.UNKNOWN_PLUGIN_REFERENCE.getMessage(randomId)))
+                .verify();
     }
 }

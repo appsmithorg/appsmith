@@ -265,7 +265,7 @@ describe("Git sync modal: connect tab", function() {
     });
 
     // read document clicking test
-    cy.get(gitSyncLocators.readDocument).should("exist");
+    cy.get(gitSyncLocators.gitConnectErrorLearnMore).should("exist");
     cy.window().then((window) => {
       windowOpenSpy = cy.stub(window, "open").callsFake((url) => {
         // todo: check if we can improve this
@@ -273,7 +273,7 @@ describe("Git sync modal: connect tab", function() {
         windowOpenSpy.restore();
       });
     });
-    cy.get(gitSyncLocators.readDocument).click();
+    cy.get(gitSyncLocators.gitConnectErrorLearnMore).click();
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 
