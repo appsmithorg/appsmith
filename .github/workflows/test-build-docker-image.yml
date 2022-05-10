@@ -681,7 +681,7 @@ jobs:
           parallel: true
           config-file: cypress_fat.json
           group: "Electrons on Github Action"
-          spec: ${{ env.failed_spec_env }}
+          spec: "cypress/integration/Smoke_TestSuite_Fat/**/*"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}

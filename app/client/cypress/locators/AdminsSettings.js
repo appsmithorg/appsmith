@@ -25,4 +25,6 @@ export default {
   loginWithGithub: "[data-testid='login-with-Github']",
   loginWithOIDC: "[data-testid='login-with-OIDC']",
   disconnectBtn: "[data-testid='disconnect-service-button']",
+  formSignupDisabled: "[data-cy='APPSMITH_SIGNUP_DISABLED']",
+  formLoginDisabled: "[data-cy='APPSMITH_FORM_LOGIN_DISABLED']",
 };
