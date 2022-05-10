@@ -227,6 +227,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       widgetType: props.type,
     });
   };
+  const disabledResizeHandle = get(props, "disabledResizeHandles", []);
   const handles = useMemo(() => {
     const allHandles = {
       left: LeftHandleStyles,
@@ -239,8 +240,8 @@ export const ResizableComponent = memo(function ResizableComponent(
       bottomLeft: BottomLeftHandleStyles,
     };
 
-    return omit(allHandles, get(props, "disabledResizeHandles", []));
-  }, [get(props, "disabledResizeHandles", [])]);
+    return omit(allHandles, disabledResizeHandle);
+  }, [disabledResizeHandle]);
 
   const isEnabled =
     !isDragging &&

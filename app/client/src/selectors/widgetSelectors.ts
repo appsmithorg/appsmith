@@ -8,7 +8,7 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getWidgets } from "sagas/selectors";
 import WidgetFactory from "utils/WidgetFactory";
-import { getSelectedWidget, getSelectedWidgets } from "./ui";
+import { getFocusedWidget, getSelectedWidget, getSelectedWidgets } from "./ui";
 
 const getCanvasWidgets = (state: AppState) => state.entities.canvasWidgets;
 export const getModalDropdownList = createSelector(
@@ -63,7 +63,7 @@ export const isWidgetSelected = (widgetId: string) => {
 
 export const isCurrentWidgetFocused = (widgetId: string) => {
   return createSelector(
-    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
+    getFocusedWidget,
     (widget): boolean => widget === widgetId,
   );
 };

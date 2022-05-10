@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -127,7 +127,11 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const showAsSelected = isLastSelected || isSelected;
 
   const isMultiSelected = useSelector(isMultiSelectedWidget(props.widgetId));
-  const shouldShowWidgetName = () => {
+
+  // in sniping mode we only show the widget name tag if it's focused.
+  // in case of widget selection in sniping mode, if it's successful we bind the data else carry on
+  // with sniping mode.
+  const shouldShowWidgetName = useMemo(() => {
     return (
       !isCommentMode &&
       !isPreviewMode &&
@@ -138,12 +142,18 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
           ((isFocused || showAsSelected) && !isDragging && !isResizing) ||
           (!!props.errorCount && !shouldHideErrors))
     );
-  };
-
-  // in sniping mode we only show the widget name tag if it's focused.
-  // in case of widget selection in sniping mode, if it's successful we bind the data else carry on
-  // with sniping mode.
-  const showWidgetName = shouldShowWidgetName();
+  }, [
+    isCommentMode,
+    isPreviewMode,
+    isMultiSelected,
+    isSnipingMode,
+    isFocused,
+    showAsSelected,
+    isDragging,
+    isResizing,
+    props.showControls,
+    props.errorCount,
+  ]);
 
   let currentActivity =
     props.type === WidgetTypes.MODAL_WIDGET
@@ -158,7 +168,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   )
     currentActivity = Activities.ACTIVE;
 
-  return showWidgetName ? (
+  return shouldShowWidgetName ? (
     <PositionStyle
       className={isSnipingMode ? "t--settings-sniping-control" : ""}
       data-testid="t--settings-controls-positioned-wrapper"
