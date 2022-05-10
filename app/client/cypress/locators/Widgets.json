@@ -171,6 +171,7 @@
     "selectWidgetDisabled": ".t--property-control-disabled input",
     "itemBackgroundColorToggle": ".t--property-control-itembackgroundcolor .t--js-toggle",
     "backgroundColorToggle": ".t--property-control-background .t--js-toggle",
+    "backgroundColorToggleNew": ".t--property-control-backgroundcolor .t--js-toggle",
     "cellBackground": ".t--property-control-cellbackgroundcolor",
     "cellBackgroundToggle": ".t--property-control-cellbackgroundcolor .t--js-toggle",
     "borderColorPickerNew": ".t--property-control-bordercolor input",

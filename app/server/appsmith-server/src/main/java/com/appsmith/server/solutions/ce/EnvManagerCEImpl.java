@@ -329,14 +329,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 Map<String, String> properties = new HashMap<>(){{
                     put("provider", authEnv);
                 }};
-                // Authentication configuration added
-                if (!changes.get(authEnv).isEmpty() && originalVariables.get(authEnv).isEmpty()) {
-                    properties.put("action", "Added");
-                }
-                // Authentication configuration removed
-                else if (changes.get(authEnv).isEmpty() && !originalVariables.get(authEnv).isEmpty()) {
-                    properties.put("action", "Removed");
-                }
+                properties = setAnalyticsEventAction(properties, changes.get(authEnv), originalVariables.get(authEnv), authEnv);
                 if(properties.containsKey("action")){
                     analyticsEvents.add(properties);
                 }
@@ -344,6 +337,27 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         }
 
         return analyticsEvents;
+    }
+
+    /**
+     * Sets the correct action to analytics event properties template(s) according to the env variable changes
+     * @param properties
+     * @param newVariable Updated env variable value
+     * @param originalVariable Already existing env variable value
+     * @param authEnv Env variable name
+     * @return
+     */
+    public Map<String, String> setAnalyticsEventAction(Map<String, String> properties, String newVariable, String originalVariable, String authEnv){
+        // Authentication configuration added
+        if (!newVariable.isEmpty() && originalVariable.isEmpty()) {
+            properties.put("action", "Added");
+        }
+        // Authentication configuration removed
+        else if (newVariable.isEmpty() && !originalVariable.isEmpty()) {
+            properties.put("action", "Removed");
+        }
+
+        return properties;
     }
 
     /**

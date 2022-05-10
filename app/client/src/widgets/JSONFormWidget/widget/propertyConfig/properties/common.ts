@@ -16,6 +16,7 @@ import { JSONFormWidgetProps } from "../..";
 import { getParentPropertyPath } from "../../helper";
 import {
   fieldTypeUpdateHook,
+  getAutocompleteProperties,
   getSchemaItem,
   getStylesheetValue,
   HiddenFnParams,
@@ -357,7 +358,7 @@ const COMMON_PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      additionalAutoComplete: getAutocompleteProperties,
       dependencies: ["schema", "sourceData"],
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(
@@ -372,7 +373,7 @@ const COMMON_PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      additionalAutoComplete: getAutocompleteProperties,
       dependencies: ["schema", "sourceData"],
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(
