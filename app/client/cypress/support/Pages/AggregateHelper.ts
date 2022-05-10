@@ -515,6 +515,11 @@ export class AggregateHelper {
         locator.should('not.exist')
     }
 
+    public GetText(selector: string) {
+        let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
+        return locator.invoke("text");
+    }
+
     public AssertElementPresence(selector: string, index = 0) {
         let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
         locator.eq(index).should('be.visible')
