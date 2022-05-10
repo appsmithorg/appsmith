@@ -18,6 +18,7 @@ import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
 import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
+import "codemirror/addon/search/match-highlighter.js";
 
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -247,6 +248,7 @@ class CodeEditor extends Component<Props, State> {
           lintOnChange: false,
         },
         tabindex: -1,
+        highlightSelectionMatches: true,
       };
 
       const gutters = new Set<string>();

@@ -304,6 +304,9 @@ export const EditorWrapper = styled.div<{
         color: ${props.isRawView ? "#000" : "#cb4b16"};
       }
     `}
+    .cm-matchhighlight{
+      background: #e3dccd;
+    }
 `;
 
 export const IconContainer = styled.div`
