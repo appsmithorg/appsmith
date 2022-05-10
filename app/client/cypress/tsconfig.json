@@ -1,15 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext",
-      "es5",
-      "es2015.collection",
-      "es2015.iterable",
-      "es2020.string"
-    ],
+    "target": "ES6",
+    "lib": ["DOM", "ES6", "DOM.Iterable", "ScriptHost", "ES2016.Array.Include"],
     "strict": true,
     "outDir": "./out/js/cypress",
     "allowJs": true,

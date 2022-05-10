@@ -199,6 +199,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@babel/core": "^7.17.10",
     "@babel/plugin-proposal-decorators": "^7.17.9",
     "@babel/plugin-transform-typescript": "^7.16.8",
     "@babel/preset-typescript": "^7.16.7",
@@ -257,7 +258,7 @@
     "cra-bundle-analyzer": "^0.1.0",
     "craco-babel-loader": "^0.1.4",
     "cy-verify-downloads": "^0.0.5",
-    "cypress": "8.7.0",
+    "cypress": "^9.6.0",
     "cypress-file-upload": "^4.1.1",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-multi-reporters": "^1.2.4",
