@@ -164,6 +164,16 @@ hello! how are you?
     expect(result).toStrictEqual(expectedResult);
   });
 
+  it.only("validate escaping apostrophe", () => {
+    const testData = "Drop a t'able"; // having single quote in value
+    const expectedTestData = "Drop a t&apos;able";
+    const testString = JSON.stringify(testData);
+    const result = escapeSpecialChars(testString);
+    const parsedResult = JSON.parse(result);
+
+    expect(parsedResult).toStrictEqual(expectedTestData);
+  });
+
   it("Check if the color is lightened with lightenColor utility", () => {
     /**
      * Colors with :
