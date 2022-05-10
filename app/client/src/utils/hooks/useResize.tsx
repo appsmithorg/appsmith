@@ -5,9 +5,15 @@ export enum DIRECTION {
   horizontal,
 }
 
+export interface CallbackResponseType {
+  height: number;
+  width: number;
+}
+
 function useResize(
   ref: MutableRefObject<HTMLElement | null>,
   direction: DIRECTION,
+  afterResizeCallback?: (data: CallbackResponseType) => void,
 ) {
   const [mouseDown, setMouseDown] = React.useState(false);
 
@@ -32,10 +38,17 @@ function useResize(
       const currentHeight = bottom - top;
       const currentWidth = right - left;
 
+      const newHeight = currentHeight + distanceYDragged;
+      const newWidth = currentWidth + distanceXDragged;
+
       if (direction === DIRECTION.vertical) {
-        ref.current.style.height = currentHeight + distanceYDragged + "px";
+        ref.current.style.height = newHeight + "px";
       } else {
-        ref.current.style.height = currentWidth + distanceXDragged + "px";
+        ref.current.style.width = newWidth + "px";
+      }
+
+      if (afterResizeCallback) {
+        afterResizeCallback({ height: newHeight, width: newWidth });
       }
     }
   };

@@ -34,7 +34,10 @@ import { selectAllPages } from "selectors/entitiesSelector";
 import { builderURL, pageListEditorURL } from "RouteBuilder";
 import { saveExplorerStatus, getExplorerStatus } from "../helpers";
 import { tailwindLayers } from "constants/Layers";
-import useResize, { DIRECTION } from "utils/hooks/useResize";
+import useResize, {
+  DIRECTION,
+  CallbackResponseType,
+} from "utils/hooks/useResize";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -75,14 +78,28 @@ function Pages() {
   const dispatch = useDispatch();
   const isPagesOpen = getExplorerStatus(applicationId, "pages");
   const pageResizeRef = useRef<HTMLDivElement>(null);
+  const storedHeightKey = "pagesContainerHeight_" + applicationId;
+  const storedHeight = localStorage.getItem(storedHeightKey);
+
+  const resizeAfterCallback = (data: CallbackResponseType) => {
+    localStorage.setItem(storedHeightKey, data.height.toString());
+  };
+
   const { mouseDown, setMouseDown } = useResize(
     pageResizeRef,
     DIRECTION.vertical,
+    resizeAfterCallback,
   );
 
   useEffect(() => {
     document.getElementsByClassName("activePage")[0]?.scrollIntoView();
   }, [currentPageId]);
+
+  useEffect(() => {
+    if ((isPagesOpen === null ? true : isPagesOpen) && pageResizeRef.current) {
+      pageResizeRef.current.style.height = storedHeight + "px";
+    }
+  }, [pageResizeRef]);
 
   const switchPage = useCallback((page: Page) => {
     history.push(
