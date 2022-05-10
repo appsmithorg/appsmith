@@ -1,7 +1,12 @@
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { FieldType } from "widgets/JSONFormWidget/constants";
-import { HiddenFnParams, getSchemaItem, getStylesheetValue } from "../helper";
+import {
+  HiddenFnParams,
+  getSchemaItem,
+  getAutocompleteProperties,
+  getStylesheetValue,
+} from "../helper";
 
 type ExtendedControlConfig = PropertyPaneControlConfig & {
   options?: {
@@ -57,6 +62,7 @@ const PROPERTIES: Record<string, ExtendedControlConfig[]> = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
+      additionalAutoComplete: getAutocompleteProperties,
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.CHECKBOX),
       dependencies: ["schema"],
