@@ -7,6 +7,8 @@ require("cypress-file-upload");
 const googleForm = require("../locators/GoogleForm.json");
 const googleData = require("../fixtures/googleSource.json");
 const githubForm = require("../locators/GithubForm.json");
+const oidcform = require("../locators/OIDCForm.json");
+const oidcData = require("../fixtures/oidcSource.json");
 
 Cypress.Commands.add("fillGoogleFormPartly", () => {
   cy.get(googleForm.googleClientId).type(
@@ -42,4 +44,29 @@ Cypress.Commands.add("fillGithubForm", () => {
     Cypress.env("APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET"),
   );
   cy.get(githubForm.saveBtn).click({ force: true });
+});
+
+Cypress.Commands.add("fillOIDCform", () => {
+  cy.get(oidcform.clientID)
+    .clear()
+    .type(oidcData.clientID);
+  cy.get(oidcform.clientSecret)
+    .clear()
+    .type(oidcData.clientSecret);
+  cy.get(oidcform.authorizationURL)
+    .clear()
+    .type(oidcData.authorizationURL);
+  cy.get(oidcform.tokenURL)
+    .clear()
+    .type(oidcData.tokenURL);
+  cy.get(oidcform.userInfo)
+    .clear()
+    .type(oidcData.userInfo);
+  cy.get(oidcform.jwtSetURI)
+    .clear()
+    .type(oidcData.jwtSetURI);
+  // cy.xpath(oidcform.AdvancedOptionExpand).click({ force: true });
+  cy.get(oidcform.scope).type(oidcData.scope);
+  cy.get(oidcform.userAttribute).type(oidcData.userAttribute);
+  cy.get(oidcform.saveBtn).click({ force: true });
 });
