@@ -63,7 +63,6 @@ import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
-import org.springframework.data.redis.core.ReactiveValueOperations;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -400,6 +399,23 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
 
         Mono<String> commitMono = this.getApplicationById(defaultApplicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    Path baseRepoSuffix =
+                            Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+                    return redisOperations.opsForValue().get(baseRepoSuffix.toString())
+                            .flatMap(object -> {
+                                if (object.equals(REDIS_FILE_RELEASE_VALUE)) {
+                                    return redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
+                                            .then(Mono.just(application));
+                                } else {
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
+                                }
+                            })
+                            .switchIfEmpty(redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
+                                    .then(Mono.just(application))
+                            );
+                })
                 .flatMap(defaultApplication -> {
                     GitApplicationMetadata defaultGitMetadata = defaultApplication.getGitApplicationMetadata();
                     if (Optional.ofNullable(defaultGitMetadata).isEmpty()) {
@@ -478,20 +494,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(e);
                     }
-
-                    // Check if the file system in use by other process and place lock before accessing the file system
-                    return redisOperations.opsForValue().get(baseRepoSuffix.toString())
-                            .flatMap(object -> {
-                                if (object.equals(REDIS_FILE_RELEASE_VALUE)) {
-                                    return redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
-                                            .then(Mono.zip(repoPathMono, currentUserMono, Mono.just(childApplication)));
-                                } else {
-                                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
-                                }
-                            })
-                            .switchIfEmpty(redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
-                                    .then(Mono.zip(repoPathMono, currentUserMono, Mono.just(childApplication)))
-                            );
+                    return Mono.zip(repoPathMono, currentUserMono, Mono.just(childApplication));
                 })
                 .onErrorResume(e -> {
                     log.error("Error in commit flow: ", e);
@@ -1368,6 +1371,23 @@ public class GitServiceCEImpl implements GitServiceCE {
          * */
 
         Mono<GitPullDTO> pullMono = getApplicationById(defaultApplicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    Path baseRepoSuffix =
+                            Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+                    return redisOperations.opsForValue().get(baseRepoSuffix.toString())
+                            .flatMap(object -> {
+                                if (object.equals(REDIS_FILE_RELEASE_VALUE)) {
+                                    return redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
+                                            .then(Mono.just(application));
+                                } else {
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
+                                }
+                            })
+                            .switchIfEmpty(redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
+                                    .then(Mono.just(application))
+                            );
+                })
                 .flatMap(defaultApplication -> {
                     GitApplicationMetadata defaultGitMetadata = defaultApplication.getGitApplicationMetadata();
                     return Mono.zip(Mono.just(defaultApplication), getStatus(defaultGitMetadata.getDefaultApplicationId(), branchName));
@@ -1382,20 +1402,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 "pull",
                                 "There are uncommitted changes present in your local. Please commit them first and then try git pull"));
                     }
-                    GitApplicationMetadata gitData = defaultApplication.getGitApplicationMetadata();
-                    Path baseRepoSuffix = Paths.get(defaultApplication.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
-                    return redisOperations.opsForValue().get(baseRepoSuffix.toString())
-                            .flatMap(object -> {
-                                if (object.equals(REDIS_FILE_RELEASE_VALUE)) {
-                                    return redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
-                                            .then(pullAndRehydrateApplication(defaultApplication, branchName));
-                                } else {
-                                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
-                                }
-                            })
-                            .switchIfEmpty(redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
-                                    .then(pullAndRehydrateApplication(defaultApplication, branchName))
-                            );
+                    return pullAndRehydrateApplication(defaultApplication, branchName);
                 });
 
         return Mono.create(sink -> pullMono
@@ -1600,6 +1607,22 @@ public class GitServiceCEImpl implements GitServiceCE {
         }
 
         Mono<MergeStatusDTO> mergeMono = getApplicationById(defaultApplicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    Path baseRepoSuffix =
+                            Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+                    return redisOperations.opsForValue().get(baseRepoSuffix.toString())
+                            .flatMap(object -> {
+                                if (object.equals(REDIS_FILE_RELEASE_VALUE)) {
+                                    return redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
+                                            .then(Mono.just(application));
+                                } else {
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
+                                }
+                            })
+                            .switchIfEmpty(redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
+                                    .then(Mono.just(application)));
+                })
                 .flatMap(defaultApplication -> {
                     GitApplicationMetadata gitApplicationMetadata = defaultApplication.getGitApplicationMetadata();
                     if (isInvalidDefaultApplicationGitMetadata(defaultApplication.getGitApplicationMetadata())) {
@@ -1629,17 +1652,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             })
                             .thenReturn(repoSuffix);
 
-                    return redisOperations.opsForValue().get(repoSuffix.toString())
-                            .flatMap(object -> {
-                                if (object.equals(REDIS_FILE_RELEASE_VALUE)) {
-                                    return redisOperations.opsForValue().set(repoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
-                                            .then(Mono.zip(Mono.just(defaultApplication), pathToFile));
-                                } else {
-                                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
-                                }
-                            })
-                            .switchIfEmpty(redisOperations.opsForValue().set(repoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
-                                    .then(Mono.zip(Mono.just(defaultApplication), pathToFile)))
+                    return Mono.zip(Mono.just(defaultApplication), pathToFile)
                             .onErrorResume(error -> {
                                 log.error("Error in repo status check application " + defaultApplicationId, error);
                                 if (error instanceof AppsmithException) {

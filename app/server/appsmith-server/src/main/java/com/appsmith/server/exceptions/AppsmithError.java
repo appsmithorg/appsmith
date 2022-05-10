@@ -139,8 +139,8 @@ public enum AppsmithError {
     GENERIC_JSON_IMPORT_ERROR(400, 4049, "Unable to import application in organization {0} with error {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
     FILE_PART_DATA_BUFFER_ERROR(500, 5017, "Failed to upload file with error: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
     MIGRATION_ERROR(500, 5018, "This action is already migrated", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
-    INVALID_GIT_SSH_URL(400, 4050, "Please enter valid SSH URL of your repository", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, null),
     GIT_FILE_IN_USE(500, 5019, "File lock in use. Please wait for few seconds and try again", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR, null),
+    INVALID_GIT_SSH_URL(400, 4050, "Please enter valid SSH URL of your repository", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, null),
     ;
 
     private final Integer httpErrorCode;
