@@ -122,6 +122,21 @@ describe("GlobalSearch", function() {
           expect(loc.pathname).includes(expectedPage.pageId);
         });
       });
-    cy.NavigateToHome();
+  });
+
+  it("6. Shortcuts should get triggered when the modal is open", () => {
+    cy.get(commonlocators.globalSearchTrigger).click({ force: true });
+    const isMac = Cypress.platform === "darwin";
+    if (isMac) {
+      cy.get("body").type("{cmd}{p}");
+      cy.get(globalSearchLocators.category).should("be.visible");
+      cy.get("body").type("{esc}");
+      cy.get(commonlocators.globalSearchModal).should("not.exist");
+    } else {
+      cy.get("body").type("{ctrl}{p}");
+      cy.get(globalSearchLocators.category).should("be.visible");
+      cy.get("body").type("{esc}");
+      cy.get(commonlocators.globalSearchModal).should("not.exist");
+    }
   });
 });

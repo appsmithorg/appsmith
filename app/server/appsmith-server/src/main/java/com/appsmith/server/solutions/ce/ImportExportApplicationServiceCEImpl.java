@@ -71,12 +71,11 @@ import reactor.util.function.Tuple2;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -185,6 +184,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         applicationJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
         applicationJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
 
+        Mono<Theme> defaultThemeMono = themeService.getSystemTheme(Theme.DEFAULT_THEME_NAME).cache();
+
         return pluginRepository
                 .findAll()
                 .map(plugin -> {
@@ -193,10 +194,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .then(applicationMono)
                 .flatMap(application -> themeService.getThemeById(application.getEditModeThemeId(), READ_THEMES)
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.THEME, application.getEditModeThemeId())))
+                        .switchIfEmpty(defaultThemeMono) // setting default theme if theme is missing
                         .zipWith(themeService
                                 .getThemeById(application.getPublishedModeThemeId(), READ_THEMES)
-                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.THEME, application.getPublishedModeThemeId())))
+                                .switchIfEmpty(defaultThemeMono)// setting default theme if theme is missing
                         )
                         .map(themesTuple -> {
                             Theme editModeTheme = exportTheme(themesTuple.getT1());
@@ -233,6 +234,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // Refactor application to remove the ids
                     final String organizationId = application.getOrganizationId();
                     List<String> pageOrderList = application.getPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
+                    List<String> publishedPageOrderList = application.getPublishedPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
                     removeUnwantedFieldsFromApplicationDuringExport(application);
                     examplesOrganizationCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
@@ -244,11 +246,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     return pageFlux
                             .collectList()
-                            // Maintain the page order while exporting the application
-                            .flatMap(newPages ->  {
-                                Collections.sort(newPages, Comparator.comparing(newPage -> pageOrderList.indexOf(newPage.getId())));
-                                return Mono.just(newPages);
-                            })
                             .flatMap(newPageList -> {
                                 // Extract mongoEscapedWidgets from pages and save it to applicationJson object as this
                                 // field is JsonIgnored. Also remove any ids those are present in the page objects
@@ -304,9 +301,28 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 applicationJson.setPublishedLayoutmongoEscapedWidgets(publishedMongoEscapedWidgetsNames);
                                 applicationJson.setUnpublishedLayoutmongoEscapedWidgets(unpublishedMongoEscapedWidgetsNames);
 
+                                // Save the page order to json while exporting the application
+                                for (String pageId : pageOrderList) {
+                                    String pageName = pageIdToNameMap.get(pageId + PublishType.UNPUBLISHED);
+                                    if (!StringUtils.isEmpty(pageName)) {
+                                        applicationJson.getPageOrder().add(pageName);
+                                    } else {
+                                        log.debug("Unable to find page {} during export", pageId);
+                                    }
+                                }
+
+                                for (String pageId : publishedPageOrderList) {
+                                    String pageName = pageIdToNameMap.get(pageId + PublishType.PUBLISHED);
+                                    if (!StringUtils.isEmpty(pageName)) {
+                                        applicationJson.getPublishedPageOrder().add(pageName);
+                                    } else {
+                                        log.debug("Unable to find page {} during export", pageId);
+                                    }
+                                }
+
                                 Flux<Datasource> datasourceFlux = Boolean.TRUE.equals(application.getExportWithConfiguration())
                                         ? datasourceRepository.findAllByOrganizationId(organizationId, AclPermission.READ_DATASOURCES)
-                                        : datasourceRepository.findAllByOrganizationId(organizationId, AclPermission.MANAGE_DATASOURCES);
+                                        : datasourceRepository.findAllByOrganizationId(organizationId, MANAGE_DATASOURCES);
 
                                 return datasourceFlux.collectList();
                             })
@@ -649,7 +665,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository
-                .findAllByOrganizationId(organizationId, AclPermission.MANAGE_DATASOURCES)
+                .findAllByOrganizationId(organizationId, MANAGE_DATASOURCES)
                 .cache();
 
         String errorField = "";
@@ -666,7 +682,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         if (!errorField.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
         }
-        assert importedApplication != null;
+        assert importedApplication != null: "Received invalid application object!";
         if(importedApplication.getApplicationVersion() == null) {
             importedApplication.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
         }
@@ -690,13 +706,23 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
                     return Mono.just(new ArrayList<Datasource>());
                 })
-                .flatMap(existingDatasources -> {
+                .flatMapMany(existingDatasources -> {
+
+                    if (CollectionUtils.isEmpty(importedDatasourceList)) {
+                        return Mono.empty();
+                    }
                     Map<String, Datasource> savedDatasourcesGitIdToDatasourceMap = new HashMap<>();
 
                     existingDatasources.stream()
                             .filter(datasource -> datasource.getGitSyncId() != null)
                             .forEach(datasource -> savedDatasourcesGitIdToDatasourceMap.put(datasource.getGitSyncId(), datasource));
 
+                    // Check if the destination org have all the required plugins installed
+                    for (Datasource datasource : importedDatasourceList) {
+                        if (StringUtils.isEmpty(pluginMap.get(datasource.getPluginId()))) {
+                            return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE, datasource.getPluginId()));
+                        }
+                    }
                     return Flux.fromIterable(importedDatasourceList)
                             // Check for duplicate datasources to avoid duplicates in target organization
                             .flatMap(datasource -> {
@@ -743,8 +769,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             datasourceMap.put(importedDatasourceName, datasource1.getId());
                                             return datasource1;
                                         });
-                            })
-                            .collectList();
+                            });
                 })
                 .then(
                         // 1. Assign the policies for the imported application
@@ -776,7 +801,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                     // when it is reset to false during importing where the application already is present in DB
                                                     importedApplication.setIsPublic(null);
                                                     AppsmithBeanUtils.copyNestedNonNullProperties(importedApplication, existingApplication);
-                                                    // Here we are expecting the changes present in DB are committed to git directory
+                                                    // We are expecting the changes present in DB are committed to git directory
                                                     // so that these won't be lost when we are pulling changes from remote and
                                                     // rehydrate the application. We are now rehydrating the application with/without
                                                     // the changes from remote
@@ -831,13 +856,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     if (savedApp.getGitApplicationMetadata() != null) {
                         importedApplication.setGitApplicationMetadata(savedApp.getGitApplicationMetadata());
                     }
-                    Map<PublishType, List<ApplicationPage>> applicationPages = Map.of(
-                            PublishType.UNPUBLISHED, new ArrayList<>(),
-                            PublishType.PUBLISHED, new ArrayList<>()
-                    );
 
                     // Import and save pages, also update the pages related fields in saved application
-                    assert importedNewPageList != null;
+                    assert importedNewPageList != null: "Unable to find pages in the imported application";
 
                     // For git-sync this will not be empty
                     Mono<List<NewPage>> existingPagesMono = newPageService
@@ -852,17 +873,36 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             importedDoc.getUnpublishedLayoutmongoEscapedWidgets(),
                             branchName,
                             existingPagesMono
-                    ).collectList()
+                    )
+                            .map(newPage -> {
+                                // Save the map of pageName and NewPage
+                                if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
+                                    pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
+                                }
+                                if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
+                                    pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
+                                }
+                                return newPage;
+                            })
+                            .collectList()
                             .map(newPageList -> {
-                                // Check if the pages order match with json file
-                                List<String> pageOrderList = importedNewPageList.stream().map(newPage -> newPage.getUnpublishedPage().getName()).collect(Collectors.toList());
-                                Collections.sort(newPageList,
-                                        Comparator.comparing(newPage -> pageOrderList.indexOf(newPage.getUnpublishedPage().getName())));
-                                for (NewPage newPage : newPageList) {
-
+                                Map<PublishType, List<ApplicationPage>> applicationPages = Map.of(
+                                        PublishType.UNPUBLISHED, new ArrayList<>(),
+                                        PublishType.PUBLISHED, new ArrayList<>()
+                                );
+                                // Reorder the pages based on edit mode page sequence
+                                List<String> pageOrderList;
+                                if(!CollectionUtils.isEmpty(applicationJson.getPageOrder())) {
+                                    pageOrderList = applicationJson.getPageOrder();
+                                } else {
+                                    pageOrderList = pageNameMap.values()
+                                            .stream()
+                                            .map(newPage -> newPage.getUnpublishedPage().getName())
+                                            .collect(Collectors.toList());
+                                }
+                                for(String pageName : pageOrderList) {
+                                    NewPage newPage = pageNameMap.get(pageName);
                                     ApplicationPage unpublishedAppPage = new ApplicationPage();
-                                    ApplicationPage publishedAppPage = new ApplicationPage();
-
                                     if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
                                         unpublishedAppPage.setIsDefault(
                                                 StringUtils.equals(
@@ -873,9 +913,25 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         if (newPage.getDefaultResources() != null) {
                                             unpublishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
                                         }
-                                        pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
                                     }
+                                    if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
+                                        applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
+                                    }
+                                }
 
+                                // Reorder the pages based on view mode page sequence
+                                List<String> publishedPageOrderList;
+                                if(!CollectionUtils.isEmpty(applicationJson.getPublishedPageOrder())) {
+                                    publishedPageOrderList = applicationJson.getPublishedPageOrder();
+                                } else {
+                                    publishedPageOrderList = pageNameMap.values()
+                                            .stream()
+                                            .filter(newPage -> Optional.ofNullable(newPage.getPublishedPage()).isPresent())
+                                            .map(newPage -> newPage.getPublishedPage().getName()).collect(Collectors.toList());
+                                }
+                                for(String pageName : publishedPageOrderList) {
+                                    NewPage newPage = pageNameMap.get(pageName);
+                                    ApplicationPage publishedAppPage = new ApplicationPage();
                                     if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
                                         publishedAppPage.setIsDefault(
                                                 StringUtils.equals(
@@ -886,26 +942,24 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         if (newPage.getDefaultResources() != null) {
                                             publishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
                                         }
-                                        pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
                                     }
-                                    if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
-                                        applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
-                                    }
+
                                     if (publishedAppPage.getId() != null && newPage.getPublishedPage().getDeletedAt() == null) {
                                         applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
                                     }
                                 }
                                 return applicationPages;
                             })
-                            .then()
-                            .thenReturn(applicationPages)
-                            .flatMap(unused -> {
+                            .flatMap(applicationPages -> {
                                 if (!StringUtils.isEmpty(applicationId)) {
                                     Set<String> validPageIds = applicationPages.get(PublishType.UNPUBLISHED).stream()
-                                            .map(ApplicationPage::getId).collect(Collectors.toSet());
+                                            .map(ApplicationPage::getId)
+                                            .collect(Collectors.toSet());
 
-                                    validPageIds.addAll(applicationPages.get(PublishType.PUBLISHED).stream()
-                                            .map(ApplicationPage::getId).collect(Collectors.toSet()));
+                                    validPageIds.addAll(applicationPages.get(PublishType.PUBLISHED)
+                                            .stream()
+                                            .map(ApplicationPage::getId)
+                                            .collect(Collectors.toSet()));
 
                                     return existingPagesMono
                                             .flatMap(existingPagesList -> {
@@ -920,6 +974,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 // This does not apply to the traditional import via file approach
                                                 return Flux.fromIterable(invalidPageIds)
                                                         .flatMap(applicationPageService::deleteUnpublishedPage)
+                                                        .flatMap(page -> newPageService.archiveById(page.getId())
+                                                                .onErrorResume(e -> {
+                                                                    log.debug("Unable to archive page {} with error {}", page.getId(), e.getMessage());
+                                                                    return Mono.empty();
+                                                                })
+                                                        )
                                                         .then()
                                                         .thenReturn(applicationPages);
                                             });
@@ -928,6 +988,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             });
                 })
                 .flatMap(applicationPageMap -> {
+                    // set it based on the order for published and unublished pages
                     importedApplication.setPages(applicationPageMap.get(PublishType.UNPUBLISHED));
                     importedApplication.setPublishedPages(applicationPageMap.get(PublishType.PUBLISHED));
 
@@ -1224,11 +1285,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Map<String, NewAction> savedActionsGitIdToActionsMap = new HashMap<>();
         final String organizationId = importedApplication.getOrganizationId();
+        if (CollectionUtils.isEmpty(importedNewActionList)) {
+            return Flux.fromIterable(new ArrayList<>());
+        }
         existingActions.stream()
                 .filter(newAction -> newAction.getGitSyncId() != null)
                 .forEach(newAction -> savedActionsGitIdToActionsMap.put(newAction.getGitSyncId(), newAction));
 
-        assert importedNewActionList != null;
 
         return Flux.fromIterable(importedNewActionList)
                 .filter(action -> action.getUnpublishedAction() != null

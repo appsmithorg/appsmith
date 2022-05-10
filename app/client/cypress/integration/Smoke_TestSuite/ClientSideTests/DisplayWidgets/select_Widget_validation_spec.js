@@ -32,9 +32,9 @@ describe("Select Widget Functionality", function() {
     cy.get(".bp3-disabled").should("be.visible");
     cy.get(widgetsPage.disable).scrollIntoView({ force: true });
     cy.get(widgetsPage.selectWidgetDisabled).click({ force: true });
-    cy.get(".bp3-button").should("be.visible");
+    cy.get(".t--widget-selectwidget .bp3-button").should("be.visible");
     cy.PublishtheApp();
-    cy.get(".bp3-button")
+    cy.get(".t--widget-selectwidget .bp3-button")
       .should("be.visible")
       .click({ force: true });
     cy.get(commonlocators.singleSelectActiveMenuItem).should(

@@ -166,7 +166,7 @@ describe("Select Field Property Control", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("state");
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select$/);
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select/);
   });
 
   it("has valid default value", () => {

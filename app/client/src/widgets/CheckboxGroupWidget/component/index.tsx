@@ -86,10 +86,13 @@ export interface SelectAllProps {
   inline?: boolean;
   onChange: React.FormEventHandler<HTMLInputElement>;
   rowSpace: number;
+  accentColor: string;
+  borderRadius: string;
 }
 
 function SelectAll(props: SelectAllProps) {
   const {
+    accentColor,
     checked,
     disabled,
     indeterminate,
@@ -99,6 +102,7 @@ function SelectAll(props: SelectAllProps) {
   } = props;
   return (
     <StyledCheckbox
+      accentColor={accentColor}
       checked={checked}
       className="select-all"
       disabled={disabled}
@@ -133,12 +137,16 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
   labelTextSize?: TextSize;
   labelStyle?: string;
   labelWidth?: number;
+  accentColor: string;
+  borderRadius: string;
 }
 const CheckboxGroupComponent = React.forwardRef<
   HTMLDivElement,
   CheckboxGroupComponentProps
 >((props, ref) => {
   const {
+    accentColor,
+    borderRadius,
     compactMode,
     isDisabled,
     isInline,
@@ -205,6 +213,8 @@ const CheckboxGroupComponent = React.forwardRef<
       >
         {isSelectAll && (
           <SelectAll
+            accentColor={accentColor}
+            borderRadius={borderRadius}
             checked={selectAllChecked}
             disabled={isDisabled}
             indeterminate={selectAllIndeterminate}
@@ -217,6 +227,8 @@ const CheckboxGroupComponent = React.forwardRef<
           options.length > 0 &&
           [...options].map((option: OptionProps) => (
             <StyledCheckbox
+              accentColor={accentColor}
+              borderRadius={borderRadius}
               checked={(selectedValues || []).includes(option.value)}
               disabled={isDisabled}
               indeterminate={isDisabled ? true : undefined}
