@@ -46,9 +46,11 @@ export default {
                 helpText: "Sets the background color of a menu item",
                 label: "Background color",
                 controlType: "COLOR_PICKER",
-                isBindProperty: false,
+                isJSConvertible: true,
+                isBindProperty: true,
                 isTriggerProperty: false,
                 dependencies: ["primaryColumns", "columnOrder"],
+                validation: { type: ValidationTypes.TEXT },
               },
               {
                 propertyName: "textColor",

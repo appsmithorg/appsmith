@@ -23,9 +23,8 @@ interface RenderIconButtonProps {
   iconName?: IconName;
   buttonVariant: ButtonVariant;
   buttonColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow: ButtonBoxShadow;
-  boxShadowColor: string;
+  borderRadius: string;
+  boxShadow: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   isCellVisible: boolean;
   disabled: boolean;
@@ -36,7 +35,7 @@ interface RenderIconButtonProps {
   fontStyle?: string;
   textColor?: string;
   cellBackground?: string;
-  textSize?: TextSize;
+  textSize?: string;
 }
 
 function IconButton(props: {
@@ -46,9 +45,8 @@ function IconButton(props: {
   action: ColumnAction;
   buttonColor: string;
   buttonVariant: ButtonVariant;
-  borderRadius: ButtonBorderRadius;
-  boxShadow: ButtonBoxShadow;
-  boxShadowColor: string;
+  borderRadius: string;
+  boxShadow: string;
   disabled: boolean;
 }): JSX.Element {
   const [loading, setLoading] = useState(false);
@@ -73,7 +71,6 @@ function IconButton(props: {
       <StyledButton
         borderRadius={props.borderRadius}
         boxShadow={props.boxShadow}
-        boxShadowColor={props.boxShadowColor}
         buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
         disabled={props.disabled}
@@ -93,7 +90,6 @@ export function IconButtonCell(props: RenderIconButtonProps) {
     allowCellWrapping,
     borderRadius,
     boxShadow,
-    boxShadowColor,
     buttonColor,
     buttonVariant,
     cellBackground,
@@ -145,7 +141,6 @@ export function IconButtonCell(props: RenderIconButtonProps) {
             action={action}
             borderRadius={borderRadius}
             boxShadow={boxShadow}
-            boxShadowColor={boxShadowColor}
             buttonColor={buttonColor}
             buttonVariant={buttonVariant}
             disabled={disabled}

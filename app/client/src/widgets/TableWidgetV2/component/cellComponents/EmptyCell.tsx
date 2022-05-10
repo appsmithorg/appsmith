@@ -8,6 +8,8 @@ export const renderEmptyRows = (
   page: any,
   prepareRow: any,
   multiRowSelection = false,
+  accentColor: string,
+  borderRadius: string,
 ) => {
   const rows: string[] = new Array(rowCount).fill("");
   if (page.length) {
@@ -20,7 +22,8 @@ export const renderEmptyRows = (
       };
       return (
         <div {...rowProps} className="tr" key={index}>
-          {multiRowSelection && renderBodyCheckBoxCell(false)}
+          {multiRowSelection &&
+            renderBodyCheckBoxCell(false, accentColor, borderRadius)}
           {row.cells.map((cell: any, cellIndex: number) => {
             const cellProps = cell.getCellProps();
             if (columns[0]?.columnProperties?.cellBackground) {
@@ -48,7 +51,8 @@ export const renderEmptyRows = (
                 flex: "1 0 auto",
               }}
             >
-              {multiRowSelection && renderBodyCheckBoxCell(false)}
+              {multiRowSelection &&
+                renderBodyCheckBoxCell(false, accentColor, borderRadius)}
               {tableColumns.map((column: any, colIndex: number) => {
                 return (
                   <div

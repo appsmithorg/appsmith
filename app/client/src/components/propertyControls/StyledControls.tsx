@@ -9,7 +9,6 @@ import { FormIcons } from "icons/FormIcons";
 import Button from "components/ads/Button";
 import TextInput from "components/ads/TextInput";
 import Dropdown from "components/ads/Dropdown";
-import MultiSelectDropdown from "components/ads/MultiselectDropdown";
 import { Checkbox } from "components/ads";
 
 type ControlWrapperProps = {

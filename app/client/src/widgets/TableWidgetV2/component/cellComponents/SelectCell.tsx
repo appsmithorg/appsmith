@@ -25,6 +25,7 @@ const StyledAutoToolTipComponent = styled(AutoToolTipComponent)`
 
 type SelectProps = {
   compactMode: string;
+  borderRadius: string;
   options: string[];
   isCellVisible: boolean;
   onItemSelect: (value: string) => void;
@@ -40,12 +41,13 @@ type SelectProps = {
   textColor?: string;
   fontStyle?: string;
   cellBackground?: string;
-  textSize?: TextSize;
+  textSize?: string;
 };
 
 export const SelectCell = (props: SelectProps) => {
   const {
     allowCellWrapping,
+    borderRadius,
     cellBackground,
     compactMode,
     fontStyle,
@@ -92,6 +94,7 @@ export const SelectCell = (props: SelectProps) => {
         verticalAlignment={verticalAlignment}
       >
         <StyledSelectComponent
+          borderRadius={borderRadius}
           compactMode
           dropDownWidth={width}
           height={TABLE_SIZES[compactMode].ROW_HEIGHT}

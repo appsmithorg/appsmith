@@ -39,7 +39,7 @@ export type RenderDefaultPropsType = {
   textColor?: string;
   displayText?: string;
   fontStyle?: string;
-  textSize?: TextSize;
+  textSize?: string;
 };
 
 type editPropertyType = {

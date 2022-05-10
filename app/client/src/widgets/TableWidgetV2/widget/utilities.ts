@@ -1,6 +1,7 @@
 import { Colors } from "constants/Colors";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 import _, { isBoolean, isObject } from "lodash";
+import tinycolor from "tinycolor2";
 import {
   CellAlignmentTypes,
   CellLayoutProperties,
@@ -14,6 +15,9 @@ import {
   ORIGINAL_INDEX_KEY,
 } from "../constants";
 import { SelectColumnOptionsValidations } from "./propertyUtils";
+import { AppTheme } from "entities/AppTheming";
+import { TableWidgetProps } from "../constants";
+import { get } from "lodash";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -173,7 +177,7 @@ export function getDefaultColumnProperties(
     verticalAlignment: VerticalAlignmentTypes.CENTER,
     columnType: ColumnTypes.TEXT,
     textColor: Colors.THUNDER,
-    textSize: TextSizes.PARAGRAPH,
+    textSize: "0.875rem",
     fontStyle: FontStyleTypes.REGULAR,
     enableFilter: true,
     enableSort: true,
@@ -289,11 +293,6 @@ export const getCellProperties = (
         true,
       ),
       boxShadow: getPropertyValue(columnProperties.boxShadow, rowIndex, true),
-      boxShadowColor: getPropertyValue(
-        columnProperties.boxShadowColor,
-        rowIndex,
-        true,
-      ),
       iconButtonStyle: getPropertyValue(
         columnProperties.iconButtonStyle,
         rowIndex,
@@ -433,3 +432,61 @@ export function getSelectColumnTypeOptions(value: unknown) {
   const result = SelectColumnOptionsValidations(value, {}, _);
   return result.parsed;
 }
+
+/**
+ * returns selected row bg color
+ *
+ * if the color is dark, use 80% lighter color for selected row
+ * if color is light, use 10% darker color for selected row
+ *
+ * @param accentColor
+ */
+export const getSelectedRowBgColor = (accentColor: string) => {
+  const tinyAccentColor = tinycolor(accentColor);
+  const brightness = tinycolor(accentColor)
+    .greyscale()
+    .getBrightness();
+
+  const percentageBrightness = (brightness / 255) * 100;
+  let nextBrightness = 0;
+
+  switch (true) {
+    case percentageBrightness > 70:
+      nextBrightness = 10;
+      break;
+    case percentageBrightness > 50:
+      nextBrightness = 35;
+      break;
+    case percentageBrightness > 50:
+      nextBrightness = 55;
+      break;
+    default:
+      nextBrightness = 60;
+  }
+
+  if (brightness > 180) {
+    return tinyAccentColor.darken(10).toString();
+  } else {
+    return tinyAccentColor.lighten(nextBrightness).toString();
+  }
+};
+
+/**
+ * this is a getter function to get stylesheet value of the property from the config
+ *
+ * @param props
+ * @param propertyPath
+ * @param widgetStylesheet
+ * @returns
+ */
+export const getStylesheetValue = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  widgetStylesheet?: AppTheme["stylesheet"][string],
+) => {
+  const propertyName = propertyPath.split(".").slice(-1)[0];
+  const columnName = propertyPath.split(".").slice(-2)[0];
+  const columnType = get(props, `primaryColumns.${columnName}.columnType`);
+
+  return get(widgetStylesheet, `childStylesheet.${columnType}.${propertyName}`);
+};
