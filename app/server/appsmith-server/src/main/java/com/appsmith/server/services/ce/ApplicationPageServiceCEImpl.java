@@ -362,7 +362,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, ORGANIZATION_MANAGE_APPLICATIONS)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, workspaceId)));
 
-                    return orgMono.map(org -> {
+                    return workspaceMono.map(org -> {
                         application.setOrganizationId(org.getId());
                         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(org.getPolicies(), Workspace.class, Application.class);
                         application.setPolicies(documentPolicies);
