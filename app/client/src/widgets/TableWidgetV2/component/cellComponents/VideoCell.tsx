@@ -5,7 +5,6 @@ import { CellWrapper } from "../TableStyledWrappers";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import { isString } from "lodash";
 import styled from "constants/DefaultTheme";
-import { TextSize } from "constants/WidgetConstants";
 
 const StyledCellWrapper = styled(CellWrapper)`
   & {

@@ -2,19 +2,10 @@ import React, { useState } from "react";
 
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { IconName } from "@blueprintjs/icons";
-import {
-  ButtonVariant,
-  ButtonBoxShadow,
-  ButtonBorderRadius,
-} from "components/constants";
-import {
-  CellAlignment,
-  CellLayoutProperties,
-  VerticalAlignment,
-} from "../Constants";
+import { ButtonVariant } from "components/constants";
+import { CellAlignment, VerticalAlignment } from "../Constants";
 import { CellWrapper, IconButtonWrapper } from "../TableStyledWrappers";
 import { StyledButton } from "widgets/IconButtonWidget/component";
-import { TextSize } from "constants/WidgetConstants";
 
 interface RenderIconButtonProps {
   compactMode: string;

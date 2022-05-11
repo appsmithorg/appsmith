@@ -1,19 +1,15 @@
 import React, { memo, useMemo } from "react";
 import { isNumber, isNil } from "lodash";
 
-import {
-  CellAlignment,
-  CellLayoutProperties,
-  VerticalAlignment,
-} from "../Constants";
+import { CellAlignment, VerticalAlignment } from "../Constants";
 import {
   ColumnTypes,
   EditableCellActions,
 } from "widgets/TableWidgetV2/constants";
 import { TextCell } from "./TextCell";
-import { TextSize } from "constants/WidgetConstants";
 
 export type RenderDefaultPropsType = {
+  accentColor: string;
   compactMode: string;
   value: any;
   columnType: string;
@@ -68,6 +64,7 @@ export function getCellText(
 
 function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
   const {
+    accentColor,
     alias,
     allowCellWrapping,
     cellBackground,
@@ -128,6 +125,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
 
   return (
     <TextCell
+      accentColor={accentColor}
       allowCellWrapping={allowCellWrapping}
       cellBackground={cellBackground}
       columnType={columnType}

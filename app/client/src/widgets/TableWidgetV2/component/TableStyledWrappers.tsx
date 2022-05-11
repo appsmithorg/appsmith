@@ -13,16 +13,8 @@ import {
 } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
-import {
-  fontSizeUtility,
-  lightenColor,
-  darkenColor,
-} from "widgets/WidgetUtils";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+import { lightenColor, darkenColor } from "widgets/WidgetUtils";
+import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
 
 export const TableWrapper = styled.div<{

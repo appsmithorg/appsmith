@@ -3,7 +3,6 @@ import { isString, noop } from "lodash";
 
 import { CellWrapper } from "../TableStyledWrappers";
 import { CellAlignment, VerticalAlignment } from "../Constants";
-import { TextSize } from "constants/WidgetConstants";
 
 type renderImageType = {
   value: any;

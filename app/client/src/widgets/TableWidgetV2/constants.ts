@@ -12,7 +12,7 @@ import { IconNames } from "@blueprintjs/icons";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
-import { ButtonBorderRadius, ButtonVariant } from "components/constants";
+import { ButtonVariant } from "components/constants";
 
 export type EditableCell = {
   column: string;
