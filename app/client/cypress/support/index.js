@@ -22,6 +22,7 @@ import "./ApiCommands";
 // Import commands.js using ES2015 syntax:
 import "./commands";
 import "./OIDCCommands";
+import "./SAMLCommands";
 import { initLocalstorage } from "./commands";
 import "./dataSourceCommands";
 import "./gitSync";
@@ -29,7 +30,6 @@ import { initLocalstorageRegistry } from "./Objects/Registry";
 import "./OrgCommands";
 import "./queryCommands";
 import "./widgetCommands";
-import "./SAMLCommands";
 import "./themeCommands";
 import "./AdminSettingsCommands";
 /// <reference types="cypress-xpath" />
