@@ -257,6 +257,8 @@ function* initiateEditorActions(applicationId: string) {
   const failureActionEffects = [
     ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
     ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
+    ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
+    ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
   ];
   const allActionCalls: boolean = yield failFastApiCalls(
     initActionsCalls,
@@ -441,6 +443,8 @@ export function* initializeAppViewerSaga(
     [
       ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
       ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
+      ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
+      ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
     ],
   );
 
