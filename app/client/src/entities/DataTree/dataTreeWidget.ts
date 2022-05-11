@@ -14,11 +14,11 @@ import {
 import { setOverridingProperty } from "./utils";
 
 // We are splitting generateDataTreeWidget into two parts to memoize better as the widget doesn't change very often.
-// Only meta properties change. The output of generateDataTreeWidget is effectively the same
-const generatePartialDataTreeWidget = (
+// Only meta properties change
+const generateDataTreeWidgetWithoutMeta = (
   widget: FlattenedWidgetProps,
 ): {
-  partial: DataTreeWidget;
+  dataTreeWidgetWithoutMetaProps: DataTreeWidget;
   overridingMetaPropsMap: Record<string, boolean>;
   defaultMetaProps: Record<string, unknown>;
 } => {
@@ -134,7 +134,7 @@ const generatePartialDataTreeWidget = (
    *
    * Therefore spread is replaced with "merge" which merges objects recursively.
    */
-  const partial = _.merge(
+  const dataTreeWidgetWithoutMetaProps = _.merge(
     {},
     widget,
     unInitializedDefaultProps,
@@ -162,13 +162,17 @@ const generatePartialDataTreeWidget = (
       },
     },
   );
-  return { partial, overridingMetaPropsMap, defaultMetaProps };
+  return {
+    dataTreeWidgetWithoutMetaProps,
+    overridingMetaPropsMap,
+    defaultMetaProps,
+  };
 };
 
 // @todo set the max size dynamically based on number of widgets. (widgets.length)
 // Remove the debug statements in July 2022
-const generatePartialDataTreeWidgetMemoized = memoize(
-  generatePartialDataTreeWidget,
+const generateDataTreeWidgetWithoutMetaMemoized = memoize(
+  generateDataTreeWidgetWithoutMeta,
   {
     maxSize: 1000,
     // onCacheHit: (cache, options) => {
@@ -189,10 +193,10 @@ export const generateDataTreeWidget = (
   widgetMetaProps: Record<string, unknown> = {},
 ) => {
   const {
+    dataTreeWidgetWithoutMetaProps: dataTreeWidget,
     defaultMetaProps,
     overridingMetaPropsMap,
-    partial,
-  } = generatePartialDataTreeWidgetMemoized(widget);
+  } = generateDataTreeWidgetWithoutMetaMemoized(widget);
   const overridingMetaProps: Record<string, unknown> = {};
 
   // overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
@@ -207,10 +211,10 @@ export const generateDataTreeWidget = (
 
   Object.entries(widgetMetaProps).forEach(([key, value]) => {
     // Since meta properties are always updated as a whole, we are replacing instead of merging.
-    // Merging mutates the memoized value, avoid merging meta values in future.
-    partial[key] = value;
+    // Merging mutates the memoized value, avoid merging meta values
+    dataTreeWidget[key] = value;
   });
 
-  partial["meta"] = meta;
-  return partial;
+  dataTreeWidget["meta"] = meta;
+  return dataTreeWidget;
 };
