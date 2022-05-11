@@ -34,6 +34,7 @@ interface ColorPickerProps {
   showApplicationColors?: boolean;
   evaluatedColorValue?: string;
   autoFocus?: boolean;
+  isOpen?: boolean;
 }
 
 /**
@@ -303,7 +304,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
   // isClick is used to track whether the input field is in focus by mouse click or by keyboard
   // This is used since we open the popup only on mouse click not on keyboard focus
   const isClick = useRef(false);
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = React.useState(props.isOpen);
   const [color, setColor] = React.useState(
     props.evaluatedColorValue || props.color,
   );

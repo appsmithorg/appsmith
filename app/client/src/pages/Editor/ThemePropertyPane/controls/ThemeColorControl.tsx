@@ -20,8 +20,11 @@ const ColorBox = styled.div<{
 
 function ThemeColorControl(props: ThemeColorControlProps) {
   const { theme, updateTheme } = props;
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [autoFocus, setAutoFocus] = useState(false);
   const userDefinedColors = theme.properties.colors;
+  const [selectedColor, setSelectedColor] = useState<string | null>(
+    "primaryColor",
+  );
 
   return (
     <div className="space-y-2">
@@ -40,6 +43,8 @@ function ThemeColorControl(props: ThemeColorControlProps) {
                     setSelectedColor(
                       colorName !== selectedColor ? colorName : null,
                     );
+
+                    setAutoFocus(true);
                   }}
                 />
               </TooltipComponent>
@@ -48,9 +53,10 @@ function ThemeColorControl(props: ThemeColorControlProps) {
         )}
       </div>
       {selectedColor && (
-        <div className="pt-1">
+        <div className="pt-1 space-y-1">
+          <h3 className="text-gray-700">{startCase(selectedColor)}</h3>
           <ColorPickerComponent
-            autoFocus
+            autoFocus={autoFocus}
             changeColor={(color: string) => {
               updateTheme({
                 ...theme,
@@ -64,6 +70,7 @@ function ThemeColorControl(props: ThemeColorControlProps) {
               });
             }}
             color={userDefinedColors[selectedColor]}
+            isOpen={autoFocus}
             key={selectedColor}
           />
         </div>
