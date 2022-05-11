@@ -154,7 +154,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     /**
-     * Returns a list of application ids which are under the workspace with provided organizationId
+     * Returns a list of application ids which are under the workspace with provided workspaceId
      *
      * @param workspaceId workspace id
      * @return list of String

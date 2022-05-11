@@ -66,7 +66,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
     /**
      * For the current user, it first fetches all the workspaces that its part of. For each workspace, in turn all
-     * the applications are fetched. These applications are then returned grouped by Organizations in a special DTO and returned
+     * the applications are fetched. These applications are then returned grouped by Workspaces in a special DTO and returned
      *
      * @return List of UserHomepageDTO
      */
