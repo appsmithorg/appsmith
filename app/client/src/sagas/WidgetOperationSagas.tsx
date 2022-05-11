@@ -20,6 +20,7 @@ import {
   select,
   takeEvery,
   takeLatest,
+  takeLeading,
 } from "redux-saga/effects";
 import { convertToString } from "utils/AppsmithUtils";
 import {
@@ -109,11 +110,10 @@ import {
   getPastePositionMapFromMousePointer,
   getBoundariesFromSelectedWidgets,
   WIDGET_PASTE_PADDING,
-  getWidgetsFromIds,
   getDefaultCanvas,
   isDropTarget,
-  checkIfPastingListWidgetOntoItself,
   getValueFromTree,
+  getVerifiedSelectedWidgets,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -866,7 +866,14 @@ const getNewPositions = function*(
 
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const selectedWidgets = getWidgetsFromIds(selectedWidgetIDs, canvasWidgets);
+  const {
+    isListWidgetPastingOnItself,
+    selectedWidgets,
+  } = getVerifiedSelectedWidgets(
+    selectedWidgetIDs,
+    copiedWidgetGroups,
+    canvasWidgets,
+  );
 
   //if the copied widget is a modal widget, then it has to paste on the main container
   if (
@@ -882,11 +889,7 @@ const getNewPositions = function*(
     !(
       selectedWidgets.length === 1 &&
       isDropTarget(selectedWidgets[0].type, true) &&
-      !checkIfPastingListWidgetOntoItself(
-        canvasWidgets,
-        selectedWidgets[0],
-        copiedWidgetGroups,
-      )
+      !isListWidgetPastingOnItself
     ) &&
     selectedWidgets.length > 0
   ) {
@@ -1686,7 +1689,7 @@ export default function* widgetOperationSagas() {
     ),
     takeLatest(ReduxActionTypes.UPDATE_CANVAS_SIZE, updateCanvasSize),
     takeLatest(ReduxActionTypes.COPY_SELECTED_WIDGET_INIT, copyWidgetSaga),
-    takeEvery(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
+    takeLeading(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
   ]);

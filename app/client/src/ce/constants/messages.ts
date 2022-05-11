@@ -516,7 +516,8 @@ export const JS_FUNCTION_UPDATE_SUCCESS = () =>
 export const JS_FUNCTION_DELETE_SUCCESS = () =>
   "JS function deleted successfully";
 export const JS_OBJECT_BODY_INVALID = () => "JS object could not be parsed";
-
+export const JS_ACTION_EXECUTION_ERROR = (jsFunctionName: string) =>
+  `An error occured while trying to execute ${jsFunctionName}, please check error logs to debug`;
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
 

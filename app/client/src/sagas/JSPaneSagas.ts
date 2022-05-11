@@ -336,13 +336,18 @@ export function* handleExecuteJSFunctionSaga(data: {
     }),
   );
   try {
-    const result = yield call(executeFunction, collectionName, action);
+    const { isDirty, result } = yield call(
+      executeFunction,
+      collectionName,
+      action,
+    );
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
         results: result,
         collectionId,
         actionId,
+        isDirty,
       },
     });
     AppsmithConsole.info({
@@ -355,6 +360,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       state: { response: result },
     });
     appMode === APP_MODE.EDIT &&
+      !isDirty &&
       Toaster.show({
         text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
         variant: Variant.success,

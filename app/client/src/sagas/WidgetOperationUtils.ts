@@ -384,26 +384,71 @@ export const getSelectedWidgetIfPastingIntoListWidget = function(
 };
 
 /**
- * checks if the selectedWidget is a list widget and copiedWidgetsGroups contains list widget
+ * get selected widgets that are verified to make sure that we are not pasting list widget onto another list widget
+ * also return a boolean to indicate if the list widget is pasting into a list widget
  *
+ * @param selectedWidgetIDs
+ * @param copiedWidgetGroups
  * @param canvasWidgets
- * @param selectedWidget
- * @param copiedWidgetsGroups
  * @returns
  */
-export const checkIfPastingListWidgetOntoItself = function(
+export function getVerifiedSelectedWidgets(
+  selectedWidgetIDs: string[],
+  copiedWidgetGroups: CopiedWidgetGroup[],
   canvasWidgets: CanvasWidgetsReduxState,
-  selectedWidget: FlattenedWidgetProps | undefined,
-  copiedWidgetsGroups: CopiedWidgetGroup[],
 ) {
-  return (
-    getSelectedWidgetIfPastingIntoListWidget(
-      canvasWidgets,
-      selectedWidget,
-      copiedWidgetsGroups,
-    )?.type === "LIST_WIDGET"
-  );
-};
+  const selectedWidgets = getWidgetsFromIds(selectedWidgetIDs, canvasWidgets);
+
+  //if there is no list widget in the copied widgets then return selected Widgets
+  if (
+    !checkForListWidgetInCopiedWidgets(copiedWidgetGroups) ||
+    selectedWidgets.length === 0
+  )
+    return { selectedWidgets };
+
+  //if the selected widget is a list widgets the return isListWidgetPastingOnItself as true
+  if (selectedWidgets.length === 1 && selectedWidgets[0].type === "LIST_WIDGET")
+    return { selectedWidgets, isListWidgetPastingOnItself: true };
+
+  //get list widget ancestor of selected widget if it has a list widget ancestor
+  const parentListWidgetId = document
+    .querySelector(
+      `.${POSITIONED_WIDGET}.${getBaseWidgetClassName(
+        selectedWidgets[0].widgetId,
+      )}`,
+    )
+    ?.closest(".t--widget-listwidget")?.id;
+
+  //if the selected widgets do have a list widget ancestor then,
+  // return that list widget as selected widgets and isListWidgetPastingOnItself as true
+  if (parentListWidgetId && canvasWidgets[parentListWidgetId])
+    return {
+      selectedWidgets: [canvasWidgets[parentListWidgetId]],
+      isListWidgetPastingOnItself: true,
+    };
+
+  return { selectedWidgets };
+}
+
+/**
+ * returns true if list widget is among the copied widgets
+ *
+ * @param copiedWidgetGroups
+ * @returns boolean
+ */
+export function checkForListWidgetInCopiedWidgets(
+  copiedWidgetGroups: CopiedWidgetGroup[],
+) {
+  for (let i = 0; i < copiedWidgetGroups.length; i++) {
+    const copiedWidget = copiedWidgetGroups[i].list[0];
+
+    if (copiedWidget?.type === "LIST_WIDGET") {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 /**
  * get top, left, right, bottom most widgets and totalWidth from copied groups when pasting
