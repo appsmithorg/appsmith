@@ -48,42 +48,53 @@ export const StyledSwitch = styled(Switch)<{
   }
 `;
 
-export function SwitchComponent({
-  accentColor,
-  alignWidget,
-  inputRef,
-  isDisabled,
-  isLoading,
-  isSwitchedOn,
-  label,
-  onChange,
-}: SwitchComponentProps) {
-  const switchAlignClass =
-    alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
+export const SwitchComponent = React.forwardRef<
+  HTMLDivElement,
+  SwitchComponentProps
+>(
+  (
+    {
+      accentColor,
+      alignWidget,
+      inputRef,
+      isDisabled,
+      isLoading,
+      isSwitchedOn,
+      label,
+      onChange,
+    },
+    ref,
+  ) => {
+    const switchAlignClass =
+      alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
 
-  return (
-    <SwitchComponentContainer
-      accentColor={accentColor}
-      className={switchAlignClass}
-    >
-      <StyledSwitch
+    return (
+      <SwitchComponentContainer
         accentColor={accentColor}
-        alignIndicator={switchAlignClass}
-        checked={isSwitchedOn}
-        className={
-          isLoading
-            ? `${Classes.SKELETON} t--switch-widget-loading`
-            : `${
-                isSwitchedOn
-                  ? "t--switch-widget-active"
-                  : "t--switch-widget-inactive"
-              }`
-        }
-        disabled={isDisabled}
-        inputRef={inputRef}
-        label={label}
-        onChange={() => onChange(!isSwitchedOn)}
-      />
-    </SwitchComponentContainer>
-  );
-}
+        className={switchAlignClass}
+        ref={ref}
+      >
+        <StyledSwitch
+          accentColor={accentColor}
+          alignIndicator={switchAlignClass}
+          checked={isSwitchedOn}
+          className={
+            isLoading
+              ? `${Classes.SKELETON} t--switch-widget-loading`
+              : `${
+                  isSwitchedOn
+                    ? "t--switch-widget-active"
+                    : "t--switch-widget-inactive"
+                }`
+          }
+          disabled={isDisabled}
+          inputRef={inputRef}
+          label={label}
+          onChange={() => onChange(!isSwitchedOn)}
+        />
+      </SwitchComponentContainer>
+    );
+  },
+);
+
+SwitchComponent.displayName = "SwitchComponent";

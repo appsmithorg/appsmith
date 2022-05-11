@@ -129,6 +129,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         key={this.props.widgetId}
         label={this.props.label}
         onChange={this.onChange}
+        ref={this.contentRef}
         widgetId={this.props.widgetId}
       />
     );
