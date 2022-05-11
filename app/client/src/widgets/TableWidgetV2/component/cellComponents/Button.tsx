@@ -21,10 +21,8 @@ export function Button(props: {
     setLoading(false);
   };
   const handleClick = () => {
-    if (props.action.dynamicTrigger) {
-      setLoading(true);
-      props.onCommandClick(props.action.dynamicTrigger, onComplete);
-    }
+    setLoading(true);
+    props.onCommandClick(props.action.dynamicTrigger, onComplete);
   };
 
   return (
