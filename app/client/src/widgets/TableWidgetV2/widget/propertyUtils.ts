@@ -519,7 +519,7 @@ export function updateThemeStylesheetsInColumns(
 
       propertiesToUpdate.push({
         propertyPath: `primaryColumns.${columnId}.${propertyKey}`,
-        propertyValue: `{{${props.widgetName}.processedTableData.map((currentRow) => ( ${js}))}}`,
+        propertyValue: `{{${props.widgetName}.processedTableData.map((currentRow, currentIndex) => ( ${js}))}}`,
       });
     });
 
