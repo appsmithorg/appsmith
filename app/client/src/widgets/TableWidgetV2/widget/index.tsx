@@ -1488,7 +1488,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         const isCellEditMode =
           props.cell.column.alias === this.props.editableCell.column &&
           rowIndex === this.props.editableCell.index;
-
         return (
           <DefaultCell
             accentColor={this.props.accentColor}
@@ -1508,6 +1507,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isCellVisible={cellProperties.isCellVisible ?? true}
             isHidden={isHidden}
             onCellTextChange={this.onEditableCellTextChange}
+            onDiscardString={props.cell.column.columnProperties.onDiscard}
             onSubmitString={props.cell.column.columnProperties.onSubmit}
             rowIndex={rowIndex}
             tableWidth={componentWidth}
