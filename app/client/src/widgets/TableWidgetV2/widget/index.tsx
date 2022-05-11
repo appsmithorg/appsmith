@@ -13,7 +13,6 @@ import _, {
   xorWith,
   isEmpty,
   union,
-  find,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -22,12 +21,11 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 
-import { DynamicPath, getDynamicBindings } from "utils/DynamicBindingUtils";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { ReactTableFilter, OperatorTypes } from "../component/Constants";
 import {
   ColumnTypes,
   COLUMN_MIN_WIDTH,
-  DEFAULT_BUTTON_COLOR,
   DEFAULT_BUTTON_LABEL,
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_MENU_BUTTON_LABEL,
@@ -70,7 +68,6 @@ import { VideoCell } from "../component/cellComponents/VideoCell";
 import { IconButtonCell } from "../component/cellComponents/IconButtonCell";
 import { EditActionCell } from "../component/cellComponents/EditActionsCell";
 import { klona as clone } from "klona";
-import { borderRadiusUtility, boxShadowMigration } from "widgets/WidgetUtils";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -1494,6 +1491,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
         return (
           <DefaultCell
+            accentColor={this.props.accentColor}
             alias={props.cell.column.columnProperties.alias}
             allowCellWrapping={cellProperties.allowCellWrapping}
             cellBackground={cellProperties.cellBackground}

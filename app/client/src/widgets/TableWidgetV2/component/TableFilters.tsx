@@ -1,7 +1,6 @@
 import React, { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { IconWrapper } from "constants/IconConstants";
-import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { TableIconWrapper } from "./TableStyledWrappers";
 import TableFilterPane from "./TableFilterPane";
@@ -18,24 +17,6 @@ import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.svg";
 import TableAction from "./TableAction";
-
-const SelectedFilterWrapper = styled.div`
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: ${Colors.GREEN};
-  border: 0.5px solid ${Colors.WHITE};
-  box-sizing: border-box;
-  border-radius: 50%;
-  width: 10px;
-  height: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  font-size: 6px;
-  color: ${Colors.WHITE};
-`;
 
 export interface DropdownOption {
   label: string;
