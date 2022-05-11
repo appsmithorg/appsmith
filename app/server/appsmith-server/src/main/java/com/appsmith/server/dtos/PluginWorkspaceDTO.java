@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PluginOrgDTO {
+public class PluginWorkspaceDTO {
 
     String pluginId;
 

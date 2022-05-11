@@ -8,7 +8,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
-import com.appsmith.server.dtos.PluginOrgDTO;
+import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
@@ -177,7 +177,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     @Override
-    public Mono<Workspace> installPlugin(PluginOrgDTO pluginOrgDTO) {
+    public Mono<Workspace> installPlugin(PluginWorkspaceDTO pluginOrgDTO) {
         if (pluginOrgDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
@@ -211,7 +211,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     @Override
-    public Mono<Workspace> uninstallPlugin(PluginOrgDTO pluginDTO) {
+    public Mono<Workspace> uninstallPlugin(PluginWorkspaceDTO pluginDTO) {
         if (pluginDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
@@ -236,7 +236,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                 });
     }
 
-    private Mono<Workspace> storeWorkspacePlugin(PluginOrgDTO pluginDTO, WorkspacePluginStatus status) {
+    private Mono<Workspace> storeWorkspacePlugin(PluginWorkspaceDTO pluginDTO, WorkspacePluginStatus status) {
 
         Mono<Workspace> pluginInWorkspaceMono = workspaceService
                 .findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(), pluginDTO.getPluginId());
