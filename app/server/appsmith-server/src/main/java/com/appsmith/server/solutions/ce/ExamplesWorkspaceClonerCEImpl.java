@@ -106,7 +106,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
     }
 
     /**
-     * Given an workspace ID and a user, clone the workspace and make the given user the owner of the cloned
+     * Given a workspace ID and a user, clone the workspace and make the given user the owner of the cloned
      * workspace. This recursively clones all objects inside the workspace. This method also assumes that the
      * given user is the same as the user in the current Spring session.
      *
