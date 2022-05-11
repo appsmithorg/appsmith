@@ -109,7 +109,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
     private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
     private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserCreatorTemplate.html";
-    private static final String USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE = "email/inviteExistingUserToOrganizationTemplate.html";
+    private static final String USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE = "email/inviteExistingUserToWorkspaceTemplate.html";
 
     @Autowired
     public UserServiceCEImpl(Scheduler scheduler,
@@ -709,7 +709,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
                                 Mono<Boolean> emailMono = emailSender.sendMail(existingUser.getEmail(),
                                         "Appsmith: You have been added to a new workspace",
-                                        USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE, params);
+                                        USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE, params);
 
                                 return emailMono
                                         .thenReturn(existingUser);
