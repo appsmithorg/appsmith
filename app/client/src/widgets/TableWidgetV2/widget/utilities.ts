@@ -1,5 +1,5 @@
 import { Colors } from "constants/Colors";
-import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
+import { FontStyleTypes } from "constants/WidgetConstants";
 import _, { isBoolean, isObject } from "lodash";
 import tinycolor from "tinycolor2";
 import {

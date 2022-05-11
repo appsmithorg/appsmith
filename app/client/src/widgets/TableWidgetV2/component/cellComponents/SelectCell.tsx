@@ -2,18 +2,12 @@ import React from "react";
 import { noop } from "lodash";
 import SelectComponent from "widgets/SelectWidget/component";
 import { DropdownOption } from "widgets/SelectWidget/constants";
-import {
-  CellAlignment,
-  CellLayoutProperties,
-  TABLE_SIZES,
-  VerticalAlignment,
-} from "../Constants";
+import { CellAlignment, TABLE_SIZES, VerticalAlignment } from "../Constants";
 import { getSelectColumnTypeOptions } from "widgets/TableWidgetV2/widget/utilities";
 import { CellWrapper } from "../TableStyledWrappers";
 import styled from "constants/DefaultTheme";
 import AutoToolTipComponent from "./AutoToolTipComponent";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { TextSize } from "constants/WidgetConstants";
 
 const StyledSelectComponent = styled(SelectComponent)`
   width: 100%;

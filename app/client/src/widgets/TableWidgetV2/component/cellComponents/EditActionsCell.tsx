@@ -8,7 +8,6 @@ import {
 import { Button } from "./Button";
 import { CellAlignment, VerticalAlignment } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
-import { TextSize } from "constants/WidgetConstants";
 
 type RenderEditActionsProps = {
   compactMode: string;

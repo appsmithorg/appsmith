@@ -17,7 +17,6 @@ import {
 import TableDataDownload from "./TableDataDownload";
 import { Colors } from "constants/Colors";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { RowWrapper } from "widgets/TableWidget/component/TableStyledWrappers";
 
 const PageNumberInputWrapper = styled(NumericInput)<{
   borderRadius: string;

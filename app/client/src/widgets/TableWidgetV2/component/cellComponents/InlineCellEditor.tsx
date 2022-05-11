@@ -1,22 +1,17 @@
-import { Colors } from "constants/Colors";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
-import {
-  CellLayoutProperties,
-  TABLE_SIZES,
-  VerticalAlignment,
-} from "../Constants";
+import { TABLE_SIZES, VerticalAlignment } from "../Constants";
 
 const Wrapper = styled.div<{
+  accentColor: string;
   compactMode: string;
   allowCellWrapping?: boolean;
   verticalAlignment?: VerticalAlignment;
 }>`
   padding: 1px;
-  border: 1px solid ${Colors.GREEN_1};
-  box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
+  border: 1px solid ${(props) => props.accentColor};
   background: #fff;
   position: absolute;
   width: 100%;
@@ -68,6 +63,7 @@ const Wrapper = styled.div<{
 `;
 
 type InlineEditorPropsType = {
+  accentColor: string;
   compactMode: string;
   inputType: InputTypes.TEXT | InputTypes.NUMBER;
   multiline: boolean;
@@ -80,6 +76,7 @@ type InlineEditorPropsType = {
 };
 
 export function InlineCellEditor({
+  accentColor,
   compactMode,
   inputType = InputTypes.TEXT,
   multiline,
@@ -134,11 +131,13 @@ export function InlineCellEditor({
 
   return (
     <Wrapper
+      accentColor={accentColor}
       allowCellWrapping={allowCellWrapping}
       compactMode={compactMode}
       verticalAlignment={verticalAlignment}
     >
       <BaseInputComponent
+        accentColor={accentColor}
         autoFocus
         compactMode
         disableNewLineOnPressEnterKey={false}
