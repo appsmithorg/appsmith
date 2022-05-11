@@ -163,7 +163,7 @@ public class WorkspaceServiceTest {
         Mono<Workspace> workspaceResponse = workspaceService.create(null);
         StepVerifier.create(workspaceResponse)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ORGANIZATION)))
+                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WORKSPACE)))
                 .verify();
     }
 
@@ -1071,7 +1071,7 @@ public class WorkspaceServiceTest {
         Mono<Workspace> deleteLogo = workspaceService.deleteLogo("");
         StepVerifier.create(deleteLogo)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.ORGANIZATION, "")))
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, "")))
                 .verify();
     }
 

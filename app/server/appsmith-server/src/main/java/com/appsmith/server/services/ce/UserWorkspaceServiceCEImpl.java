@@ -96,7 +96,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         exampleOrg.setPolicies(null);
 
         return workspaceRepository.findOne(Example.of(exampleOrg))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, orgId)))
                 .zipWith(currentUserMono)
                 .map(tuple -> {
                         Workspace workspace = tuple.getT1();
@@ -129,7 +129,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     @Override
     public Mono<Workspace> addUserRoleToWorkspace(String orgId, UserRole userRole) {
         Mono<Workspace> workspaceMono = workspaceRepository.findById(orgId, MANAGE_ORGANIZATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, orgId)));
         Mono<User> userMono = userRepository.findByEmail(userRole.getUsername())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER)));
 
@@ -151,7 +151,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         // Do not add the user if the user already exists in the workspace
         for (UserRole role : userRoles) {
             if (role.getUsername().equals(userRole.getUsername())) {
-                return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_IN_ORGANIZATION, role.getUsername(), role.getRoleName()));
+                return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_IN_WORKSPACE, role.getUsername(), role.getRoleName()));
             }
         }
         // User was not found in the workspace. Continue with adding it

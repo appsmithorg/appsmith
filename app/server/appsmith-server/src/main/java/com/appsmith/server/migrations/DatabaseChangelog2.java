@@ -759,18 +759,13 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "009", id = "drop-organization-collection", author = "")
-    public void dropOrganizationCollection(MongockTemplate mongockTemplate) {
-        mongockTemplate.dropCollection(Organization.class);
-    }
-
 
     /**
      * We are creating indexes manually because Spring's index resolver creates indexes on fields as well.
      * See https://stackoverflow.com/questions/60867491/ for an explanation of the problem. We have that problem with
      * the `Action.datasource` field.
      */
-    @ChangeSet(order = "010", id = "add-workspace-indexes", author = "")
+    @ChangeSet(order = "009", id = "add-workspace-indexes", author = "")
     public void addWorkspaceIndexes(MongockTemplate mongockTemplate) {
         ensureIndexes(mongockTemplate, Workspace.class,
             makeIndex("createdAt"),

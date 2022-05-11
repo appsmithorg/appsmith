@@ -43,7 +43,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
         final Mono<Workspace> targetWorkspaceMono = workspaceService.findById(targetWorkspaceId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, targetWorkspaceId)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, targetWorkspaceId)));
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 

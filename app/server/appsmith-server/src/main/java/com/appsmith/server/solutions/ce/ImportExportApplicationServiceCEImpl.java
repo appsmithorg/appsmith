@@ -695,7 +695,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .then(workspaceService.findById(workspaceId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS))
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ORGANIZATION, workspaceId))
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId))
                 )
                 .flatMap(workspace -> {
                     // Check if the request is to hydrate the application to DB for particular branch

@@ -232,7 +232,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
         templateParams.put("App_User_Name", CommentConstants.APPSMITH_BOT_NAME);
         templateParams.put("Commenter_Name", comment.getAuthorName());
         templateParams.put("Application_Name", comment.getApplicationName());
-        templateParams.put("Organization_Name", workspace.getName());
+        templateParams.put("Workspace_Name", workspace.getName());
         templateParams.put("Comment_Body", CommentUtils.getCommentBody(comment));
         templateParams.put("commentUrl", getCommentThreadLink(
                 application,

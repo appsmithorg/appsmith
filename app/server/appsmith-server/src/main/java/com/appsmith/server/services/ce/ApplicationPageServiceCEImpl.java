@@ -360,7 +360,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return userMono
                 .flatMap(user -> {
                     Mono<Workspace> orgMono = workspaceRepository.findById(workspaceId, ORGANIZATION_MANAGE_APPLICATIONS)
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, workspaceId)));
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
                     return orgMono.map(org -> {
                         application.setOrganizationId(org.getId());

@@ -88,7 +88,7 @@ public class WorkspaceServiceUnitTest {
         Mono<List<UserRole>> workspaceMembers = workspaceService.getWorkspaceMembers(sampleOrgId);
         StepVerifier
                 .create(workspaceMembers)
-                .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.ORGANIZATION, sampleOrgId))
+                .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, sampleOrgId))
                 .verify();
     }
 }

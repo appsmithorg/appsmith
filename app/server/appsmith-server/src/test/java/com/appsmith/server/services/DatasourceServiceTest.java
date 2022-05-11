@@ -155,7 +155,7 @@ public class DatasourceServiceTest {
                 .assertNext(datasource1 -> {
                     assertThat(datasource1.getName()).isEqualTo(datasource.getName());
                     assertThat(datasource1.getIsValid()).isFalse();
-                    assertThat(datasource1.getInvalids().contains(AppsmithError.ORGANIZATION_ID_NOT_GIVEN.getMessage()));
+                    assertThat(datasource1.getInvalids().contains(AppsmithError.WORKSPACE_ID_NOT_GIVEN.getMessage()));
                 })
                 .verifyComplete();
     }

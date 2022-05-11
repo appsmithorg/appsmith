@@ -131,7 +131,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         return userMono
                 .flatMap(user -> {
                     Mono<Workspace> orgMono = workspaceService.findById(datasource.getOrganizationId(), ORGANIZATION_MANAGE_APPLICATIONS)
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, datasource.getOrganizationId())));
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, datasource.getOrganizationId())));
 
                     return orgMono.map(org -> {
                         Set<Policy> policySet = org.getPolicies().stream()
@@ -227,7 +227,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         }
 
         if (datasource.getOrganizationId() == null) {
-            invalids.add(AppsmithError.ORGANIZATION_ID_NOT_GIVEN.getMessage());
+            invalids.add(AppsmithError.WORKSPACE_ID_NOT_GIVEN.getMessage());
             return Mono.just(datasource);
         }
 

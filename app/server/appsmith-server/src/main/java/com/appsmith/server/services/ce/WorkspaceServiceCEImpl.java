@@ -145,7 +145,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     @Override
     public Mono<Workspace> create(Workspace workspace, User user) {
         if (workspace == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE));
         }
 
         // Does the user have permissions to create an workspace?
@@ -218,7 +218,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     @Override
     public Mono<Workspace> update(String id, Workspace resource) {
         Mono<Workspace> findWorkspaceMono = repository.findById(id, MANAGE_ORGANIZATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, id)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id)));
 
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
@@ -275,7 +275,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .map(User::getUsername);
 
         return workspaceMono
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, orgId)))
                 .zipWith(usernameMono)
                 .flatMap(tuple -> {
                     Workspace workspace = tuple.getT1();
@@ -309,7 +309,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     public Mono<List<UserRole>> getWorkspaceMembers(String orgId) {
         return repository
                 .findById(orgId, ORGANIZATION_INVITE_USERS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, orgId)))
                 .map(workspace -> {
                     final List<UserRole> userRoles = workspace.getUserRoles();
                     return CollectionUtils.isEmpty(userRoles) ? Collections.emptyList() : userRoles;
@@ -319,7 +319,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     @Override
     public Mono<Workspace> uploadLogo(String organizationId, Part filePart) {
         final Mono<Workspace> findWorkspaceMono = repository.findById(organizationId, MANAGE_ORGANIZATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, organizationId)));
 
         // We don't execute the upload Mono if we don't find the workspace.
         final Mono<Asset> uploadAssetMono = assetService.upload(filePart, Constraint.WORKSPACE_LOGO_SIZE_KB, false);
@@ -347,7 +347,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     public Mono<Workspace> deleteLogo(String organizationId) {
         return repository
                 .findById(organizationId, MANAGE_ORGANIZATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, organizationId)))
                 .flatMap(workspace -> {
                     final String prevAssetId = workspace.getLogoAssetId();
                     if(prevAssetId == null) {
@@ -374,7 +374,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 // fetching the org first to make sure user has permission to archive
                 return repository.findById(workspaceId, MANAGE_ORGANIZATIONS)
                         .switchIfEmpty(Mono.error(new AppsmithException(
-                                AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, workspaceId
+                                AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId
                         )))
                         .flatMap(repository::archive);
             } else {

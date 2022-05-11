@@ -181,7 +181,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
                     Set<String> workspaceIds = user.getOrganizationIds();
                     if (workspaceIds == null || workspaceIds.isEmpty()) {
-                        return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_ANY_ORGANIZATION, user.getId()));
+                        return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_ANY_WORKSPACE, user.getId()));
                     }
 
                     Optional<String> maybeOrgId = workspaceIds.stream()
@@ -194,7 +194,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     }
 
                     // Throw an exception if the orgId is not part of the user's workspaces
-                    return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_TO_ORGANIZATION, user.getId(), orgId));
+                    return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_TO_WORKSPACE, user.getId(), orgId));
                 });
     }
 
@@ -673,7 +673,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         // Check if the current user has invite permissions
         Mono<Workspace> workspaceMono = workspaceRepository.findById(inviteUsersDTO.getOrgId(), ORGANIZATION_INVITE_USERS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, inviteUsersDTO.getOrgId())))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, inviteUsersDTO.getOrgId())))
                 .zipWith(currentUserMono)
                 .flatMap(tuple -> {
                     Workspace workspace = tuple.getT1();
