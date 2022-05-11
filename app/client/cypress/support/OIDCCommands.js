@@ -20,30 +20,32 @@ function deleteScope(N) {
 }
 
 Cypress.Commands.add("fillOIDCFormPartly", () => {
-  cy.get(oidcform.clientID).type(oidcData.clientID);
-  cy.get(oidcform.clientSecret).type(oidcData.clientSecret);
+  cy.get(oidcform.clientID).type(Cypress.env("APPSMITH_OAUTH2_OIDC_CLIENT_ID"));
+  cy.get(oidcform.clientSecret).type(
+    Cypress.env("APPSMITH_OAUTH2_OIDC_CLIENT_SECRET"),
+  );
   cy.get(oidcform.saveBtn).click({ force: true });
 });
 
 Cypress.Commands.add("fillOIDCform", () => {
   cy.get(oidcform.clientID)
     .clear()
-    .type(oidcData.clientID);
+    .type(Cypress.env("APPSMITH_OAUTH2_OIDC_CLIENT_ID"));
   cy.get(oidcform.clientSecret)
     .clear()
-    .type(oidcData.clientSecret);
+    .type(Cypress.env("APPSMITH_OAUTH2_OIDC_CLIENT_SECRET"));
   cy.get(oidcform.authorizationURL)
     .clear()
-    .type(oidcData.authorizationURL);
+    .type(Cypress.env("APPSMITH_OAUTH2_OIDC_AUTH_URL"));
   cy.get(oidcform.tokenURL)
     .clear()
-    .type(oidcData.tokenURL);
+    .type(Cypress.env("APPSMITH_OAUTH2_OIDC_TOKEN_URL"));
   cy.get(oidcform.userInfo)
     .clear()
-    .type(oidcData.userInfo);
+    .type(Cypress.env("APPSMITH_OAUTH2_OIDC_USER_INFO"));
   cy.get(oidcform.jwtSetURI)
     .clear()
-    .type(oidcData.jwtSetURI);
+    .type(Cypress.env("APPSMITH_OAUTH2_OIDC_JWKS_URL"));
   cy.get(oidcform.scope)
     .get(".bp3-tag")
     .its("length")

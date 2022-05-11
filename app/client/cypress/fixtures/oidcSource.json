@@ -1,11 +1,10 @@
 {
-    "clientID": "nQRjzFqU82LzeIAsYI54yeCnanKrxiUE",
-    "clientSecret": "TZz2FXgv5zm5b_AiV-ljiHcE18oJ4goeUmZxsJr1ZZKyvKssVSiyq_DcBZ5EvSvD",
-    "authorizationURL": "https://dev-5zrx-d73.us.auth0.com/authorize",
-    "tokenURL": "https://dev-5zrx-d73.us.auth0.com/oauth/token",
-    "userInfo": "https://dev-5zrx-d73.us.auth0.com/userinfo",
-    "jwtSetURI": "https://dev-5zrx-d73.us.auth0.com/.well-known/jwks.json",
+    "clientID": "",
+    "clientSecret": "",
+    "authorizationURL": "",
+    "tokenURL": "",
+    "userInfo": "",
+    "jwtSetURI": "",
     "scope": "openid, profile, email",
     "userAttribute": "email"
 }
-
