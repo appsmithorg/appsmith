@@ -295,7 +295,7 @@ describe("AForce - Community Issues page validations", function () {
     // This test case fails due to https://github.com/appsmithorg/appsmith/issues/13588, commenting it while we fix the core issue.
     // agHelper.RemoveMultiSelectItems(['Documented', 'Needs App'])
     
-    // agHelper.SelectFromMultiSelect(['Needs Product'], 0, true, 'multiselectwidget')
+    agHelper.SelectFromMultiSelect(['Needs Product'], 0, true, 'multiselectwidget')
     agHelper.ClickButton('Save')
 
     table.ReadTableRowColumnData(0, 0, 1000).then((cellData) => {
