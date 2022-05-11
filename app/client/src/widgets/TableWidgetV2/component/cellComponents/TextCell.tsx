@@ -121,7 +121,7 @@ export function TextCell({
         onEdit();
       }
     },
-    [toggleCellEditMode],
+    [toggleCellEditMode, value],
   );
 
   let editor;
