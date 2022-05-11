@@ -533,6 +533,16 @@ Cypress.Commands.add("openFieldConfiguration", (fieldIdentifier) => {
   cy.wait(1000);
 });
 
+Cypress.Commands.add("deleteField", (fieldIdentifier) => {
+  cy.get(
+    "[data-rbd-draggable-id='" + fieldIdentifier + "'] .t--delete-column-btn",
+  ).click({
+    force: true,
+  });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
+});
+
 Cypress.Commands.add("makeColumnVisible", (colId) => {
   cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
     force: true,

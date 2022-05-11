@@ -1,10 +1,10 @@
 import React, { useCallback, useContext, useMemo } from "react";
 import styled from "styled-components";
-import { useController } from "react-hook-form";
 
 import CheckboxComponent from "widgets/CheckboxWidget/component";
 import FormContext from "../FormContext";
 import Field from "../component/Field";
+import useController from "./useController";
 import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import { AlignWidget } from "widgets/constants";

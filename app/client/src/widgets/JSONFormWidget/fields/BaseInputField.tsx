@@ -9,11 +9,11 @@ import React, {
 import styled from "styled-components";
 import { Alignment, IconName } from "@blueprintjs/core";
 import { isNil } from "lodash";
-import { useController } from "react-hook-form";
 
 import Field from "../component/Field";
 import FormContext from "../FormContext";
 import useEvents from "./useBlurAndFocusEvents";
+import useController from "./useController";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {

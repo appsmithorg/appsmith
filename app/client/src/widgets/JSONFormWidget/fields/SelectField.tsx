@@ -1,10 +1,10 @@
 import React, { useCallback, useContext, useMemo, useRef } from "react";
 import styled from "styled-components";
-import { useController } from "react-hook-form";
 
 import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
 import SelectComponent from "widgets/SelectWidget/component";
+import useController from "./useController";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";

@@ -1,11 +1,11 @@
 import React, { useCallback, useContext } from "react";
 import { Alignment } from "@blueprintjs/core";
 import { isNumber } from "lodash";
-import { useController } from "react-hook-form";
 
 import FormContext from "../FormContext";
 import Field from "widgets/JSONFormWidget/component/Field";
 import RadioGroupComponent from "widgets/RadioGroupWidget/component";
+import useController from "./useController";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import { RadioOption } from "widgets/RadioGroupWidget/constants";
 import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
