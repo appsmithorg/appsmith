@@ -163,6 +163,7 @@ function PagesEditor() {
         ItemRenderer={draggableListRenderItem}
         itemHeight={70}
         items={pages}
+        keyAccessor={"pageId"}
         onUpdate={(newOrder: any, originalIndex: number, newIndex: number) => {
           setPageOrderCallback(pages[originalIndex].pageId, newIndex);
         }}
