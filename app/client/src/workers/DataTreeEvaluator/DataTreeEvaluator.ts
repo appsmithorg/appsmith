@@ -1065,72 +1065,69 @@ export default class DataTreeEvaluator {
         const parsedObject = parseJSObjectWithAST(body);
         const actions: any = [];
         const variables: any = [];
-        const { result } = evaluateSync(body, unEvalDataTree, {}, true);
-        if (!!result) {
-          if (!!parsedObject) {
-            parsedObject.forEach((parsedElement: any) => {
-              if (
-                parsedElement.type === "ArrowFunctionExpression" ||
-                parsedElement.type === "FunctionExpression"
-              ) {
-                try {
-                  const { result } = evaluateSync(
-                    parsedElement.value,
-                    unEvalDataTree,
-                    {},
-                    true,
-                  );
-                  if (!!result) {
-                    const params = getParams(result);
-                    const functionString = parsedElement.value;
-                    _.set(
-                      this.resolvedFunctions,
-                      `${entityName}.${parsedElement.key}`,
-                      result,
-                    );
-                    _.set(
-                      this.currentJSCollectionState,
-                      `${entityName}.${parsedElement.key}`,
-                      functionString,
-                    );
-                    actions.push({
-                      name: parsedElement.key,
-                      body: functionString,
-                      arguments: params,
-                      parsedFunction: result,
-                      isAsync: false,
-                    });
-                  }
-                } catch {
-                  // in case we need to handle error state
-                }
-              } else if (parsedElement.type !== "literal") {
-                variables.push({
-                  name: parsedElement.key,
-                  value: parsedElement.value,
-                });
-                _.set(
-                  this.currentJSCollectionState,
-                  `${entityName}.${parsedElement.key}`,
+        if (!!parsedObject) {
+          parsedObject.forEach((parsedElement: any) => {
+            if (
+              parsedElement.type === "ArrowFunctionExpression" ||
+              parsedElement.type === "FunctionExpression"
+            ) {
+              try {
+                const { result } = evaluateSync(
                   parsedElement.value,
+                  unEvalDataTree,
+                  {},
+                  true,
                 );
+                if (!!result) {
+                  const params = getParams(result);
+                  const functionString = parsedElement.value;
+                  _.set(
+                    this.resolvedFunctions,
+                    `${entityName}.${parsedElement.key}`,
+                    result,
+                  );
+                  _.set(
+                    this.currentJSCollectionState,
+                    `${entityName}.${parsedElement.key}`,
+                    functionString,
+                  );
+                  actions.push({
+                    name: parsedElement.key,
+                    body: functionString,
+                    arguments: params,
+                    parsedFunction: result,
+                    isAsync: false,
+                  });
+                }
+              } catch {
+                // in case we need to handle error state
               }
-            });
-            const parsedBody = {
-              body: entity.body,
-              actions: actions,
-              variables,
-            };
-            _.set(jsUpdates, `${entityName}`, {
-              parsedBody,
-              id: entity.actionId,
-            });
-          } else {
-            _.set(jsUpdates, `${entityName}`, {
-              parsedBody: undefined,
-              id: entity.actionId,
-            });
-          }
+            } else if (parsedElement.type !== "literal") {
+              variables.push({
+                name: parsedElement.key,
+                value: parsedElement.value,
+              });
+              _.set(
+                this.currentJSCollectionState,
+                `${entityName}.${parsedElement.key}`,
+                parsedElement.value,
+              );
+            }
+          });
+          const parsedBody = {
+            body: entity.body,
+            actions: actions,
+            variables,
+          };
+          _.set(jsUpdates, `${entityName}`, {
+            parsedBody,
+            id: entity.actionId,
+          });
+        } else {
+          _.set(jsUpdates, `${entityName}`, {
+            parsedBody: undefined,
+            id: entity.actionId,
+          });
         }
       } catch (e) {
         //if we need to push error as popup in case
