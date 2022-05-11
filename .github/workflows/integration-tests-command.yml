@@ -661,7 +661,7 @@ jobs:
           headless: true
           record: true
           install: false
-          parallel: true
+          parallel: false
           config-file: cypress_fat.json
           group: "Electrons on Github Action Fat Container"
           spec: "cypress/integration/Smoke_TestSuite_Fat/**/*"
