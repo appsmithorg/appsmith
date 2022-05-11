@@ -222,7 +222,13 @@ function JSResponseView(props: Props) {
         <>
           {(errors.length > 0 ||
             responseStatus === JSResponseState.IsDirty) && (
-            <HelpSection className=".t--js-response-parse-error-call-out">
+            <HelpSection
+              className={`.${
+                errors.length > 0
+                  ? "t--js-response-parse-error-call-out"
+                  : "t--function-execution-parse-error-call-out"
+              }`}
+            >
               <StyledCallout
                 fill
                 label={

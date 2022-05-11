@@ -11,6 +11,8 @@ export class JSEditor {
   private _codeTab = ".tab-title:contains('Code')";
   private _jsObjectParseErrorCallout =
     "//div[contains(@class,'t--js-response-parse-error-call-out')]";
+  private _jsFunctionExecutionParseErrorCallout =
+    "//div[contains(@class,'t--function-execution-parse-error-call-out')]";
   private _onPageLoadRadioButton = (functionName: string, onLoad: boolean) =>
     `.${functionName}-on-page-load-setting label:contains(${
       onLoad ? "Yes" : "No"
@@ -363,12 +365,22 @@ export class JSEditor {
     // Return to code tab
     this.agHelper.GetNClick(this._codeTab);
   }
-
-  public AssertParseError(exists: boolean) {
+  /**
+ * 
+  There are two types of parse errors in the JS Editor
+  1. Parse errors that render the JS Object invalid and all functions unrunnable
+  2. Parse errors within functions that throw errors when executing those functions
+ */
+  public AssertParseError(
+    exists: boolean,
+    isFunctionExecutionParseError: boolean,
+  ) {
     // Assert presence/absence of parse error
-    cy.xpath(this._jsObjectParseErrorCallout).should(
-      exists ? "exist" : "not.exist",
-    );
+    cy.xpath(
+      isFunctionExecutionParseError
+        ? this._jsFunctionExecutionParseErrorCallout
+        : this._jsObjectParseErrorCallout,
+    ).should(exists ? "exist" : "not.exist");
   }
 
   //#endregion
