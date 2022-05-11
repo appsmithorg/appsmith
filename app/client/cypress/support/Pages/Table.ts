@@ -41,7 +41,8 @@ export class Table {
   private _downloadBtn = ".t--table-download-btn"
   private _downloadOption = ".t--table-download-data-option"
   _columnSettings = (columnName: string) => "//input[@placeholder='Column Title'][@value='" + columnName + "']/parent::div/following-sibling::div[contains(@class, 't--edit-column-btn')]"
-
+  _showPageItemsCount = "div.show-page-items"
+  _filtersCount = this._filterBtn + " span.action-title"
 
   public WaitUntilTableLoad() {
     cy.waitUntil(() => this.ReadTableRowColumnData(0, 0, 2000),
@@ -147,14 +148,18 @@ export class Table {
     });
   }
 
-  public FilterTable(colName: string, colCondition: filterTypes, inputText = "", operator: 'AND' | 'OR' | '' = '', index = 0) {
+  public OpenFilter() {
+    this.agHelper.GetNClick(this._filterBtn)
+  }
+
+  public OpenNFilterTable(colName: string, colCondition: filterTypes, inputText = "", operator: 'AND' | 'OR' | '' = '', index = 0) {
     if (operator) {
       this.agHelper.GetNClick(this._addFilter)
       this.agHelper.GetNClick(this._filterOperatorDropdown)
       cy.get(this._dropdownText).contains(operator).click()
     }
     else
-      this.agHelper.GetNClick(this._filterBtn)
+      this.OpenFilter()
 
     this.agHelper.GetNClick(this._filterColumnsDropdown, index)
     cy.get(this._dropdownText).contains(colName).click()
