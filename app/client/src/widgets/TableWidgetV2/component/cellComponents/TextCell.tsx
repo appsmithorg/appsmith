@@ -3,12 +3,8 @@ import styled from "styled-components";
 import AutoToolTipComponent from "./AutoToolTipComponent";
 import { RenderDefaultPropsType } from "./DefaultCell";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
-import { Colors } from "constants/Colors";
 import { InlineCellEditor } from "./InlineCellEditor";
-import {
-  ColumnTypes,
-  EditableCellActions,
-} from "widgets/TableWidgetV2/constants";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { ALIGN_ITEMS, TABLE_SIZES, VerticalAlignment } from "../Constants";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 
@@ -52,13 +48,14 @@ const StyledAutoToolTipComponent = styled(AutoToolTipComponent)`
 `;
 
 const StyledEditIcon = styled.div<{
+  accentColor?: string;
   backgroundColor?: string;
   compactMode: string;
 }>`
   position: absolute;
   right: 6px;
   top: ${(props) => TABLE_SIZES[props.compactMode].EDIT_ICON_TOP}px;
-  background: ${Colors.GREEN};
+  background: ${(props) => props.accentColor};
   padding: 2px;
   cursor: pointer;
   display: none;
@@ -72,7 +69,7 @@ const StyledEditIcon = styled.div<{
   }
 `;
 
-const UnsavedChangesMarker = styled.div`
+const UnsavedChangesMarker = styled.div<{ accentColor: string }>`
   position: absolute;
   top: -1px;
   right: -3px;
@@ -80,7 +77,7 @@ const UnsavedChangesMarker = styled.div`
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-bottom: 5px solid ${Colors.GREEN_1};
+  border-bottom: 5px solid ${(props) => props.accentColor};
   transform: rotateZ(45deg);
 `;
 
@@ -92,6 +89,7 @@ interface PropType extends RenderDefaultPropsType {
 }
 
 export function TextCell({
+  accentColor,
   allowCellWrapping,
   cellBackground,
   columnType,
@@ -131,6 +129,7 @@ export function TextCell({
   if (isCellEditMode) {
     editor = (
       <InlineCellEditor
+        accentColor={accentColor}
         allowCellWrapping={allowCellWrapping}
         compactMode={compactMode}
         inputType={
@@ -164,7 +163,9 @@ export function TextCell({
         onDoubleClick={onEditHandler}
         ref={contentRef}
       >
-        {hasUnsavedChanged && <UnsavedChangesMarker />}
+        {hasUnsavedChanged && (
+          <UnsavedChangesMarker accentColor={accentColor} />
+        )}
         <StyledAutoToolTipComponent
           allowCellWrapping={allowCellWrapping}
           cellBackground={cellBackground}
@@ -185,6 +186,7 @@ export function TextCell({
         </StyledAutoToolTipComponent>
         {isCellEditable && (
           <StyledEditIcon
+            accentColor={accentColor}
             backgroundColor={cellBackground}
             className="editable-cell-icon"
             compactMode={compactMode}

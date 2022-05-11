@@ -199,7 +199,7 @@ export const CONFIG = {
                 set(
                   primaryColumns,
                   `${columnId}.${propertyKey}`,
-                  `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`,
+                  `{{${widget.widgetName}.processedTableData.map((currentRow, currentIndex) => ( ${js}))}}`,
                 );
               });
             });

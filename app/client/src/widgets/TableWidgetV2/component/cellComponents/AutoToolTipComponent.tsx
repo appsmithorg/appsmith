@@ -5,7 +5,6 @@ import { CellAlignment, VerticalAlignment } from "../Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { TextSize } from "constants/WidgetConstants";
 
 const TooltipContentWrapper = styled.div<{ width: number }>`
   word-break: break-all;
