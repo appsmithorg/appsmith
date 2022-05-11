@@ -4,12 +4,12 @@ import {
   DefaultValueType,
   LabelValueType,
 } from "rc-select/lib/interface/generator";
+import { useController } from "react-hook-form";
 import { isNil } from "lodash";
 
 import Field from "../component/Field";
 import FormContext from "../FormContext";
 import MultiSelect from "widgets/MultiSelectWidgetV2/component";
-import useController from "./useController";
 import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import useUpdateInternalMetaState from "./useUpdateInternalMetaState";

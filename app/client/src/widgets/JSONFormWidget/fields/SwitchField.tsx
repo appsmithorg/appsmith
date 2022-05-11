@@ -1,8 +1,8 @@
 import React, { useCallback, useContext, useMemo } from "react";
+import { useController } from "react-hook-form";
 
 import FormContext from "../FormContext";
 import Field from "widgets/JSONFormWidget/component/Field";
-import useController from "./useController";
 import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import { AlignWidget } from "widgets/constants";

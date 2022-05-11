@@ -1,10 +1,10 @@
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useMemo } from "react";
+import { useController } from "react-hook-form";
 
 import DateComponent from "widgets/DatePickerWidget2/component";
 import Field from "widgets/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
-import useController from "./useController";
 import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import {
