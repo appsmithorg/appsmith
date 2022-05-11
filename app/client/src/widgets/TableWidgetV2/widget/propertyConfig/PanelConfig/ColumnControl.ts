@@ -10,6 +10,7 @@ import {
   updateColumnLevelEditability,
   updateEditActionsColumnEventsHook,
   updateNumberColumnTypeTextAlignment,
+  updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { isColumnTypeEditable } from "../../utilities";
@@ -68,6 +69,7 @@ export default {
       updateHook: composePropertyUpdateHook([
         updateEditActionsColumnEventsHook,
         updateNumberColumnTypeTextAlignment,
+        updateThemeStylesheetsInColumns,
       ]),
       dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
       isBindProperty: false,

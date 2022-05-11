@@ -4,7 +4,6 @@ import { CellWrapper } from "../TableStyledWrappers";
 import { CellAlignment, VerticalAlignment } from "../Constants";
 import { Button } from "./Button";
 import { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
-import { TextSize } from "constants/WidgetConstants";
 
 export interface RenderActionProps {
   compactMode: string;

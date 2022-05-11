@@ -477,15 +477,22 @@ export const updateNumberColumnTypeTextAlignment = (
  * @param propertyPath
  * @param propertyValue
  */
-function updateThemeStylesheetsInColumns(
+export function updateThemeStylesheetsInColumns(
   props: TableWidgetProps,
+  propertyPath: string,
   propertyValue: any,
-  columnId: string,
-  columnProperty: string,
-  propertiesToUpdate: Array<{ propertyPath: string; propertyValue: any }>,
-) {
+): Array<{ propertyPath: string; propertyValue: any }> | undefined {
+  const regex = /^primaryColumns\.(\w+)\.(.*)$/;
+  const matches = propertyPath.match(regex);
+  const columnId = matches?.[1];
+  const columnProperty = matches?.[2];
+
   if (columnProperty === "columnType") {
-    const oldColumnType = props.columnType;
+    const propertiesToUpdate: Array<{
+      propertyPath: string;
+      propertyValue: any;
+    }> = [];
+    const oldColumnType = get(props, `primaryColumns.${columnId}.columnType`);
     const newColumnType = propertyValue;
 
     const propertiesToRemove = Object.keys(
@@ -497,11 +504,6 @@ function updateThemeStylesheetsInColumns(
     );
 
     propertiesToRemove.forEach((propertyKey) => {
-      propertiesToUpdate.push({
-        propertyPath: `derivedColumns.${columnId}.${propertyKey}`,
-        propertyValue: undefined,
-      });
-
       propertiesToUpdate.push({
         propertyPath: `primaryColumns.${columnId}.${propertyKey}`,
         propertyValue: undefined,
@@ -516,15 +518,14 @@ function updateThemeStylesheetsInColumns(
       const js = combineDynamicBindings(jsSnippets, stringSegments);
 
       propertiesToUpdate.push({
-        propertyPath: `derivedColumns.${columnId}.${propertyKey}`,
-        propertyValue: `{{${props.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`,
-      });
-
-      propertiesToUpdate.push({
         propertyPath: `primaryColumns.${columnId}.${propertyKey}`,
-        propertyValue: `{{${props.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`,
+        propertyValue: `{{${props.widgetName}.processedTableData.map((currentRow) => ( ${js}))}}`,
       });
     });
+
+    if (propertiesToUpdate.length) {
+      return propertiesToUpdate;
+    }
   }
 }
 
