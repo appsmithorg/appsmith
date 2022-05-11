@@ -1,7 +1,6 @@
 import React, {
   RefObject,
   ReactNode,
-  useEffect,
   useRef,
   useState,
   useCallback,
@@ -15,7 +14,6 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { Colors } from "constants/Colors";
 import PageTabs from "./PageTabs";
-import useThrottledRAF from "utils/hooks/useThrottledRAF";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -208,9 +206,7 @@ function TabsComponent(props: TabsComponentProps) {
     null,
   );
   const tabsRef = useRef<HTMLElement | null>(null);
-  const [isScrolling, setIsScrolling] = useState(false);
   const [tabsScrollable, setTabsScrollable] = useState(false);
-  const [isScrollingLeft, setIsScrollingLeft] = useState(false);
   const [shouldShowLeftArrow, setShouldShowLeftArrow] = useState(false);
   const [shouldShowRightArrow, setShouldShowRightArrow] = useState(true);
 
@@ -234,36 +230,21 @@ function TabsComponent(props: TabsComponentProps) {
     [tabs],
   );
 
-  const scroll = useCallback(() => {
-    const currentOffset = tabsRef.current?.scrollLeft || 0;
+  const scroll = useCallback(
+    (isScrollingLeft) => {
+      const currentOffset = tabsRef.current?.scrollLeft || 0;
 
-    if (tabsRef.current) {
-      tabsRef.current.scrollLeft = isScrollingLeft
-        ? currentOffset - 5
-        : currentOffset + 5;
-      setShowScrollArrows();
-    }
-  }, [tabsRef.current, isScrollingLeft]);
+      if (tabsRef.current) {
+        tabsRef.current.scrollLeft = isScrollingLeft
+          ? currentOffset - 50
+          : currentOffset + 50;
+        setShowScrollArrows();
+      }
+    },
+    [tabsRef.current],
+  );
   // eslint-disable-next-line
-  const [_intervalRef, _rafRef, requestAF] = useThrottledRAF(scroll, 10);
-
-  const stopScrolling = () => {
-    setIsScrolling(false);
-    setIsScrollingLeft(false);
-  };
-
-  const startScrolling = (isLeft: boolean) => {
-    setIsScrolling(true);
-    setIsScrollingLeft(isLeft);
-  };
-
-  useEffect(() => {
-    let clear;
-    if (isScrolling) {
-      clear = requestAF();
-    }
-    return clear;
-  }, [isScrolling, isScrollingLeft]);
+  // const [_intervalRef, _rafRef, requestAF] = useThrottledRAF(scroll, 10);
 
   // useEffect(() => {
   //   if (!props.shouldScrollContents) {
@@ -278,14 +259,10 @@ function TabsComponent(props: TabsComponentProps) {
       ref={tabContainerRef}
     >
       {props.shouldShowTabs && (
-        <Container className="relative hidden px-6 h-9 md:flex">
+        <Container className="relative flex px-6 h-9">
           <ScrollBtnContainer
-            className="left-0 scroll-nav-left-button"
-            onMouseDown={() => startScrolling(true)}
-            onMouseLeave={stopScrolling}
-            onMouseUp={stopScrolling}
-            onTouchEnd={stopScrolling}
-            onTouchStart={() => startScrolling(true)}
+            className="left-0 cursor-pointer scroll-nav-left-button"
+            onClick={() => scroll(true)}
             visible={shouldShowLeftArrow}
           >
             <Icon name="left-arrow-2" size={IconSize.MEDIUM} />
@@ -299,12 +276,8 @@ function TabsComponent(props: TabsComponentProps) {
             tabsScrollable={tabsScrollable}
           />
           <ScrollBtnContainer
-            className="right-0 scroll-nav-right-button"
-            onMouseDown={() => startScrolling(false)}
-            onMouseLeave={stopScrolling}
-            onMouseUp={stopScrolling}
-            onTouchEnd={stopScrolling}
-            onTouchStart={() => startScrolling(false)}
+            className="right-0 cursor-pointer scroll-nav-right-button"
+            onClick={() => scroll(false)}
             visible={shouldShowRightArrow}
           >
             <Icon name="right-arrow-2" size={IconSize.MEDIUM} />
