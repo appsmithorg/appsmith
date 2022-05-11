@@ -8,7 +8,7 @@ module.exports = {
   setupFiles: ["jest-canvas-mock"],
   roots: ["<rootDir>/src"],
   transform: {
-    "^.+\\.(js|jsx|ts|tsx)$": ["babel-jest", { rootMode: "upward" }],
+    "^.+\\.(js|jsx|ts|tsx)$": "ts-jest",
   },
   testEnvironment: "jsdom",
   setupFilesAfterEnv: ["<rootDir>/test/setup.ts"],

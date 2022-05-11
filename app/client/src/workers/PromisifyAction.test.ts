@@ -1,6 +1,6 @@
 import { createGlobalData } from "workers/evaluate";
 import _ from "lodash";
-jest.mock("./evaluation.worker.ts", () => {
+jest.mock("workers/evaluation.worker", () => {
   return {
     dataTreeEvaluator: {
       evalTree: {},

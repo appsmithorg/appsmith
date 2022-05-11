@@ -54,6 +54,9 @@ describe("<ColorPicker />", () => {
 });
 
 describe("<ColorPicker /> - Keyboard Navigation", () => {
+  beforeEach(() => {
+    jest.setTimeout(60000);
+  });
   it("Pressing tab should focus the component", () => {
     render(getTestComponent());
     userEvent.tab();
