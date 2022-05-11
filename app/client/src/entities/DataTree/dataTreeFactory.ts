@@ -189,14 +189,10 @@ export class DataTreeFactory {
     const startWidgets = performance.now();
 
     Object.values(widgets).forEach((widget) => {
-      const optimized = generateDataTreeWidget(
+      dataTree[widget.widgetName] = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.widgetId],
       );
-      // const old = generateDataTreeWidget_(widget, widgetsMeta[widget.widgetId]);
-
-      // console.log("### Diffs are", diff(old, optimized), widgetsMeta);
-      dataTree[widget.widgetName] = optimized;
     });
     const endWidgets = performance.now();
 
@@ -218,7 +214,7 @@ export class DataTreeFactory {
       jsActions: endJsActions - startJsActions,
     };
 
-    log.debug("### Create Uneval Tree", out);
+    log.debug("### Create unevalTree timing", out);
 
     return dataTree;
   }

@@ -279,9 +279,7 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
 
 export const getAllPathsFromPropertyConfig = memoize(
   getAllPathsFromPropertyConfigWithoutMemo,
-  {
-    maxSize: 1000,
-  },
+  { maxSize: 1000 },
 );
 
 /**

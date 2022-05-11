@@ -14,7 +14,7 @@ import {
 import { setOverridingProperty } from "./utils";
 
 // We are splitting generateDataTreeWidget into two parts to memoize better as the widget doesn't change very often.
-// Only meta properties change
+// Only meta properties change. The output of generateDataTreeWidget is effectively the same
 const generatePartialDataTreeWidget = (
   widget: FlattenedWidgetProps,
 ): {
