@@ -231,12 +231,12 @@ function JSResponseView(props: Props) {
                   </FailedMessage>
                 }
                 text={
-                  responseStatus === JSResponseState.IsDirty
-                    ? createMessage(
+                  errors.length > 0
+                    ? createMessage(PARSING_ERROR)
+                    : createMessage(
                         JS_ACTION_EXECUTION_ERROR,
                         `${jsObject.name}.${currentFunction?.name}`,
                       )
-                    : createMessage(PARSING_ERROR)
                 }
                 variant={Variant.danger}
               />
