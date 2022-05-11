@@ -21,6 +21,7 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import {
   fetchPage,
   fetchPublishedPage,
+  fetchPublishedPageSuccess,
   resetApplicationWidgets,
   resetPageList,
   setAppMode,
@@ -86,6 +87,10 @@ import { isURLDeprecated, getUpdatedRoute } from "utils/helpers";
 import { fillPathname, viewerURL, builderURL } from "RouteBuilder";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
+import {
+  fetchSelectedAppThemeAction,
+  fetchAppThemesAction,
+} from "actions/appThemingActions";
 
 export function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -121,6 +126,13 @@ export function* failFastApiCalls(
   return true;
 }
 
+/**
+ * this saga is called once then application is loaded.
+ * It will hold the editor in uninitialized till all the apis/actions are completed
+ *
+ * @param initializeEditorAction
+ * @returns
+ */
 function* bootstrapEditor(payload: InitializeEditorPayload) {
   const { branch } = payload;
   yield put(resetEditorSuccess());
@@ -233,11 +245,15 @@ function* initiateEditorActions(applicationId: string) {
   const initActionsCalls = [
     fetchActions({ applicationId }, []),
     fetchJSCollections({ applicationId }),
+    fetchSelectedAppThemeAction(applicationId),
+    fetchAppThemesAction(applicationId),
   ];
 
   const successActionEffects = [
     ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
     ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
+    ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
+    ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
   ];
   const failureActionEffects = [
     ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
@@ -412,12 +428,15 @@ export function* initializeAppViewerSaga(
     [
       fetchActionsForView({ applicationId }),
       fetchJSCollectionsForView({ applicationId }),
-      fetchPublishedPage(toLoadPageId, true),
+      fetchPublishedPage(toLoadPageId, true, true),
+      fetchSelectedAppThemeAction(applicationId),
+      fetchAppThemesAction(applicationId),
     ],
     [
       ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
       ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
-      ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
+      ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
+      ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
     ],
     [
       ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
@@ -427,6 +446,9 @@ export function* initializeAppViewerSaga(
   );
 
   if (!resultOfPrimaryCalls) return;
+
+  //Delay page load actions till all actions are retrieved.
+  yield put(fetchPublishedPageSuccess([executePageLoadActions()]));
 
   yield put(fetchCommentThreadsInit());
 

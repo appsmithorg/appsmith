@@ -27,7 +27,7 @@ public interface ThemeServiceCE extends CrudService<Theme, String> {
      * Duplicates a theme if the theme is customized one.
      * If the source theme is a system theme, it'll skip creating a new theme and return the system theme instead.
      * @param srcThemeId ID of source theme that needs to be duplicated
-     * @param destApplicationId ID of the application for which theme'll be created
+     * @param destApplication Application for which theme will ll be created
      * @return newly created theme if source is not system theme, otherwise return the system theme
      */
     Mono<Theme> cloneThemeToApplication(String srcThemeId, Application destApplication);
@@ -37,4 +37,5 @@ public interface ThemeServiceCE extends CrudService<Theme, String> {
     Mono<Theme> save(Theme theme);
     Mono<Theme> updateName(String id, Theme theme);
     Mono<Theme> getOrSaveTheme(Theme theme, Application destApplication);
+    Mono<Application> archiveApplicationThemes(Application application);
 }

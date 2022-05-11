@@ -21,10 +21,10 @@ import {
   isMatching,
   SEARCH_ITEM_TYPES,
 } from "./utils";
-import AddDatasourceIcon from "remixicon-react/AddBoxLineIcon";
-import { Colors } from "constants/Colors";
 import { PluginType } from "entities/Action";
 import { integrationEditorURL } from "RouteBuilder";
+import AddLineIcon from "remixicon-react/AddLineIcon";
+import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 
 export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
@@ -67,6 +67,7 @@ export const useFilteredFileOperations = (query = "") => {
         ...fileOperations,
         ...filteredAppWideDS.map((ds: any) => ({
           title: `New ${ds.name} Query`,
+          shortTitle: `${ds.name} Query`,
           desc: `Create a query in ${ds.name}`,
           pluginId: ds.pluginId,
           kind: SEARCH_ITEM_TYPES.actionOperation,
@@ -80,6 +81,7 @@ export const useFilteredFileOperations = (query = "") => {
         ...fileOperations,
         ...otherFilteredDS.map((ds: any) => ({
           title: `New ${ds.name} Query`,
+          shortTitle: `${ds.name} Query`,
           desc: `Create a query in ${ds.name}`,
           kind: SEARCH_ITEM_TYPES.actionOperation,
           pluginId: ds.pluginId,
@@ -92,7 +94,11 @@ export const useFilteredFileOperations = (query = "") => {
       ...fileOperations,
       {
         title: "New Datasource",
-        icon: <AddDatasourceIcon color={Colors.DOVE_GRAY2} size={20} />,
+        icon: (
+          <EntityIcon>
+            <AddLineIcon size={22} />
+          </EntityIcon>
+        ),
         kind: SEARCH_ITEM_TYPES.actionOperation,
         redirect: (
           applicationSlug: string,

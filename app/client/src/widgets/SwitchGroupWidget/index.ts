@@ -30,6 +30,7 @@ export const CONFIG = {
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
     version: 1,
+    labelTextSize: "0.875rem",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
