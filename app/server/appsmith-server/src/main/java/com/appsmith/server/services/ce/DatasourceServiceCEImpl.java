@@ -379,7 +379,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     @Override
     public Flux<Datasource> get(MultiValueMap<String, String> params) {
         /**
-         * Note : Currently this API is ONLY used to fetch datasources for an workspace.
+         * Note : Currently this API is ONLY used to fetch datasources for a workspace.
          */
         // Remove branch name as datasources are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
