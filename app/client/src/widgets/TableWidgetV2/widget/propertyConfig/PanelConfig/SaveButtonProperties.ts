@@ -88,7 +88,6 @@ export default {
       isJSConvertible: true,
       helpText: "Rounds the corners of the save button's outer border edge",
       controlType: "BORDER_RADIUS_OPTIONS",
-      options: [ButtonBorderRadiusTypes.SHARP, ButtonBorderRadiusTypes.ROUNDED],
       dependencies: ["primaryColumns"],
       isBindProperty: true,
       isTriggerProperty: false,
@@ -96,9 +95,6 @@ export default {
         type: ValidationTypes.TABLE_PROPERTY,
         params: {
           type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
-          },
         },
       },
     },
