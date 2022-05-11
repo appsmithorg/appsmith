@@ -46,7 +46,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webflux</artifactId>
-            <version>5.2.3.RELEASE</version>
+            <version>5.3.19</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.projectreactor</groupId>
