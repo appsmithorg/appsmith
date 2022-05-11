@@ -21,6 +21,7 @@ import * as MESSAGES from "../../../client/src/ce/constants/messages.ts";
 import "./ApiCommands";
 // Import commands.js using ES2015 syntax:
 import "./commands";
+import "./OIDCCommands";
 import { initLocalstorage } from "./commands";
 import "./dataSourceCommands";
 import "./gitSync";
