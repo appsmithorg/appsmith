@@ -36,6 +36,7 @@ import commentsLocators from "../locators/CommentsLocators";
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
+const themelocator = require("../locators/ThemeLocators.json");
 import gitSyncLocators from "../locators/gitSyncLocators";
 
 let pageidcopy = " ";
@@ -865,6 +866,7 @@ Cypress.Commands.add("startRoutesForDatasource", () => {
 Cypress.Commands.add("startServerAndRoutes", () => {
   //To update route with intercept after working on alias wrt wait and alias
   cy.server();
+  cy.route("PUT", "/api/v1/themes/applications/*").as("updateTheme");
   cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
   cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.route("GET", "/api/v1/applications/new").as("applications");

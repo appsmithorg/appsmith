@@ -30,6 +30,7 @@ import "./OrgCommands";
 import "./queryCommands";
 import "./widgetCommands";
 import "./SAMLCommands";
+import "./themeCommands";
 import "./AdminSettingsCommands";
 /// <reference types="cypress-xpath" />
 
