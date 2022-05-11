@@ -264,7 +264,8 @@ describe("AForce - Community Issues page validations", function () {
 
   })
 
-  it("9. Validate Updating issue from Details tab & #13588", () => {
+  it("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
+    
     agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
     table.SelectTableRow(0)
     agHelper.AssertElementPresence(locator._widgetInDeployed('tabswidget'))
@@ -291,7 +292,8 @@ describe("AForce - Community Issues page validations", function () {
 
     //agHelper.Sleep(2000)
     //cy.get("body").type("{enter}")
-    
+    // Multiselect check is to verify bug #13588.
+    // Currently, we have commented it.
     // This test case fails due to https://github.com/appsmithorg/appsmith/issues/13588, commenting it while we fix the core issue.
     // agHelper.RemoveMultiSelectItems(['Documented', 'Needs App'])
     
