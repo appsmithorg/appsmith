@@ -213,9 +213,9 @@ describe("AForce - Community Issues page validations", function () {
 
     table.OpenNFilterTable("Title", "contains", "query", 'OR', 1)
     table.ReadTableRowColumnData(1, 0).then(($cellData) => {
-      expect($cellData).to.eq("Question");
+      expect($cellData).to.be.oneOf(['Troubleshooting','Question'])
     });
-    table.ReadTableRowColumnData(7, 1).then(($cellData) => {
+    table.ReadTableRowColumnData(6, 1).then(($cellData) => {
       expect($cellData).to.eq("Run storeValue commands before a Query.run()");
     });
     table.RemoveFilterNVerify("Question", true, false)
