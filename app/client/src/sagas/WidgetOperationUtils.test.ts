@@ -1,5 +1,4 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { RenderModes } from "constants/WidgetConstants";
 import { get } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { FlattenedWidgetProps } from "widgets/constants";
@@ -8,7 +7,7 @@ import {
   handleSpecificCasesWhilePasting,
   doesTriggerPathsContainPropertyPath,
   getSelectedWidgetIfPastingIntoListWidget,
-  checkIfPastingListWidgetOntoItself,
+  checkForListWidgetInCopiedWidgets,
   updateListWidgetPropertiesOnChildDelete,
   purgeOrphanedDynamicPaths,
   getBoundariesFromSelectedWidgets,
@@ -981,50 +980,10 @@ describe("WidgetOperationSaga", () => {
       },
     ]);
   });
-  it("should test checkIfPastingListWidgetOntoItself", () => {
-    const canvasWidgets = {
-      list2: {
-        widgetId: "list2",
-        type: "LIST_WIDGET",
-        widgetName: "List2",
-        parentId: "0",
-        renderMode: RenderModes.CANVAS,
-        parentColumnSpace: 2,
-        parentRowSpace: 3,
-        leftColumn: 2,
-        rightColumn: 3,
-        topRow: 1,
-        bottomRow: 3,
-        isLoading: false,
-        listData: [],
-        version: 16,
-        disablePropertyPane: false,
-        template: {},
-        children: [],
-      },
-    };
-    const selectedWidget = {
-      widgetId: "list2",
-      type: "LIST_WIDGET",
-      widgetName: "List2",
-      parentId: "0",
-      renderMode: RenderModes.CANVAS,
-      parentColumnSpace: 2,
-      parentRowSpace: 3,
-      leftColumn: 2,
-      rightColumn: 3,
-      topRow: 1,
-      bottomRow: 3,
-      isLoading: false,
-      listData: [],
-      version: 16,
-      disablePropertyPane: false,
-      template: {},
-      children: [],
-    };
+  it("should test checkForListWidgetInCopiedWidgets", () => {
     //if copying list widget onto list widget
     expect(
-      checkIfPastingListWidgetOntoItself(canvasWidgets, selectedWidget, [
+      checkForListWidgetInCopiedWidgets([
         {
           widgetId: "list2",
           parentId: "0",
@@ -1054,7 +1013,7 @@ describe("WidgetOperationSaga", () => {
 
     //if copying container widget onto list widget
     expect(
-      checkIfPastingListWidgetOntoItself(canvasWidgets, selectedWidget, [
+      checkForListWidgetInCopiedWidgets([
         {
           widgetId: "container",
           parentId: "0",
