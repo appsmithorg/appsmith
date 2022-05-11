@@ -213,9 +213,9 @@ describe("AForce - Community Issues page validations", function () {
 
     table.OpenNFilterTable("Title", "contains", "query", 'OR', 1)
     table.ReadTableRowColumnData(1, 0).then(($cellData) => {
-      expect($cellData).to.eq("Question");
+      expect($cellData).to.be.oneOf(['Troubleshooting','Question'])
     });
-    table.ReadTableRowColumnData(7, 1).then(($cellData) => {
+    table.ReadTableRowColumnData(6, 1).then(($cellData) => {
       expect($cellData).to.eq("Run storeValue commands before a Query.run()");
     });
     table.RemoveFilterNVerify("Question", true, false)
@@ -225,14 +225,14 @@ describe("AForce - Community Issues page validations", function () {
      table.ReadTableRowColumnData(1, 1).then(($cellData) => {
        expect($cellData).to.eq("Combine queries from different datasources");
      });
- 
+
      table.OpenNFilterTable("Title", "contains", "button", 'AND', 1)
      table.ReadTableRowColumnData(0, 1).then(($cellData) => {
        expect($cellData).to.eq("Change the video in the video player with a button click");
      });
      table.RemoveFilterNVerify("Question", true, false)
   })
-  
+
   it("8. Validate Adding a New issue from Add Modal", () => {
     // agHelper.DeployApp()
     // table.WaitUntilTableLoad()
