@@ -332,6 +332,7 @@ export const getOccupiedSpaces = createSelector(
   (
     widgets: CanvasWidgetsReduxState,
   ): { [containerWidgetId: string]: OccupiedSpace[] } | undefined => {
+    const start = performance.now();
     const occupiedSpaces: {
       [containerWidgetId: string]: OccupiedSpace[];
     } = {};
@@ -359,6 +360,11 @@ export const getOccupiedSpaces = createSelector(
         );
       });
     }
+    console.log(
+      "Occupied spaces computations took: ",
+      performance.now() - start,
+      "ms",
+    );
     // Return undefined if there are no occupiedSpaces.
     return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : undefined;
   },
@@ -371,6 +377,7 @@ export function getOccupiedSpacesSelectorForContainer(
   return createSelector(getWidgets, (widgets: CanvasWidgetsReduxState):
     | OccupiedSpace[]
     | undefined => {
+    const start = performance.now();
     if (containerId === null || containerId === undefined) return undefined;
 
     const containerWidget: FlattenedWidgetProps = widgets[containerId];

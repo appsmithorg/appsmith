@@ -55,6 +55,7 @@ import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
   getCurrentPageId,
+  getOccupiedSpacesSelectorForContainer,
   getWidgetSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
@@ -127,12 +128,13 @@ import {
   getBottomRowAfterReflow,
 } from "utils/reflowHookUtils";
 import { PrevReflowState, ReflowDirection, SpaceMap } from "reflow/reflowTypes";
-import { WidgetSpace } from "constants/CanvasEditorConstants";
+import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import { reflow } from "reflow";
 import { getBottomMostRow } from "reflow/reflowUtils";
 import { flashElementsById } from "utils/helpers";
 import { getSlidingCanvasName } from "constants/componentClassNameConstants";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import boxIntersect from "box-intersect";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -1681,6 +1683,8 @@ export function* updateWidgetDynamicHeightSaga(
     parentId = parent.parentId;
   }
 
+  const allWidgetsToUpdate = computeNewWidgetPositions(widgetsToUpdate);
+
   yield put({
     type: ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
     payload: widgetsToUpdate,
@@ -1690,6 +1694,71 @@ export function* updateWidgetDynamicHeightSaga(
     performance.now() - start,
     "ms",
   );
+}
+
+function* computeNewWidgetPositions(
+  widgetsWithNewDynamicHeight: UpdateWidgetsPayload,
+) {
+  // Get the box which would be the widget extending
+  // Get intersecting widgets within the same parent
+  // Push intersecting widgets downwards by the difference in height
+
+  const idsOfWidgetsWithNewDynamicHeights = Object.keys(
+    widgetsWithNewDynamicHeight,
+  );
+
+  for (const widgetId in idsOfWidgetsWithNewDynamicHeights) {
+    const widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
+    // Let's say that this widget extends height
+    // We need to push all widgets which take space vertically below this widget
+    // TODO: DESIGN(abhinav): Should we have an empty space threshold below this widget
+    // Such that any widget below this threshold wont be pushed down?
+    const conflictBox = [
+      widget.leftColumn * widget.parentColumnSpace,
+      widget.topRow * widget.parentRowSpace,
+      widget.rightColumn * widget.parentRowSpace,
+      widget.bottomRow * widget.parentRowSpace * 5000,
+    ];
+
+    const occupiedSpacesInParent: OccupiedSpace[] | undefined = yield select(
+      getOccupiedSpacesSelectorForContainer(widget.parentId),
+    );
+
+    if (occupiedSpacesInParent) {
+      const boxCoordinatesOfSiblings = [];
+      for (let index = 0; index < occupiedSpacesInParent?.length; index++) {
+        if (occupiedSpacesInParent[index].id === widget.widgetId) {
+          // We need to skip conflicts between this widget and itself
+          boxCoordinatesOfSiblings[index] = [0, 0, 0, 0];
+        }
+        boxCoordinatesOfSiblings[index] = [
+          occupiedSpacesInParent[index].left * widget.parentColumnSpace,
+          occupiedSpacesInParent[index].top * widget.parentRowSpace,
+          occupiedSpacesInParent[index].right * widget.parentColumnSpace,
+          occupiedSpacesInParent[index].bottom * widget.parentRowSpace,
+        ];
+      }
+
+      const overlaps: [number, number][] = boxIntersect(
+        [conflictBox],
+        boxCoordinatesOfSiblings,
+        function(conflictBoxIndex, intersectingSiblingIndex) {
+          if (conflictBoxIndex === 0) {
+            const intersectingWidgetId =
+              occupiedSpacesInParent[intersectingSiblingIndex].id;
+          } else {
+            return; // Early out, as we're not interested in conflicts other than the ones with the box at index 0
+          }
+        },
+      );
+
+      overlaps.forEach((overlappingPair: [number, number]) => {
+        // If the overlap is with the original conflictBox
+        if (overlappingPair[0] === 0) {
+        }
+      });
+    }
+  }
 }
 
 // TODO: REFACTOR(abhinav): Move to WidgetOperationUtils

@@ -2892,6 +2892,11 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
+"@types/box-intersect@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/box-intersect/-/box-intersect-1.0.0.tgz#413795fb592f190c765cf4fa09ff9b8f3a830544"
+  integrity sha512-Bf6O431pf1gDWxCXnKrxcBPc+NLpTA9HtZJ1l1hEhqrBsSr2zDwYrw2/K6QwkO+Nwfj5spsLwRFNYLft5QhVSQ==
+
 "@types/codemirror@^0.0.96":
   version "0.0.96"
   resolved "https://registry.npmjs.org/@types/codemirror/-/codemirror-0.0.96.tgz"
@@ -4830,6 +4835,11 @@ bindings@^1.5.0:
   dependencies:
     file-uri-to-path "1.0.0"
 
+bit-twiddle@^1.0.0, bit-twiddle@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/bit-twiddle/-/bit-twiddle-1.0.2.tgz#0c6c1fabe2b23d17173d9a61b7b7093eb9e1769e"
+  integrity sha1-DGwfq+KyPRcXPZpht7cJPrnhdp4=
+
 bl@^4.0.3:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/bl/-/bl-4.1.0.tgz#451535264182bec2fbbc83a62ab98cf11d9f7b3a"
@@ -4889,6 +4899,14 @@ bonjour@^3.5.0:
 boolbase@^1.0.0, boolbase@~1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/boolbase/-/boolbase-1.0.0.tgz"
+
+box-intersect@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/box-intersect/-/box-intersect-1.0.2.tgz#4693ad63e828868d0654b114e09364d6281f3fbd"
+  integrity sha512-yJeMwlmFPG1gIa7Rs/cGXeI6iOj6Qz5MG5PE61xLKpElUGzmJ4abm+qsLpzxKJFpsSDq742BQEocr8dI2t8Nxw==
+  dependencies:
+    bit-twiddle "^1.0.2"
+    typedarray-pool "^1.1.0"
 
 brace-expansion@^1.1.7:
   version "1.1.11"
@@ -6985,6 +7003,11 @@ duck@^0.1.12:
   integrity sha512-wkctla1O6VfP89gQ+J/yDesM0S7B7XLXjKGzXxMDVFg7uEn706niAtyYovKbyq1oT9YwDcly721/iUWoc8MVRg==
   dependencies:
     underscore "^1.13.1"
+
+dup@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/dup/-/dup-1.0.0.tgz#51fc5ac685f8196469df0b905e934b20af5b4029"
+  integrity sha1-UfxaxoX4GWRp3wuQXpNLIK9bQCk=
 
 duplexer2@~0.1.4:
   version "0.1.4"
@@ -17000,6 +17023,14 @@ type@^2.0.0:
 typed-styles@^0.0.7:
   version "0.0.7"
   resolved "https://registry.npmjs.org/typed-styles/-/typed-styles-0.0.7.tgz"
+
+typedarray-pool@^1.1.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/typedarray-pool/-/typedarray-pool-1.2.0.tgz#e7e90720144ba02b9ed660438af6f3aacfe33ac3"
+  integrity sha512-YTSQbzX43yvtpfRtIDAYygoYtgT+Rpjuxy9iOpczrjpXLgGoyG7aS5USJXV2d3nn8uHTeb9rXDvzS27zUg5KYQ==
+  dependencies:
+    bit-twiddle "^1.0.0"
+    dup "^1.0.0"
 
 typedarray-to-buffer@^3.1.5:
   version "3.1.5"
