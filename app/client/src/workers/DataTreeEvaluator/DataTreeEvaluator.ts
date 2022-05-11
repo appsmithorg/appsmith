@@ -568,8 +568,13 @@ export default class DataTreeEvaluator {
         Object.keys(entity.reactivePaths).forEach((propertyPath) => {
           const existingDeps =
             dependencies[`${entityName}.${propertyPath}`] || [];
-          const unevalPropValue = _.get(entity, propertyPath).toString();
-          const { jsSnippets } = getDynamicBindings(unevalPropValue, entity);
+          const unevalPropValue = _.get(entity, propertyPath);
+          const unevalPropValueString =
+            !!unevalPropValue && unevalPropValue.toString();
+          const { jsSnippets } = getDynamicBindings(
+            unevalPropValueString,
+            entity,
+          );
           dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
             jsSnippets.filter((jsSnippet) => !!jsSnippet),
           );
