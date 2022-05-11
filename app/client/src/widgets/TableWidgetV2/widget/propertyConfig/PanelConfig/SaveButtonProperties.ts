@@ -4,10 +4,7 @@ import {
   ICON_NAMES,
   TableWidgetProps,
 } from "widgets/TableWidgetV2/constants";
-import {
-  ButtonBorderRadiusTypes,
-  ButtonVariantTypes,
-} from "components/constants";
+import { ButtonVariantTypes } from "components/constants";
 import { hideByColumnType } from "../../propertyUtils";
 
 export default {

@@ -41,6 +41,7 @@ export type RenderDefaultPropsType = {
 type editPropertyType = {
   alias: string;
   onSubmitString: string;
+  onDiscardString: string;
   rowIndex: number;
 };
 
@@ -79,6 +80,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
     isCellVisible,
     isHidden,
     onCellTextChange,
+    onDiscardString,
     onSubmitString,
     rowIndex,
     tableWidth,
@@ -98,7 +100,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
           rowIndex,
           alias,
           value,
-          onSubmitString,
+          onDiscardString,
           EditableCellActions.DISCARD,
         ),
       onEdit: () =>
@@ -120,7 +122,15 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
           EditableCellActions.SAVE,
         ),
     }),
-    [onCellTextChange, toggleCellEditMode, value],
+    [
+      onCellTextChange,
+      toggleCellEditMode,
+      value,
+      rowIndex,
+      alias,
+      onDiscardString,
+      onSubmitString,
+    ],
   );
 
   return (
