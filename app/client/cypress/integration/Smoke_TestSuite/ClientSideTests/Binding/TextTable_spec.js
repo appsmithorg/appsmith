@@ -35,7 +35,6 @@ describe("Text-Table Binding Functionality", function() {
       cy.EvaluateDataType("string");
       cy.validateEvaluatedValue(tabValue);
       cy.PublishtheApp();
-      cy.wait(500); // table selection shouldn't get clear.
       cy.isSelectRow(1);
       cy.readTabledataPublish("1", "0").then((tabDataP) => {
         const tabValueP = tabDataP;
@@ -62,7 +61,6 @@ describe("Text-Table Binding Functionality", function() {
       cy.EvaluateDataType("string");
       cy.validateEvaluatedValue(tabValue);
       cy.PublishtheApp();
-      cy.wait(500); // table selection shouldn't get clear.
       cy.isSelectRow(2);
       cy.readTabledataPublish("2", "1").then((tabDataP) => {
         const tabValueP = tabDataP;
@@ -135,7 +133,6 @@ describe("Text-Table Binding Functionality", function() {
       cy.EvaluateDataType("string");
       cy.validateEvaluatedValue(tabValue);
       cy.PublishtheApp();
-      cy.wait(500); // table selection shouldn't get clear.
       cy.isSelectRow(1);
       cy.readTabledataPublish("1", "2").then((tabDataP) => {
         const tabValueP = `\"${tabDataP}\"`;
