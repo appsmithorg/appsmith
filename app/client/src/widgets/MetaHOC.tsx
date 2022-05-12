@@ -29,7 +29,7 @@ type WidgetMetaProps = { metaState: Record<string, unknown> };
 type metaHOCProps = WidgetProps & WidgetMetaProps;
 
 function withMeta(WrappedWidget: typeof BaseWidget) {
-  class MetaHOC extends React.Component<metaHOCProps> {
+  class MetaHOC extends React.PureComponent<metaHOCProps> {
     static contextType = EditorContext;
     context!: React.ContextType<typeof EditorContext>;
 
