@@ -140,7 +140,10 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
   accentColor: string;
   borderRadius: string;
 }
-function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
+const CheckboxGroupComponent = React.forwardRef<
+  HTMLDivElement,
+  CheckboxGroupComponentProps
+>((props, ref) => {
   const {
     accentColor,
     borderRadius,
@@ -183,6 +186,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
       compactMode={compactMode}
       data-testid="checkboxgroup-container"
       labelPosition={labelPosition}
+      ref={ref}
     >
       {labelText && (
         <LabelWithTooltip
@@ -238,6 +242,8 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
       </InputContainer>
     </CheckboxGroupContainer>
   );
-}
+});
+
+CheckboxGroupComponent.displayName = "CheckboxGroupComponent";
 
 export default CheckboxGroupComponent;

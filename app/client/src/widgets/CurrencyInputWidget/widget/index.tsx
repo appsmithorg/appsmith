@@ -381,6 +381,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         onStep={this.onStep}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
+        ref={this.contentRef}
         renderMode={this.props.renderMode}
         showError={!!this.props.isFocused}
         tooltip={this.props.tooltip}
