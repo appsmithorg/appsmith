@@ -166,7 +166,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             enableSearch: true,
             dropdownHeight: "195px",
             controlType: "DROP_DOWN",
-            placeholderText: "Search by code or country name",
+            searchPlaceholderText: "Search by code or country name",
             options: ISDCodeDropdownOptions,
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.PHONE_NUMBER;
@@ -182,7 +182,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             enableSearch: true,
             dropdownHeight: "195px",
             controlType: "DROP_DOWN",
-            placeholderText: "Search by code or name",
+            searchPlaceholderText: "Search by code or name",
             options: CurrencyDropdownOptions,
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
@@ -605,28 +605,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             helpText: "Sets the background color of the widget",
             label: "Background color",
             controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "borderRadius",
-            label: "Border Radius",
-            helpText:
-              "Rounds the corners of the icon button's outer border edge",
-            controlType: "BORDER_RADIUS_OPTIONS",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "boxShadow",
-            label: "Box Shadow",
-            helpText:
-              "Enables you to cast a drop shadow from the frame of the widget",
-            controlType: "BOX_SHADOW_OPTIONS",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,

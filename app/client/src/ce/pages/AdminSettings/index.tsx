@@ -1,14 +1,13 @@
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Spinner } from "@blueprintjs/core";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import PageWrapper from "pages/common/PageWrapper";
-import React from "react";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { getSettingsLoadingState } from "selectors/settingsSelectors";
 import styled from "styled-components";
-import LeftPane from "./LeftPane";
-import Main from "./Main";
-import WithSuperUserHOC from "./WithSuperUserHoc";
+import LeftPane from "@appsmith/pages/AdminSettings/LeftPane";
+import Main from "@appsmith/pages/AdminSettings/Main";
+import WithSuperUserHOC from "pages/Settings/WithSuperUserHoc";
 
 const FlexContainer = styled.div`
   display: flex;
