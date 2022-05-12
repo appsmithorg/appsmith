@@ -6,6 +6,7 @@ import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
@@ -23,9 +24,9 @@ import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
-import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -2290,43 +2291,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .then(applicationService.getGitConnectedApplicationsCountWithPrivateRepoByOrgId(organizationId));
     }
 
-    private Mono<Application> addAnalyticsForGitOperation(String eventName, Application application, Boolean isRepoPrivate) {
-        return addAnalyticsForGitOperation(eventName, application, "", "", isRepoPrivate);
-    }
-
-    private Mono<Application> addAnalyticsForGitOperation(String eventName,
-                                                          Application application,
-                                                          String errorType,
-                                                          String errorMessage,
-                                                          Boolean isRepoPrivate) {
-
-        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-        String defaultApplicationId = gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())
-                ? ""
-                : gitData.getDefaultApplicationId();
-        String gitHostingProvider = gitData == null
-                ? ""
-                : GitUtils.getGitProviderName(application.getGitApplicationMetadata().getRemoteUrl());
-
-        Map<String, Object> analyticsProps = new HashMap<>(Map.of("applicationId", defaultApplicationId,
-                "organizationId", defaultIfNull(application.getOrganizationId(), ""),
-                "branchApplicationId", defaultIfNull(application.getId(), ""),
-                "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
-                "gitHostingProvider", defaultIfNull(gitHostingProvider, "")
-        ));
-
-        return sessionUserService.getCurrentUser()
-                .map(user -> {
-                    // Do not include the error data points in the map for success states
-                    if(!StringUtils.isEmptyOrNull(errorMessage) || !StringUtils.isEmptyOrNull(errorType)) {
-                        analyticsProps.put("errorMessage", errorMessage);
-                        analyticsProps.put("errorType", errorType);
-                    }
-                    analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);
-                    return application;
-                });
-    }
-
     /**
      * Method to pull the files from remote repo and rehydrate the application
      *
@@ -2423,6 +2387,62 @@ public class GitServiceCEImpl implements GitServiceCE {
                             return this.commitApplication(commitDTO, application.getGitApplicationMetadata().getDefaultApplicationId(), branchName)
                                     .thenReturn(gitPullDTO);
                         });
+            });
+    }
+
+    private Mono<Application> addAnalyticsForGitOperation(String eventName, Application application, Boolean isRepoPrivate) {
+        return addAnalyticsForGitOperation(eventName, application, "", "", isRepoPrivate);
+    }
+
+    private Mono<Application> addAnalyticsForGitOperation(String eventName,
+                                                          Application application,
+                                                          String errorType,
+                                                          String errorMessage,
+                                                          Boolean isRepoPrivate) {
+
+        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+        String defaultApplicationId = gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())
+                ? ""
+                : gitData.getDefaultApplicationId();
+        String gitHostingProvider = gitData == null
+                ? ""
+                : GitUtils.getGitProviderName(application.getGitApplicationMetadata().getRemoteUrl());
+
+        Map<String, Object> analyticsProps = new HashMap<>(Map.of("applicationId", defaultApplicationId,
+                "organizationId", defaultIfNull(application.getOrganizationId(), ""),
+                "branchApplicationId", defaultIfNull(application.getId(), ""),
+                "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
+                "gitHostingProvider", defaultIfNull(gitHostingProvider, "")
+        ));
+
+        return sessionUserService.getCurrentUser()
+                .map(user -> {
+                    // Do not include the error data points in the map for success states
+                    if(!StringUtils.isEmptyOrNull(errorMessage) || !StringUtils.isEmptyOrNull(errorType)) {
+                        analyticsProps.put("errorMessage", errorMessage);
+                        analyticsProps.put("errorType", errorType);
+                    }
+                    analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);
+                    return application;
+                });
+    }
+
+    private void sendExecutionTimeAnalyticsEvent(Stopwatch stopwatch, Application application) {
+        stopwatch.stopTimer();
+        sessionUserService
+            .getCurrentUser()
+            .map(currentUser -> {
+                try {
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, application.getId(),
+                            "process", stopwatch.getAction(),
+                            "executionTime", stopwatch.getExecutionTime()
+                    );
+                    analyticsService.sendEvent(AnalyticsEvents.GENERATE_CRUD_PAGE.getEventName(), currentUser.getUsername(), data);
+                } catch (Exception e) {
+                    log.debug("Error sending api execution time: ", e);
+                }
+                return null;
             });
     }
 }

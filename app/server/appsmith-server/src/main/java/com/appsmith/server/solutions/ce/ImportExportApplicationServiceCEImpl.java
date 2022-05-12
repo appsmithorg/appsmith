@@ -14,6 +14,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.converters.GsonISOStringToInstantConverter;
@@ -42,6 +43,7 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ActionCollectionService;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
@@ -110,6 +112,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final ActionCollectionService actionCollectionService;
     private final ThemeService themeService;
     private final PolicyUtils policyUtils;
+    private final AnalyticsService analyticsService;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -127,7 +130,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     public Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseApplicationObjective serialiseFor) {
 
         // Start the stopwatch to log the execution time
-        Stopwatch processStopwatch = new Stopwatch("Export application, with id: " + applicationId);
+        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.EXPORT_APPLICATION.getEventName());
         /*
             1. Fetch application by id
             2. Fetch pages from the application
@@ -153,13 +156,14 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         //      : Normal apps => Export permission
         //      : Sample apps where datasource config needs to be shared => Read permission
 
+        Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationMono = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)
                 ? applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                 : applicationService.findById(applicationId, READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                 )
-                .zipWith(sessionUserService.getCurrentUser())
+                .zipWith(currentUserMono)
                 .map(objects -> {
                     Application application = objects.getT1();
                     User currentUser = objects.getT2();
@@ -514,12 +518,23 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 }
                                 // Disable exporting the application with datasource config once imported in destination instance
                                 application.setExportWithConfiguration(null);
-                                processStopwatch.stopAndLogTimeInMillis();
                                 return applicationJson;
                             });
                 })
-                .then()
-                .thenReturn(applicationJson);
+                .then(currentUserMono)
+                .map(user -> {
+                    stopwatch.stopTimer();
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, applicationId,
+                            "pageCount", applicationJson.getPageList().size(),
+                            "actionCount", applicationJson.getActionList().size(),
+                            "JSObjectCount", applicationJson.getActionCollectionList().size(),
+                            "unitName", stopwatch.getAction(),
+                            "executionTime", stopwatch.getExecutionTime()
+                    );
+                    analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data);
+                    return applicationJson;
+                });
     }
 
     public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {
@@ -639,8 +654,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             7. Extract and save actions in the application
          */
 
-        // Start the stopwatch to log the execution time
-        Stopwatch processStopwatch = new Stopwatch("Import application");
 
         ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
 
@@ -687,6 +700,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             importedApplication.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
         }
 
+        // Start the stopwatch to log the execution time
+        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT_APPLICATION.getEventName());
         Mono<Application> importedApplicationMono = pluginRepository.findAll()
                 .map(plugin -> {
                     final String pluginReference = plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName();
@@ -1108,8 +1123,20 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 .flatMap(newPageService::save);
                             })
                             .then(applicationService.update(importedApplication.getId(), importedApplication))
-                            .map(application -> {
-                                processStopwatch.stopAndLogTimeInMillis();
+                            .zipWith(currUserMono)
+                            .map(tuple -> {
+                                Application application = tuple.getT1();
+                                stopwatch.stopTimer();
+                                final Map<String, Object> data = Map.of(
+                                        FieldName.APPLICATION_ID, application.getId(),
+                                        FieldName.ORGANIZATION_ID, application.getOrganizationId(),
+                                        "pageCount", applicationJson.getPageList().size(),
+                                        "actionCount", applicationJson.getActionList().size(),
+                                        "JSObjectCount", applicationJson.getActionCollectionList().size(),
+                                        "unitName", stopwatch.getAction(),
+                                        "executionTime", stopwatch.getExecutionTime()
+                                );
+                                analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
                                 return application;
                             });
                 });

@@ -9,8 +9,8 @@ import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.AppsmithBotAsset;
-import com.appsmith.git.constants.Constraint;
 import com.appsmith.git.constants.CommonConstants;
+import com.appsmith.git.constants.Constraint;
 import com.appsmith.git.constants.GitDirectories;
 import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
@@ -117,7 +117,7 @@ public class GitExecutorImpl implements GitExecutor {
                 return "Committed successfully!";
             }
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
 
     }
@@ -165,7 +165,7 @@ public class GitExecutorImpl implements GitExecutor {
                 return commitLogs;
             }
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -212,7 +212,7 @@ public class GitExecutorImpl implements GitExecutor {
                 return result.substring(0, result.length() - 1);
             }
         })
-        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -251,7 +251,7 @@ public class GitExecutorImpl implements GitExecutor {
             processStopwatch.stopAndLogTimeInMillis();
             return branchName;
         })
-        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -277,7 +277,7 @@ public class GitExecutorImpl implements GitExecutor {
                 return git.getRepository().getBranch();
             }
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -303,7 +303,7 @@ public class GitExecutorImpl implements GitExecutor {
                 return Boolean.TRUE;
             }
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -331,7 +331,7 @@ public class GitExecutorImpl implements GitExecutor {
                 return StringUtils.equalsIgnoreCase(checkedOutBranch, "refs/heads/"+branchName);
             }
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -388,7 +388,7 @@ public class GitExecutorImpl implements GitExecutor {
                     return Mono.error(e);
                 }
             })
-            .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+            .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
             .subscribeOn(scheduler);
         }
     }
@@ -440,7 +440,7 @@ public class GitExecutorImpl implements GitExecutor {
             processStopwatch.stopAndLogTimeInMillis();
             return branchList;
         })
-        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -515,8 +515,8 @@ public class GitExecutorImpl implements GitExecutor {
                 return Mono.just(response);
             }
         })
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .flatMap(response -> response)
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -551,7 +551,7 @@ public class GitExecutorImpl implements GitExecutor {
                 return Mono.error(e);
             }
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -576,7 +576,7 @@ public class GitExecutorImpl implements GitExecutor {
             log.error(error.getMessage());
             return Mono.error(error);
         })
-        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -644,7 +644,7 @@ public class GitExecutorImpl implements GitExecutor {
                 return Mono.error(e);
             }
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -670,7 +670,8 @@ public class GitExecutorImpl implements GitExecutor {
                 config.save();
                 return git.getRepository().getBranch();
             }
-        }).subscribeOn(scheduler);
+        })
+        .subscribeOn(scheduler);
     }
 
     @Override
@@ -684,20 +685,23 @@ public class GitExecutorImpl implements GitExecutor {
                     .setTags(true)
                     .call();
             return true;
-        }).timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
-                .subscribeOn(scheduler);
+        })
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+        .subscribeOn(scheduler);
     }
 
 
     private Mono<Ref> resetToLastCommit(Git git) throws GitAPIException {
+        Stopwatch processStopwatch = new Stopwatch("JGIT reset to last commit");
         return Mono.fromCallable(() -> {
             // Remove tracked files
             Ref ref = git.reset().setMode(ResetCommand.ResetType.HARD).call();
             // Remove untracked files
             git.clean().setForce(true).setCleanDirectories(true).call();
+            processStopwatch.stopAndLogTimeInMillis();
             return ref;
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 

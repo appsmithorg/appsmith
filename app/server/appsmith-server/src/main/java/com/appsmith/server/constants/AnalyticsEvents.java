@@ -33,8 +33,17 @@ public enum AnalyticsEvents {
     GIT_TEST_CONNECTION,
     GIT_DELETE_BRANCH,
     GIT_DISCARD_CHANGES,
+    GIT_RESET_HARD,
+    GIT_LIST_BRANCH,
     AUTHENTICATION_METHOD_CONFIGURATION("Authentication Method Configured"),
-    GENERATE_SSH_KEY("generate_SSH_KEY")
+    GENERATE_SSH_KEY("generate_SSH_KEY"),
+    UNIT_EXECUTION_TIME,
+
+    // Events to log execution time
+    GIT_SERIALIZE_APP_RESOURCES_TO_LOCAL_FILE,
+    IMPORT_APPLICATION,
+    EXPORT_APPLICATION,
+    GIT_DESERIALIZE_APP_RESOURCES_FROM_FILE
     ;
 
     private final String eventName;
