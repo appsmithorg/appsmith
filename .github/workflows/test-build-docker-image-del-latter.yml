@@ -697,7 +697,7 @@ jobs:
           env: "NODE_ENV=development"
    
       - name: Collect fat conatianer logs
-        if: always
+        if: always()
         working-directory: "."
         run: |
           docker logs appsmith 2>&1 > ~/dockerlogs.txt
