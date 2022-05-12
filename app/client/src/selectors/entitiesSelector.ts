@@ -836,13 +836,3 @@ export const getJSCollectionParseErrors = (
     return error.errorType === PropertyEvaluationErrorType.PARSE;
   });
 };
-
-export const getIsSavingJSCollection = (
-  state: AppState,
-  jsCollectionId: string,
-) => {
-  return (
-    jsCollectionId in state.ui.jsPane.isSaving &&
-    state.ui.jsPane.isSaving[jsCollectionId]
-  );
-};

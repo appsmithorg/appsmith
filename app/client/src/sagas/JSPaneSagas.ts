@@ -16,6 +16,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsSavingEntity,
 } from "selectors/editorSelectors";
 import { getJSCollection, getJSCollections } from "selectors/entitiesSelector";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
@@ -70,10 +71,11 @@ import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { jsCollectionIdURL } from "RouteBuilder";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
-import { requestModalConfirmationSaga } from "sagas/UtilSagas";
+import { requestModalConfirmationSaga, waitFor } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
+import { AppState } from "reducers";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const organizationId: string = yield select(getCurrentOrgId);
@@ -322,6 +324,14 @@ export function* handleExecuteJSFunctionSaga(data: {
       collectionId,
     }),
   );
+
+  /**
+   * Only start executing when not saving
+   * This ensures that execution doesn't get carried out on stale values
+   * */
+
+  yield call(waitFor, (state: AppState) => !getIsSavingEntity(state));
+
   try {
     const { isDirty, result } = yield call(
       executeFunction,

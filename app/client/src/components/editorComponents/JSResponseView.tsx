@@ -5,7 +5,7 @@ import React, {
   useCallback,
   useState,
 } from "react";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
 import { AppState } from "reducers";
@@ -20,6 +20,7 @@ import {
   EMPTY_JS_RESPONSE_LAST_HALF,
   NO_JS_FUNCTION_RETURN_VALUE,
   JS_ACTION_EXECUTION_ERROR,
+  UPDATING_JS_COLLECTION,
 } from "@appsmith/constants/messages";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
@@ -44,6 +45,7 @@ import { TAB_MIN_HEIGHT } from "components/ads/Tabs";
 import { theme } from "constants/DefaultTheme";
 import { Button, Size } from "components/ads";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
+import { getIsSavingEntity } from "selectors/editorSelectors";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -140,6 +142,7 @@ const InlineButton = styled(Button)`
 enum JSResponseState {
   IsExecuting = "IsExecuting",
   IsDirty = "IsDirty",
+  IsUpdating = "IsUpdating",
   NoResponse = "NoResponse",
   ShowResponse = "ShowResponse",
   NoReturnValue = "NoReturnValue",
@@ -188,6 +191,7 @@ function JSResponseView(props: Props) {
   // error found while trying to parse JS Object
   const hasJSObjectParseError = errors.length > 0;
 
+  const isSaving = useSelector(getIsSavingEntity);
   const onDebugClick = useCallback(() => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "JS_OBJECT",
@@ -197,6 +201,8 @@ function JSResponseView(props: Props) {
   useEffect(() => {
     if (!currentFunction) {
       setResponseStatus(JSResponseState.NoResponse);
+    } else if (isExecuting[currentFunction.id] && isSaving) {
+      setResponseStatus(JSResponseState.IsUpdating);
     } else if (isExecuting[currentFunction.id]) {
       setResponseStatus(JSResponseState.IsExecuting);
     } else if (
@@ -217,7 +223,7 @@ function JSResponseView(props: Props) {
     } else if (responses.hasOwnProperty(currentFunction.id)) {
       setResponseStatus(JSResponseState.ShowResponse);
     }
-  }, [responses, isExecuting, currentFunction]);
+  }, [responses, isExecuting, currentFunction, isSaving]);
   const tabs = [
     {
       key: "body",
@@ -295,6 +301,11 @@ function JSResponseView(props: Props) {
                       value: response,
                     }}
                   />
+                )}
+                {responseStatus === JSResponseState.IsUpdating && (
+                  <LoadingOverlayScreen theme={props.theme}>
+                    {createMessage(UPDATING_JS_COLLECTION)}
+                  </LoadingOverlayScreen>
                 )}
               </>
             </ResponseViewer>
