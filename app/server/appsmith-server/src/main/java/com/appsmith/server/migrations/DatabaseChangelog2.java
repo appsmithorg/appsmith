@@ -10,14 +10,17 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
+import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.TextUtils;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
@@ -746,4 +749,28 @@ public class DatabaseChangelog2 {
         );
     }
 
+    /**
+     * We'll remove the uniqe index on organization slugs. We'll also regenerate the slugs for all organizations as
+     * most of them are outdated
+     * @param mongockTemplate MongockTemplate instance
+     */
+    @ChangeSet(order = "008", id = "update-organization-slugs", author = "")
+    public void updateOrganizationSlugs(MongockTemplate mongockTemplate) {
+        dropIndexIfExists(mongockTemplate, Organization.class, "slug");
+
+        // update organizations
+        final Query getAllOrganizationsQuery = query(where("deletedAt").is(null));
+        getAllOrganizationsQuery.fields()
+                .include(fieldName(QOrganization.organization.name));
+
+        List<Organization> organizations = mongockTemplate.find(getAllOrganizationsQuery, Organization.class);
+
+        for (Organization organization : organizations) {
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QOrganization.organization.id)).is(organization.getId())),
+                    new Update().set(fieldName(QOrganization.organization.slug), TextUtils.makeSlug(organization.getName())),
+                    Organization.class
+            );
+        }
+    }
 }
