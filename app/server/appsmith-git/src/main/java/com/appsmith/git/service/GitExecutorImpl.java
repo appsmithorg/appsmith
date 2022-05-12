@@ -312,8 +312,7 @@ public class GitExecutorImpl implements GitExecutor {
             // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
             // open the repo
             Path baseRepoPath = createRepoPath(repoSuffix);
-            Git git = Git.open(baseRepoPath.toFile());
-            try {
+            try(Git git = Git.open(baseRepoPath.toFile())) {
                 if (StringUtils.equalsIgnoreCase(branchName, git.getRepository().getBranch())) {
                     return Boolean.TRUE;
                 }
@@ -327,7 +326,6 @@ public class GitExecutorImpl implements GitExecutor {
                 processStopwatch.stopAndLogTimeInMillis();
                 return StringUtils.equalsIgnoreCase(checkedOutBranch, "refs/heads/"+branchName);
             } catch (Exception e) {
-                git.close();
                 throw new Exception(e);
             }
         })
