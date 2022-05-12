@@ -332,7 +332,7 @@ export const updateDerivedColumnsHook = (
       propertiesToUpdate,
     );
 
-    return propertiesToUpdate;
+    return propertiesToUpdate.length > 0 ? propertiesToUpdate : undefined;
   }
 };
 
