@@ -280,6 +280,7 @@ class CodeEditor extends Component<Props, State> {
         const autoIndentKey = getAutoIndentShortcutKey();
         options.extraKeys[autoIndentKey] = (editor) => {
           autoIndentCode(editor);
+          AnalyticsUtil.logEvent("PRETTIFY_CODE_KEYBOARD_SHORTCUT");
         };
       }
 
