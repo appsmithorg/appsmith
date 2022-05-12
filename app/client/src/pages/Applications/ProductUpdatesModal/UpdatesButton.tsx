@@ -21,7 +21,7 @@ const StyledUpdatesButton = styled.div`
 `;
 
 const StyledTag = styled.div`
-  font-weight: ${(props) => props.theme.typography.p2.fontWeight};
+  font-weight: ${(props) => props.theme.fontWeights[1]};
   font-size: ${(props) => props.theme.typography.p2.fontSize}px;
   line-height: ${(props) => props.theme.typography.p2.lineHeight}px;
   letter-spacing: ${(props) => props.theme.typography.p2.letterSpacing};
@@ -37,7 +37,7 @@ const StyledTag = styled.div`
 `;
 
 const UpdatesButtonTextContainer = styled.div`
-  font-weight: ${(props) => props.theme.typography.floatingBtn.fontWeight};
+  font-weight: ${(props) => props.theme.fontWeights[1]};
   font-size: ${(props) => props.theme.typography.floatingBtn.fontSize}px;
   line-height: ${(props) => props.theme.typography.floatingBtn.lineHeight}px;
   letter-spacing: ${(props) =>

@@ -16,6 +16,7 @@ import { howMuchTimeBeforeText } from "utils/helpers";
 import { onboardingCreateApplication } from "actions/onboardingActions";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { Colors } from "constants/Colors";
+import { Classes } from "components/ads";
 
 const Wrapper = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[3]}px;
@@ -45,6 +46,12 @@ const LeftPaneVersionData = styled.div`
   margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
+const StyledMenuItem = styled(MenuItem)`
+  .${Classes.TEXT} {
+    font-weight: ${(props) => props.theme.fontWeights[1]};
+  }
+`;
+
 function LeftPaneBottomSection() {
   const dispatch = useDispatch();
   const onboardingOrgs = useSelector(getOnboardingOrganisations);
@@ -54,7 +61,7 @@ function LeftPaneBottomSection() {
 
   return (
     <Wrapper>
-      <MenuItem
+      <StyledMenuItem
         className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
         icon="discord"
         onSelect={() => {
@@ -62,7 +69,7 @@ function LeftPaneBottomSection() {
         }}
         text={"Join our Discord"}
       />
-      <MenuItem
+      <StyledMenuItem
         containerClassName={
           isFetchingApplications ? BlueprintClasses.SKELETON : ""
         }
@@ -73,7 +80,7 @@ function LeftPaneBottomSection() {
         text={createMessage(DOCUMENTATION)}
       />
       {!!onboardingOrgs.length && (
-        <MenuItem
+        <StyledMenuItem
           containerClassName={
             isFetchingApplications
               ? BlueprintClasses.SKELETON

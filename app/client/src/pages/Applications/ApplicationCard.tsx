@@ -47,11 +47,7 @@ import {
 } from "selectors/applicationSelectors";
 import { Classes as CsClasses } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
-import {
-  isVerticalEllipsisActive,
-  truncateString,
-  howMuchTimeBeforeText,
-} from "utils/helpers";
+import { isVerticalEllipsisActive, howMuchTimeBeforeText } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -330,6 +326,16 @@ const ModifiedDataComponent = styled.div`
   color: #8a8a8a;
   &::first-letter {
     text-transform: uppercase;
+  }
+
+  .ellipsize {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+  .editedOn {
+    float: right;
   }
 `;
 
@@ -722,7 +728,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     </ContextDropdownWrapper>
   );
 
-  const editedByText = () => {
+  const editedByText = (): { editedBy: string; editedOn: string } => {
     let editedBy = props.application.modifiedBy
       ? props.application.modifiedBy
       : "";
@@ -730,15 +736,22 @@ export function ApplicationCard(props: ApplicationCardProps) {
       ? props.application.modifiedAt
       : "";
 
-    if (editedBy === "" && editedOn === "") return "";
+    if (editedBy === "" && editedOn === "")
+      return {
+        editedBy,
+        editedOn,
+      };
 
     editedBy = editedBy.split("@")[0];
-    editedBy = truncateString(editedBy, 9);
 
     //assuming modifiedAt will be always available
     editedOn = howMuchTimeBeforeText(editedOn);
     editedOn = editedOn !== "" ? editedOn + " ago" : "";
-    return editedBy + " edited " + editedOn;
+    // return editedBy + " edited " + editedOn;
+    return {
+      editedBy,
+      editedOn: " edited " + editedOn,
+    };
   };
 
   const LaunchAppInMobile = useCallback(() => {
@@ -834,7 +847,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
           )}
         </Wrapper>
         <CardFooter>
-          <ModifiedDataComponent>{editedByText()}</ModifiedDataComponent>
+          <ModifiedDataComponent>
+            <span className="editedOn">{editedByText().editedOn}</span>
+            <span className="ellipsize">{editedByText().editedBy}</span>
+          </ModifiedDataComponent>
           {!!moreActionItems.length && !props.isMobile && ContextMenu}
         </CardFooter>
       </NameWrapper>
