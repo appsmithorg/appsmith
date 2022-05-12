@@ -661,7 +661,7 @@ jobs:
           headless: true
           record: true
           install: false
-          parallel: false
+          parallel: true
           config-file: cypress_fat.json
           group: "Electrons on Github Action Fat Container"
           spec: "cypress/integration/Smoke_TestSuite_Fat/**/*"
@@ -713,7 +713,7 @@ jobs:
           headless: true
           record: true
           install: false
-          parallel: false
+          parallel: true
           config-file: cypress_fat.json
           group: "Electrons on Github Action"
           spec: "cypress/integration/Smoke_TestSuite_Fat/**/*"
@@ -799,8 +799,8 @@ jobs:
         uses: actions/upload-artifact@v2
         if: failure()
         with:
-          name: server-logs-fat-container
-          path: $PWD/stacks/logs/backend/backend.log
+          name: server-logs-${{ matrix.job }}
+          path: app/server/server-logs.log
 
       # Set status = success
       - run: echo "::set-output name=run_result::success" > ~/run_result
