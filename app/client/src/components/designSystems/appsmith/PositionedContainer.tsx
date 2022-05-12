@@ -39,7 +39,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const x = props.style.xPosition + (props.style.xPositionUnit || "px");
   const y = props.style.yPosition + (props.style.yPositionUnit || "px");
   const padding = WIDGET_PADDING;
-  const clickToSelectWidget = useClickToSelectWidget();
+  const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const isSnipingMode = useSelector(snipingModeSelector);
   // memoized classname
   const containerClassName = useMemo(() => {
@@ -125,7 +125,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
 
   const onClickFn = useCallback(
     (e) => {
-      clickToSelectWidget(e, props.widgetId);
+      clickToSelectWidget(e);
     },
     [props.widgetId, clickToSelectWidget],
   );
