@@ -498,4 +498,9 @@ export function CanvasSelectionArena({
     />
   ) : null;
 }
+
 CanvasSelectionArena.displayName = "CanvasSelectionArena";
+
+const MemoizedCanvasSelectionArena = React.memo(CanvasSelectionArena);
+
+export { MemoizedCanvasSelectionArena };

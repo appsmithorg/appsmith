@@ -70,3 +70,7 @@ export function CanvasDraggingArena({
   ) : null;
 }
 CanvasDraggingArena.displayName = "CanvasDraggingArena";
+
+const MemoizedCanvasDraggingArena = React.memo(CanvasDraggingArena);
+
+export { MemoizedCanvasDraggingArena };

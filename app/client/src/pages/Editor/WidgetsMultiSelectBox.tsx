@@ -416,4 +416,8 @@ function WidgetsMultiSelectBox(props: {
   );
 }
 
+const MemoizedWidgetsMultiSelectBox = React.memo(WidgetsMultiSelectBox);
+
+export { MemoizedWidgetsMultiSelectBox };
+
 export default WidgetsMultiSelectBox;
