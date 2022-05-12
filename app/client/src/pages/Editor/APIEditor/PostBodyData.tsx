@@ -90,9 +90,7 @@ function PostBodyData(props: Props) {
             expected={expectedPostBody}
             mode={EditorModes.JSON_WITH_BINDING}
             name="actionConfiguration.body"
-            placeholder={
-              '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
-            }
+            placeholder={`{{\n\t{name: inputName.property, preference: dropdownName.property}\n}}`}
             showLineNumbers
             size={EditorSize.EXTENDED}
             tabBehaviour={TabBehaviour.INDENT}
@@ -130,6 +128,7 @@ function PostBodyData(props: Props) {
             dataTreePath={`${dataTreePath}.body`}
             mode={EditorModes.TEXT_WITH_BINDING}
             name="actionConfiguration.body"
+            placeholder={`{{\n\t{name: inputName.property, preference: dropdownName.property}\n}}`}
             size={EditorSize.EXTENDED}
             tabBehaviour={TabBehaviour.INDENT}
             theme={theme}
