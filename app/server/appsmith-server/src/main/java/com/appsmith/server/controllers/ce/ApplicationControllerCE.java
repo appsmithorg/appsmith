@@ -78,7 +78,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                                                  @RequestParam String orgId,
                                                  ServerWebExchange exchange) {
         if (orgId == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "workspace id"));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "organization id"));
         }
         log.debug("Going to create application in org {}", orgId);
         return applicationPageService.createApplication(resource, orgId)
