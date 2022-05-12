@@ -53,45 +53,39 @@ const StyledContainerComponent = styled.div<
   }
 }`;
 
-const ContainerComponentWrapper = React.memo(
-  (props: ContainerComponentProps) => {
-    const containerStyle = props.containerStyle || "card";
-    const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
-      null,
-    );
-    useEffect(() => {
-      if (!props.shouldScrollContents) {
-        const supportsNativeSmoothScroll =
-          "scrollBehavior" in document.documentElement.style;
-        if (supportsNativeSmoothScroll) {
-          containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-        } else {
-          if (containerRef.current) {
-            containerRef.current.scrollTop = 0;
-          }
+function ContainerComponentWrapper(props: ContainerComponentProps) {
+  const containerStyle = props.containerStyle || "card";
+  const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!props.shouldScrollContents) {
+      const supportsNativeSmoothScroll =
+        "scrollBehavior" in document.documentElement.style;
+      if (supportsNativeSmoothScroll) {
+        containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        if (containerRef.current) {
+          containerRef.current.scrollTop = 0;
         }
       }
-    }, [props.shouldScrollContents]);
-    return (
-      <StyledContainerComponent
-        {...props}
-        className={`${
-          props.shouldScrollContents ? getCanvasClassName() : ""
-        } ${generateClassName(props.widgetId)}`}
-        containerStyle={containerStyle}
-        // Before you remove: generateClassName is used for bounding the resizables within this canvas
-        // getCanvasClassName is used to add a scrollable parent.
-        ref={containerRef}
-      >
-        {props.children}
-      </StyledContainerComponent>
-    );
-  },
-);
+    }
+  }, [props.shouldScrollContents]);
+  return (
+    <StyledContainerComponent
+      {...props}
+      className={`${
+        props.shouldScrollContents ? getCanvasClassName() : ""
+      } ${generateClassName(props.widgetId)}`}
+      containerStyle={containerStyle}
+      // Before you remove: generateClassName is used for bounding the resizables within this canvas
+      // getCanvasClassName is used to add a scrollable parent.
+      ref={containerRef}
+    >
+      {props.children}
+    </StyledContainerComponent>
+  );
+}
 
-ContainerComponentWrapper.displayName = "ContainerComponentWrapper";
-
-const ContainerComponent = React.memo((props: ContainerComponentProps) => {
+function ContainerComponent(props: ContainerComponentProps) {
   useCanvasMinHeightUpdateHook(props.widgetId, props.minHeight);
   return props.widgetId === MAIN_CONTAINER_WIDGET_ID ? (
     <ContainerComponentWrapper {...props} />
@@ -109,9 +103,7 @@ const ContainerComponent = React.memo((props: ContainerComponentProps) => {
       <ContainerComponentWrapper {...props} />
     </WidgetStyleContainer>
   );
-});
-
-ContainerComponent.displayName = "ContainerComponent";
+}
 
 export type ContainerStyle = "border" | "card" | "rounded-border" | "none";
 

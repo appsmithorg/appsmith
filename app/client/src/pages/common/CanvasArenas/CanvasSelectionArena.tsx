@@ -500,7 +500,3 @@ export function CanvasSelectionArena({
 }
 
 CanvasSelectionArena.displayName = "CanvasSelectionArena";
-
-const MemoizedCanvasSelectionArena = React.memo(CanvasSelectionArena);
-
-export { MemoizedCanvasSelectionArena };

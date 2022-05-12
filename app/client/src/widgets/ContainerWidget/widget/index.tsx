@@ -13,11 +13,11 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 
-import { MemoizedWidgetsMultiSelectBox } from "pages/Editor/WidgetsMultiSelectBox";
-import { MemoizedCanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
+import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
+import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import { compact, map, sortBy } from "lodash";
 
-import { MemoizedCanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 
 class ContainerWidget extends BaseWidget<
@@ -199,7 +199,7 @@ class ContainerWidget extends BaseWidget<
       <ContainerComponent {...props}>
         {props.type === "CANVAS_WIDGET" && (
           <>
-            <MemoizedCanvasDraggingArena
+            <CanvasDraggingArena
               {...this.getSnapSpaces()}
               canExtend={props.canExtend}
               dropDisabled={!!props.dropDisabled}
@@ -208,7 +208,7 @@ class ContainerWidget extends BaseWidget<
               snapRows={snapRows}
               widgetId={props.widgetId}
             />
-            <MemoizedCanvasSelectionArena
+            <CanvasSelectionArena
               {...this.getSnapSpaces()}
               canExtend={props.canExtend}
               dropDisabled={!!props.dropDisabled}
@@ -218,7 +218,7 @@ class ContainerWidget extends BaseWidget<
             />
           </>
         )}
-        <MemoizedWidgetsMultiSelectBox
+        <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
           widgetId={this.props.widgetId}
           widgetType={this.props.type}
