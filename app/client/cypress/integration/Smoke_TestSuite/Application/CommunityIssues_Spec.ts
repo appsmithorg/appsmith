@@ -23,21 +23,18 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.saveLocalStorageCache();
   });
 
-  let reconnect = true, selectedRow: number;
+  let selectedRow: number;
   it("1. Import application json and validate headers", () => {
     cy.visit("/applications");
-    homePage.ImportApp("AForceMigrationExport.json", reconnect);
-    cy.wait("@importNewApplication").then((interception) => {
-      cy.wait(100);
+    homePage.ImportApp("AForceMigrationExport.json");
+    cy.wait("@importNewApplication").then((interception: any) => {
+      agHelper.Sleep()
       const { isPartialImport } = interception.response.body.data;
       if (isPartialImport) {
         // should reconnect modal
         dataSources.ReconnectDataSourcePostgres("AForceDB")
       } else {
-        cy.get(homePage.toastMessage).should(
-          "contain",
-          "Application imported successfully",
-        );
+        homePage.AssertImport()
       }
       //Validate table is not empty!
       table.WaitUntilTableLoad()
@@ -196,7 +193,7 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitUntilTableLoad()
 
     //One filter
-    table.FilterTable("Type", "is exactly", "Bug")
+    table.OpenNFilterTable("Type", "is exactly", "Bug")
     table.ReadTableRowColumnData(0, 1).then(($cellData) => {
       expect($cellData).to.eq("[Bug]: Postgres queries unable to execute with more than 9 placeholders");
     });
@@ -206,7 +203,7 @@ describe("AForce - Community Issues page validations", function () {
     table.RemoveFilterNVerify("Question", true, false)
 
     //Two filters - OR
-    table.FilterTable("Type", "starts with", "Trouble")
+    table.OpenNFilterTable("Type", "starts with", "Trouble")
     table.ReadTableRowColumnData(0, 0).then(($cellData) => {
       expect($cellData).to.eq("Troubleshooting");
     });
@@ -214,22 +211,22 @@ describe("AForce - Community Issues page validations", function () {
       expect($cellData).to.eq("Renew expired SSL certificate on a self-hosted instance");
     });
 
-    table.FilterTable("Title", "contains", "query", 'OR', 1)
+    table.OpenNFilterTable("Title", "contains", "query", 'OR', 1)
     table.ReadTableRowColumnData(1, 0).then(($cellData) => {
-      expect($cellData).to.eq("Question");
+      expect($cellData).to.be.oneOf(['Troubleshooting','Question'])
     });
-    table.ReadTableRowColumnData(7, 1).then(($cellData) => {
+    table.ReadTableRowColumnData(6, 1).then(($cellData) => {
       expect($cellData).to.eq("Run storeValue commands before a Query.run()");
     });
     table.RemoveFilterNVerify("Question", true, false)
 
      //Two filters - AND
-     table.FilterTable("Votes", "greater than", "3")
+     table.OpenNFilterTable("Votes", "greater than", "3")
      table.ReadTableRowColumnData(1, 1).then(($cellData) => {
        expect($cellData).to.eq("Combine queries from different datasources");
      });
  
-     table.FilterTable("Title", "contains", "button", 'AND', 1)
+     table.OpenNFilterTable("Title", "contains", "button", 'AND', 1)
      table.ReadTableRowColumnData(0, 1).then(($cellData) => {
        expect($cellData).to.eq("Change the video in the video player with a button click");
      });
