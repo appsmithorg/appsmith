@@ -104,17 +104,6 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                 });
     }
 
-    @Override
-    public Mono<Organization> getBySlug(String slug) {
-        return repository.findBySlug(slug);
-    }
-
-    @Override
-    public Mono<String> getNextUniqueSlug(String initialSlug) {
-        return repository.nextSlugNumber(initialSlug)
-                .map(number -> initialSlug + (number == 0 ? "" : number));
-    }
-
     /**
      * Creates the given organization as a default organization for the given user. That is, the organization's name
      * is changed to "[username]'s apps" and then created. The current value of the organization name

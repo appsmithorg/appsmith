@@ -317,24 +317,6 @@ public class OrganizationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void uniqueSlugs() {
-        Organization organization = new Organization();
-        organization.setName("Slug org");
-        organization.setDomain("example.com");
-        organization.setWebsite("https://example.com");
-
-        Mono<String> uniqueSlug = organizationService.create(organization)
-                .flatMap(org -> organizationService.getNextUniqueSlug(org.getSlug()));
-
-        StepVerifier.create(uniqueSlug)
-                .assertNext(slug -> {
-                    assertThat(slug).isEqualTo("slug-org1");
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
     public void create_WhenNameIsDuplicated_CreatedWithDuplicateName() {
         Organization firstOrg = new Organization();
         firstOrg.setName("Really good org");
