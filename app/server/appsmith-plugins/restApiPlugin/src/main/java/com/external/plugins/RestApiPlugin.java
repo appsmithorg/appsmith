@@ -135,7 +135,7 @@ public class RestApiPlugin extends BasePlugin {
 
             URI uri;
             try {
-                uri = uriUtils.createFinalUriWithQueryParams(actionConfiguration, datasourceConfiguration, url,
+                uri = uriUtils.createUriWithQueryParams(actionConfiguration, datasourceConfiguration, url,
                         encodeParamsToggle);
             } catch (URISyntaxException e) {
                 ActionExecutionRequest actionExecutionRequest =
