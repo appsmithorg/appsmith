@@ -56,6 +56,7 @@ import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
 import { builderURL, viewerURL } from "RouteBuilder";
 import history from "utils/history";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -95,7 +96,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
               }
               & .control {
                 display: flex;
-                flex-direction: row;
+                flex-direction: column;
                 z-index: 1;
 
                 & .t--application-view-link {
@@ -289,6 +290,10 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
   }
 `;
 
+const AppName = styled.span`
+  ${(props) => getTypographyByKey(props, "u1")}
+`;
+
 type ApplicationCardProps = {
   application: ApplicationPayload;
   duplicate?: (applicationId: string) => void;
@@ -323,6 +328,7 @@ const CircleAppIcon = styled(AppIcon)`
 
 const ModifiedDataComponent = styled.div`
   font-size: 13px;
+  font-weight: ${(props) => props.theme.fontWeights[1]};
   color: #8a8a8a;
   &::first-letter {
     text-transform: uppercase;
@@ -648,8 +654,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
         target={
           <MoreOptionsContainer>
             <Icon
-              fillColor={isMenuOpen ? "#000" : "#8a8a8a"}
-              hoverFillColor="#000"
+              fillColor={isMenuOpen ? "#8a8a8a" : "#000"}
+              hoverFillColor="#8a8a8a"
               name="context-menu"
               size={IconSize.XXXL}
             />
@@ -799,10 +805,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
                 content={props.application.name}
                 maxWidth="400px"
               >
-                {appNameText}
+                <AppName>{appNameText}</AppName>
               </TooltipComponent>
             ) : (
-              appNameText
+              <AppName>{appNameText}</AppName>
             )}
           </AppNameWrapper>
           {showOverlay && !props.isMobile && (
@@ -823,6 +829,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       size={Size.medium}
                       tag="button"
                       text="Edit"
+                      width="110px"
                     />
                   )}
                   {!isMenuOpen && (
@@ -839,6 +846,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       size={Size.medium}
                       tag="button"
                       text="Launch"
+                      width="110px"
                     />
                   )}
                 </Control>

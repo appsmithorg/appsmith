@@ -12,10 +12,7 @@ import MediaQuery from "react-responsive";
 import { useLocation } from "react-router-dom";
 import { AppState } from "reducers";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
-import {
-  thinScrollbar,
-  truncateTextUsingEllipsis,
-} from "constants/DefaultTheme";
+import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
 import {
   getApplicationList,
   getApplicationSearchKeyword,
@@ -311,9 +308,16 @@ const StyledAnchor = styled.a`
 const WorkpsacesNavigator = styled.div`
   overflow: auto;
   height: calc(100vh - ${(props) => props.theme.homePage.header + 252}px);
-  ${thinScrollbar};
   .organization-name .${Classes.TEXT} {
     font-weight: ${(props) => props.theme.fontWeights[1]};
+  }
+  .create-organization {
+    position: sticky;
+    bottom: 0;
+    background-color: white;
+    &:hover {
+      background-color: ${(props) => props.theme.colors.menuItem.hoverBg};
+    }
   }
   /* padding-bottom: 160px; */
 `;
@@ -395,10 +399,20 @@ function LeftPane() {
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
+          {userOrgs &&
+            userOrgs.map((org: any) => (
+              <OrgMenuItem
+                isFetchingApplications={isFetchingApplications}
+                key={org.organization.slug}
+                org={org}
+                selected={urlHash === org.organization.slug}
+              />
+            ))}
           {!isFetchingApplications && fetchedUserOrgs && (
             <MenuItem
+              className="create-organization"
               cypressSelector="t--org-new-organization-auto-create"
-              icon="plus"
+              icon="add-circle-line"
               onSelect={() =>
                 submitCreateOrganizationForm(
                   {
@@ -413,15 +427,6 @@ function LeftPane() {
               text={CREATE_ORGANIZATION_FORM_NAME}
             />
           )}
-          {userOrgs &&
-            userOrgs.map((org: any) => (
-              <OrgMenuItem
-                isFetchingApplications={isFetchingApplications}
-                key={org.organization.slug}
-                org={org}
-                selected={urlHash === org.organization.slug}
-              />
-            ))}
         </WorkpsacesNavigator>
         <LeftPaneBottomSection />
       </LeftPaneSection>

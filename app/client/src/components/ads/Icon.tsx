@@ -158,6 +158,7 @@ import HamburgerIcon from "remixicon-react/MenuLineIcon";
 import MagicLineIcon from "remixicon-react/MagicLineIcon";
 import UserHeartLineIcon from "remixicon-react/UserHeartLineIcon";
 import DvdLineIcon from "remixicon-react/DvdLineIcon";
+import AddCircleLineIcon from "remixicon-react/AddCircleLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -243,6 +244,7 @@ const ICON_LOOKUP = {
   HEADING_TWO: getControlIcon("HEADING_TWO"),
   PARAGRAPH: getControlIcon("PARAGRAPH"),
   PARAGRAPH_TWO: getControlIcon("PARAGRAPH_TWO"),
+  "add-circle-line": <AddCircleLineIcon />,
   "add-more": <AddMoreIcon />,
   "add-more-fill": <AddMoreFillIcon />,
   "arrow-forward": <ArrowForwardIcon />,
