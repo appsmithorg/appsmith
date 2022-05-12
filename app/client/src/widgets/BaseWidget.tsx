@@ -41,6 +41,33 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 
+const memoizedPositionStyle = memoize(
+  (
+    componentHeight: number,
+    componentWidth: number,
+    topRow: number,
+    parentRowSpace: number,
+    parentColumnSpace: number,
+    noContainerOffset: boolean | undefined,
+    leftColumn: number,
+  ): BaseStyle => {
+    return {
+      positionType: PositionTypes.ABSOLUTE,
+      componentHeight,
+      componentWidth,
+      yPosition:
+        topRow * parentRowSpace +
+        (noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
+      xPosition:
+        leftColumn * parentColumnSpace +
+        (noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
+      xPositionUnit: CSSUnits.PIXEL,
+      yPositionUnit: CSSUnits.PIXEL,
+    };
+  },
+  { maxSize: 1000 },
+);
+
 /***
  * BaseWidget
  *
@@ -273,25 +300,16 @@ abstract class BaseWidget<
   }
 
   makePositioned(content: ReactNode) {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-    const yPosition =
-      this.props.topRow * this.props.parentRowSpace +
-      (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING);
-    const xPosition =
-      this.props.leftColumn * this.props.parentColumnSpace +
-      (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING);
+    const style = this.getPositionStyle();
     return (
       <PositionedContainer
-        componentHeight={componentHeight}
-        componentWidth={componentWidth}
         focused={this.props.focused}
         parentId={this.props.parentId}
         resizeDisabled={this.props.resizeDisabled}
         selected={this.props.selected}
+        style={style}
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
-        xPosition={xPosition}
-        yPosition={yPosition}
       >
         {content}
       </PositionedContainer>
@@ -388,6 +406,22 @@ abstract class BaseWidget<
       !shallowequal(nextState, this.state)
     );
   }
+
+  /**
+   * generates styles that positions the widget
+   */
+  private getPositionStyle = () => {
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    return memoizedPositionStyle(
+      componentHeight,
+      componentWidth,
+      this.props.topRow,
+      this.props.parentRowSpace,
+      this.props.parentColumnSpace,
+      this.props.noContainerOffset,
+      this.props.leftColumn,
+    );
+  };
 
   // TODO(abhinav): These defaultProps seem unneccessary. Check it out.
   static defaultProps: Partial<WidgetProps> | undefined = {
