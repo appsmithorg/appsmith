@@ -1,5 +1,4 @@
 import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
-import { BaseStyle } from "widgets/BaseWidget";
 import { WidgetType, WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import styled from "styled-components";
@@ -19,7 +18,8 @@ const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   }
 `;
 export type PositionedContainerProps = {
-  style: BaseStyle;
+  componentHeight: number;
+  componentWidth: number;
   children: ReactNode;
   parentId?: string;
   widgetId: string;
@@ -27,6 +27,8 @@ export type PositionedContainerProps = {
   selected?: boolean;
   focused?: boolean;
   resizeDisabled?: boolean;
+  xPosition: number;
+  yPosition: number;
 };
 
 export const checkIsDropTarget = memoize(function isDropTarget(
@@ -36,8 +38,8 @@ export const checkIsDropTarget = memoize(function isDropTarget(
 });
 
 export function PositionedContainer(props: PositionedContainerProps) {
-  const x = props.style.xPosition + (props.style.xPositionUnit || "px");
-  const y = props.style.yPosition + (props.style.yPositionUnit || "px");
+  const x = props.xPosition + "px";
+  const y = props.yPosition + "px";
   const padding = WIDGET_PADDING;
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const isSnipingMode = useSelector(snipingModeSelector);
@@ -78,8 +80,8 @@ export function PositionedContainer(props: PositionedContainerProps) {
       reflowEffected && (reflowX !== 0 || reflowY !== 0);
     const hasReflowedDimensions =
       reflowEffected &&
-      ((reflowHeight && reflowHeight !== props.style.componentHeight) ||
-        (reflowWidth && reflowWidth !== props.style.componentWidth));
+      ((reflowHeight && reflowHeight !== props.componentHeight) ||
+        (reflowWidth && reflowWidth !== props.componentWidth));
     const effectedByReflow = hasReflowedPosition || hasReflowedDimensions;
     const dropTargetStyles: CSSProperties =
       isDropTarget && effectedByReflow ? { pointerEvents: "none" } : {};
@@ -100,12 +102,8 @@ export function PositionedContainer(props: PositionedContainerProps) {
       position: "absolute",
       left: x,
       top: y,
-      height:
-        reflowHeight ||
-        props.style.componentHeight + (props.style.heightUnit || "px"),
-      width:
-        reflowWidth ||
-        props.style.componentWidth + (props.style.widthUnit || "px"),
+      height: reflowHeight || props.componentHeight + "px",
+      width: reflowWidth || props.componentWidth + "px",
       padding: padding + "px",
       zIndex,
       backgroundColor: "inherit",
@@ -115,7 +113,8 @@ export function PositionedContainer(props: PositionedContainerProps) {
     };
     return styles;
   }, [
-    props.style,
+    props.componentWidth,
+    props.componentHeight,
     isCurrentCanvasReflowing,
     onHoverZIndex,
     zIndex,
