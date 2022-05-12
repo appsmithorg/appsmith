@@ -2,6 +2,7 @@ import { createGlobalStyle } from "styled-components";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import { LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS } from "components/editorComponents/CodeEditor/constants";
+import { Colors } from "constants/Colors";
 
 export const CodemirrorHintStyles = createGlobalStyle<{
   editorTheme: EditorTheme;
@@ -114,14 +115,14 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     color: black;
     &.custom {
       height: unset;
-      background: #ebebeb;
+      background: ${Colors.WHITE};
       width: 600px;
       &:hover{
-        background: #ffffff;
+        background: ${Colors.GREY_200};
         color: black;
       }
       &.CodeMirror-hint-active {
-        background: #ffffff;
+        background: ${Colors.GREY_200};
       }
     }
 

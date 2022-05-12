@@ -367,8 +367,8 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
     z-index: 2;
     width: 20px;
     position: absolute;
-    right: 5px;
-    top: 7px;
+    right: 0;
+    transform: translate(-50%, 50%);
     height: 20px;
     background: transparent;
     display: none;

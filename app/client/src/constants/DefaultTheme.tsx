@@ -654,6 +654,7 @@ const lightShades = [
   "#FFDEDE",
   "#575757",
   "#191919",
+  "#E7E7E7",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -2733,7 +2734,7 @@ export const light: ColorType = {
   codeMirror: {
     background: {
       defaultState: lightShades[0],
-      hoverState: lightShades[12],
+      hoverState: lightShades[21],
     },
     text: "#090707",
     dataType: {
