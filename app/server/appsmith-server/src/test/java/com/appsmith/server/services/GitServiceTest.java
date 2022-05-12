@@ -4,7 +4,6 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -25,9 +24,9 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
-import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -57,7 +56,6 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -154,7 +152,6 @@ public class GitServiceTest {
     private static final String DEFAULT_BRANCH = "defaultBranchName";
     private static Boolean isSetupDone = false;
     private static GitProfile testUserProfile = new GitProfile();
-    private static ApplicationJson validAppJson = new ApplicationJson();
     private static String filePath = "test_assets/ImportExportServiceTest/valid-application-without-action-collection.json";
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
     private final static String GIT_CONFIG_ERROR = "Unable to find the git configuration, please configure your application " +
@@ -185,9 +182,6 @@ public class GitServiceTest {
 
         testUserProfile.setAuthorEmail("test@email.com");
         testUserProfile.setAuthorName("testUser");
-
-        validAppJson = createAppJson(filePath).block();
-
         isSetupDone = true;
     }
 
@@ -1280,6 +1274,8 @@ public class GitServiceTest {
         gitBranchDTO.setDefault(false);
         branchList.add(gitBranchDTO);
 
+        ApplicationJson applicationJson = createAppJson(filePath).block();
+
         Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq(true)))
                 .thenReturn(Mono.just(branchList));
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -1292,7 +1288,7 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.checkoutRemoteBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just("feature1"));
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just(validAppJson));
+                .thenReturn(Mono.just(applicationJson));
 
         Application application1 = createApplicationConnectedToGit("listBranchForApplication_defaultBranchChangesInRemoteDoesNotExistsInDB_Success", "defaultBranch");
 
@@ -1318,8 +1314,7 @@ public class GitServiceTest {
         mergeStatusDTO.setStatus("2 commits pulled");
         mergeStatusDTO.setMergeAble(true);
 
-        ApplicationJson applicationJson = new ApplicationJson();
-        AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(validAppJson, applicationJson);
+        ApplicationJson applicationJson = createAppJson(filePath).block();;
         applicationJson.getExportedApplication().setName("upstreamChangesAvailable_pullSuccess");
 
         GitStatusDTO gitStatusDTO = new GitStatusDTO();
@@ -1330,7 +1325,7 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("path")));
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just(validAppJson));
+                .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitExecutor.pullApplication(
                 Mockito.any(Path.class),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(mergeStatusDTO));
