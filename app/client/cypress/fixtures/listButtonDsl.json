@@ -1,0 +1,713 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 776,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 1320,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 58,
+        "minHeight": 1292,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "backgroundColor": "transparent",
+                "itemBackgroundColor": "#FFFFFF",
+                "animateLoading": true,
+                "gridType": "vertical",
+                "template": {
+                    "Image1": {
+                        "isVisible": true,
+                        "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                        "imageShape": "RECTANGLE",
+                        "maxZoomLevel": 1,
+                        "enableRotation": false,
+                        "enableDownload": false,
+                        "objectFit": "cover",
+                        "image": "{{List1.listData.map((currentItem) => currentItem.img)}}",
+                        "widgetName": "Image1",
+                        "version": 1,
+                        "animateLoading": true,
+                        "type": "IMAGE_WIDGET",
+                        "hideCard": false,
+                        "displayName": "Image",
+                        "key": "5zx57jhal3",
+                        "iconSVG": "/static/media/icon.52d8fb96.svg",
+                        "boxShadow": "none",
+                        "dynamicBindingPathList": [
+                            {
+                                "key": "image"
+                            },
+                            {
+                                "key": "borderRadius"
+                            }
+                        ],
+                        "dynamicTriggerPathList": [],
+                        "widgetId": "9tnorylj5z",
+                        "renderMode": "CANVAS",
+                        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                        "isLoading": false,
+                        "leftColumn": 0,
+                        "rightColumn": 16,
+                        "topRow": 0,
+                        "bottomRow": 8,
+                        "parentId": "j9jz7lxyo5"
+                    },
+                    "Text1": {
+                        "isVisible": true,
+                        "text": "{{List1.listData.map((currentItem) => currentItem.name)}}",
+                        "fontSize": "1rem",
+                        "fontStyle": "BOLD",
+                        "textAlign": "LEFT",
+                        "textColor": "#231F20",
+                        "truncateButtonColor": "#FFC13D",
+                        "widgetName": "Text1",
+                        "shouldTruncate": false,
+                        "overflow": "NONE",
+                        "version": 1,
+                        "animateLoading": true,
+                        "type": "TEXT_WIDGET",
+                        "hideCard": false,
+                        "displayName": "Text",
+                        "key": "74mfnpbdir",
+                        "iconSVG": "/static/media/icon.97c59b52.svg",
+                        "textStyle": "HEADING",
+                        "boxShadow": "none",
+                        "dynamicBindingPathList": [
+                            {
+                                "key": "text"
+                            },
+                            {
+                                "key": "fontFamily"
+                            },
+                            {
+                                "key": "borderRadius"
+                            }
+                        ],
+                        "dynamicTriggerPathList": [],
+                        "widgetId": "4nzm9c5kef",
+                        "renderMode": "CANVAS",
+                        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                        "isLoading": false,
+                        "leftColumn": 16,
+                        "rightColumn": 28,
+                        "topRow": 0,
+                        "bottomRow": 4,
+                        "parentId": "j9jz7lxyo5"
+                    },
+                    "Text2": {
+                        "isVisible": true,
+                        "text": "{{List1.listData.map((currentItem) => currentItem.id)}}",
+                        "fontSize": "1rem",
+                        "fontStyle": "BOLD",
+                        "textAlign": "LEFT",
+                        "textColor": "#231F20",
+                        "truncateButtonColor": "#FFC13D",
+                        "widgetName": "Text2",
+                        "shouldTruncate": false,
+                        "overflow": "NONE",
+                        "version": 1,
+                        "animateLoading": true,
+                        "type": "TEXT_WIDGET",
+                        "hideCard": false,
+                        "displayName": "Text",
+                        "key": "74mfnpbdir",
+                        "iconSVG": "/static/media/icon.97c59b52.svg",
+                        "textStyle": "BODY",
+                        "boxShadow": "none",
+                        "dynamicBindingPathList": [
+                            {
+                                "key": "text"
+                            },
+                            {
+                                "key": "fontFamily"
+                            },
+                            {
+                                "key": "borderRadius"
+                            }
+                        ],
+                        "dynamicTriggerPathList": [],
+                        "widgetId": "fdexqwdafb",
+                        "renderMode": "CANVAS",
+                        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                        "isLoading": false,
+                        "leftColumn": 16,
+                        "rightColumn": 24,
+                        "topRow": 4,
+                        "bottomRow": 8,
+                        "parentId": "j9jz7lxyo5"
+                    },
+                    "Button1": {
+                        "isVisible": true,
+                        "animateLoading": true,
+                        "text": "Submit",
+                        "buttonVariant": "PRIMARY",
+                        "placement": "CENTER",
+                        "widgetName": "Button1",
+                        "isDisabled": false,
+                        "isDefaultClickDisabled": true,
+                        "recaptchaType": "V3",
+                        "version": 1,
+                        "type": "BUTTON_WIDGET",
+                        "hideCard": false,
+                        "displayName": "Button",
+                        "key": "8bomae82dm",
+                        "iconSVG": "/static/media/icon.cca02633.svg",
+                        "widgetId": "k8mwektuwy",
+                        "renderMode": "CANVAS",
+                        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                        "boxShadow": "none",
+                        "isLoading": false,
+                        "parentColumnSpace": 5.6796875,
+                        "parentRowSpace": 10,
+                        "leftColumn": 38,
+                        "rightColumn": 54,
+                        "topRow": 2,
+                        "bottomRow": 6,
+                        "parentId": "j9jz7lxyo5",
+                        "dynamicBindingPathList": [
+                            {
+                                "key": "buttonColor"
+                            },
+                            {
+                                "key": "borderRadius"
+                            }
+                        ],
+                        "logBlackList": {
+                            "isVisible": true,
+                            "animateLoading": true,
+                            "text": true,
+                            "buttonVariant": true,
+                            "placement": true,
+                            "widgetName": true,
+                            "isDisabled": true,
+                            "isDefaultClickDisabled": true,
+                            "recaptchaType": true,
+                            "version": true,
+                            "type": true,
+                            "hideCard": true,
+                            "displayName": true,
+                            "key": true,
+                            "iconSVG": true,
+                            "isCanvas": true,
+                            "minHeight": true,
+                            "widgetId": true,
+                            "renderMode": true,
+                            "buttonColor": true,
+                            "borderRadius": true,
+                            "boxShadow": true,
+                            "isLoading": true,
+                            "parentColumnSpace": true,
+                            "parentRowSpace": true,
+                            "leftColumn": true,
+                            "rightColumn": true,
+                            "topRow": true,
+                            "bottomRow": true,
+                            "parentId": true,
+                            "dynamicBindingPathList": true
+                        }
+                    }
+                },
+                "enhancements": true,
+                "gridGap": 0,
+                "listData": [
+                    {
+                        "id": "001",
+                        "name": "Blue",
+                        "img": "https://assets.appsmith.com/widgets/default.png"
+                    },
+                    {
+                        "id": "002",
+                        "name": "Green",
+                        "img": "https://assets.appsmith.com/widgets/default.png"
+                    },
+                    {
+                        "id": "003",
+                        "name": "Red",
+                        "img": "https://assets.appsmith.com/widgets/default.png"
+                    }
+                ],
+                "widgetName": "List1",
+                "children": [
+                    {
+                        "isVisible": true,
+                        "widgetName": "Canvas1",
+                        "version": 1,
+                        "detachFromLayout": true,
+                        "type": "CANVAS_WIDGET",
+                        "hideCard": true,
+                        "displayName": "Canvas",
+                        "key": "f25k6od3lp",
+                        "containerStyle": "none",
+                        "canExtend": false,
+                        "dropDisabled": true,
+                        "openParentPropertyPane": true,
+                        "noPad": true,
+                        "children": [
+                            {
+                                "isVisible": true,
+                                "backgroundColor": "white",
+                                "widgetName": "Container1",
+                                "containerStyle": "card",
+                                "borderColor": "transparent",
+                                "borderWidth": "0",
+                                "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+                                "animateLoading": true,
+                                "children": [
+                                    {
+                                        "isVisible": true,
+                                        "widgetName": "Canvas2",
+                                        "version": 1,
+                                        "detachFromLayout": true,
+                                        "type": "CANVAS_WIDGET",
+                                        "hideCard": true,
+                                        "displayName": "Canvas",
+                                        "key": "f25k6od3lp",
+                                        "containerStyle": "none",
+                                        "canExtend": false,
+                                        "children": [
+                                            {
+                                                "isVisible": true,
+                                                "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                                                "imageShape": "RECTANGLE",
+                                                "maxZoomLevel": 1,
+                                                "enableRotation": false,
+                                                "enableDownload": false,
+                                                "objectFit": "cover",
+                                                "image": "{{currentItem.img}}",
+                                                "widgetName": "Image1",
+                                                "version": 1,
+                                                "animateLoading": true,
+                                                "type": "IMAGE_WIDGET",
+                                                "hideCard": false,
+                                                "displayName": "Image",
+                                                "key": "5zx57jhal3",
+                                                "iconSVG": "/static/media/icon.52d8fb96.svg",
+                                                "boxShadow": "none",
+                                                "dynamicBindingPathList": [
+                                                    {
+                                                        "key": "image"
+                                                    },
+                                                    {
+                                                        "key": "borderRadius"
+                                                    }
+                                                ],
+                                                "dynamicTriggerPathList": [],
+                                                "widgetId": "9tnorylj5z",
+                                                "renderMode": "CANVAS",
+                                                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                                                "isLoading": false,
+                                                "leftColumn": 0,
+                                                "rightColumn": 16,
+                                                "topRow": 0,
+                                                "bottomRow": 8,
+                                                "parentId": "j9jz7lxyo5",
+                                                "logBlackList": {
+                                                    "isVisible": true,
+                                                    "defaultImage": true,
+                                                    "imageShape": true,
+                                                    "maxZoomLevel": true,
+                                                    "enableRotation": true,
+                                                    "enableDownload": true,
+                                                    "objectFit": true,
+                                                    "image": true,
+                                                    "widgetName": true,
+                                                    "version": true,
+                                                    "animateLoading": true,
+                                                    "type": true,
+                                                    "hideCard": true,
+                                                    "displayName": true,
+                                                    "key": true,
+                                                    "iconSVG": true,
+                                                    "isCanvas": true,
+                                                    "boxShadow": true,
+                                                    "dynamicBindingPathList": true,
+                                                    "dynamicTriggerPathList": true,
+                                                    "minHeight": true,
+                                                    "widgetId": true,
+                                                    "renderMode": true,
+                                                    "borderRadius": true,
+                                                    "isLoading": true,
+                                                    "parentColumnSpace": true,
+                                                    "parentRowSpace": true,
+                                                    "leftColumn": true,
+                                                    "rightColumn": true,
+                                                    "topRow": true,
+                                                    "bottomRow": true,
+                                                    "parentId": true
+                                                }
+                                            },
+                                            {
+                                                "isVisible": true,
+                                                "text": "{{currentItem.name}}",
+                                                "fontSize": "1rem",
+                                                "fontStyle": "BOLD",
+                                                "textAlign": "LEFT",
+                                                "textColor": "#231F20",
+                                                "truncateButtonColor": "#FFC13D",
+                                                "widgetName": "Text1",
+                                                "shouldTruncate": false,
+                                                "overflow": "NONE",
+                                                "version": 1,
+                                                "animateLoading": true,
+                                                "type": "TEXT_WIDGET",
+                                                "hideCard": false,
+                                                "displayName": "Text",
+                                                "key": "74mfnpbdir",
+                                                "iconSVG": "/static/media/icon.97c59b52.svg",
+                                                "textStyle": "HEADING",
+                                                "boxShadow": "none",
+                                                "dynamicBindingPathList": [
+                                                    {
+                                                        "key": "text"
+                                                    },
+                                                    {
+                                                        "key": "fontFamily"
+                                                    },
+                                                    {
+                                                        "key": "borderRadius"
+                                                    }
+                                                ],
+                                                "dynamicTriggerPathList": [],
+                                                "widgetId": "4nzm9c5kef",
+                                                "renderMode": "CANVAS",
+                                                "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                                                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                                                "isLoading": false,
+                                                "leftColumn": 16,
+                                                "rightColumn": 28,
+                                                "topRow": 0,
+                                                "bottomRow": 4,
+                                                "parentId": "j9jz7lxyo5",
+                                                "logBlackList": {
+                                                    "isVisible": true,
+                                                    "text": true,
+                                                    "fontSize": true,
+                                                    "fontStyle": true,
+                                                    "textAlign": true,
+                                                    "textColor": true,
+                                                    "truncateButtonColor": true,
+                                                    "widgetName": true,
+                                                    "shouldTruncate": true,
+                                                    "overflow": true,
+                                                    "version": true,
+                                                    "animateLoading": true,
+                                                    "type": true,
+                                                    "hideCard": true,
+                                                    "displayName": true,
+                                                    "key": true,
+                                                    "iconSVG": true,
+                                                    "isCanvas": true,
+                                                    "textStyle": true,
+                                                    "boxShadow": true,
+                                                    "dynamicBindingPathList": true,
+                                                    "dynamicTriggerPathList": true,
+                                                    "minHeight": true,
+                                                    "widgetId": true,
+                                                    "renderMode": true,
+                                                    "fontFamily": true,
+                                                    "borderRadius": true,
+                                                    "isLoading": true,
+                                                    "parentColumnSpace": true,
+                                                    "parentRowSpace": true,
+                                                    "leftColumn": true,
+                                                    "rightColumn": true,
+                                                    "topRow": true,
+                                                    "bottomRow": true,
+                                                    "parentId": true
+                                                }
+                                            },
+                                            {
+                                                "isVisible": true,
+                                                "text": "{{currentItem.id}}",
+                                                "fontSize": "1rem",
+                                                "fontStyle": "BOLD",
+                                                "textAlign": "LEFT",
+                                                "textColor": "#231F20",
+                                                "truncateButtonColor": "#FFC13D",
+                                                "widgetName": "Text2",
+                                                "shouldTruncate": false,
+                                                "overflow": "NONE",
+                                                "version": 1,
+                                                "animateLoading": true,
+                                                "type": "TEXT_WIDGET",
+                                                "hideCard": false,
+                                                "displayName": "Text",
+                                                "key": "74mfnpbdir",
+                                                "iconSVG": "/static/media/icon.97c59b52.svg",
+                                                "textStyle": "BODY",
+                                                "boxShadow": "none",
+                                                "dynamicBindingPathList": [
+                                                    {
+                                                        "key": "text"
+                                                    },
+                                                    {
+                                                        "key": "fontFamily"
+                                                    },
+                                                    {
+                                                        "key": "borderRadius"
+                                                    }
+                                                ],
+                                                "dynamicTriggerPathList": [],
+                                                "widgetId": "fdexqwdafb",
+                                                "renderMode": "CANVAS",
+                                                "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                                                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                                                "isLoading": false,
+                                                "leftColumn": 16,
+                                                "rightColumn": 24,
+                                                "topRow": 4,
+                                                "bottomRow": 8,
+                                                "parentId": "j9jz7lxyo5",
+                                                "logBlackList": {
+                                                    "isVisible": true,
+                                                    "text": true,
+                                                    "fontSize": true,
+                                                    "fontStyle": true,
+                                                    "textAlign": true,
+                                                    "textColor": true,
+                                                    "truncateButtonColor": true,
+                                                    "widgetName": true,
+                                                    "shouldTruncate": true,
+                                                    "overflow": true,
+                                                    "version": true,
+                                                    "animateLoading": true,
+                                                    "type": true,
+                                                    "hideCard": true,
+                                                    "displayName": true,
+                                                    "key": true,
+                                                    "iconSVG": true,
+                                                    "isCanvas": true,
+                                                    "textStyle": true,
+                                                    "boxShadow": true,
+                                                    "dynamicBindingPathList": true,
+                                                    "dynamicTriggerPathList": true,
+                                                    "minHeight": true,
+                                                    "widgetId": true,
+                                                    "renderMode": true,
+                                                    "fontFamily": true,
+                                                    "borderRadius": true,
+                                                    "isLoading": true,
+                                                    "parentColumnSpace": true,
+                                                    "parentRowSpace": true,
+                                                    "leftColumn": true,
+                                                    "rightColumn": true,
+                                                    "topRow": true,
+                                                    "bottomRow": true,
+                                                    "parentId": true
+                                                }
+                                            },
+                                            {
+                                                "isVisible": true,
+                                                "animateLoading": true,
+                                                "text": "Submit",
+                                                "buttonVariant": "PRIMARY",
+                                                "placement": "CENTER",
+                                                "widgetName": "Button1",
+                                                "isDisabled": false,
+                                                "isDefaultClickDisabled": true,
+                                                "recaptchaType": "V3",
+                                                "version": 1,
+                                                "type": "BUTTON_WIDGET",
+                                                "hideCard": false,
+                                                "displayName": "Button",
+                                                "key": "8bomae82dm",
+                                                "iconSVG": "/static/media/icon.cca02633.svg",
+                                                "widgetId": "k8mwektuwy",
+                                                "renderMode": "CANVAS",
+                                                "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                                                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                                                "boxShadow": "none",
+                                                "isLoading": false,
+                                                "parentColumnSpace": 5.6796875,
+                                                "parentRowSpace": 10,
+                                                "leftColumn": 38,
+                                                "rightColumn": 54,
+                                                "topRow": 2,
+                                                "bottomRow": 6,
+                                                "parentId": "j9jz7lxyo5",
+                                                "dynamicBindingPathList": [
+                                                    {
+                                                        "key": "buttonColor"
+                                                    },
+                                                    {
+                                                        "key": "borderRadius"
+                                                    }
+                                                ],
+                                                "logBlackList": {
+                                                    "isVisible": true,
+                                                    "animateLoading": true,
+                                                    "text": true,
+                                                    "buttonVariant": true,
+                                                    "placement": true,
+                                                    "widgetName": true,
+                                                    "isDisabled": true,
+                                                    "isDefaultClickDisabled": true,
+                                                    "recaptchaType": true,
+                                                    "version": true,
+                                                    "type": true,
+                                                    "hideCard": true,
+                                                    "displayName": true,
+                                                    "key": true,
+                                                    "iconSVG": true,
+                                                    "isCanvas": true,
+                                                    "minHeight": true,
+                                                    "widgetId": true,
+                                                    "renderMode": true,
+                                                    "buttonColor": true,
+                                                    "borderRadius": true,
+                                                    "boxShadow": true,
+                                                    "isLoading": true,
+                                                    "parentColumnSpace": true,
+                                                    "parentRowSpace": true,
+                                                    "leftColumn": true,
+                                                    "rightColumn": true,
+                                                    "topRow": true,
+                                                    "bottomRow": true,
+                                                    "parentId": true,
+                                                    "dynamicBindingPathList": true
+                                                }
+                                            }
+                                        ],
+                                        "minHeight": null,
+                                        "widgetId": "j9jz7lxyo5",
+                                        "renderMode": "CANVAS",
+                                        "boxShadow": "none",
+                                        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                                        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                                        "isLoading": false,
+                                        "parentColumnSpace": 1,
+                                        "parentRowSpace": 1,
+                                        "leftColumn": 0,
+                                        "rightColumn": null,
+                                        "topRow": 0,
+                                        "bottomRow": 100,
+                                        "parentId": "k0vtpf8seb",
+                                        "dynamicBindingPathList": [
+                                            {
+                                                "key": "borderRadius"
+                                            },
+                                            {
+                                                "key": "accentColor"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "version": 1,
+                                "type": "CONTAINER_WIDGET",
+                                "hideCard": false,
+                                "displayName": "Container",
+                                "key": "uznkumdlnp",
+                                "iconSVG": "/static/media/icon.1977dca3.svg",
+                                "isCanvas": true,
+                                "dragDisabled": true,
+                                "isDeletable": false,
+                                "disallowCopy": true,
+                                "disablePropertyPane": true,
+                                "openParentPropertyPane": true,
+                                "widgetId": "k0vtpf8seb",
+                                "renderMode": "CANVAS",
+                                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                                "isLoading": false,
+                                "leftColumn": 0,
+                                "rightColumn": 64,
+                                "topRow": 0,
+                                "bottomRow": 12,
+                                "parentId": "tgcs0hdwep",
+                                "dynamicBindingPathList": [
+                                    {
+                                        "key": "borderRadius"
+                                    },
+                                    {
+                                        "key": "boxShadow"
+                                    }
+                                ]
+                            }
+                        ],
+                        "minHeight": 400,
+                        "widgetId": "tgcs0hdwep",
+                        "renderMode": "CANVAS",
+                        "boxShadow": "none",
+                        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                        "isLoading": false,
+                        "parentColumnSpace": 1,
+                        "parentRowSpace": 1,
+                        "leftColumn": 0,
+                        "rightColumn": 391.5,
+                        "topRow": 0,
+                        "bottomRow": 400,
+                        "parentId": "7hl0i1crue",
+                        "dynamicBindingPathList": [
+                            {
+                                "key": "borderRadius"
+                            },
+                            {
+                                "key": "accentColor"
+                            }
+                        ]
+                    }
+                ],
+                "type": "LIST_WIDGET",
+                "hideCard": false,
+                "displayName": "List",
+                "key": "w9zj5aaqqk",
+                "iconSVG": "/static/media/icon.9925ee17.svg",
+                "isCanvas": true,
+                "widgetId": "7hl0i1crue",
+                "renderMode": "CANVAS",
+                "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+                "isLoading": false,
+                "parentColumnSpace": 16.3125,
+                "parentRowSpace": 10,
+                "leftColumn": 19,
+                "rightColumn": 43,
+                "topRow": 22,
+                "bottomRow": 62,
+                "parentId": "0",
+                "dynamicBindingPathList": [
+                    {
+                        "key": "accentColor"
+                    },
+                    {
+                        "key": "borderRadius"
+                    },
+                    {
+                        "key": "boxShadow"
+                    },
+                    {
+                        "key": "template.Image1.image"
+                    },
+                    {
+                        "key": "template.Text1.text"
+                    },
+                    {
+                        "key": "template.Text2.text"
+                    }
+                ],
+                "privateWidgets": {
+                    "Image1": true,
+                    "Text1": true,
+                    "Text2": true,
+                    "Button1": true
+                },
+                "dynamicTriggerPathList": []
+            }
+        ]
+    }
+}

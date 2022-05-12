@@ -311,6 +311,31 @@ Cypress.Commands.add("testCodeMirror", (value) => {
     });
 });
 
+Cypress.Commands.add("testCodeMirrorContains", (value) => {
+  cy.get(".CodeMirror textarea")
+    .first()
+    .focus()
+    .type("{ctrl}{shift}{downarrow}")
+    .then(($cm) => {
+      if ($cm.val() !== "") {
+        cy.get(".CodeMirror textarea")
+          .first()
+          .clear({
+            force: true,
+          });
+      }
+
+      cy.get(".CodeMirror textarea")
+        .first()
+        .type(value, {
+          force: true,
+          parseSpecialCharSequences: false,
+        });
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(2000);
+    });
+});
+
 Cypress.Commands.add("updateComputedValue", (value) => {
   cy.get(".CodeMirror textarea")
     .first()
