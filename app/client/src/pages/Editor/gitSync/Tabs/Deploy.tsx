@@ -211,10 +211,8 @@ function Deploy() {
   const isConflicting = !isFetchingGitStatus && !!pullFailed;
 
   const pullRequired =
-    (gitError &&
-      gitError.code ===
-        GIT_ERROR_CODES.PUSH_FAILED_REMOTE_COUNTERPART_IS_AHEAD) ||
-    !!gitStatus?.behindCount;
+    gitError?.code === GIT_ERROR_CODES.PUSH_FAILED_REMOTE_COUNTERPART_IS_AHEAD;
+
   const showCommitButton =
     !isConflicting &&
     !pullRequired &&

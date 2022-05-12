@@ -1,4 +1,4 @@
-import { GitStatusData } from "../../../../reducers/uiReducers/gitSyncReducer";
+import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import { gitChangeListData } from "./GitChangesList";
 
 describe("GitChangesList", () => {
