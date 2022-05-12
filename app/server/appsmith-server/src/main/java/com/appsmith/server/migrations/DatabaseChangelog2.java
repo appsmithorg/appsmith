@@ -16,6 +16,7 @@ import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QPlugin;
+import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -771,6 +772,21 @@ public class DatabaseChangelog2 {
             makeIndex("createdAt"),
             makeIndex("slug").unique()
         );
+    }
+
+    @ChangeSet(order = "010", id = "update-sequence-names-from-organization-to-workspace", author = "")
+    public void updateSequenceNamesFromOrganizationToWorkspace(MongockTemplate mongockTemplate) {
+        for (Sequence sequence : mongockTemplate.findAll(Sequence.class)) {
+            String oldName = sequence.getName();
+            String newName = oldName.replaceAll("(.*) for organization with _id : (.*)", "$1 for workspace with _id : $2");
+            if(!newName.equals(oldName)) {
+                //Using strings in the field names instead of QSequence becauce Sequence is not a AppsmithDomain
+                mongockTemplate.updateFirst(query(where("name").is(oldName)),
+                        Update.update("name", newName),
+                        Sequence.class
+                );
+            }
+        }
     }
 
 }
