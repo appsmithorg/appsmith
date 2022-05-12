@@ -1,4 +1,4 @@
-#! /usr/bin/env node
+#!/usr/bin/env node
 
 const process = require('process');
 const utils = require('./utils');
@@ -12,12 +12,12 @@ const APPLICATION_CONFIG_PATH = '/appsmith-stacks/configuration/docker.env';
 // Loading latest application configuration
 require('dotenv').config({ path: APPLICATION_CONFIG_PATH });
 
-const command = process.argv[2]
-console.log("command", command)
+const command = process.argv[2];
+console.log('command', command);
 
 if (['export-db', 'export_db', 'ex'].includes(command)) {
   console.log('Exporting database');
-  export_db.runExportDatabase();
+  export_db.run();
   console.log('Export database done');
   return;
 }
@@ -40,6 +40,11 @@ if (['migrate', 'mi'].includes(command) && process.argv[3]) {
 
 if (['check-replica-set', 'check_replica_set', 'crs'].includes(command)) {
   check_replica_set.exec();
+  return;
+}
+
+if (command === 'backup') {
+  require('./backup.js').run();
   return;
 }
 
