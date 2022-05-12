@@ -1,0 +1,39 @@
+---
+
+name: Packer
+
+on:
+  push:
+
+jobs:
+  packer:
+    runs-on: ubuntu-latest
+    name: packer
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      # fix backwards incompatibilities in template
+      - name: Fix Template
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: fix
+
+      # validate templates
+      - name: Validate Template
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: validate
+          arguments: -syntax-only
+          working_directory: deploy/packer
+          target: template.json.pkr.hcl
+
+      # build artifact
+      - name: Build Artifact
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: build
+          arguments: "-var 'vpc_id=vpc-41b8bd29' -var 'subnet_id=subnet-26ac3f6a'"
+          target: template.json.pkr.hcl
+          working_directory: deploy/packer
