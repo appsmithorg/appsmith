@@ -96,7 +96,7 @@ public class GraphQLPlugin extends BasePlugin {
             initUtils.initializeResponseWithError(errorResult);
 
             // Set of hint messages that can be returned to the user.
-            Set<String> hintMessages = new HashSet();
+            Set<String> hintMessages = new HashSet<String>();
 
             // Initializing request URL
             String url = initUtils.initializeRequestUrl(actionConfiguration, datasourceConfiguration);
