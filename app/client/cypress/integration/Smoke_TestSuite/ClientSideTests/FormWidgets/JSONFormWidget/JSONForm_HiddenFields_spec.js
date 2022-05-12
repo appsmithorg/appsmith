@@ -12,6 +12,12 @@ function hideAndVerifyProperties(fieldName, fieldValue, resolveFieldValue) {
   // Hide field
   cy.togglebarDisable(".t--property-control-visible input");
 
+  /**
+   * When the field is hidden, post that we check if the formData has appropriate
+   * changes. This checking happens immediately after the field is hidden (cy.togglebarDisable(".t--property-control-visible input")).
+   * This doesn't give the widget and evaluation a chance to set the correct value.
+   * cy.wait(2000) gives sufficient amount for the appropriates changes to take place.
+   */
   cy.wait(2000);
 
   // Check if hidden
@@ -33,6 +39,7 @@ function hideAndVerifyProperties(fieldName, fieldValue, resolveFieldValue) {
   // Check if visible
   cy.get(`${fieldPrefix}-${fieldName}`).should("exist");
 
+  // Check previous cy.wait(2000) comment
   cy.wait(2000);
 
   // Check if key in formData is also hidden
@@ -65,7 +72,7 @@ function addCustomField(fieldType) {
 
 function removeCustomField() {
   cy.openPropertyPane("jsonformwidget");
-  cy.deleteField("customField1");
+  cy.deleteJSONFormField("customField1");
 }
 
 describe("JSON Form Hidden fields", () => {

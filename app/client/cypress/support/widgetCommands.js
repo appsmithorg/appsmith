@@ -533,7 +533,7 @@ Cypress.Commands.add("openFieldConfiguration", (fieldIdentifier) => {
   cy.wait(1000);
 });
 
-Cypress.Commands.add("deleteField", (fieldIdentifier) => {
+Cypress.Commands.add("deleteJSONFormField", (fieldIdentifier) => {
   cy.get(
     "[data-rbd-draggable-id='" + fieldIdentifier + "'] .t--delete-column-btn",
   ).click({
