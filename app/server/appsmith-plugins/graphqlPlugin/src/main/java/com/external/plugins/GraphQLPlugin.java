@@ -68,21 +68,6 @@ public class GraphQLPlugin extends BasePlugin {
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
-            //TODO: remove after test
-            String testBody = "query Launches($limit: Int) {\n" +
-                    "  capsules(limit: $limit) {\n" +
-                    "    dragon {\n" +
-                    "      dry_mass_kg\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "}\n";
-            actionConfiguration.setBody(testBody);
-
-            String variables = "{\n" +
-                    "  \"limit\": 2\n" +
-                    "}";
-            properties.add(new Property("variables", variables));
-
             // TODO: handle smart substitution for query body and query variables
             // TODO: handle cursor pagination
 

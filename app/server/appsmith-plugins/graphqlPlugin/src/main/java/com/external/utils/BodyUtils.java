@@ -14,6 +14,7 @@ import java.util.List;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
 import static com.appsmith.external.helpers.PluginUtils.parseStringIntoJSONObject;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class BodyUtils {
     public static final int QUERY_VARIABLES_INDEX = 1;
@@ -49,13 +50,15 @@ public class BodyUtils {
 
         final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
         String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
-        try {
-            parseStringIntoJSONObject(variables);
-        } catch (ParseException e) {
-            throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    "GraphQL query variables are not in proper JSON format: " + e.getMessage()
-            );
+        if (!isEmpty(variables)) {
+            try {
+                parseStringIntoJSONObject(variables);
+            } catch (ParseException e) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "GraphQL query variables are not in proper JSON format: " + e.getMessage()
+                );
+            }
         }
     }
 
