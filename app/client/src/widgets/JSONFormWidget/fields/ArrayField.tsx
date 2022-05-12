@@ -85,6 +85,15 @@ const StyledButton = styled.button<StyledButtonProps>`
   margin-top: 10px;
   width: 80px;
 
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.3;
+
+    & * {
+      pointer-events: none;
+    }
+  }
+
   span.bp3-icon {
     margin-right: 6px;
   }
@@ -311,7 +320,8 @@ function ArrayField({
             />
             <StyledDeleteButton
               className="t--jsonformfield-array-delete-btn"
-              onClick={() => remove(key)}
+              disabled={schemaItem.isDisabled}
+              onClick={schemaItem.isDisabled ? undefined : () => remove(key)}
               type="button"
             >
               {deleteIcon}
@@ -355,7 +365,8 @@ function ArrayField({
       <StyledButton
         className="t--jsonformfield-array-add-btn"
         color={schemaItem.accentColor}
-        onClick={add}
+        disabled={schemaItem.isDisabled}
+        onClick={schemaItem.isDisabled ? undefined : add}
         type="button"
       >
         <StyledIconWrapper>

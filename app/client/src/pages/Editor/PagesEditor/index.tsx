@@ -9,7 +9,10 @@ import { ControlIcons } from "icons/ControlIcons";
 import { IconWrapper } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import PageListItem, { Action } from "./PageListItem";
-import { Page } from "@appsmith/constants/ReduxActionConstants";
+import {
+  Page,
+  PageListPayload,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
   getPageList,
@@ -61,11 +64,15 @@ const NewPageButton = styled(Button)`
 
 const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
+type PageListPayloadWithId = PageListPayload & { id?: string };
+
 function PagesEditor() {
   const theme = useTheme();
   const dispatch = useDispatch();
   const history = useHistory();
-  const pages = useSelector(getPageList);
+  const pages: PageListPayloadWithId = useSelector(
+    getPageList,
+  )?.map((page) => ({ ...page, id: page.pageId }));
   const currentApp = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId) as string;
 
@@ -156,6 +163,7 @@ function PagesEditor() {
         ItemRenderer={draggableListRenderItem}
         itemHeight={70}
         items={pages}
+        keyAccessor={"pageId"}
         onUpdate={(newOrder: any, originalIndex: number, newIndex: number) => {
           setPageOrderCallback(pages[originalIndex].pageId, newIndex);
         }}
