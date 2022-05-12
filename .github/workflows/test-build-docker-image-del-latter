@@ -695,6 +695,26 @@ jobs:
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
+   
+      - name: Collect fat conatianer logs
+        if: always
+        working-directory: "."
+        run: |
+          docker logs appsmith 2>&1 > ~/dockerlogs.txt
+          
+      # Upload docker logs
+      - name: Upload failed test list artifact
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: dockerlogs
+          path: ~/dockerlogs.txt
+   
+      # ssh into Actions
+      #- uses: actions/checkout@v2
+      #- name: Setup upterm session
+      #  if: always()
+      #  uses: lhotari/action-upterm@v1
 
       # Set status = failedtest
       - name: Set fail if there are test failures
