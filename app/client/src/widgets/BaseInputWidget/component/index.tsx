@@ -571,57 +571,59 @@ class BaseInputComponent extends React.Component<
     const showLabelHeader = label || tooltip;
 
     return (
-      <InputComponentWrapper
-        compactMode={compactMode}
-        data-testid="input-container"
-        disabled={disabled}
-        fill
-        hasError={isInvalid}
-        inputType={inputType}
-        labelPosition={labelPosition}
-        labelStyle={labelStyle}
-        labelTextColor={labelTextColor}
-        labelTextSize={labelTextSize ?? "inherit"}
-        multiline={(!!multiline).toString()}
-        numeric={isNumberInputType(inputHTMLType)}
-      >
-        {showLabelHeader && (
-          <LabelWithTooltip
-            alignment={labelAlignment}
-            className="t--input-widget-label"
-            color={labelTextColor}
-            compact={compactMode}
-            cyHelpTextClassName="t--input-widget-tooltip"
-            disabled={disabled}
-            fontSize={labelTextSize}
-            fontStyle={labelStyle}
-            helpText={tooltip}
-            loading={isLoading}
-            position={labelPosition}
-            text={label}
-            width={labelWidth}
-          />
-        )}
-        <TextInputWrapper
-          accentColor={this.props.accentColor}
-          borderRadius={this.props.borderRadius}
-          boxShadow={this.props.boxShadow}
-          compact={compactMode}
-          hasError={this.props.isInvalid}
-          inputHtmlType={inputHTMLType}
+      <div ref={this.props.innerRef}>
+        <InputComponentWrapper
+          compactMode={compactMode}
+          data-testid="input-container"
+          disabled={disabled}
+          fill
+          hasError={isInvalid}
+          inputType={inputType}
           labelPosition={labelPosition}
+          labelStyle={labelStyle}
+          labelTextColor={labelTextColor}
+          labelTextSize={labelTextSize ?? "inherit"}
+          multiline={(!!multiline).toString()}
+          numeric={isNumberInputType(inputHTMLType)}
         >
-          <ErrorTooltip
-            isOpen={isInvalid && showError}
-            message={
-              errorMessage ||
-              createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
-            }
+          {showLabelHeader && (
+            <LabelWithTooltip
+              alignment={labelAlignment}
+              className="t--input-widget-label"
+              color={labelTextColor}
+              compact={compactMode}
+              cyHelpTextClassName="t--input-widget-tooltip"
+              disabled={disabled}
+              fontSize={labelTextSize}
+              fontStyle={labelStyle}
+              helpText={tooltip}
+              loading={isLoading}
+              position={labelPosition}
+              text={label}
+              width={labelWidth}
+            />
+          )}
+          <TextInputWrapper
+            accentColor={this.props.accentColor}
+            borderRadius={this.props.borderRadius}
+            boxShadow={this.props.boxShadow}
+            compact={compactMode}
+            hasError={this.props.isInvalid}
+            inputHtmlType={inputHTMLType}
+            labelPosition={labelPosition}
           >
-            {this.renderInputComponent(inputHTMLType, !!multiline)}
-          </ErrorTooltip>
-        </TextInputWrapper>
-      </InputComponentWrapper>
+            <ErrorTooltip
+              isOpen={isInvalid && showError}
+              message={
+                errorMessage ||
+                createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
+              }
+            >
+              {this.renderInputComponent(inputHTMLType, !!multiline)}
+            </ErrorTooltip>
+          </TextInputWrapper>
+        </InputComponentWrapper>
+      </div>
     );
   }
 }
@@ -676,9 +678,17 @@ export interface BaseInputComponentProps extends ComponentProps {
   inputRef?: MutableRefObject<
     HTMLTextAreaElement | HTMLInputElement | undefined | null
   >;
+  innerRef?: React.RefObject<HTMLDivElement>;
   borderRadius?: string;
   boxShadow?: string;
   accentColor?: string;
 }
 
-export default BaseInputComponent;
+export default React.forwardRef<HTMLDivElement, BaseInputComponentProps>(
+  (props, ref) => (
+    <BaseInputComponent
+      {...props}
+      innerRef={ref as React.RefObject<HTMLDivElement>}
+    />
+  ),
+);
