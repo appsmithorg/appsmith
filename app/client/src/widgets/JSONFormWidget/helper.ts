@@ -60,13 +60,19 @@ const convertObjectTypeToFormData = (
     const formData: Record<string, unknown> = {};
 
     Object.values(schema).forEach((schemaItem) => {
-      const value = valueLookup(
-        formValue as Record<string, unknown>,
-        schemaItem,
-        options.fromId,
-      );
-      const toKey = schemaItem[options.toId];
-      formData[toKey] = convertSchemaItemToFormData(schemaItem, value, options);
+      if (schemaItem.isVisible) {
+        const value = valueLookup(
+          formValue as Record<string, unknown>,
+          schemaItem,
+          options.fromId,
+        );
+        const toKey = schemaItem[options.toId];
+        formData[toKey] = convertSchemaItemToFormData(
+          schemaItem,
+          value,
+          options,
+        );
+      }
     });
 
     return formData;

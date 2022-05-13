@@ -86,6 +86,7 @@ class RequestConfirmationModal extends React.Component<Props> {
         {modalsToBeOpened.map((modalInfo: ModalInfo, index: number) => (
           <DialogComponent
             canEscapeKeyClose
+            canOutsideClickClose
             isOpen={modalInfo?.modalOpen}
             key={index}
             maxHeight={"80vh"}
