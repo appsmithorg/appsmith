@@ -394,8 +394,6 @@ function* resetTheme() {
       }
     });
 
-    console.log({ propertiesToUpdate, canvasWidgets });
-
     if (propertiesToUpdate.length) {
       yield put(batchUpdateMultipleWidgetProperties(propertiesToUpdate));
     }
