@@ -100,7 +100,7 @@ export function MockApplication({ children }: any) {
   const dispatch = useDispatch();
   dispatch(initEditor({ pageId: "page_id" }));
   const mockResp: any = {
-    organizationId: "org_id",
+    workspaceId: "workspace_id",
     pages: [{ id: "page_id", name: "Page1", isDefault: true }],
     id: "app_id",
     isDefault: true,

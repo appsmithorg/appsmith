@@ -5,10 +5,10 @@ let windowOpenSpy;
 describe("Git disconnect modal:", function() {
   before(() => {
     cy.NavigateToHome();
-    cy.createOrg();
-    cy.wait("@createOrg").then((interception) => {
-      const newOrganizationName = interception.response.body.data.name;
-      cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
+    cy.createWorkspace();
+    cy.wait("@createWorkspace").then((interception) => {
+      const newWorkspaceName = interception.response.body.data.name;
+      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
     cy.generateUUID().then((uid) => {
       repoName = uid;

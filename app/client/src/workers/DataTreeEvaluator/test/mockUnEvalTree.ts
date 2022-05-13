@@ -246,7 +246,7 @@ export const unEvalTree = {
   appsmith: {
     user: {
       email: "rathod@appsmith.com",
-      organizationIds: [
+      workspaceIds: [
         "6218a61972ccd9145ec78c57",
         "621913df0276eb01d22fec44",
         "60caf8edb1e47a1315f0c48f",

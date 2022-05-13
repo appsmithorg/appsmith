@@ -51,7 +51,7 @@ import {
 import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getFormData } from "selectors/formSelectors";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getCurrentWorkspaceId } from "selectors/workspaceSelectors";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { getConfigInitialValues } from "components/formControls/utils";
@@ -85,7 +85,7 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import { AppState } from "reducers";
-import { getOrganizationIdForImport } from "selectors/applicationSelectors";
+import { getworkspaceIdForImport } from "selectors/applicationSelectors";
 import {
   apiEditorIdURL,
   datasourcesEditorIdURL,
@@ -95,14 +95,14 @@ import {
 } from "RouteBuilder";
 
 function* fetchDatasourcesSaga(
-  action: ReduxAction<{ orgId?: string } | undefined>,
+  action: ReduxAction<{ workspaceId?: string } | undefined>,
 ) {
   try {
-    let orgId = yield select(getCurrentOrgId);
-    if (action.payload?.orgId) orgId = action.payload?.orgId;
+    let workspaceId = yield select(getCurrentWorkspaceId);
+    if (action.payload?.workspaceId) workspaceId = action.payload?.workspaceId;
 
     const response: GenericApiResponse<Datasource[]> = yield DatasourcesApi.fetchDatasources(
-      orgId,
+      workspaceId,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -139,7 +139,7 @@ interface addMockDb
   extends ReduxActionWithCallbacks<
     {
       name: string;
-      organizationId: string;
+      workspaceId: string;
       pluginId: string;
       packageName: string;
     },
@@ -151,16 +151,11 @@ interface addMockDb
 
 export function* addMockDbToDatasources(actionPayload: addMockDb) {
   try {
-    const {
-      name,
-      organizationId,
-      packageName,
-      pluginId,
-    } = actionPayload.payload;
+    const { name, packageName, pluginId, workspaceId } = actionPayload.payload;
     const { isGeneratePageMode } = actionPayload.extraParams;
     const response: GenericApiResponse<any> = yield DatasourcesApi.addMockDbToDatasources(
       name,
-      organizationId,
+      workspaceId,
       pluginId,
       packageName,
     );
@@ -383,7 +378,7 @@ function* redirectAuthorizationCodeSaga(
   }>,
 ) {
   const { datasourceId, pageId, pluginType } = actionPayload.payload;
-  const isImport: string = yield select(getOrganizationIdForImport);
+  const isImport: string = yield select(getworkspaceIdForImport);
 
   if (pluginType === PluginType.API) {
     window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code`;
@@ -488,11 +483,11 @@ function* handleDatasourceNameChangeFailureSaga(
 }
 
 function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
-  let organizationId = yield select(getCurrentOrgId);
+  let workspaceId = yield select(getCurrentWorkspaceId);
 
   // test button within the import modal
-  if (!organizationId) {
-    organizationId = yield select(getOrganizationIdForImport);
+  if (!workspaceId) {
+    workspaceId = yield select(getworkspaceIdForImport);
   }
   const { initialValues, values } = yield select(
     getFormData,
@@ -513,7 +508,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.testDatasource(
       {
         ...payload,
-        organizationId,
+        workspaceId,
       },
     );
     const isValidResponse = yield validateResponse(response);
@@ -602,7 +597,7 @@ function* createDatasourceFromFormSaga(
   actionPayload: ReduxAction<CreateDatasourceConfig>,
 ) {
   try {
-    const organizationId = yield select(getCurrentOrgId);
+    const workspaceId = yield select(getCurrentWorkspaceId);
     yield call(
       checkAndGetPluginFormConfigsSaga,
       actionPayload.payload.pluginId,
@@ -620,7 +615,7 @@ function* createDatasourceFromFormSaga(
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
       {
         ...payload,
-        organizationId,
+        workspaceId,
       },
     );
     const isValidResponse = yield validateResponse(response);

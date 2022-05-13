@@ -66,7 +66,7 @@ import { ReactComponent as GearIcon } from "assets/icons/ads/gear.svg";
 import { ReactComponent as UserV2Icon } from "assets/icons/ads/user-v2.svg";
 import { ReactComponent as SupportIcon } from "assets/icons/ads/support.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
-import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIcon.svg";
+import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/workspaceIcon.svg";
 import { ReactComponent as SettingIcon } from "assets/icons/control/settings.svg";
 import { ReactComponent as DropdownIcon } from "assets/icons/ads/dropdown.svg";
 import { ReactComponent as ChatIcon } from "assets/icons/ads/app-icons/chat.svg";
