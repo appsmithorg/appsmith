@@ -21,6 +21,7 @@ export class CommonLocators {
     _inputWidgetInDeployed = this._widgetInDeployed("inputwidgetv2") + " input"
     _inputWidgetv1InDeployed = this._widgetInDeployed("inputwidget") + " input"
     _textAreainputWidgetv1InDeployed = this._widgetInDeployed("inputwidget") + " textarea"
+    _textAreainputWidgetv2InDeployed = this._widgetInDeployed("inputwidgetv2") + " textarea"
     _imageWidget = ".t--draggable-imagewidget"
     _backToEditor = ".t--back-to-editor"
     _newPage = ".pages .t--entity-add-btn"
