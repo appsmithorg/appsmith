@@ -14,25 +14,34 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      # validate templates
-      - name: Validate Template
-        uses: hashicorp/packer-github-actions@master
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          command: validate
-          working_directory: deploy/packer
-          arguments: -syntax-only
-          target: template.json.pkr.hcl
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
 
-      # build artifact
-      - name: Build Artifact
-        uses: hashicorp/packer-github-actions@master
+      - name: Install python
+      - uses: actions/setup-python@v2
         with:
-          command: build
-          working_directory: deploy/packer
-          arguments: "-color=false -on-error=abort"
-          target: template.json.pkr.hcl
-        env:
-          PACKER_LOG: 1
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ap-south-1
+          python-version: '3.8'
+
+      - name: Install ansible
+        run: pip install ansible
+      - name: Append binary PATH
+        run: echo "$(dirname $(which ansible))" >> $GITHUB_PATH
+      
+      - name: Install Packer
+        run: |
+          apt-get update;apt-get install -y curl gnupg software-properties-common ;
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - ;
+          apt-add-repository -y "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" ;
+          apt-get update && apt-get install -y packer;
+
+      - name: Build artifacts
+        run : |
+          echo $PATH;
+          echo $GITHUB_PATH;
+          which ansible;
+          cd deploy/packer;
+          packer build -var 'vpc_id=vpc-41b8bd29' -var 'subnet_id=subnet-26ac3f6a' template.json.pkr.hcl
