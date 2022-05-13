@@ -2,8 +2,10 @@ name: Packer build ami image
 
 on:
   push:
-    branches:
-        - 'release'
+    branches: [ release ]
+  pull_request:
+    branches: [ release ]
+
 jobs:
   packer_build:
     runs-on: ubuntu-latest
