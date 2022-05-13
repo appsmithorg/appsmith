@@ -56,7 +56,8 @@ public class LicenseValidator {
                                     "instance", instanceId
                             )))
                             .retrieve()
-                            .toEntity(byte[].class))
+                            .toEntity(byte[].class)
+                )
                 .map(responseEntity -> new String(responseEntity.getBody(), StandardCharsets.UTF_8))
                 .map(body -> {
                     try {
