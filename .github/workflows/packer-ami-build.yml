@@ -20,7 +20,7 @@ jobs:
         with:
           command: validate
           arguments: -syntax-only
-          target: packer.pkr.hcl
+          target: template.json.pkr.hcl
 
       # build artifact
       - name: Build Artifact
