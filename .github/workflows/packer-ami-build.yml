@@ -8,8 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      - name: Install required Libs
+        run: apt-get install -y ansible
       - name: Packer build
-        run: apt-get install -y ansible;
         uses: riznob/packer-build-action@v1.5
         with:
           templateFile: 'template.json.pkr.hcl'
