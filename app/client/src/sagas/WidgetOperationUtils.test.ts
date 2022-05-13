@@ -6,7 +6,8 @@ import {
   handleIfParentIsListWidgetWhilePasting,
   handleSpecificCasesWhilePasting,
   doesTriggerPathsContainPropertyPath,
-  checkIfPastingIntoListWidget,
+  getSelectedWidgetIfPastingIntoListWidget,
+  checkForListWidgetInCopiedWidgets,
   updateListWidgetPropertiesOnChildDelete,
   purgeOrphanedDynamicPaths,
   getBoundariesFromSelectedWidgets,
@@ -401,8 +402,8 @@ describe("WidgetOperationSaga", () => {
     );
   });
 
-  it("should returns widgets after executing checkIfPastingIntoListWidget", async () => {
-    const result = checkIfPastingIntoListWidget(
+  it("should returns widgets after executing getSelectedWidgetIfPastingIntoListWidget", async () => {
+    const result = getSelectedWidgetIfPastingIntoListWidget(
       {
         list2: {
           widgetId: "list2",
@@ -978,6 +979,67 @@ describe("WidgetOperationSaga", () => {
         bottomRow: 70,
       },
     ]);
+  });
+  it("should test checkForListWidgetInCopiedWidgets", () => {
+    //if copying list widget onto list widget
+    expect(
+      checkForListWidgetInCopiedWidgets([
+        {
+          widgetId: "list2",
+          parentId: "0",
+          list: [
+            {
+              widgetId: "list2",
+              type: "LIST_WIDGET",
+              widgetName: "List2",
+              parentId: "0",
+              renderMode: "CANVAS",
+              parentColumnSpace: 2,
+              parentRowSpace: 3,
+              leftColumn: 2,
+              rightColumn: 3,
+              topRow: 1,
+              bottomRow: 3,
+              isLoading: false,
+              listData: [],
+              version: 16,
+              disablePropertyPane: false,
+              template: {},
+            },
+          ],
+        },
+      ]),
+    ).toBe(true);
+
+    //if copying container widget onto list widget
+    expect(
+      checkForListWidgetInCopiedWidgets([
+        {
+          widgetId: "container",
+          parentId: "0",
+          list: [
+            {
+              widgetId: "container",
+              type: "CONTAINER_WIDGET",
+              widgetName: "container",
+              parentId: "0",
+              renderMode: "CANVAS",
+              parentColumnSpace: 2,
+              parentRowSpace: 3,
+              leftColumn: 2,
+              rightColumn: 3,
+              topRow: 1,
+              bottomRow: 3,
+              isLoading: false,
+              listData: [],
+              version: 16,
+              disablePropertyPane: false,
+              template: {},
+            },
+          ],
+        },
+      ]),
+    ).toBe(false);
   });
 });
 

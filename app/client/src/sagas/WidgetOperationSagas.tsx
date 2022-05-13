@@ -20,6 +20,7 @@ import {
   select,
   takeEvery,
   takeLatest,
+  takeLeading,
 } from "redux-saga/effects";
 import { convertToString } from "utils/AppsmithUtils";
 import {
@@ -109,10 +110,10 @@ import {
   getPastePositionMapFromMousePointer,
   getBoundariesFromSelectedWidgets,
   WIDGET_PASTE_PADDING,
-  getWidgetsFromIds,
   getDefaultCanvas,
   isDropTarget,
   getValueFromTree,
+  getVerifiedSelectedWidgets,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -844,6 +845,7 @@ export function calculateNewWidgetPosition(
  * @param copiedTotalWidth total width of the copied widgets
  * @param copiedTopMostRow top row of the top most copied widget
  * @param copiedLeftMostColumn left column of the left most copied widget
+ * @param shouldGroup boolean to indicate if the user is grouping instead of pasting
  * @returns
  */
 const getNewPositions = function*(
@@ -852,10 +854,21 @@ const getNewPositions = function*(
   copiedTotalWidth: number,
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
+  shouldGroup: boolean,
 ) {
+  // if it is grouping instead of pasting then skip the pasting logic
+  if (shouldGroup) return {};
+
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const selectedWidgets = getWidgetsFromIds(selectedWidgetIDs, canvasWidgets);
+  const {
+    isListWidgetPastingOnItself,
+    selectedWidgets,
+  } = getVerifiedSelectedWidgets(
+    selectedWidgetIDs,
+    copiedWidgetGroups,
+    canvasWidgets,
+  );
 
   //if the copied widget is a modal widget, then it has to paste on the main container
   if (
@@ -870,7 +883,8 @@ const getNewPositions = function*(
   if (
     !(
       selectedWidgets.length === 1 &&
-      isDropTarget(selectedWidgets[0].type, true)
+      isDropTarget(selectedWidgets[0].type, true) &&
+      !isListWidgetPastingOnItself
     ) &&
     selectedWidgets.length > 0
   ) {
@@ -1243,6 +1257,7 @@ function* pasteWidgetSaga(
     copiedTotalWidth,
     topMostWidget.topRow,
     leftMostWidget.leftColumn,
+    shouldGroup,
   );
 
   if (canvasId) pastingIntoWidgetId = canvasId;
@@ -1665,7 +1680,7 @@ export default function* widgetOperationSagas() {
     ),
     takeLatest(ReduxActionTypes.UPDATE_CANVAS_SIZE, updateCanvasSize),
     takeLatest(ReduxActionTypes.COPY_SELECTED_WIDGET_INIT, copyWidgetSaga),
-    takeEvery(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
+    takeLeading(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
   ]);

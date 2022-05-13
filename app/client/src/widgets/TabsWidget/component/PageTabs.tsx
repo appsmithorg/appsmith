@@ -121,7 +121,6 @@ function PageTabContainer({
 
   useEffect(() => {
     if (isTabActive) {
-      tabContainerRef.current?.scrollIntoView(false);
       setShowScrollArrows();
     }
   }, [isTabActive, tabsScrollable]);

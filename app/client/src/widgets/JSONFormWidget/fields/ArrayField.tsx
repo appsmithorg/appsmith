@@ -85,6 +85,15 @@ const StyledButton = styled.button<StyledButtonProps>`
   margin-top: 10px;
   width: 80px;
 
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.3;
+
+    & * {
+      pointer-events: none;
+    }
+  }
+
   span.bp3-icon {
     margin-right: 6px;
   }
@@ -164,8 +173,6 @@ function ArrayField({
   useUpdateAccessor({ accessor: schemaItem.accessor });
 
   const { setMetaInternalFieldState } = useContext(FormContext);
-
-  const basePropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
 
   const add = () => {
     let values = klona(getValues(name));
@@ -286,9 +293,10 @@ function ArrayField({
   const fields = useMemo(() => {
     const arrayItemSchema = schemaItem.children[ARRAY_ITEM_KEY];
 
+    const fieldPropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
+
     return itemKeys.map((key, index) => {
       const fieldName = `${name}[${index}]` as ControllerRenderProps["name"];
-      const fieldPropertyPath = `${basePropertyPath}.children.${arrayItemSchema.identifier}`;
 
       return (
         <Accordion
@@ -312,7 +320,8 @@ function ArrayField({
             />
             <StyledDeleteButton
               className="t--jsonformfield-array-delete-btn"
-              onClick={() => remove(key)}
+              disabled={schemaItem.isDisabled}
+              onClick={schemaItem.isDisabled ? undefined : () => remove(key)}
               type="button"
             >
               {deleteIcon}
@@ -323,13 +332,13 @@ function ArrayField({
       );
     });
   }, [
-    schemaItem,
-    basePropertyPath,
-    name,
-    remove,
-    itemKeys,
-    fieldClassName,
     cachedDefaultValue,
+    fieldClassName,
+    itemKeys,
+    name,
+    propertyPath,
+    remove,
+    schemaItem,
   ]);
 
   if (!schemaItem.isVisible) {
@@ -356,7 +365,8 @@ function ArrayField({
       <StyledButton
         className="t--jsonformfield-array-add-btn"
         color={schemaItem.accentColor}
-        onClick={add}
+        disabled={schemaItem.isDisabled}
+        onClick={schemaItem.isDisabled ? undefined : add}
         type="button"
       >
         <StyledIconWrapper>
