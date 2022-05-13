@@ -1,7 +1,4 @@
-import {
-  PropertyPaneControlConfig,
-  PropertyPaneSectionConfig,
-} from "constants/PropertyControlConstants";
+import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import generatePanelPropertyConfig from "./generatePanelPropertyConfig";
 
 describe(".generatePanelPropertyConfig", () => {

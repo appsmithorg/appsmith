@@ -307,7 +307,6 @@ const COMMON_PROPERTIES = {
       label: "Text Size",
       defaultValue: "0.875rem",
       controlType: "DROP_DOWN",
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       options: [
         {
           label: "S",
