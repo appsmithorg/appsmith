@@ -122,6 +122,10 @@ export const DEFAULT_GRAPHQL_ACTION_CONFIG: ApiActionConfig = {
       // JSON smart substitution
       value: true,
     },
+    {
+      // Query Variables
+      value: "",
+    },
   ],
 };
 

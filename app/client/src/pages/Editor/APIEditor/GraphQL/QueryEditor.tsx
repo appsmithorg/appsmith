@@ -34,8 +34,8 @@ const QueryHeader = styled.div`
 function QueryEditor(props: any) {
   const editorProps = {
     mode: EditorModes.GRAPHQL,
-    tabBehaviour: TabBehaviour.INPUT,
-    size: EditorSize.COMPACT,
+    tabBehaviour: TabBehaviour.INDENT,
+    size: EditorSize.EXTENDED,
   };
 
   return (
