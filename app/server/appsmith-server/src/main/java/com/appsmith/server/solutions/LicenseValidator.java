@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.scheduler.Schedulers;
-
+import com.appsmith.server.services.ConfigService;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
@@ -26,6 +26,7 @@ public class LicenseValidator {
 
     private final LicenseConfig licenseConfig;
     private final CloudServicesConfig cloudServicesConfig;
+    private final ConfigService configService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public void check() {
@@ -43,18 +44,19 @@ public class LicenseValidator {
                     AppsmithError.INSTANCE_REGISTRATION_FAILURE, "Unable to find cloud services base URL");
         }
 
-        Boolean isValid = WebClient
-                .create(
-                        cloudServicesConfig.getBaseUrl() + "/api/v1/license/check"
-                )
-                .post()
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(Map.of(
-                        "license", licenseConfig.getLicenseKey()
-                )))
-                .retrieve()
-                .toEntity(byte[].class)
+        Boolean isValid = configService.getInstanceId()
+                .flatMap(instanceId -> WebClient.create(
+                                    cloudServicesConfig.getBaseUrl() + "/api/v1/license/check"
+                            )
+                            .post()
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .body(BodyInserters.fromValue(Map.of(
+                                    "license", licenseConfig.getLicenseKey(),
+                                    "instance", instanceId
+                            )))
+                            .retrieve()
+                            .toEntity(byte[].class))
                 .map(responseEntity -> new String(responseEntity.getBody(), StandardCharsets.UTF_8))
                 .map(body -> {
                     try {
