@@ -3,7 +3,7 @@ name: Packer build ami image
 on:
   push:
     branches:
-        - 'master'
+        - 'release'
 jobs:
   packer_build:
     runs-on: ubuntu-latest
