@@ -13,13 +13,13 @@ variable "instance_type" {
 # Configuration - AWS subnet
 variable "subnet_id" {
   type    = string
-  default = ""
+  default = "subnet-26ac3f6a"
 }
 
 # Configuration - AWS VPC
 variable "vpc_id" {
   type    = string
-  default = ""
+  default = "vpc-41b8bd29"
 }
 
 # Configuration - DO token

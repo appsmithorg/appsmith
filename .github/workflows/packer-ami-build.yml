@@ -29,7 +29,7 @@ jobs:
         with:
           command: build
           working_directory: deploy/packer
-          arguments: "-var 'vpc_id=vpc-41b8bd29' -var 'subnet_id=subnet-26ac3f6a' -color=false -on-error=abort"
+          arguments: "-color=false -on-error=abort"
           target: template.json.pkr.hcl
         env:
           PACKER_LOG: 1
