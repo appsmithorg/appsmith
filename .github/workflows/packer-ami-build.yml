@@ -1,33 +1,21 @@
----
-
-name: Packer
+name: Packer build ami image
 
 on:
   push:
-
+    branches:
+        - 'master'
 jobs:
-  packer:
+  packer_build:
     runs-on: ubuntu-latest
-    name: packer
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      # validate templates
-      - name: Validate Template
-        uses: hashicorp/packer-github-actions@master
+      - uses: actions/checkout@v1
+      - name: Packer build
+        uses: riznob/packer-build-action@v1.5
         with:
-          command: validate
-          arguments: -syntax-only
-          working_directory: deploy/packer
-          target: template.json.pkr.hcl
-
-      # build artifact
-      - name: Build Artifact
-        uses: hashicorp/packer-github-actions@master
-        with:
-          command: build
-          arguments: -var 'vpc_id=vpc-41b8bd29' -var 'subnet_id=subnet-26ac3f6a'
-          target: template.json.pkr.hcl
-          working_directory: deploy/packer
+          templateFile: 'template.json.pkr.hcl'
+          varFile: 'vars-dev.json'
+          workingDir: 'deploy/packer'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ap-south-1
