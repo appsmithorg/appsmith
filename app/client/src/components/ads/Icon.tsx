@@ -199,7 +199,8 @@ export const IconWrapper = styled.span<IconProps>`
 
   display: flex;
   align-items: center;
-
+  cursor: ${(props) =>
+    props.disabled ? "not-allowed" : props.clickable ? "pointer" : "default"};
   svg {
     width: ${(props) => sizeHandler(props.size)}px;
     height: ${(props) => sizeHandler(props.size)}px;
@@ -218,7 +219,6 @@ export const IconWrapper = styled.span<IconProps>`
     ${(props) => (props.invisible ? `visibility: hidden;` : null)};
 
     &:hover {
-      cursor: ${(props) => (props.clickable ? "pointer" : "default")};
       ${(props) =>
         !props.keepColors
           ? `
@@ -402,10 +402,14 @@ export type IconProps = {
   keepColors?: boolean;
   loaderWithIconWrapper?: boolean;
   clickable?: boolean;
+  disabled?: boolean;
 };
 
 const Icon = forwardRef(
-  (props: IconProps & CommonComponentProps, ref: Ref<HTMLSpanElement>) => {
+  (
+    { onClick, ...props }: IconProps & CommonComponentProps,
+    ref: Ref<HTMLSpanElement>,
+  ) => {
     const iconName = props.name;
     const returnIcon =
       ICON_LOOKUP[iconName as keyof typeof ICON_LOOKUP] || null;
@@ -426,9 +430,9 @@ const Icon = forwardRef(
         className={`${Classes.ICON} ${props.className}`}
         clickable={clickable}
         data-cy={props.cypressSelector}
+        onClick={props.disabled ? noop : onClick}
         ref={ref}
         {...props}
-        onClick={props.onClick || noop}
       >
         {returnIcon}
       </IconWrapper>

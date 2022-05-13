@@ -248,7 +248,6 @@ function ManualUpgrades() {
       >
         <Icon
           className="t--upgrade"
-          disabled={applicationVersion < latestVersion}
           fillColor={Colors.SCORPION}
           name="upgrade"
           onClick={() => {
