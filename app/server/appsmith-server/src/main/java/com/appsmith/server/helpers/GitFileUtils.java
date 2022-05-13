@@ -100,9 +100,8 @@ public class GitFileUtils {
                         final Map<String, Object> data = Map.of(
                                 FieldName.APPLICATION_ID, repoPath.getParent().getFileName().toString(),
                                 FieldName.ORGANIZATION_ID, repoPath.getParent().getParent().getFileName().toString(),
-                                "unitName", stopwatch.getAction(),
-                                "executionTime", stopwatch.getExecutionTime(),
-                                FieldName.BRANCH_NAME, branchName
+                                FieldName.FLOW_NAME, stopwatch.getFlow(),
+                                "executionTime", stopwatch.getExecutionTime()
                         );
                         analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
                         return repoPath;
@@ -247,9 +246,8 @@ public class GitFileUtils {
                     final Map<String, Object> data = Map.of(
                             FieldName.APPLICATION_ID, defaultApplicationId,
                             FieldName.ORGANIZATION_ID, organizationId,
-                            "unitName", stopwatch.getAction(),
-                            "executionTime", stopwatch.getExecutionTime(),
-                            FieldName.BRANCH_NAME, branchName
+                            FieldName.FLOW_NAME, stopwatch.getFlow(),
+                            "executionTime", stopwatch.getExecutionTime()
                     );
                     analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
                     return applicationJson;

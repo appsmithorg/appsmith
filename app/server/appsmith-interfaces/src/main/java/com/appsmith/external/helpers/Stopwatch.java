@@ -10,11 +10,11 @@ import java.util.concurrent.TimeUnit;
 @Getter
 public class Stopwatch {
 
-    private final String action;
+    private final String flow;
     private final StopWatch watch = new StopWatch();
 
-    public Stopwatch(String action) {
-        this.action = action;
+    public Stopwatch(String flow) {
+        this.flow = flow;
         this.watch.start();
     }
 
@@ -22,7 +22,7 @@ public class Stopwatch {
         if (!this.watch.isStopped()) {
             this.watch.stop();
         }
-        log.debug("Process: {}, Time elapsed: {}ms", this.action, this.watch.getTime(TimeUnit.MILLISECONDS));
+        log.debug("Execute time: {}, Time elapsed: {}ms", this.flow, this.watch.getTime(TimeUnit.MILLISECONDS));
     }
 
     public void stopTimer() {

@@ -6,7 +6,6 @@ import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
-import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
@@ -516,23 +515,23 @@ public class GitServiceCEImpl implements GitServiceCE {
                         );
                     }
                     result.append("Commit Result : ");
-                    return Mono.zip(
-                            gitExecutor.commitApplication(baseRepoPath, commitMessage, authorProfile.getAuthorName(), authorProfile.getAuthorEmail(), false, doAmend)
-                                    .onErrorResume(error -> {
-                                        if (error instanceof EmptyCommitException) {
-                                            return Mono.just(EMPTY_COMMIT_ERROR_MESSAGE);
-                                        }
-                                        return addAnalyticsForGitOperation(
-                                                AnalyticsEvents.GIT_COMMIT.getEventName(),
-                                                childApplication,
-                                                error.getClass().getName(),
-                                                error.getMessage(),
-                                                childApplication.getGitApplicationMetadata().getIsRepoPrivate()
-                                        )
+                    Mono<String> gitCommitMono = gitExecutor
+                            .commitApplication(baseRepoPath, commitMessage, authorProfile.getAuthorName(), authorProfile.getAuthorEmail(), false, doAmend)
+                            .onErrorResume(error -> {
+                                if (error instanceof EmptyCommitException) {
+                                    return Mono.just(EMPTY_COMMIT_ERROR_MESSAGE);
+                                }
+                                return addAnalyticsForGitOperation(
+                                        AnalyticsEvents.GIT_COMMIT.getEventName(),
+                                        childApplication,
+                                        error.getClass().getName(),
+                                        error.getMessage(),
+                                        childApplication.getGitApplicationMetadata().getIsRepoPrivate()
+                                )
                                         .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", error.getMessage())));
-                                    }),
-                            Mono.just(childApplication)
-                    );
+                            });
+
+                    return Mono.zip(gitCommitMono, Mono.just(childApplication));
                 })
                 .flatMap(tuple -> {
                     Application childApplication = tuple.getT2();
@@ -2427,22 +2426,4 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
     }
 
-    private void sendExecutionTimeAnalyticsEvent(Stopwatch stopwatch, Application application) {
-        stopwatch.stopTimer();
-        sessionUserService
-            .getCurrentUser()
-            .map(currentUser -> {
-                try {
-                    final Map<String, Object> data = Map.of(
-                            FieldName.APPLICATION_ID, application.getId(),
-                            "process", stopwatch.getAction(),
-                            "executionTime", stopwatch.getExecutionTime()
-                    );
-                    analyticsService.sendEvent(AnalyticsEvents.GENERATE_CRUD_PAGE.getEventName(), currentUser.getUsername(), data);
-                } catch (Exception e) {
-                    log.debug("Error sending api execution time: ", e);
-                }
-                return null;
-            });
-    }
 }

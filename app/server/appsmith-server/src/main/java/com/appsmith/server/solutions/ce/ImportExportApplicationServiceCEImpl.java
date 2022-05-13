@@ -529,7 +529,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             "pageCount", applicationJson.getPageList().size(),
                             "actionCount", applicationJson.getActionList().size(),
                             "JSObjectCount", applicationJson.getActionCollectionList().size(),
-                            "unitName", stopwatch.getAction(),
+                            FieldName.FLOW_NAME, stopwatch.getFlow(),
                             "executionTime", stopwatch.getExecutionTime()
                     );
                     analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data);
@@ -1133,7 +1133,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         "pageCount", applicationJson.getPageList().size(),
                                         "actionCount", applicationJson.getActionList().size(),
                                         "JSObjectCount", applicationJson.getActionCollectionList().size(),
-                                        "unitName", stopwatch.getAction(),
+                                        FieldName.FLOW_NAME, stopwatch.getFlow(),
                                         "executionTime", stopwatch.getExecutionTime()
                                 );
                                 analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
