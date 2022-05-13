@@ -1,22 +1,37 @@
-name: Packer build ami image
+---
+
+name: Packer
 
 on:
   push:
 
 jobs:
-  packer_build:
+  packer:
     runs-on: ubuntu-latest
+    name: packer
+
     steps:
-      - uses: actions/checkout@v1
-      - name: Install required Libs
-        run: sudo apt-get install -y ansible
-      - name: Packer build
-        uses: riznob/packer-build-action@v1.5
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      # validate templates
+      - name: Validate Template
+        uses: hashicorp/packer-github-actions@master
         with:
-          templateFile: 'template.json.pkr.hcl'
-          varFile: 'vars-dev.json'
-          workingDir: 'deploy/packer'
+          command: validate
+          arguments: -syntax-only
+          target: packer.pkr.hcl
+
+      # build artifact
+      - name: Build Artifact
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: build
+          working_directory: deploy/packer
+          arguments: "-var 'vpc_id=vpc-41b8bd29' -var 'subnet_id=subnet-26ac3f6a' -color=false -on-error=abort"
+          target: template.json.pkr.hcl
         env:
+          PACKER_LOG: 1
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ap-south-1
