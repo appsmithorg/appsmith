@@ -232,9 +232,19 @@
           "placeholderText": "https://example.com/login/oauth/authorize",
           "isRequired": false,
           "hidden": {
-            "path": "datasourceConfiguration.authentication.grantType",
-            "comparison": "NOT_EQUALS",
-            "value": "authorization_code"
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "datasourceConfiguration.authentication.authenticationType",
+                "comparison": "NOT_EQUALS",
+                "value": "oAuth2"
+              },
+              {
+                "path": "datasourceConfiguration.authentication.grantType",
+                "comparison": "NOT_EQUALS",
+                "value": "authorization_code"
+              }
+            ]
           }
         },
         {
@@ -242,13 +252,24 @@
           "subtitle": "Url that the oauth server should redirect to",
           "configProperty": "datasourceConfiguration.authentication.redirectURL",
           "controlType": "FIXED_KEY_INPUT",
+          "disabled": true,
           "placeholderText": "Redirect URL",
           "isRequired": false,
           "initialValue": "{{window.location.origin + '/api/v1/datasources/authorize'}}",
           "hidden": {
-            "path": "datasourceConfiguration.authentication.grantType",
-            "comparison": "NOT_EQUALS",
-            "value": "authorization_code"
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "datasourceConfiguration.authentication.authenticationType",
+                "comparison": "NOT_EQUALS",
+                "value": "oAuth2"
+              },
+              {
+                "path": "datasourceConfiguration.authentication.grantType",
+                "comparison": "NOT_EQUALS",
+                "value": "authorization_code"
+              }
+            ]
           }
         },
         {
@@ -257,9 +278,19 @@
           "controlType": "KEYVALUE_ARRAY",
           "isRequired": false,
           "hidden": {
-            "path": "datasourceConfiguration.authentication.grantType",
-            "comparison": "NOT_EQUALS",
-            "value": "authorization_code"
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "datasourceConfiguration.authentication.authenticationType",
+                "comparison": "NOT_EQUALS",
+                "value": "oAuth2"
+              },
+              {
+                "path": "datasourceConfiguration.authentication.grantType",
+                "comparison": "NOT_EQUALS",
+                "value": "authorization_code"
+              }
+            ]
           }
         },
         {
@@ -268,9 +299,19 @@
           "controlType": "DROP_DOWN",
           "isRequired": false,
           "hidden": {
-            "path": "datasourceConfiguration.authentication.grantType",
-            "comparison": "NOT_EQUALS",
-            "value": "authorization_code"
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "datasourceConfiguration.authentication.authenticationType",
+                "comparison": "NOT_EQUALS",
+                "value": "oAuth2"
+              },
+              {
+                "path": "datasourceConfiguration.authentication.grantType",
+                "comparison": "NOT_EQUALS",
+                "value": "authorization_code"
+              }
+            ]
           },
           "initialValue": true,
           "options": [
@@ -294,22 +335,27 @@
             "conditionType": "OR",
             "conditions": [
               {
-                "path": "datasourceConfiguration.authentication.grantType",
+                "path": "datasourceConfiguration.authentication.authenticationType",
                 "comparison": "NOT_EQUALS",
-                "value": "client_credentials"
+                "value": "oAuth2"
               },
               {
                 "conditionType": "AND",
                 "conditions": [
                   {
+                    "path": "datasourceConfiguration.authentication.authenticationType",
+                    "comparison": "EQUALS",
+                    "value": "oAuth2"
+                  },
+                  {
                     "path": "datasourceConfiguration.authentication.grantType",
-                    "comparison": "NOT_EQUALS",
+                    "comparison": "EQUALS",
                     "value": "authorization_code"
                   },
                   {
                     "path": "datasourceConfiguration.authentication.isAuthorizationHeader",
-                    "comparison": "NOT_EQUALS",
-                    "value": false
+                    "comparison": "EQUALS",
+                    "value": true
                   }
                 ]
               }
@@ -326,22 +372,27 @@
             "conditionType": "OR",
             "conditions": [
               {
-                "path": "datasourceConfiguration.authentication.grantType",
+                "path": "datasourceConfiguration.authentication.authenticationType",
                 "comparison": "NOT_EQUALS",
-                "value": "client_credentials"
+                "value": "oAuth2"
               },
               {
                 "conditionType": "AND",
                 "conditions": [
                   {
+                    "path": "datasourceConfiguration.authentication.authenticationType",
+                    "comparison": "EQUALS",
+                    "value": "oAuth2"
+                  },
+                  {
                     "path": "datasourceConfiguration.authentication.grantType",
-                    "comparison": "NOT_EQUALS",
+                    "comparison": "EQUALS",
                     "value": "authorization_code"
                   },
                   {
                     "path": "datasourceConfiguration.authentication.isAuthorizationHeader",
-                    "comparison": "NOT_EQUALS",
-                    "value": false
+                    "comparison": "EQUALS",
+                    "value": true
                   }
                 ]
               }
@@ -365,7 +416,7 @@
             }
           ],
           "hidden": {
-            "conditionType": "AND",
+            "conditionType": "OR",
             "conditions": [
               {
                 "path": "datasourceConfiguration.authentication.authenticationType",
@@ -397,9 +448,19 @@
             }
           ],
           "hidden": {
-            "path": "datasourceConfiguration.authentication.authenticationType",
-            "comparison": "NOT_EQUALS",
-            "value": "oAuth2"
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "datasourceConfiguration.authentication.authenticationType",
+                "comparison": "NOT_EQUALS",
+                "value": "oAuth2"
+              },
+              {
+                "path": "datasourceConfiguration.authentication.grantType",
+                "comparison": "NOT_EQUALS",
+                "value": "authorization_code"
+              }
+            ]
           }
         },
         {
@@ -455,6 +516,7 @@
           "configProperty": "datasourceConfiguration.authentication.headerPrefix",
           "controlType": "INPUT_TEXT",
           "placeholderText": "eg: Bearer",
+          "initialValue": "Bearer",
           "isRequired": false,
           "hidden": {
             "path": "datasourceConfiguration.authentication.addTo",
