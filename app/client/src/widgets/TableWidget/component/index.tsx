@@ -148,6 +148,11 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       header.setAttribute("draggable", true);
 
       header.ondragstart = (e: React.DragEvent<HTMLDivElement>) => {
+        // check if table column is resizing
+        const isResizing = !!document.querySelectorAll(".resizer.isResizing")
+          .length;
+        // disable draging if resizing
+        if (isResizing) return;
         header.style =
           "background: #efefef; border-radius: 4px; z-index: 100; width: 100%; text-overflow: none; overflow: none;";
         e.stopPropagation();
