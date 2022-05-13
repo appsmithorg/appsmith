@@ -18,6 +18,7 @@ import {
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
 import {
+  resetThemeAction,
   setAppThemingModeStackAction,
   updateSelectedAppThemeAction,
 } from "actions/appThemingActions";
@@ -105,6 +106,13 @@ function ThemeEditor() {
     setSaveModalOpen(false);
   }, [setSaveModalOpen]);
 
+  /**
+   * resets theme
+   */
+  const onResetTheme = useCallback(() => {
+    dispatch(resetThemeAction());
+  }, [setAppThemingModeStackAction]);
+
   return (
     <>
       <div>
@@ -124,6 +132,12 @@ function ThemeEditor() {
                   </button>
                 </DropdownTrigger>
                 <DropdownList>
+                  <DropdownItem
+                    className="flex items-center"
+                    icon={<Save2LineIcon className="w-4 h-4" />}
+                    onClick={onResetTheme}
+                    text="Reset theme"
+                  />
                   <DropdownItem
                     className="flex items-center"
                     icon={<Save2LineIcon className="w-4 h-4" />}

@@ -1,4 +1,5 @@
 import React from "react";
+import { get, has } from "lodash";
 import {
   ChangeSelectedAppThemeAction,
   DeleteAppThemeAction,
@@ -32,6 +33,18 @@ import { APP_MODE } from "entities/App";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import { getBetaFlag, setBetaFlag, STORAGE_KEYS } from "utils/storage";
+import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
+import {
+  batchUpdateMultipleWidgetProperties,
+  UpdateWidgetPropertyPayload,
+} from "actions/controlActions";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
+import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
+import { parseSchemaItem } from "widgets/WidgetUtils";
+import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
 
 /**
  * init app theming
@@ -253,10 +266,147 @@ function* closeisBetaCardShown() {
   } catch (error) {}
 }
 
+function* resetTheme() {
+  try {
+    const propertiesToUpdate: UpdateWidgetPropertyPayload[] = [];
+    const canvasWidgets = yield select(getCanvasWidgets);
+    const themeStylesheet = yield select(getSelectedAppThemeStylesheet);
+
+    const propertiesToIgnore = [
+      "childStylesheet",
+      "submitButtonStyles",
+      "resetButtonStyles",
+    ];
+
+    // return;
+
+    Object.keys(canvasWidgets).map((widgetId) => {
+      const widget = canvasWidgets[widgetId];
+      const stylesheetValue = themeStylesheet[widget.type];
+      const modifications: any = {};
+
+      if (stylesheetValue) {
+        Object.keys(stylesheetValue).map((propertyKey) => {
+          if (
+            stylesheetValue[propertyKey] !== widget[propertyKey] &&
+            propertiesToIgnore.includes(propertyKey) === false
+          ) {
+            modifications[propertyKey] = stylesheetValue[propertyKey];
+          }
+        });
+
+        if (widget.type === "TABLE_WIDGET") {
+          Object.keys(widget.primaryColumns).map((primaryColumnKey) => {
+            const primaryColumn = widget.primaryColumns[primaryColumnKey];
+            const childStylesheetValue =
+              widget.childStylesheet[primaryColumn.columnType];
+
+            if (childStylesheetValue) {
+              Object.keys(childStylesheetValue).map((childPropertyKey) => {
+                const { jsSnippets, stringSegments } = getDynamicBindings(
+                  childStylesheetValue[childPropertyKey],
+                );
+
+                const js = combineDynamicBindings(jsSnippets, stringSegments);
+                const computedValue = `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`;
+
+                if (computedValue !== primaryColumn[childPropertyKey]) {
+                  modifications[
+                    `primaryColumns.${primaryColumnKey}.${childPropertyKey}`
+                  ] = computedValue;
+                }
+              });
+            }
+          });
+        }
+
+        if (widget.type === "BUTTON_GROUP_WIDGET") {
+          Object.keys(widget.groupButtons).map((groupButtonName: string) => {
+            const groupButton = widget.groupButtons[groupButtonName];
+
+            const childStylesheetValue = stylesheetValue.childStylesheet.button;
+
+            Object.keys(childStylesheetValue).map((childPropertyKey) => {
+              if (
+                childStylesheetValue[childPropertyKey] !==
+                groupButton[childPropertyKey]
+              ) {
+                modifications[
+                  `groupButtons.${groupButtonName}.${childPropertyKey}`
+                ] = childStylesheetValue[childPropertyKey];
+              }
+            });
+          });
+        }
+
+        if (widget.type === "JSON_FORM_WIDGET") {
+          if (has(widget, "schema")) {
+            parseSchemaItem(
+              widget.schema[ROOT_SCHEMA_KEY],
+              `schema.${ROOT_SCHEMA_KEY}`,
+              (schemaItem, propertyPath) => {
+                const fieldStylesheet = getFieldStylesheet(
+                  schemaItem.fieldType,
+                  themeStylesheet[widget.type].childStylesheet,
+                );
+
+                Object.keys(fieldStylesheet).map((fieldPropertyKey) => {
+                  const fieldStylesheetValue =
+                    fieldStylesheet[fieldPropertyKey];
+
+                  if (
+                    fieldStylesheetValue !== get(schemaItem, fieldPropertyKey)
+                  ) {
+                    modifications[
+                      `${[propertyPath]}.${fieldPropertyKey}`
+                    ] = fieldStylesheetValue;
+                  }
+                });
+              },
+            );
+          }
+
+          // reset submit button
+          ["submitButtonStyles", "resetButtonStyles"].map((buttonStyleKey) => {
+            Object.keys(stylesheetValue[buttonStyleKey]).map((propertyKey) => {
+              const buttonStylesheetValue =
+                stylesheetValue[buttonStyleKey][propertyKey];
+
+              if (
+                buttonStylesheetValue !== widget[buttonStyleKey][propertyKey]
+              ) {
+                modifications[
+                  `${buttonStyleKey}.${propertyKey}`
+                ] = buttonStylesheetValue;
+              }
+            });
+          });
+        }
+
+        if (Object.keys(modifications).length > 0) {
+          propertiesToUpdate.push({
+            widgetId,
+            updates: {
+              modify: modifications,
+            },
+          });
+        }
+      }
+    });
+
+    console.log({ propertiesToUpdate, canvasWidgets });
+
+    if (propertiesToUpdate.length) {
+      yield put(batchUpdateMultipleWidgetProperties(propertiesToUpdate));
+    }
+  } catch (error) {}
+}
+
 export default function* appThemingSaga() {
   yield all([takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, initAppTheming)]);
   yield all([
     takeLatest(ReduxActionTypes.FETCH_APP_THEMES_INIT, fetchAppThemes),
+    takeLatest(ReduxActionTypes.RESET_APP_THEME_INIT, resetTheme),
     takeLatest(
       ReduxActionTypes.FETCH_SELECTED_APP_THEME_INIT,
       fetchAppSelectedTheme,
