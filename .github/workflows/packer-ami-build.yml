@@ -19,6 +19,7 @@ jobs:
         uses: hashicorp/packer-github-actions@master
         with:
           command: validate
+          working_directory: deploy/packer
           arguments: -syntax-only
           target: template.json.pkr.hcl
 
