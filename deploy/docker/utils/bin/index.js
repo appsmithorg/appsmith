@@ -43,8 +43,8 @@ if (['check-replica-set', 'check_replica_set', 'crs'].includes(command)) {
   return;
 }
 
-if (command === 'backup') {
-  require('./backup.js').run();
+if (['backup', 'restore'].includes(command)) {
+  require(`./${command}.js`).run(process.argv.slice(3));
   return;
 }
 

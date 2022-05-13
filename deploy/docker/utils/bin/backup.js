@@ -83,7 +83,7 @@ async function writeVersion(path) {
 async function createFinalArchive(destFolder, timestamp) {
   console.log('Creating final archive');
 
-  const archive = `${Constants.BACKUP_PATH}/full-backup-${timestamp}.tar.gz`;
+  const archive = `${Constants.BACKUP_PATH}/appsmith-backup-${timestamp}.tar.gz`;
   await utils.execCommand(['tar', '-cah', '-C', destFolder, '-f', archive, '.']);
 
   console.log('Created final archive');
