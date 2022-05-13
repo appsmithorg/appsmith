@@ -12,14 +12,12 @@ import {
   getTemplateFilterSelector,
 } from "selectors/templatesSelectors";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
-import { thinScrollbar } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const FilterWrapper = styled.div`
   overflow: auto;
   height: calc(100vh - ${(props) => props.theme.homePage.header + 200}px);
-  ${thinScrollbar}
 
   .more {
     padding-left: ${(props) => props.theme.spaces[11]}px;
@@ -56,9 +54,6 @@ const StyledFilterItem = styled.div<{ selected: boolean }>`
   justify-content: space-between;
   padding: ${(props) =>
     `${props.theme.spaces[2]}px ${props.theme.spaces[6]}px ${props.theme.spaces[2]}px ${props.theme.spaces[11]}px`};
-  .${Classes.TEXT} {
-    color: ${Colors.MIRAGE_2};
-  }
   ${(props) =>
     props.selected &&
     `
@@ -72,15 +67,22 @@ const StyledFilterItem = styled.div<{ selected: boolean }>`
     visibility: ${(props) => (props.selected ? "visible" : "hidden")};
   }
 
+  .${Classes.TEXT} {
+    font-weight: ${(props) => props.theme.fontWeights[1]};
+  }
+
   &:hover {
     background-color: ${Colors.GALLERY_1};
+    .${Classes.TEXT} {
+      font-weight: ${(props) => props.theme.fontWeights[1]};
+      color: ${Colors.CODE_GRAY};
+    }
   }
 `;
 
 const StyledFilterCategory = styled(Text)`
   margin-bottom: ${(props) => props.theme.spaces[4]}px;
   padding-left: ${(props) => props.theme.spaces[6]}px;
-  font-weight: bold;
 
   &.title {
     margin-bottom: ${(props) => props.theme.spaces[12] - 2}px;
@@ -127,7 +129,7 @@ function FilterItem({ item, onSelect, selected }: FilterItemProps) {
 
   return (
     <StyledFilterItem onClick={onClick} selected={selected}>
-      <Text color={Colors.MIRAGE_2} type={TextType.P1}>
+      <Text color={Colors.CHARCOAL} type={TextType.H5}>
         {item.label}
       </Text>
       <Icon name={"close-x"} size={IconSize.XXXL} />
@@ -168,7 +170,7 @@ function FilterCategory({
 
   return (
     <FilterCategoryWrapper>
-      <StyledFilterCategory type={TextType.P4}>
+      <StyledFilterCategory type={TextType.BUTTON_MEDIUM}>
         {label.toLocaleUpperCase()}{" "}
         {!!selectedFilters.length && `(${selectedFilters.length})`}
       </StyledFilterCategory>
@@ -223,7 +225,10 @@ function Filters() {
     <Wrapper>
       <SecondWrapper>
         <FilterWrapper>
-          <StyledFilterCategory className={"title"} type={TextType.H5}>
+          <StyledFilterCategory
+            className={"title"}
+            type={TextType.BUTTON_MEDIUM}
+          >
             {createMessage(FILTERS)}
           </StyledFilterCategory>
           {Object.keys(filters).map((filter) => {
