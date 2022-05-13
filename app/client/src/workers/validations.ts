@@ -271,14 +271,14 @@ export const validate = (
   props: Record<string, unknown>,
   propertyPath: string,
 ): ValidationResponse => {
-  const _result = VALIDATORS[config.type as ValidationTypes](
-    config,
-    value,
-    props,
-    propertyPath,
-  );
-
-  return _result;
+  const validator = VALIDATORS[config.type];
+  if (validator) {
+    return validator(config, value, props, propertyPath);
+  }
+  return {
+    isValid: true,
+    parsed: value,
+  };
 };
 
 export const WIDGET_TYPE_VALIDATION_ERROR =
@@ -351,11 +351,12 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
   }
 }
 
-export const VALIDATORS: Record<ValidationTypes, Validator> = {
+export const VALIDATORS = {
   [ValidationTypes.TEXT]: (
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
+    propertyPath: string,
   ): ValidationResponse => {
     if (value === undefined || value === null || value === "") {
       if (config.params && config.params.required) {
