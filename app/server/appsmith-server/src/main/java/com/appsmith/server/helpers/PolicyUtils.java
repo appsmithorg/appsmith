@@ -20,6 +20,7 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -42,6 +43,7 @@ import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
 @Component
 @AllArgsConstructor
+@Slf4j
 public class PolicyUtils {
 
     private final PolicyGenerator policyGenerator;
@@ -52,6 +54,11 @@ public class PolicyUtils {
     private final CommentThreadRepository commentThreadRepository;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ThemeRepository themeRepository;
+
+    public static Integer pagesUpdated = 0;
+    public static Map<String, Integer> actionsUpdated = new HashMap<>();
+    public static Map<String, Integer> collectionsUpdated = new HashMap<>();
+    public static Map<String, Integer> themesUpdated = new HashMap<>();
 
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
@@ -173,7 +180,10 @@ public class PolicyUtils {
                     }
                 })
                 .collectList()
-                .flatMapMany(updatedDatasources -> datasourceRepository.saveAll(updatedDatasources));
+                .flatMapMany(updatedDatasources -> {
+                    log.debug("updated datasources : {}", updatedDatasources.size());
+                    return datasourceRepository.saveAll(updatedDatasources);
+                });
     }
 
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIds(Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
@@ -211,7 +221,10 @@ public class PolicyUtils {
                     }
                 })
                 .collectList()
-                .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications));
+                .flatMapMany(updatedApplications -> {
+                    log.debug("updated applications : {}", updatedApplications.size());
+                    return applicationRepository.saveAll(updatedApplications);
+                });
     }
 
     public Flux<NewPage> updateWithApplicationPermissionsToAllItsPages(String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject) {
@@ -232,8 +245,12 @@ public class PolicyUtils {
                     }
                 })
                 .collectList()
-                .flatMapMany(updatedPages -> newPageRepository
-                        .saveAll(updatedPages));
+                .flatMapMany(updatedPages -> {
+                    pagesUpdated = pagesUpdated + updatedPages.size();
+                    log.debug("Updated pages {} for app {}", updatedPages.size(), applicationId);
+                    return newPageRepository
+                            .saveAll(updatedPages);
+                });
     }
 
     public Flux<Theme> updateThemePolicies(Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject) {
@@ -258,7 +275,17 @@ public class PolicyUtils {
                     }
                 })
                 .collectList()
-                .flatMapMany(themeRepository::saveAll);
+                .flatMapMany(themes -> {
+                    Integer currentThemes = themesUpdated.get(application.getId());
+                    if (currentThemes == null) {
+                        currentThemes = themes.size();
+                    } {
+                        currentThemes = currentThemes + themes.size();
+                    }
+                    themesUpdated.put(application.getId(), currentThemes);
+                    log.debug("updating themes {} for app {}", themes.size(), application.getId());
+                    return themeRepository.saveAll(themes);
+                });
     }
 
     public Flux<CommentThread> updateCommentThreadPermissions(
@@ -282,7 +309,10 @@ public class PolicyUtils {
                     return thread;
                 })
                 .collectList()
-                .flatMapMany(commentThreadRepository::saveAll);
+                .flatMapMany(threads -> {
+                    log.debug("updating threads {} for app {}", threads.size(), applicationId);
+                    return commentThreadRepository.saveAll(threads);
+                });
     }
 
     /**
@@ -310,7 +340,17 @@ public class PolicyUtils {
                     }
                 })
                 .collectList()
-                .flatMapMany(newActionRepository::saveAll);
+                .flatMapMany(actions -> {
+                    Integer currentActions = actionsUpdated.get(applicationId);
+                    if (currentActions == null) {
+                        currentActions = actions.size();
+                    } {
+                        currentActions = currentActions + actions.size();
+                    }
+                    actionsUpdated.put(applicationId, currentActions);
+                    log.debug("updating actions {} for app {}", actions.size(), applicationId);
+                    return newActionRepository.saveAll(actions);
+                });
     }
 
     public Flux<ActionCollection> updateWithPagePermissionsToAllItsActionCollections(String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
@@ -326,7 +366,17 @@ public class PolicyUtils {
                     }
                 })
                 .collectList()
-                .flatMapMany(actionCollectionRepository::saveAll);
+                .flatMapMany(collections -> {
+                    Integer currentActions = collectionsUpdated.get(applicationId);
+                    if (currentActions == null) {
+                        currentActions = collections.size();
+                    } {
+                        currentActions += collections.size();
+                    }
+                    collectionsUpdated.put(applicationId, currentActions);
+                    log.debug("Updating collections {} for app {}", collections.size(), applicationId);
+                    return actionCollectionRepository.saveAll(collections);
+                });
     }
 
     public Map<String, Policy> generateInheritedPoliciesFromSourcePolicies(Map<String, Policy> sourcePolicyMap,
@@ -373,6 +423,14 @@ public class PolicyUtils {
         }
 
         return Collections.emptySet();
+    }
+
+    public Mono<Boolean> print() {
+        log.debug("pagesUpdated : {}", pagesUpdated);
+        log.debug("actionsUpdated : {}", actionsUpdated);
+        log.debug("collectionsUpdated : {}", collectionsUpdated);
+        log.debug("themesUpdated : {}", themesUpdated);
+        return Mono.just(Boolean.TRUE);
     }
 
 }

@@ -460,35 +460,64 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
         updatedOrganization.setUserRoles(userRoles);
 
         // Update the underlying application/page/action/action collection/comment thread
-        Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByOrgId(updatedOrganization.getId(), datasourcePolicyMap, true);
+        Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByOrgId(updatedOrganization.getId(), datasourcePolicyMap, true)
+                .doFinally(s -> log.debug("Updated all the datasources"));
         Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, true)
+                .doFinally(s -> log.debug("Updated all the applications"))
                 .cache();
         Flux<NewPage> updatedPagesFlux = updatedApplicationsFlux
-                .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true));
+                .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true))
+                .doFinally(s -> log.debug("Updated all the pages"));
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
-                .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, true));
+                .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, true))
+                .doFinally(s -> log.debug("Updated all the actions"));
         Flux<ActionCollection> updatedActionCollectionsFlux = updatedApplicationsFlux
-                .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, true));
+                .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, true))
+                .doFinally(s -> log.debug("Updated all the action collections"));
         Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateCommentThreadPermissions(
                         application.getId(), commentThreadPolicyMap, null, true
-                ));
+                ))
+                .doFinally(s -> log.debug("Updated all the comment threads"));
         Flux<Theme> updatedThemesFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateThemePolicies(
                         application, themePolicyMap, true
-                ));
+                ))
+                .doFinally(s -> log.debug("Updated all the themes"));
 
-        return Mono.when(
-                        updatedDatasourcesFlux.collectList(),
-                        updatedPagesFlux.collectList(),
-                        updatedActionsFlux.collectList(),
-                        updatedActionCollectionsFlux.collectList(),
-                        updatedThreadsFlux.collectList(),
-                        updatedThemesFlux.collectList()
+        Mono<Organization> saveOrgMono = Mono.just(updatedOrganization)
+                .flatMap(toSaveOrg -> {
+                    log.debug("Going to save the org {}", toSaveOrg.getName());
+                    return organizationRepository.save(toSaveOrg);
+                })
+                .map(savedOrg -> {
+                    log.debug("saved org : {}", savedOrg.getName());
+                    return savedOrg;
+                });
+
+        Mono<Organization> updateAllObjectsMono = Flux.merge(
+                        updatedDatasourcesFlux,
+                        updatedPagesFlux,
+                        updatedActionsFlux,
+                        updatedActionCollectionsFlux,
+                        updatedThreadsFlux,
+                        updatedThemesFlux
                 )
+                .reduce((accu, next) ->  accu)
+//                .then(tuple -> saveOrgMono);
                 // By now all the
                 // data sources/applications/pages/actions/action collections/comment threads
                 // have been updated. Just save the organization now
-                .then(organizationRepository.save(updatedOrganization));
+                .then(saveOrgMono);
+
+        // Clone Application is currently a slow API because it needs to create application, clone all the pages, and then
+        // clone all the actions. This process may take time and the client may cancel the request. This leads to the flow
+        // getting stopped mid way producing corrupted clones. The following ensures that even though the client may have
+        // cancelled the flow, the cloning of the application should proceed uninterrupted and whenever the user refreshes
+        // the page, the cloned application is available and is in sane state.
+        // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
+        // means that even if the subscriber has cancelled its subscription, the create method still generates its event.
+        return Mono.create(sink -> updateAllObjectsMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 }
