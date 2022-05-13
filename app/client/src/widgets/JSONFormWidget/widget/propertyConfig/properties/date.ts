@@ -132,7 +132,6 @@ const PROPERTIES = {
       propertyName: "timePrecision",
       label: "Time precision",
       controlType: "DROP_DOWN",
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       helpText: "Sets the different time picker or hide.",
       defaultValue: TimePrecision.MINUTE,
       options: [

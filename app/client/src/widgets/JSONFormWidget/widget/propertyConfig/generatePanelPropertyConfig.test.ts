@@ -35,35 +35,4 @@ describe(".generatePanelPropertyConfig", () => {
       currentPropertyConfig = fieldConfigurationProperty?.panelConfig;
     }
   });
-
-  it("should verify customJSControl for non textual control type with isJSConvertible enabled", (done) => {
-    const level = 2;
-    const panelPropertyConfig = generatePanelPropertyConfig(level);
-    const TEXTUAL_OR_ACTION_CONTROLS = [
-      "ACTION_SELECTOR",
-      "INPUT_TEXT",
-      "JSON_FORM_COMPUTE_CONTROL",
-    ];
-
-    expect(panelPropertyConfig).not.toBeUndefined();
-
-    const sections = panelPropertyConfig?.children as PropertyPaneSectionConfig[];
-
-    sections?.forEach((section) => {
-      (section.children as PropertyPaneControlConfig[])?.forEach(
-        (propertyConfig) => {
-          if (
-            propertyConfig.isJSConvertible &&
-            !TEXTUAL_OR_ACTION_CONTROLS.includes(propertyConfig.controlType) &&
-            propertyConfig.customJSControl !== "JSON_FORM_COMPUTE_VALUE"
-          ) {
-            done.fail(
-              `${section.sectionName} - ${propertyConfig.propertyName} should define "customJSControl" property as JSON_FORM_COMPUTE_VALUE`,
-            );
-          }
-        },
-      );
-    });
-    done();
-  });
 });
