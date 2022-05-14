@@ -121,7 +121,6 @@ ctx.addEventListener(
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
             dataTree = dataTreeResponse.evalTree;
             jsUpdates = dataTreeResponse.jsUpdates;
-            evalMetaUpdates = dataTreeResponse.evalMetaUpdates;
             // We need to clean it to remove any possible functions inside the tree.
             // If functions exist, it will crash the web worker
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
