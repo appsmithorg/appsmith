@@ -40,15 +40,3 @@ export function* requestModalConfirmationSaga(payload: ModalInfo) {
 
   return !!accept;
 }
-/**
- Wait while detecting state change with redux saga
- Read more => https://goshacmd.com/detect-state-change-redux-saga/ 
- */
-export function* waitFor(selector: (state: AppState) => any) {
-  if (yield select(selector)) return;
-
-  while (true) {
-    yield take("*");
-    if (yield select(selector)) return;
-  }
-}

@@ -71,7 +71,7 @@ import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { jsCollectionIdURL } from "RouteBuilder";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
-import { requestModalConfirmationSaga, waitFor } from "sagas/UtilSagas";
+import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
@@ -325,12 +325,16 @@ export function* handleExecuteJSFunctionSaga(data: {
     }),
   );
 
-  /**
-   * Only start executing when not saving
-   * This ensures that execution doesn't get carried out on stale values
-   * */
+  const isEntitySaving = yield select(getIsSavingEntity);
 
-  yield call(waitFor, (state: AppState) => !getIsSavingEntity(state));
+  /**
+   * Only start executing when no entity in the application is saving
+   * This ensures that execution doesn't get carried out on stale values
+   * This includes other entities which might be bound in the JS Function
+   */
+  if (isEntitySaving) {
+    yield take(ReduxActionTypes.ENTITY_UPDATE_SUCCESS);
+  }
 
   try {
     const { isDirty, result } = yield call(
