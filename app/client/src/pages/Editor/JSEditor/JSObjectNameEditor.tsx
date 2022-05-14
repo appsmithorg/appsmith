@@ -28,6 +28,7 @@ const JSObjectNameWrapper = styled.div<{ page?: string }>`
   justify-content: flex-start;
   align-content: center;
   & > div {
+    display: flex;
     max-width: 100%;
     flex: 0 1 auto;
     font-size: ${(props) => props.theme.fontSizes[5]}px;
@@ -95,11 +96,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
         saveStatus: { isSaving: boolean; error: boolean };
       }) => (
         <JSObjectNameWrapper page={props.page}>
-          <div
-            style={{
-              display: "flex",
-            }}
-          >
+          <div>
             {currentPlugin && (
               <JSIconWrapper
                 alt={currentPlugin.name}

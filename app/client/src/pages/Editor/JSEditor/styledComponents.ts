@@ -105,7 +105,7 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
   }
   &&& {
     ul.react-tabs__tab-list {
-      padding: 0px ${(props) => props.theme.spaces[12]}px;
+      padding: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
     }
