@@ -97,10 +97,6 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
     debouncedTriggerEvalOnMetaUpdate = debounce(
       this.handleTriggerEvalOnMetaUpdate,
       200,
-      {
-        leading: true,
-        trailing: true,
-      },
     );
 
     updateWidgetMetaProperty = (
