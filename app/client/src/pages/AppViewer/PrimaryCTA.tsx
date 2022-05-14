@@ -40,7 +40,6 @@ type Props = {
  * COMPONENT
  * ---------------------------------------------------------------------------------------------------
  */
-const LOGIN_URL = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
 function PrimaryCTA(props: Props) {
   const { className, url } = props;
@@ -56,12 +55,19 @@ function PrimaryCTA(props: Props) {
 
   // get the fork url
   const forkURL = useMemo(() => {
-    return `${LOGIN_URL}?redirectUrl=${window.location.origin}${viewerURL({
-      applicationId: currentApplication?.applicationId,
-      pageId: currentPageID,
-      suffix: "fork",
-    })}`;
+    const encodedForkRedirectURL = `${encodeURIComponent(
+      `${window.location.origin}${viewerURL({
+        applicationId: currentApplication?.applicationId,
+        pageId: currentPageID,
+        suffix: "fork",
+      })}`,
+    )}`;
+    return `${AUTH_LOGIN_URL}?redirectUrl=${encodedForkRedirectURL}`;
   }, [currentApplication?.applicationId, currentPageID]);
+
+  const LOGIN_URL = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
+    window.location.href,
+  )}`;
 
   /**
    * returns the cta to be used based on user login status

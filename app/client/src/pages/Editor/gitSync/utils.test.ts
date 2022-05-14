@@ -1,10 +1,12 @@
 import {
+  changeInfoSinceLastCommit,
   getIsStartingWithRemoteBranches,
   isLocalBranch,
   isRemoteBranch,
   isValidGitRemoteUrl,
   removeSpecialChars,
 } from "./utils";
+import { ApplicationVersion } from "actions/applicationActions";
 
 const validUrls = [
   "git@github.com:user/project.git",
@@ -204,6 +206,88 @@ describe("gitSync utils", () => {
         const result = removeSpecialChars(input);
         expect(result).toStrictEqual(expected[index]);
       });
+    });
+  });
+  describe("changeInfoSinceLastCommit", () => {
+    it("returns default data", () => {
+      const applicationData = {
+        appIsExample: false,
+        applicationVersion: ApplicationVersion.DEFAULT,
+        defaultPageId: "",
+        id: "",
+        isAutoUpdate: false,
+        isManualUpdate: false,
+        name: "",
+        organizationId: "",
+        pages: [],
+      };
+      const actual = changeInfoSinceLastCommit(applicationData);
+      const expected = {
+        changeReasonText: "Changes since last commit",
+        isAutoUpdate: false,
+        isManualUpdate: false,
+      };
+      expect(actual).toEqual(expected);
+    });
+    it("returns migration change only data", () => {
+      const applicationData = {
+        appIsExample: false,
+        applicationVersion: ApplicationVersion.DEFAULT,
+        defaultPageId: "",
+        id: "",
+        isAutoUpdate: true,
+        isManualUpdate: false,
+        name: "",
+        organizationId: "",
+        pages: [],
+      };
+      const actual = changeInfoSinceLastCommit(applicationData);
+      const expected = {
+        changeReasonText: "Appsmith update changes since last commit",
+        isAutoUpdate: true,
+        isManualUpdate: false,
+      };
+      expect(actual).toEqual(expected);
+    });
+    it("returns migration and user change data", () => {
+      const applicationData = {
+        appIsExample: false,
+        applicationVersion: ApplicationVersion.DEFAULT,
+        defaultPageId: "",
+        id: "",
+        isAutoUpdate: true,
+        isManualUpdate: true,
+        name: "",
+        organizationId: "",
+        pages: [],
+      };
+      const actual = changeInfoSinceLastCommit(applicationData);
+      const expected = {
+        changeReasonText: "Appsmith update and user changes since last commit",
+        isAutoUpdate: true,
+        isManualUpdate: true,
+      };
+      expect(actual).toEqual(expected);
+    });
+    it("returns user changes only data", () => {
+      const applicationData = {
+        appIsExample: false,
+        applicationVersion: ApplicationVersion.DEFAULT,
+        defaultPageId: "",
+        id: "",
+        isAutoUpdate: false,
+        isManualUpdate: true,
+        name: "",
+        organizationId: "",
+        pages: [],
+      };
+      const actual = changeInfoSinceLastCommit(applicationData);
+      const expected = {
+        changeReasonText: "Changes since last commit",
+        isAutoUpdate: false,
+        isManualUpdate: true,
+      };
+      expect(actual).toEqual(expected);
     });
   });
 });
