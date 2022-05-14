@@ -264,12 +264,11 @@ describe("AForce - Community Issues page validations", function () {
 
   })
 
-  it("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
-    
+  it("9. Validate Updating issue from Details tab", () => {
+
     agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
     table.SelectTableRow(0)
     agHelper.AssertElementPresence(locator._widgetInDeployed('tabswidget'))
-    
     agHelper.GetNClick(locator._inputWidgetv1InDeployed).type("-updating title")
     agHelper.GetNClick(locator._textAreainputWidgetv1InDeployed).type("-updating desc")
     agHelper.GetNClick(locator._inputWidgetv1InDeployed, 1).type("-updating issue link")
@@ -292,11 +291,10 @@ describe("AForce - Community Issues page validations", function () {
 
     //agHelper.Sleep(2000)
     //cy.get("body").type("{enter}")
-    // Multiselect check is to verify bug #13588.
-    // Currently, we have commented it.
-    // This test case fails due to https://github.com/appsmithorg/appsmith/issues/13588, commenting it while we fix the core issue.
-    // agHelper.RemoveMultiSelectItems(['Documented', 'Needs App'])
-    
+
+    agHelper.RemoveMultiSelectItems(['Documented', 'Needs App'])
+
+    //agHelper.SelectFromMultiSelect(['Documented', 'Needs App', 'App Built'], 0, false, 'multiselectwidget')
     agHelper.SelectFromMultiSelect(['Needs Product'], 0, true, 'multiselectwidget')
     agHelper.ClickButton('Save')
 
