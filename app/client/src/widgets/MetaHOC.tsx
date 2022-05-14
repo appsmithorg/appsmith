@@ -34,7 +34,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
     context!: React.ContextType<typeof EditorContext>;
 
     initialMetaState: Record<string, unknown>;
-    batchExecuteActions: Array<DebouncedExecuteActionPayload>;
+    actionsToExecuteInBatch: Record<string, DebouncedExecuteActionPayload>;
 
     constructor(props: metaHOCProps) {
       super(props);
@@ -44,20 +44,24 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
           return [metaProperty, this.props[metaProperty]];
         }),
       );
-      this.batchExecuteActions = [];
+      this.actionsToExecuteInBatch = {};
     }
 
-    addActionToBatch = (actionExecution: DebouncedExecuteActionPayload) => {
-      this.batchExecuteActions.push(actionExecution);
+    addActionToBatch = (
+      propertyName: string,
+      actionExecution: DebouncedExecuteActionPayload,
+    ) => {
+      this.actionsToExecuteInBatch[propertyName] = actionExecution;
     };
 
-    clearBatchActions = () => {
-      this.batchExecuteActions = [];
+    removeBatchActions = (propertyName: string) => {
+      delete this.actionsToExecuteInBatch[propertyName];
     };
 
     runBatchActions = () => {
       const { executeAction } = this.context;
-      this.batchExecuteActions.map((actionExecution) => {
+      const batchActionsToRun = Object.entries(this.actionsToExecuteInBatch);
+      batchActionsToRun.map(([propertyName, actionExecution]) => {
         if (actionExecution && actionExecution.dynamicString && executeAction) {
           executeAction({
             ...actionExecution,
@@ -67,6 +71,10 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
               name: this.props.widgetName,
             },
           });
+
+          // remove action from batch
+          this.removeBatchActions(propertyName);
+
           actionExecution.triggerPropertyName &&
             AppsmithConsole.info({
               text: `${actionExecution.triggerPropertyName} triggered`,
@@ -78,7 +86,6 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
             });
         }
       });
-      this.clearBatchActions();
     };
 
     handleTriggerEvalOnMetaUpdate = () => {
@@ -144,7 +151,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
           );
         }
       }
-      if (actionExecution) this.addActionToBatch(actionExecution);
+      if (actionExecution) this.addActionToBatch(propertyName, actionExecution);
       this.debouncedTriggerEvalOnMetaUpdate();
     };
 
