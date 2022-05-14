@@ -1012,7 +1012,8 @@ export function EditorJSONtoForm(props: Props) {
               <Resizable
                 panelRef={panelRef}
                 setContainerDimensions={(height: number) =>
-                  setTableBodyHeightHeight(height)
+                  // 39 in this case is the height of one table cell in pisels.
+                  setTableBodyHeightHeight(height - 39)
                 }
               />
               {output && !!output.length && (

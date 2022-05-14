@@ -1,4 +1,4 @@
-import React, { useRef, RefObject, useCallback } from "react";
+import React, { useRef, RefObject, useCallback, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
@@ -60,6 +60,10 @@ const ResponseContainer = styled.div`
 
   .react-tabs__tab-panel {
     overflow: hidden;
+  }
+
+  .react-tabs__tab-panel > * {
+    padding-bottom: 10px;
   }
 `;
 const ResponseMetaInfo = styled.div`
@@ -164,7 +168,9 @@ const HelpSection = styled.div`
 `;
 
 const ResponseBodyContainer = styled.div`
-  padding-bottom: 5px;
+  padding-top: 10px;
+  overflow-y: auto;
+  height: 100%;
 `;
 
 interface ReduxStateProps {
@@ -297,6 +303,10 @@ function ApiResponseView(props: Props) {
     });
   };
 
+  const [tableBodyHeight, setTableBodyHeightHeight] = useState(
+    window.innerHeight,
+  );
+
   const messages = response?.messages;
   let responseHeaders = {};
 
@@ -325,7 +335,11 @@ function ApiResponseView(props: Props) {
         index: index,
         key: dataType.key,
         title: dataType.title,
-        panelComponent: responseTabComponent(dataType.key, response.body),
+        panelComponent: responseTabComponent(
+          dataType.key,
+          response.body,
+          tableBodyHeight,
+        ),
       };
     });
 
@@ -488,7 +502,13 @@ function ApiResponseView(props: Props) {
 
   return (
     <ResponseContainer ref={panelRef}>
-      <Resizer panelRef={panelRef} />
+      <Resizer
+        panelRef={panelRef}
+        setContainerDimensions={(height: number) =>
+          // 39 in this case is the height of one table cell in pixels.
+          setTableBodyHeightHeight(height - 39)
+        }
+      />
       <SectionDivider />
       {isRunning && (
         <LoadingOverlayScreen theme={props.theme}>
