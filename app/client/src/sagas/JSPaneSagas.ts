@@ -54,6 +54,7 @@ import {
   JS_EXECUTION_SUCCESS,
   JS_EXECUTION_FAILURE,
   JS_EXECUTION_FAILURE_TOASTER,
+  JS_EXECUTION_SUCCESS_TOASTER,
   JS_FUNCTION_CREATE_SUCCESS,
   JS_FUNCTION_DELETE_SUCCESS,
   JS_FUNCTION_UPDATE_SUCCESS,
@@ -71,6 +72,8 @@ import { jsCollectionIdURL } from "RouteBuilder";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
+import { APP_MODE } from "entities/App";
+import { getAppMode } from "selectors/applicationSelectors";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const organizationId: string = yield select(getCurrentOrgId);
@@ -122,7 +125,9 @@ function* handleJSCollectionCreatedSaga(
   history.push(
     jsCollectionIdURL({
       collectionId: id,
-      params: {},
+      params: {
+        editName: true,
+      },
     }),
   );
 }
@@ -257,7 +262,12 @@ function* updateJSCollection(data: {
             createMessage(JS_FUNCTION_DELETE_SUCCESS),
           );
         }
-        yield put(updateJSCollectionSuccess({ data: response?.data }));
+
+        yield put(
+          updateJSCollectionSuccess({
+            data: response?.data,
+          }),
+        );
       }
     }
   } catch (error) {
@@ -304,6 +314,7 @@ export function* handleExecuteJSFunctionSaga(data: {
 }): any {
   const { action, collectionId, collectionName } = data;
   const actionId = action.id;
+  const appMode: APP_MODE = yield select(getAppMode);
   yield put(
     executeJSFunctionInit({
       collectionName,
@@ -312,13 +323,18 @@ export function* handleExecuteJSFunctionSaga(data: {
     }),
   );
   try {
-    const result = yield call(executeFunction, collectionName, action);
+    const { isDirty, result } = yield call(
+      executeFunction,
+      collectionName,
+      action,
+    );
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
         results: result,
         collectionId,
         actionId,
+        isDirty,
       },
     });
     AppsmithConsole.info({
@@ -330,6 +346,12 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
       state: { response: result },
     });
+    appMode === APP_MODE.EDIT &&
+      !isDirty &&
+      Toaster.show({
+        text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
+        variant: Variant.success,
+      });
   } catch (e) {
     AppsmithConsole.addError({
       id: actionId,

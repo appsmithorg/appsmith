@@ -179,7 +179,7 @@ export const extraLibraries: ExtraLibrary[] = [
     // We are removing some functionalities of node-forge because they wont
     // work in the worker thread
     lib: _.omit(forge, ["tls", "http", "xhr", "socket", "task"]),
-    version: "0.10.0",
+    version: "1.3.0",
     docsURL: "https://github.com/digitalbazaar/forge",
     displayName: "forge",
   },
@@ -301,6 +301,15 @@ export const isPathADynamicProperty = (
     return _.find(widget.dynamicPropertyPathList, { key: path }) !== undefined;
   }
   return false;
+};
+
+export const THEME_BINDING_REGEX = /{{.*appsmith\.theme\..*}}/;
+
+export const isThemeBoundProperty = (
+  widget: WidgetProps,
+  path: string,
+): boolean => {
+  return widget && widget[path] && THEME_BINDING_REGEX.test(widget[path]);
 };
 
 export const unsafeFunctionForEval = [

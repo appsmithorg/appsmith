@@ -20,6 +20,11 @@ describe("Modal Widget Functionality", function() {
       .click();
     cy.get(".t--entity-name:contains(Modal1)").click();
     cy.get(".t--modal-widget").should("exist");
+
+    cy.CreateAPI("FirstAPI");
+
+    cy.get(".t--entity-name:contains(Modal1)").click();
+    cy.get(".t--modal-widget").should("exist");
   });
 
   it("3. Display toast on close action", () => {

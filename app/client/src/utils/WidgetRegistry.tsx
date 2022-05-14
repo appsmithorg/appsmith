@@ -144,7 +144,8 @@ import VideoWidget, {
 import ProgressWidget, {
   CONFIG as PROGRESS_WIDGET_CONFIG,
 } from "widgets/ProgressWidget";
-import { registerWidget, WidgetConfiguration } from "./WidgetRegisterHelpers";
+import { registerWidget } from "./WidgetRegisterHelpers";
+import { WidgetConfiguration } from "widgets/constants";
 
 export const ALL_WIDGETS_AND_CONFIG = [
   [CanvasWidget, CANVAS_WIDGET_CONFIG],

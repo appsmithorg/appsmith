@@ -24,7 +24,7 @@ public class ApplicationTemplateControllerCE {
 
     @GetMapping
     public Mono<ResponseDTO<List<ApplicationTemplate>>> getAll() {
-        return applicationTemplateService.getActiveTemplates().collectList()
+        return applicationTemplateService.getActiveTemplates(null).collectList()
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 
@@ -40,10 +40,22 @@ public class ApplicationTemplateControllerCE {
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 
+    @GetMapping("filters")
+    public Mono<ResponseDTO<ApplicationTemplate>> getFilters() {
+        return applicationTemplateService.getFilters()
+                .map(filters -> new ResponseDTO<>(HttpStatus.OK.value(), filters, null));
+    }
+
     @PostMapping("{templateId}/import/{organizationId}")
     public Mono<ResponseDTO<Application>> importApplicationFromTemplate(@PathVariable String templateId,
                                                            @PathVariable String organizationId) {
         return applicationTemplateService.importApplicationFromTemplate(templateId, organizationId)
                 .map(importedApp -> new ResponseDTO<>(HttpStatus.OK.value(), importedApp, null));
+    }
+
+    @GetMapping("recent")
+    public Mono<ResponseDTO<List<ApplicationTemplate>>> getRecentlyUsedTemplates() {
+        return applicationTemplateService.getRecentlyUsedTemplates().collectList()
+                .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 }

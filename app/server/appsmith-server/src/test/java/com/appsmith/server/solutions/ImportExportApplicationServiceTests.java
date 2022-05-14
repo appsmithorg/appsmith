@@ -94,6 +94,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -630,7 +631,6 @@ public class ImportExportApplicationServiceTests {
 
                 NewPage newPage = pageList.get(0);
 
-                assertThat(applicationJson.getFileFormatVersion()).isNotNull();
                 assertThat(applicationJson.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
                 assertThat(applicationJson.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
 
@@ -2337,12 +2337,12 @@ public class ImportExportApplicationServiceTests {
     
     @Test
     @WithUserDetails(value = "api_user")
-    public void exportAndImportApplication_withMultiplePages_PagesOrderIsMaintained() {
+    public void exportAndImportApplication_withMultiplePagesOrderSameInDeployAndEditMode_PagesOrderIsMaintainedInEditAndViewMode() {
         Organization newOrganization = new Organization();
         newOrganization.setName("template-org-with-ds");
 
         Application testApplication = new Application();
-        testApplication.setName("exportApplication_withMultiplePages_PagesOrderIsMaintainedINExportedAppJson");
+        testApplication.setName("exportAndImportApplication_withMultiplePagesOrderSameInDeployAndEditMode_PagesOrderIsMaintainedInEditAndViewMode");
         testApplication.setExportWithConfiguration(true);
         testApplication = applicationPageService.createApplication(testApplication, orgId).block();
         assert testApplication != null;
@@ -2360,22 +2360,30 @@ public class ImportExportApplicationServiceTests {
         // Set order for the newly created pages
         applicationPageService.reorderPage(testApplication.getId(), page1.getId(), 0, null).block();
         applicationPageService.reorderPage(testApplication.getId(), page2.getId(), 1, null).block();
+        // Deploy the current application
+        applicationPageService.publish(testApplication.getId(), true).block();
 
         Mono<ApplicationJson> applicationJsonMono = importExportApplicationService.exportApplicationById(testApplication.getId(), "");
 
         StepVerifier
                 .create(applicationJsonMono)
                 .assertNext(applicationJson -> {
-                    List<NewPage> pageList = applicationJson.getPageList();
-                    assertThat(pageList.get(0).getUnpublishedPage().getName()).isEqualTo("123");
-                    assertThat(pageList.get(1).getUnpublishedPage().getName()).isEqualTo("abc");
-                    assertThat(pageList.get(2).getUnpublishedPage().getName()).isEqualTo("Page1");
+                    List<String> pageList = applicationJson.getPageOrder();
+                    assertThat(pageList.get(0)).isEqualTo("123");
+                    assertThat(pageList.get(1)).isEqualTo("abc");
+                    assertThat(pageList.get(2)).isEqualTo("Page1");
+
+                    List<String> publishedPageList = applicationJson.getPublishedPageOrder();
+                    assertThat(publishedPageList.get(0)).isEqualTo("123");
+                    assertThat(publishedPageList.get(1)).isEqualTo("abc");
+                    assertThat(publishedPageList.get(2)).isEqualTo("Page1");
                 })
                 .verifyComplete();
 
         ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(testApplication.getId(), "").block();
         Application application = importExportApplicationService.importApplicationInOrganization(orgId, applicationJson).block();
 
+        // Get the unpublished pages and verify the order
         List<ApplicationPage> pageDTOS = application.getPages();
         Mono<NewPage> newPageMono1 = newPageService.findById(pageDTOS.get(0).getId(), MANAGE_PAGES);
         Mono<NewPage> newPageMono2 = newPageService.findById(pageDTOS.get(1).getId(), MANAGE_PAGES);
@@ -2397,6 +2405,169 @@ public class ImportExportApplicationServiceTests {
                 })
                 .verifyComplete();
 
+        // Get the published pages
+        List<ApplicationPage> publishedPageDTOs = application.getPublishedPages();
+        Mono<NewPage> newPublishedPageMono1 = newPageService.findById(publishedPageDTOs.get(0).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPublishedPageMono2 = newPageService.findById(publishedPageDTOs.get(1).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPublishedPageMono3 = newPageService.findById(publishedPageDTOs.get(2).getId(), MANAGE_PAGES);
+
+        StepVerifier
+                .create(Mono.zip(newPublishedPageMono1, newPublishedPageMono2, newPublishedPageMono3))
+                .assertNext(objects -> {
+                    NewPage newPage1 = objects.getT1();
+                    NewPage newPage2 = objects.getT2();
+                    NewPage newPage3 = objects.getT3();
+                    assertThat(newPage1.getPublishedPage().getName()).isEqualTo("123");
+                    assertThat(newPage2.getPublishedPage().getName()).isEqualTo("abc");
+                    assertThat(newPage3.getPublishedPage().getName()).isEqualTo("Page1");
+
+                    assertThat(newPage1.getId()).isEqualTo(publishedPageDTOs.get(0).getId());
+                    assertThat(newPage2.getId()).isEqualTo(publishedPageDTOs.get(1).getId());
+                    assertThat(newPage3.getId()).isEqualTo(publishedPageDTOs.get(2).getId());
+                })
+                .verifyComplete();
+
     }
-    
+
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportAndImportApplication_withMultiplePagesOrderDifferentInDeployAndEditMode_PagesOrderIsMaintainedInEditAndViewMode() {
+        Organization newOrganization = new Organization();
+        newOrganization.setName("template-org-with-ds");
+
+        Application testApplication = new Application();
+        testApplication.setName("exportAndImportApplication_withMultiplePagesOrderDifferentInDeployAndEditMode_PagesOrderIsMaintainedInEditAndViewMode");
+        testApplication.setExportWithConfiguration(true);
+        testApplication = applicationPageService.createApplication(testApplication, orgId).block();
+        assert testApplication != null;
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("123");
+        testPage.setApplicationId(testApplication.getId());
+        PageDTO page1 = applicationPageService.createPage(testPage).block();
+
+        testPage = new PageDTO();
+        testPage.setName("abc");
+        testPage.setApplicationId(testApplication.getId());
+        PageDTO page2 = applicationPageService.createPage(testPage).block();
+
+        // Deploy the current application so that edit and view mode will have different page order
+        applicationPageService.publish(testApplication.getId(), true).block();
+
+        // Set order for the newly created pages
+        applicationPageService.reorderPage(testApplication.getId(), page1.getId(), 0, null).block();
+        applicationPageService.reorderPage(testApplication.getId(), page2.getId(), 1, null).block();
+
+        Mono<ApplicationJson> applicationJsonMono = importExportApplicationService.exportApplicationById(testApplication.getId(), "");
+
+        StepVerifier
+                .create(applicationJsonMono)
+                .assertNext(applicationJson -> {
+                    List<String> pageList = applicationJson.getPageOrder();
+                    assertThat(pageList.get(0)).isEqualTo("123");
+                    assertThat(pageList.get(1)).isEqualTo("abc");
+                    assertThat(pageList.get(2)).isEqualTo("Page1");
+
+                    List<String> publishedPageOrder = applicationJson.getPageOrder();
+                    assertThat(publishedPageOrder.get(0)).isEqualTo("123");
+                    assertThat(publishedPageOrder.get(1)).isEqualTo("abc");
+                    assertThat(publishedPageOrder.get(2)).isEqualTo("Page1");
+                })
+                .verifyComplete();
+
+        ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(testApplication.getId(), "").block();
+        Application application = importExportApplicationService.importApplicationInOrganization(orgId, applicationJson).block();
+
+        // Get the unpublished pages and verify the order
+        List<ApplicationPage> pageDTOS = application.getPages();
+        Mono<NewPage> newPageMono1 = newPageService.findById(pageDTOS.get(0).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPageMono2 = newPageService.findById(pageDTOS.get(1).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPageMono3 = newPageService.findById(pageDTOS.get(2).getId(), MANAGE_PAGES);
+
+        StepVerifier
+                .create(Mono.zip(newPageMono1, newPageMono2, newPageMono3))
+                .assertNext(objects -> {
+                    NewPage newPage1 = objects.getT1();
+                    NewPage newPage2 = objects.getT2();
+                    NewPage newPage3 = objects.getT3();
+                    assertThat(newPage1.getUnpublishedPage().getName()).isEqualTo("123");
+                    assertThat(newPage2.getUnpublishedPage().getName()).isEqualTo("abc");
+                    assertThat(newPage3.getUnpublishedPage().getName()).isEqualTo("Page1");
+
+                    assertThat(newPage1.getId()).isEqualTo(pageDTOS.get(0).getId());
+                    assertThat(newPage2.getId()).isEqualTo(pageDTOS.get(1).getId());
+                    assertThat(newPage3.getId()).isEqualTo(pageDTOS.get(2).getId());
+                })
+                .verifyComplete();
+
+        // Get the published pages
+        List<ApplicationPage> publishedPageDTOs = application.getPublishedPages();
+        Mono<NewPage> newPublishedPageMono1 = newPageService.findById(publishedPageDTOs.get(0).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPublishedPageMono2 = newPageService.findById(publishedPageDTOs.get(1).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPublishedPageMono3 = newPageService.findById(publishedPageDTOs.get(2).getId(), MANAGE_PAGES);
+
+        StepVerifier
+                .create(Mono.zip(newPublishedPageMono1, newPublishedPageMono2, newPublishedPageMono3))
+                .assertNext(objects -> {
+                    NewPage newPage1 = objects.getT1();
+                    NewPage newPage2 = objects.getT2();
+                    NewPage newPage3 = objects.getT3();
+                    assertThat(newPage1.getPublishedPage().getName()).isEqualTo("Page1");
+                    assertThat(newPage2.getPublishedPage().getName()).isEqualTo("123");
+                    assertThat(newPage3.getPublishedPage().getName()).isEqualTo("abc");
+
+                    assertThat(newPage1.getId()).isEqualTo(publishedPageDTOs.get(0).getId());
+                    assertThat(newPage2.getId()).isEqualTo(publishedPageDTOs.get(1).getId());
+                    assertThat(newPage3.getId()).isEqualTo(publishedPageDTOs.get(2).getId());
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportApplicationById_WhenThemeDoesNotExist_ExportedWithDefaultTheme() {
+        Theme customTheme = new Theme();
+        customTheme.setName("my-custom-theme");
+
+        String randomId = UUID.randomUUID().toString();
+        Application testApplication = new Application();
+        testApplication.setName("Application_" + randomId);
+        Mono<ApplicationJson> exportedAppJson = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application -> {
+                    application.setEditModeThemeId("invalid-theme-id");
+                    application.setPublishedModeThemeId("invalid-theme-id");
+                    String branchName = null;
+                    return applicationService.save(application)
+                            .then(importExportApplicationService.exportApplicationById(application.getId(), branchName));
+                });
+
+        StepVerifier.create(exportedAppJson).assertNext(applicationJson -> {
+            assertThat(applicationJson.getEditModeTheme().getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
+            assertThat(applicationJson.getPublishedTheme().getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_invalidPluginReferenceForDatasource_throwException() {
+
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Template Organization");
+
+        ApplicationJson appJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
+        assert appJson != null;
+        final String randomId = UUID.randomUUID().toString();
+        appJson.getDatasourceList().get(0).setPluginId(randomId);
+        final Mono<Application> resultMono = organizationService
+                .create(newOrganization)
+                .flatMap(organization -> importExportApplicationService.importApplicationInOrganization(organization.getId(), appJson));
+
+        StepVerifier
+                .create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.UNKNOWN_PLUGIN_REFERENCE.getMessage(randomId)))
+                .verify();
+    }
 }

@@ -7,6 +7,7 @@ import {
   Icon,
   Menu,
   MenuItem,
+  Classes as BClasses,
 } from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
@@ -14,18 +15,12 @@ import {
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
-  getCustomTextColor,
+  lightenColor,
+  getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
 import { ThemeProp } from "components/ads/common";
-import {
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadow,
-  ButtonBoxShadowTypes,
-  ButtonVariant,
-  ButtonVariantTypes,
-} from "components/constants";
+import { ButtonVariant, ButtonVariantTypes } from "components/constants";
 import { MenuItems } from "../Constants";
 import tinycolor from "tinycolor2";
 import { Colors } from "constants/Colors";
@@ -41,20 +36,42 @@ const MenuButtonContainer = styled.div`
   }
 `;
 
-const PopoverStyles = createGlobalStyle`
-  .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
-    background: none;
-  }
-  .menu-button-popover-backdrop {
+const PopoverStyles = createGlobalStyle<{
+  borderRadius: string;
+  accentColor: string;
+}>`
+   .table-menu-button-popover {
+     box-shadow: none;
+
+     & > .${Classes.POPOVER2_CONTENT} {
+      background: none;
+      box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+      margin-top: 8px !important;
+      border-radius: ${({ borderRadius }) =>
+        borderRadius >= `1.5rem` ? `0.375rem` : borderRadius};
+      overflow: hidden;
+    }
+
+    & .${BClasses.MENU_ITEM} {
+      padding: 9px 12px;
+      border-radius: 0;
+
+      &:hover {
+        background-color:  ${({ accentColor }) => lightenColor(accentColor)};
+      }
+    }
+   }
+
+  .table-menu-button-popover-backdrop {
     background-color: transparent !important;
   }
 `;
 
 interface BaseStyleProps {
   backgroundColor?: string;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius?: string;
+  boxShadow?: string;
+
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   isCompact?: boolean;
@@ -64,7 +81,7 @@ interface BaseStyleProps {
 const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
   height: 100%;
   background-image: none !important;
-  font-weight: ${(props) => props.theme.fontWeights[2]};
+  font-weight: 400;
   outline: none;
   padding: 0px 10px;
   overflow: hidden;
@@ -98,6 +115,9 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
       color: ${theme.colors.button.disabled.textColor} !important;
+      > span {
+        color: ${theme.colors.button.disabled.textColor} !important;
+      }
     }
 
     border: ${
@@ -119,32 +139,13 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
 
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY
-          ? getCustomTextColor(theme, buttonColor)
+          ? getComplementaryGrayscaleColor(buttonColor)
           : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
       } !important;
     }
   `}
-
-  border-radius: ${({ borderRadius }) =>
-    borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "5px" : 0};
-
-  box-shadow: ${({ boxShadow, boxShadowColor, theme }) =>
-    boxShadow === ButtonBoxShadowTypes.VARIANT1
-      ? `0px 0px 4px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant1}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT2
-      ? `3px 3px 4px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant2}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT3
-      ? `0px 1px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant3}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT4
-      ? `2px 2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant4}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT5
-      ? `-2px -2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant5}`
-      : "none"} !important;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
 `;
 
 const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
@@ -258,9 +259,9 @@ function PopoverContent(props: PopoverContentProps) {
 }
 
 interface PopoverTargetButtonProps {
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius?: string;
+  boxShadow?: string;
+
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   iconName?: IconName;
@@ -273,7 +274,7 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
   const {
     borderRadius,
     boxShadow,
-    boxShadowColor,
+
     buttonColor,
 
     buttonVariant,
@@ -288,7 +289,6 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
       alignText={iconName ? Alignment.LEFT : Alignment.CENTER}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
-      boxShadowColor={boxShadowColor}
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
       disabled={isDisabled}
@@ -308,9 +308,9 @@ export interface MenuButtonComponentProps {
   menuItems: MenuItems;
   menuVariant?: ButtonVariant;
   menuColor?: string;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius?: string;
+  boxShadow?: string;
+
   iconName?: IconName;
   iconAlign?: Alignment;
   onItemClicked: (onClick: string | undefined) => void;
@@ -318,15 +318,14 @@ export interface MenuButtonComponentProps {
 
 function MenuButtonTableComponent(props: MenuButtonComponentProps) {
   const {
-    borderRadius,
+    borderRadius = "0px",
     boxShadow,
-    boxShadowColor,
     iconAlign,
     iconName,
     isCompact,
     isDisabled,
     label,
-    menuColor,
+    menuColor = "#e1e1e1",
     menuItems,
     menuVariant,
     onItemClicked,
@@ -334,10 +333,10 @@ function MenuButtonTableComponent(props: MenuButtonComponentProps) {
 
   return (
     <MenuButtonContainer>
-      <PopoverStyles />
+      <PopoverStyles accentColor={menuColor} borderRadius={borderRadius} />
       <Popover2
         backdropProps={{
-          className: "menu-button-popover-backdrop",
+          className: "table-menu-button-popover-backdrop",
         }}
         content={
           <PopoverContent
@@ -351,12 +350,11 @@ function MenuButtonTableComponent(props: MenuButtonComponentProps) {
         hasBackdrop
         minimal
         placement="bottom-end"
-        popoverClassName="menu-button-popover"
+        popoverClassName="table-menu-button-popover"
       >
         <PopoverTargetButton
           borderRadius={borderRadius}
           boxShadow={boxShadow}
-          boxShadowColor={boxShadowColor}
           buttonColor={menuColor}
           buttonVariant={menuVariant}
           iconAlign={iconAlign}

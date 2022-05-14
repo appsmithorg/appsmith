@@ -10,6 +10,7 @@ import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.AppsmithBotAsset;
 import com.appsmith.git.constants.Constraint;
+import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.constants.GitDirectories;
 import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
@@ -72,10 +73,11 @@ public class GitExecutorImpl implements GitExecutor {
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
      * initialised and will be initialised if git repo is not present
-     * @param path parent path to repo
+     * @param path          parent path to repo
      * @param commitMessage message which will be registered for this commit
-     * @param authorName author details
-     * @param authorEmail author details
+     * @param authorName    author details
+     * @param authorEmail   author details
+     * @param doAmend       To amend with the previous commit
      * @return if the commit was successful
      */
     @Override
@@ -83,7 +85,8 @@ public class GitExecutorImpl implements GitExecutor {
                                           String commitMessage,
                                           String authorName,
                                           String authorEmail,
-                                          boolean isSuffixedPath) {
+                                          boolean isSuffixedPath,
+                                          boolean doAmend) {
 
         final String finalAuthorName = StringUtils.isEmptyOrNull(authorName) ? AppsmithBotAsset.APPSMITH_BOT_USERNAME : authorName;
         final String finalAuthorEmail = StringUtils.isEmptyOrNull(authorEmail) ? AppsmithBotAsset.APPSMITH_BOT_EMAIL : authorEmail;
@@ -108,6 +111,7 @@ public class GitExecutorImpl implements GitExecutor {
                         .setAllowEmpty(false)
                         .setAuthor(finalAuthorName, finalAuthorEmail)
                         .setCommitter(finalAuthorName, finalAuthorEmail)
+                        .setAmend(doAmend)
                         .call();
                 processStopwatch.stopAndLogTimeInMillis();
                 return "Committed successfully!";
@@ -469,7 +473,7 @@ public class GitExecutorImpl implements GitExecutor {
                 long modifiedJSObjects = 0L;
                 long modifiedDatasources = 0L;
                 for (String x : modifiedAssets) {
-                    if (x.contains(GitDirectories.PAGE_DIRECTORY + "/")) {
+                    if (x.contains(CommonConstants.CANVAS)) {
                         modifiedPages++;
                     } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
                         modifiedQueries++;

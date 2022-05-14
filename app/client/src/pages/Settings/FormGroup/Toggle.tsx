@@ -19,7 +19,10 @@ const ToggleStatus = styled.span`
   margin-left: 64px;
 `;
 
-function FieldToggleWithToggleText(toggleText?: (value: boolean) => string) {
+function FieldToggleWithToggleText(
+  toggleText?: (value: boolean) => string,
+  id?: string,
+) {
   return function FieldToggle(
     componentProps: FormTextFieldProps & {
       meta: Partial<WrappedFieldMetaProps>;
@@ -35,7 +38,11 @@ function FieldToggleWithToggleText(toggleText?: (value: boolean) => string) {
     */
     return (
       <ToggleWrapper>
-        <Toggle onToggle={onToggle} value={!componentProps.input.value} />
+        <Toggle
+          cypressSelector={id}
+          onToggle={onToggle}
+          value={!componentProps.input.value}
+        />
         <ToggleStatus>
           {typeof toggleText == "function"
             ? createMessage(() => toggleText(!componentProps.input.value))
@@ -57,7 +64,7 @@ export function ToggleComponent({ setting }: SettingComponentProps) {
     <StyledFieldToggleGroup>
       <FormGroup setting={setting}>
         <Field
-          component={FieldToggleWithToggleText(setting.toggleText)}
+          component={FieldToggleWithToggleText(setting.toggleText, setting.id)}
           name={setting.name}
         />
       </FormGroup>

@@ -125,7 +125,7 @@ const UserRole = styled.div`
   flex-basis: 25%;
   flex-shrink: 0;
   .${Classes.TEXT} {
-    color: ${(props) => props.theme.colors.modal.headerText};
+    color: ${Colors.COD_GRAY};
   }
 `;
 
@@ -138,6 +138,14 @@ const UserName = styled.div`
 
     &:nth-child(1) {
       margin-bottom: 1px;
+    }
+
+    &[type="h5"] {
+      color: ${Colors.COD_GRAY};
+    }
+
+    &[type="p2"] {
+      color: ${Colors.GRAY};
     }
   }
 `;
@@ -155,8 +163,8 @@ const Loading = styled(Spinner)`
 const MailConfigContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${(props) => props.theme.spaces[9]}px
-    ${(props) => props.theme.spaces[2]}px;
+  padding: 24px 4px;
+  padding-bottom: 0;
   align-items: center;
   && > span {
     color: ${(props) => props.theme.colors.modal.email.message};
@@ -302,6 +310,7 @@ function OrgInviteUsersForm(props: any) {
         <StyledInviteFieldGroup>
           <div className="wrapper">
             <TagListField
+              autofocus
               customError={(err: string) => setEmailError(err)}
               data-cy="t--invite-email-input"
               intent="success"

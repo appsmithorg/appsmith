@@ -49,11 +49,16 @@ export const fetchPage = (
   };
 };
 
-export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
+export const fetchPublishedPage = (
+  pageId: string,
+  bustCache = false,
+  firstLoad = false,
+) => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
   payload: {
     pageId,
     bustCache,
+    firstLoad,
   },
 });
 
@@ -462,3 +467,11 @@ export const setPageOrder = (
     },
   };
 };
+
+export const resetPageList = () => ({
+  type: ReduxActionTypes.RESET_PAGE_LIST,
+});
+
+export const resetApplicationWidgets = () => ({
+  type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
+});
