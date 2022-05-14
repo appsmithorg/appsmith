@@ -10,7 +10,6 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import withMeta from "widgets/MetaHOC";
 import { generateReactKey } from "./generators";
 import { memoize } from "lodash";
-import { withWidgetProps } from "widgets/withWidgetProps";
 import { WidgetFeatureProps } from "./WidgetFeatures";
 import { WidgetConfiguration } from "widgets/constants";
 
@@ -19,9 +18,9 @@ const generateWidget = memoize(function getWidgetComponent(
   needsMeta: boolean,
 ) {
   const MetaWidget = needsMeta ? withMeta(Widget) : Widget;
-  const ConfiguredWidget = withWidgetProps(MetaWidget as typeof BaseWidget);
-
-  return Sentry.withProfiler(ConfiguredWidget);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  return Sentry.withProfiler(MetaWidget);
 });
 
 export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
