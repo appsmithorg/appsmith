@@ -1,4 +1,4 @@
-import { all, takeEvery, race, put, take, select } from "redux-saga/effects";
+import { all, takeEvery, race, put, take } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -6,7 +6,6 @@ import {
 import history from "utils/history";
 import { showActionConfirmationModal } from "actions/pluginActionActions";
 import { ModalInfo } from "reducers/uiReducers/modalActionReducer";
-import { AppState } from "reducers";
 
 function* redirectWindowLocationSaga(
   actionPayload: ReduxAction<{ url: string }>,
