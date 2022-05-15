@@ -457,6 +457,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: SelectWidgetProps): void {
+    super.componentDidUpdate(prevProps);
     // Reset isDirty to false if defaultOptionValue changes
     if (
       !isEqual(this.props.defaultOptionValue, prevProps.defaultOptionValue) &&
