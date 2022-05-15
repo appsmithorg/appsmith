@@ -4,7 +4,11 @@ import * as Sentry from "@sentry/react";
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
 import ThemeEditor from "../ThemePropertyPane/ThemeEditor";
 
-export function CanvasPropertyPane() {
+type Props = {
+  skipThemeEditor?: boolean;
+};
+
+export function CanvasPropertyPane(props: Props) {
   return (
     <div className="relative ">
       <h3 className="px-3 py-3 text-sm font-medium uppercase">Properties</h3>
@@ -15,7 +19,7 @@ export function CanvasPropertyPane() {
           <MainContainerLayoutControl />
         </div>
 
-        <ThemeEditor />
+        {!props.skipThemeEditor && <ThemeEditor />}
       </div>
     </div>
   );
