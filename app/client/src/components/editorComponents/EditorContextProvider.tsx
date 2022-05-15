@@ -10,6 +10,7 @@ import {
   deleteWidgetProperty as deletePropertyAction,
   batchUpdateWidgetProperty as batchUpdatePropertyAction,
   BatchPropertyUpdatePayload,
+  updateWidgetDynamicHeightAction,
 } from "actions/controlActions";
 
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
@@ -45,6 +46,7 @@ export type EditorContextType = {
     widgetId: string,
     updates: BatchPropertyUpdatePayload,
   ) => void;
+  updateWidgetDynamicHeight?: (widgetId: string, height: number) => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -60,7 +62,9 @@ function EditorContextProvider(props: EditorContextProviderProps) {
     disableDrag,
     executeAction,
     resetChildrenMetaProperty,
+
     updateWidget,
+    updateWidgetDynamicHeight,
     updateWidgetMetaProperty,
     updateWidgetProperty,
   } = props;
@@ -77,6 +81,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       resetChildrenMetaProperty,
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
+      updateWidgetDynamicHeight,
     }),
     [
       executeAction,
@@ -87,6 +92,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       resetChildrenMetaProperty,
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
+      updateWidgetDynamicHeight,
     ],
   );
   return (
@@ -110,6 +116,7 @@ const mapDispatchToProps = {
   disableDrag: disableDragAction,
   deleteWidgetProperty: deletePropertyAction,
   batchUpdateWidgetProperty: batchUpdatePropertyAction,
+  updateWidgetDynamicHeight: updateWidgetDynamicHeightAction,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);

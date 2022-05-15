@@ -2,6 +2,9 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: true,
+  },
   type: Widget.getWidgetType(),
   name: "Checkbox",
   iconSVG: IconSVG,

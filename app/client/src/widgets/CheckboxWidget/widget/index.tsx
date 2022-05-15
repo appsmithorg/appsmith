@@ -159,6 +159,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: CheckboxWidgetProps) {
+    super.componentDidUpdate(prevProps);
     if (
       this.props.defaultCheckedState !== prevProps.defaultCheckedState &&
       this.props.isDirty
