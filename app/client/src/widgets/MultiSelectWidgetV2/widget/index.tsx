@@ -544,6 +544,7 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: MultiSelectWidgetProps): void {
+    super.componentDidUpdate(prevProps);
     // Check if defaultOptionValue is string
     let isStringArray = false;
     if (

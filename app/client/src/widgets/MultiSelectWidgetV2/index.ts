@@ -4,6 +4,9 @@ import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: true,
+  },
   type: Widget.getWidgetType(),
   name: "MultiSelect",
   iconSVG: IconSVG,
