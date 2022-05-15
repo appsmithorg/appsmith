@@ -80,12 +80,7 @@ function generatePanelPropertyConfig(
       },
       {
         sectionName: "Styles",
-        children: [
-          ...CHECKBOX_PROPERTIES.styles,
-          ...RADIO_GROUP_PROPERTIES.styles,
-          ...SWITCH_PROPERTIES.styles,
-          ...COMMON_PROPERTIES.styles,
-        ],
+        children: [...COMMON_PROPERTIES.styles],
         hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
           const schemaItem: SchemaItem = get(props, propertyPath, {});
 

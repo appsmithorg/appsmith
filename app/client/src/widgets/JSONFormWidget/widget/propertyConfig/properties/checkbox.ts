@@ -5,7 +5,6 @@ import {
   HiddenFnParams,
   getSchemaItem,
   getAutocompleteProperties,
-  getStylesheetValue,
 } from "../helper";
 
 type ExtendedControlConfig = PropertyPaneControlConfig & {
@@ -63,22 +62,6 @@ const PROPERTIES: Record<string, ExtendedControlConfig[]> = {
       isBindProperty: true,
       isTriggerProperty: true,
       additionalAutoComplete: getAutocompleteProperties,
-      hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.CHECKBOX),
-      dependencies: ["schema"],
-    },
-  ],
-  styles: [
-    {
-      propertyName: "accentColor",
-      helpText: "Sets the accent color of the checkbox",
-      label: "Accent Color",
-      controlType: "COLOR_PICKER",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: { type: ValidationTypes.TEXT },
-      getStylesheetValue,
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.CHECKBOX),
       dependencies: ["schema"],

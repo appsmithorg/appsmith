@@ -532,6 +532,7 @@ class MultiSelectTreeWidget extends BaseWidget<
         onChange={this.onOptionChange}
         options={options}
         placeholder={this.props.placeholderText as string}
+        ref={this.contentRef}
         value={filteredValue}
         widgetId={this.props.widgetId}
         width={componentWidth}

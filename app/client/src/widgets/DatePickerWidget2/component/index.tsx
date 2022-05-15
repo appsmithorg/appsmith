@@ -165,80 +165,82 @@ class DatePickerComponent extends React.Component<
         ? new Date(this.state.selectedDate)
         : null;
     return (
-      <StyledControlGroup
-        accentColor={this.props.accentColor}
-        borderRadius={this.props.borderRadius}
-        boxShadow={this.props.boxShadow}
-        compactMode={this.props.compactMode}
-        data-testid="datepicker-container"
-        fill
-        isValid={isValid}
-        labelPosition={this.props.labelPosition}
-        onClick={(e: any) => {
-          e.stopPropagation();
-        }}
-      >
-        {labelText && (
-          <LabelWithTooltip
-            alignment={labelAlignment}
-            className={`datepicker-label`}
-            color={labelTextColor}
-            compact={compactMode}
-            disabled={isDisabled}
-            fontSize={labelTextSize}
-            fontStyle={labelStyle}
-            loading={isLoading}
-            position={labelPosition}
-            text={labelText}
-            width={labelWidth}
-          />
-        )}
-        <DateInputWrapper
-          compactMode={compactMode}
-          labelPosition={labelPosition}
-        >
-          <ErrorTooltip
-            isOpen={!isValid}
-            message={createMessage(DATE_WIDGET_DEFAULT_VALIDATION_ERROR)}
-          >
-            <DateInput
-              className={this.props.isLoading ? "bp3-skeleton" : ""}
-              closeOnSelection={this.props.closeOnSelection}
-              dayPickerProps={{
-                firstDayOfWeek: this.props.firstDayOfWeek || 0,
-              }}
-              disabled={this.props.isDisabled}
-              formatDate={this.formatDate}
-              inputProps={{
-                inputRef: this.props.inputRef,
-              }}
-              maxDate={maxDate}
-              minDate={minDate}
-              onChange={this.onDateSelected}
-              parseDate={this.parseDate}
-              placeholder={"Select Date"}
-              popoverProps={{
-                usePortal: !this.props.withoutPortal,
-                canEscapeKeyClose: true,
-                portalClassName: `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`,
-              }}
-              shortcuts={this.props.shortcuts}
-              showActionsBar
-              timePrecision={
-                this.props.timePrecision === TimePrecision.NONE
-                  ? undefined
-                  : this.props.timePrecision
-              }
-              value={value}
-            />
-          </ErrorTooltip>
-        </DateInputWrapper>
-        <PopoverStyles
+      <div ref={this.props.innerRef}>
+        <StyledControlGroup
           accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
-          portalClassName={`${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`}
-        />
-      </StyledControlGroup>
+          boxShadow={this.props.boxShadow}
+          compactMode={this.props.compactMode}
+          data-testid="datepicker-container"
+          fill
+          isValid={isValid}
+          labelPosition={this.props.labelPosition}
+          onClick={(e: any) => {
+            e.stopPropagation();
+          }}
+        >
+          {labelText && (
+            <LabelWithTooltip
+              alignment={labelAlignment}
+              className={`datepicker-label`}
+              color={labelTextColor}
+              compact={compactMode}
+              disabled={isDisabled}
+              fontSize={labelTextSize}
+              fontStyle={labelStyle}
+              loading={isLoading}
+              position={labelPosition}
+              text={labelText}
+              width={labelWidth}
+            />
+          )}
+          <DateInputWrapper
+            compactMode={compactMode}
+            labelPosition={labelPosition}
+          >
+            <ErrorTooltip
+              isOpen={!isValid}
+              message={createMessage(DATE_WIDGET_DEFAULT_VALIDATION_ERROR)}
+            >
+              <DateInput
+                className={this.props.isLoading ? "bp3-skeleton" : ""}
+                closeOnSelection={this.props.closeOnSelection}
+                dayPickerProps={{
+                  firstDayOfWeek: this.props.firstDayOfWeek || 0,
+                }}
+                disabled={this.props.isDisabled}
+                formatDate={this.formatDate}
+                inputProps={{
+                  inputRef: this.props.inputRef,
+                }}
+                maxDate={maxDate}
+                minDate={minDate}
+                onChange={this.onDateSelected}
+                parseDate={this.parseDate}
+                placeholder={"Select Date"}
+                popoverProps={{
+                  usePortal: !this.props.withoutPortal,
+                  canEscapeKeyClose: true,
+                  portalClassName: `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`,
+                }}
+                shortcuts={this.props.shortcuts}
+                showActionsBar
+                timePrecision={
+                  this.props.timePrecision === TimePrecision.NONE
+                    ? undefined
+                    : this.props.timePrecision
+                }
+                value={value}
+              />
+            </ErrorTooltip>
+          </DateInputWrapper>
+          <PopoverStyles
+            accentColor={this.props.accentColor}
+            borderRadius={this.props.borderRadius}
+            portalClassName={`${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`}
+          />
+        </StyledControlGroup>
+      </div>
     );
   }
 
@@ -330,6 +332,7 @@ interface DatePickerComponentProps extends ComponentProps {
   shortcuts: boolean;
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
+  innerRef?: React.RefObject<HTMLDivElement>;
   inputRef?: IRef<HTMLInputElement>;
   borderRadius: string;
   boxShadow?: string;
@@ -340,4 +343,11 @@ interface DatePickerComponentState {
   selectedDate?: string;
 }
 
-export default DatePickerComponent;
+export default React.forwardRef<HTMLDivElement, DatePickerComponentProps>(
+  (props, ref) => (
+    <DatePickerComponent
+      {...props}
+      innerRef={ref as React.RefObject<HTMLDivElement>}
+    />
+  ),
+);
