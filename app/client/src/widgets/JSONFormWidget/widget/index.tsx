@@ -365,6 +365,7 @@ class JSONFormWidget extends BaseWidget<
         isWidgetMounting={this.isWidgetMounting}
         onFormValidityUpdate={this.onFormValidityUpdate}
         onSubmit={this.onSubmit}
+        ref={this.contentRef}
         registerResetObserver={this.registerResetObserver}
         renderMode={this.props.renderMode}
         resetButtonLabel={this.props.resetButtonLabel}
