@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Alignment, Switch } from "@blueprintjs/core";
+import { Alignment } from "@blueprintjs/core";
 
 import { ThemeProp } from "components/ads/common";
 import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
@@ -10,6 +10,7 @@ import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
 } from "components/ads/LabelWithTooltip";
+import { StyledSwitch } from "widgets/SwitchWidget/component";
 
 export interface SwitchGroupContainerProps {
   compactMode: boolean;
@@ -55,6 +56,7 @@ const SwitchGroupComponent = React.forwardRef<
   React.PropsWithChildren<SwitchGroupComponentProps>
 >((props, ref) => {
   const {
+    accentColor,
     alignment,
     compactMode,
     disabled,
@@ -110,7 +112,8 @@ const SwitchGroupComponent = React.forwardRef<
         {Array.isArray(options) &&
           options.length > 0 &&
           options.map((option: OptionProps) => (
-            <Switch
+            <StyledSwitch
+              accentColor={accentColor}
               alignIndicator={alignment}
               checked={(selected || []).includes(option.value)}
               disabled={disabled}
@@ -144,6 +147,7 @@ export interface SwitchGroupComponentProps {
   labelWidth?: number;
   widgetId: string;
   height: number;
+  accentColor: string;
 }
 
 SwitchGroupComponent.displayName = "SwitchGroupComponent";

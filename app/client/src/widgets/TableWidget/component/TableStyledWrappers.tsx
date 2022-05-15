@@ -2,21 +2,32 @@ import styled, { css } from "styled-components";
 import { TableSizes, CellLayoutProperties, CellAlignment } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
-import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
+import {
+  fontSizeUtility,
+  lightenColor,
+  darkenColor,
+} from "widgets/WidgetUtils";
+import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
 
 export const TableWrapper = styled.div<{
   width: number;
   height: number;
   tableSizes: TableSizes;
+  accentColor: string;
   backgroundColor?: Color;
   triggerRowSelection: boolean;
   isHeaderVisible?: boolean;
+  borderRadius: string;
+  boxShadow?: string;
 }>`
   width: 100%;
   height: 100%;
   background: white;
-  border: 1px solid ${Colors.GEYSER_LIGHT};
+  border: ${({ boxShadow }) =>
+    boxShadow === "none" ? `1px solid ${Colors.GEYSER_LIGHT}` : `none`};
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
@@ -62,10 +73,12 @@ export const TableWrapper = styled.div<{
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
       &.selected-row {
-        background: ${Colors.NARVIK_GREEN}!important;
+        background: ${({ accentColor }) =>
+          `${lightenColor(accentColor)}`} !important;
       }
       &:hover {
-        background: ${Colors.NARVIK_GREEN};
+        background: ${({ accentColor }) =>
+          `${lightenColor(accentColor)}`} !important;
       }
     }
     .th,
@@ -119,6 +132,11 @@ export const TableWrapper = styled.div<{
       z-index: 1;
     }
   }
+
+  .tbody .tr:last-child .td {
+    border-bottom: none;
+  }
+
   .draggable-header,
   .hidden-header {
     width: 100%;
@@ -226,6 +244,8 @@ export const PaginationWrapper = styled.div`
 export const PaginationItemWrapper = styled.div<{
   disabled?: boolean;
   selected?: boolean;
+  borderRadius: string;
+  accentColor: string;
 }>`
   background: ${(props) => (props.disabled ? Colors.MERCURY : Colors.WHITE)};
   border: 1px solid ${Colors.ALTO2};
@@ -238,8 +258,9 @@ export const PaginationItemWrapper = styled.div<{
   margin: 0 4px;
   pointer-events: ${(props) => props.disabled && "none"};
   cursor: pointer;
+  border-radius: ${({ borderRadius }) => borderRadius};
   &:hover {
-    border-color: ${Colors.GREEN};
+    border-color: ${({ accentColor }) => accentColor};
   }
   .bp3-icon svg {
     fill: ${(props) => (props.disabled ? Colors.GREY_8 : "")};
@@ -342,7 +363,7 @@ export const TableStyles = css<{
   background: ${(props) => props?.cellProperties?.cellBackground};
   font-size: ${(props) =>
     props?.cellProperties?.textSize &&
-    TEXT_SIZES[props?.cellProperties?.textSize]};
+    fontSizeUtility(props?.cellProperties?.textSize)};
 `;
 
 export const DraggableHeaderWrapper = styled.div<{
@@ -434,18 +455,27 @@ export const CellWrapper = styled.div<{
   }
 `;
 
-export const CellCheckboxWrapper = styled(CellWrapper)<{ isChecked?: boolean }>`
-  justify-content: center;
-  width: 40px;
+export const CellCheckboxWrapper = styled(CellWrapper)<{
+  isChecked?: boolean;
+  accentColor: string;
+  borderRadius: string;
+}>`
+  &&& {
+    justify-content: center;
+    width: 40px;
+    padding: 0px;
+    align-items: center;
+  }
   & > div {
+    border-radius: ${({ borderRadius }) => borderRadius};
+
     ${(props) =>
       props.isChecked
         ? `
-          background: ${Colors.FERN_GREEN};
+          background: ${props.accentColor};
           &:hover {
-            background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
-            ${Colors.FERN_GREEN};
-          } 
+            background: ${darkenColor(props.accentColor)};
+          }
             `
         : `
           border: 1px solid ${Colors.GREY_3};
