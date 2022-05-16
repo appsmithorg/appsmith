@@ -159,6 +159,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: SwitchWidgetProps): void {
+    super.componentDidUpdate(prevProps);
     if (
       this.props.defaultSwitchState !== prevProps.defaultSwitchState &&
       this.props.isDirty
