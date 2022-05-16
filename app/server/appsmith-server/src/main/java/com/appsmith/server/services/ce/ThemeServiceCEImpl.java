@@ -28,6 +28,7 @@ import javax.validation.Validator;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
 @Slf4j
@@ -68,8 +69,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     }
 
     @Override
-    public Mono<Theme> getApplicationTheme(String applicationId, ApplicationMode applicationMode) {
-        return applicationRepository.findById(applicationId, AclPermission.READ_APPLICATIONS)
+    public Mono<Theme> getApplicationTheme(String applicationId, ApplicationMode applicationMode, String branchName) {
+        return getApplication(applicationId, branchName, READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
                 )
@@ -87,8 +88,10 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     }
 
     @Override
-    public Flux<Theme> getApplicationThemes(String applicationId) {
-        return repository.getApplicationThemes(applicationId, READ_THEMES);
+    public Flux<Theme> getApplicationThemes(String applicationId, String branchName) {
+        return getApplication(applicationId, branchName, READ_APPLICATIONS).flatMapMany(
+                application -> repository.getApplicationThemes(application.getId(), READ_THEMES)
+        );
     }
 
     @Override
@@ -97,8 +100,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     }
 
     @Override
-    public Mono<Theme> updateTheme(String applicationId, Theme resource) {
-        return applicationRepository.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+    public Mono<Theme> updateTheme(String applicationId, String branchName, Theme resource) {
+        return getApplication(applicationId, branchName, MANAGE_APPLICATIONS)
                 .flatMap(application -> {
                     // makes sure user has permission to edit application and an application exists by this applicationId
                     // check if this application has already a customized them
@@ -107,8 +110,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     }
 
     @Override
-    public Mono<Theme> changeCurrentTheme(String newThemeId, String applicationId) {
-        return applicationRepository.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+    public Mono<Theme> changeCurrentTheme(String newThemeId, String applicationId, String branchName) {
+        return getApplication(applicationId, branchName, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
                 )
@@ -137,11 +140,11 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                                         && !StringUtils.hasLength(currentTheme.getApplicationId())) {
                                     // current theme is neither a system theme nor app theme, delete the user customizations
                                     return repository.delete(currentTheme).then(applicationRepository.setAppTheme(
-                                            applicationId, savedTheme.getId(),null, MANAGE_APPLICATIONS
+                                            application.getId(), savedTheme.getId(),null, MANAGE_APPLICATIONS
                                     )).thenReturn(savedTheme);
                                 } else {
                                     return applicationRepository.setAppTheme(
-                                            applicationId, savedTheme.getId(),null, MANAGE_APPLICATIONS
+                                            application.getId(), savedTheme.getId(),null, MANAGE_APPLICATIONS
                                     ).thenReturn(savedTheme);
                                 }
                             }).flatMap(savedTheme ->
@@ -269,8 +272,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     }
 
     @Override
-    public Mono<Theme> persistCurrentTheme(String applicationId, Theme resource) {
-        return applicationRepository.findById(applicationId, MANAGE_APPLICATIONS)
+    public Mono<Theme> persistCurrentTheme(String applicationId, String branchName, Theme resource) {
+        return getApplication(applicationId, branchName, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
                 )
@@ -288,7 +291,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                     Application application = themeAndApplicationTuple.getT2();
                     theme.setId(null); // we'll create a copy so setting id to null
                     theme.setSystemTheme(false);
-                    theme.setApplicationId(applicationId);
+                    theme.setApplicationId(application.getId());
                     theme.setOrganizationId(application.getOrganizationId());
                     theme.setPolicies(policyGenerator.getAllChildPolicies(
                             application.getPolicies(), Application.class, Theme.class
@@ -406,5 +409,13 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
         return repository.archiveByApplicationId(application.getId())
                 .then(repository.archiveDraftThemesById(application.getEditModeThemeId(), application.getPublishedModeThemeId()))
                 .thenReturn(application);
+    }
+
+    private Mono<Application> getApplication(String applicationId, String branchName, AclPermission permission) {
+        if(StringUtils.hasLength(branchName)) { // fetch the application by default id and branch name
+            return applicationRepository.getApplicationByGitBranchAndDefaultApplicationId(applicationId, branchName, AclPermission.MANAGE_APPLICATIONS);
+        } else { // fetch the application by id
+            return applicationRepository.findById(applicationId, MANAGE_APPLICATIONS);
+        }
     }
 }
