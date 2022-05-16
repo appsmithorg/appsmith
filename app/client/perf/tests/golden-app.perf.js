@@ -7,7 +7,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 const SEL = {
   category: "div[label=Uncategorized]",
-  multiSelect: ".rc-select-selection-search-input",
+  multiSelect: ".rc-select",
   table: "#tablejabdu9f16g",
   tableData: ".t--property-control-tabledata textarea",
   tableRow:

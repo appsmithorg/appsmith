@@ -56,7 +56,7 @@ import {
   STORE_VALUE,
   WATCH_GEO_LOCATION,
 } from "@appsmith/constants/messages";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { selectFeatureFlags } from "selectors/usersSelectors";
@@ -191,7 +191,7 @@ function getFieldFromValue(
             const errorArg = args[1] ? args[1][0] : "() => {}";
             const successArg = changeValue.endsWith(")")
               ? `() => ${changeValue}`
-              : `() => ${changeValue}()`;
+              : `() => {}`;
 
             return value.replace(
               ACTION_TRIGGER_REGEX,
@@ -217,7 +217,8 @@ function getFieldFromValue(
             const successArg = args[0] ? args[0][0] : "() => {}";
             const errorArg = changeValue.endsWith(")")
               ? `() => ${changeValue}`
-              : `() => ${changeValue}()`;
+              : `() => {}`;
+
             return value.replace(
               ACTION_TRIGGER_REGEX,
               `{{$1(${successArg}, ${errorArg})}}`,
@@ -553,7 +554,7 @@ function useIntegrationsOptionTree() {
       className: "t--create-datasources-query-btn",
       onSelect: () => {
         dispatch(
-          toggleShowGlobalSearchModal(
+          setGlobalSearchCategory(
             filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
           ),
         );

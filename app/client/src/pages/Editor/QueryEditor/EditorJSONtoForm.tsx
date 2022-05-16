@@ -79,7 +79,10 @@ import {
   ConditionalOutput,
   FormEvalOutput,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { responseTabComponent } from "components/editorComponents/ApiResponseView";
+import {
+  responseTabComponent,
+  InlineButton,
+} from "components/editorComponents/ApiResponseView";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -135,7 +138,7 @@ export const TabbedViewContainer = styled.div`
     }
   }
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
-  border-top: 2px solid #e8e8e8;
+  border-top: 1px solid #e8e8e8;
 `;
 
 const SettingsWrapper = styled.div`
@@ -341,7 +344,7 @@ const NoDataSourceContainer = styled.div`
 const TabContainerView = styled.div`
   flex: 1;
   overflow: auto;
-  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   ${thinScrollbar}
   a {
     font-size: 14px;
@@ -362,11 +365,6 @@ const TabContainerView = styled.div`
   position: relative;
 `;
 
-const InlineButton = styled(Button)`
-  display: inline-flex;
-  margin: 0 4px;
-`;
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -376,6 +374,7 @@ const Wrapper = styled.div`
 
 const SidebarWrapper = styled.div<{ show: boolean }>`
   border: 1px solid #e8e8e8;
+  border-bottom: 0;
   display: ${(props) => (props.show ? "flex" : "none")};
   width: ${(props) => props.theme.actionSidePane.width}px;
 `;
@@ -894,6 +893,11 @@ export function EditorJSONtoForm(props: Props) {
               name={currentActionConfig ? currentActionConfig.name : ""}
               pageId={pageId}
             />
+            <SearchSnippets
+              className="search-snippets"
+              entityId={currentActionConfig?.id}
+              entityType={ENTITY_TYPE.ACTION}
+            />
             <DropdownSelect>
               <DropdownField
                 className={"t--switch-datasource"}
@@ -905,11 +909,6 @@ export function EditorJSONtoForm(props: Props) {
                 width={232}
               />
             </DropdownSelect>
-            <SearchSnippets
-              className="search-snippets"
-              entityId={currentActionConfig?.id}
-              entityType={ENTITY_TYPE.ACTION}
-            />
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"

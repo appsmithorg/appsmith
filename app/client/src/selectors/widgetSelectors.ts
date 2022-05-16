@@ -6,6 +6,9 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 
 import WidgetFactory from "utils/WidgetFactory";
 
+export const getIsDraggingOrResizing = (state: AppState) =>
+  state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
+
 const getCanvasWidgets = (state: AppState) => state.entities.canvasWidgets;
 export const getModalDropdownList = createSelector(
   getCanvasWidgets,

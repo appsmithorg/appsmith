@@ -55,8 +55,11 @@ export interface TreeSelectProps
   dropDownWidth: number;
   width: number;
   isValid: boolean;
-  filterText?: string;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
   widgetId: string;
+  filterText?: string;
   isFilterable: boolean;
 }
 
@@ -97,7 +100,10 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
 const FOCUS_TIMEOUT = 500;
 
 function SingleSelectTreeComponent({
+  accentColor,
   allowClear,
+  borderRadius,
+  boxShadow,
   compactMode,
   disabled,
   dropdownStyle,
@@ -144,6 +150,13 @@ function SingleSelectTreeComponent({
     }
     return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
   }, []);
+  const onSelectionChange = useCallback(
+    (value?: DefaultValueType, labelList?: ReactNode[]) => {
+      setFilter("");
+      onChange(value, labelList);
+    },
+    [],
+  );
   const onClear = useCallback(() => onChange([], []), []);
   const onOpen = useCallback((open: boolean) => {
     if (open) {
@@ -204,13 +217,21 @@ function SingleSelectTreeComponent({
 
   return (
     <TreeSelectContainer
+      accentColor={accentColor}
+      borderRadius={borderRadius}
+      boxShadow={boxShadow}
       compactMode={compactMode}
       data-testid="treeselect-container"
       isValid={isValid}
       labelPosition={labelPosition}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles dropDownWidth={memoDropDownWidth} id={widgetId} />
+      <DropdownStyles
+        accentColor={accentColor}
+        borderRadius={borderRadius}
+        dropDownWidth={memoDropDownWidth}
+        id={widgetId}
+      />
       {labelText && (
         <LabelWithTooltip
           alignment={labelAlignment}
@@ -258,7 +279,7 @@ function SingleSelectTreeComponent({
           maxTagCount={"responsive"}
           maxTagPlaceholder={(e) => `+${e.length} more`}
           notFoundContent="No Results Found"
-          onChange={onChange}
+          onChange={onSelectionChange}
           onClear={onClear}
           onDropdownVisibleChange={onOpen}
           placeholder={placeholder}
@@ -272,7 +293,7 @@ function SingleSelectTreeComponent({
           treeDefaultExpandAll={expandAll}
           treeIcon
           treeNodeFilterProp="label"
-          value={value}
+          value={filter ? "" : value} // value should empty when filter value exist otherwise dropdown flickers #12714
         />
       </InputContainer>
     </TreeSelectContainer>

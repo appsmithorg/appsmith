@@ -22,6 +22,7 @@ type AppPageProps = {
 
 export function AppPage(props: AppPageProps) {
   useDynamicAppLayout();
+
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGE_LOAD", {
       pageName: props.pageName,
@@ -30,6 +31,7 @@ export function AppPage(props: AppPageProps) {
       mode: "VIEW",
     });
   }, [props.pageId, props.pageName]);
+
   return (
     <PageView className="t--app-viewer-page" width={props.dsl.rightColumn}>
       {props.dsl.widgetId &&

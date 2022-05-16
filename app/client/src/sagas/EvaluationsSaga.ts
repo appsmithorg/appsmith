@@ -86,12 +86,14 @@ import { Channel } from "redux-saga";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { updateMetaState } from "actions/metaActions";
 import { getAllActionValidationConfig } from "selectors/entitiesSelector";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { ActionSubPattern } from "@redux-saga/types";
+import { AppTheme } from "entities/AppTheming";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -106,6 +108,7 @@ function* evaluateTreeSaga(
   } = yield select(getAllActionValidationConfig);
   const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const theme: AppTheme = yield select(getSelectedAppTheme);
 
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
@@ -120,6 +123,7 @@ function* evaluateTreeSaga(
       unevalTree,
       widgetTypeConfigMap,
       widgets,
+      theme,
       shouldReplay,
       allActionValidationConfig,
     },
@@ -324,7 +328,11 @@ export function* clearEvalCache() {
 export function* executeFunction(collectionName: string, action: JSAction) {
   const functionCall = `${collectionName}.${action.name}()`;
   const { isAsync } = action.actionConfiguration;
-  let response: { errors: any; result: any };
+  let response: {
+    errors: any[];
+    result: any;
+  };
+
   if (isAsync) {
     try {
       response = yield call(
@@ -346,8 +354,10 @@ export function* executeFunction(collectionName: string, action: JSAction) {
   }
 
   const { errors, result } = response;
+  const isDirty = !!errors.length;
+
   yield call(evalErrorHandler, errors);
-  return result;
+  return { result, isDirty };
 }
 
 export function* validateProperty(
@@ -456,6 +466,7 @@ function* evaluationChangeListenerSaga() {
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
       evtActionChannel,
     );
+
     if (shouldProcessBatchedAction(action)) {
       const postEvalActions = getPostEvalActions(action);
       yield call(

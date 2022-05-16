@@ -6,7 +6,6 @@ import {
   ReduxActionWithCallbacks,
 } from "@appsmith/constants/ReduxActionConstants";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-
 import GitSyncAPI, {
   MergeBranchPayload,
   MergeStatusPayload,
@@ -17,14 +16,14 @@ import {
 } from "selectors/editorSelectors";
 import { validateResponse } from "./ErrorSagas";
 import {
-  ConnectToGitReduxAction,
-  GenerateSSHKeyPairReduxAction,
-  GetSSHKeyPairReduxAction,
   commitToRepoSuccess,
+  ConnectToGitReduxAction,
   connectToGitSuccess,
   deleteBranchError,
   deleteBranchSuccess,
   deletingBranch,
+  discardChangesFailure,
+  discardChangesSuccess,
   fetchBranchesInit,
   fetchBranchesSuccess,
   fetchGitStatusInit,
@@ -35,8 +34,10 @@ import {
   fetchLocalGitConfigSuccess,
   fetchMergeStatusFailure,
   fetchMergeStatusSuccess,
+  GenerateSSHKeyPairReduxAction,
   generateSSHKeyPairSuccess,
   getSSHKeyPairError,
+  GetSSHKeyPairReduxAction,
   getSSHKeyPairSuccess,
   GetSSHKeyResponseData,
   gitPullSuccess,
@@ -665,13 +666,11 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
       action.payload,
       organizationIdForImport,
     );
-
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
       getLogToSentryFromResponse(response),
     );
-
     if (isValidResponse) {
       const allOrgs: Org[] = yield select(getCurrentOrg);
       const currentOrg = allOrgs.filter(
@@ -832,6 +831,34 @@ export function* deleteBranch({ payload }: ReduxAction<any>) {
   }
 }
 
+function* discardChanges() {
+  let response: ApiResponse | undefined;
+  try {
+    const appId: string = yield select(getCurrentApplicationId);
+    const doPull = true;
+    response = yield GitSyncAPI.discardChanges(appId, doPull);
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      yield put(discardChangesSuccess(response?.data));
+      // yield fetchGitStatusSaga();
+      const applicationId: string = yield select(getCurrentApplicationId);
+      const pageId = yield select(getCurrentPageId);
+      localStorage.setItem("GIT_DISCARD_CHANGES", "success");
+      window.open(
+        builderURL({ applicationId: applicationId, pageId: pageId }),
+        "_self",
+      );
+    }
+  } catch (error) {
+    yield put(discardChangesFailure({ error }));
+    localStorage.setItem("GIT_DISCARD_CHANGES", "failure");
+  }
+}
+
 export default function* gitSyncSagas() {
   yield all([
     takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
@@ -871,5 +898,6 @@ export default function* gitSyncSagas() {
     ),
     takeLatest(ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT, getSSHKeyPairSaga),
     takeLatest(ReduxActionTypes.DELETE_BRANCH_INIT, deleteBranch),
+    takeLatest(ReduxActionTypes.GIT_DISCARD_CHANGES, discardChanges),
   ]);
 }

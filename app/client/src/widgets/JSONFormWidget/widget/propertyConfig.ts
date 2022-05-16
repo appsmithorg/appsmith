@@ -6,11 +6,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { JSONFormWidgetProps } from ".";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import {
-  ButtonVariantTypes,
-  ButtonBorderRadiusTypes,
-  ButtonPlacementTypes,
-} from "components/constants";
+import { ButtonVariantTypes, ButtonPlacementTypes } from "components/constants";
 import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import { ComputedSchemaStatus, computeSchema } from "./helper";
@@ -112,8 +108,10 @@ const generateButtonStyleControlsFor = (prefix: string) => [
     helpText: "Changes the color of the button",
     label: "Button Color",
     controlType: "COLOR_PICKER",
-    isBindProperty: false,
+    isJSConvertible: true,
+    isBindProperty: true,
     isTriggerProperty: false,
+    validation: { type: ValidationTypes.TEXT },
   },
   {
     propertyName: `${prefix}.buttonVariant`,
@@ -154,49 +152,21 @@ const generateButtonStyleControlsFor = (prefix: string) => [
     label: "Border Radius",
     helpText: "Rounds the corners of the icon button's outer border edge",
     controlType: "BORDER_RADIUS_OPTIONS",
-    options: [ButtonBorderRadiusTypes.SHARP, ButtonBorderRadiusTypes.ROUNDED],
-    isBindProperty: false,
+    isJSConvertible: true,
+    isBindProperty: true,
     isTriggerProperty: false,
-    validation: {
-      type: ValidationTypes.TEXT,
-      params: {
-        allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
-      },
-    },
+    validation: { type: ValidationTypes.TEXT },
   },
   {
     propertyName: `${prefix}.boxShadow`,
     label: "Box Shadow",
     helpText: "Enables you to cast a drop shadow from the frame of the widget",
     controlType: "BOX_SHADOW_OPTIONS",
-    isBindProperty: false,
+    isJSConvertible: true,
+    isBindProperty: true,
     isTriggerProperty: false,
     validation: {
       type: ValidationTypes.TEXT,
-      params: {
-        allowedValues: [
-          "NONE",
-          "VARIANT1",
-          "VARIANT2",
-          "VARIANT3",
-          "VARIANT4",
-          "VARIANT5",
-        ],
-      },
-    },
-  },
-  {
-    propertyName: `${prefix}.boxShadowColor`,
-    helpText: "Sets the shadow color of the widget",
-    label: "Shadow Color",
-    controlType: "COLOR_PICKER",
-    isBindProperty: false,
-    isTriggerProperty: false,
-    validation: {
-      type: ValidationTypes.TEXT,
-      params: {
-        regex: /^(?![<|{{]).+/,
-      },
     },
   },
   {
@@ -204,7 +174,8 @@ const generateButtonStyleControlsFor = (prefix: string) => [
     label: "Icon",
     helpText: "Sets the icon to be used for the button",
     controlType: "ICON_SELECT",
-    isBindProperty: false,
+    isJSConvertible: true,
+    isBindProperty: true,
     isTriggerProperty: false,
     updateHook: (
       props: ButtonWidgetProps,
@@ -274,7 +245,8 @@ const generateButtonStyleControlsFor = (prefix: string) => [
         value: "right",
       },
     ],
-    isBindProperty: false,
+    isJSConvertible: true,
+    isBindProperty: true,
     isTriggerProperty: false,
     validation: {
       type: ValidationTypes.TEXT,
@@ -353,7 +325,7 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
         panelConfig,
-        dependencies: ["schema"],
+        dependencies: ["schema", "childStylesheet"],
       },
       {
         propertyName: "disabledWhenInvalid",
@@ -458,8 +430,9 @@ export default [
         propertyName: "backgroundColor",
         helpText: "Use a html color name, HEX, RGB or RGBA value",
         placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-        label: "Background Colour",
+        label: "Background Color",
         controlType: "COLOR_PICKER",
+        isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
@@ -468,8 +441,9 @@ export default [
         propertyName: "borderColor",
         helpText: "Use a html color name, HEX, RGB or RGBA value",
         placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-        label: "Border Colour",
+        label: "Border Color",
         controlType: "COLOR_PICKER",
+        isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
@@ -488,11 +462,11 @@ export default [
         propertyName: "borderRadius",
         helpText: "Enter value for border radius",
         label: "Border Radius",
-        placeholderText: "Enter value in px",
-        controlType: "INPUT_TEXT",
+        controlType: "BORDER_RADIUS_OPTIONS",
+        isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.NUMBER },
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         propertyName: "boxShadow",
@@ -500,28 +474,8 @@ export default [
         helpText:
           "Enables you to cast a drop shadow from the frame of the widget",
         controlType: "BOX_SHADOW_OPTIONS",
-        isBindProperty: false,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: [
-              "NONE",
-              "VARIANT1",
-              "VARIANT2",
-              "VARIANT3",
-              "VARIANT4",
-              "VARIANT5",
-            ],
-          },
-        },
-      },
-      {
-        propertyName: "boxShadowColor",
-        helpText: "Sets the shadow color of the widget",
-        label: "Shadow Color",
-        controlType: "COLOR_PICKER",
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
@@ -534,7 +488,7 @@ export default [
   },
   {
     sectionName: "Reset Button Styles",
-    isDefaultOpen: true,
+    isDefaultOpen: false,
     children: generateButtonStyleControlsFor("resetButtonStyles"),
     dependencies: ["showReset"],
     hidden: (props: JSONFormWidgetProps) => !props.showReset,

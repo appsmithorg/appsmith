@@ -853,20 +853,29 @@ function* executePluginActionSaga(
         response: payload,
       }),
     );
-    let plugin;
+    let plugin: Plugin | undefined;
     if (!!pluginAction.pluginId) {
       plugin = shouldBeDefined<Plugin>(
         yield select(getPlugin, pluginAction.pluginId),
         `Plugin not found for id - ${pluginAction.pluginId}`,
       );
     }
-    yield put(
-      setActionResponseDisplayFormat({
-        id: actionId,
-        field: "responseDisplayFormat",
-        value: plugin && plugin.responseType ? plugin.responseType : "JSON",
-      }),
-    );
+
+    if (!!plugin) {
+      const responseType = payload?.dataTypes.find(
+        (type) =>
+          plugin?.responseType && type.dataType === plugin?.responseType,
+      );
+      yield put(
+        setActionResponseDisplayFormat({
+          id: actionId,
+          field: "responseDisplayFormat",
+          value: responseType
+            ? responseType?.dataType
+            : payload?.dataTypes[0].dataType,
+        }),
+      );
+    }
     return {
       payload,
       isError: isErrorResponse(response),

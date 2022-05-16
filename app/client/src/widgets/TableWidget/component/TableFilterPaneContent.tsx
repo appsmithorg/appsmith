@@ -111,6 +111,8 @@ interface TableFilterProps {
   applyFilter: (filters: ReactTableFilter[]) => void;
   hideFilterPane: (widgetId: string) => void;
   widgetId: string;
+  accentColor: string;
+  borderRadius: string;
 }
 
 const DEFAULT_FILTER = {
@@ -192,12 +194,14 @@ function TableFilterPaneContent(props: TableFilterProps) {
         {filters.map((filter: ReactTableFilter, index: number) => {
           return (
             <CascadeFields
+              accentColor={props.accentColor}
               applyFilter={(filter: ReactTableFilter, index: number) => {
                 // here updated filters store in state, not in redux
                 const updatedFilters = filters ? [...filters] : [];
                 updatedFilters[index] = filter;
                 updateFilters(updatedFilters);
               }}
+              borderRadius={props.borderRadius}
               column={filter.column}
               columns={columns}
               condition={filter.condition}

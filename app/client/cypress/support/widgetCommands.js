@@ -86,7 +86,7 @@ Cypress.Commands.add("selectDateFormat", (value) => {
   cy.get(".t--dropdown-option")
     .children()
     .contains(value)
-    .click();
+    .click({ force: true });
 });
 
 Cypress.Commands.add("selectDropdownValue", (element, value) => {
@@ -431,9 +431,12 @@ Cypress.Commands.add("selectColor", (GivenProperty) => {
   ).click({
     force: true,
   });
-  cy.get(widgetsPage.colorsAvailable)
-    .first()
-    .click({ force: true });
+
+  cy.get(widgetsPage.colorPickerV2Color)
+    .eq(-15)
+    .then(($elem) => {
+      cy.get($elem).click({ force: true });
+    });
 });
 
 Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
@@ -523,6 +526,16 @@ Cypress.Commands.add("deleteColumn", (colId) => {
 Cypress.Commands.add("openFieldConfiguration", (fieldIdentifier) => {
   cy.get(
     "[data-rbd-draggable-id='" + fieldIdentifier + "'] .t--edit-column-btn",
+  ).click({
+    force: true,
+  });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
+});
+
+Cypress.Commands.add("deleteJSONFormField", (fieldIdentifier) => {
+  cy.get(
+    "[data-rbd-draggable-id='" + fieldIdentifier + "'] .t--delete-column-btn",
   ).click({
     force: true,
   });
@@ -781,6 +794,12 @@ Cypress.Commands.add("dropdownDynamicUpdated", (text) => {
 Cypress.Commands.add("selectTextSize", (text) => {
   cy.get(".t--dropdown-option")
     .first()
+    .contains(text)
+    .click({ force: true });
+});
+
+Cypress.Commands.add("selectTxtSize", (text) => {
+  cy.get(".t--dropdown-option")
     .contains(text)
     .click({ force: true });
 });
