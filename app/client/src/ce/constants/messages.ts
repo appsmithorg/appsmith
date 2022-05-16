@@ -478,6 +478,8 @@ export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
 export const IMPORT_APPLICATION_MODAL_LABEL = () =>
   "Where would you like to import your application from?";
 export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
+export const UPLOADING_JSON = () => "Uploading JSON";
+export const UPLOADING_APPLICATION = () => "Uploading Application";
 export const IMPORT_APP_FROM_GIT_TITLE = () => "Import from a Git repo (Beta)";
 export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
   "Drag and drop your file or upload from your computer";
