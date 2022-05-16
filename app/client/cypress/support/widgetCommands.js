@@ -1099,7 +1099,16 @@ Cypress.Commands.add("clearPropertyValue", (value) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
 });
-
+Cypress.Commands.add("deleteQueryOrJS", (Action) => {
+  cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+  cy.get(`.t--entity-item:contains(${Action})`).within(() => {
+    cy.get(".t--context-menu").click({ force: true });
+  });
+  cy.selectAction("Delete");
+  cy.selectAction("Are you sure?");
+  cy.wait("@deleteAction");
+  cy.get("@deleteAction").should("have.property", "status", 200);
+});
 Cypress.Commands.add(
   "validateNSelectDropdown",
   (ddTitle, currentValue, newValue) => {
