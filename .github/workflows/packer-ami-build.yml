@@ -22,27 +22,35 @@ jobs:
           aws-region: ap-south-1
 
       - name: Install python
-      - uses: actions/setup-python@v3
+        uses: actions/setup-python@v3
         with:
           python-version: '3.8'
 
       - name: Install ansible
         run: pip install ansible
-
-      - name: Append binary PATH
-        run: echo "$(dirname $(which ansible))" >> $GITHUB_PATH
       
       - name: Install Packer
         run: |
-          apt-get update;apt-get install -y curl gnupg software-properties-common ;
-          curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - ;
-          apt-add-repository -y "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" ;
-          apt-get update && apt-get install -y packer;
+          sudo apt-get update; sudo apt-get install -y curl gnupg software-properties-common ;
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - ;
+          sudo apt-add-repository -y "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" ;
+          sudo apt-get update && sudo apt-get install -y packer;
 
-      - name: Build artifacts
+      - name: Build artifacts for Dev
+        if: github.event_name == 'pull_request_review'
         run : |
-          echo $PATH;
-          echo $GITHUB_PATH;
-          which ansible;
           cd deploy/packer;
-          packer build -var 'vpc_id=vpc-41b8bd29' -var 'subnet_id=subnet-26ac3f6a' template.json.pkr.hcl
+          packer build -var 'vpc_id=vpc-41b8bd29' -var 'subnet_id=subnet-26ac3f6a' template.json.pkr.hcl    
+
+      - name: Build artifacts for Prod
+        # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
+        # then we don't check for the PR approved state      
+        if: |
+          github.event_name == 'workflow_dispatch' ||
+          github.event_name == 'push' ||
+          (github.event_name == 'pull_request_review' &&
+          github.event.review.state == 'approved' &&
+          github.event.pull_request.head.repo.full_name == github.repository)
+        run : |
+          cd deploy/packer;
+          packer build -var 'vpc_id=vpc-35b1475e' -var 'subnet_id=subnet-0a35fb5a426e1a461' template.json.pkr.hcl
