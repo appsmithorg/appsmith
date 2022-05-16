@@ -171,6 +171,7 @@ const ResponseBodyContainer = styled.div`
   padding-top: 10px;
   overflow-y: auto;
   height: 100%;
+  display: grid;
 `;
 
 interface ReduxStateProps {

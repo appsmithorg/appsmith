@@ -189,6 +189,7 @@ const ResponseContentWrapper = styled.div`
   padding: 10px 0px;
   overflow-y: auto;
   height: 100%;
+  display: grid;
 
   ${HelpSection} {
     margin-bottom: 10px;
