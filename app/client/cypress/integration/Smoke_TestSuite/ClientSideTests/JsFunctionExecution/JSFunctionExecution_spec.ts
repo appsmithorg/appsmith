@@ -94,20 +94,13 @@ describe("JS Function Execution", function() {
         "{shift}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}",
         { force: true },
       )
-      .type("{backspace}", { force: true });
-
-    // Add parse error that renders JS Object invalid in code
-    cy.get(locator._codeMirrorTextArea)
-      .first()
-      .then((el: any) => {
-        const input = cy.get(el);
-        input.type(JSObjectWithParseErrors, {
-          parseSpecialCharSequences: false,
-          delay: 150,
-          force: true,
-        });
+      .type("{backspace}", { force: true })
+      // Add parse error that renders JS Object invalid in code
+      .type(JSObjectWithParseErrors, {
+        parseSpecialCharSequences: false,
+        delay: 150,
+        force: true,
       });
-
     // Assert presence of parse error callout (entire JS Object is invalid)
     jsEditor.AssertParseError(true, false);
   });

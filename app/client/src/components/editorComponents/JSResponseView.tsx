@@ -183,6 +183,10 @@ function JSResponseView(props: Props) {
     currentFunction && currentFunction.id && currentFunction.id in responses
       ? responses[currentFunction.id]
       : "";
+  // parse error found while trying to execute function
+  const hasExecutionParseErrors = responseStatus === JSResponseState.IsDirty;
+  // error found while trying to parse JS Object
+  const hasJSObjectParseError = errors.length > 0;
 
   const onDebugClick = useCallback(() => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
@@ -220,8 +224,7 @@ function JSResponseView(props: Props) {
       title: "Response",
       panelComponent: (
         <>
-          {(errors.length > 0 ||
-            responseStatus === JSResponseState.IsDirty) && (
+          {(hasExecutionParseErrors || hasJSObjectParseError) && (
             <HelpSection
               className={`.${
                 errors.length > 0
@@ -237,7 +240,7 @@ function JSResponseView(props: Props) {
                   </FailedMessage>
                 }
                 text={
-                  errors.length > 0
+                  hasJSObjectParseError
                     ? createMessage(PARSING_ERROR)
                     : createMessage(
                         JS_ACTION_EXECUTION_ERROR,
