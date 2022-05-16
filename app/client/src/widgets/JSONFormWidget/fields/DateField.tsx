@@ -207,7 +207,7 @@ function DateField({
         selectedDate={valueInISOFormat}
         shortcuts={schemaItem.shortcuts}
         timePrecision={schemaItem.timePrecision}
-        widgetId={name}
+        widgetId={fieldClassName}
       />
     );
   }, [
@@ -223,7 +223,7 @@ function DateField({
     schemaItem.shortcuts,
     schemaItem.timePrecision,
     inputRef,
-    name,
+    fieldClassName,
   ]);
 
   return (
