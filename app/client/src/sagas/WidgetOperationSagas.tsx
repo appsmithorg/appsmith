@@ -55,6 +55,7 @@ import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
   getCurrentPageId,
+  getOccupiedSpaces,
   getOccupiedSpacesSelectorForContainer,
   getWidgetSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
@@ -135,6 +136,10 @@ import { flashElementsById } from "utils/helpers";
 import { getSlidingCanvasName } from "constants/componentClassNameConstants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import boxIntersect from "box-intersect";
+import {
+  generateTree,
+  TreeNode,
+} from "utils/treeManipulationHelpers/dynamicHeightReflow";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -1708,56 +1713,6 @@ function* computeNewWidgetPositions(
   );
 
   for (const widgetId in idsOfWidgetsWithNewDynamicHeights) {
-    const widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
-    // Let's say that this widget extends height
-    // We need to push all widgets which take space vertically below this widget
-    // TODO: DESIGN(abhinav): Should we have an empty space threshold below this widget
-    // Such that any widget below this threshold wont be pushed down?
-    const conflictBox = [
-      widget.leftColumn * widget.parentColumnSpace,
-      widget.topRow * widget.parentRowSpace,
-      widget.rightColumn * widget.parentRowSpace,
-      widget.bottomRow * widget.parentRowSpace * 5000,
-    ];
-
-    const occupiedSpacesInParent: OccupiedSpace[] | undefined = yield select(
-      getOccupiedSpacesSelectorForContainer(widget.parentId),
-    );
-
-    if (occupiedSpacesInParent) {
-      const boxCoordinatesOfSiblings = [];
-      for (let index = 0; index < occupiedSpacesInParent?.length; index++) {
-        if (occupiedSpacesInParent[index].id === widget.widgetId) {
-          // We need to skip conflicts between this widget and itself
-          boxCoordinatesOfSiblings[index] = [0, 0, 0, 0];
-        }
-        boxCoordinatesOfSiblings[index] = [
-          occupiedSpacesInParent[index].left * widget.parentColumnSpace,
-          occupiedSpacesInParent[index].top * widget.parentRowSpace,
-          occupiedSpacesInParent[index].right * widget.parentColumnSpace,
-          occupiedSpacesInParent[index].bottom * widget.parentRowSpace,
-        ];
-      }
-
-      const overlaps: [number, number][] = boxIntersect(
-        [conflictBox],
-        boxCoordinatesOfSiblings,
-        function(conflictBoxIndex, intersectingSiblingIndex) {
-          if (conflictBoxIndex === 0) {
-            const intersectingWidgetId =
-              occupiedSpacesInParent[intersectingSiblingIndex].id;
-          } else {
-            return; // Early out, as we're not interested in conflicts other than the ones with the box at index 0
-          }
-        },
-      );
-
-      overlaps.forEach((overlappingPair: [number, number]) => {
-        // If the overlap is with the original conflictBox
-        if (overlappingPair[0] === 0) {
-        }
-      });
-    }
   }
 }
 
@@ -1884,6 +1839,29 @@ function getWidgetDynamicHeightUpdates(
   }
 }
 
+function* generateTreeForDynamicHeightComputations() {
+  const start = performance.now();
+  const occupiedSpaces: Record<string, OccupiedSpace[]> = yield select(
+    getOccupiedSpaces,
+  );
+
+  // TODO(abhinav): Memoize this, in case the `UPDATE_LAYOUT` did not cause a change in
+  // widget positions and sizes
+  const trees: Record<string, Record<string, TreeNode>> = {};
+  for (const containerId in occupiedSpaces) {
+    if (occupiedSpaces[containerId])
+      trees[containerId] = generateTree(occupiedSpaces[containerId]);
+  }
+
+  // yield put(storeTreeForDynamicHeightComputations(trees));
+  // TODO (abhinav): Push this analytics to sentry|segment?
+  log.debug(
+    "Tree computations for dynamic height took:",
+    performance.now() - start,
+    "ms",
+  );
+}
+
 export default function* widgetOperationSagas() {
   yield fork(widgetAdditionSagas);
   yield fork(widgetDeletionSagas);
@@ -1928,6 +1906,14 @@ export default function* widgetOperationSagas() {
     takeEvery(
       ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_HEIGHT,
       updateWidgetDynamicHeightSaga,
+    ),
+    takeLatest(
+      [
+        ReduxActionTypes.UPDATE_LAYOUT,
+        ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
+        ReduxActionTypes.INIT_CANVAS_LAYOUT,
+      ],
+      generateTreeForDynamicHeightComputations,
     ),
   ]);
 }
