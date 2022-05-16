@@ -76,18 +76,24 @@
             <version>8.0.20</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>1.15.0-rc2</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mysql</artifactId>
-            <version>1.17.1</version>
+            <version>1.15.0-rc2</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>r2dbc</artifactId>
-            <version>1.17.1</version>
+            <version>1.15.0-rc2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
