@@ -35,6 +35,7 @@ describe("Test comments reducer handles", () => {
   const useSelectorMock = jest.spyOn(reactRedux, "useSelector");
   let state: any;
   it("fetch application comments success", () => {
+    // @ts-expect-error: pass threadId
     const commentThreads = fetchApplicationThreadsMockResponse.data as CommentThread[];
     state = commentsReducer(
       undefined,
@@ -74,6 +75,7 @@ describe("Test comments reducer handles", () => {
     const prevState = JSON.parse(JSON.stringify(state));
     state = commentsReducer(
       state,
+      // @ts-expect-error: pass threadId
       createCommentThreadSuccess(createCommentThreadSuccessPayload),
     );
     useSelectorMock.mockReturnValue(state);
@@ -110,6 +112,7 @@ describe("Test comments reducer handles", () => {
     const prevState = JSON.parse(JSON.stringify(state));
     state = commentsReducer(
       state,
+      // @ts-expect-error: pass threadId
       addCommentToThreadSuccess(addCommentToThreadSuccessPayload),
     );
 
@@ -130,6 +133,7 @@ describe("Test comments reducer handles", () => {
   });
 
   it("thread updates", () => {
+    // @ts-expect-error: pass threadId
     const threadUpdate: CommentThread =
       fetchApplicationThreadsMockResponse.data[0];
     threadUpdate.resolvedState = { active: true };
@@ -146,6 +150,7 @@ describe("Test comments reducer handles", () => {
     const prevState = JSON.parse(JSON.stringify(state || {}));
     state = commentsReducer(
       state,
+      // @ts-expect-error: pass threadId
       newCommentThreadEvent(newCommentThreadEventPayload),
     );
 

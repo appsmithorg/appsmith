@@ -43,9 +43,12 @@ describe("dataTreeTypeDefCreator", () => {
       overridingPropertyPaths: {},
       privateWidgets: {},
     };
-    const { def, entityInfo } = dataTreeTypeDefCreator({
-      Input1: dataTreeEntity,
-    });
+    const { def, entityInfo } = dataTreeTypeDefCreator(
+      {
+        Input1: dataTreeEntity,
+      },
+      false,
+    );
     // TODO hetu: needs better general testing
     // instead of testing each widget maybe we can test to ensure
     // that defs are in a correct format

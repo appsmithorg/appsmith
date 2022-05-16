@@ -20,7 +20,6 @@ const DEFAULT_ACTION: Action = {
   pluginId: "",
   messages: [],
   pluginType: PluginType.DB,
-  messages: [],
 };
 
 describe("getReactivePathsOfAction", () => {

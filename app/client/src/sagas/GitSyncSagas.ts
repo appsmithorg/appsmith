@@ -846,7 +846,7 @@ function* discardChanges() {
       yield put(discardChangesSuccess(response?.data));
       // yield fetchGitStatusSaga();
       const applicationId: string = yield select(getCurrentApplicationId);
-      const pageId = yield select(getCurrentPageId);
+      const pageId: string = yield select(getCurrentPageId);
       localStorage.setItem("GIT_DISCARD_CHANGES", "success");
       window.open(
         builderURL({ applicationId: applicationId, pageId: pageId }),
