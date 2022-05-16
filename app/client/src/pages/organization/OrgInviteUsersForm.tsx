@@ -311,6 +311,7 @@ function OrgInviteUsersForm(props: any) {
         <StyledInviteFieldGroup>
           <div className="wrapper">
             <TagListField
+              autofocus
               customError={(err: string) => setEmailError(err)}
               data-cy="t--invite-email-input"
               intent="success"
