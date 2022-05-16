@@ -31,20 +31,18 @@ export default async function downloadSaga(
   } else if (isUrlString(data)) {
     // In the event that a url string is supplied, we need to fetch the image with the response type arraybuffer.
     // This also covers the case where the file to be downloaded is Binary.
-    Axios.get(data, { responseType: "arraybuffer" }).then((res) => {
-      downloadjs(res.data, name, type);
-      AppsmithConsole.info({
-        text: `download('${data}', '${name}', '${type}') was triggered`,
-      });
+    const res = await Axios.get(data, { responseType: "arraybuffer" })
+    downloadjs(res.data, name, type);
+    AppsmithConsole.info({
+      text: `download('${data}', '${name}', '${type}') was triggered`,
     });
   } else if (isBase64String(data)) {
-    Axios.get(`data:${type};base64,${data}`, {
+    const res = await Axios.get(`data:${type};base64,${data}`, {
       responseType: "arraybuffer",
-    }).then((res) => {
-      downloadjs(res.data, name, type);
-      AppsmithConsole.info({
-        text: `download('${data}', '${name}', '${type}') was triggered`,
-      });
+    })
+    downloadjs(res.data, name, type);
+    AppsmithConsole.info({
+      text: `download('${data}', '${name}', '${type}') was triggered`,
     });
   } else {
     downloadjs(data, name, type);
