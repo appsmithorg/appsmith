@@ -182,7 +182,6 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     }
     setSelectedJSActionOption(getJSActionOption(activeJSAction, jsActions));
   }, [parseErrors, jsActions, activeJSActionId]);
-
   return (
     <FormWrapper>
       <JSObjectHotKeys runActiveJSFunction={handleRunAction}>
