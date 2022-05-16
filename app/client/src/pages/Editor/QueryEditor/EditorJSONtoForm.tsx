@@ -82,6 +82,7 @@ import {
 import {
   responseTabComponent,
   InlineButton,
+  TableCellHeight,
 } from "components/editorComponents/ApiResponseView";
 
 const QueryFormContainer = styled.form`
@@ -1013,8 +1014,8 @@ export function EditorJSONtoForm(props: Props) {
               <Resizable
                 panelRef={panelRef}
                 setContainerDimensions={(height: number) =>
-                  // 39 in this case is the height of one table cell in pisels.
-                  setTableBodyHeightHeight(height - 39)
+                  // TableCellHeight in this case is the height of one table cell in pixels.
+                  setTableBodyHeightHeight(height - TableCellHeight)
                 }
               />
               {output && !!output.length && (

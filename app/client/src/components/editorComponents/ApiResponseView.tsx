@@ -236,6 +236,8 @@ const ResponseDataContainer = styled.div`
   }
 `;
 
+export const TableCellHeight = 39;
+
 export const responseTabComponent = (
   responseType: string,
   output: any,
@@ -506,8 +508,8 @@ function ApiResponseView(props: Props) {
       <Resizer
         panelRef={panelRef}
         setContainerDimensions={(height: number) =>
-          // 39 in this case is the height of one table cell in pixels.
-          setTableBodyHeightHeight(height - 39)
+          // TableCellHeight in this case is the height of one table cell in pixels.
+          setTableBodyHeightHeight(height - TableCellHeight)
         }
       />
       <SectionDivider />
