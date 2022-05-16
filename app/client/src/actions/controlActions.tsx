@@ -61,6 +61,7 @@ export const setWidgetDynamicProperty = (
   widgetId: string,
   propertyPath: string,
   isDynamic: boolean,
+  shouldRejectDynamicBindingPathList = true,
 ): ReduxAction<SetWidgetDynamicPropertyPayload> => {
   return {
     type: ReduxActionTypes.SET_WIDGET_DYNAMIC_PROPERTY,
@@ -68,9 +69,23 @@ export const setWidgetDynamicProperty = (
       widgetId,
       propertyPath,
       isDynamic,
+      shouldRejectDynamicBindingPathList,
     },
   };
 };
+
+export function updateWidgetDynamicHeightAction(
+  widgetId: string,
+  height: number,
+): ReduxAction<UpdateWidgetDynamicHeightPayload> {
+  return {
+    type: ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_HEIGHT,
+    payload: {
+      widgetId,
+      height,
+    },
+  };
+}
 
 export interface UpdateWidgetPropertyRequestPayload {
   widgetId: string;
@@ -97,9 +112,15 @@ export interface SetWidgetDynamicPropertyPayload {
   widgetId: string;
   propertyPath: string;
   isDynamic: boolean;
+  shouldRejectDynamicBindingPathList?: boolean;
 }
 
 export interface DeleteWidgetPropertyPayload {
   widgetId: string;
   propertyPaths: string[];
+}
+
+export interface UpdateWidgetDynamicHeightPayload {
+  widgetId: string;
+  height: number;
 }

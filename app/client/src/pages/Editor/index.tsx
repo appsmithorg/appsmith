@@ -52,6 +52,7 @@ import { loading } from "selectors/onboardingSelectors";
 import GuidedTourModal from "./GuidedTour/DeviationModal";
 import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
 import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
+import ImportedApplicationSuccessModal from "./gitSync/ImportedAppSuccessModal";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -229,6 +230,7 @@ class Editor extends Component<Props> {
               <ConcurrentPageEditorToast />
               <GuidedTourModal />
               <RepoLimitExceededErrorModal />
+              <ImportedApplicationSuccessModal />
             </GlobalHotKeys>
           </div>
           <RequestConfirmationModal />
