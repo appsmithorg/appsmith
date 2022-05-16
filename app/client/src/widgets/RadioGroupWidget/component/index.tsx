@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { RadioOption } from "../constants";
-import { RadioGroup, Radio, Alignment } from "@blueprintjs/core";
+import { RadioGroup, Radio, Alignment, Classes } from "@blueprintjs/core";
 import { TextSize } from "constants/WidgetConstants";
 import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
@@ -31,15 +31,33 @@ export interface StyledRadioGroupProps {
   inline: boolean;
   labelPosition?: LabelPosition;
   optionCount: number;
+  accentColor: string;
 }
 
 const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
   ${BlueprintRadioSwitchGroupTransform}
   height: ${({ inline }) => (inline ? "32px" : "100%")};
+
+  .${Classes.CONTROL} {
+    & input:checked ~ .${Classes.CONTROL_INDICATOR} {
+      background: ${({ accentColor }) => `${accentColor}`} !important;
+      border: 1px solid ${({ accentColor }) => `${accentColor}`} !important;
+    }
+  }
+
+  .${Classes.SWITCH} {
+    & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
+      background: ${({ accentColor }) => `${accentColor}`};
+    }
+  }
 `;
 
-function RadioGroupComponent(props: RadioGroupComponentProps) {
+const RadioGroupComponent = React.forwardRef<
+  HTMLDivElement,
+  RadioGroupComponentProps
+>((props, ref) => {
   const {
+    accentColor,
     alignment,
     compactMode,
     disabled,
@@ -64,7 +82,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     (event: React.FormEvent<HTMLInputElement>) => {
       onRadioSelectionChange(event.currentTarget.value);
     },
-    [],
+    [onRadioSelectionChange],
   );
 
   return (
@@ -72,6 +90,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
       compactMode={compactMode}
       data-testid="radiogroup-container"
       labelPosition={labelPosition}
+      ref={ref}
     >
       {labelText && (
         <LabelWithTooltip
@@ -91,6 +110,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
         />
       )}
       <StyledRadioGroup
+        accentColor={accentColor}
         alignment={alignment}
         compactMode={compactMode}
         disabled={disabled}
@@ -116,7 +136,9 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
       </StyledRadioGroup>
     </RadioGroupContainer>
   );
-}
+});
+
+RadioGroupComponent.displayName = "RadioGroupComponent";
 
 export interface RadioGroupComponentProps extends ComponentProps {
   options: RadioOption[];
@@ -136,6 +158,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   labelWidth?: number;
   widgetId: string;
   height?: number;
+  accentColor: string;
 }
 
 export default RadioGroupComponent;

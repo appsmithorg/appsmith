@@ -1,5 +1,9 @@
 import { FieldType } from "widgets/JSONFormWidget/constants";
-import { HiddenFnParams, getSchemaItem } from "../helper";
+import {
+  HiddenFnParams,
+  getSchemaItem,
+  getAutocompleteProperties,
+} from "../helper";
 import { JSONFormWidgetProps } from "../..";
 import { SelectFieldProps } from "widgets/JSONFormWidget/fields/SelectField";
 import {
@@ -147,7 +151,7 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      additionalAutoComplete: getAutocompleteProperties,
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.SELECT),
       dependencies: ["schema", "sourceData"],
@@ -161,7 +165,7 @@ const PROPERTIES = {
       isBindProperty: true,
       isTriggerProperty: true,
       dependencies: ["schema", "sourceData"],
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      additionalAutoComplete: getAutocompleteProperties,
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem<SelectFieldProps["schemaItem"]>(...args).compute(
           (schemaItem) => {

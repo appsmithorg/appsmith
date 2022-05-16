@@ -19,6 +19,7 @@ import { compact, map, sortBy } from "lodash";
 
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
@@ -73,6 +74,7 @@ class ContainerWidget extends BaseWidget<
             propertyName: "backgroundColor",
             label: "Background Color",
             controlType: "COLOR_PICKER",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -98,14 +100,15 @@ class ContainerWidget extends BaseWidget<
             validation: { type: ValidationTypes.NUMBER },
           },
           {
-            helpText: "Enter value for border radius",
             propertyName: "borderRadius",
             label: "Border Radius",
-            placeholderText: "Enter value in px",
-            controlType: "INPUT_TEXT",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "boxShadow",
@@ -113,28 +116,8 @@ class ContainerWidget extends BaseWidget<
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "NONE",
-                  "VARIANT1",
-                  "VARIANT2",
-                  "VARIANT3",
-                  "VARIANT4",
-                  "VARIANT5",
-                ],
-              },
-            },
-          },
-          {
-            propertyName: "boxShadowColor",
-            helpText: "Sets the shadow color of the widget",
-            label: "Shadow Color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },

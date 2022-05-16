@@ -40,8 +40,11 @@ class InputComponent extends React.Component<InputComponentProps> {
   render() {
     return (
       <BaseInputComponent
+        accentColor={this.props.accentColor}
         allowNumericCharactersOnly={this.props.allowNumericCharactersOnly}
         autoFocus={this.props.autoFocus}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode={this.props.compactMode}
         defaultValue={this.props.defaultValue}
         disableNewLineOnPressEnterKey={this.props.disableNewLineOnPressEnterKey}
@@ -70,6 +73,7 @@ class InputComponent extends React.Component<InputComponentProps> {
         onKeyDown={this.props.onKeyDown}
         onValueChange={this.props.onValueChange}
         placeholder={this.props.placeholder}
+        ref={this.props.innerRef}
         showError={this.props.showError}
         spellCheck={this.props.spellCheck}
         stepSize={1}
@@ -81,11 +85,22 @@ class InputComponent extends React.Component<InputComponentProps> {
   }
 }
 export interface InputComponentProps extends BaseInputComponentProps {
+  innerRef?: React.RefObject<HTMLDivElement>;
   inputType: InputTypes;
   maxChars?: number;
   spellCheck?: boolean;
   maxNum?: number;
   minNum?: number;
+  borderRadius?: string;
+  boxShadow?: string;
+  accentColor?: string;
 }
 
-export default InputComponent;
+export default React.forwardRef<HTMLDivElement, InputComponentProps>(
+  (props, ref) => (
+    <InputComponent
+      {...props}
+      innerRef={ref as React.RefObject<HTMLDivElement>}
+    />
+  ),
+);

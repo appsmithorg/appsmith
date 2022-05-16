@@ -24,6 +24,7 @@ const StyledButton = styled(Button)<ThemeProp & IButtonProps>`
   box-shadow: none !important;
   background-image: none !important;
   background-color: #ffffff !important;
+  min-height: 100% !important;
   & > div {
     display: flex;
   }

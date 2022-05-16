@@ -2,11 +2,10 @@ import * as Sentry from "@sentry/react";
 import { set } from "lodash";
 import { ControllerProps, useFormContext } from "react-hook-form";
 import { useContext, useEffect } from "react";
+import { klona } from "klona";
 
 import FormContext from "../FormContext";
 import { FieldType } from "../constants";
-
-import { klona } from "klona/full";
 
 export type UseRegisterFieldValidityProps = {
   isValid: boolean;
@@ -26,16 +25,23 @@ function useRegisterFieldValidity({
   const { setMetaInternalFieldState } = useContext(FormContext);
 
   useEffect(() => {
-    try {
-      isValid
-        ? clearErrors(fieldName)
-        : setError(fieldName, {
-            type: fieldType,
-            message: "Invalid field",
-          });
-    } catch (e) {
-      Sentry.captureException(e);
-    }
+    /**
+     * TODO (Ashit): This setTimeout is a patch to avoid a plausible race-condition when a bunch
+     * of fields are registered in ReactHookForm and internally the error is lost.
+     * This needs to be further investigated.
+     */
+    setTimeout(() => {
+      try {
+        isValid
+          ? clearErrors(fieldName)
+          : setError(fieldName, {
+              type: fieldType,
+              message: "Invalid field",
+            });
+      } catch (e) {
+        Sentry.captureException(e);
+      }
+    }, 0);
 
     setMetaInternalFieldState((prevState) => {
       const metaInternalFieldState = klona(prevState.metaInternalFieldState);

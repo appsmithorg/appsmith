@@ -39,7 +39,10 @@ class CurrencyInputComponent extends React.Component<
   render() {
     return (
       <BaseInputComponent
+        accentColor={this.props.accentColor}
         autoFocus={this.props.autoFocus}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode={this.props.compactMode}
         defaultValue={this.props.defaultValue}
         disableNewLineOnPressEnterKey={this.props.disableNewLineOnPressEnterKey}
@@ -62,12 +65,15 @@ class CurrencyInputComponent extends React.Component<
         labelWidth={this.props.labelWidth}
         leftIcon={
           <CurrencyTypeDropdown
+            accentColor={this.props.accentColor}
             allowCurrencyChange={
               this.props.allowCurrencyChange && !this.props.disabled
             }
+            borderRadius={this.props.borderRadius}
             onCurrencyTypeChange={this.props.onCurrencyTypeChange}
             options={CurrencyDropdownOptions}
             selected={this.props.currencyCode}
+            widgetId={this.props.widgetId}
           />
         }
         multiline={false}
@@ -76,6 +82,7 @@ class CurrencyInputComponent extends React.Component<
         onStep={this.props.onStep}
         onValueChange={this.props.onValueChange}
         placeholder={this.props.placeholder}
+        ref={this.props.innerRef}
         showError={this.props.showError}
         stepSize={1}
         tooltip={this.props.tooltip}
@@ -91,9 +98,17 @@ export interface CurrencyInputComponentProps extends BaseInputComponentProps {
   noOfDecimals?: number;
   allowCurrencyChange?: boolean;
   decimals?: number;
+  innerRef?: React.RefObject<HTMLDivElement>;
   onCurrencyTypeChange: (code?: string) => void;
   onStep: (direction: number) => void;
   renderMode: string;
 }
 
-export default CurrencyInputComponent;
+export default React.forwardRef<HTMLDivElement, CurrencyInputComponentProps>(
+  (props, ref) => (
+    <CurrencyInputComponent
+      {...props}
+      innerRef={ref as React.RefObject<HTMLDivElement>}
+    />
+  ),
+);

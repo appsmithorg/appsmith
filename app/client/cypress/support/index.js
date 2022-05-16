@@ -28,6 +28,8 @@ import { initLocalstorageRegistry } from "./Objects/Registry";
 import "./OrgCommands";
 import "./queryCommands";
 import "./widgetCommands";
+import "./themeCommands";
+import "./AdminSettingsCommands";
 /// <reference types="cypress-xpath" />
 
 Cypress.on("uncaught:exception", () => {

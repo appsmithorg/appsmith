@@ -58,7 +58,7 @@ public interface FileInterface {
      * @param editModeUrl    URL to deployed version of the application edit mode
      * @return Path where the Application is stored
      */
-    Mono<Path> initializeGitRepo(Path baseRepoSuffix, String viewModeUrl, String editModeUrl) throws IOException;
+    Mono<Path> initializeReadme(Path baseRepoSuffix, String viewModeUrl, String editModeUrl) throws IOException;
 
     /**
      * When the user clicks on detach remote, we need to remove the repo from the file system
@@ -66,7 +66,7 @@ public interface FileInterface {
      * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
      * @return success on remove of file system
      */
-    Mono<Boolean> detachRemote(Path baseRepoSuffix);
+    Mono<Boolean> deleteLocalRepo(Path baseRepoSuffix);
 
     /**
      * This will check if the cloned repo is empty. The check excludes files like Readme files

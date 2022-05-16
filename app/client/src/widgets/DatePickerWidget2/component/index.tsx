@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { IntentColors, getBorderCSSShorthand } from "constants/DefaultTheme";
+import { IntentColors } from "constants/DefaultTheme";
 import { ControlGroup, Classes, IRef, Alignment } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
@@ -20,48 +20,60 @@ import { parseDate } from "./utils";
 import LabelWithTooltip, {
   labelLayoutStyles,
 } from "components/ads/LabelWithTooltip";
+import { lightenColor, PopoverStyles } from "widgets/WidgetUtils";
+
+const DATEPICKER_POPUP_CLASSNAME = "datepickerwidget-popup";
 
 const StyledControlGroup = styled(ControlGroup)<{
   isValid: boolean;
   compactMode: boolean;
   labelPosition?: LabelPosition;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }>`
   ${labelLayoutStyles}
 
   &&& {
     .${Classes.INPUT} {
       color: ${Colors.GREY_10};
-      box-shadow: none;
+      background: ${Colors.WHITE};
+      border-radius: ${({ borderRadius }) => borderRadius} !important;
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       border: 1px solid;
-      border-color: ${(props) =>
-        !props.isValid ? IntentColors.danger : Colors.GEYSER_LIGHT};
+      border-color: ${({ isValid }) =>
+        !isValid ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
       width: 100%;
-      height: inherit;
+      height: 100%;
+      min-height: 32px;
       align-items: center;
-      &:active {
-        border-color: ${({ isValid }) =>
-          !isValid ? IntentColors.danger : Colors.HIT_GRAY};
-      }
-      &:focus {
-        border-color: ${({ isValid }) =>
-          !isValid ? IntentColors.danger : Colors.MYSTIC};
+      transition: none;
 
-        &:focus {
-          border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-          border-color: #80bdff;
-          outline: 0;
-          box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
-        }
+      &:active {
+        border-color: ${({ accentColor, isValid }) =>
+          !isValid ? Colors.DANGER_SOLID : accentColor};
+      }
+
+      &:focus {
+        outline: 0;
+        border: 1px solid;
+        border-color: ${({ accentColor, isValid }) =>
+          !isValid ? Colors.DANGER_SOLID : accentColor};
+        box-shadow: ${({ accentColor }) =>
+          `0px 0px 0px 3px ${lightenColor(accentColor)} !important;`}
       }
     }
+
     .${Classes.INPUT}:disabled {
       background: ${Colors.GREY_1};
       color: ${Colors.GREY_7};
     }
+
     .${Classes.INPUT_GROUP} {
       display: block;
       margin: 0;
     }
+
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
@@ -86,8 +98,6 @@ export const DateInputWrapper = styled.div<{
     flex-grow: 0;
   }
   width: 100%;
-  ${({ compactMode, labelPosition }) =>
-    labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
 `;
 
 class DatePickerComponent extends React.Component<
@@ -155,71 +165,82 @@ class DatePickerComponent extends React.Component<
         ? new Date(this.state.selectedDate)
         : null;
     return (
-      <StyledControlGroup
-        compactMode={this.props.compactMode}
-        data-testid="datepicker-container"
-        fill
-        isValid={isValid}
-        labelPosition={this.props.labelPosition}
-        onClick={(e: any) => {
-          e.stopPropagation();
-        }}
-      >
-        {labelText && (
-          <LabelWithTooltip
-            alignment={labelAlignment}
-            className={`datepicker-label`}
-            color={labelTextColor}
-            compact={compactMode}
-            disabled={isDisabled}
-            fontSize={labelTextSize}
-            fontStyle={labelStyle}
-            loading={isLoading}
-            position={labelPosition}
-            text={labelText}
-            width={labelWidth}
-          />
-        )}
-        <DateInputWrapper
-          compactMode={compactMode}
-          labelPosition={labelPosition}
+      <div ref={this.props.innerRef}>
+        <StyledControlGroup
+          accentColor={this.props.accentColor}
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          compactMode={this.props.compactMode}
+          data-testid="datepicker-container"
+          fill
+          isValid={isValid}
+          labelPosition={this.props.labelPosition}
+          onClick={(e: any) => {
+            e.stopPropagation();
+          }}
         >
-          <ErrorTooltip
-            isOpen={!isValid}
-            message={createMessage(DATE_WIDGET_DEFAULT_VALIDATION_ERROR)}
-          >
-            <DateInput
-              className={this.props.isLoading ? "bp3-skeleton" : ""}
-              closeOnSelection={this.props.closeOnSelection}
-              dayPickerProps={{
-                firstDayOfWeek: this.props.firstDayOfWeek || 0,
-              }}
-              disabled={this.props.isDisabled}
-              formatDate={this.formatDate}
-              inputProps={{
-                inputRef: this.props.inputRef,
-              }}
-              maxDate={maxDate}
-              minDate={minDate}
-              onChange={this.onDateSelected}
-              parseDate={this.parseDate}
-              placeholder={"Select Date"}
-              popoverProps={{
-                usePortal: !this.props.withoutPortal,
-                canEscapeKeyClose: true,
-              }}
-              shortcuts={this.props.shortcuts}
-              showActionsBar
-              timePrecision={
-                this.props.timePrecision === TimePrecision.NONE
-                  ? undefined
-                  : this.props.timePrecision
-              }
-              value={value}
+          {labelText && (
+            <LabelWithTooltip
+              alignment={labelAlignment}
+              className={`datepicker-label`}
+              color={labelTextColor}
+              compact={compactMode}
+              disabled={isDisabled}
+              fontSize={labelTextSize}
+              fontStyle={labelStyle}
+              loading={isLoading}
+              position={labelPosition}
+              text={labelText}
+              width={labelWidth}
             />
-          </ErrorTooltip>
-        </DateInputWrapper>
-      </StyledControlGroup>
+          )}
+          <DateInputWrapper
+            compactMode={compactMode}
+            labelPosition={labelPosition}
+          >
+            <ErrorTooltip
+              isOpen={!isValid}
+              message={createMessage(DATE_WIDGET_DEFAULT_VALIDATION_ERROR)}
+            >
+              <DateInput
+                className={this.props.isLoading ? "bp3-skeleton" : ""}
+                closeOnSelection={this.props.closeOnSelection}
+                dayPickerProps={{
+                  firstDayOfWeek: this.props.firstDayOfWeek || 0,
+                }}
+                disabled={this.props.isDisabled}
+                formatDate={this.formatDate}
+                inputProps={{
+                  inputRef: this.props.inputRef,
+                }}
+                maxDate={maxDate}
+                minDate={minDate}
+                onChange={this.onDateSelected}
+                parseDate={this.parseDate}
+                placeholder={"Select Date"}
+                popoverProps={{
+                  usePortal: !this.props.withoutPortal,
+                  canEscapeKeyClose: true,
+                  portalClassName: `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`,
+                }}
+                shortcuts={this.props.shortcuts}
+                showActionsBar
+                timePrecision={
+                  this.props.timePrecision === TimePrecision.NONE
+                    ? undefined
+                    : this.props.timePrecision
+                }
+                value={value}
+              />
+            </ErrorTooltip>
+          </DateInputWrapper>
+          <PopoverStyles
+            accentColor={this.props.accentColor}
+            borderRadius={this.props.borderRadius}
+            portalClassName={`${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`}
+          />
+        </StyledControlGroup>
+      </div>
     );
   }
 
@@ -311,11 +332,22 @@ interface DatePickerComponentProps extends ComponentProps {
   shortcuts: boolean;
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
+  innerRef?: React.RefObject<HTMLDivElement>;
   inputRef?: IRef<HTMLInputElement>;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }
 
 interface DatePickerComponentState {
   selectedDate?: string;
 }
 
-export default DatePickerComponent;
+export default React.forwardRef<HTMLDivElement, DatePickerComponentProps>(
+  (props, ref) => (
+    <DatePickerComponent
+      {...props}
+      innerRef={ref as React.RefObject<HTMLDivElement>}
+    />
+  ),
+);

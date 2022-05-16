@@ -1,5 +1,4 @@
 import { Alignment, Classes, Switch } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
 import styled from "styled-components";
@@ -12,57 +11,90 @@ export interface SwitchComponentProps extends ComponentProps {
   onChange: (isSwitchedOn: boolean) => void;
   isLoading: boolean;
   alignWidget: AlignWidget;
+  accentColor: string;
   inputRef?: (ref: HTMLInputElement | null) => any;
 }
 
-const SwitchComponentContainer = styled.div`
+const SwitchComponentContainer = styled.div<{
+  accentColor: string;
+}>`
   display: flex;
   flex-direction: row;
   align-items: center;
-  &&& .${Classes.CONTROL} {
-    margin: 0;
-    input:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${Colors.GREEN};
-      border: 1px solid ${Colors.GREEN};
-    }
-  }
   &.${Alignment.RIGHT} {
     justify-content: flex-end;
   }
   ${BlueprintControlTransform}
 `;
 
-export function SwitchComponent({
-  alignWidget,
-  inputRef,
-  isDisabled,
-  isLoading,
-  isSwitchedOn,
-  label,
-  onChange,
-}: SwitchComponentProps) {
-  const switchAlignClass =
-    alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
+export const StyledSwitch = styled(Switch)<{
+  accentColor: string;
+}>`
+  &.${Classes.CONTROL} {
+    margin: 0;
+  }
 
-  return (
-    <SwitchComponentContainer className={switchAlignClass}>
-      <Switch
-        alignIndicator={switchAlignClass}
-        checked={isSwitchedOn}
-        className={
-          isLoading
-            ? `${Classes.SKELETON} t--switch-widget-loading`
-            : `${
-                isSwitchedOn
-                  ? "t--switch-widget-active"
-                  : "t--switch-widget-inactive"
-              }`
-        }
-        disabled={isDisabled}
-        inputRef={inputRef}
-        label={label}
-        onChange={() => onChange(!isSwitchedOn)}
-      />
-    </SwitchComponentContainer>
-  );
-}
+  &.${Classes.CONTROL} {
+    & input:checked ~ .${Classes.CONTROL_INDICATOR} {
+      background: ${({ accentColor }) => `${accentColor}`} !important;
+      border: 1px solid ${({ accentColor }) => `${accentColor}`} !important;
+    }
+  }
+
+  &.${Classes.SWITCH} {
+    & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
+      background: ${({ accentColor }) => `${accentColor}`} !important;
+    }
+  }
+`;
+
+export const SwitchComponent = React.forwardRef<
+  HTMLDivElement,
+  SwitchComponentProps
+>(
+  (
+    {
+      accentColor,
+      alignWidget,
+      inputRef,
+      isDisabled,
+      isLoading,
+      isSwitchedOn,
+      label,
+      onChange,
+    },
+    ref,
+  ) => {
+    const switchAlignClass =
+      alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
+
+    return (
+      <SwitchComponentContainer
+        accentColor={accentColor}
+        className={switchAlignClass}
+        ref={ref}
+      >
+        <StyledSwitch
+          accentColor={accentColor}
+          alignIndicator={switchAlignClass}
+          checked={isSwitchedOn}
+          className={
+            isLoading
+              ? `${Classes.SKELETON} t--switch-widget-loading`
+              : `${
+                  isSwitchedOn
+                    ? "t--switch-widget-active"
+                    : "t--switch-widget-inactive"
+                }`
+          }
+          disabled={isDisabled}
+          inputRef={inputRef}
+          label={label}
+          onChange={() => onChange(!isSwitchedOn)}
+        />
+      </SwitchComponentContainer>
+    );
+  },
+);
+
+SwitchComponent.displayName = "SwitchComponent";

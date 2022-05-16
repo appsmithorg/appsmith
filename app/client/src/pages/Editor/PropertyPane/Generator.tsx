@@ -52,6 +52,7 @@ export const generatePropertyControl = (
     } else if ((config as PropertyPaneControlConfig).controlType) {
       return (
         <Boxed
+          key={config.id + props.id}
           show={
             (config as PropertyPaneControlConfig).propertyName !==
               "tableData" && props.type === "TABLE_WIDGET"

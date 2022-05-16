@@ -329,41 +329,43 @@ class CheckboxGroupWidget extends BaseWidget<
             propertyName: "labelTextSize",
             label: "Label Text Size",
             controlType: "DROP_DOWN",
-            defaultValue: "PARAGRAPH",
+            defaultValue: "0.875rem",
             options: [
               {
-                label: "Heading 1",
-                value: "HEADING1",
-                subText: "24px",
-                icon: "HEADING_ONE",
+                label: "S",
+                value: "0.875rem",
+                subText: "0.875rem",
               },
               {
-                label: "Heading 2",
-                value: "HEADING2",
-                subText: "18px",
-                icon: "HEADING_TWO",
+                label: "M",
+                value: "1rem",
+                subText: "1rem",
               },
               {
-                label: "Heading 3",
-                value: "HEADING3",
-                subText: "16px",
-                icon: "HEADING_THREE",
+                label: "L",
+                value: "1.25rem",
+                subText: "1.25rem",
               },
               {
-                label: "Paragraph",
-                value: "PARAGRAPH",
-                subText: "14px",
-                icon: "PARAGRAPH",
+                label: "XL",
+                value: "1.875rem",
+                subText: "1.875rem",
               },
               {
-                label: "Paragraph 2",
-                value: "PARAGRAPH2",
-                subText: "12px",
-                icon: "PARAGRAPH_TWO",
+                label: "XXL",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3XL",
+                value: "3.75rem",
+                subText: "3.75rem",
               },
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "labelStyle",
@@ -379,6 +381,28 @@ class CheckboxGroupWidget extends BaseWidget<
                 value: "ITALIC",
               },
             ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "accentColor",
+            helpText: "Sets the checked state color of the checkbox",
+            label: "Accent Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -468,6 +492,8 @@ class CheckboxGroupWidget extends BaseWidget<
   getPageView() {
     return (
       <CheckboxGroupComponent
+        accentColor={this.props.accentColor}
+        borderRadius={this.props.borderRadius}
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /
@@ -492,6 +518,7 @@ class CheckboxGroupWidget extends BaseWidget<
         onSelectAllChange={this.handleSelectAllChange}
         optionAlignment={this.props.optionAlignment}
         options={compact(this.props.options)}
+        ref={this.contentRef}
         rowSpace={this.props.parentRowSpace}
         selectedValues={this.props.selectedValues}
         widgetId={this.props.widgetId}
@@ -575,6 +602,8 @@ export interface CheckboxGroupWidgetProps extends WidgetProps {
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  accentColor: string;
+  borderRadius: string;
 }
 
 export default CheckboxGroupWidget;

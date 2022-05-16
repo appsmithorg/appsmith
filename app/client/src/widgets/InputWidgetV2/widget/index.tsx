@@ -465,8 +465,11 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
     return (
       <InputComponent
-        autoFocus={this.props.autoFocus}
+        accentColor={this.props.accentColor}
         // show label and Input side by side if true
+        autoFocus={this.props.autoFocus}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /
@@ -498,6 +501,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
+        ref={this.contentRef}
         showError={!!this.props.isFocused}
         spellCheck={!!this.props.isSpellCheck}
         stepSize={1}

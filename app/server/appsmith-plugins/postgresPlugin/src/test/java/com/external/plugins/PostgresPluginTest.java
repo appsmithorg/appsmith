@@ -1300,6 +1300,50 @@ public class PostgresPluginTest {
 
     }
 
+    @Test
+    public void testPreparedStatementWithTimeZoneTimeStamp() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("UPDATE public.\"users\" set " +
+                "created_on_tz = {{createdTS}}\n" +
+                "  where id = 3;");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        params.add(new Param("createdTS", "2022-04-11T05:30:00Z"));
+
+        executeActionDTO.setParams(params);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                })
+                .verifyComplete();
+
+        actionConfiguration.setBody("SELECT * FROM public.\"users\" where id = 3;");
+        resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals(node.get("created_on_tz").asText(), "2022-04-11T05:30:00Z"); //UTC time
+                })
+                .verifyComplete();
+    }
+
     public void testReadOnlyMode() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getConnection().setMode(com.appsmith.external.models.Connection.Mode.READ_ONLY);

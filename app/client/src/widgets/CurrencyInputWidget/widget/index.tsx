@@ -117,9 +117,9 @@ class CurrencyInputWidget extends BaseInputWidget<
               propertyName: "defaultCurrencyCode",
               label: "Currency",
               enableSearch: true,
-              dropdownHeight: "195px",
+              dropdownHeight: "156px",
               controlType: "DROP_DOWN",
-              placeholderText: "Search by code or name",
+              searchPlaceholderText: "Search by code or name",
               options: CurrencyDropdownOptions,
               isJSConvertible: true,
               isBindProperty: true,
@@ -346,8 +346,11 @@ class CurrencyInputWidget extends BaseInputWidget<
 
     return (
       <CurrencyInputComponent
+        accentColor={this.props.accentColor}
         allowCurrencyChange={this.props.allowCurrencyChange}
         autoFocus={this.props.autoFocus}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /
@@ -378,6 +381,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         onStep={this.onStep}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
+        ref={this.contentRef}
         renderMode={this.props.renderMode}
         showError={!!this.props.isFocused}
         tooltip={this.props.tooltip}
