@@ -159,7 +159,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     ); //This verifies the Select on the table, ie page is created fine
 
     cy.ClickGotIt();
-
     cy.wait(2000);
     //Verifying Update from UI
     cy.xpath(generatePage.selectRowinTable)
@@ -201,11 +200,40 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.xpath(generatePage.addRowIcon)
       .scrollIntoView()
       .click();
-    cy.xpath(generatePage.idField).type("31");
-    cy.xpath(generatePage.nameField).type("CRUD User31");
-    cy.xpath(generatePage.statusField).type("REJECTED");
-    cy.xpath(generatePage.genderField).type("Male");
-    cy.xpath(generatePage.emailField)
+    // cy.xpath(generatePage.idField).clear().type("31");
+    cy.get(generatePage.idField)
+      .last()
+      .children()
+      .last()
+      .clear()
+      .type("31");
+    //  cy.xpath(generatePage.nameField).clear().type("CRUD User31");
+    cy.get(generatePage.nameField)
+      .last()
+      .children()
+      .last()
+      .clear()
+      .type("CRUD User31");
+    //  cy.xpath(generatePage.statusField).clear().type("REJECTED");
+    cy.get(generatePage.statusField)
+      .last()
+      .children()
+      .last()
+      .clear()
+      .type("REJECTED");
+    //  cy.xpath(generatePage.genderField).clear().type("Male");
+    cy.get(generatePage.genderField)
+      .last()
+      .children()
+      .last()
+      .clear()
+      .type("Male");
+    //  cy.xpath(generatePage.emailField)
+    cy.get(generatePage.emailField)
+      .last()
+      .children()
+      .last()
+      .clear()
       .type("curduser31@ihg.com")
       .wait(2000); //Waiting for Submit button to get enabled
     cy.get(generatePage.submitBtn)
@@ -214,11 +242,13 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       .click();
     cy.wait(5000);
 
-    cy.get(generatePage.sortByDropdown)
-      .last()
-      .click(); //Sorting by descending to verify newly added record - also sorting is verified
-    cy.xpath(generatePage.descending).click();
-    cy.wait(2000); //for descending to take effect!
+    //cy.get(generatePage.sortByDropdown)
+    //   .last()
+    //   .click(); //Sorting by descending to verify newly added record - also sorting is verified
+    //  cy.xpath(generatePage.descending).click();
+    // cy.wait(2000); //for descending to take effect!
+    // sreach for added row
+    cy.get(generatePage.searchinTable).type("31");
     cy.xpath(generatePage.currentNameField).should("have.value", "CRUD User31"); //Verifying Addition is success
 
     //Verifying Delete from UI
@@ -236,10 +266,13 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       "response.body.responseMeta.status",
       200,
     );
+    // verify table row is deleted
 
     cy.xpath(generatePage.currentNameField)
       .scrollIntoView()
-      .should("have.value", "CRUD User30"); //Verifying Deletion of id # 31 is success
+      .should("be.empty"); //Verifying Deletion of id # 31 is success
+
+    cy.get(generatePage.searchinTable).clear();
   });
 
   it("9. Validate Deletion of the Newly Created Page", () => {
