@@ -22,12 +22,13 @@ jobs:
           aws-region: ap-south-1
 
       - name: Install python
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
           python-version: '3.8'
 
       - name: Install ansible
         run: pip install ansible
+
       - name: Append binary PATH
         run: echo "$(dirname $(which ansible))" >> $GITHUB_PATH
       
