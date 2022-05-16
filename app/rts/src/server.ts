@@ -168,7 +168,7 @@ async function tryAuth(socket: Socket) {
 
     // const host = socket.handshake.headers.host;
     const connectionCookie = socket?.handshake?.headers?.cookie;
-    if (connectionCookie == null || connectionCookie === "") {
+    if (connectionCookie === undefined || connectionCookie === null || connectionCookie === "") {
         return false;
     }
 
