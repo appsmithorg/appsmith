@@ -367,13 +367,13 @@ describe("Input widget V2 - ", () => {
       ".t--property-control-onsubmit",
       "{{storeValue('textPayloadOnSubmit',Input1.text)}}",
     );
-    cy.assertPageSave();
     // Bind to stored value above
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
       "{{appsmith.store.textPayloadOnSubmit}}",
     );
+    cy.assertPageSave();
     cy.closePropertyPane();
     cy.get(widgetInput).clear();
     cy.wait(300);
