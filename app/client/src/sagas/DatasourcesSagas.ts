@@ -85,7 +85,7 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import { AppState } from "reducers";
-import { getworkspaceIdForImport } from "selectors/applicationSelectors";
+import { getWorkspaceIdForImport } from "selectors/applicationSelectors";
 import {
   apiEditorIdURL,
   datasourcesEditorIdURL,
@@ -378,7 +378,7 @@ function* redirectAuthorizationCodeSaga(
   }>,
 ) {
   const { datasourceId, pageId, pluginType } = actionPayload.payload;
-  const isImport: string = yield select(getworkspaceIdForImport);
+  const isImport: string = yield select(getWorkspaceIdForImport);
 
   if (pluginType === PluginType.API) {
     window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code`;
@@ -487,7 +487,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
 
   // test button within the import modal
   if (!workspaceId) {
-    workspaceId = yield select(getworkspaceIdForImport);
+    workspaceId = yield select(getWorkspaceIdForImport);
   }
   const { initialValues, values } = yield select(
     getFormData,

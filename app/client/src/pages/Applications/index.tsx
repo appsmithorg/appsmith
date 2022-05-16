@@ -548,7 +548,7 @@ function ApplicationsSection(props: any) {
   ] = useState<string | undefined>();
   const Form: any = WorkspaceInviteUsersForm;
 
-  const leaveWorkspace = (workspaceId: string) => {
+  const leaveWS = (workspaceId: string) => {
     setWarnLeavingWorkspace(false);
     setWorkspaceToOpenMenu(null);
     dispatch(leaveWorkspace(workspaceId));
@@ -850,7 +850,7 @@ function ApplicationsSection(props: any) {
                             e.stopPropagation();
                             !warnLeavingWorkspace
                               ? setWarnLeavingWorkspace(true)
-                              : leaveWorkspace(workspace.id);
+                              : leaveWS(workspace.id);
                           }}
                           text={
                             !warnLeavingWorkspace
