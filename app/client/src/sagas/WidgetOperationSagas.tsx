@@ -11,13 +11,16 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidget, getWidgets } from "./selectors";
 import {
+  actionChannel,
   all,
   call,
+  take,
   fork,
   put,
   select,
   takeEvery,
   takeLatest,
+  takeLeading,
 } from "redux-saga/effects";
 import { convertToString } from "utils/AppsmithUtils";
 import {
@@ -107,9 +110,10 @@ import {
   getPastePositionMapFromMousePointer,
   getBoundariesFromSelectedWidgets,
   WIDGET_PASTE_PADDING,
-  getWidgetsFromIds,
   getDefaultCanvas,
   isDropTarget,
+  getValueFromTree,
+  getVerifiedSelectedWidgets,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -434,7 +438,7 @@ export function getPropertiesToUpdate(
   } = getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
 
   Object.keys(updatePaths).forEach((propertyPath) => {
-    const propertyValue = _.get(updates, propertyPath);
+    const propertyValue = getValueFromTree(updates, propertyPath);
     // only check if
     if (!_.isString(propertyValue)) {
       return;
@@ -841,6 +845,7 @@ export function calculateNewWidgetPosition(
  * @param copiedTotalWidth total width of the copied widgets
  * @param copiedTopMostRow top row of the top most copied widget
  * @param copiedLeftMostColumn left column of the left most copied widget
+ * @param shouldGroup boolean to indicate if the user is grouping instead of pasting
  * @returns
  */
 const getNewPositions = function*(
@@ -849,10 +854,21 @@ const getNewPositions = function*(
   copiedTotalWidth: number,
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
+  shouldGroup: boolean,
 ) {
+  // if it is grouping instead of pasting then skip the pasting logic
+  if (shouldGroup) return {};
+
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const selectedWidgets = getWidgetsFromIds(selectedWidgetIDs, canvasWidgets);
+  const {
+    isListWidgetPastingOnItself,
+    selectedWidgets,
+  } = getVerifiedSelectedWidgets(
+    selectedWidgetIDs,
+    copiedWidgetGroups,
+    canvasWidgets,
+  );
 
   //if the copied widget is a modal widget, then it has to paste on the main container
   if (
@@ -867,7 +883,8 @@ const getNewPositions = function*(
   if (
     !(
       selectedWidgets.length === 1 &&
-      isDropTarget(selectedWidgets[0].type, true)
+      isDropTarget(selectedWidgets[0].type, true) &&
+      !isListWidgetPastingOnItself
     ) &&
     selectedWidgets.length > 0
   ) {
@@ -1240,6 +1257,7 @@ function* pasteWidgetSaga(
     copiedTotalWidth,
     topMostWidget.topRow,
     leftMostWidget.leftColumn,
+    shouldGroup,
   );
 
   if (canvasId) pastingIntoWidgetId = canvasId;
@@ -1611,10 +1629,28 @@ export function* groupWidgetsSaga() {
   }
 }
 
+function* widgetBatchUpdatePropertySaga() {
+  /*
+   * BATCH_UPDATE_WIDGET_PROPERTY should be processed serially as
+   * it updates the state. We want the state updates from previous
+   * batch update to be flushed out to the store before processing
+   * the another batch update.
+   */
+  const batchUpdateWidgetPropertyChannel = yield actionChannel(
+    ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,
+  );
+
+  while (true) {
+    const action = yield take(batchUpdateWidgetPropertyChannel);
+    yield call(batchUpdateWidgetPropertySaga, action);
+  }
+}
+
 export default function* widgetOperationSagas() {
   yield fork(widgetAdditionSagas);
   yield fork(widgetDeletionSagas);
   yield fork(widgetSelectionSagas);
+  yield fork(widgetBatchUpdatePropertySaga);
   yield all([
     takeEvery(ReduxActionTypes.ADD_SUGGESTED_WIDGET, addSuggestedWidget),
     takeLatest(WidgetReduxActionTypes.WIDGET_RESIZE, resizeSaga),
@@ -1635,10 +1671,6 @@ export default function* widgetOperationSagas() {
       resetChildrenMetaSaga,
     ),
     takeEvery(
-      ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,
-      batchUpdateWidgetPropertySaga,
-    ),
-    takeEvery(
       ReduxActionTypes.BATCH_UPDATE_MULTIPLE_WIDGETS_PROPERTY,
       batchUpdateMultipleWidgetsPropertiesSaga,
     ),
@@ -1648,7 +1680,7 @@ export default function* widgetOperationSagas() {
     ),
     takeLatest(ReduxActionTypes.UPDATE_CANVAS_SIZE, updateCanvasSize),
     takeLatest(ReduxActionTypes.COPY_SELECTED_WIDGET_INIT, copyWidgetSaga),
-    takeEvery(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
+    takeLeading(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
   ]);

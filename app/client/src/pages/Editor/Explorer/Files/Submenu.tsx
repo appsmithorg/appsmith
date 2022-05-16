@@ -52,11 +52,19 @@ const SubMenuContainer = styled.div`
   }
 `;
 
-type SubMenuProps = { className: string };
+type SubMenuProps = {
+  className: string;
+  openMenu: boolean;
+  onMenuClose: () => void;
+};
 
-export default function ExplorerSubMenu({ className }: SubMenuProps) {
+export default function ExplorerSubMenu({
+  className,
+  onMenuClose,
+  openMenu,
+}: SubMenuProps) {
   const [query, setQuery] = useState("");
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState(openMenu);
   const fileOperations = useFilteredFileOperations(query);
   const pageId = useSelector(getCurrentPageId);
   const applicationSlug = useSelector(selectCurrentApplicationSlug);
@@ -67,6 +75,8 @@ export default function ExplorerSubMenu({ className }: SubMenuProps) {
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const [activeItemIdx, setActiveItemIdx] = useState(0);
+
+  useEffect(() => setShow(openMenu), [openMenu]);
 
   useEffect(() => {
     setQuery("");
@@ -207,7 +217,10 @@ export default function ExplorerSubMenu({ className }: SubMenuProps) {
       }
       isOpen={show}
       minimal
-      onClose={() => setShow(false)}
+      onClose={() => {
+        setShow(false);
+        onMenuClose();
+      }}
       placement="right-start"
     >
       <TooltipComponent

@@ -350,14 +350,10 @@ export const isCopiedModalWidget = function(
   return false;
 };
 
-export const checkIfPastingIntoListWidget = function(
+export const getSelectedWidgetIfPastingIntoListWidget = function(
   canvasWidgets: CanvasWidgetsReduxState,
   selectedWidget: FlattenedWidgetProps | undefined,
-  copiedWidgets: {
-    widgetId: string;
-    parentId: string;
-    list: WidgetProps[];
-  }[],
+  copiedWidgets: CopiedWidgetGroup[],
 ) {
   // when list widget is selected, if the user is pasting, we want it to be pasted in the template
   // which is first children of list widget
@@ -388,7 +384,74 @@ export const checkIfPastingIntoListWidget = function(
 };
 
 /**
- * get top, left, right, bottom most widgets and and totalWidth from copied groups when pasting
+ * get selected widgets that are verified to make sure that we are not pasting list widget onto another list widget
+ * also return a boolean to indicate if the list widget is pasting into a list widget
+ *
+ * @param selectedWidgetIDs
+ * @param copiedWidgetGroups
+ * @param canvasWidgets
+ * @returns
+ */
+export function getVerifiedSelectedWidgets(
+  selectedWidgetIDs: string[],
+  copiedWidgetGroups: CopiedWidgetGroup[],
+  canvasWidgets: CanvasWidgetsReduxState,
+) {
+  const selectedWidgets = getWidgetsFromIds(selectedWidgetIDs, canvasWidgets);
+
+  //if there is no list widget in the copied widgets then return selected Widgets
+  if (
+    !checkForListWidgetInCopiedWidgets(copiedWidgetGroups) ||
+    selectedWidgets.length === 0
+  )
+    return { selectedWidgets };
+
+  //if the selected widget is a list widgets the return isListWidgetPastingOnItself as true
+  if (selectedWidgets.length === 1 && selectedWidgets[0].type === "LIST_WIDGET")
+    return { selectedWidgets, isListWidgetPastingOnItself: true };
+
+  //get list widget ancestor of selected widget if it has a list widget ancestor
+  const parentListWidgetId = document
+    .querySelector(
+      `.${POSITIONED_WIDGET}.${getBaseWidgetClassName(
+        selectedWidgets[0].widgetId,
+      )}`,
+    )
+    ?.closest(".t--widget-listwidget")?.id;
+
+  //if the selected widgets do have a list widget ancestor then,
+  // return that list widget as selected widgets and isListWidgetPastingOnItself as true
+  if (parentListWidgetId && canvasWidgets[parentListWidgetId])
+    return {
+      selectedWidgets: [canvasWidgets[parentListWidgetId]],
+      isListWidgetPastingOnItself: true,
+    };
+
+  return { selectedWidgets };
+}
+
+/**
+ * returns true if list widget is among the copied widgets
+ *
+ * @param copiedWidgetGroups
+ * @returns boolean
+ */
+export function checkForListWidgetInCopiedWidgets(
+  copiedWidgetGroups: CopiedWidgetGroup[],
+) {
+  for (let i = 0; i < copiedWidgetGroups.length; i++) {
+    const copiedWidget = copiedWidgetGroups[i].list[0];
+
+    if (copiedWidget?.type === "LIST_WIDGET") {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * get top, left, right, bottom most widgets and totalWidth from copied groups when pasting
  *
  * @param copiedWidgetGroups
  * @returns
@@ -474,7 +537,7 @@ export const getSelectedWidgetWhenPasting = function*() {
     getFocusedWidget,
   );
 
-  selectedWidget = checkIfPastingIntoListWidget(
+  selectedWidget = getSelectedWidgetIfPastingIntoListWidget(
     canvasWidgets,
     selectedWidget || focusedWidget,
     copiedWidgetGroups,
@@ -1380,4 +1443,64 @@ export function purgeOrphanedDynamicPaths(widget: WidgetProps) {
     );
   }
   return widget;
+}
+
+/*
+ * Function to extend the lodash's get function to check
+ * paths which have dots in it's key
+ *
+ * Suppose, if the path is `path1.path2.path3.path4`, this function
+ * checks in following paths in the tree as well, if _.get doesn't return a value
+ *  - path1.path2.path3 -> path4
+ *  - path1.path2 -> path3.path4 (will recursively traverse with same logic)
+ *  - path1 -> path2.path3.path4 (will recursively traverse with same logic)
+ */
+export function getValueFromTree(
+  obj: Record<string, unknown>,
+  path: string,
+  defaultValue?: unknown,
+): unknown {
+  // Creating a symbol as we need a unique value that will not be present in the input obj
+  const defaultValueSymbol = Symbol("defaultValue");
+
+  //Call the original get function with defaultValueSymbol.
+  const value = _.get(obj, path, defaultValueSymbol);
+
+  /*
+   * if the value returned by get matches defaultValueSymbol,
+   * path is invalid.
+   */
+  if (value === defaultValueSymbol && path.includes(".")) {
+    const pathArray = path.split(".");
+    const poppedPath: Array<string> = [];
+
+    while (pathArray.length) {
+      const currentPath = pathArray.join(".");
+
+      if (obj.hasOwnProperty(currentPath)) {
+        const currentValue = obj[currentPath];
+
+        if (!poppedPath.length) {
+          //Valid path
+          return currentValue;
+        } else if (typeof currentValue !== "object") {
+          //Invalid path
+          return defaultValue;
+        } else {
+          //Valid path, need to traverse recursively with same strategy
+          return getValueFromTree(
+            currentValue as Record<string, unknown>,
+            poppedPath.join("."),
+            defaultValue,
+          );
+        }
+      } else {
+        // We need the popped paths to traverse recursively
+        poppedPath.unshift(pathArray.pop() || "");
+      }
+    }
+  }
+
+  // Need to return the defaultValue, if there is no match for the path in the tree
+  return value !== defaultValueSymbol ? value : defaultValue;
 }
