@@ -126,12 +126,11 @@ export class JSEditor {
     cy.get(this.locator._codeMirrorTextArea)
       .first()
       .then((el: any) => {
-        const input = cy.get(el);
         if (paste) {
           //input.invoke("val", value);
           this.agHelper.Paste(el, JSCode);
         } else {
-          input.type(JSCode, {
+          cy.get(el).type(JSCode, {
             parseSpecialCharSequences: false,
             delay: 150,
             force: true,
@@ -207,8 +206,7 @@ export class JSEditor {
       )
         .first()
         .then((el: any) => {
-          const input = cy.get(el);
-          input.type(value, {
+          cy.get(el).type(value, {
             parseSpecialCharSequences: false,
           });
         });

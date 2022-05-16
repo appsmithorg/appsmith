@@ -18,7 +18,7 @@ import {
 import { getWidgets } from "sagas/selectors";
 import { extractColorsFromString } from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
-const FocusTrap = require("focus-trap-react");
+import FocusTrap from "focus-trap-react";
 
 const MAX_COLS = 10;
 

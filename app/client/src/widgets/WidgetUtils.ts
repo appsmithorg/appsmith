@@ -29,8 +29,7 @@ import { SchemaItem } from "./JSONFormWidget/constants";
 import { find, isEmpty } from "lodash";
 import { rgbaMigrationConstantV56 } from "./constants";
 import { DynamicPath } from "utils/DynamicBindingUtils";
-
-const punycode = require("punycode/");
+import punycode from "punycode";
 
 type SanitizeOptions = {
   existingKeys?: string[];

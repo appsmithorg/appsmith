@@ -8,7 +8,7 @@ import { ThemeProvider } from "constants/DefaultTheme";
 import { lightTheme } from "selectors/themeSelectors";
 
 describe("<EditableText />", () => {
-  it("should call onBlurEverytime on each and every blur", async () => {
+  it("should call onBlurEverytime on each and every blur", () => {
     const handleBlur = jest.fn();
     const getTestComponent = () => (
       <ThemeProvider theme={lightTheme}>
@@ -24,8 +24,8 @@ describe("<EditableText />", () => {
     const renderResult = render(component);
     const EditableTextElement = renderResult.container.firstElementChild;
     if (EditableTextElement) {
-      await userEvent.click(EditableTextElement);
-      await userEvent.tab();
+      userEvent.click(EditableTextElement);
+      userEvent.tab();
       expect(handleBlur).toHaveBeenCalled();
     } else {
       throw new Error("Failed");

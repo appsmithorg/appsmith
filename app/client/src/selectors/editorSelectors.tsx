@@ -196,10 +196,8 @@ export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 export const getCurrentPageName = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>
-    shouldBeDefined<Page>(
-      pageList.pages.find((page) => page.pageId === pageList.currentPageId),
-      `Page not found for id - ${pageList.currentPageId}`,
-    )?.pageName,
+    pageList.pages.find((page) => page.pageId === pageList.currentPageId)
+      ?.pageName,
 );
 
 export const getWidgetCards = createSelector(

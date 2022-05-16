@@ -1462,10 +1462,14 @@ export default class DataTreeEvaluator {
   }
 
   applyDifferencesToEvalTree(differences: Diff<any, any>[]) {
-    for (const d of differences) {
-      if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
-      // Apply the changes into the evalTree so that it gets the latest changes
-      applyChange(this.evalTree, undefined, d);
+    try {
+      for (const d of differences) {
+        if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
+        // Apply the changes into the evalTree so that it gets the latest changes
+        applyChange(this.evalTree, undefined, d);
+      }
+    } catch (error) {
+      // Suppress the applyChange errors
     }
   }
 

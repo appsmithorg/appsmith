@@ -40,9 +40,9 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     />
   );
 
-  it("Pressing tab should focus the component", async () => {
+  it("Pressing tab should focus the component", () => {
     render(getTestComponent());
-    await userEvent.tab();
+    userEvent.tab();
     expect(screen.getByRole("button")).toHaveFocus();
   });
 
@@ -50,9 +50,9 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     "Pressing '%s' should open the icon selector",
     async (key) => {
       render(getTestComponent());
-      await userEvent.tab();
+      userEvent.tab();
       expect(screen.queryByRole("list")).toBeNull();
-      await userEvent.keyboard(key);
+      userEvent.keyboard(key);
       expect(screen.queryByRole("list")).toBeInTheDocument();
 
       // Makes sure search bar is having focus
@@ -64,37 +64,37 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
 
   it("Pressing '{Escape}' should close the icon selector", async () => {
     render(getTestComponent());
-    await userEvent.tab();
+    userEvent.tab();
     expect(screen.queryByRole("list")).toBeNull();
-    await userEvent.keyboard("{Enter}");
+    userEvent.keyboard("{Enter}");
     expect(screen.queryByRole("list")).toBeInTheDocument();
-    await userEvent.keyboard("{Escape}");
+    userEvent.keyboard("{Escape}");
     await waitForElementToBeRemoved(screen.getAllByRole("list"));
   });
 
   it("Pressing '{ArrowDown}' while search is in focus should remove the focus", async () => {
     render(getTestComponent());
-    await userEvent.tab();
-    await userEvent.keyboard("{Enter}");
+    userEvent.tab();
+    userEvent.keyboard("{Enter}");
     expect(screen.queryByRole("list")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     });
-    await userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowDown}");
     expect(screen.queryByRole("textbox")).not.toHaveFocus();
   });
 
   it("Pressing '{Shift} + {ArrowUp}' while search is not in focus should focus search box", async () => {
     render(getTestComponent());
-    await userEvent.tab();
-    await userEvent.keyboard("{Enter}");
+    userEvent.tab();
+    userEvent.keyboard("{Enter}");
     expect(screen.queryByRole("list")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     });
-    await userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowDown}");
     expect(screen.queryByRole("textbox")).not.toHaveFocus();
-    await userEvent.keyboard("{Shift}{ArrowUp}");
+    userEvent.keyboard("{Shift}{ArrowUp}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     });
@@ -109,8 +109,8 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
   */
   it("Pressing '{ArrowDown}' should navigate the icon selection downwards", async () => {
     render(getTestComponent());
-    await userEvent.tab();
-    await userEvent.keyboard("{Enter}");
+    userEvent.tab();
+    userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     });
@@ -118,9 +118,9 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
       "bp3-icon-(none)",
     );
     // used to shift the focus from search
-    await userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowDown}");
 
-    await userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowDown}");
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-add-row-bottom",
     );
@@ -128,8 +128,8 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
 
   it("Pressing '{ArrowUp}' should navigate the icon selection upwards", async () => {
     render(getTestComponent());
-    await userEvent.tab();
-    await userEvent.keyboard("{Enter}");
+    userEvent.tab();
+    userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     });
@@ -137,16 +137,16 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
       "bp3-icon-(none)",
     );
     // used to shift the focus from search
-    await userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowDown}");
 
-    await userEvent.keyboard("{ArrowDown}");
-    await userEvent.keyboard("{ArrowDown}");
-    await userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowDown}");
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-align-right",
     );
 
-    await userEvent.keyboard("{ArrowUp}");
+    userEvent.keyboard("{ArrowUp}");
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-airplane",
     );
@@ -154,8 +154,8 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
 
   it("Pressing '{ArrowRight}' should navigate the icon selection towards right", async () => {
     render(getTestComponent());
-    await userEvent.tab();
-    await userEvent.keyboard("{Enter}");
+    userEvent.tab();
+    userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     });
@@ -163,9 +163,9 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
       "bp3-icon-(none)",
     );
     // used to shift the focus from search
-    await userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowDown}");
 
-    await userEvent.keyboard("{ArrowRight}");
+    userEvent.keyboard("{ArrowRight}");
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-add",
     );
@@ -173,8 +173,8 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
 
   it("Pressing '{ArrowLeft}' should navigate the icon selection towards left", async () => {
     render(getTestComponent());
-    await userEvent.tab();
-    await userEvent.keyboard("{Enter}");
+    userEvent.tab();
+    userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     });
@@ -182,16 +182,16 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
       "bp3-icon-(none)",
     );
     // used to shift the focus from search
-    await userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowDown}");
 
-    await userEvent.keyboard("{ArrowRight}");
-    await userEvent.keyboard("{ArrowRight}");
-    await userEvent.keyboard("{ArrowRight}");
+    userEvent.keyboard("{ArrowRight}");
+    userEvent.keyboard("{ArrowRight}");
+    userEvent.keyboard("{ArrowRight}");
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-add-column-right",
     );
 
-    await userEvent.keyboard("{ArrowLeft}");
+    userEvent.keyboard("{ArrowLeft}");
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-add-column-left",
     );
@@ -200,11 +200,11 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
   it("Pressing '{Enter}' or ' ' should select the icon", async () => {
     const handleOnSelect = jest.fn();
     render(getTestComponent(handleOnSelect));
-    await userEvent.tab();
+    userEvent.tab();
     expect(screen.queryByRole("button")?.textContent).toEqual(
       "(none)caret-down",
     );
-    await userEvent.keyboard("{Enter}");
+    userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     });
@@ -212,19 +212,19 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
       "bp3-icon-(none)",
     );
     // used to shift the focus from search
-    await userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowDown}");
 
-    await userEvent.keyboard("{ArrowDown}");
-    await userEvent.keyboard("{ArrowRight}");
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowRight}");
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-add-row-top",
     );
-    await userEvent.keyboard(" ");
+    userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenCalledTimes(1);
     expect(handleOnSelect).toHaveBeenLastCalledWith("iconName", "add-row-top");
     await waitForElementToBeRemoved(screen.getByRole("list"));
 
-    await userEvent.keyboard("{Enter}");
+    userEvent.keyboard("{Enter}");
     expect(screen.queryByRole("list")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
@@ -232,9 +232,9 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-add-row-top",
     );
-    await userEvent.keyboard("{ArrowDown}");
-    await userEvent.keyboard("{ArrowRight}");
-    await userEvent.keyboard(" ");
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowRight}");
+    userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenCalledTimes(2);
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       "iconName",
