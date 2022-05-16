@@ -218,7 +218,12 @@ abstract class BaseWidget<
 
   /* eslint-disable @typescript-eslint/no-empty-function */
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  componentDidUpdate(prevProps: T) {}
+  componentDidUpdate(prevProps: T) {
+    const expectedHeight = this.contentRef.current?.scrollHeight;
+    if (expectedHeight) {
+      this.updateDynamicHeight(expectedHeight);
+    }
+  }
 
   componentDidMount(): void {}
   /* eslint-enable @typescript-eslint/no-empty-function */

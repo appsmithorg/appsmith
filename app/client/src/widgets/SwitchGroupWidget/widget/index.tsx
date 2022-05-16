@@ -359,6 +359,7 @@ class SwitchGroupWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: SwitchGroupWidgetProps): void {
+    super.componentDidUpdate(prevProps);
     if (
       xor(this.props.defaultSelectedValues, prevProps.defaultSelectedValues)
         .length > 0

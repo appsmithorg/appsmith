@@ -4,6 +4,9 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: true,
+  },
   type: Widget.getWidgetType(),
   name: "Switch Group", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
   iconSVG: IconSVG,
