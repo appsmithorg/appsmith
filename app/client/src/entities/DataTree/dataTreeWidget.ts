@@ -14,7 +14,8 @@ import {
 import { setOverridingProperty } from "./utils";
 
 // We are splitting generateDataTreeWidget into two parts to memoize better as the widget doesn't change very often.
-// Only meta properties change
+// Widget changes only when dynamicBindingPathList changes.
+// Only meta properties change very often, for example typing in an input or selecting a table row.
 const generateDataTreeWidgetWithoutMeta = (
   widget: FlattenedWidgetProps,
 ): {
@@ -104,18 +105,13 @@ const generateDataTreeWidgetWithoutMeta = (
     reactivePaths,
     triggerPaths,
     validationPaths,
-  } = getAllPathsFromPropertyConfig(
-    widget,
-    propertyPaneConfigs,
-    // We are doing a deep equal on this prop in  memoization
-    {
-      ...derivedPropertyMap,
-      ...defaultMetaProps,
-      ...unInitializedDefaultProps,
-      ..._.keyBy(dynamicBindingPathList, "key"),
-      ...overridingPropertyPaths,
-    },
-  );
+  } = getAllPathsFromPropertyConfig(widget, propertyPaneConfigs, {
+    ...derivedPropertyMap,
+    ...defaultMetaProps,
+    ...unInitializedDefaultProps,
+    ..._.keyBy(dynamicBindingPathList, "key"),
+    ...overridingPropertyPaths,
+  });
 
   /**
    * Spread operator does not merge deep objects properly.
