@@ -43,7 +43,7 @@ Cypress.on("fail", (error) => {
 });
 
 Cypress.env("MESSAGES", MESSAGES);
-
+/*
 before(function() {
   //console.warn = () => {};
   initLocalstorage();
@@ -109,3 +109,4 @@ after(function() {
   //-- LogOut Application---//
   cy.LogOut();
 });
+*/

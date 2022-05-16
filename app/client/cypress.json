@@ -1,9 +1,9 @@
 {
-	"baseUrl": "https://dev.appsmith.com/",
+	"baseUrl": "https://webui.normalyze.link/",
 	"defaultCommandTimeout": 30000,
 	"requestTimeout": 21000,
 	"responseTimeout": 30000,
-	"pageLoadTimeout": 40000,
+	"pageLoadTimeout": 80000,
 	"video": true,
 	"videoUploadOnPasses": false,
 	"reporter": "mochawesome",
@@ -13,8 +13,21 @@
 		"html": true,
 		"json": false
 	},
+	"experimentalStudio": true,
+	"experimentalSessionAndOrigin": true,
+	"env": {
+		"USERNAME": "abcd@appsmith.com",
+		"PASSWORD": "HelloWorld",
+		"TESTUSERNAME1": "viewerappsmith@mailinator.com",
+		"TESTPASSWORD1": "Test@123",
+		"TESTUSERNAME2": "developerappsmith@mailinator.com",
+		"TESTPASSWORD2": "Test@123"
+	},
 	"ignoreTestFiles": [
-		"**/Smoke_TestSuite/Application/PgAdmin_spec*.js"
+		"**/Smoke_TestSuite/Application/PgAdmin_spec*.js",
+		"**/Smoke_TestSuite/ClientSideTests/DisplayWidgets/Table_Filter_spec*.js",
+		"**/Smoke_TestSuite/ClientSideTests/Onboarding/FirstTimeUserOnboarding_spec*.js",
+		"**/Smoke_TestSuite/ClientSideTests/Templates/Fork_Template_spec.js"
 	],
 	"chromeWebSecurity": false,
 	"viewportHeight": 1100,
