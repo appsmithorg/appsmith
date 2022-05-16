@@ -4,6 +4,9 @@ import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
 import { getDefaultCurrency } from "./component/CurrencyCodeDropdown";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: true,
+  },
   type: Widget.getWidgetType(),
   name: "Currency Input",
   iconSVG: IconSVG,

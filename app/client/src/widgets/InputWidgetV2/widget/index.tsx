@@ -363,6 +363,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   };
 
   componentDidUpdate = (prevProps: InputWidgetProps) => {
+    super.componentDidUpdate(prevProps);
     if (
       prevProps.inputText !== this.props.inputText &&
       this.props.inputText !== toString(this.props.text)

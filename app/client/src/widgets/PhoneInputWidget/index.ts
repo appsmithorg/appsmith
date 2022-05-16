@@ -4,6 +4,9 @@ import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
 import { getDefaultISDCode } from "./component/ISDCodeDropdown";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: true,
+  },
   type: Widget.getWidgetType(),
   name: "Phone Input",
   iconSVG: IconSVG,

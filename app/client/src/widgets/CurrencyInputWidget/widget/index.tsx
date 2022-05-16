@@ -205,6 +205,7 @@ class CurrencyInputWidget extends BaseInputWidget<
   }
 
   componentDidUpdate(prevProps: CurrencyInputWidgetProps) {
+    super.componentDidUpdate(prevProps);
     if (
       prevProps.text !== this.props.text &&
       !this.props.isFocused &&

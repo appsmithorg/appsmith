@@ -188,6 +188,7 @@ class PhoneInputWidget extends BaseInputWidget<
   }
 
   componentDidUpdate(prevProps: PhoneInputWidgetProps) {
+    super.componentDidUpdate(prevProps);
     if (prevProps.dialCode !== this.props.dialCode) {
       this.onISDCodeChange(this.props.dialCode);
     }
