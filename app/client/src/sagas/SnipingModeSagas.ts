@@ -87,7 +87,7 @@ export function* bindDataToWidgetSaga(
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
     case WidgetTypes.LIST_WIDGET:
-      propertyPath = "listData";
+      propertyPath = "items";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
     case WidgetTypes.MAP_WIDGET:
