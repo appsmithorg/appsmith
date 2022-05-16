@@ -9,7 +9,7 @@ describe("Bind list widget with button widget and validate usecases", function()
     cy.addDsl(dsl);
   });
 
-  it("Validate for Debug error msg after undo action", function() {
+  it("Validate for Debug error msg after undo action in child widget", function() {
     cy.SearchEntityandOpen("Button1");
     cy.testCodeMirrorContains("{{asdasfasf}}");
     cy.wait("@updateLayout").should(
