@@ -1,5 +1,6 @@
 package com.appsmith.git.service;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.constants.ErrorReferenceDocUrl;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
@@ -11,7 +12,6 @@ import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.AppsmithBotAsset;
 import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.constants.Constraint;
-import com.appsmith.git.constants.GitActions;
 import com.appsmith.git.constants.GitDirectories;
 import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
@@ -98,7 +98,7 @@ public class GitExecutorImpl implements GitExecutor {
             if (Boolean.TRUE.equals(isSuffixedPath)) {
                 repoPath = createRepoPath(repoPath);
             }
-            Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoPath, GitActions.COMMIT.name());
+            Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoPath, AnalyticsEvents.GIT_COMMIT.getEventName());
             // Just need to open a repository here and make a commit
             try (Git git = Git.open(repoPath.toFile())) {
                 // Stage all the files added and modified
@@ -148,7 +148,7 @@ public class GitExecutorImpl implements GitExecutor {
             log.debug(Thread.currentThread().getName() + ": get commit history for  " + repoSuffix);
             List<GitLogDTO> commitLogs = new ArrayList<>();
             Path repoPath = createRepoPath(repoSuffix);
-            Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoPath, GitActions.COMMIT_HISTORY.name());
+            Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoPath, AnalyticsEvents.GIT_COMMIT_HISTORY.getEventName());
             try (Git git = Git.open(repoPath.toFile())) {
                 Iterable<RevCommit> gitLogs = git.log().setMaxCount(Constraint.MAX_COMMIT_LOGS).call();
                 gitLogs.forEach(revCommit -> {
@@ -195,7 +195,7 @@ public class GitExecutorImpl implements GitExecutor {
             log.debug(Thread.currentThread().getName() + ": pushing changes to remote " + remoteUrl);
             // open the repo
             Path baseRepoPath = createRepoPath(repoSuffix);
-            Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(baseRepoPath, GitActions.PUSH.name());
+            Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(baseRepoPath, AnalyticsEvents.GIT_PUSH.getEventName());
             try (Git git = Git.open(baseRepoPath.toFile())) {
                 TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
 
@@ -232,7 +232,7 @@ public class GitExecutorImpl implements GitExecutor {
                            String privateKey,
                            String publicKey) {
 
-        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, GitActions.CLONE.name());
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_CLONE.getEventName());
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Cloning the repo from the remote " + remoteUrl);
             final TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
@@ -261,7 +261,7 @@ public class GitExecutorImpl implements GitExecutor {
     public Mono<String> createAndCheckoutToBranch(Path repoSuffix, String branchName) {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
         // open the repo
-        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, GitActions.CREATE_BRANCH.name());
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_CREATE_BRANCH.getEventName());
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Creating branch  " + branchName + "for the repo " + repoSuffix);
             // open the repo
@@ -287,7 +287,7 @@ public class GitExecutorImpl implements GitExecutor {
     public Mono<Boolean> deleteBranch(Path repoSuffix, String branchName) {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
         // open the repo
-        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, GitActions.DELETE_BRANCH.name());
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_DELETE_BRANCH.getEventName());
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Deleting branch  " + branchName + "for the repo " + repoSuffix);
             // open the repo
@@ -312,7 +312,7 @@ public class GitExecutorImpl implements GitExecutor {
     @Override
     public Mono<Boolean> checkoutToBranch(Path repoSuffix, String branchName) {
 
-        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, GitActions.CHECKOUT.name());
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_CHECKOUT.getEventName());
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Switching to the branch " + branchName);
             // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
@@ -344,7 +344,7 @@ public class GitExecutorImpl implements GitExecutor {
                                                 String privateKey,
                                                 String publicKey) throws IOException {
 
-        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, GitActions.PULL.name());
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_PULL.getEventName());
         TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
 
         try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
@@ -402,7 +402,7 @@ public class GitExecutorImpl implements GitExecutor {
                                                  String publicKey,
                                                  Boolean refreshBranches) {
 
-        String gitAction = Boolean.TRUE.equals(refreshBranches) ? GitActions.SYNC_BRANCH.name() : GitActions.LIST_LOCAL_BRANCH.name();
+        String gitAction = Boolean.TRUE.equals(refreshBranches) ? AnalyticsEvents.GIT_SYNC_BRANCH.getEventName() : AnalyticsEvents.GIT_LIST_LOCAL_BRANCH.getEventName();
         Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, gitAction);;
         Path baseRepoPath = createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
@@ -457,7 +457,7 @@ public class GitExecutorImpl implements GitExecutor {
      */
     @Override
     public Mono<GitStatusDTO> getStatus(Path repoPath, String branchName) {
-        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoPath, GitActions.STATUS.name());
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoPath, AnalyticsEvents.GIT_STATUS.getEventName());
         return Mono.fromCallable(() -> {
             try (Git git = Git.open(repoPath.toFile())) {
                 log.debug(Thread.currentThread().getName() + ": Get status for repo  " + repoPath + ", branch " + branchName);
@@ -527,7 +527,7 @@ public class GitExecutorImpl implements GitExecutor {
     @Override
     public Mono<String> mergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
         return Mono.fromCallable(() -> {
-                    Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, GitActions.MERGE.name());
+                    Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_MERGE.getEventName());
             log.debug(Thread.currentThread().getName() + ": Merge branch  " + sourceBranch + " on " + destinationBranch);
             try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
                 try {
@@ -561,7 +561,7 @@ public class GitExecutorImpl implements GitExecutor {
 
     @Override
     public Mono<String> fetchRemote(Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath) {
-        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, GitActions.FETCH.name());
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_FETCH.getEventName());
         Path repoPath = Boolean.TRUE.equals(isRepoPath) ? repoSuffix : createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
             TransportConfigCallback config = new SshTransportConfigCallback(privateKey, publicKey);
@@ -586,7 +586,7 @@ public class GitExecutorImpl implements GitExecutor {
 
     @Override
     public Mono<MergeStatusDTO> isMergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
-        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, GitActions.MERGE_CHECK.name());
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_MERGE_CHECK.getEventName());
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Check mergeability for repo {} with src: {}, dest: {}", repoSuffix, sourceBranch, destinationBranch);
 
@@ -697,7 +697,7 @@ public class GitExecutorImpl implements GitExecutor {
 
     private Mono<Ref> resetToLastCommit(Git git) throws GitAPIException {
         Stopwatch processStopwatch = StopwatchHelpers
-                .startStopwatch(git.getRepository().getDirectory().toPath().getParent(), GitActions.RESET.name());
+                .startStopwatch(git.getRepository().getDirectory().toPath().getParent(), AnalyticsEvents.GIT_RESET.getEventName());
         return Mono.fromCallable(() -> {
             // Remove tracked files
             Ref ref = git.reset().setMode(ResetCommand.ResetType.HARD).call();

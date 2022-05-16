@@ -14,7 +14,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.converters.GsonISOStringToInstantConverter;

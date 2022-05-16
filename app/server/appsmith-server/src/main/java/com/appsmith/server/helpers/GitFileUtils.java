@@ -5,7 +5,7 @@ import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.git.helpers.FileUtilsImpl;
-import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;

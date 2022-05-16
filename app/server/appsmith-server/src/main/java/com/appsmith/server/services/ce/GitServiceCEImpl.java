@@ -10,7 +10,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.EmailConfig;
-import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
