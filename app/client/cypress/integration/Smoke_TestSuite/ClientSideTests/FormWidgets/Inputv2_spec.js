@@ -367,6 +367,7 @@ describe("Input widget V2 - ", () => {
       ".t--property-control-onsubmit",
       "{{storeValue('textPayloadOnSubmit',Input1.text)}}",
     );
+    cy.assertPageSave();
     // Bind to stored value above
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
