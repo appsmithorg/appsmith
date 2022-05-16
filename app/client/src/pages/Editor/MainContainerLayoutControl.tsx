@@ -15,7 +15,6 @@ import {
 import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { updateApplicationLayout } from "actions/applicationActions";
-import { ReflowBetaCard } from "./ReflowBetaCard";
 
 interface AppsmithLayoutConfigOption {
   name: string;
@@ -114,8 +113,7 @@ export function MainContainerLayoutControl() {
   };
 
   return (
-    <div className="px-3 space-y-2 t--layout-control-wrapper">
-      <p className="text-sm text-gray-700">Canvas Size</p>
+    <div className="space-y-2 t--layout-control-wrapper">
       <div
         className="flex justify-around"
         onBlur={() => setFocusedIndex(selectedIndex)}
@@ -154,7 +152,6 @@ export function MainContainerLayoutControl() {
           );
         })}
       </div>
-      <ReflowBetaCard />
     </div>
   );
 }

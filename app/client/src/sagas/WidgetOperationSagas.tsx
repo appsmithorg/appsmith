@@ -8,6 +8,7 @@ import { updateAndSaveLayout, WidgetResize } from "actions/pageActions";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
+  UpdateWidgetsPayload,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidget, getWidgets } from "./selectors";
 import {
@@ -24,6 +25,7 @@ import {
   batchUpdateWidgetProperty,
   DeleteWidgetPropertyPayload,
   SetWidgetDynamicPropertyPayload,
+  UpdateWidgetDynamicHeightPayload,
   UpdateWidgetPropertyPayload,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
@@ -48,11 +50,13 @@ import {
 } from "constants/WidgetConstants";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import { generateReactKey } from "utils/generators";
-import { flashElementsById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getWidgetSpacesSelectorForContainer,
+} from "selectors/editorSelectors";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -92,6 +96,22 @@ import {
   getParentWidgetIdForGrouping,
   isCopiedModalWidget,
   purgeOrphanedDynamicPaths,
+  getReflowedPositions,
+  NewPastePositionVariables,
+  getContainerIdForCanvas,
+  getSnappedGrid,
+  getNewPositionsForCopiedWidgets,
+  getVerticallyAdjustedPositions,
+  getOccupiedSpacesFromProps,
+  changeIdsOfPastePositions,
+  getCanvasIdForContainer,
+  getMousePositions,
+  getPastePositionMapFromMousePointer,
+  getBoundariesFromSelectedWidgets,
+  WIDGET_PASTE_PADDING,
+  getWidgetsFromIds,
+  getDefaultCanvas,
+  isDropTarget,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -100,9 +120,19 @@ import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas"
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
 import { getReflow } from "selectors/widgetReflowSelectors";
-import { widgetReflowState } from "reducers/uiReducers/reflowReducer";
+import { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import { stopReflowAction } from "actions/reflowActions";
-import { collisionCheckPostReflow } from "utils/reflowHookUtils";
+import {
+  collisionCheckPostReflow,
+  getBottomRowAfterReflow,
+} from "utils/reflowHookUtils";
+import { PrevReflowState, ReflowDirection, SpaceMap } from "reflow/reflowTypes";
+import { WidgetSpace } from "constants/CanvasEditorConstants";
+import { reflow } from "reflow";
+import { getBottomMostRow } from "reflow/reflowUtils";
+import { flashElementsById } from "utils/helpers";
+import { getSlidingCanvasName } from "constants/componentClassNameConstants";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -170,7 +200,7 @@ export function* reflowWidgets(
   snapColumnSpace: number,
   snapRowSpace: number,
 ) {
-  const reflowState: widgetReflowState = yield select(getReflow);
+  const reflowState: widgetReflow = yield select(getReflow);
 
   const currentWidgets: {
     [widgetId: string]: FlattenedWidgetProps;
@@ -322,7 +352,12 @@ function* updateWidgetPropertySaga(
 export function* setWidgetDynamicPropertySaga(
   action: ReduxAction<SetWidgetDynamicPropertyPayload>,
 ) {
-  const { isDynamic, propertyPath, widgetId } = action.payload;
+  const {
+    isDynamic,
+    propertyPath,
+    shouldRejectDynamicBindingPathList = true,
+    widgetId,
+  } = action.payload;
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
   let widget = cloneDeep({ ...stateWidget });
   const propertyValue = _.get(widget, propertyPath);
@@ -343,9 +378,12 @@ export function* setWidgetDynamicPropertySaga(
     dynamicPropertyPathList = _.reject(dynamicPropertyPathList, {
       key: propertyPath,
     });
-    dynamicBindingPathList = _.reject(dynamicBindingPathList, {
-      key: propertyPath,
-    });
+
+    if (shouldRejectDynamicBindingPathList) {
+      dynamicBindingPathList = _.reject(dynamicBindingPathList, {
+        key: propertyPath,
+      });
+    }
     const { parsed } = yield call(
       validateProperty,
       propertyPath,
@@ -363,7 +401,7 @@ export function* setWidgetDynamicPropertySaga(
   yield put(updateAndSaveLayout(widgets));
 }
 
-function getPropertiesToUpdate(
+export function getPropertiesToUpdate(
   widget: WidgetProps,
   updates: Record<string, unknown>,
   triggerPaths?: string[],
@@ -739,7 +777,10 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
  * @param parentId
  * @param canvasWidgets
  * @param parentBottomRow
- * @param persistColumnPosition
+ * @param newPastingPositionMap
+ * @param shouldPersistColumnPosition
+ * @param isThereACollision
+ * @param shouldGroup
  * @returns
  */
 export function calculateNewWidgetPosition(
@@ -747,6 +788,7 @@ export function calculateNewWidgetPosition(
   parentId: string,
   canvasWidgets: { [widgetId: string]: FlattenedWidgetProps },
   parentBottomRow?: number,
+  newPastingPositionMap?: SpaceMap,
   shouldPersistColumnPosition = false,
   isThereACollision = false,
   shouldGroup = false,
@@ -756,6 +798,20 @@ export function calculateNewWidgetPosition(
   leftColumn: number;
   rightColumn: number;
 } {
+  if (
+    !shouldGroup &&
+    newPastingPositionMap &&
+    newPastingPositionMap[widget.widgetId]
+  ) {
+    const newPastingPosition = newPastingPositionMap[widget.widgetId];
+    return {
+      topRow: newPastingPosition.top,
+      bottomRow: newPastingPosition.bottom,
+      leftColumn: newPastingPosition.left,
+      rightColumn: newPastingPosition.right,
+    };
+  }
+
   const nextAvailableRow = parentBottomRow
     ? parentBottomRow
     : nextAvailableRowInContainer(parentId, canvasWidgets);
@@ -780,9 +836,334 @@ export function calculateNewWidgetPosition(
 }
 
 /**
+ * Method to provide the new positions where the widgets can be pasted.
+ * It will return an empty object if it doesn't have any selected widgets, or if the mouse is outside the canvas.
+ *
+ * @param copiedWidgetGroups Contains information on the copied widgets
+ * @param mouseLocation location of the mouse in absolute pixels
+ * @param copiedTotalWidth total width of the copied widgets
+ * @param copiedTopMostRow top row of the top most copied widget
+ * @param copiedLeftMostColumn left column of the left most copied widget
+ * @returns
+ */
+const getNewPositions = function*(
+  copiedWidgetGroups: CopiedWidgetGroup[],
+  mouseLocation: { x: number; y: number },
+  copiedTotalWidth: number,
+  copiedTopMostRow: number,
+  copiedLeftMostColumn: number,
+) {
+  const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const selectedWidgets = getWidgetsFromIds(selectedWidgetIDs, canvasWidgets);
+
+  //if the copied widget is a modal widget, then it has to paste on the main container
+  if (
+    copiedWidgetGroups.length === 1 &&
+    copiedWidgetGroups[0].list[0] &&
+    copiedWidgetGroups[0].list[0].type === "MODAL_WIDGET"
+  )
+    return {};
+
+  //if multiple widgets are selected or if a single non-layout widget is selected,
+  // then call the method to calculate and return positions based on selected widgets.
+  if (
+    !(
+      selectedWidgets.length === 1 &&
+      isDropTarget(selectedWidgets[0].type, true)
+    ) &&
+    selectedWidgets.length > 0
+  ) {
+    const newPastingPositionDetails: NewPastePositionVariables = yield call(
+      getNewPositionsBasedOnSelectedWidgets,
+      copiedWidgetGroups,
+      selectedWidgets,
+      canvasWidgets,
+      copiedTotalWidth,
+      copiedTopMostRow,
+      copiedLeftMostColumn,
+    );
+    return newPastingPositionDetails;
+  }
+
+  //if a layout widget is selected or mouse is on the main canvas
+  // then call the method to calculate and return positions mouse positions.
+  const newPastingPositionDetails: NewPastePositionVariables = yield call(
+    getNewPositionsBasedOnMousePositions,
+    copiedWidgetGroups,
+    mouseLocation,
+    selectedWidgets,
+    canvasWidgets,
+    copiedTotalWidth,
+    copiedTopMostRow,
+    copiedLeftMostColumn,
+  );
+  return newPastingPositionDetails;
+};
+
+/**
+ * Calculates the new positions of the pasting widgets, based on the selected widgets
+ * The new positions will be just below the selected widgets
+ *
+ * @param copiedWidgetGroups Contains information on the copied widgets
+ * @param selectedWidgets array of selected widgets
+ * @param canvasWidgets canvas widgets from the DSL
+ * @param copiedTotalWidth total width of the copied widgets
+ * @param copiedTopMostRow top row of the top most copied widget
+ * @param copiedLeftMostColumn left column of the left most copied widget
+ * @returns
+ */
+function* getNewPositionsBasedOnSelectedWidgets(
+  copiedWidgetGroups: CopiedWidgetGroup[],
+  selectedWidgets: WidgetProps[],
+  canvasWidgets: CanvasWidgetsReduxState,
+  copiedTotalWidth: number,
+  copiedTopMostRow: number,
+  copiedLeftMostColumn: number,
+) {
+  //get Parent canvasId
+  const parentId = selectedWidgets[0].parentId || "";
+
+  // get the Id of the container widget based on the canvasId
+  const containerId = getContainerIdForCanvas(parentId);
+
+  const containerWidget = canvasWidgets[containerId];
+  const canvasDOM = document.querySelector(
+    `#${getSlidingCanvasName(parentId)}`,
+  );
+
+  if (!canvasDOM || !containerWidget) return {};
+
+  const rect = canvasDOM.getBoundingClientRect();
+
+  // get Grid values such as snapRowSpace and snapColumnSpace
+  const { snapGrid } = getSnappedGrid(containerWidget, rect.width);
+
+  const selectedWidgetsArray = selectedWidgets.length ? selectedWidgets : [];
+  //from selected widgets get some information required for position calculation
+  const {
+    leftMostColumn: selectedLeftMostColumn,
+    maxThickness,
+    topMostRow: selectedTopMostRow,
+    totalWidth,
+  } = getBoundariesFromSelectedWidgets(selectedWidgetsArray);
+
+  // calculation of left most column of where widgets are to be pasted
+  let pasteLeftMostColumn =
+    selectedLeftMostColumn - (copiedTotalWidth - totalWidth) / 2;
+
+  pasteLeftMostColumn = Math.round(pasteLeftMostColumn);
+
+  // conditions to adjust to the edges of the boundary, so that it doesn't go out of canvas
+  if (pasteLeftMostColumn < 0) pasteLeftMostColumn = 0;
+  if (
+    pasteLeftMostColumn + copiedTotalWidth >
+    GridDefaults.DEFAULT_GRID_COLUMNS
+  )
+    pasteLeftMostColumn = GridDefaults.DEFAULT_GRID_COLUMNS - copiedTotalWidth;
+
+  // based on the above calculation get the new Positions that are aligned to the top left of selected widgets
+  // i.e., the top of the selected widgets will be equal to the top of copied widgets and both are horizontally centered
+  const newPositionsForCopiedWidgets = getNewPositionsForCopiedWidgets(
+    copiedWidgetGroups,
+    copiedTopMostRow,
+    selectedTopMostRow,
+    copiedLeftMostColumn,
+    pasteLeftMostColumn,
+  );
+
+  // with the new positions, calculate the map of new position, which are moved down to the point where
+  // it doesn't overlap with any of the selected widgets.
+  const newPastingPositionMap = getVerticallyAdjustedPositions(
+    newPositionsForCopiedWidgets,
+    getOccupiedSpacesFromProps(selectedWidgetsArray),
+    maxThickness,
+  );
+
+  if (!newPastingPositionMap) return {};
+
+  const gridProps = {
+    parentColumnSpace: snapGrid.snapColumnSpace,
+    parentRowSpace: snapGrid.snapRowSpace,
+    maxGridColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
+  };
+
+  const reflowSpacesSelector = getWidgetSpacesSelectorForContainer(parentId);
+  const widgetSpaces: WidgetSpace[] = yield select(reflowSpacesSelector) || [];
+
+  // Ids of each pasting are changed just for reflow
+  const newPastePositions = changeIdsOfPastePositions(newPastingPositionMap);
+
+  const { movementMap: reflowedMovementMap } = reflow(
+    newPastePositions,
+    newPastePositions,
+    widgetSpaces,
+    ReflowDirection.BOTTOM,
+    gridProps,
+    true,
+    false,
+    { prevSpacesMap: {} } as PrevReflowState,
+  );
+
+  // calculate the new bottom most row of the canvas
+  const bottomMostRow = getBottomRowAfterReflow(
+    reflowedMovementMap,
+    getBottomMostRow(newPastePositions),
+    widgetSpaces,
+    gridProps,
+  );
+
+  return {
+    bottomMostRow:
+      (bottomMostRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+      gridProps.parentRowSpace,
+    gridProps,
+    newPastingPositionMap,
+    reflowedMovementMap,
+    canvasId: parentId,
+  };
+}
+
+/**
+ * Calculates the new positions of the pasting widgets, based on the mouse position
+ * If the mouse position is on the canvas it the top left of the new positions aligns itself to the mouse position
+ * returns a empty object if the mouse is out of canvas
+ *
+ * @param copiedWidgetGroups Contains information on the copied widgets
+ * @param mouseLocation location of the mouse in absolute pixels
+ * @param selectedWidgets array of selected widgets
+ * @param canvasWidgets canvas widgets from the DSL
+ * @param copiedTotalWidth total width of the copied widgets
+ * @param copiedTopMostRow top row of the top most copied widget
+ * @param copiedLeftMostColumn left column of the left most copied widget
+ * @returns
+ */
+function* getNewPositionsBasedOnMousePositions(
+  copiedWidgetGroups: CopiedWidgetGroup[],
+  mouseLocation: { x: number; y: number },
+  selectedWidgets: WidgetProps[],
+  canvasWidgets: CanvasWidgetsReduxState,
+  copiedTotalWidth: number,
+  copiedTopMostRow: number,
+  copiedLeftMostColumn: number,
+) {
+  let { canvasDOM, canvasId, containerWidget } = getDefaultCanvas(
+    canvasWidgets,
+  );
+
+  //if the selected widget is a layout widget then change the pasting canvas.
+  if (selectedWidgets.length === 1 && isDropTarget(selectedWidgets[0].type)) {
+    containerWidget = selectedWidgets[0];
+    ({ canvasDOM, canvasId } = getCanvasIdForContainer(containerWidget));
+  }
+
+  if (!canvasDOM || !containerWidget || !canvasId) return {};
+
+  const canvasRect = canvasDOM.getBoundingClientRect();
+
+  // get Grid values such as snapRowSpace and snapColumnSpace
+  const { padding, snapGrid } = getSnappedGrid(
+    containerWidget,
+    canvasRect.width,
+  );
+
+  // get mouse positions in terms of grid rows and columns of the pasting canvas
+  const mousePositions = getMousePositions(
+    canvasRect,
+    canvasId,
+    snapGrid,
+    padding,
+    mouseLocation,
+  );
+
+  if (!snapGrid || !mousePositions) return {};
+
+  const reflowSpacesSelector = getWidgetSpacesSelectorForContainer(canvasId);
+  const widgetSpaces: WidgetSpace[] = yield select(reflowSpacesSelector) || [];
+
+  let mouseTopRow = mousePositions.top;
+  let mouseLeftColumn = mousePositions.left;
+
+  // if the mouse position is on another widget on the canvas, then new positions are below it.
+  for (const widgetSpace of widgetSpaces) {
+    if (
+      widgetSpace.top < mousePositions.top &&
+      widgetSpace.left < mousePositions.left &&
+      widgetSpace.bottom > mousePositions.top &&
+      widgetSpace.right > mousePositions.left
+    ) {
+      mouseTopRow = widgetSpace.bottom + WIDGET_PASTE_PADDING;
+      mouseLeftColumn =
+        widgetSpace.left -
+        (copiedTotalWidth - (widgetSpace.right - widgetSpace.left)) / 2;
+      break;
+    }
+  }
+
+  mouseLeftColumn = Math.round(mouseLeftColumn);
+
+  // adjust the top left based on the edges of the canvas
+  if (mouseLeftColumn < 0) mouseLeftColumn = 0;
+  if (mouseLeftColumn + copiedTotalWidth > GridDefaults.DEFAULT_GRID_COLUMNS)
+    mouseLeftColumn = GridDefaults.DEFAULT_GRID_COLUMNS - copiedTotalWidth;
+
+  // get the new Pasting positions of the widgets based on the adjusted mouse top-left
+  const newPastingPositionMap = getPastePositionMapFromMousePointer(
+    copiedWidgetGroups,
+    copiedTopMostRow,
+    mouseTopRow,
+    copiedLeftMostColumn,
+    mouseLeftColumn,
+  );
+
+  const gridProps = {
+    parentColumnSpace: snapGrid.snapColumnSpace,
+    parentRowSpace: snapGrid.snapRowSpace,
+    maxGridColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
+  };
+
+  // Ids of each pasting are changed just for reflow
+  const newPastePositions = changeIdsOfPastePositions(newPastingPositionMap);
+
+  const { movementMap: reflowedMovementMap } = reflow(
+    newPastePositions,
+    newPastePositions,
+    widgetSpaces,
+    ReflowDirection.BOTTOM,
+    gridProps,
+    true,
+    false,
+    { prevSpacesMap: {} } as PrevReflowState,
+  );
+
+  // calculate the new bottom most row of the canvas.
+  const bottomMostRow = getBottomRowAfterReflow(
+    reflowedMovementMap,
+    getBottomMostRow(newPastePositions),
+    widgetSpaces,
+    gridProps,
+  );
+
+  return {
+    bottomMostRow:
+      (bottomMostRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+      gridProps.parentRowSpace,
+    gridProps,
+    newPastingPositionMap,
+    reflowedMovementMap,
+    canvasId,
+  };
+}
+
+/**
  * this saga create a new widget from the copied one to store
  */
-function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
+function* pasteWidgetSaga(
+  action: ReduxAction<{
+    groupWidgets: boolean;
+    mouseLocation: { x: number; y: number };
+  }>,
+) {
   let copiedWidgetGroups: CopiedWidgetGroup[] = yield getCopiedWidgets();
   const shouldGroup: boolean = action.payload.groupWidgets;
 
@@ -836,13 +1217,35 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   )
     return;
 
-  const { topMostWidget } = getBoundaryWidgetsFromCopiedGroups(
-    copiedWidgetGroups,
-  );
+  const {
+    leftMostWidget,
+    topMostWidget,
+    totalWidth: copiedTotalWidth,
+  } = getBoundaryWidgetsFromCopiedGroups(copiedWidgetGroups);
+
   const nextAvailableRow: number = nextAvailableRowInContainer(
     pastingIntoWidgetId,
     widgets,
   );
+
+  // new pasting positions, the variables are undefined if the positions cannot be calculated,
+  // then it pastes the regular way at the bottom of the canvas
+  const {
+    bottomMostRow,
+    canvasId,
+    gridProps,
+    newPastingPositionMap,
+    reflowedMovementMap,
+  }: NewPastePositionVariables = yield call(
+    getNewPositions,
+    copiedWidgetGroups,
+    action.payload.mouseLocation,
+    copiedTotalWidth,
+    topMostWidget.topRow,
+    leftMostWidget.leftColumn,
+  );
+
+  if (canvasId) pastingIntoWidgetId = canvasId;
 
   yield all(
     copiedWidgetGroups.map((copiedWidgets) =>
@@ -883,6 +1286,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
           pastingIntoWidgetId,
           widgets,
           nextAvailableRow,
+          newPastingPositionMap,
           true,
           isThereACollision,
           shouldGroup,
@@ -1002,7 +1406,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
               ...widgets,
               [pastingIntoWidgetId]: {
                 ...widgets[pastingIntoWidgetId],
-                bottomRow: parentBottomRow,
+                bottomRow: Math.max(parentBottomRow, bottomMostRow || 0),
                 children: parentChildren,
               },
             };
@@ -1064,9 +1468,19 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
     ),
   );
 
-  yield put(updateAndSaveLayout(widgets));
+  //calculate the new positions of the reflowed widgets
+  const reflowedWidgets = getReflowedPositions(
+    widgets,
+    gridProps,
+    reflowedMovementMap,
+  );
 
-  flashElementsById(newlyCreatedWidgetIds, 100);
+  yield put(updateAndSaveLayout(reflowedWidgets));
+
+  //if pasting at the bottom of the canvas, then flash it.
+  if (shouldGroup || !newPastingPositionMap) {
+    flashElementsById(newlyCreatedWidgetIds, 100);
+  }
 
   yield put(selectMultipleWidgetsInitAction(newlyCreatedWidgetIds));
 }
@@ -1200,6 +1614,190 @@ export function* groupWidgetsSaga() {
   }
 }
 
+// TODO: REFACTOR(abhinav): Move to someplace global, and use it in hooks as well
+type PropertyPaths = Array<{
+  propertyPath: string;
+  propertyValue: any;
+}>;
+/**
+ * Saga to update a widget's dynamic height
+ * When a widget changes in height, it must do the following
+ * - Make sure any parent that should also change height accordingly, does so
+ * - Make sure any widget that needs to reposition due to the above changes, does so
+ *
+ *
+ * TODO: PERF_TRACK(abhinav): Make sure to benchmark the computations. We need to propagate changes within 10ms
+ */
+export function* updateWidgetDynamicHeightSaga(
+  action: ReduxAction<UpdateWidgetDynamicHeightPayload>,
+) {
+  const { height, widgetId } = action.payload;
+
+  const widgetsToUpdate: UpdateWidgetsPayload = {};
+  // walk up the tree
+  // Club all updates together to put the UPDATE_MULTIPLE_WIDGET_PROPERTIES action
+
+  const widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
+  const expectedBottomRow =
+    widget.topRow + Math.ceil(height / widget.parentRowSpace);
+  // When we call this action for the first time, it will not be container like,
+  // It will either be a CanvasWidget, or a non-container widget
+  let isContainerLike = false;
+  let updateResult = getWidgetDynamicHeightUpdates(
+    widget,
+    expectedBottomRow,
+    isContainerLike,
+  );
+  if (updateResult.pathsToUpdate)
+    widgetsToUpdate[widgetId] = updateResult.pathsToUpdate;
+  let parentId = widget.parentId;
+
+  while (parentId) {
+    const parent: FlattenedWidgetProps = yield select(getWidget, parentId);
+    if (parent.type !== "CANVAS_WIDGET") {
+      // If the parent is not a CANVAS widget,
+      // It is going to be a container like widget
+      isContainerLike = true;
+      updateResult = getWidgetDynamicHeightUpdates(
+        parent,
+        updateResult.bottomRow,
+        isContainerLike,
+      );
+      if (updateResult.pathsToUpdate)
+        widgetsToUpdate[parentId] = updateResult.pathsToUpdate;
+    }
+    parentId = parent.parentId;
+  }
+
+  yield put({
+    type: ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
+    payload: widgetsToUpdate,
+  });
+}
+
+// TODO: REFACTOR(abhinav): Move to WidgetOperationUtils
+function getWidgetDynamicHeightUpdates(
+  widget: FlattenedWidgetProps,
+  expectedBottomRow: number, // This is bottomRow for non-containerLike, and child's bottomRow for containerLike
+  isContainerLike: boolean,
+): { bottomRow: number; pathsToUpdate?: PropertyPaths } {
+  // TODO: DEBUG(abhinav): Make sure parentRowSpace exists
+
+  // If dynamic height isn't enabled, don't update anything
+  const isDynamicHeightEnabled =
+    widget.dynamicHeight === DynamicHeight.HUG_CONTENTS;
+
+  if (!isDynamicHeightEnabled) return { bottomRow: widget.bottomRow };
+
+  const { maxDynamicHeight, minDynamicHeight } = widget;
+
+  // If this is not a container like widget
+  // This means, we have to change the height of the current widget
+  // And that expectedBottomRow, is the expected bottomRow of the current widget
+
+  // Fun fact, a majorify of the computations are going to be in pixels
+  if (!isContainerLike) {
+    // The current widget height in pixels
+    const currentHeightInPixels: number =
+      (widget.bottomRow - widget.topRow) * widget.parentRowSpace;
+
+    // The expected height of "this" widget in pixels
+    const expectedHeightInPixels: number =
+      (expectedBottomRow - widget.topRow) * widget.parentRowSpace;
+
+    let newHeightInPixels = currentHeightInPixels;
+
+    // If the expected height is smaller than the current height
+    // We need to make sure that we're not already at the minimum height
+    if (
+      expectedHeightInPixels < currentHeightInPixels &&
+      currentHeightInPixels > minDynamicHeight
+    ) {
+      // If we're not at the minimum height --
+      // We take the max between minimum height and expected height (both in pixels)
+      newHeightInPixels = Math.max(minDynamicHeight, expectedHeightInPixels);
+    }
+
+    // If the expected height is larger than the current height
+    // We need to make sure that we're not already at the maximum height
+    if (
+      expectedHeightInPixels > currentHeightInPixels &&
+      currentHeightInPixels < maxDynamicHeight
+    ) {
+      // If we're not at the maximum height --
+      // We take the min between maximum height and expected height (both in pixels)
+      newHeightInPixels = Math.min(maxDynamicHeight, expectedHeightInPixels);
+    }
+
+    // Convert the height to a bottomRow value
+    const newBottomRow =
+      widget.topRow + Math.ceil(newHeightInPixels / widget.parentRowSpace);
+
+    return {
+      bottomRow: newBottomRow,
+      pathsToUpdate: [
+        {
+          propertyPath: "bottomRow",
+          propertyValue: newBottomRow,
+        },
+      ],
+    };
+  }
+  // If this is a container like widget
+  // This means, we have to change the height of the current widget
+  // to accommodate the child's increase or decrese in height
+  // And that expectedBottomRow, is actually the new bottomRow of the child widget
+
+  // Fun fact, a majorify of the computations are going to be in rows
+  else {
+    // Number of rows possible for any child in this widget without scrolling
+    const numberOfRows: number = widget.bottomRow - widget.topRow;
+
+    let newBottomRow = widget.bottomRow;
+
+    // If the child's bottom row is smaller than the available rows in this widget
+    // We need to make sure that we're not already at the minimum height
+    if (
+      numberOfRows > expectedBottomRow &&
+      numberOfRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT > minDynamicHeight
+    ) {
+      // If we're not at the minimum height --
+      // We take the max between minimum height and child's bottomRow (both in rows)
+      // and add it to the topRow, to get the new bottomRow
+      newBottomRow =
+        Math.max(
+          minDynamicHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          expectedBottomRow,
+        ) + widget.topRow;
+    }
+
+    // If the child's bottom row is larger than the available rows in this widget
+    // We need to make sure that we're not already at the maximum height
+    if (
+      numberOfRows < expectedBottomRow &&
+      numberOfRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT < maxDynamicHeight
+    ) {
+      // If we're not at the maximum height --
+      // We take the min between maximum height and child's bottomRow (both in rows)
+      // and add it to the topRow, to get the new bottomRow
+      newBottomRow =
+        Math.min(
+          maxDynamicHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          expectedBottomRow,
+        ) + widget.topRow;
+    }
+    return {
+      bottomRow: newBottomRow,
+      pathsToUpdate: [
+        {
+          propertyPath: "bottomRow",
+          propertyValue: newBottomRow,
+        },
+      ],
+    };
+  }
+}
+
 export default function* widgetOperationSagas() {
   yield fork(widgetAdditionSagas);
   yield fork(widgetDeletionSagas);
@@ -1240,5 +1838,10 @@ export default function* widgetOperationSagas() {
     takeEvery(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
+    // TODO: DEBUG(abhinav): Is takeEvery the right way?
+    takeEvery(
+      ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_HEIGHT,
+      updateWidgetDynamicHeightSaga,
+    ),
   ]);
 }

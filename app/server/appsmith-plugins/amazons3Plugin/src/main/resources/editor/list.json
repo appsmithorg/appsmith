@@ -98,7 +98,7 @@
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "5",
           "conditionals": {
-            "show": "{{actionConfiguration.formData.signedUrl.data === 'YES'}}"
+            "show": "{{actionConfiguration.formData.list.signedUrl.data === 'YES'}}"
           }
         },
         {

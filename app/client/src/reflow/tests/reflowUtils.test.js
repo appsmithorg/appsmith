@@ -24,7 +24,8 @@ import {
   getCalculatedDirection,
   getBottomMostRow,
   initializeMovementLimitMap,
-  shouldProcessNodeForTree,
+  checkProcessNodeForTree,
+  getRelativeCollidingValue,
 } from "../reflowUtils";
 import { HORIZONTAL_RESIZE_LIMIT, VERTICAL_RESIZE_LIMIT } from "../reflowTypes";
 
@@ -1842,7 +1843,7 @@ describe("Test reflow util methods", () => {
       );
     });
   });
-  describe("test shouldProcessNodeForTree", () => {
+  describe("test checkProcessNodeForTree", () => {
     const collidingSpace = {
       id: "1234",
       collidingValue: 10,
@@ -1850,49 +1851,154 @@ describe("Test reflow util methods", () => {
     };
     it("should be true if the processed nodes object is undefined", () => {
       const processedNodes = {};
-      expect(shouldProcessNodeForTree(collidingSpace, processedNodes)).toBe(
-        true,
-      );
+      expect(checkProcessNodeForTree(collidingSpace, processedNodes)).toEqual({
+        shouldProcessNode: true,
+      });
     });
     it("should be false if the current node has a value in the opposite direction", () => {
       const processedNodes = {
         "1234": {
-          TOP: 15,
+          TOP: {
+            value: 15,
+          },
         },
       };
-      expect(shouldProcessNodeForTree(collidingSpace, processedNodes)).toBe(
-        false,
-      );
+      expect(checkProcessNodeForTree(collidingSpace, processedNodes)).toEqual({
+        shouldProcessNode: false,
+      });
     });
     it("should be true if the current node is not processed in the current direction", () => {
       const processedNodes = {
         "1234": {
-          LEFT: 15,
+          LEFT: {
+            value: 15,
+          },
         },
       };
-      expect(shouldProcessNodeForTree(collidingSpace, processedNodes)).toBe(
-        true,
-      );
+      expect(checkProcessNodeForTree(collidingSpace, processedNodes)).toEqual({
+        shouldProcessNode: true,
+      });
     });
     it("should be false if the current node is processed in the current direction if the current node's colliding value is lesser", () => {
       const processedNodes = {
         "1234": {
-          BOTTOM: 15,
+          BOTTOM: {
+            value: 15,
+          },
         },
       };
-      expect(shouldProcessNodeForTree(collidingSpace, processedNodes)).toBe(
-        false,
-      );
+      expect(checkProcessNodeForTree(collidingSpace, processedNodes)).toEqual({
+        shouldProcessNode: false,
+      });
     });
     it("should be true if the current node is processed in the current direction if the current node's colliding value is greater", () => {
       const processedNodes = {
         "1234": {
-          BOTTOM: 5,
+          BOTTOM: { value: 5 },
         },
       };
-      expect(shouldProcessNodeForTree(collidingSpace, processedNodes)).toBe(
-        true,
-      );
+      expect(checkProcessNodeForTree(collidingSpace, processedNodes)).toEqual({
+        shouldProcessNode: true,
+      });
+    });
+    it("should be false and return cached values if colliding values equal each other", () => {
+      const processedNodes = {
+        "1234": {
+          BOTTOM: {
+            value: 10,
+            depth: 5,
+            occupiedSpace: 10,
+            currentEmptySpaces: 10,
+          },
+        },
+      };
+      expect(checkProcessNodeForTree(collidingSpace, processedNodes)).toEqual({
+        shouldProcessNode: false,
+        depth: 5,
+        occupiedSpace: 10,
+        currentEmptySpaces: 10,
+      });
+    });
+  });
+
+  describe("test getRelativeCollidingValue", () => {
+    const gridProps = {
+      maxGridColumns: 64,
+    };
+    it("should return original colliding value if direction is Bottom", () => {
+      const direction = ReflowDirection.BOTTOM;
+      const accessors = getAccessor(direction);
+      const collidingValue = 10;
+      const depth = 5;
+      expect(
+        getRelativeCollidingValue(
+          accessors,
+          collidingValue,
+          direction,
+          gridProps,
+          depth,
+        ),
+      ).toBe(collidingValue);
+    });
+    it("should return original colliding value if depth is less compared to colliding value", () => {
+      const direction = ReflowDirection.TOP;
+      const accessors = getAccessor(direction);
+      const collidingValue = 8;
+      const depth = 1;
+      expect(
+        getRelativeCollidingValue(
+          accessors,
+          collidingValue,
+          direction,
+          gridProps,
+          depth,
+        ),
+      ).toBe(collidingValue);
+    });
+    it("should return calculated colliding value if depth is high compared to colliding value in TOP direction", () => {
+      const direction = ReflowDirection.TOP;
+      const accessors = getAccessor(direction);
+      const collidingValue = 8;
+      const depth = 3;
+      expect(
+        getRelativeCollidingValue(
+          accessors,
+          collidingValue,
+          direction,
+          gridProps,
+          depth,
+        ),
+      ).toBe(depth * VERTICAL_RESIZE_LIMIT);
+    });
+    it("should return calculated colliding value if depth is high compared to colliding value in LEFT direction", () => {
+      const direction = ReflowDirection.LEFT;
+      const accessors = getAccessor(direction);
+      const collidingValue = 5;
+      const depth = 3;
+      expect(
+        getRelativeCollidingValue(
+          accessors,
+          collidingValue,
+          direction,
+          gridProps,
+          depth,
+        ),
+      ).toBe(depth * HORIZONTAL_RESIZE_LIMIT);
+    });
+    it("should return calculated colliding value if depth is high compared to colliding value in RIGHT direction", () => {
+      const direction = ReflowDirection.RIGHT;
+      const accessors = getAccessor(direction);
+      const collidingValue = 60;
+      const depth = 3;
+      expect(
+        getRelativeCollidingValue(
+          accessors,
+          collidingValue,
+          direction,
+          gridProps,
+          depth,
+        ),
+      ).toBe(gridProps.maxGridColumns - depth * HORIZONTAL_RESIZE_LIMIT);
     });
   });
 });

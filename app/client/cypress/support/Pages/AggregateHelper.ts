@@ -90,6 +90,16 @@ export class AggregateHelper {
         });
     }
 
+    // Stubbing window.open to open in the same tab
+    public StubbingWindow() {
+        cy.window().then((window: any) => {
+            cy.stub(window, "open").callsFake(url => {
+                window.location.href = url;
+                window.location.target = "_self";
+            });
+        });
+    }
+
     //refering PublishtheApp from command.js
     public DeployApp(eleToCheckInDeployPage: string = this.locator._backToEditor) {
         cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
@@ -249,6 +259,11 @@ export class AggregateHelper {
         this.Sleep()//for selected value to reflect!
     }
 
+    public SelectDropdownList(ddName: string, ddOption: string) {
+        this.GetNClick(this.locator._existingFieldTextByName(ddName))
+        cy.get(this.locator._dropdownText).contains(ddOption).click()
+    }
+
     public SelectFromMultiSelect(options: string[], index = 0, check = true, endp: string = 'multiselectwidgetv2') {
         cy.get(this.locator._widgetInDeployed(endp) + " div.rc-select-selector")
             .eq(index)
@@ -272,6 +287,7 @@ export class AggregateHelper {
         //     .eq(index)
         //     .click()
     }
+
     public RemoveMultiSelectItems(items: string[]) {
         items.forEach($each => {
             cy.xpath(this.locator._multiSelectItem($each)).eq(0).click().wait(1000)

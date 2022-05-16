@@ -6,6 +6,9 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: true,
+  },
   type: Widget.getWidgetType(),
   name: "DatePicker",
   iconSVG: IconSVG,
@@ -18,6 +21,7 @@ export const CONFIG = {
     labelPosition: LabelPosition.Left,
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
+    labelTextSize: "0.875rem",
     dateFormat: "YYYY-MM-DD HH:mm",
     columns: 20,
     widgetName: "DatePicker",

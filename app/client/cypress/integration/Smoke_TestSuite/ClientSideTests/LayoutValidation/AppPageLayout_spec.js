@@ -48,7 +48,7 @@ describe("Visual regression tests", () => {
     cy.get("#root").matchImageSnapshot("Profile");
   });
 
-  it("Layout validation for login page", () => {
+  it.skip("Layout validation for login page", () => {
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
     cy.wait(500);
