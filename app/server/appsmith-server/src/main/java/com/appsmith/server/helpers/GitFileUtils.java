@@ -104,6 +104,9 @@ public class GitFileUtils {
         // Pass application reference
         applicationReference.setApplication(applicationJson.getExportedApplication());
 
+        // No need to commit publish mode theme as it leads to conflict resolution at both the places if any
+        applicationJson.setPublishedTheme(null);
+
         // Pass metadata
         Iterable<String> keys = Arrays.stream(applicationJson.getClass().getDeclaredFields())
                 .map(Field::getName)
@@ -117,8 +120,6 @@ public class GitFileUtils {
 
         // Remove policies from the themes
         applicationJson.getEditModeTheme().setPolicies(null);
-        // No need to commit publish mode theme as it leads to conflict resolution at both the places if any
-        applicationJson.setPublishedTheme(null);
 
         applicationReference.setTheme(applicationJson.getEditModeTheme());
 
