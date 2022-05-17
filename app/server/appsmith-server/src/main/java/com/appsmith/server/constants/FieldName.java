@@ -110,5 +110,5 @@ public class FieldName {
     public static final String DECRYPTED_FIELDS = "decryptedFields";
     public static final String THEME = "theme";
     public static final String EDIT_MODE_THEME = "editModeTheme";
-
+    public static final String FLOW_NAME = "flowName";
 }

@@ -132,7 +132,6 @@ public class FileUtilsImpl implements FileInterface {
         // Checkout to mentioned branch if not already checked-out
         Stopwatch processStopwatch = new Stopwatch("FS application save");
         return gitExecutor.resetToLastCommit(baseRepoSuffix, branchName)
-                .then(gitExecutor.checkoutToBranch(baseRepoSuffix, branchName))
                 .flatMap(isSwitched -> {
 
                     Path baseRepo = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
