@@ -19,6 +19,7 @@ import {
   ACTION_NAME_PLACEHOLDER,
   createMessage,
 } from "@appsmith/constants/messages";
+import { PluginType } from "entities/Action";
 
 const JSObjectNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -67,6 +68,7 @@ export function JSObjectNameEditor(props: ActionNameEditorProps) {
     <NameEditorComponent
       currentActionConfig={currentJSObjectConfig}
       dispatchAction={saveJSObjectName}
+      pluginType={PluginType.JS}
     >
       {({
         forceUpdate,

@@ -131,7 +131,26 @@ describe("Container Widget Functionality", function() {
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
     // Verify Action type and Message of List Item
-    cy.addAction("{{currentItem.first_name}}");
+    // Click on the onListItemClick action dropdown.
+    cy.get(commonlocators.dropdownSelectButton)
+      .last()
+      .click();
+
+    cy.get(commonlocators.chooseAction)
+      .children()
+      .contains("Show message")
+      .click();
+
+    // Write binding inside the Message code textarea
+    cy.contains("Message")
+      .siblings()
+      .last()
+      .find(".CodeMirror textarea")
+      .focus()
+      .type("{{currentItem.first_name}}", {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
 
     cy.PublishtheApp();
     // Click on list first item
@@ -181,13 +200,13 @@ describe("Container Widget Functionality", function() {
     cy.get(widgetsPage.listWidget).should(
       "have.css",
       "background-color",
-      "rgb(3, 179, 101)",
+      "rgb(126, 34, 206)",
     );
     // Verify List Item Background Color
     cy.get(widgetsPage.itemContainerWidget).should(
       "have.css",
       "background-color",
-      "rgb(3, 179, 101)",
+      "rgb(126, 34, 206)",
     );
     cy.get(publishPage.backToEditor).click({ force: true });
   });
@@ -197,7 +216,7 @@ describe("Container Widget Functionality", function() {
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
     // Scroll down to Styles and Add background colour
-    cy.get(widgetsPage.backgroundColorToggle).click({ force: true });
+    cy.get(widgetsPage.backgroundColorToggleNew).click({ force: true });
     cy.testJsontext("backgroundcolor", "#FFC13D");
     cy.wait(1000);
     cy.get(widgetsPage.itemBackgroundColorToggle).click({ force: true });

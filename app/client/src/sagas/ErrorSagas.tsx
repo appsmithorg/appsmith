@@ -238,7 +238,9 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
     get(user, "email") === ANONYMOUS_USERNAME &&
     code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
-    window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
+    window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
+      window.location.href,
+    )}`;
 
     return false;
   }

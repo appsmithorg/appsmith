@@ -17,21 +17,11 @@ import {
   DropdownContainer,
   MenuItem,
 } from "./index.styled";
-import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import { LabelPosition } from "components/constants";
 import SelectButton from "./SelectButton";
 import LabelWithTooltip from "components/ads/LabelWithTooltip";
 import { labelMargin } from "../../WidgetUtils";
-
-const FUSE_OPTIONS = {
-  shouldSort: true,
-  threshold: 0.5,
-  location: 0,
-  minMatchCharLength: 3,
-  findAllMatches: true,
-  keys: ["label", "value"],
-};
 
 const DEBOUNCE_TIMEOUT = 800;
 const ITEM_SIZE = 40;
@@ -92,8 +82,15 @@ class SelectComponent extends React.Component<
 
   itemListPredicate(query: string, items: DropdownOption[]) {
     if (!query) return items;
-    const fuse = new Fuse(items, FUSE_OPTIONS);
-    return fuse.search(query);
+
+    const filter = items.filter(
+      (item) =>
+        item.label?.toLowerCase().includes(query.toLowerCase()) ||
+        String(item.value)
+          .toLowerCase()
+          .includes(query.toLowerCase()),
+    );
+    return filter;
   }
 
   onItemSelect = (item: DropdownOption): void => {
@@ -130,7 +127,11 @@ class SelectComponent extends React.Component<
     const focusClassName = `${isFocused && "has-focus"}`;
     const selectedClassName = `${isSelected && "menu-item-active"}`;
     return (
-      <MenuItem key={option.value} onClick={itemProps.handleClick}>
+      <MenuItem
+        accentColor={this.props.accentColor}
+        key={option.value}
+        onClick={itemProps.handleClick}
+      >
         <a
           className={`menu-item-link ${selectedClassName} ${focusClassName}`}
           tabIndex={0}
@@ -154,7 +155,7 @@ class SelectComponent extends React.Component<
     }
   };
   noResultsUI = (
-    <MenuItem>
+    <MenuItem accentColor={this.props.accentColor}>
       <a className="menu-item-link">
         <div className="menu-item-text">No Results Found</div>
       </a>
@@ -229,6 +230,9 @@ class SelectComponent extends React.Component<
 
   render() {
     const {
+      accentColor,
+      borderRadius,
+      boxShadow,
       compactMode,
       disabled,
       isLoading,
@@ -280,7 +284,12 @@ class SelectComponent extends React.Component<
         data-testid="select-container"
         labelPosition={labelPosition}
       >
-        <DropdownStyles dropDownWidth={this.getDropdownWidth()} id={widgetId} />
+        <DropdownStyles
+          accentColor={accentColor}
+          borderRadius={borderRadius}
+          dropDownWidth={this.getDropdownWidth()}
+          id={widgetId}
+        />
         {labelText && (
           <LabelWithTooltip
             alignment={labelAlignment}
@@ -303,7 +312,10 @@ class SelectComponent extends React.Component<
           labelPosition={labelPosition}
         >
           <StyledSingleDropDown
+            accentColor={accentColor}
             activeItem={activeItem()}
+            borderRadius={borderRadius}
+            boxShadow={boxShadow}
             className={isLoading ? Classes.SKELETON : ""}
             disabled={disabled}
             filterable={this.props.isFilterable}
@@ -322,6 +334,8 @@ class SelectComponent extends React.Component<
             onItemSelect={this.onItemSelect}
             onQueryChange={this.onQueryChange}
             popoverProps={{
+              portalContainer:
+                document.getElementById("art-board") || undefined,
               boundary: "window",
               isOpen: this.state.isOpen,
               minimal: true,
@@ -389,6 +403,9 @@ export interface SelectComponentProps extends ComponentProps {
   value?: string;
   label?: string;
   filterText?: string;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor?: string;
 }
 
 export default React.memo(SelectComponent);

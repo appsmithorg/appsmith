@@ -1,5 +1,6 @@
 package com.appsmith.git.service;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.constants.ErrorReferenceDocUrl;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
@@ -9,11 +10,12 @@ import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.AppsmithBotAsset;
-import com.appsmith.git.constants.Constraint;
 import com.appsmith.git.constants.CommonConstants;
+import com.appsmith.git.constants.Constraint;
 import com.appsmith.git.constants.GitDirectories;
 import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
+import com.appsmith.git.helpers.StopwatchHelpers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.CreateBranchCommand;
@@ -73,10 +75,11 @@ public class GitExecutorImpl implements GitExecutor {
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
      * initialised and will be initialised if git repo is not present
-     * @param path parent path to repo
+     * @param path          parent path to repo
      * @param commitMessage message which will be registered for this commit
-     * @param authorName author details
-     * @param authorEmail author details
+     * @param authorName    author details
+     * @param authorEmail   author details
+     * @param doAmend       To amend with the previous commit
      * @return if the commit was successful
      */
     @Override
@@ -84,17 +87,18 @@ public class GitExecutorImpl implements GitExecutor {
                                           String commitMessage,
                                           String authorName,
                                           String authorEmail,
-                                          boolean isSuffixedPath) {
+                                          boolean isSuffixedPath,
+                                          boolean doAmend) {
 
         final String finalAuthorName = StringUtils.isEmptyOrNull(authorName) ? AppsmithBotAsset.APPSMITH_BOT_USERNAME : authorName;
         final String finalAuthorEmail = StringUtils.isEmptyOrNull(authorEmail) ? AppsmithBotAsset.APPSMITH_BOT_EMAIL : authorEmail;
-        Stopwatch processStopwatch = new Stopwatch("JGIT commit");
         return Mono.fromCallable(() -> {
             log.debug("Trying to commit to local repo path, {}", path);
             Path repoPath = path;
             if (Boolean.TRUE.equals(isSuffixedPath)) {
                 repoPath = createRepoPath(repoPath);
             }
+            Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoPath, AnalyticsEvents.GIT_COMMIT.getEventName());
             // Just need to open a repository here and make a commit
             try (Git git = Git.open(repoPath.toFile())) {
                 // Stage all the files added and modified
@@ -109,12 +113,13 @@ public class GitExecutorImpl implements GitExecutor {
                         .setAllowEmpty(false)
                         .setAuthor(finalAuthorName, finalAuthorEmail)
                         .setCommitter(finalAuthorName, finalAuthorEmail)
+                        .setAmend(doAmend)
                         .call();
                 processStopwatch.stopAndLogTimeInMillis();
                 return "Committed successfully!";
             }
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
 
     }
@@ -139,11 +144,11 @@ public class GitExecutorImpl implements GitExecutor {
      */
     @Override
     public Mono<List<GitLogDTO>> getCommitHistory(Path repoSuffix) {
-        Stopwatch processStopwatch = new Stopwatch("JGIT commit history");
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": get commit history for  " + repoSuffix);
             List<GitLogDTO> commitLogs = new ArrayList<>();
             Path repoPath = createRepoPath(repoSuffix);
+            Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoPath, AnalyticsEvents.GIT_COMMIT_HISTORY.getEventName());
             try (Git git = Git.open(repoPath.toFile())) {
                 Iterable<RevCommit> gitLogs = git.log().setMaxCount(Constraint.MAX_COMMIT_LOGS).call();
                 gitLogs.forEach(revCommit -> {
@@ -162,7 +167,7 @@ public class GitExecutorImpl implements GitExecutor {
                 return commitLogs;
             }
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -186,11 +191,11 @@ public class GitExecutorImpl implements GitExecutor {
                                         String branchName) {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
         // open the repo
-        Stopwatch processStopwatch = new Stopwatch("JGIT push");
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": pushing changes to remote " + remoteUrl);
             // open the repo
             Path baseRepoPath = createRepoPath(repoSuffix);
+            Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(baseRepoPath, AnalyticsEvents.GIT_PUSH.getEventName());
             try (Git git = Git.open(baseRepoPath.toFile())) {
                 TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
 
@@ -209,7 +214,7 @@ public class GitExecutorImpl implements GitExecutor {
                 return result.substring(0, result.length() - 1);
             }
         })
-        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -227,7 +232,7 @@ public class GitExecutorImpl implements GitExecutor {
                            String privateKey,
                            String publicKey) {
 
-        Stopwatch processStopwatch = new Stopwatch("JGIT clone");
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_CLONE.getEventName());
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Cloning the repo from the remote " + remoteUrl);
             final TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
@@ -248,7 +253,7 @@ public class GitExecutorImpl implements GitExecutor {
             processStopwatch.stopAndLogTimeInMillis();
             return branchName;
         })
-        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -256,7 +261,7 @@ public class GitExecutorImpl implements GitExecutor {
     public Mono<String> createAndCheckoutToBranch(Path repoSuffix, String branchName) {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
         // open the repo
-        Stopwatch processStopwatch = new Stopwatch("JGIT createBranch");
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_CREATE_BRANCH.getEventName());
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Creating branch  " + branchName + "for the repo " + repoSuffix);
             // open the repo
@@ -274,7 +279,7 @@ public class GitExecutorImpl implements GitExecutor {
                 return git.getRepository().getBranch();
             }
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -282,7 +287,7 @@ public class GitExecutorImpl implements GitExecutor {
     public Mono<Boolean> deleteBranch(Path repoSuffix, String branchName) {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
         // open the repo
-        Stopwatch processStopwatch = new Stopwatch("JGIT deleteBranch");
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_DELETE_BRANCH.getEventName());
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Deleting branch  " + branchName + "for the repo " + repoSuffix);
             // open the repo
@@ -300,14 +305,14 @@ public class GitExecutorImpl implements GitExecutor {
                 return Boolean.TRUE;
             }
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
     @Override
     public Mono<Boolean> checkoutToBranch(Path repoSuffix, String branchName) {
 
-        Stopwatch processStopwatch = new Stopwatch("JGIT checkoutBranch");
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_CHECKOUT.getEventName());
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Switching to the branch " + branchName);
             // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
@@ -328,7 +333,7 @@ public class GitExecutorImpl implements GitExecutor {
                 return StringUtils.equalsIgnoreCase(checkedOutBranch, "refs/heads/"+branchName);
             }
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -339,7 +344,7 @@ public class GitExecutorImpl implements GitExecutor {
                                                 String privateKey,
                                                 String publicKey) throws IOException {
 
-        Stopwatch processStopwatch = new Stopwatch("JGIT pull");
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_PULL.getEventName());
         TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
 
         try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
@@ -385,7 +390,7 @@ public class GitExecutorImpl implements GitExecutor {
                     return Mono.error(e);
                 }
             })
-            .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+            .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
             .subscribeOn(scheduler);
         }
     }
@@ -396,7 +401,9 @@ public class GitExecutorImpl implements GitExecutor {
                                                  String privateKey,
                                                  String publicKey,
                                                  Boolean refreshBranches) {
-        Stopwatch processStopwatch = new Stopwatch("JGIT listBranches, refreshBranch: " + refreshBranches);
+
+        String gitAction = Boolean.TRUE.equals(refreshBranches) ? AnalyticsEvents.GIT_SYNC_BRANCH.getEventName() : AnalyticsEvents.GIT_LIST_LOCAL_BRANCH.getEventName();
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, gitAction);;
         Path baseRepoPath = createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
@@ -437,7 +444,7 @@ public class GitExecutorImpl implements GitExecutor {
             processStopwatch.stopAndLogTimeInMillis();
             return branchList;
         })
-        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -450,7 +457,7 @@ public class GitExecutorImpl implements GitExecutor {
      */
     @Override
     public Mono<GitStatusDTO> getStatus(Path repoPath, String branchName) {
-        Stopwatch processStopwatch = new Stopwatch("JGIT status");
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoPath, AnalyticsEvents.GIT_STATUS.getEventName());
         return Mono.fromCallable(() -> {
             try (Git git = Git.open(repoPath.toFile())) {
                 log.debug(Thread.currentThread().getName() + ": Get status for repo  " + repoPath + ", branch " + branchName);
@@ -512,15 +519,15 @@ public class GitExecutorImpl implements GitExecutor {
                 return Mono.just(response);
             }
         })
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .flatMap(response -> response)
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
     @Override
     public Mono<String> mergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
         return Mono.fromCallable(() -> {
-            Stopwatch processStopwatch = new Stopwatch("JGIT merge");
+                    Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_MERGE.getEventName());
             log.debug(Thread.currentThread().getName() + ": Merge branch  " + sourceBranch + " on " + destinationBranch);
             try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
                 try {
@@ -548,13 +555,13 @@ public class GitExecutorImpl implements GitExecutor {
                 return Mono.error(e);
             }
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
     @Override
     public Mono<String> fetchRemote(Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath) {
-        Stopwatch processStopwatch = new Stopwatch("JGIT fetch");
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_FETCH.getEventName());
         Path repoPath = Boolean.TRUE.equals(isRepoPath) ? repoSuffix : createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
             TransportConfigCallback config = new SshTransportConfigCallback(privateKey, publicKey);
@@ -573,13 +580,13 @@ public class GitExecutorImpl implements GitExecutor {
             log.error(error.getMessage());
             return Mono.error(error);
         })
-        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
     @Override
     public Mono<MergeStatusDTO> isMergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
-        Stopwatch processStopwatch = new Stopwatch("JGIT mergeablityCheck");
+        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_MERGE_CHECK.getEventName());
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Check mergeability for repo {} with src: {}, dest: {}", repoSuffix, sourceBranch, destinationBranch);
 
@@ -641,7 +648,7 @@ public class GitExecutorImpl implements GitExecutor {
                 return Mono.error(e);
             }
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
@@ -667,7 +674,8 @@ public class GitExecutorImpl implements GitExecutor {
                 config.save();
                 return git.getRepository().getBranch();
             }
-        }).subscribeOn(scheduler);
+        })
+        .subscribeOn(scheduler);
     }
 
     @Override
@@ -681,20 +689,24 @@ public class GitExecutorImpl implements GitExecutor {
                     .setTags(true)
                     .call();
             return true;
-        }).timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
-                .subscribeOn(scheduler);
+        })
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+        .subscribeOn(scheduler);
     }
 
 
     private Mono<Ref> resetToLastCommit(Git git) throws GitAPIException {
+        Stopwatch processStopwatch = StopwatchHelpers
+                .startStopwatch(git.getRepository().getDirectory().toPath().getParent(), AnalyticsEvents.GIT_RESET.getEventName());
         return Mono.fromCallable(() -> {
             // Remove tracked files
             Ref ref = git.reset().setMode(ResetCommand.ResetType.HARD).call();
             // Remove untracked files
             git.clean().setForce(true).setCleanDirectories(true).call();
+            processStopwatch.stopAndLogTimeInMillis();
             return ref;
         })
-        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 

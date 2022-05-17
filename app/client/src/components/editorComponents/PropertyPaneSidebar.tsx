@@ -17,6 +17,9 @@ import { commentModeSelector } from "selectors/commentsSelectors";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
 import { getWidgets } from "sagas/selectors";
+import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
+import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
+import { getAppThemingStack } from "selectors/appThemingSelectors";
 
 type Props = {
   width: number;
@@ -26,6 +29,8 @@ type Props = {
 
 export const PropertyPaneSidebar = memo((props: Props) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const prevSelectedWidgetId = useRef<string | undefined>();
+
   const {
     onMouseDown,
     onMouseUp,
@@ -40,7 +45,22 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const canvasWidgets = useSelector(getWidgets);
   const isPreviewMode = useSelector(previewModeSelector);
   const isCommentMode = useSelector(commentModeSelector);
+  const themingStack = useSelector(getAppThemingStack);
   const selectedWidgetIds = useSelector(getSelectedWidgets);
+  const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
+
+  //while dragging or resizing and
+  //the current selected WidgetId is not equal to previous widget Id,
+  //then don't render PropertyPane
+  const shouldNotRenderPane =
+    isDraggingOrResizing &&
+    selectedWidgetIds[0] !== prevSelectedWidgetId.current;
+
+  // This is to keep the theming properties from changing,
+  // while dragging a widget when no other widgets were selected
+  const keepThemeWhileDragging =
+    prevSelectedWidgetId.current === undefined && shouldNotRenderPane;
+
   const selectedWidgets = useMemo(
     () =>
       compact(
@@ -49,6 +69,9 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     [canvasWidgets, selectedWidgetIds],
   );
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
+
+  prevSelectedWidgetId.current =
+    selectedWidgetIds.length === 1 ? selectedWidgetIds[0] : undefined;
 
   PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
   useEffect(() => {
@@ -64,16 +87,28 @@ export const PropertyPaneSidebar = memo((props: Props) => {
    */
   const propertyPane = useMemo(() => {
     switch (true) {
-      case selectedWidgets.length == 0:
-        return <CanvasPropertyPane />;
       case selectedWidgets.length > 1:
         return <MultiSelectPropertyPane />;
       case selectedWidgets.length === 1:
-        return <WidgetPropertyPane />;
+        if (shouldNotRenderPane)
+          return (
+            <CanvasPropertyPane skipThemeEditor={!keepThemeWhileDragging} />
+          );
+        else return <WidgetPropertyPane />;
+      case themingStack.length > 0:
+        return <ThemePropertyPane />;
+      case selectedWidgets.length === 0:
+        return <CanvasPropertyPane />;
       default:
         return <CanvasPropertyPane />;
     }
-  }, [selectedWidgets.length, isDraggingForSelection]);
+  }, [
+    selectedWidgets.length,
+    isDraggingForSelection,
+    shouldNotRenderPane,
+    themingStack.join(","),
+    keepThemeWhileDragging,
+  ]);
 
   return (
     <div className="relative">

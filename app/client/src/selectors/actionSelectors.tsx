@@ -4,7 +4,12 @@ import WidgetFactory from "utils/WidgetFactory";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { getDataTree } from "./dataTreeSelectors";
 import { getExistingPageNames } from "./entitiesSelector";
-import { getErrorForApiName, getIsSavingForApiName } from "./ui";
+import {
+  getErrorForApiName,
+  getErrorForJSObjectName,
+  getIsSavingForApiName,
+  getIsSavingForJSObjectName,
+} from "./ui";
 import { getParentWidget } from "./widgetSelectors";
 
 /**
@@ -45,6 +50,15 @@ export const getUsedActionNames = createSelector(
 export const getSavingStatusForActionName = createSelector(
   getIsSavingForApiName,
   getErrorForApiName,
+  (isSaving: boolean, error: boolean) => ({
+    isSaving,
+    error,
+  }),
+);
+
+export const getSavingStatusForJSObjectName = createSelector(
+  getIsSavingForJSObjectName,
+  getErrorForJSObjectName,
   (isSaving: boolean, error: boolean) => ({
     isSaving,
     error,

@@ -117,6 +117,7 @@ function ActionNameEditor(props: ActionNameEditorProps) {
               onTextChanged={handleNameChange}
               placeholder={createMessage(ACTION_NAME_PLACEHOLDER, "Api")}
               type="text"
+              underline
               updating={saveStatus.isSaving}
               valueTransform={removeSpecialChars}
             />

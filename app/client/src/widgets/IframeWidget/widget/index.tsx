@@ -4,6 +4,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import IframeComponent from "../component";
 import { IframeWidgetProps } from "../constants";
+
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
@@ -99,8 +100,10 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             propertyName: "borderColor",
             label: "Border Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "borderOpacity",
@@ -125,6 +128,28 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
               type: ValidationTypes.NUMBER,
               params: { min: 0, default: 1 },
             },
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -187,7 +212,9 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       <IframeComponent
         borderColor={borderColor}
         borderOpacity={borderOpacity}
+        borderRadius={this.props.borderRadius}
         borderWidth={borderWidth}
+        boxShadow={this.props.boxShadow}
         onMessageReceived={this.handleMessageReceive}
         onSrcDocChanged={this.handleSrcDocChange}
         onURLChanged={this.handleUrlChange}
