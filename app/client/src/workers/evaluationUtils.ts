@@ -889,20 +889,29 @@ export const getDataTreeWithoutPrivateWidgets = (
   const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
   return treeWithoutPrivateWidgets;
 };
-
-export const overrideWidgetProperties = ({
-  currentTree,
-  entity,
-  evalMetaUpdates,
-  propertyPath,
-  value,
-}: {
+/**
+ *  overrideWidgetProperties method has logic to update overriddenPropertyPaths when overridingPropertyPaths are evaluated.
+ *
+ *  when we evaluate widget's overridingPropertyPaths for example defaultText of input widget,
+ *  we override the values like text and meta.text in dataTree, these values are called as overriddenPropertyPaths
+ *
+ * @param {{
+ *   entity: DataTreeWidget;
+ *   propertyPath: string;
+ *   value: unknown;
+ *   currentTree: DataTree;
+ *   evalMetaUpdates: EvalMetaUpdates;
+ * }} params
+ * @return {*}
+ */
+export const overrideWidgetProperties = (params: {
   entity: DataTreeWidget;
   propertyPath: string;
   value: unknown;
   currentTree: DataTree;
   evalMetaUpdates: EvalMetaUpdates;
 }) => {
+  const { currentTree, entity, evalMetaUpdates, propertyPath, value } = params;
   const clonedValue = klona(value);
   if (propertyPath in entity.overridingPropertyPaths) {
     const overridingPropertyPaths =
@@ -932,8 +941,8 @@ export const overrideWidgetProperties = ({
     propertyPath in entity.propertyOverrideDependency &&
     clonedValue === undefined
   ) {
-    // when value is undefined and has default value then set value to default value.
-    // this is for resetForm
+    // When a reset a widget its meta value becomes undefined, ideally they should reset to default value.
+    // below we handle logic to reset meta values to default values.
     const propertyOverridingKeyMap =
       entity.propertyOverrideDependency[propertyPath];
     if (propertyOverridingKeyMap.DEFAULT) {
