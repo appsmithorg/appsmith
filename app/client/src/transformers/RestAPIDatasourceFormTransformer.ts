@@ -189,7 +189,7 @@ const datasourceToFormAuthentication = (
       resource: authentication.resource || "",
       sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken || "",
       refreshTokenClientCredentialsLocation:
-        authentication.refreshTokenClientCredentialsLocation || "",
+        authentication.refreshTokenClientCredentialsLocation || "BODY",
     };
     if (isClientCredentials(authType, authentication)) {
       return {

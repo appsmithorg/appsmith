@@ -25,6 +25,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import { AppState } from "reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { commentModeSelector } from "selectors/commentsSelectors";
+import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 const StyledSelectionBox = styled.div`
@@ -239,7 +240,7 @@ function WidgetsMultiSelectBox(props: {
   const { height, left, top, width } = useMemo(() => {
     if (shouldRender) {
       const widgetClasses = selectedWidgetIDs
-        .map((id) => `.${generateClassName(id)}.positioned-widget`)
+        .map((id) => `.${generateClassName(id)}.${POSITIONED_WIDGET}`)
         .join(",");
       const elements = document.querySelectorAll<HTMLElement>(widgetClasses);
 

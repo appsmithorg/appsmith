@@ -2,7 +2,11 @@ import moment from "moment";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { FieldType } from "widgets/JSONFormWidget/constants";
-import { HiddenFnParams, getSchemaItem } from "../helper";
+import {
+  HiddenFnParams,
+  getSchemaItem,
+  getAutocompleteProperties,
+} from "../helper";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 export const dateFormatOptions = [
@@ -244,7 +248,7 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      additionalAutoComplete: getAutocompleteProperties,
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATEPICKER),
       dependencies: ["schema"],
