@@ -1,17 +1,16 @@
 {
   "clientSchemaVersion": 1,
-  "serverSchemaVersion": 4,
+  "serverSchemaVersion": 2,
   "exportedApplication": {
-    "name": "app6621",
+    "name": "app2896",
     "isPublic": false,
     "appIsExample": false,
     "unreadCommentThreads": 0,
     "color": "#F4FFDE",
     "icon": "single-person",
-    "slug": "app6621",
+    "slug": "app2896",
     "evaluationVersion": 2,
     "applicationVersion": 2,
-    "isManualUpdate": false,
     "new": true
   },
   "datasourceList": [
@@ -24,10 +23,12 @@
       "gitSyncId": "61c2d94747cda83965fe72b5_61c5822385c0bd4ccf7d171c",
       "name": "mockdata",
       "pluginId": "postgres-plugin",
-      "invalids": [],
+      "invalids": [
+        "Missing authentication details."
+      ],
       "messages": [],
-      "isConfigured": true,
-      "isValid": true,
+      "isConfigured": false,
+      "isValid": false,
       "new": true
     }
   ],
@@ -59,14 +60,13 @@
               "parentRowSpace": 1,
               "type": "CANVAS_WIDGET",
               "canExtend": true,
-              "version": 58,
+              "version": 52,
               "minHeight": 600,
               "parentColumnSpace": 1,
               "dynamicBindingPathList": [],
               "leftColumn": 0,
               "children": [
                 {
-                  "boxShadow": "none",
                   "widgetName": "Table1",
                   "defaultPageSize": 0,
                   "columnOrder": [
@@ -92,9 +92,6 @@
                     },
                     {
                       "key": "primaryColumns.schema_name.computedValue"
-                    },
-                    {
-                      "key": "accentColor"
                     }
                   ],
                   "leftColumn": 4,
@@ -106,7 +103,7 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "text",
-                      "textSize": "0.875rem",
+                      "textSize": "PARAGRAPH",
                       "enableFilter": true,
                       "enableSort": true,
                       "isVisible": true,
@@ -114,19 +111,15 @@
                       "isCellVisible": true,
                       "isDerived": false,
                       "label": "schema_name",
-                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.schema_name))}}",
-                      "borderRadius": "0px",
-                      "boxShadow": "none"
+                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.schema_name))}}"
                     }
                   },
                   "delimiter": ",",
                   "key": "5ejs55im17",
                   "derivedColumns": {},
-                  "labelTextSize": "0.875rem",
                   "rightColumn": 25,
-                  "textSize": "0.875rem",
+                  "textSize": "PARAGRAPH",
                   "widgetId": "uyyp0qxfdq",
-                  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                   "isVisibleFilters": true,
                   "tableData": "{{get_schema.data}}",
                   "isVisible": true,
@@ -140,24 +133,6 @@
                   "isLoading": false,
                   "horizontalAlignment": "LEFT",
                   "isVisibleSearch": true,
-                  "childStylesheet": {
-                    "button": {
-                      "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                      "boxShadow": "none"
-                    },
-                    "menuButton": {
-                      "menuColor": "{{appsmith.theme.colors.primaryColor}}",
-                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                      "boxShadow": "none"
-                    },
-                    "iconButton": {
-                      "menuColor": "{{appsmith.theme.colors.primaryColor}}",
-                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                      "boxShadow": "none"
-                    }
-                  },
-                  "borderRadius": "0px",
                   "isVisiblePagination": true,
                   "verticalAlignment": "CENTER",
                   "columnSizeMap": {
@@ -167,7 +142,6 @@
                   }
                 },
                 {
-                  "boxShadow": "none",
                   "widgetName": "Table2",
                   "defaultPageSize": 0,
                   "columnOrder": [
@@ -205,9 +179,6 @@
                     },
                     {
                       "key": "primaryColumns.id.computedValue"
-                    },
-                    {
-                      "key": "accentColor"
                     }
                   ],
                   "leftColumn": 30,
@@ -219,7 +190,7 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "text",
-                      "textSize": "0.875rem",
+                      "textSize": "PARAGRAPH",
                       "enableFilter": true,
                       "enableSort": true,
                       "isVisible": true,
@@ -227,9 +198,7 @@
                       "isCellVisible": true,
                       "isDerived": false,
                       "label": "due",
-                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.due))}}",
-                      "borderRadius": "0px",
-                      "boxShadow": "none"
+                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.due))}}"
                     },
                     "assignee": {
                       "index": 1,
@@ -238,7 +207,7 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "text",
-                      "textSize": "0.875rem",
+                      "textSize": "PARAGRAPH",
                       "enableFilter": true,
                       "enableSort": true,
                       "isVisible": true,
@@ -246,9 +215,7 @@
                       "isCellVisible": true,
                       "isDerived": false,
                       "label": "assignee",
-                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.assignee))}}",
-                      "borderRadius": "0px",
-                      "boxShadow": "none"
+                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.assignee))}}"
                     },
                     "title": {
                       "index": 2,
@@ -257,7 +224,7 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "text",
-                      "textSize": "0.875rem",
+                      "textSize": "PARAGRAPH",
                       "enableFilter": true,
                       "enableSort": true,
                       "isVisible": true,
@@ -265,9 +232,7 @@
                       "isCellVisible": true,
                       "isDerived": false,
                       "label": "title",
-                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.title))}}",
-                      "borderRadius": "0px",
-                      "boxShadow": "none"
+                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.title))}}"
                     },
                     "id": {
                       "index": 4,
@@ -276,7 +241,7 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "text",
-                      "textSize": "0.875rem",
+                      "textSize": "PARAGRAPH",
                       "enableFilter": true,
                       "enableSort": true,
                       "isVisible": true,
@@ -284,19 +249,15 @@
                       "isCellVisible": true,
                       "isDerived": false,
                       "label": "id",
-                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.id))}}",
-                      "borderRadius": "0px",
-                      "boxShadow": "none"
+                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.id))}}"
                     }
                   },
                   "delimiter": ",",
                   "key": "5ejs55im17",
                   "derivedColumns": {},
-                  "labelTextSize": "0.875rem",
                   "rightColumn": 61,
-                  "textSize": "0.875rem",
+                  "textSize": "PARAGRAPH",
                   "widgetId": "r1m4lkt7at",
-                  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                   "isVisibleFilters": true,
                   "tableData": "{{mockApi.data.headers.info}}",
                   "isVisible": true,
@@ -310,24 +271,6 @@
                   "isLoading": false,
                   "horizontalAlignment": "LEFT",
                   "isVisibleSearch": true,
-                  "childStylesheet": {
-                    "button": {
-                      "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                      "boxShadow": "none"
-                    },
-                    "menuButton": {
-                      "menuColor": "{{appsmith.theme.colors.primaryColor}}",
-                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                      "boxShadow": "none"
-                    },
-                    "iconButton": {
-                      "menuColor": "{{appsmith.theme.colors.primaryColor}}",
-                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                      "boxShadow": "none"
-                    }
-                  },
-                  "borderRadius": "0px",
                   "isVisiblePagination": true,
                   "verticalAlignment": "CENTER",
                   "columnSizeMap": {
@@ -338,7 +281,6 @@
                   }
                 },
                 {
-                  "boxShadow": "none",
                   "widgetName": "Input1",
                   "displayName": "Input",
                   "iconSVG": "/static/media/icon.9f505595.svg",
@@ -356,20 +298,15 @@
                   "dynamicBindingPathList": [
                     {
                       "key": "defaultText"
-                    },
-                    {
-                      "key": "accentColor"
                     }
                   ],
                   "labelStyle": "",
                   "inputType": "TEXT",
                   "isDisabled": false,
                   "key": "t02w4ix9o5",
-                  "labelTextSize": "0.875rem",
                   "isRequired": false,
                   "rightColumn": 38,
                   "widgetId": "9timcor5m5",
-                  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                   "isVisible": true,
                   "label": "",
                   "allowCurrencyChange": false,
@@ -377,7 +314,6 @@
                   "parentId": "0",
                   "renderMode": "CANVAS",
                   "isLoading": false,
-                  "borderRadius": "0px",
                   "iconAlign": "left",
                   "defaultText": "{{JSObject1.myVar1}}"
                 }
@@ -388,7 +324,6 @@
                 {
                   "id": "Page1_get_schema",
                   "name": "get_schema",
-                  "confirmBeforeExecute": false,
                   "pluginType": "DB",
                   "jsonPathKeys": [],
                   "timeoutInMillisecond": 10000
@@ -398,7 +333,6 @@
                 {
                   "id": "Page1_mockApi",
                   "name": "mockApi",
-                  "confirmBeforeExecute": false,
                   "pluginType": "API",
                   "jsonPathKeys": [],
                   "timeoutInMillisecond": 10000
@@ -445,12 +379,6 @@
       },
       "new": true
     }
-  ],
-  "pageOrder": [
-    "Page1"
-  ],
-  "publishedPageOrder": [
-    "Page1"
   ],
   "publishedDefaultPageName": "Page1",
   "unpublishedDefaultPageName": "Page1",
@@ -524,62 +452,7 @@
       "new": false
     },
     {
-      "id": "Page1_get_schema",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
-      "gitSyncId": "61c580d685c0bd4ccf7d1716_61c5832685c0bd4ccf7d171e",
-      "pluginType": "DB",
-      "pluginId": "postgres-plugin",
-      "unpublishedAction": {
-        "name": "get_schema",
-        "datasource": {
-          "id": "mockdata",
-          "userPermissions": [],
-          "pluginId": "postgres-plugin",
-          "messages": [],
-          "isValid": true,
-          "new": false
-        },
-        "pageId": "Page1",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "SELECT schema_name FROM information_schema.schemata;",
-          "pluginSpecifiedTemplates": [
-            {
-              "value": true
-            }
-          ]
-        },
-        "executeOnLoad": true,
-        "dynamicBindingPathList": [],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [],
-        "confirmBeforeExecute": false,
-        "userPermissions": [],
-        "validName": "get_schema"
-      },
-      "publishedAction": {
-        "datasource": {
-          "userPermissions": [],
-          "messages": [],
-          "isValid": true,
-          "new": true
-        },
-        "messages": [],
-        "confirmBeforeExecute": false,
-        "userPermissions": []
-      },
-      "new": false
-    },
-    {
-      "id": "Page1_JSObject1.myFun1",
+      "id": "Page1_myFun1",
       "userPermissions": [
         "read:actions",
         "execute:actions",
@@ -639,7 +512,62 @@
       "new": false
     },
     {
-      "id": "Page1_JSObject1.myFun2",
+      "id": "Page1_get_schema",
+      "userPermissions": [
+        "read:actions",
+        "execute:actions",
+        "manage:actions"
+      ],
+      "gitSyncId": "61c580d685c0bd4ccf7d1716_61c5832685c0bd4ccf7d171e",
+      "pluginType": "DB",
+      "pluginId": "postgres-plugin",
+      "unpublishedAction": {
+        "name": "get_schema",
+        "datasource": {
+          "id": "mockdata",
+          "userPermissions": [],
+          "pluginId": "postgres-plugin",
+          "messages": [],
+          "isValid": true,
+          "new": false
+        },
+        "pageId": "Page1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "SELECT schema_name FROM information_schema.schemata;",
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ]
+        },
+        "executeOnLoad": true,
+        "dynamicBindingPathList": [],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "get_schema"
+      },
+      "publishedAction": {
+        "datasource": {
+          "userPermissions": [],
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "messages": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": []
+      },
+      "new": false
+    },
+    {
+      "id": "Page1_myFun2",
       "userPermissions": [
         "read:actions",
         "execute:actions",
@@ -732,33 +660,13 @@
       "new": false
     }
   ],
-  "invisibleActionFields": {
-    "Page1_JSObject1.myFun2": {
-      "unpublishedUserSetOnLoad": false,
-      "publishedUserSetOnLoad": false
-    },
-    "Page1_JSObject1.myFun1": {
-      "unpublishedUserSetOnLoad": false,
-      "publishedUserSetOnLoad": false
-    },
-    "Page1_get_schema": {
-      "unpublishedUserSetOnLoad": false,
-      "publishedUserSetOnLoad": false
-    },
-    "Page1_mockApi": {
-      "unpublishedUserSetOnLoad": false,
-      "publishedUserSetOnLoad": false
-    }
-  },
   "editModeTheme": {
     "name": "Classic",
-    "displayName": "Classic",
     "new": true,
     "isSystemTheme": true
   },
   "publishedTheme": {
     "name": "Classic",
-    "displayName": "Classic",
     "new": true,
     "isSystemTheme": true
   },
