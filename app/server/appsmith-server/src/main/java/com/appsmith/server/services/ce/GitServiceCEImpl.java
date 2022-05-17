@@ -89,7 +89,7 @@ import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 /**
  * Git APIs are slow today because these needs to communicate with remote repo and/or serialise and de-serialise the
  * application. This process takes time and the client may cancel the request. This leads to the flow getting stopped
- * midway producing corrupted states.
+ * midwa`y producing corrupted states.
  * We use the synchronous sink to ensure that even though the client may have cancelled the flow, git operations should
  * proceed uninterrupted and whenever the user refreshes the page, we will have the sane state. synchronous sink does
  * not take subscription cancellations into account. This means that even if the subscriber has cancelled its

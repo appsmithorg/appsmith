@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.BufferedWriter;
@@ -42,10 +43,12 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
@@ -131,6 +134,7 @@ public class FileUtilsImpl implements FileInterface {
         // baseRepo : root/orgId/defaultAppId/repoName/{applicationData}
         // Checkout to mentioned branch if not already checked-out
         Stopwatch processStopwatch = new Stopwatch("FS application save");
+        Stopwatch processStop = new Stopwatch("File utils exec time ---------------- ");
         return gitExecutor.resetToLastCommit(baseRepoSuffix, branchName)
                 .flatMap(isSwitched -> {
 
@@ -160,15 +164,43 @@ public class FileUtilsImpl implements FileInterface {
                     saveFile(applicationGitReference.getTheme(), baseRepo.resolve(CommonConstants.THEME + CommonConstants.JSON_EXTENSION), gson);
 
                     Path pageDirectory = baseRepo.resolve(PAGE_DIRECTORY);
+                    /*Mono<List<Boolean>> pageList = null;
+                    Mono<List<Boolean>> actionList = null;
+                    Mono<List<Boolean>> actionCollectionList = null;*/
+
                     try {
                         // Remove relevant directories to avoid any stale files
-                        FileUtils.deleteDirectory(pageDirectory.toFile());
-                        FileUtils.deleteDirectory(baseRepo.resolve(ACTION_DIRECTORY).toFile());
-                        FileUtils.deleteDirectory(baseRepo.resolve(ACTION_COLLECTION_DIRECTORY).toFile());
+                        Mono<List<Boolean>> pageList = Flux.fromStream(Files.walk(pageDirectory)
+                                .map(Path::toFile))
+                                .map(File::delete)
+                                .collectList();
+
+                        Mono<List<Boolean>> actionList = Flux.fromStream(Files.walk(baseRepo.resolve(ACTION_DIRECTORY)))
+                                .map(Path::toFile)
+                                .map(File::delete)
+                                .collectList();
+
+                        Mono<List<Boolean>> actionCollectionList = Flux.fromStream(Files.walk(baseRepo.resolve(ACTION_COLLECTION_DIRECTORY)))
+                                .map(Path::toFile)
+                                .map(File::delete)
+                                .collectList();
+                        return Mono.zip(pageList, actionList, actionCollectionList)
+                                .flatMap(objects -> Mono.zip(Mono.just(baseRepo), Mono.just(gson), Mono.just(validFileNames)));
+
                     } catch (IOException e) {
                         log.debug("Unable to delete directory for path {} with message {}", pageDirectory, e.getMessage());
+                        //return Mono.error(new IOException("Unable to delete directory for path {} with message {}"));
                     }
+                    return Mono.zip(Mono.just(baseRepo), Mono.just(gson), Mono.just(validFileNames));
+                })
+                .flatMap(objects -> {
+                    Path baseRepo = objects.getT1();
+                    Path pageDirectory = baseRepo.resolve(PAGE_DIRECTORY);
+                    Gson gson = objects.getT2();
+                    Set<String> validFileNames = objects.getT3();
                     // Save pages
+                    processStop.stopAndLogTimeInMillis();
+                    log.debug("-------------------------------- file time after : ", processStop.getExecutionTime());
                     for (Map.Entry<String, Object> pageResource : applicationGitReference.getPages().entrySet()) {
                         final String pageName = pageResource.getKey();
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
@@ -194,7 +226,6 @@ public class FileUtilsImpl implements FileInterface {
                             );
                         }
                     }
-
                     // Save JSObjects
                     for (Map.Entry<String, Object> resource : applicationGitReference.getActionsCollections().entrySet()) {
                         // JSObjectName_pageName => nomenclature for the keys
