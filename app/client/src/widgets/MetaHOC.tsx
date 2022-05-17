@@ -213,8 +213,22 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     }
 
     updatedProps = () => {
-      return {
+      const { canvasWidget, evaluatedWidget } = this.props;
+      let widgetProps = {
         ...this.props,
+        ...canvasWidget,
+        isLoading: this.props.isLoading,
+      };
+      if (evaluatedWidget) {
+        widgetProps = createCanvasWidget(
+          widgetProps as WidgetProps,
+          evaluatedWidget,
+        );
+      } else {
+        widgetProps = createLoadingWidget(widgetProps as WidgetProps);
+      }
+      return {
+        ...widgetProps,
         ...this.state,
         updateWidgetMetaProperty: this.updateWidgetMetaProperty,
         syncUpdateWidgetMetaProperty: this.syncUpdateWidgetMetaProperty,
@@ -227,24 +241,10 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
   }
 
   const mapStateToProps = (state: AppState, ownProps: WidgetProps) => {
-    const canvasWidget = getWidgetCanvasValues(state, ownProps.widgetId);
-    const evaluatedWidget = getWidgetEvalValues(state, ownProps.widgetName);
-    const isLoading = getIsWidgetLoading(state, ownProps.widgetName);
-    let widgetProps = {
-      ...ownProps,
-      ...canvasWidget,
-      isLoading,
-    };
-    if (evaluatedWidget) {
-      widgetProps = createCanvasWidget(
-        widgetProps as WidgetProps,
-        evaluatedWidget,
-      );
-    } else {
-      widgetProps = createLoadingWidget(widgetProps as WidgetProps);
-    }
     return {
-      ...widgetProps,
+      canvasWidget: getWidgetCanvasValues(state, ownProps.widgetId),
+      evaluatedWidget: getWidgetEvalValues(state, ownProps.widgetName),
+      isLoading: getIsWidgetLoading(state, ownProps.widgetName),
     };
   };
   return connect(mapStateToProps)(MetaHOC);
