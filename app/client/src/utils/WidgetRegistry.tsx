@@ -73,6 +73,9 @@ import IconWidget, { CONFIG as ICON_WIDGET_CONFIG } from "widgets/IconWidget";
 import IframeWidget, {
   CONFIG as IFRAME_WIDGET_CONFIG,
 } from "widgets/IframeWidget";
+import IframeWidgetV2, {
+  CONFIG as IFRAME_WIDGET_V2_CONFIG,
+} from "widgets/IframeWidgetV2";
 import ImageWidget, {
   CONFIG as IMAGE_WIDGET_CONFIG,
 } from "widgets/ImageWidget";
@@ -201,6 +204,7 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [CurrencyInputWidget, CURRENCY_INPUT_WIDGET_V2_CONFIG],
   [JSONFormWidget, JSON_FORM_WIDGET_CONFIG],
   [ProgressWidget, PROGRESS_WIDGET_CONFIG],
+  [IframeWidgetV2, IFRAME_WIDGET_V2_CONFIG],
   /*
    * If a newly added widget works well inside the list widget,
    * please add widget type in the List widget's allowed widget

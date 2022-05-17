@@ -254,3 +254,17 @@ export const sanitizeKey = (key: string, options?: SanitizeOptions) => {
 
   return sanitizedKey;
 };
+
+export const isSameOrigin = (url1: string, url2: string) => {
+  try {
+    const tempUrl1 = new URL(url1);
+    const tempUrl2 = new URL(url2);
+    return (
+      tempUrl1.protocol === tempUrl2.protocol &&
+      tempUrl1.hostname === tempUrl2.hostname &&
+      tempUrl1.port === tempUrl2.port
+    );
+  } catch (err) {
+    return false;
+  }
+};

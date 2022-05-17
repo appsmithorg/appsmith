@@ -147,6 +147,10 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     path: "/widget-reference/iframe",
     searchKey: "Iframe",
   },
+  IFRAME_WIDGET_V2: {
+    path: "/widget-reference/iframe",
+    searchKey: "Iframe",
+  },
   DIVIDER_WIDGET: {
     path: "/widget-reference/divider",
     searchKey: "Divider",

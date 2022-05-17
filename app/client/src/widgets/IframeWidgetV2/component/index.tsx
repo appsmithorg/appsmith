@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { hexToRgba } from "widgets/WidgetUtils";
+import { hexToRgba, isSameOrigin } from "widgets/WidgetUtils";
 
 import { ComponentProps } from "widgets/BaseComponent";
 import { useSelector } from "store";
@@ -86,6 +86,8 @@ function IframeComponent(props: IframeComponentProps) {
       const iframeWindow =
         frameRef.current?.contentWindow ||
         frameRef.current?.contentDocument?.defaultView;
+      // Check if message is from same origin
+      if (isSameOrigin(event.origin, source)) return;
       // Accept messages only from the current iframe
       if (event.source !== iframeWindow) return;
       onMessageReceived(event);
@@ -134,6 +136,7 @@ function IframeComponent(props: IframeComponentProps) {
       {appMode === APP_MODE.EDIT && widgetId !== selectedWidget?.widgetId && (
         <OverlayDiv />
       )}
+
       {message ? (
         message
       ) : srcDoc ? (

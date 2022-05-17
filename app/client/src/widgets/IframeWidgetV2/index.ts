@@ -3,8 +3,7 @@ import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "IframeV1",
-  hideCard: true,
+  name: "IframeV2",
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
