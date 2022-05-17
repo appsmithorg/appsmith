@@ -263,9 +263,6 @@ export const PaginationItemWrapper = styled.div<{
   &:hover {
     border-color: ${({ accentColor }) => accentColor};
   }
-  .bp3-icon svg {
-    fill: ${(props) => (props.disabled ? Colors.GREY_4 : "")};
-  }
 `;
 
 export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
