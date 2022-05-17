@@ -271,65 +271,17 @@ jobs:
 
         # Update check run called "build"
       - name: Mark build job as complete
-        uses: actions/github-script@v1
+        uses: appsmithorg/process-automations/actions/mark-check-status@main
         id: update-check-run
         if: ${{ always() }}
-        env:
-          run_id: ${{ github.run_id }}
-          repository: ${{ github.repository }}
-          number: ${{ github.event.client_payload.pull_request.number }}
-          job: ${{ github.job }}
-          # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
-          conclusion: ${{ job.status }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data: pull } = await github.pulls.get({
-              ...context.repo,
-              pull_number: process.env.number
-            });
-            const ref = pull.head.sha;
-
-            const { data: checks } = await github.checks.listForRef({
-              ...context.repo,
-              ref
-            });
-
-            const check = checks.check_runs.filter(c => c.name === process.env.job);
-
-            if(check.length == 0) {
-              const head_sha = pull.head.sha;
-              const { data: completed_at } = await github.checks.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                head_sha: head_sha,
-                name: process.env.job,
-                status: 'completed',
-                conclusion: process.env.conclusion,
-                output: {
-                  title: "Build client result for ok to test",
-                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
-                }
-              });
-
-              return completed_at;
-            } else {
-              const { data: result } = await github.checks.update({
-              ...context.repo,
-              check_run_id: check[0].id,
-              status: 'completed',
-              conclusion: process.env.conclusion,
-                output: {
-                  title: "Build client result for ok to test",
-                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
-                }
-            });
-
-            return result;
-            }
-
-      # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+          run_id: ${{ github.run_id }}
+          repository: ${{ github.repository }}
+          jobName: ${{ github.job }}
+          # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
+          conclusion: ${{ job.status }}
+          checkTitle: Build client result for ok to test
 
   buildRts:
     defaults:
