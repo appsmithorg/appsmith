@@ -195,12 +195,14 @@ export default class DataTreeEvaluator {
       const updates = this.currentJSCollectionState[update];
       if (!!dataTree[update]) {
         Object.keys(updates).forEach((key) => {
-          const data = _.get(dataTree, `${update}.${key}.data`, undefined);
-          if (this.isJSObjectFunction(dataTree, update, key)) {
-            _.set(dataTree, `${update}.${key}`, new String(updates[key]));
-            _.set(dataTree, `${update}.${key}.data`, data);
-          } else {
-            _.set(dataTree, `${update}.${key}`, updates[key]);
+          if (dataTree[`${update}.${key}`]) {
+            const data = _.get(dataTree, `${update}.${key}.data`, undefined);
+            if (this.isJSObjectFunction(dataTree, update, key)) {
+              _.set(dataTree, `${update}.${key}`, new String(updates[key]));
+              _.set(dataTree, `${update}.${key}.data`, data);
+            } else {
+              _.set(dataTree, `${update}.${key}`, updates[key]);
+            }
           }
         });
       }
