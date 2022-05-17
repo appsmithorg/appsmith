@@ -158,6 +158,15 @@ describe("JSObjects OnLoad Actions tests", function() {
     );
     agHelper.ClickButton("Yes");
     agHelper.ValidateToastMessage("getId ran successfully"); //Verify this toast comes in EDIT page only
+
+    ee.SelectEntityByName(jsName as string, "QUERIES/JS");
+    ee.ActionContextMenuByEntityName(
+      jsName as string,
+      "Delete",
+      "Are you sure?",
+    );
+
+    ee.ActionContextMenuByEntityName("GetUser", "Delete", "Are you sure?");
   });
 
   it("8. Tc 51, 52 Verify that JS editor function has a settings button available for functions marked async", () => {
@@ -194,6 +203,16 @@ describe("JSObjects OnLoad Actions tests", function() {
         "myFun6Async",
       ],
     );
+
+    cy.get("@jsObjName").then((jsObjName) => {
+      jsName = jsObjName;
+      ee.SelectEntityByName(jsName as string, "QUERIES/JS");
+      ee.ActionContextMenuByEntityName(
+        jsName as string,
+        "Delete",
+        "Are you sure?",
+      );
+    });
   });
 
   it("9. Tc 60 - Verify JSObj calling API - OnPageLoad calls & Confirmation No then Yes!", () => {
@@ -250,9 +269,9 @@ describe("JSObjects OnLoad Actions tests", function() {
       );
       cy.get(locator._toastMsg)
         .children()
-        .should("contain", "Quotes")//Quotes api also since its .data is accessed in callQuotes()
+        .should("contain", "Quotes") //Quotes api also since its .data is accessed in callQuotes()
         .and("contain", jsName as string)
-        .and('contain', 'will be executed automatically on page load')
+        .and("contain", "will be executed automatically on page load");
 
       ee.SelectEntityByName("Input2");
       jsEditor.EnterJSContext(
@@ -301,6 +320,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       agHelper.AssertElementPresence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
       agHelper.ClickButton("Yes");
 
+      agHelper.Sleep(2000)//to let the api's call be finished & populate the text fields before validation!
       agHelper
         .GetText(locator._textAreainputWidgetv2InDeployed, "text", 1)
         .then(($quote) => cy.wrap($quote).should("not.eq", "{}"));
@@ -508,6 +528,15 @@ describe("JSObjects OnLoad Actions tests", function() {
       .then(($url) => expect($url).not.be.empty);
 
     agHelper.NavigateBacktoEditor();
+    agHelper.AssertElementPresence(jsEditor._dialogBody("getBooks"));
+    agHelper.ClickButton("No");
+    agHelper.ValidateToastMessage('The action "getBooks" has failed');
+
+
+    ee.SelectEntityByName(jsName as string, "QUERIES/JS");
+    ee.ActionContextMenuByEntityName("getCitiesList", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("getBooks", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName(jsName as string, "Delete", "Are you sure?");
   });
 
   it.skip("13. Tc # 57 - Multiple functions set to true for OnPageLoad & Confirmation before running", () => {});
