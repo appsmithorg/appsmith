@@ -16,7 +16,11 @@ import { isWidgetDeprecated } from "../utils";
 import { BannerMessage } from "components/ads/BannerMessage";
 import { Colors } from "constants/Colors";
 import { IconSize } from "components/ads";
-import { WIDGET_DEPRECATION_WARNING } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  WIDGET_DEPRECATION_WARNING,
+  WIDGET_DEPRECATION_WARNING_HEADER,
+} from "@appsmith/constants/messages";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -134,7 +138,13 @@ function PropertyPaneView(
             icon="warning-line"
             iconColor={Colors.WARNING_SOLID}
             iconSize={IconSize.XXXXL}
-            message={WIDGET_DEPRECATION_WARNING}
+            message={createMessage(
+              WIDGET_DEPRECATION_WARNING,
+              widgetProperties.displayName
+                ? `${widgetProperties.displayName} `
+                : "",
+            )}
+            messageHeader={createMessage(WIDGET_DEPRECATION_WARNING_HEADER)}
             textColor={Colors.BROWN}
           />
         )}

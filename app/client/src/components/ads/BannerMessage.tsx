@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 
 import Icon, { IconSize } from "components/ads/Icon";
-import { createMessage } from "@appsmith/constants/messages";
 
 type Props = {
   backgroundColor: string;
@@ -10,7 +9,8 @@ type Props = {
   icon: string;
   iconColor: string;
   iconSize: IconSize;
-  message: () => string;
+  messageHeader?: string;
+  message: string;
   textColor: string;
 };
 
@@ -34,11 +34,23 @@ const StyledIcon = styled(Icon)`
     cursor: default;
   }
 `;
-const MessageText = styled.p`
+
+const MessageWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
   padding-left: 4px;
-  font-size: 13px;
   line-height: 16px;
+`;
+
+const MessageText = styled.p`
+  font-size: 13px;
   font-weight: 400;
+`;
+
+const MessageHeader = styled.h2`
+  font-size: 14px;
+  font-weight: 600;
+  padding-bottom: 5px;
 `;
 
 export function BannerMessage(props: Props) {
@@ -53,7 +65,12 @@ export function BannerMessage(props: Props) {
         name={props.icon}
         size={props.iconSize}
       />
-      <MessageText>{createMessage(props.message)}</MessageText>
+      <MessageWrapper>
+        {props.messageHeader && (
+          <MessageHeader>{props.messageHeader}</MessageHeader>
+        )}
+        <MessageText>{props.message}</MessageText>
+      </MessageWrapper>
     </MessageContainer>
   );
 }
