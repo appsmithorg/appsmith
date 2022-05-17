@@ -12,8 +12,8 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("JSObjects OnLoad Actions tests", function() {
   before(() => {
-    //ee.DragDropWidgetNVerify("tablewidget", 300, 300);
-    //ee.NavigateToSwitcher("explorer");
+    ee.DragDropWidgetNVerify("tablewidget", 300, 300);
+    ee.NavigateToSwitcher("explorer");
   });
 
   it("1. Create Postgress DS & the query", function() {
@@ -512,9 +512,10 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "Quotes" has failed');
 
+    agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');
     agHelper.AssertElementPresence(jsEditor._dialogBody("Quotes"));
-    agHelper.ClickButton("No");
-    agHelper.ValidateToastMessage("callQuotes ran successfully"); //Verify this toast comes in EDIT page only
+    agHelper.ClickButton("No"); //Ask Favour abt below
+    //agHelper.ValidateToastMessage("callQuotes ran successfully"); //Verify this toast comes in EDIT page only
 
     agHelper.AssertElementPresence(
       jsEditor._dialogBody((jsName as string) + ".callTrump"),
