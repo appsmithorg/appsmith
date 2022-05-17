@@ -14,7 +14,7 @@ import styled from "styled-components";
 import Group from "pages/Settings/FormGroup/group";
 import { DisconnectService } from "pages/Settings/DisconnectService";
 import RestartBanner from "pages/Settings/RestartBanner";
-import AdminConfig from "pages/Settings/config";
+import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import SaveAdminSettings from "pages/Settings/SaveSettings";
 import {
   SettingTypes,

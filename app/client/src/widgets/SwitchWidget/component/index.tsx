@@ -1,5 +1,4 @@
 import { Alignment, Classes, Switch } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
 import styled from "styled-components";
@@ -12,27 +11,45 @@ export interface SwitchComponentProps extends ComponentProps {
   onChange: (isSwitchedOn: boolean) => void;
   isLoading: boolean;
   alignWidget: AlignWidget;
+  accentColor: string;
   inputRef?: (ref: HTMLInputElement | null) => any;
 }
 
-const SwitchComponentContainer = styled.div`
+const SwitchComponentContainer = styled.div<{
+  accentColor: string;
+}>`
   display: flex;
   flex-direction: row;
   align-items: center;
-  &&& .${Classes.CONTROL} {
-    margin: 0;
-    input:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${Colors.GREEN};
-      border: 1px solid ${Colors.GREEN};
-    }
-  }
   &.${Alignment.RIGHT} {
     justify-content: flex-end;
   }
   ${BlueprintControlTransform}
 `;
 
+export const StyledSwitch = styled(Switch)<{
+  accentColor: string;
+}>`
+  &.${Classes.CONTROL} {
+    margin: 0;
+  }
+
+  &.${Classes.CONTROL} {
+    & input:checked ~ .${Classes.CONTROL_INDICATOR} {
+      background: ${({ accentColor }) => `${accentColor}`} !important;
+      border: 1px solid ${({ accentColor }) => `${accentColor}`} !important;
+    }
+  }
+
+  &.${Classes.SWITCH} {
+    & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
+      background: ${({ accentColor }) => `${accentColor}`} !important;
+    }
+  }
+`;
+
 export function SwitchComponent({
+  accentColor,
   alignWidget,
   inputRef,
   isDisabled,
@@ -45,8 +62,12 @@ export function SwitchComponent({
     alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
 
   return (
-    <SwitchComponentContainer className={switchAlignClass}>
-      <Switch
+    <SwitchComponentContainer
+      accentColor={accentColor}
+      className={switchAlignClass}
+    >
+      <StyledSwitch
+        accentColor={accentColor}
         alignIndicator={switchAlignClass}
         checked={isSwitchedOn}
         className={

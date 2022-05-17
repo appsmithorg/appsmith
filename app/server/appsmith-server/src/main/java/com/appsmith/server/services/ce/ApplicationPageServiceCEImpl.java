@@ -6,7 +6,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -402,7 +402,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         String repoName = gitData.getRepoName();
                         Path repoPath = Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), repoName);
                         // Delete git repo from local and delete the applications from DB
-                        return gitFileUtils.detachRemote(repoPath)
+                        return gitFileUtils.deleteLocalRepo(repoPath)
                                 .flatMapMany(isCleared -> applicationService
                                         .findAllApplicationsByDefaultApplicationId(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS));
                     }

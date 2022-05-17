@@ -19,6 +19,7 @@ import {
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_JS_RESPONSE_LAST_HALF,
   NO_JS_FUNCTION_RETURN_VALUE,
+  JS_ACTION_EXECUTION_ERROR,
 } from "@appsmith/constants/messages";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
@@ -147,6 +148,7 @@ enum JSResponseState {
 interface ReduxStateProps {
   responses: Record<string, any>;
   isExecuting: Record<string, boolean>;
+  isDirtyList: Record<string, boolean>;
 }
 
 type Props = ReduxStateProps &
@@ -165,6 +167,7 @@ function JSResponseView(props: Props) {
     currentFunction,
     disabled,
     errors,
+    isDirtyList,
     isExecuting,
     isLoading,
     jsObject,
@@ -199,6 +202,11 @@ function JSResponseView(props: Props) {
       setResponseStatus(JSResponseState.NoResponse);
     } else if (
       responses.hasOwnProperty(currentFunction.id) &&
+      isDirtyList[currentFunction.id]
+    ) {
+      setResponseStatus(JSResponseState.IsDirty);
+    } else if (
+      responses.hasOwnProperty(currentFunction.id) &&
       responses[currentFunction.id] === undefined
     ) {
       setResponseStatus(JSResponseState.NoReturnValue);
@@ -206,15 +214,15 @@ function JSResponseView(props: Props) {
       setResponseStatus(JSResponseState.ShowResponse);
     }
   }, [responses, isExecuting, currentFunction]);
-
   const tabs = [
     {
       key: "body",
       title: "Response",
       panelComponent: (
         <>
-          {errors.length > 0 && (
-            <HelpSection>
+          {(errors.length > 0 ||
+            responseStatus === JSResponseState.IsDirty) && (
+            <HelpSection className=".t--js-response-parse-error-call-out">
               <StyledCallout
                 fill
                 label={
@@ -222,7 +230,14 @@ function JSResponseView(props: Props) {
                     <DebugButton onClick={onDebugClick} />
                   </FailedMessage>
                 }
-                text={createMessage(PARSING_ERROR)}
+                text={
+                  responseStatus === JSResponseState.IsDirty
+                    ? createMessage(
+                        JS_ACTION_EXECUTION_ERROR,
+                        `${jsObject.name}.${currentFunction?.name}`,
+                      )
+                    : createMessage(PARSING_ERROR)
+                }
                 variant={Variant.danger}
               />
             </HelpSection>
@@ -317,10 +332,12 @@ const mapStateToProps = (
       (action: JSCollectionData) => action.config.id === jsObject.id,
     );
   const responses = (seletedJsObject && seletedJsObject.data) || {};
+  const isDirtyList = (seletedJsObject && seletedJsObject.isDirty) || {};
   const isExecuting = (seletedJsObject && seletedJsObject.isExecuting) || {};
   return {
-    responses: responses,
-    isExecuting: isExecuting,
+    responses,
+    isExecuting,
+    isDirtyList,
   };
 };
 

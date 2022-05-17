@@ -9,7 +9,7 @@ import { BASE_URL } from "constants/routes";
 import { REDIRECT_URL_FORM, ENTITYID_URL_FORM } from "constants/forms";
 import { getSettingsSavingState } from "selectors/settingsSelectors";
 import SaveAdminSettings from "pages/Settings/SaveSettings";
-import AdminConfig from "pages/Settings/config";
+import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import { Callout } from "components/ads/CalloutV2";
 import { CopyUrlReduxForm } from "components/ads/formFields/CopyUrlForm";
 import {

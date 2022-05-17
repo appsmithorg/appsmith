@@ -1,0 +1,12 @@
+{
+ "clientID": ".t--admin-settings-APPSMITH_OAUTH2_OIDC_CLIENT_ID input",
+ "clientSecret": ".t--admin-settings-APPSMITH_OAUTH2_OIDC_CLIENT_SECRET input",
+ "authorizationURL": ".t--admin-settings-APPSMITH_OAUTH2_OIDC_AUTHORIZATION_URI input",
+ "tokenURL": ".t--admin-settings-APPSMITH_OAUTH2_OIDC_TOKEN_URI input",
+ "userInfo": ".t--admin-settings-APPSMITH_OAUTH2_OIDC_USER_INFO input",
+ "jwtSetURI": ".t--admin-settings-APPSMITH_OAUTH2_OIDC_JWK_SET_URI input",
+ "AdvancedOptionExpand": "//span[contains(@name,'expand-more')]",
+ "scope":".t--admin-settings-APPSMITH_OAUTH2_OIDC_SCOPE input",
+ "userAttribute": ".t--admin-settings-APPSMITH_OAUTH2_OIDC_USERNAME_ATTRIBUTE input",
+ "saveBtn": ".t--admin-settings-save-button"
+}

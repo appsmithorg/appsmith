@@ -17,3 +17,15 @@ export const getIsSavingForApiName = (state: AppState, id: string) =>
  */
 export const getErrorForApiName = (state: AppState, id: string) =>
   state.ui.apiName.errors[id];
+
+/**
+ * Selector to use id and provide the status of saving a JS Object.
+ */
+export const getIsSavingForJSObjectName = (state: AppState, id: string) =>
+  state.ui.jsObjectName.isSaving[id];
+
+/**
+ * Selector to use id and provide the status of error in a JS Object.
+ */
+export const getErrorForJSObjectName = (state: AppState, id: string) =>
+  state.ui.jsObjectName.errors[id];

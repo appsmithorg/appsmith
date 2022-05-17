@@ -1,7 +1,14 @@
 import { isNil, isPlainObject, merge } from "lodash";
 import { LabelValueType } from "rc-select/lib/interface/generator";
 
-import { ARRAY_ITEM_KEY, FieldType, Schema, SchemaItem } from "./constants";
+import {
+  ARRAY_ITEM_KEY,
+  FieldThemeStylesheet,
+  FieldType,
+  inverseFieldType,
+  Schema,
+  SchemaItem,
+} from "./constants";
 
 type ConvertFormDataOptions = {
   fromId: keyof SchemaItem | (keyof SchemaItem)[];
@@ -34,6 +41,16 @@ const valueLookup = (
   return;
 };
 
+export const getFieldStylesheet = (
+  fieldType: FieldType,
+  fieldThemeStylesheets?: FieldThemeStylesheet,
+) => {
+  const fieldTypeKey = inverseFieldType[fieldType];
+  return fieldThemeStylesheets && fieldTypeKey in fieldThemeStylesheets
+    ? fieldThemeStylesheets[fieldTypeKey]
+    : {};
+};
+
 const convertObjectTypeToFormData = (
   schema: Schema,
   formValue: unknown,
@@ -43,13 +60,19 @@ const convertObjectTypeToFormData = (
     const formData: Record<string, unknown> = {};
 
     Object.values(schema).forEach((schemaItem) => {
-      const value = valueLookup(
-        formValue as Record<string, unknown>,
-        schemaItem,
-        options.fromId,
-      );
-      const toKey = schemaItem[options.toId];
-      formData[toKey] = convertSchemaItemToFormData(schemaItem, value, options);
+      if (schemaItem.isVisible) {
+        const value = valueLookup(
+          formValue as Record<string, unknown>,
+          schemaItem,
+          options.fromId,
+        );
+        const toKey = schemaItem[options.toId];
+        formData[toKey] = convertSchemaItemToFormData(
+          schemaItem,
+          value,
+          options,
+        );
+      }
     });
 
     return formData;
