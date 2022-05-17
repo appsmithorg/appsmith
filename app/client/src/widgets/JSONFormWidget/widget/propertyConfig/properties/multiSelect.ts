@@ -1,6 +1,10 @@
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { FieldType } from "widgets/JSONFormWidget/constants";
-import { HiddenFnParams, getSchemaItem } from "../helper";
+import {
+  HiddenFnParams,
+  getSchemaItem,
+  getAutocompleteProperties,
+} from "../helper";
 import { MultiSelectFieldProps } from "widgets/JSONFormWidget/fields/MultiSelectField";
 import {
   ValidationResponse,
@@ -204,7 +208,7 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      additionalAutoComplete: getAutocompleteProperties,
       dependencies: ["schema"],
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
@@ -217,7 +221,7 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      additionalAutoComplete: getAutocompleteProperties,
       dependencies: ["schema"],
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem<MultiSelectFieldProps["schemaItem"]>(...args).compute(
