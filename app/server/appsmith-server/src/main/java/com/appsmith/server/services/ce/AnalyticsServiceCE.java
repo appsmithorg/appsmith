@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import reactor.core.publisher.Mono;

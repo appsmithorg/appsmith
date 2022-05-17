@@ -67,6 +67,7 @@
   "singleSelectMenuItem": ".bp3-menu-item.single-select div",
   "singleSelectWidgetMenuItem": ".menu-item-link",
   "singleSelectActiveMenuItem": ".menu-item-active div",
+  "selectInputSearch": ".select-popover-wrapper input",
   "multiSelectMenuItem": "rc-select-item.rc-select-item-option div",
   "selectMenuItem": ".bp3-menu li>a>div",
   "evaluatedTypeTitle": ".t--CodeEditor-evaluatedValue > p:first-of-type",
