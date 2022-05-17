@@ -115,7 +115,7 @@ class PhoneInputWidget extends BaseInputWidget<
                   fn: defaultValueValidation,
                   expected: {
                     type: "string",
-                    example: `000 0000`,
+                    example: `(000) 000-0000`,
                     autocompleteDataType: AutocompleteDataType.STRING,
                   },
                 },
