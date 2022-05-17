@@ -161,6 +161,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             forced_root_block: false,
             branding: false,
             resize: false,
+            browser_spellcheck: true,
             plugins: [
               "advlist autolink lists link image charmap print preview anchor",
               "searchreplace visualblocks code fullscreen",
