@@ -4,7 +4,6 @@ import {
   HiddenFnParams,
   getSchemaItem,
   getAutocompleteProperties,
-  getStylesheetValue,
 } from "../helper";
 
 const PROPERTIES = {
@@ -58,22 +57,6 @@ const PROPERTIES = {
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.SWITCH),
       dependencies: ["schema", "sourceData"],
-    },
-  ],
-  styles: [
-    {
-      propertyName: "accentColor",
-      helpText: "Sets the accent color of the switch",
-      label: "Accent Color",
-      controlType: "COLOR_PICKER",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      getStylesheetValue,
-      validation: { type: ValidationTypes.TEXT },
-      hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.SWITCH),
-      dependencies: ["schema"],
     },
   ],
 };
