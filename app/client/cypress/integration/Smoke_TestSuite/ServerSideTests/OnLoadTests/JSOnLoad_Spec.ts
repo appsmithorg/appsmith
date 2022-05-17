@@ -323,7 +323,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       agHelper.Sleep(2000)//to let the api's call be finished & populate the text fields before validation!
       agHelper
         .GetText(locator._textAreainputWidgetv2InDeployed, "text", 1)
-        .then(($quote) => cy.wrap($quote).should("not.eq", "{}"));
+        .then(($quote) => cy.wrap($quote).should("not.be.empty"));
 
       agHelper
         .GetText(locator._textAreainputWidgetv2InDeployed)
