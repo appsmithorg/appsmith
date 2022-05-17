@@ -34,8 +34,8 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
     context!: React.ContextType<typeof EditorContext>;
 
     initialMetaState: Record<string, unknown>;
-    actionsToExecuteInBatch: Record<string, DebouncedExecuteActionPayload>;
-
+    actionsToExecute: Record<string, DebouncedExecuteActionPayload>;
+    updatedProperties: Record<string, boolean>;
     constructor(props: metaHOCProps) {
       super(props);
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
@@ -44,23 +44,29 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
           return [metaProperty, this.props[metaProperty]];
         }),
       );
-      this.actionsToExecuteInBatch = {};
+      this.updatedProperties = {};
+      this.actionsToExecute = {};
     }
 
-    addActionToBatch = (
+    addPropertyForEval = (
       propertyName: string,
-      actionExecution: DebouncedExecuteActionPayload,
+      actionExecution?: DebouncedExecuteActionPayload,
     ) => {
-      this.actionsToExecuteInBatch[propertyName] = actionExecution;
+      // Add meta updates in updatedProperties to push to evaluation
+      this.updatedProperties[propertyName] = true;
+      if (actionExecution) {
+        // Adding action inside actionsToExecute
+        this.actionsToExecute[propertyName] = actionExecution;
+      }
     };
 
     removeBatchActions = (propertyName: string) => {
-      delete this.actionsToExecuteInBatch[propertyName];
+      delete this.actionsToExecute[propertyName];
     };
 
     runBatchActions = () => {
       const { executeAction } = this.context;
-      const batchActionsToRun = Object.entries(this.actionsToExecuteInBatch);
+      const batchActionsToRun = Object.entries(this.actionsToExecute);
       batchActionsToRun.map(([propertyName, actionExecution]) => {
         if (actionExecution && actionExecution.dynamicString && executeAction) {
           executeAction({
@@ -90,13 +96,23 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
 
     handleTriggerEvalOnMetaUpdate = () => {
       const { triggerEvalOnMetaUpdate } = this.context;
-      if (triggerEvalOnMetaUpdate) triggerEvalOnMetaUpdate();
+      // if we have meta property update which needs to be send to evaluation only then trigger evaluation.
+      // this will avoid triggering evaluation for the trailing end of debounce, when there are no meta updates.
+      if (Object.keys(this.updatedProperties).length) {
+        if (triggerEvalOnMetaUpdate) triggerEvalOnMetaUpdate();
+        this.updatedProperties = {}; // once we trigger evaluation, we remove those property from updatedProperties
+      }
+
       this.runBatchActions();
     };
 
     debouncedTriggerEvalOnMetaUpdate = debounce(
       this.handleTriggerEvalOnMetaUpdate,
       200,
+      {
+        leading: true,
+        trailing: true,
+      },
     );
 
     updateWidgetMetaProperty = (
@@ -147,8 +163,13 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
           );
         }
       }
-      if (actionExecution) this.addActionToBatch(propertyName, actionExecution);
-      this.debouncedTriggerEvalOnMetaUpdate();
+
+      this.addPropertyForEval(propertyName, actionExecution);
+      this.setState({}, () => {
+        // react batches the setState call
+        // this will result in batching multiple updateWidgetMetaProperty calls.
+        this.debouncedTriggerEvalOnMetaUpdate();
+      });
     };
 
     updatedProps = () => {
