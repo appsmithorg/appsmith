@@ -509,8 +509,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     if (applicationId.equals(gitData.getDefaultApplicationId())) {
                         gitData.getGitAuth().setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
                         GitAuthDTO gitAuthDTO = new GitAuthDTO();
-                        gitAuthDTO.setGitAuth(gitData.getGitAuth());
-                        gitAuthDTO.setGitDeployKeyDTOList(gitDeployKeyDTOList);
+                        gitAuthDTO.setPublicKey(gitData.getGitAuth().getPublicKey());
+                        gitAuthDTO.setPrivateKey(gitData.getGitAuth().getPrivateKey());
+                        gitAuthDTO.setDocUrl(gitData.getGitAuth().getDocUrl());
+                        gitAuthDTO.setGitSupportedSSHKeyType(gitDeployKeyDTOList);
                         return Mono.just(gitAuthDTO);
                     }
                     if (gitData.getDefaultApplicationId() == null) {
@@ -526,8 +528,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                 GitAuthDTO gitAuthDTO = new GitAuthDTO();
                                 GitAuth gitAuth = rootApplication.getGitApplicationMetadata().getGitAuth();
                                 gitAuth.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
-                                gitAuthDTO.setGitAuth(gitAuth);
-                                gitAuthDTO.setGitDeployKeyDTOList(gitDeployKeyDTOList);
+                                gitAuthDTO.setPublicKey(gitAuth.getPublicKey());
+                                gitAuthDTO.setPrivateKey(gitAuth.getPrivateKey());
+                                gitAuthDTO.setDocUrl(gitAuth.getDocUrl());
+                                gitAuthDTO.setGitSupportedSSHKeyType(gitDeployKeyDTOList);
                                 return gitAuthDTO;
                             });
                 });

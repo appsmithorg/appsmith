@@ -1115,7 +1115,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.just(srcApplication.getGitApplicationMetadata().getGitAuth());
                     }
                     return applicationService.getSshKey(gitData.getDefaultApplicationId())
-                            .map(GitAuthDTO::getGitAuth);
+                            .map(gitAuthDTO -> {
+                                GitAuth gitAuth = new GitAuth();
+                                gitAuth.setPrivateKey(gitAuth.getPrivateKey());
+                                gitAuth.setPublicKey(gitAuthDTO.getPublicKey());
+                                gitAuth.setDocUrl(gitAuthDTO.getDocUrl());
+                                return gitAuth;
+                            });
                 })
                 .flatMap(tuple -> {
                     Application srcApplication = tuple.getT1();

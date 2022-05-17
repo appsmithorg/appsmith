@@ -1,16 +1,20 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.server.domains.GitAuth;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.util.List;
 
 @Getter
 @Setter
 public class GitAuthDTO {
-    GitAuth gitAuth;
+    String publicKey;
 
-    List<GitDeployKeyDTO> gitDeployKeyDTOList;
+    @JsonIgnore
+    String privateKey;
+
+    String docUrl;
+
+    List<GitDeployKeyDTO> gitSupportedSSHKeyType;
 
 }
