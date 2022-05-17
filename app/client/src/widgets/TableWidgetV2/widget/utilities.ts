@@ -154,8 +154,8 @@ export function escapeString(str: string) {
    * Match all the unescaped `"`
    *  match `"` that follows any character except `\`. ([^\\]\")
    */
-  return str.replace(/[^\\]\"/g, (match) => {
-    return match.substr(0, match.length - 1) + `\\"`;
+  return str.replace(/[^\\]"/g, (match) => {
+    return match.substr(0, match.length - 1) + `\"`;
   });
 }
 

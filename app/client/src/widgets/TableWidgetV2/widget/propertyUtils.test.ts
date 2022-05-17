@@ -5,11 +5,10 @@ import {
   updateColumnOrderHook,
   getBasePropertyPath,
   hideByColumnType,
-  ColumnTypes,
   uniqueColumnAliasValidation,
 } from "./propertyUtils";
 import _ from "lodash";
-import { TableWidgetProps } from "../constants";
+import { ColumnTypes, TableWidgetProps } from "../constants";
 
 describe("PropertyUtils - ", () => {
   it("totalRecordsCountValidation - should test with all possible values", () => {
@@ -249,6 +248,15 @@ describe("PropertyUtils - ", () => {
       {
         propertyPath: "columnOrder",
         propertyValue: ["column1", "columns2", "column3"],
+      },
+      {
+        propertyPath: "primaryColumns.column3",
+        propertyValue: {
+          buttonColor: "#03B365",
+          id: "column3",
+          labelColor: "#FFFFFF",
+          menuColor: "#03B365",
+        },
       },
     ]);
 
