@@ -36,11 +36,8 @@ const Wrapper = styled.div<{
   position: relative;
   align-items: center;
   width: 100%;
+  height: 100%;
   opacity: ${(props) => (props.isCellEditMode ? 0 : 1)};
-  height: ${(props) =>
-    props.allowWrapping
-      ? `100%`
-      : `${TABLE_SIZES[props.compactMode].ROW_HEIGHT}px`};
 `;
 
 const StyledAutoToolTipComponent = styled(AutoToolTipComponent)`
@@ -124,6 +121,15 @@ export function TextCell({
     [toggleCellEditMode, value],
   );
 
+  const isMultiline = useCallback(() => {
+    const rowHeight = TABLE_SIZES[compactMode].ROW_HEIGHT;
+
+    return (
+      !!contentRef.current?.offsetHeight &&
+      contentRef.current?.offsetHeight - rowHeight > 10
+    );
+  }, [contentRef.current, compactMode]);
+
   let editor;
 
   if (isCellEditMode) {
@@ -137,10 +143,7 @@ export function TextCell({
             ? InputTypes.NUMBER
             : InputTypes.TEXT
         }
-        multiline={
-          !!contentRef.current?.offsetHeight &&
-          contentRef.current?.offsetHeight > TABLE_SIZES[compactMode].ROW_HEIGHT
-        }
+        multiline={isMultiline()}
         onChange={onChange}
         onDiscard={onDiscard}
         onSave={onSave}
