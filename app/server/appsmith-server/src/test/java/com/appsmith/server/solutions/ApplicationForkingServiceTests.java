@@ -533,7 +533,7 @@ public class ApplicationForkingServiceTests {
                 }).flatMap(srcApplication -> {
                     Theme theme = new Theme();
                     theme.setDisplayName("theme_" + uniqueString);
-                    return themeService.updateTheme(srcApplication.getId(), theme)
+                    return themeService.updateTheme(srcApplication.getId(), null, theme)
                             .then(applicationService.findById(srcApplication.getId()));
                 }).flatMap(srcApplication -> {
                     Workspace desOrg = new Workspace();
@@ -545,8 +545,8 @@ public class ApplicationForkingServiceTests {
                     Application forkedApp = applicationTuple2.getT1();
                     Application srcApp = applicationTuple2.getT2();
                     return Mono.zip(
-                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT),
-                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.PUBLISHED),
+                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT, null),
+                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.PUBLISHED, null),
                             Mono.just(forkedApp),
                             Mono.just(srcApp)
                     );
@@ -606,7 +606,7 @@ public class ApplicationForkingServiceTests {
                     Application forkedApp = applicationTuple2.getT1();
                     Application srcApp = applicationTuple2.getT2();
                     return Mono.zip(
-                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT),
+                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT, null),
                             Mono.just(forkedApp),
                             Mono.just(srcApp)
                     );
@@ -650,8 +650,8 @@ public class ApplicationForkingServiceTests {
                 }).flatMap(srcApplication -> {
                     Theme theme = new Theme();
                     theme.setDisplayName("theme_" + uniqueString);
-                    return themeService.updateTheme(srcApplication.getId(), theme)
-                            .then(themeService.persistCurrentTheme(srcApplication.getId(), theme))
+                    return themeService.updateTheme(srcApplication.getId(), null, theme)
+                            .then(themeService.persistCurrentTheme(srcApplication.getId(), null, theme))
                             .then(applicationService.findById(srcApplication.getId()));
                 }).flatMap(srcApplication -> {
                     Workspace desOrg = new Workspace();
@@ -663,8 +663,8 @@ public class ApplicationForkingServiceTests {
                     Application forkedApp = applicationTuple2.getT1();
                     Application srcApp = applicationTuple2.getT2();
                     return Mono.zip(
-                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT),
-                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.PUBLISHED),
+                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT, null),
+                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.PUBLISHED, null),
                             Mono.just(forkedApp),
                             Mono.just(srcApp)
                     );
@@ -787,7 +787,7 @@ public class ApplicationForkingServiceTests {
                     gitAuth.setPrivateKey("privatekey");
                     gitApplicationMetadata.setGitAuth(gitAuth);
                     srcApplication.setGitApplicationMetadata(gitApplicationMetadata);
-                    return themeService.updateTheme(srcApplication.getId(), theme)
+                    return themeService.updateTheme(srcApplication.getId(), null, theme)
                             .then(applicationService.save(srcApplication))
                             .flatMap(application -> {
                                 // Create a branch application

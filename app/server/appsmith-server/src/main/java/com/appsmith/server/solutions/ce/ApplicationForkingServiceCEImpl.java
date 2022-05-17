@@ -1,7 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Workspace;

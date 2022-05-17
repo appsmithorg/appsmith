@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;

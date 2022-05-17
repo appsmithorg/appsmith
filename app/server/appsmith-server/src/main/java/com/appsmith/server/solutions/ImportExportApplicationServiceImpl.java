@@ -7,6 +7,7 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ActionCollectionService;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
@@ -40,11 +41,12 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                                               ActionCollectionRepository actionCollectionRepository,
                                               ActionCollectionService actionCollectionService,
                                               ThemeService themeService,
-                                              PolicyUtils policyUtils) {
+                                              PolicyUtils policyUtils,
+                                              AnalyticsService analyticsService) {
 
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
                 workspaceService, applicationService, newPageService, applicationPageService, newPageRepository,
                 newActionService, sequenceService, examplesWorkspaceCloner, actionCollectionRepository,
-                actionCollectionService, themeService, policyUtils);
+                actionCollectionService, themeService, policyUtils, analyticsService);
     }
 }
