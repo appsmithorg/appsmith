@@ -15,7 +15,6 @@ describe("Import, Export and Fork application and validate data binding", functi
     cy.get(homePage.orgImportAppOption).click({ force: true });
     cy.get(homePage.orgImportAppModal).should("be.visible");
     cy.xpath(homePage.uploadLogo).attachFile("forkedApp.json");
-    cy.get(homePage.importAppProgressWrapper).should("be.visible");
     cy.wait("@importNewApplication").then((interception) => {
       cy.wait(100);
       // should check reconnect modal openning
