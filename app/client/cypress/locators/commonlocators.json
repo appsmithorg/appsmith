@@ -67,6 +67,7 @@
   "singleSelectMenuItem": ".bp3-menu-item.single-select div",
   "singleSelectWidgetMenuItem": ".menu-item-link",
   "singleSelectActiveMenuItem": ".menu-item-active div",
+  "selectInputSearch": ".select-popover-wrapper input",
   "multiSelectMenuItem": "rc-select-item.rc-select-item-option div",
   "selectMenuItem": ".bp3-menu li>a>div",
   "evaluatedTypeTitle": ".t--CodeEditor-evaluatedValue > p:first-of-type",
@@ -170,5 +171,11 @@
   "filepickerv2": ".t--draggable-filepickerwidgetv2",
   "dashboardItemName": ".uppy-Dashboard-Item-name",
   "mapChartShowLabels": ".t--property-control-showlabels input",
-  "widgetSection": ".t--entity.widgets > .t--entity-item > a.t--entity-collapse-toggle"
+  "widgetSection": ".t--entity.widgets > .t--entity-item > a.t--entity-collapse-toggle",
+  "changeThemeBtn": ".t--change-theme-btn",
+  "editThemeBtn": ".t--edit-theme-btn",
+  "themeCard": ".t--theme-card",
+  "saveThemeBtn": ".t--save-theme-btn",
+  "selectThemeBackBtn": ".t--theme-select-back-btn",
+  "themeAppBorderRadiusBtn": ".t--theme-appBorderRadius"
 }

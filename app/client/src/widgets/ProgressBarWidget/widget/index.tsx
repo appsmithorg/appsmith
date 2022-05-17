@@ -111,6 +111,19 @@ class ProgressBarWidget extends BaseWidget<
               },
             },
           },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isBindProperty: true,
+            isJSConvertible: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
+          },
         ],
       },
     ];
@@ -132,6 +145,7 @@ class ProgressBarWidget extends BaseWidget<
     return (
       <ProgressBarComponent
         barType={this.props.barType}
+        borderRadius={this.props.borderRadius}
         fillColor={this.props.fillColor}
         progress={this.props.progress}
         showResult={this.props.showResult}
@@ -151,6 +165,7 @@ export interface ProgressBarWidgetProps extends WidgetProps {
   fillColor: string;
   barType: BarType;
   steps: number;
+  borderRadius?: string;
 }
 
 export default ProgressBarWidget;

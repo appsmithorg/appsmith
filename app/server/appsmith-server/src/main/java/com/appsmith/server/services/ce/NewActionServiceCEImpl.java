@@ -21,7 +21,7 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionProvider;
@@ -1053,7 +1053,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             "actionCreated", DateUtils.ISO_FORMATTER.format(action.getCreatedAt()),
                             "actionId", ObjectUtils.defaultIfNull(action.getId(), ""),
                             "dsId", ObjectUtils.defaultIfNull(datasource.getId(), ""),
-                            "dsCreatedAt", DateUtils.ISO_FORMATTER.format(datasource.getCreatedAt())
+                            "dsCreatedAt", ObjectUtils.defaultIfNull(DateUtils.ISO_FORMATTER.format(datasource.getCreatedAt()), "")
 
                     ));
 

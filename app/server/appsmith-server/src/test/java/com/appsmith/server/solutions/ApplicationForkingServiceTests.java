@@ -10,6 +10,8 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -531,7 +533,7 @@ public class ApplicationForkingServiceTests {
                 }).flatMap(srcApplication -> {
                     Theme theme = new Theme();
                     theme.setDisplayName("theme_" + uniqueString);
-                    return themeService.updateTheme(srcApplication.getId(), theme)
+                    return themeService.updateTheme(srcApplication.getId(), null, theme)
                             .then(applicationService.findById(srcApplication.getId()));
                 }).flatMap(srcApplication -> {
                     Organization desOrg = new Organization();
@@ -543,8 +545,8 @@ public class ApplicationForkingServiceTests {
                     Application forkedApp = applicationTuple2.getT1();
                     Application srcApp = applicationTuple2.getT2();
                     return Mono.zip(
-                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT),
-                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.PUBLISHED),
+                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT, null),
+                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.PUBLISHED, null),
                             Mono.just(forkedApp),
                             Mono.just(srcApp)
                     );
@@ -604,7 +606,7 @@ public class ApplicationForkingServiceTests {
                     Application forkedApp = applicationTuple2.getT1();
                     Application srcApp = applicationTuple2.getT2();
                     return Mono.zip(
-                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT),
+                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT, null),
                             Mono.just(forkedApp),
                             Mono.just(srcApp)
                     );
@@ -648,8 +650,8 @@ public class ApplicationForkingServiceTests {
                 }).flatMap(srcApplication -> {
                     Theme theme = new Theme();
                     theme.setDisplayName("theme_" + uniqueString);
-                    return themeService.updateTheme(srcApplication.getId(), theme)
-                            .then(themeService.persistCurrentTheme(srcApplication.getId(), theme))
+                    return themeService.updateTheme(srcApplication.getId(), null, theme)
+                            .then(themeService.persistCurrentTheme(srcApplication.getId(), null, theme))
                             .then(applicationService.findById(srcApplication.getId()));
                 }).flatMap(srcApplication -> {
                     Organization desOrg = new Organization();
@@ -661,8 +663,8 @@ public class ApplicationForkingServiceTests {
                     Application forkedApp = applicationTuple2.getT1();
                     Application srcApp = applicationTuple2.getT2();
                     return Mono.zip(
-                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT),
-                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.PUBLISHED),
+                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT, null),
+                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.PUBLISHED, null),
                             Mono.just(forkedApp),
                             Mono.just(srcApp)
                     );
@@ -757,5 +759,76 @@ public class ApplicationForkingServiceTests {
                 .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
                 .flatMap(page -> newActionService.getUnpublishedActionsExceptJs(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void forkGitConnectedApplication_defaultBranchUpdated_forkDefaultBranchApplication() {
+        String uniqueString = UUID.randomUUID().toString();
+        Organization organization = new Organization();
+        organization.setName("org_" + uniqueString);
+
+        Mono<Application> applicationMono = organizationService.create(organization)
+                .flatMap(createdOrg -> {
+                    Application application = new Application();
+                    application.setName("app_" + uniqueString);
+                    return applicationPageService.createApplication(application, createdOrg.getId());
+                }).flatMap(srcApplication -> {
+                    Theme theme = new Theme();
+                    theme.setDisplayName("theme_" + uniqueString);
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    gitApplicationMetadata.setDefaultApplicationId(srcApplication.getId());
+                    gitApplicationMetadata.setBranchName("master");
+                    gitApplicationMetadata.setDefaultBranchName("feature1");
+                    gitApplicationMetadata.setIsRepoPrivate(false);
+                    gitApplicationMetadata.setRepoName("testRepo");
+                    GitAuth gitAuth = new GitAuth();
+                    gitAuth.setPublicKey("testkey");
+                    gitAuth.setPrivateKey("privatekey");
+                    gitApplicationMetadata.setGitAuth(gitAuth);
+                    srcApplication.setGitApplicationMetadata(gitApplicationMetadata);
+                    return themeService.updateTheme(srcApplication.getId(), null, theme)
+                            .then(applicationService.save(srcApplication))
+                            .flatMap(application -> {
+                                // Create a branch application
+                                Application branchApp = new Application();
+                                branchApp.setName("app_" + uniqueString);
+                                return applicationPageService.createApplication(branchApp, srcApplication.getOrganizationId())
+                                        .zipWith(Mono.just(srcApplication));
+                            });
+                })
+                .flatMap(tuple -> {
+                    Application branchApp = tuple.getT1();
+                    Application srcApplication = tuple.getT2();
+                    GitApplicationMetadata gitApplicationMetadata1 = new GitApplicationMetadata();
+                    gitApplicationMetadata1.setDefaultApplicationId(srcApplication.getId());
+                    gitApplicationMetadata1.setBranchName("feature1");
+                    gitApplicationMetadata1.setDefaultBranchName("feature1");
+                    gitApplicationMetadata1.setIsRepoPrivate(false);
+                    gitApplicationMetadata1.setRepoName("testRepo");
+                    branchApp.setGitApplicationMetadata(gitApplicationMetadata1);
+                    return applicationService.save(branchApp)
+                            .flatMap(application -> {
+                                PageDTO page = new PageDTO();
+                                page.setName("discard-page-test");
+                                page.setApplicationId(branchApp.getId());
+                                return applicationPageService.createPage(page)
+                                        .then(Mono.just(srcApplication));
+                            });
+                })
+                .flatMap(srcApplication -> {
+                    Organization desOrg = new Organization();
+                    desOrg.setName("org_dest_" + uniqueString);
+
+                    return organizationService.create(desOrg).flatMap(createdOrg ->
+                            applicationForkingService.forkApplicationToOrganization(srcApplication.getGitApplicationMetadata().getDefaultApplicationId(), createdOrg.getId())
+                    );
+                });
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(forkedApplication -> {
+                    assertThat(forkedApplication.getPages().size()).isEqualTo(2);
+        }).verifyComplete();
     }
 }

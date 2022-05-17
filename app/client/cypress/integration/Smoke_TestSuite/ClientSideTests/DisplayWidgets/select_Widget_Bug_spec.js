@@ -152,6 +152,54 @@ describe("Select Widget Functionality", function() {
       .should("not.exist");
   });
 
+  it("should check that filtering works well", () => {
+    cy.openPropertyPane("selectwidget");
+    cy.updateCodeInput(
+      ".t--property-control-options",
+      `[
+        {
+          "label": "RANDOM",
+          "value": "RANDOM"
+        },
+        {
+          "label": "RANDOM1",
+          "value": "RANDOM1"
+        },
+        {
+          "label": "RANDOM2",
+          "value": "RANDOM2"
+        },
+        {
+          "label": "RANDOM3",
+          "value": "RANDOM3"
+        },
+        {
+          "label": "RANDOM4",
+          "value": "RANDOM4"
+        },
+        {
+          "label": "RANDOM5",
+          "value": "RANDOM5"
+        }
+      ]`,
+    );
+    cy.get(".t--property-control-options .t--codemirror-has-error").should(
+      "not.exist",
+    );
+    // Filtering the option
+    cy.get(formWidgetsPage.selectWidget)
+      .find(widgetsPage.dropdownSingleSelect)
+      .click({
+        force: true,
+      });
+    cy.get(commonlocators.selectInputSearch).type("RANDOM5");
+    // confirm it only has a single child
+    cy.get(".select-popover-wrapper .menu-virtual-list")
+      .children()
+      .should("have.length", 1);
+    cy.get(commonlocators.singleSelectWidgetMenuItem).contains("RANDOM5");
+  });
+
   it("Disable the widget and check in publish mode", function() {
     cy.get(widgetsPage.disable).scrollIntoView({ force: true });
     cy.get(widgetsPage.selectWidgetDisabled).click({ force: true });
@@ -172,18 +220,18 @@ describe("Select Widget Functionality", function() {
     cy.updateCodeInput(
       ".t--property-control-defaultvalue",
       `{
-        "label": "RANDOM11",
-        "value": "RANDOM11"
+        "label": "RANDOM5",
+        "value": "RANDOM5"
       }`,
     );
     cy.PublishtheApp();
-    cy.get(".bp3-button")
+    cy.get(".bp3-button.select-button")
       .eq(0)
       .should("be.visible")
       .click({ force: true });
     cy.get(commonlocators.singleSelectActiveMenuItem).should(
       "contain.text",
-      "RANDOM11",
+      "RANDOM5",
     );
     cy.goToEditFromPublish();
   });

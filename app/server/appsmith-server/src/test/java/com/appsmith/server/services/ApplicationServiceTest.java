@@ -1762,6 +1762,64 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void cloneGitConnectedApplication_withUpdatedDefaultBranch_sucess() {
+        Application application = new Application();
+        application.setName("cloneGitConnectedApplication_withUpdatedDefaultBranch_sucess");
+        application.setOrganizationId(orgId);
+        Application defaultApp = applicationPageService.createApplication(application)
+                .flatMap(application1 -> {
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    gitApplicationMetadata.setDefaultApplicationId(application1.getId());
+                    gitApplicationMetadata.setBranchName("master");
+                    gitApplicationMetadata.setDefaultBranchName("feature1");
+                    gitApplicationMetadata.setIsRepoPrivate(false);
+                    gitApplicationMetadata.setRepoName("testRepo");
+                    GitAuth gitAuth = new GitAuth();
+                    gitAuth.setPublicKey("testkey");
+                    gitAuth.setPrivateKey("privatekey");
+                    gitApplicationMetadata.setGitAuth(gitAuth);
+                    application1.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationService.save(application1);
+                }).block();
+
+        // Add a branch to the git connected app
+        application = new Application();
+        application.setName("cloneGitConnectedApplication_withUpdatedDefaultBranch_sucess");
+        application.setOrganizationId(orgId);
+        Mono<Application> forkedApp = applicationPageService.createApplication(application)
+                .flatMap(application1 -> {
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    gitApplicationMetadata.setDefaultApplicationId(application1.getId());
+                    gitApplicationMetadata.setBranchName("feature1");
+                    gitApplicationMetadata.setDefaultBranchName("feature1");
+                    gitApplicationMetadata.setIsRepoPrivate(false);
+                    gitApplicationMetadata.setRepoName("testRepo");
+                    GitAuth gitAuth = new GitAuth();
+                    gitAuth.setPublicKey("testkey");
+                    gitAuth.setPrivateKey("privatekey");
+                    gitApplicationMetadata.setGitAuth(gitAuth);
+                    application1.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationService.save(application1);
+                })
+                .flatMap(application1 -> {
+                    PageDTO pageDTO = new PageDTO();
+                    pageDTO.setName("testDuplicatePage");
+                    pageDTO.setApplicationId(application1.getId());
+                    return applicationPageService.createPage(pageDTO)
+                            .then(Mono.just(application1));
+                })
+                .flatMap(application1 -> applicationPageService.cloneApplication(application1.getGitApplicationMetadata().getDefaultApplicationId(), null));
+
+        StepVerifier
+                .create(forkedApp)
+                .assertNext(application1 -> {
+                    assertThat(application1.getPages().size()).isEqualTo(2);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void basicPublishApplicationTest() {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Publish Application";
@@ -2772,8 +2830,8 @@ public class ApplicationServiceTest {
         Mono<Tuple2<Theme, Tuple2<Application, Application>>> tuple2Application = createTheme
                 .then(applicationPageService.createApplication(testApplication, orgId))
                 .flatMap(application ->
-                        themeService.updateTheme(application.getId(), theme).then(
-                                themeService.persistCurrentTheme(application.getId(), new Theme())
+                        themeService.updateTheme(application.getId(), null, theme).then(
+                                themeService.persistCurrentTheme(application.getId(), null, new Theme())
                                         .flatMap(theme1 -> Mono.zip(
                                                 applicationPageService.cloneApplication(application.getId(), null),
                                                 Mono.just(application))
