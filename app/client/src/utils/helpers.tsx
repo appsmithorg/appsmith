@@ -254,12 +254,10 @@ export const getPlatformOS = () => {
     typeof navigator !== "undefined" ? navigator.platform : null;
   if (browserPlatform) {
     const platformOSList = Object.entries(platformOSRegex);
-    for (let index = 0; index < platformOSList.length; index++) {
-      const [platformOS, regex] = platformOSList[index];
-      if (regex.test(browserPlatform)) {
-        return platformOS;
-      }
-    }
+    const platform = platformOSList.find(([, regex]) =>
+      regex.test(browserPlatform),
+    );
+    return platform ? platform[0] : null;
   }
   return null;
 };
