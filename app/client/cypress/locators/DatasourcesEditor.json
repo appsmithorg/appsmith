@@ -24,6 +24,7 @@
   "datasourceMenuOptionDelete":"t--datasource-option-delete",
   "editDatasource": ".t--edit-datasource",
   "datasourceTitle": ".t--edit-datasource-name .bp3-editable-text-content",
+  "datasourceTitleLocator": ".t--edit-datasource-name",
   "defaultDatabaseName": "input[name='datasourceConfiguration.connection.defaultDatabaseName']",
   "datasourceConfigurationProperty":"input[name='datasourceConfiguration.properties[0]']",
   "googleSheets":".t--plugin-name:contains('Google Sheets')",
