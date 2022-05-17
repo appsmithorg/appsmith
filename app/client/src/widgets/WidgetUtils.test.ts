@@ -255,13 +255,14 @@ describe(".sanitizeKey", () => {
       ["poll130", "poll130"],
       ["poll124", "poll126"],
       ["हिन्दि", "xn__j2bd4cyac6f"],
-      ["�", "xn__h28h"],
+      ["�", "xn__zn7c"],
     ];
 
     inputAndExpectedOutput.forEach(([input, expectedOutput]) => {
       const result = sanitizeKey(input, {
         existingKeys,
       });
+      console.log(input, expectedOutput, result);
       expect(result).toEqual(expectedOutput);
     });
   });
