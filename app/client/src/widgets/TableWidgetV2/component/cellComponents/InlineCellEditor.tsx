@@ -58,6 +58,8 @@ const Wrapper = styled.div<{
 
     .text-input-wrapper {
       height: calc(100% + 4px);
+      border: none;
+      box-shadow: none !important;
     }
   }
 `;

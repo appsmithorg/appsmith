@@ -1,9 +1,14 @@
 import React from "react";
 
 import { CellWrapper } from "../TableStyledWrappers";
-import { CellAlignment, VerticalAlignment } from "../Constants";
+import { CellAlignment, TABLE_SIZES, VerticalAlignment } from "../Constants";
 import { Button } from "./Button";
 import { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
+import styled from "styled-components";
+
+const StyledButton = styled(Button)<{ compactMode: string }>`
+  max-height: ${(props) => TABLE_SIZES[props.compactMode].ROW_HEIGHT}px;
+`;
 
 export interface RenderActionProps {
   compactMode: string;
@@ -71,8 +76,9 @@ export function ButtonCell(props: RenderActionProps) {
     >
       {columnActions.map((action: ButtonColumnActions, index: number) => {
         return (
-          <Button
+          <StyledButton
             action={action}
+            compactMode={compactMode}
             isCellVisible={isCellVisible}
             isDisabled={isDisabled}
             isSelected={isSelected}
