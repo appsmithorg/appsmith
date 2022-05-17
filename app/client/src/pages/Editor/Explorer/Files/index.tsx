@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useActiveAction } from "../hooks";
 import { Entity, EntityClassNames } from "../Entity/index";
 import {
@@ -14,16 +14,10 @@ import {
 } from "selectors/editorSelectors";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
-import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { Colors } from "constants/Colors";
-import {
-  filterCategories,
-  SEARCH_CATEGORY_ID,
-} from "components/editorComponents/GlobalSearch/utils";
 import { selectFilesForExplorer } from "selectors/entitiesSelector";
 import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 import Icon from "components/ads/Icon";
-import { noop } from "lodash";
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
 
@@ -33,14 +27,11 @@ function Files() {
   const files = useSelector(selectFilesForExplorer);
   const dispatch = useDispatch();
   const isFilesOpen = getExplorerStatus(applicationId, "queriesAndJs");
+  const [isMenuOpen, openMenu] = useState(false);
 
   const onCreate = useCallback(() => {
-    dispatch(
-      setGlobalSearchCategory(
-        filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
-      ),
-    );
-  }, [dispatch]);
+    openMenu(true);
+  }, [dispatch, openMenu]);
 
   const activeActionId = useActiveAction();
 
@@ -58,6 +49,8 @@ function Files() {
     },
     [applicationId],
   );
+
+  const onMenuClose = useCallback(() => openMenu(false), [openMenu]);
 
   const fileEntities = useMemo(
     () =>
@@ -105,12 +98,14 @@ function Files() {
       customAddButton={
         <ExplorerSubMenu
           className={`${EntityClassNames.ADD_BUTTON} group files`}
+          onMenuClose={onMenuClose}
+          openMenu={isMenuOpen}
         />
       }
       disabled={false}
       entityId={pageId + "_widgets"}
       icon={null}
-      isDefaultExpanded={isFilesOpen === null ? true : isFilesOpen}
+      isDefaultExpanded={isFilesOpen ?? true}
       isSticky
       key={pageId + "_widgets"}
       name="QUERIES/JS"
@@ -124,7 +119,7 @@ function Files() {
       ) : (
         <EmptyComponent
           addBtnText={createMessage(EMPTY_QUERY_JS_BUTTON_TEXT)}
-          addFunction={onCreate || noop}
+          addFunction={onCreate}
           mainText={createMessage(EMPTY_QUERY_JS_MAIN_TEXT)}
         />
       )}

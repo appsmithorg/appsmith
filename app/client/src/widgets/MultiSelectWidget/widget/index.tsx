@@ -381,24 +381,6 @@ class MultiSelectWidget extends BaseWidget<
             isBindProperty: false,
             isTriggerProperty: false,
           },
-          {
-            propertyName: "borderRadius",
-            label: "Border Radius",
-            helpText:
-              "Rounds the corners of the icon button's outer border edge",
-            controlType: "BORDER_RADIUS_OPTIONS",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "boxShadow",
-            label: "Box Shadow",
-            helpText:
-              "Enables you to cast a drop shadow from the frame of the widget",
-            controlType: "BOX_SHADOW_OPTIONS",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
         ],
       },
     ];

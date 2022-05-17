@@ -218,8 +218,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @PatchMapping("{applicationId}/themes/{themeId}")
-    public Mono<ResponseDTO<Theme>> setCurrentTheme(@PathVariable String applicationId, @PathVariable String themeId) {
-        return themeService.changeCurrentTheme(themeId, applicationId)
+    public Mono<ResponseDTO<Theme>> setCurrentTheme(@PathVariable String applicationId, @PathVariable String themeId, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return themeService.changeCurrentTheme(themeId, applicationId, branchName)
                 .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
     }
 

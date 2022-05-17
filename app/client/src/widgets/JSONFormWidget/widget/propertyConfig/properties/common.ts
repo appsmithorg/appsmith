@@ -40,6 +40,23 @@ const FIELDS_WITHOUT_BOX_SHADOW = [
   FieldType.SWITCH,
 ];
 
+const FIELDS_WITH_ACCENT_COLOR = [
+  FieldType.CHECKBOX,
+  FieldType.CURRENCY_INPUT,
+  FieldType.DATEPICKER,
+  FieldType.EMAIL_INPUT,
+  FieldType.MULTILINE_TEXT_INPUT,
+  FieldType.MULTISELECT,
+  FieldType.NUMBER_INPUT,
+  FieldType.PASSWORD_INPUT,
+  FieldType.PHONE_NUMBER_INPUT,
+  FieldType.PHONE_NUMBER_INPUT,
+  FieldType.RADIO_GROUP,
+  FieldType.SELECT,
+  FieldType.SWITCH,
+  FieldType.TEXT_INPUT,
+];
+
 function accessorValidation(
   value: any,
   props: JSONFormWidgetProps,
@@ -383,10 +400,26 @@ const COMMON_PROPERTIES = {
   ],
   styles: [
     {
+      propertyName: "accentColor",
+      helpText: "Sets the accent color",
+      label: "Accent Color",
+      controlType: "COLOR_PICKER",
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.TEXT },
+      getStylesheetValue,
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotIncludes(FIELDS_WITH_ACCENT_COLOR),
+      dependencies: ["schema"],
+    },
+    {
       propertyName: "borderRadius",
       label: "Border Radius",
       helpText: "Rounds the corners of the icon button's outer border edge",
       controlType: "BORDER_RADIUS_OPTIONS",
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -402,6 +435,7 @@ const COMMON_PROPERTIES = {
       helpText:
         "Enables you to cast a drop shadow from the frame of the widget",
       controlType: "BOX_SHADOW_OPTIONS",
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,

@@ -2830,8 +2830,8 @@ public class ApplicationServiceTest {
         Mono<Tuple2<Theme, Tuple2<Application, Application>>> tuple2Application = createTheme
                 .then(applicationPageService.createApplication(testApplication, orgId))
                 .flatMap(application ->
-                        themeService.updateTheme(application.getId(), theme).then(
-                                themeService.persistCurrentTheme(application.getId(), new Theme())
+                        themeService.updateTheme(application.getId(), null, theme).then(
+                                themeService.persistCurrentTheme(application.getId(), null, new Theme())
                                         .flatMap(theme1 -> Mono.zip(
                                                 applicationPageService.cloneApplication(application.getId(), null),
                                                 Mono.just(application))
