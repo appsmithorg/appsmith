@@ -120,6 +120,7 @@ function Files() {
         <EmptyComponent
           addBtnText={createMessage(EMPTY_QUERY_JS_BUTTON_TEXT)}
           addFunction={onCreate}
+          className="t--empty-add-file"
           mainText={createMessage(EMPTY_QUERY_JS_MAIN_TEXT)}
         />
       )}

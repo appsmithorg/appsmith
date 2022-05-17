@@ -8,6 +8,8 @@ let ee = ObjectsRegistry.EntityExplorer;
 
 describe("Entity explorer API pane related testcases", function() {
   it("Empty Message validation for Widgets/API/Queries", function() {
+    //Checks if Query/JS section is open for new application
+    cy.get(".t--empty-add-file").should("be.visible");
     cy.log("Login Successful");
     cy.NavigateToWidgetsInExplorer();
     cy.get(explorer.NoWidgetsMsg).should("be.visible");

@@ -41,9 +41,10 @@ export function EmptyComponent(props: {
   mainText: string;
   addBtnText: string;
   addFunction: () => void;
+  className?: string;
 }) {
   return (
-    <ECContainer>
+    <ECContainer className={props.className}>
       <ECMainText>{props.mainText}</ECMainText>
       <ECAddButton onClick={props.addFunction}>
         <Icon fillColor={Colors.CHARCOAL} name="plus" />
