@@ -262,7 +262,6 @@ describe(".sanitizeKey", () => {
       const result = sanitizeKey(input, {
         existingKeys,
       });
-      console.log(input, expectedOutput, result);
       expect(result).toEqual(expectedOutput);
     });
   });
