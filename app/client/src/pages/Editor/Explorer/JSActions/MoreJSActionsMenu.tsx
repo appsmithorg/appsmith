@@ -23,8 +23,8 @@ import { getPageListAsOptions } from "selectors/entitiesSelector";
 import {
   autoIndentCode,
   getAutoIndentShortcutKeyText,
-} from "../../../../components/editorComponents/CodeEditor/utils/autoIndentUtils";
-import AnalyticsUtil from "../../../../utils/AnalyticsUtil";
+} from "components/editorComponents/CodeEditor/utils/autoIndentUtils";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type EntityContextMenuProps = {
   id: string;
@@ -70,6 +70,8 @@ export const MoreActionablesContainer = styled.div<{ isOpen?: boolean }>`
   }
 `;
 
+const prettifyCodeKeyboardShortCut = getAutoIndentShortcutKeyText();
+
 export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -110,12 +112,11 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
 
   const menuPages = useSelector(getPageListAsOptions);
 
-  const prettifyCodeKeyboardShortCut = getAutoIndentShortcutKeyText();
-
   return (
     <TreeDropdown
       className={props.className}
       defaultText=""
+      menuWidth={260}
       modifiers={ContextMenuPopoverModifiers}
       onMenuToggle={(isOpen: boolean) => setIsMenuOpen(isOpen)}
       onSelect={noop}
@@ -156,6 +157,11 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
           icon: "code",
           subText: prettifyCodeKeyboardShortCut,
           onSelect: () => {
+            /*
+            PS: Please do not remove ts-ignore from here, TS keeps suggesting that
+            the object is null, but that is not the case, and we need an
+            instance of the editor to pass to autoIndentCode function
+            */
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             const editor = document.querySelector(".CodeMirror").CodeMirror;
