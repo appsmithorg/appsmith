@@ -115,7 +115,6 @@ describe("Switch Group Widget Functionality", function() {
     );
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
-    cy.wait(200); // Switch group takes time to reflect default value changes
     // Interact with UI
     cy.get(formWidgetsPage.labelSwitchGroup)
       .first()

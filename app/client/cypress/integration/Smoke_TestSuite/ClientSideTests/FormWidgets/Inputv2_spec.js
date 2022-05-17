@@ -373,7 +373,6 @@ describe("Input widget V2 - ", () => {
       ".t--property-control-text",
       "{{appsmith.store.textPayloadOnSubmit}}",
     );
-    cy.assertPageSave();
     cy.closePropertyPane();
     cy.get(widgetInput).clear();
     cy.wait(300);
