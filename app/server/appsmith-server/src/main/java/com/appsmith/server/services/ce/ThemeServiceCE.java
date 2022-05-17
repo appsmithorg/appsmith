@@ -9,12 +9,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ThemeServiceCE extends CrudService<Theme, String> {
-    Mono<Theme> getApplicationTheme(String applicationId, ApplicationMode applicationMode);
-    Flux<Theme> getApplicationThemes(String applicationId);
+    Mono<Theme> getApplicationTheme(String applicationId, ApplicationMode applicationMode, String branchName);
+    Flux<Theme> getApplicationThemes(String applicationId, String branchName);
     Flux<Theme> getSystemThemes();
     Mono<Theme> getSystemTheme(String themeName);
-    Mono<Theme> updateTheme(String applicationId, Theme resource);
-    Mono<Theme> changeCurrentTheme(String themeId, String applicationId);
+    Mono<Theme> updateTheme(String applicationId, String branchName, Theme resource);
+    Mono<Theme> changeCurrentTheme(String themeId, String applicationId, String branchName);
 
     /**
      * Returns a themeId that was fetched earlier and stored to cache.
@@ -32,7 +32,7 @@ public interface ThemeServiceCE extends CrudService<Theme, String> {
      */
     Mono<Theme> cloneThemeToApplication(String srcThemeId, Application destApplication);
     Mono<Theme> publishTheme(String applicationId);
-    Mono<Theme> persistCurrentTheme(String applicationId, Theme theme);
+    Mono<Theme> persistCurrentTheme(String applicationId, String branchName, Theme theme);
     Mono<Theme> getThemeById(String themeId, AclPermission permission);
     Mono<Theme> save(Theme theme);
     Mono<Theme> updateName(String id, Theme theme);

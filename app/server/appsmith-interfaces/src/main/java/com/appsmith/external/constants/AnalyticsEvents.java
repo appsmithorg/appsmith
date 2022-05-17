@@ -1,4 +1,4 @@
-package com.appsmith.server.constants;
+package com.appsmith.external.constants;
 
 import java.util.Locale;
 
@@ -33,7 +33,26 @@ public enum AnalyticsEvents {
     GIT_TEST_CONNECTION,
     GIT_DELETE_BRANCH,
     GIT_DISCARD_CHANGES,
-    AUTHENTICATION_METHOD_CONFIGURATION("Authentication Method Configured")
+    GIT_RESET_HARD,
+    GIT_LIST_BRANCH,
+    GIT_RESET,
+    GIT_STATUS,
+    GIT_COMMIT_HISTORY,
+    GIT_CLONE,
+    GIT_CHECKOUT,
+    GIT_SYNC_BRANCH,
+    GIT_LIST_LOCAL_BRANCH,
+    GIT_MERGE_CHECK,
+    GIT_FETCH,
+    AUTHENTICATION_METHOD_CONFIGURATION("Authentication Method Configured"),
+    GENERATE_SSH_KEY("generate_SSH_KEY"),
+    UNIT_EXECUTION_TIME,
+
+    // Events to log execution time
+    GIT_SERIALIZE_APP_RESOURCES_TO_LOCAL_FILE,
+    IMPORT_APPLICATION,
+    EXPORT_APPLICATION,
+    GIT_DESERIALIZE_APP_RESOURCES_FROM_FILE,
     ;
 
     private final String eventName;

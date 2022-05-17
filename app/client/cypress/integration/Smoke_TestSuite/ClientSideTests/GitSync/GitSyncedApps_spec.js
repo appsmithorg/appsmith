@@ -73,8 +73,9 @@ describe("Git sync apps", function() {
     cy.get(generatePage.selectTableDropdown).click();
 
     cy.get(generatePage.dropdownOption)
-      .first()
+      .contains("public.configs")
       .click();
+
     //  skip optional search column selection.
     cy.get(generatePage.generatePageFormSubmitBtn).click();
 

@@ -3,6 +3,8 @@
 
 export const WARNING_LINT_ERRORS = {
   W098: "'{a}' is defined but never used.",
+  W014:
+    "Misleading line break before '{a}'; readers may interpret this as an expression boundary.",
 };
 
 export const LINT_TOOLTIP_CLASS = "CodeMirror-lint-tooltip";

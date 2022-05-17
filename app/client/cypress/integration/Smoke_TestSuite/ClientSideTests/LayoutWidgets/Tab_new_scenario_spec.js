@@ -20,6 +20,7 @@ describe("Tab widget test", function() {
     cy.get(publish.buttonWidget).should("be.visible");
     cy.get(publish.textWidget).should("be.visible");
     cy.get(publish.datePickerNew).should("be.visible");
+    cy.wait(3000);
     cy.get(publish.tab)
       .contains("Tab 2")
       .click({ force: true });
@@ -33,7 +34,6 @@ describe("Tab widget test", function() {
       });
   });
 });
-
 afterEach(() => {
   // put your clean up code if any
 });
