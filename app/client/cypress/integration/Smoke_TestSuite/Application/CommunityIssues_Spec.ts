@@ -312,6 +312,7 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
     table.SelectTableRow(0)
     agHelper.AssertElementPresence(locator._widgetInDeployed('tabswidget'))
+    agHelper.Sleep()
     cy.get(table._trashIcon).closest('div').click()
     agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
     table.WaitForTableEmpty()

@@ -196,7 +196,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     );
   });
 
-  it("9. Import application & create all queries & API's + Bug 13826", () => {
+  it.skip("9. Import application & create all queries & API's + Bug 13826", () => {
     cy.visit("/applications");
     homePage.ImportApp("JSObjOnLoadApp.json");
     homePage.AssertImport();
@@ -353,7 +353,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     //#endregion
   });
 
-  it("10. Deploy page verification", () => {
+  it.skip("10. Deploy page verification", () => {
     agHelper.DeployApp();
 
     //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
@@ -396,7 +396,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     // });
   });
 
-  it.only("11. Verify JSObj calling API - OnPageLoad calls & Confirmation No then Yes! - 60", () => {
+  it("11. Verify JSObj calling API - OnPageLoad calls & Confirmation No then Yes! - 60", () => {
     cy.fixture("JSApiOnLoadDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._widgetInCanvas("imagewidget"));
     });
@@ -506,7 +506,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     // cy.get("div.t--draggable-inputwidgetv2 > div.iPntND").invoke('attr', 'style', 'height: 304px')
   });
 
-  it.only("12. API with OnPageLoad & Confirmation both enabled & called directly & setting previous Api's confirmation to false", () => {
+  it("12. API with OnPageLoad & Confirmation both enabled & called directly & setting previous Api's confirmation to false", () => {
     agHelper.NavigateBacktoEditor();
     agHelper.AssertElementPresence(jsEditor._dialogBody("Quotes"));
     agHelper.ClickButton("No");
