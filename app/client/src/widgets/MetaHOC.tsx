@@ -6,6 +6,17 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { connect } from "react-redux";
+import { AppState } from "reducers";
+import {
+  createCanvasWidget,
+  createLoadingWidget,
+} from "selectors/editorSelectors";
+import {
+  getWidgetEvalValues,
+  getIsWidgetLoading,
+} from "selectors/dataTreeSelectors";
+import { getWidgetCanvasValues } from "../selectors/entitiesSelector";
 
 export type DebouncedExecuteActionPayload = Omit<
   ExecuteTriggerPayload,
@@ -29,7 +40,7 @@ export interface WithMeta {
 type MetaHOCState = Record<string, unknown>;
 
 const withMeta = (WrappedWidget: typeof BaseWidget) => {
-  return class MetaHOC extends React.PureComponent<WidgetProps, MetaHOCState> {
+  class MetaHOC extends React.PureComponent<WidgetProps, MetaHOCState> {
     static contextType = EditorContext;
     updatedProperties = new Map<string, true>();
     propertyTriggers = new Map<string, DebouncedExecuteActionPayload>();
@@ -213,7 +224,30 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     render() {
       return <WrappedWidget {...this.updatedProps()} />;
     }
+  }
+
+  const mapStateToProps = (state: AppState, ownProps: WidgetProps) => {
+    const canvasWidget = getWidgetCanvasValues(state, ownProps.widgetId);
+    const evaluatedWidget = getWidgetEvalValues(state, ownProps.widgetName);
+    const isLoading = getIsWidgetLoading(state, ownProps.widgetName);
+    let widgetProps = {
+      ...ownProps,
+      ...canvasWidget,
+      isLoading,
+    };
+    if (evaluatedWidget) {
+      widgetProps = createCanvasWidget(
+        widgetProps as WidgetProps,
+        evaluatedWidget,
+      );
+    } else {
+      widgetProps = createLoadingWidget(widgetProps as WidgetProps);
+    }
+    return {
+      ...widgetProps,
+    };
   };
+  return connect(mapStateToProps)(MetaHOC);
 };
 
 export default withMeta;
