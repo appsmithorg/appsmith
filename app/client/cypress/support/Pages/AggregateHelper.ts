@@ -173,17 +173,12 @@ export class AggregateHelper {
     });
   }
 
-  public WaitUntilToastDisappear(
-    msgToCheckforDisappearance: string | "",
-  ) {
-    cy.waitUntil(
-      () => (cy.get(this.locator._toastMsg)),
-      {
-        errorMsg: msgToCheckforDisappearance + " did not disappear",
-        timeout: 5000,
-        interval: 1000,
-      },
-    ).then(($ele) => {
+  public WaitUntilToastDisappear(msgToCheckforDisappearance: string | "") {
+    cy.waitUntil(() => cy.get(this.locator._toastMsg), {
+      errorMsg: msgToCheckforDisappearance + " did not disappear",
+      timeout: 5000,
+      interval: 1000,
+    }).then(($ele) => {
       cy.wrap($ele)
         .contains(msgToCheckforDisappearance)
         .should("have.length", 0);
@@ -610,11 +605,11 @@ export class AggregateHelper {
     locator.should("not.exist");
   }
 
-  public GetText(selector: string) {
+  public GetText(selector: string, textOrValue : 'text'| 'val' = 'text', index = 0) {
     let locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    return locator.invoke("text");
+    return locator.eq(index).invoke(textOrValue);
   }
 
   public AssertElementPresence(selector: string, index = 0) {

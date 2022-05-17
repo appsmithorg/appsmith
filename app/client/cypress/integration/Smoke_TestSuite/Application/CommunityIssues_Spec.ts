@@ -26,7 +26,7 @@ describe("AForce - Community Issues page validations", function () {
   let selectedRow: number;
   it("1. Import application json and validate headers", () => {
     cy.visit("/applications");
-    homePage.ImportApp("AForceMigrationExport.json");
+    homePage.ImportApp("CommunityIssuesExport.json");
     cy.wait("@importNewApplication").then((interception: any) => {
       agHelper.Sleep()
       const { isPartialImport } = interception.response.body.data;
