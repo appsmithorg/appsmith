@@ -140,50 +140,52 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const { componentWidth } = this.getComponentDimensions();
     let totalColumnWidth = 0;
 
-    orderedTableColumns.forEach((column: any) => {
-      const isHidden = !column.isVisible;
-      const columnData = {
-        id: column.id,
-        Header: column.label,
-        alias: column.alias,
-        accessor: (row: any) => row[column.alias],
-        width: columnWidthMap[column.id] || DEFAULT_COLUMN_WIDTH,
-        minWidth: COLUMN_MIN_WIDTH,
-        draggable: true,
-        isHidden: false,
-        isAscOrder: column.isAscOrder,
-        isDerived: column.isDerived,
-        metaProperties: {
-          isHidden: isHidden,
-          type: column.columnType,
-          format: column.outputFormat || "",
-          inputFormat: column.inputFormat || "",
-        },
-        columnProperties: column,
-        Cell: (props: any): JSX.Element => {
-          return this.renderCell(props, column, componentWidth);
-        },
-      };
+    if (isArray(orderedTableColumns)) {
+      orderedTableColumns.forEach((column: any) => {
+        const isHidden = !column.isVisible;
+        const columnData = {
+          id: column.id,
+          Header: column.label,
+          alias: column.alias,
+          accessor: (row: any) => row[column.alias],
+          width: columnWidthMap[column.id] || DEFAULT_COLUMN_WIDTH,
+          minWidth: COLUMN_MIN_WIDTH,
+          draggable: true,
+          isHidden: false,
+          isAscOrder: column.isAscOrder,
+          isDerived: column.isDerived,
+          metaProperties: {
+            isHidden: isHidden,
+            type: column.columnType,
+            format: column.outputFormat || "",
+            inputFormat: column.inputFormat || "",
+          },
+          columnProperties: column,
+          Cell: (props: any): JSX.Element => {
+            return this.renderCell(props, column, componentWidth);
+          },
+        };
 
-      const isAllCellVisible: boolean | boolean[] = column.isCellVisible;
+        const isAllCellVisible: boolean | boolean[] = column.isCellVisible;
 
-      /*
-       * If all cells are not visible or column itself is not visible,
-       * set isHidden and push it to hiddenColumns array else columns array
-       */
-      if (
-        (isBoolean(isAllCellVisible) && !isAllCellVisible) ||
-        (isArray(isAllCellVisible) &&
-          isAllCellVisible.every((visibility) => visibility === false)) ||
-        isHidden
-      ) {
-        columnData.isHidden = true;
-        hiddenColumns.push(columnData);
-      } else {
-        totalColumnWidth += columnData.width;
-        columns.push(columnData);
-      }
-    });
+        /*
+         * If all cells are not visible or column itself is not visible,
+         * set isHidden and push it to hiddenColumns array else columns array
+         */
+        if (
+          (isBoolean(isAllCellVisible) && !isAllCellVisible) ||
+          (isArray(isAllCellVisible) &&
+            isAllCellVisible.every((visibility) => visibility === false)) ||
+          isHidden
+        ) {
+          columnData.isHidden = true;
+          hiddenColumns.push(columnData);
+        } else {
+          totalColumnWidth += columnData.width;
+          columns.push(columnData);
+        }
+      });
+    }
 
     if (totalColumnWidth < componentWidth) {
       const lastColumnIndex = columns.length - 1;
@@ -212,91 +214,95 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     tableData: Array<Record<string, unknown>>,
     columns: ReactTableColumnProps[],
   ) => {
-    return tableData.map((row, rowIndex) => {
-      const newRow: { [key: string]: any } = {};
+    if (isArray(tableData)) {
+      return tableData.map((row, rowIndex) => {
+        const newRow: { [key: string]: any } = {};
 
-      columns.forEach((column) => {
-        const { alias } = column;
-        let value = row[alias];
+        columns.forEach((column) => {
+          const { alias } = column;
+          let value = row[alias];
 
-        if (column.metaProperties) {
-          switch (column.metaProperties.type) {
-            case ColumnTypes.DATE:
-              let isValidDate = true;
-              let outputFormat = _.isArray(column.metaProperties.format)
-                ? column.metaProperties.format[rowIndex]
-                : column.metaProperties.format;
-              let inputFormat;
+          if (column.metaProperties) {
+            switch (column.metaProperties.type) {
+              case ColumnTypes.DATE:
+                let isValidDate = true;
+                let outputFormat = _.isArray(column.metaProperties.format)
+                  ? column.metaProperties.format[rowIndex]
+                  : column.metaProperties.format;
+                let inputFormat;
 
-              try {
-                const type = _.isArray(column.metaProperties.inputFormat)
-                  ? column.metaProperties.inputFormat[rowIndex]
-                  : column.metaProperties.inputFormat;
+                try {
+                  const type = _.isArray(column.metaProperties.inputFormat)
+                    ? column.metaProperties.inputFormat[rowIndex]
+                    : column.metaProperties.inputFormat;
 
-                if (type !== "Epoch" && type !== "Milliseconds") {
-                  inputFormat = type;
-                  moment(value as MomentInput, inputFormat);
-                } else if (!isNumber(value)) {
+                  if (type !== "Epoch" && type !== "Milliseconds") {
+                    inputFormat = type;
+                    moment(value as MomentInput, inputFormat);
+                  } else if (!isNumber(value)) {
+                    isValidDate = false;
+                  }
+                } catch (e) {
                   isValidDate = false;
                 }
-              } catch (e) {
-                isValidDate = false;
-              }
 
-              if (isValidDate && value) {
-                try {
-                  if (outputFormat === "SAME_AS_INPUT") {
-                    outputFormat = inputFormat;
+                if (isValidDate && value) {
+                  try {
+                    if (outputFormat === "SAME_AS_INPUT") {
+                      outputFormat = inputFormat;
+                    }
+
+                    if (column.metaProperties.inputFormat === "Milliseconds") {
+                      value = Number(value);
+                    } else if (column.metaProperties.inputFormat === "Epoch") {
+                      value = 1000 * Number(value);
+                    }
+
+                    newRow[alias] = moment(
+                      value as MomentInput,
+                      inputFormat,
+                    ).format(outputFormat);
+                  } catch (e) {
+                    log.debug("Unable to parse Date:", { e });
+                    newRow[alias] = "";
                   }
-
-                  if (column.metaProperties.inputFormat === "Milliseconds") {
-                    value = Number(value);
-                  } else if (column.metaProperties.inputFormat === "Epoch") {
-                    value = 1000 * Number(value);
-                  }
-
-                  newRow[alias] = moment(
-                    value as MomentInput,
-                    inputFormat,
-                  ).format(outputFormat);
-                } catch (e) {
-                  log.debug("Unable to parse Date:", { e });
+                } else if (value) {
+                  newRow[alias] = "Invalid Value";
+                } else {
                   newRow[alias] = "";
                 }
-              } else if (value) {
-                newRow[alias] = "Invalid Value";
-              } else {
-                newRow[alias] = "";
-              }
-              break;
-            default:
-              let data;
+                break;
+              default:
+                let data;
 
-              if (_.isString(value) || _.isNumber(value)) {
-                data = value;
-              } else if (isNil(value)) {
-                data = "";
-              } else {
-                data = JSON.stringify(value);
-              }
+                if (_.isString(value) || _.isNumber(value)) {
+                  data = value;
+                } else if (isNil(value)) {
+                  data = "";
+                } else {
+                  data = JSON.stringify(value);
+                }
 
-              newRow[alias] = data;
-              break;
+                newRow[alias] = data;
+                break;
+            }
           }
+        });
+
+        /*
+         * Inject the edited cell value from the editableCell object
+         */
+        if (this.props.editableCell.index === rowIndex) {
+          const { column, value } = this.props.editableCell;
+
+          newRow[column] = value;
         }
+
+        return newRow;
       });
-
-      /*
-       * Inject the edited cell value from the editableCell object
-       */
-      if (this.props.editableCell.index === rowIndex) {
-        const { column, value } = this.props.editableCell;
-
-        newRow[column] = value;
-      }
-
-      return newRow;
-    });
+    } else {
+      return [];
+    }
   };
 
   updateDerivedColumnsIndex = (
