@@ -11,7 +11,6 @@ import {
   SettingSubtype,
   AdminConfigType,
 } from "@appsmith/pages/AdminSettings/config/types";
-
 import { AuthPage, AuthMethodType } from "./AuthPage";
 import Google from "assets/images/Google.png";
 import SamlSso from "assets/images/saml.svg";
@@ -19,11 +18,13 @@ import OIDC from "assets/images/oidc.svg";
 import Github from "assets/images/Github.png";
 import Lock from "assets/images/lock-password-line.svg";
 import { getAppsmithConfigs } from "@appsmith/configs";
+
 const {
   disableLoginForm,
   enableGithubOAuth,
   enableGoogleOAuth,
 } = getAppsmithConfigs();
+
 const Form_Auth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
   controlType: SettingTypes.GROUP,
@@ -162,7 +163,8 @@ export const Google_Auth_Callout: AuthMethodType = {
   id: "APPSMITH_GOOGLE_AUTH",
   category: SettingCategories.GOOGLE_AUTH,
   label: "Google",
-  subText: "Enable your organization to sign in with Google (OAuth).",
+  subText:
+    "Enable your organization to sign in with Google (OAuth 2.0) single sign-on (SSO).",
   image: Google,
   type: "LINK",
   isConnected: enableGoogleOAuth,
@@ -173,7 +175,7 @@ export const Github_Auth_Callout: AuthMethodType = {
   category: SettingCategories.GITHUB_AUTH,
   label: "Github",
   subText:
-    "Enable your organization to sign in with Github SAML single sign-on (SSO).",
+    "Enable your organization to sign in with Github (OAuth 2.0) single sign-on (SSO).",
   image: Github,
   type: "LINK",
   isConnected: enableGithubOAuth,

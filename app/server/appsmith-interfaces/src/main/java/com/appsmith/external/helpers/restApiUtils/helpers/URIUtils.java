@@ -5,7 +5,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.InetAddress;
@@ -15,10 +15,11 @@ import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class URIUtils {
@@ -36,9 +37,9 @@ public class URIUtils {
         return uriUtils;
     }
 
-    public URI createFinalUriWithQueryParams(ActionConfiguration actionConfiguration,
-                                                       DatasourceConfiguration datasourceConfiguration, String url,
-                                                       boolean encodeParamsToggle) throws URISyntaxException {
+    public URI createUriWithQueryParams(ActionConfiguration actionConfiguration,
+                                        DatasourceConfiguration datasourceConfiguration, String url,
+                                        boolean encodeParamsToggle) throws URISyntaxException {
         String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
 
         ArrayList<Property> allQueryParams = new ArrayList<>();
@@ -50,8 +51,12 @@ public class URIUtils {
             allQueryParams.addAll(datasourceConfiguration.getQueryParameters());
         }
 
+        return addQueryParamsToURI(new URI(httpUrl), allQueryParams, encodeParamsToggle);
+    }
+
+    public URI addQueryParamsToURI(URI uri, List<Property> allQueryParams, boolean encodeParamsToggle) {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
-        uriBuilder.uri(new URI(httpUrl));
+        uriBuilder.uri(uri);
 
         if (allQueryParams != null) {
             for (Property queryParam : allQueryParams) {

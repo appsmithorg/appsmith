@@ -64,11 +64,11 @@ function VariableEditor(props: VariableProps) {
       </VariableHeader>
       <DynamicTextField
         border={CodeEditorBorder.ALL_SIDE}
-        dataTreePath={`${props.actionName}.config.variable`}
+        dataTreePath={`${props.actionName}.config.pluginSpecifiedTemplates[1].value`}
         expected={EXPECTED_VARIABLE}
         height="100%"
         mode={EditorModes.JSON_WITH_BINDING}
-        name="actionConfiguration.variable"
+        name="actionConfiguration.pluginSpecifiedTemplates[1].value"
         placeholder={`${EXPECTED_VARIABLE.example}\n\n\\\\Take widget inputs using {{ }}`}
         showLightningMenu={false}
         showLineNumbers

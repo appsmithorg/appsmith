@@ -244,6 +244,8 @@ type CommonFormPropsWithExtraParams = CommonFormProps & {
   // Pagination Tab Component which is passed on from the Parent Component
   paginationUIComponent: JSX.Element;
   handleSubmit: any;
+  // defaultSelectedTabIndex
+  defaultTabSelected?: number;
 };
 
 export const NameWrapper = styled.div`
@@ -515,7 +517,9 @@ function ImportedDatas(props: { data: any; attributeName: string }) {
  * @returns Editor with respect to which type is using it
  */
 function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(
+    props.defaultTabSelected || 0,
+  );
   const [
     apiBindHelpSectionVisible,
     setApiBindHelpSectionVisible,

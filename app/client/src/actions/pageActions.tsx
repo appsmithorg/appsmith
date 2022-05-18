@@ -49,11 +49,16 @@ export const fetchPage = (
   };
 };
 
-export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
+export const fetchPublishedPage = (
+  pageId: string,
+  bustCache = false,
+  firstLoad = false,
+) => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
   payload: {
     pageId,
     bustCache,
+    firstLoad,
   },
 });
 

@@ -1,26 +1,17 @@
 import React, { useCallback, useState } from "react";
-import {
-  Action,
-  ApiActionConfig,
-  isGraphqlPlugin,
-  PluginType,
-} from "entities/Action";
+import { PluginType } from "entities/Action";
 import styled from "styled-components";
 import Button from "components/ads/Button";
-import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { Toaster } from "components/ads/Toast";
 import { ERROR_ADD_API_INVALID_URL } from "@appsmith/constants/messages";
 import { Classes, Variant } from "components/ads/common";
-import {
-  DEFAULT_API_ACTION_CONFIG,
-  DEFAULT_GRAPHQL_ACTION_CONFIG,
-} from "constants/ApiEditorConstants";
-import { createActionRequest } from "actions/pluginActionActions";
+import { createNewQueryAction } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
+import { EventLocation } from "utils/AnalyticsUtil";
 
 const ActionButton = styled(Button)`
   padding: 10px 10px;
@@ -57,8 +48,6 @@ function NewActionButton(props: NewActionButtonProps) {
   const actions = useSelector((state: AppState) => state.entities.actions);
   const currentPageId = useSelector(getCurrentPageId);
 
-  const isGraphql = isGraphqlPlugin(plugin);
-
   const createQueryAction = useCallback(
     (e) => {
       e?.stopPropagation();
@@ -77,42 +66,15 @@ function NewActionButton(props: NewActionButtonProps) {
 
       if (currentPageId) {
         setIsSelected(true);
-        const newActionName =
-          pluginType === PluginType.DB
-            ? createNewQueryName(actions, currentPageId || "")
-            : createNewApiName(actions, currentPageId || "");
-
-        // If the datasource is Graphql then get Graphql default config else Api config
-        const DEFAULT_CONFIG = isGraphql
-          ? DEFAULT_GRAPHQL_ACTION_CONFIG
-          : DEFAULT_API_ACTION_CONFIG;
-
-        const DEFAULT_HEADERS = isGraphql
-          ? DEFAULT_GRAPHQL_ACTION_CONFIG.headers
-          : DEFAULT_API_ACTION_CONFIG.headers;
-
-        /* Removed Datasource Headers because they already exists in inherited headers so should not be duplicated to Newer APIs creation as datasource is already attached to it. While for older APIs we can start showing message on the UI from the API from messages key in Actions object. */
-        const defaultApiActionConfig: ApiActionConfig = {
-          ...DEFAULT_CONFIG,
-          headers: DEFAULT_HEADERS,
-        };
-        const payload = {
-          name: newActionName,
-          pageId: currentPageId,
-          pluginId: datasource?.pluginId,
-          datasource: {
-            id: datasource?.id,
-          },
-          actionConfiguration:
-            pluginType === PluginType.API ? defaultApiActionConfig : {},
-          eventData: {
-            actionType: pluginType === PluginType.DB ? "Query" : "API",
-            from: props.eventFrom,
-            dataSource: datasource?.name,
-          },
-        } as Partial<Action>;
-
-        if (datasource) dispatch(createActionRequest(payload));
+        if (datasource) {
+          dispatch(
+            createNewQueryAction(
+              currentPageId,
+              props.eventFrom as EventLocation,
+              datasource?.id,
+            ),
+          );
+        }
       }
     },
     [dispatch, actions, currentPageId, datasource, pluginType],

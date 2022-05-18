@@ -62,6 +62,8 @@ public class UserData extends BaseDomain {
 
     Map<String, Object> userClaims;
 
+    // list of template ids that were recently forked by the user
+    private List<String> recentlyUsedTemplateIds;
 
     public GitProfile getGitProfileByKey(String key) {
         // Always use DEFAULT_GIT_PROFILE as fallback
