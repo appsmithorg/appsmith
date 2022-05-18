@@ -78,8 +78,7 @@ export const ExplorerSearch = forwardRef(
         </div>
         <div
           className={classNames({
-            "border-b border-primary-500 transition-all duration-400 absolute bottom-0": true,
-            "w-0": !focussed,
+            "border-b border-primary-500 absolute bottom-0": true,
             "w-full": focussed,
           })}
         />
