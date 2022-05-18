@@ -15,12 +15,14 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
+import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.TextUtils;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
@@ -751,7 +753,32 @@ public class DatabaseChangelog2 {
         );
     }
 
-    @ChangeSet(order = "008", id = "copy-organization-to-workspaces", author = "")
+    /**
+     * We'll remove the uniqe index on organization slugs. We'll also regenerate the slugs for all organizations as
+     * most of them are outdated
+     * @param mongockTemplate MongockTemplate instance
+     */
+    @ChangeSet(order = "008", id = "update-organization-slugs", author = "")
+    public void updateOrganizationSlugs(MongockTemplate mongockTemplate) {
+        dropIndexIfExists(mongockTemplate, Organization.class, "slug");
+
+        // update organizations
+        final Query getAllOrganizationsQuery = query(where("deletedAt").is(null));
+        getAllOrganizationsQuery.fields()
+                .include(fieldName(QOrganization.organization.name));
+
+        List<Organization> organizations = mongockTemplate.find(getAllOrganizationsQuery, Organization.class);
+
+        for (Organization organization : organizations) {
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QOrganization.organization.id)).is(organization.getId())),
+                    new Update().set(fieldName(QOrganization.organization.slug), TextUtils.makeSlug(organization.getName())),
+                    Organization.class
+            );
+        }
+    }
+
+    @ChangeSet(order = "009", id = "copy-organization-to-workspaces", author = "")
     public void copyOrganizationToWorkspaces(MongockTemplate mongockTemplate) {
         Gson gson = new Gson();
         for (Organization organization : mongockTemplate.findAll(Organization.class)) {
@@ -760,21 +787,19 @@ public class DatabaseChangelog2 {
         }
     }
 
-
     /**
      * We are creating indexes manually because Spring's index resolver creates indexes on fields as well.
      * See https://stackoverflow.com/questions/60867491/ for an explanation of the problem. We have that problem with
      * the `Action.datasource` field.
      */
-    @ChangeSet(order = "009", id = "add-workspace-indexes", author = "")
+    @ChangeSet(order = "010", id = "add-workspace-indexes", author = "")
     public void addWorkspaceIndexes(MongockTemplate mongockTemplate) {
         ensureIndexes(mongockTemplate, Workspace.class,
-            makeIndex("createdAt"),
-            makeIndex("slug").unique()
+            makeIndex("createdAt")
         );
     }
 
-    @ChangeSet(order = "010", id = "update-sequence-names-from-organization-to-workspace", author = "")
+    @ChangeSet(order = "011", id = "update-sequence-names-from-organization-to-workspace", author = "")
     public void updateSequenceNamesFromOrganizationToWorkspace(MongockTemplate mongockTemplate) {
         for (Sequence sequence : mongockTemplate.findAll(Sequence.class)) {
             String oldName = sequence.getName();

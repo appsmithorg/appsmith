@@ -14,6 +14,7 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -103,17 +104,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 });
     }
 
-    @Override
-    public Mono<Workspace> getBySlug(String slug) {
-        return repository.findBySlug(slug);
-    }
-
-    @Override
-    public Mono<String> getNextUniqueSlug(String initialSlug) {
-        return repository.nextSlugNumber(initialSlug)
-                .map(number -> initialSlug + (number == 0 ? "" : number));
-    }
-
     /**
      * Creates the given workspace as a default workspace for the given user. That is, the workspace's name
      * is changed to "[username]'s apps" and then created. The current value of the workspace name
@@ -160,19 +150,9 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             workspace.setEmail(user.getEmail());
         }
 
-        Mono<Workspace> setSlugMono;
-        if (workspace.getName() == null) {
-            setSlugMono = Mono.just(workspace);
-        } else {
-            setSlugMono = getNextUniqueSlug(workspace.makeSlug())
-                    .map(slug -> {
-                        workspace.setSlug(slug);
-                        return workspace;
-                    });
-        }
+        workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
 
-        return setSlugMono
-                .flatMap(this::validateObject)
+        return validateObject(workspace)
                 // Install all the default plugins when the org is created
                 /* TODO: This is a hack. We should ideally use the pluginService.installPlugin() function.
                     Not using it right now because of circular dependency b/w workspaceService and pluginService
@@ -226,6 +206,10 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             resource.setPolicies(null);
         }
 
+        if(StringUtils.hasLength(resource.getName())) {
+            resource.setSlug(TextUtils.makeSlug(resource.getName()));
+        }
+
         return findWorkspaceMono
                 .map(existingWorkspace -> {
                     AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, existingWorkspace);
@@ -248,12 +232,15 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> save(Workspace workspace) {
+        if(StringUtils.hasLength(workspace.getName())) {
+            workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
+        }
         return repository.save(workspace);
     }
 
     @Override
-    public Mono<Workspace> findByIdAndPluginsPluginId(String organizationId, String pluginId) {
-        return repository.findByIdAndPluginsPluginId(organizationId, pluginId);
+    public Mono<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId) {
+        return repository.findByIdAndPluginsPluginId(workspaceId, pluginId);
     }
 
     @Override

@@ -69,7 +69,6 @@ import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.TextUtils;
-import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
@@ -311,23 +310,11 @@ public class DatabaseChangelog {
         dropIndexIfExists(mongoTemplate, Organization.class, "name");
     }
 
-    @ChangeSet(order = "003", id = "add-org-slugs", author = "")
-    public void addOrgSlugs(MongockTemplate mongoTemplate, WorkspaceService workspaceService) {
-        // For all existing organizations, add a slug field, which should be unique.
-        // We are blocking here for adding a slug to each existing organization. This is bad and slow. Do NOT copy this
-        // code fragment into the services' control flow. This is a single migration code and is expected to run once in
-        // lifetime of a deployment.
-        for (Organization organization : mongoTemplate.findAll(Organization.class)) {
-            if (organization.getSlug() == null) {
-                workspaceService.getNextUniqueSlug(organization.makeSlug())
-                        .doOnSuccess(slug -> {
-                            organization.setSlug(slug);
-                            mongoTemplate.save(organization);
-                        })
-                        .block();
-            }
-        }
-    }
+    /*
+     * @ChangeSet(order = "003", id = "add-org-slugs", author = "")
+     * This migration has been removed as it's no more required. A newer version of this migration has been added
+     * in the @ChangeLog(order = "008") with id="update-organization-slugs"
+     */
 
     /**
      * We are creating indexes manually because Spring's index resolver creates indexes on fields as well.
@@ -366,11 +353,6 @@ public class DatabaseChangelog {
                 createdAtIndex,
                 makeIndex("token").unique().expire(3600, TimeUnit.SECONDS),
                 makeIndex("email").unique()
-        );
-
-        ensureIndexes(mongoTemplate, Organization.class,
-                createdAtIndex,
-                makeIndex("slug").unique()
         );
 
         ensureIndexes(mongoTemplate, Page.class,

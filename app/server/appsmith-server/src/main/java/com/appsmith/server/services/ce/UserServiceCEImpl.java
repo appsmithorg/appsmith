@@ -909,7 +909,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         if (isNewUser) {
             params.put("inviteUrl", inviteUrl);
         } else {
-            params.put("inviteUrl", inviteUrl + "/applications#" + workspace.getSlug());
+            params.put("inviteUrl", inviteUrl + "/applications#" + workspace.getId());
         }
         return params;
     }

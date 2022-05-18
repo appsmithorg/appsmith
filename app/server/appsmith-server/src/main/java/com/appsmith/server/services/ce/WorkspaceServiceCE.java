@@ -17,10 +17,6 @@ public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
 
     Mono<Workspace> create(Workspace workspace);
 
-    Mono<Workspace> getBySlug(String slug);
-
-    Mono<String> getNextUniqueSlug(String initialSlug);
-
     Mono<Workspace> createDefault(Workspace workspace, User user);
 
     Mono<Workspace> create(Workspace workspace, User user);

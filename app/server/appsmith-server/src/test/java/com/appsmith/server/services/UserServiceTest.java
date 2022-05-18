@@ -51,6 +51,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
@@ -94,15 +95,12 @@ public class UserServiceTest {
 
     Mono<User> userMono;
 
-    Mono<Workspace> workspaceMono;
-
     @Autowired
     UserSignup userSignup;
 
     @Before
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
-        workspaceMono = workspaceService.getBySlug("spring-test-workspace");
     }
 
     //Test if email params are updating correctly
@@ -110,13 +108,13 @@ public class UserServiceTest {
     public void checkEmailParamsForExistingUser() {
         Workspace workspace = new Workspace();
         workspace.setName("UserServiceTest Update Org");
-        workspace.setSlug("userservicetest-update-org");
+        workspace.setId(UUID.randomUUID().toString());
 
         User inviter = new User();
         inviter.setName("inviterUserToApplication");
 
         String inviteUrl = "http://localhost:8080";
-        String expectedUrl = inviteUrl + "/applications#userservicetest-update-org";
+        String expectedUrl = inviteUrl + "/applications#" + workspace.getId();
 
         Map<String, String> params = userService.getEmailParams(workspace, inviter, inviteUrl, false);
         assertEquals(expectedUrl, params.get("inviteUrl"));
@@ -127,8 +125,8 @@ public class UserServiceTest {
     @Test
     public void checkEmailParamsForNewUser() {
         Workspace workspace = new Workspace();
+        workspace.setId(UUID.randomUUID().toString());
         workspace.setName("UserServiceTest Update Org");
-        workspace.setSlug("userservicetest-update-org");
 
         User inviter = new User();
         inviter.setName("inviterUserToApplication");
