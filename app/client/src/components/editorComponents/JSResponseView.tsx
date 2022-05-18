@@ -226,8 +226,8 @@ function JSResponseView(props: Props) {
         <>
           {(hasExecutionParseErrors || hasJSObjectParseError) && (
             <HelpSection
-              className={`.${
-                errors.length > 0
+              className={`${
+                hasJSObjectParseError
                   ? "t--js-response-parse-error-call-out"
                   : "t--function-execution-parse-error-call-out"
               }`}

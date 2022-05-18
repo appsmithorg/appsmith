@@ -10,9 +10,9 @@ export class JSEditor {
   private _settingsTab = ".tab-title:contains('Settings')";
   private _codeTab = ".tab-title:contains('Code')";
   private _jsObjectParseErrorCallout =
-    "//div[contains(@class,'t--js-response-parse-error-call-out')]";
+    "div.t--js-response-parse-error-call-out";
   private _jsFunctionExecutionParseErrorCallout =
-    "//div[contains(@class,'t--function-execution-parse-error-call-out')]";
+    "div.t--function-execution-parse-error-call-out";
   private _onPageLoadRadioButton = (functionName: string, onLoad: boolean) =>
     `.${functionName}-on-page-load-setting label:contains(${
       onLoad ? "Yes" : "No"
@@ -95,8 +95,9 @@ export class JSEditor {
     paste = true,
     completeReplace = false,
     toRun = true,
+    shouldNavigate = true,
   ) {
-    this.NavigateToJSEditor();
+    shouldNavigate && this.NavigateToJSEditor();
 
     if (!completeReplace) {
       cy.get(this.locator._codeMirrorTextArea)
@@ -155,7 +156,6 @@ export class JSEditor {
           .wait(3000);
       });
       cy.get(this.locator._empty).should("not.exist");
-      cy.get(this.locator._toastMsg).should("have.length", 0);
     }
     this.GetJSObjectName();
   }
@@ -375,11 +375,15 @@ export class JSEditor {
     exists: boolean,
     isFunctionExecutionParseError: boolean,
   ) {
+    const {
+      _jsFunctionExecutionParseErrorCallout,
+      _jsObjectParseErrorCallout,
+    } = this;
     // Assert presence/absence of parse error
-    cy.xpath(
+    cy.get(
       isFunctionExecutionParseError
-        ? this._jsFunctionExecutionParseErrorCallout
-        : this._jsObjectParseErrorCallout,
+        ? _jsFunctionExecutionParseErrorCallout
+        : _jsObjectParseErrorCallout,
     ).should(exists ? "exist" : "not.exist");
   }
 
