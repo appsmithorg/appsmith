@@ -167,6 +167,7 @@ Cypress.Commands.add(
     // we are using postgresql data for elastic search,
     // in the future, this should be changed, just for testing purposes
     const hostAddress = "https://localhost";
+    const headerValue = "Bearer Token";
 
     cy.get(datasourceEditor.host).type(hostAddress);
     cy.get(datasourceEditor.port).type(datasourceFormData["postgres-port"]);
@@ -177,6 +178,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.password).type(
       datasourceFormData["postgres-password"],
     );
+    cy.get(datasourceEditor.headers).type(headerValue);
   },
 );
 

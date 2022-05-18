@@ -5,6 +5,7 @@
   "databaseName": "input[name='datasourceConfiguration.authentication.databaseName']",
   "username": "input[name='datasourceConfiguration.authentication.username']",
   "password": "input[name='datasourceConfiguration.authentication.password']",
+  "headers": "input[name='datasourceConfiguration.headers[0]']",
   "authenticationAuthtype": "[data-cy=datasourceConfiguration\\.authentication\\.authType]",
   "url": "input[name='url']",
   "MongoDB": ".t--plugin-name:contains('MongoDB')",
