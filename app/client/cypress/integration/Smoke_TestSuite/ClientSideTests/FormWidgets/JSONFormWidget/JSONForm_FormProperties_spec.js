@@ -7,6 +7,8 @@ const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const backBtn = ".t--property-pane-back-btn";
 const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";
+const submitButtonStylesSection =
+  ".t--property-pane-section-submitbuttonstyles";
 
 describe("JSON Form Widget Form Bindings", () => {
   before(() => {
@@ -88,6 +90,31 @@ describe("JSON Form Widget Form Bindings", () => {
       .wait(300);
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
+  });
+
+  it("show show icon select when a collapsed section is opened", () => {
+    cy.openPropertyPane("jsonformwidget");
+
+    // Check Submit Button Styles hidden
+    cy.get(submitButtonStylesSection).should("not.be.visible");
+    // .parent()
+    // .should("have.attr", "aria-hidden", "true");
+
+    // Open Submit Button Section
+    cy.get(".t--property-pane-section-collapse-submitbuttonstyles").click({
+      force: true,
+    });
+
+    // Click Icon property
+    cy.get(submitButtonStylesSection)
+      .contains("(none)")
+      .parent()
+      .click({
+        force: true,
+      });
+
+    // Check if icon selector opened
+    cy.get(".bp3-select-popover .virtuoso-grid-item").should("be.visible");
   });
 
   it("Should set isValid to false on first load when form is invalid", () => {
