@@ -30,7 +30,7 @@
   "selConnectionType": "[data-cy='datasourceConfiguration.connection.type']",
   "scope":"[data-cy='datasourceConfiguration.authentication.scopeString']",
   "Mysql": ".t--plugin-name:contains('Mysql')",
-  "ElasticSearch": ".t--plugin-name:contains('ElasticSearch')",
+  "ElasticSearch": ".t--plugin-name:contains('Elasticsearch')",
   "DynamoDB": ".t--plugin-name:contains('DynamoDB')",
   "Redis": ".t--plugin-name:contains('Redis')",
   "MsSQL": ".t--plugin-name:contains('Microsoft SQL Server')",
