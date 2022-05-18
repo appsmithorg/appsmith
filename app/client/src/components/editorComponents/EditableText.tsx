@@ -9,6 +9,7 @@ import ErrorTooltip from "./ErrorTooltip";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import Icon, { IconSize } from "components/ads/Icon";
+import { Colors } from "constants/Colors";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -220,8 +221,8 @@ export function EditableText(props: EditableTextProps) {
           {!minimal && !hideEditIcon && !updating && !isEditing && (
             <Icon
               className="t--action-name-edit-icon"
-              fillColor="#939090"
-              name="edit"
+              fillColor={Colors.GREY_7}
+              name="edit-line"
               size={IconSize.XXL}
             />
           )}

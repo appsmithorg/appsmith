@@ -38,7 +38,9 @@ const ApiHomePage = styled.div`
   flex-direction: column;
 
   font-size: 20px;
-  padding: 20px 20px 0 20px;
+  padding: ${(props) => props.theme.spaces[7]}px
+    ${(props) => props.theme.spaces[11]}px 0px
+    ${(props) => props.theme.spaces[11]}px;
   /* margin-left: 10px; */
   flex: 1;
   overflow: hidden !important;
@@ -67,7 +69,7 @@ const MainTabsContainer = styled.div`
 `;
 
 const SectionGrid = styled.div<{ isActiveTab?: boolean }>`
-  margin-top: 16px;
+  margin-top: ${(props) => props.theme.spaces[7]}px;
   display: grid;
   grid-template-columns: 1fr ${({ isActiveTab }) => isActiveTab && "180px"};
   grid-template-rows: auto minmax(0, 1fr);

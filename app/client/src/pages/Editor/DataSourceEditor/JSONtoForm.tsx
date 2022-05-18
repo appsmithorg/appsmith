@@ -17,7 +17,7 @@ export const LoadingContainer = styled(CenteredWrapper)`
 `;
 
 export const PluginImage = styled.img`
-  height: 40px;
+  height: 24px;
   width: auto;
 `;
 
@@ -56,7 +56,9 @@ export const ActionButton = styled(BaseButton)`
 
 const DBForm = styled.div`
   flex: 1;
-  padding: 20px;
+  padding: ${(props) => props.theme.spaces[7]}px
+    ${(props) => props.theme.spaces[11]}px 0px
+    ${(props) => props.theme.spaces[11]}px;
   margin-right: 0px;
   overflow: auto;
   .backBtn {

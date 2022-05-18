@@ -19,9 +19,12 @@ const IconContainer = styled.div`
   //width: 100%;
   height: 30px;
   display: flex;
+  gap: 4px;
   align-items: center;
   cursor: pointer;
-  padding-left: 16px;
+  padding:${(props) => props.theme.spaces[7]}px
+  ${(props) => props.theme.spaces[11]}px 0px
+  ${(props) => props.theme.spaces[11]}px;
   width: fit-content;
   /* background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg}; */
 `;
@@ -67,8 +70,8 @@ function CloseEditor() {
 
   return (
     <IconContainer className="t--close-editor" onClick={handleClose}>
-      <Icon icon="chevron-left" iconSize={16} />
-      <Text style={{ color: "#0c0000", lineHeight: "14px" }} type={TextType.P1}>
+      <Icon icon="chevron-left" iconSize={14} />
+      <Text style={{ color: "#0c0000", lineHeight: "14px" }} type={TextType.P3}>
         Back
       </Text>
     </IconContainer>

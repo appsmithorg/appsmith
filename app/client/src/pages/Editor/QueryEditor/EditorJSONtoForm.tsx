@@ -89,7 +89,7 @@ const QueryFormContainer = styled.form`
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 20px 0px 0px 0px;
+  padding: ${(props) => props.theme.spaces[7]}px 0px 0px 0px;
   width: 100%;
   .statementTextArea {
     font-size: 14px;
@@ -243,7 +243,7 @@ const ErrorDescriptionText = styled(Text)`
 `;
 
 export const StyledFormRow = styled(FormRow)`
-  padding: 0px 20px;
+  padding: 0px ${(props) => props.theme.spaces[11]}px;
   flex: 0;
 `;
 

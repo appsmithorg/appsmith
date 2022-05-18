@@ -96,9 +96,9 @@ const Form = styled.form`
 `;
 
 const MainConfiguration = styled.div`
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[10]}px 0px
-    ${(props) => props.theme.spaces[10]}px;
+  padding: ${(props) => props.theme.spaces[7]}px
+    ${(props) => props.theme.spaces[11]}px 0px
+    ${(props) => props.theme.spaces[11]}px;
   .api-info-row {
     svg {
       fill: #ffffff;
