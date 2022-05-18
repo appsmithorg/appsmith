@@ -137,7 +137,6 @@ public class FileUtilsImpl implements FileInterface {
         // baseRepo : root/orgId/defaultAppId/repoName/{applicationData}
         // Checkout to mentioned branch if not already checked-out
         Stopwatch processStopwatch = new Stopwatch("FS application save");
-        Stopwatch processStop = new Stopwatch("File utils exec time ---------------- ");
         return gitExecutor.resetToLastCommit(baseRepoSuffix, branchName)
                 .flatMap(isSwitched -> {
 
@@ -166,11 +165,9 @@ public class FileUtilsImpl implements FileInterface {
                     // Save application theme
                     saveFile(applicationGitReference.getTheme(), baseRepo.resolve(CommonConstants.THEME + CommonConstants.JSON_EXTENSION), gson);
 
-                    Path pageDirectory = baseRepo.resolve(PAGE_DIRECTORY);
-
                     try {
                         // Remove relevant directories to avoid any stale files
-                        Mono<List<Boolean>> pageList = Flux.fromStream(Files.walk(pageDirectory)
+                        Mono<List<Boolean>> pageList = Flux.fromStream(Files.walk(baseRepo.resolve(PAGE_DIRECTORY))
                                 .map(Path::toFile))
                                 .map(File::delete)
                                 .collectList();
@@ -188,8 +185,7 @@ public class FileUtilsImpl implements FileInterface {
                                 .flatMap(objects -> Mono.zip(Mono.just(baseRepo), Mono.just(gson), Mono.just(validFileNames)));
 
                     } catch (IOException e) {
-                        log.debug("Unable to delete directory for path {} with message {}", pageDirectory, e.getMessage());
-                        //return Mono.error(new IOException("Unable to delete directory for path {} with message {}"));
+                        log.debug("Unable to delete directory for path {} with message {}", baseRepo.resolve(PAGE_DIRECTORY), e.getMessage());
                     }
                     return Mono.zip(Mono.just(baseRepo), Mono.just(gson), Mono.just(validFileNames));
                 })
@@ -199,8 +195,6 @@ public class FileUtilsImpl implements FileInterface {
                     Gson gson = objects.getT2();
                     Set<String> validFileNames = objects.getT3();
                     // Save pages
-                    processStop.stopAndLogTimeInMillis();
-                    log.debug("-------------------------------- file time after : ", processStop.getExecutionTime());
                     for (Map.Entry<String, Object> pageResource : applicationGitReference.getPages().entrySet()) {
                         final String pageName = pageResource.getKey();
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
