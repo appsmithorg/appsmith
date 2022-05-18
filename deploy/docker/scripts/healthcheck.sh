@@ -11,9 +11,11 @@ while read -r line
     else
       echo "PROCESS: $process - STATUS: $status"
       if [[ "$process" == 'editor' ]]; then
-        if [[ $(curl -s -w "%{http_code}\n" http://localhost:80/ -o /dev/null) -ne 200 ]]; then
+        if [[ $(curl -s -w "%{http_code}\n" http://localhost/ -o /dev/null) -ne 200 ]]; then
+          if [[ $(curl -k -s -w "%{http_code}\n" https://localhost/ -o /dev/null) -ne 200 ]]; then
            echo 'ERROR: Editor is down';
            healthy=false
+          fi
         fi
       elif [[ "$process" == "server" ]]; then
         if [[ $(curl -s -w "%{http_code}\n" http://localhost:8080/api/v1/users/me/ -o /dev/null) -ne 200 ]]; then
