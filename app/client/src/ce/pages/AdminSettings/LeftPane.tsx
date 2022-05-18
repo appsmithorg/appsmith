@@ -55,7 +55,7 @@ export const StyledLink = styled(Link)<{ $active: boolean }>`
   }
 `;
 
-export function useSettingsCategory() {
+export function getSettingsCategory() {
   return Array.from(AdminConfig.categories);
 }
 
@@ -109,7 +109,7 @@ export function Categories({
 }
 
 export default function LeftPane() {
-  const categories = useSettingsCategory();
+  const categories = getSettingsCategory();
   const { category, subCategory } = useParams() as any;
   return (
     <Wrapper>

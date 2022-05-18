@@ -17,10 +17,6 @@ public interface OrganizationServiceCE extends CrudService<Organization, String>
 
     Mono<Organization> create(Organization organization);
 
-    Mono<Organization> getBySlug(String slug);
-
-    Mono<String> getNextUniqueSlug(String initialSlug);
-
     Mono<Organization> createDefault(Organization organization, User user);
 
     Mono<Organization> create(Organization organization, User user);
