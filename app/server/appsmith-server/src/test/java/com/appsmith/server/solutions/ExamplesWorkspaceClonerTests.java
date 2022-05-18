@@ -19,7 +19,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
@@ -40,7 +40,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
@@ -84,10 +84,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @DirtiesContext
-public class ExamplesOrganizationClonerTests {
+public class ExamplesWorkspaceClonerTests {
 
     @Autowired
-    private ExamplesOrganizationCloner examplesOrganizationCloner;
+    private ExamplesWorkspaceCloner examplesWorkspaceCloner;
 
     @Autowired
     private ApplicationService applicationService;
@@ -96,7 +96,7 @@ public class ExamplesOrganizationClonerTests {
     private DatasourceService datasourceService;
 
     @Autowired
-    private OrganizationService organizationService;
+    private WorkspaceService workspaceService;
 
     @Autowired
     private ApplicationPageService applicationPageService;
@@ -139,29 +139,29 @@ public class ExamplesOrganizationClonerTests {
     @Autowired
     private LayoutCollectionService layoutCollectionService;
 
-    private static class OrganizationData {
-        Organization organization;
+    private static class WorkspaceData {
+        Workspace workspace;
         List<Application> applications = new ArrayList<>();
         List<Datasource> datasources = new ArrayList<>();
         List<ActionDTO> actions = new ArrayList<>();
         List<ActionCollectionDTO> actionCollections = new ArrayList<>();
     }
 
-    public Mono<OrganizationData> loadOrganizationData(Organization organization) {
-        final OrganizationData data = new OrganizationData();
-        data.organization = organization;
+    public Mono<WorkspaceData> loadWorkspaceData(Workspace workspace) {
+        final WorkspaceData data = new WorkspaceData();
+        data.workspace = workspace;
 
         return Mono
                 .when(
                         applicationService
-                                .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
+                                .findByOrganizationId(workspace.getId(), READ_APPLICATIONS)
                                 .map(data.applications::add),
                         datasourceService
-                                .findAllByOrganizationId(organization.getId(), READ_DATASOURCES)
+                                .findAllByOrganizationId(workspace.getId(), READ_DATASOURCES)
                                 .map(data.datasources::add),
-                        getActionsInOrganization(organization)
+                        getActionsInWorkspace(workspace)
                                 .map(data.actions::add),
-                        getActionCollectionsInOrganization(organization)
+                        getActionCollectionsInWorkspace(workspace)
                                 .map(data.actionCollections::add)
                 )
                 .thenReturn(data);
@@ -175,21 +175,21 @@ public class ExamplesOrganizationClonerTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void cloneEmptyOrganization() {
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization");
-        final Mono<OrganizationData> resultMono = organizationService.create(newOrganization)
+    public void cloneEmptyWorkspace() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization");
+        final Mono<WorkspaceData> resultMono = workspaceService.create(newWorkspace)
                 .zipWith(sessionUserService.getCurrentUser())
                 .flatMap(tuple ->
-                        examplesOrganizationCloner.cloneOrganizationForUser(tuple.getT1().getId(), tuple.getT2(), Flux.empty(), Flux.empty()))
-                .flatMap(this::loadOrganizationData);
+                        examplesWorkspaceCloner.cloneWorkspaceForUser(tuple.getT1().getId(), tuple.getT2(), Flux.empty(), Flux.empty()))
+                .flatMap(this::loadWorkspaceData);
 
         StepVerifier.create(resultMono)
                 .assertNext(data -> {
-                    assertThat(data.organization).isNotNull();
-                    assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's apps");
-                    assertThat(data.organization.getPolicies()).isNotEmpty();
+                    assertThat(data.workspace).isNotNull();
+                    assertThat(data.workspace.getId()).isNotNull();
+                    assertThat(data.workspace.getName()).isEqualTo("api_user's apps");
+                    assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).isEmpty();
                     assertThat(data.datasources).isEmpty();
@@ -201,22 +201,22 @@ public class ExamplesOrganizationClonerTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void cloneOrganizationWithItsContents() {
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization");
-        final Mono<OrganizationData> resultMono = Mono
+    public void cloneWorkspaceWithItsContents() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization");
+        final Mono<WorkspaceData> resultMono = Mono
                 .zip(
-                        organizationService.create(newOrganization),
+                        workspaceService.create(newWorkspace),
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization organization = tuple.getT1();
+                    final Workspace workspace = tuple.getT1();
                     Application app1 = new Application();
                     app1.setName("1 - public app");
-                    app1.setOrganizationId(organization.getId());
+                    app1.setOrganizationId(workspace.getId());
 
                     Application app2 = new Application();
-                    app2.setOrganizationId(organization.getId());
+                    app2.setOrganizationId(workspace.getId());
                     app2.setName("2 - private app");
 
                     return Mono
@@ -225,22 +225,22 @@ public class ExamplesOrganizationClonerTests {
                                     applicationPageService.createApplication(app2)
                             )
                             .flatMap(tuple1 ->
-                                    examplesOrganizationCloner.cloneOrganizationForUser(
-                                            organization.getId(),
+                                    examplesWorkspaceCloner.cloneWorkspaceForUser(
+                                            workspace.getId(),
                                             tuple.getT2(),
                                             Flux.fromArray(new Application[]{tuple1.getT1()}),
                                             Flux.empty()
                                     )
                             );
                 })
-                .flatMap(this::loadOrganizationData);
+                .flatMap(this::loadWorkspaceData);
 
         StepVerifier.create(resultMono)
                 .assertNext(data -> {
-                    assertThat(data.organization).isNotNull();
-                    assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's apps");
-                    assertThat(data.organization.getPolicies()).isNotEmpty();
+                    assertThat(data.workspace).isNotNull();
+                    assertThat(data.workspace.getId()).isNotNull();
+                    assertThat(data.workspace.getName()).isEqualTo("api_user's apps");
+                    assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(1);
                     assertThat(map(data.applications, Application::getName)).containsExactly("1 - public app");
@@ -255,23 +255,23 @@ public class ExamplesOrganizationClonerTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void cloneOrganizationWithOnlyPublicApplications() {
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization 2");
-        final Mono<OrganizationData> resultMono = Mono
+    public void cloneWorkspaceWithOnlyPublicApplications() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization 2");
+        final Mono<WorkspaceData> resultMono = Mono
                 .zip(
-                        organizationService.create(newOrganization),
+                        workspaceService.create(newWorkspace),
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization organization = tuple.getT1();
+                    final Workspace workspace = tuple.getT1();
 
                     Application app1 = new Application();
                     app1.setName("1 - public app more");
-                    app1.setOrganizationId(organization.getId());
+                    app1.setOrganizationId(workspace.getId());
 
                     Application app2 = new Application();
-                    app2.setOrganizationId(organization.getId());
+                    app2.setOrganizationId(workspace.getId());
                     app2.setName("2 - another public app more");
                     app2.setIsPublic(true);
 
@@ -286,22 +286,22 @@ public class ExamplesOrganizationClonerTests {
                                     })
                             )
                             .flatMap(tuple1 ->
-                                    examplesOrganizationCloner.cloneOrganizationForUser(
-                                            organization.getId(),
+                                    examplesWorkspaceCloner.cloneWorkspaceForUser(
+                                            workspace.getId(),
                                             tuple.getT2(),
                                             Flux.fromArray(new Application[]{tuple1.getT1(), tuple1.getT2()}),
                                             Flux.empty()
                                     )
                             );
                 })
-                .flatMap(this::loadOrganizationData);
+                .flatMap(this::loadWorkspaceData);
 
         StepVerifier.create(resultMono)
                 .assertNext(data -> {
-                    assertThat(data.organization).isNotNull();
-                    assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's apps");
-                    assertThat(data.organization.getPolicies()).isNotEmpty();
+                    assertThat(data.workspace).isNotNull();
+                    assertThat(data.workspace.getId()).isNotNull();
+                    assertThat(data.workspace.getName()).isEqualTo("api_user's apps");
+                    assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(2);
                     assertThat(map(data.applications, Application::getName)).containsExactlyInAnyOrder(
@@ -326,38 +326,38 @@ public class ExamplesOrganizationClonerTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void cloneOrganizationWithOnlyPrivateApplications() {
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization 2");
-        final Mono<OrganizationData> resultMono = Mono
+    public void cloneWorkspaceWithOnlyPrivateApplications() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization 2");
+        final Mono<WorkspaceData> resultMono = Mono
                 .zip(
-                        organizationService.create(newOrganization),
+                        workspaceService.create(newWorkspace),
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization organization = tuple.getT1();
+                    final Workspace workspace = tuple.getT1();
 
                     Application app1 = new Application();
                     app1.setName("1 - private app more");
-                    app1.setOrganizationId(organization.getId());
+                    app1.setOrganizationId(workspace.getId());
 
                     Application app2 = new Application();
-                    app2.setOrganizationId(organization.getId());
+                    app2.setOrganizationId(workspace.getId());
                     app2.setName("2 - another private app more");
 
                     return Mono.when(
                             applicationPageService.createApplication(app1),
                             applicationPageService.createApplication(app2)
-                    ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2(), Flux.empty(), Flux.empty()));
+                    ).then(examplesWorkspaceCloner.cloneWorkspaceForUser(workspace.getId(), tuple.getT2(), Flux.empty(), Flux.empty()));
                 })
-                .flatMap(this::loadOrganizationData);
+                .flatMap(this::loadWorkspaceData);
 
         StepVerifier.create(resultMono)
                 .assertNext(data -> {
-                    assertThat(data.organization).isNotNull();
-                    assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's apps");
-                    assertThat(data.organization.getPolicies()).isNotEmpty();
+                    assertThat(data.workspace).isNotNull();
+                    assertThat(data.workspace.getId()).isNotNull();
+                    assertThat(data.workspace.getName()).isEqualTo("api_user's apps");
+                    assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).isEmpty();
                     assertThat(data.datasources).isEmpty();
@@ -370,26 +370,26 @@ public class ExamplesOrganizationClonerTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void cloneApplicationMultipleTimes() {
-        Organization sourceOrg = new Organization();
+        Workspace sourceOrg = new Workspace();
         sourceOrg.setName("Source Org 1");
 
-        Organization targetOrg = new Organization();
+        Workspace targetOrg = new Workspace();
         targetOrg.setName("Target Org 1");
 
         final Mono<List<String>> resultMono = Mono
                 .zip(
-                        organizationService.create(sourceOrg),
+                        workspaceService.create(sourceOrg),
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization sourceOrg1 = tuple.getT1();
+                    final Workspace sourceOrg1 = tuple.getT1();
                     Application app1 = new Application();
                     app1.setName("awesome app");
                     app1.setOrganizationId(sourceOrg1.getId());
 
                     return Mono.zip(
                             applicationPageService.createApplication(app1),
-                            organizationService.create(targetOrg)
+                            workspaceService.create(targetOrg)
                     );
                 })
                 .flatMapMany(tuple -> {
@@ -404,9 +404,9 @@ public class ExamplesOrganizationClonerTests {
                                 app.setName(originalName);
                                 return app;
                             })
-                            .flatMap(app -> examplesOrganizationCloner.cloneApplications(orgId, Flux.fromArray(new Application[]{ app })))
+                            .flatMap(app -> examplesWorkspaceCloner.cloneApplications(orgId, Flux.fromArray(new Application[]{ app })))
                             .then();
-                    // Clone this application into the same organization thrice.
+                    // Clone this application into the same workspace thrice.
                     return cloneMono
                             .then(cloneMono)
                             .then(cloneMono)
@@ -425,20 +425,20 @@ public class ExamplesOrganizationClonerTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void cloneOrganizationWithOnlyDatasources() {
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization 2");
-        final Mono<OrganizationData> resultMono = Mono
+    public void cloneWorkspaceWithOnlyDatasources() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization 2");
+        final Mono<WorkspaceData> resultMono = Mono
                 .zip(
-                        organizationService.create(newOrganization),
+                        workspaceService.create(newWorkspace),
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization organization = tuple.getT1();
+                    final Workspace workspace = tuple.getT1();
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
-                    ds1.setOrganizationId(organization.getId());
+                    ds1.setOrganizationId(workspace.getId());
                     final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     ds1.setDatasourceConfiguration(datasourceConfiguration);
                     datasourceConfiguration.setUrl("http://httpbin.org/get");
@@ -448,7 +448,7 @@ public class ExamplesOrganizationClonerTests {
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
-                    ds2.setOrganizationId(organization.getId());
+                    ds2.setOrganizationId(workspace.getId());
                     ds2.setDatasourceConfiguration(new DatasourceConfiguration());
                     DBAuth auth = new DBAuth();
                     auth.setPassword("answer-to-life");
@@ -457,16 +457,16 @@ public class ExamplesOrganizationClonerTests {
                     return Mono.when(
                             datasourceService.create(ds1),
                             datasourceService.create(ds2)
-                    ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2(), Flux.empty(), Flux.empty()));
+                    ).then(examplesWorkspaceCloner.cloneWorkspaceForUser(workspace.getId(), tuple.getT2(), Flux.empty(), Flux.empty()));
                 })
-                .flatMap(this::loadOrganizationData);
+                .flatMap(this::loadWorkspaceData);
 
         StepVerifier.create(resultMono)
                 .assertNext(data -> {
-                    assertThat(data.organization).isNotNull();
-                    assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's apps");
-                    assertThat(data.organization.getPolicies()).isNotEmpty();
+                    assertThat(data.workspace).isNotNull();
+                    assertThat(data.workspace.getId()).isNotNull();
+                    assertThat(data.workspace.getName()).isEqualTo("api_user's apps");
+                    assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(data.datasources).isEmpty();
                     assertThat(data.applications).isEmpty();
@@ -478,20 +478,20 @@ public class ExamplesOrganizationClonerTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void cloneOrganizationWithOnlyDatasourcesSpecifiedExplicitly() {
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization 2");
-        final Mono<OrganizationData> resultMono = Mono
+    public void cloneWorkspaceWithOnlyDatasourcesSpecifiedExplicitly() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization 2");
+        final Mono<WorkspaceData> resultMono = Mono
                 .zip(
-                        organizationService.create(newOrganization),
+                        workspaceService.create(newWorkspace),
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization organization = tuple.getT1();
+                    final Workspace workspace = tuple.getT1();
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
-                    ds1.setOrganizationId(organization.getId());
+                    ds1.setOrganizationId(workspace.getId());
                     ds1.setPluginId(installedPlugin.getId());
                     final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     ds1.setDatasourceConfiguration(datasourceConfiguration);
@@ -502,7 +502,7 @@ public class ExamplesOrganizationClonerTests {
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
-                    ds2.setOrganizationId(organization.getId());
+                    ds2.setOrganizationId(workspace.getId());
                     ds2.setPluginId(installedPlugin.getId());
                     ds2.setDatasourceConfiguration(new DatasourceConfiguration());
                     DBAuth auth = new DBAuth();
@@ -512,21 +512,21 @@ public class ExamplesOrganizationClonerTests {
                     return Mono.zip(
                             datasourceService.create(ds1),
                             datasourceService.create(ds2)
-                    ).flatMap(tuple1 -> examplesOrganizationCloner.cloneOrganizationForUser(
-                            organization.getId(),
+                    ).flatMap(tuple1 -> examplesWorkspaceCloner.cloneWorkspaceForUser(
+                            workspace.getId(),
                             tuple.getT2(),
                             Flux.empty(),
                             Flux.just(tuple1.getT1())
                     ));
                 })
-                .flatMap(this::loadOrganizationData);
+                .flatMap(this::loadWorkspaceData);
 
         StepVerifier.create(resultMono)
                 .assertNext(data -> {
-                    assertThat(data.organization).isNotNull();
-                    assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's apps");
-                    assertThat(data.organization.getPolicies()).isNotEmpty();
+                    assertThat(data.workspace).isNotNull();
+                    assertThat(data.workspace.getId()).isNotNull();
+                    assertThat(data.workspace.getName()).isEqualTo("api_user's apps");
+                    assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(data.datasources).hasSize(1);
                     assertThat(data.datasources.get(0).getName()).isEqualTo("datasource 1");
@@ -540,34 +540,34 @@ public class ExamplesOrganizationClonerTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void cloneOrganizationWithDatasourcesAndApplications() {
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization 2");
-        final Mono<OrganizationData> resultMono = Mono
+    public void cloneWorkspaceWithDatasourcesAndApplications() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization 2");
+        final Mono<WorkspaceData> resultMono = Mono
                 .zip(
-                        organizationService.create(newOrganization),
+                        workspaceService.create(newWorkspace),
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization organization = tuple.getT1();
+                    final Workspace workspace = tuple.getT1();
 
                     final Application app1 = new Application();
                     app1.setName("first application");
-                    app1.setOrganizationId(organization.getId());
+                    app1.setOrganizationId(workspace.getId());
                     app1.setIsPublic(true);
 
                     final Application app2 = new Application();
                     app2.setName("second application");
-                    app2.setOrganizationId(organization.getId());
+                    app2.setOrganizationId(workspace.getId());
                     app2.setIsPublic(true);
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
-                    ds1.setOrganizationId(organization.getId());
+                    ds1.setOrganizationId(workspace.getId());
 
                     final Datasource ds2 = new Datasource();
                     ds2.setName("datasource 2");
-                    ds2.setOrganizationId(organization.getId());
+                    ds2.setOrganizationId(workspace.getId());
 
                     return Mono
                             .zip(
@@ -577,22 +577,22 @@ public class ExamplesOrganizationClonerTests {
                                     datasourceService.create(ds2)
                             )
                             .flatMap(tuple1 ->
-                                    examplesOrganizationCloner.cloneOrganizationForUser(
-                                            organization.getId(),
+                                    examplesWorkspaceCloner.cloneWorkspaceForUser(
+                                            workspace.getId(),
                                             tuple.getT2(),
                                             Flux.fromArray(new Application[]{tuple1.getT1(), tuple1.getT2()}),
                                             Flux.empty()
                                     )
                             );
                 })
-                .flatMap(this::loadOrganizationData);
+                .flatMap(this::loadWorkspaceData);
 
         StepVerifier.create(resultMono)
                 .assertNext(data -> {
-                    assertThat(data.organization).isNotNull();
-                    assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's apps");
-                    assertThat(data.organization.getPolicies()).isNotEmpty();
+                    assertThat(data.workspace).isNotNull();
+                    assertThat(data.workspace.getId()).isNotNull();
+                    assertThat(data.workspace.getName()).isEqualTo("api_user's apps");
+                    assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(2);
                     assertThat(map(data.applications, Application::getName)).containsExactlyInAnyOrder(
@@ -609,30 +609,30 @@ public class ExamplesOrganizationClonerTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void cloneOrganizationWithDatasourcesAndApplicationsAndActionsAndCollections() {
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization 2");
-        final Organization organization = organizationService.create(newOrganization).block();
+    public void cloneWorkspaceWithDatasourcesAndApplicationsAndActionsAndCollections() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization 2");
+        final Workspace workspace = workspaceService.create(newWorkspace).block();
         final User user = sessionUserService.getCurrentUser().block();
 
         final Application app1 = new Application();
         app1.setName("first application");
-        app1.setOrganizationId(organization.getId());
+        app1.setOrganizationId(workspace.getId());
         app1.setIsPublic(true);
 
         final Application app2 = new Application();
         app2.setName("second application");
-        app2.setOrganizationId(organization.getId());
+        app2.setOrganizationId(workspace.getId());
         app2.setIsPublic(true);
 
         final Datasource ds1 = new Datasource();
         ds1.setName("datasource 1");
-        ds1.setOrganizationId(organization.getId());
+        ds1.setOrganizationId(workspace.getId());
         ds1.setPluginId(installedPlugin.getId());
 
         final Datasource ds2 = new Datasource();
         ds2.setName("datasource 2");
-        ds2.setOrganizationId(organization.getId());
+        ds2.setOrganizationId(workspace.getId());
         ds2.setPluginId(installedPlugin.getId());
 
         final Application app = applicationPageService.createApplication(app1).block();
@@ -665,7 +665,7 @@ public class ExamplesOrganizationClonerTests {
 
         final ActionDTO newPageAction = new ActionDTO();
         newPageAction.setName("newPageAction");
-        newPageAction.setOrganizationId(organization.getId());
+        newPageAction.setOrganizationId(workspace.getId());
         newPageAction.setDatasource(ds1WithId);
         newPageAction.setPluginId(installedPlugin.getId());
         newPageAction.setActionConfiguration(new ActionConfiguration());
@@ -674,7 +674,7 @@ public class ExamplesOrganizationClonerTests {
         final ActionDTO action1 = new ActionDTO();
         action1.setName("action1");
         action1.setPageId(pageId1);
-        action1.setOrganizationId(organization.getId());
+        action1.setOrganizationId(workspace.getId());
         action1.setDatasource(ds1WithId);
         action1.setPluginId(installedPlugin.getId());
 
@@ -683,7 +683,7 @@ public class ExamplesOrganizationClonerTests {
         final ActionDTO action3 = new ActionDTO();
         action3.setName("action3");
         action3.setPageId(pageId2);
-        action3.setOrganizationId(organization.getId());
+        action3.setOrganizationId(workspace.getId());
         action3.setDatasource(ds2WithId);
         action3.setPluginId(installedPlugin.getId());
 
@@ -693,7 +693,7 @@ public class ExamplesOrganizationClonerTests {
 
         Datasource jsDatasource = new Datasource();
         jsDatasource.setName("Default Database");
-        jsDatasource.setOrganizationId(organization.getId());
+        jsDatasource.setOrganizationId(workspace.getId());
         Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
         assert installedJsPlugin != null;
         jsDatasource.setPluginId(installedJsPlugin.getId());
@@ -702,7 +702,7 @@ public class ExamplesOrganizationClonerTests {
         actionCollectionDTO1.setName("testCollection1");
         actionCollectionDTO1.setPageId(app.getPages().get(0).getId());
         actionCollectionDTO1.setApplicationId(app.getId());
-        actionCollectionDTO1.setOrganizationId(organization.getId());
+        actionCollectionDTO1.setOrganizationId(workspace.getId());
         actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
         ActionDTO action5 = new ActionDTO();
         action5.setName("run");
@@ -727,20 +727,20 @@ public class ExamplesOrganizationClonerTests {
         layoutActionService.createSingleAction(action3).block();
         layoutCollectionService.createCollection(actionCollectionDTO1).block();
 
-        final Mono<OrganizationData> resultMono = examplesOrganizationCloner.cloneOrganizationForUser(
-                        organization.getId(),
+        final Mono<WorkspaceData> resultMono = examplesWorkspaceCloner.cloneWorkspaceForUser(
+                        workspace.getId(),
                         user,
                         Flux.fromIterable(List.of(app, app2Again)),
                         Flux.empty())
                 .doOnError(error -> log.error("Error preparing data for test", error))
-                .flatMap(this::loadOrganizationData);
+                .flatMap(this::loadWorkspaceData);
 
         StepVerifier.create(resultMono)
                 .assertNext(data -> {
-                    assertThat(data.organization).isNotNull();
-                    assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's apps");
-                    assertThat(data.organization.getPolicies()).isNotEmpty();
+                    assertThat(data.workspace).isNotNull();
+                    assertThat(data.workspace.getId()).isNotNull();
+                    assertThat(data.workspace.getName()).isEqualTo("api_user's apps");
+                    assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(2);
                     assertThat(map(data.applications, Application::getName)).containsExactlyInAnyOrder(
@@ -756,7 +756,7 @@ public class ExamplesOrganizationClonerTests {
                     final String actionId = newPage1.getUnpublishedPage().getLayouts().get(0).getLayoutOnLoadActions().get(0).iterator().next().getId();
                     final NewAction newPageAction1 = mongoTemplate.findOne(Query.query(Criteria.where("id").is(actionId)), NewAction.class);
                     assert newPageAction1 != null;
-                    assertThat(newPageAction1.getOrganizationId()).isEqualTo(data.organization.getId());
+                    assertThat(newPageAction1.getOrganizationId()).isEqualTo(data.workspace.getId());
 
                     assertThat(data.datasources).hasSize(2);
                     assertThat(map(data.datasources, Datasource::getName)).containsExactlyInAnyOrder(
@@ -781,19 +781,19 @@ public class ExamplesOrganizationClonerTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void cloneApplicationWithActionsThrice() {
-        Organization sourceOrg = new Organization();
+        Workspace sourceOrg = new Workspace();
         sourceOrg.setName("Source Org 2");
 
-        Organization targetOrg = new Organization();
+        Workspace targetOrg = new Workspace();
         targetOrg.setName("Target Org 2");
 
-        final Mono<OrganizationData> resultMono = Mono
+        final Mono<WorkspaceData> resultMono = Mono
                 .zip(
-                        organizationService.create(sourceOrg),
+                        workspaceService.create(sourceOrg),
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization sourceOrg1 = tuple.getT1();
+                    final Workspace sourceOrg1 = tuple.getT1();
 
                     final Application app1 = new Application();
                     app1.setName("that great app");
@@ -921,12 +921,12 @@ public class ExamplesOrganizationClonerTests {
                                         layoutActionService.createSingleAction(action2),
                                         layoutActionService.createSingleAction(action3)
                                 ).then(Mono.zip(
-                                        organizationService.create(targetOrg),
+                                        workspaceService.create(targetOrg),
                                         Mono.just(app)
                                 ));
                             })
                             .flatMap(tuple1 -> {
-                                final Organization targetOrg1 = tuple1.getT1();
+                                final Workspace targetOrg1 = tuple1.getT1();
                                 final String originalId = tuple1.getT2().getId();
                                 final String originalName = tuple1.getT2().getName();
 
@@ -937,7 +937,7 @@ public class ExamplesOrganizationClonerTests {
                                             app.setName(originalName);
                                             return app;
                                         })
-                                        .flatMap(app -> examplesOrganizationCloner.cloneApplications(
+                                        .flatMap(app -> examplesWorkspaceCloner.cloneApplications(
                                                 targetOrg1.getId(),
                                                 Flux.fromArray(new Application[]{ app })
                                         ))
@@ -949,15 +949,15 @@ public class ExamplesOrganizationClonerTests {
                                         .thenReturn(targetOrg1);
                             });
                 })
-                .flatMap(this::loadOrganizationData)
+                .flatMap(this::loadWorkspaceData)
                 .doOnError(error -> log.error("Error in test", error));
 
         StepVerifier.create(resultMono)
                 .assertNext(data -> {
-                    assertThat(data.organization).isNotNull();
-                    assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("Target Org 2");
-                    assertThat(data.organization.getPolicies()).isNotEmpty();
+                    assertThat(data.workspace).isNotNull();
+                    assertThat(data.workspace.getId()).isNotNull();
+                    assertThat(data.workspace.getName()).isEqualTo("Target Org 2");
+                    assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(map(data.applications, Application::getName)).containsExactlyInAnyOrder(
                             "that great app",
@@ -1021,18 +1021,18 @@ public class ExamplesOrganizationClonerTests {
         return list.stream().map(fn).collect(Collectors.toList());
     }
 
-    private Flux<ActionDTO> getActionsInOrganization(Organization organization) {
+    private Flux<ActionDTO> getActionsInWorkspace(Workspace workspace) {
         return applicationService
-                .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
+                .findByOrganizationId(workspace.getId(), READ_APPLICATIONS)
                 // fetch the unpublished pages
                 .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
                 .flatMap(page -> newActionService.getUnpublishedActionsExceptJs(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
     }
 
-    private Flux<ActionCollectionDTO> getActionCollectionsInOrganization(Organization organization) {
+    private Flux<ActionCollectionDTO> getActionCollectionsInWorkspace(Workspace workspace) {
         return applicationService
-                .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
+                .findByOrganizationId(workspace.getId(), READ_APPLICATIONS)
                 // fetch the unpublished pages
                 .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
                 .flatMap(page -> actionCollectionService.getPopulatedActionCollectionsByViewMode(new LinkedMultiValueMap<>(

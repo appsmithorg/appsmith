@@ -11,7 +11,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
@@ -20,7 +20,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.SessionUserService;
@@ -42,9 +42,9 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 
 
 @Slf4j
-public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE {
+public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final SessionUserService sessionUserService;
-    private final OrganizationRepository organizationRepository;
+    private final WorkspaceRepository workspaceRepository;
     private final UserRepository userRepository;
     private final UserDataRepository userDataRepository;
     private final PolicyUtils policyUtils;
@@ -54,15 +54,15 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
     private static final String UPDATE_ROLE_EXISTING_USER_TEMPLATE = "email/updateRoleExistingUserTemplate.html";
 
     @Autowired
-    public UserOrganizationServiceCEImpl(SessionUserService sessionUserService,
-                                         OrganizationRepository organizationRepository,
+    public UserWorkspaceServiceCEImpl(SessionUserService sessionUserService,
+                                         WorkspaceRepository workspaceRepository,
                                          UserRepository userRepository,
                                          UserDataRepository userDataRepository,
                                          PolicyUtils policyUtils,
                                          EmailSender emailSender,
                                          UserDataService userDataService) {
         this.sessionUserService = sessionUserService;
-        this.organizationRepository = organizationRepository;
+        this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
         this.userDataRepository = userDataRepository;
         this.policyUtils = policyUtils;
@@ -71,7 +71,7 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
     }
 
     /**
-     * This function adds an organizationId to the user. This will allow users to switch between multiple organizations
+     * This function adds an organizationId to the user. This will allow users to switch between multiple workspace
      * and operate inside them independently.
      *
      * @param orgId The organizationId being added to the user.
@@ -79,7 +79,7 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
      * @return
      */
     @Override
-    public Mono<User> addUserToOrganization(String orgId, User user) {
+    public Mono<User> addUserToWorkspace(String orgId, User user) {
 
         Mono<User> currentUserMono;
         if (user == null) {
@@ -89,37 +89,37 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
             currentUserMono = Mono.just(user);
         }
 
-       // Querying by example here because the organizationRepository.findById wasn't working when the user
+       // Querying by example here because the workspaceRepository.findById wasn't working when the user
         // signs up for a new account via Google SSO.
-        Organization exampleOrg = new Organization();
+        Workspace exampleOrg = new Workspace();
         exampleOrg.setId(orgId);
         exampleOrg.setPolicies(null);
 
-        return organizationRepository.findOne(Example.of(exampleOrg))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
+        return workspaceRepository.findOne(Example.of(exampleOrg))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, orgId)))
                 .zipWith(currentUserMono)
                 .map(tuple -> {
-                    Organization organization = tuple.getT1();
+                        Workspace workspace = tuple.getT1();
                     User user1 = tuple.getT2();
-                    log.debug("Adding organization {} with id {} to user {}", organization.getName(), organization.getId(), user1.getEmail());
+                    log.debug("Adding workspace {} with id {} to user {}", workspace.getName(), workspace.getId(), user1.getEmail());
                     return user1;
                 })
                 .map(user1 -> {
-                    Set<String> organizationIds = user1.getOrganizationIds();
-                    if (organizationIds == null) {
-                        organizationIds = new HashSet<>();
+                    Set<String> workspaceIds = user1.getOrganizationIds();
+                    if (workspaceIds == null) {
+                        workspaceIds = new HashSet<>();
                         if (user1.getCurrentOrganizationId() != null) {
-                            // If the list of organizationIds for a user is null, add the current user org
+                            // If the list of workspaceIds for a user is null, add the current user org
                             // to the new list as well
-                            organizationIds.add(user1.getCurrentOrganizationId());
+                            workspaceIds.add(user1.getCurrentOrganizationId());
                         }
                     }
-                    if (!organizationIds.contains(orgId)) {
-                        // Only add to the organizationIds array if it's not already present
-                        organizationIds.add(orgId);
-                        user1.setOrganizationIds(organizationIds);
+                    if (!workspaceIds.contains(orgId)) {
+                        // Only add to the workspaceIds array if it's not already present
+                        workspaceIds.add(orgId);
+                        user1.setOrganizationIds(workspaceIds);
                     }
-                    // Set the current organization to the newly added organization
+                    // Set the current workspace to the newly added workspace
                     user1.setCurrentOrganizationId(orgId);
                     return user1;
                 })
@@ -127,47 +127,47 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
     }
 
     @Override
-    public Mono<Organization> addUserRoleToOrganization(String orgId, UserRole userRole) {
-        Mono<Organization> organizationMono = organizationRepository.findById(orgId, MANAGE_ORGANIZATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
+    public Mono<Workspace> addUserRoleToWorkspace(String orgId, UserRole userRole) {
+        Mono<Workspace> workspaceMono = workspaceRepository.findById(orgId, MANAGE_ORGANIZATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, orgId)));
         Mono<User> userMono = userRepository.findByEmail(userRole.getUsername())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER)));
 
-        return Mono.zip(organizationMono, userMono)
+        return Mono.zip(workspaceMono, userMono)
                 .flatMap(tuple -> {
-                    Organization organization = tuple.getT1();
+                    Workspace workspace = tuple.getT1();
                     User user = tuple.getT2();
-                    return addUserToOrganizationGivenUserObject(organization, user, userRole);
+                    return addUserToWorkspaceGivenUserObject(workspace, user, userRole);
                 });
     }
 
     @Override
-    public Mono<Organization> addUserToOrganizationGivenUserObject(Organization organization, User user, UserRole userRole) {
-        List<UserRole> userRoles = organization.getUserRoles();
+    public Mono<Workspace> addUserToWorkspaceGivenUserObject(Workspace workspace, User user, UserRole userRole) {
+        List<UserRole> userRoles = workspace.getUserRoles();
         if (userRoles == null) {
             userRoles = new ArrayList<>();
         }
 
-        // Do not add the user if the user already exists in the organization
+        // Do not add the user if the user already exists in the workspace
         for (UserRole role : userRoles) {
             if (role.getUsername().equals(userRole.getUsername())) {
-                return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_IN_ORGANIZATION, role.getUsername(), role.getRoleName()));
+                return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_IN_WORKSPACE, role.getUsername(), role.getRoleName()));
             }
         }
-        // User was not found in the organization. Continue with adding it
+        // User was not found in the workspace. Continue with adding it
         AppsmithRole role = AppsmithRole.generateAppsmithRoleFromName(userRole.getRoleName());
         userRole.setUserId(user.getId());
         userRole.setName(user.getName());
         userRole.setRole(role);
 
-        // Add the user and its role to the organization
+        // Add the user and its role to the workspace
         userRoles.add(userRole);
 
-        // Generate all the policies for Organization, Application, Page and Actions for the current user
+        // Generate all the policies for Workspace, Application, Page and Actions for the current user
         Set<AclPermission> rolePermissions = role.getPermissions();
         Map<String, Policy> orgPolicyMap = policyUtils.generatePolicyFromPermission(rolePermissions, user);
-        Map<String, Policy> applicationPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Application.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Datasource.class);
+        Map<String, Policy> applicationPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Workspace.class, Application.class);
+        Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Workspace.class, Datasource.class);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
         Map<String, Policy> commentThreadPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
@@ -176,13 +176,13 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
         Map<String, Policy> themePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
                 applicationPolicyMap, Application.class, Theme.class
         );
-        //Now update the organization policies
-        Organization updatedOrganization = policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);
-        updatedOrganization.setUserRoles(userRoles);
+        //Now update the workspace policies
+        Workspace updatedWorkspace = policyUtils.addPoliciesToExistingObject(orgPolicyMap, workspace);
+        updatedWorkspace.setUserRoles(userRoles);
 
         // Update the underlying application/page/action
-        Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByOrgId(updatedOrganization.getId(), datasourcePolicyMap, true);
-        Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, true)
+        Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByWorkspaceId(updatedWorkspace.getId(), datasourcePolicyMap, true);
+        Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByWorkspaceId(updatedWorkspace.getId(), applicationPolicyMap, true)
                 .cache(); // .cache is very important, as we will execute once and reuse the results multiple times
         Flux<NewPage> updatedPagesFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true));
@@ -201,64 +201,64 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
                 updatedPagesFlux.collectList(),
                 updatedActionsFlux.collectList(),
                 updatedActionCollectionsFlux.collectList(),
-                Mono.just(updatedOrganization),
+                Mono.just(updatedWorkspace),
                 updatedThreadsFlux.collectList(),
                 updatedThemesFlux.collectList()
         )
         .flatMap(tuple -> {
-            //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
-            Organization updatedOrgBeforeSave = tuple.getT5();
-            return organizationRepository.save(updatedOrgBeforeSave);
+            //By now all the datasources/applications/pages/actions have been updated. Just save the workspace now
+            Workspace updatedOrgBeforeSave = tuple.getT5();
+            return workspaceRepository.save(updatedOrgBeforeSave);
         });
     }
 
     @Override
-    public Mono<User> leaveOrganization(String orgId) {
-        Mono<Organization> organizationMono = organizationRepository.findById(orgId);
+    public Mono<User> leaveWorkspace(String orgId) {
+        Mono<Workspace> workspaceMono = workspaceRepository.findById(orgId);
         Mono<User> userMono = sessionUserService.getCurrentUser()
                     .flatMap(user1 -> userRepository.findByEmail(user1.getUsername()));
 
-        return Mono.zip(organizationMono, userMono)
+        return Mono.zip(workspaceMono, userMono)
                 .flatMap(tuple -> {
-                    Organization organization = tuple.getT1();
+                        Workspace workspace = tuple.getT1();
                     User user = tuple.getT2();
 
                     UserRole userRole = new UserRole();
                     userRole.setUsername(user.getUsername());
 
-                    user.getOrganizationIds().remove(organization.getId());
+                    user.getOrganizationIds().remove(workspace.getId());
                     return this.updateMemberRole(
-                            organization, user, userRole, user, null
+                            workspace, user, userRole, user, null
                     ).thenReturn(user);
                 });
     }
 
-    private Mono<Organization> removeUserRoleFromOrganizationGivenUserObject(Organization organization, User user) {
-        List<UserRole> userRoles = organization.getUserRoles();
+    private Mono<Workspace> removeUserRoleFromWorkspaceGivenUserObject(Workspace workspace, User user) {
+        List<UserRole> userRoles = workspace.getUserRoles();
         if (userRoles == null) {
-            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER + " in organization", organization.getName()));
+            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER + " in organization", workspace.getName()));
         }
 
         AppsmithRole role = null;
         for (UserRole userRole : userRoles) {
             if (userRole.getUsername().equals(user.getUsername())) {
                 role = userRole.getRole();
-                // Remove the user role from the organization
+                // Remove the user role from the workspace
                 userRoles.remove(userRole);
                 break;
             }
         }
 
-        // The user was not found in the organization.
+        // The user was not found in the workspace.
         if (role == null) {
-            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER + " in organization", organization.getName()));
+            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER + " in organization", workspace.getName()));
         }
 
-        // Generate all the policies for Organization, Application, Page and Actions
+        // Generate all the policies for Workspace, Application, Page and Actions
         Set<AclPermission> rolePermissions = role.getPermissions();
         Map<String, Policy> orgPolicyMap = policyUtils.generatePolicyFromPermission(rolePermissions, user);
-        Map<String, Policy> applicationPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Application.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Datasource.class);
+        Map<String, Policy> applicationPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Workspace.class, Application.class);
+        Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Workspace.class, Datasource.class);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
         Map<String, Policy> commentThreadPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
@@ -268,13 +268,13 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
                 applicationPolicyMap, Application.class, Theme.class
         );
 
-        //Now update the organization policies
-        Organization updatedOrganization = policyUtils.removePoliciesFromExistingObject(orgPolicyMap, organization);
-        updatedOrganization.setUserRoles(userRoles);
+        //Now update the workspace policies
+        Workspace updatedWorkspace = policyUtils.removePoliciesFromExistingObject(orgPolicyMap, workspace);
+        updatedWorkspace.setUserRoles(userRoles);
 
         // Update the underlying application/page/action
-        Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByOrgId(updatedOrganization.getId(), datasourcePolicyMap, false);
-        Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, false)
+        Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByWorkspaceId(updatedWorkspace.getId(), datasourcePolicyMap, false);
+        Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByWorkspaceId(updatedWorkspace.getId(), applicationPolicyMap, false)
                 .cache(); // .cache is very important, as we will execute once and reuse the results multiple times
         Flux<NewPage> updatedPagesFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, false));
@@ -297,26 +297,26 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
                 updatedActionsFlux.collectList(),
                 updatedActionCollectionsFlux.collectList(),
                 updatedThreadsFlux.collectList(),
-                Mono.just(updatedOrganization),
+                Mono.just(updatedWorkspace),
                 updatedThemesFlux.collectList()
         ).flatMap(tuple -> {
-                //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
-            Organization updatedOrgBeforeSave = tuple.getT6();
-                return organizationRepository.save(updatedOrgBeforeSave);
+                //By now all the datasources/applications/pages/actions have been updated. Just save the workspace now
+                Workspace updatedOrgBeforeSave = tuple.getT6();
+                return workspaceRepository.save(updatedOrgBeforeSave);
         });
     }
 
-    private Mono<UserRole> updateMemberRole(Organization organization, User user, UserRole userRole, User currentUser, String originHeader) {
-        List<UserRole> userRoles = organization.getUserRoles();
+    private Mono<UserRole> updateMemberRole(Workspace workspace, User user, UserRole userRole, User currentUser, String originHeader) {
+        List<UserRole> userRoles = workspace.getUserRoles();
 
-        // count how many admins are there is this organization
+        // count how many admins are there is this workspace
         long orgAdminCount = userRoles.stream().filter(
                 userRole1 -> userRole1.getRole() == AppsmithRole.ORGANIZATION_ADMIN
         ).count();
 
         for (UserRole role : userRoles) {
             if (role.getUsername().equals(userRole.getUsername())) {
-                // User found in the organization.
+                // User found in the workspace.
 
                 if (role.getRole().equals(userRole.getRole())) {
                     // No change in the role. Do nothing.
@@ -328,20 +328,20 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
                     }
                 }
 
-                // Step 1. Remove the existing role of the user from the organization
-                Mono<Organization> userRemovedOrganizationMono = this.removeUserRoleFromOrganizationGivenUserObject(organization, user);
+                // Step 1. Remove the existing role of the user from the workspace
+                Mono<Workspace> userRemovedWorkspaceMono = this.removeUserRoleFromWorkspaceGivenUserObject(workspace, user);
 
-                // Step 2. Add the new role (if present) to the organization for the user
-                Mono<Organization> finalUpdatedOrganizationMono = userRemovedOrganizationMono;
+                // Step 2. Add the new role (if present) to the workspace for the user
+                Mono<Workspace> finalUpdatedWorkspaceMono = userRemovedWorkspaceMono;
                 if (userRole.getRoleName() != null) {
                     // If a userRole name has been specified, then it means that the user's role has been modified.
-                    Mono<Organization> userAddedToOrganizationMono = userRemovedOrganizationMono
-                            .flatMap(organization1 -> this.addUserToOrganizationGivenUserObject(organization1, user, userRole));
-                    finalUpdatedOrganizationMono = userAddedToOrganizationMono.flatMap(addedOrganization -> {
+                    Mono<Workspace> userAddedToWorkspaceMono = userRemovedWorkspaceMono
+                            .flatMap(workspace1 -> this.addUserToWorkspaceGivenUserObject(workspace1, user, userRole));
+                    finalUpdatedWorkspaceMono = userAddedToWorkspaceMono.flatMap(addedWorkspace -> {
 
                         Map<String, String> params = new HashMap<>();
                         params.put("Inviter_First_Name", currentUser.getName());
-                        params.put("inviter_org_name", organization.getName());
+                        params.put("inviter_org_name", workspace.getName());
                         params.put("inviteUrl", originHeader);
                         params.put("user_role_name", userRole.getRoleName());
 
@@ -349,37 +349,37 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
                                 "Appsmith: Your Role has been changed",
                                 UPDATE_ROLE_EXISTING_USER_TEMPLATE, params);
                         return emailMono
-                                .thenReturn(addedOrganization);
+                                .thenReturn(addedWorkspace);
                     });
                 } else {
                     // If the roleName was not present, then it implies that the user is being removed from the org.
-                    // Since at this point we have already removed the user from the organization,
-                    // remove the organization from recent org list of UserData
+                    // Since at this point we have already removed the user from the workspace,
+                    // remove the workspace from recent org list of UserData
                     // we also need to remove the org id from User.orgIdList
-                    finalUpdatedOrganizationMono = userDataService
-                            .removeRecentOrgAndApps(user.getId(), organization.getId())
-                            .then(userRemovedOrganizationMono)
-                            .flatMap(organization1 -> {
+                    finalUpdatedWorkspaceMono = userDataService
+                            .removeRecentOrgAndApps(user.getId(), workspace.getId())
+                            .then(userRemovedWorkspaceMono)
+                            .flatMap(workspace1 -> {
                                     if(user.getOrganizationIds() != null) {
-                                        user.getOrganizationIds().remove(organization.getId());
-                                        return userRepository.save(user).thenReturn(organization1);
+                                        user.getOrganizationIds().remove(workspace.getId());
+                                        return userRepository.save(user).thenReturn(workspace1);
                                     }
-                                    return Mono.just(organization1);
+                                    return Mono.just(workspace1);
                             });
                 }
 
-                return finalUpdatedOrganizationMono.thenReturn(userRole);
+                return finalUpdatedWorkspaceMono.thenReturn(userRole);
             }
         }
-        // The user was not found in the organization. Return an error
+        // The user was not found in the workspace. Return an error
         return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, user.getUsername()
-                + " in the organization " + organization.getName()));
+                + " in the organization " + workspace.getName()));
     }
 
     /**
-     * This method is used when an admin of an organization changes the role or removes a member.
-     * Admin user can also remove himself from the organization, if there is another admin there in the organization.
-     * @param orgId ID of the organization
+     * This method is used when an admin of an workspace changes the role or removes a member.
+     * Admin user can also remove himself from the workspace, if there is another admin there in the workspace.
+     * @param orgId ID of the workspace
      * @param userRole updated role of the target member. userRole.roleName will be null when removing a member
      * @param originHeader
      * @return The updated UserRole
@@ -390,25 +390,25 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "username"));
         }
 
-        Mono<Organization> organizationMono = organizationRepository
+        Mono<Workspace> workspaceMono = workspaceRepository
                 .findById(orgId, MANAGE_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED,
                         "Change role of a member")));
         Mono<User> userMono = userRepository.findByEmail(userRole.getUsername());
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
-        return Mono.zip(organizationMono, userMono, currentUserMono)
+        return Mono.zip(workspaceMono, userMono, currentUserMono)
                 .flatMap(tuple -> {
-                    Organization organization = tuple.getT1();
+                        Workspace workspace = tuple.getT1();
                     User user = tuple.getT2();
                     User currentUser = tuple.getT3();
-                    return this.updateMemberRole(organization, user, userRole, currentUser, originHeader);
+                    return this.updateMemberRole(workspace, user, userRole, currentUser, originHeader);
                 });
     }
 
     @Override
-    public Mono<Organization> bulkAddUsersToOrganization(Organization organization, List<User> users, String roleName) {
-        List<UserRole> userRoles = organization.getUserRoles();
+    public Mono<Workspace> bulkAddUsersToWorkspace(Workspace workspace, List<User> users, String roleName) {
+        List<UserRole> userRoles = workspace.getUserRoles();
         if (userRoles == null) {
             userRoles = new ArrayList<>();
         }
@@ -417,11 +417,11 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
         AppsmithRole role = AppsmithRole.generateAppsmithRoleFromName(roleName);
 
         for (User user : users) {
-            // If the user already exists in the organization, skip adding the user to the organization user roles
+            // If the user already exists in the workspace, skip adding the user to the workspace user roles
             if (userRoles.stream().anyMatch(orgRole -> orgRole.getUsername().equals(user.getUsername()))) {
                 continue;
             }
-            // User was not found in the organization. Continue with adding it
+            // User was not found in the workspace. Continue with adding it
             UserRole userRole = new UserRole();
             userRole.setUserId(user.getId());
             userRole.setUsername(user.getUsername());
@@ -432,20 +432,20 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
         }
 
         if (newUserRoles.isEmpty()) {
-            // All the users being added to the organization already exist in the organization. Return without doing anything
+            // All the users being added to the workspace already exist in the workspace. Return without doing anything
             // Because we are not erroring out here, this ensures that an email would be sent everytime a user is invited
-            // to an organization (whether or not the user is already part of the organization)
-            return Mono.just(organization);
+            // to an workspace (whether or not the user is already part of the workspace)
+            return Mono.just(workspace);
         }
 
-        // Add the users to the organization roles
+        // Add the users to the workspace roles
         userRoles.addAll(newUserRoles);
 
-        // Generate all the policies for Organization, Application, Page and Actions for the current user
+        // Generate all the policies for Workspace, Application, Page and Actions for the current user
         Set<AclPermission> rolePermissions = role.getPermissions();
-        Map<String, Policy> orgPolicyMap = policyUtils.generatePolicyFromPermissionForMultipleUsers(rolePermissions, users);
-        Map<String, Policy> applicationPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Application.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Organization.class, Datasource.class);
+        Map<String, Policy> workspacePolicyMap = policyUtils.generatePolicyFromPermissionForMultipleUsers(rolePermissions, users);
+        Map<String, Policy> applicationPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(workspacePolicyMap, Workspace.class, Application.class);
+        Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(workspacePolicyMap, Workspace.class, Datasource.class);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> commentThreadPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
                 applicationPolicyMap, Application.class, CommentThread.class
@@ -455,13 +455,13 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
                 applicationPolicyMap, Application.class, Theme.class
         );
 
-        // Now update the organization policies
-        Organization updatedOrganization = policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);
-        updatedOrganization.setUserRoles(userRoles);
+        // Now update the workspace policies
+        Workspace updatedWorkspace = policyUtils.addPoliciesToExistingObject(workspacePolicyMap, workspace);
+        updatedWorkspace.setUserRoles(userRoles);
 
         // Update the underlying application/page/action/action collection/comment thread
-        Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByOrgId(updatedOrganization.getId(), datasourcePolicyMap, true);
-        Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, true)
+        Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByWorkspaceId(updatedWorkspace.getId(), datasourcePolicyMap, true);
+        Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByWorkspaceId(updatedWorkspace.getId(), applicationPolicyMap, true)
                 .cache();
         Flux<NewPage> updatedPagesFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true));
@@ -488,7 +488,7 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
                 )
                 // By now all the
                 // data sources/applications/pages/actions/action collections/comment threads
-                // have been updated. Just save the organization now
-                .then(organizationRepository.save(updatedOrganization));
+                // have been updated. Just save the workspace now
+                .then(workspaceRepository.save(updatedWorkspace));
     }
 }

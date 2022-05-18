@@ -5,11 +5,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PluginOrgDTO {
+public class PluginWorkspaceDTO {
 
     String pluginId;
 
     String organizationId;
 
-    OrganizationPluginStatus status;
+    WorkspacePluginStatus status;
 }

@@ -2,8 +2,8 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
-import com.appsmith.server.services.OrganizationService;
-import com.appsmith.server.services.UserOrganizationService;
+import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,17 +18,17 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 @RunWith(SpringRunner.class)
-@WebFluxTest(OrganizationController.class)
+@WebFluxTest(WorkspaceController.class)
 @Import(SecurityTestConfig.class)
-public class OrganizationControllerTest {
+public class WorkspaceControllerTest {
     @Autowired
     private WebTestClient webTestClient;
 
     @MockBean
-    private OrganizationService organizationService;
+    private WorkspaceService workspaceService;
 
     @MockBean
-    private UserOrganizationService userOrganizationService;
+    private UserWorkspaceService userWorkspaceService;
 
     @MockBean
     private UserService userService;

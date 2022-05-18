@@ -1,8 +1,8 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.QOrganization;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -20,23 +20,23 @@ import java.util.Set;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
-public class CustomOrganizationRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Organization>
-        implements CustomOrganizationRepositoryCE {
+public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Workspace>
+        implements CustomWorkspaceRepositoryCE {
 
-    public CustomOrganizationRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
+    public CustomWorkspaceRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
         super(mongoOperations, mongoConverter);
     }
 
     @Override
-    public Mono<Organization> findByName(String name, AclPermission aclPermission) {
-        Criteria nameCriteria = where(fieldName(QOrganization.organization.name)).is(name);
+    public Mono<Workspace> findByName(String name, AclPermission aclPermission) {
+        Criteria nameCriteria = where(fieldName(QWorkspace.workspace.name)).is(name);
 
         return queryOne(List.of(nameCriteria), aclPermission);
     }
 
     @Override
-    public Flux<Organization> findByIdsIn(Set<String> orgIds, AclPermission aclPermission, Sort sort) {
-        Criteria orgIdsCriteria = where(fieldName(QOrganization.organization.id)).in(orgIds);
+    public Flux<Workspace> findByIdsIn(Set<String> orgIds, AclPermission aclPermission, Sort sort) {
+        Criteria orgIdsCriteria = where(fieldName(QWorkspace.workspace.id)).in(orgIds);
 
         return queryAll(List.of(orgIdsCriteria), aclPermission, sort);
     }
@@ -47,13 +47,13 @@ public class CustomOrganizationRepositoryCEImpl extends BaseAppsmithRepositoryIm
                 .updateMulti(
                         Query.query(Criteria.where("userRoles.userId").is(userId)),
                         Update.update("userRoles.$.name", userName),
-                        Organization.class
+                        Workspace.class
                 )
                 .then();
     }
 
     @Override
-    public Flux<Organization> findAllOrganizations() {
-        return mongoOperations.find(new Query(), Organization.class);
+    public Flux<Workspace> findAllWorkspaces() {
+        return mongoOperations.find(new Query(), Workspace.class);
     }
 }

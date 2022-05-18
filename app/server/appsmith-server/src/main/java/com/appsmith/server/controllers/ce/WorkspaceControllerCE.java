@@ -1,11 +1,11 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.services.OrganizationService;
-import com.appsmith.server.services.UserOrganizationService;
+import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.services.UserWorkspaceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.Part;
@@ -26,52 +26,52 @@ import java.util.Map;
 
 
 @RequestMapping(Url.ORGANIZATION_URL)
-public class OrganizationControllerCE extends BaseController<OrganizationService, Organization, String> {
-    private final UserOrganizationService userOrganizationService;
+public class WorkspaceControllerCE extends BaseController<WorkspaceService, Workspace, String> {
+    private final UserWorkspaceService userWorkspaceService;
 
     @Autowired
-    public OrganizationControllerCE(OrganizationService organizationService, UserOrganizationService userOrganizationService) {
-        super(organizationService);
-        this.userOrganizationService = userOrganizationService;
+    public WorkspaceControllerCE(WorkspaceService workspaceService, UserWorkspaceService userWorkspaceService) {
+        super(workspaceService);
+        this.userWorkspaceService = userWorkspaceService;
     }
 
     /**
-     * This function would be used to fetch all possible user roles at organization level.
+     * This function would be used to fetch all possible user roles at workspace level.
      *
      * @return
      */
     @GetMapping("/roles")
-    public Mono<ResponseDTO<Map<String, String>>> getUserRolesForOrganization(@RequestParam String organizationId) {
-        return service.getUserRolesForOrganization(organizationId)
+    public Mono<ResponseDTO<Map<String, String>>> getUserRolesForWorkspace(@RequestParam String organizationId) {
+        return service.getUserRolesForWorkspace(organizationId)
                 .map(permissions -> new ResponseDTO<>(HttpStatus.OK.value(), permissions, null));
     }
 
-    @GetMapping("/{orgId}/members")
-    public Mono<ResponseDTO<List<UserRole>>> getUserMembersOfOrganization(@PathVariable String orgId) {
-        return service.getOrganizationMembers(orgId)
+    @GetMapping("/{workspaceId}/members")
+    public Mono<ResponseDTO<List<UserRole>>> getUserMembersOfWorkspace(@PathVariable String workspaceId) {
+        return service.getWorkspaceMembers(workspaceId)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 
-    @PutMapping("/{orgId}/role")
+    @PutMapping("/{workspaceId}/role")
     public Mono<ResponseDTO<UserRole>> updateRoleForMember(@RequestBody UserRole updatedUserRole,
-                                                           @PathVariable String orgId,
+                                                           @PathVariable String workspaceId,
                                                            @RequestHeader(name = "Origin", required = false) String originHeader) {
-        return userOrganizationService.updateRoleForMember(orgId, updatedUserRole, originHeader)
+        return userWorkspaceService.updateRoleForMember(workspaceId, updatedUserRole, originHeader)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 
-    @PostMapping("/{organizationId}/logo")
-    public Mono<ResponseDTO<Organization>> uploadLogo(@PathVariable String organizationId,
+    @PostMapping("/{workspaceId}/logo")
+    public Mono<ResponseDTO<Workspace>> uploadLogo(@PathVariable String workspaceId,
                                                       @RequestPart("file") Mono<Part> fileMono) {
         return fileMono
-                .flatMap(filePart -> service.uploadLogo(organizationId, filePart))
+                .flatMap(filePart -> service.uploadLogo(workspaceId, filePart))
                 .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null));
     }
 
-    @DeleteMapping("/{organizationId}/logo")
-    public Mono<ResponseDTO<Organization>> deleteLogo(@PathVariable String organizationId) {
-        return service.deleteLogo(organizationId)
-                .map(organization -> new ResponseDTO<>(HttpStatus.OK.value(), organization, null));
+    @DeleteMapping("/{workspaceId}/logo")
+    public Mono<ResponseDTO<Workspace>> deleteLogo(@PathVariable String workspaceId) {
+        return service.deleteLogo(workspaceId)
+                .map(workspace -> new ResponseDTO<>(HttpStatus.OK.value(), workspace, null));
     }
 
 }

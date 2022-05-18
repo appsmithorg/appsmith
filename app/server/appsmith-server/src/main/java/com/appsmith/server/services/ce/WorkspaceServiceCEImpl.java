@@ -7,24 +7,24 @@ import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Asset;
-import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.OrganizationPlugin;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
-import com.appsmith.server.dtos.OrganizationPluginStatus;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.UserOrganizationService;
+import com.appsmith.server.services.UserWorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -53,12 +53,12 @@ import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 
 @Slf4j
-public class OrganizationServiceCEImpl extends BaseService<OrganizationRepository, Organization, String>
-        implements OrganizationServiceCE {
+public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Workspace, String>
+        implements WorkspaceServiceCE {
 
     private final PluginRepository pluginRepository;
     private final SessionUserService sessionUserService;
-    private final UserOrganizationService userOrganizationService;
+    private final UserWorkspaceService userWorkspaceService;
     private final UserRepository userRepository;
     private final RoleGraph roleGraph;
     private final AssetRepository assetRepository;
@@ -66,15 +66,15 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     private final ApplicationRepository applicationRepository;
 
     @Autowired
-    public OrganizationServiceCEImpl(Scheduler scheduler,
+    public WorkspaceServiceCEImpl(Scheduler scheduler,
                                      Validator validator,
                                      MongoConverter mongoConverter,
                                      ReactiveMongoTemplate reactiveMongoTemplate,
-                                     OrganizationRepository repository,
+                                     WorkspaceRepository repository,
                                      AnalyticsService analyticsService,
                                      PluginRepository pluginRepository,
                                      SessionUserService sessionUserService,
-                                     UserOrganizationService userOrganizationService,
+                                     UserWorkspaceService userWorkspaceService,
                                      UserRepository userRepository,
                                      RoleGraph roleGraph,
                                      AssetRepository assetRepository,
@@ -83,7 +83,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pluginRepository = pluginRepository;
         this.sessionUserService = sessionUserService;
-        this.userOrganizationService = userOrganizationService;
+        this.userWorkspaceService = userWorkspaceService;
         this.userRepository = userRepository;
         this.roleGraph = roleGraph;
         this.assetRepository = assetRepository;
@@ -92,53 +92,53 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     }
 
     @Override
-    public Flux<Organization> get(MultiValueMap<String, String> params) {
+    public Flux<Workspace> get(MultiValueMap<String, String> params) {
         return sessionUserService.getCurrentUser()
                 .flatMapMany(user -> {
-                    Set<String> organizationIds = user.getOrganizationIds();
-                    if (organizationIds == null || organizationIds.isEmpty()) {
-                        log.error("No organization set for user: {}. Returning empty list of organizations", user.getEmail());
+                    Set<String> workspaceIds = user.getOrganizationIds();
+                    if (workspaceIds == null || workspaceIds.isEmpty()) {
+                        log.error("No workspace set for user: {}. Returning empty list of workspaces", user.getEmail());
                         return Flux.empty();
                     }
-                    return repository.findAllById(organizationIds);
+                    return repository.findAllById(workspaceIds);
                 });
     }
 
     /**
-     * Creates the given organization as a default organization for the given user. That is, the organization's name
-     * is changed to "[username]'s apps" and then created. The current value of the organization name
+     * Creates the given workspace as a default workspace for the given user. That is, the workspace's name
+     * is changed to "[username]'s apps" and then created. The current value of the workspace name
      * is discarded.
      *
-     * @param organization Organization object to be created.
-     * @param user         User to whom this organization will belong to, as a default organization.
-     * @return Publishes the saved organization.
+     * @param workspace workspace object to be created.
+     * @param user         User to whom this workspace will belong to, as a default workspace.
+     * @return Publishes the saved workspace.
      */
     @Override
-    public Mono<Organization> createDefault(final Organization organization, User user) {
-        organization.setName(user.computeFirstName() + "'s apps");
-        organization.setIsAutoGeneratedOrganization(true);
-        return create(organization, user);
+    public Mono<Workspace> createDefault(final Workspace workspace, User user) {
+        workspace.setName(user.computeFirstName() + "'s apps");
+        workspace.setIsAutoGeneratedOrganization(true);
+        return create(workspace, user);
     }
 
     /**
      * This function does the following:
-     * 1. Creates the organization for the user
-     * 2. Installs all default plugins for the organization
-     * 3. Creates default groups for the organization
-     * 4. Adds the user to the newly created organization
-     * 5. Assigns the default groups to the user creating the organization
+     * 1. Creates the workspace for the user
+     * 2. Installs all default plugins for the workspace
+     * 3. Creates default groups for the workspace
+     * 4. Adds the user to the newly created workspace
+     * 5. Assigns the default groups to the user creating the workspace
      *
-     * @param organization Organization object to be created.
-     * @param user         User to whom this organization will belong to.
-     * @return Publishes the saved organization.
+     * @param workspace Workspace object to be created.
+     * @param user         User to whom this workspace will belong to.
+     * @return Publishes the saved workspace.
      */
     @Override
-    public Mono<Organization> create(Organization organization, User user) {
-        if (organization == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION));
+    public Mono<Workspace> create(Workspace workspace, User user) {
+        if (workspace == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE));
         }
 
-        // Does the user have permissions to create an organization?
+        // Does the user have permissions to create an workspace?
         boolean isManageOrgPolicyPresent = user.getPolicies().stream()
                 .anyMatch(policy -> policy.getPermission().equals(USER_MANAGE_ORGANIZATIONS.getValue()));
 
@@ -146,59 +146,59 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
             return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Create organization"));
         }
 
-        if (organization.getEmail() == null) {
-            organization.setEmail(user.getEmail());
+        if (workspace.getEmail() == null) {
+            workspace.setEmail(user.getEmail());
         }
 
-        organization.setSlug(TextUtils.makeSlug(organization.getName()));
+        workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
 
-        return validateObject(organization)
+        return validateObject(workspace)
                 // Install all the default plugins when the org is created
                 /* TODO: This is a hack. We should ideally use the pluginService.installPlugin() function.
-                    Not using it right now because of circular dependency b/w organizationService and pluginService
+                    Not using it right now because of circular dependency b/w workspaceService and pluginService
                     Also, since all our deployments are single node, this logic will still work
                  */
                 .flatMap(org -> pluginRepository.findByDefaultInstall(true)
-                        .map(obj -> new OrganizationPlugin(obj.getId(), OrganizationPluginStatus.FREE))
+                        .map(obj -> new WorkspacePlugin(obj.getId(), WorkspacePluginStatus.FREE))
                         .collect(Collectors.toSet())
                         .map(pluginList -> {
                             org.setPlugins(pluginList);
                             return org;
                         }))
-                // Save the organization in the db
+                // Save the workspace in the db
                 .flatMap(repository::save)
-                // Set the current user as admin for the organization
+                // Set the current user as admin for the workspace
                 .flatMap(createdOrg -> {
                     UserRole userRole = new UserRole();
                     userRole.setUsername(user.getUsername());
                     userRole.setUserId(user.getId());
                     userRole.setName(user.getName());
                     userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-                    return userOrganizationService.addUserToOrganizationGivenUserObject(createdOrg, user, userRole);
+                    return userWorkspaceService.addUserToWorkspaceGivenUserObject(createdOrg, user, userRole);
                 })
                 // Now add the org id to the user object and then return the saved org
-                .flatMap(savedOrganization -> userOrganizationService
-                        .addUserToOrganization(savedOrganization.getId(), user)
-                        .thenReturn(savedOrganization));
+                .flatMap(savedWorkspace -> userWorkspaceService
+                        .addUserToWorkspace(savedWorkspace.getId(), user)
+                        .thenReturn(savedWorkspace));
     }
 
     /**
-     * Create organization needs to first fetch and embed Setting object in OrganizationSetting
+     * Create workspace needs to first fetch and embed Setting object in OrganizationSetting
      * for any settings that may have diverged from the default values. Once the
-     * settings have been embedded in all the organization settings, the library
-     * function is called to store the enhanced organization object back in the organization object.
+     * settings have been embedded in all the workspace settings, the library
+     * function is called to store the enhanced workspace object back in the workspace object.
      */
     @Override
-    public Mono<Organization> create(Organization organization) {
+    public Mono<Workspace> create(Workspace workspace) {
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> userRepository.findByEmail(user.getUsername(), READ_USERS))
-                .flatMap(user -> create(organization, user));
+                .flatMap(user -> create(workspace, user));
     }
 
     @Override
-    public Mono<Organization> update(String id, Organization resource) {
-        Mono<Organization> findOrganizationMono = repository.findById(id, MANAGE_ORGANIZATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, id)));
+    public Mono<Workspace> update(String id, Workspace resource) {
+        Mono<Workspace> findWorkspaceMono = repository.findById(id, MANAGE_ORGANIZATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id)));
 
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
@@ -210,10 +210,10 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
             resource.setSlug(TextUtils.makeSlug(resource.getName()));
         }
 
-        return findOrganizationMono
-                .map(existingOrganization -> {
-                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, existingOrganization);
-                    return existingOrganization;
+        return findWorkspaceMono
+                .map(existingWorkspace -> {
+                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, existingWorkspace);
+                    return existingWorkspace;
                 })
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
@@ -221,54 +221,54 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     }
 
     @Override
-    public Mono<Organization> getById(String id) {
+    public Mono<Workspace> getById(String id) {
         return findById(id, AclPermission.READ_ORGANIZATIONS);
     }
 
     @Override
-    public Mono<Organization> findById(String id, AclPermission permission) {
+    public Mono<Workspace> findById(String id, AclPermission permission) {
         return repository.findById(id, permission);
     }
 
     @Override
-    public Mono<Organization> save(Organization organization) {
-        if(StringUtils.hasLength(organization.getName())) {
-            organization.setSlug(TextUtils.makeSlug(organization.getName()));
+    public Mono<Workspace> save(Workspace workspace) {
+        if(StringUtils.hasLength(workspace.getName())) {
+            workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
         }
-        return repository.save(organization);
+        return repository.save(workspace);
     }
 
     @Override
-    public Mono<Organization> findByIdAndPluginsPluginId(String organizationId, String pluginId) {
-        return repository.findByIdAndPluginsPluginId(organizationId, pluginId);
+    public Mono<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId) {
+        return repository.findByIdAndPluginsPluginId(workspaceId, pluginId);
     }
 
     @Override
-    public Flux<Organization> findByIdsIn(Set<String> ids, AclPermission permission) {
+    public Flux<Workspace> findByIdsIn(Set<String> ids, AclPermission permission) {
         Sort sort = Sort.by(FieldName.NAME);
 
         return repository.findByIdsIn(ids, permission, sort);
     }
 
     @Override
-    public Mono<Map<String, String>> getUserRolesForOrganization(String orgId) {
+    public Mono<Map<String, String>> getUserRolesForWorkspace(String orgId) {
         if (orgId == null || orgId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
 
-        Mono<Organization> organizationMono = repository.findById(orgId, ORGANIZATION_INVITE_USERS);
+        Mono<Workspace> workspaceMono = repository.findById(orgId, ORGANIZATION_INVITE_USERS);
         Mono<String> usernameMono = sessionUserService
                 .getCurrentUser()
                 .map(User::getUsername);
 
-        return organizationMono
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
+        return workspaceMono
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, orgId)))
                 .zipWith(usernameMono)
                 .flatMap(tuple -> {
-                    Organization organization = tuple.getT1();
+                    Workspace workspace = tuple.getT1();
                     String username = tuple.getT2();
 
-                    List<UserRole> userRoles = organization.getUserRoles();
+                    List<UserRole> userRoles = workspace.getUserRoles();
                     if (userRoles == null || userRoles.isEmpty()) {
                         return Mono.empty();
                     }
@@ -293,75 +293,75 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     }
 
     @Override
-    public Mono<List<UserRole>> getOrganizationMembers(String orgId) {
+    public Mono<List<UserRole>> getWorkspaceMembers(String orgId) {
         return repository
                 .findById(orgId, ORGANIZATION_INVITE_USERS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
-                .map(organization -> {
-                    final List<UserRole> userRoles = organization.getUserRoles();
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, orgId)))
+                .map(workspace -> {
+                    final List<UserRole> userRoles = workspace.getUserRoles();
                     return CollectionUtils.isEmpty(userRoles) ? Collections.emptyList() : userRoles;
                 });
     }
 
     @Override
-    public Mono<Organization> uploadLogo(String organizationId, Part filePart) {
-        final Mono<Organization> findOrganizationMono = repository.findById(organizationId, MANAGE_ORGANIZATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)));
+    public Mono<Workspace> uploadLogo(String organizationId, Part filePart) {
+        final Mono<Workspace> findWorkspaceMono = repository.findById(organizationId, MANAGE_ORGANIZATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, organizationId)));
 
-        // We don't execute the upload Mono if we don't find the organization.
-        final Mono<Asset> uploadAssetMono = assetService.upload(filePart, Constraint.ORGANIZATION_LOGO_SIZE_KB, false);
+        // We don't execute the upload Mono if we don't find the workspace.
+        final Mono<Asset> uploadAssetMono = assetService.upload(filePart, Constraint.WORKSPACE_LOGO_SIZE_KB, false);
 
-        return findOrganizationMono
-                .flatMap(organization -> Mono.zip(Mono.just(organization), uploadAssetMono))
+        return findWorkspaceMono
+                .flatMap(workspace -> Mono.zip(Mono.just(workspace), uploadAssetMono))
                 .flatMap(tuple -> {
-                    final Organization organization = tuple.getT1();
+                    final Workspace workspace = tuple.getT1();
                     final Asset uploadedAsset = tuple.getT2();
-                    final String prevAssetId = organization.getLogoAssetId();
+                    final String prevAssetId = workspace.getLogoAssetId();
 
-                    organization.setLogoAssetId(uploadedAsset.getId());
-                    return repository.save(organization)
-                            .flatMap(savedOrganization -> {
+                    workspace.setLogoAssetId(uploadedAsset.getId());
+                    return repository.save(workspace)
+                            .flatMap(savedWorkspace -> {
                                 if (StringUtils.isEmpty(prevAssetId)) {
-                                    return Mono.just(savedOrganization);
+                                    return Mono.just(savedWorkspace);
                                 } else {
-                                    return assetService.remove(prevAssetId).thenReturn(savedOrganization);
+                                    return assetService.remove(prevAssetId).thenReturn(savedWorkspace);
                                 }
                             });
                 });
     }
 
     @Override
-    public Mono<Organization> deleteLogo(String organizationId) {
+    public Mono<Workspace> deleteLogo(String organizationId) {
         return repository
                 .findById(organizationId, MANAGE_ORGANIZATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)))
-                .flatMap(organization -> {
-                    final String prevAssetId = organization.getLogoAssetId();
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, organizationId)))
+                .flatMap(workspace -> {
+                    final String prevAssetId = workspace.getLogoAssetId();
                     if(prevAssetId == null) {
                         return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ASSET, prevAssetId));
                     }
-                    organization.setLogoAssetId(null);
+                    workspace.setLogoAssetId(null);
                     return assetRepository.findById(prevAssetId)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ASSET, prevAssetId)))
                             .flatMap(asset -> assetRepository.delete(asset).thenReturn(asset))
                             .flatMap(analyticsService::sendDeleteEvent)
-                            .then(repository.save(organization));
+                            .then(repository.save(workspace));
                 });
     }
 
     @Override
-    public Flux<Organization> getAll() {
-        return repository.findAllOrganizations();
+    public Flux<Workspace> getAll() {
+        return repository.findAllWorkspaces();
     }
 
     @Override
-    public Mono<Organization> archiveById(String organizationId) {
-        return applicationRepository.countByOrganizationId(organizationId).flatMap(appCount -> {
-            if(appCount == 0) { // no application found under this organization
+    public Mono<Workspace> archiveById(String workspaceId) {
+        return applicationRepository.countByOrganizationId(workspaceId).flatMap(appCount -> {
+            if(appCount == 0) { // no application found under this workspace
                 // fetching the org first to make sure user has permission to archive
-                return repository.findById(organizationId, MANAGE_ORGANIZATIONS)
+                return repository.findById(workspaceId, MANAGE_ORGANIZATIONS)
                         .switchIfEmpty(Mono.error(new AppsmithException(
-                                AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId
+                                AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId
                         )))
                         .flatMap(repository::archive);
             } else {
