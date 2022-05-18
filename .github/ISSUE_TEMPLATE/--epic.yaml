@@ -17,15 +17,15 @@ body:
     label: Success Metrics
     description: List of all metrics you are tracking and the desired goal.
     value: |
-      | Goal          | Metric         |
-      | ------------- | -------------- |
-      | e.g. Simplify user experience  | Customer satisfaction score increases  |
-      | e.g. Simplify onboarding flow  | Decrease churn rate down to 30%        |
+      | Metric         |
+      | -------------- |
+      | Customer satisfaction score increases  |
+      | Decrease churn rate down to 30%        |
   validations:
     required: true
 - type: textarea
   attributes:
-    label: Requirements 
+    label: Prioritised User Stories 
     value: |
       | User Story    |
       | ------------- |
