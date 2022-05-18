@@ -1,9 +1,9 @@
 export * from "ce/pages/AdminSettings/config/authentication/index";
 import {
   config as CE_config,
-  Form_Auth_Callout,
-  Github_Auth_Callout,
-  Google_Auth_Callout,
+  FormAuthCallout,
+  GithubAuthCallout,
+  GoogleAuthCallout,
 } from "ce/pages/AdminSettings/config/authentication";
 import {
   AdminConfigType,
@@ -24,7 +24,7 @@ import { REDIRECT_URL_FORM } from "constants/forms";
 
 const { enableOidcOAuth, enableSamlOAuth } = getAppsmithConfigs();
 
-const SSO_Auth: AdminConfigType = {
+const SsoAuth: AdminConfigType = {
   type: SettingCategories.SAML_AUTH,
   controlType: SettingTypes.PAGE,
   title: "SAML 2.0",
@@ -35,7 +35,7 @@ const SSO_Auth: AdminConfigType = {
   isConnected: enableSamlOAuth,
 };
 
-const OIDC_Auth: AdminConfigType = {
+const OidcAuth: AdminConfigType = {
   type: SettingCategories.OIDC_AUTH,
   controlType: SettingTypes.PAGE,
   title: "OpenID Connect",
@@ -168,7 +168,7 @@ const OIDC_Auth: AdminConfigType = {
   ],
 };
 
-export const Saml_Auth_Callout: AuthMethodType = {
+export const SamlAuthCallout: AuthMethodType = {
   id: "APPSMITH_SAML_AUTH",
   category: SettingCategories.SAML_AUTH,
   label: "SAML 2.0",
@@ -178,7 +178,7 @@ export const Saml_Auth_Callout: AuthMethodType = {
   isConnected: enableSamlOAuth,
 };
 
-export const Oidc_Auth_Callout: AuthMethodType = {
+export const OidcAuthCallout: AuthMethodType = {
   id: "APPSMITH_OIDC_AUTH",
   category: SettingCategories.OIDC_AUTH,
   label: "OIDC",
@@ -189,11 +189,11 @@ export const Oidc_Auth_Callout: AuthMethodType = {
 };
 
 const AuthMethods = [
-  Oidc_Auth_Callout,
-  Saml_Auth_Callout,
-  Google_Auth_Callout,
-  Github_Auth_Callout,
-  Form_Auth_Callout,
+  OidcAuthCallout,
+  SamlAuthCallout,
+  GoogleAuthCallout,
+  GithubAuthCallout,
+  FormAuthCallout,
 ];
 
 function AuthMain() {
@@ -203,7 +203,7 @@ function AuthMain() {
 export const config: AdminConfigType = {
   ...CE_config,
   children: Array.isArray(CE_config.children)
-    ? [...CE_config.children, SSO_Auth, OIDC_Auth]
+    ? [...CE_config.children, SsoAuth, OidcAuth]
     : [],
   component: AuthMain,
 };

@@ -86,16 +86,17 @@ function getSettingDetail(category: string, subCategory: string) {
   return AdminConfig.getCategoryDetails(category, subCategory);
 }
 
-function useSettings(category: string, subCategory?: string) {
+function getSettingsConfig(category: string, subCategory?: string) {
   return AdminConfig.get(subCategory ?? category);
 }
 
 export function OidcSettingsForm(
   props: InjectedFormProps & RouteComponentProps & FormProps,
 ) {
+  const [defaultSettings, setDefaultSettings] = useState<string[]>([]);
   const params = useParams() as any;
   const { category, subCategory } = params;
-  const settingsDetails = useSettings(category, subCategory);
+  const settingsDetails = getSettingsConfig(category, subCategory);
   const { settings, settingsConfig } = props;
   const details = getSettingDetail(category, subCategory);
   const dispatch = useDispatch();
@@ -105,7 +106,6 @@ export function OidcSettingsForm(
   const pageTitle = getSettingLabel(
     details?.title || (subCategory ?? category),
   );
-  const [defaultSettings, setDefaultSettings] = useState<string[]>([]);
 
   const onSave = () => {
     if (checkMandatoryFileds()) {
