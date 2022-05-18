@@ -78,10 +78,12 @@ function KeyValueRow(
       if (value && keyFieldProps?.validationRegex) {
         const regex = new RegExp(keyFieldProps?.validationRegex);
 
-        return regex.test(value) ? undefined : keyFieldProps.validationMessage;
+        return regex.test(value)
+          ? { isValid: true }
+          : keyFieldProps.validationMessage;
       }
 
-      return undefined;
+      return { isValid: true };
     },
     [keyFieldProps?.validationRegex, keyFieldProps?.validationMessage],
   );

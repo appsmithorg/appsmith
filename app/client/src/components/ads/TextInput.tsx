@@ -340,11 +340,7 @@ const TextInput = forwardRef(
         if (inputValueValidation) {
           props.validator && setValidation(inputValueValidation);
 
-          return (
-            inputValueValidation.isValid &&
-            props.onChange &&
-            props.onChange(inputValue)
-          );
+          return props.onChange && props.onChange(inputValue);
         } else {
           return props.onChange && props.onChange(inputValue);
         }
