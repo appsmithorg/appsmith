@@ -48,13 +48,14 @@ public class FieldName {
             "        \"detachFromLayout\": true,\n" +
             "        \"widgetId\": \"0\",\n" +
             "        \"topRow\": 0,\n" +
-            "        \"bottomRow\": 1254,\n" +
+            "        \"bottomRow\": 1250,\n" +
             "        \"containerStyle\": \"none\",\n" +
             "        \"snapRows\": 33,\n" +
             "        \"parentRowSpace\": 1,\n" +
             "        \"type\": \"CANVAS_WIDGET\",\n" +
             "        \"canExtend\": true,\n" +
             "        \"dynamicBindingPathList\": [],\n" +
+            "        \"dynamicTriggerPathList\": [],\n" +
             "        \"version\": 4,\n" +
             "        \"minHeight\": 1292,\n" +
             "        \"parentColumnSpace\": 1,\n" +
@@ -108,5 +109,5 @@ public class FieldName {
     public static final String DECRYPTED_FIELDS = "decryptedFields";
     public static final String THEME = "theme";
     public static final String EDIT_MODE_THEME = "editModeTheme";
-
+    public static final String FLOW_NAME = "flowName";
 }

@@ -109,6 +109,7 @@ function FormTitle(props: FormTitleProps) {
         onTextChanged={handleDatasourceNameChange}
         placeholder="Datasource Name"
         type="text"
+        underline
         updating={saveStatus.isSaving}
       />
       {saveStatus.isSaving && <Spinner size={16} />}

@@ -150,6 +150,7 @@ import EditBoxLineIcon from "remixicon-react/EditBoxLineIcon";
 import StarLineIcon from "remixicon-react/StarLineIcon";
 import StarFillIcon from "remixicon-react/StarFillIcon";
 import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
+import DownloadIcon from "remixicon-react/DownloadLineIcon";
 import UploadCloud2LineIcon from "remixicon-react/UploadCloud2LineIcon";
 import DownloadLineIcon from "remixicon-react/DownloadLineIcon";
 import FileListLineIcon from "remixicon-react/FileListLineIcon";
@@ -197,7 +198,8 @@ export const IconWrapper = styled.span<IconProps>`
 
   display: flex;
   align-items: center;
-
+  cursor: ${(props) =>
+    props.disabled ? "not-allowed" : props.clickable ? "pointer" : "default"};
   svg {
     width: ${(props) => sizeHandler(props.size)}px;
     height: ${(props) => sizeHandler(props.size)}px;
@@ -216,7 +218,6 @@ export const IconWrapper = styled.span<IconProps>`
     ${(props) => (props.invisible ? `visibility: hidden;` : null)};
 
     &:hover {
-      cursor: ${(props) => (props.clickable ? "pointer" : "default")};
       ${(props) =>
         !props.keepColors
           ? `
@@ -380,6 +381,7 @@ const ICON_LOOKUP = {
   warning: <WarningIcon />,
   widget: <WidgetIcon />,
   workspace: <WorkspaceIcon />,
+  download2: <DownloadIcon />,
   upgrade: <DvdLineIcon />,
 };
 
@@ -398,10 +400,14 @@ export type IconProps = {
   keepColors?: boolean;
   loaderWithIconWrapper?: boolean;
   clickable?: boolean;
+  disabled?: boolean;
 };
 
 const Icon = forwardRef(
-  (props: IconProps & CommonComponentProps, ref: Ref<HTMLSpanElement>) => {
+  (
+    { onClick, ...props }: IconProps & CommonComponentProps,
+    ref: Ref<HTMLSpanElement>,
+  ) => {
     const iconName = props.name;
     const returnIcon =
       ICON_LOOKUP[iconName as keyof typeof ICON_LOOKUP] || null;
@@ -422,9 +428,9 @@ const Icon = forwardRef(
         className={`${Classes.ICON} ${props.className}`}
         clickable={clickable}
         data-cy={props.cypressSelector}
+        onClick={props.disabled ? noop : onClick}
         ref={ref}
         {...props}
-        onClick={props.onClick || noop}
       >
         {returnIcon}
       </IconWrapper>
