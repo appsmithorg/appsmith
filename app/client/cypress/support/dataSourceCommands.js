@@ -3,10 +3,6 @@
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
-
-const {
-  addMatchImageSnapshotCommand,
-} = require("cypress-image-snapshot/command");
 const pages = require("../locators/Pages.json");
 const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");

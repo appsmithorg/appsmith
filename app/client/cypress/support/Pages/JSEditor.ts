@@ -61,6 +61,8 @@ export class JSEditor {
     "')]//*[contains(text(),'" +
     jsFuncName +
     "')]";
+  _funcDropdown = ".t--formActionButtons div[role='listbox']";
+  _funcDropdownOptions = ".ads-dropdown-options-wrapper div > div";
 
   //#endregion
 
@@ -323,7 +325,7 @@ export class JSEditor {
   //   this.agHelper.GetNClick(this._closeSettings)
   // }
 
-  public VerifyOnPageLoadSetting(
+  public VerifyAsyncFuncSettings(
     funName: string,
     onLoad = true,
     bfrCalling = true,
@@ -337,15 +339,15 @@ export class JSEditor {
     this.agHelper.GetNClick(this._settingsTab);
     this.agHelper.AssertExistingToggleState(
       this._onPageLoadRadioButtonStatus(funName, onLoad),
-      onLoad == true ? "checked" : "unchecked",
+      "checked",
     );
     this.agHelper.AssertExistingToggleState(
       this._confirmBeforeExecuteRadioButtonStatus(funName, bfrCalling),
-      bfrCalling == true ? "checked" : "unchecked",
+      "checked",
     );
   }
 
-  public EnableDisableOnPageLoad(
+  public EnableDisableAsyncFuncSettings(
     funName: string,
     onLoad = true,
     bfrCalling = true,
