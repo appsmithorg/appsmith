@@ -39,6 +39,12 @@ body:
     description: Link to the developer Handoff Document. 
   validations:
     required: false
+- type: input
+  attributes:
+    label: Test Plan
+    description: Link to the Test Plan Document. 
+  validations:
+    required: false
 - type: textarea
   attributes:
     label: RACI matrix
