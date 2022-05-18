@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
@@ -785,11 +786,13 @@ public class DatabaseChangelog2 {
         //Call stream instead of findAll to avoid out of memory if the collection is big
         //stream implementation lazy loads the data using underlying cursor open on the collection
         //the data is loaded as as and when needed by the pipeline
-        mongockTemplate.stream(new Query(), Organization.class)
-            .stream().forEach((organization) -> {
+        try(Stream<Organization> stream = mongockTemplate.stream(new Query(), Organization.class)
+            .stream()) { 
+            stream.forEach((organization) -> {
                 Workspace workspace = gson.fromJson(gson.toJson(organization), Workspace.class);
                 mongockTemplate.insert(workspace);
             });
+        }
     }
 
     /**
