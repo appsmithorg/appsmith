@@ -80,10 +80,10 @@ function KeyValueRow(
 
         return regex.test(value)
           ? { isValid: true }
-          : keyFieldProps.validationMessage;
+          : { isValid: false, message: keyFieldProps.validationMessage };
       }
 
-      return { isValid: true };
+      return undefined;
     },
     [keyFieldProps?.validationRegex, keyFieldProps?.validationMessage],
   );
