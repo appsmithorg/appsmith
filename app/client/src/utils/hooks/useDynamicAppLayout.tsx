@@ -159,7 +159,7 @@ export const useDynamicAppLayout = () => {
   }, [screenHeight, mainCanvasProps?.height]);
 
   useEffect(() => {
-    debouncedResize();
+    if (initialized) debouncedResize();
   }, [screenWidth]);
 
   /**
@@ -173,7 +173,7 @@ export const useDynamicAppLayout = () => {
    *  - theme mode is turned on
    */
   useEffect(() => {
-    resizeToLayout();
+    if (initialized) resizeToLayout();
   }, [
     appLayout,
     currentPageId,
@@ -187,10 +187,11 @@ export const useDynamicAppLayout = () => {
    * calling the setInitialized here so that property pane width is initialized
    */
   useEffect(() => {
-    const observer = new MutationObserver((mutations, obs) => {
+    const observer = new MutationObserver(() => {
       if (domEntityExplorer && domPropertyPane) {
         setInitialized(true);
-        obs.disconnect();
+        resizeToLayout();
+        observer.disconnect();
         return;
       }
     });
@@ -199,7 +200,13 @@ export const useDynamicAppLayout = () => {
       childList: true,
       subtree: true,
     });
-  });
+
+    return () => {
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  }, [setInitialized, resizeToLayout]);
 
   return initialized;
 };
