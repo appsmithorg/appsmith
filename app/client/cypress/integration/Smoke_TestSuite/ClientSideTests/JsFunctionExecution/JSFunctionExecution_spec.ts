@@ -11,9 +11,12 @@ describe("JS Function Execution", function() {
   		return "yes"
   	}
   }`,
-      true,
-      true,
-      false,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldNavigate: true,
+      },
     );
 
     jsEditor.AssertParseError(false, false);
@@ -26,9 +29,12 @@ describe("JS Function Execution", function() {
   		return "yes"
   	}
   }`,
-      true,
-      true,
-      false,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldNavigate: true,
+      },
     );
 
     jsEditor.AssertParseError(true, false);
@@ -48,19 +54,23 @@ describe("JS Function Execution", function() {
     }`;
 
     // create jsObject with parse error (that doesn't render JS Object invalid)
-    jsEditor.CreateJSObject(
-      JSObjectWithFunctionExecutionParseErrors,
-      true,
-      true,
-      true,
-      true,
-    );
+    jsEditor.CreateJSObject(JSObjectWithFunctionExecutionParseErrors, {
+      paste: true,
+      completeReplace: true,
+      toRun: true,
+      shouldNavigate: true,
+    });
 
     // Assert presence of function execution parse error callout
     jsEditor.AssertParseError(true, true);
 
     // Add parse error that renders JS Object invalid in code
-    jsEditor.CreateJSObject(JSObjectWithParseErrors, true, true, false, false);
+    jsEditor.CreateJSObject(JSObjectWithParseErrors, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldNavigate: false,
+    });
 
     // Assert presence of parse error callout (entire JS Object is invalid)
     jsEditor.AssertParseError(true, false);

@@ -1,5 +1,18 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 
+export interface ICreateJSObjectOptions {
+  paste: boolean;
+  completeReplace: boolean;
+  toRun: boolean;
+  shouldNavigate: boolean;
+}
+const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
+  paste: true,
+  completeReplace: false,
+  toRun: true,
+  shouldNavigate: true,
+};
+
 export class JSEditor {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
@@ -92,13 +105,11 @@ export class JSEditor {
 
   public CreateJSObject(
     JSCode: string,
-    paste = true,
-    completeReplace = false,
-    toRun = true,
-    shouldNavigate = true,
+    options: ICreateJSObjectOptions = DEFAULT_CREATE_JS_OBJECT_OPTIONS,
   ) {
-    shouldNavigate && this.NavigateToJSEditor();
+    const { completeReplace, paste, shouldNavigate, toRun } = options;
 
+    shouldNavigate && this.NavigateToJSEditor();
     if (!completeReplace) {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
