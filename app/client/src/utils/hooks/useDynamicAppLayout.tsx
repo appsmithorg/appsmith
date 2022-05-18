@@ -181,13 +181,25 @@ export const useDynamicAppLayout = () => {
     isPreviewMode,
     explorerWidth,
     isExplorerPinned,
-    initialized,
   ]);
 
   /**
    * calling the setInitialized here so that property pane width is initialized
    */
   useEffect(() => {
-    setInitialized(true);
+    const observer = new MutationObserver((mutations, obs) => {
+      if (domEntityExplorer && domPropertyPane) {
+        setInitialized(true);
+        obs.disconnect();
+        return;
+      }
+    });
+
+    observer.observe(document, {
+      childList: true,
+      subtree: true,
+    });
   });
+
+  return initialized;
 };
