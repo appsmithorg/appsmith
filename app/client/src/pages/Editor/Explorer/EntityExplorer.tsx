@@ -70,7 +70,7 @@ const StyledDivider = styled(Divider)`
   border-bottom-color: #f0f0f0;
 `;
 
-function EntityExplorer({ isActive }: any) {
+function EntityExplorer({ isActive }: { isActive: boolean }) {
   const dispatch = useDispatch();
   const [searchKeyword, setSearchKeyword] = useState("");
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(

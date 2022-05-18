@@ -10,7 +10,7 @@ import {
   WIDGET_SIDEBAR_CAPTION,
 } from "@appsmith/constants/messages";
 
-function WidgetSidebar({ isActive }: any) {
+function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
