@@ -781,6 +781,10 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "009", id = "copy-organization-to-workspaces", author = "")
     public void copyOrganizationToWorkspaces(MongockTemplate mongockTemplate) {
         Gson gson = new Gson();
+        //Memory optimization note:
+        //Call stream instead of findAll to avoid out of memory if the collection is big
+        //stream implementation lazy loads the data using underlying cursor open on the collection
+        //the data is loaded as as and when needed by the pipeline
         mongockTemplate.stream(new Query(), Organization.class)
             .stream().forEach((organization) -> {
                 Workspace workspace = gson.fromJson(gson.toJson(organization), Workspace.class);
