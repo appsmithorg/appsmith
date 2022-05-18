@@ -12,7 +12,7 @@ import {
   isEmbeddedRestDatasource,
 } from "entities/Datasource";
 import { Action, PluginType } from "entities/Action";
-import { find, sortBy, memoize, get } from "lodash";
+import { find, sortBy, get } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -494,7 +494,7 @@ function getWidgetsStructure(canvasWidgets: CanvasWidgetsReduxState) {
 
 export const getCanvasWidgetsStructure = createSelector(
   getCanvasWidgets,
-  memoize(getWidgetsStructure),
+  getWidgetsStructure,
 );
 
 const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
