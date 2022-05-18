@@ -11,7 +11,7 @@ const Main = () => {
   const wrapperCategory =
     AdminConfig.wrapperCategories[subCategory ?? category];
 
-  if (!!wrapperCategory && !!wrapperCategory.component) {
+  if (!!wrapperCategory?.component) {
     const { component: WrapperCategoryComponent } = wrapperCategory;
     return <WrapperCategoryComponent />;
   } else if (
