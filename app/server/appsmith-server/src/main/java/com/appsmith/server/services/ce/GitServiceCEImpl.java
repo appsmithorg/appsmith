@@ -403,18 +403,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     Path baseRepoSuffix =
                             Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
-                    return redisOperations.opsForValue().get(baseRepoSuffix.toString())
-                            .flatMap(object -> {
-                                if (object.equals(REDIS_FILE_RELEASE_VALUE)) {
-                                    return redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
-                                            .then(Mono.just(application));
-                                } else {
-                                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
-                                }
-                            })
-                            .switchIfEmpty(redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
-                                    .then(Mono.just(application))
-                            );
+                    return addFileLock(baseRepoSuffix)
+                            .then(Mono.just(application));
                 })
                 .flatMap(defaultApplication -> {
                     GitApplicationMetadata defaultGitMetadata = defaultApplication.getGitApplicationMetadata();
@@ -586,7 +576,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             childApplication.getGitApplicationMetadata().getRepoName());
                     return applicationService.update(childApplication.getId(), update)
                             // Release the file lock on git repo
-                            .flatMap(application -> redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_RELEASE_VALUE, FILE_LOCK_TIME_LIMIT))
+                            .flatMap(application -> releaseFileLock(baseRepoSuffix))
                             .then(addAnalyticsForGitOperation(
                                     AnalyticsEvents.GIT_COMMIT.getEventName(),
                                     childApplication,
@@ -1375,18 +1365,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     Path baseRepoSuffix =
                             Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
-                    return redisOperations.opsForValue().get(baseRepoSuffix.toString())
-                            .flatMap(object -> {
-                                if (object.equals(REDIS_FILE_RELEASE_VALUE)) {
-                                    return redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
-                                            .then(Mono.just(application));
-                                } else {
-                                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
-                                }
-                            })
-                            .switchIfEmpty(redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
-                                    .then(Mono.just(application))
-                            );
+                    return addFileLock(baseRepoSuffix)
+                            .then(Mono.just(application));
                 })
                 .flatMap(defaultApplication -> {
                     GitApplicationMetadata defaultGitMetadata = defaultApplication.getGitApplicationMetadata();
@@ -1611,17 +1591,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     Path baseRepoSuffix =
                             Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
-                    return redisOperations.opsForValue().get(baseRepoSuffix.toString())
-                            .flatMap(object -> {
-                                if (object.equals(REDIS_FILE_RELEASE_VALUE)) {
-                                    return redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
-                                            .then(Mono.just(application));
-                                } else {
-                                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
-                                }
-                            })
-                            .switchIfEmpty(redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT)
-                                    .then(Mono.just(application)));
+                    return addFileLock(baseRepoSuffix)
+                            .then(Mono.just(application));
                 })
                 .flatMap(defaultApplication -> {
                     GitApplicationMetadata gitApplicationMetadata = defaultApplication.getGitApplicationMetadata();
@@ -1719,7 +1690,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 Path repoSuffix = Paths.get(application1.getOrganizationId(),
                                         application1.getGitApplicationMetadata().getDefaultApplicationId(),
                                         application1.getGitApplicationMetadata().getRepoName());
-                                return redisOperations.opsForValue().set(repoSuffix.toString(), REDIS_FILE_RELEASE_VALUE, FILE_LOCK_TIME_LIMIT)
+                                return releaseFileLock(repoSuffix)
                                         .flatMap(result -> this.commitApplication(commitDTO, defaultApplicationId, destinationBranch)
                                                 .retryWhen(Retry.fixedDelay(3, RETRY_DELAY))
                                                 .map(commitStatus -> mergeStatusDTO)
@@ -2485,11 +2456,27 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                             // Make commit and push after pull is successful to have a clean repo
                             Path baseRepoSuffix = Paths.get(branchedApplication.getOrganizationId(), application.getId(), application.getGitApplicationMetadata().getRepoName());
-                            return redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_RELEASE_VALUE, FILE_LOCK_TIME_LIMIT)
+                            return releaseFileLock(baseRepoSuffix)
                                     .flatMap(value -> this.commitApplication(commitDTO, application.getGitApplicationMetadata().getDefaultApplicationId(), branchName)
                                             .retryWhen(Retry.fixedDelay(3, RETRY_DELAY))
                                             .thenReturn(gitPullDTO));
                         });
             });
+    }
+
+    public Mono<Boolean> addFileLock(Path baseRepoSuffix) {
+        return redisOperations.opsForValue().get(baseRepoSuffix.toString())
+                .flatMap(object -> {
+                    if (object.equals(REDIS_FILE_RELEASE_VALUE)) {
+                        return redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT);
+                    } else {
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
+                    }
+                })
+                .switchIfEmpty(redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT));
+    }
+
+    public Mono<Boolean> releaseFileLock(Path baseRepoSuffix) {
+        return redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_RELEASE_VALUE, FILE_LOCK_TIME_LIMIT);
     }
 }

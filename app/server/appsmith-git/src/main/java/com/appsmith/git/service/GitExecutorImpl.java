@@ -312,8 +312,7 @@ public class GitExecutorImpl implements GitExecutor {
             // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
             // open the repo
             Path baseRepoPath = createRepoPath(repoSuffix);
-            Git git = Git.open(baseRepoPath.toFile());
-            try {
+            try(Git git = Git.open(baseRepoPath.toFile())) {
                 if (StringUtils.equalsIgnoreCase(branchName, git.getRepository().getBranch())) {
                     return Boolean.TRUE;
                 }
@@ -327,7 +326,6 @@ public class GitExecutorImpl implements GitExecutor {
                 processStopwatch.stopAndLogTimeInMillis();
                 return StringUtils.equalsIgnoreCase(checkedOutBranch, "refs/heads/"+branchName);
             } catch (Exception e) {
-                git.close();
                 throw new Exception(e);
             }
         })
@@ -628,7 +626,6 @@ public class GitExecutorImpl implements GitExecutor {
                     mergeStatus.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT);
                 }
                 mergeStatus.setStatus(mergeResult.getMergeStatus().name());
-                git.close();
                 return mergeStatus;
             }
         })
@@ -697,7 +694,6 @@ public class GitExecutorImpl implements GitExecutor {
             Ref ref = git.reset().setMode(ResetCommand.ResetType.HARD).call();
             // Remove untracked files
             git.clean().setForce(true).setCleanDirectories(true).call();
-            git.close();
             return ref;
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
