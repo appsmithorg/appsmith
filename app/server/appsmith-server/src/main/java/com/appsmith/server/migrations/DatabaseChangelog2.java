@@ -781,10 +781,11 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "009", id = "copy-organization-to-workspaces", author = "")
     public void copyOrganizationToWorkspaces(MongockTemplate mongockTemplate) {
         Gson gson = new Gson();
-        for (Organization organization : mongockTemplate.findAll(Organization.class)) {
-            Workspace workspace = gson.fromJson(gson.toJson(organization), Workspace.class);
-            mongockTemplate.insert(workspace);
-        }
+        mongockTemplate.stream(new Query(), Organization.class)
+            .stream().forEach((organization) -> {
+                Workspace workspace = gson.fromJson(gson.toJson(organization), Workspace.class);
+                mongockTemplate.insert(workspace);
+            });
     }
 
     /**
