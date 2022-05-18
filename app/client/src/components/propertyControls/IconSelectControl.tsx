@@ -14,18 +14,22 @@ import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 import _ from "lodash";
+import { generateReactKey } from "utils/generators";
 
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;
+  id: string;
 }>`
-  .bp3-select-popover {
-    width: ${({ targetWidth }) => targetWidth}px;
-    background: white;
+  ${({ id, targetWidth }) => `
+    .icon-select-popover-${id} {
+      width: ${targetWidth}px;
+      background: white;
 
-    .bp3-input-group {
-      margin: 5px !important;
+      .bp3-input-group {
+        margin: 5px !important;
+      }
     }
-  }
+  `}
 `;
 
 const StyledButton = styled(Button)`
@@ -114,6 +118,7 @@ class IconSelectControl extends BaseControl<
   private initialItemIndex: number;
   private filteredItems: Array<IconType>;
   private searchInput: React.RefObject<HTMLInputElement>;
+  id: string = generateReactKey();
 
   constructor(props: IconSelectControlProps) {
     super(props);
@@ -168,7 +173,7 @@ class IconSelectControl extends BaseControl<
 
     return (
       <>
-        <IconSelectContainerStyles targetWidth={containerWidth} />
+        <IconSelectContainerStyles id={this.id} targetWidth={containerWidth} />
         <TypedSelect
           activeItem={activeIcon || defaultIconName || NONE}
           className="icon-select-container"
@@ -185,6 +190,7 @@ class IconSelectControl extends BaseControl<
             enforceFocus: false,
             minimal: true,
             isOpen: this.state.isOpen,
+            popoverClassName: `icon-select-popover-${this.id}`,
             onInteraction: (state) => {
               if (this.state.isOpen !== state)
                 this.debouncedSetState({ isOpen: state });

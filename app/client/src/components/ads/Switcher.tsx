@@ -24,6 +24,7 @@ const SwitchBlock = styled.div<{ active?: boolean }>`
   height: 100%;
   flex: 1;
   border: 1px solid transparent;
+  user-select: none;
 
   ${(props) =>
     props.active &&

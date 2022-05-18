@@ -95,6 +95,7 @@ const PROPERTIES = {
           label: "Border Radius",
           helpText: "Rounds the corners of the icon button's outer border edge",
           controlType: "BORDER_RADIUS_OPTIONS",
+          customJSControl: "JSON_FORM_COMPUTE_VALUE",
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,
@@ -108,6 +109,7 @@ const PROPERTIES = {
           helpText:
             "Enables you to cast a drop shadow from the frame of the widget",
           controlType: "BOX_SHADOW_OPTIONS",
+          customJSControl: "JSON_FORM_COMPUTE_VALUE",
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,
@@ -176,6 +178,7 @@ const PROPERTIES = {
           label: "Border Radius",
           helpText: "Rounds the corners of the icon button's outer border edge",
           controlType: "BORDER_RADIUS_OPTIONS",
+          customJSControl: "JSON_FORM_COMPUTE_VALUE",
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,
@@ -189,6 +192,7 @@ const PROPERTIES = {
           helpText:
             "Enables you to cast a drop shadow from the frame of the widget",
           controlType: "BOX_SHADOW_OPTIONS",
+          customJSControl: "JSON_FORM_COMPUTE_VALUE",
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,

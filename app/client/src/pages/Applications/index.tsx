@@ -361,9 +361,9 @@ function WorkspaceMenuItem({
         isFetchingApplications ? BlueprintClasses.SKELETON : ""
       }
       ellipsize={20}
-      href={`${window.location.pathname}#${workspace.workspace.slug}`}
+      href={`${window.location.pathname}#${workspace.workspace.id}`}
       icon="workspace"
-      key={workspace.workspace.slug}
+      key={workspace.workspace.id}
       ref={menuRef}
       selected={selected}
       text={workspace.workspace.name}
@@ -423,9 +423,9 @@ function LeftPane() {
             userWorkspaces.map((workspace: any) => (
               <WorkspaceMenuItem
                 isFetchingApplications={isFetchingApplications}
-                key={workspace.workspace.slug}
-                selected={urlHash === workspace.workspace.slug}
-                workspace={workspace}
+                key={workspace.workspace.id}
+                org={workspace}
+                selected={urlHash === workspace.workspace.id}
               />
             ))}
         </WorkpsacesNavigator>
@@ -666,7 +666,7 @@ function ApplicationsSection(props: any) {
               {(currentUser || isFetchingApplications) &&
                 WorkspaceMenuTarget({
                   workspaceName: workspace.name,
-                  workspaceSlug: workspace.slug,
+                  workspaceSlug: workspace.id,
                 })}
               {hasManageWorkspacePermissions && (
                 <Dialog
@@ -753,7 +753,7 @@ function ApplicationsSection(props: any) {
                         closeOnItemClick
                         cypressSelector="t--workspace-name"
                         disabled={isFetchingApplications}
-                        isOpen={workspace.slug === workspaceToOpenMenu}
+                        isOpen={workspace.id === workspaceToOpenMenu}
                         onClose={() => {
                           setWorkspaceToOpenMenu(null);
                         }}
@@ -767,7 +767,7 @@ function ApplicationsSection(props: any) {
                             className="t--options-icon"
                             name="context-menu"
                             onClick={() => {
-                              setWorkspaceToOpenMenu(workspace.slug);
+                              setWorkspaceToOpenMenu(workspace.id);
                             }}
                             size={IconSize.XXXL}
                           />

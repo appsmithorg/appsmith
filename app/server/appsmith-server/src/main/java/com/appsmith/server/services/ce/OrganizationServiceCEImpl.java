@@ -14,6 +14,7 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -103,17 +104,6 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                 });
     }
 
-    @Override
-    public Mono<Organization> getBySlug(String slug) {
-        return repository.findBySlug(slug);
-    }
-
-    @Override
-    public Mono<String> getNextUniqueSlug(String initialSlug) {
-        return repository.nextSlugNumber(initialSlug)
-                .map(number -> initialSlug + (number == 0 ? "" : number));
-    }
-
     /**
      * Creates the given organization as a default organization for the given user. That is, the organization's name
      * is changed to "[username]'s apps" and then created. The current value of the organization name
@@ -160,19 +150,9 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
             organization.setEmail(user.getEmail());
         }
 
-        Mono<Organization> setSlugMono;
-        if (organization.getName() == null) {
-            setSlugMono = Mono.just(organization);
-        } else {
-            setSlugMono = getNextUniqueSlug(organization.makeSlug())
-                    .map(slug -> {
-                        organization.setSlug(slug);
-                        return organization;
-                    });
-        }
+        organization.setSlug(TextUtils.makeSlug(organization.getName()));
 
-        return setSlugMono
-                .flatMap(this::validateObject)
+        return validateObject(organization)
                 // Install all the default plugins when the org is created
                 /* TODO: This is a hack. We should ideally use the pluginService.installPlugin() function.
                     Not using it right now because of circular dependency b/w organizationService and pluginService
@@ -226,6 +206,10 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
             resource.setPolicies(null);
         }
 
+        if(StringUtils.hasLength(resource.getName())) {
+            resource.setSlug(TextUtils.makeSlug(resource.getName()));
+        }
+
         return findOrganizationMono
                 .map(existingOrganization -> {
                     AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, existingOrganization);
@@ -248,6 +232,9 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
 
     @Override
     public Mono<Organization> save(Organization organization) {
+        if(StringUtils.hasLength(organization.getName())) {
+            organization.setSlug(TextUtils.makeSlug(organization.getName()));
+        }
         return repository.save(organization);
     }
 
