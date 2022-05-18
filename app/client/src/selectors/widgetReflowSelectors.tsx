@@ -16,3 +16,6 @@ export const getReflowSelector = (widgetId: string) => {
     return undefined;
   });
 };
+
+export const getDynamicHeightLayoutTree = (state: AppState) =>
+  state.entities.dynamicHeightLayoutTree;

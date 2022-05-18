@@ -20,7 +20,7 @@ const MAX_BOX_SIZE = 20000;
 // Takes all siblings and arranges them in a structure to figure out
 // Which widgets could affect their sibling positions based on changes in height
 export function generateTree(spaces: NodeSpace[]): Record<string, TreeNode> {
-  // If widget doesn't exist in thie DS, this means that its height changes does not effect any other sibling
+  // If widget doesn't exist in this DS, this means that its height changes does not effect any other sibling
   const boxes: Box[] = spaces.map((space) => [
     space.left,
     space.top,
@@ -81,9 +81,67 @@ function getOverlapMap(arr: [number, number][]) {
   return { belowMap, aboveMap };
 }
 
-function computeChangeInPositionBasedOnDelta(
+function getEffectedWidgets(
+  id: string,
   tree: Record<string, TreeNode>,
-  delta: Array<Record<string, number>>,
+  effectedWidgets = [],
+): string[] {
+  const belows = tree[id].belows;
+
+  belows.forEach((belowId) => {
+    (effectedWidgets as string[]) = (effectedWidgets as string[]).concat(
+      getEffectedWidgets(belowId, tree, effectedWidgets),
+    );
+  });
+  return effectedWidgets;
+}
+
+export function computeChangeInPositionBasedOnDelta(
+  tree: Record<string, TreeNode>,
+  delta: Record<string, number>,
 ): Record<string, { topRow: number; bottomRow: number }> {
-  return {};
+  const repositionedBoxes: Record<
+    string,
+    { topRow: number; bottomRow: number }
+  > = {};
+
+  const effectedBoxMap: Record<string, number[]> = {};
+
+  // This is expensive, we need to figure out a better algorithm
+  // Iteration 1 (O(n)) - n is the number of widgets changed
+  for (const boxId in delta) {
+    // Iteration 2 (O(m*m) - m is the depth and breadth of the children in this node)
+    const effectedIds = getEffectedWidgets(boxId, tree);
+    effectedIds.forEach((effectedId) => {
+      effectedBoxMap[effectedId] = [
+        ...(effectedBoxMap[effectedId] || []),
+        delta[boxId],
+      ];
+    });
+  }
+
+  // Iteration 3 (O(o) - o is the number of effected widgets)
+  for (const effectedBoxId in effectedBoxMap) {
+    repositionedBoxes[effectedBoxId] = {
+      topRow:
+        tree[effectedBoxId].topRow +
+        effectedBoxMap[effectedBoxId].reduce((prev, next) => prev + next, 0),
+      bottomRow:
+        tree[effectedBoxId].bottomRow +
+        effectedBoxMap[effectedBoxId].reduce((prev, next) => prev + next, 0),
+    };
+  }
+
+  // Iteration 4 (O(n) - n is the number of widgets changed)
+  for (const boxId in delta) {
+    const hasAlreadyRepositioned = !!repositionedBoxes[boxId];
+    const existingBottomRow = hasAlreadyRepositioned
+      ? repositionedBoxes[boxId].bottomRow
+      : tree[boxId].bottomRow;
+    repositionedBoxes[boxId].bottomRow = existingBottomRow + delta[boxId];
+  }
+
+  // Worst case scenario : O((n*m*m) + o + n)
+  // Looks like, I have forgotten most of the bigO stuff.
+  return repositionedBoxes;
 }

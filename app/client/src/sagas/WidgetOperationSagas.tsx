@@ -56,7 +56,6 @@ import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
   getCurrentPageId,
   getOccupiedSpaces,
-  getOccupiedSpacesSelectorForContainer,
   getWidgetSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
@@ -121,7 +120,10 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
-import { getReflow } from "selectors/widgetReflowSelectors";
+import {
+  getDynamicHeightLayoutTree,
+  getReflow,
+} from "selectors/widgetReflowSelectors";
 import { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import { stopReflowAction } from "actions/reflowActions";
 import {
@@ -135,11 +137,14 @@ import { getBottomMostRow } from "reflow/reflowUtils";
 import { flashElementsById } from "utils/helpers";
 import { getSlidingCanvasName } from "constants/componentClassNameConstants";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import boxIntersect from "box-intersect";
 import {
+  computeChangeInPositionBasedOnDelta,
   generateTree,
   TreeNode,
 } from "utils/treeManipulationHelpers/dynamicHeightReflow";
+import { storeDynamicHeightLayoutTreeAction } from "ce/actions/dynamicHeightActions";
+// eslint-disable-next-line prettier/prettier
+import type { DynamicHeightLayoutTreeReduxState } from "reducers/entityReducers/dynamicHeightReducers/dynamicHeightLayoutTreeReducer";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -433,19 +438,16 @@ export function getPropertiesToUpdate(
   const propertyUpdates: Record<string, unknown> = {
     ...updates,
   };
-  const currentDynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
-    widget,
-  );
-  const currentDynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
-    widget,
-  );
+  const currentDynamicTriggerPathList: DynamicPath[] =
+    getWidgetDynamicTriggerPathList(widget);
+  const currentDynamicBindingPathList: DynamicPath[] =
+    getEntityDynamicBindingPathList(widget);
   const dynamicTriggerPathListUpdates: DynamicPathUpdate[] = [];
   const dynamicBindingPathListUpdates: DynamicPathUpdate[] = [];
 
   const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(widget.type);
-  const {
-    triggerPaths: triggerPathsFromPropertyConfig = {},
-  } = getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
+  const { triggerPaths: triggerPathsFromPropertyConfig = {} } =
+    getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
 
   Object.keys(updatePaths).forEach((propertyPath) => {
     const propertyValue = _.get(updates, propertyPath);
@@ -598,15 +600,12 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
 
 function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
   try {
-    let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
-      widget,
-    );
-    let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
-      widget,
-    );
-    let dynamicPropertyPathList: DynamicPath[] = getWidgetDynamicPropertyPathList(
-      widget,
-    );
+    let dynamicTriggerPathList: DynamicPath[] =
+      getWidgetDynamicTriggerPathList(widget);
+    let dynamicBindingPathList: DynamicPath[] =
+      getEntityDynamicBindingPathList(widget);
+    let dynamicPropertyPathList: DynamicPath[] =
+      getWidgetDynamicPropertyPathList(widget);
 
     paths.forEach((propertyPath) => {
       dynamicTriggerPathList = dynamicTriggerPathList.filter((dynamicPath) => {
@@ -864,7 +863,7 @@ export function calculateNewWidgetPosition(
  * @param copiedLeftMostColumn left column of the left most copied widget
  * @returns
  */
-const getNewPositions = function*(
+const getNewPositions = function* (
   copiedWidgetGroups: CopiedWidgetGroup[],
   mouseLocation: { x: number; y: number },
   copiedTotalWidth: number,
@@ -1065,9 +1064,8 @@ function* getNewPositionsBasedOnMousePositions(
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
 ) {
-  let { canvasDOM, canvasId, containerWidget } = getDefaultCanvas(
-    canvasWidgets,
-  );
+  let { canvasDOM, canvasId, containerWidget } =
+    getDefaultCanvas(canvasWidgets);
 
   //if the selected widget is a layout widget then change the pasting canvas.
   if (selectedWidgets.length === 1 && isDropTarget(selectedWidgets[0].type)) {
@@ -1189,7 +1187,8 @@ function* pasteWidgetSaga(
   const evalTree: DataTree = yield select(getDataTree);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   let widgets: CanvasWidgetsReduxState = canvasWidgets;
-  const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
+  const selectedWidget: FlattenedWidgetProps<undefined> =
+    yield getSelectedWidgetWhenPasting();
 
   let pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
     canvasWidgets,
@@ -1267,7 +1266,7 @@ function* pasteWidgetSaga(
 
   yield all(
     copiedWidgetGroups.map((copiedWidgets) =>
-      call(function*() {
+      call(function* () {
         // Don't try to paste if there is no copied widget
         if (!copiedWidgets) return;
 
@@ -1396,12 +1395,8 @@ function* pasteWidgetSaga(
 
           // If it is the copied widget, update position properties
           if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
-            const {
-              bottomRow,
-              leftColumn,
-              rightColumn,
-              topRow,
-            } = newWidgetPosition;
+            const { bottomRow, leftColumn, rightColumn, topRow } =
+              newWidgetPosition;
             widget.leftColumn = leftColumn;
             widget.topRow = topRow;
             widget.bottomRow = bottomRow;
@@ -1573,16 +1568,12 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
       ...widgetConfig,
     };
 
-    const {
-      bottomRow,
-      leftColumn,
-      rightColumn,
-      topRow,
-    } = yield calculateNewWidgetPosition(
-      newWidget as WidgetProps,
-      MAIN_CONTAINER_WIDGET_ID,
-      widgets,
-    );
+    const { bottomRow, leftColumn, rightColumn, topRow } =
+      yield calculateNewWidgetPosition(
+        newWidget as WidgetProps,
+        MAIN_CONTAINER_WIDGET_ID,
+        widgets,
+      );
 
     newWidget = {
       ...newWidget,
@@ -1653,6 +1644,7 @@ export function* updateWidgetDynamicHeightSaga(
   const { height, widgetId } = action.payload;
 
   const widgetsToUpdate: UpdateWidgetsPayload = {};
+  const delta: Record<string, number> = {};
   // walk up the tree
   // Club all updates together to put the UPDATE_MULTIPLE_WIDGET_PROPERTIES action
 
@@ -1667,8 +1659,11 @@ export function* updateWidgetDynamicHeightSaga(
     expectedBottomRow,
     isContainerLike,
   );
-  if (updateResult.pathsToUpdate)
+  if (updateResult.pathsToUpdate) {
     widgetsToUpdate[widgetId] = updateResult.pathsToUpdate;
+    delta[widgetId] =
+      getHeightDelta(updateResult.pathsToUpdate, widget.bottomRow) || 0;
+  }
   let parentId = widget.parentId;
 
   while (parentId) {
@@ -1682,13 +1677,35 @@ export function* updateWidgetDynamicHeightSaga(
         updateResult.bottomRow,
         isContainerLike,
       );
-      if (updateResult.pathsToUpdate)
+      if (updateResult.pathsToUpdate) {
         widgetsToUpdate[parentId] = updateResult.pathsToUpdate;
+        delta[parentId] =
+          getHeightDelta(updateResult.pathsToUpdate, widget.bottomRow) || 0;
+      }
     }
     parentId = parent.parentId;
   }
+  const dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState =
+    yield select(getDynamicHeightLayoutTree);
+  const allWidgetsToUpdate = computeChangeInPositionBasedOnDelta(
+    dynamicHeightLayoutTree,
+    delta,
+  );
 
-  const allWidgetsToUpdate = computeNewWidgetPositions(widgetsToUpdate);
+  for (const widgetId in allWidgetsToUpdate) {
+    if (widgetsToUpdate.hasOwnProperty(widgetId)) {
+      widgetsToUpdate[widgetId].push(
+        {
+          propertyPath: "bottomRow",
+          propertyValue: allWidgetsToUpdate[widgetId].bottomRow,
+        },
+        {
+          propertyPath: "topRow",
+          propertyValue: allWidgetsToUpdate[widgetId].topRow,
+        },
+      );
+    }
+  }
 
   yield put({
     type: ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
@@ -1701,20 +1718,31 @@ export function* updateWidgetDynamicHeightSaga(
   );
 }
 
-function* computeNewWidgetPositions(
-  widgetsWithNewDynamicHeight: UpdateWidgetsPayload,
+function getHeightDelta(
+  pathsToUpdate: PropertyPaths,
+  originalBottomRow: number,
 ) {
-  // Get the box which would be the widget extending
-  // Get intersecting widgets within the same parent
-  // Push intersecting widgets downwards by the difference in height
-
-  const idsOfWidgetsWithNewDynamicHeights = Object.keys(
-    widgetsWithNewDynamicHeight,
+  const bottomRowProperty = pathsToUpdate.find(
+    (path) => path.propertyPath === "bottomRow",
   );
-
-  for (const widgetId in idsOfWidgetsWithNewDynamicHeights) {
-  }
+  if (!bottomRowProperty) return;
+  return bottomRowProperty.propertyValue - originalBottomRow;
 }
+
+// function* computeNewWidgetPositions(
+//   widgetsWithNewDynamicHeight: UpdateWidgetsPayload,
+// ) {
+//   // Get the box which would be the widget extending
+//   // Get intersecting widgets within the same parent
+//   // Push intersecting widgets downwards by the difference in height
+
+//   const idsOfWidgetsWithNewDynamicHeights = Object.keys(
+//     widgetsWithNewDynamicHeight,
+//   );
+
+//   for (const widgetId in idsOfWidgetsWithNewDynamicHeights) {
+//   }
+// }
 
 // TODO: REFACTOR(abhinav): Move to WidgetOperationUtils
 function getWidgetDynamicHeightUpdates(
@@ -1847,13 +1875,13 @@ function* generateTreeForDynamicHeightComputations() {
 
   // TODO(abhinav): Memoize this, in case the `UPDATE_LAYOUT` did not cause a change in
   // widget positions and sizes
-  const trees: Record<string, Record<string, TreeNode>> = {};
+  let tree: Record<string, TreeNode> = {};
   for (const containerId in occupiedSpaces) {
     if (occupiedSpaces[containerId])
-      trees[containerId] = generateTree(occupiedSpaces[containerId]);
+      tree = Object.assign({}, tree, generateTree(occupiedSpaces[containerId]));
   }
 
-  // yield put(storeTreeForDynamicHeightComputations(trees));
+  yield put(storeDynamicHeightLayoutTreeAction(tree));
   // TODO (abhinav): Push this analytics to sentry|segment?
   log.debug(
     "Tree computations for dynamic height took:",

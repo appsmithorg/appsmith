@@ -62,6 +62,9 @@ import SettingsReducer, {
   SettingsReduxState,
 } from "@appsmith/reducers/settingsReducer";
 
+// eslint-disable-next-line prettier/prettier
+import type { DynamicHeightLayoutTreeReduxState } from "./entityReducers/dynamicHeightReducers/dynamicHeightLayoutTreeReducer";
+
 const appReducer = combineReducers({
   entities: entityReducer,
   ui: uiReducer,
@@ -127,6 +130,7 @@ export interface AppState {
     meta: MetaState;
     app: AppDataState;
     jsActions: JSCollectionDataState;
+    dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState;
   };
   evaluations: {
     tree: EvaluatedTreeState;
