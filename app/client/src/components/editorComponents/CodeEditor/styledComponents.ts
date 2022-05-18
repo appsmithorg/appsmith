@@ -392,5 +392,8 @@ export const ReadOnlyInput = styled.input`
   width: 100%;
   color: #4b4848 !important;
   background-color: #ffffff !important;
-  padding: 0 6px;
+  padding: 0 8px;
+  font-family: monospace !important;
+  font-weight: 400 !important;
+  line-height: 21px !important;
 `;
