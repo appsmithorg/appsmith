@@ -162,6 +162,27 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add(
+  "fillElasticDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    // we are using postgresql data for elastic search,
+    // in the future, this should be changed, just for testing purposes
+    const hostAddress = "https://localhost";
+    const headerValue = "Bearer Token";
+
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["postgres-port"]);
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(
+      datasourceFormData["postgres-username"],
+    );
+    cy.get(datasourceEditor.password).type(
+      datasourceFormData["postgres-password"],
+    );
+    cy.get(datasourceEditor.headers).type(headerValue);
+  },
+);
+
+Cypress.Commands.add(
   "fillMySQLDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
     const hostAddress = shouldAddTrailingSpaces
