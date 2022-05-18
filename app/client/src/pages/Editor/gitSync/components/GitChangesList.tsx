@@ -50,17 +50,17 @@ export enum Kind {
   QUERY = "QUERY",
 }
 
-type StatusProps = {
+type GitStatusProps = {
   iconName: string;
   message: string;
   hasValue: boolean;
 };
 
-type StatusMap = {
-  [key in Kind]: (status: GitStatusData) => StatusProps;
+type GitStatusMap = {
+  [key in Kind]: (status: GitStatusData) => GitStatusProps;
 };
 
-const STATUS_MAP: StatusMap = {
+const STATUS_MAP: GitStatusMap = {
   [Kind.COMMIT]: (status: GitStatusData) => ({
     message: commitMessage(status),
     iconName: "git-commit",
@@ -83,7 +83,7 @@ const STATUS_MAP: StatusMap = {
   [Kind.PAGE]: (status: GitStatusData) => ({
     message: `${status?.modifiedPages || 0} ${
       (status?.modifiedPages || 0) <= 1 ? "page" : "pages"
-    } updated`,
+    } modified`,
     iconName: "widget",
     hasValue: (status?.modifiedPages || 0) > 0,
   }),
@@ -114,7 +114,7 @@ function commitMessage(status: GitStatusData) {
   return [aheadMessage, behindMessage].filter((i) => i !== null).join(" and ");
 }
 
-function Change(props: Partial<StatusProps>) {
+export function Change(props: Partial<GitStatusProps>) {
   const { iconName, message } = props;
 
   return (
@@ -125,20 +125,46 @@ function Change(props: Partial<StatusProps>) {
   );
 }
 
-export default function GitChangesList() {
-  const status: GitStatusData = useSelector(getGitStatus) as GitStatusData;
-  const loading = useSelector(getIsFetchingGitStatus);
-  const changes = [
+const defaultStatus: GitStatusData = {
+  aheadCount: 0,
+  behindCount: 0,
+  conflicting: [],
+  discardDocUrl: "",
+  isClean: false,
+  modified: [],
+  modifiedDatasources: 0,
+  modifiedJSObjects: 0,
+  modifiedPages: 0,
+  modifiedQueries: 0,
+  remoteBranch: "",
+};
+
+/**
+ * gitChangeListData: accepts a git status
+ * @param status {GitStatusData} status object that contains git-status call result from backend
+ * @returns {JSX.Element[]}
+ */
+export function gitChangeListData(
+  status: GitStatusData = defaultStatus,
+): JSX.Element[] {
+  const changeKind = [
     Kind.PAGE,
     Kind.QUERY,
     Kind.COMMIT,
     Kind.JS_OBJECT,
     Kind.DATA_SOURCE,
-  ]
+  ];
+  return changeKind
     .map((type: Kind) => STATUS_MAP[type](status))
-    .filter((s: StatusProps) => s.hasValue)
+    .filter((s: GitStatusProps) => s.hasValue)
     .map((s) => <Change {...s} key={`change-status-${s.iconName}`} />)
     .filter((s) => !!s);
+}
+
+export default function GitChangesList() {
+  const status: GitStatusData = useSelector(getGitStatus) as GitStatusData;
+  const loading = useSelector(getIsFetchingGitStatus);
+  const changes = gitChangeListData(status);
   return loading ? (
     <DummyChange data-testid={"t--git-change-loading-dummy"} />
   ) : (

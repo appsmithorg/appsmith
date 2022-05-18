@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
@@ -9,6 +9,7 @@ import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.google.gson.Gson;
@@ -16,14 +17,18 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Type;
 import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,15 +38,18 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private final ReleaseNotesService releaseNotesService;
     private final ImportExportApplicationService importExportApplicationService;
     private final AnalyticsService analyticsService;
+    private final UserDataService userDataService;
 
     public ApplicationTemplateServiceCEImpl(CloudServicesConfig cloudServicesConfig,
                                             ReleaseNotesService releaseNotesService,
                                             ImportExportApplicationService importExportApplicationService,
-                                            AnalyticsService analyticsService) {
+                                            AnalyticsService analyticsService,
+                                            UserDataService userDataService) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.releaseNotesService = releaseNotesService;
         this.importExportApplicationService = importExportApplicationService;
         this.analyticsService = analyticsService;
+        this.userDataService = userDataService;
     }
 
     @Override
@@ -64,11 +72,21 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @Override
-    public Flux<ApplicationTemplate> getActiveTemplates() {
+    public Flux<ApplicationTemplate> getActiveTemplates(List<String> templateIds) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
 
-        return WebClient
-                .create(baseUrl + "/api/v1/app-templates?version=" + releaseNotesService.getReleasedVersion())
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.newInstance()
+                .queryParam("version", releaseNotesService.getReleasedVersion());
+
+        if(!CollectionUtils.isEmpty(templateIds)) {
+            uriComponentsBuilder.queryParam("id", templateIds);
+        }
+
+        // uriComponents will build url in format: version=version&id=id1&id=id2&id=id3
+        UriComponents uriComponents = uriComponentsBuilder.build();
+
+        Flux<ApplicationTemplate> applicationTemplateFlux = WebClient
+                .create(baseUrl + "/api/v1/app-templates?" + uriComponents.getQuery())
                 .get()
                 .exchangeToFlux(clientResponse -> {
                     if (clientResponse.statusCode().equals(HttpStatus.OK)) {
@@ -79,6 +97,16 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                         return clientResponse.createException().flatMapMany(Flux::error);
                     }
                 });
+
+        if(!CollectionUtils.isEmpty(templateIds)) {
+            // the items should be sorted based on the order of the templateIds when it's not empty
+            applicationTemplateFlux = applicationTemplateFlux.sort(
+                    // sort based on index of id in templateIds list.
+                    // index of first item will be less than index of next item
+                    Comparator.comparingInt(o -> templateIds.indexOf(o.getId()))
+            );
+        }
+        return applicationTemplateFlux;
     }
 
     @Override
@@ -137,8 +165,19 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             applicationTemplate.setId(templateId);
             Map<String, Object>  extraProperties = new HashMap<>();
             extraProperties.put("templateAppName", application.getName());
-            return analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, extraProperties)
-                    .thenReturn(application);
+            return userDataService.addTemplateIdToLastUsedList(templateId).then(
+                            analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, extraProperties)
+            ).thenReturn(application);
+        });
+    }
+
+    @Override
+    public Flux<ApplicationTemplate> getRecentlyUsedTemplates() {
+        return userDataService.getForCurrentUser().flatMapMany(userData -> {
+            if(!CollectionUtils.isEmpty(userData.getRecentlyUsedTemplateIds())) {
+                return getActiveTemplates(userData.getRecentlyUsedTemplateIds());
+            }
+            return Flux.just();
         });
     }
 

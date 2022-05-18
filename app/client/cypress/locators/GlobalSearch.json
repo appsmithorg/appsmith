@@ -1,4 +1,5 @@
 {
     "docHint": ".t--docHit",
-    "filterButton": ".t--filter-button"
+    "filterButton": ".t--filter-button",
+    "category": ".t--global-search-category"
 }

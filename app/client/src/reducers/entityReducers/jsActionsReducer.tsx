@@ -15,6 +15,8 @@ export interface JSCollectionData {
   data?: Record<string, unknown>;
   isExecuting?: Record<string, boolean>;
   activeJSActionId?: string;
+  // Existence of parse errors for each action (updates after execution)
+  isDirty?: Record<string, boolean>;
 }
 export type JSCollectionDataState = JSCollectionData[];
 export interface PartialActionData {
@@ -268,7 +270,9 @@ const jsActionsReducer = createReducer(initialState, {
     state.map((a) => {
       if (a.config.id === action.payload.collectionId) {
         const newData = { ...a.data };
+        const newIsDirty = { ...a.isDirty };
         unset(newData, action.payload.action.id);
+        unset(newIsDirty, action.payload.action.id);
         return {
           ...a,
           isExecuting: {
@@ -277,6 +281,9 @@ const jsActionsReducer = createReducer(initialState, {
           },
           data: {
             ...newData,
+          },
+          isDirty: {
+            ...newIsDirty,
           },
         };
       }
@@ -288,6 +295,7 @@ const jsActionsReducer = createReducer(initialState, {
       results: any;
       collectionId: string;
       actionId: string;
+      isDirty: boolean;
     }>,
   ): JSCollectionDataState =>
     state.map((a) => {
@@ -301,6 +309,10 @@ const jsActionsReducer = createReducer(initialState, {
           isExecuting: {
             ...a.isExecuting,
             [action.payload.actionId]: false,
+          },
+          isDirty: {
+            ...a.isDirty,
+            [action.payload.actionId]: action.payload.isDirty,
           },
         };
       }

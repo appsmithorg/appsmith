@@ -10,7 +10,6 @@ import {
   HiddenFnParams,
   getSchemaItem,
   getAutocompleteProperties,
-  getStylesheetValue,
 } from "../helper";
 
 /**
@@ -113,22 +112,6 @@ const PROPERTIES = {
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.RADIO_GROUP),
       dependencies: ["schema", "sourceData"],
-    },
-  ],
-  styles: [
-    {
-      propertyName: "accentColor",
-      helpText: "Sets the accent color of the radio",
-      label: "Accent Color",
-      controlType: "COLOR_PICKER",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      getStylesheetValue,
-      validation: { type: ValidationTypes.TEXT },
-      hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.RADIO_GROUP),
-      dependencies: ["schema"],
     },
   ],
 };
