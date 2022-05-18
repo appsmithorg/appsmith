@@ -1,11 +1,12 @@
-import { WidgetProps } from "widgets/BaseWidget";
 import {
   PropertyPaneConfig,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
-import { get, isObject, isUndefined, omitBy } from "lodash";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { get, isObject, isUndefined, omitBy } from "lodash";
+import memoize from "micro-memoize";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { WidgetProps } from "widgets/BaseWidget";
 
 /**
  * @typedef {Object} Paths
@@ -163,7 +164,7 @@ const childHasPanelConfig = (
   return { reactivePaths, triggerPaths, validationPaths, bindingPaths };
 };
 
-export const getAllPathsFromPropertyConfig = (
+const getAllPathsFromPropertyConfigWithoutMemo = (
   widget: WidgetProps,
   widgetConfig: readonly PropertyPaneConfig[],
   defaultProperties: Record<string, any>,
@@ -275,6 +276,11 @@ export const getAllPathsFromPropertyConfig = (
 
   return { reactivePaths, triggerPaths, validationPaths, bindingPaths };
 };
+
+export const getAllPathsFromPropertyConfig = memoize(
+  getAllPathsFromPropertyConfigWithoutMemo,
+  { maxSize: 1000 },
+);
 
 /**
  * this function gets the next available row for pasting widgets
