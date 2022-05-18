@@ -236,7 +236,10 @@ export default function ExplorerSubMenu({
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
         position={Position.RIGHT}
       >
-        <EntityAddButton className={className} onClick={() => setShow(true)} />
+        <EntityAddButton
+          className={`${className} ${show ? "selected" : ""}`}
+          onClick={() => setShow(true)}
+        />
       </TooltipComponent>
     </Popover2>
   );
