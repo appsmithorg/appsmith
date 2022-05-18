@@ -16,10 +16,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Slf4j
 public class CustomOrganizationRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Organization>
@@ -41,29 +39,6 @@ public class CustomOrganizationRepositoryCEImpl extends BaseAppsmithRepositoryIm
         Criteria orgIdsCriteria = where(fieldName(QOrganization.organization.id)).in(orgIds);
 
         return queryAll(List.of(orgIdsCriteria), aclPermission, sort);
-    }
-
-    @Override
-    public Mono<Long> nextSlugNumber(String slugPrefix) {
-        final String slugField = fieldName(QOrganization.organization.slug);
-        final Query slugPrefixQuery = query(where(slugField).regex("^" + slugPrefix + "\\d*$"));
-        slugPrefixQuery.fields().include(slugField);
-        return mongoOperations
-                .find(slugPrefixQuery, Organization.class)
-                .map(Organization::getSlug)
-                .collect(Collectors.toSet())
-                .map(slugs -> {
-                    if (slugs.isEmpty() || !slugs.contains(slugPrefix)) {
-                        return 0L;
-                    }
-
-                    long number = 1L;
-                    while (slugs.contains(slugPrefix + number)) {
-                        ++number;
-                    }
-
-                    return number;
-                });
     }
 
     @Override

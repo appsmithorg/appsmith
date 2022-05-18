@@ -3,10 +3,6 @@
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
-
-const {
-  addMatchImageSnapshotCommand,
-} = require("cypress-image-snapshot/command");
 import ApiEditor from "../locators/ApiEditor";
 const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");

@@ -108,7 +108,7 @@ describe("Validate API request body panel", () => {
 
         ee.SelectEntityByName("CloudinaryUploadApi", 'QUERIES/JS');
 
-        apiPage.DisableOnPageLoadRun()//Bug 12476
+        apiPage.OnPageLoadRun(false)//Bug 12476
         ee.SelectEntityByName("Page1");
         agHelper.DeployApp(locator._spanButton('Select Files'))
         agHelper.ClickButton('Select Files');
