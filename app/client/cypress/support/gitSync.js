@@ -363,3 +363,37 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add("gitDiscardChanges", (assertResourceFound = true) => {
+  cy.get(gitSyncLocators.bottomBarCommitButton).click();
+  //cy.intercept("GET", "/api/v1/git/status/*").as("gitStatus");
+  //  cy.wait("@gitStatus").should(
+  //    "have.nested.property",
+  //    "response.body.responseMeta.status",
+  //   200,
+  // );
+  cy.get(gitSyncLocators.discardChanges)
+    .children()
+    .should("have.text", "Discard changes");
+
+  cy.get(gitSyncLocators.discardChanges).click();
+  cy.contains(Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING());
+
+  cy.get(gitSyncLocators.discardChanges)
+    .children()
+    .should("have.text", "Are you sure?");
+  cy.get(gitSyncLocators.discardChanges).click();
+  cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
+  if (assertResourceFound) {
+    cy.wait("@applications").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.validateToastMessage("Discarded changes successfully.");
+  } else {
+    cy.get(".bold-text").should(($x) => {
+      expect($x).contain("Page not found");
+    });
+  }
+});
