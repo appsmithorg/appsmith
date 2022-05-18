@@ -1,16 +1,22 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
+import { IPanelProps } from "@blueprintjs/core";
 import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
 import produce from "immer";
+import { useLocation } from "react-router";
+
 import {
   createMessage,
   WIDGET_SIDEBAR_CAPTION,
 } from "@appsmith/constants/messages";
+import { matchBuilderPath } from "constants/routes";
+import { AppState } from "reducers";
 
-function WidgetSidebar({ isActive }: any) {
+function WidgetSidebar(props: IPanelProps) {
+  const location = useLocation();
   const cards = useSelector(getWidgetCards);
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -27,6 +33,17 @@ function WidgetSidebar({ isActive }: any) {
     }
     setFilteredCards(filteredCards);
   };
+  const isForceOpenWidgetPanel = useSelector(
+    (state: AppState) => state.ui.onBoarding.forceOpenWidgetPanel,
+  );
+
+  const onCanvas = matchBuilderPath(window.location.pathname);
+
+  useEffect(() => {
+    if (!onCanvas || isForceOpenWidgetPanel === false) {
+      props.closePanel();
+    }
+  }, [onCanvas, location, isForceOpenWidgetPanel]);
 
   /**
    * filter widgets
@@ -47,9 +64,7 @@ function WidgetSidebar({ isActive }: any) {
   };
 
   return (
-    <div
-      className={`flex flex-col overflow-hidden ${isActive ? "" : "hidden"}`}
-    >
+    <div className="flex flex-col overflow-hidden">
       <ExplorerSearch
         autoFocus
         clear={clearSearchInput}

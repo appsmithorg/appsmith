@@ -8,7 +8,9 @@ import React, {
 import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
 import Search from "./ExplorerSearch";
-import { NonIdealState, Classes } from "@blueprintjs/core";
+import { NonIdealState, Classes, IPanelProps } from "@blueprintjs/core";
+import WidgetSidebar from "../WidgetSidebar";
+import history from "utils/history";
 import JSDependencies from "./JSDependencies";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -27,7 +29,6 @@ import Datasources from "./Datasources";
 import Files from "./Files";
 import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
 import { builderURL } from "RouteBuilder";
-import history from "utils/history";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -70,7 +71,7 @@ const StyledDivider = styled(Divider)`
   border-bottom-color: #f0f0f0;
 `;
 
-function EntityExplorer({ isActive }: any) {
+function EntityExplorer(props: IPanelProps) {
   const dispatch = useDispatch();
   const [searchKeyword, setSearchKeyword] = useState("");
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
@@ -85,13 +86,15 @@ function EntityExplorer({ isActive }: any) {
     getIsFirstTimeUserOnboardingEnabled,
   );
   const noResults = false;
+  const { openPanel } = props;
   const showWidgetsSidebar = useCallback(() => {
     history.push(builderURL());
+    openPanel({ component: WidgetSidebar });
     dispatch(forceOpenWidgetPanel(true));
     if (isFirstTimeUserOnboardingEnabled) {
       dispatch(toggleInOnboardingWidgetSelection(true));
     }
-  }, [isFirstTimeUserOnboardingEnabled]);
+  }, [openPanel, isFirstTimeUserOnboardingEnabled]);
 
   /**
    * filter entitites
@@ -109,10 +112,7 @@ function EntityExplorer({ isActive }: any) {
   };
 
   return (
-    <Wrapper
-      className={`relative overflow-y-auto ${isActive ? "" : "hidden"}`}
-      ref={explorerRef}
-    >
+    <Wrapper className={"relative"} ref={explorerRef}>
       {/* SEARCH */}
       <Search
         clear={clearSearchInput}

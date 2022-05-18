@@ -33,6 +33,7 @@ import {
   ONBOARDING_STATUS_STEPS_THIRD_ALT,
 } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
+
 import { Colors } from "constants/Colors";
 import { onboardingCheckListUrl } from "RouteBuilder";
 
