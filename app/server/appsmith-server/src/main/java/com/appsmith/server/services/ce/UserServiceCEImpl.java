@@ -766,13 +766,15 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         // Trigger the flow to first add the users to the organization and then update each user with the organizationId
         // added to the user's list of organizations.
         Mono<List<User>> triggerAddUserOrganizationFinalFlowMono = organizationWithUsersAddedMono
-                .then(usersUpdatedWithOrgMono);
+                .then(usersUpdatedWithOrgMono)
+                .subscribeOn(Schedulers.boundedElastic());
 
         //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
-        //  subscriber has cancelled its subscription, the create method will still generates its event.
-        return Mono.create(sink -> triggerAddUserOrganizationFinalFlowMono
-                .subscribe(sink::success, sink::error, null, sink.currentContext())
-        );
+        //  subscriber has cancelled its subscription, the create method will still generate its event.
+//        return Mono.create(sink -> triggerAddUserOrganizationFinalFlowMono
+//                .subscribe(sink::success, sink::error, null, sink.currentContext())
+//        );
+        return triggerAddUserOrganizationFinalFlowMono;
     }
 
     private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Organization organization, User inviter, String role) {

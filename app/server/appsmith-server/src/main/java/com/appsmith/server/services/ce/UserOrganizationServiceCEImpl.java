@@ -461,37 +461,37 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
 
         // Update the underlying application/page/action/action collection/comment thread
         Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByOrgId(updatedOrganization.getId(), datasourcePolicyMap, true)
-                .doFinally(s -> log.debug("Updated all the datasources"));
+                .doFinally(s -> log.debug("{} Updated all the datasources", Thread.currentThread().getName()));
         Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, true)
-                .doFinally(s -> log.debug("Updated all the applications"))
+                .doFinally(s -> log.debug("{} Updated all the applications", Thread.currentThread().getName()))
                 .cache();
         Flux<NewPage> updatedPagesFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true))
-                .doFinally(s -> log.debug("Updated all the pages"));
+                .doFinally(s -> log.debug("{} Updated all the pages", Thread.currentThread().getName()));
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, true))
-                .doFinally(s -> log.debug("Updated all the actions"));
+                .doFinally(s -> log.debug("{} Updated all the actions", Thread.currentThread().getName()));
         Flux<ActionCollection> updatedActionCollectionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, true))
-                .doFinally(s -> log.debug("Updated all the action collections"));
+                .doFinally(s -> log.debug("{} Updated all the action collections", Thread.currentThread().getName()));
         Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateCommentThreadPermissions(
                         application.getId(), commentThreadPolicyMap, null, true
                 ))
-                .doFinally(s -> log.debug("Updated all the comment threads"));
+                .doFinally(s -> log.debug("{} Updated all the comment threads", Thread.currentThread().getName()));
         Flux<Theme> updatedThemesFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateThemePolicies(
                         application, themePolicyMap, true
                 ))
-                .doFinally(s -> log.debug("Updated all the themes"));
+                .doFinally(s -> log.debug("{} Updated all the themes", Thread.currentThread().getName()));
 
         Mono<Organization> saveOrgMono = Mono.just(updatedOrganization)
                 .flatMap(toSaveOrg -> {
-                    log.debug("Going to save the org {}", toSaveOrg.getName());
+                    log.debug("{} Going to save the org {}", Thread.currentThread().getName(), toSaveOrg.getName());
                     return organizationRepository.save(toSaveOrg);
                 })
                 .map(savedOrg -> {
-                    log.debug("saved org : {}", savedOrg.getName());
+                    log.debug("{} saved org : {}", Thread.currentThread().getName(), savedOrg.getName());
                     return savedOrg;
                 });
 
@@ -503,12 +503,14 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
                         updatedThreadsFlux,
                         updatedThemesFlux
                 )
-                .reduce((accu, next) ->  accu)
+//                .reduce((accu, next) ->  accu)
 //                .then(tuple -> saveOrgMono);
                 // By now all the
                 // data sources/applications/pages/actions/action collections/comment threads
                 // have been updated. Just save the organization now
                 .then(saveOrgMono);
+
+//        return updateAllObjectsMono;
 
         // Clone Application is currently a slow API because it needs to create application, clone all the pages, and then
         // clone all the actions. This process may take time and the client may cancel the request. This leads to the flow
