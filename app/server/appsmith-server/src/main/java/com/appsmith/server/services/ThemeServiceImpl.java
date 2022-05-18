@@ -15,7 +15,7 @@ import javax.validation.Validator;
 @Slf4j
 @Service
 public class ThemeServiceImpl extends ThemeServiceCEImpl implements ThemeService {
-    public ThemeServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ThemeRepository repository, AnalyticsService analyticsService, ApplicationRepository applicationRepository, PolicyGenerator policyGenerator) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, applicationRepository, policyGenerator);
+    public ThemeServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ThemeRepository repository, AnalyticsService analyticsService, ApplicationRepository applicationRepository, ApplicationService applicationService, PolicyGenerator policyGenerator) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, applicationRepository, applicationService, policyGenerator);
     }
 }
