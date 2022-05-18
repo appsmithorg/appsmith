@@ -3,7 +3,7 @@ package com.appsmith.server.helpers;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.google.gson.Gson;
@@ -138,7 +138,7 @@ public class GitFileUtilsTest {
             assertThat(pageNames).contains(pageName);
         }
 
-        Map<String, Object> actionsCollections = applicationGitReference.getActionsCollections();
+        Map<String, Object> actionsCollections = applicationGitReference.getActionCollections();
         for (Map.Entry<String, Object> entry : actionsCollections.entrySet()) {
             assertThat(entry.getKey()).contains(NAME_SEPARATOR);
             String[] names = entry.getKey().split(NAME_SEPARATOR);
@@ -183,7 +183,7 @@ public class GitFileUtilsTest {
             assertThat(deletedAction.getUnpublishedAction().getValidName().replace(".", "-")).isNotEqualTo(queryName);
         }
 
-        Map<String, Object> actionsCollections = applicationGitReference.getActionsCollections();
+        Map<String, Object> actionsCollections = applicationGitReference.getActionCollections();
         for (Map.Entry<String, Object> entry : actionsCollections.entrySet()) {
             String[] names = entry.getKey().split(NAME_SEPARATOR);
             final String collectionName = names[0].replace(".", "-");
@@ -224,7 +224,7 @@ public class GitFileUtilsTest {
         ApplicationGitReference applicationReference = new ApplicationGitReference();
         applicationReference.setPages(pageRef);
         applicationReference.setActions(actionRef);
-        applicationReference.setActionsCollections(actionCollectionRef);
+        applicationReference.setActionCollections(actionCollectionRef);
 
         Mockito.when(fileInterface.reconstructApplicationReferenceFromGitRepo(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(applicationReference));

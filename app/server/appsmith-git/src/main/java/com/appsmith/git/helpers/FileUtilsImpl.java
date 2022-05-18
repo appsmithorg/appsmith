@@ -196,7 +196,7 @@ public class FileUtilsImpl implements FileInterface {
                     }
 
                     // Save JSObjects
-                    for (Map.Entry<String, Object> resource : applicationGitReference.getActionsCollections().entrySet()) {
+                    for (Map.Entry<String, Object> resource : applicationGitReference.getActionCollections().entrySet()) {
                         // JSObjectName_pageName => nomenclature for the keys
                         // TODO
                         //  JSObjectName => for app level JSObjects, this is not implemented yet
@@ -429,7 +429,7 @@ public class FileUtilsImpl implements FileInterface {
                 // Extract actions
                 applicationGitReference.setActions(readFiles(baseRepoPath.resolve(ACTION_DIRECTORY), gson, ""));
                 // Extract actionCollections
-                applicationGitReference.setActionsCollections(readFiles(baseRepoPath.resolve(ACTION_COLLECTION_DIRECTORY), gson, ""));
+                applicationGitReference.setActionCollections(readFiles(baseRepoPath.resolve(ACTION_COLLECTION_DIRECTORY), gson, ""));
                 // Extract pages
                 applicationGitReference.setPages(readFiles(pageDirectory, gson, ""));
                 // Extract datasources
@@ -453,7 +453,7 @@ public class FileUtilsImpl implements FileInterface {
                     }
                 }
                 applicationGitReference.setActions(actionMap);
-                applicationGitReference.setActionsCollections(actionCollectionMap);
+                applicationGitReference.setActionCollections(actionCollectionMap);
                 applicationGitReference.setPages(pageMap);
                 // Extract datasources
                 applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, ""));

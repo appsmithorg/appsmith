@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.AuthenticationDTO;
@@ -14,13 +15,12 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -29,6 +29,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -56,6 +57,7 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,6 +66,8 @@ import org.apache.commons.lang.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Flux;
@@ -71,6 +75,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -540,6 +545,27 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {
         return applicationService.findBranchedApplicationId(branchName, applicationId, EXPORT_APPLICATIONS)
                 .flatMap(branchedAppId -> exportApplicationById(branchedAppId, SerialiseApplicationObjective.SHARE));
+    }
+
+    public Mono<ExportFileDTO> getApplicationFile(String applicationId, String branchName) {
+        return this.exportApplicationById(applicationId, branchName)
+                .map(applicationJson -> {
+                    Gson gson = new Gson();
+                    String applicationName = applicationJson.getExportedApplication().getName();
+                    Object jsonObject = gson.fromJson(gson.toJson(applicationJson), Object.class);
+                    HttpHeaders responseHeaders = new HttpHeaders();
+                    ContentDisposition contentDisposition = ContentDisposition
+                            .builder("attachment")
+                            .filename(applicationName + ".json", StandardCharsets.UTF_8)
+                            .build();
+                    responseHeaders.setContentDisposition(contentDisposition);
+                    responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+                    ExportFileDTO exportFileDTO = new ExportFileDTO();
+                    exportFileDTO.setApplicationResource(jsonObject);
+                    exportFileDTO.setHttpHeaders(responseHeaders);
+                    return exportFileDTO;
+                });
     }
 
     /**

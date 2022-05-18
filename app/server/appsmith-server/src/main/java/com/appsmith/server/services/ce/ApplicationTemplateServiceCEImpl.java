@@ -4,7 +4,7 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;

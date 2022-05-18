@@ -9,7 +9,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -204,7 +204,7 @@ public class GitFileUtils {
 
                     resourceMap.put(prefix, actionCollection);
                 });
-        applicationReference.setActionsCollections(new HashMap<>(resourceMap));
+        applicationReference.setActionCollections(new HashMap<>(resourceMap));
         resourceMap.clear();
 
         // Send datasources
@@ -435,10 +435,10 @@ public class GitFileUtils {
         }
 
         // Extract actionCollection
-        if (CollectionUtils.isNullOrEmpty(applicationReference.getActionsCollections())) {
+        if (CollectionUtils.isNullOrEmpty(applicationReference.getActionCollections())) {
             applicationJson.setActionCollectionList(new ArrayList<>());
         } else {
-            List<ActionCollection> actionCollections = getApplicationResource(applicationReference.getActionsCollections(), ActionCollection.class);
+            List<ActionCollection> actionCollections = getApplicationResource(applicationReference.getActionCollections(), ActionCollection.class);
             // Remove null values if present
             org.apache.commons.collections.CollectionUtils.filter(actionCollections, PredicateUtils.notNullPredicate());
             actionCollections.forEach(actionCollection -> {

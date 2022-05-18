@@ -1,8 +1,13 @@
-package com.appsmith.server.domains;
+package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.DecryptedSensitiveFields;
+import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Theme;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Transient;

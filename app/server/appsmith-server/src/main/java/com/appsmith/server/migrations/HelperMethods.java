@@ -1,6 +1,6 @@
 package com.appsmith.server.migrations;
 
-import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.helpers.CollectionUtils;
