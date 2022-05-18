@@ -14688,10 +14688,10 @@ vite-plugin-pwa@^0.12.0:
     workbox-build "^6.5.3"
     workbox-window "^6.5.3"
 
-vite-plugin-require@^0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/vite-plugin-require/-/vite-plugin-require-0.0.8.tgz#08c475c46b08d69f21c2f654e2e65e93c40cdbcc"
-  integrity sha512-210hnzZdYaehCP4VB2rBiykKMsHuNSHCGz5pnefl/Hk/0u02gAzXflP4pYepiVI8WZqcDfXzC7okpXZOqqc65Q==
+vite-plugin-require@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/vite-plugin-require/-/vite-plugin-require-1.0.0.tgz#676668b779d69b16487fe46ceeba31e52a76fe39"
+  integrity sha512-QUU/UtAbqbvJTAF9wfJ3kaZjVqbgxbxZl1Z9quEjCm8KwBSI5ylciDsrSUzYdOI9L1SZ202PepEKKMv2vqCMbQ==
   dependencies:
     vue-loader "^15.9.8"
 
