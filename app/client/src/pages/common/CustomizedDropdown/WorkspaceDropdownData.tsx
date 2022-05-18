@@ -29,7 +29,7 @@ export const options = (
             content: "Organization Settings",
             onSelect: () =>
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                path: `/org/${workspaceId}/settings`,
+                path: `/workspace/${workspaceId}/settings`,
               }),
           },
           {
@@ -40,7 +40,7 @@ export const options = (
             content: "Members",
             onSelect: () =>
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                path: `/org/${workspaceId}/settings`,
+                path: `/workspace/${workspaceId}/settings`,
               }),
           },
         ],

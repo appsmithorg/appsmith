@@ -46,7 +46,7 @@ function ManageUsers({ workspaceId }: { workspaceId: string }) {
     <StyledManageUsers
       className="manageUsers"
       onClick={() => {
-        history.push(`/org/${workspaceId}/settings/members`);
+        history.push(`/workspace/${workspaceId}/settings/members`);
       }}
     >
       <Text type={TextType.H6}>MANAGE USERS</Text>

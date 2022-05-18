@@ -805,7 +805,7 @@ function ApplicationsSection(props: any) {
                                 getOnSelectAction(
                                   DropdownOnSelectActions.REDIRECT,
                                   {
-                                    path: `/org/${workspace.id}/settings/general`,
+                                    path: `/workspace/${workspace.id}/settings/general`,
                                   },
                                 )
                               }
@@ -836,7 +836,7 @@ function ApplicationsSection(props: any) {
                                 getOnSelectAction(
                                   DropdownOnSelectActions.REDIRECT,
                                   {
-                                    path: `/org/${workspace.id}/settings/members`,
+                                    path: `/workspace/${workspace.id}/settings/members`,
                                   },
                                 )
                               }
