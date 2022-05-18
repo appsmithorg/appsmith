@@ -10,7 +10,7 @@ function LazyCodeEditorWrapper(props: any) {
     setFocus(true);
   };
   return isFocused ? (
-    <CodeEditor {...props} />
+    <CodeEditor {...props} hasFocus={isFocused} />
   ) : (
     <EditorWrapper
       border={props.border}
@@ -37,7 +37,7 @@ function LazyCodeEditorWrapper(props: any) {
         onFocus={handleFocus}
         placeholder={props.placeholder}
         type="text"
-        value={JSON.stringify(props.input.value, null, 2)}
+        value={props.input.value}
       />
     </EditorWrapper>
   );
