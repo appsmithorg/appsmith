@@ -57,8 +57,8 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
-import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
-import static com.appsmith.server.acl.AclPermission.USER_READ_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.USER_READ_WORKSPACES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -211,7 +211,7 @@ public class UserServiceTest {
                 .users(Set.of(newUser.getUsername())).build();
 
         Policy manageUserOrgPolicy = Policy.builder()
-                .permission(USER_MANAGE_ORGANIZATIONS.getValue())
+                .permission(USER_MANAGE_WORKSPACES.getValue())
                 .users(Set.of(newUser.getUsername())).build();
 
         Policy readUserPolicy = Policy.builder()
@@ -219,7 +219,7 @@ public class UserServiceTest {
                 .users(Set.of(newUser.getUsername())).build();
 
         Policy readUserOrgPolicy = Policy.builder()
-                .permission(USER_READ_ORGANIZATIONS.getValue())
+                .permission(USER_READ_WORKSPACES.getValue())
                 .users(Set.of(newUser.getUsername())).build();
 
         Mono<User> userMono = userService.create(newUser);
@@ -255,7 +255,7 @@ public class UserServiceTest {
                 .users(Set.of(sampleEmailLowercase)).build();
 
         Policy manageUserOrgPolicy = Policy.builder()
-                .permission(USER_MANAGE_ORGANIZATIONS.getValue())
+                .permission(USER_MANAGE_WORKSPACES.getValue())
                 .users(Set.of(sampleEmailLowercase)).build();
 
         Policy readUserPolicy = Policy.builder()
@@ -263,7 +263,7 @@ public class UserServiceTest {
                 .users(Set.of(sampleEmailLowercase)).build();
 
         Policy readUserOrgPolicy = Policy.builder()
-                .permission(USER_READ_ORGANIZATIONS.getValue())
+                .permission(USER_READ_WORKSPACES.getValue())
                 .users(Set.of(sampleEmailLowercase)).build();
 
         Mono<User> userMono = userService.create(newUser);
@@ -441,8 +441,8 @@ public class UserServiceTest {
                     ArrayList<String> users = new ArrayList<>();
                     users.add(newUserEmail);
                     inviteUsersDTO.setUsernames(users);
-                    inviteUsersDTO.setOrgId(workspace1.getId());
-                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+                    inviteUsersDTO.setWorkspaceId(workspace1.getId());
+                    inviteUsersDTO.setRoleName(AppsmithRole.WORKSPACE_VIEWER.getName());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 }).block();

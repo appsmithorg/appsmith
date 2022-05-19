@@ -85,7 +85,7 @@ public class AuthenticationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_invalidDatasourceWithNullAuthentication() {
-        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_WORKSPACES).block();
         String workspaceId = testWorkspace == null ? "" : testWorkspace.getId();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -122,7 +122,7 @@ public class AuthenticationServiceTest {
 
         MockServerHttpRequest httpRequest = MockServerHttpRequest.get("").headers(mockHeaders).build();
 
-        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_WORKSPACES).block();
         String workspaceId = testWorkspace == null ? "" : testWorkspace.getId();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 

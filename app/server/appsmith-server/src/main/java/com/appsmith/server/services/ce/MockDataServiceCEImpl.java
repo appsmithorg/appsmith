@@ -229,7 +229,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
                 });
     }
 
-    private Mono<User> addAnalyticsForMockDataCreation(String name, String orgId) {
+    private Mono<User> addAnalyticsForMockDataCreation(String name, String workspaceId) {
         if (!analyticsService.isActive()) {
             return Mono.empty();
         }
@@ -241,7 +241,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
                             user.getUsername(),
                             Map.of(
                                     "MockDataSource", defaultIfNull(name, ""),
-                                    "orgId", defaultIfNull(orgId, "")
+                                    "orgId", defaultIfNull(workspaceId, "")
                             )
                     );
                     return user;

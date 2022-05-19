@@ -472,9 +472,9 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
-        String orgId = application.getWorkspaceId();
-        if (!StringUtils.hasText(orgId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        String workspaceId = application.getWorkspaceId();
+        if (!StringUtils.hasText(workspaceId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         // Clean the object so that it will be saved as a new application for the currently signed in user.
@@ -487,7 +487,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
-        return applicationPageService.setApplicationPolicies(userMono, orgId, application)
+        return applicationPageService.setApplicationPolicies(userMono, workspaceId, application)
                 .flatMap(applicationToCreate ->
                         createSuffixedApplication(applicationToCreate, applicationToCreate.getName(), 0)
                 );

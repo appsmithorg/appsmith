@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 
 
 @Slf4j
@@ -128,7 +128,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
     @Override
     public Mono<Workspace> addUserRoleToWorkspace(String workspaceId, UserRole userRole) {
-        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, MANAGE_ORGANIZATIONS)
+        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, MANAGE_WORKSPACES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
         Mono<User> userMono = userRepository.findByEmail(userRole.getUsername())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER)));
@@ -311,7 +311,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         // count how many admins are there is this workspace
         long workspaceAdminCount = userRoles.stream().filter(
-                userRole1 -> userRole1.getRole() == AppsmithRole.ORGANIZATION_ADMIN
+                userRole1 -> userRole1.getRole() == AppsmithRole.WORKSPACE_ADMIN
         ).count();
 
         for (UserRole role : userRoles) {
@@ -321,10 +321,10 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 if (role.getRole().equals(userRole.getRole())) {
                     // No change in the role. Do nothing.
                     return Mono.just(userRole);
-                } else if(role.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN)) {
+                } else if(role.getRole().equals(AppsmithRole.WORKSPACE_ADMIN)) {
                     // user is currently admin, check if this user is the only admin
                     if(workspaceAdminCount == 1) {
-                        return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_ORG_ADMIN_ERROR));
+                        return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR));
                     }
                 }
 
@@ -391,7 +391,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         }
 
         Mono<Workspace> workspaceMono = workspaceRepository
-                .findById(workspaceId, MANAGE_ORGANIZATIONS)
+                .findById(workspaceId, MANAGE_WORKSPACES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED,
                         "Change role of a member")));
         Mono<User> userMono = userRepository.findByEmail(userRole.getUsername());

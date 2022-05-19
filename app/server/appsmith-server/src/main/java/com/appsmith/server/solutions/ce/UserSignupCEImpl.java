@@ -102,7 +102,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)))
                 .flatMap(tuple -> {
                     final User savedUser = tuple.getT1().getUser();
-                    final String workspaceId = tuple.getT1().getDefaultOrganizationId();
+                    final String workspaceId = tuple.getT1().getDefaultWorkspaceId();
                     final WebSession session = tuple.getT2();
                     final SecurityContext securityContext = tuple.getT3();
 

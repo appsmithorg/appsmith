@@ -23,8 +23,8 @@ public class CustomGroupRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Grou
 
     @Override
     public Flux<Group> getAllByWorkspaceId(String workspaceId) {
-        Criteria orgIdCriteria = where(fieldName(QGroup.group.workspaceId)).is(workspaceId);
+        Criteria workspaceIdCriteria = where(fieldName(QGroup.group.workspaceId)).is(workspaceId);
 
-        return queryAll(List.of(orgIdCriteria), null);
+        return queryAll(List.of(workspaceIdCriteria), null);
     }
 }

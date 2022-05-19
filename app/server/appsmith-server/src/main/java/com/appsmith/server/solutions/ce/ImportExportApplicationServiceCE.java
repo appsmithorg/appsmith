@@ -26,11 +26,11 @@ public interface ImportExportApplicationServiceCE {
     /**
      * This function will take the Json filepart and saves the application in workspace
      *
-     * @param orgId    workspace to which the application needs to be hydrated
+     * @param workspaceId    workspace to which the application needs to be hydrated
      * @param filePart Json file which contains the entire application object
      * @return saved application in DB
      */
-    Mono<ApplicationImportDTO> extractFileAndSaveApplication(String orgId, Part filePart);
+    Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart);
 
     /**
      * This function will save the application to workspace from the application resource

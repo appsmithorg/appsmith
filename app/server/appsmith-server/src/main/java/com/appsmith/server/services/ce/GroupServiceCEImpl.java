@@ -57,7 +57,7 @@ public class GroupServiceCEImpl extends BaseService<GroupRepository, Group, Stri
                 .map(user -> {
                     // Filtering the groups by the user's current workspace
                     String workspaceId = user.getCurrentWorkspaceId();
-                    query.addCriteria(Criteria.where(FieldName.ORGANIZATION_ID).is(workspaceId));
+                    query.addCriteria(Criteria.where(FieldName.WORKSPACE_ID).is(workspaceId));
                     return query;
                 })
                 .flatMapMany(query1 -> {

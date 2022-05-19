@@ -49,11 +49,11 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<Application> findByIdAndWorkspaceId(String id, String orgId, AclPermission permission) {
-        Criteria orgIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(orgId);
+    public Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {
+        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
         Criteria idCriteria = getIdCriteria(id);
 
-        return queryOne(List.of(idCriteria, orgIdCriteria), permission);
+        return queryOne(List.of(idCriteria, workspaceIdCriteria), permission);
     }
 
     @Override
@@ -63,15 +63,15 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Flux<Application> findByWorkspaceId(String orgId, AclPermission permission) {
-        Criteria orgIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(orgId);
-        return queryAll(List.of(orgIdCriteria), permission);
+    public Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
+        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
+        return queryAll(List.of(workspaceIdCriteria), permission);
     }
 
     @Override
-    public Flux<Application> findByMultipleWorkspaceIds(Set<String> orgIds, AclPermission permission) {
-        Criteria orgIdsCriteria = where(fieldName(QApplication.application.workspaceId)).in(orgIds);
-        return queryAll(List.of(orgIdsCriteria), permission);
+    public Flux<Application> findByMultipleWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
+        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).in(workspaceIds);
+        return queryAll(List.of(workspaceIdCriteria), permission);
     }
 
     @Override
@@ -171,8 +171,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Mono<Long> countByWorkspaceId(String workspaceId) {
-        Criteria orgIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
-        return this.count(List.of(orgIdCriteria));
+        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
+        return this.count(List.of(workspaceIdCriteria));
     }
 
     @Override

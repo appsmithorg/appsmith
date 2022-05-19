@@ -30,7 +30,7 @@ public class UserData extends BaseDomain {
     @JsonIgnore
     String userId;
 
-    // Role of the user in their organization, example, Designer, Developer, Product Lead etc.
+    // Role of the user in their workspace, example, Designer, Developer, Product Lead etc.
     private String role;
 
     // The goal the user is trying to solve with Appsmith.

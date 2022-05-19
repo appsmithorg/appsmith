@@ -412,14 +412,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
 
                     // Check if the private repo count is less than the allowed repo count
-                    final String orgId = defaultApplication.getWorkspaceId();
+                    final String workspaceId = defaultApplication.getWorkspaceId();
                     return applicationMono
-                            .then(gitCloudServicesUtils.getPrivateRepoLimitForOrg(orgId, false))
+                            .then(gitCloudServicesUtils.getPrivateRepoLimitForOrg(workspaceId, false))
                             .flatMap(limit -> {
                                 if (limit == -1) {
                                     return Mono.just(defaultApplication);
                                 }
-                                return this.getApplicationCountWithPrivateRepo(orgId)
+                                return this.getApplicationCountWithPrivateRepo(workspaceId)
                                         .map(privateRepoCount -> {
                                             if (limit >= privateRepoCount) {
                                                 return defaultApplication;
@@ -741,7 +741,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     String repoName = tuple.getT3();
                     Path repoPath = tuple.getT4();
                     final String applicationId = application.getId();
-                    final String orgId = application.getWorkspaceId();
+                    final String workspaceId = application.getWorkspaceId();
                     try {
                         return fileUtils.checkIfDirectoryIsEmpty(repoPath).zipWith(isPrivateRepoMono)
                                 .flatMap(objects -> {
@@ -772,7 +772,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                 .flatMap(applicationJson -> {
                                                     applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
                                                     return importExportApplicationService
-                                                            .importApplicationInWorkspace(orgId, applicationJson, applicationId, defaultBranch);
+                                                            .importApplicationInWorkspace(workspaceId, applicationJson, applicationId, defaultBranch);
                                                 });
                                     }
                                 })

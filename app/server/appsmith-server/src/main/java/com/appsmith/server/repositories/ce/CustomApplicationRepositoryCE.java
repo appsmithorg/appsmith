@@ -18,7 +18,7 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Mono<Application> findByName(String name, AclPermission permission);
 
-    Flux<Application> findByWorkspaceId(String orgId, AclPermission permission);
+    Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission);
 
     Flux<Application> findByMultipleWorkspaceIds(Set<String> workspaceIds, AclPermission permission);
 

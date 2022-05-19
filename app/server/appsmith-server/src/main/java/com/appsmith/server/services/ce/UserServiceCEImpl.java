@@ -79,8 +79,8 @@ import java.util.UUID;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
-import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
+import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -453,7 +453,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     private Set<Policy> crudUserPolicy(User user) {
 
-        Set<AclPermission> aclPermissions = Set.of(MANAGE_USERS, USER_MANAGE_ORGANIZATIONS);
+        Set<AclPermission> aclPermissions = Set.of(MANAGE_USERS, USER_MANAGE_WORKSPACES);
 
         Map<String, Policy> userPolicies = policyUtils.generatePolicyFromPermission(aclPermissions, user);
 
@@ -547,7 +547,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 log.debug("Creating blank default workspace for user '{}'.", savedUser.getEmail());
                                 return workspaceService.createDefault(new Workspace(), savedUser)
                                         .map(workspace -> {
-                                            userSignupDTO.setDefaultOrganizationId(workspace.getId());
+                                            userSignupDTO.setDefaultWorkspaceId(workspace.getId());
                                             return userSignupDTO;
                                         });
                             })
@@ -672,8 +672,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
         // Check if the current user has invite permissions
-        Mono<Workspace> workspaceMono = workspaceRepository.findById(inviteUsersDTO.getOrgId(), ORGANIZATION_INVITE_USERS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, inviteUsersDTO.getOrgId())))
+        Mono<Workspace> workspaceMono = workspaceRepository.findById(inviteUsersDTO.getWorkspaceId(), WORKSPACE_INVITE_USERS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, inviteUsersDTO.getWorkspaceId())))
                 .zipWith(currentUserMono)
                 .flatMap(tuple -> {
                     Workspace workspace = tuple.getT1();
@@ -934,7 +934,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     final UserProfileDTO profile = new UserProfileDTO();
 
                     profile.setEmail(userFromDb.getEmail());
-                    profile.setOrganizationIds(userFromDb.getWorkspaceIds());
+                    profile.setWorkspaceIds(userFromDb.getWorkspaceIds());
                     profile.setUsername(userFromDb.getUsername());
                     profile.setName(userFromDb.getName());
                     profile.setGender(userFromDb.getGender());

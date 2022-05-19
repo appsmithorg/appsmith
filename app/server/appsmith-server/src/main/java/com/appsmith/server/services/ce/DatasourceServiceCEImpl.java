@@ -50,8 +50,8 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 
 @Slf4j
 public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, Datasource, String> implements DatasourceServiceCE {
@@ -94,7 +94,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     public Mono<Datasource> create(@NotNull Datasource datasource) {
         String workspaceId = datasource.getWorkspaceId();
         if (workspaceId == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
         if (datasource.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
@@ -130,14 +130,14 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Workspace> orgMono = workspaceService.findById(datasource.getWorkspaceId(), ORGANIZATION_MANAGE_APPLICATIONS)
+                    Mono<Workspace> orgMono = workspaceService.findById(datasource.getWorkspaceId(), WORKSPACE_MANAGE_APPLICATIONS)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, datasource.getWorkspaceId())));
 
                     return orgMono.map(org -> {
                         Set<Policy> policySet = org.getPolicies().stream()
                                 .filter(policy ->
-                                        policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
-                                                policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
+                                        policy.getPermission().equals(WORKSPACE_MANAGE_APPLICATIONS.getValue()) ||
+                                                policy.getPermission().equals(WORKSPACE_READ_APPLICATIONS.getValue())
                                 ).collect(Collectors.toSet());
 
                         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Workspace.class, Datasource.class);
@@ -383,11 +383,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
          */
         // Remove branch name as datasources are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
-        if (params.getFirst(FieldName.ORGANIZATION_ID) != null) {
-            return findAllByWorkspaceId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES);
+        if (params.getFirst(FieldName.WORKSPACE_ID) != null) {
+            return findAllByWorkspaceId(params.getFirst(FieldName.WORKSPACE_ID), AclPermission.READ_DATASOURCES);
         }
 
-        return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
     }
 
     @Override

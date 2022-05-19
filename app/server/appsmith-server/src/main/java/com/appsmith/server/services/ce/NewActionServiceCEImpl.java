@@ -188,7 +188,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private void setCommonFieldsFromNewActionIntoAction(NewAction newAction, ActionDTO action) {
 
         // Set the fields from NewAction into Action
-        action.setOrganizationId(newAction.getWorkspaceId());
+        action.setWorkspaceId(newAction.getWorkspaceId());
         action.setPluginType(newAction.getPluginType());
         action.setPluginId(newAction.getPluginId());
         action.setTemplateId(newAction.getTemplateId());
@@ -203,7 +203,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction) {
         // Set the fields from NewAction into Action
-        newAction.setWorkspaceId(action.getOrganizationId());
+        newAction.setWorkspaceId(action.getWorkspaceId());
         newAction.setPluginType(action.getPluginType());
         newAction.setPluginId(action.getPluginId());
         newAction.setTemplateId(action.getTemplateId());

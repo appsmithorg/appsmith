@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -172,7 +172,7 @@ public class ApplicationFetcherUnitTest {
 
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(testUser));
         Mockito.when(userService.findByEmail(testUser.getEmail())).thenReturn(Mono.just(testUser));
-        Mockito.when(workspaceService.findByIdsIn(testUser.getWorkspaceIds(), READ_ORGANIZATIONS))
+        Mockito.when(workspaceService.findByIdsIn(testUser.getWorkspaceIds(), READ_WORKSPACES))
                 .thenReturn(Flux.fromIterable(createDummyWorkspaces()));
         Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
         Mockito.when(releaseNotesService.computeNewFrom(any())).thenReturn("0");
@@ -208,7 +208,7 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
-                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getWorkspaceApplications();
                     assertThat(dtos.size()).isEqualTo(4);
                     for (WorkspaceApplicationsDTO dto : dtos) {
                         assertThat(dto.getApplications().size()).isEqualTo(4);
@@ -254,7 +254,7 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
-                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getWorkspaceApplications();
                     assertThat(dtos.size()).isEqualTo(4);
                     for (WorkspaceApplicationsDTO dto : dtos) {
                         assertThat(dto.getApplications().size()).isEqualTo(4);
@@ -275,7 +275,7 @@ public class ApplicationFetcherUnitTest {
                 .thenReturn(Mono.just(new Application()));
         Mono<UserHomepageDTO> userHomepageDTOMono = applicationFetcher.getAllApplications()
                 .flatMap(userHomepageDTO -> {
-                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getWorkspaceApplications();
                     List<Application> applicationList = dtos.get(0).getApplications();
                     return Mono.just(applicationList.get(0));
                 })
@@ -285,7 +285,7 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(userHomepageDTOMono)
                 .assertNext(userHomepageDTO -> {
-                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getWorkspaceApplications();
                     assertThat(dtos.size()).isEqualTo(4);
                     for (WorkspaceApplicationsDTO dto : dtos) {
                         assertThat(dto.getApplications().size()).isEqualTo(4);
@@ -304,7 +304,7 @@ public class ApplicationFetcherUnitTest {
         // For connect and create branch flow scenarios where - defaultBranchName is somehow not saved in DB
         userHomepageDTOMono = applicationFetcher.getAllApplications()
                 .flatMap(userHomepageDTO -> {
-                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getWorkspaceApplications();
                     List<Application> applicationList = dtos.get(0).getApplications();
                     return Mono.just(applicationList.get(0));
                 })
@@ -341,7 +341,7 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(userHomepageDTOMono)
                 .assertNext(userHomepageDTO -> {
-                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getWorkspaceApplications();
                     assertThat(dtos.size()).isEqualTo(4);
                     for (WorkspaceApplicationsDTO dto : dtos) {
                         assertThat(dto.getApplications().size()).isEqualTo(4);
@@ -387,7 +387,7 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
-                    List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getWorkspaceApplications();
                     assertThat(workspaceApplications).isNotNull();
                     assertThat(workspaceApplications.size()).isEqualTo(4);
 
@@ -402,11 +402,11 @@ public class ApplicationFetcherUnitTest {
                     );
 
                     // rest two orgs should have apps sorted in default order e.g. 1,2,3,4
-                    String org3AppPrefix = workspaceApplications.get(2).getOrganization().getId() + "-app-";
+                    String org3AppPrefix = workspaceApplications.get(2).getWorkspace().getId() + "-app-";
                     checkAppsAreSorted(workspaceApplications.get(2).getApplications(),
                             List.of(org3AppPrefix+"1", org3AppPrefix+"2", org3AppPrefix+"3", org3AppPrefix+"4")
                     );
-                    String org4AppPrefix = workspaceApplications.get(3).getOrganization().getId() + "-app-";
+                    String org4AppPrefix = workspaceApplications.get(3).getWorkspace().getId() + "-app-";
                     checkAppsAreSorted(workspaceApplications.get(3).getApplications(),
                             List.of(org4AppPrefix+"1", org4AppPrefix+"2", org4AppPrefix+"3", org4AppPrefix+"4")
                     );
@@ -440,7 +440,7 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
-                    List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getWorkspaceApplications();
                     assertThat(workspaceApplications).isNotNull();
                     assertThat(workspaceApplications.size()).isEqualTo(4);
 

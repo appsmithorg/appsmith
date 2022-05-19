@@ -98,7 +98,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
     @EventListener
     public void handle(CommentAddedEvent event) {
         this.sendEmailForCommentAdded(
-                        event.getOrganization(),
+                        event.getWorkspace(),
                         event.getApplication(),
                         event.getComment(),
                         event.getOriginHeader(),
@@ -113,7 +113,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
     public void handle(CommentThreadClosedEvent event) {
         this.sendEmailForCommentThreadResolved(
                         event.getAuthorUserName(),
-                        event.getOrganization(),
+                        event.getWorkspace(),
                         event.getApplication(),
                         event.getCommentThread(),
                         event.getOriginHeader(),

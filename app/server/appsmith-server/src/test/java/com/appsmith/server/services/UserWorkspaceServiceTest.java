@@ -36,9 +36,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_ADMIN;
-import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_DEVELOPER;
-import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_VIEWER;
+import static com.appsmith.server.acl.AppsmithRole.WORKSPACE_ADMIN;
+import static com.appsmith.server.acl.AppsmithRole.WORKSPACE_DEVELOPER;
+import static com.appsmith.server.acl.AppsmithRole.WORKSPACE_VIEWER;
 import static org.junit.Assert.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -81,10 +81,10 @@ class UserWorkspaceServiceTest {
 
     @BeforeEach
     public void setup() {
-        Workspace org = new Workspace();
-        org.setName("Test org");
-        org.setUserRoles(new ArrayList<>());
-        this.workspace = workspaceRepository.save(org).block();
+        Workspace workspace = new Workspace();
+        workspace.setName("Test org");
+        workspace.setUserRoles(new ArrayList<>());
+        this.workspace = workspaceRepository.save(workspace).block();
     }
 
     private UserRole createUserRole(String username, String userId, AppsmithRole role) {
@@ -99,14 +99,14 @@ class UserWorkspaceServiceTest {
         return userRole;
     }
 
-    private void addRolesToOrg(List<UserRole> roles) {
+    private void addRolesToWorkspace(List<UserRole> roles) {
         this.workspace.setUserRoles(roles);
         for (UserRole userRole : roles) {
             Set<AclPermission> rolePermissions = userRole.getRole().getPermissions();
-            Map<String, Policy> orgPolicyMap = policyUtils.generatePolicyFromPermission(
+            Map<String, Policy> workspacePolicyMap = policyUtils.generatePolicyFromPermission(
                     rolePermissions, userRole.getUsername()
             );
-            this.workspace = policyUtils.addPoliciesToExistingObject(orgPolicyMap, workspace);
+            this.workspace = policyUtils.addPoliciesToExistingObject(workspacePolicyMap, workspace);
         }
         this.workspace = workspaceRepository.save(workspace).block();
     }
@@ -121,28 +121,28 @@ class UserWorkspaceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    void leaveOrganization_WhenUserExistsInOrg_RemovesUser() {
+    void leaveWorkspace_WhenUserExistsInWorkspace_RemovesUser() {
         User currentUser = userRepository.findByEmail("api_user").block();
-        Set<String> organizationIdsBefore = Set.copyOf(currentUser.getWorkspaceIds());
+        Set<String> workspaceIdsBefore = Set.copyOf(currentUser.getWorkspaceIds());
 
         List<UserRole> userRolesBeforeAddUser = List.copyOf(workspace.getUserRoles());
 
         currentUser.getWorkspaceIds().add(workspace.getId());
         userRepository.save(currentUser).block();
 
-        // add org id and recent apps to user data
+        // add workspace id and recent apps to user data
         Application application = new Application();
         application.setWorkspaceId(workspace.getId());
 
         Mono<UserData> saveUserDataMono = applicationRepository.save(application).flatMap(savedApplication -> {
-            // add app id and org id to recent list
+            // add app id and workspace id to recent list
             UserData userData = new UserData();
             userData.setRecentlyUsedAppIds(List.of(savedApplication.getId()));
             userData.setRecentlyUsedWorkspaceIds(List.of(workspace.getId()));
             return userDataService.updateForUser(currentUser, userData);
         });
 
-        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_DEVELOPER);
+        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), WORKSPACE_DEVELOPER);
 
         Mono<User> userMono = userWorkspaceService
                 .addUserToWorkspaceGivenUserObject(this.workspace, currentUser, userRole)
@@ -151,7 +151,7 @@ class UserWorkspaceServiceTest {
 
         StepVerifier.create(userMono).assertNext(user -> {
             assertEquals("api_user", user.getEmail());
-            assertEquals(organizationIdsBefore, user.getWorkspaceIds());
+            assertEquals(workspaceIdsBefore, user.getWorkspaceIds());
         }).verifyComplete();
 
         StepVerifier.create(workspaceRepository.findById(this.workspace.getId())).assertNext(workspace1 -> {
@@ -160,7 +160,7 @@ class UserWorkspaceServiceTest {
 
         StepVerifier.create(userRepository.findByEmail("api_user")).assertNext(user1 -> {
             assertFalse(
-                    "user's orgId list should not have left org id",
+                    "user's workspaceId list should not have left workspace id",
                     user1.getWorkspaceIds().contains(this.workspace.getId())
             );
         }).verifyComplete();
@@ -173,7 +173,7 @@ class UserWorkspaceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    void leaveOrganization_WhenUserDoesNotExistInOrg_ThrowsException() {
+    void leaveWorkspace_WhenUserDoesNotExistInWorkspace_ThrowsException() {
         Mono<User> userMono = userWorkspaceService.leaveWorkspace(this.workspace.getId());
         StepVerifier.create(userMono).expectErrorMessage(
                 AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.USER + " api_user in the organization", workspace.getName())
@@ -185,17 +185,17 @@ class UserWorkspaceServiceTest {
     public void updateRoleForMember_WhenAdminRoleRemovedWithNoOtherAdmin_ThrowsExceptions() {
         // add the current user as an admin to the workspace first
         User currentUser = userRepository.findByEmail("api_user").block();
-        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_ADMIN);
+        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), WORKSPACE_ADMIN);
 
         userWorkspaceService.addUserToWorkspaceGivenUserObject(workspace, currentUser, userRole).block();
 
-        // try to remove the user from org
+        // try to remove the user from workspace
         UserRole updatedRole = new UserRole();
         updatedRole.setUsername(currentUser.getUsername());
 
         Mono<UserRole> userRoleMono = userWorkspaceService.updateRoleForMember(workspace.getId(), updatedRole, null);
         StepVerifier.create(userRoleMono).expectErrorMessage(
-                AppsmithError.REMOVE_LAST_ORG_ADMIN_ERROR.getMessage()
+                AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage()
         ).verify();
     }
 
@@ -203,16 +203,16 @@ class UserWorkspaceServiceTest {
     @WithUserDetails(value = "api_user")
     public void updateRoleForMember_WhenAdminRoleRemovedButOtherAdminExists_MemberRemoved() {
         // add another admin role to the workspace
-        UserRole adminRole = createUserRole("dummy_username2", "dummy_user_id2", ORGANIZATION_ADMIN);
+        UserRole adminRole = createUserRole("dummy_username2", "dummy_user_id2", WORKSPACE_ADMIN);
         this.workspace.getUserRoles().add(adminRole);
         this.workspace = workspaceRepository.save(this.workspace).block();
 
         // add the current user as an admin to the workspace
         User currentUser = userRepository.findByEmail("api_user").block();
-        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_ADMIN);
+        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), WORKSPACE_ADMIN);
         userWorkspaceService.addUserToWorkspaceGivenUserObject(workspace, currentUser, userRole).block();
 
-        // try to remove the user from org
+        // try to remove the user from workspace
         UserRole updatedRole = new UserRole();
         updatedRole.setUsername(currentUser.getUsername());
 
@@ -232,14 +232,14 @@ class UserWorkspaceServiceTest {
                 .switchIfEmpty(userRepository.save(devUser))
                 .block();
 
-        UserRole adminRole = createUserRole("api_user", "api_user", ORGANIZATION_ADMIN);
-        UserRole devRole = createUserRole("test_developer", "test_developer", ORGANIZATION_DEVELOPER);
+        UserRole adminRole = createUserRole("api_user", "api_user", WORKSPACE_ADMIN);
+        UserRole devRole = createUserRole("test_developer", "test_developer", WORKSPACE_DEVELOPER);
 
         List<UserRole> userRoles = new ArrayList<>(2);
         userRoles.add(adminRole);
         userRoles.add(devRole);
 
-        addRolesToOrg(userRoles);
+        addRolesToWorkspace(userRoles);
 
         // create a test application
         Application application = new Application();
@@ -266,7 +266,7 @@ class UserWorkspaceServiceTest {
                     return commentThreadRepository.save(commentThread);
                 }).flatMap(commentThread -> {
                     // update an user's role
-                    UserRole updatedRole = createUserRole("test_developer", "test_developer", ORGANIZATION_VIEWER);
+                    UserRole updatedRole = createUserRole("test_developer", "test_developer", WORKSPACE_VIEWER);
                     return userWorkspaceService.updateRoleForMember(
                             workspace.getId(), updatedRole, null
                     ).thenReturn(commentThread);
@@ -318,7 +318,7 @@ class UserWorkspaceServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void bulkAddUsersToOrganization_WhenNewUserAdded_ThreadPolicyUpdated() {
+    public void bulkAddUsersToWorkspace_WhenNewUserAdded_ThreadPolicyUpdated() {
         // create a new user
         User user = new User();
         user.setEmail("new_test_user");
@@ -337,7 +337,7 @@ class UserWorkspaceServiceTest {
                     List<User> users = new ArrayList<>(1);
                     users.add(user);
                     return userWorkspaceService
-                            .bulkAddUsersToWorkspace(workspace, users, ORGANIZATION_DEVELOPER.getName())
+                            .bulkAddUsersToWorkspace(workspace, users, WORKSPACE_DEVELOPER.getName())
                             .thenReturn(commentThread);
                 }).flatMap(commentThread ->
                         commentThreadRepository.findById(commentThread.getId())

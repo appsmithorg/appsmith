@@ -200,10 +200,10 @@ public class UserDataServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateLastUsedAppAndOrgList_WhenListIsEmpty_orgIdPrepended() {
-        String sampleOrgId = UUID.randomUUID().toString();
+    public void updateLastUsedAppAndWorkspaceList_WhenListIsEmpty_workspaceIdPrepended() {
+        String sampleWorkspaceId = UUID.randomUUID().toString();
         Application application = new Application();
-        application.setWorkspaceId(sampleOrgId);
+        application.setWorkspaceId(sampleWorkspaceId);
 
         final Mono<UserData> saveMono = userDataService.getForCurrentUser().flatMap(userData -> {
             // set recently used org ids to null
@@ -213,22 +213,22 @@ public class UserDataServiceTest {
 
         StepVerifier.create(saveMono).assertNext(userData -> {
             Assert.assertEquals(1, userData.getRecentlyUsedWorkspaceIds().size());
-            Assert.assertEquals(sampleOrgId, userData.getRecentlyUsedWorkspaceIds().get(0));
+            Assert.assertEquals(sampleWorkspaceId, userData.getRecentlyUsedWorkspaceIds().get(0));
         }).verifyComplete();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateLastUsedAppAndOrgList_WhenListIsNotEmpty_orgIdPrepended() {
+    public void updateLastUsedAppAndWorkspaceList_WhenListIsNotEmpty_workspaceIdPrepended() {
         final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
             // Set an initial list of org ids to the current user.
             userData.setRecentlyUsedWorkspaceIds(Arrays.asList("123", "456"));
             return userDataRepository.save(userData);
         }).flatMap(userData -> {
             // Now check whether a new org id is put at first.
-            String sampleOrgId = "sample-org-id";
+            String sampleWorkspaceId = "sample-org-id";
             Application application = new Application();
-            application.setWorkspaceId(sampleOrgId);
+            application.setWorkspaceId(sampleWorkspaceId);
             return userDataService.updateLastUsedAppAndWorkspaceList(application);
         });
 
@@ -241,7 +241,7 @@ public class UserDataServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void updateLastUsedAppAndOrgList_TooManyRecentIds_ListsAreTruncated() {
-        String sampleOrgId = "sample-org-id", sampleAppId = "sample-app-id";
+        String sampleWorkspaceId = "sample-org-id", sampleAppId = "sample-app-id";
 
         final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
             // Set an initial list of 12 org ids to the current user
@@ -260,14 +260,14 @@ public class UserDataServiceTest {
             // Now check whether a new org id is put at first.
             Application application = new Application();
             application.setId(sampleAppId);
-            application.setWorkspaceId(sampleOrgId);
+            application.setWorkspaceId(sampleWorkspaceId);
             return userDataService.updateLastUsedAppAndWorkspaceList(application);
         });
 
         StepVerifier.create(resultMono).assertNext(userData -> {
             // org id list should be truncated to 10
             assertThat(userData.getRecentlyUsedWorkspaceIds().size()).isEqualTo(10);
-            assertThat(userData.getRecentlyUsedWorkspaceIds().get(0)).isEqualTo(sampleOrgId);
+            assertThat(userData.getRecentlyUsedWorkspaceIds().get(0)).isEqualTo(sampleWorkspaceId);
             assertThat(userData.getRecentlyUsedWorkspaceIds().get(9)).isEqualTo("org-9");
 
             // app id list should be truncated to 20

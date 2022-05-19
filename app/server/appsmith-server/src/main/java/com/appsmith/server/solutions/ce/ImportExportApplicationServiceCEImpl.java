@@ -559,7 +559,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         final MediaType contentType = filePart.headers().getContentType();
 
         if (workspaceId == null || workspaceId.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
@@ -708,7 +708,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     pluginMap.put(pluginReference, plugin.getId());
                     return plugin;
                 })
-                .then(workspaceService.findById(workspaceId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS))
+                .then(workspaceService.findById(workspaceId, AclPermission.WORKSPACE_MANAGE_APPLICATIONS))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId))
                 )
@@ -1995,8 +1995,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         return null;
     }
 
-    public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String orgId) {
-        Mono<List<Datasource>> listMono = datasourceService.findAllByWorkspaceId(orgId, MANAGE_DATASOURCES).collectList();
+    public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
+        Mono<List<Datasource>> listMono = datasourceService.findAllByWorkspaceId(workspaceId, MANAGE_DATASOURCES).collectList();
         return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
                 .collectList()
                 .zipWith(listMono)

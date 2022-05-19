@@ -151,7 +151,7 @@ public class ApplicationForkingServiceTests {
 
     private static String sourceAppId;
 
-    private static String testUserOrgId;
+    private static String testUserWorkspaceId;
 
     private static boolean isSetupDone = false;
 
@@ -204,7 +204,7 @@ public class ApplicationForkingServiceTests {
         actionCollectionDTO.setName("testCollection1");
         actionCollectionDTO.setPageId(app1.getPages().get(0).getId());
         actionCollectionDTO.setApplicationId(sourceAppId);
-        actionCollectionDTO.setOrganizationId(sourceWorkspace.getId());
+        actionCollectionDTO.setWorkspaceId(sourceWorkspace.getId());
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
         actionCollectionDTO.setBody("export default {\n" +
@@ -259,8 +259,8 @@ public class ApplicationForkingServiceTests {
         ArrayList<String> users = new ArrayList<>();
         users.add("usertest@usertest.com");
         inviteUsersDTO.setUsernames(users);
-        inviteUsersDTO.setOrgId(sourceWorkspace.getId());
-        inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+        inviteUsersDTO.setWorkspaceId(sourceWorkspace.getId());
+        inviteUsersDTO.setRoleName(AppsmithRole.WORKSPACE_VIEWER.getName());
         userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         isSetupDone = true;
@@ -300,8 +300,8 @@ public class ApplicationForkingServiceTests {
 
         final Mono<Application> resultMono = workspaceService.create(targetWorkspace)
                 .map(Workspace::getId)
-                .flatMap(targetOrganizationId ->
-                        applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetOrganizationId)
+                .flatMap(targetWorkspaceId ->
+                        applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspaceId)
                 );
 
         StepVerifier.create(resultMono
@@ -393,7 +393,7 @@ public class ApplicationForkingServiceTests {
 
         final Mono<Application> resultMono = workspaceService.create(targetWorkspace)
                 .flatMap(workspace -> {
-                    testUserOrgId = workspace.getId();
+                    testUserWorkspaceId = workspace.getId();
                     return applicationForkingService.forkApplicationToWorkspace(sourceAppId, workspace.getId());
                 });
 
@@ -409,11 +409,11 @@ public class ApplicationForkingServiceTests {
     @WithUserDetails(value = "api_user")
     public void test3_failForkApplicationWithInvalidPermission() {
 
-        final Mono<Application> resultMono = applicationForkingService.forkApplicationToWorkspace(sourceAppId, testUserOrgId);
+        final Mono<Application> resultMono = applicationForkingService.forkApplicationToWorkspace(sourceAppId, testUserWorkspaceId);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, testUserOrgId)))
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, testUserWorkspaceId)))
                 .verify();
     }
 
@@ -712,7 +712,7 @@ public class ApplicationForkingServiceTests {
         targetWorkspace.setName("delete-edit-mode-page-target-org");
         targetWorkspace = workspaceService.create(targetWorkspace).block();
         assert targetWorkspace != null;
-        final String targetOrgId = targetWorkspace.getId();
+        final String targetWorkspaceId = targetWorkspace.getId();
 
         Workspace srcWorkspace = new Workspace();
         srcWorkspace.setName("delete-edit-mode-page-src-org");
@@ -728,7 +728,7 @@ public class ApplicationForkingServiceTests {
         final String pageId = Objects.requireNonNull(applicationPageService.createPage(pageDTO).block()).getId();
         final Mono<Application> resultMono = applicationPageService.publish(originalAppId, true)
                 .flatMap(ignored -> applicationPageService.deleteUnpublishedPage(pageId))
-                .flatMap(page -> applicationForkingService.forkApplicationToWorkspace(pageDTO.getApplicationId(), targetOrgId));
+                .flatMap(page -> applicationForkingService.forkApplicationToWorkspace(pageDTO.getApplicationId(), targetWorkspaceId));
 
         StepVerifier.create(resultMono
                         .zipWhen(application1 -> newPageService.findNewPagesByApplicationId(application1.getId(), READ_PAGES).collectList()

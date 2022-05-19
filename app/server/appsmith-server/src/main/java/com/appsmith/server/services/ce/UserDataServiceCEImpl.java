@@ -244,7 +244,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     }
 
     /**
-     * The application.organizationId is prepended to the list {@link UserData#getRecentlyUsedOrgIds}.
+     * The application.workspaceId is prepended to the list {@link UserData#getRecentlyUsedWorkspaceIds}.
      * The application.id is prepended to the list {@link UserData#getRecentlyUsedAppIds()}.
      *
      * @param application@return Updated {@link UserData}

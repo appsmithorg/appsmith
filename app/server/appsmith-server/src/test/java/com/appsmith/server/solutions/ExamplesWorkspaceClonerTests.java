@@ -393,7 +393,7 @@ public class ExamplesWorkspaceClonerTests {
                     );
                 })
                 .flatMapMany(tuple -> {
-                    final String orgId = tuple.getT2().getId();
+                    final String workspaceId = tuple.getT2().getId();
                     final String originalId = tuple.getT1().getId();
                     final String originalName = tuple.getT1().getName();
 
@@ -404,13 +404,13 @@ public class ExamplesWorkspaceClonerTests {
                                 app.setName(originalName);
                                 return app;
                             })
-                            .flatMap(app -> examplesWorkspaceCloner.cloneApplications(orgId, Flux.fromArray(new Application[]{ app })))
+                            .flatMap(app -> examplesWorkspaceCloner.cloneApplications(workspaceId, Flux.fromArray(new Application[]{ app })))
                             .then();
                     // Clone this application into the same workspace thrice.
                     return cloneMono
                             .then(cloneMono)
                             .then(cloneMono)
-                            .thenMany(Flux.defer(() -> applicationRepository.findByWorkspaceId(orgId)));
+                            .thenMany(Flux.defer(() -> applicationRepository.findByWorkspaceId(workspaceId)));
                 })
                 .map(Application::getName)
                 .collectList();
@@ -665,7 +665,7 @@ public class ExamplesWorkspaceClonerTests {
 
         final ActionDTO newPageAction = new ActionDTO();
         newPageAction.setName("newPageAction");
-        newPageAction.setOrganizationId(workspace.getId());
+        newPageAction.setWorkspaceId(workspace.getId());
         newPageAction.setDatasource(ds1WithId);
         newPageAction.setPluginId(installedPlugin.getId());
         newPageAction.setActionConfiguration(new ActionConfiguration());
@@ -674,7 +674,7 @@ public class ExamplesWorkspaceClonerTests {
         final ActionDTO action1 = new ActionDTO();
         action1.setName("action1");
         action1.setPageId(pageId1);
-        action1.setOrganizationId(workspace.getId());
+        action1.setWorkspaceId(workspace.getId());
         action1.setDatasource(ds1WithId);
         action1.setPluginId(installedPlugin.getId());
 
@@ -683,7 +683,7 @@ public class ExamplesWorkspaceClonerTests {
         final ActionDTO action3 = new ActionDTO();
         action3.setName("action3");
         action3.setPageId(pageId2);
-        action3.setOrganizationId(workspace.getId());
+        action3.setWorkspaceId(workspace.getId());
         action3.setDatasource(ds2WithId);
         action3.setPluginId(installedPlugin.getId());
 
@@ -702,7 +702,7 @@ public class ExamplesWorkspaceClonerTests {
         actionCollectionDTO1.setName("testCollection1");
         actionCollectionDTO1.setPageId(app.getPages().get(0).getId());
         actionCollectionDTO1.setApplicationId(app.getId());
-        actionCollectionDTO1.setOrganizationId(workspace.getId());
+        actionCollectionDTO1.setWorkspaceId(workspace.getId());
         actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
         ActionDTO action5 = new ActionDTO();
         action5.setName("run");
@@ -898,21 +898,21 @@ public class ExamplesWorkspaceClonerTests {
                                 final ActionDTO action1 = new ActionDTO();
                                 action1.setName("action1");
                                 action1.setPageId(firstPage.getId());
-                                action1.setOrganizationId(sourceOrg1.getId());
+                                action1.setWorkspaceId(sourceOrg1.getId());
                                 action1.setDatasource(ds1WithId);
                                 action1.setPluginId(installedPlugin.getId());
 
                                 final ActionDTO action2 = new ActionDTO();
                                 action2.setPageId(firstPage.getId());
                                 action2.setName("action2");
-                                action2.setOrganizationId(sourceOrg1.getId());
+                                action2.setWorkspaceId(sourceOrg1.getId());
                                 action2.setDatasource(ds1WithId);
                                 action2.setPluginId(installedPlugin.getId());
 
                                 final ActionDTO action3 = new ActionDTO();
                                 action3.setPageId(firstPage.getId());
                                 action3.setName("action3");
-                                action3.setOrganizationId(sourceOrg1.getId());
+                                action3.setWorkspaceId(sourceOrg1.getId());
                                 action3.setDatasource(ds2WithId);
                                 action3.setPluginId(installedPlugin.getId());
 

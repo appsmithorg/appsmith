@@ -25,24 +25,24 @@ class CustomUserDataRepositoryImplTest {
     @Autowired
     private UserDataRepository userDataRepository;
 
-    private Mono<UserData> createUser(String userId, List<String> orgIds, List<String> appIds) {
+    private Mono<UserData> createUser(String userId, List<String> workspaceIds, List<String> appIds) {
         return userDataRepository
                 .findByUserId(userId)
                 .defaultIfEmpty(new UserData()).flatMap(userData -> {
                     userData.setUserId(userId);
-                    userData.setRecentlyUsedWorkspaceIds(orgIds);
+                    userData.setRecentlyUsedWorkspaceIds(workspaceIds);
                     userData.setRecentlyUsedAppIds(appIds);
                     return userDataRepository.save(userData);
                 });
     }
 
     @Test
-    void removeIdFromRecentlyUsedList_WhenOrgIdAlreadyExists_OrgIdRemoved() {
-        // create an user data with 3 org id in the recently used orgid list
+    void removeIdFromRecentlyUsedList_WhenWorkspaceIdAlreadyExists_WorkspaceIdRemoved() {
+        // create an user data with 3 org id in the recently used workspaceId list
         String sampleUserId = "abcd";
         Mono<UserData> createUserDataMono = createUser(sampleUserId, List.of("123", "234", "345"), null);
 
-        // remove the 345 org id from the recently used orgid list
+        // remove the 345 org id from the recently used workspaceId list
         Mono<UpdateResult> updateResultMono = createUserDataMono.flatMap(
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(
                         userData.getUserId(), "345", List.of())
@@ -61,12 +61,12 @@ class CustomUserDataRepositoryImplTest {
     }
 
     @Test
-    void removeIdFromRecentlyUsedList_WhenOrgIdDoesNotExist_NothingRemoved() {
-        // create an user data with 3 org id in the recently used orgid list
+    void removeIdFromRecentlyUsedList_WhenWorkspaceIdDoesNotExist_NothingRemoved() {
+        // create an user data with 3 org id in the recently used workspaceId list
         String sampleUserId = "efgh";
         Mono<UserData> createUserDataMono = createUser(sampleUserId, List.of("123", "234", "345"), null);
 
-        // remove the 345 org id from the recently used orgid list
+        // remove the 345 org id from the recently used workspaceId list
         Mono<UpdateResult> updateResultMono = createUserDataMono.flatMap(
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(
                         userData.getUserId(), "678", List.of()
@@ -91,9 +91,9 @@ class CustomUserDataRepositoryImplTest {
         String sampleUserId = "abcd";
         Mono<UserData> createUserDataMono = createUser(sampleUserId, null, List.of("123", "456", "789"));
 
-        // remove the 345 org id from the recently used orgid list
+        // remove the 345 org id from the recently used workspaceId list
         Mono<UpdateResult> updateResultMono = createUserDataMono.flatMap(
-                // orgId does not matter
+                // workspaceId does not matter
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(
                         userData.getUserId(), "345", List.of("123", "789")) // remove 123 and 789
         );
@@ -112,16 +112,16 @@ class CustomUserDataRepositoryImplTest {
     }
 
     @Test
-    void removeIdFromRecentlyUsedList_WhenOrgIdAndAppIdExists_BothAreRemoved() {
+    void removeIdFromRecentlyUsedList_WhenWorkspaceIdAndAppIdExists_BothAreRemoved() {
         // create a user data with 3 app id in the recently used appId list
         String sampleUserId = "abcd";
         Mono<UserData> createUserDataMono = createUser(
                 sampleUserId, List.of("abc", "efg", "hij"), List.of("123", "456", "789")
         );
 
-        // remove the 345 org id from the recently used orgid list
+        // remove the 345 org id from the recently used workspaceId list
         Mono<UpdateResult> updateResultMono = createUserDataMono.flatMap(
-                // orgId does not matter
+                // workspaceId does not matter
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(
                         userData.getUserId(), "efg", List.of("123", "789")) // remove 123 and 789
         );
@@ -134,12 +134,12 @@ class CustomUserDataRepositoryImplTest {
 
         StepVerifier.create(userDataAfterUpdateMono).assertNext(userData -> {
             List<String> recentlyUsedAppIds = userData.getRecentlyUsedAppIds();
-            List<String> recentlyUsedOrgIds = userData.getRecentlyUsedWorkspaceIds();
+            List<String> recentlyUsedWorkspaceIds = userData.getRecentlyUsedWorkspaceIds();
             assertThat(recentlyUsedAppIds.size()).isEqualTo(1);
             assertThat(recentlyUsedAppIds.get(0)).isEqualTo("456");
 
-            assertThat(recentlyUsedOrgIds.size()).isEqualTo(2);
-            assertThat(recentlyUsedOrgIds).contains("abc", "hij");
+            assertThat(recentlyUsedWorkspaceIds.size()).isEqualTo(2);
+            assertThat(recentlyUsedWorkspaceIds).contains("abc", "hij");
         }).verifyComplete();
     }
 }

@@ -224,18 +224,18 @@ public class GitFileUtils {
     /**
      * Method to reconstruct the application from the local git repo
      *
-     * @param organizationId To which organisation application needs to be rehydrated
+     * @param workspaceId To which workspace application needs to be rehydrated
      * @param defaultApplicationId Root application for the current branched application
      * @param branchName for which branch the application needs to rehydrate
      * @return application reference from which entire application can be rehydrated
      */
-    public Mono<ApplicationJson> reconstructApplicationJsonFromGitRepo(String organizationId,
+    public Mono<ApplicationJson> reconstructApplicationJsonFromGitRepo(String workspaceId,
                                                                        String defaultApplicationId,
                                                                        String repoName,
                                                                        String branchName) {
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.GIT_DESERIALIZE_APP_RESOURCES_FROM_FILE.getEventName());
         Mono<ApplicationGitReference> appReferenceMono = fileUtils
-                .reconstructApplicationReferenceFromGitRepo(organizationId, defaultApplicationId, repoName, branchName);
+                .reconstructApplicationReferenceFromGitRepo(workspaceId, defaultApplicationId, repoName, branchName);
         return Mono.zip(appReferenceMono, sessionUserService.getCurrentUser())
                 .map(tuple -> {
                     ApplicationGitReference applicationReference = tuple.getT1();
@@ -246,7 +246,7 @@ public class GitFileUtils {
                     stopwatch.stopTimer();
                     final Map<String, Object> data = Map.of(
                             FieldName.APPLICATION_ID, defaultApplicationId,
-                            FieldName.ORGANIZATION_ID, organizationId,
+                            FieldName.ORGANIZATION_ID, workspaceId,
                             FieldName.FLOW_NAME, stopwatch.getFlow(),
                             "executionTime", stopwatch.getExecutionTime()
                     );

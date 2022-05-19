@@ -428,7 +428,7 @@ public class ImportExportApplicationServiceTests {
                     actionCollectionDTO1.setName("testCollection1");
                     actionCollectionDTO1.setPageId(testPage.getId());
                     actionCollectionDTO1.setApplicationId(testApp.getId());
-                    actionCollectionDTO1.setOrganizationId(testApp.getWorkspaceId());
+                    actionCollectionDTO1.setWorkspaceId(testApp.getWorkspaceId());
                     actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
                     ActionDTO action1 = new ActionDTO();
                     action1.setName("testAction1");
@@ -692,7 +692,7 @@ public class ImportExportApplicationServiceTests {
     
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationWithNullOrganizationIdTest() {
+    public void importApplicationWithNullWorkspaceIdTest() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         
         Mono<ApplicationImportDTO> resultMono = importExportApplicationService
@@ -701,7 +701,7 @@ public class ImportExportApplicationServiceTests {
         StepVerifier
             .create(resultMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ORGANIZATION_ID)))
+                throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WORKSPACE_ID)))
             .verify();
     }
     
@@ -1410,11 +1410,11 @@ public class ImportExportApplicationServiceTests {
         4. Added page should be deleted from DB
          */
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
-        String orgId = createTemplateWorkspace().getId();
+        String workspaceId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-page-added");
-                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson);
                 })
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
@@ -1518,12 +1518,12 @@ public class ImportExportApplicationServiceTests {
     public void discardChange_addNewActionAfterImport_addedActionRemoved() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
-        String orgId = createTemplateWorkspace().getId();
+        String workspaceId = createTemplateWorkspace().getId();
 
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-action-added");
-                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson);
                 })
                 .flatMap(application -> {
                     ActionDTO action = new ActionDTO();
@@ -1608,18 +1608,18 @@ public class ImportExportApplicationServiceTests {
     public void discardChange_addNewActionCollectionAfterImport_addedActionCollectionRemoved() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application-without-action-collection.json");
-        String orgId = createTemplateWorkspace().getId();
+        String workspaceId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-collection-added");
-                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson);
                 })
                 .flatMap(application -> {
                     ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
                     actionCollectionDTO1.setName("discard-action-collection-test");
                     actionCollectionDTO1.setPageId(application.getPages().get(0).getId());
                     actionCollectionDTO1.setApplicationId(application.getId());
-                    actionCollectionDTO1.setOrganizationId(application.getWorkspaceId());
+                    actionCollectionDTO1.setWorkspaceId(application.getWorkspaceId());
                     actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
                     ActionDTO action1 = new ActionDTO();
                     action1.setName("discard-action-collection-test-action");
@@ -1715,11 +1715,11 @@ public class ImportExportApplicationServiceTests {
     public void discardChange_removeNewPageAfterImport_removedPageRestored() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
-        String orgId = createTemplateWorkspace().getId();
+        String workspaceId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-page-removed");
-                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson);
                 })
                 .flatMap(application -> {
                     Optional<ApplicationPage> applicationPage = application
@@ -1799,12 +1799,12 @@ public class ImportExportApplicationServiceTests {
     public void discardChange_removeNewActionAfterImport_removedActionRestored() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
-        String orgId = createTemplateWorkspace().getId();
+        String workspaceId = createTemplateWorkspace().getId();
         final String[] deletedActionName = new String[1];
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-action-removed");
-                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson);
                 })
                 .flatMap(application -> {
                     return getActionsInApplication(application)
@@ -1886,12 +1886,12 @@ public class ImportExportApplicationServiceTests {
     public void discardChange_removeNewActionCollection_removedActionCollectionRestored() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
-        String orgId = createTemplateWorkspace().getId();
+        String workspaceId = createTemplateWorkspace().getId();
         final String[] deletedActionCollectionNames = new String[1];
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-collection-removed");
-                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson);
                 })
                 .flatMap(application -> {
                     return actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
@@ -2061,7 +2061,7 @@ public class ImportExportApplicationServiceTests {
                     actionCollectionDTO1.setName("testCollection1");
                     actionCollectionDTO1.setPageId(testPage.getId());
                     actionCollectionDTO1.setApplicationId(testApp.getId());
-                    actionCollectionDTO1.setOrganizationId(testApp.getWorkspaceId());
+                    actionCollectionDTO1.setWorkspaceId(testApp.getWorkspaceId());
                     actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
                     ActionDTO action1 = new ActionDTO();
                     action1.setName("testAction1");

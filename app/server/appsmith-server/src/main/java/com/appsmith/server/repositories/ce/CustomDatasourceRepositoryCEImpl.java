@@ -27,15 +27,15 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
 
     @Override
     public Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
-        Criteria orgIdCriteria = where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
-        return queryAll(List.of(orgIdCriteria), permission);
+        Criteria workspaceIdCriteria = where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
+        return queryAll(List.of(workspaceIdCriteria), permission);
     }
 
     @Override
     public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission) {
         Criteria nameCriteria = where(fieldName(QDatasource.datasource.name)).is(name);
-        Criteria orgIdCriteria = where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
-        return queryOne(List.of(nameCriteria, orgIdCriteria), aclPermission);
+        Criteria workspaceIdCriteria = where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
+        return queryOne(List.of(nameCriteria, workspaceIdCriteria), aclPermission);
     }
 
     @Override

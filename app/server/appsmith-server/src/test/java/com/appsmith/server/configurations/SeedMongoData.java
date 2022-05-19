@@ -33,16 +33,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
-import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -71,15 +71,15 @@ public class SeedMongoData {
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
-        Policy manageWorkspaceAppPolicy = Policy.builder().permission(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
+        Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
-        Policy userManageWorkspacePolicy = Policy.builder().permission(USER_MANAGE_ORGANIZATIONS.getValue())
+        Policy userManageWorkspacePolicy = Policy.builder().permission(USER_MANAGE_WORKSPACES.getValue())
                 .users(Set.of(API_USER_EMAIL, TEST_USER_EMAIL, ADMIN_USER_EMAIL, DEV_USER_EMAIL))
                 .build();
 
-        Policy inviteUserWorkspacePolicy = Policy.builder().permission(ORGANIZATION_INVITE_USERS.getValue())
+        Policy inviteUserWorkspacePolicy = Policy.builder().permission(WORKSPACE_INVITE_USERS.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
@@ -91,11 +91,11 @@ public class SeedMongoData {
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
-        Policy readWorkspacePolicy = Policy.builder().permission(READ_ORGANIZATIONS.getValue())
+        Policy readWorkspacePolicy = Policy.builder().permission(READ_WORKSPACES.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
-        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_ORGANIZATIONS.getValue())
+        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
