@@ -184,10 +184,10 @@ const StatusbarWrapper = styled.div`
     border-radius: 50%;
     width: 32px;
     height: 32px;
-    background: ${Colors.GREY_4};
     display: flex;
     justify-content: center;
     margin-bottom: 8px;
+    background: var(--appsmith-color-black-200);
     svg {
       width: 20px;
       height: 20px;
@@ -271,7 +271,6 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
             applicationFile: file,
           }),
         );
-        // onClose && onClose();
       } else {
         setAppFileToBeUploaded(null);
       }
@@ -341,7 +340,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
           <StatusbarWrapper className="t--importing-app-statusbar">
             <Icon fillColor={Colors.GREY_800} name="file-line" />
             <Text className="importing-app-name" type={TextType.P2}>
-              {appFileToBeUploaded?.file.name || "filename.JSON"}
+              {appFileToBeUploaded?.file?.name || "filename.json"}
             </Text>
             <Statusbar
               completed={!importingApplication}

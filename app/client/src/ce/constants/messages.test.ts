@@ -77,7 +77,6 @@ import {
   IMPORT_APP_FROM_FILE_MESSAGE,
   IMPORT_APP_FROM_GIT_MESSAGE,
   IMPORT_FROM_GIT_REPOSITORY,
-  IMPORT_FROM_GIT_REPOSITORY_MESSAGE,
 } from "./messages";
 
 describe("messages", () => {
@@ -395,10 +394,10 @@ describe("git-sync messages", () => {
 
 describe("import application messages", () => {
   const expectedMessages = [
-    { key: "UPLOADING_JSON", value: "Uploading JSON" },
+    { key: "UPLOADING_JSON", value: "Uploading JSON file" },
     {
       key: "UPLOADING_APPLICATION",
-      value: "Uploading Application",
+      value: "Uploading application",
     },
     {
       key: "IMPORT_APP_FROM_FILE_MESSAGE",
@@ -410,12 +409,7 @@ describe("import application messages", () => {
     },
     {
       key: "IMPORT_FROM_GIT_REPOSITORY",
-      value: "Import from Git Repository",
-    },
-    {
-      key: "IMPORT_FROM_GIT_REPOSITORY_MESSAGE",
-      value:
-        "While importing Appsmith will does not import the datasource credentials to prevent a breach. After a successfull import you can add the credentials manually so the application behaves normally!",
+      value: "Import from git repository",
     },
   ];
   const functions = [
@@ -424,7 +418,6 @@ describe("import application messages", () => {
     IMPORT_APP_FROM_FILE_MESSAGE,
     IMPORT_APP_FROM_GIT_MESSAGE,
     IMPORT_FROM_GIT_REPOSITORY,
-    IMPORT_FROM_GIT_REPOSITORY_MESSAGE,
   ];
   functions.forEach((fn: () => string) => {
     it(`${fn.name} returns expected value`, () => {
