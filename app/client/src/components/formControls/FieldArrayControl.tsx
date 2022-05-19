@@ -74,6 +74,10 @@ function NestedComponents(props: any) {
                 sch = {
                   ...sch,
                   configProperty: `${field}.${sch.key}`,
+                  customStyles: {
+                    width: "20vw",
+                    ...props.customStyles,
+                  },
                 };
                 return (
                   <FormControl

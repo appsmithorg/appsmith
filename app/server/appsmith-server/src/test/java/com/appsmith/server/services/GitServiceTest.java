@@ -20,7 +20,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
@@ -38,7 +38,7 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.migrations.JsonSchemaVersions;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -102,10 +102,10 @@ public class GitServiceTest {
     GitService gitService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
-    OrganizationRepository organizationRepository;
+    WorkspaceRepository workspaceRepository;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -161,8 +161,8 @@ public class GitServiceTest {
     public void setup() throws IOException, GitAPIException {
 
         if (StringUtils.isEmpty(orgId)) {
-            orgId = organizationRepository
-                    .findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS)
+            orgId = workspaceRepository
+                    .findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS)
                     .block()
                     .getId();
         }
@@ -225,7 +225,7 @@ public class GitServiceTest {
         return createApplicationConnectedToGit(name, branchName, orgId);
     }
 
-    private Application createApplicationConnectedToGit(String name, String branchName, String organizationId) throws IOException, GitAPIException {
+    private Application createApplicationConnectedToGit(String name, String branchName, String workspaceId) throws IOException, GitAPIException {
 
         if (StringUtils.isEmpty(branchName)) {
             branchName = DEFAULT_BRANCH;
@@ -251,7 +251,7 @@ public class GitServiceTest {
 
         Application testApplication = new Application();
         testApplication.setName(name);
-        testApplication.setOrganizationId(organizationId);
+        testApplication.setOrganizationId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
@@ -706,12 +706,12 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_moreThanThreePrivateRepos_throwException() throws IOException, GitAPIException {
-        Organization organization = new Organization();
-        organization.setName("Limit Private Repo Test Organization");
-        String limitPrivateRepoTestOrgId = organizationService.create(organization).map(Organization::getId).block();
+        Workspace workspace = new Workspace();
+        workspace.setName("Limit Private Repo Test Organization");
+        String limitPrivateRepoTestWorkspaceId = workspaceService.create(workspace).map(Workspace::getId).block();
 
         Mockito
-                .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(limitPrivateRepoTestOrgId), Mockito.anyBoolean()))
+                .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(limitPrivateRepoTestWorkspaceId), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(3));
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
@@ -725,9 +725,9 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("textPath")));
 
-        this.createApplicationConnectedToGit("private_repo_1", "master", limitPrivateRepoTestOrgId);
-        this.createApplicationConnectedToGit("private_repo_2", "master", limitPrivateRepoTestOrgId);
-        this.createApplicationConnectedToGit("private_repo_3", "master", limitPrivateRepoTestOrgId);
+        this.createApplicationConnectedToGit("private_repo_1", "master", limitPrivateRepoTestWorkspaceId);
+        this.createApplicationConnectedToGit("private_repo_2", "master", limitPrivateRepoTestWorkspaceId);
+        this.createApplicationConnectedToGit("private_repo_3", "master", limitPrivateRepoTestWorkspaceId);
 
         Application testApplication = new Application();
         GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
@@ -739,7 +739,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("connectApplicationToGit_WithNonEmptyPublishedPages");
-        testApplication.setOrganizationId(limitPrivateRepoTestOrgId);
+        testApplication.setOrganizationId(limitPrivateRepoTestWorkspaceId);
         Application application = applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
@@ -755,12 +755,12 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_toggleAccessibilityToPublicForConnectedApp_connectSuccessful() throws IOException, GitAPIException {
-        Organization organization = new Organization();
-        organization.setName("Toggle Accessibility To Public From Private Repo Test Organization");
-        String limitPrivateRepoTestOrgId = organizationService.create(organization).map(Organization::getId).block();
+        Workspace workspace = new Workspace();
+        workspace.setName("Toggle Accessibility To Public From Private Repo Test Organization");
+        String limitPrivateRepoTestWorkspaceId = workspaceService.create(workspace).map(Workspace::getId).block();
 
         Mockito
-                .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(limitPrivateRepoTestOrgId), Mockito.anyBoolean()))
+                .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(limitPrivateRepoTestWorkspaceId), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(3));
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
@@ -774,8 +774,8 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("textPath")));
 
-        Application application1 = this.createApplicationConnectedToGit("private_repo_1", "master", limitPrivateRepoTestOrgId);
-        this.createApplicationConnectedToGit("private_repo_2", "master", limitPrivateRepoTestOrgId);
+        Application application1 = this.createApplicationConnectedToGit("private_repo_1", "master", limitPrivateRepoTestWorkspaceId);
+        this.createApplicationConnectedToGit("private_repo_2", "master", limitPrivateRepoTestWorkspaceId);
 
         Application testApplication = new Application();
         GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
@@ -787,7 +787,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("connectApplicationToGit_WithNonEmptyPublishedPages");
-        testApplication.setOrganizationId(limitPrivateRepoTestOrgId);
+        testApplication.setOrganizationId(limitPrivateRepoTestWorkspaceId);
         Application application = applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
@@ -2373,10 +2373,10 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfSameType_Success() {
-        Organization organization = new Organization();
-        organization.setName("gitImportOrg");
-        final String testOrgId = organizationService.create(organization)
-                .map(Organization::getId)
+        Workspace workspace = new Workspace();
+        workspace.setName("gitImportOrg");
+        final String testWorkspaceId = workspaceService.create(workspace)
+                .map(Workspace::getId)
                 .block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo.git", testUserProfile);
@@ -2390,7 +2390,7 @@ public class GitServiceTest {
         Datasource datasource = new Datasource();
         datasource.setName("db-auth-testGitImportRepo");
         datasource.setPluginId(pluginId);
-        datasource.setOrganizationId(testOrgId);
+        datasource.setOrganizationId(testWorkspaceId);
         datasourceService.create(datasource).block();
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -2420,10 +2420,10 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfSameTypeCancelledMidway_Success() {
-        Organization organization = new Organization();
-        organization.setName("gitImportOrgCancelledMidway");
-        final String testOrgId = organizationService.create(organization)
-                .map(Organization::getId)
+        Workspace workspace = new Workspace();
+        workspace.setName("gitImportOrgCancelledMidway");
+        final String testWorkspaceId = workspaceService.create(workspace)
+                .map(Workspace::getId)
                 .block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepoCancelledMidway.git", testUserProfile);
@@ -2437,11 +2437,11 @@ public class GitServiceTest {
         Datasource datasource = new Datasource();
         datasource.setName("db-auth-testGitImportRepo");
         datasource.setPluginId(pluginId);
-        datasource.setOrganizationId(testOrgId);
+        datasource.setOrganizationId(testWorkspaceId);
         datasourceService.create(datasource).block();
 
         Mockito
-                .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(testOrgId), Mockito.anyBoolean()))
+                .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(testWorkspaceId), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(3));
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
@@ -2449,12 +2449,12 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitFileUtils.deleteLocalRepo(Mockito.any(Path.class))).thenReturn(Mono.just(true));
 
-        gitService.importApplicationFromGit(testOrgId, gitConnectDTO)
+        gitService.importApplicationFromGit(testWorkspaceId, gitConnectDTO)
                 .timeout(Duration.ofMillis(10))
                 .subscribe();
 
         // Wait for git clone to complete
-        Mono<Application> gitConnectedAppFromDbMono = Mono.just(testOrgId)
+        Mono<Application> gitConnectedAppFromDbMono = Mono.just(testWorkspaceId)
                 .flatMap(ignore -> {
                     try {
                         // Before fetching the git connected application, sleep for 5 seconds to ensure that the clone
@@ -2463,7 +2463,7 @@ public class GitServiceTest {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationService.findByOrganizationId(testOrgId, READ_APPLICATIONS)
+                    return applicationService.findByOrganizationId(testWorkspaceId, READ_APPLICATIONS)
                             .filter(application1 -> "testGitImportRepoCancelledMidway".equals(application1.getName()))
                             .next();
                 });

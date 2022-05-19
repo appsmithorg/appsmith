@@ -42,6 +42,7 @@ export type FormProps<TValues = any> = PropsWithChildren<{
 }>;
 
 type StyledFormProps = {
+  fixedFooter: boolean;
   scrollContents: boolean;
 };
 
@@ -96,6 +97,7 @@ const StyledForm = styled.form<StyledFormProps>`
   display: flex;
   flex-direction: column;
   height: 100%;
+  justify-content: ${({ fixedFooter }) => fixedFooter && "space-between"};
   overflow-y: ${({ scrollContents }) => (scrollContents ? "auto" : "hidden")};
 `;
 
@@ -260,14 +262,22 @@ function Form<TValues = any>({
 
   return (
     <FormProvider {...methods}>
-      <StyledForm ref={bodyRef} scrollContents={scrollContents}>
-        <StyledFormBody stretchBodyVertically={stretchBodyVertically}>
+      <StyledForm
+        fixedFooter={fixedFooter}
+        ref={bodyRef}
+        scrollContents={scrollContents}
+      >
+        <StyledFormBody
+          className="t--jsonform-body"
+          stretchBodyVertically={stretchBodyVertically}
+        >
           <StyledTitle>{title}</StyledTitle>
           {children}
         </StyledFormBody>
         {!hideFooter && (
           <StyledFormFooter
             backgroundColor={backgroundColor}
+            className="t--jsonform-footer"
             fixedFooter={fixedFooter}
             ref={footerRef}
           >

@@ -13,7 +13,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
@@ -31,17 +31,17 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
-import com.appsmith.server.services.UserOrganizationService;
+import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.UserChangedHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -88,15 +88,15 @@ import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldN
 @Slf4j
 public class UserServiceCEImpl extends BaseService<UserRepository, User, String> implements UserServiceCE {
 
-    private final OrganizationService organizationService;
+    private final WorkspaceService workspaceService;
     private final SessionUserService sessionUserService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailSender emailSender;
     private final ApplicationRepository applicationRepository;
     private final PolicyUtils policyUtils;
-    private final OrganizationRepository organizationRepository;
-    private final UserOrganizationService userOrganizationService;
+    private final WorkspaceRepository workspaceRepository;
+    private final UserWorkspaceService userWorkspaceService;
     private final RoleGraph roleGraph;
     private final CommonConfig commonConfig;
     private final EmailConfig emailConfig;
@@ -109,7 +109,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
     private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
     private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserCreatorTemplate.html";
-    private static final String USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE = "email/inviteExistingUserToOrganizationTemplate.html";
+    private static final String USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE = "email/inviteExistingUserToWorkspaceTemplate.html";
 
     @Autowired
     public UserServiceCEImpl(Scheduler scheduler,
@@ -117,7 +117,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              MongoConverter mongoConverter,
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              UserRepository repository,
-                             OrganizationService organizationService,
+                             WorkspaceService workspaceService,
                              AnalyticsService analyticsService,
                              SessionUserService sessionUserService,
                              PasswordResetTokenRepository passwordResetTokenRepository,
@@ -125,8 +125,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              EmailSender emailSender,
                              ApplicationRepository applicationRepository,
                              PolicyUtils policyUtils,
-                             OrganizationRepository organizationRepository,
-                             UserOrganizationService userOrganizationService,
+                             WorkspaceRepository workspaceRepository,
+                             UserWorkspaceService userWorkspaceService,
                              RoleGraph roleGraph,
                              ConfigService configService,
                              CommonConfig commonConfig,
@@ -136,15 +136,15 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              ApplicationPageService applicationPageService,
                              UserDataService userDataService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.organizationService = organizationService;
+        this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailSender = emailSender;
         this.applicationRepository = applicationRepository;
         this.policyUtils = policyUtils;
-        this.organizationRepository = organizationRepository;
-        this.userOrganizationService = userOrganizationService;
+        this.workspaceRepository = workspaceRepository;
+        this.userWorkspaceService = userWorkspaceService;
         this.roleGraph = roleGraph;
         this.commonConfig = commonConfig;
         this.emailConfig = emailConfig;
@@ -159,32 +159,32 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     /**
-     * This function switches the user's currentOrganization in the User collection in the DB. This means that on subsequent
-     * logins, the user will see applications for their last used organization.
+     * This function switches the user's currentWorkspace in the User collection in the DB. This means that on subsequent
+     * logins, the user will see applications for their last used workspace.
      *
      * @param orgId
      * @return
      */
     @Override
-    public Mono<User> switchCurrentOrganization(String orgId) {
+    public Mono<User> switchCurrentWorkspace(String orgId) {
         if (orgId == null || orgId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "organizationId"));
         }
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> repository.findByEmail(user.getUsername()))
                 .flatMap(user -> {
-                    log.debug("Going to set organizationId: {} for user: {}", orgId, user.getId());
+                    log.debug("Going to set workspaceId: {} for user: {}", orgId, user.getId());
 
                     if (user.getCurrentOrganizationId().equals(orgId)) {
                         return Mono.just(user);
                     }
 
-                    Set<String> organizationIds = user.getOrganizationIds();
-                    if (organizationIds == null || organizationIds.isEmpty()) {
-                        return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_ANY_ORGANIZATION, user.getId()));
+                    Set<String> workspaceIds = user.getOrganizationIds();
+                    if (workspaceIds == null || workspaceIds.isEmpty()) {
+                        return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_ANY_WORKSPACE, user.getId()));
                     }
 
-                    Optional<String> maybeOrgId = organizationIds.stream()
+                    Optional<String> maybeOrgId = workspaceIds.stream()
                             .filter(organizationId -> organizationId.equals(orgId))
                             .findFirst();
 
@@ -193,8 +193,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         return repository.save(user);
                     }
 
-                    // Throw an exception if the orgId is not part of the user's organizations
-                    return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_TO_ORGANIZATION, user.getId(), orgId));
+                    // Throw an exception if the orgId is not part of the user's workspaces
+                    return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_TO_WORKSPACE, user.getId(), orgId));
                 });
     }
 
@@ -395,7 +395,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
         }
 
-        // Create an invite token for the user. This token is linked to the email ID and the organization to which the
+        // Create an invite token for the user. This token is linked to the email ID and the workspace to which the
         // user was invited.
         String token = UUID.randomUUID().toString();
 
@@ -495,8 +495,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     /**
      * This function creates a new user in the system. Primarily used by new users signing up for the first time on the
-     * platform. This flow also ensures that a default organization name is created for the user. The new user is then
-     * given admin permissions to the default organization.
+     * platform. This flow also ensures that a default workspace name is created for the user. The new user is then
+     * given admin permissions to the default workspace.
      * <p>
      * For new user invite flow, please {@link UserService#inviteUsers(InviteUsersDTO, String)}
      *
@@ -544,8 +544,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 final UserSignupDTO userSignupDTO = new UserSignupDTO();
                                 userSignupDTO.setUser(savedUser);
 
-                                log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
-                                return organizationService.createDefault(new Organization(), savedUser)
+                                log.debug("Creating blank default workspace for user '{}'.", savedUser.getEmail());
+                                return workspaceService.createDefault(new Workspace(), savedUser)
                                         .map(org -> {
                                             userSignupDTO.setDefaultOrganizationId(org.getId());
                                             return userSignupDTO;
@@ -642,10 +642,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      * c. Generate a token. Send out an email informing the user to sign up with token.
      * d. Follow the steps for User which already exists
      * 2. User exists :
-     * a. Add user to the organization
-     * b. Add organization to the user
+     * a. Add user to the workspace
+     * b. Add workspace to the user
      *
-     * @return Publishes the invited users, after being saved with the new organization ID.
+     * @return Publishes the invited users, after being saved with the new workspace ID.
      */
     @Override
     public Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader) {
@@ -672,17 +672,17 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
         // Check if the current user has invite permissions
-        Mono<Organization> organizationMono = organizationRepository.findById(inviteUsersDTO.getOrgId(), ORGANIZATION_INVITE_USERS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, inviteUsersDTO.getOrgId())))
+        Mono<Workspace> workspaceMono = workspaceRepository.findById(inviteUsersDTO.getOrgId(), ORGANIZATION_INVITE_USERS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, inviteUsersDTO.getOrgId())))
                 .zipWith(currentUserMono)
                 .flatMap(tuple -> {
-                    Organization organization = tuple.getT1();
+                    Workspace workspace = tuple.getT1();
                     User currentUser = tuple.getT2();
 
                     // This code segment checks if the current user can invite for the invited role.
 
-                    return isUserPermittedToInviteForGivenRole(organization, currentUser.getUsername(), inviteUsersDTO.getRoleName())
-                            .thenReturn(organization);
+                    return isUserPermittedToInviteForGivenRole(workspace, currentUser.getUsername(), inviteUsersDTO.getRoleName())
+                            .thenReturn(workspace);
                 })
                 .cache();
 
@@ -691,55 +691,55 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         // createNewUserAndSendInviteEmail. In both the cases, send the appropriate emails
 
         Flux<User> inviteUsersFlux = Flux.fromIterable(usernames)
-                .flatMap(username -> Mono.zip(Mono.just(username), organizationMono, currentUserMono))
+                .flatMap(username -> Mono.zip(Mono.just(username), workspaceMono, currentUserMono))
                 .flatMap(tuple -> {
                     String username = tuple.getT1();
-                    Organization organization = tuple.getT2();
+                    Workspace workspace = tuple.getT2();
                     User currentUser = tuple.getT3();
 
                     return repository.findByEmail(username)
                             .flatMap(existingUser -> {
                                 // The user already existed, just send an email informing that the user has been added
-                                // to a new organization
-                                log.debug("Going to send email to user {} informing that the user has been added to new organization {}",
-                                        existingUser.getEmail(), organization.getName());
+                                // to a new workspace
+                                log.debug("Going to send email to user {} informing that the user has been added to new workspace {}",
+                                        existingUser.getEmail(), workspace.getName());
 
                                 // Email template parameters initialization below.
-                                Map<String, String> params = getEmailParams(organization, currentUser, originHeader, false);
+                                Map<String, String> params = getEmailParams(workspace, currentUser, originHeader, false);
 
                                 Mono<Boolean> emailMono = emailSender.sendMail(existingUser.getEmail(),
                                         "Appsmith: You have been added to a new organization",
-                                        USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE, params);
+                                        USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE, params);
 
                                 return emailMono
                                         .thenReturn(existingUser);
                             })
-                            .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, organization, currentUser, inviteUsersDTO.getRoleName()));
+                            .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, inviteUsersDTO.getRoleName()));
                 })
                 .cache();
 
-        // Add User to the invited Organization
-        Mono<Organization> organizationWithUsersAddedMono = Mono.zip(inviteUsersFlux.collectList(), organizationMono)
+        // Add User to the invited Workspace
+        Mono<Workspace> workspaceWithUsersAddedMono = Mono.zip(inviteUsersFlux.collectList(), workspaceMono)
                 .flatMap(tuple -> {
                     List<User> invitedUsers = tuple.getT1();
-                    Organization organization = tuple.getT2();
-                    return userOrganizationService.bulkAddUsersToOrganization(organization, invitedUsers, inviteUsersDTO.getRoleName());
+                    Workspace workspace = tuple.getT2();
+                    return userWorkspaceService.bulkAddUsersToWorkspace(workspace, invitedUsers, inviteUsersDTO.getRoleName());
                 });
 
-        // Add organization id to each invited user
+        // Add workspace id to each invited user
         Mono<List<User>> usersUpdatedWithOrgMono = inviteUsersFlux
-                .flatMap(user -> Mono.zip(Mono.just(user), organizationMono))
-                // zipping with organizationMono to ensure that the orgId is checked before updating the user object.
+                .flatMap(user -> Mono.zip(Mono.just(user), workspaceMono))
+                // zipping with workspaceMono to ensure that the orgId is checked before updating the user object.
                 .flatMap(tuple -> {
                     User invitedUser = tuple.getT1();
-                    Organization organization = tuple.getT2();
+                    Workspace workspace = tuple.getT2();
 
                     Set<String> organizationIds = invitedUser.getOrganizationIds();
                     if (organizationIds == null) {
                         organizationIds = new HashSet<>();
                     }
 
-                    organizationIds.add(organization.getId());
+                    organizationIds.add(workspace.getId());
                     invitedUser.setOrganizationIds(organizationIds);
 
                     //Lets save the updated user object
@@ -763,19 +763,19 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     return Mono.just(users);
                 });
 
-        // Trigger the flow to first add the users to the organization and then update each user with the organizationId
-        // added to the user's list of organizations.
-        Mono<List<User>> triggerAddUserOrganizationFinalFlowMono = organizationWithUsersAddedMono
+        // Trigger the flow to first add the users to the workspace and then update each user with the workspaceId
+        // added to the user's list of workspaces.
+        Mono<List<User>> triggerAddUserWorkspaceFinalFlowMono = workspaceWithUsersAddedMono
                 .then(usersUpdatedWithOrgMono);
 
         //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
         //  subscriber has cancelled its subscription, the create method will still generates its event.
-        return Mono.create(sink -> triggerAddUserOrganizationFinalFlowMono
+        return Mono.create(sink -> triggerAddUserWorkspaceFinalFlowMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
         );
     }
 
-    private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Organization organization, User inviter, String role) {
+    private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Workspace workspace, User inviter, String role) {
         User newUser = new User();
         newUser.setEmail(email.toLowerCase());
 
@@ -788,7 +788,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         boolean isAdminUser = commonConfig.getAdminEmails().contains(email.toLowerCase());
 
-        // Call user service's userCreate function so that the default organization, etc are also created along with assigning basic permissions.
+        // Call user service's userCreate function so that the default workspace, etc are also created along with assigning basic permissions.
         return userCreate(newUser, isAdminUser)
                 .flatMap(createdUser -> {
                     log.debug("Going to send email for invite user to {}", createdUser.getEmail());
@@ -799,7 +799,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     );
 
                     // Email template parameters initialization below.
-                    Map<String, String> params = getEmailParams(organization, inviter, inviteUrl, true);
+                    Map<String, String> params = getEmailParams(workspace, inviter, inviteUrl, true);
 
                     Mono<Boolean> emailMono = emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, params);
 
@@ -809,17 +809,17 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 });
     }
 
-    private Mono<Boolean> isUserPermittedToInviteForGivenRole(Organization organization, String username, String invitedRoleName) {
-        List<UserRole> userRoles = organization.getUserRoles();
+    private Mono<Boolean> isUserPermittedToInviteForGivenRole(Workspace workspace, String username, String invitedRoleName) {
+        List<UserRole> userRoles = workspace.getUserRoles();
 
-        // The current organization has no members. Clearly the current user is also not present
+        // The current workspace has no members. Clearly the current user is also not present
         if (userRoles == null || userRoles.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED,
                     "Invite a user for the role " + invitedRoleName));
         }
 
         Optional<UserRole> optionalUserRole = userRoles.stream().filter(role -> role.getUsername().equals(username)).findFirst();
-        // If the current user is not present in the organization, the user would also not be permitted to invite
+        // If the current user is not present in the workspace, the user would also not be permitted to invite
         if (!optionalUserRole.isPresent()) {
             return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED,
                     "Invite a user for the role " + invitedRoleName));
@@ -893,7 +893,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 });
     }
 
-    public Map<String, String> getEmailParams(Organization organization, User inviter, String inviteUrl, boolean isNewUser) {
+    public Map<String, String> getEmailParams(Workspace workspace, User inviter, String inviteUrl, boolean isNewUser) {
         Map<String, String> params = new HashMap<>();
 
         if (inviter != null) {
@@ -903,13 +903,13 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 params.put("Inviter_First_Name", inviter.getEmail());
             }
         }
-        if (organization != null) {
-            params.put("inviter_org_name", organization.getName());
+        if (workspace != null) {
+            params.put("inviter_org_name", workspace.getName());
         }
         if (isNewUser) {
             params.put("inviteUrl", inviteUrl);
         } else {
-            params.put("inviteUrl", inviteUrl + "/applications#" + organization.getId());
+            params.put("inviteUrl", inviteUrl + "/applications#" + workspace.getId());
         }
         return params;
     }
