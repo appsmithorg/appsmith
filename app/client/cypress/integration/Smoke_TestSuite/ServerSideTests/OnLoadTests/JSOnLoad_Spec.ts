@@ -35,9 +35,12 @@ describe("JSObjects OnLoad Actions tests", function() {
         return 8;
       }
     }`,
-      true,
-      true,
-      false,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldNavigate: true,
+      },
     );
     jsEditor.EnableDisableAsyncFuncSettings("getId", false, true); //Only before calling confirmation is enabled by User here
     dataSources.NavigateToActiveDSQueryPane(guid);
@@ -182,9 +185,12 @@ describe("JSObjects OnLoad Actions tests", function() {
         myFun6: async () => {	},
         myFun7: () => {	},
       }`,
-      true,
-      true,
-      false,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldNavigate: true,
+      },
     );
 
     jsEditor.VerifyAsyncFuncSettings("myFun2", false, false);
@@ -241,9 +247,12 @@ describe("JSObjects OnLoad Actions tests", function() {
         callQuotes: () => {
           return Quotes.run().then(()=> Quotes.data.quoteText);}
       }`,
-      true,
-      true,
-      false,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldNavigate: true,
+      },
     );
 
     cy.get("@jsObjName").then((jsObjName) => {
@@ -320,7 +329,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       agHelper.AssertElementPresence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
       agHelper.ClickButton("Yes");
 
-      agHelper.Sleep(2000)//to let the api's call be finished & populate the text fields before validation!
+      agHelper.Sleep(2000); //to let the api's call be finished & populate the text fields before validation!
       agHelper
         .GetText(locator._textAreainputWidgetv2InDeployed, "text", 1)
         .then(($quote) => cy.wrap($quote).should("not.be.empty"));
@@ -427,9 +436,12 @@ describe("JSObjects OnLoad Actions tests", function() {
         //callCountry:() => {      //Commentning until Bug 13826 fixed
          //return getCountry.run(); }
       }`,
-      true,
-      true,
-      false,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldNavigate: true,
+      },
     );
 
     jsEditor.EnableDisableAsyncFuncSettings("getId", false, true);
@@ -532,11 +544,18 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "getBooks" has failed');
 
-
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
-    ee.ActionContextMenuByEntityName("getCitiesList", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName(
+      "getCitiesList",
+      "Delete",
+      "Are you sure?",
+    );
     ee.ActionContextMenuByEntityName("getBooks", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(jsName as string, "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName(
+      jsName as string,
+      "Delete",
+      "Are you sure?",
+    );
   });
 
   it.skip("13. Tc # 57 - Multiple functions set to true for OnPageLoad & Confirmation before running", () => {});
