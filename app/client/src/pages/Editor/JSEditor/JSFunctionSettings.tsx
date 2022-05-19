@@ -143,13 +143,14 @@ function SettingsItem({ action }: SettingsItemProps) {
   };
 
   return (
-    <SettingRow>
+    <SettingRow
+      className="t--async-js-function-settings"
+      id={`${action.name}-settings`}
+    >
       <SettingColumn grow>
         <span>{action.name}</span>
       </SettingColumn>
-      <SettingColumn
-        className={`${action.name}-on-page-load-setting t--on-page-load-setting`}
-      >
+      <SettingColumn>
         <RadioComponent
           backgroundColor="#191919"
           defaultValue={executeOnPageLoad}

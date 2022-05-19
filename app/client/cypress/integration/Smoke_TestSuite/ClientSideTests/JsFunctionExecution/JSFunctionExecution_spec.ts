@@ -2,9 +2,12 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import largeJSONData from "../../../../fixtures/largeJSONData.json";
 
 const jsEditor = ObjectsRegistry.JSEditor,
+<<<<<<< HEAD
   locator = ObjectsRegistry.CommonLocators,
   ee = ObjectsRegistry.EntityExplorer,
   table = ObjectsRegistry.Table,
+=======
+>>>>>>> 34135db992 (update cypress tests)
   agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("JS Function Execution", function() {
@@ -85,6 +88,7 @@ describe("JS Function Execution", function() {
     // Assert presence of parse error callout (entire JS Object is invalid)
     jsEditor.AssertParseError(true, false);
   });
+<<<<<<< HEAD
   it("4. Shows lint error and toast modal when JS Object doesn't start with 'export default'", () => {
     const invalidJSObjectStartToastMessage = "Start object with export default";
     const jsComment = "// This is a comment";
@@ -165,5 +169,63 @@ describe("JS Function Execution", function() {
     table.ReadTableRowColumnData(0, 1, 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //validating id column value - row 0
     });
+=======
+
+  it("4. Maintains order of async functions in settings tab alphabetically at all times", function() {
+    const JS_OBJECT_BODY = `export default {
+      getId: async () => {
+        return 8;
+      },
+      zip: async () => {
+        return 8;
+      },
+      assert: async () => {
+        return 2
+      }  ,
+      base: async () => {
+        return 3
+      } ,
+    }`;
+
+    const assertAsyncFunctionsOrder = () => {
+      cy.get(jsEditor._asyncJSFunctionSettings).then(function($lis) {
+        const asyncFunctionLength = $lis.length;
+        // Assert that there are four async functions
+        expect(asyncFunctionLength).to.equal(4);
+        // Expect the first on the list to be "assert"
+        expect($lis.eq(0)).to.have.id(
+          jsEditor._getJSFunctionSettingsId("assert"),
+        );
+        // Expect the second on the list to be "base"
+        expect($lis.eq(1)).to.have.id(
+          jsEditor._getJSFunctionSettingsId("base"),
+        );
+        // Expect the third on the list to be "getId"
+        expect($lis.eq(2)).to.have.id(
+          jsEditor._getJSFunctionSettingsId("getId"),
+        );
+        // Expect the last on the list to be "zip"
+        expect($lis.eq(3)).to.have.id(jsEditor._getJSFunctionSettingsId("zip"));
+      });
+    };
+
+    jsEditor.CreateJSObject(JS_OBJECT_BODY, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldNavigate: true,
+    });
+    // Switch to settings tab
+    agHelper.GetNClick(jsEditor._settingsTab);
+    // Assert alphabetical order of async functions
+    assertAsyncFunctionsOrder();
+    // run a function
+    cy.get(jsEditor._runButton)
+      .first()
+      .click()
+      .wait(2000);
+    // Assert that order remains the same
+    assertAsyncFunctionsOrder();
+>>>>>>> 34135db992 (update cypress tests)
   });
 });
