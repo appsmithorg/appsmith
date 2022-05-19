@@ -204,13 +204,13 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
 
     it("4. Delete all the widgets on canvas", () => {
       cy.get(getWidgetSelector(WIDGET.BUTTON_WIDGET)).click();
-      cy.get("body").type(`{backspace}`, { force: true });
+      cy.get("body").type(`{del}`, { force: true });
 
       cy.get(getWidgetSelector(WIDGET.TEXT)).click();
-      cy.get("body").type(`{backspace}`, { force: true });
+      cy.get("body").type(`{del}`, { force: true });
 
       cy.get(getWidgetSelector(widgetSelector)).click();
-      cy.get("body").type(`{backspace}`, { force: true });
+      cy.get("body").type(`{del}`, { force: true });
     });
   });
 });
