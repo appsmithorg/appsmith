@@ -1,19 +1,19 @@
 Global functions in Appsmith are available through the right-hand pane and in the JS editor. They allow users to perform different tasks throughout the Appsmith application.
 
-####Here are some pull requests you can use as an example:
+#### Here are some pull requests you can use as an example:
 
 1. Post message API - https://github.com/appsmithorg/appsmith/pull/12551/files
 2. SetInterval and ClearInterval API - https://github.com/appsmithorg/appsmith/pull/8158
 3. Geolocation API - https://github.com/appsmithorg/appsmith/pull/9295
 
-####Follow these steps to add a new global function to Appsmith:
+#### Follow these steps to add a new global function to Appsmith:
 
-1. Go to the `[ActionCreator/Fields.tsx](https://github.com/appsmithorg/appsmith/blob/release/app/client/src/components/editorComponents/ActionCreator/Fields.tsx)` file. This file contains the parameters and their types that will be the input to the global function. This file also includes the type of field that will accept the value for these parameters, eg., if the input is a dropdown list of items or a text field, etc.,
+1. Go to the [ActionCreator/Fields.tsx](https://github.com/appsmithorg/appsmith/blob/release/app/client/src/components/editorComponents/ActionCreator/Fields.tsx) file. This file contains the parameters and their types that will be the input to the global function. This file also includes the type of field that will accept the value for these parameters, eg., if the input is a dropdown list of items or a text field, etc.,
     1. Create a new entry in the *`ActionType` object.* This is the name of the function.
     2. Define new fields in the `Fieldtype` object. These are the field names for each argument the function accepts.
     3. Update `fieldConfigs` with your field’s getter, setting, and view. The getter is the setting used to extract the field value from the function. the setter is used to set the value in function when the field is updated. The view is the component used to edit the field value
     4. Update the `renderField` function to change things like field label etc.,
-2. Go to the `[ActionCreator/index.tsx](https://github.com/appsmithorg/appsmith/blob/release/app/client/src/components/editorComponents/ActionCreator/index.tsx)` file.
+2. Go to the [ActionCreator/index.tsx](https://github.com/appsmithorg/appsmith/blob/release/app/client/src/components/editorComponents/ActionCreator/index.tsx) file.
     1. Add the new action entry and its text in the `baseOptions` array (you will need to add a constant for the message in the `constants/messages.ts`) - This will show up as a message when you hover over the function.
 
 ![https://paper-attachments.dropbox.com/s_275F1BFE81CAEFA1A98D1AAB74D7D93E3258CDB4EC3F13B6904439E92AA6CF3F_1652893496513_Screenshot+2022-05-18+at+10.34.47+PM.png](https://paper-attachments.dropbox.com/s_275F1BFE81CAEFA1A98D1AAB74D7D93E3258CDB4EC3F13B6904439E92AA6CF3F_1652893496513_Screenshot+2022-05-18+at+10.34.47+PM.png)
@@ -22,21 +22,21 @@ Global functions in Appsmith are available through the right-hand pane and in th
 
 ```jsx
 if (value.indexOf("setInterval") !== -1) {
-	fields.push(
-		{
-			field: FieldType.CALLBACK_FUNCTION_FIELD,
-		},
-		{
-			field: FieldType.DELAY_FIELD,
-		},
-		{
-			field: FieldType.ID_FIELD,
-		},
-	);
+  fields.push(
+    {
+	field: FieldType.CALLBACK_FUNCTION_FIELD,
+    },
+    {
+	field: FieldType.DELAY_FIELD,
+    },
+    {
+	field: FieldType.ID_FIELD,
+    },
+  );
 }
 ```
 
-4. Go to the `Datatree/actionTriggers.ts` file:
+4. Go to the [Datatree/actionTriggers.ts](https://github.com/appsmithorg/appsmith/blob/release/app/client/src/entities/DataTree/actionTriggers.ts) file:
     1. Add a new entry in the `ActionTriggerType` enum
     2. Add a new entry to the `ActionTriggerFunctionNames` datatype (Look at the code example for guidance)
 
@@ -44,22 +44,22 @@ if (value.indexOf("setInterval") !== -1) {
 [ActionTriggerType.*SET_INTERVAL*]: "setInterval",
 ```
 
-        c.  You will also need to add an entry containing the description of the global function, which will contain the type and the payload containing all the parameters and their types
+5. You will also need to add an entry containing the description of the global function, which will contain the type and the payload containing all the parameters and their types
 
 ```jsx
 export type SetIntervalDescription = {
-	type: ActionTriggerType.SET_INTERVAL;
-	payload: {
-		callback: string;
-		interval: number;
-		id?: string;
-	};
+  type: ActionTriggerType.SET_INTERVAL;
+  payload: {
+    callback: string;
+    interval: number;
+    id?: string;
+  };
 };
 ```
 
-      d. Finally add this global function description to the `ActionDescription` data structure.
+6. Finally add this global function description to the `ActionDescription` data structure.
 
-5. Go to the `[sagas/ActionExecution](https://github.com/appsmithorg/appsmith/tree/b778b83ac45cd0d77421125106a483a4e723f2ca/app/client/src/sagas/ActionExecution)` folder:
+7. Go to the [sagas/ActionExecution](https://github.com/appsmithorg/appsmith/tree/b778b83ac45cd0d77421125106a483a4e723f2ca/app/client/src/sagas/ActionExecution) folder:
     1. Add a new saga here for your global function. This will contain the logic used to implement your global function. Use this example to implement your global function
 
 ```jsx
@@ -149,7 +149,7 @@ export function* clearIntervalSaga(
 }
 ```
 
-6. Add an entry to the `[sagas/ActionCreator/ActionExecutionSagas.ts](https://github.com/appsmithorg/appsmith/blob/b778b83ac45cd0d77421125106a483a4e723f2ca/app/client/src/sagas/ActionExecution/ActionExecutionSagas.ts)` file’s `executeActionTriggers` function. Use this example for guidance
+8. Add an entry to the [sagas/ActionCreator/ActionExecutionSagas.ts](https://github.com/appsmithorg/appsmith/blob/b778b83ac45cd0d77421125106a483a4e723f2ca/app/client/src/sagas/ActionExecution/ActionExecutionSagas.ts) file’s `executeActionTriggers` function. Use this example for guidance
 
     ```jsx
     case ActionTriggerType.SET_INTERVAL:
@@ -157,7 +157,7 @@ export function* clearIntervalSaga(
         break;
     ```
 
-7. In the `[workers/Actions.ts](https://github.com/appsmithorg/appsmith/blob/b778b83ac45cd0d77421125106a483a4e723f2ca/app/client/src/workers/Actions.ts)` file - This file has all the global functions listed in this file. Add the entry for the global function you have created, using this example as a guide:
+9. In the [workers/Actions.ts](https://github.com/appsmithorg/appsmith/blob/b778b83ac45cd0d77421125106a483a4e723f2ca/app/client/src/workers/Actions.ts) file - This file has all the global functions listed in this file. Add the entry for the global function you have created, using this example as a guide:
 
 ```jsx
 setInterval: function(callback: Function, interval: number, id?: string) {
@@ -173,4 +173,10 @@ setInterval: function(callback: Function, interval: number, id?: string) {
   }
 ```
 
-8. Lastly, add the global functions metadata to the `[autocomplete/EntityDefinitions.ts](https://github.com/appsmithorg/appsmith/blob/release/app/client/src/utils/autocomplete/EntityDefinitions.ts)` so the data shows up for auto-complete. Use this code sample as guidance:
+10. Lastly, add the global functions metadata to the [autocomplete/EntityDefinitions.ts](https://github.com/appsmithorg/appsmith/blob/release/app/client/src/utils/autocomplete/EntityDefinitions.ts) so the data shows up for auto-complete. Use this code sample as guidance:
+```jsx
+setInterval: {
+    "!doc": "Execute triggers at a given interval",
+    "!type": "fn(callback: fn, interval: number, id?: string) -> void",
+  },
+```
