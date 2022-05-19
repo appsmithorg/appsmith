@@ -341,6 +341,8 @@ export const CellWrapper = styled.div<{
       : ""};
   justify-content: ${(props) =>
     props.horizontalAlignment && JUSTIFY_CONTENT[props.horizontalAlignment]};
+  text-align: ${(props) =>
+    props.horizontalAlignment && TEXT_ALIGN[props.horizontalAlignment]};
   align-items: ${(props) =>
     props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
   background: ${(props) => props.cellBackground};
@@ -350,7 +352,8 @@ export const CellWrapper = styled.div<{
       props.compactMode ? TABLE_SIZES[props.compactMode].VERTICAL_PADDING : 0}px
     10px;
   line-height: 28px;
-  .${Classes.POPOVER_WRAPPER}, > span > span > span {
+  .${Classes.POPOVER_WRAPPER}, > span > span > span,
+  > div > span > span > span {
     width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -404,7 +407,7 @@ export const CellWrapper = styled.div<{
     width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    word-break: break-word;
     text-align: ${(props) =>
       props.horizontalAlignment && TEXT_ALIGN[props.horizontalAlignment]};
   }
@@ -569,4 +572,9 @@ export const MenuCategoryWrapper = styled.div`
 
 export const MenuStyledOptionHeader = styled.div`
   font-weight: 600;
+`;
+
+export const TooltipContentWrapper = styled.div<{ width: number }>`
+  word-break: break-all;
+  max-width: ${(props) => props.width}px;
 `;

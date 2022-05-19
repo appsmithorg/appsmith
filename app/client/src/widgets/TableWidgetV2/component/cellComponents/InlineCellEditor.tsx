@@ -106,6 +106,7 @@ export function InlineCellEditor({
         case "Enter":
           if (!event.shiftKey) {
             onSave();
+            event.preventDefault();
           }
           break;
       }
