@@ -12,7 +12,7 @@ import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
-import com.appsmith.server.services.UserOrganizationService;
+import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
@@ -45,19 +45,19 @@ import java.util.Map;
 public class UserControllerCE extends BaseController<UserService, User, String> {
 
     private final SessionUserService sessionUserService;
-    private final UserOrganizationService userOrganizationService;
+    private final UserWorkspaceService userWorkspaceService;
     private final UserSignup userSignup;
     private final UserDataService userDataService;
 
     @Autowired
     public UserControllerCE(UserService service,
                             SessionUserService sessionUserService,
-                            UserOrganizationService userOrganizationService,
+                            UserWorkspaceService userWorkspaceService,
                             UserSignup userSignup,
                             UserDataService userDataService) {
         super(service);
         this.sessionUserService = sessionUserService;
-        this.userOrganizationService = userOrganizationService;
+        this.userWorkspaceService = userWorkspaceService;
         this.userSignup = userSignup;
         this.userDataService = userDataService;
     }
@@ -97,21 +97,21 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
                 .map(updatedUser -> new ResponseDTO<>(HttpStatus.OK.value(), updatedUser, null));
     }
 
-    @PutMapping("/switchOrganization/{orgId}")
-    public Mono<ResponseDTO<User>> setCurrentOrganization(@PathVariable String orgId) {
-        return service.switchCurrentOrganization(orgId)
+    @PutMapping("/switchOrganization/{workspaceId}")
+    public Mono<ResponseDTO<User>> setCurrentOrganization(@PathVariable String workspaceId) {
+        return service.switchCurrentWorkspace(workspaceId)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 
-    @PutMapping("/addOrganization/{orgId}")
-    public Mono<ResponseDTO<User>> addUserToOrganization(@PathVariable String orgId) {
-        return userOrganizationService.addUserToOrganization(orgId, null)
+    @PutMapping("/addOrganization/{workspaceId}")
+    public Mono<ResponseDTO<User>> addUserToWorkspace(@PathVariable String workspaceId) {
+        return userWorkspaceService.addUserToWorkspace(workspaceId, null)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 
-    @PutMapping("/leaveOrganization/{orgId}")
-    public Mono<ResponseDTO<User>> leaveOrganization(@PathVariable String orgId) {
-        return userOrganizationService.leaveOrganization(orgId)
+    @PutMapping("/leaveOrganization/{workspaceId}")
+    public Mono<ResponseDTO<User>> leaveWorkspace(@PathVariable String workspaceId) {
+        return userWorkspaceService.leaveWorkspace(workspaceId)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 
@@ -155,12 +155,12 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     }
 
     /**
-     * This function creates an invite for new users to join an Appsmith organization. We require the Origin header
+     * This function creates an invite for new users to join an Appsmith workspace. We require the Origin header
      * in order to construct client facing URLs that will be sent to the users via email.
      *
-     * @param inviteUsersDTO The inviteUserDto object for the new users being invited to the Appsmith organization
+     * @param inviteUsersDTO The inviteUserDto object for the new users being invited to the Appsmith workspace
      * @param originHeader   Origin header in the request
-     * @return List of new users who have been created/existing users who have been added to the organization.
+     * @return List of new users who have been created/existing users who have been added to the workspace.
      */
     @PostMapping("/invite")
     public Mono<ResponseDTO<List<User>>> inviteUsers(@RequestBody InviteUsersDTO inviteUsersDTO,

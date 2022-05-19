@@ -50,11 +50,11 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
-import com.appsmith.server.solutions.ExamplesOrganizationCloner;
+import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -101,14 +101,14 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final NewActionRepository newActionRepository;
     private final DatasourceRepository datasourceRepository;
     private final PluginRepository pluginRepository;
-    private final OrganizationService organizationService;
+    private final WorkspaceService workspaceService;
     private final ApplicationService applicationService;
     private final NewPageService newPageService;
     private final ApplicationPageService applicationPageService;
     private final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
     private final SequenceService sequenceService;
-    private final ExamplesOrganizationCloner examplesOrganizationCloner;
+    private final ExamplesWorkspaceCloner examplesWorkspaceCloner;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ActionCollectionService actionCollectionService;
     private final ThemeService themeService;
@@ -135,7 +135,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         /*
             1. Fetch application by id
             2. Fetch pages from the application
-            3. Fetch datasources from organization
+            3. Fetch datasources from workspace
             4. Fetch actions from the application
             5. Filter out relevant datasources using actions reference
             6. Fetch action collections from the application
@@ -237,11 +237,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
 
                     // Refactor application to remove the ids
-                    final String organizationId = application.getOrganizationId();
+                    final String workspaceId = application.getOrganizationId();
                     List<String> pageOrderList = application.getPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
                     List<String> publishedPageOrderList = application.getPublishedPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
                     removeUnwantedFieldsFromApplicationDuringExport(application);
-                    examplesOrganizationCloner.makePristine(application);
+                    examplesWorkspaceCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
                     Set<String> dbNamesUsedInActions = new HashSet<>();
 
@@ -300,7 +300,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         }
                                     }
                                     newPage.setApplicationId(null);
-                                    examplesOrganizationCloner.makePristine(newPage);
+                                    examplesWorkspaceCloner.makePristine(newPage);
                                 });
                                 applicationJson.setPageList(newPageList);
                                 applicationJson.setPublishedLayoutmongoEscapedWidgets(publishedMongoEscapedWidgetsNames);
@@ -326,8 +326,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 }
 
                                 Flux<Datasource> datasourceFlux = Boolean.TRUE.equals(application.getExportWithConfiguration())
-                                        ? datasourceRepository.findAllByOrganizationId(organizationId, AclPermission.READ_DATASOURCES)
-                                        : datasourceRepository.findAllByOrganizationId(organizationId, MANAGE_DATASOURCES);
+                                        ? datasourceRepository.findAllByOrganizationId(workspaceId, AclPermission.READ_DATASOURCES)
+                                        : datasourceRepository.findAllByOrganizationId(workspaceId, MANAGE_DATASOURCES);
 
                                 return datasourceFlux.collectList();
                             })
@@ -544,22 +544,22 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     /**
-     * This function will take the Json filepart and saves the application in organization
+     * This function will take the Json filepart and saves the application in workspace
      *
-     * @param orgId    organization to which the application needs to be hydrated
+     * @param workspaceId    workspace to which the application needs to be hydrated
      * @param filePart Json file which contains the entire application object
      * @return saved application in DB
      */
-    public Mono<ApplicationImportDTO> extractFileAndSaveApplication(String orgId, Part filePart) {
+    public Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart) {
 
         /*
             1. Check the validity of file part
-            2. Save application to organization
+            2. Save application to workspace
          */
 
         final MediaType contentType = filePart.headers().getContentType();
 
-        if (orgId == null || orgId.isEmpty()) {
+        if (workspaceId == null || workspaceId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
 
@@ -593,16 +593,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     Type fileType = new TypeToken<ApplicationJson>() {}.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
-                    return importApplicationInOrganization(orgId, jsonFile)
+                    return importApplicationInWorkspace(workspaceId, jsonFile)
                             .onErrorResume(error -> {
                                 if (error instanceof AppsmithException) {
                                     return Mono.error(error);
                                 }
-                                return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, orgId, error.getMessage()));
+                                return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, error.getMessage()));
                             });
                 })
                 // Add un-configured datasource to the list to response
-                .flatMap(application -> findDatasourceByApplicationId(application.getId(), orgId)
+                .flatMap(application -> findDatasourceByApplicationId(application.getId(), workspaceId)
                         .map(datasources -> {
                             ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
                             applicationImportDTO.setApplication(application);
@@ -622,21 +622,21 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     /**
-     * This function will save the application to organisation from the application resource
+     * This function will save the application to workspace from the application resource
      *
-     * @param organizationId organization to which application is going to be stored
+     * @param workspaceId workspace to which application is going to be stored
      * @param importedDoc    application resource which contains necessary information to save the application
      * @return saved application in DB
      */
-    public Mono<Application> importApplicationInOrganization(String organizationId, ApplicationJson importedDoc) {
-        return importApplicationInOrganization(organizationId, importedDoc, null, null);
+    public Mono<Application> importApplicationInWorkspace(String workspaceId, ApplicationJson importedDoc) {
+        return importApplicationInWorkspace(workspaceId, importedDoc, null, null);
     }
 
-    public Mono<Application> importApplicationInOrganization(String organizationId,
+    public Mono<Application> importApplicationInWorkspace(String workspaceId,
                                                              ApplicationJson applicationJson,
                                                              String applicationId,
                                                              String branchName) {
-        return importApplicationInOrganization(organizationId, applicationJson, applicationId, branchName, false);
+        return importApplicationInWorkspace(workspaceId, applicationJson, applicationId, branchName, false);
     }
 
     /**
@@ -662,21 +662,21 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     /**
      * This function will take the application reference object to hydrate the application in mongoDB
      *
-     * @param organizationId    organization to which application is going to be stored
+     * @param workspaceId    workspace to which application is going to be stored
      * @param applicationJson   application resource which contains necessary information to import the application
      * @param applicationId     application which needs to be saved with the updated resources
      * @param branchName name of the branch of application with applicationId
      * @param appendToApp whether applicationJson will be appended to the existing app or not
      * @return Updated application
      */
-    private Mono<Application> importApplicationInOrganization(String organizationId,
+    private Mono<Application> importApplicationInWorkspace(String workspaceId,
                                                               ApplicationJson applicationJson,
                                                               String applicationId,
                                                               String branchName,
                                                               boolean appendToApp) {
         /*
             1. Migrate resource to latest schema
-            2. Fetch organization by id
+            2. Fetch workspace by id
             3. Extract datasources and update plugin information
             4. Create new datasource if same datasource is not present
             5. Extract and save application
@@ -716,7 +716,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository
-                .findAllByOrganizationId(organizationId, MANAGE_DATASOURCES)
+                .findAllByOrganizationId(workspaceId, MANAGE_DATASOURCES)
                 .cache();
 
         assert importedApplication != null: "Received invalid application object!";
@@ -732,11 +732,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     pluginMap.put(pluginReference, plugin.getId());
                     return plugin;
                 })
-                .then(organizationService.findById(organizationId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS))
+                .then(workspaceService.findById(workspaceId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS))
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId))
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId))
                 )
-                .flatMap(organization -> {
+                .flatMap(workspace -> {
                     // Check if the request is to hydrate the application to DB for particular branch
                     // Application id will be present for GIT sync
                     if (applicationId != null) {
@@ -762,7 +762,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         }
                     }
                     return Flux.fromIterable(importedDatasourceList)
-                            // Check for duplicate datasources to avoid duplicates in target organization
+                            // Check for duplicate datasources to avoid duplicates in target workspace
                             .flatMap(datasource -> {
 
                                 final String importedDatasourceName = datasource.getName();
@@ -790,7 +790,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                 // This is explicitly copied over from the map we created before
                                 datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
-                                datasource.setOrganizationId(organizationId);
+                                datasource.setOrganizationId(workspaceId);
 
                                 // Check if any decrypted fields are present for datasource
                                 if (importedDoc.getDecryptedFields()!= null
@@ -802,7 +802,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     updateAuthenticationDTO(datasource, decryptedFields);
                                 }
 
-                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId)
+                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, workspaceId)
                                         .map(datasource1 -> {
                                             datasourceMap.put(importedDatasourceName, datasource1.getId());
                                             return datasource1;
@@ -822,7 +822,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     return application;
                                 })
                                 .flatMap(application -> {
-                                    importedApplication.setOrganizationId(organizationId);
+                                    importedApplication.setOrganizationId(workspaceId);
                                     // Application Id will be present for GIT sync
                                     if (!StringUtils.isEmpty(applicationId)) {
                                         return applicationService.findById(applicationId, MANAGE_APPLICATIONS)
@@ -868,9 +868,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                             });
                                                 });
                                     }
-                                    Mono<Application> applicationMono = applicationPageService.setApplicationPolicies(currUserMono, organizationId, importedApplication);
+                                    Mono<Application> applicationMono = applicationPageService.setApplicationPolicies(currUserMono, workspaceId, importedApplication);
                                     return applicationService
-                                            .findByOrganizationId(organizationId, MANAGE_APPLICATIONS)
+                                            .findByOrganizationId(workspaceId, MANAGE_APPLICATIONS)
                                             .collectList()
                                             .zipWith(applicationMono)
                                             .flatMap(objects -> {
@@ -882,7 +882,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                         .findAny()
                                                         .orElse(null);
 
-                                                return getUniqueSuffixForDuplicateNameEntity(duplicateNameApp, organizationId)
+                                                return getUniqueSuffixForDuplicateNameEntity(duplicateNameApp, workspaceId)
                                                         .map(suffix -> {
                                                             importedApplication.setName(importedApplication.getName() + suffix);
                                                             return importedApplication;
@@ -1244,13 +1244,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * This function will respond with unique suffixed number for the entity to avoid duplicate names
      *
      * @param sourceEntity for which the suffixed number is required to avoid duplication
-     * @param orgId        organisation in which entity should be searched
+     * @param workspaceId        workspace in which entity should be searched
      * @return next possible number in case of duplication
      */
-    private Mono<String> getUniqueSuffixForDuplicateNameEntity(BaseDomain sourceEntity, String orgId) {
+    private Mono<String> getUniqueSuffixForDuplicateNameEntity(BaseDomain sourceEntity, String workspaceId) {
         if (sourceEntity != null) {
             return sequenceService
-                    .getNextAsSuffix(sourceEntity.getClass(), " for organization with _id : " + orgId)
+                    .getNextAsSuffix(sourceEntity.getClass(), " for workspace with _id : " + workspaceId)
                     .map(sequenceNumber -> {
                         // sequence number will be empty if no duplicate is found
                         return sequenceNumber.isEmpty() ? " #1" : " #" + sequenceNumber.trim();
@@ -1398,7 +1398,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 Map<String, InvisibleActionFields> invisibleActionFieldsMap) {
 
         Map<String, NewAction> savedActionsGitIdToActionsMap = new HashMap<>();
-        final String organizationId = importedApplication.getOrganizationId();
+        final String workspaceId = importedApplication.getOrganizationId();
         if (CollectionUtils.isEmpty(importedNewActionList)) {
             return Flux.fromIterable(new ArrayList<>());
         }
@@ -1428,7 +1428,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         }
                         unpublishedAction.setId(newAction.getId());
                         parentPage = updatePageInAction(unpublishedAction, pageNameMap, actionIdMap);
-                        sanitizeDatasourceInActionDTO(unpublishedAction, datasourceMap, pluginMap, organizationId, false);
+                        sanitizeDatasourceInActionDTO(unpublishedAction, datasourceMap, pluginMap, workspaceId, false);
                     }
 
                     if (publishedAction != null && publishedAction.getValidName() != null) {
@@ -1441,11 +1441,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         }
                         NewPage publishedActionPage = updatePageInAction(publishedAction, pageNameMap, actionIdMap);
                         parentPage = parentPage == null ? publishedActionPage : parentPage;
-                        sanitizeDatasourceInActionDTO(publishedAction, datasourceMap, pluginMap, organizationId, false);
+                        sanitizeDatasourceInActionDTO(publishedAction, datasourceMap, pluginMap, workspaceId, false);
                     }
 
-                    examplesOrganizationCloner.makePristine(newAction);
-                    newAction.setOrganizationId(organizationId);
+                    examplesWorkspaceCloner.makePristine(newAction);
+                    newAction.setOrganizationId(workspaceId);
                     newAction.setApplicationId(importedApplication.getId());
                     newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
                     newActionService.generateAndSetActionPolicies(parentPage, newAction);
@@ -1560,7 +1560,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             Map<String, Map<String, String>> unpublishedCollectionIdToActionIdsMap,
             Map<String, Map<String, String>> publishedCollectionIdToActionIdsMap) {
 
-        final String organizationId = importedApplication.getOrganizationId();
+        final String workspaceId = importedApplication.getOrganizationId();
         return Flux.fromIterable(importedActionCollectionList)
                 .filter(actionCollection -> actionCollection.getUnpublishedCollection() != null
                         && !StringUtils.isEmpty(actionCollection.getUnpublishedCollection().getPageId()))
@@ -1592,8 +1592,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         parentPage = parentPage == null ? publishedCollectionPage : parentPage;
                     }
 
-                    examplesOrganizationCloner.makePristine(actionCollection);
-                    actionCollection.setOrganizationId(organizationId);
+                    examplesWorkspaceCloner.makePristine(actionCollection);
+                    actionCollection.setOrganizationId(workspaceId);
                     actionCollection.setApplicationId(importedApplication.getId());
                     actionCollectionService.generateAndSetPolicies(parentPage, actionCollection);
 
@@ -1801,13 +1801,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @param actionDTO      for which the datasource needs to be sanitised as per import format expected
      * @param datasourceMap  datasource id to name map
      * @param pluginMap      plugin id to name map
-     * @param organizationId organisation in which the application supposed to be imported
+     * @param workspaceId workspace in which the application supposed to be imported
      * @return
      */
     private String sanitizeDatasourceInActionDTO(ActionDTO actionDTO,
                                                  Map<String, String> datasourceMap,
                                                  Map<String, String> pluginMap,
-                                                 String organizationId,
+                                                 String workspaceId,
                                                  boolean isExporting) {
 
         if (actionDTO != null && actionDTO.getDatasource() != null) {
@@ -1827,7 +1827,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             } else {
                 // This means we don't have regular datasource it can be simple REST_API and will also be used when
                 // importing the action to populate the data
-                ds.setOrganizationId(organizationId);
+                ds.setOrganizationId(workspaceId);
                 ds.setPluginId(pluginMap.get(ds.getPluginId()));
                 return "";
             }
@@ -1924,16 +1924,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     /**
-     * This will check if the datasource is already present in the organization and create a new one if unable to find one
+     * This will check if the datasource is already present in the workspace and create a new one if unable to find one
      *
-     * @param existingDatasourceFlux already present datasource in the organization
+     * @param existingDatasourceFlux already present datasource in the workspace
      * @param datasource             which will be checked against existing datasources
-     * @param organizationId         organization where duplicate datasource should be checked
+     * @param workspaceId         workspace where duplicate datasource should be checked
      * @return already present or brand new datasource depending upon the equality check
      */
     private Mono<Datasource> createUniqueDatasourceIfNotPresent(Flux<Datasource> existingDatasourceFlux,
                                                                 Datasource datasource,
-                                                                String organizationId) {
+                                                                String workspaceId) {
         /*
             1. If same datasource is present return
             2. If unable to find the datasource create a new datasource with unique name and return
@@ -1958,9 +1958,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // No matching existing datasource found, so create a new one.
                     datasource.setIsConfigured(datasourceConfig != null && datasourceConfig.getAuthentication() != null);
                     return datasourceService
-                            .findByNameAndOrganizationId(datasource.getName(), organizationId, AclPermission.MANAGE_DATASOURCES)
+                            .findByNameAndOrganizationId(datasource.getName(), workspaceId, AclPermission.MANAGE_DATASOURCES)
                             .flatMap(duplicateNameDatasource ->
-                                    getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, organizationId)
+                                    getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, workspaceId)
                             )
                             .map(suffix -> {
                                 datasource.setName(datasource.getName() + suffix);
@@ -2129,7 +2129,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @return Merged Application
      */
     @Override
-    public Mono<Application> mergeApplicationJsonWithApplication(String organizationId, String applicationId, String branchName, ApplicationJson applicationJson, List<String> pagesToImport) {
+    public Mono<Application> mergeApplicationJsonWithApplication(String workspaceId, String applicationId, String branchName, ApplicationJson applicationJson, List<String> pagesToImport) {
         // Update the application JSON to prepare it for merging inside an existing application
         if(applicationJson.getExportedApplication() != null) {
             // setting some properties to null so that target application is not updated by these properties
@@ -2169,7 +2169,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             applicationJson.setActionCollectionList(importedActionCollectionList);
         }
 
-        return importApplicationInOrganization(organizationId, applicationJson, applicationId, branchName, true);
+        return importApplicationInWorkspace(workspaceId, applicationJson, applicationId, branchName, true);
     }
 
     private Mono<Map<String, String>> updateNewPagesBeforeMerge(Mono<List<NewPage>> existingPagesMono, List<NewPage> newPagesList) {
