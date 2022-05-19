@@ -15,6 +15,7 @@ export const ExplorerSearch = forwardRef(
       autoFocus?: boolean;
       isHidden?: boolean;
       onChange?: (e: any) => void;
+      id?: string;
     },
     ref: Ref<HTMLInputElement>,
   ) => {
@@ -62,7 +63,7 @@ export const ExplorerSearch = forwardRef(
             autoComplete="off"
             autoFocus
             className="flex-grow py-2 text-gray-800 bg-transparent placeholder-trueGray-500"
-            id={ENTITY_EXPLORER_SEARCH_ID}
+            id={props.id || ENTITY_EXPLORER_SEARCH_ID}
             onBlur={() => setFocussed(false)}
             onChange={onChange}
             onFocus={() => setFocussed(true)}

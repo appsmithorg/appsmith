@@ -28,6 +28,7 @@ import Files from "./Files";
 import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
+import { SEARCH_ENTITY } from "constants/Explorer";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -116,6 +117,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       {/* SEARCH */}
       <Search
         clear={clearSearchInput}
+        id={SEARCH_ENTITY}
         isHidden
         onChange={search}
         ref={searchInputRef}

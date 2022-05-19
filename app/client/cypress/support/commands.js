@@ -413,7 +413,7 @@ Cypress.Commands.add("CheckAndUnfoldWidgets", () => {
 });
 
 Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
-  cy.get(commonlocators.entityExplorersearch)
+  cy.get(commonlocators.searchEntityInExplorer)
     .clear({ force: true })
     .type(apiname1, { force: true });
   cy.CheckAndUnfoldWidgets();
