@@ -359,9 +359,9 @@ function OrgMenuItem({ isFetchingApplications, org, selected }: any) {
         isFetchingApplications ? BlueprintClasses.SKELETON : ""
       }
       ellipsize={20}
-      href={`${window.location.pathname}#${org.organization.slug}`}
+      href={`${window.location.pathname}#${org.organization.id}`}
       icon="workspace"
-      key={org.organization.slug}
+      key={org.organization.id}
       ref={menuRef}
       selected={selected}
       text={org.organization.name}
@@ -405,7 +405,7 @@ function LeftPane() {
                 isFetchingApplications={isFetchingApplications}
                 key={org.organization.slug}
                 org={org}
-                selected={urlHash === org.organization.slug}
+                selected={urlHash === org.organization.id}
               />
             ))}
           {!isFetchingApplications && fetchedUserOrgs && (
@@ -655,7 +655,7 @@ function ApplicationsSection(props: any) {
               {(currentUser || isFetchingApplications) &&
                 OrgMenuTarget({
                   orgName: organization.name,
-                  orgSlug: organization.slug,
+                  orgSlug: organization.id,
                 })}
               {hasManageOrgPermissions && (
                 <Dialog
@@ -742,7 +742,7 @@ function ApplicationsSection(props: any) {
                         closeOnItemClick
                         cypressSelector="t--org-name"
                         disabled={isFetchingApplications}
-                        isOpen={organization.slug === orgToOpenMenu}
+                        isOpen={organization.id === orgToOpenMenu}
                         onClose={() => {
                           setOrgToOpenMenu(null);
                         }}
@@ -756,7 +756,7 @@ function ApplicationsSection(props: any) {
                             className="t--options-icon"
                             name="context-menu"
                             onClick={() => {
-                              setOrgToOpenMenu(organization.slug);
+                              setOrgToOpenMenu(organization.id);
                             }}
                             size={IconSize.XXXL}
                           />
