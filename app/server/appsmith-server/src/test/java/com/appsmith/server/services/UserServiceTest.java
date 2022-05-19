@@ -174,13 +174,13 @@ public class UserServiceTest {
         //Add valid workspace id to the updateUser object.
         Mono<User> userMono = workspaceService.create(updateWorkspace)
                 .flatMap(org -> {
-                    updateUser.setCurrentOrganizationId(org.getId());
+                    updateUser.setCurrentWorkspaceId(org.getId());
                     return userMono1.flatMap(user -> userService.update(user.getId(), updateUser));
                 });
 
         StepVerifier.create(userMono)
                 .assertNext(user -> {
-                    assertThat(user.getCurrentOrganizationId()).isEqualTo(updateUser.getCurrentOrganizationId());
+                    assertThat(user.getCurrentWorkspaceId()).isEqualTo(updateUser.getCurrentWorkspaceId());
                 })
                 .verifyComplete();
     }
@@ -235,7 +235,7 @@ public class UserServiceTest {
                     // Since there is a template workspace, the user won't have an empty default workspace. They
                     // will get a clone of the default workspace when they first login. So, we expect it to be
                     // empty here.
-                    assertThat(user.getOrganizationIds()).hasSize(1);
+                    assertThat(user.getWorkspaceIds()).hasSize(1);
                 })
                 .verifyComplete();
     }
@@ -281,7 +281,7 @@ public class UserServiceTest {
                     // Since there is a template workspace, the user won't have an empty default workspace. They
                     // will get a clone of the default workspace when they first login. So, we expect it to be
                     // empty here.
-                    assertThat(user.getOrganizationIds()).hasSize(1);
+                    assertThat(user.getWorkspaceIds()).hasSize(1);
                 })
                 .verifyComplete();
     }

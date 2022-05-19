@@ -75,7 +75,7 @@ public class DatasourceTriggerSolutionTest {
 
         Datasource datasource = new Datasource();
         datasource.setName("Datasource Trigger Database");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(orgId);
         Plugin installed_plugin = pluginService.findByName("Installed Plugin Name").block();
         datasource.setPluginId(installed_plugin.getId());
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();

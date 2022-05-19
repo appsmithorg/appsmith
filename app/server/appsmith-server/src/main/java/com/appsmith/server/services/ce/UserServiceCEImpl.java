@@ -162,39 +162,39 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      * This function switches the user's currentWorkspace in the User collection in the DB. This means that on subsequent
      * logins, the user will see applications for their last used workspace.
      *
-     * @param orgId
+     * @param workspaceId
      * @return
      */
     @Override
-    public Mono<User> switchCurrentWorkspace(String orgId) {
-        if (orgId == null || orgId.isEmpty()) {
+    public Mono<User> switchCurrentWorkspace(String workspaceId) {
+        if (workspaceId == null || workspaceId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "organizationId"));
         }
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> repository.findByEmail(user.getUsername()))
                 .flatMap(user -> {
-                    log.debug("Going to set workspaceId: {} for user: {}", orgId, user.getId());
+                    log.debug("Going to set workspaceId: {} for user: {}", workspaceId, user.getId());
 
-                    if (user.getCurrentOrganizationId().equals(orgId)) {
+                    if (user.getCurrentWorkspaceId().equals(workspaceId)) {
                         return Mono.just(user);
                     }
 
-                    Set<String> workspaceIds = user.getOrganizationIds();
+                    Set<String> workspaceIds = user.getWorkspaceIds();
                     if (workspaceIds == null || workspaceIds.isEmpty()) {
                         return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_ANY_WORKSPACE, user.getId()));
                     }
 
-                    Optional<String> maybeOrgId = workspaceIds.stream()
-                            .filter(organizationId -> organizationId.equals(orgId))
+                    Optional<String> maybeWorkspaceId = workspaceIds.stream()
+                            .filter(workspaceId1 -> workspaceId1.equals(workspaceId))
                             .findFirst();
 
-                    if (maybeOrgId.isPresent()) {
-                        user.setCurrentOrganizationId(maybeOrgId.get());
+                    if (maybeWorkspaceId.isPresent()) {
+                        user.setCurrentWorkspaceId(maybeWorkspaceId.get());
                         return repository.save(user);
                     }
 
-                    // Throw an exception if the orgId is not part of the user's workspaces
-                    return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_TO_WORKSPACE, user.getId(), orgId));
+                    // Throw an exception if the workspaceId is not part of the user's workspaces
+                    return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_TO_WORKSPACE, user.getId(), workspaceId));
                 });
     }
 
@@ -546,8 +546,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
                                 log.debug("Creating blank default workspace for user '{}'.", savedUser.getEmail());
                                 return workspaceService.createDefault(new Workspace(), savedUser)
-                                        .map(org -> {
-                                            userSignupDTO.setDefaultOrganizationId(org.getId());
+                                        .map(workspace -> {
+                                            userSignupDTO.setDefaultOrganizationId(workspace.getId());
                                             return userSignupDTO;
                                         });
                             })
@@ -727,20 +727,20 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 });
 
         // Add workspace id to each invited user
-        Mono<List<User>> usersUpdatedWithOrgMono = inviteUsersFlux
+        Mono<List<User>> usersUpdatedWithWorkspaceMono = inviteUsersFlux
                 .flatMap(user -> Mono.zip(Mono.just(user), workspaceMono))
-                // zipping with workspaceMono to ensure that the orgId is checked before updating the user object.
+                // zipping with workspaceMono to ensure that the workspaceId is checked before updating the user object.
                 .flatMap(tuple -> {
                     User invitedUser = tuple.getT1();
                     Workspace workspace = tuple.getT2();
 
-                    Set<String> organizationIds = invitedUser.getOrganizationIds();
-                    if (organizationIds == null) {
-                        organizationIds = new HashSet<>();
+                    Set<String> workspaceIds = invitedUser.getWorkspaceIds();
+                    if (workspaceIds == null) {
+                        workspaceIds = new HashSet<>();
                     }
 
-                    organizationIds.add(workspace.getId());
-                    invitedUser.setOrganizationIds(organizationIds);
+                    workspaceIds.add(workspace.getId());
+                    invitedUser.setWorkspaceIds(workspaceIds);
 
                     //Lets save the updated user object
                     return repository.save(invitedUser);
@@ -766,7 +766,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         // Trigger the flow to first add the users to the workspace and then update each user with the workspaceId
         // added to the user's list of workspaces.
         Mono<List<User>> triggerAddUserWorkspaceFinalFlowMono = workspaceWithUsersAddedMono
-                .then(usersUpdatedWithOrgMono);
+                .then(usersUpdatedWithWorkspaceMono);
 
         //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
         //  subscriber has cancelled its subscription, the create method will still generates its event.
@@ -934,7 +934,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     final UserProfileDTO profile = new UserProfileDTO();
 
                     profile.setEmail(userFromDb.getEmail());
-                    profile.setOrganizationIds(userFromDb.getOrganizationIds());
+                    profile.setOrganizationIds(userFromDb.getWorkspaceIds());
                     profile.setUsername(userFromDb.getUsername());
                     profile.setName(userFromDb.getName());
                     profile.setGender(userFromDb.getGender());

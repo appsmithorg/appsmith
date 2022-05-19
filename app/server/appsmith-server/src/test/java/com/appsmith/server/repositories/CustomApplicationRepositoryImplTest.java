@@ -26,11 +26,11 @@ public class CustomApplicationRepositoryImplTest {
     public void getAllApplicationId_WhenDataExists_ReturnsList() {
         String randomOrgId = UUID.randomUUID().toString();
         Application application1 = new Application();
-        application1.setOrganizationId(randomOrgId);
+        application1.setWorkspaceId(randomOrgId);
         application1.setName("my test app");
 
         Application application2 = new Application();
-        application2.setOrganizationId(randomOrgId);
+        application2.setWorkspaceId(randomOrgId);
         application2.setName("my another test app");
 
         Mono<List<String>> appIds = applicationRepository.saveAll(List.of(application1, application2))

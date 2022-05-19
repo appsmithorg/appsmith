@@ -91,7 +91,7 @@ public class MockDataServiceTest {
         Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
         orgId = testWorkspace == null ? "" : testWorkspace.getId();
         User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
+        orgId = apiUser.getWorkspaceIds().iterator().next();
         Workspace workspace = workspaceService.getById(orgId).block();
 
         if (testPage == null) {
@@ -131,7 +131,7 @@ public class MockDataServiceTest {
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("Movies");
-        mockDataSource.setOrganizationId(orgId);
+        mockDataSource.setWorkspaceId(orgId);
         mockDataSource.setPackageName("mongo-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
@@ -170,7 +170,7 @@ public class MockDataServiceTest {
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("Users");
-        mockDataSource.setOrganizationId(orgId);
+        mockDataSource.setWorkspaceId(orgId);
         mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
@@ -208,7 +208,7 @@ public class MockDataServiceTest {
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("Movies");
-        mockDataSource.setOrganizationId(orgId);
+        mockDataSource.setWorkspaceId(orgId);
         mockDataSource.setPackageName("mongo-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
@@ -251,7 +251,7 @@ public class MockDataServiceTest {
         Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("Users");
-        mockDataSource.setOrganizationId(orgId);
+        mockDataSource.setWorkspaceId(orgId);
         mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(plugin.getId());
         Datasource datasourceMono = mockDataService.createMockDataSet(mockDataSource).block();

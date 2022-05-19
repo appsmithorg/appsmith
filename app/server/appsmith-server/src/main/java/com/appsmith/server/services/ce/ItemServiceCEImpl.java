@@ -111,7 +111,7 @@ public class ItemServiceCEImpl implements ItemServiceCE {
                     datasource.setDatasourceConfiguration(apiTemplate.getDatasourceConfiguration());
                     datasource.setName(apiTemplate.getDatasourceConfiguration().getUrl());
                     datasource.setPluginId(plugin.getId());
-                    datasource.setOrganizationId(addItemToPageDTO.getOrganizationId());
+                    datasource.setWorkspaceId(addItemToPageDTO.getOrganizationId());
                     action.setDatasource(datasource);
                     action.setPluginType(plugin.getType());
                     return action;

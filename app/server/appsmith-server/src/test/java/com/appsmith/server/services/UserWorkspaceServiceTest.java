@@ -114,7 +114,7 @@ class UserWorkspaceServiceTest {
     @AfterEach
     public void clear() {
         User currentUser = userRepository.findByEmail("api_user").block();
-        currentUser.getOrganizationIds().remove(workspace.getId());
+        currentUser.getWorkspaceIds().remove(workspace.getId());
         userRepository.save(currentUser);
         workspaceRepository.deleteById(workspace.getId()).block();
     }
@@ -123,22 +123,22 @@ class UserWorkspaceServiceTest {
     @WithUserDetails(value = "api_user")
     void leaveOrganization_WhenUserExistsInOrg_RemovesUser() {
         User currentUser = userRepository.findByEmail("api_user").block();
-        Set<String> organizationIdsBefore = Set.copyOf(currentUser.getOrganizationIds());
+        Set<String> organizationIdsBefore = Set.copyOf(currentUser.getWorkspaceIds());
 
         List<UserRole> userRolesBeforeAddUser = List.copyOf(workspace.getUserRoles());
 
-        currentUser.getOrganizationIds().add(workspace.getId());
+        currentUser.getWorkspaceIds().add(workspace.getId());
         userRepository.save(currentUser).block();
 
         // add org id and recent apps to user data
         Application application = new Application();
-        application.setOrganizationId(workspace.getId());
+        application.setWorkspaceId(workspace.getId());
 
         Mono<UserData> saveUserDataMono = applicationRepository.save(application).flatMap(savedApplication -> {
             // add app id and org id to recent list
             UserData userData = new UserData();
             userData.setRecentlyUsedAppIds(List.of(savedApplication.getId()));
-            userData.setRecentlyUsedOrgIds(List.of(workspace.getId()));
+            userData.setRecentlyUsedWorkspaceIds(List.of(workspace.getId()));
             return userDataService.updateForUser(currentUser, userData);
         });
 
@@ -151,7 +151,7 @@ class UserWorkspaceServiceTest {
 
         StepVerifier.create(userMono).assertNext(user -> {
             assertEquals("api_user", user.getEmail());
-            assertEquals(organizationIdsBefore, user.getOrganizationIds());
+            assertEquals(organizationIdsBefore, user.getWorkspaceIds());
         }).verifyComplete();
 
         StepVerifier.create(workspaceRepository.findById(this.workspace.getId())).assertNext(workspace1 -> {
@@ -161,12 +161,12 @@ class UserWorkspaceServiceTest {
         StepVerifier.create(userRepository.findByEmail("api_user")).assertNext(user1 -> {
             assertFalse(
                     "user's orgId list should not have left org id",
-                    user1.getOrganizationIds().contains(this.workspace.getId())
+                    user1.getWorkspaceIds().contains(this.workspace.getId())
             );
         }).verifyComplete();
 
         StepVerifier.create(userDataService.getForUser(currentUser)).assertNext(userData -> {
-            assertThat(CollectionUtils.isEmpty(userData.getRecentlyUsedOrgIds())).isTrue();
+            assertThat(CollectionUtils.isEmpty(userData.getRecentlyUsedWorkspaceIds())).isTrue();
             assertThat(CollectionUtils.isEmpty(userData.getRecentlyUsedAppIds())).isTrue();
         }).verifyComplete();
     }
@@ -243,7 +243,7 @@ class UserWorkspaceServiceTest {
 
         // create a test application
         Application application = new Application();
-        application.setOrganizationId(this.workspace.getId());
+        application.setWorkspaceId(this.workspace.getId());
         application.setName("Test application");
         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(
                 workspace.getPolicies(), Workspace.class, Application.class

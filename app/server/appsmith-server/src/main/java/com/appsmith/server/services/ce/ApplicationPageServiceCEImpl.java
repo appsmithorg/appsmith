@@ -294,7 +294,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<Application> createApplication(Application application) {
-        return createApplication(application, application.getOrganizationId());
+        return createApplication(application, application.getWorkspaceId());
     }
 
     @Override
@@ -363,7 +363,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
                     return workspaceMono.map(org -> {
-                        application.setOrganizationId(org.getId());
+                        application.setWorkspaceId(org.getId());
                         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(org.getPolicies(), Workspace.class, Application.class);
                         application.setPolicies(documentPolicies);
                         return application;
@@ -400,7 +400,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     if (gitData != null && !StringUtils.isEmpty(gitData.getDefaultApplicationId()) && !StringUtils.isEmpty(gitData.getRepoName())) {
                         String repoName = gitData.getRepoName();
-                        Path repoPath = Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), repoName);
+                        Path repoPath = Paths.get(application.getWorkspaceId(), gitData.getDefaultApplicationId(), repoName);
                         // Delete git repo from local and delete the applications from DB
                         return gitFileUtils.deleteLocalRepo(repoPath)
                                 .flatMapMany(isCleared -> applicationService
@@ -694,7 +694,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         // Find the name for the cloned application which wouldn't lead to duplicate key exception
         Mono<String> newAppNameMono = applicationMono
-                .flatMap(application -> applicationService.findAllApplicationsByOrganizationId(application.getOrganizationId())
+                .flatMap(application -> applicationService.findAllApplicationsByWorkspaceId(application.getWorkspaceId())
                         .map(Application::getName)
                         .collect(Collectors.toSet())
                         .map(appNames -> {
@@ -731,7 +731,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
-                    return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
+                    return setApplicationPolicies(userMono, sourceApplication.getWorkspaceId(), newApplication)
                             // Create the cloned application with the new name and policies before proceeding further.
                             .zipWith(userMono)
                             .flatMap(applicationUserTuple2 -> {
@@ -1020,7 +1020,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             Map.of(
                                     "appId", defaultIfNull(application.getId(), ""),
                                     "appName", defaultIfNull(application.getName(), ""),
-                                    "orgId", defaultIfNull(application.getOrganizationId(), ""),
+                                    "orgId", defaultIfNull(application.getWorkspaceId(), ""),
                                     "pageCount", publishedPageCount + "",
                                     "publishedAt", defaultIfNull(application.getLastDeployedAt(), "")
                             )
@@ -1079,7 +1079,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         application.setName(actualName);
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
-        Mono<Application> applicationWithPoliciesMono = this.setApplicationPolicies(userMono, application.getOrganizationId(), application);
+        Mono<Application> applicationWithPoliciesMono = this.setApplicationPolicies(userMono, application.getWorkspaceId(), application);
 
         return applicationWithPoliciesMono
                 .zipWith(userMono)

@@ -42,8 +42,12 @@ public class UserData extends BaseDomain {
     // The version where this user has last viewed the release notes.
     private String releaseNotesViewedVersion;
 
-    // list of organisation ids that were recently accessed by the user
+    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    @Deprecated
     private List<String> recentlyUsedOrgIds;
+
+    // list of workspace ids that were recently accessed by the user
+    private List<String> recentlyUsedWorkspaceIds;
 
     // list of application ids that were recently accessed by the user
     private List<String> recentlyUsedAppIds;

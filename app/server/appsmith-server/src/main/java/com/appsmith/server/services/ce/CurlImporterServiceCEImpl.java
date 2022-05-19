@@ -102,7 +102,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                     final DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
-                    datasource.setOrganizationId(orgId);
+                    datasource.setWorkspaceId(orgId);
                     // Set git related resource IDs
                     action1.setDefaultResources(newPage.getDefaultResources());
                     action1.setPageId(newPage.getId());

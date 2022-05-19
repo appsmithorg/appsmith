@@ -70,7 +70,7 @@ public class DatasourceContextServiceTest {
         authenticationDTO.setPassword(password);
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(orgId);
 
         final Datasource createdDatasource = pluginMono
                 .map(plugin -> {
@@ -108,7 +108,7 @@ public class DatasourceContextServiceTest {
         DBAuth authenticationDTO = new DBAuth();
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(orgId);
 
         final Datasource createdDatasource = pluginMono
                 .map(plugin -> {

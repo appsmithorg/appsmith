@@ -118,7 +118,7 @@ public class ActionCollectionServiceTest {
     public void setup() {
         User apiUser = userService.findByEmail("api_user").block();
         assert apiUser != null;
-        orgId = apiUser.getOrganizationIds().iterator().next();
+        orgId = apiUser.getWorkspaceIds().iterator().next();
         Workspace workspace = workspaceService.getById(orgId).block();
 
         if (testApp == null && testPage == null) {
@@ -161,7 +161,7 @@ public class ActionCollectionServiceTest {
         orgId = testWorkspace.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(orgId);
         Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
         assert installedJsPlugin != null;
         datasource.setPluginId(installedJsPlugin.getId());
@@ -190,7 +190,7 @@ public class ActionCollectionServiceTest {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testActionCollection");
         actionCollectionDTO.setApplicationId(testApp.getId());
-        actionCollectionDTO.setOrganizationId(testApp.getOrganizationId());
+        actionCollectionDTO.setOrganizationId(testApp.getWorkspaceId());
         actionCollectionDTO.setPageId(testPage.getId());
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setPluginType(PluginType.JS);
@@ -216,7 +216,7 @@ public class ActionCollectionServiceTest {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testActionCollection");
         actionCollectionDTO.setApplicationId(testApp.getId());
-        actionCollectionDTO.setOrganizationId(testApp.getOrganizationId());
+        actionCollectionDTO.setOrganizationId(testApp.getWorkspaceId());
         actionCollectionDTO.setPageId(testPage.getId());
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setPluginType(PluginType.JS);
@@ -227,7 +227,7 @@ public class ActionCollectionServiceTest {
         userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
         userRole.setUsername("usertest@usertest.com");
 
-        userWorkspaceService.addUserRoleToWorkspace(testApp.getOrganizationId(), userRole).block();
+        userWorkspaceService.addUserRoleToWorkspace(testApp.getWorkspaceId(), userRole).block();
 
         assert actionCollection != null;
         Mono<ActionCollection> readActionCollectionMono =

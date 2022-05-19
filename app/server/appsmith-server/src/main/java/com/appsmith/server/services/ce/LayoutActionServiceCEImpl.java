@@ -1130,10 +1130,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     if (action.getDatasource() != null &&
                             action.getDatasource().getId() == null) {
                         Datasource datasource = action.getDatasource();
-                        if (datasource.getOrganizationId() == null) {
+                        if (datasource.getWorkspaceId() == null) {
                             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
                         }
-                        newAction.setOrganizationId(datasource.getOrganizationId());
+                        newAction.setWorkspaceId(datasource.getWorkspaceId());
                     }
 
                     // New actions will never be set to auto-magical execution, unless it is triggered via a

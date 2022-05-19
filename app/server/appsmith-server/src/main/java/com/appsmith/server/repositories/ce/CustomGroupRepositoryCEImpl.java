@@ -22,8 +22,8 @@ public class CustomGroupRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Grou
     }
 
     @Override
-    public Flux<Group> getAllByOrganizationId(String organizationId) {
-        Criteria orgIdCriteria = where(fieldName(QGroup.group.organizationId)).is(organizationId);
+    public Flux<Group> getAllByWorkspaceId(String workspaceId) {
+        Criteria orgIdCriteria = where(fieldName(QGroup.group.workspaceId)).is(workspaceId);
 
         return queryAll(List.of(orgIdCriteria), null);
     }

@@ -71,15 +71,15 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     }
 
     /**
-     * This function adds an organizationId to the user. This will allow users to switch between multiple workspace
+     * This function adds an workspaceId to the user. This will allow users to switch between multiple workspace
      * and operate inside them independently.
      *
-     * @param orgId The organizationId being added to the user.
+     * @param workspaceId The workspaceId being added to the user.
      * @param user
      * @return
      */
     @Override
-    public Mono<User> addUserToWorkspace(String orgId, User user) {
+    public Mono<User> addUserToWorkspace(String workspaceId, User user) {
 
         Mono<User> currentUserMono;
         if (user == null) {
@@ -91,12 +91,12 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
        // Querying by example here because the workspaceRepository.findById wasn't working when the user
         // signs up for a new account via Google SSO.
-        Workspace exampleOrg = new Workspace();
-        exampleOrg.setId(orgId);
-        exampleOrg.setPolicies(null);
+        Workspace exampleWorkspace = new Workspace();
+        exampleWorkspace.setId(workspaceId);
+        exampleWorkspace.setPolicies(null);
 
-        return workspaceRepository.findOne(Example.of(exampleOrg))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, orgId)))
+        return workspaceRepository.findOne(Example.of(exampleWorkspace))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
                 .zipWith(currentUserMono)
                 .map(tuple -> {
                         Workspace workspace = tuple.getT1();
@@ -105,31 +105,31 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     return user1;
                 })
                 .map(user1 -> {
-                    Set<String> workspaceIds = user1.getOrganizationIds();
+                    Set<String> workspaceIds = user1.getWorkspaceIds();
                     if (workspaceIds == null) {
                         workspaceIds = new HashSet<>();
-                        if (user1.getCurrentOrganizationId() != null) {
-                            // If the list of workspaceIds for a user is null, add the current user org
+                        if (user1.getCurrentWorkspaceId() != null) {
+                            // If the list of workspaceIds for a user is null, add the current user workspace
                             // to the new list as well
-                            workspaceIds.add(user1.getCurrentOrganizationId());
+                            workspaceIds.add(user1.getCurrentWorkspaceId());
                         }
                     }
-                    if (!workspaceIds.contains(orgId)) {
+                    if (!workspaceIds.contains(workspaceId)) {
                         // Only add to the workspaceIds array if it's not already present
-                        workspaceIds.add(orgId);
-                        user1.setOrganizationIds(workspaceIds);
+                        workspaceIds.add(workspaceId);
+                        user1.setWorkspaceIds(workspaceIds);
                     }
                     // Set the current workspace to the newly added workspace
-                    user1.setCurrentOrganizationId(orgId);
+                    user1.setCurrentWorkspaceId(workspaceId);
                     return user1;
                 })
                 .flatMap(userRepository::save);
     }
 
     @Override
-    public Mono<Workspace> addUserRoleToWorkspace(String orgId, UserRole userRole) {
-        Mono<Workspace> workspaceMono = workspaceRepository.findById(orgId, MANAGE_ORGANIZATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, orgId)));
+    public Mono<Workspace> addUserRoleToWorkspace(String workspaceId, UserRole userRole) {
+        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, MANAGE_ORGANIZATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
         Mono<User> userMono = userRepository.findByEmail(userRole.getUsername())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER)));
 
@@ -165,9 +165,9 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         // Generate all the policies for Workspace, Application, Page and Actions for the current user
         Set<AclPermission> rolePermissions = role.getPermissions();
-        Map<String, Policy> orgPolicyMap = policyUtils.generatePolicyFromPermission(rolePermissions, user);
-        Map<String, Policy> applicationPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Workspace.class, Application.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Workspace.class, Datasource.class);
+        Map<String, Policy> workspacePolicyMap = policyUtils.generatePolicyFromPermission(rolePermissions, user);
+        Map<String, Policy> applicationPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(workspacePolicyMap, Workspace.class, Application.class);
+        Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(workspacePolicyMap, Workspace.class, Datasource.class);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
         Map<String, Policy> commentThreadPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
@@ -177,7 +177,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 applicationPolicyMap, Application.class, Theme.class
         );
         //Now update the workspace policies
-        Workspace updatedWorkspace = policyUtils.addPoliciesToExistingObject(orgPolicyMap, workspace);
+        Workspace updatedWorkspace = policyUtils.addPoliciesToExistingObject(workspacePolicyMap, workspace);
         updatedWorkspace.setUserRoles(userRoles);
 
         // Update the underlying application/page/action
@@ -207,14 +207,14 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         )
         .flatMap(tuple -> {
             //By now all the datasources/applications/pages/actions have been updated. Just save the workspace now
-            Workspace updatedOrgBeforeSave = tuple.getT5();
-            return workspaceRepository.save(updatedOrgBeforeSave);
+            Workspace updatedWorkspaceBeforeSave = tuple.getT5();
+            return workspaceRepository.save(updatedWorkspaceBeforeSave);
         });
     }
 
     @Override
-    public Mono<User> leaveWorkspace(String orgId) {
-        Mono<Workspace> workspaceMono = workspaceRepository.findById(orgId);
+    public Mono<User> leaveWorkspace(String workspaceId) {
+        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId);
         Mono<User> userMono = sessionUserService.getCurrentUser()
                     .flatMap(user1 -> userRepository.findByEmail(user1.getUsername()));
 
@@ -226,7 +226,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     UserRole userRole = new UserRole();
                     userRole.setUsername(user.getUsername());
 
-                    user.getOrganizationIds().remove(workspace.getId());
+                    user.getWorkspaceIds().remove(workspace.getId());
                     return this.updateMemberRole(
                             workspace, user, userRole, user, null
                     ).thenReturn(user);
@@ -256,9 +256,9 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         // Generate all the policies for Workspace, Application, Page and Actions
         Set<AclPermission> rolePermissions = role.getPermissions();
-        Map<String, Policy> orgPolicyMap = policyUtils.generatePolicyFromPermission(rolePermissions, user);
-        Map<String, Policy> applicationPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Workspace.class, Application.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(orgPolicyMap, Workspace.class, Datasource.class);
+        Map<String, Policy> workspacePolicyMap = policyUtils.generatePolicyFromPermission(rolePermissions, user);
+        Map<String, Policy> applicationPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(workspacePolicyMap, Workspace.class, Application.class);
+        Map<String, Policy> datasourcePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(workspacePolicyMap, Workspace.class, Datasource.class);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
         Map<String, Policy> commentThreadPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
@@ -269,7 +269,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         );
 
         //Now update the workspace policies
-        Workspace updatedWorkspace = policyUtils.removePoliciesFromExistingObject(orgPolicyMap, workspace);
+        Workspace updatedWorkspace = policyUtils.removePoliciesFromExistingObject(workspacePolicyMap, workspace);
         updatedWorkspace.setUserRoles(userRoles);
 
         // Update the underlying application/page/action
@@ -301,8 +301,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 updatedThemesFlux.collectList()
         ).flatMap(tuple -> {
                 //By now all the datasources/applications/pages/actions have been updated. Just save the workspace now
-                Workspace updatedOrgBeforeSave = tuple.getT6();
-                return workspaceRepository.save(updatedOrgBeforeSave);
+                Workspace updatedWorkspaceBeforeSave = tuple.getT6();
+                return workspaceRepository.save(updatedWorkspaceBeforeSave);
         });
     }
 
@@ -310,7 +310,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         List<UserRole> userRoles = workspace.getUserRoles();
 
         // count how many admins are there is this workspace
-        long orgAdminCount = userRoles.stream().filter(
+        long workspaceAdminCount = userRoles.stream().filter(
                 userRole1 -> userRole1.getRole() == AppsmithRole.ORGANIZATION_ADMIN
         ).count();
 
@@ -323,7 +323,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     return Mono.just(userRole);
                 } else if(role.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN)) {
                     // user is currently admin, check if this user is the only admin
-                    if(orgAdminCount == 1) {
+                    if(workspaceAdminCount == 1) {
                         return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_ORG_ADMIN_ERROR));
                     }
                 }
@@ -352,16 +352,16 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                                 .thenReturn(addedWorkspace);
                     });
                 } else {
-                    // If the roleName was not present, then it implies that the user is being removed from the org.
+                    // If the roleName was not present, then it implies that the user is being removed from the workspace.
                     // Since at this point we have already removed the user from the workspace,
-                    // remove the workspace from recent org list of UserData
-                    // we also need to remove the org id from User.orgIdList
+                    // remove the workspace from recent workspace list of UserData
+                    // we also need to remove the workspace id from User.workspaceIdList
                     finalUpdatedWorkspaceMono = userDataService
-                            .removeRecentOrgAndApps(user.getId(), workspace.getId())
+                            .removeRecentWorkspaceAndApps(user.getId(), workspace.getId())
                             .then(userRemovedWorkspaceMono)
                             .flatMap(workspace1 -> {
-                                    if(user.getOrganizationIds() != null) {
-                                        user.getOrganizationIds().remove(workspace.getId());
+                                    if(user.getWorkspaceIds() != null) {
+                                        user.getWorkspaceIds().remove(workspace.getId());
                                         return userRepository.save(user).thenReturn(workspace1);
                                     }
                                     return Mono.just(workspace1);
@@ -379,19 +379,19 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     /**
      * This method is used when an admin of an workspace changes the role or removes a member.
      * Admin user can also remove himself from the workspace, if there is another admin there in the workspace.
-     * @param orgId ID of the workspace
+     * @param workspaceId ID of the workspace
      * @param userRole updated role of the target member. userRole.roleName will be null when removing a member
      * @param originHeader
      * @return The updated UserRole
      */
     @Override
-    public Mono<UserRole> updateRoleForMember(String orgId, UserRole userRole, String originHeader) {
+    public Mono<UserRole> updateRoleForMember(String workspaceId, UserRole userRole, String originHeader) {
         if (userRole.getUsername() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "username"));
         }
 
         Mono<Workspace> workspaceMono = workspaceRepository
-                .findById(orgId, MANAGE_ORGANIZATIONS)
+                .findById(workspaceId, MANAGE_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED,
                         "Change role of a member")));
         Mono<User> userMono = userRepository.findByEmail(userRole.getUsername());
@@ -418,7 +418,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         for (User user : users) {
             // If the user already exists in the workspace, skip adding the user to the workspace user roles
-            if (userRoles.stream().anyMatch(orgRole -> orgRole.getUsername().equals(user.getUsername()))) {
+            if (userRoles.stream().anyMatch(workspaceRole -> workspaceRole.getUsername().equals(user.getUsername()))) {
                 continue;
             }
             // User was not found in the workspace. Continue with adding it

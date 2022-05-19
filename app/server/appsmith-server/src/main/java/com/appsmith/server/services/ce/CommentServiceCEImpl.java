@@ -688,7 +688,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
         initState.setAuthorName("");
         initState.setAuthorUsername("");
 
-        commentThread.setOrgId(application.getOrganizationId());
+        commentThread.setOrgId(application.getWorkspaceId());
         commentThread.setPinnedState(initState);
         commentThread.setResolvedState(initState);
         commentThread.setApplicationId(application.getId());

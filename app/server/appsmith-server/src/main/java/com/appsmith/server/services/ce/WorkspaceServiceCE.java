@@ -25,13 +25,13 @@ public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
 
     Mono<Workspace> save(Workspace workspace);
 
-    Mono<Workspace> findByIdAndPluginsPluginId(String organizationId, String pluginId);
+    Mono<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId);
 
     Flux<Workspace> findByIdsIn(Set<String> ids,AclPermission permission);
 
-    Mono<Map<String, String>> getUserRolesForWorkspace(String orgId);
+    Mono<Map<String, String>> getUserRolesForWorkspace(String workspaceId);
 
-    Mono<List<UserRole>> getWorkspaceMembers(String orgId);
+    Mono<List<UserRole>> getWorkspaceMembers(String workspaceId);
 
     Mono<Workspace> uploadLogo(String workspaceId, Part filePart);
 

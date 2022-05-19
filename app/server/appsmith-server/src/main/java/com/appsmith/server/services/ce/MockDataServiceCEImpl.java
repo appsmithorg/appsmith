@@ -115,12 +115,12 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
                         " Couldn't find any mock datasource with the given name - " + mockDataSource.getName()));
             }
             Datasource datasource = new Datasource();
-            datasource.setOrganizationId(mockDataSource.getOrganizationId());
+            datasource.setWorkspaceId(mockDataSource.getWorkspaceId());
             datasource.setPluginId(mockDataSource.getPluginId());
             datasource.setName(mockDataSource.getName());
             datasource.setDatasourceConfiguration(datasourceConfiguration);
             datasource.setIsConfigured(true);
-            return addAnalyticsForMockDataCreation(name, mockDataSource.getOrganizationId())
+            return addAnalyticsForMockDataCreation(name, mockDataSource.getWorkspaceId())
                     .then(createSuffixedDatasource(datasource));
         });
 

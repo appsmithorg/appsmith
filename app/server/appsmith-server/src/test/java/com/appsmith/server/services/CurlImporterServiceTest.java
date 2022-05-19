@@ -73,7 +73,7 @@ public class CurlImporterServiceTest {
                 .thenReturn(List.of(this.pluginExecutor));
 
         User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
+        orgId = apiUser.getWorkspaceIds().iterator().next();
     }
 
     @Test
@@ -230,7 +230,7 @@ public class CurlImporterServiceTest {
 
         Application branchedApplication = new Application();
         branchedApplication.setName("branched curl test app");
-        branchedApplication.setOrganizationId(orgId);
+        branchedApplication.setWorkspaceId(orgId);
         branchedApplication = applicationPageService.createApplication(branchedApplication).block();
         String branchedPageId = branchedApplication.getPages().get(0).getId();
 

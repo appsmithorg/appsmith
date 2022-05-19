@@ -124,7 +124,7 @@ public class PageServiceTest {
         purgeAllPages();
         if (StringUtils.isEmpty(orgId)) {
             User apiUser = userService.findByEmail("api_user").block();
-            orgId = apiUser.getOrganizationIds().iterator().next();
+            orgId = apiUser.getWorkspaceIds().iterator().next();
         }
     }
 
@@ -327,7 +327,7 @@ public class PageServiceTest {
         action.setName("PageAction");
         action.setActionConfiguration(new ActionConfiguration());
         Datasource datasource = new Datasource();
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(orgId);
         datasource.setName("datasource test name for page test");
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
@@ -474,7 +474,7 @@ public class PageServiceTest {
         action.setName("PageAction");
         action.setActionConfiguration(new ActionConfiguration());
         Datasource datasource = new Datasource();
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(orgId);
         datasource.setName("datasource test for clone page");
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
@@ -666,7 +666,7 @@ public class PageServiceTest {
     public void reOrderPageFromHighOrderToLowOrder() {
 
         User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
+        orgId = apiUser.getWorkspaceIds().iterator().next();
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
 
@@ -717,7 +717,7 @@ public class PageServiceTest {
     public void reOrderPageFromLowOrderToHighOrder() {
 
         User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
+        orgId = apiUser.getWorkspaceIds().iterator().next();
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
 

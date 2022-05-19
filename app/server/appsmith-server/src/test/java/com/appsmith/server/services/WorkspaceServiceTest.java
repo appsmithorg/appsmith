@@ -143,7 +143,7 @@ public class WorkspaceServiceTest {
         Mono<User> userMono = userService.create(newUser).cache();
         Mono<Workspace> defaultOrgMono = userMono
                 .flatMap(user -> workspaceRepository
-                        .findById(user.getOrganizationIds().stream().findFirst().get()));
+                        .findById(user.getWorkspaceIds().stream().findFirst().get()));
 
         StepVerifier.create(Mono.zip(userMono, defaultOrgMono))
                 .assertNext(tuple -> {
@@ -432,7 +432,7 @@ public class WorkspaceServiceTest {
                     assertThat(org.getPolicies()).isNotEmpty();
                     assertThat(org.getPolicies()).containsAll(Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy));
 
-                    Set<String> organizationIds = user.getOrganizationIds();
+                    Set<String> organizationIds = user.getWorkspaceIds();
                     assertThat(organizationIds).contains(org.getId());
 
                 })
@@ -498,7 +498,7 @@ public class WorkspaceServiceTest {
 
                     assertThat(user).isNotNull();
                     assertThat(user.getIsEnabled()).isFalse();
-                    Set<String> organizationIds = user.getOrganizationIds();
+                    Set<String> organizationIds = user.getWorkspaceIds();
                     assertThat(organizationIds).contains(org.getId());
 
                 })
@@ -566,7 +566,7 @@ public class WorkspaceServiceTest {
 
                     assertThat(user).isNotNull();
                     assertThat(user.getIsEnabled()).isFalse();
-                    Set<String> organizationIds = user.getOrganizationIds();
+                    Set<String> organizationIds = user.getWorkspaceIds();
                     assertThat(organizationIds).contains(org.getId());
 
                 })
@@ -603,7 +603,7 @@ public class WorkspaceServiceTest {
                 .flatMap(org -> {
                     Datasource datasource = new Datasource();
                     datasource.setName("test datasource");
-                    datasource.setOrganizationId(org.getId());
+                    datasource.setWorkspaceId(org.getId());
                     return datasourceService.create(datasource);
                 });
 
@@ -628,7 +628,7 @@ public class WorkspaceServiceTest {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization by name")));
 
         Mono<Datasource> readDatasourceByNameMono = workspaceMono.flatMap(workspace1 ->
-                datasourceRepository.findByNameAndOrganizationId("test datasource", workspace1.getId(),READ_DATASOURCES)
+                datasourceRepository.findByNameAndWorkspaceId("test datasource", workspace1.getId(),READ_DATASOURCES)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")))
         );
 
@@ -962,7 +962,7 @@ public class WorkspaceServiceTest {
 
                     assertThat(user).isNotNull();
                     assertThat(user.getIsEnabled()).isFalse();
-                    Set<String> organizationIds = user.getOrganizationIds();
+                    Set<String> organizationIds = user.getWorkspaceIds();
                     assertThat(organizationIds).contains(org.getId());
 
                 })
@@ -1111,11 +1111,11 @@ public class WorkspaceServiceTest {
         Mono<Workspace> deleteOrgMono = workspaceService.create(workspace)
                 .flatMap(savedOrg -> {
                     Application application = new Application();
-                    application.setOrganizationId(savedOrg.getId());
+                    application.setWorkspaceId(savedOrg.getId());
                     application.setName("Test app to test delete org");
                     return applicationPageService.createApplication(application);
                 }).flatMap(application ->
-                        workspaceService.archiveById(application.getOrganizationId())
+                        workspaceService.archiveById(application.getWorkspaceId())
                 );
 
         StepVerifier

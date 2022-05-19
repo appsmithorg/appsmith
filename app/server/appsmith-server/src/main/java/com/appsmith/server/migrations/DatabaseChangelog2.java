@@ -5,6 +5,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -18,6 +19,9 @@ import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Sequence;
+import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -29,8 +33,12 @@ import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl
 import com.google.gson.Gson;
 
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
+
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.redis.core.ReactiveRedisOperations;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -822,4 +830,127 @@ public class DatabaseChangelog2 {
         }
     }
 
+    @ChangeSet(order = "013", id = "migrate-organizationId-to-workspaceId-in-datasource", author = "")
+    public void migrateOrganizationIdToWorkspaceIdInDatasource(MongockTemplate mongockTemplate) {
+        try(Stream<Datasource> stream = mongockTemplate.stream(new Query(), Datasource.class)
+            .stream()) { 
+            stream.forEach((datasource) -> {
+                datasource.setWorkspaceId(datasource.getOrganizationId());
+                mongockTemplate.insert(datasource);
+            });
+        }
+    }
+
+    @ChangeSet(order = "014", id = "migrate-organizationId-to-workspaceId-in-user", author = "")
+    public void migrateOrganizationIdToWorkspaceIdInUser(MongockTemplate mongockTemplate) {
+        try(Stream<User> stream = mongockTemplate.stream(new Query(), User.class)
+            .stream()) { 
+            stream.forEach((user) -> {
+                user.setWorkspaceIds(user.getOrganizationIds());
+                user.setCurrentWorkspaceId(user.getCurrentOrganizationId());
+                user.setExamplesWorkspaceId(user.getExamplesOrganizationId());
+                mongockTemplate.insert(user);
+            });
+        }
+    }
+
+    //Clear all sessions as user object is updated
+    @ChangeSet(order = "115", id = "clear-spring-redis-sessions", author = "")
+    public void clearSpringRedisSession(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
+        final String script =
+                "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))" +
+                        " do redis.call('del',k) " +
+                        "end";
+        final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
+
+        flushdb.subscribe();
+    }
+
+    @ChangeSet(order = "016", id = "migrate-organizationId-to-workspaceId-in-action", author = "")
+    public void migrateOrganizationIdToWorkspaceIdInAction(MongockTemplate mongockTemplate) {
+        try(Stream<Action> stream = mongockTemplate.stream(new Query(), Action.class)
+            .stream()) { 
+            stream.forEach((action) -> {
+                action.setWorkspaceId(action.getOrganizationId());
+                mongockTemplate.insert(action);
+            });
+        }
+    }
+
+    @ChangeSet(order = "017", id = "migrate-organizationId-to-workspaceId-in-actioncollection", author = "")
+    public void migrateOrganizationIdToWorkspaceIdInActionCollection(MongockTemplate mongockTemplate) {
+        try(Stream<ActionCollection> stream = mongockTemplate.stream(new Query(), ActionCollection.class)
+            .stream()) { 
+            stream.forEach((actionCollection) -> {
+                actionCollection.setWorkspaceId(actionCollection.getOrganizationId());
+                mongockTemplate.insert(actionCollection);
+            });
+        }
+    }
+
+    @ChangeSet(order = "018", id = "migrate-organizationId-to-workspaceId-in-application", author = "")
+    public void migrateOrganizationIdToWorkspaceIdInApplication(MongockTemplate mongockTemplate) {
+        try(Stream<Application> stream = mongockTemplate.stream(new Query(), Application.class)
+            .stream()) { 
+            stream.forEach((application) -> {
+                application.setWorkspaceId(application.getOrganizationId());
+                mongockTemplate.insert(application);
+            });
+        }
+    }
+
+    @ChangeSet(order = "019", id = "migrate-organizationId-to-workspaceId-in-newaction", author = "")
+    public void migrateOrganizationIdToWorkspaceIdInNewAction(MongockTemplate mongockTemplate) {
+        try(Stream<NewAction> stream = mongockTemplate.stream(new Query(), NewAction.class)
+            .stream()) { 
+            stream.forEach((newAction) -> {
+                newAction.setWorkspaceId(newAction.getOrganizationId());
+                mongockTemplate.insert(newAction);
+            });
+        }
+    }
+
+    @ChangeSet(order = "020", id = "migrate-organizationId-to-workspaceId-in-collection", author = "")
+    public void migrateOrganizationIdToWorkspaceIdInCollection(MongockTemplate mongockTemplate) {
+        try(Stream<Application> stream = mongockTemplate.stream(new Query(), Application.class)
+            .stream()) { 
+            stream.forEach((application) -> {
+                application.setWorkspaceId(application.getOrganizationId());
+                mongockTemplate.insert(application);
+            });
+        }
+    }
+
+    @ChangeSet(order = "021", id = "migrate-organizationId-to-workspaceId-in-group", author = "")
+    public void migrateOrganizationIdToWorkspaceIdInGroup(MongockTemplate mongockTemplate) {
+        try(Stream<Application> stream = mongockTemplate.stream(new Query(), Application.class)
+            .stream()) { 
+            stream.forEach((application) -> {
+                application.setWorkspaceId(application.getOrganizationId());
+                mongockTemplate.insert(application);
+            });
+        }
+    }
+
+    @ChangeSet(order = "022", id = "migrate-organizationId-to-workspaceId-in-theme", author = "")
+    public void migrateOrganizationIdToWorkspaceIdInTheme(MongockTemplate mongockTemplate) {
+        try(Stream<Theme> stream = mongockTemplate.stream(new Query(), Theme.class)
+            .stream()) { 
+            stream.forEach((theme) -> {
+                theme.setWorkspaceId(theme.getOrganizationId());
+                mongockTemplate.insert(theme);
+            });
+        }
+    }
+    
+    @ChangeSet(order = "023", id = "migrate-organizationId-to-workspaceId-in-userdata", author = "")
+    public void migrateOrganizationIdToWorkspaceIdInUserData(MongockTemplate mongockTemplate) {
+        try(Stream<UserData> stream = mongockTemplate.stream(new Query(), UserData.class)
+            .stream()) { 
+            stream.forEach((userData) -> {
+                userData.setRecentlyUsedWorkspaceIds(userData.getRecentlyUsedOrgIds());
+                mongockTemplate.insert(userData);
+            });
+        }
+    }
 }

@@ -173,7 +173,7 @@ public class ActionServiceCE_Test {
     public void setup() {
 
         User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
+        orgId = apiUser.getWorkspaceIds().iterator().next();
         Workspace workspace = workspaceService.getById(orgId).block();
 
         if (testApp == null && testPage == null) {
@@ -233,7 +233,7 @@ public class ActionServiceCE_Test {
         orgId = testWorkspace.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(orgId);
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
@@ -1081,7 +1081,7 @@ public class ActionServiceCE_Test {
 
         Datasource externalDatasource = new Datasource();
         externalDatasource.setName("Default Database");
-        externalDatasource.setOrganizationId(orgId);
+        externalDatasource.setWorkspaceId(orgId);
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         externalDatasource.setPluginId(installed_plugin.getId());
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
@@ -1123,7 +1123,7 @@ public class ActionServiceCE_Test {
 
         Datasource externalDatasource = new Datasource();
         externalDatasource.setName("updateShouldNotResetUserSetOnLoad Database");
-        externalDatasource.setOrganizationId(orgId);
+        externalDatasource.setWorkspaceId(orgId);
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         externalDatasource.setPluginId(installed_plugin.getId());
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
@@ -1210,7 +1210,7 @@ public class ActionServiceCE_Test {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(orgId);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
 

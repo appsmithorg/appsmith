@@ -116,7 +116,7 @@ public class ShareWorkspacePermissionTests {
 
         Application application = new Application();
         application.setName("Share Test Application");
-        application.setOrganizationId(organizationId);
+        application.setWorkspaceId(organizationId);
         savedApplication = applicationPageService.createApplication(application, organizationId).block();
 
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
@@ -223,7 +223,7 @@ public class ShareWorkspacePermissionTests {
 
         Application application = new Application();
         application.setName("Application for Invite Cancellation Test");
-        application.setOrganizationId(savedWorkspace.getId());
+        application.setWorkspaceId(savedWorkspace.getId());
         savedApplication = applicationPageService.createApplication(application, savedWorkspace.getId()).block();
 
         String pageId = savedApplication.getPages().get(0).getId();
@@ -235,7 +235,7 @@ public class ShareWorkspacePermissionTests {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(savedWorkspace.getId());
+        datasource.setWorkspaceId(savedWorkspace.getId());
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
 

@@ -112,7 +112,7 @@ public class ActionCollectionDTO {
     public void populateTransientFields(ActionCollection actionCollection) {
         this.setId(actionCollection.getId());
         this.setApplicationId(actionCollection.getApplicationId());
-        this.setOrganizationId(actionCollection.getOrganizationId());
+        this.setOrganizationId(actionCollection.getWorkspaceId());
         copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), this.getDefaultResources());
     }
 }

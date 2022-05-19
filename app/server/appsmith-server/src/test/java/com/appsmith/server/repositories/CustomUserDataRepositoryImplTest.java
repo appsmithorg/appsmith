@@ -30,7 +30,7 @@ class CustomUserDataRepositoryImplTest {
                 .findByUserId(userId)
                 .defaultIfEmpty(new UserData()).flatMap(userData -> {
                     userData.setUserId(userId);
-                    userData.setRecentlyUsedOrgIds(orgIds);
+                    userData.setRecentlyUsedWorkspaceIds(orgIds);
                     userData.setRecentlyUsedAppIds(appIds);
                     return userDataRepository.save(userData);
                 });
@@ -55,8 +55,8 @@ class CustomUserDataRepositoryImplTest {
         Mono<UserData> userDataAfterUpdateMono = updateResultMono.then(readUserDataMono);
 
         StepVerifier.create(userDataAfterUpdateMono).assertNext(userData -> {
-            Assert.assertEquals(2, userData.getRecentlyUsedOrgIds().size());
-            Assert.assertArrayEquals(List.of("123", "234").toArray(), userData.getRecentlyUsedOrgIds().toArray());
+            Assert.assertEquals(2, userData.getRecentlyUsedWorkspaceIds().size());
+            Assert.assertArrayEquals(List.of("123", "234").toArray(), userData.getRecentlyUsedWorkspaceIds().toArray());
         }).verifyComplete();
     }
 
@@ -80,8 +80,8 @@ class CustomUserDataRepositoryImplTest {
         Mono<UserData> userDataAfterUpdateMono = updateResultMono.then(readUserDataMono);
 
         StepVerifier.create(userDataAfterUpdateMono).assertNext(userData -> {
-            Assert.assertEquals(3, userData.getRecentlyUsedOrgIds().size());
-            Assert.assertArrayEquals(List.of("123", "234", "345").toArray(), userData.getRecentlyUsedOrgIds().toArray());
+            Assert.assertEquals(3, userData.getRecentlyUsedWorkspaceIds().size());
+            Assert.assertArrayEquals(List.of("123", "234", "345").toArray(), userData.getRecentlyUsedWorkspaceIds().toArray());
         }).verifyComplete();
     }
 
@@ -134,7 +134,7 @@ class CustomUserDataRepositoryImplTest {
 
         StepVerifier.create(userDataAfterUpdateMono).assertNext(userData -> {
             List<String> recentlyUsedAppIds = userData.getRecentlyUsedAppIds();
-            List<String> recentlyUsedOrgIds = userData.getRecentlyUsedOrgIds();
+            List<String> recentlyUsedOrgIds = userData.getRecentlyUsedWorkspaceIds();
             assertThat(recentlyUsedAppIds.size()).isEqualTo(1);
             assertThat(recentlyUsedAppIds.get(0)).isEqualTo("456");
 

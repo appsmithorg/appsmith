@@ -76,7 +76,7 @@ public class EmailEventHandlerTest {
 
         application = new Application();
         application.setName("Test application for comment");
-        application.setOrganizationId(organizationId);
+        application.setWorkspaceId(organizationId);
         workspace = new Workspace();
 
         // add a role with email receiver username

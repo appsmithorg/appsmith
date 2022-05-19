@@ -92,7 +92,7 @@ public class AuthenticationServiceTest {
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("Missing OAuth2 datasource");
-        datasource.setOrganizationId(workspaceId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -129,7 +129,7 @@ public class AuthenticationServiceTest {
         PageDTO testPage = new PageDTO();
         testPage.setName("PageServiceTest TestApp");
         User apiUser = userService.findByEmail("api_user").block();
-        workspaceId = apiUser.getOrganizationIds().iterator().next();
+        workspaceId = apiUser.getWorkspaceIds().iterator().next();
 
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
@@ -142,7 +142,7 @@ public class AuthenticationServiceTest {
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("Valid datasource for OAuth2");
-        datasource.setOrganizationId(workspaceId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         OAuth2 authenticationDTO = new OAuth2();

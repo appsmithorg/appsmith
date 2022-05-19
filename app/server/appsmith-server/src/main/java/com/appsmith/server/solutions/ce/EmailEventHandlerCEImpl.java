@@ -61,7 +61,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
                         newPage -> newPage.getUnpublishedPage().getName())
                 )
                 .flatMap(objects -> workspaceRepository
-                        .findById(objects.getT1().getOrganizationId())
+                        .findById(objects.getT1().getWorkspaceId())
                         .map(workspace -> {
                             String pagename = objects.getT2();
                             applicationEventPublisher.publishEvent(
@@ -83,7 +83,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
                 .zipWith(newPageRepository.findById(thread.getPageId())
                         .map(newPage -> newPage.getUnpublishedPage().getName())
                 )
-                .flatMap(objects -> workspaceRepository.findById(objects.getT1().getOrganizationId())
+                .flatMap(objects -> workspaceRepository.findById(objects.getT1().getWorkspaceId())
                         .map(workspace -> {
                             applicationEventPublisher.publishEvent(
                                     new CommentThreadClosedEvent(

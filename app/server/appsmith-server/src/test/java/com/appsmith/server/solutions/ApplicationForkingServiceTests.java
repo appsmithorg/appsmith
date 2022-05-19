@@ -172,7 +172,7 @@ public class ApplicationForkingServiceTests {
 
         Application app1 = new Application();
         app1.setName("1 - public app");
-        app1.setOrganizationId(sourceWorkspace.getId());
+        app1.setWorkspaceId(sourceWorkspace.getId());
         app1.setForkingEnabled(true);
         app1 = applicationPageService.createApplication(app1).block();
         sourceAppId = app1.getId();
@@ -182,7 +182,7 @@ public class ApplicationForkingServiceTests {
         // Save action
         Datasource datasource = new Datasource();
         datasource.setName("Default Database");
-        datasource.setOrganizationId(app1.getOrganizationId());
+        datasource.setWorkspaceId(app1.getWorkspaceId());
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
@@ -280,10 +280,10 @@ public class ApplicationForkingServiceTests {
         return Mono
                 .when(
                         applicationService
-                                .findByOrganizationId(workspace.getId(), READ_APPLICATIONS)
+                                .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                                 .map(data.applications::add),
                         datasourceService
-                                .findAllByOrganizationId(workspace.getId(), READ_DATASOURCES)
+                                .findAllByWorkspaceId(workspace.getId(), READ_DATASOURCES)
                                 .map(data.datasources::add),
                         getActionsInWorkspace(workspace)
                                 .map(data.actions::add)
@@ -439,7 +439,7 @@ public class ApplicationForkingServiceTests {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationService.findByOrganizationId(workspace.getId(), READ_APPLICATIONS).next();
+                    return applicationService.findByWorkspaceId(workspace.getId(), READ_APPLICATIONS).next();
                 })
                 .cache();
 
@@ -565,13 +565,13 @@ public class ApplicationForkingServiceTests {
             // published mode should have the custom theme as we publish after forking the app
             assertThat(publishedModeTheme.isSystemTheme()).isFalse();
             // published mode theme will have no application id and org id set as the customizations were not saved
-            assertThat(publishedModeTheme.getOrganizationId()).isNullOrEmpty();
+            assertThat(publishedModeTheme.getWorkspaceId()).isNullOrEmpty();
             assertThat(publishedModeTheme.getApplicationId()).isNullOrEmpty();
 
             // edit mode theme should be a custom one
             assertThat(editModeTheme.isSystemTheme()).isFalse();
             // edit mode theme will have no application id and org id set as the customizations were not saved
-            assertThat(editModeTheme.getOrganizationId()).isNullOrEmpty();
+            assertThat(editModeTheme.getWorkspaceId()).isNullOrEmpty();
             assertThat(editModeTheme.getApplicationId()).isNullOrEmpty();
 
             // forked theme should have the same name as src theme
@@ -624,7 +624,7 @@ public class ApplicationForkingServiceTests {
             // edit mode theme should be system theme
             assertThat(editModeTheme.isSystemTheme()).isTrue();
             // edit mode theme will have no application id and org id set as it's system theme
-            assertThat(editModeTheme.getOrganizationId()).isNullOrEmpty();
+            assertThat(editModeTheme.getWorkspaceId()).isNullOrEmpty();
             assertThat(editModeTheme.getApplicationId()).isNullOrEmpty();
 
             // forked theme should be default theme
@@ -684,14 +684,14 @@ public class ApplicationForkingServiceTests {
             assertThat(publishedModeTheme.isSystemTheme()).isFalse();
 
             // published mode theme will have no application id and org id set as it's a copy
-            assertThat(publishedModeTheme.getOrganizationId()).isNullOrEmpty();
+            assertThat(publishedModeTheme.getWorkspaceId()).isNullOrEmpty();
             assertThat(publishedModeTheme.getApplicationId()).isNullOrEmpty();
 
             // edit mode theme should be a custom one
             assertThat(editModeTheme.isSystemTheme()).isFalse();
 
             // edit mode theme will have application id and org id set as the customizations were saved
-            assertThat(editModeTheme.getOrganizationId()).isNullOrEmpty();
+            assertThat(editModeTheme.getWorkspaceId()).isNullOrEmpty();
             assertThat(editModeTheme.getApplicationId()).isNullOrEmpty();
 
             // forked theme should have the same name as src theme
@@ -754,7 +754,7 @@ public class ApplicationForkingServiceTests {
 
     private Flux<ActionDTO> getActionsInWorkspace(Workspace workspace) {
         return applicationService
-                .findByOrganizationId(workspace.getId(), READ_APPLICATIONS)
+                .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                 // fetch the unpublished pages
                 .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
                 .flatMap(page -> newActionService.getUnpublishedActionsExceptJs(new LinkedMultiValueMap<>(
@@ -793,7 +793,7 @@ public class ApplicationForkingServiceTests {
                                 // Create a branch application
                                 Application branchApp = new Application();
                                 branchApp.setName("app_" + uniqueString);
-                                return applicationPageService.createApplication(branchApp, srcApplication.getOrganizationId())
+                                return applicationPageService.createApplication(branchApp, srcApplication.getWorkspaceId())
                                         .zipWith(Mono.just(srcApplication));
                             });
                 })
