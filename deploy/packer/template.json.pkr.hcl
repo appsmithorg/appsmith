@@ -23,10 +23,10 @@ variable "vpc_id" {
 }
 
 # Configuration - DO token
-variable "token" {
-  type    = string
-  default = "${env("DIGITALOCEAN_TOKEN")}"
-}
+#variable "token" {
+#  type    = string
+#  default = "${env("DIGITALOCEAN_TOKEN")}"
+#}
 
 
 # "timestamp" template function replacement
