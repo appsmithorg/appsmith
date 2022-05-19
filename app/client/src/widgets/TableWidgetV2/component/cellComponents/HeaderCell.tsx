@@ -1,11 +1,13 @@
-import React from "react";
+import React, { createRef, useEffect, useState } from "react";
 import { AnyStyledComponent } from "styled-components";
+import { Tooltip } from "@blueprintjs/core";
 
 import { Colors } from "constants/Colors";
 import styled from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 import { CellAlignment, JUSTIFY_CONTENT } from "../Constants";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
+import { TooltipContentWrapper } from "../TableStyledWrappers";
 
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   padding: 0;
@@ -47,6 +49,54 @@ const StyledEditIcon = styled(EditIcon)`
   margin-right: 3px;
 `;
 
+const TitleWrapper = styled.div`
+  &,
+  span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+`;
+
+type TitleProps = {
+  children: React.ReactNode;
+  tableWidth?: number;
+};
+
+function Title(props: TitleProps) {
+  const ref = createRef<HTMLDivElement>();
+  const [useToolTip, updateToolTip] = useState(false);
+  useEffect(() => {
+    const element = ref.current;
+    if (element && element.offsetWidth < element.scrollWidth) {
+      updateToolTip(true);
+    } else {
+      updateToolTip(false);
+    }
+  }, [ref.current, ref.current?.scrollWidth]);
+
+  return (
+    <TitleWrapper ref={ref}>
+      {useToolTip && props.children ? (
+        <Tooltip
+          autoFocus={false}
+          content={
+            <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
+              {props.children}
+            </TooltipContentWrapper>
+          }
+          hoverOpenDelay={1000}
+          position="top"
+        >
+          {props.children}
+        </Tooltip>
+      ) : (
+        props.children
+      )}
+    </TitleWrapper>
+  );
+}
+
 export function HeaderCell(props: {
   columnName: string;
   columnIndex: number;
@@ -86,7 +136,7 @@ export function HeaderCell(props: {
           horizontalAlignment={column.columnProperties.horizontalAlignment}
         >
           {isColumnEditable && <StyledEditIcon />}
-          <div>{props.columnName}</div>
+          <Title>{props.columnName}</Title>
         </ColumnNameContainer>
       </div>
       {props.isAscOrder !== undefined ? (

@@ -191,8 +191,6 @@ export const updateColumnOrderHook = (
     const newId = propertyValue.id;
     if (newId) {
       // sets default value for some properties
-      propertyValue.buttonColor = Colors.GREEN;
-      propertyValue.menuColor = Colors.GREEN;
       propertyValue.labelColor = Colors.WHITE;
 
       propertiesToUpdate.push({
