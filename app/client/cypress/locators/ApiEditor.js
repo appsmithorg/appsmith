@@ -24,4 +24,9 @@ export default {
   bodyType: ".t--apiFormPostBodyType",
   bodyTab: "Body",
   headersTab: "Header",
+  jsonResponseTab: "[data-cy=t--tab-JSON]",
+  tableResponseTab: "[data-cy=t--tab-TABLE]",
+  rawResponseTab: "[data-cy=t--tab-RAW]",
+  datasourcesRightPane: "[data-cy=t--tab-datasources]",
+  connectionsRightPane: "[data-cy=t--tab-Connections]",
 };
