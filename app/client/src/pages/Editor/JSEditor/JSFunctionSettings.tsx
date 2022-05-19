@@ -150,7 +150,7 @@ function SettingsItem({ action }: SettingsItemProps) {
       <SettingColumn grow>
         <span>{action.name}</span>
       </SettingColumn>
-      <SettingColumn>
+      <SettingColumn className={`${action.name}-on-page-load-setting`}>
         <RadioComponent
           backgroundColor="#191919"
           defaultValue={executeOnPageLoad}
