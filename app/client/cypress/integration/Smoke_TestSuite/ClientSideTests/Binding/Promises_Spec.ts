@@ -6,7 +6,7 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   apiPage = ObjectsRegistry.ApiPage;
 
-describe("Validate basic operations on Entity explorer JSEditor structure", () => {
+describe("Validate basic Promises", () => {
 
   it("1. Verify storeValue via .then via direct Promises", () => {
     let date = new Date().toDateString();
@@ -231,7 +231,7 @@ Agify.run({ person: 'Scripty' }),
 Christmas.run()
 ]
 showAlert("Running all api's", "warning");
-return Promise.all(allFuncs).then(() => 
+return Promise.all(allFuncs).then(() =>
 showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Please check your api's again", "error")); `)
 
     ee.SelectEntityByName("Button1", 'WIDGETS');

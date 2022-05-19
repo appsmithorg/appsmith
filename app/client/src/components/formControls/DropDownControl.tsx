@@ -20,7 +20,7 @@ const DropdownSelect = styled.div`
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
-    let width = "20vw";
+    let width = "35vw";
     if (
       "customStyles" in this.props &&
       !!this.props.customStyles &&
