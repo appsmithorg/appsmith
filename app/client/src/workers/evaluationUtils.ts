@@ -119,6 +119,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
   }
 
   const propertyPath = convertPathToString(difference.path);
+  // if (propertyPath === "Api1.data") debugger;
   //we do not need evaluate these paths coz these are internal paths
   const isUninterestingPathForUpdateTree = isUninterestingChangeForDependencyUpdate(
     propertyPath,
@@ -213,6 +214,11 @@ export const translateDiffEventToDataTreeDiffEvent = (
             },
           };
         });
+        if (Array.isArray(difference.lhs)) {
+          result = result.concat(
+            translateDiffRemoveArray(propertyPath, difference.lhs),
+          );
+        }
       }
       break;
     }
@@ -229,6 +235,34 @@ export const translateDiffEventToDataTreeDiffEvent = (
       break;
     }
   }
+  return result;
+};
+
+export const translateDiffRemoveArray = (
+  propertyPath: string,
+  array: unknown[],
+) => {
+  const result: DataTreeDiff[] = [];
+  array.forEach((data, index) => {
+    const path = `${propertyPath}[${index}]`;
+    result.push({
+      event: DataTreeDiffEvent.DELETE,
+      payload: {
+        propertyPath: path,
+      },
+    });
+    if (isTrueObject(data)) {
+      Object.keys(data).forEach((diffKey) => {
+        const objectPropertyPath = `${path}.${diffKey}`;
+        result.push({
+          event: DataTreeDiffEvent.DELETE,
+          payload: {
+            propertyPath: objectPropertyPath,
+          },
+        });
+      });
+    }
+  });
   return result;
 };
 
