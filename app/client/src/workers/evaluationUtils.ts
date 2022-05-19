@@ -197,6 +197,15 @@ export const translateDiffEventToDataTreeDiffEvent = (
             },
           };
         });
+
+        // when an object is being replaced by an array
+        // list all new array accessors that are being added
+        // so dependencies will be created based on existing bindings
+        if (Array.isArray(difference.rhs)) {
+          result = result.concat(
+            translateDiffAddArray(propertyPath, difference.rhs),
+          );
+        }
       } else if (
         !isTrueObject(difference.lhs) &&
         isTrueObject(difference.rhs)
@@ -214,6 +223,9 @@ export const translateDiffEventToDataTreeDiffEvent = (
             },
           };
         });
+        // when an array is being replaced by an object
+        // remove all array accessors that are deleted
+        // so dependencies by existing bindings are removed
         if (Array.isArray(difference.lhs)) {
           result = result.concat(
             translateDiffRemoveArray(propertyPath, difference.lhs),
@@ -247,6 +259,23 @@ export const translateDiffRemoveArray = (
     const path = `${propertyPath}[${index}]`;
     result.push({
       event: DataTreeDiffEvent.DELETE,
+      payload: {
+        propertyPath: path,
+      },
+    });
+  });
+  return result;
+};
+
+export const translateDiffAddArray = (
+  propertyPath: string,
+  array: unknown[],
+) => {
+  const result: DataTreeDiff[] = [];
+  array.forEach((data, index) => {
+    const path = `${propertyPath}[${index}]`;
+    result.push({
+      event: DataTreeDiffEvent.NEW,
       payload: {
         propertyPath: path,
       },
