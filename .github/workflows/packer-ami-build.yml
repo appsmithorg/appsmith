@@ -3,54 +3,62 @@
 name: Packer
 
 on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
   push:
 
 jobs:
   packer:
     runs-on: ubuntu-latest
-    name: packer
+    name: ami-packer-build
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+      # - name: Checkout Repository
+      #   uses: actions/checkout@v2
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1
+      # - name: Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v1
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ap-south-1
 
-      - name: Install python
-        uses: actions/setup-python@v3
-        with:
-          python-version: '3.8'
+      # - name: Install python
+      #   uses: actions/setup-python@v3
+      #   with:
+      #     python-version: '3.8'
 
-      - name: Install ansible
-        run: pip install ansible
+      # - name: Install ansible
+      #   run: pip install ansible
       
-      - name: Install Packer
+      # - name: Install Packer
+      #   run: |
+      #     sudo apt-get update; sudo apt-get install -y curl gnupg software-properties-common ;
+      #     curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - ;
+      #     sudo apt-add-repository -y "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" ;
+      #     sudo apt-get update && sudo apt-get install -y packer;
+      - name: Get Github action
         run: |
-          sudo apt-get update; sudo apt-get install -y curl gnupg software-properties-common ;
-          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - ;
-          sudo apt-add-repository -y "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" ;
-          sudo apt-get update && sudo apt-get install -y packer;
+          echo "Ref: ${{ github.ref }}"
+          echo "event_name: ${{ github.event_name }}"
+          echo "review_state: ${{ github.review.state }}"
+          echo "Repo name: ${{ github.event.pull_request.head.repo.full_name }}"
 
-      - name: Build artifacts for Dev
-        if: github.event_name == 'pull_request_review'
-        run : |
-          cd deploy/packer;
-          packer build -var 'vpc_id=vpc-41b8bd29' -var 'subnet_id=subnet-26ac3f6a' template.json.pkr.hcl    
-
-      - name: Build artifacts for Prod
-        # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
-        # then we don't check for the PR approved state      
-        if: |
-          github.event_name == 'workflow_dispatch' ||
-          github.event_name == 'push' ||
-          (github.event_name == 'pull_request_review' &&
-          github.event.review.state == 'approved' &&
-          github.event.pull_request.head.repo.full_name == github.repository)
-        run : |
-          cd deploy/packer;
-          packer build -var 'vpc_id=vpc-35b1475e' -var 'subnet_id=subnet-0a35fb5a426e1a461' template.json.pkr.hcl
+      # - name: Build artifacts for Prod and dev
+      #   if: (success() && github.ref == 'refs/heads/master') ||
+      #     ( always() &&
+      #     (
+      #     github.event_name == 'workflow_dispatch' ||
+      #     github.event_name == 'push' ||
+      #     (
+      #     github.event_name == 'pull_request_review' &&
+      #     github.event.review.state == 'approved' &&
+      #     github.event.pull_request.head.repo.full_name == github.repository
+      #     )
+      #     ) &&
+      #     github.ref == 'refs/heads/release'
+      #     )
+      #   run : |
+      #     cd deploy/packer;
+      #     packer build -var 'vpc_id=vpc-41b8bd29' -var 'subnet_id=subnet-26ac3f6a' template.json.pkr.hcl  
+      #     packer build -var 'vpc_id=vpc-35b1475e' -var 'subnet_id=subnet-0a35fb5a426e1a461' template.json.pkr.hcl
