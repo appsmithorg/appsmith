@@ -1,19 +1,14 @@
 import React, { createRef, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
-import { CellWrapper } from "../TableStyledWrappers";
+import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 import { CellAlignment, VerticalAlignment } from "../Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 
-const TooltipContentWrapper = styled.div<{ width: number }>`
-  word-break: break-all;
-  max-width: ${(props) => props.width}px;
-`;
-
 export const OpenNewTabIconWrapper = styled.div`
   left: 4px;
-  top: 2px;
+  top: -2px;
   position: relative;
 `;
 
@@ -54,7 +49,7 @@ function LinkWrapper(props: Props) {
     } else {
       updateToolTip(false);
     }
-  }, [ref]);
+  }, [ref.current]);
   return (
     <CellWrapper
       allowCellWrapping={props.allowCellWrapping}
