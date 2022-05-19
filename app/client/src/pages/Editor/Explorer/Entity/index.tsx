@@ -224,7 +224,7 @@ export const Entity = forwardRef(
         open(true);
         props.onToggle && props.onToggle(true);
       }
-    }, [props.isDefaultExpanded]);
+    }, [props.isDefaultExpanded, props.searchKeyword]);
     useEffect(() => {
       if (!props.searchKeyword && !props.isDefaultExpanded) {
         open(false);
