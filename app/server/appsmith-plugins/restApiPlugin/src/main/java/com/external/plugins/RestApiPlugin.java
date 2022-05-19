@@ -73,7 +73,7 @@ public class RestApiPlugin extends BasePlugin {
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
-            Boolean smartJsonSubstitution = this.smartSubstitutionUtils.isJsonSmartSubstitutionEnabled(properties);
+            Boolean smartJsonSubstitution = this.smartSubstitutionUtils.isSmartSubstitutionEnabled(properties);
             if (TRUE.equals(smartJsonSubstitution)) {
                 // Do smart replacements in JSON body
                 if (actionConfiguration.getBody() != null) {

@@ -3,6 +3,8 @@ package com.external.plugins;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.helpers.RequestCaptureFilter;
 import com.appsmith.external.models.ActionConfiguration;
@@ -29,9 +31,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInPropertyList;
+import static com.external.utils.BodyUtils.QUERY_VARIABLES_INDEX;
 import static com.external.utils.BodyUtils.convertToGraphQLPOSTBodyFormat;
 import static com.external.utils.BodyUtils.getGraphQLQueryParamsForBodyAndVariables;
 import static com.external.utils.BodyUtils.validateBodyAndVariablesSyntax;
+import static java.lang.Boolean.TRUE;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class GraphQLPlugin extends BasePlugin {
 
@@ -70,6 +77,33 @@ public class GraphQLPlugin extends BasePlugin {
 
             // TODO: handle smart substitution for query body and query variables
             // TODO: handle cursor pagination
+
+            Boolean smartSubstitution = this.smartSubstitutionUtils.isSmartSubstitutionEnabled(properties);
+            if (TRUE.equals(smartSubstitution)) {
+
+                /* Apply smart JSON substitution logic to mustache binding values in query variables */
+                String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
+                if (!isEmpty(variables)) {
+                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(variables);
+                    // Replace all the bindings with a ? as expected in a prepared statement.
+                    String updatedVariables = MustacheHelper.replaceMustacheWithPlaceholder(variables, mustacheKeysInOrder);
+
+                    try {
+                        updatedVariables = (String) smartSubstitutionOfBindings(updatedVariables,
+                                mustacheKeysInOrder,
+                                executeActionDTO.getParams(),
+                                parameters);
+                        setValueSafelyInPropertyList(properties, QUERY_VARIABLES_INDEX, updatedVariables);
+                    } catch (AppsmithPluginException e) {
+                        ActionExecutionResult errorResult = new ActionExecutionResult();
+                        errorResult.setIsExecutionSuccess(false);
+                        errorResult.setErrorInfo(e);
+                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                        return Mono.just(errorResult);
+                    }
+
+                }
+            }
 
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
@@ -203,6 +237,17 @@ public class GraphQLPlugin extends BasePlugin {
             return triggerUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
                     objectMapper,
                     hintMessages, errorResult, requestCaptureFilter);
+        }
+
+        @Override
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
+                                             Object... args) {
+            String jsonBody = (String) input;
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);
         }
     }
 }

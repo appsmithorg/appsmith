@@ -316,4 +316,25 @@ public class PluginUtils {
         JSONParser parser = new JSONParser(MODE_PERMISSIVE);
         return (JSONObject) parser.parse(body);
     }
+
+    public static void setValueSafelyInPropertyList(List<Property> properties, int index, Object value) throws AppsmithPluginException {
+        if (properties == null) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_ERROR,
+                    "Appsmith server encountered an unexpected error: property list is null. Please reach out to " +
+                            "our customer support to resolve this."
+            );
+        }
+
+        if (index < 0 || index > properties.size() - 1) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_ERROR,
+                    "Appsmith server encountered an unexpected error: index value out or range: index: " + index +
+                            ", property list size: " + properties.size() + ". Please reach out to our customer " +
+                            "support to resolve this."
+            );
+        }
+
+        properties.get(index).setValue(value);
+    }
 }
