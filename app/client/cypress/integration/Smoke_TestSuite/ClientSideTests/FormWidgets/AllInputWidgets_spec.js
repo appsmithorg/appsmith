@@ -98,7 +98,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
   describe(`${testConfig.widgetName} widget test for storeValue save, Api Call params`, () => {
     it(`1. DragDrop widget & Label/Text widgets`, () => {
       if (index === 0) {
-        // configureApi();
+        configureApi();
 
         cy.get(explorer.addWidget).click();
       }
@@ -158,7 +158,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
       });
     });
 
-    it.skip("3. Api params getting correct input values", () => {
+    it("3. Api params getting correct input values", () => {
       // Set onClick action, storing value
       cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
       cy.get(PROPERTY_SELECTOR.onClick)
@@ -184,8 +184,9 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
         cy.get(getWidgetSelector(WIDGET.BUTTON_WIDGET)).click();
 
         // Assert if the Api request contains the expected value
+
         cy.wait("@postExecute").then((interception) => {
-          expect(interception.request.body.data.request.url).to.equal(
+          expect(interception.response.body.data.request.url).to.equal(
             `https://mock-api.appsmith.com/users?user=${expected}`,
           );
         });
