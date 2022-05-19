@@ -251,17 +251,6 @@ export const translateDiffRemoveArray = (
         propertyPath: path,
       },
     });
-    if (isTrueObject(data)) {
-      Object.keys(data).forEach((diffKey) => {
-        const objectPropertyPath = `${path}.${diffKey}`;
-        result.push({
-          event: DataTreeDiffEvent.DELETE,
-          payload: {
-            propertyPath: objectPropertyPath,
-          },
-        });
-      });
-    }
   });
   return result;
 };
