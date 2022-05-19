@@ -19,6 +19,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Document
+@Deprecated
 public class Organization extends BaseDomain {
 
     private String domain;
@@ -30,7 +31,7 @@ public class Organization extends BaseDomain {
 
     private String email;
 
-    private Set<OrganizationPlugin> plugins;
+    private Set<WorkspacePlugin> plugins;
 
     private String slug;
 
