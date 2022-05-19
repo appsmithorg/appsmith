@@ -71,6 +71,7 @@ const themeReducer = createImmerReducer(initialState, {
   ) => {
     state.themesLoading = false;
     state.themes = action.payload;
+    state.stack = [];
   },
   [ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS]: (
     state: AppThemingState,

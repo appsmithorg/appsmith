@@ -446,6 +446,7 @@ export const PARSE_JS_FUNCTION_ERROR = (message: string) =>
   `Syntax error: ${message}`;
 
 export const EXECUTING_FUNCTION = () => `Executing function`;
+export const UPDATING_JS_COLLECTION = () => `Updating...`;
 export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
 export const EXPORT_DEFAULT_BEGINNING = () =>

@@ -31,6 +31,7 @@ import Dialog from "components/ads/DialogComponent";
 import { Classes } from "@blueprintjs/core";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_HEADER} {
@@ -202,6 +203,7 @@ const StatusbarWrapper = styled.div`
 function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
   const theme = useTheme() as Theme;
   const onClick = useCallback(() => {
+    AnalyticsUtil.logEvent("GS_IMPORT_VIA_GIT_CARD_CLICK");
     props.handler && props.handler();
   }, []);
   const message = createMessage(IMPORT_APP_FROM_GIT_MESSAGE);
