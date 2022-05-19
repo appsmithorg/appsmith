@@ -143,8 +143,7 @@ import {
   TreeNode,
 } from "utils/treeManipulationHelpers/dynamicHeightReflow";
 import { storeDynamicHeightLayoutTreeAction } from "ce/actions/dynamicHeightActions";
-// eslint-disable-next-line prettier/prettier
-import type { DynamicHeightLayoutTreeReduxState } from "reducers/entityReducers/dynamicHeightReducers/dynamicHeightLayoutTreeReducer";
+import { DynamicHeightLayoutTreeReduxState } from "reducers/entityReducers/dynamicHeightReducers/dynamicHeightLayoutTreeReducer";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -438,16 +437,19 @@ export function getPropertiesToUpdate(
   const propertyUpdates: Record<string, unknown> = {
     ...updates,
   };
-  const currentDynamicTriggerPathList: DynamicPath[] =
-    getWidgetDynamicTriggerPathList(widget);
-  const currentDynamicBindingPathList: DynamicPath[] =
-    getEntityDynamicBindingPathList(widget);
+  const currentDynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
+    widget,
+  );
+  const currentDynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
+    widget,
+  );
   const dynamicTriggerPathListUpdates: DynamicPathUpdate[] = [];
   const dynamicBindingPathListUpdates: DynamicPathUpdate[] = [];
 
   const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(widget.type);
-  const { triggerPaths: triggerPathsFromPropertyConfig = {} } =
-    getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
+  const {
+    triggerPaths: triggerPathsFromPropertyConfig = {},
+  } = getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
 
   Object.keys(updatePaths).forEach((propertyPath) => {
     const propertyValue = _.get(updates, propertyPath);
@@ -600,12 +602,15 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
 
 function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
   try {
-    let dynamicTriggerPathList: DynamicPath[] =
-      getWidgetDynamicTriggerPathList(widget);
-    let dynamicBindingPathList: DynamicPath[] =
-      getEntityDynamicBindingPathList(widget);
-    let dynamicPropertyPathList: DynamicPath[] =
-      getWidgetDynamicPropertyPathList(widget);
+    let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
+      widget,
+    );
+    let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
+      widget,
+    );
+    let dynamicPropertyPathList: DynamicPath[] = getWidgetDynamicPropertyPathList(
+      widget,
+    );
 
     paths.forEach((propertyPath) => {
       dynamicTriggerPathList = dynamicTriggerPathList.filter((dynamicPath) => {
@@ -863,7 +868,7 @@ export function calculateNewWidgetPosition(
  * @param copiedLeftMostColumn left column of the left most copied widget
  * @returns
  */
-const getNewPositions = function* (
+const getNewPositions = function*(
   copiedWidgetGroups: CopiedWidgetGroup[],
   mouseLocation: { x: number; y: number },
   copiedTotalWidth: number,
@@ -1064,8 +1069,9 @@ function* getNewPositionsBasedOnMousePositions(
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
 ) {
-  let { canvasDOM, canvasId, containerWidget } =
-    getDefaultCanvas(canvasWidgets);
+  let { canvasDOM, canvasId, containerWidget } = getDefaultCanvas(
+    canvasWidgets,
+  );
 
   //if the selected widget is a layout widget then change the pasting canvas.
   if (selectedWidgets.length === 1 && isDropTarget(selectedWidgets[0].type)) {
@@ -1187,8 +1193,7 @@ function* pasteWidgetSaga(
   const evalTree: DataTree = yield select(getDataTree);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   let widgets: CanvasWidgetsReduxState = canvasWidgets;
-  const selectedWidget: FlattenedWidgetProps<undefined> =
-    yield getSelectedWidgetWhenPasting();
+  const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
 
   let pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
     canvasWidgets,
@@ -1266,7 +1271,7 @@ function* pasteWidgetSaga(
 
   yield all(
     copiedWidgetGroups.map((copiedWidgets) =>
-      call(function* () {
+      call(function*() {
         // Don't try to paste if there is no copied widget
         if (!copiedWidgets) return;
 
@@ -1395,8 +1400,12 @@ function* pasteWidgetSaga(
 
           // If it is the copied widget, update position properties
           if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
-            const { bottomRow, leftColumn, rightColumn, topRow } =
-              newWidgetPosition;
+            const {
+              bottomRow,
+              leftColumn,
+              rightColumn,
+              topRow,
+            } = newWidgetPosition;
             widget.leftColumn = leftColumn;
             widget.topRow = topRow;
             widget.bottomRow = bottomRow;
@@ -1568,12 +1577,16 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
       ...widgetConfig,
     };
 
-    const { bottomRow, leftColumn, rightColumn, topRow } =
-      yield calculateNewWidgetPosition(
-        newWidget as WidgetProps,
-        MAIN_CONTAINER_WIDGET_ID,
-        widgets,
-      );
+    const {
+      bottomRow,
+      leftColumn,
+      rightColumn,
+      topRow,
+    } = yield calculateNewWidgetPosition(
+      newWidget as WidgetProps,
+      MAIN_CONTAINER_WIDGET_ID,
+      widgets,
+    );
 
     newWidget = {
       ...newWidget,
@@ -1643,6 +1656,7 @@ export function* updateWidgetDynamicHeightSaga(
   const start = performance.now();
   const { height, widgetId } = action.payload;
 
+  console.log("Dynamic Height update saga:", { height }, { widgetId });
   const widgetsToUpdate: UpdateWidgetsPayload = {};
   const delta: Record<string, number> = {};
   // walk up the tree
@@ -1685,8 +1699,9 @@ export function* updateWidgetDynamicHeightSaga(
     }
     parentId = parent.parentId;
   }
-  const dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState =
-    yield select(getDynamicHeightLayoutTree);
+  const dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState = yield select(
+    getDynamicHeightLayoutTree,
+  );
   const allWidgetsToUpdate = computeChangeInPositionBasedOnDelta(
     dynamicHeightLayoutTree,
     delta,
@@ -1704,8 +1719,24 @@ export function* updateWidgetDynamicHeightSaga(
           propertyValue: allWidgetsToUpdate[widgetId].topRow,
         },
       );
+    } else {
+      widgetsToUpdate[widgetId] = [
+        {
+          propertyPath: "bottomRow",
+          propertyValue: allWidgetsToUpdate[widgetId].bottomRow,
+        },
+        {
+          propertyPath: "topRow",
+          propertyValue: allWidgetsToUpdate[widgetId].topRow,
+        },
+      ];
     }
   }
+  console.log(
+    "Dynamic Height: widgetsToUpdate:",
+    { allWidgetsToUpdate },
+    { widgetsToUpdate },
+  );
 
   yield put({
     type: ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
@@ -1877,9 +1908,16 @@ function* generateTreeForDynamicHeightComputations() {
   // widget positions and sizes
   let tree: Record<string, TreeNode> = {};
   for (const containerId in occupiedSpaces) {
+    console.log(
+      "Dynamic height generating tree:",
+      { occupiedSpaces },
+      { containerId },
+    );
     if (occupiedSpaces[containerId])
       tree = Object.assign({}, tree, generateTree(occupiedSpaces[containerId]));
   }
+
+  console.log("Dynamic Height: Tree computations", { tree });
 
   yield put(storeDynamicHeightLayoutTreeAction(tree));
   // TODO (abhinav): Push this analytics to sentry|segment?

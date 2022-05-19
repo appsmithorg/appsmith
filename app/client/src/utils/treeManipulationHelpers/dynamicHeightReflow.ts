@@ -92,6 +92,12 @@ function getEffectedWidgets(
     (effectedWidgets as string[]) = (effectedWidgets as string[]).concat(
       getEffectedWidgets(belowId, tree, effectedWidgets),
     );
+    (effectedWidgets as string[]).push(belowId);
+    console.log("Dynamic height, getting effected widgets:", {
+      belows,
+      belowId,
+      effectedWidgets,
+    });
   });
   return effectedWidgets;
 }
@@ -138,8 +144,21 @@ export function computeChangeInPositionBasedOnDelta(
     const existingBottomRow = hasAlreadyRepositioned
       ? repositionedBoxes[boxId].bottomRow
       : tree[boxId].bottomRow;
-    repositionedBoxes[boxId].bottomRow = existingBottomRow + delta[boxId];
+    if (!hasAlreadyRepositioned) {
+      repositionedBoxes[boxId] = {
+        bottomRow: existingBottomRow + delta[boxId],
+        topRow: tree[boxId].topRow,
+      };
+    } else {
+      repositionedBoxes[boxId].bottomRow = existingBottomRow + delta[boxId];
+    }
   }
+
+  console.log("Dynamic Height computing delta:", {
+    delta,
+    repositionedBoxes,
+    tree,
+  });
 
   // Worst case scenario : O((n*m*m) + o + n)
   // Looks like, I have forgotten most of the bigO stuff.

@@ -59,6 +59,7 @@ abstract class BaseWidget<
   K extends WidgetState
 > extends Component<T, K> {
   static contextType = EditorContext;
+  contentRef = React.createRef<HTMLDivElement>();
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
@@ -169,6 +170,11 @@ abstract class BaseWidget<
   updateDynamicHeight(height: number): void {
     const shouldUpdate = this.shouldUpdateDynamicHeight(height);
 
+    console.log(
+      "Dynamic Height: BaseWidget updateDynamicHeight:",
+      { height },
+      { shouldUpdate },
+    );
     const { updateWidgetDynamicHeight } = this.context;
     const { widgetId } = this.props;
     shouldUpdate && updateWidgetDynamicHeight(widgetId, height);
@@ -217,7 +223,12 @@ abstract class BaseWidget<
 
   /* eslint-disable @typescript-eslint/no-empty-function */
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  componentDidUpdate(prevProps: T) {}
+  componentDidUpdate(prevProps: T) {
+    const expectedHeight = this.contentRef.current?.scrollHeight;
+    if (expectedHeight !== null && expectedHeight !== undefined) {
+      this.updateDynamicHeight(expectedHeight);
+    }
+  }
 
   componentDidMount(): void {}
   /* eslint-enable @typescript-eslint/no-empty-function */

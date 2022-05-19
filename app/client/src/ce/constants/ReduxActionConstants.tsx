@@ -722,8 +722,7 @@ export const ReduxActionTypes = {
   SET_DYNAMIC_HEIGHT_LAYOUT_TREE: "SET_DYNAMIC_HEIGHT_LAYOUT_TREE",
 };
 
-export type ReduxActionType =
-  typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
+export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes = {
   DELETE_BRANCH_WARNING: "DELETE_BRANCH_WARNING",
@@ -929,8 +928,7 @@ export const WidgetReduxActionTypes: { [key: string]: string } = {
   WIDGET_UPDATE_PROPERTY: "WIDGET_UPDATE_PROPERTY",
 };
 
-export type ReduxActionErrorType =
-  typeof ReduxActionErrorTypes[keyof typeof ReduxActionErrorTypes];
+export type ReduxActionErrorType = typeof ReduxActionErrorTypes[keyof typeof ReduxActionErrorTypes];
 
 export interface ReduxAction<T> {
   type: ReduxActionType | ReduxActionErrorType;
