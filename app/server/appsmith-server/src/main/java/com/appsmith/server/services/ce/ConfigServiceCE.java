@@ -20,7 +20,7 @@ public interface ConfigServiceCE {
 
     Mono<String> getInstanceId();
 
-    Mono<String> getTemplateOrganizationId();
+    Mono<String> getTemplateWorkspaceId();
 
     Flux<Application> getTemplateApplications();
 

@@ -78,7 +78,7 @@ const TabbedViewWrapper = styled.div`
 
   &&& {
     ul.react-tabs__tab-list {
-      padding: 0px ${(props) => props.theme.spaces[12]}px;
+      padding: 0px ${(props) => props.theme.spaces[11]}px;
       height: ${TAB_MIN_HEIGHT};
     }
   }
@@ -183,6 +183,10 @@ function JSResponseView(props: Props) {
     currentFunction && currentFunction.id && currentFunction.id in responses
       ? responses[currentFunction.id]
       : "";
+  // parse error found while trying to execute function
+  const hasExecutionParseErrors = responseStatus === JSResponseState.IsDirty;
+  // error found while trying to parse JS Object
+  const hasJSObjectParseError = errors.length > 0;
 
   const onDebugClick = useCallback(() => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
@@ -220,9 +224,14 @@ function JSResponseView(props: Props) {
       title: "Response",
       panelComponent: (
         <>
-          {(errors.length > 0 ||
-            responseStatus === JSResponseState.IsDirty) && (
-            <HelpSection className=".t--js-response-parse-error-call-out">
+          {(hasExecutionParseErrors || hasJSObjectParseError) && (
+            <HelpSection
+              className={`${
+                hasJSObjectParseError
+                  ? "t--js-response-parse-error-call-out"
+                  : "t--function-execution-parse-error-call-out"
+              }`}
+            >
               <StyledCallout
                 fill
                 label={
@@ -231,12 +240,12 @@ function JSResponseView(props: Props) {
                   </FailedMessage>
                 }
                 text={
-                  responseStatus === JSResponseState.IsDirty
-                    ? createMessage(
+                  hasJSObjectParseError
+                    ? createMessage(PARSING_ERROR)
+                    : createMessage(
                         JS_ACTION_EXECUTION_ERROR,
                         `${jsObject.name}.${currentFunction?.name}`,
                       )
-                    : createMessage(PARSING_ERROR)
                 }
                 variant={Variant.danger}
               />

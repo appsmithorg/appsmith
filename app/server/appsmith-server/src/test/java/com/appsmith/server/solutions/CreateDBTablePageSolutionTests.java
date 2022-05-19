@@ -16,7 +16,7 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
@@ -32,7 +32,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
@@ -74,7 +74,7 @@ public class CreateDBTablePageSolutionTests {
     NewPageService newPageService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     DatasourceService datasourceService;
@@ -98,7 +98,7 @@ public class CreateDBTablePageSolutionTests {
 
     private static Datasource testDatasource = new Datasource();
 
-    private static Organization testOrg;
+    private static Workspace testWorkspace;
 
     private static Application testApp;
 
@@ -171,17 +171,17 @@ public class CreateDBTablePageSolutionTests {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        if (testOrg == null) {
-            Organization organization = new Organization();
-            organization.setName("Create-DB-Table-Page-Org");
-            testOrg = organizationService.create(organization).block();
+        if (testWorkspace == null) {
+            Workspace workspace = new Workspace();
+            workspace.setName("Create-DB-Table-Page-Org");
+            testWorkspace = workspaceService.create(workspace).block();
         }
 
         if (testApp == null) {
             Application testApplication = new Application();
             testApplication.setName("DB-Table-Page-Test-Application");
-            testApplication.setOrganizationId(testOrg.getId());
-            testApp = applicationPageService.createApplication(testApplication, testOrg.getId()).block();
+            testApplication.setOrganizationId(testWorkspace.getId());
+            testApp = applicationPageService.createApplication(testApplication, testWorkspace.getId()).block();
         }
 
         if (StringUtils.isEmpty(testDatasource.getId())) {
@@ -207,7 +207,7 @@ public class CreateDBTablePageSolutionTests {
         );
             structure.setTables(tables);
             testDatasource.setPluginId(postgreSQLPlugin.getId());
-            testDatasource.setOrganizationId(testOrg.getId());
+            testDatasource.setOrganizationId(testWorkspace.getId());
             testDatasource.setName("CRUD-Page-Table-DS");
             testDatasource.setStructure(structure);
             datasourceConfiguration.setUrl("http://test.com");
@@ -242,7 +242,7 @@ public class CreateDBTablePageSolutionTests {
     public void createPageWithInvalidDatasourceTest() {
 
         Datasource invalidDatasource = new Datasource();
-        invalidDatasource.setOrganizationId(testOrg.getId());
+        invalidDatasource.setOrganizationId(testWorkspace.getId());
         invalidDatasource.setName("invalid_datasource");
         invalidDatasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
@@ -322,7 +322,7 @@ public class CreateDBTablePageSolutionTests {
         GitApplicationMetadata gitData = new GitApplicationMetadata();
         gitData.setBranchName("crudTestBranch");
         gitConnectedApp.setGitApplicationMetadata(gitData);
-        applicationPageService.createApplication(gitConnectedApp, testOrg.getId())
+        applicationPageService.createApplication(gitConnectedApp, testWorkspace.getId())
                 .flatMap(application -> {
                     application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                     gitData.setDefaultApplicationId(application.getId());
@@ -330,7 +330,7 @@ public class CreateDBTablePageSolutionTests {
                             .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(tuple -> importExportApplicationService.importApplicationInOrganization(testOrg.getId(), tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(testWorkspace.getId(), tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                 .block();
 
         resource.setApplicationId(gitData.getDefaultApplicationId());
@@ -492,7 +492,7 @@ public class CreateDBTablePageSolutionTests {
                     pluginName.append(plugin.getName());
                     Datasource datasource = new Datasource();
                     datasource.setPluginId(plugin.getId());
-                    datasource.setOrganizationId(testOrg.getId());
+                    datasource.setOrganizationId(testWorkspace.getId());
                     datasource.setName("MySql-CRUD-Page-Table-With-Less-Columns-DS");
                     datasource.setStructure(structure);
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -563,7 +563,7 @@ public class CreateDBTablePageSolutionTests {
                 pluginName.append(plugin.getName());
                 Datasource datasource = new Datasource();
                 datasource.setPluginId(plugin.getId());
-                datasource.setOrganizationId(testOrg.getId());
+                datasource.setOrganizationId(testWorkspace.getId());
                 datasource.setName("MySql-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
                 datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -627,7 +627,7 @@ public class CreateDBTablePageSolutionTests {
             .flatMap(plugin -> {
                 Datasource datasource = new Datasource();
                 datasource.setPluginId(plugin.getId());
-                datasource.setOrganizationId(testOrg.getId());
+                datasource.setOrganizationId(testWorkspace.getId());
                 datasource.setName("Redshift-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
                 datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -685,7 +685,7 @@ public class CreateDBTablePageSolutionTests {
             .flatMap(plugin -> {
                 Datasource datasource = new Datasource();
                 datasource.setPluginId(plugin.getId());
-                datasource.setOrganizationId(testOrg.getId());
+                datasource.setOrganizationId(testWorkspace.getId());
                 datasource.setName("MSSql-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
                 datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -740,7 +740,7 @@ public class CreateDBTablePageSolutionTests {
             .flatMap(plugin -> {
                 Datasource datasource = new Datasource();
                 datasource.setPluginId(plugin.getId());
-                datasource.setOrganizationId(testOrg.getId());
+                datasource.setOrganizationId(testWorkspace.getId());
                 datasource.setName("Snowflake-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
                 datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -794,7 +794,7 @@ public class CreateDBTablePageSolutionTests {
             .flatMap(plugin -> {
                 Datasource datasource = new Datasource();
                 datasource.setPluginId(plugin.getId());
-                datasource.setOrganizationId(testOrg.getId());
+                datasource.setOrganizationId(testWorkspace.getId());
                 datasource.setName("S3-CRUD-Page-Table-DS");
                 datasource.setDatasourceConfiguration(datasourceConfiguration);
                 pluginName.append(plugin.getName());
@@ -862,7 +862,7 @@ public class CreateDBTablePageSolutionTests {
             .flatMap(plugin -> {
                 Datasource datasource = new Datasource();
                 datasource.setPluginId(plugin.getId());
-                datasource.setOrganizationId(testOrg.getId());
+                datasource.setOrganizationId(testWorkspace.getId());
                 datasource.setDatasourceConfiguration(datasourceConfiguration);
                 datasource.setName("Google-Sheet-CRUD-Page-Table-DS");
                 return datasourceService.create(datasource);
@@ -922,7 +922,7 @@ public class CreateDBTablePageSolutionTests {
             .flatMap(plugin -> {
                 Datasource datasource = new Datasource();
                 datasource.setPluginId(plugin.getId());
-                datasource.setOrganizationId(testOrg.getId());
+                datasource.setOrganizationId(testWorkspace.getId());
                 datasource.setName("Mongo-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
                 datasource.setDatasourceConfiguration(datasourceConfiguration);

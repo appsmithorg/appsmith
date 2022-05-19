@@ -252,7 +252,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     @Override
     public Mono<UserData> updateLastUsedAppAndOrgList(Application application) {
         return this.getForCurrentUser().flatMap(userData -> {
-            // set recently used organization ids
+            // set recently used workspace ids
             userData.setRecentlyUsedOrgIds(
                     addIdToRecentList(userData.getRecentlyUsedOrgIds(), application.getOrganizationId(), 10)
             );
@@ -309,14 +309,14 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     }
 
     /**
-     * Removes provided organization id and all other application id under that organization from the user data
-     * @param organizationId organization id
+     * Removes provided workspace id and all other application id under that workspace from the user data
+     * @param workspaceId workspace id
      * @return update result obtained from DB
      */
     @Override
-    public Mono<UpdateResult> removeRecentOrgAndApps(String userId, String organizationId) {
-        return applicationRepository.getAllApplicationId(organizationId).flatMap(appIdsList ->
-            repository.removeIdFromRecentlyUsedList(userId, organizationId, appIdsList)
+    public Mono<UpdateResult> removeRecentOrgAndApps(String userId, String workspaceId) {
+        return applicationRepository.getAllApplicationId(workspaceId).flatMap(appIdsList ->
+            repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList)
         );
     }
 }

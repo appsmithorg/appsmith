@@ -12,7 +12,7 @@ public class FieldName {
     public static final String PLUGIN_TYPE = "pluginType";
     public static final String COLLECTION_ID = "collectionId";
     public static final String ACTION_ID = "actionId";
-    public static String ORGANIZATION = "organization";
+    public static String WORKSPACE = "organization";
     public static String ID = "id";
     public static final String NAME = "name";
     public static String PAGE_ID = "pageId";
@@ -110,5 +110,5 @@ public class FieldName {
     public static final String DECRYPTED_FIELDS = "decryptedFields";
     public static final String THEME = "theme";
     public static final String EDIT_MODE_THEME = "editModeTheme";
-
+    public static final String FLOW_NAME = "flowName";
 }

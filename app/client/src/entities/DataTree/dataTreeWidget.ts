@@ -1,22 +1,28 @@
-import WidgetFactory from "utils/WidgetFactory";
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
-import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import _ from "lodash";
-
+import memoize from "micro-memoize";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { setOverridingProperty } from "./utils";
+import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
+import WidgetFactory from "utils/WidgetFactory";
 import {
-  OverridingPropertyPaths,
-  PropertyOverrideDependency,
-  OverridingPropertyType,
   DataTreeWidget,
   ENTITY_TYPE,
+  OverridingPropertyPaths,
+  OverridingPropertyType,
+  PropertyOverrideDependency,
 } from "./dataTreeFactory";
+import { setOverridingProperty } from "./utils";
 
-export const generateDataTreeWidget = (
+// We are splitting generateDataTreeWidget into two parts to memoize better as the widget doesn't change very often.
+// Widget changes only when dynamicBindingPathList changes.
+// Only meta properties change very often, for example typing in an input or selecting a table row.
+const generateDataTreeWidgetWithoutMeta = (
   widget: FlattenedWidgetProps,
-  widgetMetaProps: Record<string, unknown> = {},
-): DataTreeWidget => {
+): {
+  dataTreeWidgetWithoutMetaProps: DataTreeWidget;
+  overridingMetaPropsMap: Record<string, boolean>;
+  defaultMetaProps: Record<string, unknown>;
+} => {
   const derivedProps: any = {};
   const blockedDerivedProps: Record<string, true> = {};
   const unInitializedDefaultProps: Record<string, undefined> = {};
@@ -94,16 +100,6 @@ export const generateDataTreeWidget = (
     },
   );
 
-  const overridingMetaProps: Record<string, unknown> = {};
-
-  // overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
-  Object.entries(defaultMetaProps).forEach(([key, value]) => {
-    if (overridingMetaPropsMap[key]) {
-      overridingMetaProps[key] =
-        key in widgetMetaProps ? widgetMetaProps[key] : value;
-    }
-  });
-
   const {
     bindingPaths,
     reactivePaths,
@@ -134,12 +130,12 @@ export const generateDataTreeWidget = (
    *
    * Therefore spread is replaced with "merge" which merges objects recursively.
    */
-  return _.merge(
+  const dataTreeWidgetWithoutMetaProps = _.merge(
     {},
     widget,
     unInitializedDefaultProps,
     defaultMetaProps,
-    widgetMetaProps,
+    // widgetMetaProps,
     derivedProps,
     {
       defaultProps,
@@ -149,7 +145,7 @@ export const generateDataTreeWidget = (
         ...widget.logBlackList,
         ...blockedDerivedProps,
       },
-      meta: _.merge(overridingMetaProps, widgetMetaProps),
+      // meta: _.merge(overridingMetaProps, widgetMetaProps),
       propertyOverrideDependency,
       overridingPropertyPaths,
       bindingPaths,
@@ -162,4 +158,59 @@ export const generateDataTreeWidget = (
       },
     },
   );
+  return {
+    dataTreeWidgetWithoutMetaProps,
+    overridingMetaPropsMap,
+    defaultMetaProps,
+  };
+};
+
+// @todo set the max size dynamically based on number of widgets. (widgets.length)
+// Remove the debug statements in July 2022
+const generateDataTreeWidgetWithoutMetaMemoized = memoize(
+  generateDataTreeWidgetWithoutMeta,
+  {
+    maxSize: 1000,
+    // onCacheHit: (cache, options) => {
+    //   console.log("####### cache was hit: ", cache.keys.length);
+    // },
+    // onCacheAdd: (cache, options) => {
+    //   console.log(
+    //     "####### cache was missed ",
+    //     cache.keys.length,
+    //     cache.keys[0][0].widgetName,
+    //   );
+    // },
+  },
+);
+
+export const generateDataTreeWidget = (
+  widget: FlattenedWidgetProps,
+  widgetMetaProps: Record<string, unknown> = {},
+) => {
+  const {
+    dataTreeWidgetWithoutMetaProps: dataTreeWidget,
+    defaultMetaProps,
+    overridingMetaPropsMap,
+  } = generateDataTreeWidgetWithoutMetaMemoized(widget);
+  const overridingMetaProps: Record<string, unknown> = {};
+
+  // overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
+  Object.entries(defaultMetaProps).forEach(([key, value]) => {
+    if (overridingMetaPropsMap[key]) {
+      overridingMetaProps[key] =
+        key in widgetMetaProps ? widgetMetaProps[key] : value;
+    }
+  });
+
+  const meta = _.merge(overridingMetaProps, widgetMetaProps);
+
+  Object.entries(widgetMetaProps).forEach(([key, value]) => {
+    // Since meta properties are always updated as a whole, we are replacing instead of merging.
+    // Merging mutates the memoized value, avoid merging meta values
+    dataTreeWidget[key] = value;
+  });
+
+  dataTreeWidget["meta"] = meta;
+  return dataTreeWidget;
 };

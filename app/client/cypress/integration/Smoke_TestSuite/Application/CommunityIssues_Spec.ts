@@ -26,7 +26,7 @@ describe("AForce - Community Issues page validations", function () {
   let selectedRow: number;
   it("1. Import application json and validate headers", () => {
     cy.visit("/applications");
-    homePage.ImportApp("AForceMigrationExport.json");
+    homePage.ImportApp("CommunityIssuesExport.json");
     cy.wait("@importNewApplication").then((interception: any) => {
       agHelper.Sleep()
       const { isPartialImport } = interception.response.body.data;
@@ -225,14 +225,14 @@ describe("AForce - Community Issues page validations", function () {
      table.ReadTableRowColumnData(1, 1).then(($cellData) => {
        expect($cellData).to.eq("Combine queries from different datasources");
      });
- 
+
      table.OpenNFilterTable("Title", "contains", "button", 'AND', 1)
      table.ReadTableRowColumnData(0, 1).then(($cellData) => {
        expect($cellData).to.eq("Change the video in the video player with a button click");
      });
      table.RemoveFilterNVerify("Question", true, false)
   })
-  
+
   it("8. Validate Adding a New issue from Add Modal", () => {
     // agHelper.DeployApp()
     // table.WaitUntilTableLoad()
@@ -312,6 +312,7 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
     table.SelectTableRow(0)
     agHelper.AssertElementPresence(locator._widgetInDeployed('tabswidget'))
+    agHelper.Sleep()
     cy.get(table._trashIcon).closest('div').click()
     agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
     table.WaitForTableEmpty()
