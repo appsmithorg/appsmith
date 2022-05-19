@@ -50,7 +50,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     jsEditor.EnterJSContext("Table Data", "{{ParamsTest.data}}");
 
     ee.SelectEntityByName("ParamsTest", 'QUERIES/JS');
-    apiPage.DisableOnPageLoadRun()//Bug 12476
+    apiPage.OnPageLoadRun(false)//Bug 12476
 
     agHelper.DeployApp(locator._spanButton('Submit'))
     agHelper.SelectDropDown("7");

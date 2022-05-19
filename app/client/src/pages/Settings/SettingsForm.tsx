@@ -59,7 +59,7 @@ function getSettingDetail(category: string, subCategory: string) {
   return AdminConfig.getCategoryDetails(category, subCategory);
 }
 
-function useSettings(category: string, subCategory?: string) {
+function getSettingsConfig(category: string, subCategory?: string) {
   return AdminConfig.get(subCategory ?? category);
 }
 
@@ -68,7 +68,7 @@ export function SettingsForm(
 ) {
   const params = useParams() as any;
   const { category, subCategory } = params;
-  const settingsDetails = useSettings(category, subCategory);
+  const settingsDetails = getSettingsConfig(category, subCategory);
   const { settings, settingsConfig } = props;
   const details = getSettingDetail(category, subCategory);
   const dispatch = useDispatch();
