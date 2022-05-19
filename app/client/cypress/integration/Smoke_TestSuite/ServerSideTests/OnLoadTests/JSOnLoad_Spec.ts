@@ -469,7 +469,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       //   `{{` +
       //     jsObjName +
       //     `.callCountry();
-      //     showAlert('Your country is: ' + getCountry.data[0].country, 'info')}}`,
+      //     Select1.selectedOptionValue? showAlert('Your country is: ' + getCountry.data[0].country, 'info'): null`,
       //   true,
       //   true,
       // );
