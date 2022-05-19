@@ -1,5 +1,7 @@
 const explorer = require("../../../../locators/explorerlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
+const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+import apiEditor from "../../../../locators/ApiEditor";
 
 const WIDGET = {
   INPUT_WIDGET_V2: "inputwidgetv2",
@@ -48,12 +50,12 @@ const widgetsToTest = {
       },
       {
         input: "{backspace}{backspace}{backspace}{backspace}12",
-        expected: "99999912",
+        expected: "(999) 999-12",
         clearBeforeType: false,
       },
       {
         input: "{backspace}{backspace}456",
-        expected: "999999456",
+        expected: "(999) 999-456",
         clearBeforeType: false,
       },
     ],
@@ -87,11 +89,18 @@ function configureApi() {
     .first()
     .should("have.text", "https://mock-api.appsmith.com/users");
   cy.log("Creation of FirstAPI Action successful");
-  cy.enterDatasourceAndPath(
-    testdata.baseUrl,
-    testdata.methods + `?user={{this.params.value}}`,
-  );
-  cy.SaveAndRunAPI();
+
+  cy.EnterSourceDetailsWithbody(testdata.baseUrl, testdata.methods);
+
+  cy.get(apiwidget.headerKey)
+    .first()
+    .click({ force: true })
+    .type("value");
+  cy.get(apiwidget.headerValue)
+    .first()
+    .click({ force: true })
+    .type("{{this.params.value}}", { parseSpecialCharSequences: false });
+  cy.WaitAutoSave();
 }
 
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
@@ -186,21 +195,21 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
         // Assert if the Api request contains the expected value
 
         cy.wait("@postExecute").then((interception) => {
-          expect(interception.response.body.data.request.url).to.equal(
-            `https://mock-api.appsmith.com/users?user=${expected}`,
-          );
+          expect(
+            interception.response.body.data.request.headers.value,
+          ).to.deep.equal([expected]);
         });
       });
     });
 
     it("4. Delete all the widgets on canvas", () => {
-      cy.get(getWidgetSelector(widgetSelector)).click();
-      cy.get("body").type(`{backspace}`, { force: true });
-
       cy.get(getWidgetSelector(WIDGET.BUTTON_WIDGET)).click();
       cy.get("body").type(`{backspace}`, { force: true });
 
       cy.get(getWidgetSelector(WIDGET.TEXT)).click();
+      cy.get("body").type(`{backspace}`, { force: true });
+
+      cy.get(getWidgetSelector(widgetSelector)).click();
       cy.get("body").type(`{backspace}`, { force: true });
     });
   });
