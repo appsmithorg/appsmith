@@ -93,6 +93,7 @@ public class GraphQLPlugin extends BasePlugin {
                                 mustacheKeysInOrder,
                                 executeActionDTO.getParams(),
                                 parameters);
+                        setValueSafelyInPropertyList(properties, QUERY_VARIABLES_INDEX, updatedVariables);
                     } catch (AppsmithPluginException e) {
                         ActionExecutionResult errorResult = new ActionExecutionResult();
                         errorResult.setIsExecutionSuccess(false);
@@ -101,7 +102,6 @@ public class GraphQLPlugin extends BasePlugin {
                         return Mono.just(errorResult);
                     }
 
-                    setValueSafelyInPropertyList(properties, QUERY_VARIABLES_INDEX, updatedVariables);
                 }
             }
 
