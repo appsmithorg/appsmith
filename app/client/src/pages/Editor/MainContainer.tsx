@@ -48,11 +48,6 @@ function MainContainer() {
     dispatch(updateExplorerWidthAction(sidebarWidth));
   }, [sidebarWidth]);
 
-  // save the entity explorer width in redux
-  useEffect(() => {
-    dispatch(updateExplorerWidthAction(DEFAULT_ENTITY_EXPLORER_WIDTH));
-  }, []);
-
   const isPreviewMode = useSelector(previewModeSelector);
 
   return (

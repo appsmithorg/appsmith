@@ -136,7 +136,6 @@ export const useDynamicAppLayout = () => {
     const calculatedWidth = calculateCanvasWidth();
     const { width: rightColumn } = mainCanvasProps || {};
 
-    // making sure entity explorer is rendered
     if (rightColumn !== calculatedWidth) {
       dispatch(
         updateCanvasLayoutAction(calculatedWidth, mainCanvasProps?.height),
