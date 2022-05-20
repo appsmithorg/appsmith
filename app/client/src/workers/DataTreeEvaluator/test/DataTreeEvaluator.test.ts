@@ -1,12 +1,9 @@
 import DataTreeEvaluator from "../DataTreeEvaluator";
-import {
-  arrayAccessorCyclicDependency,
-  asyncTagUnevalTree,
-  unEvalTree,
-} from "./mockUnEvalTree";
+import { asyncTagUnevalTree, unEvalTree } from "./mockUnEvalTree";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { DataTreeDiff } from "workers/evaluationUtils";
 import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
+import { arrayAccessorCyclicDependency } from "./mockData/ArrayAccessorTree";
 
 const widgetConfigMap = {};
 ALL_WIDGETS_AND_CONFIG.map(([, config]) => {
