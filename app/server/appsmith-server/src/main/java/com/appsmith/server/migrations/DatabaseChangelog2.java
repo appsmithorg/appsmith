@@ -18,12 +18,9 @@ import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
-<<<<<<< HEAD
 import com.appsmith.server.domains.Tenant;
-=======
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Workspace;
->>>>>>> release
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
