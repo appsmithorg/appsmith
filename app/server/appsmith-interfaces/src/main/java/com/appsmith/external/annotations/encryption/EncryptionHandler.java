@@ -234,9 +234,14 @@ public class EncryptionHandler {
             if (fieldValue != null) {
                 if (CandidateField.Type.ANNOTATED_FIELD.equals(candidateField.getType())) {
                     // For each known field, encrypt if it is annotated
+                    try {
                     final String transformedValue = transformer.apply(String.valueOf(fieldValue));
 
                     ReflectionUtils.setField(field, source, transformedValue);
+                    } catch(Exception e) {
+                        //temporary do not commit
+                        //Note: revert the changes in this file once upstream changes are in
+                    }
                 } else if (Set.of(
                         CandidateField.Type.APPSMITH_FIELD_KNOWN,
                         CandidateField.Type.APPSMITH_FIELD_UNKNOWN,
@@ -266,16 +271,18 @@ public class EncryptionHandler {
                             .contains(candidateField.getType())) {
                         // This is a list which will necessarily have elements of AppsmithDomain type
                         boolean subTypeHasEncrypted = false;
-                        for (Object o : (List<?>) fieldValue) {
+                        Object elem = null;
+                        for (Object o : (Collection<?>) fieldValue) {
                             subTypeHasEncrypted |= convertEncryption(o, transformer);
+                            elem = 0;
                         }
                         // The following condition will be true for unknown types when:
                         // none of the elements ended up being encrypted, and
                         // the list itself was not empty (if it was empty then we never really scanned anything), and
                         // the declared type of the list was the same as the first element (not polymorphic)
                         if (!subTypeHasEncrypted &&
-                                !((List<?>) fieldValue).isEmpty() &&
-                                typeNames[0].getTypeName().equals(((List<?>) fieldValue).get(0).getClass().getCanonicalName())) {
+                                !((Collection<?>) fieldValue).isEmpty() &&
+                                typeNames[0].getTypeName().equals(elem.getClass().getCanonicalName())) {
                             candidateFieldIterator.remove();
                         }
                     } else if (Set.of(

@@ -220,7 +220,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
         return datasourceService.create(datasource)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null
-                            && error.getMessage().contains("organization_datasource_deleted_compound_index")
+                            && error.getMessage().contains("workspace_datasource_deleted_compound_index")
                             && datasource.getDatasourceConfiguration().getAuthentication() instanceof DBAuth) {
                         ((DBAuth) datasource.getDatasourceConfiguration().getAuthentication()).setPassword(finalPassword);
                         return createSuffixedDatasource(datasource, name, 1 + suffix);

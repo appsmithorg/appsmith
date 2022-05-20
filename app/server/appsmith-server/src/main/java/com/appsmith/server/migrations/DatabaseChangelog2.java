@@ -798,7 +798,7 @@ public class DatabaseChangelog2 {
         //Call stream instead of findAll to avoid out of memory if the collection is big
         //stream implementation lazy loads the data using underlying cursor open on the collection
         //the data is loaded as as and when needed by the pipeline
-        try(Stream<Organization> stream = mongockTemplate.stream(new Query(), Organization.class)
+        try(Stream<Organization> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Organization.class)
             .stream()) { 
             stream.forEach((organization) -> {
                 Workspace workspace = gson.fromJson(gson.toJson(organization), Workspace.class);
@@ -836,7 +836,7 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "013", id = "migrate-organizationId-to-workspaceId-in-datasource", author = "")
     public void migrateOrganizationIdToWorkspaceIdInDatasource(MongockTemplate mongockTemplate) {
-        try(Stream<Datasource> stream = mongockTemplate.stream(new Query(), Datasource.class)
+        try(Stream<Datasource> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Datasource.class)
             .stream()) { 
             stream.forEach((datasource) -> {
                 datasource.setWorkspaceId(datasource.getOrganizationId());
@@ -847,7 +847,7 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "014", id = "migrate-organizationId-to-workspaceId-in-user", author = "")
     public void migrateOrganizationIdToWorkspaceIdInUser(MongockTemplate mongockTemplate) {
-        try(Stream<User> stream = mongockTemplate.stream(new Query(), User.class)
+        try(Stream<User> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), User.class)
             .stream()) { 
             stream.forEach((user) -> {
                 user.setWorkspaceIds(user.getOrganizationIds());
@@ -872,7 +872,7 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "016", id = "migrate-organizationId-to-workspaceId-in-action", author = "")
     public void migrateOrganizationIdToWorkspaceIdInAction(MongockTemplate mongockTemplate) {
-        try(Stream<Action> stream = mongockTemplate.stream(new Query(), Action.class)
+        try(Stream<Action> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Action.class)
             .stream()) { 
             stream.forEach((action) -> {
                 action.setWorkspaceId(action.getOrganizationId());
@@ -883,7 +883,7 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "017", id = "migrate-organizationId-to-workspaceId-in-actioncollection", author = "")
     public void migrateOrganizationIdToWorkspaceIdInActionCollection(MongockTemplate mongockTemplate) {
-        try(Stream<ActionCollection> stream = mongockTemplate.stream(new Query(), ActionCollection.class)
+        try(Stream<ActionCollection> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), ActionCollection.class)
             .stream()) { 
             stream.forEach((actionCollection) -> {
                 actionCollection.setWorkspaceId(actionCollection.getOrganizationId());
@@ -894,7 +894,7 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "018", id = "migrate-organizationId-to-workspaceId-in-application", author = "")
     public void migrateOrganizationIdToWorkspaceIdInApplication(MongockTemplate mongockTemplate) {
-        try(Stream<Application> stream = mongockTemplate.stream(new Query(), Application.class)
+        try(Stream<Application> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Application.class)
             .stream()) { 
             stream.forEach((application) -> {
                 application.setWorkspaceId(application.getOrganizationId());
@@ -905,7 +905,7 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "019", id = "migrate-organizationId-to-workspaceId-in-newaction", author = "")
     public void migrateOrganizationIdToWorkspaceIdInNewAction(MongockTemplate mongockTemplate) {
-        try(Stream<NewAction> stream = mongockTemplate.stream(new Query(), NewAction.class)
+        try(Stream<NewAction> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), NewAction.class)
             .stream()) { 
             stream.forEach((newAction) -> {
                 newAction.setWorkspaceId(newAction.getOrganizationId());
@@ -916,7 +916,7 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "020", id = "migrate-organizationId-to-workspaceId-in-collection", author = "")
     public void migrateOrganizationIdToWorkspaceIdInCollection(MongockTemplate mongockTemplate) {
-        try(Stream<Application> stream = mongockTemplate.stream(new Query(), Application.class)
+        try(Stream<Application> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Application.class)
             .stream()) { 
             stream.forEach((application) -> {
                 application.setWorkspaceId(application.getOrganizationId());
@@ -927,7 +927,7 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "021", id = "migrate-organizationId-to-workspaceId-in-group", author = "")
     public void migrateOrganizationIdToWorkspaceIdInGroup(MongockTemplate mongockTemplate) {
-        try(Stream<Application> stream = mongockTemplate.stream(new Query(), Application.class)
+        try(Stream<Application> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Application.class)
             .stream()) { 
             stream.forEach((application) -> {
                 application.setWorkspaceId(application.getOrganizationId());
@@ -938,7 +938,7 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "022", id = "migrate-organizationId-to-workspaceId-in-theme", author = "")
     public void migrateOrganizationIdToWorkspaceIdInTheme(MongockTemplate mongockTemplate) {
-        try(Stream<Theme> stream = mongockTemplate.stream(new Query(), Theme.class)
+        try(Stream<Theme> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Theme.class)
             .stream()) { 
             stream.forEach((theme) -> {
                 theme.setWorkspaceId(theme.getOrganizationId());
@@ -949,7 +949,7 @@ public class DatabaseChangelog2 {
     
     @ChangeSet(order = "023", id = "migrate-organizationId-to-workspaceId-in-userdata", author = "")
     public void migrateOrganizationIdToWorkspaceIdInUserData(MongockTemplate mongockTemplate) {
-        try(Stream<UserData> stream = mongockTemplate.stream(new Query(), UserData.class)
+        try(Stream<UserData> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), UserData.class)
             .stream()) { 
             stream.forEach((userData) -> {
                 userData.setRecentlyUsedWorkspaceIds(userData.getRecentlyUsedOrgIds());
@@ -960,7 +960,7 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "024", id = "migrate-organizationId-to-workspaceId-in-workspace", author = "")
     public void migrateOrganizationIdToWorkspaceIdInWorkspace(MongockTemplate mongockTemplate) {
-        try(Stream<Workspace> stream = mongockTemplate.stream(new Query(), Workspace.class)
+        try(Stream<Workspace> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Workspace.class)
             .stream()) { 
             stream.forEach((workspace) -> {
                 workspace.setIsAutoGeneratedWorkspace(workspace.getIsAutoGeneratedOrganization());
@@ -971,14 +971,14 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "025", id = "migrate-organizationId-to-workspaceId-in-abstract-comment-domain", author = "")
     public void migrateOrganizationIdToWorkspaceIdInAbstractCommentDomain(MongockTemplate mongockTemplate) {
-        try(Stream<Comment> stream = mongockTemplate.stream(new Query(), Comment.class)
+        try(Stream<Comment> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Comment.class)
             .stream()) { 
             stream.forEach((comment) -> {
                 comment.setWorkspaceId(comment.getOrgId());
                 mongockTemplate.save(comment);
             });
         }
-        try(Stream<CommentThread> stream = mongockTemplate.stream(new Query(), CommentThread.class)
+        try(Stream<CommentThread> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), CommentThread.class)
             .stream()) { 
             stream.forEach((commentThread) -> {
                 commentThread.setWorkspaceId(commentThread.getOrgId());
@@ -987,14 +987,25 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "026", id = "application-git-metadata-index-recreate", author = "")
-    public void updateGitApplicationMetadataIndexRecreate(MongockTemplate mongockTemplate) {
-        // MongoTemplate mongoTemplate = mongockTemplate.getImpl();
+    @ChangeSet(order = "026", id = "organization-to-workspace-indexes-recreate", author = "")
+    public void organizationToWorkspaceIndexesRecreate(MongockTemplate mongockTemplate) {
         dropIndexIfExists(mongockTemplate, Application.class, "organization_application_deleted_gitApplicationMetadata_compound_index");
+        dropIndexIfExists(mongockTemplate, Datasource.class, "organization_datasource_deleted_compound_index");
 
         ensureIndexes(mongockTemplate, Application.class,
-                makeIndex("workspaceId", "name", "deletedAt", "gitApplicationMetadata.remoteUrl", "gitApplicationMetadata.branchName")
+                makeIndex(
+                    fieldName(QApplication.application.workspaceId),
+                    fieldName(QApplication.application.name),
+                    fieldName(QApplication.application.deletedAt),
+                    fieldName(QApplication.application.gitApplicationMetadata.remoteUrl),
+                    fieldName(QApplication.application.gitApplicationMetadata.branchName))
                         .unique().named("workspace_application_deleted_gitApplicationMetadata_compound_index")
+        );
+        ensureIndexes(mongockTemplate, Datasource.class,
+                makeIndex(fieldName(QDatasource.datasource.workspaceId),
+                    fieldName(QDatasource.datasource.name),
+                    fieldName(QDatasource.datasource.createdAt))
+                        .unique().named("workspace_datasource_deleted_compound_index")
         );
     }
 }
