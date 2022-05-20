@@ -4,6 +4,7 @@ import MoreIcon from "remixicon-react/MoreFillIcon";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useState } from "react";
 import Save2LineIcon from "remixicon-react/Save2LineIcon";
+import ArrowGoBackIcon from "remixicon-react/ArrowGoBackFillIcon";
 
 import ThemeCard from "./ThemeCard";
 import {
@@ -135,14 +136,14 @@ function ThemeEditor() {
                   <DropdownItem
                     className="flex items-center"
                     icon={<Save2LineIcon className="w-4 h-4" />}
-                    onClick={onResetTheme}
-                    text="Reset theme"
+                    onClick={onOpenSaveModal}
+                    text="Save theme"
                   />
                   <DropdownItem
                     className="flex items-center"
-                    icon={<Save2LineIcon className="w-4 h-4" />}
-                    onClick={onOpenSaveModal}
-                    text="Save theme"
+                    icon={<ArrowGoBackIcon className="w-4 h-4" />}
+                    onClick={onResetTheme}
+                    text="Reset widget styles"
                   />
                 </DropdownList>
               </Dropdown>
