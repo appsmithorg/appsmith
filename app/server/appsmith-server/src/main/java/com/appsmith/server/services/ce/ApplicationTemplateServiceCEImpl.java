@@ -108,7 +108,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                         // sort based on index of id in templateIds list.
                         // index of first item will be less than index of next item
                         Comparator.comparingInt(o -> {
-                            int index = templateIds.indexOf(o.getId());
+                            int index = recentlyUsedTemplateIds.indexOf(o.getId());
                             if(index < 0) {
                                 // template not in recent list, return a large value so that it's sorted out to the end
                                 index = Integer.MAX_VALUE;
