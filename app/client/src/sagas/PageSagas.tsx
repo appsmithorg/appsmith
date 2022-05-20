@@ -313,19 +313,8 @@ export function* restoreContextSaga() {
       const control: HTMLElement | null = document.querySelector(
         `.t--property-control-${propertyName}`,
       );
-
-      const codeEditorInControl:
-        | HTMLElement
-        | null
-        | undefined = control?.querySelector(".CodeEditorTarget textarea");
-
-      if (codeEditorInControl) {
-        codeEditorInControl.scrollIntoView({ block: "center" });
-        codeEditorInControl.focus();
-      } else {
-        control?.scrollIntoView({ block: "center" });
-        control?.focus();
-      }
+      control?.scrollIntoView({ block: "center" });
+      control?.focus();
     }
   }
 }

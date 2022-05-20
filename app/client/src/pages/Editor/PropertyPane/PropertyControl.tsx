@@ -469,7 +469,20 @@ const PropertyControl = memo((props: Props) => {
 
     const handleOnFocus = () => {
       if (
-        !PropertyControlsWithCodeEditors.includes(props.controlType) ||
+        !PropertyControlsWithCodeEditors.includes(props.controlType) &&
+        !isDynamic
+      ) {
+        dispatch(
+          updateEditingProperty(currentPageId, {
+            propertyName: className,
+          }),
+        );
+      }
+    };
+
+    const handleOnlabelFocus = () => {
+      if (
+        PropertyControlsWithCodeEditors.includes(props.controlType) ||
         isDynamic
       ) {
         dispatch(
@@ -501,6 +514,7 @@ const PropertyControl = memo((props: Props) => {
           data-guided-tour-iid={propertyName}
           id={uniqId}
           key={config.id}
+          onClick={handleOnFocus}
           onFocus={handleOnFocus}
           orientation={
             config.controlType === "SWITCH" && !isDynamic
@@ -508,7 +522,11 @@ const PropertyControl = memo((props: Props) => {
               : "VERTICAL"
           }
         >
-          <ControlPropertyLabelContainer className="gap-1">
+          <ControlPropertyLabelContainer
+            className="gap-1"
+            onClick={handleOnlabelFocus}
+            onFocus={handleOnlabelFocus}
+          >
             <PropertyHelpLabel
               label={label}
               theme={props.theme}
