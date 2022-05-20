@@ -51,6 +51,7 @@ import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION
 import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
 import static com.external.helpers.HintMessageUtils.getAllDuplicateHeaders;
 import static com.external.helpers.HintMessageUtils.getAllDuplicateParams;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -1026,7 +1027,7 @@ public class RestApiPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getRequest().getBody());
+                    assertTrue(!isEmpty((String) result.getRequest().getBody()));
                     System.out.println(result.getRequest().getBody());
                 })
                 .verifyComplete();
