@@ -446,6 +446,7 @@ export const PARSE_JS_FUNCTION_ERROR = (message: string) =>
   `Syntax error: ${message}`;
 
 export const EXECUTING_FUNCTION = () => `Executing function`;
+export const UPDATING_JS_COLLECTION = () => `Updating...`;
 export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
 export const EXPORT_DEFAULT_BEGINNING = () =>
@@ -516,7 +517,8 @@ export const JS_FUNCTION_UPDATE_SUCCESS = () =>
 export const JS_FUNCTION_DELETE_SUCCESS = () =>
   "JS function deleted successfully";
 export const JS_OBJECT_BODY_INVALID = () => "JS object could not be parsed";
-
+export const JS_ACTION_EXECUTION_ERROR = (jsFunctionName: string) =>
+  `An error occured while trying to execute ${jsFunctionName}, please check error logs to debug`;
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
 
@@ -579,6 +581,7 @@ export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next mission";
 
 // Data Sources pane
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
+export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
 
 export const SNIPPET_EXECUTION_SUCCESS = () => `Snippet executed successfully.`;
 
@@ -915,7 +918,7 @@ export const ONBOARDING_TASK_DATASOURCE_BODY = () =>
   "Adding a datasource makes creating applications more powerful. Don’t worry if you don’t have any data on hand, we have a sample dataset that you can use.";
 export const ONBOARDING_TASK_DATASOURCE_BUTTON = () => "+ Add a datasource";
 export const ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION = () => "Add a widget";
-export const ONBOARDING_TASK_DATASOURCE_FOOTER = () => "First.";
+export const ONBOARDING_TASK_DATASOURCE_FOOTER = () => "first.";
 //2. query
 export const ONBOARDING_TASK_QUERY_HEADER = () => "Next, create a query";
 export const ONBOARDING_TASK_QUERY_BODY = () =>

@@ -7,7 +7,7 @@ import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserServiceCEImpl;
@@ -30,7 +30,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                            MongoConverter mongoConverter,
                            ReactiveMongoTemplate reactiveMongoTemplate,
                            UserRepository repository,
-                           OrganizationService organizationService,
+                           WorkspaceService workspaceService,
                            AnalyticsService analyticsService,
                            SessionUserService sessionUserService,
                            PasswordResetTokenRepository passwordResetTokenRepository,
@@ -38,8 +38,8 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                            EmailSender emailSender,
                            ApplicationRepository applicationRepository,
                            PolicyUtils policyUtils,
-                           OrganizationRepository organizationRepository,
-                           UserOrganizationService userOrganizationService,
+                           WorkspaceRepository organizationRepository,
+                           UserWorkspaceService userOrganizationService,
                            RoleGraph roleGraph,
                            ConfigService configService,
                            CommonConfig commonConfig,
@@ -49,7 +49,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                            ApplicationPageService applicationPageService,
                            UserDataService userDataService) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, organizationService,
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService,
                 analyticsService, sessionUserService, passwordResetTokenRepository, passwordEncoder, emailSender,
                 applicationRepository, policyUtils, organizationRepository, userOrganizationService, roleGraph,
                 configService, commonConfig, emailConfig, userChangedHandler, encryptionService, applicationPageService,

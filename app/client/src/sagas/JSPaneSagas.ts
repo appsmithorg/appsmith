@@ -16,6 +16,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsSavingEntity,
 } from "selectors/editorSelectors";
 import { getJSCollection, getJSCollections } from "selectors/entitiesSelector";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
@@ -322,14 +323,31 @@ export function* handleExecuteJSFunctionSaga(data: {
       collectionId,
     }),
   );
+
+  const isEntitySaving = yield select(getIsSavingEntity);
+
+  /**
+   * Only start executing when no entity in the application is saving
+   * This ensures that execution doesn't get carried out on stale values
+   * This includes other entities which might be bound in the JS Function
+   */
+  if (isEntitySaving) {
+    yield take(ReduxActionTypes.ENTITY_UPDATE_SUCCESS);
+  }
+
   try {
-    const result = yield call(executeFunction, collectionName, action);
+    const { isDirty, result } = yield call(
+      executeFunction,
+      collectionName,
+      action,
+    );
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
         results: result,
         collectionId,
         actionId,
+        isDirty,
       },
     });
     AppsmithConsole.info({
@@ -342,6 +360,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       state: { response: result },
     });
     appMode === APP_MODE.EDIT &&
+      !isDirty &&
       Toaster.show({
         text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
         variant: Variant.success,

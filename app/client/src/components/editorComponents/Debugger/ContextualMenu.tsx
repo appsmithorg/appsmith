@@ -11,7 +11,7 @@ import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   setGlobalSearchQuery,
-  toggleShowGlobalSearchModal,
+  setGlobalSearchCategory,
 } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { getAppsmithConfigs } from "@appsmith/configs";
@@ -187,7 +187,7 @@ const searchAction: Record<
       });
       dispatch(setGlobalSearchQuery(error.message || ""));
       dispatch(
-        toggleShowGlobalSearchModal(filterCategories[SEARCH_CATEGORY_ID.INIT]),
+        setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.INIT]),
       );
     },
   },
