@@ -39,7 +39,7 @@ function QueryEditor(props: any) {
   };
 
   return (
-    <QueryWrapper>
+    <QueryWrapper className="t--graphql-query-editor">
       <QueryHeader>
         <TooltipComponent
           content="Add your query here!"

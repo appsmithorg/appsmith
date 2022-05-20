@@ -50,7 +50,7 @@ type VariableProps = {
  */
 function VariableEditor(props: VariableProps) {
   return (
-    <VariableWrapper>
+    <VariableWrapper className="t--graphql-variable-editor">
       <VariableHeader>
         <TooltipComponent
           content="Add your query variables here!"

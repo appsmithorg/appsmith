@@ -61,5 +61,7 @@
   "multipartTypeDropdown": "button:contains('Type')",
   "confirmBeforeExecute": "[name=confirmBeforeExecute]",
   "runQueryButton": ".t--apiFormRunBtn",
-  "createBlankApiGraphQL": ".t--createBlankApi-graphql-plugin"
+  "createBlankApiGraphQL": ".t--createBlankApi-graphql-plugin",
+  "graphqlQueryEditor": ".t--graphql-query-editor .CodeMirror textarea",
+  "graphqlVariableEditor": ".t--graphql-variable-editor .CodeMirror textarea"
 }

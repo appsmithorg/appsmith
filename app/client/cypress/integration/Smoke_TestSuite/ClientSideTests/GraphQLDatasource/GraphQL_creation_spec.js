@@ -1,14 +1,34 @@
-import explorer from "../../../../locators/explorerlocators.json";
-import pages from "../../../../locators/Pages.json";
 import apiEditor from "../../../../locators/apiWidgetslocator.json";
 import datasource from "../../../../locators/DatasourcesEditor.json";
-import queryLocators from "../../../../locators/QueryEditor.json";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+const ee = ObjectsRegistry.EntityExplorer;
 let organisationName = "GraphQL_";
 let datasourceName = "GraphQL_DS_";
 let apiName = "GraphQL_API_";
 
+const GRAPHQL_URL = "https://api.spacex.land/graphql";
+const GRAPHQL_QUERY = `
+  query($id: ID!) {
+    capsule(id: $id) {
+      id
+      status
+      type
+      landings
+`;
+
+const CAPSULE_ID = "C105";
+
+const GRAPHQL_VARIABLES = `
+  {
+    "id": ${CAPSULE_ID}
+`;
+
 describe("GraphQL Datasource Implementation", function() {
   before(() => {
+    // cy.get(commonlocators.homeIcon).click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    // cy.wait(3000);
     cy.NavigateToHome();
     cy.createOrg();
     cy.wait("@createOrg").then((interception) => {
@@ -36,25 +56,7 @@ describe("GraphQL Datasource Implementation", function() {
       .blur();
 
     // Adding Graphql Url
-    cy.get("input[name='datasourceConfiguration.url']").type(
-      "https://api.spacex.land/graphql",
-    );
-
-    // Selecting No for Authentication property : sendScopeWithRefreshToken
-    cy.get(
-      "[data-cy='datasourceConfiguration.authentication.sendScopeWithRefreshToken']",
-    ).click();
-    cy.get(".t--dropdown-option")
-      .eq(1)
-      .click();
-
-    // Selecting Header for Authentication property : refreshTokenClientCredentialsLocation
-    cy.get(
-      "[data-cy='datasourceConfiguration.authentication.refreshTokenClientCredentialsLocation']",
-    ).click();
-    cy.get(".t--dropdown-option")
-      .eq(1)
-      .click();
+    cy.get("input[name='datasourceConfiguration.url']").type(GRAPHQL_URL);
 
     cy.get(datasource.saveBtn).click({ force: true });
     cy.wait("@saveDatasource").should(
@@ -76,6 +78,31 @@ describe("GraphQL Datasource Implementation", function() {
       .type(apiName, { force: true })
       .should("have.value", apiName)
       .blur();
+  });
+
+  it("3. Should execute the API and validate the response", function() {
+    ee.SelectEntityByName(apiName, "QUERIES/JS");
+    cy.get(apiEditor.graphqlQueryEditor)
+      .first()
+      .focus()
+      .type("{selectAll}{backspace}", { force: true })
+      .type("{backspace}", { force: true })
+      .type(GRAPHQL_QUERY);
+
+    cy.get(apiEditor.graphqlVariableEditor)
+      .first()
+      .focus()
+      .type("{selectAll}{backspace}", { force: true })
+      .type("{backspace}", { force: true })
+      .type(GRAPHQL_VARIABLES);
+
+    // cy.get(ApiEditor.ApiRunBtn).click({ force: true });
+    // cy.wait("@postExecute");
+    cy.RunAPI().should(
+      "have.nested.property",
+      "response.body.data.body.data.capsule.id",
+      CAPSULE_ID,
+    );
   });
 
   after(() => {
