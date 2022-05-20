@@ -524,7 +524,7 @@ jobs:
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         working-directory: "."
         run: |
-          make build
+          docker build --build-arg GIT_SHA=${GITHUB_SHA} -t fatcontainer .
 
       - name: Load docker image
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
