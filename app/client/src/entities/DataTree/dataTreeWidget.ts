@@ -134,7 +134,7 @@ const generateDataTreeWidgetWithoutMeta = (
     {},
     widget,
     unInitializedDefaultProps,
-    defaultMetaProps,
+    // defaultMetaProps,
     // widgetMetaProps,
     derivedProps,
     {
@@ -205,11 +205,13 @@ export const generateDataTreeWidget = (
 
   const meta = _.merge(overridingMetaProps, widgetMetaProps);
 
-  Object.entries(widgetMetaProps).forEach(([key, value]) => {
-    // Since meta properties are always updated as a whole, we are replacing instead of merging.
-    // Merging mutates the memoized value, avoid merging meta values
-    dataTreeWidget[key] = value;
-  });
+  Object.entries({ ...defaultMetaProps, ...widgetMetaProps }).forEach(
+    ([key, value]) => {
+      // Since meta properties are always updated as a whole, we are replacing instead of merging.
+      // Merging mutates the memoized value, avoid merging meta values
+      dataTreeWidget[key] = value;
+    },
+  );
 
   dataTreeWidget["meta"] = meta;
   return dataTreeWidget;
