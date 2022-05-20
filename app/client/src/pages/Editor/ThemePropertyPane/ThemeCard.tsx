@@ -31,6 +31,8 @@ interface ThemeCard {
   className?: string;
   selectable?: boolean;
   deletable?: boolean;
+  changeable?: boolean;
+  children?: React.ReactElement[] | React.ReactElement;
 }
 
 const MainContainer = styled.main<{ backgroundColor: string }>`
@@ -72,7 +74,7 @@ const ThemeColorButton = styled.main<{
  *-----------------------------------------------------------------------------
  */
 export function ThemeCard(props: ThemeCard) {
-  const { deletable, selectable, theme } = props;
+  const { changeable, deletable, selectable, theme } = props;
   const dispatch = useDispatch();
   const themingStack = useSelector(getAppThemingStack);
   const themingMode = last(themingStack);
@@ -212,6 +214,7 @@ export function ThemeCard(props: ThemeCard) {
               Apply Theme
             </div>
           </aside>
+          {props.children}
         </div>
       </div>
       <DeleteThemeModal
