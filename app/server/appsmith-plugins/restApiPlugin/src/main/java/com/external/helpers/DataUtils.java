@@ -75,6 +75,8 @@ public class DataUtils {
                 return BodyInserters.fromValue(formData);
             case MediaType.MULTIPART_FORM_DATA_VALUE:
                 return parseMultipartFileData((List<Property>) body);
+            case MediaType.TEXT_PLAIN_VALUE:
+                return BodyInserters.fromValue((String)body);
             default:
                 return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.ISO_8859_1));
         }

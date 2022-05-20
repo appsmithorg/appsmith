@@ -54,6 +54,7 @@ import static com.external.helpers.HintMessageUtils.getAllDuplicateParams;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -1006,7 +1007,7 @@ public class RestApiPluginTest {
     }
 
     @Test
-    public void testGetApiWithBody() {
+    public void testGetApiWithBodyWithJSONContentType() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setUrl("https://postman-echo.com/get");
 
@@ -1027,7 +1028,38 @@ public class RestApiPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getRequest().getBody());
+                    assertNotEquals(new JSONObject(), result.getRequest().getBody());
+                    assertEquals(requestBody, result.getRequest().getBody().toString());
+                    System.out.println(result.getRequest().getBody());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetApiWithBodyWithPlainTextContentType() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://postman-echo.com/get");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(
+                new Property("content-type", "text/plain")
+        ));
+        actionConfig.setHttpMethod(HttpMethod.GET);
+        actionConfig.setFormData(new HashMap<>());
+        PluginUtils.setValueSafelyInFormData(actionConfig.getFormData(), "apiContentType", "text/plain");
+
+        String requestBody = "test content";
+        actionConfig.setBody(requestBody);
+
+        final APIConnection apiConnection = pluginExecutor.datasourceCreate(dsConfig).block();
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(apiConnection, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
                     assertTrue(!isEmpty((String) result.getRequest().getBody()));
+                    assertEquals(requestBody, result.getRequest().getBody());
                     System.out.println(result.getRequest().getBody());
                 })
                 .verifyComplete();

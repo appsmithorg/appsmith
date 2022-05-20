@@ -75,7 +75,7 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
         actionExecutionRequest.setProperties(existing.getProperties());
 
         // Apart from multipart, refer to the request that was actually sent
-        if (isMultipart.get()) {
+        if (!isMultipart.get()) {
             actionExecutionRequest.setBody(bodyReceiver.receiveValue(this.request.body()));
         } else {
             actionExecutionRequest.setBody(existing.getBody());

@@ -12,7 +12,8 @@ public enum ApiContentType {
     JSON("application/json"),
     FORM_URLENCODED("application/x-www-form-urlencoded"),
     MULTIPART_FORM_DATA("multipart/form-data"),
-    RAW("raw")
+    RAW("raw"),
+    PLAIN_TEXT("text/plain")
     ;
 
     private String value;
