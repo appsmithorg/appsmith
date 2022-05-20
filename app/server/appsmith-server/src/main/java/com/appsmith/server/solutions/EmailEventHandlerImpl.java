@@ -5,7 +5,7 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.ce.EmailEventHandlerCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -17,7 +17,7 @@ public class EmailEventHandlerImpl extends EmailEventHandlerCEImpl implements Em
 
     public EmailEventHandlerImpl(ApplicationEventPublisher applicationEventPublisher,
                                  EmailSender emailSender,
-                                 OrganizationRepository organizationRepository,
+                                 WorkspaceRepository organizationRepository,
                                  ApplicationRepository applicationRepository,
                                  NewPageRepository newPageRepository,
                                  PolicyUtils policyUtils,

@@ -31,11 +31,12 @@ export function InputText(props: {
   name: string;
   encrypted?: boolean;
   disabled?: boolean;
+  customStyles?: Record<string, any>;
 }) {
   const { dataType, disabled, name, placeholder } = props;
 
   return (
-    <div data-cy={name} style={{ width: "20vw" }}>
+    <div data-cy={name} style={{ width: "35vw", ...props.customStyles }}>
       <Field
         component={renderComponent}
         datatype={dataType}

@@ -3,10 +3,6 @@
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
-
-const {
-  addMatchImageSnapshotCommand,
-} = require("cypress-image-snapshot/command");
 const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
 const modalWidgetPage = require("../locators/ModalWidget.json");
@@ -424,7 +420,7 @@ Cypress.Commands.add("updateCodeInput", ($selector, value) => {
     });
 });
 
-Cypress.Commands.add("selectColor", (GivenProperty) => {
+Cypress.Commands.add("selectColor", (GivenProperty, colorOffset = -15) => {
   // Property pane of the widget is opened, and click given property.
   cy.get(
     ".t--property-control-" + GivenProperty + " .bp3-input-group input",
@@ -433,7 +429,7 @@ Cypress.Commands.add("selectColor", (GivenProperty) => {
   });
 
   cy.get(widgetsPage.colorPickerV2Color)
-    .eq(-15)
+    .eq(colorOffset)
     .then(($elem) => {
       cy.get($elem).click({ force: true });
     });
@@ -1109,7 +1105,16 @@ Cypress.Commands.add("clearPropertyValue", (value) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
 });
-
+Cypress.Commands.add("deleteQueryOrJS", (Action) => {
+  cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+  cy.get(`.t--entity-item:contains(${Action})`).within(() => {
+    cy.get(".t--context-menu").click({ force: true });
+  });
+  cy.selectAction("Delete");
+  cy.selectAction("Are you sure?");
+  cy.wait("@deleteAction");
+  cy.get("@deleteAction").should("have.property", "status", 200);
+});
 Cypress.Commands.add(
   "validateNSelectDropdown",
   (ddTitle, currentValue, newValue) => {
