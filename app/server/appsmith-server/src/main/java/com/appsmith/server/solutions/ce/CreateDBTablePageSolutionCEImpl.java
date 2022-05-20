@@ -111,13 +111,14 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
     private static final long TEMPLATE_COLUMN_COUNT = 12;
 
-    // These fields contain the widget fields those need to be mapped between template DB table and DB table in
-    // current context
+    // Widget fields those need to be mapped between template DB table and user's DB table in for which we are generating
+    // a CRUD page
     private static final Set<String> WIDGET_FIELDS = Set.of(
-            "defaultText", "placeholderText", "text", "options", "defaultOptionValue", "primaryColumns", "isVisible", "sourceData"
+            "defaultText", "placeholderText", "text", "options", "defaultOptionValue", "primaryColumns", "isVisible",
+            "sourceData", "title"
     );
 
-    // Currently we only support string matching (like/ilike etc) for WHERE operator in SelectQuery so the allowed
+    // Currently, we only support string matching (like/ilike etc) for WHERE operator in SelectQuery so the allowed
     // types will refer to the equivalent datatype in different databases
     private static final Set<String> ALLOWED_TYPE_FOR_WHERE_CLAUSE = Set.of("string", "text", "varchar", "char", "character");
 
