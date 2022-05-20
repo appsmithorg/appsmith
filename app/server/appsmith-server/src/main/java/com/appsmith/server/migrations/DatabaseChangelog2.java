@@ -18,6 +18,8 @@ import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
+import com.appsmith.server.domains.QTenant;
+import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Workspace;
@@ -52,6 +54,7 @@ import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -788,7 +791,7 @@ public class DatabaseChangelog2 {
         //Memory optimization note:
         //Call stream instead of findAll to avoid out of memory if the collection is big
         //stream implementation lazy loads the data using underlying cursor open on the collection
-        //the data is loaded as as and when needed by the pipeline
+        //the data is loaded as and when needed by the pipeline
         try(Stream<Organization> stream = mongockTemplate.stream(new Query(), Organization.class)
             .stream()) { 
             stream.forEach((organization) -> {
@@ -828,6 +831,15 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "012", id = "add-default-tenant", author = "")
     public void addDefaultTenant(MongockTemplate mongockTemplate) {
 
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant tenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+
+        // if tenant already exists, don't create a new one.
+        if (tenant != null) {
+            return;
+        }
+
         Tenant defaultTenant = new Tenant();
         defaultTenant.setDisplayName("Appsmith");
         defaultTenant.setSlug("default");
@@ -835,5 +847,30 @@ public class DatabaseChangelog2 {
 
         mongockTemplate.save(defaultTenant);
 
+    }
+
+    @ChangeSet(order = "013", id = "add-tenant-to-all-workspaces", author = "")
+    public void addTenantToWorkspaces(MongockTemplate mongockTemplate) {
+
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+        assert(defaultTenant != null);
+
+        Query workspaceQueryAll = new Query();
+        workspaceQueryAll.addCriteria(where(fieldName(QWorkspace.workspace.deleted)).is(FALSE));
+        workspaceQueryAll.addCriteria(where(fieldName(QWorkspace.workspace.deletedAt)).is(null));
+
+        //Memory optimization note:
+        //Call stream instead of findAll to avoid out of memory if the collection is big
+        //stream implementation lazy loads the data using underlying cursor open on the collection
+        //the data is loaded as and when needed by the pipeline
+        try(Stream<Workspace> stream = mongockTemplate.stream(workspaceQueryAll, Workspace.class)
+                .stream()) {
+            stream.forEach((workspace) -> {
+                workspace.setTenantId(defaultTenant.getId());
+                mongockTemplate.save(workspace);
+            });
+        }
     }
 }
