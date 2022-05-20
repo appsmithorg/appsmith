@@ -4,12 +4,18 @@
 name: Ami Packer Build
 
 on:
-  pull_request:
-  push:
-    branches: ["release", "ci/packer-ansible"]
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
 
 jobs:
   packer:
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository)
+
     runs-on: ubuntu-latest
     name: ami-packer-build
 
@@ -39,29 +45,8 @@ jobs:
           sudo apt-add-repository -y "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" ;
           sudo apt-get update && sudo apt-get install -y packer;
 
-      - name: Build artifacts for Dev
-        if : |
-           github.event_name == 'pull_request'
-        run: |
-          cd deploy/packer;
-          packer build -var 'vpc_id=vpc-41b8bd29' -var 'subnet_id=subnet-26ac3f6a' template.json.pkr.hcl
-
-      - name: Build artifacts for Prod
-        # Run this job irrespective of tests failing, if this is the release branch;
-        # or only if the tests pass, if this is the master branch.
-        if: (success() && github.ref == 'refs/heads/master') ||
-          ( always() &&
-          (
-          github.event_name == 'workflow_dispatch' ||
-          github.event_name == 'push' ||
-          (
-          github.event_name == 'pull_request_review' &&
-          github.event.review.state == 'approved' &&
-          github.event.pull_request.head.repo.full_name == github.repository
-          )
-          ) &&
-          github.ref == 'refs/heads/release'
-          )
+      - name: Build artifacts
         run : |
           cd deploy/packer;
+          packer build -var 'vpc_id=vpc-41b8bd29' -var 'subnet_id=subnet-26ac3f6a' template.json.pkr.hcl
           packer build -var 'vpc_id=vpc-35b1475e' -var 'subnet_id=subnet-2d46fa61' template.json.pkr.hcl
