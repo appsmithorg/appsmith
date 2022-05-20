@@ -1,12 +1,12 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Organization;
-import com.appsmith.server.dtos.OrganizationApplicationsDTO;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ class ApplicationFetcherTest {
     private ApplicationPageService applicationPageService;
 
     @Autowired
-    private OrganizationService organizationService;
+    private WorkspaceService workspaceService;
 
     @Autowired
     private ApplicationFetcher applicationFetcher;
@@ -38,13 +38,13 @@ class ApplicationFetcherTest {
     @WithUserDetails("api_user")
     void getAllApplications_WhenUnpublishedPageExists_ReturnsApplications() {
         String randomUUID = UUID.randomUUID().toString();
-        Organization newOrg = new Organization();
-        newOrg.setName("org_" + randomUUID);
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("org_" + randomUUID);
 
-        Mono<UserHomepageDTO> homepageDTOMono = organizationService.create(newOrg).flatMap(organization -> {
+        Mono<UserHomepageDTO> homepageDTOMono = workspaceService.create(newWorkspace).flatMap(workspace -> {
             Application application = new Application();
             application.setName("app_" + randomUUID);
-            return applicationPageService.createApplication(application, organization.getId());
+            return applicationPageService.createApplication(application, workspace.getId());
         }).flatMap(application -> {
             PageDTO pageDTO = new PageDTO();
             pageDTO.setName("New page");
@@ -54,9 +54,9 @@ class ApplicationFetcherTest {
         StepVerifier.create(homepageDTOMono).assertNext(userHomepageDTO -> {
             assertThat(userHomepageDTO.getOrganizationApplications()).isNotNull();
 
-            OrganizationApplicationsDTO orgApps = userHomepageDTO.getOrganizationApplications().stream().filter(
-                    x -> x.getOrganization().getName().equals(newOrg.getName())
-            ).findFirst().orElse(new OrganizationApplicationsDTO());
+            WorkspaceApplicationsDTO orgApps = userHomepageDTO.getOrganizationApplications().stream().filter(
+                    x -> x.getOrganization().getName().equals(newWorkspace.getName())
+            ).findFirst().orElse(new WorkspaceApplicationsDTO());
 
             assertThat(orgApps.getApplications().size()).isEqualTo(1);
             assertThat(orgApps.getApplications().get(0).getPublishedPages().size()).isEqualTo(1);
