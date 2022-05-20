@@ -608,15 +608,14 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     if (property.getValue() instanceof String) {
 
                         // In case the entire value finds a match in the mappedColumns, replace it
-                        Pattern replacePattern = Pattern.compile(Pattern.quote(property.getValue().toString()));
-                        Matcher matcher = replacePattern.matcher(property.getValue().toString());
-                        property.setValue(matcher.replaceAll(key ->
-                                mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
-                        );
+                        String propertyValue = ((String) property.getValue());
+                        if (mappedColumns.containsKey(propertyValue)) {
+                            property.setValue(mappedColumns.get(propertyValue));
+                        }
 
-                        // If the column name is present inside a string (like json), then find all the words and replace
+                        // If the column name is present inside a string, then find all the words and replace
                         // the column name with user one.
-                        matcher = WORD_PATTERN.matcher(property.getValue().toString());
+                        Matcher matcher = WORD_PATTERN.matcher((String) property.getValue());
                         property.setValue(matcher.replaceAll(key ->
                                 mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
                         );
