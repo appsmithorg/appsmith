@@ -451,7 +451,7 @@ Cypress.Commands.add("SearchEntityAndUnfold", (apiname1) => {
 
 Cypress.Commands.add("OpenBindings", (apiname1) => {
   cy.wait(500);
-  cy.get(commonlocators.entityExplorersearch)
+  cy.get(commonlocators.searchEntityInExplorer)
     .clear({ force: true })
     .type(apiname1, { force: true });
   cy.CheckAndUnfoldWidgets();
