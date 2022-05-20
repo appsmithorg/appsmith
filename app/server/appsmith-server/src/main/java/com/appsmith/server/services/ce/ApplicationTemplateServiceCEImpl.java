@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
@@ -28,8 +28,8 @@ import reactor.core.publisher.Mono;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -85,28 +85,40 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         // uriComponents will build url in format: version=version&id=id1&id=id2&id=id3
         UriComponents uriComponents = uriComponentsBuilder.build();
 
-        Flux<ApplicationTemplate> applicationTemplateFlux = WebClient
-                .create(baseUrl + "/api/v1/app-templates?" + uriComponents.getQuery())
-                .get()
-                .exchangeToFlux(clientResponse -> {
-                    if (clientResponse.statusCode().equals(HttpStatus.OK)) {
-                        return clientResponse.bodyToFlux(ApplicationTemplate.class);
-                    } else if (clientResponse.statusCode().isError()) {
-                        return Flux.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, clientResponse.statusCode()));
-                    } else {
-                        return clientResponse.createException().flatMapMany(Flux::error);
-                    }
-                });
+        // To avoid compile error as applicationTemplateFlux will be updated inside another anonymous function later
+        var lambdaContext = new Object() {
+            Flux<ApplicationTemplate> applicationTemplateFlux = WebClient
+                    .create(baseUrl + "/api/v1/app-templates?" + uriComponents.getQuery())
+                    .get()
+                    .exchangeToFlux(clientResponse -> {
+                        if (clientResponse.statusCode().equals(HttpStatus.OK)) {
+                            return clientResponse.bodyToFlux(ApplicationTemplate.class);
+                        } else if (clientResponse.statusCode().isError()) {
+                            return Flux.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, clientResponse.statusCode()));
+                        } else {
+                            return clientResponse.createException().flatMapMany(Flux::error);
+                        }
+                    });
+        };
 
-        if(!CollectionUtils.isEmpty(templateIds)) {
-            // the items should be sorted based on the order of the templateIds when it's not empty
-            applicationTemplateFlux = applicationTemplateFlux.sort(
-                    // sort based on index of id in templateIds list.
-                    // index of first item will be less than index of next item
-                    Comparator.comparingInt(o -> templateIds.indexOf(o.getId()))
-            );
-        }
-        return applicationTemplateFlux;
+        return userDataService.getForCurrentUser().flatMapMany(userData -> {
+            List<String> recentlyUsedTemplateIds = userData.getRecentlyUsedTemplateIds();
+            if(!CollectionUtils.isEmpty(recentlyUsedTemplateIds)) {
+                lambdaContext.applicationTemplateFlux = lambdaContext.applicationTemplateFlux.sort(
+                        // sort based on index of id in templateIds list.
+                        // index of first item will be less than index of next item
+                        Comparator.comparingInt(o -> {
+                            int index = templateIds.indexOf(o.getId());
+                            if(index < 0) {
+                                // template not in recent list, return a large value so that it's sorted out to the end
+                                index = Integer.MAX_VALUE;
+                            }
+                            return index;
+                        })
+                );
+            }
+            return lambdaContext.applicationTemplateFlux;
+        });
     }
 
     @Override
@@ -174,8 +186,13 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     @Override
     public Flux<ApplicationTemplate> getRecentlyUsedTemplates() {
         return userDataService.getForCurrentUser().flatMapMany(userData -> {
-            if(!CollectionUtils.isEmpty(userData.getRecentlyUsedTemplateIds())) {
-                return getActiveTemplates(userData.getRecentlyUsedTemplateIds());
+            List<String> templateIds = userData.getRecentlyUsedTemplateIds();
+            if(!CollectionUtils.isEmpty(templateIds)) {
+                return getActiveTemplates(templateIds).sort(
+                        // sort based on index of id in templateIds list.
+                        // index of first item will be less than index of next item
+                        Comparator.comparingInt(o -> templateIds.indexOf(o.getId()))
+                );
             }
             return Flux.just();
         });
