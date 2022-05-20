@@ -262,9 +262,9 @@ export function* createOrgSaga(
     }
 
     // get created org in focus
-    //@ts-expect-error: response is of type unknown
-    const slug = response.data.slug;
-    history.push(`${window.location.pathname}#${slug}`);
+    // @ts-expect-error: response is of type unknown
+    const orgId = response.data.id;
+    history.push(`${window.location.pathname}#${orgId}`);
   } catch (error) {
     yield call(reject, { _error: (error as Error).message });
     yield put({

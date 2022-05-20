@@ -1,5 +1,5 @@
 import DataTreeEvaluator from "../DataTreeEvaluator";
-import { unEvalTree } from "./mockUnEvalTree";
+import { asyncTagUnevalTree, unEvalTree } from "./mockUnEvalTree";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { DataTreeDiff } from "workers/evaluationUtils";
 import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
@@ -187,6 +187,21 @@ describe("DataTreeEvaluator", () => {
         Button2: ["Button2.text"],
         Button1: ["Button1.text"],
       });
+    });
+  });
+
+  describe("parseJsActions", () => {
+    beforeEach(() => {
+      dataTreeEvaluator.createFirstTree({});
+    });
+    it("set's isAsync tag for cross JsObject references", () => {
+      const result = dataTreeEvaluator.parseJSActions(asyncTagUnevalTree);
+      expect(
+        result.jsUpdates["JSObject1"]?.parsedBody?.actions[0].isAsync,
+      ).toBe(true);
+      expect(
+        result.jsUpdates["JSObject2"]?.parsedBody?.actions[0].isAsync,
+      ).toBe(true);
     });
   });
 });
