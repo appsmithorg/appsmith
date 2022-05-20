@@ -1,5 +1,9 @@
 import DataTreeEvaluator from "../DataTreeEvaluator";
-import { asyncTagUnevalTree, unEvalTree } from "./mockUnEvalTree";
+import {
+  arrayAccessorCyclicDependency,
+  asyncTagUnevalTree,
+  unEvalTree,
+} from "./mockUnEvalTree";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { DataTreeDiff } from "workers/evaluationUtils";
 import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
@@ -199,6 +203,64 @@ describe("DataTreeEvaluator", () => {
       expect(
         result.jsUpdates["JSObject2"]?.parsedBody?.actions[0].isAsync,
       ).toBe(true);
+    });
+  });
+
+  describe("array accessor dependency handling", () => {
+    const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
+    beforeEach(() => {
+      dataTreeEvaluator.createFirstTree(
+        arrayAccessorCyclicDependency.initUnEvalTree,
+      );
+    });
+    it("removes and adds array accessor dependencies consequently", () => {
+      dataTreeEvaluator.updateDataTree(
+        arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+      );
+      expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
+        "Api1.data",
+      ]);
+      expect(dataTreeEvaluator.dependencyMap["Api1.data"]).toStrictEqual([
+        "Api1.data[0]",
+      ]);
+      expect(dataTreeEvaluator.dependencyMap["Api1.data[0]"]).toStrictEqual([
+        "Api1.data[0].id",
+      ]);
+
+      dataTreeEvaluator.updateDataTree(
+        arrayAccessorCyclicDependency.apiFailureUnEvalTree,
+      );
+      expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
+        "Api1.data",
+      ]);
+      expect(dataTreeEvaluator.dependencyMap["Api1.data"]).toStrictEqual([]);
+      expect(dataTreeEvaluator.dependencyMap["Api1.data[0]"]).toStrictEqual(
+        undefined,
+      );
+
+      dataTreeEvaluator.updateDataTree(
+        arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+      );
+      expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
+        "Api1.data",
+      ]);
+      expect(dataTreeEvaluator.dependencyMap["Api1.data"]).toStrictEqual([
+        "Api1.data[0]",
+      ]);
+      expect(dataTreeEvaluator.dependencyMap["Api1.data[0]"]).toStrictEqual([
+        "Api1.data[0].id",
+      ]);
+
+      dataTreeEvaluator.updateDataTree(
+        arrayAccessorCyclicDependency.apiFailureUnEvalTree,
+      );
+      expect(dataTreeEvaluator.dependencyMap["Api1"]).toStrictEqual([
+        "Api1.data",
+      ]);
+      expect(dataTreeEvaluator.dependencyMap["Api1.data"]).toStrictEqual([]);
+      expect(dataTreeEvaluator.dependencyMap["Api1.data[0]"]).toStrictEqual(
+        undefined,
+      );
     });
   });
 });
