@@ -212,9 +212,10 @@ describe("DataTreeEvaluator", () => {
       );
     });
     describe("array of objects", () => {
+      // when Text1.text has a binding Api1.data[2].id
       it("on consequent API failures", () => {
-        // removes and adds array accessor dependencies
         for (let i = 0; i < 2; i++) {
+          // success: response -> [{...}, {...}, {...}]
           dataTreeEvaluator.updateDataTree(
             arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
           );
@@ -231,6 +232,7 @@ describe("DataTreeEvaluator", () => {
             "Api1.data[2].id",
           ]);
 
+          // failure: response -> {}
           dataTreeEvaluator.updateDataTree(
             arrayAccessorCyclicDependency.apiFailureUnEvalTree,
           );
@@ -249,12 +251,14 @@ describe("DataTreeEvaluator", () => {
         }
       });
 
+      // when Text1.text has a binding Api1.data[2].id
       it("on API response array length change", () => {
-        // removes and adds array accessor dependencies consequently
+        // success: response -> [{...}, {...}, {...}]
         dataTreeEvaluator.updateDataTree(
           arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
         );
 
+        // success: response -> [{...}, {...}]
         dataTreeEvaluator.updateDataTree(
           arrayAccessorCyclicDependency.apiSuccessUnEvalTree2,
         );
@@ -270,9 +274,10 @@ describe("DataTreeEvaluator", () => {
     });
 
     describe("nested array of objects", () => {
+      // when Text1.text has a binding Api1.data[2][2].id
       it("on consequent API failures", () => {
-        // removes and adds array accessor dependencies
         for (let i = 0; i < 2; i++) {
+          // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
           dataTreeEvaluator.updateDataTree(
             nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
           );
@@ -292,6 +297,7 @@ describe("DataTreeEvaluator", () => {
             "Api1.data[2][2].id",
           ]);
 
+          // failure: response -> {}
           dataTreeEvaluator.updateDataTree(
             nestedArrayAccessorCyclicDependency.apiFailureUnEvalTree,
           );
@@ -313,12 +319,14 @@ describe("DataTreeEvaluator", () => {
         }
       });
 
+      // when Text1.text has a binding Api1.data[2][2].id
       it("on API response array length change", () => {
-        // removes and adds array accessor dependencies consequently
+        // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
         dataTreeEvaluator.updateDataTree(
           nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
         );
 
+        // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}] ]
         dataTreeEvaluator.updateDataTree(
           nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree2,
         );
@@ -335,12 +343,14 @@ describe("DataTreeEvaluator", () => {
         expect(dataTreeEvaluator.dependencyMap["Text1.text"]).toStrictEqual([]);
       });
 
-      it("on API response array length change", () => {
-        // removes and adds array accessor dependencies consequently
+      // when Text1.text has a binding Api1.data[2][2].id
+      it("on API response nested array length change", () => {
+        // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
         dataTreeEvaluator.updateDataTree(
           nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
         );
 
+        // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [] ]
         dataTreeEvaluator.updateDataTree(
           nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree3,
         );
@@ -355,7 +365,7 @@ describe("DataTreeEvaluator", () => {
         );
         expect(
           dataTreeEvaluator.dependencyMap["Api1.data[2][2]"],
-        ).toBeUndefined();
+        ).toStrictEqual(undefined);
         expect(dataTreeEvaluator.dependencyMap["Text1.text"]).toStrictEqual([]);
       });
     });
