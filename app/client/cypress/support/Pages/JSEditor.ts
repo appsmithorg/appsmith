@@ -4,13 +4,13 @@ export interface ICreateJSObjectOptions {
   paste: boolean;
   completeReplace: boolean;
   toRun: boolean;
-  shouldNavigate: boolean;
+  shouldCreateNewJSObj: boolean;
 }
 const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   paste: true,
   completeReplace: false,
   toRun: true,
-  shouldNavigate: true,
+  shouldCreateNewJSObj: true,
 };
 
 export class JSEditor {
@@ -82,7 +82,7 @@ export class JSEditor {
   //#endregion
 
   //#region Page functions
-  public NavigateToJSEditor() {
+  public NavigateToNewJSEditor() {
     cy.get(this.locator._createNew)
       .last()
       .click({ force: true });
@@ -107,9 +107,9 @@ export class JSEditor {
     JSCode: string,
     options: ICreateJSObjectOptions = DEFAULT_CREATE_JS_OBJECT_OPTIONS,
   ) {
-    const { completeReplace, paste, shouldNavigate, toRun } = options;
+    const { completeReplace, paste, shouldCreateNewJSObj, toRun } = options;
 
-    shouldNavigate && this.NavigateToJSEditor();
+    shouldCreateNewJSObj && this.NavigateToNewJSEditor();
     if (!completeReplace) {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
@@ -377,7 +377,7 @@ export class JSEditor {
     this.agHelper.GetNClick(this._codeTab);
   }
   /**
- * 
+ *
   There are two types of parse errors in the JS Editor
   1. Parse errors that render the JS Object invalid and all functions unrunnable
   2. Parse errors within functions that throw errors when executing those functions

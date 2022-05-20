@@ -39,7 +39,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
     jsEditor.EnableDisableAsyncFuncSettings("getId", false, true); //Only before calling confirmation is enabled by User here
@@ -189,7 +189,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
 
@@ -251,7 +251,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
 
@@ -440,7 +440,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
 

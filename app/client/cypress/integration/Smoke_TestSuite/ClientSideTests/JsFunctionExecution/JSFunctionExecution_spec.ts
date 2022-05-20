@@ -15,7 +15,7 @@ describe("JS Function Execution", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
 
@@ -33,7 +33,7 @@ describe("JS Function Execution", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
 
@@ -41,8 +41,8 @@ describe("JS Function Execution", function() {
   });
 
   it("3. Prioritizes parse errors that render JS Object invalid over function execution parse errors in debugger callouts", function() {
-    const JSObjectWithFunctionExecutionParseErrors = `export default {  
-      myFun1 :()=>{  
+    const JSObjectWithFunctionExecutionParseErrors = `export default {
+      myFun1 :()=>{
         return f
       }
     }`;
@@ -58,7 +58,7 @@ describe("JS Function Execution", function() {
       paste: true,
       completeReplace: true,
       toRun: true,
-      shouldNavigate: true,
+      shouldCreateNewJSObj: true,
     });
 
     // Assert presence of function execution parse error callout
@@ -69,7 +69,7 @@ describe("JS Function Execution", function() {
       paste: true,
       completeReplace: true,
       toRun: false,
-      shouldNavigate: false,
+      shouldCreateNewJSObj: false,
     });
 
     // Assert presence of parse error callout (entire JS Object is invalid)
