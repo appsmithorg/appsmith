@@ -11,7 +11,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
@@ -26,7 +26,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
@@ -85,16 +85,16 @@ public class ActionCollectionServiceTest {
     UserService userService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
-    OrganizationRepository organizationRepository;
+    WorkspaceRepository workspaceRepository;
 
     @Autowired
     PluginRepository pluginRepository;
 
     @Autowired
-    UserOrganizationService userOrganizationService;
+    UserWorkspaceService userWorkspaceService;
 
     @Autowired
     NewActionService newActionService;
@@ -119,14 +119,14 @@ public class ActionCollectionServiceTest {
         User apiUser = userService.findByEmail("api_user").block();
         assert apiUser != null;
         orgId = apiUser.getOrganizationIds().iterator().next();
-        Organization organization = organizationService.getById(orgId).block();
+        Workspace workspace = workspaceService.getById(orgId).block();
 
         if (testApp == null && testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
-            assert organization != null;
-            testApp = applicationPageService.createApplication(application, organization.getId()).block();
+            assert workspace != null;
+            testApp = applicationPageService.createApplication(application, workspace.getId()).block();
 
             assert testApp != null;
             final String pageId = testApp.getPages().get(0).getId();
@@ -156,9 +156,9 @@ public class ActionCollectionServiceTest {
             layout.setPublishedDsl(dsl);
         }
 
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        assert testOrg != null;
-        orgId = testOrg.getId();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
+        assert testWorkspace != null;
+        orgId = testWorkspace.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setOrganizationId(orgId);
@@ -210,7 +210,7 @@ public class ActionCollectionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void addUserToOrganizationAsAdminAndCheckActionCollectionPermissions() {
+    public void addUserToWorkspaceAsAdminAndCheckActionCollectionPermissions() {
 
         // Create action collection
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
@@ -227,7 +227,7 @@ public class ActionCollectionServiceTest {
         userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
         userRole.setUsername("usertest@usertest.com");
 
-        userOrganizationService.addUserRoleToOrganization(testApp.getOrganizationId(), userRole).block();
+        userWorkspaceService.addUserRoleToWorkspace(testApp.getOrganizationId(), userRole).block();
 
         assert actionCollection != null;
         Mono<ActionCollection> readActionCollectionMono =

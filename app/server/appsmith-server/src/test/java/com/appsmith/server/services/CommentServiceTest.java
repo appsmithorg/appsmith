@@ -7,7 +7,7 @@ import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
@@ -69,7 +69,7 @@ public class CommentServiceTest {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     PolicyUtils policyUtils;
@@ -81,7 +81,7 @@ public class CommentServiceTest {
     private NotificationRepository notificationRepository;
 
     @Autowired
-    private UserOrganizationService userOrganizationService;
+    private UserWorkspaceService userWorkspaceService;
 
     @MockBean
     private Analytics analytics;
@@ -109,14 +109,14 @@ public class CommentServiceTest {
     @WithUserDetails(value = "api_user")
     public void setup() {
         String randomId = UUID.randomUUID().toString();
-        Organization organization = new Organization();
-        organization.setName(randomId + "-test-org");
+        Workspace workspace = new Workspace();
+        workspace.setName(randomId + "-test-org");
 
-        final Mono<Tuple2<CommentThread, List<CommentThread>>> resultMono = organizationService
-                .create(organization).flatMap(organization1 -> {
+        final Mono<Tuple2<CommentThread, List<CommentThread>>> resultMono = workspaceService
+                .create(workspace).flatMap(workspace1 -> {
                     Application application = new Application();
                     application.setName(randomId + "-test-app");
-                    application.setOrganizationId(organization1.getId());
+                    application.setOrganizationId(workspace1.getId());
                     return applicationPageService.createApplication(application);
                 })
                 .flatMap(application -> {
@@ -204,10 +204,10 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void deleteValidComment() {
-        Organization organization = new Organization();
-        organization.setName("CommentDeleteTestOrg");
-        Mono<Comment> beforeDeletionMono = organizationService
-                .create(organization)
+        Workspace workspace = new Workspace();
+        workspace.setName("CommentDeleteTestOrg");
+        Mono<Comment> beforeDeletionMono = workspaceService
+                .create(workspace)
                 .flatMap(org -> {
                     Application testApplication = new Application();
                     testApplication.setName("CommentDeleteApp");
@@ -241,10 +241,10 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testAddReaction() {
-        Organization organization = new Organization();
-        organization.setName("ReactionsOrg");
-        Mono<Comment> reactionMono = organizationService
-                .create(organization)
+        Workspace workspace = new Workspace();
+        workspace.setName("ReactionsOrg");
+        Mono<Comment> reactionMono = workspaceService
+                .create(workspace)
                 .flatMap(org -> {
                     Application testApplication = new Application();
                     testApplication.setName("ReactionApp");
@@ -280,10 +280,10 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testAddAndRemoveReaction() {
-        Organization organization = new Organization();
-        organization.setName("ReactionsOrg");
-        Mono<Comment> reactionMono = organizationService
-                .create(organization)
+        Workspace workspace = new Workspace();
+        workspace.setName("ReactionsOrg");
+        Mono<Comment> reactionMono = workspaceService
+                .create(workspace)
                 .flatMap(org -> {
                     Application testApplication = new Application();
                     testApplication.setName("ReactionApp");
@@ -502,11 +502,11 @@ public class CommentServiceTest {
         userData.setCommentOnboardingState(CommentOnboardingState.COMMENTED);
         Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
 
-        Organization organization = new Organization();
-        organization.setName("GetThreadsTestOrg");
+        Workspace workspace = new Workspace();
+        workspace.setName("GetThreadsTestOrg");
 
-        Mono<List<CommentThread>> commentThreadListMono = organizationService
-                .create(organization)
+        Mono<List<CommentThread>> commentThreadListMono = workspaceService
+                .create(workspace)
                 .flatMap(org -> {
                     Application testApplication = new Application();
                     testApplication.setName("GetThreadsTestApplication");
@@ -544,13 +544,13 @@ public class CommentServiceTest {
         userData.setCommentOnboardingState(CommentOnboardingState.COMMENTED);
         Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
 
-        Organization organization = new Organization();
-        organization.setName("CreateThreadTestOrg");
+        Workspace workspace = new Workspace();
+        workspace.setName("CreateThreadTestOrg");
 
         String testUsernameForNotification = "test_username_for_notification";
 
-        Mono<Long> notificationCount = organizationService
-                .create(organization)
+        Mono<Long> notificationCount = workspaceService
+                .create(workspace)
                 .flatMap(org -> {
                     Application testApplication = new Application();
                     testApplication.setName("CreateThreadsTestApplication");
@@ -612,19 +612,19 @@ public class CommentServiceTest {
                 userDataRepository.removeIdFromRecentlyUsedList(any(String.class), any(String.class), any(List.class))
         ).thenReturn(Mono.just(Mockito.mock(UpdateResult.class)));
         String randomId = UUID.randomUUID().toString();
-        Organization organization = new Organization();
-        organization.setName("Comment test " + randomId);
+        Workspace workspace = new Workspace();
+        workspace.setName("Comment test " + randomId);
 
-        Mono<CommentThread> commentThreadMono = organizationService.create(organization).flatMap(organization1 -> {
+        Mono<CommentThread> commentThreadMono = workspaceService.create(workspace).flatMap(workspace1 -> {
             Application application = new Application();
             application.setName("Comment test " + randomId);
             ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
             applicationAccessDTO.setPublicAccess(true);
-            return applicationPageService.createApplication(application, organization1.getId()).flatMap(
+            return applicationPageService.createApplication(application, workspace1.getId()).flatMap(
                     createdApp -> applicationService.changeViewAccess(application.getId(), applicationAccessDTO)
             );
         }).flatMap(application -> {
-            // add another admin to this org and remove api_user from this organization
+            // add another admin to this org and remove api_user from this workspace
             User user = new User();
             user.setEmail("some_other_user");
             user.setPassword("mypassword");
@@ -635,8 +635,8 @@ public class CommentServiceTest {
             userRole.setRole(AppsmithRole.ORGANIZATION_ADMIN);
 
             return userService.create(user)
-                    .then(userOrganizationService.addUserRoleToOrganization(application.getOrganizationId(), userRole))
-                    .then(userOrganizationService.leaveOrganization(application.getOrganizationId()))
+                    .then(userWorkspaceService.addUserRoleToWorkspace(application.getOrganizationId(), userRole))
+                    .then(userWorkspaceService.leaveWorkspace(application.getOrganizationId()))
                     .thenReturn(application);
         }).flatMap(application -> {
             String pageId = application.getPublishedPages().get(0).getId();

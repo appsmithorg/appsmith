@@ -446,6 +446,7 @@ export const PARSE_JS_FUNCTION_ERROR = (message: string) =>
   `Syntax error: ${message}`;
 
 export const EXECUTING_FUNCTION = () => `Executing function`;
+export const UPDATING_JS_COLLECTION = () => `Updating...`;
 export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
 export const EXPORT_DEFAULT_BEGINNING = () =>
@@ -580,6 +581,7 @@ export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next mission";
 
 // Data Sources pane
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
+export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
 
 export const SNIPPET_EXECUTION_SUCCESS = () => `Snippet executed successfully.`;
 
