@@ -119,7 +119,6 @@ export const translateDiffEventToDataTreeDiffEvent = (
   }
 
   const propertyPath = convertPathToString(difference.path);
-  // if (propertyPath === "Api1.data") debugger;
   //we do not need evaluate these paths coz these are internal paths
   const isUninterestingPathForUpdateTree = isUninterestingChangeForDependencyUpdate(
     propertyPath,
@@ -203,7 +202,11 @@ export const translateDiffEventToDataTreeDiffEvent = (
         // so dependencies will be created based on existing bindings
         if (Array.isArray(difference.rhs)) {
           result = result.concat(
-            translateDiffAddArray(propertyPath, difference.rhs),
+            translateDiffArrayIndexAccessors(
+              propertyPath,
+              difference.rhs,
+              DataTreeDiffEvent.NEW,
+            ),
           );
         }
       } else if (
@@ -223,12 +226,17 @@ export const translateDiffEventToDataTreeDiffEvent = (
             },
           };
         });
+
         // when an array is being replaced by an object
         // remove all array accessors that are deleted
         // so dependencies by existing bindings are removed
         if (Array.isArray(difference.lhs)) {
           result = result.concat(
-            translateDiffRemoveArray(propertyPath, difference.lhs),
+            translateDiffArrayIndexAccessors(
+              propertyPath,
+              difference.lhs,
+              DataTreeDiffEvent.DELETE,
+            ),
           );
         }
       }
@@ -250,15 +258,16 @@ export const translateDiffEventToDataTreeDiffEvent = (
   return result;
 };
 
-export const translateDiffRemoveArray = (
+export const translateDiffArrayIndexAccessors = (
   propertyPath: string,
   array: unknown[],
+  event: DataTreeDiffEvent,
 ) => {
   const result: DataTreeDiff[] = [];
   array.forEach((data, index) => {
     const path = `${propertyPath}[${index}]`;
     result.push({
-      event: DataTreeDiffEvent.DELETE,
+      event,
       payload: {
         propertyPath: path,
       },
@@ -266,24 +275,6 @@ export const translateDiffRemoveArray = (
   });
   return result;
 };
-
-export const translateDiffAddArray = (
-  propertyPath: string,
-  array: unknown[],
-) => {
-  const result: DataTreeDiff[] = [];
-  array.forEach((data, index) => {
-    const path = `${propertyPath}[${index}]`;
-    result.push({
-      event: DataTreeDiffEvent.NEW,
-      payload: {
-        propertyPath: path,
-      },
-    });
-  });
-  return result;
-};
-
 /*
   Table1.selectedRow
   Table1.selectedRow.email: ["Input1.defaultText"]

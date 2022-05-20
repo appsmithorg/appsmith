@@ -214,6 +214,7 @@ describe("DataTreeEvaluator", () => {
     describe("array of objects", () => {
       // when Text1.text has a binding Api1.data[2].id
       it("on consequent API failures", () => {
+        // cyclic dependency case
         for (let i = 0; i < 2; i++) {
           // success: response -> [{...}, {...}, {...}]
           dataTreeEvaluator.updateDataTree(
@@ -276,6 +277,7 @@ describe("DataTreeEvaluator", () => {
     describe("nested array of objects", () => {
       // when Text1.text has a binding Api1.data[2][2].id
       it("on consequent API failures", () => {
+        // cyclic dependency case
         for (let i = 0; i < 2; i++) {
           // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
           dataTreeEvaluator.updateDataTree(
