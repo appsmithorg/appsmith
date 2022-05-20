@@ -14,9 +14,9 @@ import java.util.Set;
 
 import static com.appsmith.server.acl.AppsmithRole.APPLICATION_ADMIN;
 import static com.appsmith.server.acl.AppsmithRole.APPLICATION_VIEWER;
-import static com.appsmith.server.acl.AppsmithRole.WORKSPACE_ADMIN;
-import static com.appsmith.server.acl.AppsmithRole.WORKSPACE_DEVELOPER;
-import static com.appsmith.server.acl.AppsmithRole.WORKSPACE_VIEWER;
+import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_ADMIN;
+import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_DEVELOPER;
+import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_VIEWER;
 
 @Slf4j
 public class RoleGraphCE {
@@ -34,8 +34,8 @@ public class RoleGraphCE {
                     hierarchyGraph.addVertex(role);
                 });
 
-        hierarchyGraph.addEdge(WORKSPACE_ADMIN, WORKSPACE_DEVELOPER);
-        hierarchyGraph.addEdge(WORKSPACE_DEVELOPER, WORKSPACE_VIEWER);
+        hierarchyGraph.addEdge(ORGANIZATION_ADMIN, ORGANIZATION_DEVELOPER);
+        hierarchyGraph.addEdge(ORGANIZATION_DEVELOPER, ORGANIZATION_VIEWER);
         hierarchyGraph.addEdge(APPLICATION_ADMIN, APPLICATION_VIEWER);
     }
 

@@ -631,8 +631,8 @@ public class CommentServiceTest {
 
             UserRole userRole = new UserRole();
             userRole.setUsername(user.getUsername());
-            userRole.setRoleName(AppsmithRole.WORKSPACE_ADMIN.getName());
-            userRole.setRole(AppsmithRole.WORKSPACE_ADMIN);
+            userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+            userRole.setRole(AppsmithRole.ORGANIZATION_ADMIN);
 
             return userService.create(user)
                     .then(userWorkspaceService.addUserRoleToWorkspace(application.getWorkspaceId(), userRole))

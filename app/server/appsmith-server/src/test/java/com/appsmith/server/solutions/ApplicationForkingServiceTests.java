@@ -260,7 +260,7 @@ public class ApplicationForkingServiceTests {
         users.add("usertest@usertest.com");
         inviteUsersDTO.setUsernames(users);
         inviteUsersDTO.setWorkspaceId(sourceWorkspace.getId());
-        inviteUsersDTO.setRoleName(AppsmithRole.WORKSPACE_VIEWER.getName());
+        inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
         userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         isSetupDone = true;

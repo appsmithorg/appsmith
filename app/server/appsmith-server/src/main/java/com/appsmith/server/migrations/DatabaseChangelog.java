@@ -707,13 +707,13 @@ public class DatabaseChangelog {
         for (final Organization organization : organizations) {
             Set<String> adminUsernames = organization.getUserRoles()
                     .stream()
-                    .filter(role -> (role.getRole().equals(AppsmithRole.WORKSPACE_ADMIN)))
+                    .filter(role -> (role.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN)))
                     .map(role -> role.getUsername())
                     .collect(Collectors.toSet());
 
             Set<String> developerUsernames = organization.getUserRoles()
                     .stream()
-                    .filter(role -> (role.getRole().equals(AppsmithRole.WORKSPACE_DEVELOPER)))
+                    .filter(role -> (role.getRole().equals(AppsmithRole.ORGANIZATION_DEVELOPER)))
                     .map(role -> role.getUsername())
                     .collect(Collectors.toSet());
 
@@ -1689,14 +1689,14 @@ public class DatabaseChangelog {
     public void addAppViewerInvitePolicy(MongockTemplate mongoTemplate) {
         final List<Organization> organizations = mongoTemplate.find(
                 query(new Criteria().andOperator(
-                        where(fieldName(QOrganization.organization.userRoles) + ".role").is(AppsmithRole.WORKSPACE_VIEWER.name())
+                        where(fieldName(QOrganization.organization.userRoles) + ".role").is(AppsmithRole.ORGANIZATION_VIEWER.name())
                 )),
                 Organization.class
         );
 
         for (final Organization org : organizations) {
             final Set<String> viewers = org.getUserRoles().stream()
-                    .filter(role -> AppsmithRole.WORKSPACE_VIEWER == role.getRole())
+                    .filter(role -> AppsmithRole.ORGANIZATION_VIEWER == role.getRole())
                     .map(UserRole::getUsername)
                     .collect(Collectors.toSet());
             mongoTemplate.updateFirst(
@@ -2449,7 +2449,7 @@ public class DatabaseChangelog {
         for (final Organization organization : organizations) {
             Set<String> adminUsernames = organization.getUserRoles()
                     .stream()
-                    .filter(role -> (role.getRole().equals(AppsmithRole.WORKSPACE_ADMIN)))
+                    .filter(role -> (role.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN)))
                     .map(role -> role.getUsername())
                     .collect(Collectors.toSet());
 
