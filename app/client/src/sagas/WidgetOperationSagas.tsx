@@ -1656,7 +1656,6 @@ export function* updateWidgetDynamicHeightSaga(
   const start = performance.now();
   const { height, widgetId } = action.payload;
 
-  console.log("Dynamic Height update saga:", { height }, { widgetId });
   const widgetsToUpdate: UpdateWidgetsPayload = {};
   const delta: Record<string, number> = {};
   // walk up the tree
@@ -1732,18 +1731,13 @@ export function* updateWidgetDynamicHeightSaga(
       ];
     }
   }
-  console.log(
-    "Dynamic Height: widgetsToUpdate:",
-    { allWidgetsToUpdate },
-    { widgetsToUpdate },
-  );
 
   yield put({
     type: ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
     payload: widgetsToUpdate,
   });
   log.debug(
-    "Dynamic Height computations took: ",
+    "Dynamic Height: Overall time taken: ",
     performance.now() - start,
     "ms",
   );
@@ -1759,21 +1753,6 @@ function getHeightDelta(
   if (!bottomRowProperty) return;
   return bottomRowProperty.propertyValue - originalBottomRow;
 }
-
-// function* computeNewWidgetPositions(
-//   widgetsWithNewDynamicHeight: UpdateWidgetsPayload,
-// ) {
-//   // Get the box which would be the widget extending
-//   // Get intersecting widgets within the same parent
-//   // Push intersecting widgets downwards by the difference in height
-
-//   const idsOfWidgetsWithNewDynamicHeights = Object.keys(
-//     widgetsWithNewDynamicHeight,
-//   );
-
-//   for (const widgetId in idsOfWidgetsWithNewDynamicHeights) {
-//   }
-// }
 
 // TODO: REFACTOR(abhinav): Move to WidgetOperationUtils
 function getWidgetDynamicHeightUpdates(
@@ -1904,25 +1883,18 @@ function* generateTreeForDynamicHeightComputations() {
     getOccupiedSpaces,
   );
 
-  // TODO(abhinav): Memoize this, in case the `UPDATE_LAYOUT` did not cause a change in
+  // TODO(abhinav): Memoize this or something, in case the `UPDATE_LAYOUT` did not cause a change in
   // widget positions and sizes
   let tree: Record<string, TreeNode> = {};
   for (const containerId in occupiedSpaces) {
-    console.log(
-      "Dynamic height generating tree:",
-      { occupiedSpaces },
-      { containerId },
-    );
     if (occupiedSpaces[containerId])
       tree = Object.assign({}, tree, generateTree(occupiedSpaces[containerId]));
   }
 
-  console.log("Dynamic Height: Tree computations", { tree });
-
   yield put(storeDynamicHeightLayoutTreeAction(tree));
   // TODO (abhinav): Push this analytics to sentry|segment?
   log.debug(
-    "Tree computations for dynamic height took:",
+    "Dynamic Height: Tree generation took:",
     performance.now() - start,
     "ms",
   );

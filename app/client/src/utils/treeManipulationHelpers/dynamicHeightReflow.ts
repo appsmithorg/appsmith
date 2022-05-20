@@ -1,4 +1,5 @@
 import boxIntersect from "box-intersect";
+import log from "loglevel";
 
 export type TreeNode = {
   aboves: string[];
@@ -28,6 +29,7 @@ export function generateTree(spaces: NodeSpace[]): Record<string, TreeNode> {
     space.bottom + MAX_BOX_SIZE,
   ]);
 
+  boxes.sort((a, b) => a[1] - b[1]); // Sort based on position, top to bottom
   const overlaps = boxIntersect(boxes);
   const { aboveMap, belowMap } = getOverlapMap(overlaps);
 
@@ -45,38 +47,22 @@ export function generateTree(spaces: NodeSpace[]): Record<string, TreeNode> {
   return tree;
 }
 
+// Gets a list of widgets below and above for each widget
+// Namely, the belowMap and aboveMap respectively.
 function getOverlapMap(arr: [number, number][]) {
-  // Iteration 1
-  arr.sort((a, b) => a[0] - b[0]); // this might not be necessary, as boxIntersect returns sorted entries
-
   const belowMap: Record<string, number[]> = {};
   const aboveMap: Record<string, number[]> = {};
-  const skiplist: Record<string, number[]> = {};
-  // Iteration 2
-  for (let i = arr.length - 1; i >= 0; i--) {
-    const left = arr[i][0];
-    const right = arr[i][1];
 
-    // Right should not exist in skilist of left
-    // Add map of right into skiplist of left
-    // Add right to map of left
-    // Remove all entries from map of right added to map of left
-    if (skiplist[left] && skiplist[left].indexOf(right) > -1) continue;
-    if (belowMap[right] && belowMap[right].length > 0) {
-      skiplist[left] = [
-        ...(skiplist[left] || []),
-        ...belowMap[right],
-        ...(skiplist[right] || []),
-      ];
+  // Iteration 1
+  for (let i = 0; i < arr.length; i++) {
+    const overlap = arr[i];
+    if (overlap[0] > overlap[1]) {
+      belowMap[overlap[1]] = [...(belowMap[overlap[1]] || []), overlap[0]];
+      aboveMap[overlap[0]] = [...(aboveMap[overlap[0]] || []), overlap[1]];
+    } else {
+      aboveMap[overlap[1]] = [...(aboveMap[overlap[1]] || []), overlap[0]];
+      belowMap[overlap[0]] = [...(belowMap[overlap[0]] || []), overlap[1]];
     }
-
-    belowMap[left] = [...(belowMap[left] || []), right];
-    aboveMap[right] = [...(aboveMap[right] || []), left];
-    // Iteration 3
-    // Remove entries from the map, if they exist in one of the belowMap entries
-    belowMap[left] = (belowMap[left] || []).filter(
-      (entry) => (skiplist[left] || []).indexOf(entry) === -1,
-    );
   }
   return { belowMap, aboveMap };
 }
@@ -87,25 +73,20 @@ function getEffectedWidgets(
   effectedWidgets = [],
 ): string[] {
   const belows = tree[id].belows;
-
   belows.forEach((belowId) => {
-    (effectedWidgets as string[]) = (effectedWidgets as string[]).concat(
-      getEffectedWidgets(belowId, tree, effectedWidgets),
-    );
     (effectedWidgets as string[]).push(belowId);
-    console.log("Dynamic height, getting effected widgets:", {
-      belows,
-      belowId,
-      effectedWidgets,
-    });
   });
   return effectedWidgets;
 }
 
+// TODO: DEBUG(abhinav): This probably doesn't take in to account the following:
+// 1. Widgets which block widgets from moving up. For example, if one widget reduces height, the widget below
+// can move up, but what if another widget is in parallel to the first widget which blocks this widget?
 export function computeChangeInPositionBasedOnDelta(
   tree: Record<string, TreeNode>,
   delta: Record<string, number>,
 ): Record<string, { topRow: number; bottomRow: number }> {
+  const start = performance.now();
   const repositionedBoxes: Record<
     string,
     { topRow: number; bottomRow: number }
@@ -154,13 +135,12 @@ export function computeChangeInPositionBasedOnDelta(
     }
   }
 
-  console.log("Dynamic Height computing delta:", {
-    delta,
-    repositionedBoxes,
-    tree,
-  });
-
   // Worst case scenario : O((n*m*m) + o + n)
-  // Looks like, I have forgotten most of the bigO stuff.
+  // Looks like, I have forgotten most of the big-O stuff.
+  log.debug(
+    "Dynamic Height: Reflow computations took:",
+    performance.now() - start,
+    "ms",
+  );
   return repositionedBoxes;
 }

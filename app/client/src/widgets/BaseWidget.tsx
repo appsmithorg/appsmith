@@ -40,6 +40,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import log from "loglevel";
 
 /***
  * BaseWidget
@@ -170,7 +171,7 @@ abstract class BaseWidget<
   updateDynamicHeight(height: number): void {
     const shouldUpdate = this.shouldUpdateDynamicHeight(height);
 
-    console.log(
+    log.debug(
       "Dynamic Height: BaseWidget updateDynamicHeight:",
       { height },
       { shouldUpdate },
