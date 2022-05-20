@@ -93,17 +93,38 @@ import {
   LINT_TOOLTIP_CLASS,
   LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
 } from "./constants";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  CMCursorPosition,
+  EditingProperty,
+  PropertyType,
+  updateCodeEditorCursor,
+  updateEditingProperty,
+} from "actions/contextActions";
+import { getCursorSelector } from "selectors/contextSelectors";
 
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
   pluginIdToImageLocation: Record<string, string>;
   recentEntities: string[];
+  pageId: string;
+  cursorPosition: CMCursorPosition | undefined;
 }
 
 interface ReduxDispatchProps {
   executeCommand: (payload: any) => void;
   startingEntityUpdation: () => void;
+  updateEditingProperty: (
+    pageId: string,
+    editingProperty: EditingProperty,
+  ) => void;
+  updateCodeEditorCursor: (
+    pageId: string,
+    widgetId: string,
+    fieldName: string,
+    cursorPosition: CMCursorPosition,
+  ) => void;
 }
 
 export type CodeEditorExpected = {
@@ -489,21 +510,49 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
+    const entityInformation: FieldEntityInformation = this.getEntityInformation();
     if (!cm.state.completionActive) {
-      const entityInformation: FieldEntityInformation = this.getEntityInformation();
       this.hinters
         .filter((hinter) => hinter.fireOnFocus)
         .forEach(
           (hinter) => hinter.showHint && hinter.showHint(cm, entityInformation),
         );
     }
+    const { ch, line, sticky } = cm.getCursor();
+    if (
+      ch === 0 &&
+      line === 0 &&
+      sticky === null &&
+      this.props.cursorPosition
+    ) {
+      cm.setCursor(this.props.cursorPosition);
+    }
+    if (entityInformation.entityType === ENTITY_TYPE.WIDGET) {
+      this.props.updateEditingProperty(this.props.pageId, {
+        propertyName: entityInformation.propertyPath,
+        propertyType: PropertyType.CODE_EDITOR,
+      });
+    }
   };
 
-  handleEditorBlur = () => {
+  handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
+    const entityInformation: FieldEntityInformation = this.getEntityInformation();
+    if (
+      entityInformation.entityType === ENTITY_TYPE.WIDGET &&
+      entityInformation.entityId &&
+      entityInformation.propertyPath
+    ) {
+      this.props.updateCodeEditorCursor(
+        this.props.pageId,
+        entityInformation.entityId,
+        entityInformation.propertyPath,
+        cm.getCursor(),
+      );
+    }
   };
 
   handleBeforeChange = (
@@ -784,6 +833,9 @@ class CodeEditor extends Component<Props, State> {
     }
 
     const entityInformation = this.getEntityInformation();
+    const propertyPath = entityInformation?.propertyPath
+      ? entityInformation.propertyPath.split(`.`).join(`_`)
+      : entityInformation?.propertyPath;
     /* Evaluation results for snippet arguments. The props below can be used to set the validation errors when computed from parent component */
     if (this.props.errors) {
       errors = this.props.errors;
@@ -845,6 +897,7 @@ class CodeEditor extends Component<Props, State> {
               isInvalid ? "t--codemirror-has-error" : ""
             }`}
             codeEditorVisibleOverflow={codeEditorVisibleOverflow}
+            data-code-editor-id={propertyPath}
             disabled={disabled}
             editorTheme={this.props.theme}
             fill={fill}
@@ -911,17 +964,36 @@ class CodeEditor extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  dynamicData: getDataTreeForAutocomplete(state),
-  datasources: state.entities.datasources,
-  pluginIdToImageLocation: getPluginIdToImageLocation(state),
-  recentEntities: getRecentEntityIds(state),
-});
+const mapStateToProps = (
+  state: AppState,
+  { dataTreePath }: EditorProps,
+): ReduxStateProps => {
+  const cursorSelector = getCursorSelector(dataTreePath);
+  return {
+    dynamicData: getDataTreeForAutocomplete(state),
+    datasources: state.entities.datasources,
+    pluginIdToImageLocation: getPluginIdToImageLocation(state),
+    recentEntities: getRecentEntityIds(state),
+    pageId: getCurrentPageId(state),
+    cursorPosition: cursorSelector(state),
+  };
+};
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
   startingEntityUpdation: () => dispatch(startingEntityUpdation()),
+  updateEditingProperty: (pageId: string, editingProperty: EditingProperty) =>
+    dispatch(updateEditingProperty(pageId, editingProperty)),
+  updateCodeEditorCursor: (
+    pageId: string,
+    widgetId: string,
+    fieldName: string,
+    cursorPosition: CMCursorPosition,
+  ) =>
+    dispatch(
+      updateCodeEditorCursor(pageId, widgetId, fieldName, cursorPosition),
+    ),
 });
 
 export default Sentry.withProfiler(

@@ -24,6 +24,7 @@ import Spinner from "components/ads/Spinner";
 import useGoogleFont from "utils/hooks/useGoogleFont";
 import { IconSize } from "components/ads/Icon";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
+import { restoreEditorContext } from "actions/contextActions";
 
 const Container = styled.section<{
   background: string;
@@ -60,6 +61,11 @@ function CanvasContainer() {
     return () => {
       dispatch(forceOpenWidgetPanel(false));
     };
+  }, []);
+
+  useEffect(() => {
+    // Restore previous context if any
+    dispatch(restoreEditorContext());
   }, []);
 
   const fontFamily = useGoogleFont(selectedTheme.properties.fontFamily.appFont);

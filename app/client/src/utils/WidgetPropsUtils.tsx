@@ -350,3 +350,7 @@ export const generateWidgetProps = (
     } else throw Error("Failed to create widget: Parent was not provided ");
   }
 };
+
+export function sanitizePropertyPath(path: string) {
+  return path.split(`.`).join(`_`);
+}

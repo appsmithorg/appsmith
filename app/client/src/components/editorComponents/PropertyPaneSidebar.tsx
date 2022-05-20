@@ -1,7 +1,7 @@
 import { get, compact } from "lodash";
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import React, { memo, useEffect, useRef, useMemo } from "react";
 
 import PerformanceTracker, {
@@ -10,7 +10,10 @@ import PerformanceTracker, {
 import { getSelectedWidgets } from "selectors/ui";
 import { tailwindLayers } from "constants/Layers";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
-import { previewModeSelector } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  previewModeSelector,
+} from "selectors/editorSelectors";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { commentModeSelector } from "selectors/commentsSelectors";
@@ -19,6 +22,7 @@ import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
 import { getWidgets } from "sagas/selectors";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 import { getAppThemingStack } from "selectors/appThemingSelectors";
+import { updateSelectedWidgets } from "actions/contextActions";
 
 type Props = {
   width: number;
@@ -28,6 +32,7 @@ type Props = {
 
 export const PropertyPaneSidebar = memo((props: Props) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const dispatch = useDispatch();
   const {
     onMouseDown,
     onMouseUp,
@@ -39,6 +44,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     props.onDragEnd,
     true,
   );
+  const currentPageId = useSelector(getCurrentPageId);
   const canvasWidgets = useSelector(getWidgets);
   const isPreviewMode = useSelector(previewModeSelector);
   const isCommentMode = useSelector(commentModeSelector);
@@ -57,6 +63,10 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   useEffect(() => {
     PerformanceTracker.stopTracking();
   });
+
+  useEffect(() => {
+    dispatch(updateSelectedWidgets(currentPageId, selectedWidgetIds));
+  }, [selectedWidgetIds]);
 
   /**
    * renders the property pane:

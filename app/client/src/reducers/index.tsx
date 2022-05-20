@@ -61,6 +61,7 @@ import { MainCanvasReduxState } from "./uiReducers/mainCanvasReducer";
 import SettingsReducer, {
   SettingsReduxState,
 } from "@appsmith/reducers/settingsReducer";
+import { contextReduxState } from "./uiReducers/contextReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -116,6 +117,7 @@ export interface AppState {
     widgetReflow: widgetReflow;
     appTheming: AppThemingState;
     mainCanvas: MainCanvasReduxState;
+    editorContext: contextReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

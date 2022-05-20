@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useRef, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import _ from "lodash";
 import Popper from "pages/Editor/Popper";
@@ -11,7 +11,10 @@ import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import {
+  ENTITY_TYPE,
+  EvaluationSubstitutionType,
+} from "entities/DataTree/dataTreeFactory";
 import Tooltip from "components/ads/Tooltip";
 import { Toaster } from "components/ads/Toast";
 import { Classes, Collapse, Button, Icon } from "@blueprintjs/core";
@@ -27,6 +30,10 @@ import { Severity } from "@sentry/react";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
 import { Indices, Layers } from "constants/Layers";
 import { Variant } from "components/ads/common";
+import { getCodePopupSelector } from "selectors/contextSelectors";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { updateCodeEditorPopup } from "actions/contextActions";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -260,17 +267,35 @@ export function PreparedStatementViewer(props: {
   );
 }
 
-export const CurrentValueViewer = memo(
-  function CurrentValueViewer(props: {
+export function CurrentValueViewer(props: {
+  theme: EditorTheme;
+  evaluatedValue: any;
+  hideLabel?: boolean;
+  preparedStatementViewer?: boolean;
+}) {
+  const [openEvaluatedValue, setOpenEvaluatedValue] = useState(true);
+  return (
+    <ControlledCurrentValueViewer
+      {...props}
+      openEvaluatedValue={openEvaluatedValue}
+      setOpenEvaluatedValue={(isOpen: boolean) => setOpenEvaluatedValue(isOpen)}
+    />
+  );
+}
+
+const ControlledCurrentValueViewer = memo(
+  function ControlledCurrentValueViewer(props: {
     theme: EditorTheme;
     evaluatedValue: any;
+    openEvaluatedValue: boolean;
+    setOpenEvaluatedValue?: (a: boolean) => void;
     hideLabel?: boolean;
     preparedStatementViewer?: boolean;
   }) {
     const codeWrapperRef = React.createRef<HTMLPreElement>();
-    const [openEvaluatedValue, setOpenEvaluatedValue] = useState(true);
+    const { openEvaluatedValue, setOpenEvaluatedValue } = props;
     const toggleEvaluatedValue = () => {
-      setOpenEvaluatedValue(!openEvaluatedValue);
+      if (!!setOpenEvaluatedValue) setOpenEvaluatedValue(!openEvaluatedValue);
     };
     let content = (
       <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
@@ -360,6 +385,7 @@ export const CurrentValueViewer = memo(
     return (
       prevProps.theme === nextProps.theme &&
       prevProps.hideLabel === nextProps.hideLabel &&
+      prevProps.openEvaluatedValue === nextProps.openEvaluatedValue &&
       // Deep-compare evaluated values to ensure we only rerender
       // when the array actually changes
       _.isEqual(prevProps.evaluatedValue, nextProps.evaluatedValue)
@@ -369,13 +395,29 @@ export const CurrentValueViewer = memo(
 
 function PopoverContent(props: PopoverContentProps) {
   const typeTextRef = React.createRef<HTMLPreElement>();
-  const [openExpectedDataType, setOpenExpectedDataType] = useState(false);
+
+  const dispatch = useDispatch();
+  const popupContextSelector = getCodePopupSelector(props.entity);
+  const popupContext = useSelector(popupContextSelector);
+  const pageId = useSelector(getCurrentPageId);
+
+  const [openExpectedDataType, setOpenExpectedDataType] = useState(
+    !!popupContext?.type,
+  );
+  const [openExpectedExample, setOpenExpectedExample] = useState(
+    !!popupContext?.example,
+  );
+  const [openEvaluatedValue, setOpenEvaluatedValue] = useState(
+    popupContext && popupContext.value !== undefined
+      ? popupContext.value
+      : true,
+  );
+
+  const toggleExpectedExample = () =>
+    setOpenExpectedExample(!openExpectedExample);
   const toggleExpectedDataType = () =>
     setOpenExpectedDataType(!openExpectedDataType);
 
-  const [openExpectedExample, setOpenExpectedExample] = useState(false);
-  const toggleExpectedExample = () =>
-    setOpenExpectedExample(!openExpectedExample);
   const {
     errors,
     expected,
@@ -388,6 +430,19 @@ function PopoverContent(props: PopoverContentProps) {
   if (hasError) {
     error = errors[0];
   }
+
+  useEffect(() => {
+    const { entityId, entityType, propertyPath } = props.entity || {};
+    if (entityType === ENTITY_TYPE.WIDGET && entityId && propertyPath) {
+      dispatch(
+        updateCodeEditorPopup(pageId, entityId, propertyPath, {
+          type: openExpectedDataType,
+          example: openExpectedExample,
+          value: openEvaluatedValue,
+        }),
+      );
+    }
+  }, [openExpectedDataType, openExpectedExample, openEvaluatedValue]);
 
   return (
     <ContentWrapper
@@ -440,9 +495,13 @@ function PopoverContent(props: PopoverContentProps) {
         </>
       )}
       {!props.hideEvaluatedValue && (
-        <CurrentValueViewer
+        <ControlledCurrentValueViewer
           evaluatedValue={props.evaluatedValue}
+          openEvaluatedValue={openEvaluatedValue}
           preparedStatementViewer={props.preparedStatementViewer}
+          setOpenEvaluatedValue={(isOpen: boolean) =>
+            setOpenEvaluatedValue(isOpen)
+          }
           theme={props.theme}
         />
       )}

@@ -5,6 +5,14 @@ import ReactDOM from "react-dom";
 import { useLocation } from "react-router";
 import ResizeObserver from "resize-observer-polyfill";
 
+export const PropertyControlsWithCodeEditors = [
+  "CHART_DATA",
+  "CODE_EDITOR",
+  "COMPUTE_VALUE",
+  "INPUT_TEXT",
+  "JSON_FORM_COMPUTE_VALUE",
+];
+
 export const draggableElement = (
   id: string,
   element: any,

@@ -41,7 +41,10 @@ import PageApi, {
   UpdateWidgetNameRequest,
   UpdateWidgetNameResponse,
 } from "api/PageApi";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   all,
   call,
@@ -53,12 +56,16 @@ import {
 } from "redux-saga/effects";
 import history from "utils/history";
 import { captureInvalidDynamicBindingPath, isNameValid } from "utils/helpers";
-import { extractCurrentDSL } from "utils/WidgetPropsUtils";
+import {
+  extractCurrentDSL,
+  sanitizePropertyPath,
+} from "utils/WidgetPropsUtils";
 import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
 import {
   getAllPageIds,
   getEditorConfigs,
   getExistingPageNames,
+  getSelectedWidget,
   getWidgets,
 } from "./selectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -110,6 +117,11 @@ import { fetchJSCollectionsForPage } from "actions/jsActionActions";
 import WidgetFactory from "utils/WidgetFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { builderURL, generateTemplateURL } from "RouteBuilder";
+import { contextReduxState } from "reducers/uiReducers/contextReducer";
+import { PropertyType } from "actions/contextActions";
+import { WidgetProps } from "widgets/BaseWidget";
+import { showModal } from "actions/widgetActions";
+import { widgetsMapWithParentModalId } from "selectors/entitiesSelector";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -220,6 +232,7 @@ export function* handleFetchedPage({
     const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
     // Update the canvas
     yield put(initCanvasLayout(canvasWidgetsPayload));
+    yield call(restoreContextSaga);
     // set current page
     yield put(updateCurrentPage(pageId, pageSlug));
     // dispatch fetch page success
@@ -244,6 +257,78 @@ export function* handleFetchedPage({
 }
 const getLastUpdateTime = (pageResponse: FetchPageResponse): number =>
   pageResponse.data.lastUpdatedTime;
+
+export function* restoreContextSaga() {
+  const pageId: string = yield select(getCurrentPageId);
+  const widgets: CanvasWidgetsReduxState = yield select(
+    widgetsMapWithParentModalId,
+  );
+  const currentSelectedWidget: WidgetProps | undefined = yield select(
+    getSelectedWidget,
+  );
+  const context: contextReduxState = yield select(
+    (state: AppState) => state.ui.editorContext,
+  );
+
+  if (!context || !context[pageId]) return;
+
+  const pageContext = context[pageId];
+
+  const selectedWidget: WidgetProps | undefined =
+    widgets[pageContext.selectedWidgetIds[0]];
+  let modalId = selectedWidget?.parentModalId;
+  if (
+    pageContext.selectedWidgetIds &&
+    pageContext.selectedWidgetIds.length > 0
+  ) {
+    if (pageContext.selectedWidgetIds.length == 1) {
+      if (
+        currentSelectedWidget &&
+        currentSelectedWidget.widgetId !== selectedWidget?.widgetId
+      )
+        return;
+      setTimeout(() => {
+        document
+          .getElementById(pageContext.selectedWidgetIds[0])
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 500);
+      if (selectedWidget && selectedWidget.type === "MODAL_WIDGET")
+        modalId = selectedWidget.widgetId;
+    }
+    if (modalId) yield put(showModal(modalId));
+    yield put(selectMultipleWidgetsAction(pageContext.selectedWidgetIds));
+  }
+
+  if (pageContext.editingProperty) {
+    const { propertyName, propertyType } = pageContext.editingProperty;
+    if (propertyName && propertyType === PropertyType.CODE_EDITOR) {
+      const input: HTMLElement | null = document.querySelector(
+        `[data-code-editor-id=${sanitizePropertyPath(
+          propertyName,
+        )}] .CodeEditorTarget textarea`,
+      );
+      input?.scrollIntoView({ block: "center" });
+      input?.focus();
+    } else if (propertyName) {
+      const control: HTMLElement | null = document.querySelector(
+        `.t--property-control-${propertyName}`,
+      );
+
+      const codeEditorInControl:
+        | HTMLElement
+        | null
+        | undefined = control?.querySelector(".CodeEditorTarget textarea");
+
+      if (codeEditorInControl) {
+        codeEditorInControl.scrollIntoView({ block: "center" });
+        codeEditorInControl.focus();
+      } else {
+        control?.scrollIntoView({ block: "center" });
+        control?.focus();
+      }
+    }
+  }
+}
 
 export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
@@ -1030,6 +1115,7 @@ export default function* pageSagas() {
       ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
       fetchPublishedPageSaga,
     ),
+    takeLatest(ReduxActionTypes.RESTORE_EDITOR_CONTEXT, restoreContextSaga),
     takeLatest(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
     takeLeading(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
     takeLeading(ReduxActionTypes.CLONE_PAGE_INIT, clonePageSaga),

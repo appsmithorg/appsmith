@@ -290,7 +290,7 @@ function* updateWidgetTextSaga() {
   }
 }
 
-function* focusWidgetPropertySaga(action: ReduxAction<string>) {
+export function* focusWidgetPropertySaga(action: ReduxAction<string>) {
   const input: HTMLElement | null = document.querySelector(
     `[data-guided-tour-iid=${action.payload}] .CodeEditorTarget textarea`,
   );

@@ -45,6 +45,9 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
+import { updateEditingProperty } from "actions/contextActions";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { PropertyControlsWithCodeEditors } from "../utils";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -66,6 +69,8 @@ const PropertyControl = memo((props: Props) => {
     propsSelector,
     isEqual,
   );
+
+  const currentPageId = useSelector(getCurrentPageId);
 
   const enhancementSelector = getWidgetEnhancementSelector(
     widgetProperties.widgetId,
@@ -462,6 +467,19 @@ const PropertyControl = memo((props: Props) => {
       return props.customJSControl;
     };
 
+    const handleOnFocus = () => {
+      if (
+        !PropertyControlsWithCodeEditors.includes(props.controlType) ||
+        isDynamic
+      ) {
+        dispatch(
+          updateEditingProperty(currentPageId, {
+            propertyName: className,
+          }),
+        );
+      }
+    };
+
     /**
      * should the property control hide evaluated popover
      * @returns
@@ -483,6 +501,7 @@ const PropertyControl = memo((props: Props) => {
           data-guided-tour-iid={propertyName}
           id={uniqId}
           key={config.id}
+          onFocus={handleOnFocus}
           orientation={
             config.controlType === "SWITCH" && !isDynamic
               ? "HORIZONTAL"
