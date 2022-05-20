@@ -19,9 +19,11 @@ import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QTenant;
+import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.QWorkspace;
-import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Sequence;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -31,12 +33,14 @@ import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.redis.core.ReactiveRedisOperations;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -872,5 +876,40 @@ public class DatabaseChangelog2 {
                 mongockTemplate.save(workspace);
             });
         }
+    }
+
+    @ChangeSet(order = "014", id = "add-tenant-to-all-users-and-flush-redis", author = "")
+    public void addTenantToUsersAndFlushRedis(MongockTemplate mongockTemplate, ReactiveRedisOperations<String, String>reactiveRedisOperations) {
+
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+        assert(defaultTenant != null);
+
+        Query userQueryAll = new Query();
+        userQueryAll.addCriteria(where(fieldName(QUser.user.deleted)).is(FALSE));
+        userQueryAll.addCriteria(where(fieldName(QUser.user.deletedAt)).is(null));
+
+        //Memory optimization note:
+        //Call stream instead of findAll to avoid out of memory if the collection is big
+        //stream implementation lazy loads the data using underlying cursor open on the collection
+        //the data is loaded as and when needed by the pipeline
+        try(Stream<User> stream = mongockTemplate.stream(userQueryAll, User.class)
+                .stream()) {
+            stream.forEach((user) -> {
+                user.setTenantId(defaultTenant.getId());
+                mongockTemplate.save(user);
+            });
+        }
+
+        // Now sign out all the existing users since this change impacts the user object.
+        final String script =
+                "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))" +
+                        " do redis.call('del',k) " +
+                        "end";
+        final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
+
+        flushdb.subscribe();
+
     }
 }
