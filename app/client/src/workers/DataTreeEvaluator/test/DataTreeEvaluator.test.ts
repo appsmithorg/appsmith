@@ -1,5 +1,5 @@
 import DataTreeEvaluator from "../DataTreeEvaluator";
-import { asyncTagUnevalTree, unEvalTree } from "./mockUnEvalTree";
+import { asyncTagUnevalTree, unEvalTree } from "./mockData/mockUnEvalTree";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { DataTreeDiff } from "workers/evaluationUtils";
 import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
