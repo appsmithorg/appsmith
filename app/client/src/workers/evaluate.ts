@@ -89,15 +89,13 @@ export const getScriptToEval = (
 export function setupEvaluationEnvironment() {
   ///// Adding extra libraries separately
   extraLibraries.forEach((library) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore: No types available
+    // @ts-expect-error: Types are not available
     self[library.accessor] = library.lib;
   });
 
   ///// Remove all unsafe functions
   unsafeFunctionForEval.forEach((func) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore: No types available
+    // @ts-expect-error: Types are not available
     self[func] = undefined;
   });
 }
@@ -261,8 +259,7 @@ export default function evaluateSync(
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
     for (const entity in GLOBAL_DATA) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       self[entity] = GLOBAL_DATA[entity];
     }
 
@@ -281,8 +278,7 @@ export default function evaluateSync(
       });
     } finally {
       for (const entity in GLOBAL_DATA) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore: No types available
+        // @ts-expect-error: Types are not available
         delete self[entity];
       }
     }
@@ -321,8 +317,7 @@ export async function evaluateAsync(
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
     Object.keys(GLOBAL_DATA).forEach((key) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       self[key] = GLOBAL_DATA[key];
     });
 
@@ -346,8 +341,7 @@ export async function evaluateAsync(
         triggers: Array.from(self.TRIGGER_COLLECTOR),
       });
       for (const entity in GLOBAL_DATA) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore: No types available
+        // @ts-expect-error: Types are not available
         delete self[entity];
       }
     }
@@ -405,8 +399,7 @@ export function isFunctionAsync(
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
     Object.keys(GLOBAL_DATA).forEach((key) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       self[key] = GLOBAL_DATA[key];
     });
     try {
@@ -426,8 +419,7 @@ export function isFunctionAsync(
     }
     const isAsync = !!self.IS_ASYNC;
     for (const entity in GLOBAL_DATA) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       delete self[entity];
     }
     return isAsync;

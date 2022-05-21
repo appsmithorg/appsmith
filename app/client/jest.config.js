@@ -10,6 +10,7 @@ module.exports = {
   transform: {
     "^.+\\.(png|js|ts|tsx)$": "ts-jest",
   },
+  testEnvironment: "jsdom",
   setupFilesAfterEnv: ["<rootDir>/test/setup.ts"],
   testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.(tsx|ts|js)?$",
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],

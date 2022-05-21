@@ -22,9 +22,5 @@
 	"retries": {
 		"runMode": 2,
 		"openMode": 0
-	},
-	"env": {
-		"USERNAME": "arsalanyaldram0211@outlook.com",
-		"PASSWORD": "arsenal0211"
 	}
 }

@@ -6,11 +6,9 @@ import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
 
 const widgetConfigMap = {};
 ALL_WIDGETS_AND_CONFIG.map(([, config]) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore: No types available
+  // @ts-expect-error: Types are not available
   if (config.type && config.properties) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore: No types available
+    // @ts-expect-error: Types are not available
     widgetConfigMap[config.type] = {
       // @ts-expect-error: properties does not exists
       defaultProperties: config.properties.default,
@@ -129,14 +127,12 @@ describe("DataTreeEvaluator", () => {
 
   describe("test updateDependencyMap", () => {
     beforeEach(() => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       dataTreeEvaluator.createFirstTree(unEvalTree as DataTree);
     });
 
     it("initial dependencyMap computation", () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       dataTreeEvaluator.updateDataTree(unEvalTree as DataTree);
 
       expect(dataTreeEvaluator.dependencyMap).toStrictEqual({

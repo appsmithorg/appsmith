@@ -32,7 +32,6 @@ import WidgetFactory from "utils/WidgetFactory";
 import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
-import { shouldBeDefined } from "utils/helpers";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { builderURL } from "RouteBuilder";
 import { ApplicationVersion } from "actions/applicationActions";
@@ -196,10 +195,8 @@ export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 export const getCurrentPageName = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>
-    shouldBeDefined<Page>(
-      pageList.pages.find((page) => page.pageId === pageList.currentPageId),
-      `Page not found for id - ${pageList.currentPageId}`,
-    )?.pageName,
+    pageList.pages.find((page) => page.pageId === pageList.currentPageId)
+      ?.pageName,
 );
 
 export const getWidgetCards = createSelector(

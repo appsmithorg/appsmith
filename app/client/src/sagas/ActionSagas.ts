@@ -330,13 +330,11 @@ export function* updateActionSaga(
     /* NOTE: This  is fix for a missing command config */
     const plugin: Plugin | undefined = yield select(getPlugin, action.pluginId);
     if (action && plugin && plugin.packageName === PLUGIN_PACKAGE_MONGO) {
-      /* eslint-disable-next-line */
-      //@ts-ignore
+      // @ts-expect-error: Types are not available
       action = fixActionPayloadForMongoQuery(action);
     }
     const response: ApiResponse<Action> = yield ActionAPI.updateAction(
-      /* eslint-disable-next-line */
-      //@ts-ignore
+      // @ts-expect-error: Types are not available
       action,
     );
     const isValidResponse: boolean = yield validateResponse(response);

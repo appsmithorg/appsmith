@@ -216,9 +216,7 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
     case LOG_TYPE.JS_PARSE_SUCCESS:
       AppsmithConsole.deleteError(payload.source?.id ?? "");
       break;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    // Fall through intentional here
+    // @ts-expect-error: Types are not available
     case LOG_TYPE.TRIGGER_EVAL_ERROR:
       yield put(debuggerLog(payload));
     case LOG_TYPE.EVAL_ERROR:

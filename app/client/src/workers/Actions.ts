@@ -113,8 +113,6 @@ const DATA_TREE_FUNCTIONS: Record<
   run: {
     qualifier: (entity) => isAction(entity),
     func: (entity) =>
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       function(
         onSuccessOrParams?: () => unknown | Record<string, unknown>,
         onError?: () => unknown,

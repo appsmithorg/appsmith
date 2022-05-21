@@ -75,6 +75,7 @@ describe("GetJSResponseViewState", () => {
 
     const expectedState = JSResponseState.NoResponse;
     const actualState = getJSResponseViewState(
+      // @ts-expect-error: type mismatch
       currentFunction,
       isDirty,
       isExecuting,
@@ -96,6 +97,7 @@ describe("GetJSResponseViewState", () => {
 
     const expectedState = JSResponseState.IsUpdating;
     const actualState = getJSResponseViewState(
+      // @ts-expect-error: type mismatch
       currentFunction,
       isDirty,
       isExecuting,
@@ -117,6 +119,7 @@ describe("GetJSResponseViewState", () => {
 
     const expectedState = JSResponseState.IsExecuting;
     const actualState = getJSResponseViewState(
+      // @ts-expect-error: type mismatch
       currentFunction,
       isDirty,
       isExecuting,
@@ -142,6 +145,7 @@ describe("GetJSResponseViewState", () => {
 
     const expectedState = JSResponseState.IsDirty;
     const actualState = getJSResponseViewState(
+      // @ts-expect-error: type mismatch
       currentFunction,
       isDirty,
       isExecuting,
@@ -165,6 +169,7 @@ describe("GetJSResponseViewState", () => {
 
     const expectedState = JSResponseState.IsExecuting;
     const actualState = getJSResponseViewState(
+      // @ts-expect-error: type mismatch
       currentFunction,
       isDirty,
       isExecuting,
@@ -188,6 +193,7 @@ describe("GetJSResponseViewState", () => {
 
     const expectedState = JSResponseState.NoReturnValue;
     const actualState = getJSResponseViewState(
+      // @ts-expect-error: type mismatch
       currentFunction,
       isDirty,
       isExecuting,
@@ -211,6 +217,7 @@ describe("GetJSResponseViewState", () => {
 
     const expectedState = JSResponseState.ShowResponse;
     const actualState = getJSResponseViewState(
+      // @ts-expect-error: type mismatch
       currentFunction,
       isDirty,
       isExecuting,
@@ -233,6 +240,7 @@ describe("GetJSResponseViewState", () => {
 
     const expectedState = JSResponseState.IsExecuting;
     const actualState = getJSResponseViewState(
+      // @ts-expect-error: type mismatch
       currentFunction,
       isDirty,
       isExecuting,
@@ -253,6 +261,7 @@ describe("GetJSResponseViewState", () => {
 
     const expectedState = JSResponseState.NoResponse;
     const actualState = getJSResponseViewState(
+      // @ts-expect-error: type mismatch
       currentFunction,
       isDirty,
       isExecuting,
