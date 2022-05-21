@@ -197,21 +197,16 @@ export const generateDataTreeWidget = (
 
   // overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
   Object.entries(defaultMetaProps).forEach(([key, value]) => {
+    // Since meta properties are always updated as a whole, we are replacing instead of merging.
+    // Merging mutates the memoized value, avoid merging meta values
+    const propertyValue = key in widgetMetaProps ? widgetMetaProps[key] : value;
+
     if (overridingMetaPropsMap[key]) {
-      overridingMetaProps[key] =
-        key in widgetMetaProps ? widgetMetaProps[key] : value;
+      overridingMetaProps[key] = propertyValue;
     }
   });
 
   const meta = _.merge(overridingMetaProps, widgetMetaProps);
-
-  Object.entries({ ...defaultMetaProps, ...widgetMetaProps }).forEach(
-    ([key, value]) => {
-      // Since meta properties are always updated as a whole, we are replacing instead of merging.
-      // Merging mutates the memoized value, avoid merging meta values
-      dataTreeWidget[key] = value;
-    },
-  );
 
   dataTreeWidget["meta"] = meta;
   return dataTreeWidget;
