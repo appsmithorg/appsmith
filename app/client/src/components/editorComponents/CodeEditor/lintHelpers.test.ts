@@ -126,7 +126,7 @@ describe("getLintAnnotations()", () => {
     ]);
   });
 
-  it("Return correct annotation with newline in original binding", () => {
+  it("should return correct annotation with newline in original binding", () => {
     const value = `Hello {{ world
     }}`;
     const errors: EvaluationError[] = [
@@ -166,6 +166,31 @@ describe("getLintAnnotations()", () => {
           ch: 14,
         },
         message: "'world' is not defined.",
+        severity: "error",
+      },
+    ]);
+  });
+
+  it("should return proper annotation when jsobject does not start with expected statement", () => {
+    const value = `// An invalid JS Object
+    export default {
+
+    }
+    `;
+    const errors: EvaluationError[] = [];
+
+    const res = getLintAnnotations(value, errors, true);
+    expect(res).toEqual([
+      {
+        from: {
+          line: 0,
+          ch: 0,
+        },
+        to: {
+          line: 0,
+          ch: 23,
+        },
+        message: "JSObject must start with 'export default'",
         severity: "error",
       },
     ]);

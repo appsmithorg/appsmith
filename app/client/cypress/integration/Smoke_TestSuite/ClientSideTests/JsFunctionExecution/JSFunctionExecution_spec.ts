@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const jsEditor = ObjectsRegistry.JSEditor;
+const jsEditor = ObjectsRegistry.JSEditor,
+  locator = ObjectsRegistry.CommonLocators;
 
 describe("JS Function Execution", function() {
   it("1. Allows execution of js function when lint warnings(not errors) are present in code", function() {
@@ -74,5 +75,25 @@ describe("JS Function Execution", function() {
 
     // Assert presence of parse error callout (entire JS Object is invalid)
     jsEditor.AssertParseError(true, false);
+  });
+  it("4. Shows lint error when JS Object doesn't start with 'export default'", () => {
+    const testComment = "// Invalid JS Object";
+    const invalidJSObject = `${testComment}
+    export default{
+      fun1:()=>true
+    }
+    `;
+    // create jsObject that doesn't start with 'export default'
+    jsEditor.CreateJSObject(invalidJSObject, {
+      paste: true,
+      completeReplace: true,
+      toRun: true,
+      shouldNavigate: true,
+    });
+
+    // Assert presence of lint error at the start line
+    cy.get(locator._lintErrorElement)
+      .should("exist")
+      .should("have.text", testComment);
   });
 });
