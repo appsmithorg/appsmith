@@ -148,16 +148,16 @@
         document.getElementById("loader").style.opacity = 0;
       });
     });
-    // const registerPageServiceWorker = () => {
-    //   if ("serviceWorker" in navigator) {
-    //     window.addEventListener("load", function () {
-    //       navigator.serviceWorker.register("/pageService.js").catch(error => {
-    //         console.error("Service Worker Registration failed: " + error);
-    //       });
-    //     });
-    //   }
-    // };
-    // registerPageServiceWorker();
+    const registerPageServiceWorker = () => {
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("/pageService.js").catch(error => {
+            console.error("Service Worker Registration failed: " + error);
+          });
+        });
+      }
+    };
+    registerPageServiceWorker();
   </script>
   <script type="text/javascript">
     const LOG_LEVELS = ["debug", "error"];
