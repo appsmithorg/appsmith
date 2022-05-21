@@ -3,10 +3,12 @@ import {
   EvaluationError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { CODE_EDITOR_START_POSITION } from "./constants";
 import {
   getKeyPositionInString,
   getLintAnnotations,
   getAllWordOccurrences,
+  getFirstNonEmptyPosition,
 } from "./lintHelpers";
 
 describe("getAllWordOccurences()", function() {
@@ -194,5 +196,31 @@ describe("getLintAnnotations()", () => {
         severity: "error",
       },
     ]);
+  });
+});
+
+describe("getFirstNonEmptyPosition", () => {
+  it("should return valid first non-empty position", () => {
+    const lines1 = ["", "export default{", "myFun1:()=> 1"];
+    const lines2 = ["export default{", "myFun1:()=> 1"];
+    const lines3: string[] = [];
+
+    const expectedPosition1 = {
+      line: 1,
+      ch: 15,
+    };
+    const expectedPosition2 = {
+      line: 0,
+      ch: 15,
+    };
+    const expectedPosition3 = CODE_EDITOR_START_POSITION;
+
+    const actualPosition1 = getFirstNonEmptyPosition(lines1);
+    const actualPosition2 = getFirstNonEmptyPosition(lines2);
+    const actualPosition3 = getFirstNonEmptyPosition(lines3);
+
+    expect(expectedPosition1).toEqual(actualPosition1);
+    expect(expectedPosition2).toEqual(actualPosition2);
+    expect(expectedPosition3).toEqual(actualPosition3);
   });
 });
