@@ -992,13 +992,17 @@ public class DatabaseChangelog2 {
         dropIndexIfExists(mongockTemplate, Application.class, "organization_application_deleted_gitApplicationMetadata_compound_index");
         dropIndexIfExists(mongockTemplate, Datasource.class, "organization_datasource_deleted_compound_index");
 
+        //If this migration is re-run
+        dropIndexIfExists(mongockTemplate, Application.class, "workspace_application_deleted_gitApplicationMetadata_compound_index");
+        dropIndexIfExists(mongockTemplate, Datasource.class, "workspace_datasource_deleted_compound_index");
+
         ensureIndexes(mongockTemplate, Application.class,
                 makeIndex(
                     fieldName(QApplication.application.workspaceId),
                     fieldName(QApplication.application.name),
                     fieldName(QApplication.application.deletedAt),
-                    fieldName(QApplication.application.gitApplicationMetadata.remoteUrl),
-                    fieldName(QApplication.application.gitApplicationMetadata.branchName))
+                    "gitApplicationMetadata.remoteUrl",
+                    "gitApplicationMetadata.branchName")
                         .unique().named("workspace_application_deleted_gitApplicationMetadata_compound_index")
         );
         ensureIndexes(mongockTemplate, Datasource.class,
