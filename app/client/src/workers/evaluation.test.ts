@@ -537,7 +537,7 @@ describe("DataTreeEvaluator", () => {
     });
   });
 
-  it("Selects a row", () => {
+  it.skip("Selects a row", () => {
     const updatedUnEvalTree = {
       ...unEvalTree,
       Table1: {
