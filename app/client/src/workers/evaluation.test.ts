@@ -226,6 +226,15 @@ const BASE_WIDGET: DataTreeWidget = {
   overridingPropertyPaths: {},
   privateWidgets: {},
 };
+const getBaseWidget = (widgetName: string) => {
+  return {
+    ...BASE_WIDGET,
+    widgetId: Math.random()
+      .toFixed(0)
+      .toString(),
+    widgetName,
+  };
+};
 
 const BASE_ACTION: DataTreeAction = {
   clear: {},
@@ -267,7 +276,7 @@ const dependencyMap = {
     "Dropdown1.selectedOptionLabel",
     "Dropdown1.selectedOptionValue",
   ],
-  "Dropdown1.isValid": [],
+  "Dropdown1.isValid": ["Dropdown1.selectedOptionValue"],
   "Dropdown1.filterText": ["Dropdown1.meta.filterText"],
   "Dropdown1.meta": [
     "Dropdown1.meta.filterText",
@@ -277,8 +286,8 @@ const dependencyMap = {
     "Dropdown1.defaultOptionValue",
     "Dropdown1.meta.selectedOption",
   ],
-  "Dropdown1.selectedOptionLabel": [],
-  "Dropdown1.selectedOptionValue": [],
+  "Dropdown1.selectedOptionLabel": ["Dropdown1.selectedOption"],
+  "Dropdown1.selectedOptionValue": ["Dropdown1.selectedOption"],
   Table1: [
     "Table1.defaultSearchText",
     "Table1.defaultSelectedRow",
@@ -303,8 +312,8 @@ const dependencyMap = {
   Text3: ["Text3.text", "Text3.value"],
   "Text3.value": ["Text3.text"],
   Text4: ["Text4.text", "Text4.value"],
-  "Text4.text": ["Table1.selectedRow"],
-  "Text4.value": [],
+  "Text4.text": [],
+  "Text4.value": ["Text4.text"],
 };
 
 describe("DataTreeEvaluator", () => {
@@ -319,7 +328,7 @@ describe("DataTreeEvaluator", () => {
   });
   const Input1 = generateDataTreeWidget(
     {
-      ...BASE_WIDGET,
+      ...getBaseWidget("Input1"),
       text: undefined,
       defaultText: "Default value",
       widgetName: "Input1",
@@ -336,7 +345,7 @@ describe("DataTreeEvaluator", () => {
   const unEvalTree: Record<string, DataTreeWidget> = {
     Text1: generateDataTreeWidget(
       {
-        ...BASE_WIDGET,
+        ...getBaseWidget("Text1"),
         widgetName: "Text1",
         text: "Label",
         type: "TEXT_WIDGET",
@@ -345,7 +354,7 @@ describe("DataTreeEvaluator", () => {
     ),
     Text2: generateDataTreeWidget(
       {
-        ...BASE_WIDGET,
+        ...getBaseWidget("Text2"),
         widgetName: "Text2",
         text: "{{Text1.text}}",
         dynamicBindingPathList: [{ key: "text" }],
@@ -355,7 +364,7 @@ describe("DataTreeEvaluator", () => {
     ),
     Text3: generateDataTreeWidget(
       {
-        ...BASE_WIDGET,
+        ...getBaseWidget("Text3"),
         widgetName: "Text3",
         text: "{{Text1.text}}",
         dynamicBindingPathList: [{ key: "text" }],
@@ -365,7 +374,7 @@ describe("DataTreeEvaluator", () => {
     ),
     Dropdown1: generateDataTreeWidget(
       {
-        ...BASE_WIDGET,
+        ...getBaseWidget("Dropdown1"),
         options: [
           {
             label: "test",
@@ -382,7 +391,7 @@ describe("DataTreeEvaluator", () => {
     ),
     Table1: generateDataTreeWidget(
       {
-        ...BASE_WIDGET,
+        ...getBaseWidget("Table1"),
         tableData:
           "{{Api1.data.map(datum => ({ ...datum, raw: Text1.text }) )}}",
         dynamicBindingPathList: [{ key: "tableData" }],
@@ -392,8 +401,8 @@ describe("DataTreeEvaluator", () => {
     ),
     Text4: generateDataTreeWidget(
       {
-        ...BASE_WIDGET,
-        text: "{{Table1.selectedRow.test}}",
+        ...getBaseWidget("Text4"),
+        text: "{{Table1.selectedRowIndex}}",
         dynamicBindingPathList: [{ key: "text" }],
         type: "TEXT_WIDGET",
         reactivePaths: {
@@ -472,7 +481,7 @@ describe("DataTreeEvaluator", () => {
     const updatedUnEvalTree = {
       ...unEvalTree,
       Dropdown2: {
-        ...BASE_WIDGET,
+        ...getBaseWidget("Dropdown2"),
         options: [
           {
             label: "newValue",
@@ -542,11 +551,8 @@ describe("DataTreeEvaluator", () => {
       ...unEvalTree,
       Table1: {
         ...unEvalTree.Table1,
-        selectedRowIndex: 0,
-        selectedRow: {
-          test: "Hey",
-          raw: "Label",
-        },
+        selectedRowIndex: 2,
+        selectedRow: undefined,
       },
       Api1: {
         ...BASE_ACTION,
@@ -574,12 +580,14 @@ describe("DataTreeEvaluator", () => {
         raw: "Label",
       },
     ]);
-    expect(dataTree).toHaveProperty("Text4.text", "Hey");
+    expect(dataTree).toHaveProperty("Text4.text", "2");
     expect(sortObjectWithArray(updatedDependencyMap)).toStrictEqual({
       Api1: ["Api1.data"],
       ...dependencyMap,
+      // "Table1.selectedRow": ["Table1.selectedRowIndex"],
       "Table1.tableData": ["Api1.data", "Text1.text"],
       "Text3.text": ["Text1.text"],
+      "Text4.text": ["Table1.selectedRowIndex"], // when selectedRowIndex is added to unEvalTree Text3.text will show its dependency in the dependencyMap
     });
   });
 
@@ -587,7 +595,7 @@ describe("DataTreeEvaluator", () => {
     const updatedTree1 = {
       ...unEvalTree,
       Text1: {
-        ...BASE_WIDGET,
+        ...getBaseWidget("Text1"),
         text: "Test",
       },
       Api2: {
