@@ -25,7 +25,7 @@ describe("Binding the list widget with text widget", function() {
     cy.get(publish.backToEditor).click({ force: true });
   });
 
-  it.skip("Validate text widget data based on changes in list widget Data2", function() {
+  it("Validate text widget data based on changes in list widget Data2", function() {
     cy.SearchEntityandOpen("List1");
     cy.updateComputedValue(
       '[[{ "name": "pawan"}, { "name": "Vivek" }], [{ "name": "Ashok"}, {"name": "rahul"}]]',
@@ -56,7 +56,7 @@ describe("Binding the list widget with text widget", function() {
     cy.get(publish.backToEditor).click({ force: true });
   });
 
-  it.skip("Validate text widget data based on changes in list widget Data3", function() {
+  it("Validate text widget data based on changes in list widget Data3", function() {
     cy.SearchEntityandOpen("List1");
     cy.updateComputedValue('[{ "name": "pawan"}, { "name": "Vivek" }]');
     cy.wait("@updateLayout").should(
@@ -85,19 +85,16 @@ describe("Binding the list widget with text widget", function() {
     cy.get(publish.backToEditor).click({ force: true });
   });
 
-  it("Validate delete widget action from sidebar", function() {
+  it("Validate delete widget action from side bar", function() {
     //cy.SearchEntityandOpen("List1");
     cy.openPropertyPane("listwidget");
-    cy.widgetText(
-      "Test",
-      viewWidgetsPage.listWidget,
-      commonlocators.containerInnerText,
-    );
-
+    cy.verifyUpdatedWidgetName("Test");
+    //cy.verifyUpdatedWidgetName("*&^%$");
+    cy.verifyUpdatedWidgetName("12345");
     cy.get(".t--delete-widget").click({ force: true });
     cy.get(".t--toast-action span")
       .eq(0)
-      .contains("List1 is removed");
+      .contains("12345 is removed");
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
