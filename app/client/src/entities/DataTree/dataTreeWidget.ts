@@ -22,7 +22,6 @@ const generateDataTreeWidgetWithoutMeta = (
   dataTreeWidgetWithoutMetaProps: DataTreeWidget;
   overridingMetaPropsMap: Record<string, boolean>;
   defaultMetaProps: Record<string, unknown>;
-  derivedProps: Record<string, unknown>;
 } => {
   const derivedProps: any = {};
   const blockedDerivedProps: Record<string, true> = {};
@@ -163,7 +162,6 @@ const generateDataTreeWidgetWithoutMeta = (
     dataTreeWidgetWithoutMetaProps,
     overridingMetaPropsMap,
     defaultMetaProps,
-    derivedProps,
   };
 };
 
@@ -196,7 +194,7 @@ export const generateDataTreeWidget = (
     overridingMetaPropsMap,
   } = generateDataTreeWidgetWithoutMetaMemoized(widget);
   const overridingMetaProps: Record<string, unknown> = {};
-  // cloning default and derived props to avoid mutation
+
   // overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
   Object.entries(defaultMetaProps).forEach(([key, value]) => {
     if (overridingMetaPropsMap[key]) {
@@ -206,8 +204,10 @@ export const generateDataTreeWidget = (
   });
 
   const meta = _.merge({}, overridingMetaProps, widgetMetaProps);
-  const mergedProperties = _.merge({}, defaultMetaProps, widgetMetaProps);
+
   // if meta property's value is defined in widgetMetaProps then use that else set meta property to default metaProperty value.
+  const mergedProperties = _.merge({}, defaultMetaProps, widgetMetaProps);
+
   Object.entries(mergedProperties).forEach(([key, value]) => {
     // Since meta properties are always updated as a whole, we are replacing instead of merging.
     // Merging mutates the memoized value, avoid merging meta values
