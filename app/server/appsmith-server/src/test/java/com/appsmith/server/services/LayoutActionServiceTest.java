@@ -11,7 +11,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
@@ -29,7 +29,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -89,10 +89,10 @@ public class LayoutActionServiceTest {
     UserService userService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
-    OrganizationRepository organizationRepository;
+    WorkspaceRepository workspaceRepository;
 
     @Autowired
     PluginRepository pluginRepository;
@@ -145,13 +145,13 @@ public class LayoutActionServiceTest {
         newPageService.deleteAll();
         User apiUser = userService.findByEmail("api_user").block();
         orgId = apiUser.getOrganizationIds().iterator().next();
-        Organization organization = organizationService.getById(orgId).block();
+        Workspace workspace = workspaceService.getById(orgId).block();
 
         if (testApp == null && testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
-            testApp = applicationPageService.createApplication(application, organization.getId()).block();
+            testApp = applicationPageService.createApplication(application, workspace.getId()).block();
 
             final String pageId = testApp.getPages().get(0).getId();
 
@@ -202,7 +202,7 @@ public class LayoutActionServiceTest {
                                 .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
                     })
                     // Assign the branchName to all the resources connected to the application
-                    .flatMap(tuple -> importExportApplicationService.importApplicationInOrganization(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                    .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                     .block();
 
             gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false).block();
@@ -210,8 +210,8 @@ public class LayoutActionServiceTest {
             branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
         }
 
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        orgId = testOrg.getId();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
+        orgId = testWorkspace.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setOrganizationId(orgId);

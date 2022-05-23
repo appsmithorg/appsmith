@@ -86,13 +86,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     public Mono<ResponseDTO<Boolean>> publish(@PathVariable String defaultApplicationId,
                                               @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return applicationPageService.publish(defaultApplicationId, branchName, true)
-                .flatMap(application ->
-                        // This event should parallel a similar event sent from the client, so we want it to be sent by the
-                        // controller and not the service method.
-                        applicationPageService.sendApplicationPublishedEvent(application)
-                                // This will only be called when the publishing was successful, so we can always return `true` here.
-                                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null))
-                );
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 
     @PutMapping("/{defaultApplicationId}/page/{defaultPageId}/makeDefault")
@@ -124,7 +118,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @GetMapping("/new")
     public Mono<ResponseDTO<UserHomepageDTO>> getAllApplicationsForHome() {
-        log.debug("Going to get all applications grouped by organization");
+        log.debug("Going to get all applications grouped by workspace");
         return applicationFetcher.getAllApplications()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
@@ -152,12 +146,12 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
-    @PostMapping("/{defaultApplicationId}/fork/{organizationId}")
+    @PostMapping("/{defaultApplicationId}/fork/{workspaceId}")
     public Mono<ResponseDTO<Application>> forkApplication(
             @PathVariable String defaultApplicationId,
-            @PathVariable String organizationId,
+            @PathVariable String workspaceId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return applicationForkingService.forkApplicationToOrganization(defaultApplicationId, organizationId, branchName)
+        return applicationForkingService.forkApplicationToWorkspace(defaultApplicationId, workspaceId, branchName)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
@@ -174,12 +168,12 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 });
     }
 
-    @PostMapping(value = "/import/{orgId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromFile(@RequestPart("file") Mono<Part> fileMono,
-                                                                             @PathVariable String orgId) {
-        log.debug("Going to import application in organization with id: {}", orgId);
+                                                                             @PathVariable String workspaceId) {
+        log.debug("Going to import application in workspace with id: {}", workspaceId);
         return fileMono
-                .flatMap(file -> importExportApplicationService.extractFileAndSaveApplication(orgId, file))
+                .flatMap(file -> importExportApplicationService.extractFileAndSaveApplication(workspaceId, file))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
@@ -206,8 +200,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @PatchMapping("{applicationId}/themes/{themeId}")
-    public Mono<ResponseDTO<Theme>> setCurrentTheme(@PathVariable String applicationId, @PathVariable String themeId) {
-        return themeService.changeCurrentTheme(themeId, applicationId)
+    public Mono<ResponseDTO<Theme>> setCurrentTheme(@PathVariable String applicationId, @PathVariable String themeId, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return themeService.changeCurrentTheme(themeId, applicationId, branchName)
                 .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
     }
 

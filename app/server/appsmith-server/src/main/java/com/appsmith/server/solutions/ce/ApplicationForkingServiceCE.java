@@ -5,10 +5,10 @@ import reactor.core.publisher.Mono;
 
 public interface ApplicationForkingServiceCE {
 
-    Mono<Application> forkApplicationToOrganization(String srcApplicationId, String targetOrganizationId);
+    Mono<Application> forkApplicationToWorkspace(String srcApplicationId, String targetWorkspaceId);
 
-    Mono<Application> forkApplicationToOrganization(String srcApplicationId,
-                                                    String targetOrganizationId,
+    Mono<Application> forkApplicationToWorkspace(String srcApplicationId,
+                                                    String targetWorkspaceId,
                                                     String branchName);
 
 }
