@@ -22,6 +22,7 @@ const generateDataTreeWidgetWithoutMeta = (
   dataTreeWidgetWithoutMetaProps: DataTreeWidget;
   overridingMetaPropsMap: Record<string, boolean>;
   defaultMetaProps: Record<string, unknown>;
+  derivedProps: Record<string, unknown>;
 } => {
   const derivedProps: any = {};
   const blockedDerivedProps: Record<string, true> = {};
@@ -136,7 +137,8 @@ const generateDataTreeWidgetWithoutMeta = (
     unInitializedDefaultProps,
     // defaultMetaProps,
     // widgetMetaProps,
-    derivedProps,
+    // derivedProps,
+    // sequence of merge of defaultMetaProps, widgetMetaProps, derivedProps matters. Hence, we retain the same sequence in generateDataTreeWidget.
     {
       defaultProps,
       defaultMetaProps: Object.keys(defaultMetaProps),
@@ -145,7 +147,7 @@ const generateDataTreeWidgetWithoutMeta = (
         ...widget.logBlackList,
         ...blockedDerivedProps,
       },
-      // meta: _.merge(overridingMetaProps, widgetMetaProps),
+      meta: {}, // this will be overridden by meta value calculated in generateDataTreeWidget
       propertyOverrideDependency,
       overridingPropertyPaths,
       bindingPaths,
@@ -157,11 +159,12 @@ const generateDataTreeWidgetWithoutMeta = (
         ...widget.privateWidgets,
       },
     },
-  );
+  ) as DataTreeWidget;
   return {
     dataTreeWidgetWithoutMetaProps,
     overridingMetaPropsMap,
     defaultMetaProps,
+    derivedProps,
   };
 };
 
@@ -191,6 +194,7 @@ export const generateDataTreeWidget = (
   const {
     dataTreeWidgetWithoutMetaProps: dataTreeWidget,
     defaultMetaProps,
+    derivedProps,
     overridingMetaPropsMap,
   } = generateDataTreeWidgetWithoutMetaMemoized(widget);
   const overridingMetaProps: Record<string, unknown> = {};
@@ -204,7 +208,13 @@ export const generateDataTreeWidget = (
   });
 
   const meta = _.merge(overridingMetaProps, widgetMetaProps);
-  const mergedMetaProperties = _.merge(defaultMetaProps, widgetMetaProps); // if meta property's value is defined in widgetMetaProps then use that else set meta property to default metaProperty value.
+  const mergedMetaProperties = {
+    ...defaultMetaProps,
+    ...widgetMetaProps,
+    ...derivedProps,
+  };
+  // if meta property's value is defined in widgetMetaProps then use that else set meta property to default metaProperty value.
+  // if value is derived property override the default and meta by value in derivedProps.
   Object.entries(mergedMetaProperties).forEach(([key, value]) => {
     // Since meta properties are always updated as a whole, we are replacing instead of merging.
     // Merging mutates the memoized value, avoid merging meta values
