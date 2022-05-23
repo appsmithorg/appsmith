@@ -157,6 +157,27 @@ public class Application extends BaseDomain {
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
     }
 
+    public void removeUnwantedFieldsFromApplicationDuringExport() {
+        this.setOrganizationId(null);
+//        this.setPages(null);
+//        this.setPublishedPages(null);
+        this.setModifiedBy(null);
+        this.setUpdatedAt(null);
+        this.setCreatedAt(null);
+        this.setCreatedBy(null);
+        this.setLastDeployedAt(null);
+        this.setLastEditedAt(null);
+        this.setUpdatedAt(null);
+        this.setGitApplicationMetadata(null);
+        this.setPolicies(null);
+        this.setUserPermissions(null);
+        this.setEditModeThemeId(null);
+        this.setPublishedModeThemeId(null);
+        this.setClientSchemaVersion(null);
+        this.setServerSchemaVersion(null);
+        this.setIsManualUpdate(false);
+    }
+
     public List<ApplicationPage> getPages() {
         return Boolean.TRUE.equals(viewMode) ? publishedPages : pages;
     }

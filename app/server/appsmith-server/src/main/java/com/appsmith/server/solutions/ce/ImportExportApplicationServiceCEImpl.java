@@ -20,7 +20,6 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -29,6 +28,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -57,7 +57,6 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -244,7 +243,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     final String organizationId = application.getOrganizationId();
                     List<String> pageOrderList = application.getPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
                     List<String> publishedPageOrderList = application.getPublishedPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
-                    removeUnwantedFieldsFromApplicationDuringExport(application);
+                    application.removeUnwantedFieldsFromApplicationDuringExport();
                     examplesOrganizationCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
                     Set<String> dbNamesUsedInActions = new HashSet<>();
@@ -2037,24 +2036,5 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     return Mono.just(datasourceList);
                 });
-    }
-
-    private void removeUnwantedFieldsFromApplicationDuringExport(Application application) {
-            application.setOrganizationId(null);
-            application.setPages(null);
-            application.setPublishedPages(null);
-            application.setModifiedBy(null);
-            application.setUpdatedAt(null);
-            application.setLastDeployedAt(null);
-            application.setLastEditedAt(null);
-            application.setUpdatedAt(null);
-            application.setGitApplicationMetadata(null);
-            application.setPolicies(null);
-            application.setUserPermissions(null);
-            application.setEditModeThemeId(null);
-            application.setPublishedModeThemeId(null);
-            application.setClientSchemaVersion(null);
-            application.setServerSchemaVersion(null);
-            application.setIsManualUpdate(false);
     }
 }
