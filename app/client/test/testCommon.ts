@@ -16,6 +16,7 @@ import { getCanvasWidgets } from "selectors/entitiesSelector";
 
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { DSLWidget } from "widgets/constants";
+import { updateAndSaveLayout } from "actions/pageActions";
 
 export const useMockDsl = (dsl: any) => {
   const dispatch = useDispatch();
@@ -62,10 +63,7 @@ export const useMockDsl = (dsl: any) => {
       applicationId: mockResp.data.applicationId,
     },
   });
-  dispatch({
-    type: "UPDATE_LAYOUT",
-    payload: { widgets: canvasWidgetsPayload.widgets },
-  });
+  dispatch(updateAndSaveLayout(canvasWidgetsPayload.widgets));
 
   dispatch(updateCurrentPage(mockResp.data.id));
 };
