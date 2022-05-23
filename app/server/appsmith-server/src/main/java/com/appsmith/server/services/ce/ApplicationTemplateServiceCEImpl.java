@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
@@ -157,9 +157,9 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @Override
-    public Mono<Application> importApplicationFromTemplate(String templateId, String organizationId) {
+    public Mono<Application> importApplicationFromTemplate(String templateId, String workspaceId) {
         return getApplicationJsonFromTemplate(templateId).flatMap(applicationJson ->
-            importExportApplicationService.importApplicationInOrganization(organizationId, applicationJson)
+            importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson)
         ).flatMap(application -> {
             ApplicationTemplate applicationTemplate = new ApplicationTemplate();
             applicationTemplate.setId(templateId);

@@ -5,6 +5,7 @@ import React, {
   useRef,
   forwardRef,
   useCallback,
+  RefObject,
 } from "react";
 import styled, { css } from "styled-components";
 import { Colors } from "constants/Colors";
@@ -205,6 +206,7 @@ export type EntityProps = {
   preRightIcon?: ReactNode;
   onClickPreRightIcon?: () => void;
   isSticky?: boolean;
+  collapseRef?: RefObject<HTMLDivElement> | null;
   customAddButton?: ReactNode;
 };
 
@@ -218,11 +220,11 @@ export const Entity = forwardRef(
 
     /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
-      if (props.isDefaultExpanded) {
+      if (props.isDefaultExpanded || props.searchKeyword) {
         open(true);
         props.onToggle && props.onToggle(true);
       }
-    }, [props.isDefaultExpanded]);
+    }, [props.isDefaultExpanded, props.searchKeyword]);
     useEffect(() => {
       if (!props.searchKeyword && !props.isDefaultExpanded) {
         open(false);
@@ -363,7 +365,12 @@ export const Entity = forwardRef(
             )}
             <Loader isVisible={isUpdating} />
           </EntityItem>
-          <Collapse active={props.active} isOpen={isOpen} step={props.step}>
+          <Collapse
+            active={props.active}
+            collapseRef={props.collapseRef}
+            isOpen={isOpen}
+            step={props.step}
+          >
             {props.children}
           </Collapse>
         </Wrapper>

@@ -106,7 +106,7 @@ class PhoneInputWidget extends BaseInputWidget<
               propertyName: "defaultText",
               label: "Default Text",
               controlType: "INPUT_TEXT",
-              placeholderText: "John Doe",
+              placeholderText: "(000) 000-0000",
               isBindProperty: true,
               isTriggerProperty: false,
               validation: {
@@ -115,7 +115,7 @@ class PhoneInputWidget extends BaseInputWidget<
                   fn: defaultValueValidation,
                   expected: {
                     type: "string",
-                    example: `000 0000`,
+                    example: `(000) 000-0000`,
                     autocompleteDataType: AutocompleteDataType.STRING,
                   },
                 },
