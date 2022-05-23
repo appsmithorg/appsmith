@@ -13,9 +13,13 @@ export class HomePage {
   private _workspaceList = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ")";
   private _workspaceShareUsersIcon = (workspaceName: string) =>
-    ".t--workspace-section:contains(" + workspaceName + ") .workspace-share-user-icons";
+    ".t--workspace-section:contains(" +
+    workspaceName +
+    ") .workspace-share-user-icons";
   private _shareWorkspace = (workspaceName: string) =>
-    ".t--workspace-section:contains(" + workspaceName + ") button:contains('Share')";
+    ".t--workspace-section:contains(" +
+    workspaceName +
+    ") button:contains('Share')";
   private _email = "//input[@type='email']";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
   private _userRole = (role: string) =>
@@ -40,7 +44,7 @@ export class HomePage {
   private _editAppName = "bp3-editable-text-editing";
   private _appMenu = ".t--editor-appname-menu-portal .bp3-menu-item";
   private _buildFromScratchActionCard = ".t--BuildFromScratch";
-  private _buildFromDataTableActionCard = ".t--GenerateCRUDPage";
+  _buildFromDataTableActionCard = ".t--GenerateCRUDPage";
   private _selectRole = "//span[text()='Select a role']/ancestor::div";
   private _searchInput = "input[type='text']";
   _appHoverIcon = (action: string) => ".t--application-" + action + "-link";
@@ -57,7 +61,8 @@ export class HomePage {
   //private _userRoleDropDown = (email: string) => "//td[text()='" + email + "']/following-sibling::td"
   private _leaveWorkspaceConfirmModal = ".t--member-delete-confirmation-modal";
   private _workspaceImportAppModal = ".t--import-application-modal";
-  private _leaveWorkspaceConfirmButton = "[data - cy= t--workspace-leave - button]";
+  private _leaveWorkspaceConfirmButton =
+    "[data - cy= t--workspace-leave - button]";
   private _lastWorkspaceInHomePage =
     "//div[contains(@class, 't--workspace-section')][last()]//span/span";
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
@@ -105,11 +110,18 @@ export class HomePage {
     cy.get(this._workspaceList(workspaceName))
       .scrollIntoView()
       .should("be.visible");
-    cy.get(this._workspaceShareUsersIcon(workspaceName)).should("have.length", count);
+    cy.get(this._workspaceShareUsersIcon(workspaceName)).should(
+      "have.length",
+      count,
+    );
   }
 
   //Maps to inviteUserForWorkspace in command.js
-  public InviteUserToWorkspace(workspaceName: string, email: string, role: string) {
+  public InviteUserToWorkspace(
+    workspaceName: string,
+    email: string,
+    role: string,
+  ) {
     const successMessage = "The user has been invited successfully";
     this.stubPostHeaderReq();
     cy.get(this._workspaceList(workspaceName))
