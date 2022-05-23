@@ -89,13 +89,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     public Mono<ResponseDTO<Boolean>> publish(@PathVariable String defaultApplicationId,
                                               @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return applicationPageService.publish(defaultApplicationId, branchName, true)
-                .flatMap(application ->
-                        // This event should parallel a similar event sent from the client, so we want it to be sent by the
-                        // controller and not the service method.
-                        applicationPageService.sendApplicationPublishedEvent(application)
-                                // This will only be called when the publishing was successful, so we can always return `true` here.
-                                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null))
-                );
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 
     @PutMapping("/{defaultApplicationId}/page/{defaultPageId}/makeDefault")
