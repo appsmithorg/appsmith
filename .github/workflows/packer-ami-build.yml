@@ -9,12 +9,6 @@ on:
 
 jobs:
   packer:
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.pull_request.head.repo.full_name == github.repository)
 
     runs-on: ubuntu-latest
     name: ami-packer-build
@@ -48,5 +42,4 @@ jobs:
       - name: Build artifacts
         run : |
           cd deploy/packer;
-          packer build -var 'vpc_id=vpc-41b8bd29' -var 'subnet_id=subnet-26ac3f6a' template.json.pkr.hcl
-          packer build -var 'vpc_id=vpc-35b1475e' -var 'subnet_id=subnet-2d46fa61' template.json.pkr.hcl
+          packer build -var vpc_id=${{ secrets.APPSMITH_AWS_VPC_PROD }} -var subnet_id=${{ secrets.APPSMITH_AWS_PROD_SUBNET }} -var token=${{ secrets.DO_TOKEN }} template.json.pkr.hcl
