@@ -51,6 +51,13 @@ import java.util.List;
         repositoryBaseClass = BaseRepositoryImpl.class
 )
 public class MongoConfig {
+
+    /*
+        Changing this froom ApplicationRunner to InitializingBeanRunner
+        We are doing so because when one migration failed to run because API call executed before migration on old data
+        and made inconsistent for migration, having API calls run on unmigrated data is also a issue.
+        Link to documentation: https://docs.mongock.io/v5/runner/springboot/index.html
+    */
     @Bean
     public MongockSpring5.MongockInitializingBeanRunner  mongockInitializingBeanRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {
         SpringDataMongoV3Driver springDataMongoV3Driver = SpringDataMongoV3Driver.withDefaultLock(mongoTemplate);
