@@ -86,10 +86,13 @@ describe("Binding the list widget with text widget", function() {
   });
 
   it("Validate delete widget action from side bar", function() {
-    //cy.SearchEntityandOpen("List1");
     cy.openPropertyPane("listwidget");
     cy.verifyUpdatedWidgetName("Test");
-    //cy.verifyUpdatedWidgetName("*&^%$");
+    cy.get(commonlocators.editWidgetName)
+      .click({ force: true })
+      .type("#$%1234", { delay: 300 })
+      .type("{enter}");
+    cy.get(".t--widget-name").contains("___1234");
     cy.verifyUpdatedWidgetName("12345");
     cy.get(".t--delete-widget").click({ force: true });
     cy.get(".t--toast-action span")
