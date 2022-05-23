@@ -140,7 +140,7 @@ public enum AppsmithError {
     FILE_PART_DATA_BUFFER_ERROR(500, 5017, "Failed to upload file with error: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
     MIGRATION_ERROR(500, 5018, "This action is already migrated", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     INVALID_GIT_SSH_URL(400, 4050, "Please enter valid SSH URL of your repository", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, null),
-    ENV_FILE_NOT_FOUND(500, 5019, "Environment file not found", AppsmithErrorAction.DEFAULT, null, ErrorType.CONFIGURATION_ERROR, null),
+    ENV_FILE_NOT_FOUND(500, 5019, "Admin Settings is unavailable. Unable to read and write to Environment file.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONFIGURATION_ERROR, null),
     ;
 
     private final Integer httpErrorCode;
