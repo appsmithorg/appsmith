@@ -27,11 +27,10 @@ import {
 } from "./constants";
 import { getFieldStylesheet } from "./helper";
 
-type Obj = Record<string, any>;
-type JSON = Obj | Obj[];
+type Obj = Record<string, unknown>;
 
 type ParserOptions = {
-  currSourceData?: JSON | string;
+  currSourceData?: unknown;
   fieldThemeStylesheets?: FieldThemeStylesheet;
   fieldType?: FieldType;
   isCustomField?: boolean;
@@ -60,10 +59,14 @@ type GetKeysFromSchemaOptions = {
 };
 
 type ParseOptions = {
-  currSourceData?: JSON;
+  currSourceData?: unknown;
   schema?: Schema;
   fieldThemeStylesheets?: FieldThemeStylesheet;
 };
+
+function isObject(val: unknown): val is Obj {
+  return typeof val === "object" && !Array.isArray(val) && val !== null;
+}
 
 /**
  *
@@ -604,7 +607,7 @@ class SchemaParser {
 
   // This method deals with the conversion of array data to a schema
   static convertArrayToSchema = ({
-    currSourceData = [],
+    currSourceData,
     fieldThemeStylesheets,
     prevSchema = {},
     sourceDataPath,
@@ -612,7 +615,12 @@ class SchemaParser {
     ...rest
   }: Omit<ParserOptions, "identifier">): Schema => {
     const schema = klona(prevSchema);
-    const currData = normalizeArrayValue(currSourceData as any[]);
+
+    if (!Array.isArray(currSourceData)) {
+      return schema;
+    }
+
+    const currData = normalizeArrayValue(currSourceData);
 
     const prevDataType = schema[ARRAY_ITEM_KEY]?.dataType;
     const currDataType = dataTypeFor(currData);
@@ -644,7 +652,7 @@ class SchemaParser {
 
   // This method deals with the conversion of object data to a schema
   static convertObjectToSchema = ({
-    currSourceData = {},
+    currSourceData,
     prevSchema = {},
     sourceDataPath,
     widgetName,
@@ -654,8 +662,10 @@ class SchemaParser {
     const origIdentifierToIdentifierMap = mapOriginalIdentifierToSanitizedIdentifier(
       schema,
     );
-    const currObj = currSourceData as Obj;
 
+    if (!isObject(currSourceData)) {
+      return schema;
+    }
     const customFieldAccessors = getKeysFromSchema(prevSchema, ["accessor"], {
       onlyCustomFieldKeys: true,
     });
@@ -683,7 +693,7 @@ class SchemaParser {
     modifiedKeys.forEach((modifiedKey) => {
       const identifier = origIdentifierToIdentifierMap[modifiedKey];
       const prevSchemaItem = klona(schema[identifier]);
-      const currData = currObj[modifiedKey];
+      const currData = currSourceData[modifiedKey];
       const prevData = prevSchemaItem.sourceData;
       const currDataType = dataTypeFor(currData);
       const prevDataType = schema[identifier].dataType;
@@ -743,7 +753,7 @@ class SchemaParser {
     newKeys.forEach((newKey) => {
       const schemaItem = SchemaParser.getSchemaItemFor(newKey, {
         ...rest,
-        currSourceData: currObj[newKey],
+        currSourceData: currSourceData[newKey],
         sourceDataPath: getSourcePath(newKey, sourceDataPath),
         identifier: sanitizeSchemaItemKey(newKey, schema),
         widgetName,
