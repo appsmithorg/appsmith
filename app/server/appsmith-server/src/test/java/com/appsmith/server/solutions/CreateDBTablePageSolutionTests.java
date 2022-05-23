@@ -147,14 +147,14 @@ public class CreateDBTablePageSolutionTests {
             "OFFSET {{(data_table.pageNo - 1) * data_table.pageSize}};",
 
         "UpdateQuery", "UPDATE sampleTable SET\n" +
-            "\t\t\"field1.something\" = '{{update_form.formData.field1.something}}',\n" +
-            "    \"field2\" = '{{update_form.formData.field2}}',\n" +
-            "    \"field3\" = '{{update_form.formData.field3}}',\n" +
-            "\t\t\"field4\" = '{{update_form.formData.field4}}'\n" +
+            "\t\t\"field1.something\" = '{{update_form.fieldState.field1.something.isVisible ? update_form.formData.field1.something : update_form.sourceData.field1.something}}',\n" +
+            "    \"field2\" = '{{update_form.fieldState.field2.isVisible ? update_form.formData.field2 : update_form.sourceData.field2}}',\n" +
+            "    \"field3\" = '{{update_form.fieldState.field3.isVisible ? update_form.formData.field3 : update_form.sourceData.field3}}',\n" +
+            "\t\t\"field4\" = '{{update_form.fieldState.field4.isVisible ? update_form.formData.field4 : update_form.sourceData.field4}}'\n" +
             "  WHERE \"id\" = {{data_table.selectedRow.id}};",
 
         "UpdateActionWithLessColumns", "UPDATE limitedColumnTable SET\n" +
-                "\t\t\"field1.something\" = '{{update_form.formData.field1.something}}'\n" +
+                "\t\t\"field1.something\" = '{{update_form.fieldState.field1.something.isVisible ? update_form.formData.field1.something : update_form.sourceData.field1.something}}'\n" +
                 "  WHERE \"id\" = {{data_table.selectedRow.id}};",
 
         "InsertActionWithLessColumns", "INSERT INTO limitedColumnTable (\n" +
@@ -969,7 +969,9 @@ public class CreateDBTablePageSolutionTests {
                             .isEqualTo("{ id: ObjectId('{{data_table.selectedRow.id}}') }".replaceAll(specialCharactersRegex, ""));
 
                         assertThat(((Map<String, Object>) updateMany.get("update")).get(DATA))
-                            .isEqualTo("{{update_form.formData}}");
+                            .isEqualTo("{\n" +
+                                    "  $set:{{update_form.formData}}\n" +
+                                    "}".replaceAll(specialCharactersRegex, ""));
                         assertThat(((Map<String, Object>) formData.get("smartSubstitution")).get(DATA)).isEqualTo(true);
                     } else if (queryType.equals("DELETE")) {
                         Map<String, Object> delete = (Map<String, Object>) formData.get("delete");
