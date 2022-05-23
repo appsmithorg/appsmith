@@ -616,11 +616,18 @@ export class AggregateHelper {
     return locator.eq(index).invoke(textOrValue);
   }
 
-  public AssertElementPresence(selector: string, index = 0) {
+  public AssertElementVisible(selector: string, index = 0) {
     let locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     locator.eq(index).should("be.visible");
+  }
+
+  public AssertElementExist(selector: string, index = 0) {
+    let locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    locator.eq(index).should("exist");
   }
 
   public AssertElementLength(

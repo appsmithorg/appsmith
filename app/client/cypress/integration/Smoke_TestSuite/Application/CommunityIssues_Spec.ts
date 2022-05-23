@@ -258,7 +258,7 @@ describe("AForce - Community Issues page validations", function() {
     cy.get(table._addIcon)
       .closest("div")
       .click();
-    agHelper.AssertElementPresence(locator._modal);
+    agHelper.AssertElementVisible(locator._modal);
     agHelper.SelectFromDropDown("Suggestion", "t--modal-widget");
 
     cy.get(locator._inputWidgetv1InDeployed)
@@ -301,7 +301,7 @@ describe("AForce - Community Issues page validations", function() {
   it("9. Validate Updating issue from Details tab", () => {
     agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"));
     table.SelectTableRow(0);
-    agHelper.AssertElementPresence(locator._widgetInDeployed("tabswidget"));
+    agHelper.AssertElementVisible(locator._widgetInDeployed("tabswidget"));
     agHelper
       .GetNClick(locator._inputWidgetv1InDeployed)
       .type("-updating title");
@@ -361,7 +361,7 @@ describe("AForce - Community Issues page validations", function() {
   it("10. Validate Deleting the newly created issue", () => {
     agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"));
     table.SelectTableRow(0);
-    agHelper.AssertElementPresence(locator._widgetInDeployed("tabswidget"));
+    agHelper.AssertElementVisible(locator._widgetInDeployed("tabswidget"));
     agHelper.Sleep();
     cy.get(table._trashIcon)
       .closest("div")

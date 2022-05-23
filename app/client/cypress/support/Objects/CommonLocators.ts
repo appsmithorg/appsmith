@@ -71,4 +71,5 @@ export class CommonLocators {
     _listWidget = "div[type='LIST_WIDGET']"
     _dropdownText = ".t--dropdown-option"
     _jsonFormInputField = (fieldName: string) =>  `.t--jsonformfield-${fieldName} input`
+    _jsonFormHeader = ".t--jsonform-body > div:first-child"
 }

@@ -41,9 +41,13 @@ export class DataSources {
   _selectTableDropdown = "[data-cy=t--table-dropdown]";
   _tableDropdownOption = ".bp3-popover-content .t--dropdown-option";
   _generatePageBtn = "[data-cy=t--generate-page-form-submit]";
+  _selectedRow  = ".tr.selected-row"
+
 
   public CreatePlugIn(pluginName: string) {
-    cy.get(this._createNewPlgin(pluginName)).trigger("click");
+    cy.get(this._createNewPlgin(pluginName))
+      .parent("div")
+      .trigger("click");
   }
 
   public NavigateToDSCreateNew() {
@@ -85,6 +89,23 @@ export class DataSources {
     cy.get(this._databaseName)
       .clear()
       .type(datasourceFormData["mongo-databaseName"]);
+  }
+
+  public FillMySqlDSForm(shouldAddTrailingSpaces = false) {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["mysql-host"] + "  "
+      : datasourceFormData["mysql-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["mysql-databaseName"] + "  "
+      : datasourceFormData["mysql-databaseName"];
+    cy.get(this._host).type(hostAddress);
+    cy.get(this._port).type(datasourceFormData["mysql-port"].toString());
+    cy.get(this._databaseName)
+      .clear()
+      .type(databaseName);
+    cy.get(this._sectionAuthentication).click();
+    cy.get(this._username).type(datasourceFormData["mysql-username"]);
+    cy.get(this._password).type(datasourceFormData["mysql-password"]);
   }
 
   public TestSaveDatasource(expectedRes = true) {
@@ -146,7 +167,7 @@ export class DataSources {
   }
 
   public ReconnectDataSourcePostgres(dbName: string) {
-    this.agHelper.AssertElementPresence(this._reconnectModal);
+    this.agHelper.AssertElementVisible(this._reconnectModal);
     cy.xpath(this._activeDSListReconnectModal("PostgreSQL")).should(
       "be.visible",
     );
