@@ -157,7 +157,7 @@ const generateDataTreeWidgetWithoutMeta = (
         ...widget.privateWidgets,
       },
     },
-  ) as DataTreeWidget;
+  );
   return {
     dataTreeWidgetWithoutMetaProps,
     overridingMetaPropsMap,
