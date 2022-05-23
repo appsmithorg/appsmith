@@ -306,11 +306,7 @@ export const useHideComments = () => {
       (matchBuilderPath(pathName) && isEditorInitialized) ||
       (matchViewerPath(pathName) && isViewerInitialized);
     // Disable comment mode toggle for anonymous users
-    setShouldHide(
-      !shouldShow ||
-        !currentUser ||
-        currentUser.username === ANONYMOUS_USERNAME,
-    );
+    setShouldHide(!shouldShow || currentUser?.username === ANONYMOUS_USERNAME);
   }, [location, currentUser, isEditorInitialized, isViewerInitialized]);
 
   return shouldHide;
