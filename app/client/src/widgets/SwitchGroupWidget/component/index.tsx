@@ -51,7 +51,10 @@ export interface OptionProps {
   value: string;
 }
 
-function SwitchGroupComponent(props: SwitchGroupComponentProps) {
+const SwitchGroupComponent = React.forwardRef<
+  HTMLDivElement,
+  React.PropsWithChildren<SwitchGroupComponentProps>
+>((props, ref) => {
   const {
     accentColor,
     alignment,
@@ -79,6 +82,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
       compactMode={compactMode}
       data-testid="switchgroup-container"
       labelPosition={labelPosition}
+      ref={ref}
     >
       {labelText && (
         <LabelWithTooltip
@@ -122,7 +126,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
       </InputContainer>
     </SwitchGroupContainer>
   );
-}
+});
 
 export interface SwitchGroupComponentProps {
   alignment: Alignment;
@@ -145,5 +149,7 @@ export interface SwitchGroupComponentProps {
   height: number;
   accentColor: string;
 }
+
+SwitchGroupComponent.displayName = "SwitchGroupComponent";
 
 export default SwitchGroupComponent;
