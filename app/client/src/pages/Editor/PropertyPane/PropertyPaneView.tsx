@@ -106,6 +106,18 @@ function PropertyPaneView(
 
   if (!widgetProperties) return null;
 
+  //Building Deprecation Messages
+  const isDeprecated = isWidgetDeprecated(widgetProperties.type);
+  const widgetDisplayName = widgetProperties.displayName
+    ? `${widgetProperties.displayName} `
+    : "";
+  //generate messages
+  const deprecationMessage = createMessage(
+    WIDGET_DEPRECATION_WARNING,
+    widgetDisplayName,
+  );
+  const deprecationHeader = createMessage(WIDGET_DEPRECATION_WARNING_HEADER);
+
   return (
     <div
       className="relative flex flex-col w-full pt-3 overflow-y-auto"
@@ -131,20 +143,15 @@ function PropertyPaneView(
           />
         )}
         <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
-        {isWidgetDeprecated(widgetProperties.type) && (
+        {isDeprecated && (
           <BannerMessage
             backgroundColor={Colors.WARNING_ORANGE}
             className="t--deprecation-warning"
             icon="warning-line"
             iconColor={Colors.WARNING_SOLID}
             iconSize={IconSize.XXXXL}
-            message={createMessage(
-              WIDGET_DEPRECATION_WARNING,
-              widgetProperties.displayName
-                ? `${widgetProperties.displayName} `
-                : "",
-            )}
-            messageHeader={createMessage(WIDGET_DEPRECATION_WARNING_HEADER)}
+            message={deprecationMessage}
+            messageHeader={deprecationHeader}
             textColor={Colors.BROWN}
           />
         )}
