@@ -75,7 +75,6 @@ import static com.external.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.constants.FieldName.START_AFTER;
 import static com.external.constants.FieldName.TIMESTAMP_VALUE_PATH;
 import static com.external.constants.FieldName.WHERE;
-import static com.external.constants.FieldName.WHERE_CHILDREN;
 import static com.external.utils.WhereConditionUtils.applyWhereConditional;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -692,9 +691,9 @@ public class FirestorePlugin extends BasePlugin {
                             return Mono.just(query1);
                         }
 
-                        List<Map<String, String>> conditionList = PluginUtils.getDataValueSafelyFromFormData(formData, WHERE_CHILDREN, new TypeReference<List<Map<String, String>>>() {
-                                },
-                                new ArrayList<>());
+                        Map<String, List<Map<String, String>>> childrenMap = PluginUtils.getDataValueSafelyFromFormData(formData, WHERE, new TypeReference<>() {
+                        });
+                        final List<Map<String, String>> conditionList = childrenMap.get("children");
                         requestParams.add(new RequestParamDTO(WHERE, conditionList, null, null, null));
 
                         for (Map<String, String> condition : conditionList) {
@@ -754,9 +753,14 @@ public class FirestorePlugin extends BasePlugin {
         }
 
         private boolean isWhereMethodUsed(Map<String, Object> formData) {
-            List<Object> conditionList = PluginUtils.getDataValueSafelyFromFormData(formData, WHERE_CHILDREN, new TypeReference<List<Object>>() {
-                    },
-                    new ArrayList<>());
+            final Map<String, List<Object>> childrenMap = getDataValueSafelyFromFormData(formData, WHERE, new TypeReference<>() {
+                    }
+            );
+
+            if (childrenMap == null || childrenMap.isEmpty()) {
+                return false;
+            }
+            List<Object> conditionList = childrenMap.get("children");
 
             // Check if the where clause does not exist
             if (CollectionUtils.isEmpty(conditionList)) {

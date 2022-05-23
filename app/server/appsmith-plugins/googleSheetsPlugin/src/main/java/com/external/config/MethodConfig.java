@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.getTrimmedStringDataValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
 import static com.appsmith.external.helpers.PluginUtils.validDataConfigurationPresentInFormData;
@@ -47,7 +48,6 @@ public class MethodConfig {
     String queryFormat;
     String rowIndex;
     String sheetName;
-   // String deleteFormat;
     String rowObjects;
     Object body;
     Condition whereConditions;
@@ -61,16 +61,14 @@ public class MethodConfig {
         if (validDataConfigurationPresentInFormData(formData, SHEET_URL, STRING_TYPE)) {
             this.spreadsheetUrl = getDataValueSafelyFromFormData(formData, SHEET_URL, STRING_TYPE, "");
             setSpreadsheetUrlFromSpreadsheetId();
-
         }
-        this.spreadsheetRange = getDataValueSafelyFromFormData(formData, FieldName.RANGE, STRING_TYPE);
-        this.spreadsheetName = getDataValueSafelyFromFormData(formData, FieldName.SPREADSHEET_NAME, STRING_TYPE);
-        this.tableHeaderIndex = getDataValueSafelyFromFormData(formData, FieldName.TABLE_HEADER_INDEX, STRING_TYPE);
-        this.queryFormat = getDataValueSafelyFromFormData(formData, FieldName.QUERY_FORMAT, STRING_TYPE);
-        this.rowIndex = getDataValueSafelyFromFormData(formData, FieldName.ROW_INDEX, STRING_TYPE);
-        this.sheetName = getDataValueSafelyFromFormData(formData, SHEET_NAME, STRING_TYPE);
-        // this.deleteFormat = getDataValueSafelyFromFormData(formData, FieldName.DELETE_FORMAT, STRING_TYPE);
-        this.rowObjects = getDataValueSafelyFromFormData(formData, FieldName.ROW_OBJECTS, STRING_TYPE);
+        this.spreadsheetRange = getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.RANGE);
+        this.spreadsheetName = getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.SPREADSHEET_NAME);
+        this.tableHeaderIndex = getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.TABLE_HEADER_INDEX);
+        this.queryFormat = getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.QUERY_FORMAT);
+        this.rowIndex = getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.ROW_INDEX);
+        this.sheetName = getTrimmedStringDataValueSafelyFromFormData(formData, SHEET_NAME);
+        this.rowObjects = getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.ROW_OBJECTS);
 
         if (validDataConfigurationPresentInFormData(formData, FieldName.WHERE, new TypeReference<Map<String, Object>>() {
         })) {
@@ -83,11 +81,15 @@ public class MethodConfig {
             this.whereConditions = parseWhereClause(whereForm);
         }
 
-        this.projection = getDataValueSafelyFromFormData(formData, FieldName.PROJECTION, new TypeReference<List<String>>() {
+        this.projection = getDataValueSafelyFromFormData(formData, FieldName.PROJECTION, new TypeReference<>() {
         });
-        this.sortBy = getDataValueSafelyFromFormData(formData, FieldName.SORT_BY, new TypeReference<List<Map<String, String>>>() {
+        // Always add rowIndex to a valid projection
+        if (this.projection != null && !this.projection.isEmpty()) {
+            this.projection.add("rowIndex");
+        }
+        this.sortBy = getDataValueSafelyFromFormData(formData, FieldName.SORT_BY, new TypeReference<>() {
         });
-        this.paginateBy = getDataValueSafelyFromFormData(formData, FieldName.PAGINATION, new TypeReference<Map<String, String>>() {
+        this.paginateBy = getDataValueSafelyFromFormData(formData, FieldName.PAGINATION, new TypeReference<>() {
         });
     }
 

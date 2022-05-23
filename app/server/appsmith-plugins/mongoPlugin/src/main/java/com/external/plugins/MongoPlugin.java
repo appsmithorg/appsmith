@@ -90,6 +90,7 @@ import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
 import static com.external.plugins.constants.FieldName.BODY;
@@ -893,8 +894,8 @@ public class MongoPlugin extends BasePlugin {
                         try {
                             String rawQuery = getRawQuery(actionConfiguration);
                             if (rawQuery != null) {
-                                setDataValueSafelyInFormData(formData, NATIVE_QUERY_PATH_STATUS, SUCCESS);
-                                setDataValueSafelyInFormData(formData, NATIVE_QUERY_PATH_DATA, rawQuery);
+                                setValueSafelyInFormData(formData, NATIVE_QUERY_PATH_STATUS, SUCCESS);
+                                setValueSafelyInFormData(formData, NATIVE_QUERY_PATH_DATA, rawQuery);
                             }
                         } catch (Exception e) {
                             throw new AppsmithPluginException(

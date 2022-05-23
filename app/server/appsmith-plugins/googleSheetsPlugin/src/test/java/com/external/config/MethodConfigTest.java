@@ -1,6 +1,7 @@
 package com.external.config;
 
 
+import com.appsmith.external.helpers.PluginUtils;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -33,17 +34,19 @@ public class MethodConfigTest {
 
             for (Map.Entry<String, String> e : testDataMap.entrySet()) {
 
-                methodConfig = new MethodConfig(Map.of(testPropKeys[i], e.getValue())); // We are testing this Class with test data
+                final HashMap<String, Object> formData = new HashMap<>();
+                PluginUtils.setDataValueSafelyInFormData(formData, testPropKeys[i], e.getValue());
+                methodConfig = new MethodConfig(formData); // We are testing this Class with test data
 
                 switch (testPropKeys[i]) {
                     case "range":
-                        assertEquals(methodConfig.getSpreadsheetRange(), e.getKey());
+                        assertEquals(e.getKey(), methodConfig.getSpreadsheetRange());
                         break;
                     case "tableHeaderIndex":
-                        assertEquals(methodConfig.getTableHeaderIndex(), e.getKey());
+                        assertEquals(e.getKey(), methodConfig.getTableHeaderIndex());
                         break;
                     case "rowIndex":
-                        assertEquals(methodConfig.getRowIndex(), e.getKey());
+                        assertEquals(e.getKey(), methodConfig.getRowIndex());
                         break;
                 }
 

@@ -756,7 +756,7 @@ public class FirestorePluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(configMap);
 
-        List params = new ArrayList();
+        List<Param> params = new ArrayList<>();
         Param param = new Param();
         param.setKey("Input1.text");
         param.setValue("category");

@@ -149,6 +149,18 @@ public class PluginUtils {
         return valueAsTypeFromFormData;
     }
 
+    public static String getTrimmedStringDataValueSafelyFromFormData(Map<String, Object> formData, String field) {
+        Map<String, Object> formDataValueMap = (Map<String, Object>) getValueSafelyFromFormData(formData, field);
+        if (formDataValueMap == null) {
+            return null;
+        }
+        String stringValue = getDataValueAsTypeFromFormData(formDataValueMap, STRING_TYPE);
+        if (stringValue != null) {
+            stringValue = stringValue.trim();
+        }
+        return stringValue;
+    }
+
     /**
      * Get value from `formData` map and also type cast it to the class of type `T` before returning the value.
      *

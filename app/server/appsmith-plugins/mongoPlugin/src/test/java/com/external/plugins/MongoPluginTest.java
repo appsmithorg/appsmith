@@ -1398,7 +1398,7 @@ public class    MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     JsonNode value = ((ObjectNode) result.getBody()).get("nModified");
-                    assertEquals(value.asText(), "3");
+                    assertEquals("3", value.asText());
                     assertEquals(
                             List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
@@ -2249,7 +2249,7 @@ public class    MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     JsonNode value = ((ObjectNode) result.getBody()).get("nModified");
-                    assertEquals(value.asText(), "3");
+                    assertEquals("3", value.asText());
                     assertEquals(
                             List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
                             result.getDataTypes().toString()
