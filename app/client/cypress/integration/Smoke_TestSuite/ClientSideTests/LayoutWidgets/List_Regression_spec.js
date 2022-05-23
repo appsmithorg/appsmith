@@ -23,9 +23,17 @@ describe("Binding the list widget with text widget", function() {
       1,
     );
     cy.get(publish.backToEditor).click({ force: true });
+    cy.get(".t--text-widget-container:contains('Vivek')").should(
+      "have.length",
+      1,
+    );
+    cy.get(".t--text-widget-container:contains('Vivek')").should(
+      "have.length",
+      1,
+    );
   });
 
-  it("Validate text widget data based on changes in list widget Data2", function() {
+  it.skip("Validate text widget data based on changes in list widget Data2", function() {
     cy.SearchEntityandOpen("List1");
     cy.updateComputedValue(
       '[[{ "name": "pawan"}, { "name": "Vivek" }], [{ "name": "Ashok"}, {"name": "rahul"}]]',
@@ -56,7 +64,7 @@ describe("Binding the list widget with text widget", function() {
     cy.get(publish.backToEditor).click({ force: true });
   });
 
-  it("Validate text widget data based on changes in list widget Data3", function() {
+  it.skip("Validate text widget data based on changes in list widget Data3", function() {
     cy.SearchEntityandOpen("List1");
     cy.updateComputedValue('[{ "name": "pawan"}, { "name": "Vivek" }]');
     cy.wait("@updateLayout").should(
