@@ -25,7 +25,7 @@ export class CommonLocators {
     _imageWidget = ".t--draggable-imagewidget"
     _backToEditor = ".t--back-to-editor"
     _newPage = ".pages .t--entity-add-btn"
-    _toastMsg = ".t--toast-action"
+    _toastMsg = "div.t--toast-action"
     _empty = "span[name='no-response']"
     _contextMenuInPane = "span[name='context-menu']"
     _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']"
