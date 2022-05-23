@@ -16,6 +16,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsSavingEntity,
 } from "selectors/editorSelectors";
 import { getJSCollection, getJSCollections } from "selectors/entitiesSelector";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
@@ -322,6 +323,18 @@ export function* handleExecuteJSFunctionSaga(data: {
       collectionId,
     }),
   );
+
+  const isEntitySaving = yield select(getIsSavingEntity);
+
+  /**
+   * Only start executing when no entity in the application is saving
+   * This ensures that execution doesn't get carried out on stale values
+   * This includes other entities which might be bound in the JS Function
+   */
+  if (isEntitySaving) {
+    yield take(ReduxActionTypes.ENTITY_UPDATE_SUCCESS);
+  }
+
   try {
     const { isDirty, result } = yield call(
       executeFunction,

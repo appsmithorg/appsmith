@@ -7,13 +7,13 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.RedirectHelper;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
-import com.appsmith.server.solutions.ExamplesOrganizationCloner;
+import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -45,13 +45,13 @@ import static com.appsmith.server.helpers.RedirectHelper.SIGNUP_SUCCESS_URL;
 public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSuccessHandler {
 
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
-    private final ExamplesOrganizationCloner examplesOrganizationCloner;
+    private final ExamplesWorkspaceCloner examplesWorkspaceCloner;
     private final RedirectHelper redirectHelper;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
     private final UserDataService userDataService;
     private final UserRepository userRepository;
-    private final OrganizationRepository organizationRepository;
+    private final WorkspaceRepository workspaceRepository;
     private final ApplicationPageService applicationPageService;
 
     /**
@@ -144,7 +144,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                         "modeOfLogin", modeOfLogin
                                 )
                         ));
-                        monos.add(examplesOrganizationCloner.cloneExamplesOrganization());
+                        monos.add(examplesWorkspaceCloner.cloneExamplesWorkspace());
                     }
 
                     return Mono.whenDelayError(monos);
@@ -154,10 +154,10 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
     private Mono<Application> createDefaultApplication(User user) {
         // need to create default application
-        String organizationId = user.getOrganizationIds().iterator().next();
+        String workspaceId = user.getOrganizationIds().iterator().next();
 
         Application application = new Application();
-        application.setOrganizationId(organizationId);
+        application.setOrganizationId(workspaceId);
         application.setName("My first application");
         return applicationPageService.createApplication(application);
     }
