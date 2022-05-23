@@ -153,7 +153,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
          */
         List<PreparedStatementValueDTO> values = new ArrayList<>();
 
-        if (condition != null && Condition.isValid(condition)) {
+        if (Condition.isValid(condition)) {
             ConditionalOperator operator = condition.getOperator();
             List<Condition> conditions = (List<Condition>) condition.getValue();
 

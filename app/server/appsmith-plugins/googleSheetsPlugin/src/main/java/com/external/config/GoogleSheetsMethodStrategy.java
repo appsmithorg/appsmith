@@ -2,7 +2,6 @@ package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.external.constants.FieldName;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,14 +11,15 @@ import reactor.core.Exceptions;
 import java.util.Map;
 
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 
 @Slf4j
 public class GoogleSheetsMethodStrategy {
 
     public static ExecutionMethod getExecutionMethod(Map<String, Object> formData, ObjectMapper objectMapper) {
-        final String type = PluginUtils.getDataValueSafelyFromFormData(formData, FieldName.ENTITY_TYPE, STRING_TYPE)
+        final String type = getDataValueSafelyFromFormData(formData, FieldName.ENTITY_TYPE, STRING_TYPE)
                 + "_"
-                + PluginUtils.getDataValueSafelyFromFormData(formData, FieldName.COMMAND, STRING_TYPE);
+                + getDataValueSafelyFromFormData(formData, FieldName.COMMAND, STRING_TYPE);
         switch (type) {
             case MethodIdentifiers.ROWS_INSERT_ONE:
                 return new RowsAppendMethod(objectMapper);

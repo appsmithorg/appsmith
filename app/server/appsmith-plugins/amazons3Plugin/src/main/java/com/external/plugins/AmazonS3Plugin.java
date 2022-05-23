@@ -22,7 +22,6 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -75,6 +74,7 @@ import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.parseList;
 import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
@@ -404,7 +404,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
             Boolean smartJsonSubstitution = TRUE;
 
-            Object smartSubstitutionObject = PluginUtils.getDataValueSafelyFromFormData(formData, SMART_SUBSTITUTION, OBJECT_TYPE,
+            Object smartSubstitutionObject = getDataValueSafelyFromFormData(formData, SMART_SUBSTITUTION, OBJECT_TYPE,
                     TRUE);
 
             if (smartSubstitutionObject instanceof Boolean) {
@@ -429,7 +429,7 @@ public class AmazonS3Plugin extends BasePlugin {
                             executeActionDTO.getParams(),
                             parameters);
 
-                    PluginUtils.setDataValueSafelyInFormData(formData, BODY, updatedValue);
+                    setDataValueSafelyInFormData(formData, BODY, updatedValue);
 
                 }
             } catch (AppsmithPluginException e) {
@@ -478,7 +478,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
                         Map<String, Object> formData = actionConfiguration.getFormData();
 
-                        String command = PluginUtils.getDataValueSafelyFromFormData(formData, COMMAND, STRING_TYPE);
+                        String command = getDataValueSafelyFromFormData(formData, COMMAND, STRING_TYPE);
 
                         if (StringUtils.isNullOrEmpty(command)) {
                             return Mono.error(
@@ -497,7 +497,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                 command, null, null, null));
 
                         final String bucketName = (s3Action == AmazonS3Action.LIST_BUCKETS) ?
-                                null : PluginUtils.getDataValueSafelyFromFormData(formData, BUCKET, STRING_TYPE);
+                                null : getDataValueSafelyFromFormData(formData, BUCKET, STRING_TYPE);
 
                 // If the action_type is LIST_BUCKET, remove the bucket name requirement
                 if (s3Action != AmazonS3Action.LIST_BUCKETS
@@ -518,7 +518,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         /*
                          * - Allow users to upload empty file. Hence, only check for null value.
                          */
-                        final String body = PluginUtils.getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE);
+                        final String body = getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE);
                         requestProperties.put("content", body == null ? "null" : body);
 
                         if (s3Action == AmazonS3Action.UPLOAD_FILE_FROM_BODY && body == null) {
@@ -554,7 +554,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
                                 ArrayList<String> listOfFiles = listAllFilesInBucket(connection, bucketName, prefix);
 
-                                Boolean isSignedUrl = YES.equals(PluginUtils.getDataValueSafelyFromFormData(formData, LIST_SIGNED_URL, STRING_TYPE));
+                                Boolean isSignedUrl = YES.equals(getDataValueSafelyFromFormData(formData, LIST_SIGNED_URL, STRING_TYPE));
 
                         if (isSignedUrl) {
                             requestParams.add(new RequestParamDTO(LIST_SIGNED_URL, YES, null,
@@ -616,7 +616,7 @@ public class AmazonS3Plugin extends BasePlugin {
                             }
                         }
 
-                                String isUnsignedUrl = PluginUtils.getDataValueSafelyFromFormData(formData, LIST_UNSIGNED_URL, STRING_TYPE);
+                                String isUnsignedUrl = getDataValueSafelyFromFormData(formData, LIST_UNSIGNED_URL, STRING_TYPE);
 
                         if (YES.equals(isUnsignedUrl)) {
 
@@ -635,7 +635,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
 
                                 // Check if where condition is configured
-                                Object whereFormObject = PluginUtils.getDataValueSafelyFromFormData(formData, LIST_WHERE, OBJECT_TYPE);
+                                Object whereFormObject = getDataValueSafelyFromFormData(formData, LIST_WHERE, OBJECT_TYPE);
                                 Condition condition = null;
 
                                 if (whereFormObject != null) {
@@ -644,11 +644,11 @@ public class AmazonS3Plugin extends BasePlugin {
                                 }
 
                                 List<Map<String, String>> sortBy =
-                                        PluginUtils.getDataValueSafelyFromFormData(formData, LIST_SORT, new TypeReference<List<Map<String, String>>>() {
+                                        getDataValueSafelyFromFormData(formData, LIST_SORT, new TypeReference<List<Map<String, String>>>() {
                                         });
 
                                 Map<String, String> paginateBy =
-                                        PluginUtils.getDataValueSafelyFromFormData(formData, LIST_PAGINATE, new TypeReference<Map<String, String>>() {
+                                        getDataValueSafelyFromFormData(formData, LIST_PAGINATE, new TypeReference<Map<String, String>>() {
                                         });
 
                                 ArrayNode preFilteringResponse = objectMapper.valueToTree(actionResult);
@@ -684,7 +684,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
                         String signedUrl;
 
-                                String dataType = PluginUtils.getDataValueSafelyFromFormData(formData, CREATE_DATATYPE, STRING_TYPE);
+                                String dataType = getDataValueSafelyFromFormData(formData, CREATE_DATATYPE, STRING_TYPE);
 
                         if (YES.equals(dataType)) {
                             requestParams.add(new RequestParamDTO(CREATE_DATATYPE, "Base64",
@@ -732,7 +732,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
                         List<String> signedUrls;
 
-                        String dataType = PluginUtils.getDataValueSafelyFromFormData(formData, CREATE_DATATYPE, STRING_TYPE);
+                        String dataType = getDataValueSafelyFromFormData(formData, CREATE_DATATYPE, STRING_TYPE);
 
                         if (YES.equals(dataType)) {
                             requestParams.add(new RequestParamDTO(CREATE_DATATYPE, "Base64",
@@ -757,7 +757,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
                         String result;
 
-                        String isBase64 = PluginUtils.getDataValueSafelyFromFormData(formData, READ_DATATYPE, STRING_TYPE);
+                        String isBase64 = getDataValueSafelyFromFormData(formData, READ_DATATYPE, STRING_TYPE);
 
                         if (YES.equals(isBase64)) {
                             requestParams.add(new RequestParamDTO(READ_DATATYPE,
