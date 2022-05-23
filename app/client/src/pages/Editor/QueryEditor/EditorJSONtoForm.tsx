@@ -127,6 +127,7 @@ export const TabbedViewContainer = styled.div`
   }
   .react-tabs__tab-list {
     margin: 0px;
+   
   }
   &&& {
     ul.react-tabs__tab-list {
