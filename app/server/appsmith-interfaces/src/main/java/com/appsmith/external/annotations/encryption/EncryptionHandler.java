@@ -236,13 +236,8 @@ public class EncryptionHandler {
             if (fieldValue != null) {
                 if (CandidateField.Type.ANNOTATED_FIELD.equals(candidateField.getType())) {
                     // For each known field, encrypt if it is annotated
-                    String transformedValue = null;
-                    try {
-                        transformedValue = transformer.apply(String.valueOf(fieldValue));
-                        ReflectionUtils.setField(field, source, transformedValue);
-                    } catch(Exception ex) {
-                        log.error("Transformation failed on field " + field.getName() + " of class " + source.getClass().getName(), ex);
-                    }
+                    String transformedValue = transformer.apply(String.valueOf(fieldValue));
+                    ReflectionUtils.setField(field, source, transformedValue);
                 } else if (Set.of(
                         CandidateField.Type.APPSMITH_FIELD_KNOWN,
                         CandidateField.Type.APPSMITH_FIELD_UNKNOWN,
