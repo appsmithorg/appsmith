@@ -1,9 +1,12 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.git.helpers.FileUtilsImpl;
+import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
@@ -17,6 +20,8 @@ import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +64,8 @@ import static com.appsmith.server.constants.FieldName.PAGE_LIST;
 public class GitFileUtils {
 
     private final FileInterface fileUtils;
+    private final AnalyticsService analyticsService;
+    private final SessionUserService sessionUserService;
 
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields
@@ -80,10 +87,25 @@ public class GitFileUtils {
             2. Create application reference for appsmith-git module
             3. Save application to git repo
          */
+        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.GIT_SERIALIZE_APP_RESOURCES_TO_LOCAL_FILE.getEventName());
         ApplicationGitReference applicationReference = createApplicationReference(applicationJson);
         // Save application to git repo
         try {
-            return fileUtils.saveApplicationToGitRepo(baseRepoSuffix, applicationReference, branchName);
+            Mono<Path> repoPathMono = fileUtils.saveApplicationToGitRepo(baseRepoSuffix, applicationReference, branchName).cache();
+            return Mono.zip(repoPathMono, sessionUserService.getCurrentUser())
+                    .map(tuple -> {
+                        stopwatch.stopTimer();
+                        Path repoPath = tuple.getT1();
+                        // Path to repo will be : ./container-volumes/git-repo/organizationId/defaultApplicationId/repoName/
+                        final Map<String, Object> data = Map.of(
+                                FieldName.APPLICATION_ID, repoPath.getParent().getFileName().toString(),
+                                FieldName.ORGANIZATION_ID, repoPath.getParent().getParent().getFileName().toString(),
+                                FieldName.FLOW_NAME, stopwatch.getFlow(),
+                                "executionTime", stopwatch.getExecutionTime()
+                        );
+                        analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
+                        return repoPath;
+                    });
         } catch (IOException | GitAPIException e) {
             log.error("Error occurred while saving files to local git repo: ", e);
             throw Exceptions.propagate(e);
@@ -104,6 +126,9 @@ public class GitFileUtils {
         // Pass application reference
         applicationReference.setApplication(applicationJson.getExportedApplication());
 
+        // No need to commit publish mode theme as it leads to conflict resolution at both the places if any
+        applicationJson.setPublishedTheme(null);
+
         // Pass metadata
         Iterable<String> keys = Arrays.stream(applicationJson.getClass().getDeclaredFields())
                 .map(Field::getName)
@@ -117,8 +142,6 @@ public class GitFileUtils {
 
         // Remove policies from the themes
         applicationJson.getEditModeTheme().setPolicies(null);
-        // No need to commit publish mode theme as it leads to conflict resolution at both the places if any
-        applicationJson.setPublishedTheme(null);
 
         applicationReference.setTheme(applicationJson.getEditModeTheme());
 
@@ -201,25 +224,33 @@ public class GitFileUtils {
     /**
      * Method to reconstruct the application from the local git repo
      *
-     * @param organisationId To which organisation application needs to be rehydrated
+     * @param organizationId To which organisation application needs to be rehydrated
      * @param defaultApplicationId Root application for the current branched application
      * @param branchName for which branch the application needs to rehydrate
      * @return application reference from which entire application can be rehydrated
      */
-    public Mono<ApplicationJson> reconstructApplicationJsonFromGitRepo(String organisationId,
+    public Mono<ApplicationJson> reconstructApplicationJsonFromGitRepo(String organizationId,
                                                                        String defaultApplicationId,
                                                                        String repoName,
                                                                        String branchName) {
-
-
-        return fileUtils.reconstructApplicationReferenceFromGitRepo(organisationId, defaultApplicationId, repoName, branchName)
-                .map(applicationReference -> {
-
+        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.GIT_DESERIALIZE_APP_RESOURCES_FROM_FILE.getEventName());
+        Mono<ApplicationGitReference> appReferenceMono = fileUtils
+                .reconstructApplicationReferenceFromGitRepo(organizationId, defaultApplicationId, repoName, branchName);
+        return Mono.zip(appReferenceMono, sessionUserService.getCurrentUser())
+                .map(tuple -> {
+                    ApplicationGitReference applicationReference = tuple.getT1();
                     // Extract application metadata from the json
                     ApplicationJson metadata = getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
                     ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
                     copyNestedNonNullProperties(metadata, applicationJson);
-
+                    stopwatch.stopTimer();
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, defaultApplicationId,
+                            FieldName.ORGANIZATION_ID, organizationId,
+                            FieldName.FLOW_NAME, stopwatch.getFlow(),
+                            "executionTime", stopwatch.getExecutionTime()
+                    );
+                    analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
                     return applicationJson;
                 });
     }
@@ -255,10 +286,10 @@ public class GitFileUtils {
      * @param editModeUrl    URL to deployed version of the application edit mode
      * @return Path where the Application is stored
      */
-    public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
-                                        String viewModeUrl,
-                                        String editModeUrl) throws IOException {
-        return fileUtils.initializeGitRepo(baseRepoSuffix,viewModeUrl, editModeUrl)
+    public Mono<Path> initializeReadme(Path baseRepoSuffix,
+                                       String viewModeUrl,
+                                       String editModeUrl) throws IOException {
+        return fileUtils.initializeReadme(baseRepoSuffix,viewModeUrl, editModeUrl)
                 .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
     }
 
@@ -267,8 +298,8 @@ public class GitFileUtils {
      * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
      * @return success on remove of file system
      */
-    public Mono<Boolean> detachRemote(Path baseRepoSuffix) {
-        return fileUtils.detachRemote(baseRepoSuffix);
+    public Mono<Boolean> deleteLocalRepo(Path baseRepoSuffix) {
+        return fileUtils.deleteLocalRepo(baseRepoSuffix);
     }
 
     public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException {
