@@ -147,7 +147,7 @@ public class SeedMongoData {
                 {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin"}
         };
 
-        // Seed the plugin data into the DB
+        // Seed the plugin data into the DB 
         Flux<Plugin> pluginFlux = Flux.just(pluginData)
                 .map(array -> {
                     log.debug("Creating the plugins");
