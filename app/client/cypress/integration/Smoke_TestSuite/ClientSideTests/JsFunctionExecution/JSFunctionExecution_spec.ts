@@ -87,6 +87,7 @@ describe("JS Function Execution", function() {
     // Assert presence of parse error callout (entire JS Object is invalid)
     jsEditor.AssertParseError(true, false);
   });
+
   it("4. Shows lint error and toast modal when JS Object doesn't start with 'export default'", () => {
     const invalidJSObjectStartToastMessage = "Start object with export default";
     const jsComment = "// This is a comment";
@@ -170,6 +171,8 @@ describe("JS Function Execution", function() {
     });
 
   it("4. Maintains order of async functions in settings tab alphabetically at all times", function() {
+  });
+  it("6. Maintains order of async functions in settings tab alphabetically at all times", function() {
     const JS_OBJECT_BODY = `export default {
       getId: async () => {
         return 8;
@@ -211,7 +214,7 @@ describe("JS Function Execution", function() {
       paste: true,
       completeReplace: true,
       toRun: false,
-      shouldNavigate: true,
+      shouldCreateNewJSObj: true,
     });
     // Switch to settings tab
     agHelper.GetNClick(jsEditor._settingsTab);
@@ -289,5 +292,16 @@ describe("JS Function Execution", function() {
     agHelper.AssertElementAbsence(locator._toastMsg);
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2);
     agHelper.AssertElementAbsence(locator._toastMsg);
+
+    jsEditor.EnableDisableAsyncFuncSettings("getId", true, false);
+    jsEditor.EnableDisableAsyncFuncSettings("zip", true, false);
+    jsEditor.EnableDisableAsyncFuncSettings("base", true, false);
+
+    cy.reload();
+
+    // Switch to settings tab
+    agHelper.GetNClick(jsEditor._settingsTab);
+    // Assert that order remains the same
+    assertAsyncFunctionsOrder();
   });
 });
