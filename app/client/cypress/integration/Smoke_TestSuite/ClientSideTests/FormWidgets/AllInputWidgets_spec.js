@@ -120,14 +120,15 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
     });
 
     it("2. StoreValue should have complete input value", () => {
-      if (widgetSelector === WIDGET.INPUT_WIDGET_V2) {
-        cy.openPropertyPane(widgetSelector);
-        cy.selectDropdownValue(".t--property-control-datatype", "Text");
-        cy.get(".t--property-control-required label")
-          .last()
-          .click({ force: true });
-        cy.closePropertyPane();
-      }
+      // if default input widget type is changed from text to any other type then uncomment below code.
+      // if (widgetSelector === WIDGET.INPUT_WIDGET_V2) {
+      //   cy.openPropertyPane(widgetSelector);
+      //   cy.selectDropdownValue(".t--property-control-datatype", "Text");
+      //   cy.get(".t--property-control-required label")
+      //     .last()
+      //     .click({ force: true });
+      //   cy.closePropertyPane();
+      // }
 
       // Set onClick action, storing value
       cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
@@ -145,8 +146,6 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
         "{{appsmith.store.textPayloadOnSubmit}}",
       );
       cy.closePropertyPane();
-      cy.get(getWidgetInputSelector(widgetSelector)).clear();
-      cy.wait(300);
 
       const inputs = testConfig.testCases;
 
@@ -170,9 +169,9 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
     it("3. Api params getting correct input values", () => {
       // Set onClick action, storing value
       cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
-      cy.get(PROPERTY_SELECTOR.onClick)
-        .find(".t--js-toggle")
-        .click();
+      // cy.get(PROPERTY_SELECTOR.onClick)
+      //   .find(".t--js-toggle")
+      //   .click();
       cy.updateCodeInput(
         PROPERTY_SELECTOR.onClick,
         `{{FirstAPI.run({ value: ${testConfig.widgetPrefixName}1.text })}}`,
