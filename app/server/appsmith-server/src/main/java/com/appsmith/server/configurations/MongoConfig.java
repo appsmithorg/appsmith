@@ -52,7 +52,7 @@ import java.util.List;
 )
 public class MongoConfig {
     @Bean
-    public MongockSpring5.MongockApplicationRunner mongockApplicationRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {
+    public MongockSpring5.MongockInitializingBeanRunner  mongockInitializingBeanRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {
         SpringDataMongoV3Driver springDataMongoV3Driver = SpringDataMongoV3Driver.withDefaultLock(mongoTemplate);
         springDataMongoV3Driver.setWriteConcern(WriteConcern.JOURNALED.withJournal(false));
         springDataMongoV3Driver.setReadConcern(ReadConcern.LOCAL);
@@ -62,7 +62,7 @@ public class MongoConfig {
                 .addChangeLogsScanPackages(List.of("com.appsmith.server.migrations"))
                 .setSpringContext(springContext)
                 // any extra configuration you need
-                .buildApplicationRunner();
+                .buildInitializingBeanRunner();
     }
 
     @Bean
