@@ -145,6 +145,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
           inputRef={this.props.inputRef}
           labelElement={
             <CheckboxLabel
+              className="t--checkbox-widget-label"
               disabled={this.props.isDisabled}
               labelPosition={this.props.labelPosition}
               labelStyle={this.props.labelStyle}

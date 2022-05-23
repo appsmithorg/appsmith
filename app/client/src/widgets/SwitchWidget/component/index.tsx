@@ -111,6 +111,7 @@ export function SwitchComponent({
         inputRef={inputRef}
         labelElement={
           <SwitchLabel
+            className="t--switch-widget-label"
             disabled={isDisabled}
             labelPosition={labelPosition}
             labelStyle={labelStyle}

@@ -18,6 +18,7 @@
   "optionchangetextInput": ".t--property-control-ontextchanged .CodeMirror-code",
   "optionchangeRadioselect": ".t--property-control-onselectionchange .CodeMirror textarea",
   "optionalignment": ".t--property-control-alignment .bp3-popover-target",
+  "optionposition": ".t--property-control-position .bp3-popover-target",
   "onMarkerclick": ".t--property-control-onmarkerclick .CodeMirror-code",
   "success": "div[type='success'] span",
   "mapOptionChange": ".t--property-control-onmarkerclick .CodeMirror-code",

@@ -73,17 +73,86 @@ describe("Switch Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("Switch Functionality To swap label placement of  switch", function() {
+  it("Switch Functionality To swap label alignment of switch", function() {
     cy.openPropertyPane("switchwidget");
     cy.get(publish.switchwidget + " " + ".bp3-align-right").should("not.exist");
     cy.get(publish.switchwidget + " " + ".bp3-align-left").should("exist");
-    cy.get(commonlocators.optionalignment)
-      .last()
+    // align right
+    cy.get(".t--property-control-alignment .t--button-tab-RIGHT")
+      .first()
       .click();
-    cy.dropdownDynamicUpdated("Right");
+    cy.wait(200);
     cy.PublishtheApp();
     cy.get(publish.switchwidget + " " + ".bp3-align-right").should("exist");
     cy.get(publish.switchwidget + " " + ".bp3-align-left").should("not.exist");
+    cy.get(publish.backToEditor).click();
+  });
+
+  it("Switch Functionality To swap label position of switch", function() {
+    cy.openPropertyPane("switchwidget");
+    cy.get(publish.switchwidget + " " + ".t--switch-widget-label").should(
+      "have.css",
+      "text-align",
+      "right",
+    );
+    cy.get(commonlocators.optionposition)
+      .last()
+      .click({ force: true });
+    cy.wait(200);
+    cy.get(commonlocators.dropdownmenu)
+      .contains("Left")
+      .click({ force: true });
+    cy.wait(200);
+    cy.PublishtheApp();
+    cy.get(publish.switchwidget + " " + ".t--switch-widget-label").should(
+      "have.css",
+      "text-align",
+      "left",
+    );
+    cy.get(publish.backToEditor).click();
+  });
+
+  it("Switch Functionality To change label color of switch", function() {
+    cy.openPropertyPane("switchwidget");
+    cy.get(".t--property-control-textcolor .bp3-input").type("red");
+    cy.wait(200);
+    cy.PublishtheApp();
+    cy.get(publish.switchwidget + " " + ".t--switch-widget-label").should(
+      "have.css",
+      "color",
+      "rgb(255, 0, 0)",
+    );
+    cy.get(publish.backToEditor).click();
+  });
+
+  it("Switch Functionality To change label size of switch", function() {
+    cy.openPropertyPane("switchwidget");
+    cy.get(widgetsPage.textSize)
+      .last()
+      .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
+    cy.selectTxtSize("XL");
+    cy.PublishtheApp();
+    cy.get(publish.switchwidget + " " + ".t--switch-widget-label").should(
+      "have.css",
+      "font-size",
+      "30px",
+    );
+    cy.get(publish.backToEditor).click();
+  });
+
+  it("Switch Functionality To change label style of switch", function() {
+    cy.openPropertyPane("switchwidget");
+    cy.get(".t--property-control-labelfontstyle .t--button-tab-BOLD").click({
+      force: true,
+    });
+    cy.PublishtheApp();
+    cy.get(publish.switchwidget + " " + ".t--switch-widget-label").should(
+      "have.css",
+      "font-weight",
+      "700",
+    );
     cy.get(publish.backToEditor).click();
   });
 
