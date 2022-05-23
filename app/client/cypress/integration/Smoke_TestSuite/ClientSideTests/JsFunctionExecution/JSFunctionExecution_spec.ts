@@ -109,7 +109,7 @@ describe("JS Function Execution", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       });
 
       // Assert presence of toast message
@@ -142,7 +142,7 @@ describe("JS Function Execution", function() {
       paste: true,
       completeReplace: true,
       toRun: false,
-      shouldNavigate: true,
+      shouldCreateNewJSObj: true,
     });
 
     // wait for 3 secs and assert that App doesn't crash
@@ -154,7 +154,7 @@ describe("JS Function Execution", function() {
       paste: true,
       completeReplace: false,
       toRun: true,
-      shouldNavigate: false,
+      shouldCreateNewJSObj: false,
     });
 
     cy.get("@jsObjName").then((jsObjName) => {
