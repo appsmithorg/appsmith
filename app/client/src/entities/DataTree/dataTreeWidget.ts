@@ -12,6 +12,7 @@ import {
   PropertyOverrideDependency,
 } from "./dataTreeFactory";
 import { setOverridingProperty } from "./utils";
+import { klona } from "klona";
 
 // We are splitting generateDataTreeWidget into two parts to memoize better as the widget doesn't change very often.
 // Widget changes only when dynamicBindingPathList changes.
@@ -198,9 +199,9 @@ export const generateDataTreeWidget = (
     overridingMetaPropsMap,
   } = generateDataTreeWidgetWithoutMetaMemoized(widget);
   const overridingMetaProps: Record<string, unknown> = {};
-
+  const clonedDefaultMetaProps = klona(defaultMetaProps);
   // overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
-  Object.entries(defaultMetaProps).forEach(([key, value]) => {
+  Object.entries(clonedDefaultMetaProps).forEach(([key, value]) => {
     if (overridingMetaPropsMap[key]) {
       overridingMetaProps[key] =
         key in widgetMetaProps ? widgetMetaProps[key] : value;
@@ -209,7 +210,7 @@ export const generateDataTreeWidget = (
 
   const meta = _.merge(overridingMetaProps, widgetMetaProps);
   const mergedMetaProperties = {
-    ...defaultMetaProps,
+    ...clonedDefaultMetaProps,
     ...widgetMetaProps,
     ...derivedProps,
   };
