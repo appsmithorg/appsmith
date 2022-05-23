@@ -39,7 +39,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
     jsEditor.EnableDisableAsyncFuncSettings("getId", false, true); //Only before calling confirmation is enabled by User here
@@ -189,7 +189,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
 
@@ -251,7 +251,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
 
@@ -440,7 +440,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
 
@@ -481,7 +481,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       //   `{{` +
       //     jsObjName +
       //     `.callCountry();
-      //     showAlert('Your country is: ' + getCountry.data[0].country, 'info')}}`,
+      //     Select1.selectedOptionValue? showAlert('Your country is: ' + getCountry.data[0].country, 'info'): null`,
       //   true,
       //   true,
       // );

@@ -38,7 +38,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
           paste: true,
           completeReplace: false,
           toRun: false,
-          shouldNavigate: true,
+          shouldCreateNewJSObj: true,
         },
       );
     });
