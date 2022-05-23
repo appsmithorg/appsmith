@@ -68,7 +68,7 @@ export class AggregateHelper {
     cy.get(this.locator._loading).should("not.exist"); //Checks the spinner is gone & dsl loaded!
   }
 
-  public StartServerAndRoutes() {
+  public StartRoutes() {
     cy.intercept("POST", "/api/v1/actions").as("createNewApi");
     cy.intercept("PUT", "/api/v1/actions/*").as("saveAction");
     //cy.intercept("POST", "/api/v1/users/invite", (req) => { req.headers["origin"] = "Cypress";}).as("mockPostInvite");

@@ -37,17 +37,74 @@ export class DataSources {
   _runQueryBtn = ".t--run-query";
   _newDatabases = "#new-datasources";
   _selectDatasourceDropdown = "[data-cy=t--datasource-dropdown]";
-  _datasourceDropdownOption = "[data-cy=t--datasource-dropdown-option]";
   _selectTableDropdown = "[data-cy=t--table-dropdown]";
-  _tableDropdownOption = ".bp3-popover-content .t--dropdown-option";
+  _dropdownOption = ".bp3-popover-content .t--dropdown-option";
   _generatePageBtn = "[data-cy=t--generate-page-form-submit]";
-  _selectedRow  = ".tr.selected-row"
+  _selectedRow = ".tr.selected-row";
+  _activeTab = "span:contains('Active')";
+  _contextMenuDatasource = "span[name='comment-context-menu']";
+  _contextMenuDelete = ".t--datasource-option-delete";
+  _datasourceCardGeneratePageBtn = ".t--generate-template";
+  _queryTableResponse =
+    "//div[@data-guided-tour-id='query-table-response']//div[@class='tbody']//div[@class ='td']";
 
+  public StartDataSourceRoutes() {
+    cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
+    cy.intercept("POST", "/api/v1/datasources/test").as("testDatasource");
+  }
+
+  private ReplaceApplicationIdForInterceptPages(fixtureFile: any) {
+    let currentAppId, currentURL;
+    cy.readFile(
+      fixtureFile,
+      // (err: string) => {
+      // if (err) {
+      //   return console.error(err);
+      // }}
+    ).then((data) => {
+      cy.url().then((url) => {
+        currentURL = url;
+        const myRegexp = /applications(.*)/;
+        const match = myRegexp.exec(currentURL);
+        cy.log(currentURL + "currentURL from intercept is");
+        currentAppId = match ? match[1].split("/")[1] : null;
+        data.data.page.applicationId = currentAppId;
+        cy.writeFile(fixtureFile, JSON.stringify(data));
+      });
+    });
+  }
+
+  public StartInterceptRoutesForMySQL() {
+    //All stubbing - updating app id to current app id for Delete app by api call to be successfull:
+
+    this.ReplaceApplicationIdForInterceptPages(
+      "cypress/fixtures/mySQL_PUT_replaceLayoutWithCRUD.json",
+    );
+
+    cy.intercept("POST", "/api/v1/datasources/test", {
+      fixture: "testAction.json",
+    }).as("testDatasource");
+    cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*", {
+      fixture: "mySQL_GET_selectTableDropdown.json",
+    }).as("getDatasourceStructure");
+    cy.intercept("PUT", "/api/v1/pages/crud-page/*", {
+      fixture: "mySQL_PUT_replaceLayoutWithCRUD.json",
+    }).as("replaceLayoutWithCRUDPage");
+    cy.intercept("GET", "/api/v1/actions*", {
+      fixture: "mySQL_GET_Actions.json",
+    }).as("getActions");
+    cy.intercept("POST", "/api/v1/actions/execute", {
+      fixture: "mySQL_POST_Execute.json",
+    }).as("postExecute");
+    cy.intercept("POST", "/api/v1/pages/crud-page", {
+      fixture: "mySQL_PUT_replaceLayoutWithCRUD.json",
+    }).as("replaceLayoutWithCRUDPage");
+  }
 
   public CreatePlugIn(pluginName: string) {
     cy.get(this._createNewPlgin(pluginName))
       .parent("div")
-      .trigger("click");
+      .trigger("click", { force: true });
   }
 
   public NavigateToDSCreateNew() {
@@ -128,18 +185,59 @@ export class DataSources {
     //     }).should("have.nested.property", "response.body.responseMeta.status", 200);
   }
 
-  public NavigateToActiveDSQueryPane(datasourceName: string) {
+  public DeleteDatasouceFromActiveTab(
+    datasourceName: string,
+    expectedRes = 200,
+  ) {
     this.NavigateToDSCreateNew();
-    this.agHelper.GetNClick(this.locator._activeTab);
+    this.agHelper.GetNClick(this._activeTab);
     cy.get(this._datasourceCard)
       .contains(datasourceName)
       .scrollIntoView()
       .should("be.visible")
       .closest(this._datasourceCard)
       .within(() => {
-        cy.get(this._createQuery).click({ force: true });
+        cy.get(this._contextMenuDatasource).click({ force: true });
       });
-    this.agHelper.Sleep(2000); //for the CreateQuery page to load
+    this.agHelper.GetNClick(this._contextMenuDelete);
+    this.agHelper.GetNClick(this._visibleTextSpan("Are you sure?"));
+    this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
+  }
+
+  public DeleteDatasouceFromWinthinDS(datasourceName: string) {
+    this.NavigateToDSCreateNew();
+    this.agHelper.GetNClick(this._activeTab);
+    cy.get(this._datasourceCard)
+      .contains(datasourceName)
+      .scrollIntoView()
+      .should("be.visible")
+      .click();
+    this.agHelper.Sleep(2000); //for the Datasource page to open
+    this.agHelper.ClickButton("Delete");
+    this.agHelper.ClickButton("Are you sure?");
+    this.agHelper.ValidateNetworkStatus("@deleteDatasource", 200);
+  }
+
+  public NavigateFromActiveDS(
+    datasourceName: string,
+    createQuery: boolean,
+  ) {
+    let btnLocator =
+      createQuery == true
+        ? this._createQuery
+        : this._datasourceCardGeneratePageBtn;
+
+    this.NavigateToDSCreateNew();
+    this.agHelper.GetNClick(this._activeTab);
+    cy.get(this._datasourceCard)
+      .contains(datasourceName)
+      .scrollIntoView()
+      .should("be.visible")
+      .closest(this._datasourceCard)
+      .within(() => {
+        cy.get(btnLocator).click({ force: true });
+      });
+    this.agHelper.Sleep(2000); //for the CreateQuery/GeneratePage page to load
   }
 
   public NavigateToActiveDSviaEntityExplorer(datasourceName: string) {
@@ -182,5 +280,14 @@ export class DataSources {
   RunQuery() {
     cy.get(this._runQueryBtn).click({ force: true });
     this.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+  }
+
+  public ReadQueryTableResponse(index: number, timeout = 100) {
+    //timeout can be sent higher values incase of larger tables
+    this.agHelper.Sleep(timeout); //Settling time for table!
+    return cy
+      .xpath(this._queryTableResponse)
+      .eq(index)
+      .invoke("text");
   }
 }

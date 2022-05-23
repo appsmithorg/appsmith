@@ -26,7 +26,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
       agHelper.RenameWithInPane(guid, false);
       dataSources.TestSaveDatasource();
       cy.log("ds name is :" + guid);
-      dataSources.NavigateToActiveDSQueryPane(guid);
+      dataSources.NavigateFromActiveDS(guid, false);
       agHelper.GetNClick(dataSources._templateMenu);
       agHelper.RenameWithInPane("ParamsTest");
       agHelper.EnterValue(
