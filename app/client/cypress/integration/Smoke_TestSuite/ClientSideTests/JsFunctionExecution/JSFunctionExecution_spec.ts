@@ -2,12 +2,9 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import largeJSONData from "../../../../fixtures/largeJSONData.json";
 
 const jsEditor = ObjectsRegistry.JSEditor,
-<<<<<<< HEAD
   locator = ObjectsRegistry.CommonLocators,
   ee = ObjectsRegistry.EntityExplorer,
   table = ObjectsRegistry.Table,
-=======
->>>>>>> 34135db992 (update cypress tests)
   agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("JS Function Execution", function() {
@@ -88,7 +85,7 @@ describe("JS Function Execution", function() {
     // Assert presence of parse error callout (entire JS Object is invalid)
     jsEditor.AssertParseError(true, false);
   });
-<<<<<<< HEAD
+
   it("4. Shows lint error and toast modal when JS Object doesn't start with 'export default'", () => {
     const invalidJSObjectStartToastMessage = "Start object with export default";
     const jsComment = "// This is a comment";
@@ -169,9 +166,8 @@ describe("JS Function Execution", function() {
     table.ReadTableRowColumnData(0, 1, 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //validating id column value - row 0
     });
-=======
-
-  it("4. Maintains order of async functions in settings tab alphabetically at all times", function() {
+  });
+  it("6. Maintains order of async functions in settings tab alphabetically at all times", function() {
     const JS_OBJECT_BODY = `export default {
       getId: async () => {
         return 8;
@@ -213,7 +209,7 @@ describe("JS Function Execution", function() {
       paste: true,
       completeReplace: true,
       toRun: false,
-      shouldNavigate: true,
+      shouldCreateNewJSObj: true,
     });
     // Switch to settings tab
     agHelper.GetNClick(jsEditor._settingsTab);
@@ -226,6 +222,16 @@ describe("JS Function Execution", function() {
       .wait(2000);
     // Assert that order remains the same
     assertAsyncFunctionsOrder();
->>>>>>> 34135db992 (update cypress tests)
+
+    jsEditor.EnableDisableAsyncFuncSettings("getId", true, false);
+    jsEditor.EnableDisableAsyncFuncSettings("zip", true, false);
+    jsEditor.EnableDisableAsyncFuncSettings("base", true, false);
+
+    cy.reload();
+
+    // Switch to settings tab
+    agHelper.GetNClick(jsEditor._settingsTab);
+    // Assert that order remains the same
+    assertAsyncFunctionsOrder();
   });
 });
