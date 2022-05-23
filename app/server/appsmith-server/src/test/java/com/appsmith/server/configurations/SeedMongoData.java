@@ -219,13 +219,13 @@ public class SeedMongoData {
                             log.debug("**** In the addUserWorkspaceFlux");
                             log.debug("User: {}", user);
                             log.debug("Workspace: {}", workspace);
-                            user.setCurrentWorkspaceId(workspace.getId());
-                            Set<String> workspaceIds = user.getWorkspaceIds();
-                            if (workspaceIds == null) {
-                                workspaceIds = new HashSet<>();
+                            user.setCurrentOrganizationId(workspace.getId());
+                            Set<String> organizationIds = user.getOrganizationIds();
+                            if (organizationIds == null) {
+                                organizationIds = new HashSet<>();
                             }
-                            workspaceIds.add(workspace.getId());
-                            user.setWorkspaceIds(workspaceIds);
+                            organizationIds.add(workspace.getId());
+                            user.setOrganizationIds(organizationIds);
                             log.debug("AddUserWorkspace User: {}, Workspace: {}", user, workspace);
                             return userRepository.save(user)
                                     .map(u -> {
@@ -244,17 +244,17 @@ public class SeedMongoData {
         return args -> {
             workspaceFlux1
                     .thenMany(addUserWorkspaceFlux)
-                    // Query the seed data to get the workspaceId (required for application creation)
+                    // Query the seed data to get the organizationId (required for application creation)
                     .then(workspaceByNameMono)
                     .map(workspace -> workspace.getId())
                     // Seed the user data into the DB
-                    .flatMapMany(workspaceId ->
+                    .flatMapMany(organizationId ->
                                     // Seed the application data into the DB
                                     Flux.just(appData)
                                             .map(array -> {
                                                 Application app = new Application();
                                                 app.setName((String) array[0]);
-                                                app.setWorkspaceId(workspaceId);
+                                                app.setOrganizationId(organizationId);
                                                 app.setPolicies((Set<Policy>) array[1]);
                                                 return app;
                                             })
