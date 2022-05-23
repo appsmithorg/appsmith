@@ -299,20 +299,27 @@ export function* restoreContextSaga() {
     yield put(selectMultipleWidgetsAction(pageContext.selectedWidgetIds));
   }
 
+  let control: HTMLElement | null = null;
   if (pageContext.editingProperty) {
     const { propertyName, propertyType } = pageContext.editingProperty;
     if (propertyName && propertyType === PropertyType.CODE_EDITOR) {
-      const input: HTMLElement | null = document.querySelector(
+      control = document.querySelector(
         `[data-code-editor-id=${sanitizePropertyPath(
           propertyName,
         )}] .CodeEditorTarget textarea`,
       );
-      input?.scrollIntoView({ block: "center" });
-      input?.focus();
     } else if (propertyName) {
-      const control: HTMLElement | null = document.querySelector(
-        `.t--property-control-${propertyName}`,
-      );
+      control = document.querySelector(`.t--property-control-${propertyName}`);
+      control?.scrollIntoView({ block: "center" });
+      control?.focus();
+    }
+
+    if (control && modalId) {
+      setTimeout(() => {
+        control?.scrollIntoView({ block: "center" });
+        control?.focus();
+      }, 500);
+    } else if (control) {
       control?.scrollIntoView({ block: "center" });
       control?.focus();
     }

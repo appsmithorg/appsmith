@@ -136,7 +136,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         },
       });
     }
-    this.props.deselectAllWidgets();
+    //this.props.deselectAllWidgets();
   };
 
   onModalResize = (dimensions: UIElementSize) => {
