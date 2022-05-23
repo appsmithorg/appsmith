@@ -106,12 +106,12 @@ function PropertyPaneView(
 
   if (!widgetProperties) return null;
 
-  //Building Deprecation Messages
+  // Building Deprecation Messages
   const isDeprecated = isWidgetDeprecated(widgetProperties.type);
   const widgetDisplayName = widgetProperties.displayName
     ? `${widgetProperties.displayName} `
     : "";
-  //generate messages
+  // generate messages
   const deprecationMessage = createMessage(
     WIDGET_DEPRECATION_WARNING,
     widgetDisplayName,
