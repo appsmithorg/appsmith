@@ -892,7 +892,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 application ->  themeService.publishTheme(application.getId())
         );
 
-        Flux<NewPage> publishApplicationAndPages = applicationMono
+        Mono<List<NewPage>> publishApplicationAndPages = applicationMono
                 //Return all the pages in the Application
                 .flatMap(application -> {
                     List<ApplicationPage> pages = application.getPages();
@@ -952,10 +952,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             page.setPublishedPage(page.getUnpublishedPage());
                             return page;
                         }))
+                .flatMap(newPageService::save)
                 .collectList()
-                .flatMapMany(newPageService::saveAll);
+                .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
-        Flux<NewAction> publishedActionsFlux = newActionService
+        Mono<List<NewAction>> publishedActionsListMono = newActionService
                 .findAllByApplicationIdAndViewMode(applicationId, false, MANAGE_ACTIONS, null)
                 .flatMap(newAction -> {
                     // If the action was deleted in edit mode, now this document can be safely archived
@@ -967,10 +968,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     newAction.setPublishedAction(newAction.getUnpublishedAction());
                     return Mono.just(newAction);
                 })
+                .flatMap(newActionService::save)
                 .collectList()
-                .flatMapMany(newActionService::saveAll);
+                .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
-        Flux<ActionCollection> publishedCollectionsFlux = actionCollectionService
+        Mono<List<ActionCollection>> publishedActionCollectionsListMono = actionCollectionService
                 .findAllByApplicationIdAndViewMode(applicationId, false, MANAGE_ACTIONS, null)
                 .flatMap(collection -> {
                     // If the collection was deleted in edit mode, now this can be safely deleted from the repository
@@ -982,16 +984,42 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     collection.setPublishedCollection(collection.getUnpublishedCollection());
                     return Mono.just(collection);
                 })
-                .collectList()
-                .flatMapMany(actionCollectionService::saveAll);
+                .flatMap(actionCollectionService::save)
+                .collectList();
 
         return Mono.when(
-                        publishApplicationAndPages.collectList(),
-                        publishedActionsFlux.collectList(),
-                        publishedCollectionsFlux,
+                        publishApplicationAndPages,
+                        publishedActionsListMono,
+                        publishedActionCollectionsListMono,
                         publishThemeMono
                 )
-                .then(applicationMono);
+                .then(sendApplicationPublishedEvent(publishApplicationAndPages, publishedActionsListMono, publishedActionCollectionsListMono, applicationId));
+    }
+
+    private Mono<Application> sendApplicationPublishedEvent(Mono<List<NewPage>> publishApplicationAndPages,
+                                                            Mono<List<NewAction>> publishedActionsFlux,
+                                                            Mono<List<ActionCollection>> publishedActionsCollectionFlux,
+                                                            String applicationId) {
+        return Mono.zip(
+                        publishApplicationAndPages,
+                        publishedActionsFlux,
+                        publishedActionsCollectionFlux,
+                        // not using existing applicationMono because we need the latest Application after published
+                        applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+                )
+                .flatMap(objects -> {
+                    Application application = objects.getT4();
+                    Map<String, Object> extraProperties = new HashMap<>();
+                    extraProperties.put("pageCount", objects.getT1().size());
+                    extraProperties.put("queryCount", objects.getT2().size());
+                    extraProperties.put("actionCollectionCount", objects.getT3().size());
+                    extraProperties.put("appId", defaultIfNull(application.getId(), ""));
+                    extraProperties.put("appName", defaultIfNull(application.getName(), ""));
+                    extraProperties.put("orgId", defaultIfNull(application.getOrganizationId(), ""));
+                    extraProperties.put("publishedAt", defaultIfNull(application.getLastDeployedAt(), ""));
+
+                    return analyticsService.sendObjectEvent(AnalyticsEvents.PUBLISH_APPLICATION, application, extraProperties);
+                });
     }
 
     @Override
@@ -999,34 +1027,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
                 .flatMap(branchedApplicationId -> publish(branchedApplicationId, isPublishedManually))
                 .map(responseUtils::updateApplicationWithDefaultResources);
-    }
-
-    @Override
-    public Mono<Void> sendApplicationPublishedEvent(Application application) {
-        if (!analyticsService.isActive()) {
-            return Mono.empty();
-        }
-
-        return sessionUserService.getCurrentUser()
-                .flatMap(user -> {
-                    int publishedPageCount = 0;
-                    if(application.getPublishedPages() != null) {
-                        publishedPageCount = application.getPublishedPages().size();
-                    }
-
-                    analyticsService.sendEvent(
-                            AnalyticsEvents.PUBLISH_APPLICATION.getEventName(),
-                            user.getUsername(),
-                            Map.of(
-                                    "appId", defaultIfNull(application.getId(), ""),
-                                    "appName", defaultIfNull(application.getName(), ""),
-                                    "orgId", defaultIfNull(application.getOrganizationId(), ""),
-                                    "pageCount", publishedPageCount + "",
-                                    "publishedAt", defaultIfNull(application.getLastDeployedAt(), "")
-                            )
-                    );
-                    return Mono.empty();
-                });
     }
 
     /** This function walks through all the pages and reorders them and updates the order as per the user preference.
