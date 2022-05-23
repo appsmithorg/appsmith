@@ -12,7 +12,6 @@ import {
   PropertyOverrideDependency,
 } from "./dataTreeFactory";
 import { setOverridingProperty } from "./utils";
-import { klona } from "klona";
 
 // We are splitting generateDataTreeWidget into two parts to memoize better as the widget doesn't change very often.
 // Widget changes only when dynamicBindingPathList changes.
@@ -138,8 +137,7 @@ const generateDataTreeWidgetWithoutMeta = (
     unInitializedDefaultProps,
     // defaultMetaProps,
     // widgetMetaProps,
-    // derivedProps,
-    // sequence of merge of defaultMetaProps, widgetMetaProps, derivedProps matters. Hence, we retain the same sequence in generateDataTreeWidget.
+    derivedProps,
     {
       defaultProps,
       defaultMetaProps: Object.keys(defaultMetaProps),
@@ -195,29 +193,21 @@ export const generateDataTreeWidget = (
   const {
     dataTreeWidgetWithoutMetaProps: dataTreeWidget,
     defaultMetaProps,
-    derivedProps,
     overridingMetaPropsMap,
   } = generateDataTreeWidgetWithoutMetaMemoized(widget);
   const overridingMetaProps: Record<string, unknown> = {};
   // cloning default and derived props to avoid mutation
-  const clonedDefaultMetaProps = klona(defaultMetaProps);
-  const cloneDerivedProps = klona(derivedProps);
   // overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
-  Object.entries(clonedDefaultMetaProps).forEach(([key, value]) => {
+  Object.entries(defaultMetaProps).forEach(([key, value]) => {
     if (overridingMetaPropsMap[key]) {
       overridingMetaProps[key] =
         key in widgetMetaProps ? widgetMetaProps[key] : value;
     }
   });
 
-  const meta = _.merge(overridingMetaProps, widgetMetaProps);
-  const mergedProperties = {
-    ...clonedDefaultMetaProps,
-    ...widgetMetaProps,
-    ...cloneDerivedProps,
-  };
+  const meta = _.merge({}, overridingMetaProps, widgetMetaProps);
+  const mergedProperties = _.merge({}, defaultMetaProps, widgetMetaProps);
   // if meta property's value is defined in widgetMetaProps then use that else set meta property to default metaProperty value.
-  // if value is derived property override the default and meta by value in derivedProps.
   Object.entries(mergedProperties).forEach(([key, value]) => {
     // Since meta properties are always updated as a whole, we are replacing instead of merging.
     // Merging mutates the memoized value, avoid merging meta values
