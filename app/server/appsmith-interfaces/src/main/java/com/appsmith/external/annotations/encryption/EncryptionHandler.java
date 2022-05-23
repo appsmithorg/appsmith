@@ -208,7 +208,6 @@ public class EncryptionHandler {
         
     }
 
-    // Return value of convertEncryption does not accurately tell you whether there are encrypted properties or not but can be treated as good estimate
     synchronized boolean convertEncryption(Object source, UnaryOperator<String> transformer) {
         if (source == null) {
             return false;
@@ -218,10 +217,6 @@ public class EncryptionHandler {
 
         // find the candidate fields for this object
         List<CandidateField> candidateFields = this.findCandidateFieldsForType(source);
-
-        if (!candidateFields.isEmpty()) {
-            hasEncryptedFields = true;
-        }
 
         // if it is a known type, go to sub type and convert
         // if it is a polymorphic type, go to specific subtype for convert
@@ -309,6 +304,10 @@ public class EncryptionHandler {
             }
 
             field.setAccessible(false);
+        }
+
+        if (!candidateFields.isEmpty()) {
+            hasEncryptedFields = true;
         }
 
         return hasEncryptedFields;

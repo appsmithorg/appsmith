@@ -184,12 +184,7 @@ public class EncryptionHandlerTest {
         testDomain.getSet().add(testSubDomainWithoutEncryption);
 
         b = encryptionHandler.convertEncryption(testDomain, "Encrypted-"::concat);
-        Assert.assertTrue(b); //Second time field will be removed from cache but returns true
-
-        b = encryptionHandler.convertEncryption(testDomain, "Encrypted-"::concat);
-        Assert.assertFalse(b); //Third time returns false as field will not be there in cache
-
-        //Not: Return value of convertEncryption does not accurately tell you whether there are encrypted properties but can be treated as good estimate
+        Assert.assertFalse(b); //Second time field will be removed from cache but returns true
     }
 
     @Test
@@ -206,23 +201,6 @@ public class EncryptionHandlerTest {
 
         boolean b = encryptionHandler.convertEncryption(testDomain, "Encrypted-"::concat);
         Assert.assertFalse(b);
-    }
-
-    @Test
-    public void testConvertEncryption_TransformationException() {
-        EncryptionHandler encryptionHandler = new EncryptionHandler();
-
-        final TestDomain testDomain = new TestDomain();
-
-        testDomain.setEncryptedInDomain("String");
-
-        boolean b = encryptionHandler.convertEncryption(testDomain, a -> {
-            int op = 0/0; //transformer exception
-            return "test" + a;
-        });
-
-        Assert.assertTrue(b);
-        Assert.assertEquals("String", testDomain.getEncryptedInDomain()); //value should remain
     }
 
     @Getter
