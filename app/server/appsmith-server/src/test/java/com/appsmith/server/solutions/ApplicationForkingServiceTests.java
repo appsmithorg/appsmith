@@ -167,7 +167,7 @@ public class ApplicationForkingServiceTests {
 
 
         Workspace sourceWorkspace = new Workspace();
-        sourceWorkspace.setName("Source Organization");
+        sourceWorkspace.setName("Source Workspace");
         workspaceService.create(sourceWorkspace).map(Workspace::getId).block();
 
         Application app1 = new Application();
@@ -296,7 +296,7 @@ public class ApplicationForkingServiceTests {
     public void test1_cloneWorkspaceWithItsContents() {
 
         Workspace targetWorkspace = new Workspace();
-        targetWorkspace.setName("Target Organization");
+        targetWorkspace.setName("Target Workspace");
 
         final Mono<Application> resultMono = workspaceService.create(targetWorkspace)
                 .map(Workspace::getId)
@@ -389,7 +389,7 @@ public class ApplicationForkingServiceTests {
     public void test2_forkApplicationWithReadApplicationUserAccess() {
 
         Workspace targetWorkspace = new Workspace();
-        targetWorkspace.setName("test-user-organization");
+        targetWorkspace.setName("test-user-workspace");
 
         final Mono<Application> resultMono = workspaceService.create(targetWorkspace)
                 .flatMap(workspace -> {
@@ -422,7 +422,7 @@ public class ApplicationForkingServiceTests {
     public void test4_validForkApplication_cancelledMidWay_createValidApplication() {
 
         Workspace targetWorkspace = new Workspace();
-        targetWorkspace.setName("Target Organization");
+        targetWorkspace.setName("Target Workspace");
         targetWorkspace = workspaceService.create(targetWorkspace).block();
 
         // Trigger the fork application flow

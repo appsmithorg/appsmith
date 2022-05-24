@@ -360,7 +360,7 @@ public class WorkspaceServiceTest {
     @WithUserDetails(value = "api_user")
     public void getAllMembersForWorkspace() {
         Workspace testWorkspace = new Workspace();
-        testWorkspace.setName("Get All Members For Organization Test");
+        testWorkspace.setName("Get All Members For Workspace Test");
         testWorkspace.setDomain("test.com");
         testWorkspace.setWebsite("https://test.com");
 
@@ -513,7 +513,7 @@ public class WorkspaceServiceTest {
     @WithUserDetails(value = "api_user")
     public void addNewUserToWorkspaceAsViewer() {
         Workspace workspace = new Workspace();
-        workspace.setName("Add Viewer to Test Organization");
+        workspace.setName("Add Viewer to Test Workspace");
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
 
@@ -535,7 +535,7 @@ public class WorkspaceServiceTest {
                 })
                 .cache();
 
-        Mono<Workspace> readWorkspaceMono = workspaceRepository.findByName("Add Viewer to Test Organization");
+        Mono<Workspace> readWorkspaceMono = workspaceRepository.findByName("Add Viewer to Test Workspace");
 
         Mono<Workspace> workspaceAfterUpdateMono = userAddedToWorkspaceMono
                 .then(readWorkspaceMono);
@@ -547,7 +547,7 @@ public class WorkspaceServiceTest {
                     Workspace workspace1 = tuple.getT2();
 
                     assertThat(workspace1).isNotNull();
-                    assertThat(workspace1.getName()).isEqualTo("Add Viewer to Test Organization");
+                    assertThat(workspace1.getName()).isEqualTo("Add Viewer to Test Workspace");
                     assertThat(workspace1.getUserRoles().stream()
                             .filter(role -> role.getUsername().equals("newemailwhichshouldntexistasviewer@usertest.com"))
                             .collect(Collectors.toSet())
@@ -582,7 +582,7 @@ public class WorkspaceServiceTest {
     @WithUserDetails(value = "api_user")
     public void addUserToWorkspaceAsAdminAndCheckApplicationAndDatasourcePermissions() {
         Workspace workspace = new Workspace();
-        workspace.setName("Member Management Admin Test Organization");
+        workspace.setName("Member Management Admin Test Workspace");
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
 
@@ -624,7 +624,7 @@ public class WorkspaceServiceTest {
                 AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
-        Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Admin Test Organization")
+        Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Admin Test Workspace")
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization by name")));
 
         Mono<Datasource> readDatasourceByNameMono = workspaceMono.flatMap(workspace1 ->
@@ -689,7 +689,7 @@ public class WorkspaceServiceTest {
     @WithUserDetails(value = "api_user")
     public void addUserToWorkspaceAsViewerAndCheckApplicationPermissions() {
         Workspace workspace = new Workspace();
-        workspace.setName("Member Management Viewer Test Organization");
+        workspace.setName("Member Management Viewer Test Workspace");
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
 
@@ -718,7 +718,7 @@ public class WorkspaceServiceTest {
                 AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
-        Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Viewer Test Organization")
+        Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Viewer Test Workspace")
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization by name")));
 
         Mono<Tuple2<Application, Workspace>> testMono = workspaceMono
@@ -757,7 +757,7 @@ public class WorkspaceServiceTest {
     @WithUserDetails(value = "api_user")
     public void changeUserRoleAndCheckApplicationPermissionChanges() {
         Workspace workspace = new Workspace();
-        workspace.setName("Member Management Test Organization");
+        workspace.setName("Member Management Test Workspace");
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
 
@@ -825,7 +825,7 @@ public class WorkspaceServiceTest {
     @WithUserDetails(value = "api_user")
     public void deleteUserRoleFromWorkspaceTest() {
         Workspace workspace = new Workspace();
-        workspace.setName("Member Management Delete Test Organization");
+        workspace.setName("Member Management Delete Test Workspace");
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
 
@@ -854,7 +854,7 @@ public class WorkspaceServiceTest {
                 AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
-        Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Delete Test Organization")
+        Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Delete Test Workspace")
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "workspace by name")));
 
         Mono<UserRole> userRoleChangeMono = workspaceMono
@@ -901,7 +901,7 @@ public class WorkspaceServiceTest {
     @WithUserDetails(value = "api_user")
     public void addNewUsersBulkToWorkspaceAsViewer() {
         Workspace workspace = new Workspace();
-        workspace.setName("Add Bulk Viewers to Test Organization");
+        workspace.setName("Add Bulk Viewers to Test Workspace");
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
 
@@ -925,7 +925,7 @@ public class WorkspaceServiceTest {
                 })
                 .cache();
 
-        Mono<Workspace> readWorkspaceMono = workspaceRepository.findByName("Add Bulk Viewers to Test Organization");
+        Mono<Workspace> readWorkspaceMono = workspaceRepository.findByName("Add Bulk Viewers to Test Workspace");
 
         Mono<Workspace> workspaceAfterUpdateMono = userAddedToWorkspaceMono
                 .then(readWorkspaceMono);
@@ -937,7 +937,7 @@ public class WorkspaceServiceTest {
                     Workspace workspace1 = tuple.getT2();
 
                     assertThat(workspace1).isNotNull();
-                    assertThat(workspace1.getName()).isEqualTo("Add Bulk Viewers to Test Organization");
+                    assertThat(workspace1.getName()).isEqualTo("Add Bulk Viewers to Test Workspace");
                     assertThat(workspace1.getUserRoles().stream()
                             .map(userRole -> userRole.getUsername())
                             .filter(username -> !username.equals("api_user"))
@@ -1176,9 +1176,9 @@ public class WorkspaceServiceTest {
     public void save_WhenNameIsPresent_SlugGenerated() {
         String uniqueString = UUID.randomUUID().toString();  // to make sure name is not conflicted with other tests
         Workspace workspace = new Workspace();
-        workspace.setName("My Organization " + uniqueString);
+        workspace.setName("My Workspace " + uniqueString);
 
-        String finalName = "Renamed Organization " + uniqueString;
+        String finalName = "Renamed Workspace " + uniqueString;
 
         Mono<Workspace> workspaceMono = workspaceService.create(workspace)
                 .flatMap(savedWorkspace -> {
@@ -1197,7 +1197,7 @@ public class WorkspaceServiceTest {
     @WithUserDetails(value = "api_user")
     public void update_WhenNameIsNotPresent_SlugIsNotGenerated() {
         String uniqueString = UUID.randomUUID().toString();  // to make sure name is not conflicted with other tests
-        String initialName = "My Organization " + uniqueString;
+        String initialName = "My Workspace " + uniqueString;
         Workspace workspace = new Workspace();
         workspace.setName(initialName);
 

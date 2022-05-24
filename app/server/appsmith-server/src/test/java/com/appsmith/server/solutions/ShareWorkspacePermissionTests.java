@@ -218,7 +218,7 @@ public class ShareWorkspacePermissionTests {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Workspace workspace = new Workspace();
-        workspace.setName("Organization for Invite Cancellation Test");
+        workspace.setName("Workspace for Invite Cancellation Test");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
 
         Application application = new Application();

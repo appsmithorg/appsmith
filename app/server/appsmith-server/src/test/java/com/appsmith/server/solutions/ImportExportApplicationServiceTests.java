@@ -189,7 +189,7 @@ public class ImportExportApplicationServiceTests {
         }
         installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
         Workspace workspace = new Workspace();
-        workspace.setName("Import-Export-Test-Organization");
+        workspace.setName("Import-Export-Test-Workspace");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
         workspaceId = savedWorkspace.getId();
 
@@ -284,7 +284,7 @@ public class ImportExportApplicationServiceTests {
 
     private Workspace createTemplateWorkspace() {
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
         return workspaceService.create(newWorkspace).block();
     }
 
@@ -740,7 +740,7 @@ public class ImportExportApplicationServiceTests {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
     
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
     
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
             .users(Set.of("api_user"))
@@ -924,7 +924,7 @@ public class ImportExportApplicationServiceTests {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-without-action-collection.json");
 
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
@@ -1002,7 +1002,7 @@ public class ImportExportApplicationServiceTests {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-without-theme.json");
 
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
 
         final Mono<ApplicationImportDTO> resultMono = workspaceService.create(newWorkspace)
                 .flatMap(workspace -> importExportApplicationService
@@ -1025,7 +1025,7 @@ public class ImportExportApplicationServiceTests {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-application-without-pageId-action-collection.json");
 
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
 
         final Mono<ApplicationImportDTO> resultMono = workspaceService
                 .create(newWorkspace)
@@ -1147,7 +1147,7 @@ public class ImportExportApplicationServiceTests {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-with-un-configured-datasource.json");
 
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
@@ -1230,7 +1230,7 @@ public class ImportExportApplicationServiceTests {
 
     public void importApplicationIntoWorkspace_pageRemovedAndUpdatedDefaultPageNameInBranchApplication_Success() {
         Application testApplication = new Application();
-        testApplication.setName("importApplicationIntoOrganization_pageRemovedInBranchApplication_Success");
+        testApplication.setName("importApplicationIntoWorkspace_pageRemovedInBranchApplication_Success");
         testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
@@ -1294,7 +1294,7 @@ public class ImportExportApplicationServiceTests {
     @WithUserDetails(value = "api_user")
     public void importApplicationIntoWorkspace_pageAddedInBranchApplication_Success() {
         Application testApplication = new Application();
-        testApplication.setName("importApplicationIntoOrganization_pageAddedInBranchApplication_Success");
+        testApplication.setName("importApplicationIntoWorkspace_pageAddedInBranchApplication_Success");
         testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
@@ -1361,7 +1361,7 @@ public class ImportExportApplicationServiceTests {
                 .build();
 
         Application testApplication = new Application();
-        testApplication.setName("importUpdatedApplicationIntoOrganizationFromFile_publicApplication_visibilityFlagNotReset");
+        testApplication.setName("importUpdatedApplicationIntoWorkspaceFromFile_publicApplication_visibilityFlagNotReset");
         testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
@@ -2554,7 +2554,7 @@ public class ImportExportApplicationServiceTests {
     public void importApplication_invalidPluginReferenceForDatasource_throwException() {
 
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
 
         ApplicationJson appJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
         assert appJson != null;

@@ -60,7 +60,7 @@ public class WorkspaceServiceUnitTest {
     public void getWorkspaceMembers_WhenRoleIsNull_ReturnsEmptyList() {
         // create a workspace object
         Workspace testWorkspace = new Workspace();
-        testWorkspace.setName("Get All Members For Organization Test");
+        testWorkspace.setName("Get All Members For Workspace Test");
         testWorkspace.setDomain("test.com");
         testWorkspace.setWebsite("https://test.com");
         testWorkspace.setId("test-org-id");

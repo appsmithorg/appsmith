@@ -646,7 +646,7 @@ public class ApplicationServiceTest {
 
         // Create an workspace for this user first.
         Workspace workspace = new Workspace();
-        workspace.setName("usertest's organization");
+        workspace.setName("usertest's workspace");
         Mono<Workspace> workspaceMono = workspaceService.create(workspace);
 
         Mono<UserHomepageDTO> allApplications = workspaceMono

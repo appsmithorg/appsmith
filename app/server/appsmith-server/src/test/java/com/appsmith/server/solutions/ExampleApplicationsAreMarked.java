@@ -60,7 +60,7 @@ public class ExampleApplicationsAreMarked {
     @WithUserDetails(value = "api_user")
     public void exampleApplicationsAreMarked() {
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization 3");
+        newWorkspace.setName("Template Workspace 3");
         final Mono<List<Application>> resultMono = Mono
                 .zip(
                         workspaceService.create(newWorkspace),

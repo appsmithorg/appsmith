@@ -148,7 +148,7 @@ public class DatasourceServiceTest {
     @WithUserDetails(value = "api_user")
     public void createDatasourceWithNullWorkspaceId() {
         Datasource datasource = new Datasource();
-        datasource.setName("DS-with-null-organizationId");
+        datasource.setName("DS-with-null-workspaceId");
         datasource.setPluginId("random plugin id");
         StepVerifier
                 .create(datasourceService.validateDatasource(datasource))

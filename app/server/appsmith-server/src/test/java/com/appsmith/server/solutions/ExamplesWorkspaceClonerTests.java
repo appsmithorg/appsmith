@@ -177,7 +177,7 @@ public class ExamplesWorkspaceClonerTests {
     @WithUserDetails(value = "api_user")
     public void cloneEmptyWorkspace() {
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
         final Mono<WorkspaceData> resultMono = workspaceService.create(newWorkspace)
                 .zipWith(sessionUserService.getCurrentUser())
                 .flatMap(tuple ->
@@ -203,7 +203,7 @@ public class ExamplesWorkspaceClonerTests {
     @WithUserDetails(value = "api_user")
     public void cloneWorkspaceWithItsContents() {
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
         final Mono<WorkspaceData> resultMono = Mono
                 .zip(
                         workspaceService.create(newWorkspace),
@@ -257,7 +257,7 @@ public class ExamplesWorkspaceClonerTests {
     @WithUserDetails(value = "api_user")
     public void cloneWorkspaceWithOnlyPublicApplications() {
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization 2");
+        newWorkspace.setName("Template Workspace 2");
         final Mono<WorkspaceData> resultMono = Mono
                 .zip(
                         workspaceService.create(newWorkspace),
@@ -328,7 +328,7 @@ public class ExamplesWorkspaceClonerTests {
     @WithUserDetails(value = "api_user")
     public void cloneWorkspaceWithOnlyPrivateApplications() {
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization 2");
+        newWorkspace.setName("Template Workspace 2");
         final Mono<WorkspaceData> resultMono = Mono
                 .zip(
                         workspaceService.create(newWorkspace),
@@ -427,7 +427,7 @@ public class ExamplesWorkspaceClonerTests {
     @WithUserDetails(value = "api_user")
     public void cloneWorkspaceWithOnlyDatasources() {
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization 2");
+        newWorkspace.setName("Template Workspace 2");
         final Mono<WorkspaceData> resultMono = Mono
                 .zip(
                         workspaceService.create(newWorkspace),
@@ -480,7 +480,7 @@ public class ExamplesWorkspaceClonerTests {
     @WithUserDetails(value = "api_user")
     public void cloneWorkspaceWithOnlyDatasourcesSpecifiedExplicitly() {
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization 2");
+        newWorkspace.setName("Template Workspace 2");
         final Mono<WorkspaceData> resultMono = Mono
                 .zip(
                         workspaceService.create(newWorkspace),
@@ -542,7 +542,7 @@ public class ExamplesWorkspaceClonerTests {
     @WithUserDetails(value = "api_user")
     public void cloneWorkspaceWithDatasourcesAndApplications() {
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization 2");
+        newWorkspace.setName("Template Workspace 2");
         final Mono<WorkspaceData> resultMono = Mono
                 .zip(
                         workspaceService.create(newWorkspace),
@@ -611,7 +611,7 @@ public class ExamplesWorkspaceClonerTests {
     @WithUserDetails(value = "api_user")
     public void cloneWorkspaceWithDatasourcesAndApplicationsAndActionsAndCollections() {
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization 2");
+        newWorkspace.setName("Template Workspace 2");
         final Workspace workspace = workspaceService.create(newWorkspace).block();
         final User user = sessionUserService.getCurrentUser().block();
 
