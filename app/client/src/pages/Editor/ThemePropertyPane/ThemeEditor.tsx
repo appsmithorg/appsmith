@@ -158,7 +158,7 @@ function ThemeEditor() {
                 category={Category.primary}
                 className="t--change-theme-btn"
                 onClick={onClickChangeThemeButton}
-                size={Size.small}
+                size={Size.medium}
                 text="Change Theme"
               />
             </aside>
