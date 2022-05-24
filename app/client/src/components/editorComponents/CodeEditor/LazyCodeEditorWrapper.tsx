@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import _ from "lodash";
 import { useSelector } from "react-redux";
+import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
+import js from "react-syntax-highlighter/dist/cjs/languages/prism/javascript";
+import { duotoneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import CodeEditor from "components/editorComponents/CodeEditor";
-import { EditorWrapper, ReadOnlyInput } from "./styledComponents";
+import { EditorWrapper } from "./styledComponents";
 import { replayHighlightClass } from "globalStyles/portals";
 import {
   EvaluationError,
@@ -14,12 +17,58 @@ import { AppState } from "reducers";
 import styled from "styled-components";
 import { Icon, IconSize } from "components/ads";
 
+SyntaxHighlighter.registerLanguage("javascript", js);
+
+export const ReadOnlyInput = styled.input`
+  width: 100%;
+  color: #4b4848 !important;
+  background-color: rgba(0, 0, 0, 0) !important;
+  font-family: monospace !important;
+  font-weight: 400 !important;
+  line-height: 21px !important;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  min-height: inherit;
+  height: --webkit-fill-available !important;
+`;
+
+export const HighlighedCodeContainer = styled("div")`
+  width: 100%;
+  background-color: #fff !important;
+  font-family: monospace !important;
+  font-weight: 400 !important;
+  line-height: 21px !important;
+
+  min-height: inherit;
+
+  pre {
+    margin: 0 !important;
+    overflow: hidden !important;
+    font-family: monospace !important;
+    padding: 8px !important;
+    background: white !important;
+
+    word-wrap: break-word !important;
+    white-space: pre-wrap !important;
+    word-break: normal !important;
+
+    code {
+      background: white !important;
+      color: #4b4848 !important;
+      font-family: monospace !important;
+    }
+  }
+`;
+
 const LintErrorContainer = styled.div`
   background-color: white;
   padding: 8px;
 
   position: absolute;
-  top: -24px;
+  bottom: 30px;
   left: 50px;
   box-shadow: 0px 4px 8px 1px rgba(0, 0, 0, 0.3);
 
@@ -30,8 +79,11 @@ const IconWrapper = styled(Icon)`
   margin-right: 4px;
 `;
 
-const LazyEditorWrapper = styled.div`
+const LazyEditorWrapper = styled("div")<{ lintError: string }>`
   position: relative;
+  min-height: 38px;
+  border: ${(props) =>
+    props?.lintError?.length ? "1px solid red" : "1px solid black"};
 `;
 
 // Lazy load CodeEditor upon focus
@@ -72,15 +124,27 @@ function LazyCodeEditorWrapper(props: any) {
     getPropertyValidation(dynamicData, props?.dataTreePath);
   }, [dynamicData, props.dataTreePath]);
 
+  const highlightedText = () => {
+    return (
+      <SyntaxHighlighter
+        language="javascript"
+        style={duotoneLight}
+        wrapLongLines
+      >
+        {props?.input?.value || props.placeholder || ""}
+      </SyntaxHighlighter>
+    );
+  };
+
   return isFocused ? (
     <CodeEditor {...props} hasFocus={isFocused} />
   ) : (
-    <LazyEditorWrapper>
+    <LazyEditorWrapper lintError={lintError}>
       <EditorWrapper
         border={props.border}
         borderLess={props.borderLess}
         className={`${props.className} ${replayHighlightClass} ${
-          false ? "t--codemirror-has-error" : ""
+          lintError ? "t--codemirror-has-error" : ""
         }`}
         codeEditorVisibleOverflow={props.codeEditorVisibleOverflow}
         disabled={props.disabled}
@@ -101,10 +165,11 @@ function LazyCodeEditorWrapper(props: any) {
           className="t--code-editor-wrapper unfocused-code-editor"
           data-testid="lazy-code-editor"
           onFocus={handleFocus}
-          placeholder={props.placeholder}
+          placeholder={""}
           type="text"
-          value={props.input.value}
+          value={""}
         />
+        <HighlighedCodeContainer>{highlightedText()}</HighlighedCodeContainer>
       </EditorWrapper>
       {showLintError && lintError && (
         <LintErrorContainer>
