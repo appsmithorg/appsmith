@@ -20,11 +20,7 @@ import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
 import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import { TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
-import {
-  getClosestCanvas,
-  labelMargin,
-  WidgetContainerDiff,
-} from "widgets/WidgetUtils";
+import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
@@ -154,7 +150,7 @@ function MultiTreeSelectComponent({
 
   const getPopupContainer = useCallback(() => {
     const node = _menu.current;
-    return getClosestCanvas(node);
+    return node as HTMLElement;
   }, []);
   const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();

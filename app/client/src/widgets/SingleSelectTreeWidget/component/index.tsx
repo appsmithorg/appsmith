@@ -19,11 +19,7 @@ import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
 import { TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
-import {
-  getClosestCanvas,
-  labelMargin,
-  WidgetContainerDiff,
-} from "widgets/WidgetUtils";
+import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
@@ -143,7 +139,7 @@ function SingleSelectTreeComponent({
 
   const getPopupContainer = useCallback(() => {
     const node = _menu.current;
-    return getClosestCanvas(node);
+    return node as HTMLElement;
   }, []);
   const onSelectionChange = useCallback(
     (value?: DefaultValueType, labelList?: ReactNode[]) => {

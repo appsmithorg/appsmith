@@ -21,11 +21,7 @@ import MenuItemCheckBox, {
 import { TextSize } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
-import {
-  getClosestCanvas,
-  labelMargin,
-  WidgetContainerDiff,
-} from "widgets/WidgetUtils";
+import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { uniqBy } from "lodash";
@@ -165,9 +161,8 @@ function MultiSelectComponent({
   );
   const getPopupContainer = useCallback(() => {
     const node = _menu.current;
-    return getClosestCanvas(node);
+    return node as HTMLElement;
   }, []);
-
   const handleSelectAll = () => {
     if (!isSelectAll) {
       // Get all options
