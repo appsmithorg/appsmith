@@ -1,7 +1,11 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.models.ApiTemplate;
+import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Category;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.Provider;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.constants.FieldName;
@@ -9,13 +13,24 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.Comment;
+import com.appsmith.server.domains.CommentNotification;
 import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.CommentThreadNotification;
+import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.domains.Group;
+import com.appsmith.server.domains.InviteUser;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.PasswordResetToken;
+import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QAction;
 import com.appsmith.server.domains.QActionCollection;
@@ -32,12 +47,17 @@ import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.QWorkspace;
+import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.UsagePulse;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.ApplicationTemplate;
+import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
@@ -49,6 +69,7 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 
+import org.bson.BsonArray;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -58,12 +79,14 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -1024,5 +1047,104 @@ public class DatabaseChangelog2 {
                     fieldName(QDatasource.datasource.createdAt))
                         .unique().named("workspace_datasource_deleted_compound_index")
         );
+    }
+
+    /*
+        Code Quality, Code readability note:
+        For writting easy to understand and readable code always avoid nesting more than 2 or 3 levels
+        Make more functions if necesary
+    */
+    private boolean upgradeAclForDocument(Document document) {
+
+        // If policies are not present create empty set
+        if(document.get(fieldName(QBaseDomain.baseDomain.policies)) == null) {
+            // If policy is not present initialize it with empty set
+            document.put(fieldName(QBaseDomain.baseDomain.policies), Arrays.asList());
+            return true;
+        }
+
+        // Map of translation from old permission string to new permission string
+        Map<String, String> permissionMapping = Map.ofEntries(
+            Map.entry("manage:userOrganization", "manage:userWorkspace"),
+            Map.entry("read:userOrganization", "read:userWorkspace"),
+            Map.entry("manage:organizations", "manage:workspaces"),
+            Map.entry("read:organizations", "read:workspaces"),
+            Map.entry("manage:orgApplications", "manage:workspaceApplications"),
+            Map.entry("read:orgApplications", "read:workspaceApplications"),
+            Map.entry("publish:orgApplications", "publish:workspaceApplications"),
+            Map.entry("export:orgApplications", "export:workspaceApplications"),
+            Map.entry("inviteUsers:organization", "inviteUsers:workspace")
+        );
+
+        // If none of the permission is contained in map no need to update this document
+        // Casting to List<?> instead of List<Document> to avoid unchecked cast
+        // Indivisual objects will be casted later to Document using Document.class.cast()
+        List<?> genericPolicyDocuments = (List<?>)document.get(fieldName(QBaseDomain.baseDomain.policies));
+        if(genericPolicyDocuments.stream().noneMatch(genericPolicyDocument -> permissionMapping.containsKey(Document.class.cast(genericPolicyDocument).get("permission")))) {
+            return false;
+        }
+
+        // Translate policies using map
+        genericPolicyDocuments.forEach(genericPolicyDocument -> {
+            Document policyDocument = Document.class.cast(genericPolicyDocument);
+            // Get old permission
+            String permission = policyDocument.getString("permission");
+            // Translate, if present in map return its value, otherwise original permission
+            permission = permissionMapping.getOrDefault(permission, permission);
+            policyDocument.put("permission", permission);
+        });
+
+        return true;
+    }
+
+    private void upgradeAclForDomainClass(MongockTemplate mongockTemplate, Class<? extends BaseDomain> domainClass) {
+        log.info("Upgrading {}", domainClass.getName());
+        try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(domainClass))
+            .stream()) { 
+            stream
+                .filter(this::upgradeAclForDocument) //this will upgrade the document as well as stream is filtered based on return value
+                .forEach(document -> mongockTemplate.save(document, mongockTemplate.getCollectionName(domainClass)));
+        }
+        log.info("Done upgrading {}", domainClass.getName());
+    }
+
+    @ChangeSet(order = "027", id = "upgrade-acl-permission", author = "")
+    public void upgradeAclPermission(MongockTemplate mongockTemplate) {
+        // List of domain classes that contains policies
+        List<Class<? extends BaseDomain>> models = Arrays.asList(
+            ApiTemplate.class,
+            Category.class,
+            Datasource.class,
+            Provider.class,
+            Action.class,
+            ActionCollection.class,
+            Application.class,
+            Asset.class,
+            Collection.class,
+            Comment.class,
+            CommentNotification.class,
+            CommentThread.class,
+            CommentThreadNotification.class,
+            Config.class,
+            GitDeployKeys.class,
+            Group.class,
+            InviteUser.class,
+            NewAction.class,
+            NewPage.class,
+            Notification.class,
+            Organization.class,
+            Page.class,
+            PasswordResetToken.class,
+            Permission.class,
+            Plugin.class,
+            Role.class,
+            Theme.class,
+            UsagePulse.class,
+            User.class,
+            UserData.class,
+            Workspace.class
+        );
+        
+        models.stream().forEach(domainClass -> upgradeAclForDomainClass(mongockTemplate, domainClass));
     }
 }

@@ -28,9 +28,9 @@ public enum AclPermission {
     DELETE("delete", null),
 
     // Does the user have manage workspace permission
-    USER_MANAGE_WORKSPACES("manage:userOrganization", User.class),
+    USER_MANAGE_WORKSPACES("manage:userWorkspace", User.class),
     //Does the user have read workspace permissions
-    USER_READ_WORKSPACES("read:userOrganization", User.class),
+    USER_READ_WORKSPACES("read:userWorkspace", User.class),
 
     // Does this user have permission to access Instance Config UI?
     MANAGE_INSTANCE_ENV("manage:instanceEnv", User.class),
@@ -41,17 +41,17 @@ public enum AclPermission {
     MANAGE_USERS("manage:users", User.class),
     RESET_PASSWORD_USERS("resetPassword:users", User.class),
 
-    MANAGE_WORKSPACES("manage:organizations", Workspace.class),
-    READ_WORKSPACES("read:organizations", Workspace.class),
+    MANAGE_WORKSPACES("manage:workspaces", Workspace.class),
+    READ_WORKSPACES("read:workspaces", Workspace.class),
 
     // Was the user assigned a global permission at the workspace level to manage applications?
-    WORKSPACE_MANAGE_APPLICATIONS("manage:orgApplications", Workspace.class),
-    WORKSPACE_READ_APPLICATIONS("read:orgApplications", Workspace.class),
-    WORKSPACE_PUBLISH_APPLICATIONS("publish:orgApplications", Workspace.class),
-    WORKSPACE_EXPORT_APPLICATIONS("export:orgApplications", Workspace.class),
+    WORKSPACE_MANAGE_APPLICATIONS("manage:workspaceApplications", Workspace.class),
+    WORKSPACE_READ_APPLICATIONS("read:workspaceApplications", Workspace.class),
+    WORKSPACE_PUBLISH_APPLICATIONS("publish:workspaceApplications", Workspace.class),
+    WORKSPACE_EXPORT_APPLICATIONS("export:workspaceApplications", Workspace.class),
 
     // Invitation related permissions
-    WORKSPACE_INVITE_USERS("inviteUsers:organization", Workspace.class),
+    WORKSPACE_INVITE_USERS("inviteUsers:workspace", Workspace.class),
 
     MANAGE_APPLICATIONS("manage:applications", Application.class),
     READ_APPLICATIONS("read:applications", Application.class),
