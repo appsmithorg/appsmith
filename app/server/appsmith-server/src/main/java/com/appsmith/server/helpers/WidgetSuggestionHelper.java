@@ -180,7 +180,7 @@ public class WidgetSuggestionHelper {
             if(fields.size() < 2) {
                 widgetTypeList.add(getWidget(WidgetType.SELECT_WIDGET, fields.get(0), fields.get(0)));
             } else {
-                widgetTypeList.add(getWidget(WidgetType.SELECT_WIDGET, fields.get(0), fields.get(0)));
+                widgetTypeList.add(getWidget(WidgetType.SELECT_WIDGET, fields.get(0), fields.get(1)));
             }
             if(!numericFields.isEmpty()) {
                 widgetTypeList.add(getWidget(WidgetType.CHART_WIDGET, fields.get(0), numericFields.get(0)));
