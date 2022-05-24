@@ -245,10 +245,10 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     }
 
     @Override
-    public Flux<Workspace> findByIdsIn(Set<String> ids, AclPermission permission) {
+    public Flux<Workspace> findByIdsIn(Set<String> ids, String tenantId, AclPermission permission) {
         Sort sort = Sort.by(FieldName.NAME);
 
-        return repository.findByIdsIn(ids, permission, sort);
+        return repository.findByIdsIn(ids, tenantId, permission, sort);
     }
 
     @Override
