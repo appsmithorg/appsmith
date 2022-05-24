@@ -3,22 +3,23 @@ import { useSelector } from "react-redux";
 
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import {
-  EditableText as NewEditableText,
-  EditInteractionKind as NewEditInteractionKind,
-  SavingState,
-} from "components/ads/EditableText";
 import { removeSpecialChars } from "utils/helpers";
 import { AppState } from "reducers";
 import { JSCollection } from "entities/JSCollection";
 import { Classes } from "@blueprintjs/core";
 import { saveJSObjectName } from "actions/jsActionActions";
-import { getJSCollection } from "selectors/entitiesSelector";
+import { getJSCollection, getPlugin } from "selectors/entitiesSelector";
 import NameEditorComponent from "components/utils/NameEditorComponent";
 import {
   ACTION_NAME_PLACEHOLDER,
   createMessage,
 } from "@appsmith/constants/messages";
+import { PluginType } from "entities/Action";
+import { Plugin } from "api/PluginApi";
+import { Spinner } from "@blueprintjs/core";
+import EditableText, {
+  EditInteractionKind,
+} from "components/editorComponents/EditableText";
 
 const JSObjectNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -27,6 +28,7 @@ const JSObjectNameWrapper = styled.div<{ page?: string }>`
   justify-content: flex-start;
   align-content: center;
   & > div {
+    display: flex;
     max-width: 100%;
     flex: 0 1 auto;
     font-size: ${(props) => props.theme.fontSizes[5]}px;
@@ -44,7 +46,7 @@ const JSObjectNameWrapper = styled.div<{ page?: string }>`
       : null}
 `;
 
-type ActionNameEditorProps = {
+type JSObjectNameEditorProps = {
   /*
     This prop checks if page is API Pane or Query Pane or Curl Pane
     So, that we can toggle between ads editable-text component and existing editable-text component
@@ -54,7 +56,14 @@ type ActionNameEditorProps = {
   page?: string;
 };
 
-export function JSObjectNameEditor(props: ActionNameEditorProps) {
+const JSIconWrapper = styled.img`
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  align-self: center;
+`;
+
+export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
   const params = useParams<{ collectionId?: string; queryId?: string }>();
 
   const currentJSObjectConfig:
@@ -63,10 +72,15 @@ export function JSObjectNameEditor(props: ActionNameEditorProps) {
     getJSCollection(state, params.collectionId || ""),
   );
 
+  const currentPlugin: Plugin | undefined = useSelector((state: AppState) =>
+    getPlugin(state, currentJSObjectConfig?.pluginId || ""),
+  );
+
   return (
     <NameEditorComponent
       currentActionConfig={currentJSObjectConfig}
       dispatchAction={saveJSObjectName}
+      pluginType={PluginType.JS}
     >
       {({
         forceUpdate,
@@ -82,27 +96,31 @@ export function JSObjectNameEditor(props: ActionNameEditorProps) {
         saveStatus: { isSaving: boolean; error: boolean };
       }) => (
         <JSObjectNameWrapper page={props.page}>
-          <NewEditableText
-            className="t--js-action-name-edit-field"
-            defaultValue={
-              currentJSObjectConfig ? currentJSObjectConfig.name : ""
-            }
-            editInteractionKind={NewEditInteractionKind.SINGLE}
-            fill
-            forceDefault={forceUpdate}
-            hideEditIcon
-            isEditingDefault={isNew}
-            isInvalid={isInvalidNameForEntity}
-            onBlur={handleNameChange}
-            placeholder={createMessage(ACTION_NAME_PLACEHOLDER, "object")}
-            savingState={
-              saveStatus.isSaving
-                ? SavingState.STARTED
-                : SavingState.NOT_STARTED
-            }
-            underline
-            valueTransform={removeSpecialChars}
-          />
+          <div>
+            {currentPlugin && (
+              <JSIconWrapper
+                alt={currentPlugin.name}
+                src={currentPlugin.iconLocation}
+              />
+            )}
+            <EditableText
+              className="t--js-action-name-edit-field"
+              defaultValue={
+                currentJSObjectConfig ? currentJSObjectConfig.name : ""
+              }
+              editInteractionKind={EditInteractionKind.SINGLE}
+              errorTooltipClass="t--action-name-edit-error"
+              forceDefault={forceUpdate}
+              isEditingDefault={isNew}
+              isInvalid={isInvalidNameForEntity}
+              onTextChanged={handleNameChange}
+              placeholder={createMessage(ACTION_NAME_PLACEHOLDER, "JS object")}
+              type="text"
+              updating={saveStatus.isSaving}
+              valueTransform={removeSpecialChars}
+            />
+            {saveStatus.isSaving && <Spinner size={16} />}
+          </div>
         </JSObjectNameWrapper>
       )}
     </NameEditorComponent>

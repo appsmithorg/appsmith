@@ -21,7 +21,9 @@ import {
   ClearPluginActionDescription,
   RunPluginActionDescription,
 } from "entities/DataTree/actionTriggers";
+import { AppTheme } from "entities/AppTheming";
 import { PluginId } from "api/PluginApi";
+import log from "loglevel";
 
 export type ActionDispatcher = (
   ...args: any[]
@@ -121,6 +123,7 @@ export interface DataTreeWidget extends WidgetProps {
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
   store: Record<string, unknown>;
+  theme: AppTheme["properties"];
 }
 export type DataTreeObjectEntity =
   | DataTreeAction
@@ -146,6 +149,7 @@ type DataTreeSeed = {
   pageList: PageListPayload;
   appData: AppDataState;
   jsActions: JSCollectionDataState;
+  theme: AppTheme["properties"];
 };
 
 export class DataTreeFactory {
@@ -156,10 +160,14 @@ export class DataTreeFactory {
     jsActions,
     pageList,
     pluginDependencyConfig,
+    theme,
     widgets,
     widgetsMeta,
   }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
+    const start = performance.now();
+    const startActions = performance.now();
+
     actions.forEach((action) => {
       const editorConfig = editorConfigs[action.config.pluginId];
       const dependencyConfig = pluginDependencyConfig[action.config.pluginId];
@@ -169,15 +177,24 @@ export class DataTreeFactory {
         dependencyConfig,
       );
     });
+    const endActions = performance.now();
+
+    const startJsActions = performance.now();
+
     jsActions.forEach((js) => {
       dataTree[js.config.name] = generateDataTreeJSAction(js);
     });
+    const endJsActions = performance.now();
+
+    const startWidgets = performance.now();
+
     Object.values(widgets).forEach((widget) => {
       dataTree[widget.widgetName] = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.widgetId],
       );
     });
+    const endWidgets = performance.now();
 
     dataTree.pageList = pageList;
     dataTree.appsmith = {
@@ -185,8 +202,20 @@ export class DataTreeFactory {
       // combine both persistent and transient state with the transient state
       // taking precedence in case the key is the same
       store: { ...appData.store.persistent, ...appData.store.transient },
+      theme,
     } as DataTreeAppsmith;
     (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
+    const end = performance.now();
+
+    const out = {
+      total: end - start,
+      widgets: endWidgets - startWidgets,
+      actions: endActions - startActions,
+      jsActions: endJsActions - startJsActions,
+    };
+
+    log.debug("### Create unevalTree timing", out);
+
     return dataTree;
   }
 }

@@ -13,6 +13,7 @@ import {
   LABEL_CONTAINER_CLASS,
   multiSelectInputContainerStyles,
 } from "components/ads/LabelWithTooltip";
+import { lightenColor } from "widgets/WidgetUtils";
 
 const Input = styled.input`
   height: 0;
@@ -21,7 +22,10 @@ const Input = styled.input`
   z-index: -1;
 `;
 
-export const CommonSelectFilterStyle = css`
+export const CommonSelectFilterStyle = css<{
+  accentColor?: string;
+  borderRadius?: string;
+}>`
   &&&& .${Classes.ALIGN_LEFT} {
     font-size: 14px;
     padding-left: 42px;
@@ -30,10 +34,11 @@ export const CommonSelectFilterStyle = css`
       margin-right: 20px;
     }
     &.all-options.selected {
-      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      background: ${(props) => lightenColor(props.accentColor)};
       color: ${Colors.GREY_10} !important;
     }
   }
+
   &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
     background: transparent;
     box-shadow: none;
@@ -46,21 +51,33 @@ export const CommonSelectFilterStyle = css`
       height: 1em;
     }
   }
-  .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-    background: ${Colors.GREEN_SOLID} !important;
-    color: rgb(255, 255, 255);
-    border-color: ${Colors.GREEN_SOLID} !important;
-    box-shadow: none;
-    outline: none !important;
+
+  & .${Classes.INPUT} {
+    height: 32px !important;
+    padding-left: 29px !important;
+    font-size: 14px;
+    color: ${Colors.GREY_10};
+    box-shadow: 0px 0px 0px 0px;
+    border: none;
   }
 
   & .${Classes.INPUT_GROUP} {
-    padding: 12px 12px 8px 12px;
+    margin: 12px 12px 8px 12px;
+    position: relative;
+    border: 1px solid ${Colors.GREY_3};
+    border-radius: ${({ borderRadius }) =>
+      borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
+    overflow: hidden;
+    &:focus-within {
+      border: 1px solid ${(props) => props.accentColor};
+      box-shadow: 0px 0px 0px 3px ${(props) => lightenColor(props.accentColor)};
+    }
 
     & > .${Classes.ICON} {
       &:first-child {
-        left: 12px;
-        top: 14px;
+        left: 0px;
+        top: 0px;
+        bottom: 0px;
         margin: 9px;
         color: ${Colors.GREY_7};
 
@@ -72,11 +89,12 @@ export const CommonSelectFilterStyle = css`
     }
     & > .${Classes.INPUT_ACTION} {
       &:last-child {
-        right: 13px;
-        top: 13px;
+        right: 0px;
+        top: 0px;
+        bottom: 0px;
 
         .${Classes.BUTTON} {
-          min-height: 34px;
+          min-height: 100%;
           min-width: 35px;
           margin: 0px;
           color: ${Colors.GREY_6} !important;
@@ -87,18 +105,6 @@ export const CommonSelectFilterStyle = css`
             border-radius: 0;
           }
         }
-      }
-    }
-    .${Classes.INPUT} {
-      height: 36px;
-      padding-left: 29px !important;
-      font-size: 14px;
-      border: 1px solid ${Colors.GREY_3};
-      color: ${Colors.GREY_10};
-      box-shadow: 0px 0px 0px 0px;
-      &:focus {
-        border: 1.2px solid ${Colors.GREEN_SOLID};
-        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER} !important;
       }
     }
   }
@@ -159,6 +165,8 @@ const rcSelectDropdownSlideUpOut = keyframes`
 export const DropdownStyles = createGlobalStyle<{
   dropDownWidth: number;
   id: string;
+  accentColor?: string;
+  borderRadius: string;
 }>`
 ${({ dropDownWidth, id }) => `
   .multiselect-popover-width-${id} {
@@ -167,7 +175,7 @@ ${({ dropDownWidth, id }) => `
   }
 `}
 .rc-select-dropdown-hidden {
-	display: none !important;
+	display: none;
 }
 .rc-select-item-group {
 	color: #999;
@@ -196,15 +204,18 @@ ${({ dropDownWidth, id }) => `
   color: ${Colors.GREY_8};
   font-weight: 400;
 }
-.rc-select-item-option-active {
-	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+.rc-select-item-option:hover {
+	background: ${({ accentColor }) => lightenColor(accentColor)};
+
+  & .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
+    border-color: ${({ accentColor }) => accentColor} !important;
+  }
+
   & .rc-select-item-option-content {
     color: ${Colors.GREY_9};
   }
 }
 .rc-select-item-option-selected {
-	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
-
   & .rc-select-item-option-content {
     color: ${Colors.GREY_10};
   }
@@ -217,13 +228,13 @@ ${({ dropDownWidth, id }) => `
 	color: #999;
 }
 .rc-select-item-empty {
-	text-align: left;
+	text-align: center;
+  padding: 10px;
   color: rgba(92, 112, 128, 0.6) !important
 }
 .multi-select-dropdown.rc-select-dropdown-empty {
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2) !important;
-  border: 1px solid #E7E7E7;
-  border-color: rgba(0,0,0,0.2);
+  box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+  border: 0px solid #E7E7E7;
   min-height: fit-content;
 }
 .rc-select-selection__choice-zoom {
@@ -297,9 +308,44 @@ ${({ dropDownWidth, id }) => `
   border-radius: 0px;
   margin-top: 5px;
   background: white;
+  border-radius: ${({ borderRadius }) =>
+    borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
+  overflow: hidden;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-   overflow-x: scroll;
-    ${CommonSelectFilterStyle}
+   overflow-x: auto;
+  &&&& .${Classes.ALIGN_LEFT} {
+    font-size: 14px;
+    padding-left: 42px;
+    margin-bottom: 0;
+    .${Classes.CONTROL_INDICATOR} {
+      margin-right: 20px;
+    }
+    &.all-options.selected {
+      background: ${({ accentColor }) => lightenColor(accentColor)};
+      color: ${Colors.GREY_10} !important;
+    }
+  }
+  &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
+    background: transparent;
+    box-shadow: none;
+    border-width: 1px;
+    border-style: solid;
+    border-color: ${Colors.GREY_3};
+    border-radius: ${({ borderRadius }) => borderRadius} !important;
+    &::before {
+      width: auto;
+      height: 1em;
+    }
+  }
+
+  .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
+    background: ${({ accentColor }) => accentColor} !important;
+    color: rgb(255, 255, 255);
+    border-color: ${({ accentColor }) => accentColor} !important;
+    box-shadow: none;
+    outline: none !important;
+  }
+  ${CommonSelectFilterStyle}
   .rc-select-item {
     font-size: 14px;
     padding: 5px 16px;
@@ -320,6 +366,9 @@ export const MultiSelectContainer = styled.div<{
   compactMode: boolean;
   isValid: boolean;
   labelPosition?: LabelPosition;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor?: string;
 }>`
   ${labelLayoutStyles}
   & .${LABEL_CONTAINER_CLASS} {
@@ -341,9 +390,7 @@ export const MultiSelectContainer = styled.div<{
     cursor: pointer;
 
     ${({ compactMode, labelPosition }) =>
-      labelPosition !== LabelPosition.Top &&
-      compactMode &&
-      `height: 100%; overflow: hidden`};
+      labelPosition !== LabelPosition.Top && compactMode && `height: 100%;`};
 
     .rc-select-selection-placeholder {
       pointer-events: none;
@@ -376,7 +423,7 @@ export const MultiSelectContainer = styled.div<{
     }
     & .rc-select-selector {
       background-color: ${Colors.GREY_1} !important;
-      border: 1.2px solid ${Colors.GREY_3};
+      border: 1px solid ${Colors.GREY_3};
       .rc-select-selection-item-content {
         color: ${Colors.GREY_7};
       }
@@ -406,12 +453,13 @@ export const MultiSelectContainer = styled.div<{
       display: flex;
       flex-wrap: wrap;
       padding: 1px;
-      box-shadow: none;
-      border-radius: 0px;
+      background: ${Colors.WHITE};
+      border-radius: ${({ borderRadius }) => borderRadius} !important;
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       width: 100%;
-      transition: border-color 0.15s ease-in-out 0s,
-        box-shadow 0.15s ease-in-out 0s;
+      transition: none;
       background-color: white;
+
       .rc-select-selection-item {
         background: none;
         border: 1px solid ${Colors.GREY_3};
@@ -516,18 +564,18 @@ export const MultiSelectContainer = styled.div<{
   .rc-select-show-arrow.rc-select-multiple {
     .rc-select-selector {
       padding-right: 36px;
-      padding-left: 12px;
-      box-shadow: none;
-      border-radius: 0px;
+      padding-left: 10px;
+      background: ${Colors.WHITE};
+      border-radius: ${({ borderRadius }) => borderRadius};
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       height: inherit;
       width: 100%;
-      transition: border-color 0.15s ease-in-out 0s,
-        box-shadow 0.15s ease-in-out 0s;
-      border: 1.2px solid
+      transition: none;
+      border: 1px solid
         ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
       &:hover {
-        border: 1.2px solid
-          ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
+        border: 1px solid
+          ${(props) => (props.isValid ? Colors.GREY_5 : Colors.DANGER_SOLID)};
       }
     }
   }
@@ -553,16 +601,21 @@ export const MultiSelectContainer = styled.div<{
   .rc-select-show-arrow.rc-select-multiple.rc-select-focused {
     .rc-select-selector {
       outline: 0;
+
       ${(props) =>
         props.isValid
           ? `
-          border: 1.2px solid ${Colors.GREEN_SOLID};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
-          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
+          border: 1px solid  ${props.accentColor};
+          box-shadow: 0px 0px 0px 3px ${lightenColor(
+            props.accentColor,
+          )} !important;`
+          : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
   }
 `;
-export const StyledCheckbox = styled(Checkbox)`
+export const StyledCheckbox = styled(Checkbox)<{
+  accentColor?: string;
+}>`
   &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
     white-space: nowrap;
     overflow: hidden;

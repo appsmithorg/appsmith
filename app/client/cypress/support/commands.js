@@ -36,6 +36,7 @@ import commentsLocators from "../locators/CommentsLocators";
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
+const themelocator = require("../locators/ThemeLocators.json");
 import gitSyncLocators from "../locators/gitSyncLocators";
 
 let pageidcopy = " ";
@@ -312,7 +313,7 @@ Cypress.Commands.add("SearchApp", (appname) => {
 });
 
 Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
-  cy.get(commonlocators.entityExplorersearch)
+  cy.get(commonlocators.searchEntityInExplorer)
     .clear({ force: true })
     .type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -328,7 +329,7 @@ Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
 
 Cypress.Commands.add("GlobalSearchEntity", (apiname1, dontAssertVisibility) => {
   // entity explorer search will be hidden
-  cy.get(commonlocators.entityExplorersearch)
+  cy.get(commonlocators.searchEntityInExplorer)
     .clear({ force: true })
     .type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -412,7 +413,7 @@ Cypress.Commands.add("CheckAndUnfoldWidgets", () => {
 });
 
 Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
-  cy.get(commonlocators.entityExplorersearch)
+  cy.get(commonlocators.searchEntityInExplorer)
     .clear({ force: true })
     .type(apiname1, { force: true });
   cy.CheckAndUnfoldWidgets();
@@ -431,7 +432,7 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
 });
 
 Cypress.Commands.add("SearchEntityAndUnfold", (apiname1) => {
-  cy.get(commonlocators.entityExplorersearch)
+  cy.get(commonlocators.searchEntityInExplorer)
     .clear({ force: true })
     .type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -450,7 +451,7 @@ Cypress.Commands.add("SearchEntityAndUnfold", (apiname1) => {
 
 Cypress.Commands.add("OpenBindings", (apiname1) => {
   cy.wait(500);
-  cy.get(commonlocators.entityExplorersearch)
+  cy.get(commonlocators.searchEntityInExplorer)
     .clear({ force: true })
     .type(apiname1, { force: true });
   cy.CheckAndUnfoldWidgets();
@@ -865,6 +866,7 @@ Cypress.Commands.add("startRoutesForDatasource", () => {
 Cypress.Commands.add("startServerAndRoutes", () => {
   //To update route with intercept after working on alias wrt wait and alias
   cy.server();
+  cy.route("PUT", "/api/v1/themes/applications/*").as("updateTheme");
   cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
   cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.route("GET", "/api/v1/applications/new").as("applications");
@@ -942,7 +944,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("PUT", "/api/v1/organizations/*").as("updateOrganization");
   cy.route("GET", "/api/v1/pages/view/application/*").as("viewApp");
-  cy.route("GET", "/api/v1/pages/*/view").as("viewPage");
+  cy.route("GET", "/api/v1/pages/*/view?*").as("viewPage");
   cy.route("POST", "/api/v1/organizations/*/logo").as("updateLogo");
   cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
   cy.route("POST", "/api/v1/applications/*/fork/*").as("postForkAppOrg");
