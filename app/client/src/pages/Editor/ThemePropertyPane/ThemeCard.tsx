@@ -31,6 +31,7 @@ interface ThemeCard {
   className?: string;
   selectable?: boolean;
   deletable?: boolean;
+  children?: React.ReactElement[] | React.ReactElement;
 }
 
 const MainContainer = styled.main<{ backgroundColor: string }>`
@@ -212,6 +213,7 @@ export function ThemeCard(props: ThemeCard) {
               Apply Theme
             </div>
           </aside>
+          {props.children}
         </div>
       </div>
       <DeleteThemeModal

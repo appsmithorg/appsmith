@@ -266,6 +266,9 @@ function* closeisBetaCardShown() {
   } catch (error) {}
 }
 
+/**
+ * resets widget styles
+ */
 function* resetTheme() {
   try {
     const propertiesToUpdate: UpdateWidgetPropertyPayload[] = [];

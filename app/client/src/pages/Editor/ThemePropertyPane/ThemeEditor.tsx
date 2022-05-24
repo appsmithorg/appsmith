@@ -4,6 +4,7 @@ import MoreIcon from "remixicon-react/MoreFillIcon";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useState } from "react";
 import Save2LineIcon from "remixicon-react/Save2LineIcon";
+import ArrowGoBackIcon from "remixicon-react/ArrowGoBackFillIcon";
 
 import ThemeCard from "./ThemeCard";
 import {
@@ -135,23 +136,35 @@ function ThemeEditor() {
                   <DropdownItem
                     className="flex items-center"
                     icon={<Save2LineIcon className="w-4 h-4" />}
-                    onClick={onResetTheme}
-                    text="Reset theme"
+                    onClick={onOpenSaveModal}
+                    text="Save theme"
                   />
                   <DropdownItem
                     className="flex items-center"
-                    icon={<Save2LineIcon className="w-4 h-4" />}
-                    onClick={onOpenSaveModal}
-                    text="Save theme"
+                    icon={<ArrowGoBackIcon className="w-4 h-4" />}
+                    onClick={onResetTheme}
+                    text="Reset widget styles"
                   />
                 </DropdownList>
               </Dropdown>
             </div>
           </div>
 
-          <ThemeCard theme={selectedTheme} />
+          <ThemeCard theme={selectedTheme}>
+            <aside
+              className={`absolute left-0 top-0 bottom-0 right-0 items-center justify-center hidden group-hover:flex  backdrop-filter bg-gray-900 bg-opacity-50 backdrop-blur-sm `}
+            >
+              <Button
+                category={Category.primary}
+                className="t--change-theme-btn"
+                onClick={onClickChangeThemeButton}
+                size={Size.small}
+                text="Change Theme"
+              />
+            </aside>
+          </ThemeCard>
         </header>
-        <div className="px-3 mt-4">
+        {/* <div className="px-3 mt-4">
           <Button
             category={Category.tertiary}
             className="t--change-theme-btn"
@@ -159,7 +172,7 @@ function ThemeEditor() {
             size={Size.medium}
             text="Change Theme"
           />
-        </div>
+        </div> */}
         <main className="mt-1">
           {/* FONT  */}
           <SettingSection className="px-3 py-3" isDefaultOpen title="Font">
