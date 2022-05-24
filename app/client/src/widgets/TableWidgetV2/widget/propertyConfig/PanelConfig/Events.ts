@@ -4,6 +4,32 @@ import { getBasePropertyPath, hideByColumnType } from "../../propertyUtils";
 
 export default {
   sectionName: "Events",
+  hidden: (props: TableWidgetProps, propertyPath: string) => {
+    if (
+      !hideByColumnType(
+        props,
+        propertyPath,
+        [
+          ColumnTypes.BUTTON,
+          ColumnTypes.ICON_BUTTON,
+          ColumnTypes.IMAGE,
+          ColumnTypes.MENU_BUTTON,
+          ColumnTypes.EDIT_ACTIONS,
+        ],
+        true,
+      )
+    ) {
+      return false;
+    } else {
+      const columnType = get(props, `${propertyPath}.columnType`, "");
+      const isEditable = get(props, `${propertyPath}.isEditable`, "");
+      return (
+        !(
+          columnType === ColumnTypes.TEXT || columnType === ColumnTypes.NUMBER
+        ) || !isEditable
+      );
+    }
+  },
   children: [
     // Button, iconButton onClick
     {

@@ -428,6 +428,7 @@ export const CellCheckboxWrapper = styled(CellWrapper)<{
 }>`
   justify-content: center;
   width: 40px;
+  height: auto;
   & > div {
     border-radius: ${({ borderRadius }) => borderRadius};
 

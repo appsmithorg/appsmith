@@ -59,7 +59,7 @@ export default {
       index = parsedTriggeredRowIndex;
     }
 
-    const rows = props.filteredTableData || props.processedTableData || [];
+    const rows = props.processedTableData || [];
     let triggeredRow;
 
     /*
@@ -158,7 +158,15 @@ export default {
     let data;
 
     if (_.isArray(props.tableData)) {
-      data = props.tableData;
+      /* Populate meta keys (__originalIndex__, __primaryKey__) and transient values */
+      data = props.tableData.map((row, index) => ({
+        ...row,
+        __originalIndex__: index,
+        __primaryKey__: props.primaryColumnId
+          ? row[props.primaryColumnId]
+          : undefined,
+        ...props.transientTableData[index],
+      }));
     } else {
       data = [];
     }
@@ -269,16 +277,6 @@ export default {
         });
       });
     }
-
-    /* Populate meta keys (__originalIndex__, __primaryKey__) and transient values */
-    processedTableData = processedTableData.map((row, index) => ({
-      ...row,
-      __originalIndex__: index,
-      __primaryKey__: props.primaryColumnId
-        ? row[props.primaryColumnId]
-        : undefined,
-      ...props.transientTableData[index],
-    }));
 
     const columns = props.orderedTableColumns;
     const sortByColumnId = props.sortOrder.column;
