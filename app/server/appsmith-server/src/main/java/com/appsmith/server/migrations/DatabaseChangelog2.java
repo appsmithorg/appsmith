@@ -22,13 +22,12 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.appsmith.server.helpers.TextUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -761,7 +760,76 @@ public class DatabaseChangelog2 {
         );
     }
 
-    @ChangeSet(order = "008", id = "migrate-google-sheets-to-uqi", author = "")
+    /**
+     * We'll remove the unique index on organization slugs. We'll also regenerate the slugs for all organizations as
+     * most of them are outdated
+     *
+     * @param mongockTemplate MongockTemplate instance
+     */
+    @ChangeSet(order = "008", id = "update-organization-slugs", author = "")
+    public void updateOrganizationSlugs(MongockTemplate mongockTemplate) {
+        dropIndexIfExists(mongockTemplate, Organization.class, "slug");
+
+        // update organizations
+        final Query getAllOrganizationsQuery = query(where("deletedAt").is(null));
+        getAllOrganizationsQuery.fields()
+                .include(fieldName(QOrganization.organization.name));
+
+        List<Organization> organizations = mongockTemplate.find(getAllOrganizationsQuery, Organization.class);
+
+        for (Organization organization : organizations) {
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QOrganization.organization.id)).is(organization.getId())),
+                    new Update().set(fieldName(QOrganization.organization.slug), TextUtils.makeSlug(organization.getName())),
+                    Organization.class
+            );
+        }
+    }
+
+    @ChangeSet(order = "009", id = "copy-organization-to-workspaces", author = "")
+    public void copyOrganizationToWorkspaces(MongockTemplate mongockTemplate) {
+        Gson gson = new Gson();
+        //Memory optimization note:
+        //Call stream instead of findAll to avoid out of memory if the collection is big
+        //stream implementation lazy loads the data using underlying cursor open on the collection
+        //the data is loaded as as and when needed by the pipeline
+        try(Stream<Organization> stream = mongockTemplate.stream(new Query(), Organization.class)
+            .stream()) { 
+            stream.forEach((organization) -> {
+                Workspace workspace = gson.fromJson(gson.toJson(organization), Workspace.class);
+                mongockTemplate.insert(workspace);
+            });
+        }
+    }
+
+    /**
+     * We are creating indexes manually because Spring's index resolver creates indexes on fields as well.
+     * See https://stackoverflow.com/questions/60867491/ for an explanation of the problem. We have that problem with
+     * the `Action.datasource` field.
+     */
+    @ChangeSet(order = "010", id = "add-workspace-indexes", author = "")
+    public void addWorkspaceIndexes(MongockTemplate mongockTemplate) {
+        ensureIndexes(mongockTemplate, Workspace.class,
+            makeIndex("createdAt")
+        );
+    }
+
+    @ChangeSet(order = "011", id = "update-sequence-names-from-organization-to-workspace", author = "")
+    public void updateSequenceNamesFromOrganizationToWorkspace(MongockTemplate mongockTemplate) {
+        for (Sequence sequence : mongockTemplate.findAll(Sequence.class)) {
+            String oldName = sequence.getName();
+            String newName = oldName.replaceAll("(.*) for organization with _id : (.*)", "$1 for workspace with _id : $2");
+            if (!newName.equals(oldName)) {
+                //Using strings in the field names instead of QSequence becauce Sequence is not a AppsmithDomain
+                mongockTemplate.updateFirst(query(where("name").is(oldName)),
+                        Update.update("name", newName),
+                        Sequence.class
+                );
+            }
+        }
+    }
+
+    @ChangeSet(order = "012", id = "migrate-google-sheets-to-uqi", author = "")
     public void migrateGoogleSheetsToUqi(MongockTemplate mongockTemplate) {
 
         // Get plugin references to Google Sheets actions
@@ -771,6 +839,8 @@ public class DatabaseChangelog2 {
         );
         assert uqiPlugin != null;
         uqiPlugin.setUiComponent("UQIDbEditorForm");
+
+        mongockTemplate.save(uqiPlugin);
 
         final String pluginId = uqiPlugin.getId();
 
@@ -812,7 +882,6 @@ public class DatabaseChangelog2 {
                 continue;
             }
             mongockTemplate.save(uqiAction);
-            mongockTemplate.save(uqiPlugin);
         }
     }
 
@@ -1039,73 +1108,4 @@ public class DatabaseChangelog2 {
 
         return newWhereClause;
     }
-
-    /**
-     * We'll remove the uniqe index on organization slugs. We'll also regenerate the slugs for all organizations as
-     * most of them are outdated
-     * @param mongockTemplate MongockTemplate instance
-     */
-    @ChangeSet(order = "008", id = "update-organization-slugs", author = "")
-    public void updateOrganizationSlugs(MongockTemplate mongockTemplate) {
-        dropIndexIfExists(mongockTemplate, Organization.class, "slug");
-
-        // update organizations
-        final Query getAllOrganizationsQuery = query(where("deletedAt").is(null));
-        getAllOrganizationsQuery.fields()
-                .include(fieldName(QOrganization.organization.name));
-
-        List<Organization> organizations = mongockTemplate.find(getAllOrganizationsQuery, Organization.class);
-
-        for (Organization organization : organizations) {
-            mongockTemplate.updateFirst(
-                    query(where(fieldName(QOrganization.organization.id)).is(organization.getId())),
-                    new Update().set(fieldName(QOrganization.organization.slug), TextUtils.makeSlug(organization.getName())),
-                    Organization.class
-            );
-        }
-    }
-
-    @ChangeSet(order = "009", id = "copy-organization-to-workspaces", author = "")
-    public void copyOrganizationToWorkspaces(MongockTemplate mongockTemplate) {
-        Gson gson = new Gson();
-        //Memory optimization note:
-        //Call stream instead of findAll to avoid out of memory if the collection is big
-        //stream implementation lazy loads the data using underlying cursor open on the collection
-        //the data is loaded as as and when needed by the pipeline
-        try(Stream<Organization> stream = mongockTemplate.stream(new Query(), Organization.class)
-            .stream()) { 
-            stream.forEach((organization) -> {
-                Workspace workspace = gson.fromJson(gson.toJson(organization), Workspace.class);
-                mongockTemplate.insert(workspace);
-            });
-        }
-    }
-
-    /**
-     * We are creating indexes manually because Spring's index resolver creates indexes on fields as well.
-     * See https://stackoverflow.com/questions/60867491/ for an explanation of the problem. We have that problem with
-     * the `Action.datasource` field.
-     */
-    @ChangeSet(order = "010", id = "add-workspace-indexes", author = "")
-    public void addWorkspaceIndexes(MongockTemplate mongockTemplate) {
-        ensureIndexes(mongockTemplate, Workspace.class,
-            makeIndex("createdAt")
-        );
-    }
-
-    @ChangeSet(order = "011", id = "update-sequence-names-from-organization-to-workspace", author = "")
-    public void updateSequenceNamesFromOrganizationToWorkspace(MongockTemplate mongockTemplate) {
-        for (Sequence sequence : mongockTemplate.findAll(Sequence.class)) {
-            String oldName = sequence.getName();
-            String newName = oldName.replaceAll("(.*) for organization with _id : (.*)", "$1 for workspace with _id : $2");
-            if(!newName.equals(oldName)) {
-                //Using strings in the field names instead of QSequence becauce Sequence is not a AppsmithDomain
-                mongockTemplate.updateFirst(query(where("name").is(oldName)),
-                        Update.update("name", newName),
-                        Sequence.class
-                );
-            }
-        }
-    }
-
 }
