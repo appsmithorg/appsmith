@@ -168,7 +168,7 @@
   },
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",
-    "start": "BROWSER=none EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com WDS_SOCKET_PORT=0 craco start",
+    "start": "BROWSER=none EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com craco start",
     "build": "./build.sh",
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
     "build-staging": "REACT_APP_ENVIRONMENT=STAGING craco --max-old-space-size=4096 build --config craco.build.config.js",

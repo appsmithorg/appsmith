@@ -30,7 +30,6 @@
     "@typescript-eslint/explicit-module-boundary-types": 0,
     "cypress/no-unnecessary-waiting": 0,
     "cypress/no-assigning-return-values": 0,
-    "react/function-component-definition": "warn",
     "react/jsx-boolean-value": "error",
     "react/self-closing-comp": "error",
     "react/jsx-sort-props": "error",
