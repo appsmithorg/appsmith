@@ -13,10 +13,12 @@ import { isEmpty } from "lodash";
 import { getLintingErrors } from "workers/lint";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
+import userLogs from "./UserLog";
 
 export type EvalResult = {
   result: any;
   errors: EvaluationError[];
+  logs?: any;
   triggers?: ActionDescription[];
 };
 
@@ -230,6 +232,7 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     let errors: EvaluationError[] = [];
+    debugger;
     let result;
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
@@ -285,7 +288,7 @@ export default function evaluateSync(
       }
     }
 
-    return { result, errors };
+    return { result, errors, logs: userLogs.flushLogs() };
   })();
 }
 
@@ -339,6 +342,7 @@ export async function evaluateAsync(
       completePromise(requestId, {
         result,
         errors,
+        logs: userLogs.flushLogs(),
         triggers: Array.from(self.TRIGGER_COLLECTOR),
       });
       for (const entity in GLOBAL_DATA) {

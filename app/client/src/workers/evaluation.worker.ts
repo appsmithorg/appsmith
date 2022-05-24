@@ -278,14 +278,14 @@ ctx.addEventListener(
         }
         const evalTree = dataTreeEvaluator.evalTree;
         const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
-        const { errors, result } = evaluate(
+        const { errors, logs, result } = evaluate(
           functionCall,
           evalTree,
           resolvedFunctions,
           false,
           undefined,
         );
-        return { errors, result };
+        return { errors, result, logs };
       }
       case EVAL_WORKER_ACTIONS.EVAL_EXPRESSION:
         const { expression, isTrigger } = requestData;

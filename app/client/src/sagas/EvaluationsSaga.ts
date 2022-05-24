@@ -321,6 +321,7 @@ export function* executeFunction(collectionName: string, action: JSAction) {
   let response: {
     errors: any[];
     result: any;
+    logs?: any;
   };
 
   if (isAsync) {
@@ -343,11 +344,11 @@ export function* executeFunction(collectionName: string, action: JSAction) {
     });
   }
 
-  const { errors, result } = response;
+  const { errors, logs, result } = response;
   const isDirty = !!errors.length;
 
   yield call(evalErrorHandler, errors);
-  return { result, isDirty };
+  return { result, isDirty, logs };
 }
 
 export function* validateProperty(
