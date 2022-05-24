@@ -526,7 +526,6 @@ export function* evaluateSnippetSaga(action: any) {
       variant: Variant.danger,
     });
     log.error(e);
-    Sentry.captureException(e);
   }
 }
 
@@ -569,7 +568,6 @@ export function* evaluateArgumentSaga(action: any) {
     );
   } catch (e) {
     log.error(e);
-    Sentry.captureException(e);
   }
 }
 
@@ -628,7 +626,6 @@ export default function* evaluationSagaListeners() {
       yield call(evaluationChangeListenerSaga);
     } catch (e) {
       log.error(e);
-      Sentry.captureException(e);
     }
   }
 }
