@@ -122,6 +122,7 @@ import { PropertyType } from "actions/contextActions";
 import { WidgetProps } from "widgets/BaseWidget";
 import { showModal } from "actions/widgetActions";
 import { widgetsMapWithParentModalId } from "selectors/entitiesSelector";
+import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -284,14 +285,13 @@ export function* restoreContextSaga() {
     if (pageContext.selectedWidgetIds.length == 1) {
       if (
         currentSelectedWidget &&
-        currentSelectedWidget.widgetId !== selectedWidget?.widgetId
+        currentSelectedWidget.widgetId !== pageContext.selectedWidgetIds[0]
       )
         return;
-      setTimeout(() => {
-        document
-          .getElementById(pageContext.selectedWidgetIds[0])
-          ?.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 500);
+      navigateToCanvas({
+        pageId,
+        widgetId: pageContext.selectedWidgetIds[0],
+      });
       if (selectedWidget && selectedWidget.type === "MODAL_WIDGET")
         modalId = selectedWidget.widgetId;
     }
@@ -310,19 +310,12 @@ export function* restoreContextSaga() {
       );
     } else if (propertyName) {
       control = document.querySelector(`.t--property-control-${propertyName}`);
-      control?.scrollIntoView({ block: "center" });
-      control?.focus();
     }
 
-    if (control && modalId) {
-      setTimeout(() => {
-        control?.scrollIntoView({ block: "center" });
-        control?.focus();
-      }, 500);
-    } else if (control) {
+    setTimeout(() => {
       control?.scrollIntoView({ block: "center" });
       control?.focus();
-    }
+    });
   }
 }
 
