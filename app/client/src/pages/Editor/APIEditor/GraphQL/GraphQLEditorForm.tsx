@@ -13,10 +13,7 @@ import { Action } from "entities/Action";
 import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
 import { AppState } from "reducers";
 import { getApiName } from "selectors/formSelectors";
-import {
-  EditorModes,
-  EditorTheme,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import get from "lodash/get";
 import { Datasource } from "entities/Datasource";
@@ -30,6 +27,7 @@ import CommonEditorForm, { CommonFormProps } from "../CommonEditorForm";
 import QueryEditor from "./QueryEditor";
 import { tailwindLayers } from "constants/Layers";
 import VariableEditor from "./VariableEditor";
+import Pagination from "./Pagination";
 
 const ResizeableDiv = styled.div`
   display: flex;
@@ -57,6 +55,7 @@ const BodyWrapper = styled.div`
 
 type APIFormProps = {
   httpMethodFromForm: string;
+  actionConfigurationBody: string;
 } & CommonFormProps;
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -101,12 +100,9 @@ function GraphQLEditorForm(props: Props) {
       bodyUIComponent={
         <BodyWrapper>
           <QueryEditor
-            {...props}
             dataTreePath={`${actionName}.config.body`}
             height="100%"
-            mode={EditorModes.GRAPHQL}
             name="actionConfiguration.body"
-            showLineNumbers
             theme={theme}
           />
           <div
@@ -135,7 +131,12 @@ function GraphQLEditorForm(props: Props) {
       defaultTabSelected={2}
       formName={API_EDITOR_FORM_NAME}
       paginationUIComponent={
-        <div style={{ padding: "16px" }}>Will be available soon</div>
+        <Pagination
+          formName={API_EDITOR_FORM_NAME}
+          onTestClick={props.onRunClick}
+          paginationType={props.paginationType}
+          query={props.actionConfigurationBody}
+        />
       }
     />
   );
@@ -221,6 +222,9 @@ export default connect(
       paramsCount += validParams.length;
     }
 
+    const actionConfigurationBody =
+      selector(state, "actionConfiguration.body") || "";
+
     const responses = getActionResponses(state);
     let hasResponse = false;
     let suggestedWidgets;
@@ -259,6 +263,7 @@ export default connect(
       httpMethodFromForm,
       actionConfigurationHeaders,
       actionConfigurationParams,
+      actionConfigurationBody,
       currentActionDatasourceId,
       datasourceHeaders,
       datasourceParams,
