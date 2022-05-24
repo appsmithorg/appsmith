@@ -1103,7 +1103,7 @@ public class DatabaseChangelog2 {
             .stream()) { 
             stream
                 .filter(this::upgradeAclForDocument) //this will upgrade the document as well as stream is filtered based on return value
-                .forEach(document -> mongockTemplate.save(document, mongockTemplate.getCollectionName(domainClass)));
+                .forEach(document -> mongockTemplate.save(document, mongockTemplate.getCollectionName(domainClass))); //save documents from filtered stream
         }
         log.info("Done upgrading {}", domainClass.getName());
     }
