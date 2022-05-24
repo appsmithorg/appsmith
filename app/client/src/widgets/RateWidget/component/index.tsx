@@ -106,39 +106,43 @@ function renderStarsWithTooltip(props: RateComponentProps) {
   return _.concat(starWithTooltip, starWithoutTooltip);
 }
 
-function RateComponent(props: RateComponentProps) {
-  const rateContainerRef = React.createRef<HTMLDivElement>();
+const RateComponent = React.forwardRef<HTMLDivElement, RateComponentProps>(
+  (props, ref) => {
+    const rateContainerRef = ref;
 
-  const {
-    inactiveColor,
-    isAllowHalf,
-    isDisabled,
-    maxCount,
-    onValueChanged,
-    readonly,
-    size,
-    value,
-  } = props;
+    const {
+      inactiveColor,
+      isAllowHalf,
+      isDisabled,
+      maxCount,
+      onValueChanged,
+      readonly,
+      size,
+      value,
+    } = props;
 
-  return (
-    <RateContainer isDisabled={Boolean(isDisabled)} ref={rateContainerRef}>
-      <Rating
-        emptySymbol={
-          <Star
-            color={inactiveColor || Colors.ALTO_3}
-            icon={IconNames.STAR}
-            iconSize={RATE_SIZES[size]}
-          />
-        }
-        fractions={isAllowHalf ? 2 : 1}
-        fullSymbol={renderStarsWithTooltip(props)}
-        initialRating={value}
-        onChange={onValueChanged}
-        readonly={readonly}
-        stop={maxCount}
-      />
-    </RateContainer>
-  );
-}
+    return (
+      <RateContainer isDisabled={Boolean(isDisabled)} ref={rateContainerRef}>
+        <Rating
+          emptySymbol={
+            <Star
+              color={inactiveColor || Colors.ALTO_3}
+              icon={IconNames.STAR}
+              iconSize={RATE_SIZES[size]}
+            />
+          }
+          fractions={isAllowHalf ? 2 : 1}
+          fullSymbol={renderStarsWithTooltip(props)}
+          initialRating={value}
+          onChange={onValueChanged}
+          readonly={readonly}
+          stop={maxCount}
+        />
+      </RateContainer>
+    );
+  },
+);
+
+RateComponent.displayName = "RateComponent";
 
 export default RateComponent;
