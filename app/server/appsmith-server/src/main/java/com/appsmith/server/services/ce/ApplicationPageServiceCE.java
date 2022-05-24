@@ -51,8 +51,6 @@ public interface ApplicationPageServiceCE {
 
     void generateAndSetPagePolicies(Application application, PageDTO page);
 
-    Mono<Void> sendApplicationPublishedEvent(Application application);
-
     Mono<ApplicationPagesDTO> reorderPage(String applicationId, String pageId, Integer order, String branchName);
 
     Mono<Application> deleteApplicationByResource(Application application);

@@ -4,7 +4,7 @@ import Dropdown, {
   DropdownOnSelect,
   DropdownContainer,
 } from "components/ads/Dropdown";
-import Button from "components/ads/Button";
+import Button, { Size } from "components/ads/Button";
 import FlagBadge from "components/utils/FlagBadge";
 import { JSCollection } from "entities/JSCollection";
 import Tooltip from "components/ads/Tooltip";
@@ -36,9 +36,6 @@ const DropdownWithCTAWrapper = styled.div<DropdownWithCTAWrapperProps>`
   display: flex;
 
   ${StyledButton} {
-    margin-left: ${RUN_BUTTON_DEFAULTS.GAP_SIZE};
-    padding: 0px 20px;
-
     ${(props) =>
       props.isDisabled &&
       `
@@ -75,6 +72,7 @@ export function JSFunctionRun({
         selectedHighlightBg={RUN_BUTTON_DEFAULTS.DROPDOWN_HIGHLIGHT_BG}
         showLabelOnly
         truncateOption
+        width="232px"
       />
 
       <Tooltip
@@ -87,8 +85,10 @@ export function JSFunctionRun({
           height={RUN_BUTTON_DEFAULTS.HEIGHT}
           isLoading={isLoading}
           onClick={onButtonClick}
+          size={Size.medium}
           tag="button"
           text={RUN_BUTTON_DEFAULTS.CTA_TEXT}
+          type="button"
         />
       </Tooltip>
     </DropdownWithCTAWrapper>
