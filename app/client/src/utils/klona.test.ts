@@ -123,7 +123,7 @@ describe("Klona clone test", () => {
     // mutate
     input.meta.nestedArray[0] = "abc";
     input.meta.nestedArray[1] = { a: "bc" };
-    input.meta.nestedObject.Input.text = "hello";
+    input.meta.nestedObject.Input = { text: "hello" };
 
     expect(
       isEqual(expected.meta.nestedArray[0], result.meta.nestedArray[0]),
@@ -137,6 +137,7 @@ describe("Klona clone test", () => {
         result.meta.objectWithMethod.method(),
       ),
     ).toEqual(true);
+    console.log({ expected, result });
     expect(
       isEqual(
         expected.meta.nestedObject.Input.text,
