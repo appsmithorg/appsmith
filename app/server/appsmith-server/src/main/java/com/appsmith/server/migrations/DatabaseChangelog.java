@@ -36,7 +36,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.OrganizationPlugin;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.Permission;
@@ -65,7 +65,7 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
-import com.appsmith.server.dtos.OrganizationPluginStatus;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.TextUtils;
@@ -243,11 +243,11 @@ public class DatabaseChangelog {
             }
 
             final Set<String> installedPlugins = organization.getPlugins()
-                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+                    .stream().map(WorkspacePlugin::getPluginId).collect(Collectors.toSet());
 
             if (!installedPlugins.contains(pluginId)) {
                 organization.getPlugins()
-                        .add(new OrganizationPlugin(pluginId, OrganizationPluginStatus.FREE));
+                        .add(new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
             }
 
             mongockTemplate.save(organization);
@@ -313,7 +313,7 @@ public class DatabaseChangelog {
     /*
      * @ChangeSet(order = "003", id = "add-org-slugs", author = "")
      * This migration has been removed as it's no more required. A newer version of this migration has been added
-     * in the @ChangeLog(order = "002") with id="update-organization-slugs"
+     * in the @ChangeLog(order = "008") with id="update-organization-slugs"
      */
 
     /**
@@ -495,12 +495,12 @@ public class DatabaseChangelog {
             }
 
             final Set<String> installedPlugins = organization.getPlugins()
-                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+                    .stream().map(WorkspacePlugin::getPluginId).collect(Collectors.toSet());
 
             for (Plugin defaultPlugin : defaultPlugins) {
                 if (!installedPlugins.contains(defaultPlugin.getId())) {
                     organization.getPlugins()
-                            .add(new OrganizationPlugin(defaultPlugin.getId(), OrganizationPluginStatus.FREE));
+                            .add(new WorkspacePlugin(defaultPlugin.getId(), WorkspacePluginStatus.FREE));
                 }
             }
 
@@ -3111,11 +3111,11 @@ public class DatabaseChangelog {
             final Set<String> installedPlugins = organization
                     .getPlugins()
                     .stream()
-                    .map(OrganizationPlugin::getPluginId)
+                    .map(WorkspacePlugin::getPluginId)
                     .collect(Collectors.toSet());
 
             if (installedPlugins.contains(mongoUqiPlugin.getId())) {
-                OrganizationPlugin mongoUqiOrganizationPlugin = organization.getPlugins()
+                WorkspacePlugin mongoUqiOrganizationPlugin = organization.getPlugins()
                         .stream()
                         .filter(organizationPlugin -> organizationPlugin.getPluginId().equals(mongoUqiPlugin.getId()))
                         .findFirst()

@@ -462,3 +462,8 @@ Cypress.Commands.add("callApi", (apiname) => {
     .contains(apiname)
     .click({ force: true });
 });
+
+Cypress.Commands.add("checkIfApiPaneIsVisible", () => {
+  cy.get(ApiEditor.datasourcesRightPane).should("exist");
+  cy.get(ApiEditor.datasourcesRightPane).should("be.visible");
+});
