@@ -46,6 +46,9 @@ const Wrapper = styled.div<{
       padding: 0px 8px;
       min-height: 34px;
     }
+    .bp3-button-group.bp3-vertical {
+      display: none;
+    }
 
     textarea.bp3-input {
       &,

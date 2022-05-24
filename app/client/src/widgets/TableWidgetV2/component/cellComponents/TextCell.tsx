@@ -195,7 +195,7 @@ export function TextCell({
             compactMode={compactMode}
             onMouseUp={onEditHandler}
           >
-            <EditIcon />
+            <EditIcon onClick={(e) => e.stopPropagation()} />
           </StyledEditIcon>
         )}
       </Wrapper>
