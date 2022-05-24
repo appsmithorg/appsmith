@@ -29,7 +29,7 @@ export class HomePage {
     private _editAppName = "bp3-editable-text-editing"
     private _appMenu = ".t--editor-appname-menu-portal .bp3-menu-item"
     private _buildFromScratchActionCard = ".t--BuildFromScratch"
-    private _buildFromDataTableActionCard = ".t--GenerateCRUDPage"
+    _buildFromDataTableActionCard = ".t--GenerateCRUDPage"
     private _selectRole = "//span[text()='Select a role']/ancestor::div"
     private _searchInput = "input[type='text']"
     _appHoverIcon = (action: string) => ".t--application-" + action + "-link"

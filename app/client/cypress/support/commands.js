@@ -313,7 +313,7 @@ Cypress.Commands.add("SearchApp", (appname) => {
 });
 
 Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
-  cy.get(commonlocators.entityExplorersearch)
+  cy.get(commonlocators.searchEntityInExplorer)
     .clear({ force: true })
     .type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -329,7 +329,7 @@ Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
 
 Cypress.Commands.add("GlobalSearchEntity", (apiname1, dontAssertVisibility) => {
   // entity explorer search will be hidden
-  cy.get(commonlocators.entityExplorersearch)
+  cy.get(commonlocators.searchEntityInExplorer)
     .clear({ force: true })
     .type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -413,7 +413,7 @@ Cypress.Commands.add("CheckAndUnfoldWidgets", () => {
 });
 
 Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
-  cy.get(commonlocators.entityExplorersearch)
+  cy.get(commonlocators.searchEntityInExplorer)
     .clear({ force: true })
     .type(apiname1, { force: true });
   cy.CheckAndUnfoldWidgets();
@@ -432,7 +432,7 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
 });
 
 Cypress.Commands.add("SearchEntityAndUnfold", (apiname1) => {
-  cy.get(commonlocators.entityExplorersearch)
+  cy.get(commonlocators.searchEntityInExplorer)
     .clear({ force: true })
     .type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -451,7 +451,7 @@ Cypress.Commands.add("SearchEntityAndUnfold", (apiname1) => {
 
 Cypress.Commands.add("OpenBindings", (apiname1) => {
   cy.wait(500);
-  cy.get(commonlocators.entityExplorersearch)
+  cy.get(commonlocators.searchEntityInExplorer)
     .clear({ force: true })
     .type(apiname1, { force: true });
   cy.CheckAndUnfoldWidgets();
