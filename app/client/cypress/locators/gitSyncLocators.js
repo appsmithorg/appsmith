@@ -51,4 +51,5 @@ export default {
   gitPullCount: ".t--bottom-bar-pull .count",
   gitConnectionContainer: "[data-test=t--git-connection-container]",
   gitRemoteURLContainer: "[data-test=t--remote-url-container]",
+  discardChanges: ".t--discard-button",
 };

@@ -226,6 +226,7 @@ function ApiRightPane(props: any) {
     <DatasourceContainer>
       <TabbedViewContainer>
         <TabComponent
+          cypressSelector={"api-right-pane"}
           onSelect={setSelectedIndex}
           selectedIndex={selectedIndex}
           tabs={[

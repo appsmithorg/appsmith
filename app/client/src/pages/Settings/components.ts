@@ -8,8 +8,8 @@ export const Wrapper = styled.div`
   overflow: auto;
 `;
 
-export const HeaderWrapper = styled.div`
-  margin-bottom: 16px;
+export const HeaderWrapper = styled.div<{ margin?: string }>`
+  margin-bottom: ${(props) => props.margin ?? `16px`};
 `;
 
 export const SettingsHeader = styled.h2`
