@@ -99,41 +99,6 @@ export class AggregateHelper {
     });
   }
 
-  // Stubbing window.open to open in the same tab
-  public StubbingWindow() {
-    cy.window().then((window: any) => {
-      cy.stub(window, "open").callsFake((url) => {
-        window.location.href = url;
-        window.location.target = "_self";
-      });
-    });
-  }
-
-  //refering PublishtheApp from command.js
-  public DeployApp(
-    eleToCheckInDeployPage: string = this.locator._backToEditor,
-  ) {
-    //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
-    // Wait before publish
-    this.Sleep(2000); //wait for elements load!
-    this.AssertAutoSave();
-    // Stubbing window.open to open in the same tab
-    cy.window().then((window) => {
-      cy.stub(window, "open").callsFake((url) => {
-        window.location.href = Cypress.config().baseUrl + url.substring(1);
-      });
-    });
-    cy.get(this.locator._publishButton).click();
-    cy.log("Pagename: " + localStorage.getItem("PageName"));
-    // cy.wait("@publishApp")
-    //   .its("request.url")
-    //   .should("not.contain", "edit");
-    //cy.wait('@publishApp').wait('@publishApp') //waitng for 2 calls to complete
-
-    this.WaitUntilEleAppear(eleToCheckInDeployPage);
-    localStorage.setItem("inDeployedMode", "true");
-  }
-
   public ValidateToastMessage(text: string, length = 1) {
     cy.get(this.locator._toastMsg)
       .should("have.length", length)
@@ -406,7 +371,8 @@ export class AggregateHelper {
     cy.get(selector)
       .contains(containsText)
       .eq(index)
-      .click().wait(200);
+      .click()
+      .wait(200);
   }
 
   public ToggleOnOrOff(propertyName: string, toggle: "On" | "Off") {
@@ -468,6 +434,13 @@ export class AggregateHelper {
   public GetObjectName() {
     //cy.get(this.locator._queryName).invoke("text").then((text) => cy.wrap(text).as("queryName")); or below syntax
     return cy.get(this.locator._queryName).invoke("text");
+  }
+
+  public GetElementLength(selector: string) {
+    let locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    return locator.its("length");
   }
 
   public Sleep(timeout = 1000) {
@@ -600,8 +573,8 @@ export class AggregateHelper {
 
   public AssertElementAbsence(selector: string) {
     let locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
+      ? cy.xpath(selector, { timeout: 0 })
+      : cy.get(selector, { timeout: 0 });
     locator.should("not.exist");
   }
 

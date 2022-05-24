@@ -4,7 +4,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
   apiPage = ObjectsRegistry.ApiPage,
-  locator = ObjectsRegistry.CommonLocators;
+  locator = ObjectsRegistry.CommonLocators,
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate API request body panel", () => {
   it("1. Check whether input and type dropdown selector exist when multi-part is selected", () => {
@@ -132,7 +133,7 @@ describe("Validate API request body panel", () => {
 
     apiPage.OnPageLoadRun(false); //Bug 12476
     ee.SelectEntityByName("Page1");
-    agHelper.DeployApp(locator._spanButton("Select Files"));
+    deployMode.DeployApp(locator._spanButton("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
     agHelper.ValidateToastMessage("Image uploaded to Cloudinary successfully");
@@ -165,7 +166,7 @@ describe("Validate API request body panel", () => {
       '{"error":{"message":"Unsupported source URL: {\\"type\\":\\"image/jpeg\\"',
     );
 
-    agHelper.DeployApp(locator._spanButton("Select Files"));
+    deployMode.DeployApp(locator._spanButton("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload, false);
     agHelper.ValidateToastMessage("CloudinaryUploadApi failed to execute");

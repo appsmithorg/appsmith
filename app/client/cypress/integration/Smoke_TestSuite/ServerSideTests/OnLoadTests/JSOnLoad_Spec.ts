@@ -8,7 +8,8 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators,
   homePage = ObjectsRegistry.HomePage,
-  apiPage = ObjectsRegistry.ApiPage;
+  apiPage = ObjectsRegistry.ApiPage,
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("JSObjects OnLoad Actions tests", function() {
   before(() => {
@@ -59,7 +60,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         (("[" + jsName) as string) +
           ".getId, GetUser] will be executed automatically on page load",
       );
-      agHelper.DeployApp();
+      deployMode.DeployApp();
       agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
       agHelper.AssertElementVisible(
         jsEditor._dialogBody((jsName as string) + ".getId"),
@@ -89,7 +90,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   it("4. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function() {
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getId", false, true);
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ValidateToastMessage('The action "GetUser" has failed');
     agHelper.NavigateBacktoEditor();
   });
@@ -97,7 +98,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   it("5. Tc 53 - Verify OnPage Load - Enabling back & Before Function calling disabled for JSOBject", function() {
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getId", true, false);
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.AssertElementAbsence(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementAbsence(
       jsEditor._dialogBody((jsName as string) + ".getId"),
@@ -114,7 +115,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   it("6. Tc 55 - Verify OnPage Load - Enabling & Before Function calling Enabling for JSOBject", function() {
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getId", true, true);
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getId"),
@@ -135,7 +136,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   it("7. Tc 56 - Verify OnPage Load - Enabled & Before Function calling Enabled for JSOBject & User clicks No in Confirmation dialog", function() {
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getId"),
@@ -292,7 +293,7 @@ describe("JSObjects OnLoad Actions tests", function() {
           ".callTrump] will be executed automatically on page load",
       );
 
-      agHelper.DeployApp();
+      deployMode.DeployApp();
 
       //One Quotes confirmation - for API true
       agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
@@ -384,7 +385,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     jsEditor.EnableDisableAsyncFuncSettings("callQuotes", false, false); //OnPageLoad made true once mapped with widget
     jsEditor.EnableDisableAsyncFuncSettings("callTrump", false, false); //OnPageLoad made true once mapped with widget
 
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.AssertElementVisible(jsEditor._dialogBody("CatFacts"));
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "CatFacts" has failed');
@@ -509,7 +510,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   it("12. Tc #1646 - Honouring the order of execution & Bug 13826 + Bug 13646 - Delpoy page", () => {
-    agHelper.DeployApp();
+    deployMode.DeployApp();
 
     agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("No");

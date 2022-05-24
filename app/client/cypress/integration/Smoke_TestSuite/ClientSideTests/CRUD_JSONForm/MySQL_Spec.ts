@@ -6,7 +6,10 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   table = ObjectsRegistry.Table,
   homePage = ObjectsRegistry.HomePage,
-  dataSources = ObjectsRegistry.DataSources;
+  dataSources = ObjectsRegistry.DataSources,
+  propPane = ObjectsRegistry.PropertyPane,
+  deployMode = ObjectsRegistry.DeployMode,
+  jsEditor = ObjectsRegistry.JSEditor;
 
 describe("Validate MySQL Generate CRUD with JSON Form", () => {
   before(() => {
@@ -40,6 +43,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       );
       cy.wrap("MySQL " + guid).as("dsName");
     });
+
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.WaitUntilToastDisappear("datasource updated successfully");
     agHelper.GetNClick(dataSources._selectTableDropdown);
@@ -48,40 +52,12 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       "worldCountryInfo",
     );
 
-    agHelper.GetNClick(dataSources._generatePageBtn);
-    agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    agHelper.ValidateToastMessage("Successfully generated a page");
-    agHelper.ValidateNetworkStatus("@getActions", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
-
-    agHelper.GetNClick(dataSources._visibleTextSpan("GOT IT"));
-    agHelper.DeployApp();
-
-    //Validating loaded table
-    agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
-      expect($cellData).to.eq("ABW");
-    });
-    table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("Aruba");
-    });
-    table.ReadTableRowColumnData(0, 2, 200).then(($cellData) => {
-      expect($cellData).to.eq("North America");
-    });
-
-    //Validating loaded JSON form
-    cy.xpath(locator._spanButton("Update")).then((selector) => {
-      cy.wrap(selector)
-        .invoke("attr", "class")
-        .then((classes) => {
-          //cy.log("classes are:" + classes);
-          expect(classes).not.contain("bp3-disabled");
-        });
-    });
-    agHelper
-      .GetText(locator._jsonFormHeader)
-      .then(($header: any) => expect($header).to.eq("Update Row Code: ABW"));
+    GenerateCRUDNValidateDeployPage(
+      "ABW",
+      "Aruba",
+      "North America",
+      "Update Row Code: ABW",
+    );
 
     agHelper.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
@@ -97,7 +73,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
     });
 
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -105,7 +81,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     });
   });
 
-  it.only("2. Create new app and Generate CRUD page using a new datasource", () => {
+  it("2. Create new app and Generate CRUD page using a new datasource", () => {
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
     agHelper.GetNClick(homePage._buildFromDataTableActionCard);
@@ -130,42 +106,12 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "customers");
 
-    agHelper.GetNClick(dataSources._generatePageBtn);
-    agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    agHelper.ValidateToastMessage("Successfully generated a page");
-    agHelper.ValidateNetworkStatus("@getActions", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
-
-    agHelper.GetNClick(dataSources._visibleTextSpan("GOT IT"));
-
-    agHelper.DeployApp();
-    //Validating loaded table
-    agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
-      expect($cellData).to.eq("103");
-    });
-    table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("Atelier graphique");
-    });
-    table.ReadTableRowColumnData(0, 2, 200).then(($cellData) => {
-      expect($cellData).to.eq("Schmitt");
-    });
-
-    //Validating loaded JSON form
-    cy.xpath(locator._spanButton("Update")).then((selector) => {
-      cy.wrap(selector)
-        .invoke("attr", "class")
-        .then((classes) => {
-          //cy.log("classes are:" + classes);
-          expect(classes).not.contain("bp3-disabled");
-        });
-    });
-    agHelper
-      .GetText(locator._jsonFormHeader)
-      .then(($header: any) =>
-        expect($header).to.eq("Update Row customerNumber: 103"),
-      );
+    GenerateCRUDNValidateDeployPage(
+      "103",
+      "Atelier graphique",
+      "Schmitt",
+      "Update Row customerNumber: 103",
+    );
 
     agHelper.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
@@ -178,52 +124,22 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "employees");
-    agHelper.GetNClick(dataSources._generatePageBtn);
-    agHelper.ValidateToastMessage("Successfully generated a page");
-    agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    agHelper.ValidateNetworkStatus("@getActions", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
 
-    agHelper.GetNClick(dataSources._visibleTextSpan("GOT IT"));
-
-    agHelper.DeployApp();
-    //Validating loaded table
-    agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
-      expect($cellData).to.eq("1002");
-    });
-    table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("Murphy");
-    });
-    table.ReadTableRowColumnData(0, 2, 200).then(($cellData) => {
-      expect($cellData).to.eq("Diane");
-    });
-
-    //Validating loaded JSON form
-    cy.xpath(locator._spanButton("Update")).then((selector) => {
-      cy.wrap(selector)
-        .invoke("attr", "class")
-        .then((classes) => {
-          //cy.log("classes are:" + classes);
-          expect(classes).not.contain("bp3-disabled");
-        });
-    });
-    agHelper
-      .GetText(locator._jsonFormHeader)
-      .then(($header: any) =>
-        expect($header).to.eq("Update Row employeeNumber: 1002"),
-      );
+    GenerateCRUDNValidateDeployPage(
+      "1002",
+      "Murphy",
+      "Diane",
+      "Update Row employeeNumber: 1002",
+    );
 
     agHelper.NavigateBacktoEditor();
-
     table.WaitUntilTableLoad();
     //Delete the test data
     ee.ActionContextMenuByEntityName("Employees", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
   });
 
-  it.only("4. Create new CRUD Table and populate & refresh Entity Explorer to find the new table", () => {
+  it("4. Create new CRUD Table 'Productlines' and populate & refresh Entity Explorer to find the new table + Bug 14063", () => {
     let tableCreateQuery = `CREATE TABLE productlines (
       productLine varchar(50) NOT NULL,
       textDescription varchar(4000) DEFAULT NULL,
@@ -254,7 +170,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.RenameWithInPane("CreateProductLines");
     agHelper.EnterValue(tableCreateQuery);
     cy.get(".CodeMirror textarea").focus();
-    agHelper.VerifyEvaluatedValue(tableCreateQuery);
+    //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
@@ -264,16 +180,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.AssertElementVisible(ee._entityNameInExplorer("productlines"));
   });
 
-  it.only("5. Validate Select record from Postgress datasource & verify query response", () => {
-    ee.ActionTemplateMenuByEntityName("productlines", "SELECT");
-    dataSources.RunQuery();
-    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("Classic Cars");
-    });
-    agHelper.ActionContextMenuWithInPane("Delete");
-  });
-
-  it.only("6. Verify Generate CRUD for the new table", () => {
+  it("5. Verify Generate CRUD for the new table & Verify Deploy mode for table - Productlines", () => {
     dataSources.NavigateFromActiveDS(dsName, false);
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown);
@@ -287,7 +194,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     agHelper.GetNClick(dataSources._visibleTextSpan("GOT IT"));
 
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
     table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
@@ -305,10 +212,10 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     table.ReadTableRowColumnData(4, 0, 200).then(($cellData) => {
       expect($cellData).to.eq("Trains");
     });
-    table.ReadTableRowColumnData(4, 0, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(5, 0, 200).then(($cellData) => {
       expect($cellData).to.eq("Trucks and Buses");
     });
-    table.ReadTableRowColumnData(4, 0, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(6, 0, 200).then(($cellData) => {
       expect($cellData).to.eq("Vintage Cars");
     });
     //Validating loaded JSON form
@@ -327,11 +234,240 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
         expect($header).to.eq("Update Row productLine: Classic Cars"),
       );
 
-    //agHelper.NavigateBacktoEditor();
-
-    // table.WaitUntilTableLoad();
+    agHelper.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
     // //Delete the test data
-    // ee.ActionContextMenuByEntityName("Employees", "Delete", "Are you sure?");
+    // ee.ActionContextMenuByEntityName("Productlines", "Delete", "Are you sure?");
     // agHelper.ValidateNetworkStatus("@deletePage", 200);
   });
+
+  it("6. Verify Update/Delete row/Delete field data from Deploy page - on Productlines - existing record + Bug 14063", () => {
+    ee.SelectEntityByName("update_form", "WIDGETS");
+    propPane.ChangeJsonFormFieldType(
+      "Text Description",
+      "Multiline Text Input",
+    );
+    propPane.NavigateBackToPropertyPane();
+    propPane.ChangeJsonFormFieldType(
+      "Html Description",
+      "Multiline Text Input",
+    );
+    propPane.NavigateBackToPropertyPane();
+    deployMode.DeployApp();
+    table.SelectTableRow(0); //to make JSON form hidden
+    agHelper.AssertElementAbsence(locator._jsonFormWidget);
+    table.SelectTableRow(3);
+    agHelper.AssertElementVisible(locator._jsonFormWidget);
+    agHelper
+      .GetText(locator._jsonFormHeader)
+      .then(($header: any) =>
+        expect($header).to.eq("Update Row productLine: Ships"),
+      );
+    deployMode.EnterJSONFieldValue(
+      deployMode._existingJsonFormFieldByName("Html Description", false),
+      "The largest cruise ship is twice the length of the Washington Monument. Some cruise ships have virtual balconies.",
+    );
+    agHelper.ClickButton("Update"); //Update does not work, Bug 14063
+    agHelper.AssertElementAbsence(locator._toastMsg); //Validating fix for Bug 14063
+    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    table.AssertSelectedRow(3);
+
+    //validating update happened fine!
+    table.ReadTableRowColumnData(3, 2, 200).then(($cellData) => {
+      expect($cellData).to.eq(
+        "The largest cruise ship is twice the length of the Washington Monument. Some cruise ships have virtual balconies.",
+      );
+    });
+  });
+
+  it.skip("7. Verify Add/Update/Delete from Deploy page - on Productlines - new record + Bug 14063", () => {});
+
+  it("8. Create new CRUD Table 'Stores' and populate & refresh Entity Explorer to find the new table", () => {
+    let tableCreateQuery = `CREATE TABLE Stores(
+      store         INTEGER  NOT NULL PRIMARY KEY
+     ,name          VARCHAR(36) NOT NULL
+     ,store_status  VARCHAR(1) NOT NULL
+     ,store_address VARCHAR(96) NOT NULL
+     ,address_info  VARCHAR(16)
+   );
+
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2106,'Hillstreet News and Tobacco','A','2217 College Cedar Falls, IA 506130000 (42.51716928600007, -92.45583783899997)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2112,'Mike''s Liquors','I','407 Sharp St.Glenwood, IA 515340000 (41.04631266100006, -95.74218014299998)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2113,'Jamboree Foods','A','1119 Market St. Box 71 Gowrie, IA 505430000 (42.280542454000056, -94.28941088599998)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2119,'Manly Liquor Store','I','133 East Main Manly, IA 504560000 (43.286863132000065, -93.20244674199995)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2130,'Sycamore Convenience','A','617 Sycamore Waterloo, IA 507030000 (42.49783399700004, -92.33531492199995)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2132,'Spirits and Such','I','100 E Elm West Union, IA 521750000 (42.96126215400005, -91.80787981499998)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2141,'Brewski''s Beverage','I','726 Creek Top Council Bluffs, IA 515010000 (41.262230259000034, -95.85420692899999)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2152,'Dugans Supermarket','A','202 4th North Rockwell, IA 504690000 (42.98649943100003, -93.18811293199997)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2154,'Coralville Liquor Store','I','411 2nd St., Hwy 6 W.Coralville, IA 522410000 (41.671357561000036, -91.57326256199997)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2155,'Calliope Liquor Sales','I','2021 Avenue E Hawarden, IA 510230000 (43.00929963100003, -96.48798763499997)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2161,'Huber''s Store Inc.','A','First & Main Ft. Atkinson, IA 521440000 (43.14339406000005, -91.93351884799995)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2164,'Sauser''s Hardware and Grocery','I','301 Adams St/po Box 433 Ryan, IA 523300000 (42.35227891100004, -91.48055342399994)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2165,'Lange''s Liquor Store','I','618 Lombard Street Clarence, IA 522160000 (41.88873322100005, -91.05567024599998)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2170,'Marshall''s Liquor','I','810 W 7th St Sioux City, IA 511030000 (42.50288329600005, -96.41782288999997)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2177,'Cashwise Foods','I','2400 Fourth Street Sw Mason City, IA 504010000 (43.14846309700005, -93.23627296199999)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2178,'Double "D" Liquor Store','A','618 Rossville Road Waukon, IA 521720000 (43.26206186500008, -91.47355676899997)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2179,'Twin City Liquor','I','610 W. So. Omaha Bridge Dr.Council Bluffs, IA 515010000 (41.21980827700003, -95.85460021399996)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2183,'Liquor and Food Center','I','501 Lynn Street Tipton, IA 527720000 (41.770090148000065, -91.12981387599996)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2188,'Kind''s Jack and Jill Food Center','I','110 S Main Sigourney, IA 525910000 (41.333550830000036, -92.20522134099997)',NULL);
+   INSERT INTO Stores(store,name,store_status,store_address,address_info) VALUES (2190,'Central City Liquor, Inc.','A','1460 2nd Ave Des Moines, IA 503140000 (41.60557033500004, -93.61982683699995)',NULL);`;
+
+    dataSources.NavigateFromActiveDS(dsName, true);
+    agHelper.GetNClick(dataSources._templateMenu);
+    agHelper.RenameWithInPane("CreateStores");
+    agHelper.EnterValue(tableCreateQuery);
+    cy.get(".CodeMirror textarea").focus();
+    //agHelper.VerifyEvaluatedValue(tableCreateQuery);
+
+    dataSources.RunQuery();
+    agHelper.ActionContextMenuWithInPane("Delete");
+
+    ee.expandCollapseEntity(dsName);
+    ee.ActionContextMenuByEntityName(dsName, "Refresh");
+    agHelper.AssertElementVisible(ee._entityNameInExplorer("Stores"));
+  });
+
+  it("9. Validate Select record from Postgress datasource & verify query response", () => {
+    ee.ActionTemplateMenuByEntityName("Stores", "SELECT");
+    dataSources.RunQuery();
+    dataSources.ReadQueryTableResponse(5).then(($cellData) => {
+      expect($cellData).to.eq("2112");
+    });
+    dataSources.ReadQueryTableResponse(6).then(($cellData) => {
+      expect($cellData).to.eq("Mike's Liquors");
+    });
+    agHelper.ActionContextMenuWithInPane("Delete");
+  });
+
+  it("10. Verify Generate CRUD for the new table & Verify Deploy mode for table - Stores", () => {
+    dataSources.NavigateFromActiveDS(dsName, false);
+    agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    agHelper.GetNClick(dataSources._selectTableDropdown);
+    agHelper.GetNClickByContains(dataSources._dropdownOption, "Stores");
+    GenerateCRUDNValidateDeployPage(
+      "2106",
+      "Hillstreet News and Tobacco",
+      "A",
+      "Update Row store: 2106",
+    );
+
+    agHelper.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
+    // //Delete the test data
+    // ee.ActionContextMenuByEntityName("Productlines", "Delete", "Are you sure?");
+    // agHelper.ValidateNetworkStatus("@deletePage", 200);
+  });
+
+  it("11. Verify Update/Delete row/Delete field data from Deploy page - on Stores - existing record", () => {
+    ee.SelectEntityByName("update_form", "WIDGETS");
+    propPane.ChangeJsonFormFieldType("Store Status", "Radio Group");
+    jsEditor.EnterJSContext(
+      "Options",
+      `[
+      {
+        "label": "Active",
+        "value": "A"
+      },
+      {
+        "label": "Inactive",
+        "value": "I"
+      }
+    ]`,
+    );
+    propPane.NavigateBackToPropertyPane();
+    propPane.ChangeJsonFormFieldType("Store Address", "Multiline Text Input");
+    propPane.NavigateBackToPropertyPane();
+    deployMode.DeployApp();
+    table.SelectTableRow(0); //to make JSON form hidden
+    agHelper.AssertElementAbsence(locator._jsonFormWidget);
+    table.SelectTableRow(3);
+    agHelper.AssertElementVisible(locator._jsonFormWidget);
+    agHelper
+      .GetText(locator._jsonFormHeader)
+      .then(($header: any) => expect($header).to.eq("Update Row store: 2119"));
+    updateStoresField(3);
+
+    table.SelectTableRow(6);
+    agHelper
+      .GetText(locator._jsonFormHeader)
+      .then(($header: any) => expect($header).to.eq("Update Row store: 2141"));
+    updateStoresField(6);
+
+    table.SelectTableRow(18);
+    agHelper
+      .GetText(locator._jsonFormHeader)
+      .then(($header: any) => expect($header).to.eq("Update Row store: 2188"));
+    updateStoresField(18);
+  });
+
+  it.skip("12. Verify Add/Update/Delete from Deploy page - on Productlines - new record + Bug 14063", () => {});
+
+  function GenerateCRUDNValidateDeployPage(
+    col1Text: string,
+    col2Text: string,
+    col3Text: string,
+    jsonFromHeader: string,
+  ) {
+    agHelper.GetNClick(dataSources._generatePageBtn);
+    agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    agHelper.ValidateToastMessage("Successfully generated a page");
+    agHelper.ValidateNetworkStatus("@getActions", 200);
+    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.ValidateNetworkStatus("@updateLayout", 200);
+
+    agHelper.GetNClick(dataSources._visibleTextSpan("GOT IT"));
+    deployMode.DeployApp();
+
+    //Validating loaded table
+    agHelper.AssertElementExist(dataSources._selectedRow);
+    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
+      expect($cellData).to.eq(col1Text);
+    });
+    table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
+      expect($cellData).to.eq(col2Text);
+    });
+    table.ReadTableRowColumnData(0, 2, 200).then(($cellData) => {
+      expect($cellData).to.eq(col3Text);
+    });
+
+    //Validating loaded JSON form
+    cy.xpath(locator._spanButton("Update")).then((selector) => {
+      cy.wrap(selector)
+        .invoke("attr", "class")
+        .then((classes) => {
+          //cy.log("classes are:" + classes);
+          expect(classes).not.contain("bp3-disabled");
+        });
+    });
+    agHelper
+      .GetText(locator._jsonFormHeader)
+      .then(($header: any) => expect($header).to.eq(jsonFromHeader));
+  }
+
+  function updateStoresField(rowIndex: number) {
+    let addressinfo: string;
+    table.ReadTableRowColumnData(rowIndex, 3, 200).then(($cellData: any) => {
+      var points = $cellData.match(/((.*))/).pop(); //(/(?<=\()).+?(?=\))/g)
+      let addinfo: string[] = (points as string).split(",");
+      addinfo[0] = addinfo[0].slice(0, 5);
+      addinfo[1] = addinfo[1].slice(0, 5);
+      addressinfo = addinfo[0] + addinfo[1];
+      deployMode.EnterJSONFieldValue(
+        deployMode._existingJsonFormFieldByName("Address Info", true),
+        addressinfo,
+      );
+    });
+
+    agHelper.ClickButton("Update"); //Update does not work, Bug 14063
+    agHelper.AssertElementAbsence(locator._toastMsg); //Validating fix for Bug 14063
+    agHelper.Sleep(2000); //for update to reflect!
+    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    table.AssertSelectedRow(rowIndex);
+
+    //validating update happened fine!
+    table.ReadTableRowColumnData(rowIndex, 4, 200).then(($cellData) => {
+      expect($cellData).to.eq(addressinfo);
+    });
+  }
 });
