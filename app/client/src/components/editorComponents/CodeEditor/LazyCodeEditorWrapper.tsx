@@ -3,7 +3,7 @@ import _ from "lodash";
 import { useSelector } from "react-redux";
 import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import js from "react-syntax-highlighter/dist/cjs/languages/prism/javascript";
-import { duotoneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import duotoneLight from "react-syntax-highlighter/dist/esm/styles/prism/duotone-light";
 
 import CodeEditor from "components/editorComponents/CodeEditor";
 import { EditorWrapper } from "./styledComponents";
