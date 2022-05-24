@@ -9,17 +9,29 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.QAction;
+import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QCollection;
+import com.appsmith.server.domains.QComment;
+import com.appsmith.server.domains.QCommentThread;
+import com.appsmith.server.domains.QGroup;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
+import com.appsmith.server.domains.QTheme;
+import com.appsmith.server.domains.QUser;
+import com.appsmith.server.domains.QUserData;
+import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
@@ -848,13 +860,13 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "014", id = "migrate-organizationId-to-workspaceId-in-user", author = "")
     public void migrateOrganizationIdToWorkspaceIdInUser(MongockTemplate mongockTemplate) {
-        try(Stream<User> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), User.class)
+        try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(User.class))
             .stream()) { 
-            stream.forEach((user) -> {
-                user.setWorkspaceIds(user.getOrganizationIds());
-                user.setCurrentWorkspaceId(user.getCurrentOrganizationId());
-                user.setExamplesWorkspaceId(user.getExamplesOrganizationId());
-                mongockTemplate.save(user);
+            stream.forEach((document) -> {
+                document.put(fieldName(QUser.user.workspaceIds), document.get(fieldName(QUser.user.organizationIds)));
+                document.put(fieldName(QUser.user.currentWorkspaceId), document.get(fieldName(QUser.user.currentOrganizationId)));
+                document.put(fieldName(QUser.user.examplesWorkspaceId), document.get(fieldName(QUser.user.examplesOrganizationId)));
+                mongockTemplate.save(document, mongockTemplate.getCollectionName(User.class));
             });
         }
     }
@@ -873,117 +885,117 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "016", id = "migrate-organizationId-to-workspaceId-in-action", author = "")
     public void migrateOrganizationIdToWorkspaceIdInAction(MongockTemplate mongockTemplate) {
-        try(Stream<Action> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Action.class)
+        try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Action.class))
             .stream()) { 
-            stream.forEach((action) -> {
-                action.setWorkspaceId(action.getOrganizationId());
-                mongockTemplate.save(action);
+            stream.forEach((document) -> {
+                document.put(fieldName(QAction.action.workspaceId), document.get(fieldName(QAction.action.organizationId)));
+                mongockTemplate.save(document, mongockTemplate.getCollectionName(Action.class));
             });
         }
     }
 
     @ChangeSet(order = "017", id = "migrate-organizationId-to-workspaceId-in-actioncollection", author = "")
     public void migrateOrganizationIdToWorkspaceIdInActionCollection(MongockTemplate mongockTemplate) {
-        try(Stream<ActionCollection> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), ActionCollection.class)
+        try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(ActionCollection.class))
             .stream()) { 
-            stream.forEach((actionCollection) -> {
-                actionCollection.setWorkspaceId(actionCollection.getOrganizationId());
-                mongockTemplate.save(actionCollection);
+            stream.forEach((document) -> {
+                document.put(fieldName(QActionCollection.actionCollection.workspaceId), document.get(fieldName(QActionCollection.actionCollection.organizationId)));
+                mongockTemplate.save(document, mongockTemplate.getCollectionName(ActionCollection.class));
             });
         }
     }
 
     @ChangeSet(order = "018", id = "migrate-organizationId-to-workspaceId-in-application", author = "")
     public void migrateOrganizationIdToWorkspaceIdInApplication(MongockTemplate mongockTemplate) {
-        try(Stream<Application> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Application.class)
+        try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Application.class))
             .stream()) { 
-            stream.forEach((application) -> {
-                application.setWorkspaceId(application.getOrganizationId());
-                mongockTemplate.save(application);
+            stream.forEach((document) -> {
+                document.put(fieldName(QApplication.application.workspaceId), document.get(fieldName(QApplication.application.organizationId)));
+                mongockTemplate.save(document, mongockTemplate.getCollectionName(Application.class));
             });
         }
     }
 
     @ChangeSet(order = "019", id = "migrate-organizationId-to-workspaceId-in-newaction", author = "")
     public void migrateOrganizationIdToWorkspaceIdInNewAction(MongockTemplate mongockTemplate) {
-        try(Stream<NewAction> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), NewAction.class)
+        try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(NewAction.class))
             .stream()) { 
-            stream.forEach((newAction) -> {
-                newAction.setWorkspaceId(newAction.getOrganizationId());
-                mongockTemplate.save(newAction);
+            stream.forEach((document) -> {
+                document.put(fieldName(QNewAction.newAction.workspaceId), document.get(fieldName(QNewAction.newAction.organizationId)));
+                mongockTemplate.save(document, mongockTemplate.getCollectionName(NewAction.class));
             });
         }
     }
 
     @ChangeSet(order = "020", id = "migrate-organizationId-to-workspaceId-in-collection", author = "")
     public void migrateOrganizationIdToWorkspaceIdInCollection(MongockTemplate mongockTemplate) {
-        try(Stream<Application> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Application.class)
+        try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Collection.class))
             .stream()) { 
-            stream.forEach((application) -> {
-                application.setWorkspaceId(application.getOrganizationId());
-                mongockTemplate.save(application);
+            stream.forEach((document) -> {
+                document.put(fieldName(QCollection.collection.workspaceId), document.get(fieldName(QCollection.collection.organizationId)));
+                mongockTemplate.save(document, mongockTemplate.getCollectionName(Collection.class));
             });
         }
     }
 
     @ChangeSet(order = "021", id = "migrate-organizationId-to-workspaceId-in-group", author = "")
     public void migrateOrganizationIdToWorkspaceIdInGroup(MongockTemplate mongockTemplate) {
-        try(Stream<Application> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Application.class)
+        try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Group.class))
             .stream()) { 
-            stream.forEach((application) -> {
-                application.setWorkspaceId(application.getOrganizationId());
-                mongockTemplate.save(application);
+            stream.forEach((document) -> {
+                document.put(fieldName(QGroup.group.workspaceId), document.get(fieldName(QGroup.group.organizationId)));
+                mongockTemplate.save(document, mongockTemplate.getCollectionName(Group.class));
             });
         }
     }
 
     @ChangeSet(order = "022", id = "migrate-organizationId-to-workspaceId-in-theme", author = "")
     public void migrateOrganizationIdToWorkspaceIdInTheme(MongockTemplate mongockTemplate) {
-        try(Stream<Theme> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Theme.class)
+        try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Theme.class))
             .stream()) { 
-            stream.forEach((theme) -> {
-                theme.setWorkspaceId(theme.getOrganizationId());
-                mongockTemplate.save(theme);
+            stream.forEach((document) -> {
+                document.put(fieldName(QTheme.theme.workspaceId), document.get(fieldName(QTheme.theme.organizationId)));
+                mongockTemplate.save(document, mongockTemplate.getCollectionName(Theme.class));
             });
         }
     }
     
     @ChangeSet(order = "023", id = "migrate-organizationId-to-workspaceId-in-userdata", author = "")
     public void migrateOrganizationIdToWorkspaceIdInUserData(MongockTemplate mongockTemplate) {
-        try(Stream<UserData> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), UserData.class)
+        try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(UserData.class))
             .stream()) { 
-            stream.forEach((userData) -> {
-                userData.setRecentlyUsedWorkspaceIds(userData.getRecentlyUsedOrgIds());
-                mongockTemplate.save(userData);
+            stream.forEach((document) -> {
+                document.put(fieldName(QUserData.userData.recentlyUsedWorkspaceIds), document.get(fieldName(QUserData.userData.recentlyUsedOrgIds)));
+                mongockTemplate.save(document, mongockTemplate.getCollectionName(UserData.class));
             });
         }
     }
 
     @ChangeSet(order = "024", id = "migrate-organizationId-to-workspaceId-in-workspace", author = "")
     public void migrateOrganizationIdToWorkspaceIdInWorkspace(MongockTemplate mongockTemplate) {
-        try(Stream<Workspace> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Workspace.class)
+        try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Workspace.class))
             .stream()) { 
-            stream.forEach((workspace) -> {
-                workspace.setIsAutoGeneratedWorkspace(workspace.getIsAutoGeneratedOrganization());
-                mongockTemplate.save(workspace);
+            stream.forEach((document) -> {
+                document.put(fieldName(QWorkspace.workspace.isAutoGeneratedWorkspace), document.get(fieldName(QWorkspace.workspace.isAutoGeneratedOrganization)));
+                mongockTemplate.save(document, mongockTemplate.getCollectionName(Workspace.class));
             });
         }
     }
 
     @ChangeSet(order = "025", id = "migrate-organizationId-to-workspaceId-in-abstract-comment-domain", author = "")
     public void migrateOrganizationIdToWorkspaceIdInAbstractCommentDomain(MongockTemplate mongockTemplate) {
-        try(Stream<Comment> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Comment.class)
+        try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Comment.class))
             .stream()) { 
-            stream.forEach((comment) -> {
-                comment.setWorkspaceId(comment.getOrgId());
-                mongockTemplate.save(comment);
+            stream.forEach((document) -> {
+                document.put(fieldName(QComment.comment.workspaceId), document.get(fieldName(QComment.comment.orgId)));
+                mongockTemplate.save(document, mongockTemplate.getCollectionName(Comment.class));
             });
         }
-        try(Stream<CommentThread> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), CommentThread.class)
+        try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(CommentThread.class))
             .stream()) { 
-            stream.forEach((commentThread) -> {
-                commentThread.setWorkspaceId(commentThread.getOrgId());
-                mongockTemplate.save(commentThread);
+            stream.forEach((document) -> {
+                document.put(fieldName(QCommentThread.commentThread.workspaceId), document.get(fieldName(QCommentThread.commentThread.orgId)));
+                mongockTemplate.save(document, mongockTemplate.getCollectionName(CommentThread.class));
             });
         }
     }
