@@ -8,6 +8,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.external.models.QDatasource;
+import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
@@ -39,6 +40,7 @@ import com.appsmith.server.domains.QCollection;
 import com.appsmith.server.domains.QComment;
 import com.appsmith.server.domains.QCommentThread;
 import com.appsmith.server.domains.QGroup;
+import com.appsmith.server.domains.QInviteUser;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
@@ -1132,7 +1134,6 @@ public class DatabaseChangelog2 {
             NewAction.class,
             NewPage.class,
             Notification.class,
-            Organization.class,
             Page.class,
             PasswordResetToken.class,
             Permission.class,
@@ -1146,5 +1147,69 @@ public class DatabaseChangelog2 {
         );
         
         models.stream().forEach(domainClass -> upgradeAclForDomainClass(mongockTemplate, domainClass));
+    }
+
+    private String upgradRole(String role) {
+        Map<String, String> roleMapping = Map.ofEntries(
+            Map.entry(AppsmithRole.ORGANIZATION_ADMIN.name(), AppsmithRole.WORKSPACE_ADMIN.name()),
+            Map.entry(AppsmithRole.ORGANIZATION_DEVELOPER.name(), AppsmithRole.WORKSPACE_DEVELOPER.name()),
+            Map.entry(AppsmithRole.ORGANIZATION_VIEWER.name(), AppsmithRole.WORKSPACE_VIEWER.name())
+        );
+        return roleMapping.getOrDefault(role, role);
+    }
+
+    @ChangeSet(order = "028", id = "update-role-in-inviteuser", author = "")
+    public void updateRoleInInviteUser(MongockTemplate mongockTemplate) {
+        try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(InviteUser.class))
+            .stream()) { 
+            stream
+                .filter(document -> document.get(fieldName(QInviteUser.inviteUser.role)) != null) //filter documents with role not set
+                .forEach(document -> {
+                    document.put(fieldName(QInviteUser.inviteUser.role), upgradRole(document.getString(fieldName(QInviteUser.inviteUser.role))));
+                    mongockTemplate.save(document, mongockTemplate.getCollectionName(InviteUser.class));
+                });
+        }
+    }
+
+    private boolean upgradeRoleForDocument(Document document) {
+
+        // If policies are not present create empty set
+        if(document.get(fieldName(QWorkspace.workspace.userRoles)) == null) {
+            // If policy is not present initialize it with empty set
+            document.put(fieldName(QWorkspace.workspace.userRoles), Arrays.asList());
+            return true;
+        }
+
+        // If userRoles empty no need to update this document
+        // Casting to List<?> instead of List<Document> to avoid unchecked cast
+        // Indivisual objects will be casted later to Document using Document.class.cast()
+        List<?> genericUserRoleDocuments = (List<?>)document.get(fieldName(QWorkspace.workspace.userRoles));
+        if(genericUserRoleDocuments.isEmpty()) {
+            return false;
+        }
+
+        // Translate policies using map
+        genericUserRoleDocuments.forEach(genericUserRoleDocument -> {
+            Document userRoleDocument = Document.class.cast(genericUserRoleDocument);
+            // Get old permission
+            String role = userRoleDocument.getString("role");
+            // Translate, if present in map return its value, otherwise original permission
+            role = upgradRole(role);
+            userRoleDocument.put("role", role);
+        });
+
+        return true;
+    }
+
+    @ChangeSet(order = "029", id = "update-role-in-workspace", author = "")
+    public void updateRoleInWorkspace(MongockTemplate mongockTemplate) {
+        try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Workspace.class))
+            .stream()) { 
+            stream
+                .filter(this::upgradeRoleForDocument)  //this will upgrade the document as well as stream is filtered based on return value
+                .forEach(document -> {
+                    mongockTemplate.save(document, mongockTemplate.getCollectionName(Workspace.class));
+                });
+        }
     }
 }

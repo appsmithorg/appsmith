@@ -311,7 +311,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         // count how many admins are there is this workspace
         long workspaceAdminCount = userRoles.stream().filter(
-                userRole1 -> userRole1.getRole() == AppsmithRole.ORGANIZATION_ADMIN
+                userRole1 -> userRole1.getRole() == AppsmithRole.WORKSPACE_ADMIN
         ).count();
 
         for (UserRole role : userRoles) {
@@ -321,7 +321,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 if (role.getRole().equals(userRole.getRole())) {
                     // No change in the role. Do nothing.
                     return Mono.just(userRole);
-                } else if(role.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN)) {
+                } else if(role.getRole().equals(AppsmithRole.WORKSPACE_ADMIN)) {
                     // user is currently admin, check if this user is the only admin
                     if(workspaceAdminCount == 1) {
                         return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR));

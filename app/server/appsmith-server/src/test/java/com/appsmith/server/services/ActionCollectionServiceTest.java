@@ -224,7 +224,7 @@ public class ActionCollectionServiceTest {
                 layoutCollectionService.createCollection(actionCollectionDTO).block();
 
         UserRole userRole = new UserRole();
-        userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+        userRole.setRoleName(AppsmithRole.WORKSPACE_ADMIN.getName());
         userRole.setUsername("usertest@usertest.com");
 
         userWorkspaceService.addUserRoleToWorkspace(testApp.getWorkspaceId(), userRole).block();

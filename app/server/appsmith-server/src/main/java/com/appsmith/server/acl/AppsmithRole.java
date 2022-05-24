@@ -20,17 +20,29 @@ import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 public enum AppsmithRole {
     APPLICATION_ADMIN("Application Administrator", "", Set.of(MANAGE_APPLICATIONS)),
     APPLICATION_VIEWER("Application Viewer", "",  Set.of(READ_APPLICATIONS)),
-    ORGANIZATION_ADMIN("Administrator", "Can modify all workspace settings including editing applications, " +
-        "inviting other users to the workspace and exporting applications from the workspace",
+    @Deprecated // Only kept to support older migrations
+    ORGANIZATION_ADMIN("Administrator", "Can modify all organization settings including editing applications, " +
+        "inviting other users to the organization and exporting applications from the organization",
         Set.of(MANAGE_WORKSPACES, WORKSPACE_INVITE_USERS, WORKSPACE_EXPORT_APPLICATIONS)),
-    ORGANIZATION_DEVELOPER("Developer", "Can edit and view applications along with inviting other users to the workspace",
+    @Deprecated // Only kept to support older migrations
+    ORGANIZATION_DEVELOPER("Developer", "Can edit and view applications along with inviting other users to the organization",
         Set.of(READ_WORKSPACES, WORKSPACE_MANAGE_APPLICATIONS, WORKSPACE_READ_APPLICATIONS,
             WORKSPACE_PUBLISH_APPLICATIONS, WORKSPACE_INVITE_USERS)),
+    @Deprecated // Only kept to support older migrations
     ORGANIZATION_VIEWER(
-            "App Viewer",
-            "Can view applications and invite other users to view applications",
-            Set.of(READ_WORKSPACES, WORKSPACE_READ_APPLICATIONS, WORKSPACE_INVITE_USERS)
-    ),
+        "App Viewer",
+        "Can view applications and invite other users to view applications",
+        Set.of(READ_WORKSPACES, WORKSPACE_READ_APPLICATIONS, WORKSPACE_INVITE_USERS)),
+    WORKSPACE_ADMIN("Administrator", "Can modify all workspace settings including editing applications, " +
+        "inviting other users to the workspace and exporting applications from the workspace",
+        Set.of(MANAGE_WORKSPACES, WORKSPACE_INVITE_USERS, WORKSPACE_EXPORT_APPLICATIONS)),
+    WORKSPACE_DEVELOPER("Developer", "Can edit and view applications along with inviting other users to the workspace",
+        Set.of(READ_WORKSPACES, WORKSPACE_MANAGE_APPLICATIONS, WORKSPACE_READ_APPLICATIONS,
+            WORKSPACE_PUBLISH_APPLICATIONS, WORKSPACE_INVITE_USERS)),
+    WORKSPACE_VIEWER(
+        "App Viewer",
+        "Can view applications and invite other users to view applications",
+        Set.of(READ_WORKSPACES, WORKSPACE_READ_APPLICATIONS, WORKSPACE_INVITE_USERS)),
     ;
 
     private Set<AclPermission> permissions;
@@ -46,7 +58,7 @@ public enum AppsmithRole {
     public static AppsmithRole generateAppsmithRoleFromName(String name) {
         List<AppsmithRole> appsmithRoles = Arrays.asList(AppsmithRole.values());
         for (AppsmithRole role : appsmithRoles) {
-            if (role.getName().equals(name)) {
+            if (!role.name().contains("ORGANIZATION") && role.getName().equals(name)) {
                 return role;
             }
         }

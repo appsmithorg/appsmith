@@ -374,8 +374,8 @@ public class WorkspaceServiceTest {
                     assertThat(users).isNotNull();
                     UserRole userRole = users.get(0);
                     assertThat(userRole.getName()).isEqualTo("api_user");
-                    assertThat(userRole.getRole()).isEqualByComparingTo(AppsmithRole.ORGANIZATION_ADMIN);
-                    assertThat(userRole.getRoleName()).isEqualTo(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    assertThat(userRole.getRole()).isEqualByComparingTo(AppsmithRole.WORKSPACE_ADMIN);
+                    assertThat(userRole.getRoleName()).isEqualTo(AppsmithRole.WORKSPACE_ADMIN.getName());
                 })
                 .verifyComplete();
     }
@@ -398,7 +398,7 @@ public class WorkspaceServiceTest {
                     users.add("usertest@usertest.com");
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setWorkspaceId(workspace1.getId());
-                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    inviteUsersDTO.setRoleName(AppsmithRole.WORKSPACE_ADMIN.getName());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 })
@@ -457,7 +457,7 @@ public class WorkspaceServiceTest {
                     users.add("newEmailWhichShouldntExist@usertest.com");
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setWorkspaceId(workspace1.getId());
-                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    inviteUsersDTO.setRoleName(AppsmithRole.WORKSPACE_ADMIN.getName());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 })
@@ -529,7 +529,7 @@ public class WorkspaceServiceTest {
                     users.add("newEmailWhichShouldntExistAsViewer@usertest.com");
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setWorkspaceId(workspace1.getId());
-                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+                    inviteUsersDTO.setRoleName(AppsmithRole.WORKSPACE_VIEWER.getName());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 })
@@ -611,7 +611,7 @@ public class WorkspaceServiceTest {
                 .flatMap(workspace1 -> {
                     // Add user to workspace
                     UserRole userRole = new UserRole();
-                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    userRole.setRoleName(AppsmithRole.WORKSPACE_ADMIN.getName());
                     userRole.setUsername("usertest@usertest.com");
                     return userWorkspaceService.addUserRoleToWorkspace(workspace1.getId(), userRole);
                 })
@@ -709,7 +709,7 @@ public class WorkspaceServiceTest {
                 .flatMap(workspace1 -> {
                     // Add user to workspace
                     UserRole userRole = new UserRole();
-                    userRole.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+                    userRole.setRoleName(AppsmithRole.WORKSPACE_VIEWER.getName());
                     userRole.setUsername("usertest@usertest.com");
                     return userWorkspaceService.addUserRoleToWorkspace(workspace1.getId(), userRole);
                 });
@@ -777,7 +777,7 @@ public class WorkspaceServiceTest {
                 .flatMap(workspace1 -> {
                     // Add user to workspace
                     UserRole userRole = new UserRole();
-                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    userRole.setRoleName(AppsmithRole.WORKSPACE_ADMIN.getName());
                     userRole.setUsername("usertest@usertest.com");
                     return userWorkspaceService.addUserRoleToWorkspace(workspace1.getId(), userRole);
                 });
@@ -845,7 +845,7 @@ public class WorkspaceServiceTest {
                 .flatMap(workspace1 -> {
                     // Add user to workspace
                     UserRole userRole = new UserRole();
-                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    userRole.setRoleName(AppsmithRole.WORKSPACE_ADMIN.getName());
                     userRole.setUsername("usertest@usertest.com");
                     return userWorkspaceService.addUserRoleToWorkspace(workspace1.getId(), userRole);
                 });
@@ -919,7 +919,7 @@ public class WorkspaceServiceTest {
                     users.add("newEmailWhichShouldntExistAsViewer3@usertest.com");
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setWorkspaceId(workspace1.getId());
-                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+                    inviteUsersDTO.setRoleName(AppsmithRole.WORKSPACE_VIEWER.getName());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 })
