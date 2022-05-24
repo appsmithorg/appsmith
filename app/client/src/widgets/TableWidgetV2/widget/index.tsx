@@ -689,7 +689,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
-  //TODO(balaji): Move to utilities and write test cases
   getSelectedRowIndices = () => {
     const { multiRowSelection, selectedRowIndices } = this.props;
 
