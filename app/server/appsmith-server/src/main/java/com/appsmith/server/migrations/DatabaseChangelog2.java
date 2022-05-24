@@ -37,6 +37,7 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 
+import org.bson.Document;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
@@ -836,11 +837,11 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "013", id = "migrate-organizationId-to-workspaceId-in-datasource", author = "")
     public void migrateOrganizationIdToWorkspaceIdInDatasource(MongockTemplate mongockTemplate) {
-        try(Stream<Datasource> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Datasource.class)
+        try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Datasource.class))
             .stream()) { 
-            stream.forEach((datasource) -> {
-                datasource.setWorkspaceId(datasource.getOrganizationId());
-                mongockTemplate.save(datasource);
+            stream.forEach((document) -> {
+                document.put(fieldName(QDatasource.datasource.workspaceId), document.get(fieldName(QDatasource.datasource.organizationId)));
+                mongockTemplate.save(document, mongockTemplate.getCollectionName(Datasource.class));
             });
         }
     }
