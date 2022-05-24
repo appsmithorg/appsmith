@@ -50,6 +50,11 @@ const AddColumnButton = styled(StyledPropertyPaneButton)`
   }
 `;
 
+const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
+  position: relative;
+  ${(props) => props.rightPadding && `right: 6px;`}
+`;
+
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
@@ -84,8 +89,10 @@ type State = {
   focusedIndex: number | null;
   duplicateColumnIds: string[];
   hasEditableColumn: boolean;
+  hasScrollableList: boolean;
 };
 
+const LIST_CLASSNAME = "tablewidget-primarycolumn-list";
 class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   constructor(props: ControlProps) {
     super(props);
@@ -109,6 +116,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
       focusedIndex: null,
       duplicateColumnIds,
       hasEditableColumn: false,
+      hasScrollableList: false,
     };
   }
 
@@ -124,6 +132,16 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     ) {
       this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
       this.checkAndUpdateIfEditableColumnPresent();
+    }
+
+    const listElement = document.querySelector(`.${LIST_CLASSNAME}`);
+    const hasScrollableList =
+      listElement && listElement?.scrollHeight > listElement?.clientHeight;
+
+    if (hasScrollableList !== this.state.hasScrollableList) {
+      this.setState({
+        hasScrollableList: !!hasScrollableList,
+      });
     }
   }
 
@@ -180,19 +198,23 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
         <div className="flex pt-2 pb-2 justify-between">
           <div>{Object.values(reorderedColumns).length} columns</div>
           {this.state.hasEditableColumn && (
-            <div className="flex">
+            <EdtiableCheckboxWrapper
+              className="flex"
+              rightPadding={this.state.hasScrollableList}
+            >
               <span className="mr-2">Editable</span>
               <Checkbox
                 isDefaultChecked={this.isAllColumnsEditable()}
                 label=""
                 onCheckChange={this.toggleAllColumnsEditability}
               />
-            </div>
+            </EdtiableCheckboxWrapper>
           )}
         </div>
         <TabsWrapper>
           <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
             <DroppableComponent
+              className={LIST_CLASSNAME}
               deleteOption={this.deleteOption}
               fixedHeight={370}
               focusedIndex={this.state.focusedIndex}

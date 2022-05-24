@@ -45,6 +45,7 @@ import {
   getSelectRowIndex,
   getSelectRowIndices,
   getCellProperties,
+  isColumnTypeEditable,
 } from "./utilities";
 import {
   ColumnProperties,
@@ -1206,7 +1207,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       isSelected = selectedRowIndex === rowIndex;
     }
 
-    const isColumnEditable = column.isEditable;
+    const isColumnEditable =
+      column.isEditable && isColumnTypeEditable(column.columnType);
 
     switch (column.columnType) {
       case ColumnTypes.BUTTON:
