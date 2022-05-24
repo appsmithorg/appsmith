@@ -4,7 +4,7 @@ class UserLog {
   }
   private logs: any = [];
   private initiate() {
-    const { error, log, table } = console;
+    const { debug, error, log, table } = console;
     console = {
       ...console,
       table: function(value: any) {
@@ -23,7 +23,7 @@ class UserLog {
         return value;
       },
       debug: function(value: any) {
-        log.call(this, value);
+        debug.call(this, value);
         userLogs.addLog(value, "DEBUG");
         return value;
       },
