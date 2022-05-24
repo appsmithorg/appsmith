@@ -2,24 +2,20 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AppsmithRole;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
-import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -43,31 +39,16 @@ public class UserServiceWithDisabledSignupTest {
     UserService userService;
 
     @Autowired
-    OrganizationService organizationService;
-
-    @Autowired
     ApplicationService applicationService;
 
     @Autowired
     UserRepository userRepository;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
-
-    @Autowired
-    CommonConfig commonConfig;
-
     Mono<User> userMono;
-
-    Mono<Organization> organizationMono;
-
-    @Autowired
-    UserSignup userSignup;
 
     @Before
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
-        organizationMono = organizationService.getBySlug("spring-test-organization");
     }
 
     @Test
@@ -232,8 +213,8 @@ public class UserServiceWithDisabledSignupTest {
 
         StepVerifier.create(userMono)
                 .assertNext(user -> {
-                    assertThat(user.getEmail().equals(newUser.getEmail()));
-                    assertThat(user.getSource().equals(LoginSource.FORM));
+                    assertThat(user.getEmail()).isEqualTo(newUser.getEmail());
+                    assertThat(user.getSource()).isEqualTo(LoginSource.FORM);
                     assertThat(user.getIsEnabled()).isTrue();
                 })
                 .verifyComplete();
