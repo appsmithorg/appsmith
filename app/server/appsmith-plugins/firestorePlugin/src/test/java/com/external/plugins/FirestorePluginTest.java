@@ -991,7 +991,7 @@ public class FirestorePluginTest {
     @Test
     public void testArrayContainsWhereConditional() {
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
         children.add(new HashMap<String, Object>() {{
@@ -1002,8 +1002,8 @@ public class FirestorePluginTest {
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
-        setValueSafelyInFormData(configMap, WHERE, whereMap);
-        setValueSafelyInFormData(configMap, PATH, "info");
+        setDataValueSafelyInFormData(configMap, WHERE, whereMap);
+        setDataValueSafelyInFormData(configMap, PATH, "info");
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(configMap);
 
@@ -1035,7 +1035,7 @@ public class FirestorePluginTest {
     @Test
     public void testArrayContainsNumberWhereConditional() {
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
         children.add(new HashMap<String, Object>() {{
@@ -1046,8 +1046,8 @@ public class FirestorePluginTest {
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
-        setValueSafelyInFormData(configMap, WHERE, whereMap);
-        setValueSafelyInFormData(configMap, PATH, "info");
+        setDataValueSafelyInFormData(configMap, WHERE, whereMap);
+        setDataValueSafelyInFormData(configMap, PATH, "info");
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(configMap);
 
@@ -1079,7 +1079,7 @@ public class FirestorePluginTest {
     @Test
     public void testArrayContainsAnyWhereConditional() {
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
         children.add(new HashMap<String, Object>() {{
@@ -1090,8 +1090,8 @@ public class FirestorePluginTest {
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
-        setValueSafelyInFormData(configMap, WHERE, whereMap);
-        setValueSafelyInFormData(configMap, PATH, "info");
+        setDataValueSafelyInFormData(configMap, WHERE, whereMap);
+        setDataValueSafelyInFormData(configMap, PATH, "info");
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(configMap);
 
@@ -1122,7 +1122,7 @@ public class FirestorePluginTest {
     @Test
     public void testArrayInWhereConditional() {
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
         children.add(new HashMap<String, Object>() {{
@@ -1133,8 +1133,8 @@ public class FirestorePluginTest {
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
-        setValueSafelyInFormData(configMap, WHERE, whereMap);
-        setValueSafelyInFormData(configMap, PATH, "initial");
+        setDataValueSafelyInFormData(configMap, WHERE, whereMap);
+        setDataValueSafelyInFormData(configMap, PATH, "initial");
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(configMap);
 
