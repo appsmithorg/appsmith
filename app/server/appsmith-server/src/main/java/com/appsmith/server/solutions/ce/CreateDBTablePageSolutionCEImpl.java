@@ -119,7 +119,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     // a CRUD page
     private static final Set<String> WIDGET_FIELDS = Set.of(
             "defaultText", "placeholderText", "text", "options", "defaultOptionValue", "primaryColumns", "isVisible",
-            "sourceData", "title"
+            "sourceData", "title", "primaryColumnId"
     );
 
     // Currently, we only support string matching (like/ilike etc) for WHERE operator in SelectQuery so the allowed
