@@ -207,6 +207,7 @@ export interface TextComponentProps extends ComponentProps {
   leftColumn?: number;
   rightColumn?: number;
   topRow?: number;
+  innerRef?: React.RefObject<HTMLDivElement>;
 }
 
 type State = {
@@ -282,7 +283,10 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
     return (
       <>
-        <FontLoader fontFamily={this.props.fontFamily}>
+        <FontLoader
+          fontFamily={this.props.fontFamily}
+          ref={this.props.innerRef}
+        >
           <TextContainer>
             <StyledText
               backgroundColor={backgroundColor}
@@ -362,4 +366,11 @@ class TextComponent extends React.Component<TextComponentProps, State> {
   }
 }
 
-export default TextComponent;
+export default React.forwardRef<HTMLDivElement, TextComponentProps>(
+  (props, ref) => (
+    <TextComponent
+      {...props}
+      innerRef={ref as React.RefObject<HTMLDivElement>}
+    />
+  ),
+);
