@@ -368,9 +368,9 @@ export function Table(props: TableProps) {
                   ...row.getRowProps(),
                   style: { display: "flex" },
                 };
-                const isRowSelected =
-                  row.index === selectedRowIndex ||
-                  selectedRowIndices.includes(row.index);
+                const isRowSelected = props.multiRowSelection
+                  ? selectedRowIndices.includes(row.index)
+                  : row.index === selectedRowIndex;
                 return (
                   <div
                     {...rowProps}
