@@ -155,7 +155,6 @@ function MultiSelectComponent({
   }, []);
 
   const id = _.uniqueId();
-  console.log("dropDownWidth", dropDownWidth);
   return (
     <MultiSelectContainer
       className={loading ? Classes.SKELETON : ""}

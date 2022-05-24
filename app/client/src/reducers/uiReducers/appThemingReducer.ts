@@ -71,6 +71,7 @@ const themeReducer = createImmerReducer(initialState, {
   ) => {
     state.themesLoading = false;
     state.themes = action.payload;
+    state.stack = [];
   },
   [ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS]: (
     state: AppThemingState,
@@ -126,7 +127,10 @@ const themeReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.CLOSE_BETA_CARD_SHOWN]: (state: AppThemingState) => {
     state.isBetaCardShown = true;
   },
-  [ReduxActionTypes.FOCUS_WIDGET]: (state: AppThemingState) => {
+  [ReduxActionTypes.SELECT_WIDGET_INIT]: (state: AppThemingState) => {
+    state.stack = [];
+  },
+  [ReduxActionTypes.START_CANVAS_SELECTION]: (state: AppThemingState) => {
     state.stack = [];
   },
 });

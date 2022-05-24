@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Text, { TextType } from "components/ads/Text";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { HELPBAR_PLACEHOLDER } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { modText } from "utils/helpers";
@@ -55,7 +55,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   toggleShowModal: () => {
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "NAVBAR_CLICK" });
     dispatch(
-      toggleShowGlobalSearchModal(filterCategories[SEARCH_CATEGORY_ID.INIT]),
+      setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.INIT]),
     );
   },
 });

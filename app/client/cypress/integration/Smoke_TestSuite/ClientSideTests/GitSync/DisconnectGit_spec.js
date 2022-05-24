@@ -85,6 +85,7 @@ describe("Git disconnect modal:", function() {
     // disconnecting validation
     cy.route("POST", "api/v1/git/disconnect/*").as("disconnect");
     cy.get(gitSyncLocators.disconnectButton).click();
+    cy.get(gitSyncLocators.disconnectButton).should("be.disabled");
     cy.wait("@disconnect").should(
       "have.nested.property",
       "response.body.responseMeta.status",

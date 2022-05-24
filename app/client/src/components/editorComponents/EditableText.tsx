@@ -33,6 +33,7 @@ type EditableTextProps = {
   beforeUnmount?: (value?: string) => void;
   errorTooltipClass?: string;
   maxLength?: number;
+  underline?: boolean;
 };
 
 const EditableTextWrapper = styled.div<{
@@ -71,7 +72,11 @@ const EditableTextWrapper = styled.div<{
 
 // using the !important keyword here is mandatory because a style is being applied to that element using the style attribute
 // which has higher specificity than other css selectors. It seems the overriding style is being applied by the package itself.
-const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
+const TextContainer = styled.div<{
+  isValid: boolean;
+  minimal: boolean;
+  underline?: boolean;
+}>`
   display: flex;
   &&&& .${Classes.EDITABLE_TEXT} {
     & .${Classes.EDITABLE_TEXT_CONTENT} {
@@ -80,7 +85,16 @@ const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
       }
     }
   }
-
+  &&& .${Classes.EDITABLE_TEXT_CONTENT}:hover {
+    ${(props) =>
+      props.underline
+        ? `
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        width: fit-content;
+      `
+        : null}
+  }
   & span.bp3-editable-text-content {
     height: auto !important;
   }
@@ -186,7 +200,11 @@ export function EditableText(props: EditableTextProps) {
         isOpen={!!error}
         message={errorMessage as string}
       >
-        <TextContainer isValid={!error} minimal={!!minimal}>
+        <TextContainer
+          isValid={!error}
+          minimal={!!minimal}
+          underline={props.underline}
+        >
           <BlueprintEditableText
             className={className}
             disabled={!isEditing}

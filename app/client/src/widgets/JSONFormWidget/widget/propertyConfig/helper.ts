@@ -9,11 +9,13 @@ import {
   Schema,
   HookResponse,
   FieldThemeStylesheet,
+  ROOT_SCHEMA_KEY,
 } from "../../constants";
 import { getGrandParentPropertyPath, getParentPropertyPath } from "../helper";
 import { JSONFormWidgetProps } from "..";
 import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
 import { AppTheme } from "entities/AppTheming";
+import { processSchemaItemAutocomplete } from "components/propertyControls/JSONFormComputeControl";
 
 export type HiddenFnParams = [JSONFormWidgetProps, string];
 
@@ -113,6 +115,27 @@ export const getStylesheetValue = (
       return fieldStylesheet[propertyName] || "";
     },
   );
+};
+
+export const getAutocompleteProperties = (props: JSONFormWidgetProps) => {
+  const { schema } = props;
+  const rootSchemaItem = schema[ROOT_SCHEMA_KEY] || {};
+  const { sourceData } = rootSchemaItem;
+
+  const formData = processSchemaItemAutocomplete(rootSchemaItem);
+
+  const fieldState = processSchemaItemAutocomplete(rootSchemaItem, {
+    isVisible: true,
+    isDisabled: true,
+    isRequired: true,
+    isValid: true,
+  });
+
+  return {
+    sourceData,
+    fieldState,
+    formData,
+  };
 };
 
 const getUpdatedSchemaFor = (

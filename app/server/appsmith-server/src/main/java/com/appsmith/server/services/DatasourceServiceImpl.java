@@ -22,7 +22,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                                  MongoConverter mongoConverter,
                                  ReactiveMongoTemplate reactiveMongoTemplate,
                                  DatasourceRepository repository,
-                                 OrganizationService organizationService,
+                                 WorkspaceService workspaceService,
                                  AnalyticsService analyticsService,
                                  SessionUserService sessionUserService,
                                  PluginService pluginService,
@@ -31,7 +31,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                                  SequenceService sequenceService,
                                  NewActionRepository newActionRepository) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, organizationService,
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService,
                 analyticsService, sessionUserService, pluginService, pluginExecutorHelper, policyGenerator,
                 sequenceService, newActionRepository);
 
