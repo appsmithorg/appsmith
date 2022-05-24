@@ -72,7 +72,7 @@ public class GitFileUtils {
         = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST, DECRYPTED_FIELDS, EDIT_MODE_THEME);
     /**
      * This method will save the complete application in the local repo directory.
-     * Path to repo will be : ./container-volumes/git-repo/organizationId/defaultApplicationId/repoName/{application_data}
+     * Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
      * @param baseRepoSuffix path suffix used to create a local repo path
      * @param applicationJson application reference object from which entire application can be rehydrated
      * @param branchName name of the branch for the current application
@@ -96,7 +96,7 @@ public class GitFileUtils {
                     .map(tuple -> {
                         stopwatch.stopTimer();
                         Path repoPath = tuple.getT1();
-                        // Path to repo will be : ./container-volumes/git-repo/organizationId/defaultApplicationId/repoName/
+                        // Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/
                         final Map<String, Object> data = Map.of(
                                 FieldName.APPLICATION_ID, repoPath.getParent().getFileName().toString(),
                                 FieldName.ORGANIZATION_ID, repoPath.getParent().getParent().getFileName().toString(),

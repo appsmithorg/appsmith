@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class WorkspaceRepositoryTest {
 
     @Autowired
-    private WorkspaceRepository organizationRepository;
+    private WorkspaceRepository workspaceRepository;
 
     @Test
     void updateUserRoleNames_WhenUserIdMatched_AllOrgsUpdated() {
@@ -53,16 +53,16 @@ class WorkspaceRepositoryTest {
 
         // create two orgs
         Mono<Tuple2<Workspace, Workspace>> aveOrgsMonoZip = Mono.zip(
-                organizationRepository.save(org1), organizationRepository.save(org2)
+                workspaceRepository.save(org1), workspaceRepository.save(org2)
         );
 
         Mono<Tuple2<Workspace, Workspace>> updatedOrgTupleMono = aveOrgsMonoZip.flatMap(objects -> {
             // update the user names
-            return organizationRepository.updateUserRoleNames(userId, newUserName).thenReturn(objects);
-        }).flatMap(organizationTuple2 -> {
+            return workspaceRepository.updateUserRoleNames(userId, newUserName).thenReturn(objects);
+        }).flatMap(workspaceTuple2 -> {
             // fetch the two orgs again
-            Mono<Workspace> updatedOrg1Mono = organizationRepository.findBySlug(org1.getId());
-            Mono<Workspace> updatedOrg2Mono = organizationRepository.findBySlug(org2.getId());
+            Mono<Workspace> updatedOrg1Mono = workspaceRepository.findBySlug(org1.getId());
+            Mono<Workspace> updatedOrg2Mono = workspaceRepository.findBySlug(org2.getId());
             return Mono.zip(updatedOrg1Mono, updatedOrg2Mono);
         });
 

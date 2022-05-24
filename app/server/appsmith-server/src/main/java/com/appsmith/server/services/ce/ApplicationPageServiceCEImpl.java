@@ -1015,7 +1015,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     extraProperties.put("actionCollectionCount", objects.getT3().size());
                     extraProperties.put("appId", defaultIfNull(application.getId(), ""));
                     extraProperties.put("appName", defaultIfNull(application.getName(), ""));
-                    extraProperties.put("orgId", defaultIfNull(application.getOrganizationId(), ""));
+                    extraProperties.put("orgId", defaultIfNull(application.getWorkspaceId(), ""));
                     extraProperties.put("publishedAt", defaultIfNull(application.getLastDeployedAt(), ""));
 
                     return analyticsService.sendObjectEvent(AnalyticsEvents.PUBLISH_APPLICATION, application, extraProperties);

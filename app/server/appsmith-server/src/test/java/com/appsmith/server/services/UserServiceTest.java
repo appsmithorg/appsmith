@@ -422,7 +422,7 @@ public class UserServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void signUpAfterBeingInvitedToAppsmithOrganization() {
+    public void signUpAfterBeingInvitedToAppsmithWorkspace() {
         Workspace workspace = new Workspace();
         workspace.setName("SignUp after adding user to Test Organization");
         workspace.setDomain("example.com");

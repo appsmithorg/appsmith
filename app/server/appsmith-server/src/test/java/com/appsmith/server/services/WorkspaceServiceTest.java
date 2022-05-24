@@ -616,7 +616,7 @@ public class WorkspaceServiceTest {
                     return userWorkspaceService.addUserRoleToWorkspace(workspace1.getId(), userRole);
                 })
                 .map(workspace1 -> {
-                    log.debug("Organization policies after adding user is : {}", workspace1.getPolicies());
+                    log.debug("Workspace policies after adding user is : {}", workspace1.getPolicies());
                     return workspace1;
                 });
 
@@ -1033,7 +1033,7 @@ public class WorkspaceServiceTest {
     public void uploadWorkspaceLogo_largeFilePart() throws IOException {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo_large.png"), new DefaultDataBufferFactory(), 4096);
+                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo_large.png"), new DefaultDataBufferFactory(), 4096);
         assertThat(dataBufferFlux.count().block()).isGreaterThan((int) Math.ceil(Constraint.WORKSPACE_LOGO_SIZE_KB/4.0));
 
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
@@ -1067,7 +1067,7 @@ public class WorkspaceServiceTest {
     public void testUpdateAndDeleteLogo_validLogo() throws IOException {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096).cache();
+                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo.png"), new DefaultDataBufferFactory(), 4096).cache();
         assertThat(dataBufferFlux.count().block()).isLessThanOrEqualTo((int) Math.ceil(Constraint.WORKSPACE_LOGO_SIZE_KB/4.0));
 
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);

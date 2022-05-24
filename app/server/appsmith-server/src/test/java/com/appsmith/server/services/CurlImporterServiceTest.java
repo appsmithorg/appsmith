@@ -460,7 +460,7 @@ public class CurlImporterServiceTest {
                         "--header 'Authorization: Basic abcdefghijklmnop==' \\\n" +
                         "--header 'Content-Type: text/plain' \\\n" +
                         "--data-raw '{\n" +
-                        "\t\"organizationId\" : \"5d8c9e946599b93bd51a3400\"\n" +
+                        "\t\"workspaceId\" : \"5d8c9e946599b93bd51a3400\"\n" +
                         "}'"
         );
         assertMethod(action, HttpMethod.PUT);
@@ -472,7 +472,7 @@ public class CurlImporterServiceTest {
                 new Property("Content-Type", "text/plain")
         );
         assertBody(action, "{\n" +
-                "\t\"organizationId\" : \"5d8c9e946599b93bd51a3400\"\n" +
+                "\t\"workspaceId\" : \"5d8c9e946599b93bd51a3400\"\n" +
                 "}");
     }
 

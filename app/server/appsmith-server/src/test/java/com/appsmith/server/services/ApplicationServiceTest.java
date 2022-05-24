@@ -571,7 +571,7 @@ public class ApplicationServiceTest {
 
                     for (WorkspaceApplicationsDTO workspaceApplicationDTO : workspaceApplicationsDTOs) {
                         if (workspaceApplicationDTO.getWorkspace().getName().equals("Spring Test Workspace")) {
-                            assertThat(workspaceApplicationDTO.getWorkspace().getUserPermissions()).contains("read:organizations");
+                            assertThat(workspaceApplicationDTO.getWorkspace().getUserPermissions()).contains("read:workspaces");
 
                             Application application = workspaceApplicationDTO.getApplications().get(0);
                             assertThat(application.getUserPermissions()).contains("read:applications");
@@ -663,7 +663,7 @@ public class ApplicationServiceTest {
 
                     // There should be atleast one workspace present in the output.
                     WorkspaceApplicationsDTO orgAppDto = workspaceApplications.get(0);
-                    assertThat(orgAppDto.getWorkspace().getUserPermissions().contains("read:organizations"));
+                    assertThat(orgAppDto.getWorkspace().getUserPermissions().contains("read:workspaces"));
                 })
                 .verifyComplete();
 

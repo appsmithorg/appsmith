@@ -676,7 +676,7 @@ public class ImportExportApplicationServiceTests {
     public void importApplicationFromInvalidFileTest() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096)
+                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo.png"), new DefaultDataBufferFactory(), 4096)
                 .cache();
 
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);

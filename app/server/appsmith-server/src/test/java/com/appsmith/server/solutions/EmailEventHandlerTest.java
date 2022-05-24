@@ -65,7 +65,7 @@ public class EmailEventHandlerTest {
     String authorUserName = "abc";
     String originHeader = "efg";
     String applicationId = "application-id";
-    String workspaceId = "organization-id";
+    String workspaceId = "workspace-id";
     String emailReceiverUsername = "email-receiver";
 
     @Before

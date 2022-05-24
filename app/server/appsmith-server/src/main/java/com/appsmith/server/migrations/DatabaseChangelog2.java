@@ -39,6 +39,7 @@ import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QCollection;
 import com.appsmith.server.domains.QComment;
 import com.appsmith.server.domains.QCommentThread;
+import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QGroup;
 import com.appsmith.server.domains.QInviteUser;
 import com.appsmith.server.domains.QNewAction;
@@ -63,6 +64,8 @@ import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.services.ce.ConfigServiceCE;
+import com.appsmith.server.services.ce.ConfigServiceCEImpl;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
@@ -1211,5 +1214,16 @@ public class DatabaseChangelog2 {
                     mongockTemplate.save(document, mongockTemplate.getCollectionName(Workspace.class));
                 });
         }
+    }
+
+    @ChangeSet(order = "030", id = "update-template-organization-config", author = "")
+    public void updateTemplateOrganizationConfig(MongockTemplate mongockTemplate) {
+        Config config = mongockTemplate.findOne(query(where(fieldName(QConfig.config1.name)).is("template-organization")), Config.class);
+        config.setName("template-workspace");
+        if(config.getConfig() != null) {
+            config.getConfig().put("workspaceId", config.getConfig().get("organizationId"));
+            config.getConfig().remove("organizationId");
+        }
+        mongockTemplate.save(config);
     }
 }

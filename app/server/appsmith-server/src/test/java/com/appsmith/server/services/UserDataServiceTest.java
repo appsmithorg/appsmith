@@ -166,7 +166,7 @@ public class UserDataServiceTest {
     public void testUploadProfilePhoto_invalidImageFormat() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096)
+                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo.png"), new DefaultDataBufferFactory(), 4096)
                 .cache();
 
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
@@ -184,7 +184,7 @@ public class UserDataServiceTest {
     public void testUploadProfilePhoto_invalidImageSize() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo_large.png"), new DefaultDataBufferFactory(), 4096)
+                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo_large.png"), new DefaultDataBufferFactory(), 4096)
                 .repeat(100)  // So the file size looks like it's much larger than what it actually is.
                 .cache();
 
@@ -370,7 +370,7 @@ public class UserDataServiceTest {
     private FilePart createMockFilePart() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096).cache();
+                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo.png"), new DefaultDataBufferFactory(), 4096).cache();
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
         Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
         return filepart;
