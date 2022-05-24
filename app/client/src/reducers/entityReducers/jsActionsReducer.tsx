@@ -4,8 +4,8 @@ import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { set, keyBy } from "lodash";
+} from "ce/constants/ReduxActionConstants";
+import { set, keyBy, findIndex, unset } from "lodash";
 import produce from "immer";
 
 const initialState: JSCollectionDataState = [];
@@ -14,6 +14,9 @@ export interface JSCollectionData {
   config: JSCollection;
   data?: Record<string, unknown>;
   isExecuting?: Record<string, boolean>;
+  activeJSActionId?: string;
+  // Existence of parse errors for each action (updates after execution)
+  isDirty?: Record<string, boolean>;
 }
 export type JSCollectionDataState = JSCollectionData[];
 export interface PartialActionData {
@@ -61,13 +64,25 @@ const jsActionsReducer = createReducer(initialState, {
     ),
   [ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS]: (
     state: JSCollectionDataState,
-    action: ReduxAction<{ data: JSCollection }>,
+    action: ReduxAction<{
+      data: JSCollection;
+    }>,
   ): JSCollectionDataState =>
-    state.map((a) => {
-      if (a.config.id === action.payload.data.id) {
-        return { ...a, isLoading: false, config: action.payload.data };
+    state.map((jsCollection) => {
+      if (jsCollection.config.id === action.payload.data.id) {
+        return {
+          ...jsCollection,
+          isLoading: false,
+          config: action.payload.data,
+          activeJSActionId:
+            findIndex(jsCollection.config.actions, {
+              id: jsCollection.activeJSActionId,
+            }) === -1
+              ? undefined
+              : jsCollection.activeJSActionId,
+        };
       }
-      return a;
+      return jsCollection;
     }),
   [ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS]: (
     state: JSCollectionDataState,
@@ -254,11 +269,21 @@ const jsActionsReducer = createReducer(initialState, {
   ): JSCollectionDataState =>
     state.map((a) => {
       if (a.config.id === action.payload.collectionId) {
+        const newData = { ...a.data };
+        const newIsDirty = { ...a.isDirty };
+        unset(newData, action.payload.action.id);
+        unset(newIsDirty, action.payload.action.id);
         return {
           ...a,
           isExecuting: {
             ...a.isExecuting,
             [action.payload.action.id]: true,
+          },
+          data: {
+            ...newData,
+          },
+          isDirty: {
+            ...newIsDirty,
           },
         };
       }
@@ -270,6 +295,7 @@ const jsActionsReducer = createReducer(initialState, {
       results: any;
       collectionId: string;
       actionId: string;
+      isDirty: boolean;
     }>,
   ): JSCollectionDataState =>
     state.map((a) => {
@@ -283,6 +309,10 @@ const jsActionsReducer = createReducer(initialState, {
           isExecuting: {
             ...a.isExecuting,
             [action.payload.actionId]: false,
+          },
+          isDirty: {
+            ...a.isDirty,
+            [action.payload.actionId]: action.payload.isDirty,
           },
         };
       }
@@ -353,6 +383,22 @@ const jsActionsReducer = createReducer(initialState, {
       });
     });
   },
+  [ReduxActionTypes.SET_ACTIVE_JS_ACTION]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<{
+      jsCollectionId: string;
+      jsActionId: string;
+    }>,
+  ): JSCollectionDataState =>
+    state.map((jsCollection) => {
+      if (jsCollection.config.id === action.payload.jsCollectionId) {
+        return {
+          ...jsCollection,
+          activeJSActionId: action.payload.jsActionId,
+        };
+      }
+      return jsCollection;
+    }),
 });
 
 export default jsActionsReducer;

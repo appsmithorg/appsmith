@@ -7,12 +7,12 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import org.junit.Before;
@@ -59,7 +59,7 @@ public class DatasourceTriggerSolutionTest {
     DatasourceService datasourceService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     String orgId;
 
@@ -69,10 +69,10 @@ public class DatasourceTriggerSolutionTest {
     @WithUserDetails(value = "api_user")
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-        Organization organization = new Organization();
-        organization.setName("Datasource Trigger Test Organization");
-        Organization savedOrganization = organizationService.create(organization).block();
-        orgId = savedOrganization.getId();
+        Workspace workspace = new Workspace();
+        workspace.setName("Datasource Trigger Test Organization");
+        Workspace savedWorkspace = workspaceService.create(workspace).block();
+        orgId = savedWorkspace.getId();
 
         Datasource datasource = new Datasource();
         datasource.setName("Datasource Trigger Database");

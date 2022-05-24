@@ -88,7 +88,7 @@ function processArray(schema: Schema, defaultValue?: any): any[] {
  * @param schema
  * @param defaultValue Values that the autocomplete should show for a particular field
  */
-function processSchemaItemAutocomplete(
+export function processSchemaItemAutocomplete(
   schemaItem: SchemaItem,
   defaultValue?: any,
 ) {

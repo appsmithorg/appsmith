@@ -12,6 +12,7 @@ export const CONFIG = {
     rows: 6,
     columns: 23,
     animateLoading: true,
+    labelTextSize: "0.875rem",
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },
