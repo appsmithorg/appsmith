@@ -18,11 +18,19 @@ public class TenantServiceCEImpl implements TenantServiceCE {
     @Override
     public Mono<String> getDefaultTenantId() {
         // If the default tenant id does not exist in cache, find from repository and set the cache.
-        if (defaultTenantIdCacheMono == null) {
-            defaultTenantIdCacheMono = tenantRepository.findBySlug(FieldName.DEFAULT)
-                    .map(Tenant::getId);
+        if (defaultTenantIdCacheMono == null ) {
+            defaultTenantIdCacheMono = getDefaultTenantIdFromRepository();
         }
 
-        return defaultTenantIdCacheMono;
+        return defaultTenantIdCacheMono
+                .onErrorResume(throwable -> {
+                    // In case the cache is in error state, re-fetch the tenant
+                    return getDefaultTenantIdFromRepository();
+                });
+    }
+
+    private Mono<String> getDefaultTenantIdFromRepository() {
+        return tenantRepository.findBySlug(FieldName.DEFAULT)
+                .map(Tenant::getId);
     }
 }
