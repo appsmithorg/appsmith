@@ -113,7 +113,7 @@ describe("Validate API request body panel", () => {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
 
