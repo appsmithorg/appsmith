@@ -16,6 +16,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     onPropertyChange: (
       propertyName: string,
       propertyValue: string,
+      isUpdatedViaKeyboard?: boolean,
     ) => void = noop,
   ) => (
     <IconSelectControl
@@ -221,7 +222,11 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     );
     userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenCalledTimes(1);
-    expect(handleOnSelect).toHaveBeenLastCalledWith("iconName", "add-row-top");
+    expect(handleOnSelect).toHaveBeenLastCalledWith(
+      "iconName",
+      "add-row-top",
+      undefined,
+    );
     await waitForElementToBeRemoved(screen.getByRole("list"));
 
     userEvent.keyboard("{Enter}");
@@ -239,6 +244,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       "iconName",
       "add-to-artifact",
+      undefined,
     );
   });
 });
