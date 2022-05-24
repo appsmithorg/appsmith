@@ -221,7 +221,7 @@ export function Table(props: TableProps) {
       width: props.width,
       height: 38,
     }),
-    [],
+    [props.width],
   );
 
   return (
@@ -335,6 +335,7 @@ export function Table(props: TableProps) {
                             isSortable={props.isSortable}
                             key={columnIndex}
                             sortTableColumn={props.sortTableColumn}
+                            width={column.width}
                           />
                         );
                       },

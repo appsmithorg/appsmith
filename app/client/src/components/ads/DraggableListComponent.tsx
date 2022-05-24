@@ -23,6 +23,7 @@ export type RenderComponentProps<TItem extends BaseItemProps> = {
 };
 
 type DroppableComponentProps<TItem extends BaseItemProps> = {
+  className?: string;
   fixedHeight?: number | boolean;
   focusedIndex: number | null | undefined;
   items: TItem[];
@@ -119,6 +120,7 @@ export class DroppableComponent<
     return (
       <DraggableList
         ItemRenderer={this.renderItem}
+        className={this.props.className}
         fixedHeight={this.props.fixedHeight}
         focusedIndex={this.props.focusedIndex}
         itemHeight={45}

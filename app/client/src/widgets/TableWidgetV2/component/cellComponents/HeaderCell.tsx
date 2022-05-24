@@ -8,6 +8,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import { CellAlignment, JUSTIFY_CONTENT } from "../Constants";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
+import { isColumnTypeEditable } from "widgets/TableWidgetV2/widget/utilities";
 
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   padding: 0;
@@ -61,6 +62,7 @@ const TitleWrapper = styled.div`
 type TitleProps = {
   children: React.ReactNode;
   tableWidth?: number;
+  width?: number;
 };
 
 function Title(props: TitleProps) {
@@ -73,7 +75,7 @@ function Title(props: TitleProps) {
     } else {
       updateToolTip(false);
     }
-  }, [ref.current, ref.current?.scrollWidth]);
+  }, [ref.current, props.width, props.children]);
 
   return (
     <TitleWrapper ref={ref}>
@@ -107,6 +109,7 @@ export function HeaderCell(props: {
   column: any;
   editMode?: boolean;
   isSortable?: boolean;
+  width?: number;
 }) {
   const { column, editMode, isSortable } = props;
   const handleSortColumn = () => {
@@ -123,7 +126,8 @@ export function HeaderCell(props: {
 
   const isColumnEditable =
     column.columnProperties.isCellEditable &&
-    column.columnProperties.isEditable;
+    column.columnProperties.isEditable &&
+    isColumnTypeEditable(column.columnProperties.columnType);
 
   return (
     <div
@@ -136,7 +140,7 @@ export function HeaderCell(props: {
           horizontalAlignment={column.columnProperties.horizontalAlignment}
         >
           {isColumnEditable && <StyledEditIcon />}
-          <Title>{props.columnName}</Title>
+          <Title width={props.width}>{props.columnName}</Title>
         </ColumnNameContainer>
       </div>
       {props.isAscOrder !== undefined ? (
