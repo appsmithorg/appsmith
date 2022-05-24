@@ -424,8 +424,8 @@ function LeftPane() {
               <WorkspaceMenuItem
                 isFetchingApplications={isFetchingApplications}
                 key={workspace.workspace.id}
-                org={workspace}
                 selected={urlHash === workspace.workspace.id}
+                workspace={workspace}
               />
             ))}
         </WorkpsacesNavigator>
