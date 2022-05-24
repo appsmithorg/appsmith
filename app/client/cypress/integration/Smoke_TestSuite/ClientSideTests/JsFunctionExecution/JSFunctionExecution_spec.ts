@@ -120,15 +120,12 @@ describe("JS Function Execution", function() {
       // Assert presence of lint error at the start line
       cy.get(locator._lintErrorElement)
         .should("exist")
-        .should("have.text", highlightedLintText);
+        .should("contain.text", highlightedLintText);
     };
 
     assertInvalidJSObjectStart(jsObjectStartingWithAComment, jsComment);
     assertInvalidJSObjectStart(jsObjectStartingWithANewLine, jsObjectStartLine);
-    assertInvalidJSObjectStart(
-      jsObjectStartingWithASpace,
-      ` ${jsObjectStartLine}`,
-    );
+    assertInvalidJSObjectStart(jsObjectStartingWithASpace, jsObjectStartLine);
   });
 
   it("5. Supports the use of large JSON data (doesn't crash)", () => {
