@@ -18,7 +18,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QNewAction;
@@ -28,7 +28,7 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
-import com.appsmith.server.dtos.OrganizationApplicationsDTO;
+import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -117,7 +117,7 @@ public class ApplicationServiceTest {
     UserService userService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     DatasourceService datasourceService;
@@ -205,7 +205,7 @@ public class ApplicationServiceTest {
                     })
                     // Assign the branchName to all the resources connected to the application
                     .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId(), gitData.getBranchName()))
-                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
+                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
                     .block();
 
             testPlugin = pluginService.findByName("Installed Plugin Name").block();
@@ -566,19 +566,19 @@ public class ApplicationServiceTest {
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
-                    List<OrganizationApplicationsDTO> organizationApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
-                    assertThat(organizationApplicationsDTOs.size()).isPositive();
+                    List<WorkspaceApplicationsDTO> workspaceApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
+                    assertThat(workspaceApplicationsDTOs.size()).isPositive();
 
-                    for (OrganizationApplicationsDTO organizationApplicationDTO : organizationApplicationsDTOs) {
-                        if (organizationApplicationDTO.getOrganization().getName().equals("Spring Test Organization")) {
-                            assertThat(organizationApplicationDTO.getOrganization().getUserPermissions()).contains("read:organizations");
+                    for (WorkspaceApplicationsDTO workspaceApplicationDTO : workspaceApplicationsDTOs) {
+                        if (workspaceApplicationDTO.getOrganization().getName().equals("Spring Test Workspace")) {
+                            assertThat(workspaceApplicationDTO.getOrganization().getUserPermissions()).contains("read:organizations");
 
-                            Application application = organizationApplicationDTO.getApplications().get(0);
+                            Application application = workspaceApplicationDTO.getApplications().get(0);
                             assertThat(application.getUserPermissions()).contains("read:applications");
                             assertThat(application.isAppIsExample()).isFalse();
 
-                            assertThat(organizationApplicationDTO.getUserRoles().get(0).getRole().getName()).isEqualTo("Administrator");
-                            log.debug(organizationApplicationDTO.getUserRoles().toString());
+                            assertThat(workspaceApplicationDTO.getUserRoles().get(0).getRole().getName()).isEqualTo("Administrator");
+                            log.debug(workspaceApplicationDTO.getUserRoles().toString());
                         }
                     }
 
@@ -619,12 +619,12 @@ public class ApplicationServiceTest {
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
-                    List<OrganizationApplicationsDTO> organizationApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
-                    assertThat(organizationApplicationsDTOs.size()).isPositive();
+                    List<WorkspaceApplicationsDTO> workspaceApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
+                    assertThat(workspaceApplicationsDTOs.size()).isPositive();
 
-                    for (OrganizationApplicationsDTO organizationApplicationDTO : organizationApplicationsDTOs) {
-                        if (organizationApplicationDTO.getOrganization().getId().equals(orgId)) {
-                            List<Application> applications = organizationApplicationDTO
+                    for (WorkspaceApplicationsDTO workspaceApplicationDTO : workspaceApplicationsDTOs) {
+                        if (workspaceApplicationDTO.getOrganization().getId().equals(orgId)) {
+                            List<Application> applications = workspaceApplicationDTO
                                     .getApplications()
                                     .stream()
                                     .filter(application -> application.getGitApplicationMetadata() != null)
@@ -644,12 +644,12 @@ public class ApplicationServiceTest {
     public void getAllApplicationsForHomeWhenNoApplicationPresent() {
         Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
 
-        // Create an organization for this user first.
-        Organization organization = new Organization();
-        organization.setName("usertest's organization");
-        Mono<Organization> organizationMono = organizationService.create(organization);
+        // Create an workspace for this user first.
+        Workspace workspace = new Workspace();
+        workspace.setName("usertest's organization");
+        Mono<Workspace> workspaceMono = workspaceService.create(workspace);
 
-        Mono<UserHomepageDTO> allApplications = organizationMono
+        Mono<UserHomepageDTO> allApplications = workspaceMono
                 .then(applicationFetcher.getAllApplications());
 
         StepVerifier
@@ -659,10 +659,10 @@ public class ApplicationServiceTest {
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
-                    List<OrganizationApplicationsDTO> organizationApplications = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getOrganizationApplications();
 
-                    // There should be atleast one organization present in the output.
-                    OrganizationApplicationsDTO orgAppDto = organizationApplications.get(0);
+                    // There should be atleast one workspace present in the output.
+                    WorkspaceApplicationsDTO orgAppDto = workspaceApplications.get(0);
                     assertThat(orgAppDto.getOrganization().getUserPermissions().contains("read:organizations"));
                 })
                 .verifyComplete();
@@ -2830,8 +2830,8 @@ public class ApplicationServiceTest {
         Mono<Tuple2<Theme, Tuple2<Application, Application>>> tuple2Application = createTheme
                 .then(applicationPageService.createApplication(testApplication, orgId))
                 .flatMap(application ->
-                        themeService.updateTheme(application.getId(), theme).then(
-                                themeService.persistCurrentTheme(application.getId(), new Theme())
+                        themeService.updateTheme(application.getId(), null, theme).then(
+                                themeService.persistCurrentTheme(application.getId(), null, new Theme())
                                         .flatMap(theme1 -> Mono.zip(
                                                 applicationPageService.cloneApplication(application.getId(), null),
                                                 Mono.just(application))
@@ -2870,7 +2870,7 @@ public class ApplicationServiceTest {
         testApplication.setGitApplicationMetadata(gitData);
         Application application = applicationPageService.createApplication(testApplication)
                 .flatMap(application1 -> importExportApplicationService.exportApplicationById(gitConnectedApp.getId(), gitData.getBranchName())
-                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, application1.getId(), gitData.getBranchName())))
+                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson, application1.getId(), gitData.getBranchName())))
                 .block();
 
 

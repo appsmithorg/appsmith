@@ -196,10 +196,10 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
     
-    @PostMapping("/import/{organizationId}")
-    public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromGit(@PathVariable String organizationId,
+    @PostMapping("/import/{workspaceId}")
+    public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromGit(@PathVariable String workspaceId,
                                                                             @RequestBody GitConnectDTO gitConnectDTO) {
-        return service.importApplicationFromGit(organizationId, gitConnectDTO)
+        return service.importApplicationFromGit(workspaceId, gitConnectDTO)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 

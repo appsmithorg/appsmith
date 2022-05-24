@@ -33,15 +33,24 @@ import {
 import { getNextEntityName } from "utils/AppsmithUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import { areIntersecting } from "utils/WidgetPropsUtils";
-import { GridProps, ReflowedSpaceMap, SpaceMap } from "reflow/reflowTypes";
+import {
+  GridProps,
+  PrevReflowState,
+  ReflowDirection,
+  ReflowedSpaceMap,
+  SpaceMap,
+} from "reflow/reflowTypes";
 import {
   getBaseWidgetClassName,
   getSlidingCanvasName,
   getStickyCanvasName,
   POSITIONED_WIDGET,
 } from "constants/componentClassNameConstants";
+import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
+import { reflow } from "reflow";
+import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -384,26 +393,71 @@ export const getSelectedWidgetIfPastingIntoListWidget = function(
 };
 
 /**
- * checks if the selectedWidget is a list widget and copiedWidgetsGroups contains list widget
+ * get selected widgets that are verified to make sure that we are not pasting list widget onto another list widget
+ * also return a boolean to indicate if the list widget is pasting into a list widget
  *
+ * @param selectedWidgetIDs
+ * @param copiedWidgetGroups
  * @param canvasWidgets
- * @param selectedWidget
- * @param copiedWidgetsGroups
  * @returns
  */
-export const checkIfPastingListWidgetOntoItself = function(
+export function getVerifiedSelectedWidgets(
+  selectedWidgetIDs: string[],
+  copiedWidgetGroups: CopiedWidgetGroup[],
   canvasWidgets: CanvasWidgetsReduxState,
-  selectedWidget: FlattenedWidgetProps | undefined,
-  copiedWidgetsGroups: CopiedWidgetGroup[],
 ) {
-  return (
-    getSelectedWidgetIfPastingIntoListWidget(
-      canvasWidgets,
-      selectedWidget,
-      copiedWidgetsGroups,
-    )?.type === "LIST_WIDGET"
-  );
-};
+  const selectedWidgets = getWidgetsFromIds(selectedWidgetIDs, canvasWidgets);
+
+  //if there is no list widget in the copied widgets then return selected Widgets
+  if (
+    !checkForListWidgetInCopiedWidgets(copiedWidgetGroups) ||
+    selectedWidgets.length === 0
+  )
+    return { selectedWidgets };
+
+  //if the selected widget is a list widgets the return isListWidgetPastingOnItself as true
+  if (selectedWidgets.length === 1 && selectedWidgets[0].type === "LIST_WIDGET")
+    return { selectedWidgets, isListWidgetPastingOnItself: true };
+
+  //get list widget ancestor of selected widget if it has a list widget ancestor
+  const parentListWidgetId = document
+    .querySelector(
+      `.${POSITIONED_WIDGET}.${getBaseWidgetClassName(
+        selectedWidgets[0].widgetId,
+      )}`,
+    )
+    ?.closest(".t--widget-listwidget")?.id;
+
+  //if the selected widgets do have a list widget ancestor then,
+  // return that list widget as selected widgets and isListWidgetPastingOnItself as true
+  if (parentListWidgetId && canvasWidgets[parentListWidgetId])
+    return {
+      selectedWidgets: [canvasWidgets[parentListWidgetId]],
+      isListWidgetPastingOnItself: true,
+    };
+
+  return { selectedWidgets };
+}
+
+/**
+ * returns true if list widget is among the copied widgets
+ *
+ * @param copiedWidgetGroups
+ * @returns boolean
+ */
+export function checkForListWidgetInCopiedWidgets(
+  copiedWidgetGroups: CopiedWidgetGroup[],
+) {
+  for (let i = 0; i < copiedWidgetGroups.length; i++) {
+    const copiedWidget = copiedWidgetGroups[i].list[0];
+
+    if (copiedWidget?.type === "LIST_WIDGET") {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 /**
  * get top, left, right, bottom most widgets and totalWidth from copied groups when pasting
@@ -947,6 +1001,7 @@ export function isDropTarget(type: WidgetType, includeCanvasWidget = false) {
 export const groupWidgetsIntoContainer = function*(
   copiedWidgetGroups: CopiedWidgetGroup[],
   pastingIntoWidgetId: string,
+  isThereACollision: boolean,
 ) {
   const containerWidgetId = generateReactKey();
   const evalTree: DataTree = yield select(getDataTree);
@@ -961,6 +1016,7 @@ export const groupWidgetsIntoContainer = function*(
     "CANVAS_WIDGET",
     evalTree,
   );
+  let reflowedMovementMap, bottomMostRow, gridProps;
   const {
     bottomMostWidget,
     leftMostWidget,
@@ -973,8 +1029,12 @@ export const groupWidgetsIntoContainer = function*(
       (w) => w.widgetId === copiedWidgetGroup.widgetId,
     ),
   );
+
+  //calculating parentColumnSpace because the values stored inside widget DSL are not entirely reliable
   const parentColumnSpace =
-    copiedWidgetGroups[0].list[0].parentColumnSpace || 1;
+    getParentColumnSpace(canvasWidgets, pastingIntoWidgetId) ||
+    copiedWidgetGroups[0].list[0].parentColumnSpace ||
+    1;
 
   const boundary = {
     top: _.minBy(copiedWidgets, (copiedWidget) => copiedWidget?.topRow),
@@ -1079,13 +1139,73 @@ export const groupWidgetsIntoContainer = function*(
 
   const flatList = _.flattenDeep(list);
 
-  return [
-    {
-      list: [newContainerWidget, newCanvasWidget, ...flatList],
-      widgetId: newContainerWidget.widgetId,
-      parentId: pastingIntoWidgetId,
-    },
-  ];
+  // if there are no collision already then reflow the below widgets by 2 rows.
+  if (!isThereACollision) {
+    const widgetSpacesSelector = getWidgetSpacesSelectorForContainer(
+      pastingIntoWidgetId,
+    );
+    const widgetSpaces: WidgetSpace[] = yield select(widgetSpacesSelector) ||
+      [];
+
+    const copiedWidgetIds = copiedWidgets
+      .map((widget) => widget?.widgetId)
+      .filter((id) => !!id);
+
+    // filter out copiedWidgets from occupied spaces
+    const widgetOccupiedSpaces = widgetSpaces.filter(
+      (widgetSpace) => copiedWidgetIds.indexOf(widgetSpace.id) === -1,
+    );
+
+    // create the object of the new container in the form of OccupiedSpace
+    const containerSpace = {
+      id: "1",
+      left: newContainerWidget.leftColumn,
+      top: newContainerWidget.topRow,
+      right: newContainerWidget.rightColumn,
+      bottom: newContainerWidget.bottomRow,
+    };
+
+    gridProps = {
+      parentColumnSpace,
+      parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      maxGridColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
+    };
+
+    //get movement map of reflowed widgets
+    const { movementMap } = reflow(
+      [containerSpace],
+      [containerSpace],
+      widgetOccupiedSpaces,
+      ReflowDirection.BOTTOM,
+      gridProps,
+      true,
+      false,
+      { prevSpacesMap: {} } as PrevReflowState,
+    );
+
+    reflowedMovementMap = movementMap;
+
+    //get the new calculated bottom row
+    bottomMostRow = getBottomRowAfterReflow(
+      reflowedMovementMap,
+      containerSpace.bottom,
+      widgetOccupiedSpaces,
+      gridProps,
+    );
+  }
+
+  return {
+    reflowedMovementMap,
+    bottomMostRow,
+    gridProps,
+    copiedWidgetGroups: [
+      {
+        list: [newContainerWidget, newCanvasWidget, ...flatList],
+        widgetId: newContainerWidget.widgetId,
+        parentId: pastingIntoWidgetId,
+      },
+    ],
+  };
 };
 
 /**
@@ -1180,27 +1300,20 @@ export const isSelectedWidgetsColliding = function*(
       widget.parentId === pastingIntoWidgetId && widget.type !== "MODAL_WIDGET",
   );
 
-  let isColliding = false;
-
   for (let i = 0; i < widgetsArray.length; i++) {
     const widget = widgetsArray[i];
-
     if (
-      widget.bottomRow + 2 < topMostWidget.topRow ||
-      widget.topRow > bottomMostWidget.bottomRow
-    ) {
-      isColliding = false;
-    } else if (
-      widget.rightColumn < leftMostWidget.leftColumn ||
-      widget.leftColumn > rightMostWidget.rightColumn
-    ) {
-      isColliding = false;
-    } else {
+      !(
+        widget.leftColumn >= rightMostWidget.rightColumn ||
+        widget.rightColumn <= leftMostWidget.leftColumn ||
+        widget.topRow >= bottomMostWidget.bottomRow ||
+        widget.bottomRow <= topMostWidget.topRow
+      )
+    )
       return true;
-    }
   }
 
-  return isColliding;
+  return false;
 };
 
 /**
@@ -1306,8 +1419,8 @@ export const getParentBottomRowAfterAddingWidget = (
 export function* getParentWidgetIdForGrouping(
   widgets: CanvasWidgetsReduxState,
   copiedWidgetGroups: CopiedWidgetGroup[],
-  pastingIntoWidgetId: string,
 ) {
+  const pastingIntoWidgetId = copiedWidgetGroups[0]?.parentId;
   const widgetIds = copiedWidgetGroups.map(
     (widgetGroup) => widgetGroup.widgetId,
   );
@@ -1398,6 +1511,33 @@ export function purgeOrphanedDynamicPaths(widget: WidgetProps) {
     );
   }
   return widget;
+}
+
+/**
+ *
+ * @param canvasWidgets
+ * @param pastingIntoWidgetId
+ * @returns
+ */
+export function getParentColumnSpace(
+  canvasWidgets: CanvasWidgetsReduxState,
+  pastingIntoWidgetId: string,
+) {
+  const containerId = getContainerIdForCanvas(pastingIntoWidgetId);
+
+  const containerWidget = canvasWidgets[containerId];
+  const canvasDOM = document.querySelector(
+    `#${getSlidingCanvasName(pastingIntoWidgetId)}`,
+  );
+
+  if (!canvasDOM || !containerWidget) return;
+
+  const rect = canvasDOM.getBoundingClientRect();
+
+  // get Grid values such as snapRowSpace and snapColumnSpace
+  const { snapGrid } = getSnappedGrid(containerWidget, rect.width);
+
+  return snapGrid?.snapColumnSpace;
 }
 
 /*
