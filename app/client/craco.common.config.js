@@ -2,12 +2,9 @@ const CracoAlias = require("craco-alias");
 
 module.exports = {
   devServer: {
-    proxy: {
-      "/api": {
-        target: "https://release.app.appsmith.com",
-        changeOrigin: true,
-        secure: true,
-        ws: true,
+    client: {
+      webSocketURL: {
+        protocol: "wss",
       },
     },
   },
