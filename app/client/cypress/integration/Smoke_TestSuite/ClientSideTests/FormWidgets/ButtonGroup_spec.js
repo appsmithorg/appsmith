@@ -54,7 +54,7 @@ describe("Button Group Widget Functionality", function() {
       });
     cy.wait(1000);
     // check the title
-    cy.get(".t--propery-page-title").contains("Favorite");
+    cy.get(".t--property-pane-title").contains("Favorite");
     // navigate back
     cy.get(".t--property-pane-back-btn").click();
   });
