@@ -1122,7 +1122,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if (gitData.getDefaultApplicationId().equals(srcApplication.getId())) {
                         return Mono.just(srcApplication.getGitApplicationMetadata().getGitAuth());
                     }
-                    return applicationService.getSshKey(gitData.getDefaultApplicationId());
+                    return applicationService.getSshKey(gitData.getDefaultApplicationId())
+                            .map(gitAuthDTO -> {
+                                GitAuth gitAuth = new GitAuth();
+                                gitAuth.setPrivateKey(gitAuth.getPrivateKey());
+                                gitAuth.setPublicKey(gitAuthDTO.getPublicKey());
+                                gitAuth.setDocUrl(gitAuthDTO.getDocUrl());
+                                return gitAuth;
+                            });
                 })
                 .flatMap(tuple -> {
                     Application srcApplication = tuple.getT1();
@@ -2000,7 +2007,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<GitAuth> generateSSHKey() {
-        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
+        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(null);
 
         GitDeployKeys gitDeployKeys = new GitDeployKeys();
         gitDeployKeys.setGitAuth(gitAuth);
