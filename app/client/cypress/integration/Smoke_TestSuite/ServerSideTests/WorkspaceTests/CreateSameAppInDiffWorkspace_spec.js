@@ -32,13 +32,13 @@ describe("Create app same name in different workspace", function() {
       "response.body.responseMeta.status",
       200,
     );
-    const newWorkspaceName = workspaceId + "1";
+    const newWSName = workspaceId + "1";
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       console.log("createWorkspace response: ", interception);
       newWorkspaceName = interception.response.body.data.name;
-      cy.renameWorkspace(newWorkspaceName, newWorkspaceName);
-      cy.CreateAppForWorkspace(newWorkspaceName, appid);
+      cy.renameWorkspace(newWorkspaceName, newWSName);
+      cy.CreateAppForWorkspace(newWSName, appid);
     });
   });
 });
