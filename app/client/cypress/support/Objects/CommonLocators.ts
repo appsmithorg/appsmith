@@ -68,4 +68,5 @@ export class CommonLocators {
     _jsonFormInputField = (fieldName: string) =>  `.t--jsonformfield-${fieldName} input`
     _jsonFormHeader = ".t--jsonform-body > div:first-child"
     _jsonFormWidget = ".t--widget-jsonformwidget"
+    _lintErrorElement = `span.CodeMirror-lint-mark-error`
 }
