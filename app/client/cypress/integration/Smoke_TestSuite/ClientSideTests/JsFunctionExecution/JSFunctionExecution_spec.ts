@@ -3,7 +3,9 @@ import largeJSONData from "../../../../fixtures/largeJSONData.json";
 
 const jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
-  ee = ObjectsRegistry.EntityExplorer;
+  ee = ObjectsRegistry.EntityExplorer,
+  table = ObjectsRegistry.Table,
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("JS Function Execution", function() {
   before(() => {
@@ -157,6 +159,13 @@ describe("JS Function Execution", function() {
     cy.get("@jsObjName").then((jsObjName) => {
       ee.SelectEntityByName("Table1", "WIDGETS");
       jsEditor.EnterJSContext("Table Data", `{{${jsObjName}.largeData}}`);
+    });
+
+    // Deploy App and test that table loads properly
+    agHelper.DeployApp();
+    table.WaitUntilTableLoad();
+    table.ReadTableRowColumnData(0, 1, 2000).then(($cellData) => {
+      expect($cellData).to.eq("1"); //validating id column value - row 0
     });
   });
 });
