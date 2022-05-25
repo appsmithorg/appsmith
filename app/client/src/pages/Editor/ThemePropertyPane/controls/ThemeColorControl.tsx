@@ -40,9 +40,7 @@ function ThemeColorControl(props: ThemeColorControlProps) {
                     "ring-1": selectedColor === colorName,
                   })}
                   onClick={() => {
-                    setSelectedColor(
-                      colorName !== selectedColor ? colorName : null,
-                    );
+                    setSelectedColor(colorName);
 
                     setAutoFocus(true);
                   }}
