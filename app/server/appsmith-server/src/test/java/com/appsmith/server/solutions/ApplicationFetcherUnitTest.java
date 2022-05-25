@@ -5,17 +5,17 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.dtos.OrganizationApplicationsDTO;
+import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
@@ -46,7 +46,7 @@ import static org.mockito.ArgumentMatchers.eq;
 @RunWith(SpringRunner.class)
 public class ApplicationFetcherUnitTest {
     @MockBean
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @MockBean
     SessionUserService sessionUserService;
@@ -83,7 +83,7 @@ public class ApplicationFetcherUnitTest {
         applicationFetcher = new ApplicationFetcherImpl(sessionUserService,
                 userService,
                 userDataService,
-                organizationService,
+                workspaceService,
                 applicationRepository,
                 releaseNotesService,
                 responseUtils,
@@ -153,15 +153,15 @@ public class ApplicationFetcherUnitTest {
         return application;
     }
 
-    private List<Organization> createDummyOrganizations() {
-        List<Organization> organizationList = new ArrayList<>(4);
+    private List<Workspace> createDummyWorkspaces() {
+        List<Workspace> workspaceList = new ArrayList<>(4);
         for(int i = 1; i <= 4; i++) {
-            Organization organization = new Organization();
-            organization.setId("org-" + i);
-            organization.setName(organization.getId());
-            organizationList.add(organization);
+            Workspace workspace = new Workspace();
+            workspace.setId("org-" + i);
+            workspace.setName(workspace.getId());
+            workspaceList.add(workspace);
         }
-        return organizationList;
+        return workspaceList;
     }
 
     private void initMocks() {
@@ -172,8 +172,8 @@ public class ApplicationFetcherUnitTest {
 
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(testUser));
         Mockito.when(userService.findByEmail(testUser.getEmail())).thenReturn(Mono.just(testUser));
-        Mockito.when(organizationService.findByIdsIn(testUser.getOrganizationIds(), READ_ORGANIZATIONS))
-                .thenReturn(Flux.fromIterable(createDummyOrganizations()));
+        Mockito.when(workspaceService.findByIdsIn(testUser.getOrganizationIds(), READ_ORGANIZATIONS))
+                .thenReturn(Flux.fromIterable(createDummyWorkspaces()));
         Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
         Mockito.when(releaseNotesService.computeNewFrom(any())).thenReturn("0");
         Mockito.when(userDataService.ensureViewedCurrentVersionReleaseNotes(testUser)).thenReturn(Mono.just(testUser));
@@ -208,9 +208,9 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
-                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
                     assertThat(dtos.size()).isEqualTo(4);
-                    for (OrganizationApplicationsDTO dto : dtos) {
+                    for (WorkspaceApplicationsDTO dto : dtos) {
                         assertThat(dto.getApplications().size()).isEqualTo(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
@@ -254,9 +254,9 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
-                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
                     assertThat(dtos.size()).isEqualTo(4);
-                    for (OrganizationApplicationsDTO dto : dtos) {
+                    for (WorkspaceApplicationsDTO dto : dtos) {
                         assertThat(dto.getApplications().size()).isEqualTo(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
@@ -275,7 +275,7 @@ public class ApplicationFetcherUnitTest {
                 .thenReturn(Mono.just(new Application()));
         Mono<UserHomepageDTO> userHomepageDTOMono = applicationFetcher.getAllApplications()
                 .flatMap(userHomepageDTO -> {
-                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
                     List<Application> applicationList = dtos.get(0).getApplications();
                     return Mono.just(applicationList.get(0));
                 })
@@ -285,9 +285,9 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(userHomepageDTOMono)
                 .assertNext(userHomepageDTO -> {
-                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
                     assertThat(dtos.size()).isEqualTo(4);
-                    for (OrganizationApplicationsDTO dto : dtos) {
+                    for (WorkspaceApplicationsDTO dto : dtos) {
                         assertThat(dto.getApplications().size()).isEqualTo(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
@@ -304,7 +304,7 @@ public class ApplicationFetcherUnitTest {
         // For connect and create branch flow scenarios where - defaultBranchName is somehow not saved in DB
         userHomepageDTOMono = applicationFetcher.getAllApplications()
                 .flatMap(userHomepageDTO -> {
-                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
                     List<Application> applicationList = dtos.get(0).getApplications();
                     return Mono.just(applicationList.get(0));
                 })
@@ -341,9 +341,9 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(userHomepageDTOMono)
                 .assertNext(userHomepageDTO -> {
-                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
                     assertThat(dtos.size()).isEqualTo(4);
-                    for (OrganizationApplicationsDTO dto : dtos) {
+                    for (WorkspaceApplicationsDTO dto : dtos) {
                         assertThat(dto.getApplications().size()).isEqualTo(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
@@ -387,27 +387,27 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
-                    List<OrganizationApplicationsDTO> organizationApplications = userHomepageDTO.getOrganizationApplications();
-                    assertThat(organizationApplications).isNotNull();
-                    assertThat(organizationApplications.size()).isEqualTo(4);
+                    List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getOrganizationApplications();
+                    assertThat(workspaceApplications).isNotNull();
+                    assertThat(workspaceApplications.size()).isEqualTo(4);
 
                     // apps under first org should be sorted as org-2-app-2, org-2-app-1, org-2-app-3, org-2-app-4
-                    checkAppsAreSorted(organizationApplications.get(0).getApplications(),
+                    checkAppsAreSorted(workspaceApplications.get(0).getApplications(),
                             List.of("org-2-app-2", "org-2-app-1", "org-2-app-3", "org-2-app-4")
                     );
 
                     // apps should be sorted as org-4-app-3, org-4-app-1, org-4-app-2, org-4-app-4
-                    checkAppsAreSorted(organizationApplications.get(1).getApplications(),
+                    checkAppsAreSorted(workspaceApplications.get(1).getApplications(),
                             List.of("org-4-app-3", "org-4-app-1", "org-4-app-2", "org-4-app-4")
                     );
 
                     // rest two orgs should have apps sorted in default order e.g. 1,2,3,4
-                    String org3AppPrefix = organizationApplications.get(2).getOrganization().getId() + "-app-";
-                    checkAppsAreSorted(organizationApplications.get(2).getApplications(),
+                    String org3AppPrefix = workspaceApplications.get(2).getOrganization().getId() + "-app-";
+                    checkAppsAreSorted(workspaceApplications.get(2).getApplications(),
                             List.of(org3AppPrefix+"1", org3AppPrefix+"2", org3AppPrefix+"3", org3AppPrefix+"4")
                     );
-                    String org4AppPrefix = organizationApplications.get(3).getOrganization().getId() + "-app-";
-                    checkAppsAreSorted(organizationApplications.get(3).getApplications(),
+                    String org4AppPrefix = workspaceApplications.get(3).getOrganization().getId() + "-app-";
+                    checkAppsAreSorted(workspaceApplications.get(3).getApplications(),
                             List.of(org4AppPrefix+"1", org4AppPrefix+"2", org4AppPrefix+"3", org4AppPrefix+"4")
                     );
                 }).verifyComplete();
@@ -440,17 +440,17 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
-                    List<OrganizationApplicationsDTO> organizationApplications = userHomepageDTO.getOrganizationApplications();
-                    assertThat(organizationApplications).isNotNull();
-                    assertThat(organizationApplications.size()).isEqualTo(4);
+                    List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getOrganizationApplications();
+                    assertThat(workspaceApplications).isNotNull();
+                    assertThat(workspaceApplications.size()).isEqualTo(4);
 
                     // apps under first org should be sorted as 1,2,3
-                    checkAppsAreSorted(organizationApplications.get(0).getApplications(),
+                    checkAppsAreSorted(workspaceApplications.get(0).getApplications(),
                             List.of("org-3-app-1", "org-3-app-2", "org-3-app-3")
                     );
 
                     // apps under second org should be sorted as 1,2,3
-                    checkAppsAreSorted(organizationApplications.get(1).getApplications(),
+                    checkAppsAreSorted(workspaceApplications.get(1).getApplications(),
                             List.of("org-1-app-1", "org-1-app-2", "org-1-app-3")
                     );
                 }).verifyComplete();
