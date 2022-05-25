@@ -1125,7 +1125,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return applicationService.getSshKey(gitData.getDefaultApplicationId())
                             .map(gitAuthDTO -> {
                                 GitAuth gitAuth = new GitAuth();
-                                gitAuth.setPrivateKey(gitAuth.getPrivateKey());
+                                gitAuth.setPrivateKey(gitAuthDTO.getPrivateKey());
                                 gitAuth.setPublicKey(gitAuthDTO.getPublicKey());
                                 gitAuth.setDocUrl(gitAuthDTO.getDocUrl());
                                 return gitAuth;
