@@ -181,10 +181,18 @@ export default class DataTreeEvaluator {
     return { evalTree: this.evalTree, jsUpdates: jsUpdates, evalMetaUpdates };
   }
 
-  isJSObjectFunction(dataTree: DataTree, jsObjectName: string, key: string) {
+  isJSObjectResolvedFunction(
+    dataTree: DataTree,
+    jsObjectName: string,
+    key: string,
+  ) {
     const entity = dataTree[jsObjectName];
     if (isJSAction(entity)) {
-      return this.resolvedFunctions[jsObjectName].hasOwnProperty(key);
+      const jsObjectResolvedFunctions = this.resolvedFunctions[jsObjectName];
+      return (
+        jsObjectResolvedFunctions &&
+        jsObjectResolvedFunctions.hasOwnProperty(key)
+      );
     }
     return false;
   }
@@ -196,7 +204,7 @@ export default class DataTreeEvaluator {
       if (!!dataTree[update]) {
         Object.keys(updates).forEach((key) => {
           const data = _.get(dataTree, `${update}.${key}.data`, undefined);
-          if (this.isJSObjectFunction(dataTree, update, key)) {
+          if (this.isJSObjectResolvedFunction(dataTree, update, key)) {
             _.set(dataTree, `${update}.${key}`, new String(updates[key]));
             _.set(dataTree, `${update}.${key}.data`, data);
           } else {
