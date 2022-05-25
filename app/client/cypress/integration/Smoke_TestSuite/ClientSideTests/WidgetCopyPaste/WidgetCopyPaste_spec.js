@@ -105,4 +105,51 @@ describe("Widget Copy paste", function() {
       .find(widgetsPage.chartWidget)
       .should("have.length", 2);
   });
+
+  it("should not be able to paste list widget inside another list widget", function() {
+    //clean up
+    cy.get(`#div-selection-0`).click({
+      force: true,
+    });
+    cy.get("body").type(`{${modifierKey}}{a}`);
+    cy.get("body").type("{del}");
+
+    //add list widget
+    cy.dragAndDropToCanvas("listwidget", { x: 300, y: 700 });
+    cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
+
+    //copy
+    cy.get("body").type(`{${modifierKey}}{c}`);
+
+    //paste
+    cy.get("body").type(`{${modifierKey}}{v}`);
+    cy.get(widgetsPage.listWidget).should("have.length", 2);
+    cy.get(widgetsPage.listWidget)
+      .eq(0)
+      .find(widgetsPage.listWidget)
+      .should("have.length", 0);
+  });
+
+  it("should not be able to paste list widget inside another list widget, when widget inside the list widget are selected", function() {
+    cy.get(`#div-selection-0`).click({
+      force: true,
+    });
+
+    // Select widget inside the list widget
+    cy.get(widgetsPage.listWidget)
+      .eq(0)
+      .find(".positioned-widget")
+      .eq(0)
+      .click({
+        ctrlKey: true,
+      });
+
+    //paste
+    cy.get("body").type(`{${modifierKey}}{v}`);
+    cy.get(widgetsPage.listWidget).should("have.length", 3);
+    cy.get(widgetsPage.listWidget)
+      .eq(0)
+      .find(widgetsPage.listWidget)
+      .should("have.length", 0);
+  });
 });
