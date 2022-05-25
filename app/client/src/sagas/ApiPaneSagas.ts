@@ -65,6 +65,7 @@ import {
   datasourcesEditorIdURL,
   integrationEditorURL,
 } from "RouteBuilder";
+import _ from "lodash";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -258,6 +259,11 @@ function* updateExtraFormDataSaga() {
       ].includes(contentTypeValue)
     ) {
       rawApiContentType = contentTypeValue;
+    } else if (
+      contentTypeValue === "" ||
+      contentTypeValue === POST_BODY_FORMAT_OPTIONS.NONE
+    ) {
+      rawApiContentType = POST_BODY_FORMAT_OPTIONS.NONE;
     } else {
       rawApiContentType = POST_BODY_FORMAT_OPTIONS.RAW;
     }
@@ -270,6 +276,11 @@ function* updateExtraFormDataSaga() {
       ].includes(contentTypeValue)
     ) {
       rawApiContentType = contentTypeValue;
+    } else if (
+      contentTypeValue === "" ||
+      contentTypeValue === POST_BODY_FORMAT_OPTIONS.NONE
+    ) {
+      rawApiContentType = POST_BODY_FORMAT_OPTIONS.NONE;
     } else {
       rawApiContentType = POST_BODY_FORMAT_OPTIONS.RAW;
     }
@@ -383,6 +394,11 @@ export function* updateFormFields(
         header?.key?.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
     );
 
+    const indexToUpdate = getIndextoUpdate(
+      actionConfigurationHeaders,
+      contentTypeHeaderIndex,
+    );
+
     if (value !== HTTP_METHOD.GET) {
       // if user switches to other methods that is not GET and apiContentType is undefined set default apiContentType to JSON.
       if (apiContentType === POST_BODY_FORMAT_OPTIONS.NONE) {
@@ -391,10 +407,6 @@ export function* updateFormFields(
         extraFormDataToBeChanged = true;
       }
 
-      const indexToUpdate = getIndextoUpdate(
-        actionConfigurationHeaders,
-        contentTypeHeaderIndex,
-      );
       actionConfigurationHeaders[indexToUpdate] = {
         key: CONTENT_TYPE_HEADER_KEY,
         value: apiContentType,
@@ -405,6 +417,16 @@ export function* updateFormFields(
         actionConfigurationHeaders[contentTypeHeaderIndex] = {
           key: CONTENT_TYPE_HEADER_KEY,
           value: apiContentType,
+        };
+      } else {
+        if (_.isEmpty(values.body)) {
+          apiContentType = HTTP_METHODS_DEFAULT_FORMAT_TYPES.GET;
+          extraFormDataToBeChanged = true;
+        }
+
+        actionConfigurationHeaders[indexToUpdate] = {
+          key: CONTENT_TYPE_HEADER_KEY,
+          value: HTTP_METHODS_DEFAULT_FORMAT_TYPES.GET,
         };
       }
     }
