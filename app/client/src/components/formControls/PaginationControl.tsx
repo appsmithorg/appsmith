@@ -28,6 +28,9 @@ const valueFieldConfig: any = {
   key: "value",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
   placeholderText: "value",
+  customStyles: {
+    width: "20vw",
+  },
 };
 
 const limitFieldConfig: any = {
@@ -64,6 +67,11 @@ export function Pagination(props: {
     configProperty,
   );
 
+  const defaultStyles = {
+    width: "20vw",
+    ...customStyles,
+  };
+
   return (
     <div
       data-cy={name}
@@ -77,7 +85,7 @@ export function Pagination(props: {
           config={{
             ...limitFieldConfig,
             label: "Limit",
-            customStyles,
+            defaultStyles,
             configProperty: limitPath,
             initialValue:
               typeof initialValue === "object" ? initialValue.limit : null,
@@ -93,7 +101,7 @@ export function Pagination(props: {
           config={{
             ...offsetFieldConfig,
             label: "Offset",
-            customStyles,
+            defaultStyles,
             configProperty: offsetPath,
             initialValue:
               typeof initialValue === "object" ? initialValue.offset : null,
