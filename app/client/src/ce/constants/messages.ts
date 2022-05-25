@@ -423,6 +423,8 @@ export const RESET_WIDGET = () => `Reset widget`;
 export const EXECUTE_JS_FUNCTION = () => `Execute a JS function`;
 export const SET_INTERVAL = () => `Set interval`;
 export const CLEAR_INTERVAL = () => `Clear interval`;
+export const SET_TIMEOUT = () => `Set timeout`;
+export const CLEAR_TIMEOUT = () => `Clear timeout`;
 export const GET_GEO_LOCATION = () => `Get Geolocation`;
 export const WATCH_GEO_LOCATION = () => `Watch Geolocation`;
 export const STOP_WATCH_GEO_LOCATION = () => `Stop watching Geolocation`;

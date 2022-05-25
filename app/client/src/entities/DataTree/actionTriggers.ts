@@ -14,6 +14,8 @@ export enum ActionTriggerType {
   RESET_WIDGET_META_RECURSIVE_BY_NAME = "RESET_WIDGET_META_RECURSIVE_BY_NAME",
   SET_INTERVAL = "SET_INTERVAL",
   CLEAR_INTERVAL = "CLEAR_INTERVAL",
+  SET_TIMEOUT = "SET_TIMEOUT",
+  CLEAR_TIMEOUT = "CLEAR_TIMEOUT",
   GET_CURRENT_LOCATION = "GET_CURRENT_LOCATION",
   WATCH_CURRENT_LOCATION = "WATCH_CURRENT_LOCATION",
   STOP_WATCHING_CURRENT_LOCATION = "STOP_WATCHING_CURRENT_LOCATION",
@@ -22,6 +24,7 @@ export enum ActionTriggerType {
 
 export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
   [ActionTriggerType.CLEAR_INTERVAL]: "clearInterval",
+  [ActionTriggerType.CLEAR_TIMEOUT]: "clearTImeout",
   [ActionTriggerType.CLEAR_PLUGIN_ACTION]: "action.clear",
   [ActionTriggerType.CLOSE_MODAL]: "closeModal",
   [ActionTriggerType.COPY_TO_CLIPBOARD]: "copyToClipboard",
@@ -30,6 +33,7 @@ export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
   [ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME]: "resetWidget",
   [ActionTriggerType.RUN_PLUGIN_ACTION]: "action.run",
   [ActionTriggerType.SET_INTERVAL]: "setInterval",
+  [ActionTriggerType.SET_TIMEOUT]: "setTimeout",
   [ActionTriggerType.SHOW_ALERT]: "showAlert",
   [ActionTriggerType.SHOW_MODAL_BY_NAME]: "showModal",
   [ActionTriggerType.STORE_VALUE]: "storeValue",
@@ -133,6 +137,22 @@ export type ClearIntervalDescription = {
   };
 };
 
+export type SetTimeoutDescription = {
+  type: ActionTriggerType.SET_TIMEOUT;
+  payload: {
+    callback: string;
+    interval: number;
+    id?: string;
+  };
+};
+
+export type ClearTimeoutDescription = {
+  type: ActionTriggerType.CLEAR_TIMEOUT;
+  payload: {
+    id: string;
+  };
+};
+
 type GeolocationOptions = {
   maximumAge?: number;
   timeout?: number;
@@ -178,6 +198,8 @@ export type ActionDescription =
   | ResetWidgetDescription
   | SetIntervalDescription
   | ClearIntervalDescription
+  | SetTimeoutDescription
+  | ClearTimeoutDescription
   | GetCurrentLocationDescription
   | WatchCurrentLocationDescription
   | StopWatchingCurrentLocationDescription

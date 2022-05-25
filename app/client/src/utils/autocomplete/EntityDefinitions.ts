@@ -670,6 +670,14 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Stop executing a setInterval with id",
     "!type": "fn(id: string) -> void",
   },
+  setTimeout: {
+    "!doc": "Execute triggers after a given interval",
+    "!type": "fn(callback: fn, interval: number, id?: string) -> void",
+  },
+  clearTimeout: {
+    "!doc": "Stop executing a setTimeout with id",
+    "!type": "fn(id: string) -> void",
+  },
 };
 
 export const getPropsForJSActionEntity = ({

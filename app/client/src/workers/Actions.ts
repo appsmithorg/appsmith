@@ -186,6 +186,26 @@ const DATA_TREE_FUNCTIONS: Record<
       executionType: ExecutionType.TRIGGER,
     };
   },
+  setTimeout: function(callback: Function, interval: number, id?: string) {
+    return {
+      type: ActionTriggerType.SET_TIMEOUT,
+      payload: {
+        callback: callback.toString(),
+        interval,
+        id,
+      },
+      executionType: ExecutionType.TRIGGER,
+    };
+  },
+  clearTimeout: function(id: string) {
+    return {
+      type: ActionTriggerType.CLEAR_TIMEOUT,
+      payload: {
+        id,
+      },
+      executionType: ExecutionType.TRIGGER,
+    };
+  },
   getGeoLocation: {
     qualifier: (entity) => isAppsmithEntity(entity),
     path: "appsmith.geolocation.getCurrentPosition",

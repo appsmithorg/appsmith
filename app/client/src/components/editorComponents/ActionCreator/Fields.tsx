@@ -229,6 +229,8 @@ export const ActionType = {
   jsFunction: "jsFunction",
   setInterval: "setInterval",
   clearInterval: "clearInterval",
+  setTimeout: "setTimeout",
+  clearTimeout: "clearTimeout",
   getGeolocation: "appsmith.geolocation.getCurrentPosition",
   watchGeolocation: "appsmith.geolocation.watchPosition",
   stopWatchGeolocation: "appsmith.geolocation.clearWatch",
@@ -355,6 +357,7 @@ export enum FieldType {
   DELAY_FIELD = "DELAY_FIELD",
   ID_FIELD = "ID_FIELD",
   CLEAR_INTERVAL_ID_FIELD = "CLEAR_INTERVAL_ID_FIELD",
+  CLEAR_TIMEOUT_ID_FIELD = "CLEAR_TIMEOUT_ID_FIELD",
 }
 
 type FieldConfig = {
@@ -400,6 +403,9 @@ const fieldConfigs: FieldConfigs = {
           defaultArgs = option.args ? option.args : [];
           break;
         case ActionType.setInterval:
+          defaultParams = "() => { \n\t // add code here \n}, 5000";
+          break;
+        case ActionType.setTimeout:
           defaultParams = "() => { \n\t // add code here \n}, 5000";
           break;
         case ActionType.getGeolocation:
@@ -622,6 +628,15 @@ const fieldConfigs: FieldConfigs = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
+  [FieldType.CLEAR_TIMEOUT_ID_FIELD]: {
+    getter: (value: string) => {
+      return textGetter(value, 0);
+    },
+    setter: (value: string, currentValue: string) => {
+      return textSetter(value, currentValue, 0);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
 };
 
 function renderField(props: {
@@ -792,6 +807,7 @@ function renderField(props: {
     case FieldType.CALLBACK_FUNCTION_FIELD:
     case FieldType.DELAY_FIELD:
     case FieldType.ID_FIELD:
+    case FieldType.CLEAR_TIMEOUT_ID_FIELD:
     case FieldType.CLEAR_INTERVAL_ID_FIELD:
       let fieldLabel = "";
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {

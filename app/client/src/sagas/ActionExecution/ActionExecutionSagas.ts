@@ -41,6 +41,10 @@ import {
   clearIntervalSaga,
   setIntervalSaga,
 } from "sagas/ActionExecution/SetIntervalSaga";
+import {
+  clearTimeoutSaga,
+  setTimeoutSaga,
+} from "sagas/ActionExecution/SetTimeoutSaga";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import {
   getCurrentLocationSaga,
@@ -106,6 +110,12 @@ export function* executeActionTriggers(
       break;
     case ActionTriggerType.SET_INTERVAL:
       yield call(setIntervalSaga, trigger.payload, eventType, triggerMeta);
+      break;
+    case ActionTriggerType.SET_TIMEOUT:
+      yield call(setTimeoutSaga, trigger.payload, eventType, triggerMeta);
+      break;
+    case ActionTriggerType.CLEAR_TIMEOUT:
+      yield call(clearTimeoutSaga, trigger.payload);
       break;
     case ActionTriggerType.CLEAR_INTERVAL:
       yield call(clearIntervalSaga, trigger.payload);
