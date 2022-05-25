@@ -303,5 +303,14 @@ describe("JS Function Execution", function() {
     agHelper.GetNClick(jsEditor._settingsTab);
     // Assert that order remains the same
     assertAsyncFunctionsOrder();
+
+    jsEditor.EnableDisableAsyncFuncSettings("assert", false, true);
+    jsEditor.EnableDisableAsyncFuncSettings("base", true, false);
+    jsEditor.EnableDisableAsyncFuncSettings("zip", false, true);
+    jsEditor.EnableDisableAsyncFuncSettings("getId", false, false);
+    cy.reload();
+
+    agHelper.GetNClick(jsEditor._settingsTab);
+    assertAsyncFunctionsOrder();
   });
 });
