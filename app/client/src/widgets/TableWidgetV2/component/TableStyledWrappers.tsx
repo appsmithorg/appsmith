@@ -309,6 +309,8 @@ export const TableStyles = css<{
   isTextType?: boolean;
 }>``;
 
+export const CELL_WRAPPER_LINE_HEIGHT = 28;
+
 export const CellWrapper = styled.div<{
   isHidden?: boolean;
   isHyperLink?: boolean;
@@ -351,7 +353,7 @@ export const CellWrapper = styled.div<{
   padding: ${(props) =>
       props.compactMode ? TABLE_SIZES[props.compactMode].VERTICAL_PADDING : 0}px
     10px;
-  line-height: 28px;
+  line-height: ${CELL_WRAPPER_LINE_HEIGHT}px;
   .${Classes.POPOVER_WRAPPER}, > span > span > span,
   > div > span > span > span {
     width: 100%;

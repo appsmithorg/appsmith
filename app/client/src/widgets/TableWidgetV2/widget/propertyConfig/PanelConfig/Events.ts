@@ -13,7 +13,6 @@ export default {
           ColumnTypes.BUTTON,
           ColumnTypes.ICON_BUTTON,
           ColumnTypes.IMAGE,
-          ColumnTypes.MENU_BUTTON,
           ColumnTypes.EDIT_ACTIONS,
         ],
         true,
@@ -70,22 +69,6 @@ export default {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
-    },
-    //MenuButton onClick
-    {
-      helpText: "Triggers an action when the menu item is clicked",
-      propertyName: "onClick",
-      label: "onItemClick",
-      controlType: "ACTION_SELECTOR",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: true,
-      dependencies: ["primaryColumns", "columnOrder"],
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        const baseProperty = getBasePropertyPath(propertyPath);
-        const columnType = get(props, `${baseProperty}.columnType`, "");
-        return columnType !== ColumnTypes.MENU_BUTTON;
-      },
     },
     {
       propertyName: "onSubmit",
