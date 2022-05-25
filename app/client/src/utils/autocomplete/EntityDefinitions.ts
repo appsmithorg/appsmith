@@ -143,6 +143,7 @@ export const entityDefinitions: Record<string, unknown> = {
     },
     updatedRows: generateTypeDef(widget.updatedRows),
     updatedRowIndices: generateTypeDef(widget.updatedRowIndices),
+    triggeredRowIndex: generateTypeDef(widget.triggeredRowIndex),
   }),
   VIDEO_WIDGET: {
     "!doc":
