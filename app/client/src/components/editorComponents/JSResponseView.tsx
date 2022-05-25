@@ -5,7 +5,7 @@ import React, {
   useCallback,
   useState,
 } from "react";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
 import { AppState } from "reducers";
@@ -19,6 +19,8 @@ import {
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_JS_RESPONSE_LAST_HALF,
   NO_JS_FUNCTION_RETURN_VALUE,
+  JS_ACTION_EXECUTION_ERROR,
+  UPDATING_JS_COLLECTION,
 } from "@appsmith/constants/messages";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
@@ -43,6 +45,8 @@ import { TAB_MIN_HEIGHT } from "components/ads/Tabs";
 import { theme } from "constants/DefaultTheme";
 import { Button, Size } from "components/ads";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
+import { getIsSavingEntity } from "selectors/editorSelectors";
+import { getJSResponseViewState } from "./utils";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -77,7 +81,7 @@ const TabbedViewWrapper = styled.div`
 
   &&& {
     ul.react-tabs__tab-list {
-      padding: 0px ${(props) => props.theme.spaces[12]}px;
+      padding: 0px ${(props) => props.theme.spaces[11]}px;
       height: ${TAB_MIN_HEIGHT};
     }
   }
@@ -136,9 +140,10 @@ const InlineButton = styled(Button)`
   margin: 0 4px;
 `;
 
-enum JSResponseState {
+export enum JSResponseState {
   IsExecuting = "IsExecuting",
   IsDirty = "IsDirty",
+  IsUpdating = "IsUpdating",
   NoResponse = "NoResponse",
   ShowResponse = "ShowResponse",
   NoReturnValue = "NoReturnValue",
@@ -147,6 +152,7 @@ enum JSResponseState {
 interface ReduxStateProps {
   responses: Record<string, any>;
   isExecuting: Record<string, boolean>;
+  isDirty: Record<string, boolean>;
 }
 
 type Props = ReduxStateProps &
@@ -165,6 +171,7 @@ function JSResponseView(props: Props) {
     currentFunction,
     disabled,
     errors,
+    isDirty,
     isExecuting,
     isLoading,
     jsObject,
@@ -180,41 +187,44 @@ function JSResponseView(props: Props) {
     currentFunction && currentFunction.id && currentFunction.id in responses
       ? responses[currentFunction.id]
       : "";
+  // parse error found while trying to execute function
+  const hasExecutionParseErrors = responseStatus === JSResponseState.IsDirty;
+  // error found while trying to parse JS Object
+  const hasJSObjectParseError = errors.length > 0;
 
+  const isSaving = useSelector(getIsSavingEntity);
   const onDebugClick = useCallback(() => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "JS_OBJECT",
     });
     dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
-  useEffect(() => {
-    if (!currentFunction) {
-      setResponseStatus(JSResponseState.NoResponse);
-    } else if (isExecuting[currentFunction.id]) {
-      setResponseStatus(JSResponseState.IsExecuting);
-    } else if (
-      !responses.hasOwnProperty(currentFunction.id) &&
-      !isExecuting.hasOwnProperty(currentFunction.id)
-    ) {
-      setResponseStatus(JSResponseState.NoResponse);
-    } else if (
-      responses.hasOwnProperty(currentFunction.id) &&
-      responses[currentFunction.id] === undefined
-    ) {
-      setResponseStatus(JSResponseState.NoReturnValue);
-    } else if (responses.hasOwnProperty(currentFunction.id)) {
-      setResponseStatus(JSResponseState.ShowResponse);
-    }
-  }, [responses, isExecuting, currentFunction]);
 
+  useEffect(() => {
+    setResponseStatus(
+      getJSResponseViewState(
+        currentFunction,
+        isDirty,
+        isExecuting,
+        isSaving,
+        responses,
+      ),
+    );
+  }, [responses, isExecuting, currentFunction, isSaving, isDirty]);
   const tabs = [
     {
       key: "body",
       title: "Response",
       panelComponent: (
         <>
-          {errors.length > 0 && (
-            <HelpSection>
+          {(hasExecutionParseErrors || hasJSObjectParseError) && (
+            <HelpSection
+              className={`${
+                hasJSObjectParseError
+                  ? "t--js-response-parse-error-call-out"
+                  : "t--function-execution-parse-error-call-out"
+              }`}
+            >
               <StyledCallout
                 fill
                 label={
@@ -222,7 +232,14 @@ function JSResponseView(props: Props) {
                     <DebugButton onClick={onDebugClick} />
                   </FailedMessage>
                 }
-                text={createMessage(PARSING_ERROR)}
+                text={
+                  hasJSObjectParseError
+                    ? createMessage(PARSING_ERROR)
+                    : createMessage(
+                        JS_ACTION_EXECUTION_ERROR,
+                        `${jsObject.name}.${currentFunction?.name}`,
+                      )
+                }
                 variant={Variant.danger}
               />
             </HelpSection>
@@ -272,6 +289,11 @@ function JSResponseView(props: Props) {
                     }}
                   />
                 )}
+                {responseStatus === JSResponseState.IsUpdating && (
+                  <LoadingOverlayScreen theme={props.theme}>
+                    {createMessage(UPDATING_JS_COLLECTION)}
+                  </LoadingOverlayScreen>
+                )}
               </>
             </ResponseViewer>
           </ResponseTabWrapper>
@@ -317,10 +339,12 @@ const mapStateToProps = (
       (action: JSCollectionData) => action.config.id === jsObject.id,
     );
   const responses = (seletedJsObject && seletedJsObject.data) || {};
+  const isDirty = (seletedJsObject && seletedJsObject.isDirty) || {};
   const isExecuting = (seletedJsObject && seletedJsObject.isExecuting) || {};
   return {
-    responses: responses,
-    isExecuting: isExecuting,
+    responses,
+    isExecuting,
+    isDirty,
   };
 };
 
