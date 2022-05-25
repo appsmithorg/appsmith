@@ -143,7 +143,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage("Failed to execute actions during page load"); //When Confirmation is NO
     table.WaitForTableEmpty();
-    cy.reload();
+    agHelper.RefreshPage()
     agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementPresence(
       jsEditor._dialogBody((jsName as string) + ".getId"),
