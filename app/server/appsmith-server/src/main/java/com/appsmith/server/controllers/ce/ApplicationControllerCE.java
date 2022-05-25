@@ -80,7 +80,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
         if (workspaceId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "workspace id"));
         }
-        log.debug("Going to create application in org {}", workspaceId);
+        log.debug("Going to create application in workspace {}", workspaceId);
         return applicationPageService.createApplication(resource, workspaceId)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
