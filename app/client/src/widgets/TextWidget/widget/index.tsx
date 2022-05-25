@@ -83,6 +83,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             propertyName: "disableLink",
             helpText: "Controls parsing text as Link",
             label: "Disable Link",
+            defaultValue: false,
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
