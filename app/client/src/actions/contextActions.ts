@@ -7,6 +7,7 @@ export enum PropertyType {
 export type EditingProperty = {
   propertyName?: string;
   propertyType?: PropertyType;
+  widgetId?: string;
 };
 
 export type CMCursorPosition = {
@@ -23,6 +24,11 @@ export type CMPopupContext = {
 export type PageContextPayload = {
   pageId: string;
   selectedWidgetIds?: string[];
+};
+
+export type WidgetContextPayload = {
+  pageId: string;
+  widgetId: string;
   editingProperty?: EditingProperty;
 };
 
@@ -45,7 +51,7 @@ export const updateSelectedWidgets = (
   selectedWidgetIds: string[],
 ) => {
   return {
-    type: ReduxActionTypes.UPDATE_UI_EDITOR_CONTEXT,
+    type: ReduxActionTypes.UPDATE_PAGE_CONTEXT,
     payload: {
       pageId,
       selectedWidgetIds,
@@ -55,12 +61,14 @@ export const updateSelectedWidgets = (
 
 export const updateEditingProperty = (
   pageId: string,
+  widgetId: string,
   editingProperty: EditingProperty,
 ) => {
   return {
-    type: ReduxActionTypes.UPDATE_UI_EDITOR_CONTEXT,
+    type: ReduxActionTypes.UPDATE_WIDGET_CONTEXT,
     payload: {
       pageId,
+      widgetId,
       editingProperty,
     },
   };

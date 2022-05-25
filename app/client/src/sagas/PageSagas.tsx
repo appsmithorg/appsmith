@@ -56,10 +56,7 @@ import {
 } from "redux-saga/effects";
 import history from "utils/history";
 import { captureInvalidDynamicBindingPath, isNameValid } from "utils/helpers";
-import {
-  extractCurrentDSL,
-  sanitizePropertyPath,
-} from "utils/WidgetPropsUtils";
+import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
 import {
   getAllPageIds,
@@ -106,7 +103,10 @@ import {
 } from "actions/pageActions";
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
-import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
+import {
+  selectMultipleWidgetsAction,
+  selectMultipleWidgetsInitAction,
+} from "actions/widgetSelectionActions";
 import {
   getIsFirstTimeUserOnboardingEnabled,
   getFirstTimeUserOnboardingApplicationId,
@@ -118,7 +118,6 @@ import WidgetFactory from "utils/WidgetFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { builderURL, generateTemplateURL } from "RouteBuilder";
 import { contextReduxState } from "reducers/uiReducers/contextReducer";
-import { PropertyType } from "actions/contextActions";
 import { WidgetProps } from "widgets/BaseWidget";
 import { showModal } from "actions/widgetActions";
 import { widgetsMapWithParentModalId } from "selectors/entitiesSelector";
@@ -279,44 +278,26 @@ export function* restoreContextSaga() {
     widgets[pageContext.selectedWidgetIds[0]];
   let modalId = selectedWidget?.parentModalId;
   if (
-    pageContext.selectedWidgetIds &&
-    pageContext.selectedWidgetIds.length > 0
-  ) {
-    if (pageContext.selectedWidgetIds.length == 1) {
-      if (
-        currentSelectedWidget &&
-        currentSelectedWidget.widgetId !== pageContext.selectedWidgetIds[0]
-      )
-        return;
-      navigateToCanvas({
-        pageId,
-        widgetId: pageContext.selectedWidgetIds[0],
-      });
-      if (selectedWidget && selectedWidget.type === "MODAL_WIDGET")
-        modalId = selectedWidget.widgetId;
-    }
-    if (modalId) yield put(showModal(modalId));
-    yield put(selectMultipleWidgetsAction(pageContext.selectedWidgetIds));
-  }
+    !pageContext.selectedWidgetIds ||
+    pageContext.selectedWidgetIds.length < 1
+  )
+    return;
 
-  let control: HTMLElement | null = null;
-  if (pageContext.editingProperty) {
-    const { propertyName, propertyType } = pageContext.editingProperty;
-    if (propertyName && propertyType === PropertyType.CODE_EDITOR) {
-      control = document.querySelector(
-        `[data-code-editor-id=${sanitizePropertyPath(
-          propertyName,
-        )}] .CodeEditorTarget textarea`,
-      );
-    } else if (propertyName) {
-      control = document.querySelector(`.t--property-control-${propertyName}`);
-    }
-
-    setTimeout(() => {
-      control?.scrollIntoView({ block: "center" });
-      control?.focus();
+  if (pageContext.selectedWidgetIds.length == 1) {
+    if (
+      currentSelectedWidget &&
+      currentSelectedWidget.widgetId !== pageContext.selectedWidgetIds[0]
+    )
+      return;
+    navigateToCanvas({
+      pageId,
+      widgetId: pageContext.selectedWidgetIds[0],
     });
+    if (selectedWidget && selectedWidget.type === "MODAL_WIDGET")
+      modalId = selectedWidget.widgetId;
   }
+  if (modalId) yield put(showModal(modalId));
+  yield put(selectMultipleWidgetsInitAction(pageContext.selectedWidgetIds));
 }
 
 export function* fetchPageSaga(

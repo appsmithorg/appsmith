@@ -473,8 +473,9 @@ const PropertyControl = memo((props: Props) => {
         !isDynamic
       ) {
         dispatch(
-          updateEditingProperty(currentPageId, {
+          updateEditingProperty(currentPageId, widgetProperties.widgetId, {
             propertyName: className,
+            widgetId: widgetProperties.widgetId,
           }),
         );
       }
@@ -486,8 +487,9 @@ const PropertyControl = memo((props: Props) => {
         isDynamic
       ) {
         dispatch(
-          updateEditingProperty(currentPageId, {
+          updateEditingProperty(currentPageId, widgetProperties.widgetId, {
             propertyName: className,
+            widgetId: widgetProperties.widgetId,
           }),
         );
       }

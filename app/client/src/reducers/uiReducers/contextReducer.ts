@@ -9,30 +9,38 @@ import {
   CodeEditorPopupPayload,
   EditingProperty,
   PageContextPayload,
+  WidgetContextPayload,
 } from "actions/contextActions";
 import { isEqual } from "lodash";
 
 const initialState: contextReduxState = {};
 
 const contextReducer = createImmerReducer(initialState, {
-  [ReduxActionTypes.UPDATE_UI_EDITOR_CONTEXT]: (
+  [ReduxActionTypes.UPDATE_PAGE_CONTEXT]: (
     state: contextReduxState,
     action: ReduxAction<PageContextPayload>,
   ) => {
-    const { editingProperty, pageId, selectedWidgetIds } = action.payload;
+    const { pageId, selectedWidgetIds } = action.payload;
     if (!state[pageId])
-      state[pageId] = { selectedWidgetIds: [], codeEditor: {} };
+      state[pageId] = { selectedWidgetIds: [], codeEditor: {}, widgets: {} };
 
-    if (editingProperty) state[pageId].editingProperty = editingProperty;
     if (
       selectedWidgetIds &&
       !isEqual(state[pageId].selectedWidgetIds, selectedWidgetIds)
     ) {
       state[pageId].selectedWidgetIds = selectedWidgetIds;
-      state[pageId].editingProperty = {};
     }
   },
+  [ReduxActionTypes.UPDATE_WIDGET_CONTEXT]: (
+    state: contextReduxState,
+    action: ReduxAction<WidgetContextPayload>,
+  ) => {
+    const { editingProperty, pageId, widgetId } = action.payload;
+    if (!state[pageId])
+      state[pageId] = { selectedWidgetIds: [], codeEditor: {}, widgets: {} };
 
+    if (editingProperty) state[pageId].widgets[widgetId] = editingProperty;
+  },
   [ReduxActionTypes.UPDATE_CODE_EDITOR_CURSOR_POSITION]: (
     state: contextReduxState,
     action: ReduxAction<CodeEditorCursorPayload>,
@@ -44,7 +52,7 @@ const contextReducer = createImmerReducer(initialState, {
       widgetId,
     } = action.payload;
     if (!state[pageId])
-      state[pageId] = { selectedWidgetIds: [], codeEditor: {} };
+      state[pageId] = { selectedWidgetIds: [], codeEditor: {}, widgets: {} };
 
     if (!state[pageId].codeEditor[widgetId])
       state[pageId].codeEditor[widgetId] = {};
@@ -60,7 +68,7 @@ const contextReducer = createImmerReducer(initialState, {
   ) => {
     const { fieldName, pageId, popupContext, widgetId } = action.payload;
     if (!state[pageId])
-      state[pageId] = { selectedWidgetIds: [], codeEditor: {} };
+      state[pageId] = { selectedWidgetIds: [], codeEditor: {}, widgets: {} };
 
     if (!state[pageId].codeEditor[widgetId])
       state[pageId].codeEditor[widgetId] = {};
@@ -77,7 +85,9 @@ const contextReducer = createImmerReducer(initialState, {
 export interface contextReduxState {
   [pageId: string]: {
     selectedWidgetIds: string[];
-    editingProperty?: EditingProperty;
+    widgets: {
+      [widgetId: string]: EditingProperty;
+    };
     codeEditor: {
       [widgetId: string]: {
         [fieldName: string]: {

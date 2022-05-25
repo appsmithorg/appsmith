@@ -12,6 +12,7 @@ import { tailwindLayers } from "constants/Layers";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
 import {
   getCurrentPageId,
+  getIsFetchingPage,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
@@ -48,6 +49,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     true,
   );
   const currentPageId = useSelector(getCurrentPageId);
+  const isFetchingPage = useSelector(getIsFetchingPage);
   const canvasWidgets = useSelector(getWidgets);
   const isPreviewMode = useSelector(previewModeSelector);
   const isCommentMode = useSelector(commentModeSelector);
@@ -85,7 +87,9 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   });
 
   useEffect(() => {
-    dispatch(updateSelectedWidgets(currentPageId, selectedWidgetIds));
+    if (!isFetchingPage) {
+      dispatch(updateSelectedWidgets(currentPageId, selectedWidgetIds));
+    }
   }, [selectedWidgetIds]);
 
   /**

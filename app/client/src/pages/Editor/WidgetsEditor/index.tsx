@@ -12,7 +12,6 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CanvasContainer from "./CanvasContainer";
-import { flashElementsById } from "utils/helpers";
 import Debugger from "components/editorComponents/Debugger";
 import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
 import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
@@ -75,9 +74,11 @@ function WidgetsEditor() {
       !guidedTourEnabled
     ) {
       const widgetIdFromURLHash = window.location.hash.slice(1);
-      flashElementsById(widgetIdFromURLHash);
-      if (document.getElementById(widgetIdFromURLHash))
+      const el = document.getElementById(widgetIdFromURLHash);
+      if (el) {
+        el.scrollIntoView({ block: "center" });
         selectWidget(widgetIdFromURLHash);
+      }
     }
   }, [isFetchingPage, selectWidget, guidedTourEnabled]);
 

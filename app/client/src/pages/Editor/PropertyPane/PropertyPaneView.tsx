@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useMemo } from "react";
+import React, { ReactElement, useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { IPanelProps, Position } from "@blueprintjs/core";
@@ -12,6 +12,9 @@ import PropertyPaneConnections from "./PropertyPaneConnections";
 import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 import { WidgetType } from "constants/WidgetConstants";
+import { getWidgetContextSelector } from "selectors/contextSelectors";
+import { EditingProperty, PropertyType } from "actions/contextActions";
+import { sanitizePropertyPath } from "utils/WidgetPropsUtils";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -38,6 +41,15 @@ function PropertyPaneView(
   const dispatch = useDispatch();
   const { ...panel } = props;
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
+  const widgetContextSelector = getWidgetContextSelector(
+    widgetProperties.widgetId,
+  );
+  const editingProperty: EditingProperty = useSelector(
+    widgetContextSelector,
+    (left, right) => {
+      return left?.widgetId === right?.widgetId;
+    },
+  );
   const doActionsExist = useSelector(actionsExist);
   const hideConnectDataCTA = useMemo(() => {
     if (widgetProperties) {
@@ -94,6 +106,29 @@ function PropertyPaneView(
       },
     ];
   }, [onCopy, onDelete]);
+
+  useEffect(() => {
+    if (editingProperty) {
+      const { propertyName, propertyType } = editingProperty;
+      let control: HTMLElement | null = null;
+
+      setTimeout(() => {
+        if (propertyName && propertyType === PropertyType.CODE_EDITOR) {
+          control = document.querySelector(
+            `[data-code-editor-id=${sanitizePropertyPath(
+              propertyName,
+            )}] .CodeEditorTarget textarea`,
+          );
+        } else if (propertyName) {
+          control = document.querySelector(
+            `.t--property-control-${propertyName}`,
+          );
+        }
+        control?.scrollIntoView({ block: "center" });
+        control?.focus();
+      });
+    }
+  }, [widgetProperties?.widgetId]);
 
   if (!widgetProperties) return null;
 

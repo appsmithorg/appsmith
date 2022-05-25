@@ -186,7 +186,7 @@ function PaneDrawer(props: PaneDrawerProps) {
     // Close all modals
     if (props.isVisible) {
       showPropertyPane();
-      //selectWidget(undefined);
+      selectWidget(undefined);
       focusWidget(undefined);
       dispatch(closeAllModals());
     }

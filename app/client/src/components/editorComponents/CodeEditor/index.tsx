@@ -117,6 +117,7 @@ interface ReduxDispatchProps {
   startingEntityUpdation: () => void;
   updateEditingProperty: (
     pageId: string,
+    widgetId: string,
     editingProperty: EditingProperty,
   ) => void;
   updateCodeEditorCursor: (
@@ -527,11 +528,19 @@ class CodeEditor extends Component<Props, State> {
     ) {
       cm.setCursor(this.props.cursorPosition);
     }
-    if (entityInformation.entityType === ENTITY_TYPE.WIDGET) {
-      this.props.updateEditingProperty(this.props.pageId, {
-        propertyName: entityInformation.propertyPath,
-        propertyType: PropertyType.CODE_EDITOR,
-      });
+    if (
+      entityInformation.entityType === ENTITY_TYPE.WIDGET &&
+      entityInformation.entityId
+    ) {
+      this.props.updateEditingProperty(
+        this.props.pageId,
+        entityInformation.entityId,
+        {
+          propertyName: entityInformation.propertyPath,
+          propertyType: PropertyType.CODE_EDITOR,
+          widgetId: entityInformation.entityId,
+        },
+      );
     }
   };
 
@@ -983,8 +992,11 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
   startingEntityUpdation: () => dispatch(startingEntityUpdation()),
-  updateEditingProperty: (pageId: string, editingProperty: EditingProperty) =>
-    dispatch(updateEditingProperty(pageId, editingProperty)),
+  updateEditingProperty: (
+    pageId: string,
+    widgetId: string,
+    editingProperty: EditingProperty,
+  ) => dispatch(updateEditingProperty(pageId, widgetId, editingProperty)),
   updateCodeEditorCursor: (
     pageId: string,
     widgetId: string,

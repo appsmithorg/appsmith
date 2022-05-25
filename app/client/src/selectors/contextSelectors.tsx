@@ -8,6 +8,16 @@ import { getCurrentPageId } from "./editorSelectors";
 
 export const getEditorContext = (state: AppState) => state.ui.editorContext;
 
+export const getWidgetContextSelector = (widgetId: string) => {
+  return createSelector(
+    getCurrentPageId,
+    getEditorContext,
+    (pageId, context) => {
+      return context[pageId]?.widgets?.[widgetId];
+    },
+  );
+};
+
 export const getCursorSelector = (dataTreePath: string | undefined) => {
   return createSelector(
     getWidgets,
