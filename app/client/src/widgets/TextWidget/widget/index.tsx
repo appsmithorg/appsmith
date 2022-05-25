@@ -322,6 +322,10 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     return count === 0 && text.length > MAX_HTML_PARSING_LENGTH;
   };
 
+  componentDidUpdate(prevProps: TextWidgetProps): void {
+    super.componentDidUpdate(prevProps);
+  }
+
   getPageView() {
     const disableLink: boolean = this.props.disableLink
       ? true

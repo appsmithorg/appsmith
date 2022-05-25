@@ -108,6 +108,11 @@ export const StyledText = styled(Text)<{
       ? `calc(100% - ${ELLIPSIS_HEIGHT}px)`
       : "100%"};
   overflow-x: hidden;
+  overflow-y: ${(props) =>
+    props.overflow !== OverflowTypes.SCROLL ||
+    props.overflow === OverflowTypes.TRUNCATE.valueOf()
+      ? "hidden"
+      : "auto"};
   text-overflow: ellipsis;
   text-align: ${(props) => props.textAlign.toLowerCase()};
   display: flex;
@@ -278,10 +283,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
     return (
       <>
-        <FontLoader
-          fontFamily={this.props.fontFamily}
-          ref={this.props.innerRef}
-        >
+        <FontLoader fontFamily={this.props.fontFamily}>
           <TextContainer>
             <StyledText
               backgroundColor={backgroundColor}
@@ -295,15 +297,17 @@ class TextComponent extends React.Component<TextComponentProps, State> {
               textAlign={textAlign}
               textColor={textColor}
             >
-              <Interweave
-                content={text}
-                matchers={
-                  disableLink
-                    ? []
-                    : [new EmailMatcher("email"), new UrlMatcher("url")]
-                }
-                newWindow
-              />
+              <div className="dynamic-height-wrapper" ref={this.props.innerRef}>
+                <Interweave
+                  content={text}
+                  matchers={
+                    disableLink
+                      ? []
+                      : [new EmailMatcher("email"), new UrlMatcher("url")]
+                  }
+                  newWindow
+                />
+              </div>
             </StyledText>
             {this.state.isTruncated && (
               <StyledIcon
