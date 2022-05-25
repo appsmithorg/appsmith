@@ -275,7 +275,7 @@ export const DropdownContainer = styled.div<{ width: string; height?: string }>`
     width: 100%;
   }
 
-  &:focus-visible ${Selected} {
+  &:focus ${Selected} {
     border: 1px solid var(--appsmith-input-focus-border-color);
   }
 `;
