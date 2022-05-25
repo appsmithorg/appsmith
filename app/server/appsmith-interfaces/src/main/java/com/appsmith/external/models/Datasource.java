@@ -33,7 +33,7 @@ public class Datasource extends BaseDomain {
     @Transient
     String pluginName;
     
-    //Organizations migrated to workspaces, kept the field as depricated to support the old migration
+    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
     String organizationId;
 
