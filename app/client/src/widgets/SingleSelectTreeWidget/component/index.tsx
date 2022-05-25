@@ -137,10 +137,7 @@ function SingleSelectTreeComponent({
     setKey(Math.random());
   }, [expandAll]);
 
-  const getPopupContainer = useCallback(() => {
-    const node = _menu.current;
-    return node as HTMLElement;
-  }, []);
+  const getPopupContainer = useCallback(() => _menu.current as HTMLElement, []);
   const onSelectionChange = useCallback(
     (value?: DefaultValueType, labelList?: ReactNode[]) => {
       setFilter("");

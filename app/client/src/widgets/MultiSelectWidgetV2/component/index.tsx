@@ -159,10 +159,7 @@ function MultiSelectComponent({
       ) : null,
     [filter],
   );
-  const getPopupContainer = useCallback(() => {
-    const node = _menu.current;
-    return node as HTMLElement;
-  }, []);
+  const getPopupContainer = useCallback(() => _menu.current as HTMLElement, []);
   const handleSelectAll = () => {
     if (!isSelectAll) {
       // Get all options
