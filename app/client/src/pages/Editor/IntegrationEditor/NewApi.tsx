@@ -29,9 +29,9 @@ const StyledContainer = styled.div`
     margin: 0;
     justify-content: center;
     text-align: center;
-    letter-spacing: -0.17px;
+    letter-spacing: -0.24px;
     color: ${Colors.OXFORD_BLUE};
-    font-weight: 500;
+    font-weight: 400;
     text-decoration: none !important;
     flex-wrap: wrap;
     white-space: nowrap;
@@ -84,17 +84,15 @@ const ApiCard = styled.div`
   justify-content: space-between;
   height: 64px;
   &:hover {
-    background: ${Colors.Gallery};
+    background: ${Colors.GREY_1};
     cursor: pointer;
   }
 
   .content-icon-wrapper {
-    width: 40px;
-    height: 40px;
-    border-radius: 20px;
-    padding: 6px 0;
-    margin: 0 8px;
-    background: #f0f0f0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: ${Colors.GREY_2};
     display: flex;
     align-items: center;
 
@@ -121,6 +119,8 @@ const ApiCard = styled.div`
 const CardContentWrapper = styled.div`
   display: flex;
   align-items: center;
+  gap: 13px;
+  padding-left: 13.5px;
 `;
 
 type ApiHomeScreenProps = {

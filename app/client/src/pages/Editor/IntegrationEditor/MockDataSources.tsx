@@ -11,25 +11,22 @@ import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const MockDataSourceWrapper = styled.div`
-  overflow: auto;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
-  flex: 1;
-
-  .sectionHeader {
-    font-weight: ${(props) => props.theme.fontWeights[2]};
-    font-size: ${(props) => props.theme.fontSizes[4]}px;
-    margin-top: 10px;
-  }
+  min-width: 150px;
+  border-radius: 4px;
+  align-items: center;
+  margin-top: 8px;
 `;
 
 const Description = styled.div`
-  color: ${Colors.DOVE_GRAY};
-  font-size: 14px;
-  display: inline-block;
-  margin-top: 11px;
+  color: ${Colors.GREY_8};
+  font-size: 13px;
+  line-height: 17px;
+  letter-spacing: -0.24px;
 `;
+
 function MockDataSources(props: { mockDatasources: MockDatasource[] }) {
   const orgId = useSelector(getCurrentOrgId);
   return (
@@ -50,38 +47,51 @@ function MockDataSources(props: { mockDatasources: MockDatasource[] }) {
 export default MockDataSources;
 
 const CardWrapper = styled.div`
-  padding: 18px;
-  /* margin-top: 18px; */
-
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
   &:hover {
-    background: ${Colors.Gallery};
+    background: ${Colors.GREY_1};
     cursor: pointer;
-    .bp3-collapse-body {
-      background: ${Colors.Gallery};
-    }
+  }
   }
 `;
 
 const DatasourceImage = styled.img`
-  height: 24px;
+  height: 28px;
   width: auto;
+  margin: 0 auto;
+  max-width: 100%;
 `;
 
 const DatasourceName = styled.span`
-  margin-left: 10px;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.24px;
+  color: ${Colors.BLACK};
 `;
 
 const DatasourceCardHeader = styled.div`
-  justify-content: space-between;
   display: flex;
+  align-items: center;
+  gap: 13px;
+  padding-left: 13.5px;
+`;
+
+const DatasourceIconWrapper = styled.div`
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: ${Colors.GREY_2};
+  display: flex;
+  align-items: center;
 `;
 
 const DatasourceNameWrapper = styled.div`
-  flex-direction: row;
-  align-items: center;
   display: flex;
+  flex-direction: column;
 `;
 
 type MockDatasourceCardProps = {
@@ -130,17 +140,16 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
   return (
     <CardWrapper className="t--mock-datasource" onClick={addMockDataSource}>
       <DatasourceCardHeader className="t--datasource-name">
-        <div style={{ flex: 1 }}>
-          <DatasourceNameWrapper>
-            <DatasourceImage
-              alt="Datasource"
-              className="dataSourceImage"
-              src={pluginImages[currentPlugin.id]}
-            />
-            <DatasourceName>{datasource.name}</DatasourceName>
-          </DatasourceNameWrapper>
+        <DatasourceIconWrapper>
+          <DatasourceImage
+            alt="Datasource"
+            src={pluginImages[currentPlugin.id]}
+          />
+        </DatasourceIconWrapper>
+        <DatasourceNameWrapper>
+          <DatasourceName>{datasource.name}</DatasourceName>
           <Description>{datasource.description}</Description>
-        </div>
+        </DatasourceNameWrapper>
       </DatasourceCardHeader>
     </CardWrapper>
   );

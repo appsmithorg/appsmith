@@ -37,17 +37,15 @@ const DatasourceHomePage = styled.div`
   .textBtn {
     justify-content: center;
     text-align: center;
-    color: #2e3d49;
-    font-weight: 500;
+    color: ${Colors.BLACK};
+    font-weight: 400;
     text-decoration: none !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-
-    font-weight: 500;
     font-size: 16px;
     line-height: 24px;
-    letter-spacing: -0.17px;
+    letter-spacing: -0.24px;
     margin: 0;
   }
 `;
@@ -68,20 +66,17 @@ const DatasourceCard = styled.div`
   justify-content: space-between;
   height: 64px;
   &:hover {
-    background: ${Colors.Gallery};
+    background: ${Colors.GREY_1};
     cursor: pointer;
   }
 
   .dataSourceImageWrapper {
-    width: 40px;
-    height: 40px;
-    padding: 6px 0;
-    border-radius: 20px;
-    margin: 0 8px;
-    background: #f0f0f0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: ${Colors.GREY_2};
     display: flex;
     align-items: center;
-
     .dataSourceImage {
       height: 28px;
       width: auto;
@@ -105,6 +100,8 @@ const DatasourceCard = styled.div`
 const DatasourceContentWrapper = styled.div`
   display: flex;
   align-items: center;
+  gap: 13px;
+  padding-left: 13.5px;
 `;
 
 interface DatasourceHomeScreenProps {

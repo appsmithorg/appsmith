@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { Indices } from "constants/Layers";
 import { theme } from "constants/DefaultTheme";
 import useResizeObserver from "utils/hooks/useResizeObserver";
+import { Colors } from "constants/Colors";
 
 export const TAB_MIN_HEIGHT = `36px`;
 
@@ -41,6 +42,8 @@ const TabsWrapper = styled.div<{
     flex-direction: ${(props) => (!!props.vertical ? "column" : "row")};
     align-items: ${(props) => (!!props.vertical ? "stretch" : "center")};
     border-bottom: none;
+    gap: ${(props) =>
+      !props.vertical ? `${props.theme.spaces[12] + 2}px` : 0};
     color: ${(props) => props.theme.colors.tabs.normal};
     path {
       fill: ${(props) => props.theme.colors.tabs.icon};
@@ -74,9 +77,7 @@ const TabsWrapper = styled.div<{
     justify-content: center;
     border-color: transparent;
     position: relative;
-    padding: 0px 3px;
-    margin-right: ${(props) =>
-      !props.vertical ? `${props.theme.spaces[12] - 3}px` : 0};
+    padding: 0;
 
     ${(props) =>
       props.responseViewer &&
@@ -134,10 +135,10 @@ const TabsWrapper = styled.div<{
 `;
 
 export const TabTitle = styled.span<{ responseViewer?: boolean }>`
-  font-size: ${(props) => props.theme.typography.h5.fontSize}px;
-  font-weight: ${(props) => props.theme.typography.h5.fontWeight};
-  line-height: ${(props) => props.theme.typography.h5.lineHeight - 3}px;
-  letter-spacing: ${(props) => props.theme.typography.h5.letterSpacing}px;
+  font-size: ${(props) => props.theme.typography.h4.fontSize}px;
+  font-weight: ${(props) => props.theme.typography.h4.fontWeight - 100};
+  line-height: ${(props) => props.theme.typography.h4.lineHeight - 3}px;
+  letter-spacing: ${(props) => props.theme.typography.h4.letterSpacing}px;
   margin: 0;
   display: flex;
   align-items: center;
@@ -215,18 +216,16 @@ const TabTitleWrapper = styled.div<{
     props.selected
       ? `
   background-color: transparent;
-  color: ${props.theme.colors.tabs.hover};
+  color: ${Colors.GREY_900};
   .${Classes.ICON} {
     svg {
-      fill: ${props.theme.colors.tabs.icon};
       path {
-        fill: ${props.theme.colors.tabs.icon};
+        fill:  ${Colors.GREY_900};
       }
     }
   }
 
   .tab-title {
-    font-weight: 700;
     ${props.responseViewer &&
       `
         font-weight: normal;
