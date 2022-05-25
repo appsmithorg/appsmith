@@ -7,6 +7,7 @@ import { InlineCellEditor } from "./InlineCellEditor";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { ALIGN_ITEMS, TABLE_SIZES, VerticalAlignment } from "../Constants";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
+import { CELL_WRAPPER_LINE_HEIGHT } from "../TableStyledWrappers";
 
 const Container = styled.div<{
   isCellEditMode?: boolean;
@@ -78,6 +79,10 @@ const UnsavedChangesMarker = styled.div<{ accentColor: string }>`
   transform: rotateZ(45deg);
 `;
 
+const Content = styled.div`
+  display: inline;
+`;
+
 interface PropType extends RenderDefaultPropsType {
   onChange: (text: string) => void;
   onDiscard: () => void;
@@ -121,18 +126,13 @@ export function TextCell({
     [toggleCellEditMode, value],
   );
 
-  const isMultiline = useCallback(() => {
-    const rowHeight = TABLE_SIZES[compactMode].ROW_HEIGHT;
-
-    return (
-      !!contentRef.current?.offsetHeight &&
-      contentRef.current?.offsetHeight - rowHeight > 10
-    );
-  }, [contentRef.current, compactMode]);
-
   let editor;
 
   if (isCellEditMode) {
+    const isMultiline =
+      !!contentRef.current?.offsetHeight &&
+      contentRef.current?.offsetHeight / CELL_WRAPPER_LINE_HEIGHT > 1;
+
     editor = (
       <InlineCellEditor
         accentColor={accentColor}
@@ -143,7 +143,7 @@ export function TextCell({
             ? InputTypes.NUMBER
             : InputTypes.TEXT
         }
-        multiline={isMultiline()}
+        multiline={isMultiline}
         onChange={onChange}
         onDiscard={onDiscard}
         onSave={onSave}
@@ -164,7 +164,6 @@ export function TextCell({
         compactMode={compactMode}
         isCellEditMode={isCellEditMode}
         onDoubleClick={onEditHandler}
-        ref={contentRef}
       >
         {hasUnsavedChanged && (
           <UnsavedChangesMarker accentColor={accentColor} />
@@ -185,7 +184,7 @@ export function TextCell({
           title={!!value ? value.toString() : ""}
           verticalAlignment={verticalAlignment}
         >
-          {value}
+          <Content ref={contentRef}>{value}</Content>
         </StyledAutoToolTipComponent>
         {isCellEditable && (
           <StyledEditIcon
