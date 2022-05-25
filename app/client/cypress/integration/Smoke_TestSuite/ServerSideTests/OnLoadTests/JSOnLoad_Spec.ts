@@ -143,7 +143,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage("Failed to execute actions during page load"); //When Confirmation is NO
     table.WaitForTableEmpty();
-    agHelper.RefreshPage()
+    agHelper.RefreshPage();
     agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementPresence(
       jsEditor._dialogBody((jsName as string) + ".getId"),
@@ -510,7 +510,7 @@ describe("JSObjects OnLoad Actions tests", function() {
 
   it("12. Tc #1646 - Honouring the order of execution & Bug 13826 + Bug 13646 - Delpoy page", () => {
     agHelper.DeployApp();
-
+    agHelper.Sleep(2000);
     agHelper.AssertElementPresence(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "getBooks" has failed');
