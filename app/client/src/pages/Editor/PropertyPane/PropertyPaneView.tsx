@@ -19,8 +19,8 @@ import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 import { WidgetType } from "constants/WidgetConstants";
 import {
-  PropertyPaneKbdEventDetail,
-  PROPERTY_PANE_KEYBOARD_EVENT,
+  InteractionAnalyticsEventDetail,
+  INTERACTION_ANALYTICS_EVENT,
 } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -60,7 +60,7 @@ function PropertyPaneView(
   }, [widgetProperties?.type, excludeList]);
 
   const handleKbdEvent = (e: Event) => {
-    const event = e as CustomEvent<PropertyPaneKbdEventDetail>;
+    const event = e as CustomEvent<InteractionAnalyticsEventDetail>;
     AnalyticsUtil.logEvent("PROPERTY_PANE_KEYPRESS", {
       key: event.detail.key,
     });
@@ -68,12 +68,12 @@ function PropertyPaneView(
 
   useEffect(() => {
     containerRef.current?.addEventListener(
-      PROPERTY_PANE_KEYBOARD_EVENT,
+      INTERACTION_ANALYTICS_EVENT,
       handleKbdEvent,
     );
     return () => {
       containerRef.current?.removeEventListener(
-        PROPERTY_PANE_KEYBOARD_EVENT,
+        INTERACTION_ANALYTICS_EVENT,
         handleKbdEvent,
       );
     };

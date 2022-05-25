@@ -5,9 +5,9 @@ import { DropdownOption } from "components/ads/Dropdown";
 import { isNil } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import {
-  propertyPaneKbdEvent,
-  PropertyPaneKbdEventDetail,
-  PROPERTY_PANE_KEYBOARD_EVENT,
+  interactionAnalyticsEvent,
+  InteractionAnalyticsEventDetail,
+  INTERACTION_ANALYTICS_EVENT,
 } from "utils/AppsmithUtils";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
@@ -15,24 +15,24 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
   componentDidMount() {
     this.containerRef.current?.addEventListener(
-      PROPERTY_PANE_KEYBOARD_EVENT,
+      INTERACTION_ANALYTICS_EVENT,
       this.handleKbdEvent,
     );
   }
 
   componentWillUnmount() {
     this.containerRef.current?.removeEventListener(
-      PROPERTY_PANE_KEYBOARD_EVENT,
+      INTERACTION_ANALYTICS_EVENT,
       this.handleKbdEvent,
     );
   }
 
   handleKbdEvent = (e: Event) => {
-    const event = e as CustomEvent<PropertyPaneKbdEventDetail>;
+    const event = e as CustomEvent<InteractionAnalyticsEventDetail>;
     if (!event.detail?.propertyName) {
       e.stopPropagation();
       this.containerRef.current?.dispatchEvent(
-        propertyPaneKbdEvent({
+        interactionAnalyticsEvent({
           key: event.detail.key,
           propertyType: DropDownControl.getControlType(),
           propertyName: this.props.propertyName,

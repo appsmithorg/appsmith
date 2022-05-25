@@ -23,7 +23,7 @@ import SegmentHeader from "components/ads/ListSegmentHeader";
 import { useTheme } from "styled-components";
 import { findIndex, isArray } from "lodash";
 import { SubTextPosition } from "components/constants";
-import { propertyPaneKbdEvent } from "utils/AppsmithUtils";
+import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
 export type DropdownOnSelect = (
   value?: string,
@@ -879,6 +879,7 @@ export default function Dropdown(props: DropdownProps) {
     props.selected,
   );
   const [highlight, setHighlight] = useState(-1);
+  const dropdownWrapperRef = useRef<HTMLDivElement>(null);
 
   const closeIfOpen = () => {
     if (isOpen) {
@@ -950,13 +951,15 @@ export default function Dropdown(props: DropdownProps) {
     }
   };
 
+  const dispatchInteractionAnalyticsEvent = useInteractionAnalyticsEvent(
+    dropdownWrapperRef,
+  );
+
   const handleKeydown = useCallback(
     (e: React.KeyboardEvent) => {
       switch (e.key) {
         case "Escape":
-          dropdownWrapperRef.current?.dispatchEvent(
-            propertyPaneKbdEvent({ key: e.key }),
-          );
+          dispatchInteractionAnalyticsEvent({ key: e.key });
           if (isOpen) {
             setSelected((prevSelected) => {
               if (prevSelected != props.selected) return props.selected;
@@ -967,9 +970,7 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case " ":
-          dropdownWrapperRef.current?.dispatchEvent(
-            propertyPaneKbdEvent({ key: e.key }),
-          );
+          dispatchInteractionAnalyticsEvent({ key: e.key });
           if (closeOnSpace) {
             e.preventDefault();
             if (isOpen) {
@@ -985,9 +986,7 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case "Enter":
-          dropdownWrapperRef.current?.dispatchEvent(
-            propertyPaneKbdEvent({ key: e.key }),
-          );
+          dispatchInteractionAnalyticsEvent({ key: e.key });
           e.preventDefault();
           if (isOpen) {
             if (props.isMultiSelect) {
@@ -1001,9 +1000,7 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case "ArrowUp":
-          dropdownWrapperRef.current?.dispatchEvent(
-            propertyPaneKbdEvent({ key: e.key }),
-          );
+          dispatchInteractionAnalyticsEvent({ key: e.key });
           e.preventDefault();
           if (isOpen) {
             if (props.isMultiSelect) {
@@ -1034,9 +1031,7 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case "ArrowDown":
-          dropdownWrapperRef.current?.dispatchEvent(
-            propertyPaneKbdEvent({ key: e.key }),
-          );
+          dispatchInteractionAnalyticsEvent({ key: e.key });
           e.preventDefault();
           if (isOpen) {
             if (props.isMultiSelect) {
@@ -1076,7 +1071,6 @@ export default function Dropdown(props: DropdownProps) {
     [isOpen, props.options, props.selected, selected, highlight],
   );
 
-  const dropdownWrapperRef = useRef<HTMLDivElement>(null);
   let dropdownWrapperWidth = "100%";
 
   if (dropdownWrapperRef.current) {
