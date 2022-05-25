@@ -59,6 +59,7 @@ import {
 } from "./migrations/PhoneInputWidgetMigrations";
 import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/CurrencyInputWidgetMigrations";
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
+import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1092,6 +1093,11 @@ export const transformDSL = (
 
   if (currentDSL.version === 57) {
     currentDSL = migrateStylingPropertiesForTheming(currentDSL);
+    currentDSL.version = 58;
+  }
+
+  if (currentDSL.version === 58) {
+    currentDSL = migrateCheckboxSwitchProperty(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
