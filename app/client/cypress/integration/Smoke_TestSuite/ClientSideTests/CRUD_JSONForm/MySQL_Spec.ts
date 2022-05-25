@@ -81,7 +81,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     });
   });
 
-  it("2. Create new app and Generate CRUD page using a new datasource", () => {
+  it.only("2. Create new app and Generate CRUD page using a new datasource", () => {
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
     agHelper.GetNClick(homePage._buildFromDataTableActionCard);
@@ -282,7 +282,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
   it.skip("7. Verify Add/Update/Delete from Deploy page - on Productlines - new record + Bug 14063", () => {});
 
-  it("8. Create new CRUD Table 'Stores' and populate & refresh Entity Explorer to find the new table", () => {
+  it.only("8. Create new CRUD Table 'Stores' and populate & refresh Entity Explorer to find the new table", () => {
     let tableCreateQuery = `CREATE TABLE Stores(
       store         INTEGER  NOT NULL PRIMARY KEY
      ,name          VARCHAR(36) NOT NULL
@@ -339,7 +339,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("10. Verify Generate CRUD for the new table & Verify Deploy mode for table - Stores", () => {
+  it.only("10. Verify Generate CRUD for the new table & Verify Deploy mode for table - Stores", () => {
     dataSources.NavigateFromActiveDS(dsName, false);
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown);
@@ -358,7 +358,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     // agHelper.ValidateNetworkStatus("@deletePage", 200);
   });
 
-  it("11. Verify Update/Delete row/Delete field data from Deploy page - on Stores - existing record", () => {
+  it.only("11. Verify Update data from Deploy page - on Stores - existing record", () => {
     ee.SelectEntityByName("update_form", "WIDGETS");
     propPane.ChangeJsonFormFieldType("Store Status", "Radio Group");
     jsEditor.EnterJSContext(
@@ -377,6 +377,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     propPane.NavigateBackToPropertyPane();
     propPane.ChangeJsonFormFieldType("Store Address", "Multiline Text Input");
     propPane.NavigateBackToPropertyPane();
+    propPane.ChangeJsonFormFieldType("Store Secret Code", "Password Input");
+    propPane.NavigateBackToPropertyPane();
     deployMode.DeployApp();
     table.SelectTableRow(0); //to make JSON form hidden
     agHelper.AssertElementAbsence(locator._jsonFormWidget);
@@ -385,22 +387,91 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper
       .GetText(locator._jsonFormHeader)
       .then(($header: any) => expect($header).to.eq("Update Row store: 2119"));
-    updateStoresField(3);
+    let secretInfo = updateStoresSecretInfo(3);
+    updateNVerify(3, 4, secretInfo);
 
     table.SelectTableRow(6);
     agHelper
       .GetText(locator._jsonFormHeader)
       .then(($header: any) => expect($header).to.eq("Update Row store: 2141"));
-    updateStoresField(6);
+    secretInfo = updateStoresSecretInfo(6);
+    updateNVerify(6, 4, secretInfo);
 
     table.SelectTableRow(18);
     agHelper
       .GetText(locator._jsonFormHeader)
       .then(($header: any) => expect($header).to.eq("Update Row store: 2188"));
-    updateStoresField(18);
+    secretInfo = updateStoresSecretInfo(18);
+    updateNVerify(18, 4, secretInfo);
+
+    //Hidden field bug - to add here aft secret codes are updated for some fields!
   });
 
-  it.skip("12. Verify Add/Update/Delete from Deploy page - on Productlines - new record + Bug 14063", () => {});
+  it.only("12. Verify Delete row/Delete field data from Deploy page - on Stores - existing record", () => {
+    table.SelectTableRow(4);
+    //Deleting field value from UI - since MYSQL - "" also considered a value & hence even though this field is NOT NULL - no validations
+    agHelper
+      .GetText(locator._jsonFormHeader)
+      .then(($header: any) => expect($header).to.eq("Update Row store: 2130"));
+    cy.xpath(
+      deployMode._existingJsonFormFieldByName("Store Address", false),
+    ).clear();
+
+    updateNVerify(4, 3, "");
+
+    table.SelectTableRow(8);
+    agHelper
+      .GetText(locator._jsonFormHeader)
+      .then(($header: any) => expect($header).to.eq("Update Row store: 2154"));
+    cy.xpath(
+      deployMode._existingJsonFormFieldByName("Store Address", false),
+    ).clear();
+    updateNVerify(8, 3, "");
+  });
+
+  it.only("13. Verify Delete row from Deploy page - on Stores - existing record", () => {
+    table.SelectTableRow(5);
+    agHelper
+      .GetText(locator._jsonFormHeader)
+      .then(($header: any) => expect($header).to.eq("Update Row store: 2132"));
+    agHelper.ClickButton("Delete", 5);
+    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(
+      dataSources._visibleTextSpan(
+        "Are you sure you want to delete this item?",
+      ),
+    );
+    agHelper.ClickButton("Cancel");
+    agHelper
+      .GetText(locator._jsonFormHeader)
+      .then(($header: any) => expect($header).to.eq("Update Row store: 2132"));
+
+    agHelper.ClickButton("Delete", 5);
+    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(
+      dataSources._visibleTextSpan(
+        "Are you sure you want to delete this item?",
+      ),
+    );
+    agHelper.ClickButton("Confirm");
+    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    table.AssertSelectedRow(0); //Control going back to 1st row in table
+    agHelper
+      .GetText(locator._jsonFormHeader)
+      .then(($header: any) => expect($header).to.eq("Update Row store: 2106"));
+  });
+
+  it.only("14. Verify Refresh table from Deploy page - on Stores & verify all updates persists", () => {
+
+    agHelper.GetNClick(dataSources._refreshIcon)
+
+
+
+
+  });
+
+  it.skip("15. Verify Add/Update/Delete from Deploy page - on Productlines - new record + Bug 14063", () => {});
 
   function GenerateCRUDNValidateDeployPage(
     col1Text: string,
@@ -444,30 +515,37 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       .then(($header: any) => expect($header).to.eq(jsonFromHeader));
   }
 
-  function updateStoresField(rowIndex: number) {
-    let addressinfo: string;
+  function updateStoresSecretInfo(rowIndex: number): string {
+    let secretInfo: string = "";
     table.ReadTableRowColumnData(rowIndex, 3, 200).then(($cellData: any) => {
       var points = $cellData.match(/((.*))/).pop(); //(/(?<=\()).+?(?=\))/g)
-      let addinfo: string[] = (points as string).split(",");
-      addinfo[0] = addinfo[0].slice(0, 5);
-      addinfo[1] = addinfo[1].slice(0, 5);
-      addressinfo = addinfo[0] + addinfo[1];
+      let secretCode: string[] = (points as string).split(",");
+      secretCode[0] = secretCode[0].slice(0, 5);
+      secretCode[1] = secretCode[1].slice(0, 5);
+      secretInfo = secretCode[0] + secretCode[1];
       deployMode.EnterJSONFieldValue(
         deployMode._existingJsonFormFieldByName("Store Secret Code", true),
-        addressinfo,
+        secretInfo,
       );
     });
+    return secretInfo;
+  }
 
+  function updateNVerify(
+    rowIndex: number,
+    colIndex: number,
+    expectedTableData: string,
+  ) {
     agHelper.ClickButton("Update"); //Update does not work, Bug 14063
-    agHelper.AssertElementAbsence(locator._toastMsg); //Validating fix for Bug 14063
+    agHelper.AssertElementAbsence(locator._toastMsg); //Validating fix for Bug 14063 - for common table columns
     agHelper.Sleep(2000); //for update to reflect!
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     table.AssertSelectedRow(rowIndex);
 
     //validating update happened fine!
-    table.ReadTableRowColumnData(rowIndex, 4, 200).then(($cellData) => {
-      expect($cellData).to.eq(addressinfo);
+    table.ReadTableRowColumnData(rowIndex, colIndex, 200).then(($cellData) => {
+      expect($cellData).to.eq(expectedTableData);
     });
   }
 });

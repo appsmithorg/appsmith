@@ -22,13 +22,13 @@ describe("Validate Mongo CRUD with JSON Form", () => {
       agHelper.GetNClick(homePage._buildFromDataTableActionCard);
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(
-        dataSources._datasourceDropdownOption,
+        dataSources._dropdownOption,
         "Mongo " + guid,
       );
       agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
       agHelper.GetNClick(dataSources._selectTableDropdown);
       agHelper.GetNClickByContains(
-        dataSources._tableDropdownOption,
+        dataSources._dropdownOption,
         "samples_pokemon",
       );
       agHelper.GetNClick(dataSources._generatePageBtn);

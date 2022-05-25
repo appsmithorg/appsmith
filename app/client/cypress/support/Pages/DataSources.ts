@@ -47,6 +47,7 @@ export class DataSources {
   _datasourceCardGeneratePageBtn = ".t--generate-template";
   _queryTableResponse =
     "//div[@data-guided-tour-id='query-table-response']//div[@class='tbody']//div[@class ='td']";
+  _refreshIcon = "button .bp3-icon-refresh";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -218,10 +219,7 @@ export class DataSources {
     this.agHelper.ValidateNetworkStatus("@deleteDatasource", 200);
   }
 
-  public NavigateFromActiveDS(
-    datasourceName: string,
-    createQuery: boolean,
-  ) {
+  public NavigateFromActiveDS(datasourceName: string, createQuery: boolean) {
     let btnLocator =
       createQuery == true
         ? this._createQuery

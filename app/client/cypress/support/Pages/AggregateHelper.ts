@@ -105,9 +105,9 @@ export class AggregateHelper {
       .should("contain.text", text);
   }
 
-  public ClickButton(btnVisibleText: string) {
+  public ClickButton(btnVisibleText: string, index = 0) {
     cy.xpath(this.locator._spanButton(btnVisibleText))
-      .first()
+      .eq(index)
       .scrollIntoView()
       .click({ force: true });
     this.Sleep();
