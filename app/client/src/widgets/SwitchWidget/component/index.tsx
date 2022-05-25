@@ -48,7 +48,7 @@ export const StyledSwitch = styled(Switch)<{
   }
 `;
 
-export function SwitchComponent({
+export default function SwitchComponent({
   accentColor,
   alignWidget,
   inputRef,
