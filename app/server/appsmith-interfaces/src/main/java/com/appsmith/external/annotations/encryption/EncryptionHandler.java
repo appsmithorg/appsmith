@@ -231,14 +231,9 @@ public class EncryptionHandler {
             if (fieldValue != null) {
                 if (CandidateField.Type.ANNOTATED_FIELD.equals(candidateField.getType())) {
                     // For each known field, encrypt if it is annotated
-                    try {
                     final String transformedValue = transformer.apply(String.valueOf(fieldValue));
 
                     ReflectionUtils.setField(field, source, transformedValue);
-                    } catch(Exception e) {
-                        //temporary do not commit
-                        //Note: revert the changes in this file once upstream changes are in
-                    }
                 } else if (Set.of(
                         CandidateField.Type.APPSMITH_FIELD_KNOWN,
                         CandidateField.Type.APPSMITH_FIELD_UNKNOWN,
