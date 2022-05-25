@@ -5,7 +5,7 @@ import FormContext from "../FormContext";
 import Field from "widgets/JSONFormWidget/component/Field";
 import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
-import { AlignWidget } from "widgets/constants";
+import { AlignWidget, AlignWidgetTypes } from "widgets/constants";
 import {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
@@ -15,6 +15,7 @@ import SwitchComponent from "widgets/SwitchWidget/component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import { LabelPosition } from "components/constants";
 
 type SwitchComponentOwnProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -92,12 +93,13 @@ function SwitchField({
     () => (
       <SwitchComponent
         accentColor={schemaItem.accentColor || DEFAULT_BG_COLOR}
-        alignWidget={schemaItem.alignWidget}
+        alignWidget={schemaItem.alignWidget as AlignWidgetTypes}
         inputRef={(e) => (inputRef.current = e)}
         isDisabled={schemaItem.isDisabled}
         isLoading={false}
         isSwitchedOn={value ?? false}
         label=""
+        labelPosition={LabelPosition.Left}
         onChange={onSwitchChange}
         widgetId=""
       />
