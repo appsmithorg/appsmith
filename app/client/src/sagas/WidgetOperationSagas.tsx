@@ -398,6 +398,7 @@ export function* setWidgetDynamicPropertySaga(
     );
     widget = set(widget, propertyPath, parsed);
   }
+
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
   widget.dynamicBindingPathList = dynamicBindingPathList;
   const stateWidgets = yield select(getWidgets);
@@ -1504,6 +1505,11 @@ function* pasteWidgetSaga(
   );
 
   yield put(updateAndSaveLayout(reflowedWidgets));
+
+  yield put({
+    type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
+    payload: newlyCreatedWidgetIds,
+  });
 
   //if pasting at the bottom of the canvas, then flash it.
   if (shouldGroup || !newPastingPositionMap) {
