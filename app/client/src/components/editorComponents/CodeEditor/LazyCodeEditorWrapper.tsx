@@ -32,7 +32,7 @@ export const ReadOnlyInput = styled.input`
   left: 0;
   z-index: 2;
   min-height: inherit;
-  height: --webkit-fill-available !important;
+  height: -webkit-fill-available !important;
 `;
 
 export const HighlighedCodeContainer = styled("div")`
