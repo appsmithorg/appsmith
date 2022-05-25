@@ -129,6 +129,21 @@ export default {
               },
             ],
           },
+          {
+            sectionName: "Events",
+            children: [
+              {
+                helpText: "Triggers an action when the menu item is clicked",
+                propertyName: "onClick",
+                label: "onItemClick",
+                controlType: "ACTION_SELECTOR",
+                isJSConvertible: true,
+                isBindProperty: true,
+                isTriggerProperty: true,
+                dependencies: ["primaryColumns", "columnOrder"],
+              },
+            ],
+          },
         ],
       },
     },
