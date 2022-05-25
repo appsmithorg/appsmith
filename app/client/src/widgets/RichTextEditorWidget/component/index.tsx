@@ -15,13 +15,10 @@ const StyledRTEditor = styled.div<{
   boxShadow?: string;
   compactMode: boolean;
   labelPosition?: LabelPosition;
-  isValid?: boolean;
 }>`
   && {
     width: 100%;
     height: 100%;
-    border: 1px solid
-      ${(props) => (props.isValid ? "none" : Colors.DANGER_SOLID)};
     .tox .tox-editor-header {
       z-index: 0;
     }
@@ -44,11 +41,14 @@ const StyledRTEditor = styled.div<{
   ${labelLayoutStyles}
 `;
 
-export const RichTextEditorInputWrapper = styled.div`
+export const RichTextEditorInputWrapper = styled.div<{
+  isValid?: boolean;
+}>`
   display: flex;
   width: 100%;
   min-width: 0;
   height: 100%;
+  border: 1px solid ${(props) => (props.isValid ? "none" : Colors.DANGER_SOLID)};
 `;
 
 export interface RichtextEditorComponentProps {
@@ -133,7 +133,6 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
       className={`container-${props.widgetId}`}
       compactMode={compactMode}
       data-testid="rte-container"
-      isValid={props.isValid}
       labelPosition={labelPosition}
     >
       {labelText && (
@@ -150,7 +149,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           width={labelWidth}
         />
       )}
-      <RichTextEditorInputWrapper>
+      <RichTextEditorInputWrapper isValid={props.isValid}>
         <Editor
           disabled={props.isDisabled}
           id={`rte-${props.widgetId}`}
