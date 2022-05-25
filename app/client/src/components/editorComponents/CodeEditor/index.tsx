@@ -200,6 +200,7 @@ export type EditorProps = EditorStyleProps &
     handleMouseLeave?: () => void;
     isReadOnly?: boolean;
     isRawView?: boolean;
+    isJSObject?: boolean;
     // Custom gutter
     customGutter?: CodeEditorGutter;
   };
@@ -740,7 +741,11 @@ class CodeEditor extends Component<Props, State> {
       [],
     ) as EvaluationError[];
 
-    const annotations = getLintAnnotations(editor.getValue(), errors);
+    const annotations = getLintAnnotations(
+      editor.getValue(),
+      errors,
+      this.props.isJSObject,
+    );
 
     this.updateLintingCallback(editor, annotations);
   }

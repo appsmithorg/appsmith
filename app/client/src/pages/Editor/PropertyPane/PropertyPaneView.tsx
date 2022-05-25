@@ -15,6 +15,15 @@ import { WidgetType } from "constants/WidgetConstants";
 import { getWidgetContextSelector } from "selectors/contextSelectors";
 import { EditingProperty, PropertyType } from "actions/contextActions";
 import { sanitizePropertyPath } from "utils/WidgetPropsUtils";
+import { isWidgetDeprecated } from "../utils";
+import { BannerMessage } from "components/ads/BannerMessage";
+import { Colors } from "constants/Colors";
+import { IconSize } from "components/ads";
+import {
+  createMessage,
+  WIDGET_DEPRECATION_WARNING,
+  WIDGET_DEPRECATION_WARNING_HEADER,
+} from "@appsmith/constants/messages";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -132,6 +141,18 @@ function PropertyPaneView(
 
   if (!widgetProperties) return null;
 
+  // Building Deprecation Messages
+  const isDeprecated = isWidgetDeprecated(widgetProperties.type);
+  const widgetDisplayName = widgetProperties.displayName
+    ? `${widgetProperties.displayName} `
+    : "";
+  // generate messages
+  const deprecationMessage = createMessage(
+    WIDGET_DEPRECATION_WARNING,
+    widgetDisplayName,
+  );
+  const deprecationHeader = createMessage(WIDGET_DEPRECATION_WARNING_HEADER);
+
   return (
     <div
       className="relative flex flex-col w-full pt-3 overflow-y-auto"
@@ -146,7 +167,7 @@ function PropertyPaneView(
       />
 
       <div
-        className="p-3 pb-24 overflow-x-hidden overflow-y-scroll t--property-pane-view"
+        className="pt-3 pb-24 overflow-x-hidden overflow-y-scroll t--property-pane-view"
         data-guided-tour-id="property-pane"
       >
         {!doActionsExist && !hideConnectDataCTA && (
@@ -157,7 +178,18 @@ function PropertyPaneView(
           />
         )}
         <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
-
+        {isDeprecated && (
+          <BannerMessage
+            backgroundColor={Colors.WARNING_ORANGE}
+            className="t--deprecation-warning"
+            icon="warning-line"
+            iconColor={Colors.WARNING_SOLID}
+            iconSize={IconSize.XXXXL}
+            message={deprecationMessage}
+            messageHeader={deprecationHeader}
+            textColor={Colors.BROWN}
+          />
+        )}
         <PropertyControlsGenerator
           id={widgetProperties.widgetId}
           panel={panel}
