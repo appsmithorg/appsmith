@@ -115,9 +115,7 @@ describe("JS Function Execution", function() {
       });
 
       // Assert presence of toast message
-      cy.get(locator._toastMsg)
-        .should("exist")
-        .should("contain.text", invalidJSObjectStartToastMessage);
+      agHelper.ValidateToastMessage(invalidJSObjectStartToastMessage);
 
       // Assert presence of lint error at the start line
       cy.get(locator._lintErrorElement)
