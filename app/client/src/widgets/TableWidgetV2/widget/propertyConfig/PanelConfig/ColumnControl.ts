@@ -174,7 +174,7 @@ export default {
       dependencies: ["primaryColumns", "columnType"],
       label: "Cell Wrapping",
       helpText: "Allows content of the cell to be wrapped",
-      defaultValue: false,
+      defaultValue: true,
       controlType: "SWITCH",
       customJSControl: "COMPUTE_VALUE_V2",
       isJSConvertible: true,

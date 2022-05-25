@@ -814,7 +814,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleColumnSorting = (columnAccessor: string, isAsc: boolean) => {
     const columnId = this.getColumnIdByAlias(columnAccessor);
-    this.resetSelectedRowIndex();
+    this.resetSelectedRowIndex(true);
 
     let sortOrderProps;
 
@@ -1027,7 +1027,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
-  resetSelectedRowIndex = () => {
+  resetSelectedRowIndex = (skipDefault?: boolean) => {
     const {
       defaultSelectedRowIndex,
       defaultSelectedRowIndices,
@@ -1037,12 +1037,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     if (multiRowSelection) {
       this.props.updateWidgetMetaProperty(
         "selectedRowIndices",
-        defaultSelectedRowIndices,
+        skipDefault ? [] : defaultSelectedRowIndices,
       );
     } else {
       this.props.updateWidgetMetaProperty(
         "selectedRowIndex",
-        defaultSelectedRowIndex,
+        skipDefault ? -1 : defaultSelectedRowIndex,
       );
     }
   };

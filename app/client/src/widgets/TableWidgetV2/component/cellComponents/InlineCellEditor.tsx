@@ -94,7 +94,7 @@ export function InlineCellEditor({
 }: InlineEditorPropsType) {
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
   const [cursorPos, setCursorPos] = useState(value.length);
-  const onFocusChange = useCallback((focus: boolean) => !focus && onSave(), [
+  const onFocusChange = useCallback((focus: boolean) => !focus && onSave, [
     onSave,
   ]);
 
