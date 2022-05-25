@@ -323,6 +323,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       .should("be.visible")
       .click({ force: true });
     cy.get(commonlocators.debuggerLabel)
+      .first()
       .invoke("text")
       .then(($text) => {
         expect($text).to.eq("Execution failed with status 5005");
