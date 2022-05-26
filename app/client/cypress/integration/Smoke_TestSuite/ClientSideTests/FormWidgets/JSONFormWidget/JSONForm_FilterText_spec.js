@@ -38,7 +38,7 @@ describe("JSONForm Select field - filterText update action trigger ", () => {
     // Add onFilterUpdate action
     cy.testJsontext(
       "onfilterupdate",
-      "{{showAlert('Filter update:'}}{{fieldState?.color?.filterText)}}",
+      "{{showAlert('Filter update:' + fieldState?.color?.filterText)}}",
     );
 
     // click select field and filter input should exist
@@ -80,7 +80,7 @@ describe("JSONForm Multiselect field - filterText update action trigger ", () =>
     // Add onFilterUpdate action
     cy.testJsontext(
       "onfilterupdate",
-      "{{showAlert('Filter update:'}}{{fieldState?.colors?.filterText)}}",
+      "{{showAlert('Filter update:' + fieldState?.colors?.filterText)}}",
     );
 
     // Open multiselect field and filter input should exist

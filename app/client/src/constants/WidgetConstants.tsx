@@ -1,5 +1,6 @@
 import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { WidgetType as FactoryWidgetType } from "utils/WidgetFactory";
+import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
 export type WidgetType = FactoryWidgetType;
 
 export const SKELETON_WIDGET_TYPE = "SKELETON_WIDGET";
@@ -69,7 +70,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 57;
+export const LATEST_PAGE_VERSION = 59;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
@@ -138,3 +139,5 @@ export const WIDGET_STATIC_PROPS = {
 };
 
 export type TextSize = keyof typeof TextSizes;
+
+export const DEFAULT_FONT_SIZE = THEMEING_TEXT_SIZES.base;

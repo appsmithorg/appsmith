@@ -30,6 +30,7 @@ import { Variable } from "entities/JSCollection";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
+import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -888,13 +889,29 @@ export const getDataTreeWithoutPrivateWidgets = (
   const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
   return treeWithoutPrivateWidgets;
 };
-
-export const overrideWidgetProperties = (
-  entity: DataTreeWidget,
-  propertyPath: string,
-  value: unknown,
-  currentTree: DataTree,
-) => {
+/**
+ *  overrideWidgetProperties method has logic to update overriddenPropertyPaths when overridingPropertyPaths are evaluated.
+ *
+ *  when we evaluate widget's overridingPropertyPaths for example defaultText of input widget,
+ *  we override the values like text and meta.text in dataTree, these values are called as overriddenPropertyPaths
+ *
+ * @param {{
+ *   entity: DataTreeWidget;
+ *   propertyPath: string;
+ *   value: unknown;
+ *   currentTree: DataTree;
+ *   evalMetaUpdates: EvalMetaUpdates;
+ * }} params
+ * @return {*}
+ */
+export const overrideWidgetProperties = (params: {
+  entity: DataTreeWidget;
+  propertyPath: string;
+  value: unknown;
+  currentTree: DataTree;
+  evalMetaUpdates: EvalMetaUpdates;
+}) => {
+  const { currentTree, entity, evalMetaUpdates, propertyPath, value } = params;
   const clonedValue = klona(value);
   if (propertyPath in entity.overridingPropertyPaths) {
     const overridingPropertyPaths =
@@ -907,13 +924,25 @@ export const overrideWidgetProperties = (
         [entity.widgetName, ...overriddenPropertyPathArray],
         clonedValue,
       );
+      // evalMetaUpdates has all updates from property which overrides meta values.
+      if (
+        propertyPath.split(".")[0] !== "meta" &&
+        overriddenPropertyPathArray[0] === "meta"
+      ) {
+        const metaPropertyPath = overriddenPropertyPathArray.slice(1);
+        evalMetaUpdates.push({
+          widgetId: entity.widgetId,
+          metaPropertyPath,
+          value: clonedValue,
+        });
+      }
     });
   } else if (
     propertyPath in entity.propertyOverrideDependency &&
     clonedValue === undefined
   ) {
-    // when value is undefined and has default value then set value to default value.
-    // this is for resetForm
+    // When a reset a widget its meta value becomes undefined, ideally they should reset to default value.
+    // below we handle logic to reset meta values to default values.
     const propertyOverridingKeyMap =
       entity.propertyOverrideDependency[propertyPath];
     if (propertyOverridingKeyMap.DEFAULT) {
@@ -926,6 +955,7 @@ export const overrideWidgetProperties = (
           [entity.widgetName, ...propertyPathArray],
           clonedDefaultValue,
         );
+
         return {
           overwriteParsedValue: true,
           newValue: clonedDefaultValue,

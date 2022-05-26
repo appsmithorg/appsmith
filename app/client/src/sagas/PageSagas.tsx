@@ -285,10 +285,14 @@ export function* fetchPageSaga(
 }
 
 export function* fetchPublishedPageSaga(
-  pageRequestAction: ReduxAction<{ pageId: string; bustCache: boolean }>,
+  pageRequestAction: ReduxAction<{
+    pageId: string;
+    bustCache: boolean;
+    firstLoad: boolean;
+  }>,
 ) {
   try {
-    const { bustCache, pageId } = pageRequestAction.payload;
+    const { bustCache, firstLoad, pageId } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       {
@@ -316,13 +320,16 @@ export function* fetchPublishedPageSaga(
       yield put(initCanvasLayout(canvasWidgetsPayload));
       // set current page
       yield put(updateCurrentPage(pageId, response.data.slug));
-      // dispatch fetch page success
-      yield put(
-        fetchPublishedPageSuccess(
-          // Execute page load actions post published page eval
-          [executePageLoadActions()],
-        ),
-      );
+
+      if (!firstLoad) {
+        // dispatch fetch page success
+        yield put(
+          fetchPublishedPageSuccess(
+            // Execute page load actions post published page eval
+            [executePageLoadActions()],
+          ),
+        );
+      }
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
       );
@@ -348,7 +355,7 @@ export function* fetchAllPublishedPagesSaga() {
     const pageIds = yield select(getAllPageIds);
     yield all(
       pageIds.map((pageId: string) => {
-        return call(PageApi.fetchPublishedPage, { pageId });
+        return call(PageApi.fetchPublishedPage, { pageId, bustCache: true });
       }),
     );
   } catch (error) {

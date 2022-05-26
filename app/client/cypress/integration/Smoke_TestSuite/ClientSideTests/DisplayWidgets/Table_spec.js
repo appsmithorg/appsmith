@@ -134,7 +134,6 @@ describe("Table Widget Functionality", function() {
 
   it("Table Widget Functionality To Verify The Visiblity mode functionality", function() {
     cy.get(publish.backToEditor)
-      .first()
       .click();
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "3").then(tabData => {
