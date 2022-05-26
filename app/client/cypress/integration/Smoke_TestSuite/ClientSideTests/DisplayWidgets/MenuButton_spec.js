@@ -97,7 +97,7 @@ describe("Menu Button Widget Functionality", () => {
       });
     cy.wait(1000);
     // Check the title
-    cy.get(".t--propery-page-title").contains("Second Menu Item");
+    cy.get(".t--property-pane-title").contains("Second Menu Item");
     // Navigate Back
     cy.get(".t--property-pane-back-btn").click();
   });
