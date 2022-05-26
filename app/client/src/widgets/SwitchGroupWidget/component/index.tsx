@@ -14,6 +14,7 @@ import { StyledSwitch } from "widgets/SwitchWidget/component";
 
 export interface SwitchGroupContainerProps {
   compactMode: boolean;
+  isDynamicHeightEnabled?: boolean;
   labelPosition?: LabelPosition;
 }
 
@@ -23,6 +24,9 @@ export const SwitchGroupContainer = styled.div<SwitchGroupContainerProps>`
     ${({ labelPosition }) =>
       labelPosition === LabelPosition.Left && "min-height: 30px"};
   }
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { height: auto }" : ""};
 `;
 
 export interface InputContainerProps {
@@ -62,6 +66,7 @@ const SwitchGroupComponent = React.forwardRef<
     disabled,
     height,
     inline,
+    isDynamicHeightEnabled,
     labelAlignment,
     labelPosition,
     labelStyle,
@@ -81,6 +86,7 @@ const SwitchGroupComponent = React.forwardRef<
     <SwitchGroupContainer
       compactMode={compactMode}
       data-testid="switchgroup-container"
+      isDynamicHeightEnabled={isDynamicHeightEnabled}
       labelPosition={labelPosition}
       ref={ref}
     >
@@ -132,6 +138,7 @@ export interface SwitchGroupComponentProps {
   alignment: Alignment;
   disabled: boolean;
   inline: boolean;
+  isDynamicHeightEnabled?: boolean;
   options: OptionProps[];
   onChange: (value: string) => React.FormEventHandler<HTMLInputElement>;
   required: boolean;

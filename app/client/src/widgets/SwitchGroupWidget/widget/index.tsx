@@ -12,6 +12,7 @@ import SwitchGroupComponent, { OptionProps } from "../component";
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
@@ -406,6 +407,9 @@ class SwitchGroupWidget extends BaseWidget<
         disabled={isDisabled}
         height={componentHeight}
         inline={isInline}
+        isDynamicHeightEnabled={
+          this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS
+        }
         labelAlignment={labelAlignment}
         labelPosition={labelPosition}
         labelStyle={labelStyle}
