@@ -98,7 +98,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     metaProperties: {
       pageNo: 1,
-      selectedRow: {},
       selectedRows: [],
     },
   },

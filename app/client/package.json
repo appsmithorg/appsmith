@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "^16.10.0",
-    "npm": "^6.14.10"
+    "node": "^16.15.0",
+    "npm": "^8.5.5"
   },
   "cracoConfig": "craco.dev.config.js",
   "dependencies": {

@@ -25,6 +25,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 type PropertyPaneTitleProps = {
   title: string;
@@ -45,10 +46,15 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   props: PropertyPaneTitleProps,
 ) {
   const dispatch = useDispatch();
+  const containerRef = useRef<HTMLDivElement>(null);
   const updating = useSelector(
     (state: AppState) => state.ui.editor.loadingStates.updatingWidgetName,
   );
   const isNew = useSelector((state: AppState) => state.ui.propertyPane.isNew);
+  const newWidgetId = useSelector(
+    (state: AppState) =>
+      state.ui.canvasSelection.recentlyAddedWidget[props.widgetId || ""],
+  );
   const guidedTourEnabled = useSelector(inGuidedTour);
 
   // Pass custom equality check function. Shouldn't be expensive than the render
@@ -111,11 +117,40 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   );
 
   useEffect(() => {
+    if (props.isPanelTitle) return;
+    if (props.widgetId === newWidgetId) {
+      containerRef.current?.focus();
+    } else {
+      // Checks if the property pane opened not because of focusing an input inside a widget
+      if (
+        document.activeElement &&
+        ["input", "textarea"].indexOf(
+          document.activeElement?.tagName?.toLowerCase(),
+        ) === -1
+      )
+        setTimeout(() =>
+          document
+            .querySelector(
+              '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
+            )
+            // @ts-expect-error: Focus
+            ?.focus(),
+        );
+    }
+
+    return () => {
+      dispatch({
+        type: ReduxActionTypes.REMOVE_FROM_RECENTLY_ADDED_WIDGET,
+        payload: props.widgetId,
+      });
+    };
+  }, []);
+
+  useEffect(() => {
     setName(props.title);
   }, [props.title]);
 
   // Focus title on F2
-
   const [isEditingDefault, setIsEditingDefault] = useState(
     !props.isPanelTitle ? isNew : undefined,
   );
@@ -133,7 +168,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  });
+  }, []);
 
   return props.widgetId || props.isPanelTitle ? (
     <div className="flex items-center w-full px-3 space-x-1 z-[3]">
@@ -149,7 +184,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
       {/* EDITABLE TEXT */}
       <div className="flex-grow" style={{ maxWidth: `calc(100% - 52px)` }}>
         <EditableText
-          className="flex-grow text-lg font-semibold t--propery-page-title"
+          className="flex-grow text-lg font-semibold t--property-pane-title"
           defaultValue={name}
           editInteractionKind={EditInteractionKind.SINGLE}
           fill
@@ -162,6 +197,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
           savingState={updating ? SavingState.STARTED : SavingState.NOT_STARTED}
           underline
           valueTransform={!props.isPanelTitle ? removeSpecialChars : undefined}
+          wrapperRef={containerRef}
         />
       </div>
 

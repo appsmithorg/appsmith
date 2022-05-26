@@ -17,8 +17,11 @@ export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
 };
 
 export const getWidgetsMeta = (state: AppState) => state.entities.meta;
-export const getWidgetMetaProps = (state: AppState, widgetId: string) =>
-  state.entities.meta[widgetId];
+
+export const getWidgetMetaProps = createSelector(
+  [getWidgetsMeta, (_state: AppState, widgetId: string) => widgetId],
+  (metaState, widgetId: string) => metaState[widgetId],
+);
 
 export const getWidgetByID = (widgetId: string) => {
   return createSelector(

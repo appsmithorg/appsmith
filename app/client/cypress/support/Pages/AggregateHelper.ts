@@ -57,7 +57,7 @@ export class AggregateHelper {
         ).then((dslDumpResp) => {
           //cy.log("Pages resposne is : " + dslDumpResp.body);
           expect(dslDumpResp.status).equal(200);
-          cy.reload();
+          this.RefreshPage();
         });
       });
     });
@@ -132,17 +132,6 @@ export class AggregateHelper {
 
     this.WaitUntilEleAppear(eleToCheckInDeployPage);
     localStorage.setItem("inDeployedMode", "true");
-  }
-
-  public AddNewPage() {
-    cy.get(this.locator._newPage)
-      .first()
-      .click();
-    cy.wait("@createPage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
   }
 
   public ValidateToastMessage(text: string, length = 1) {
@@ -409,6 +398,17 @@ export class AggregateHelper {
       .wait(500);
   }
 
+  public GetNClickByContains(
+    selector: string,
+    containsText: string,
+    index = 0,
+  ) {
+    cy.get(selector)
+      .contains(containsText)
+      .eq(index)
+      .click().wait(200);
+  }
+
   public ToggleOnOrOff(propertyName: string, toggle: "On" | "Off") {
     if (toggle == "On") {
       cy.get(this.locator._propertyToggle(propertyName))
@@ -476,6 +476,7 @@ export class AggregateHelper {
 
   public RefreshPage() {
     cy.reload();
+    this.Sleep(2000)
   }
 
   public ActionContextMenuWithInPane(
@@ -605,7 +606,11 @@ export class AggregateHelper {
     locator.should("not.exist");
   }
 
-  public GetText(selector: string, textOrValue : 'text'| 'val' = 'text', index = 0) {
+  public GetText(
+    selector: string,
+    textOrValue: "text" | "val" = "text",
+    index = 0,
+  ) {
     let locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);

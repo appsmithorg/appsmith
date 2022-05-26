@@ -54,6 +54,7 @@ export type EditableTextSubComponentProps = CommonComponentProps & {
   fill?: boolean;
   underline?: boolean;
   isError?: boolean;
+  ref?: React.MutableRefObject<any>;
 };
 
 export const EditableTextWrapper = styled.div<{
@@ -278,6 +279,7 @@ export function EditableTextSubComponent(props: EditableTextSubComponentProps) {
           onChange={onInputchange}
           onConfirm={onConfirm}
           placeholder={props.placeholder || defaultValue}
+          ref={props.ref}
           selectAllOnFocus
           value={value}
         />

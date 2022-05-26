@@ -25,6 +25,7 @@ import {
 } from "./StyledComponents";
 import { getCurrentUser as refreshCurrentUser } from "actions/authActions";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 const { disableLoginForm } = getAppsmithConfigs();
 
 const ForgotPassword = styled.a`
@@ -72,6 +73,8 @@ function General() {
   useEffect(() => {
     dispatch(refreshCurrentUser());
   }, []);
+
+  if (user?.email === ANONYMOUS_USERNAME) return null;
 
   return (
     <Wrapper>

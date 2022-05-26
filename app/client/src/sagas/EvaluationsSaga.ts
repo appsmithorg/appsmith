@@ -1,5 +1,6 @@
 import {
   actionChannel,
+  ActionPattern,
   all,
   call,
   delay,
@@ -90,10 +91,12 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { updateMetaState } from "actions/metaActions";
 import { getAllActionValidationConfig } from "selectors/entitiesSelector";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
+import { JSUpdate } from "utils/JSPaneUtils";
+import { DataTreeDiff } from "workers/evaluationUtils";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
-import { ActionSubPattern } from "@redux-saga/types";
 import { AppTheme } from "entities/AppTheming";
+import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -133,10 +136,20 @@ function* evaluateTreeSaga(
     dataTree,
     dependencies,
     errors,
+    evalMetaUpdates,
     evaluationOrder,
     jsUpdates,
     logs,
     unEvalUpdates,
+  }: {
+    dataTree: DataTree;
+    dependencies: Record<string, string[]>;
+    errors: EvalError[];
+    evalMetaUpdates: EvalMetaUpdates;
+    evaluationOrder: string[];
+    jsUpdates: Record<string, JSUpdate>;
+    logs: any[];
+    unEvalUpdates: DataTreeDiff[];
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -148,19 +161,24 @@ function* evaluateTreeSaga(
 
   const updates = diff(oldDataTree, dataTree) || [];
 
-  yield put(setEvaluatedTree(dataTree, updates));
+  yield put(setEvaluatedTree(updates));
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-
-  yield put(updateMetaState(updates, dataTree));
+  // if evalMetaUpdates are present only then dispatch updateMetaState
+  if (evalMetaUpdates.length) {
+    yield put(updateMetaState(evalMetaUpdates));
+  }
+  log.debug({ evalMetaUpdates });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
-  yield call(evalErrorHandler, errors, updatedDataTree, evaluationOrder);
-  const appMode: APP_MODE = yield select(getAppMode);
+  // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
+  yield call(evalErrorHandler as any, errors, updatedDataTree, evaluationOrder);
+
+  const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode !== APP_MODE.PUBLISHED) {
     yield call(makeUpdateJSCollection, jsUpdates);
     yield fork(
@@ -458,7 +476,7 @@ function* evaluationChangeListenerSaga() {
     postEvalActions: Array<ReduxAction<unknown>>;
   } = yield take(FIRST_EVAL_REDUX_ACTIONS);
   yield fork(evaluateTreeSaga, initAction.postEvalActions);
-  const evtActionChannel: ActionSubPattern<Action<any>> = yield actionChannel(
+  const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),
   );

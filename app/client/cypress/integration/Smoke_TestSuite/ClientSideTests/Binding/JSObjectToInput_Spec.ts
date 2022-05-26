@@ -19,7 +19,7 @@ describe("Validate JSObjects binding to Input widget", () => {
       paste: false,
       completeReplace: false,
       toRun: true,
-      shouldNavigate: true,
+      shouldCreateNewJSObj: true,
     });
     ee.expandCollapseEntity("WIDGETS"); //to expand widgets
     ee.expandCollapseEntity("Form1");

@@ -53,6 +53,7 @@ export const configureWidget = (config: WidgetConfiguration) => {
     ...config.defaults,
     type: config.type,
     hideCard: !!config.hideCard || !config.iconSVG,
+    isDeprecated: !!config.isDeprecated,
     displayName: config.name,
     key: generateReactKey(),
     iconSVG: config.iconSVG,

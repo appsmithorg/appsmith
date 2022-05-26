@@ -4883,7 +4883,7 @@ public class DatabaseChangelog {
 
         for (Application application : mongockTemplate.find(query, Application.class)) {
             if(!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()) {
-                GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
+                GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(null);
                 GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                 gitApplicationMetadata.setGitAuth(gitAuth);
                 application.setGitApplicationMetadata(gitApplicationMetadata);
