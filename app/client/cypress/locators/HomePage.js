@@ -95,4 +95,5 @@ export default {
   orgNameText: ".t--org-name-text",
   optionsIcon: ".t--options-icon",
   reconnectDatasourceModal: ".reconnect-datasource-modal",
+  importAppProgressWrapper: ".t-import-app-progress-wrapper",
 };

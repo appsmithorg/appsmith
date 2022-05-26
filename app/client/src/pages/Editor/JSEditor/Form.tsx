@@ -16,7 +16,6 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import FormRow from "components/editorComponents/FormRow";
 import JSObjectNameEditor from "./JSObjectNameEditor";
 import {
   setActiveJSAction,
@@ -53,9 +52,9 @@ import {
   ActionButtons,
   Form,
   FormWrapper,
-  MainConfiguration,
   NameWrapper,
   SecondaryWrapper,
+  StyledFormRow,
   TabbedViewContainer,
 } from "./styledComponents";
 
@@ -187,35 +186,33 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
       <JSObjectHotKeys runActiveJSFunction={handleRunAction}>
         <CloseEditor />
         <Form>
-          <MainConfiguration>
-            <FormRow className="form-row-header">
-              <NameWrapper className="t--nameOfJSObject">
-                <JSObjectNameEditor page="JS_PANE" />
-              </NameWrapper>
-              <ActionButtons className="t--formActionButtons">
-                <MoreJSCollectionsMenu
-                  className="t--more-action-menu"
-                  id={currentJSCollection.id}
-                  name={currentJSCollection.name}
-                  pageId={pageId}
-                />
-                <SearchSnippets
-                  entityId={currentJSCollection?.id}
-                  entityType={ENTITY_TYPE.JSACTION}
-                />
-                <JSFunctionRun
-                  disabled={disableRunFunctionality}
-                  isLoading={isExecutingCurrentJSAction}
-                  jsCollection={currentJSCollection}
-                  onButtonClick={handleRunAction}
-                  onSelect={handleJSActionOptionSelection}
-                  options={convertJSActionsToDropdownOptions(jsActions)}
-                  selected={selectedJSActionOption}
-                  showTooltip={!selectedJSActionOption.data}
-                />
-              </ActionButtons>
-            </FormRow>
-          </MainConfiguration>
+          <StyledFormRow className="form-row-header">
+            <NameWrapper className="t--nameOfJSObject">
+              <JSObjectNameEditor page="JS_PANE" />
+            </NameWrapper>
+            <ActionButtons className="t--formActionButtons">
+              <MoreJSCollectionsMenu
+                className="t--more-action-menu"
+                id={currentJSCollection.id}
+                name={currentJSCollection.name}
+                pageId={pageId}
+              />
+              <SearchSnippets
+                entityId={currentJSCollection?.id}
+                entityType={ENTITY_TYPE.JSACTION}
+              />
+              <JSFunctionRun
+                disabled={disableRunFunctionality}
+                isLoading={isExecutingCurrentJSAction}
+                jsCollection={currentJSCollection}
+                onButtonClick={handleRunAction}
+                onSelect={handleJSActionOptionSelection}
+                options={convertJSActionsToDropdownOptions(jsActions)}
+                selected={selectedJSActionOption}
+                showTooltip={!selectedJSActionOption.data}
+              />
+            </ActionButtons>
+          </StyledFormRow>
           <SecondaryWrapper>
             <TabbedViewContainer isExecuting={isExecutingCurrentJSAction}>
               <TabComponent
@@ -237,6 +234,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                           value: currentJSCollection.body,
                           onChange: handleEditorChange,
                         }}
+                        isJSObject
                         mode={EditorModes.JAVASCRIPT}
                         placeholder="Let's write some code!"
                         showLightningMenu={false}

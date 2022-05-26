@@ -13,9 +13,11 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitDeployKeyDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.services.GitService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
@@ -196,10 +198,10 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
     
-    @PostMapping("/import/{organizationId}")
-    public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromGit(@PathVariable String organizationId,
+    @PostMapping("/import/{workspaceId}")
+    public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromGit(@PathVariable String workspaceId,
                                                                             @RequestBody GitConnectDTO gitConnectDTO) {
-        return service.importApplicationFromGit(organizationId, gitConnectDTO)
+        return service.importApplicationFromGit(workspaceId, gitConnectDTO)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
@@ -223,6 +225,13 @@ public class GitControllerCE {
         log.debug("Going to discard changes for branch {} with defaultApplicationId {}", branchName, defaultApplicationId);
         return service.discardChanges(defaultApplicationId, branchName, doPull)
                 .map(result -> new ResponseDTO<>((HttpStatus.OK.value()), result, null));
+    }
+
+    @GetMapping("/protocol/keys")
+    public Mono<ResponseDTO<List<GitDeployKeyDTO>>> getSupportedKeys() {
+        log.debug("Going to list the list of supported keys");
+        return Mono.just(GitDeployKeyGenerator.getSupportedProtocols())
+                .map(gitDeployKeyDTOS -> new ResponseDTO<>(HttpStatus.OK.value(), gitDeployKeyDTOS, null));
     }
 
 }
