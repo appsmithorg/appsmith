@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
@@ -39,6 +40,7 @@ import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.FilterDataService;
 import com.external.plugins.constants.AmazonS3Action;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.external.utils.AmazonS3ErrorUtils;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
@@ -117,6 +119,16 @@ public class AmazonS3Plugin extends BasePlugin {
     public static class S3PluginExecutor implements PluginExecutor<AmazonS3>, SmartSubstitutionInterface {
         private final Scheduler scheduler = Schedulers.elastic();
         private final FilterDataService filterDataService;
+
+        private static final AmazonS3ErrorUtils amazonS3ErrorUtils;
+
+        static {
+            try {
+                amazonS3ErrorUtils = AmazonS3ErrorUtils.getInstance();
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         public S3PluginExecutor() {
             this.filterDataService = FilterDataService.getInstance();
@@ -822,6 +834,9 @@ public class AmazonS3Plugin extends BasePlugin {
                         if (e instanceof AmazonS3Exception) {
                             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                         }
+                        else if (e instanceof AmazonServiceException) {
+                            return Mono.error(new AppsmithPluginException(e, AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                        }
                         return Mono.error(e);
                     })
                     .onErrorResume(e -> {
@@ -830,7 +845,8 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        result.setErrorInfo(e);
+                        //result.setErrorInfo(e);
+                        result.setErrorInfo(e, amazonS3ErrorUtils);
                         return Mono.just(result);
 
                     })
@@ -998,7 +1014,8 @@ public class AmazonS3Plugin extends BasePlugin {
 
                         return new DatasourceTestResult();
                     })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
+                    //.onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error))))
                     .subscribeOn(scheduler);
         }
 
