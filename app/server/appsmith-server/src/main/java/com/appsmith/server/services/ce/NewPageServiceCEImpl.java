@@ -224,7 +224,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     return Mono.just(application);
                 }).flatMap(application -> {
                     if(markApplicationAsRecentlyAccessed) {
-                        // add this application and organization id to the recently used list in UserData
+                        // add this application and workspace id to the recently used list in UserData
                         return userDataService.updateLastUsedAppAndOrgList(application)
                                 .thenReturn(application);
                     } else {
