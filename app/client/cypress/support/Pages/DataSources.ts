@@ -34,26 +34,28 @@ export class DataSources {
   _reconnectModal = "div.reconnect-datasource-modal";
   _activeDSListReconnectModal = (dbName: string) =>
     "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']";
-  _apiQueryBtn = ".t--run-query";
+  _runQueryBtn = ".t--run-query";
+  _newDatabases = "#new-datasources";
+  _selectDatasourceDropdown = "[data-cy=t--datasource-dropdown]";
+  _datasourceDropdownOption = "[data-cy=t--datasource-dropdown-option]";
+  _selectTableDropdown = "[data-cy=t--table-dropdown]";
+  _tableDropdownOption = ".bp3-popover-content .t--dropdown-option";
+  _generatePageBtn = "[data-cy=t--generate-page-form-submit]";
 
-  public NavigateToDSAdd() {
+  public CreatePlugIn(pluginName: string) {
+    cy.get(this._createNewPlgin(pluginName)).trigger("click");
+  }
+
+  public NavigateToDSCreateNew() {
     cy.get(this._addNewDataSource)
       .last()
       .scrollIntoView()
       .should("be.visible")
       .click({ force: true });
-  }
-
-  public CreatePlugIn(pluginName: string) {
-    cy.get(this._createNewPlgin(pluginName)).click();
-  }
-
-  public NavigateToDSCreateNew() {
-    this.NavigateToDSAdd();
-    cy.get(this._dsCreateNewTab)
-      .should("be.visible")
-      .click({ force: true });
-    cy.get(this.locator._loading).should("not.exist");
+    // cy.get(this._dsCreateNewTab)
+    //   .should("be.visible")
+    //   .click({ force: true });
+    cy.get(this._newDatabases).should("be.visible");
   }
 
   public FillPostgresDSForm(shouldAddTrailingSpaces = false) {
@@ -71,6 +73,18 @@ export class DataSources {
     cy.get(this._sectionAuthentication).click();
     cy.get(this._username).type(datasourceFormData["postgres-username"]);
     cy.get(this._password).type(datasourceFormData["postgres-password"]);
+  }
+
+  public FillMongoDSForm(shouldAddTrailingSpaces = false) {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["mongo-host"] + "  "
+      : datasourceFormData["mongo-host"];
+    cy.get(this._host).type(hostAddress);
+    cy.get(this._port).type(datasourceFormData["mongo-port"].toString());
+    cy.get(this._sectionAuthentication).click();
+    cy.get(this._databaseName)
+      .clear()
+      .type(datasourceFormData["mongo-databaseName"]);
   }
 
   public TestSaveDatasource(expectedRes = true) {
@@ -94,7 +108,7 @@ export class DataSources {
   }
 
   public NavigateToActiveDSQueryPane(datasourceName: string) {
-    this.NavigateToDSAdd();
+    this.NavigateToDSCreateNew();
     this.agHelper.GetNClick(this.locator._activeTab);
     cy.get(this._datasourceCard)
       .contains(datasourceName)
@@ -145,7 +159,7 @@ export class DataSources {
   }
 
   RunQuery() {
-    cy.get(this._apiQueryBtn).click({ force: true });
+    cy.get(this._runQueryBtn).click({ force: true });
     this.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
   }
 }

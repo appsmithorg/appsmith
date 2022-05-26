@@ -134,17 +134,6 @@ export class AggregateHelper {
     localStorage.setItem("inDeployedMode", "true");
   }
 
-  public AddNewPage() {
-    cy.get(this.locator._newPage)
-      .first()
-      .click();
-    cy.wait("@createPage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-  }
-
   public ValidateToastMessage(text: string, length = 1) {
     cy.get(this.locator._toastMsg)
       .should("have.length", length)
@@ -409,6 +398,17 @@ export class AggregateHelper {
       .wait(500);
   }
 
+  public GetNClickByContains(
+    selector: string,
+    containsText: string,
+    index = 0,
+  ) {
+    cy.get(selector)
+      .contains(containsText)
+      .eq(index)
+      .click().wait(200);
+  }
+
   public ToggleOnOrOff(propertyName: string, toggle: "On" | "Off") {
     if (toggle == "On") {
       cy.get(this.locator._propertyToggle(propertyName))
@@ -605,7 +605,11 @@ export class AggregateHelper {
     locator.should("not.exist");
   }
 
-  public GetText(selector: string, textOrValue : 'text'| 'val' = 'text', index = 0) {
+  public GetText(
+    selector: string,
+    textOrValue: "text" | "val" = "text",
+    index = 0,
+  ) {
     let locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
