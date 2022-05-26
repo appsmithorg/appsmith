@@ -35,4 +35,21 @@ public class NewAction extends BaseDomain {
 
     ActionDTO publishedAction;
 
+    public void sanitiseForExport() {
+        this.setTemplateId(null);
+        this.setApplicationId(null);
+        this.setOrganizationId(null);
+        this.setProviderId(null);
+        this.setDocumentation(null);
+        ActionDTO unpublishedAction = this.getUnpublishedAction();
+        if (unpublishedAction != null) {
+            unpublishedAction.sanitiseForExport();
+        }
+        ActionDTO publishedAction = this.getPublishedAction();
+        if (publishedAction != null) {
+            publishedAction.sanitiseForExport();
+        }
+        this.sanitiseBaseDomainForExport();
+    }
+
 }

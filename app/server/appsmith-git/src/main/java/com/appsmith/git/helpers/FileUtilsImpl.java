@@ -1,5 +1,6 @@
 package com.appsmith.git.helpers;
 
+import com.appsmith.external.converters.GsonISOStringToInstantConverter;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.git.FileInterface;
@@ -39,6 +40,7 @@ import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -143,6 +145,7 @@ public class FileUtilsImpl implements FileInterface {
                             .registerTypeAdapter(Double.class,  new GsonDoubleToLongConverter())
                             .registerTypeAdapter(Set.class, new GsonUnorderedToOrderedConverter())
                             .registerTypeAdapter(Map.class, new GsonUnorderedToOrderedConverter())
+                            .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
                             .disableHtmlEscaping()
                             .setPrettyPrinting()
                             .create();

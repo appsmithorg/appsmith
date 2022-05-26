@@ -1,22 +1,20 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.git.helpers.FileUtilsImpl;
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
-import com.appsmith.server.dtos.DslActionDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -39,11 +37,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
@@ -212,7 +208,6 @@ public class GitFileUtils {
         applicationJson
                 .getDatasourceList()
                 .forEach(datasource -> {
-                    removeUnwantedFieldsFromDatasource(datasource);
                     resourceMap.put(datasource.getName(), datasource);
                 });
         applicationReference.setDatasources(new HashMap<>(resourceMap));
@@ -308,19 +303,9 @@ public class GitFileUtils {
     }
 
     private void removeUnwantedFieldsFromPage(NewPage page) {
-        page.setDefaultResources(null);
-        page.setCreatedAt(null);
-        page.setUpdatedAt(null);
         // As we are publishing the app and then committing to git we expect the published and unpublished PageDTO will
         // be same, so we only commit unpublished PageDTO.
         page.setPublishedPage(null);
-        page.setUserPermissions(null);
-        PageDTO unpublishedPage = page.getUnpublishedPage();
-        if (unpublishedPage != null) {
-            unpublishedPage
-                    .getLayouts()
-                    .forEach(this::removeUnwantedFieldsFromLayout);
-        }
     }
 
     private void removeUnwantedFieldsFromApplication(Application application) {
@@ -331,78 +316,26 @@ public class GitFileUtils {
         application.setSlug(null);
     }
 
-    private void removeUnwantedFieldsFromDatasource(Datasource datasource) {
-        datasource.setPolicies(new HashSet<>());
-        datasource.setStructure(null);
-        datasource.setUpdatedAt(null);
-        datasource.setCreatedAt(null);
-        datasource.setUserPermissions(null);
-        datasource.setIsConfigured(null);
-        datasource.setInvalids(null);
-    }
-
     private void removeUnwantedFieldFromAction(NewAction action) {
-        action.setDefaultResources(null);
-        action.setCreatedAt(null);
-        action.setUpdatedAt(null);
         // As we are publishing the app and then committing to git we expect the published and unpublished ActionDTO will
         // be same, so we only commit unpublished ActionDTO.
         action.setPublishedAction(null);
-        action.setUserPermissions(null);
-        ActionDTO unpublishedAction = action.getUnpublishedAction();
-        if (unpublishedAction != null) {
-            unpublishedAction.setDefaultResources(null);
-            if (unpublishedAction.getDatasource() != null) {
-                unpublishedAction.getDatasource().setCreatedAt(null);
-            }
-        }
     }
 
     private void removeUnwantedFieldFromActionCollection(ActionCollection actionCollection) {
-        actionCollection.setDefaultResources(null);
-        actionCollection.setCreatedAt(null);
-        actionCollection.setUpdatedAt(null);
         // As we are publishing the app and then committing to git we expect the published and unpublished
         // ActionCollectionDTO will be same, so we only commit unpublished ActionCollectionDTO.
         actionCollection.setPublishedCollection(null);
-        actionCollection.setUserPermissions(null);
-        ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
-        if (unpublishedCollection != null) {
-            unpublishedCollection.setDefaultResources(null);
-            unpublishedCollection.setDefaultToBranchedActionIdsMap(null);
-            unpublishedCollection.setDefaultToBranchedArchivedActionIdsMap(null);
-            unpublishedCollection.setActionIds(null);
-            unpublishedCollection.setArchivedActionIds(null);
-        }
-    }
-
-    private void removeUnwantedFieldsFromLayout(Layout layout) {
-        layout.setAllOnPageLoadActionNames(null);
-        layout.setCreatedAt(null);
-        layout.setUpdatedAt(null);
-        layout.setAllOnPageLoadActionEdges(null);
-        layout.setActionsUsedInDynamicBindings(null);
-        layout.setMongoEscapedWidgetNames(null);
-        List<Set<DslActionDTO>> layoutOnLoadActions = layout.getLayoutOnLoadActions();
-        if (!CollectionUtils.isNullOrEmpty(layout.getLayoutOnLoadActions())) {
-            // Sort actions based on id to commit to git in ordered manner
-            for (int dslActionIndex = 0; dslActionIndex < layoutOnLoadActions.size(); dslActionIndex++) {
-                TreeSet<DslActionDTO> sortedActions = new TreeSet<>(new CompareDslActionDTO());
-                sortedActions.addAll(layoutOnLoadActions.get(dslActionIndex));
-                sortedActions
-                        .forEach(actionDTO -> {
-                            actionDTO.setDefaultActionId(null);
-                            actionDTO.setDefaultCollectionId(null);
-                        });
-                layoutOnLoadActions.set(dslActionIndex, sortedActions);
-            }
-        }
     }
 
     private ApplicationJson getApplicationJsonFromGitReference(ApplicationGitReference applicationReference) {
         ApplicationJson applicationJson = new ApplicationJson();
         // Extract application data from the json
-        applicationJson.setExportedApplication(getApplicationResource(applicationReference.getApplication(), Application.class));
+        Application application = getApplicationResource(applicationReference.getApplication(), Application.class);
+        // As we are publishing the app and then committing to git we expect the published and unpublished versions to
+        // be identical
+        application.setPublishedPages(application.getPages());
+        applicationJson.setExportedApplication(application);
         applicationJson.setEditModeTheme(getApplicationResource(applicationReference.getTheme(), Theme.class));
         // Clone the edit mode theme to published theme as both should be same for git connected application because we
         // do deploy and push as a single operation

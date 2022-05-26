@@ -28,4 +28,17 @@ public class ActionCollection extends BaseDomain {
     ActionCollectionDTO unpublishedCollection;
 
     ActionCollectionDTO publishedCollection;
+
+    public void sanitiseForExport() {
+        this.setDefaultResources(null);
+        ActionCollectionDTO unpublishedCollection = this.getUnpublishedCollection();
+        if (unpublishedCollection != null) {
+            unpublishedCollection.sanitiseForExport();
+        }
+        ActionCollectionDTO publishedCollection = this.getPublishedCollection();
+        if (publishedCollection != null) {
+            publishedCollection.sanitiseForExport();
+        }
+        this.sanitiseBaseDomainForExport();
+    }
 }

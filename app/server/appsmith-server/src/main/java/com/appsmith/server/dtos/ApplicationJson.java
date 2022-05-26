@@ -41,20 +41,26 @@ public class ApplicationJson {
 
     List<NewPage> pageList;
 
+    @Deprecated
     List<String> pageOrder = new ArrayList<>();
 
+    @Deprecated
     List<String> publishedPageOrder = new ArrayList<>();
 
+    @Deprecated
     String publishedDefaultPageName;
-    
+
+    @Deprecated
     String unpublishedDefaultPageName;
     
     List<NewAction> actionList;
 
     List<ActionCollection> actionCollectionList;
 
+    // TODO remove the plain text fields during the export once we have a way to address sample apps DB authentication
     Map<String, DecryptedSensitiveFields> decryptedFields;
 
+    @Deprecated
     Map<String, InvisibleActionFields> invisibleActionFields;
 
     Theme editModeTheme;
@@ -63,6 +69,9 @@ public class ApplicationJson {
     /**
      * Mapping mongoEscapedWidgets with layoutId
      */
+    @Deprecated
     Map<String, Set<String>> publishedLayoutmongoEscapedWidgets;
+
+    @Deprecated
     Map<String, Set<String>> unpublishedLayoutmongoEscapedWidgets;
 }

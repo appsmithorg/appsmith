@@ -18,7 +18,10 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import static com.appsmith.server.constants.ResourceModes.EDIT;
+import static com.appsmith.server.constants.ResourceModes.VIEW;
 import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 
 @Getter
@@ -157,25 +160,30 @@ public class Application extends BaseDomain {
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
     }
 
-    public void removeUnwantedFieldsFromApplicationDuringExport() {
+    public void exportApplicationPages(final Map<String, String> pageIdToNameMap) {
+        for (ApplicationPage applicationPage : this.getPages()) {
+            applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + EDIT));
+            applicationPage.setDefaultPageId(null);
+        }
+        for (ApplicationPage applicationPage : this.getPublishedPages()) {
+            applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + VIEW));
+            applicationPage.setDefaultPageId(null);
+        }
+    }
+
+    public void sanitiseForExport() {
         this.setOrganizationId(null);
-//        this.setPages(null);
-//        this.setPublishedPages(null);
         this.setModifiedBy(null);
-        this.setUpdatedAt(null);
-        this.setCreatedAt(null);
         this.setCreatedBy(null);
         this.setLastDeployedAt(null);
         this.setLastEditedAt(null);
-        this.setUpdatedAt(null);
         this.setGitApplicationMetadata(null);
-        this.setPolicies(null);
-        this.setUserPermissions(null);
         this.setEditModeThemeId(null);
         this.setPublishedModeThemeId(null);
         this.setClientSchemaVersion(null);
         this.setServerSchemaVersion(null);
         this.setIsManualUpdate(false);
+        this.sanitiseBaseDomainForExport();
     }
 
     public List<ApplicationPage> getPages() {

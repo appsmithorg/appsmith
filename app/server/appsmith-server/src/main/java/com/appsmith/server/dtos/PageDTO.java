@@ -53,4 +53,8 @@ public class PageDTO {
     // connected applications and will be used to connect actions across the branches
     @Transient
     DefaultResources defaultResources;
+
+    public void sanitiseForExport() {
+        this.getLayouts().forEach(Layout::sanitiseForExport);
+    }
 }

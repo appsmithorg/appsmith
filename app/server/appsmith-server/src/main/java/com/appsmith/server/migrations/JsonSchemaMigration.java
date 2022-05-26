@@ -40,12 +40,12 @@ public class JsonSchemaMigration {
             case 1:
                 // Migration for deprecating archivedAt field in ActionDTO
                 if (!CollectionUtils.isNullOrEmpty(applicationJson.getActionList())) {
-                    HelperMethods.updateArchivedAtByDeletedATForActions(applicationJson.getActionList());
+                    MigrationHelperMethods.updateArchivedAtByDeletedATForActions(applicationJson.getActionList());
                 }
                 applicationJson.setServerSchemaVersion(2);
             case 2:
                 // Migration for converting formData elements to one that supports viewType
-                HelperMethods.migrateActionFormDataToObject(applicationJson);
+                MigrationHelperMethods.migrateActionFormDataToObject(applicationJson);
                 applicationJson.setServerSchemaVersion(3);
             case 3:
                 // File structure migration to update git directory structure

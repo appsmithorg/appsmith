@@ -115,4 +115,12 @@ public class ActionCollectionDTO {
         this.setOrganizationId(actionCollection.getOrganizationId());
         copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), this.getDefaultResources());
     }
+
+    public void sanitiseForExport() {
+        this.setDefaultResources(null);
+        this.setDefaultToBranchedActionIdsMap(null);
+        this.setDefaultToBranchedArchivedActionIdsMap(null);
+        this.setActionIds(null);
+        this.setArchivedActionIds(null);
+    }
 }

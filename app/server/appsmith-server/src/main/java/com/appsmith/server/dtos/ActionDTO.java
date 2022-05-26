@@ -148,4 +148,17 @@ public class ActionDTO {
             return this.fullyQualifiedName;
         }
     }
+    public void sanitiseForExport() {
+        this.setDefaultResources(null);
+        this.setCacheResponse(null);
+        if (this.getDatasource() != null) {
+            this.getDatasource().setCreatedAt(null);
+        }
+        if (this.getUserPermissions() != null) {
+            this.getUserPermissions().clear();
+        }
+        if (this.getPolicies() != null) {
+            this.getPolicies().clear();
+        }
+    }
 }

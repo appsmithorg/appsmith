@@ -8,7 +8,7 @@ import com.appsmith.server.helpers.CollectionUtils;
 import java.time.Instant;
 import java.util.List;
 
-public class HelperMethods {
+public class MigrationHelperMethods {
     // Migration for deprecating archivedAt field in ActionDTO
     public static void updateArchivedAtByDeletedATForActions(List<NewAction> actionList) {
         for (NewAction newAction : actionList) {
