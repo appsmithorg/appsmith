@@ -454,6 +454,32 @@ export function* initializeAppViewerSaga(
   //Delay page load actions till all actions are retrieved.
   yield put(fetchPublishedPageSuccess([executePageLoadActions()]));
 
+  if (toLoadPageId) {
+    yield put(fetchPublishedPage(toLoadPageId, true));
+
+    const resultOfFetchPage: {
+      success: boolean;
+      failure: boolean;
+    } = yield race({
+      success: take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS),
+      failure: take(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR),
+    });
+
+    if (resultOfFetchPage.failure) {
+      yield put({
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+        payload: {
+          code: get(
+            resultOfFetchPage,
+            "failure.payload.error.code",
+            ERROR_CODES.SERVER_ERROR,
+          ),
+        },
+      });
+      return;
+    }
+  }
+
   yield put(fetchCommentThreadsInit());
 
   yield put({
