@@ -25,7 +25,6 @@ import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { selectFeatureFlags } from "./usersSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import {
   EvaluationError,
   EVAL_ERROR_PATH,
@@ -471,21 +470,20 @@ export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
 export const getWidgetCanvasValues = createSelector(
   [getCanvasWidgets, (_state: AppState, widgetId: string) => widgetId],
   (canvasWidgets: CanvasWidgetsReduxState, widgetId: string) =>
-    CanvasWidgetsNormalizer.denormalize(widgetId, {
-      canvasWidgets: canvasWidgets[widgetId],
-    }),
+    canvasWidgets[widgetId],
 );
 
 function getWidgetsStructure(canvasWidgets: CanvasWidgetsReduxState) {
   const canvasWidgetStructure: Record<string, Partial<WidgetProps>> = {};
   Object.values(canvasWidgets).map(
-    ({ children, parentId, widgetId, widgetName, ...rest }) => {
+    ({ children, isLoading, parentId, type, widgetId, widgetName }) => {
       canvasWidgetStructure[widgetId] = {
         widgetId,
         children,
         parentId,
         widgetName,
-        ...rest,
+        type,
+        isLoading,
       };
     },
   );
