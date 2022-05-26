@@ -48,6 +48,31 @@ export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
         controlType: "DROP_DOWN",
         isBindProperty: false,
         isTriggerProperty: false,
+        dependencies: ["shouldScrollContents"],
+        updateHook: (
+          props: WidgetProps,
+          propertyName: string,
+          propertyValue: string,
+        ) => {
+          console.log(
+            "Dynamic height: Update hook:",
+            { props },
+            { propertyName },
+            { propertyValue },
+          );
+          if (
+            propertyValue === DynamicHeight.HUG_CONTENTS &&
+            props.shouldScrollContents === false &&
+            propertyName === "dynamicHeight"
+          ) {
+            return [
+              {
+                propertyPath: "shouldScrollContents",
+                propertyValue: true,
+              },
+            ];
+          }
+        },
         options: [
           {
             label: "Hug Contents",

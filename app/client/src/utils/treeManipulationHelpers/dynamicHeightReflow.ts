@@ -109,6 +109,7 @@ export function computeChangeInPositionBasedOnDelta(
 
   // Iteration 3 (O(o) - o is the number of effected widgets)
   for (const effectedBoxId in effectedBoxMap) {
+    // TODO: FIX_ME(abhinav): Handle the scenario where widgets can't freely move up
     repositionedBoxes[effectedBoxId] = {
       topRow:
         tree[effectedBoxId].topRow +

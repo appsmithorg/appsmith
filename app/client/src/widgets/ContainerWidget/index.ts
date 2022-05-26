@@ -7,6 +7,9 @@ export const CONFIG = {
   name: "Container",
   iconSVG: IconSVG,
   isCanvas: true,
+  features: {
+    dynamicHeight: true,
+  },
   defaults: {
     backgroundColor: "#FFFFFF",
     rows: 40,

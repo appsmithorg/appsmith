@@ -56,6 +56,7 @@ import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
   getCurrentPageId,
   getOccupiedSpaces,
+  getOccupiedSpacesGroupedByParentCanvas,
   getWidgetSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
@@ -120,10 +121,7 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
-import {
-  getDynamicHeightLayoutTree,
-  getReflow,
-} from "selectors/widgetReflowSelectors";
+import { getReflow } from "selectors/widgetReflowSelectors";
 import { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import { stopReflowAction } from "actions/reflowActions";
 import {
@@ -131,19 +129,11 @@ import {
   getBottomRowAfterReflow,
 } from "utils/reflowHookUtils";
 import { PrevReflowState, ReflowDirection, SpaceMap } from "reflow/reflowTypes";
-import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
+import { WidgetSpace } from "constants/CanvasEditorConstants";
 import { reflow } from "reflow";
 import { getBottomMostRow } from "reflow/reflowUtils";
 import { flashElementsById } from "utils/helpers";
 import { getSlidingCanvasName } from "constants/componentClassNameConstants";
-import { DynamicHeight } from "utils/WidgetFeatures";
-import {
-  computeChangeInPositionBasedOnDelta,
-  generateTree,
-  TreeNode,
-} from "utils/treeManipulationHelpers/dynamicHeightReflow";
-import { storeDynamicHeightLayoutTreeAction } from "ce/actions/dynamicHeightActions";
-import { DynamicHeightLayoutTreeReduxState } from "reducers/entityReducers/dynamicHeightReducers/dynamicHeightLayoutTreeReducer";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -1636,270 +1626,6 @@ export function* groupWidgetsSaga() {
   }
 }
 
-// TODO: REFACTOR(abhinav): Move to someplace global, and use it in hooks as well
-type PropertyPaths = Array<{
-  propertyPath: string;
-  propertyValue: any;
-}>;
-/**
- * Saga to update a widget's dynamic height
- * When a widget changes in height, it must do the following
- * - Make sure any parent that should also change height accordingly, does so
- * - Make sure any widget that needs to reposition due to the above changes, does so
- *
- *
- * TODO: PERF_TRACK(abhinav): Make sure to benchmark the computations. We need to propagate changes within 10ms
- */
-export function* updateWidgetDynamicHeightSaga(
-  action: ReduxAction<UpdateWidgetDynamicHeightPayload>,
-) {
-  const start = performance.now();
-  const { height, widgetId } = action.payload;
-
-  const widgetsToUpdate: UpdateWidgetsPayload = {};
-  const delta: Record<string, number> = {};
-  // walk up the tree
-  // Club all updates together to put the UPDATE_MULTIPLE_WIDGET_PROPERTIES action
-
-  const widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
-  const expectedBottomRow =
-    widget.topRow + Math.ceil(height / widget.parentRowSpace);
-  // When we call this action for the first time, it will not be container like,
-  // It will either be a CanvasWidget, or a non-container widget
-  let isContainerLike = false;
-  let updateResult = getWidgetDynamicHeightUpdates(
-    widget,
-    expectedBottomRow,
-    isContainerLike,
-  );
-  if (updateResult.pathsToUpdate) {
-    widgetsToUpdate[widgetId] = updateResult.pathsToUpdate;
-    delta[widgetId] =
-      getHeightDelta(updateResult.pathsToUpdate, widget.bottomRow) || 0;
-  }
-  let parentId = widget.parentId;
-
-  while (parentId) {
-    const parent: FlattenedWidgetProps = yield select(getWidget, parentId);
-    if (parent.type !== "CANVAS_WIDGET") {
-      // If the parent is not a CANVAS widget,
-      // It is going to be a container like widget
-      isContainerLike = true;
-      updateResult = getWidgetDynamicHeightUpdates(
-        parent,
-        updateResult.bottomRow,
-        isContainerLike,
-      );
-      if (updateResult.pathsToUpdate) {
-        widgetsToUpdate[parentId] = updateResult.pathsToUpdate;
-        delta[parentId] =
-          getHeightDelta(updateResult.pathsToUpdate, widget.bottomRow) || 0;
-      }
-    }
-    parentId = parent.parentId;
-  }
-  const dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState = yield select(
-    getDynamicHeightLayoutTree,
-  );
-  const allWidgetsToUpdate = computeChangeInPositionBasedOnDelta(
-    dynamicHeightLayoutTree,
-    delta,
-  );
-
-  for (const widgetId in allWidgetsToUpdate) {
-    if (widgetsToUpdate.hasOwnProperty(widgetId)) {
-      widgetsToUpdate[widgetId].push(
-        {
-          propertyPath: "bottomRow",
-          propertyValue: allWidgetsToUpdate[widgetId].bottomRow,
-        },
-        {
-          propertyPath: "topRow",
-          propertyValue: allWidgetsToUpdate[widgetId].topRow,
-        },
-      );
-    } else {
-      widgetsToUpdate[widgetId] = [
-        {
-          propertyPath: "bottomRow",
-          propertyValue: allWidgetsToUpdate[widgetId].bottomRow,
-        },
-        {
-          propertyPath: "topRow",
-          propertyValue: allWidgetsToUpdate[widgetId].topRow,
-        },
-      ];
-    }
-  }
-
-  yield put({
-    type: ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
-    payload: widgetsToUpdate,
-  });
-  log.debug(
-    "Dynamic Height: Overall time taken: ",
-    performance.now() - start,
-    "ms",
-  );
-}
-
-function getHeightDelta(
-  pathsToUpdate: PropertyPaths,
-  originalBottomRow: number,
-) {
-  const bottomRowProperty = pathsToUpdate.find(
-    (path) => path.propertyPath === "bottomRow",
-  );
-  if (!bottomRowProperty) return;
-  return bottomRowProperty.propertyValue - originalBottomRow;
-}
-
-// TODO: REFACTOR(abhinav): Move to WidgetOperationUtils
-function getWidgetDynamicHeightUpdates(
-  widget: FlattenedWidgetProps,
-  expectedBottomRow: number, // This is bottomRow for non-containerLike, and child's bottomRow for containerLike
-  isContainerLike: boolean,
-): { bottomRow: number; pathsToUpdate?: PropertyPaths } {
-  // TODO: DEBUG(abhinav): Make sure parentRowSpace exists
-
-  // If dynamic height isn't enabled, don't update anything
-  const isDynamicHeightEnabled =
-    widget.dynamicHeight === DynamicHeight.HUG_CONTENTS;
-
-  if (!isDynamicHeightEnabled) return { bottomRow: widget.bottomRow };
-
-  const { maxDynamicHeight, minDynamicHeight } = widget;
-
-  // If this is not a container like widget
-  // This means, we have to change the height of the current widget
-  // And that expectedBottomRow, is the expected bottomRow of the current widget
-
-  // Fun fact, a majorify of the computations are going to be in pixels
-  if (!isContainerLike) {
-    // The current widget height in pixels
-    const currentHeightInPixels: number =
-      (widget.bottomRow - widget.topRow) * widget.parentRowSpace;
-
-    // The expected height of "this" widget in pixels
-    const expectedHeightInPixels: number =
-      (expectedBottomRow - widget.topRow) * widget.parentRowSpace;
-
-    let newHeightInPixels = currentHeightInPixels;
-
-    // If the expected height is smaller than the current height
-    // We need to make sure that we're not already at the minimum height
-    if (
-      expectedHeightInPixels < currentHeightInPixels &&
-      currentHeightInPixels > minDynamicHeight
-    ) {
-      // If we're not at the minimum height --
-      // We take the max between minimum height and expected height (both in pixels)
-      newHeightInPixels = Math.max(minDynamicHeight, expectedHeightInPixels);
-    }
-
-    // If the expected height is larger than the current height
-    // We need to make sure that we're not already at the maximum height
-    if (
-      expectedHeightInPixels > currentHeightInPixels &&
-      currentHeightInPixels < maxDynamicHeight
-    ) {
-      // If we're not at the maximum height --
-      // We take the min between maximum height and expected height (both in pixels)
-      newHeightInPixels = Math.min(maxDynamicHeight, expectedHeightInPixels);
-    }
-
-    // Convert the height to a bottomRow value
-    const newBottomRow =
-      widget.topRow + Math.ceil(newHeightInPixels / widget.parentRowSpace);
-
-    return {
-      bottomRow: newBottomRow,
-      pathsToUpdate: [
-        {
-          propertyPath: "bottomRow",
-          propertyValue: newBottomRow,
-        },
-      ],
-    };
-  }
-  // If this is a container like widget
-  // This means, we have to change the height of the current widget
-  // to accommodate the child's increase or decrese in height
-  // And that expectedBottomRow, is actually the new bottomRow of the child widget
-
-  // Fun fact, a majorify of the computations are going to be in rows
-  else {
-    // Number of rows possible for any child in this widget without scrolling
-    const numberOfRows: number = widget.bottomRow - widget.topRow;
-
-    let newBottomRow = widget.bottomRow;
-
-    // If the child's bottom row is smaller than the available rows in this widget
-    // We need to make sure that we're not already at the minimum height
-    if (
-      numberOfRows > expectedBottomRow &&
-      numberOfRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT > minDynamicHeight
-    ) {
-      // If we're not at the minimum height --
-      // We take the max between minimum height and child's bottomRow (both in rows)
-      // and add it to the topRow, to get the new bottomRow
-      newBottomRow =
-        Math.max(
-          minDynamicHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-          expectedBottomRow,
-        ) + widget.topRow;
-    }
-
-    // If the child's bottom row is larger than the available rows in this widget
-    // We need to make sure that we're not already at the maximum height
-    if (
-      numberOfRows < expectedBottomRow &&
-      numberOfRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT < maxDynamicHeight
-    ) {
-      // If we're not at the maximum height --
-      // We take the min between maximum height and child's bottomRow (both in rows)
-      // and add it to the topRow, to get the new bottomRow
-      newBottomRow =
-        Math.min(
-          maxDynamicHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-          expectedBottomRow,
-        ) + widget.topRow;
-    }
-    return {
-      bottomRow: newBottomRow,
-      pathsToUpdate: [
-        {
-          propertyPath: "bottomRow",
-          propertyValue: newBottomRow,
-        },
-      ],
-    };
-  }
-}
-
-function* generateTreeForDynamicHeightComputations() {
-  const start = performance.now();
-  const occupiedSpaces: Record<string, OccupiedSpace[]> = yield select(
-    getOccupiedSpaces,
-  );
-
-  // TODO(abhinav): Memoize this or something, in case the `UPDATE_LAYOUT` did not cause a change in
-  // widget positions and sizes
-  let tree: Record<string, TreeNode> = {};
-  for (const containerId in occupiedSpaces) {
-    if (occupiedSpaces[containerId])
-      tree = Object.assign({}, tree, generateTree(occupiedSpaces[containerId]));
-  }
-
-  yield put(storeDynamicHeightLayoutTreeAction(tree));
-  // TODO (abhinav): Push this analytics to sentry|segment?
-  log.debug(
-    "Dynamic Height: Tree generation took:",
-    performance.now() - start,
-    "ms",
-  );
-}
-
 export default function* widgetOperationSagas() {
   yield fork(widgetAdditionSagas);
   yield fork(widgetDeletionSagas);
@@ -1940,18 +1666,5 @@ export default function* widgetOperationSagas() {
     takeEvery(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
-    // TODO: DEBUG(abhinav): Is takeEvery the right way?
-    takeEvery(
-      ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_HEIGHT,
-      updateWidgetDynamicHeightSaga,
-    ),
-    takeLatest(
-      [
-        ReduxActionTypes.UPDATE_LAYOUT,
-        ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
-        ReduxActionTypes.INIT_CANVAS_LAYOUT,
-      ],
-      generateTreeForDynamicHeightComputations,
-    ),
   ]);
 }

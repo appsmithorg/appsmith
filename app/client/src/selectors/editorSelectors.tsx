@@ -345,6 +345,8 @@ export const getOccupiedSpaces = createSelector(
       containerWidgets.forEach((containerWidget: FlattenedWidgetProps) => {
         const containerWidgetId = containerWidget.widgetId;
         // Get child widgets for the container
+        // TODO: PERF_FIX (abhinav): This is iterating over all widgets for every widget which has children
+        // We can optimise this by iterating through the children for each widget which has children
         const childWidgets = Object.keys(widgets).filter(
           (widgetId) =>
             containerWidget.children &&
@@ -362,6 +364,72 @@ export const getOccupiedSpaces = createSelector(
 
     // Return undefined if there are no occupiedSpaces.
     return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : undefined;
+  },
+);
+
+export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
+  getWidgets,
+  (
+    widgets: CanvasWidgetsReduxState,
+  ): { [parentCanvasWidgetId: string]: OccupiedSpace[] } => {
+    const occupiedSpaces: {
+      [parentCanvasWidgetId: string]: OccupiedSpace[];
+    } = {};
+    // Get all widgets with type "CANVAS_WIDGET" and has children
+    // What we're really doing is getting all widgets inside a drop target
+    const canvasWidgets: FlattenedWidgetProps[] = Object.values(widgets).filter(
+      (widget) => widget.type === "CANVAS_WIDGET",
+    );
+
+    // If we have any canvas widgets
+    if (canvasWidgets) {
+      // Iterate through the list of canvas widgets
+      canvasWidgets.forEach((canvasWidget: FlattenedWidgetProps) => {
+        // Set the canvas widget id
+        const canvasWidgetId = canvasWidget.widgetId;
+
+        // Get the nesting level of this Canvas:
+        let parentId = canvasWidget.parentId;
+        let level = 0;
+        while (parentId) {
+          const parent = widgets[parentId];
+          if (parent.type === "CANVAS_WIDGET") level++;
+          parentId = parent.parentId;
+        }
+        console.log("Dynamic height: Level of canvas widget:", {
+          widgetId: canvasWidget.widgetId,
+          level,
+        });
+        // Initilise the occupied spaces with an empty array
+        occupiedSpaces[canvasWidgetId] = [];
+        // If this canvas widget has children
+        if (canvasWidget.children && canvasWidget.children.length > 0) {
+          // Iterate through all children
+          canvasWidget.children.forEach((childWidgetId: string) => {
+            // Get the widget props
+            const widget = widgets[childWidgetId];
+            // If the widget is not detached from layout, which means
+            // They actually exist by being displayed within the canvas
+            // (unlike a modal widget or another canvas widget)
+            if (!widget.detachFromLayout) {
+              // Add the occupied space co-ordinates to the initialised array
+              occupiedSpaces[canvasWidgetId].push({
+                id: widget.widgetId,
+                parentId: canvasWidgetId,
+                left: widget.leftColumn,
+                top: widget.topRow,
+                bottom: widget.bottomRow,
+                right: widget.rightColumn,
+              });
+            }
+          });
+        }
+      });
+    }
+
+    // Return the occupied spaces
+    // In an empty canvas it will be like so: { "0": [] }
+    return occupiedSpaces;
   },
 );
 
