@@ -232,7 +232,6 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     let errors: EvaluationError[] = [];
-    debugger;
     let result;
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
