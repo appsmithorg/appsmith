@@ -221,6 +221,9 @@ export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = () =>
 
 export const SERVER_API_TIMEOUT_ERROR = () =>
   `Appsmith server is taking too long to respond. Please try again after some time`;
+// Used for fork, duplicate and import app timeout errors
+export const APPLICATION_CREATION_TIMEOUT_ERROR = () =>
+  `Appsmith took too long to respond. The application is being created or has been created. Please refresh the page to check the same.`;
 export const DEFAULT_ERROR_MESSAGE = () => `There was an unexpected error`;
 export const REMOVE_FILE_TOOL_TIP = () => "Remove Upload";
 export const ERROR_FILE_TOO_LARGE = (fileSize: string) =>

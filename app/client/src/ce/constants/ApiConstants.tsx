@@ -2,6 +2,8 @@ export const REQUEST_TIMEOUT_MS = 20000;
 export const DEFAULT_ACTION_TIMEOUT = 10000;
 export const DEFAULT_EXECUTE_ACTION_TIMEOUT_MS = 15000;
 export const DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS = 30000;
+// Used for fork, duplicate and import app
+export const DEFAULT_CREATE_APPLICATION_TIMEOUT_MS = 60000;
 
 export enum API_STATUS_CODES {
   REQUEST_NOT_AUTHORISED = 401,

@@ -709,7 +709,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
             <MenuItemWrapper
               key={item.text}
               {...item}
-              className={item.icon === "delete-blank" ? "error-menuitem" : ""}
+              className={
+                item.icon === "delete-blank"
+                  ? "error-menuitem"
+                  : Classes.POPOVER_DISMISS
+              }
             />
           );
         })}

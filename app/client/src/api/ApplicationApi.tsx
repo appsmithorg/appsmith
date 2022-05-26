@@ -7,6 +7,11 @@ import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { APP_MODE } from "entities/App";
 import { ApplicationVersion } from "actions/applicationActions";
 import { Datasource } from "entities/Datasource";
+import {
+  APPLICATION_CREATION_TIMEOUT_ERROR,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { DEFAULT_CREATE_APPLICATION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 
 export type EvaluationVersion = number;
 
@@ -251,7 +256,15 @@ class ApplicationApi extends Api {
   static duplicateApplication(
     request: DuplicateApplicationRequest,
   ): AxiosPromise<ApiResponse> {
-    return Api.post(ApplicationApi.baseURL + "/clone/" + request.applicationId);
+    return Api.post(
+      ApplicationApi.baseURL + "/clone/" + request.applicationId,
+      undefined,
+      undefined,
+      {
+        timeout: DEFAULT_CREATE_APPLICATION_TIMEOUT_MS,
+        timeoutErrorMessage: createMessage(APPLICATION_CREATION_TIMEOUT_ERROR),
+      },
+    );
   }
 
   static forkApplication(
@@ -263,6 +276,12 @@ class ApplicationApi extends Api {
         request.applicationId +
         "/fork/" +
         request.organizationId,
+      undefined,
+      undefined,
+      {
+        timeout: DEFAULT_CREATE_APPLICATION_TIMEOUT_MS,
+        timeoutErrorMessage: createMessage(APPLICATION_CREATION_TIMEOUT_ERROR),
+      },
     );
   }
 
@@ -282,6 +301,8 @@ class ApplicationApi extends Api {
           "Content-Type": "multipart/form-data",
         },
         onUploadProgress: request.progress,
+        timeout: DEFAULT_CREATE_APPLICATION_TIMEOUT_MS,
+        timeoutErrorMessage: createMessage(APPLICATION_CREATION_TIMEOUT_ERROR),
       },
     );
   }

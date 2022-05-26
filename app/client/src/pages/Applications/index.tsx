@@ -24,6 +24,7 @@ import {
   getIsDeletingApplication,
   getIsDuplicatingApplication,
   getIsFetchingApplications,
+  getIsImportingApplication,
   getIsSavingOrgInfo,
   getUserApplicationsOrgs,
   getUserApplicationsOrgsList,
@@ -96,6 +97,7 @@ import {
   DEFAULT_BASE_URL_BUILDER_PARAMS,
   updateURLFactory,
 } from "RouteBuilder";
+import { Spinner } from "components/ads";
 
 const OrgDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -262,6 +264,19 @@ const NoAppsFound = styled.div`
   & > span {
     margin-bottom: 24px;
   }
+`;
+
+const LoadingWrapper = styled.div`
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.2);
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 function Item(props: {
@@ -945,6 +960,7 @@ type ApplicationProps = {
   deleteApplication: (id: string) => void;
   deletingApplication: boolean;
   duplicatingApplication: boolean;
+  importingApplication: boolean;
   getAllApplication: () => void;
   userOrgs: any;
   currentUser?: User;
@@ -999,6 +1015,12 @@ class Applications extends Component<
             </ApplicationsWrapper>
           )}
         </MediaQuery>
+        {(this.props.importingApplication ||
+          this.props.duplicatingApplication) && (
+          <LoadingWrapper>
+            <Spinner size={IconSize.XXXXL} />
+          </LoadingWrapper>
+        )}
       </PageWrapper>
     );
   }
@@ -1011,6 +1033,7 @@ const mapStateToProps = (state: AppState) => ({
   createApplicationError: getCreateApplicationError(state),
   deletingApplication: getIsDeletingApplication(state),
   duplicatingApplication: getIsDuplicatingApplication(state),
+  importingApplication: getIsImportingApplication(state),
   userOrgs: getUserApplicationsOrgsList(state),
   currentUser: getCurrentUser(state),
   searchKeyword: getApplicationSearchKeyword(state),

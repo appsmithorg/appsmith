@@ -85,14 +85,18 @@ export const apiFailureResponseInterceptor = (error: any) => {
     return makeExecuteActionResponse(error.response);
   }
   // Return error if any timeout happened in other api calls
-  if (
-    error.code === axiosConnectionAbortedCode &&
-    error.message &&
-    error.message.match(timeoutErrorRegex)
-  ) {
+  if (error.code === axiosConnectionAbortedCode && error.message) {
+    if (error.message.match(timeoutErrorRegex)) {
+      return Promise.reject({
+        ...error,
+        message: createMessage(SERVER_API_TIMEOUT_ERROR),
+        code: ERROR_CODES.REQUEST_TIMEOUT,
+      });
+    }
+    // Return error with the custom error message specified in
     return Promise.reject({
       ...error,
-      message: createMessage(SERVER_API_TIMEOUT_ERROR),
+      message: error.message,
       code: ERROR_CODES.REQUEST_TIMEOUT,
     });
   }
