@@ -105,7 +105,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     if (!value.text && !props.value) return;
     // This Prevents calling onTextChange when initialized
     if (!value.isUserEdit) return;
-    const timeOutId = setTimeout(() => props.onValueChange(value.text), 1000);
+    const timeOutId = setTimeout(() => props.onValueChange(value.text), 10);
     return () => clearTimeout(timeOutId);
   }, [value]);
 
