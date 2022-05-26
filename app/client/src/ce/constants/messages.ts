@@ -446,6 +446,7 @@ export const PARSE_JS_FUNCTION_ERROR = (message: string) =>
   `Syntax error: ${message}`;
 
 export const EXECUTING_FUNCTION = () => `Executing function`;
+export const UPDATING_JS_COLLECTION = () => `Updating...`;
 export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
 export const EXPORT_DEFAULT_BEGINNING = () =>
@@ -1031,15 +1032,6 @@ export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
 export const DISCONNECT_AUTH_ERROR = () =>
   "Cannot disconnect the only connected authentication method.";
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
-//Reflow Beta Screen
-export const REFLOW_BETA_CHECKBOX_LABEL = () =>
-  "Turn on new drag & drop experience";
-export const REFLOW_INFO_CARD_HEADER = () => "New Drag & Drop Experience";
-export const REFLOW_INFO_CARD_CONTENT_1 = () =>
-  "When dropping a new widget, other widgets now automatically move out of the way.";
-export const REFLOW_INFO_CARD_CONTENT_2 = () =>
-  "Widgets next to the canvas edge will shrink to make space for the new widget.";
-export const REFLOW_LEARN_MORE = () => "LEARN MORE";
 //
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us more about what you do at work?";
@@ -1051,6 +1043,9 @@ export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
 export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
+export const WIDGET_DEPRECATION_WARNING = (widgetName: string) =>
+  `A new version of the ${widgetName}widget is available. Upgrade to enjoy an enhanced experience.`;
+export const WIDGET_DEPRECATION_WARNING_HEADER = () => "Stay Up-to-date";
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 

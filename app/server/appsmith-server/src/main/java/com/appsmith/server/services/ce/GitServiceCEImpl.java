@@ -363,6 +363,11 @@ public class GitServiceCEImpl implements GitServiceCE {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
 
+        boolean isSystemGeneratedTemp = false;
+        if(commitDTO.getCommitMessage().contains(DEFAULT_COMMIT_MESSAGE)) {
+            isSystemGeneratedTemp = true;
+        }
+
         Mono<UserData> currentUserMono = userDataService.getForCurrentUser()
                 .flatMap(userData -> {
                     if (CollectionUtils.isNullOrEmpty(userData.getGitProfiles()) || userData.getGitProfileByKey(DEFAULT) == null) {
@@ -387,6 +392,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return Mono.just(userData);
                 });
 
+        boolean isSystemGenerated = isSystemGeneratedTemp;
         Mono<String> commitMono = this.getApplicationById(defaultApplicationId)
                 .flatMap(defaultApplication -> {
                     GitApplicationMetadata defaultGitMetadata = defaultApplication.getGitApplicationMetadata();
@@ -562,7 +568,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .then(addAnalyticsForGitOperation(
                                     AnalyticsEvents.GIT_COMMIT.getEventName(),
                                     childApplication,
-                                    childApplication.getGitApplicationMetadata().getIsRepoPrivate()
+                                    "",
+                                    "",
+                                    childApplication.getGitApplicationMetadata().getIsRepoPrivate(),
+                                    isSystemGenerated
                             ))
                             .thenReturn(status);
                 });
@@ -1113,7 +1122,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if (gitData.getDefaultApplicationId().equals(srcApplication.getId())) {
                         return Mono.just(srcApplication.getGitApplicationMetadata().getGitAuth());
                     }
-                    return applicationService.getSshKey(gitData.getDefaultApplicationId());
+                    return applicationService.getSshKey(gitData.getDefaultApplicationId())
+                            .map(gitAuthDTO -> {
+                                GitAuth gitAuth = new GitAuth();
+                                gitAuth.setPrivateKey(gitAuthDTO.getPrivateKey());
+                                gitAuth.setPublicKey(gitAuthDTO.getPublicKey());
+                                gitAuth.setDocUrl(gitAuthDTO.getDocUrl());
+                                return gitAuth;
+                            });
                 })
                 .flatMap(tuple -> {
                     Application srcApplication = tuple.getT1();
@@ -1991,7 +2007,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<GitAuth> generateSSHKey() {
-        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
+        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(null);
 
         GitDeployKeys gitDeployKeys = new GitDeployKeys();
         gitDeployKeys.setGitAuth(gitAuth);
@@ -2390,7 +2406,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     private Mono<Application> addAnalyticsForGitOperation(String eventName, Application application, Boolean isRepoPrivate) {
-        return addAnalyticsForGitOperation(eventName, application, "", "", isRepoPrivate);
+        return addAnalyticsForGitOperation(eventName, application, "", "", isRepoPrivate, false);
     }
 
     private Mono<Application> addAnalyticsForGitOperation(String eventName,
@@ -2398,7 +2414,15 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                           String errorType,
                                                           String errorMessage,
                                                           Boolean isRepoPrivate) {
+        return addAnalyticsForGitOperation(eventName, application, errorType, errorMessage, isRepoPrivate, false);
+    }
 
+    private Mono<Application> addAnalyticsForGitOperation(String eventName,
+                                                          Application application,
+                                                          String errorType,
+                                                          String errorMessage,
+                                                          Boolean isRepoPrivate,
+                                                          Boolean isSystemGenerated) {
         GitApplicationMetadata gitData = application.getGitApplicationMetadata();
         String defaultApplicationId = gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())
                 ? ""
@@ -2411,7 +2435,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                 "organizationId", defaultIfNull(application.getOrganizationId(), ""),
                 "branchApplicationId", defaultIfNull(application.getId(), ""),
                 "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
-                "gitHostingProvider", defaultIfNull(gitHostingProvider, "")
+                "gitHostingProvider", defaultIfNull(gitHostingProvider, ""),
+                "isSystemGenerated", defaultIfNull(isSystemGenerated, "")
         ));
 
         return sessionUserService.getCurrentUser()
@@ -2425,5 +2450,4 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return application;
                 });
     }
-
 }
