@@ -6,14 +6,13 @@ import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
-
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
+import { isEqual, find } from "lodash";
 
 export function selectedTabValidation(
   value: unknown,
@@ -292,10 +291,13 @@ class TabsWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
-    const visibleTabs = this.getVisibleTabs();
-    if (this.props.defaultTab) {
-      if (this.props.defaultTab !== prevProps.defaultTab) {
-        const selectedTab = _.find(visibleTabs, {
+    if (!isEqual(prevProps, this.props)) {
+      const visibleTabs = this.getVisibleTabs();
+      if (
+        this.props.defaultTab &&
+        this.props.defaultTab !== prevProps.defaultTab
+      ) {
+        const selectedTab = find(visibleTabs, {
           label: this.props.defaultTab,
         });
         const selectedTabWidgetId = selectedTab
@@ -306,32 +308,32 @@ class TabsWidget extends BaseWidget<
           selectedTabWidgetId,
         );
       }
-    }
-    // if selected tab is deleted
-    if (this.props.selectedTabWidgetId) {
-      if (visibleTabs.length > 0) {
-        const selectedTabWithinTabs = _.find(visibleTabs, {
-          widgetId: this.props.selectedTabWidgetId,
-        });
-        if (!selectedTabWithinTabs) {
-          // try to select default else select first
-          const defaultTab = _.find(visibleTabs, {
-            label: this.props.defaultTab,
+      // if selected tab is deleted
+      if (this.props.selectedTabWidgetId) {
+        if (visibleTabs.length > 0) {
+          const selectedTabWithinTabs = find(visibleTabs, {
+            widgetId: this.props.selectedTabWidgetId,
           });
+          if (!selectedTabWithinTabs) {
+            // try to select default else select first
+            const defaultTab = find(visibleTabs, {
+              label: this.props.defaultTab,
+            });
+            this.props.updateWidgetMetaProperty(
+              "selectedTabWidgetId",
+              (defaultTab && defaultTab.widgetId) || visibleTabs[0].widgetId,
+            );
+          }
+        } else {
+          this.props.updateWidgetMetaProperty("selectedTabWidgetId", undefined);
+        }
+      } else if (!this.props.selectedTabWidgetId) {
+        if (visibleTabs.length > 0) {
           this.props.updateWidgetMetaProperty(
             "selectedTabWidgetId",
-            (defaultTab && defaultTab.widgetId) || visibleTabs[0].widgetId,
+            visibleTabs[0].widgetId,
           );
         }
-      } else {
-        this.props.updateWidgetMetaProperty("selectedTabWidgetId", undefined);
-      }
-    } else if (!this.props.selectedTabWidgetId) {
-      if (visibleTabs.length > 0) {
-        this.props.updateWidgetMetaProperty(
-          "selectedTabWidgetId",
-          visibleTabs[0].widgetId,
-        );
       }
     }
   }
@@ -353,7 +355,7 @@ class TabsWidget extends BaseWidget<
     // If we have a defaultTab
     if (this.props.defaultTab && Object.keys(this.props.tabsObj || {}).length) {
       // Find the default Tab object
-      const selectedTab = _.find(visibleTabs, {
+      const selectedTab = find(visibleTabs, {
         label: this.props.defaultTab,
       });
       // Find the default Tab id
