@@ -72,6 +72,11 @@ import {
   SUBMIT,
   UPDATE_CONFIG,
   USE_DEFAULT_CONFIGURATION,
+  UPLOADING_JSON,
+  UPLOADING_APPLICATION,
+  IMPORT_APP_FROM_FILE_MESSAGE,
+  IMPORT_APP_FROM_GIT_MESSAGE,
+  IMPORT_FROM_GIT_REPOSITORY,
 } from "./messages";
 
 describe("messages", () => {
@@ -376,6 +381,43 @@ describe("git-sync messages", () => {
     SUBMIT,
     UPDATE_CONFIG,
     USE_DEFAULT_CONFIGURATION,
+  ];
+  functions.forEach((fn: () => string) => {
+    it(`${fn.name} returns expected value`, () => {
+      const actual = createMessage(fn);
+      const found = expectedMessages.find((em) => em.key === fn.name);
+      const expected = found && found.value;
+      expect(actual).toEqual(expected);
+    });
+  });
+});
+
+describe("import application messages", () => {
+  const expectedMessages = [
+    { key: "UPLOADING_JSON", value: "Uploading JSON file" },
+    {
+      key: "UPLOADING_APPLICATION",
+      value: "Uploading application",
+    },
+    {
+      key: "IMPORT_APP_FROM_FILE_MESSAGE",
+      value: "Drag and drop your file or upload from your computer",
+    },
+    {
+      key: "IMPORT_APP_FROM_GIT_MESSAGE",
+      value: "Import an application from its git repository using its SSH URL",
+    },
+    {
+      key: "IMPORT_FROM_GIT_REPOSITORY",
+      value: "Import from git repository",
+    },
+  ];
+  const functions = [
+    UPLOADING_JSON,
+    UPLOADING_APPLICATION,
+    IMPORT_APP_FROM_FILE_MESSAGE,
+    IMPORT_APP_FROM_GIT_MESSAGE,
+    IMPORT_FROM_GIT_REPOSITORY,
   ];
   functions.forEach((fn: () => string) => {
     it(`${fn.name} returns expected value`, () => {

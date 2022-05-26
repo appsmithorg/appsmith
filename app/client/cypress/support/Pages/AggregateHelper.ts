@@ -57,7 +57,7 @@ export class AggregateHelper {
         ).then((dslDumpResp) => {
           //cy.log("Pages resposne is : " + dslDumpResp.body);
           expect(dslDumpResp.status).equal(200);
-          cy.reload();
+          this.RefreshPage();
         });
       });
     });
@@ -449,6 +449,7 @@ export class AggregateHelper {
 
   public RefreshPage() {
     cy.reload();
+    this.Sleep(2000)
   }
 
   public ActionContextMenuWithInPane(
