@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -30,7 +30,7 @@ class NewPageServiceTest {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Test
     @WithUserDetails("api_user")
@@ -46,9 +46,9 @@ class NewPageServiceTest {
     @WithUserDetails("api_user")
     void findApplicationPages_WhenApplicationIdPresent_ReturnsPages() {
         String randomId = UUID.randomUUID().toString();
-        Organization organization = new Organization();
-        organization.setName("org_" + randomId);
-        Mono<ApplicationPagesDTO> applicationPagesDTOMono = organizationService.create(organization).flatMap(createdOrg -> {
+        Workspace workspace = new Workspace();
+        workspace.setName("org_" + randomId);
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = workspaceService.create(workspace).flatMap(createdOrg -> {
             Application application = new Application();
             application.setName("app_" + randomId);
             return applicationPageService.createApplication(application, createdOrg.getId());
@@ -72,12 +72,12 @@ class NewPageServiceTest {
     @WithUserDetails("api_user")
     void findApplicationPages_WhenPageIdPresent_ReturnsPages() {
         String randomId = UUID.randomUUID().toString();
-        Organization organization = new Organization();
-        organization.setName("org_" + randomId);
-        Mono<ApplicationPagesDTO> applicationPagesDTOMono = organizationService.create(organization).flatMap(createdOrg -> {
+        Workspace workspace = new Workspace();
+        workspace.setName("org_" + randomId);
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = workspaceService.create(workspace).flatMap(createdWorkspace -> {
             Application application = new Application();
             application.setName("app_" + randomId);
-            return applicationPageService.createApplication(application, createdOrg.getId());
+            return applicationPageService.createApplication(application, createdWorkspace.getId());
         }).flatMap(application -> {
             PageDTO pageDTO = new PageDTO();
             pageDTO.setName("page_" + randomId);
