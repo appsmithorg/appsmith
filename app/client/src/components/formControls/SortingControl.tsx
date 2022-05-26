@@ -25,6 +25,9 @@ const columnFieldConfig: any = {
   inputType: "TEXT",
   // placeholderText: "Select Column",
   placeholderText: "Column name",
+  customStyles: {
+    width: "25vw",
+  },
 };
 
 // Form config for the order field
@@ -42,6 +45,9 @@ const orderFieldConfig: any = {
       value: OrderDropDownValues.DESCENDING,
     },
   ],
+  customStyles: {
+    width: "10vw",
+  },
 };
 
 // main container for the fsorting component
