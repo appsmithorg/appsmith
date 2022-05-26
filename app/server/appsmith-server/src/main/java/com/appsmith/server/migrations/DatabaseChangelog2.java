@@ -19,8 +19,6 @@ import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QTenant;
-import com.appsmith.server.domains.QUser;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
@@ -58,7 +56,6 @@ import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
-import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -845,7 +842,7 @@ public class DatabaseChangelog2 {
         }
 
         Tenant defaultTenant = new Tenant();
-        defaultTenant.setDisplayName("Appsmith");
+        defaultTenant.setDisplayName("Default");
         defaultTenant.setSlug("default");
         defaultTenant.setPricingPlan(PricingPlan.FREE);
 
@@ -861,21 +858,13 @@ public class DatabaseChangelog2 {
         Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
         assert(defaultTenant != null);
 
-        Query workspaceQueryAll = new Query();
-        workspaceQueryAll.addCriteria(where(fieldName(QWorkspace.workspace.deleted)).is(FALSE));
-        workspaceQueryAll.addCriteria(where(fieldName(QWorkspace.workspace.deletedAt)).is(null));
+        // Set all the workspaces to be under the default tenant
+        mongockTemplate.updateMulti(
+                new Query(),
+                new Update().set("tenantId", defaultTenant.getId()),
+                Workspace.class
+        );
 
-        //Memory optimization note:
-        //Call stream instead of findAll to avoid out of memory if the collection is big
-        //stream implementation lazy loads the data using underlying cursor open on the collection
-        //the data is loaded as and when needed by the pipeline
-        try(Stream<Workspace> stream = mongockTemplate.stream(workspaceQueryAll, Workspace.class)
-                .stream()) {
-            stream.forEach((workspace) -> {
-                workspace.setTenantId(defaultTenant.getId());
-                mongockTemplate.save(workspace);
-            });
-        }
     }
 
     @ChangeSet(order = "014", id = "add-tenant-to-all-users-and-flush-redis", author = "")
@@ -886,21 +875,12 @@ public class DatabaseChangelog2 {
         Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
         assert(defaultTenant != null);
 
-        Query userQueryAll = new Query();
-        userQueryAll.addCriteria(where(fieldName(QUser.user.deleted)).is(FALSE));
-        userQueryAll.addCriteria(where(fieldName(QUser.user.deletedAt)).is(null));
-
-        //Memory optimization note:
-        //Call stream instead of findAll to avoid out of memory if the collection is big
-        //stream implementation lazy loads the data using underlying cursor open on the collection
-        //the data is loaded as and when needed by the pipeline
-        try(Stream<User> stream = mongockTemplate.stream(userQueryAll, User.class)
-                .stream()) {
-            stream.forEach((user) -> {
-                user.setTenantId(defaultTenant.getId());
-                mongockTemplate.save(user);
-            });
-        }
+        // Set all the users to be under the default tenant
+        mongockTemplate.updateMulti(
+                new Query(),
+                new Update().set("tenantId", defaultTenant.getId()),
+                User.class
+        );
 
         // Now sign out all the existing users since this change impacts the user object.
         final String script =
