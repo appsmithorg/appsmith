@@ -204,7 +204,7 @@ public class ApplicationFetcherUnitTest {
                     .thenReturn(updateDefaultPageIdsWithinApplication(application));
         }
 
-        Mockito.when(applicationService.createOrUpdateSshKeyPair(Mockito.anyString(), null))
+        Mockito.when(applicationService.createOrUpdateSshKeyPair(Mockito.anyString(), Mockito.any()))
                 .thenReturn(Mono.just(new GitAuth()));
 
         StepVerifier.create(applicationFetcher.getAllApplications())
