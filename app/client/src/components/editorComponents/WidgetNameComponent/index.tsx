@@ -140,8 +140,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
         : props.showControls ||
           ((focusedWidget === props.widgetId || showAsSelected) &&
             !isDragging &&
-            !isResizing) ||
-          (!!props.errorCount && !shouldHideErrors))
+            !isResizing))
     );
   };
 
