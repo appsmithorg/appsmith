@@ -37,6 +37,12 @@ export interface DSLWidget extends WidgetProps {
   children?: DSLWidget[];
 }
 
+export type CanvasWidgetStructure = {
+  widgetId: string;
+  type: string;
+  children?: CanvasWidgetStructure[];
+};
+
 export enum FileDataTypes {
   Base64 = "Base64",
   Text = "Text",

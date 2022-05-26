@@ -24,6 +24,7 @@ import Spinner from "components/ads/Spinner";
 import useGoogleFont from "utils/hooks/useGoogleFont";
 import { IconSize } from "components/ads/Icon";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
+import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
 
 const Container = styled.section<{
   background: string;
@@ -48,6 +49,7 @@ function CanvasContainer() {
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const widgets = useSelector(getCanvasWidgetDsl);
+  const widgetsStructure = useSelector(getCanvasWidgetsStructure);
   const pages = useSelector(getViewModePageList);
   const theme = useSelector(getCurrentThemeDetails);
   const isPreviewMode = useSelector(previewModeSelector);
@@ -55,7 +57,10 @@ function CanvasContainer() {
   const params = useParams<{ applicationId: string; pageId: string }>();
   const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
-
+  console.log("CanvasContainer", {
+    widgetsStructure,
+    widgets,
+  });
   useEffect(() => {
     return () => {
       dispatch(forceOpenWidgetPanel(false));

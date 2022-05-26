@@ -19,6 +19,7 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
+    debugger;
     return action.payload.widgets;
   },
   [ReduxActionTypes.UPDATE_LAYOUT]: (

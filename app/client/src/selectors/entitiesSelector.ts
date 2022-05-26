@@ -29,6 +29,7 @@ import {
   EVAL_ERROR_PATH,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -465,6 +466,13 @@ export const getAppStoreData = (state: AppState): AppStoreState =>
 
 export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
+
+export const getCanvasWidgetsStructure = (
+  state: AppState,
+): CanvasWidgetsReduxState =>
+  // eslint-disable-next-line
+  // @ts-ignore
+  state.entities.canvasWidgetsStructure;
 
 const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
 export const getCurrentPageWidgets = createSelector(
