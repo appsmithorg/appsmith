@@ -93,8 +93,7 @@ public class ApplicationTemplateServiceTest {
         mockUserData.setRecentlyUsedTemplateIds(List.of("id-two"));
         Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(mockUserData));
 
-        Mono<List<ApplicationTemplate>> templateListMono = applicationTemplateService.getActiveTemplates(null)
-                .collectList();
+        Mono<List<ApplicationTemplate>> templateListMono = applicationTemplateService.getActiveTemplates(null);
 
         StepVerifier.create(templateListMono).assertNext(applicationTemplates -> {
             assertThat(applicationTemplates.size()).isEqualTo(3);
@@ -125,7 +124,7 @@ public class ApplicationTemplateServiceTest {
                         .addHeader("Content-Type", "application/json"));
 
         // make sure we've received the response returned by the mockCloudServices
-        StepVerifier.create(applicationTemplateService.getRecentlyUsedTemplates().collectList())
+        StepVerifier.create(applicationTemplateService.getRecentlyUsedTemplates())
                 .assertNext(applicationTemplates -> assertThat(applicationTemplates.size()).isEqualTo(1))
                 .verifyComplete();
 
