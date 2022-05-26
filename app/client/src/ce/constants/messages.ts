@@ -481,14 +481,14 @@ export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
 export const IMPORT_APPLICATION_MODAL_LABEL = () =>
   "Where would you like to import your application from?";
 export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
+export const UPLOADING_JSON = () => "Uploading JSON file";
+export const UPLOADING_APPLICATION = () => "Uploading application";
 export const IMPORT_APP_FROM_GIT_TITLE = () => "Import from a Git repo (Beta)";
 export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
   "Drag and drop your file or upload from your computer";
 export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
   "Import an application from its git repository using its SSH URL";
-export const IMPORT_FROM_GIT_REPOSITORY = () => "Import from Git Repository";
-export const IMPORT_FROM_GIT_REPOSITORY_MESSAGE = () =>
-  "While importing Appsmith will does not import the datasource credentials to prevent a breach. After a successfull import you can add the credentials manually so the application behaves normally!";
+export const IMPORT_FROM_GIT_REPOSITORY = () => "Import from git repository";
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS = () =>
   "Reconnect missing datasource credentials";
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION = () =>
