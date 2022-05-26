@@ -240,6 +240,14 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.contains(innercss, text);
 });
 
+Cypress.Commands.add("verifyUpdatedWidgetName", (text) => {
+  cy.get(commonlocators.editWidgetName)
+    .click({ force: true })
+    .type(text, { delay: 300 })
+    .type("{enter}");
+  cy.get(".t--widget-name").contains(text);
+});
+
 Cypress.Commands.add("verifyWidgetText", (text, inputcss, innercss) => {
   cy.get(inputcss)
     .first()
