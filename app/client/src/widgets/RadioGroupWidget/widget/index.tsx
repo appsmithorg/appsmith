@@ -15,6 +15,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { RadioOption } from "../constants";
 import { LabelPosition } from "components/constants";
 import RadioGroupComponent from "../component";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 /**
  * Validation rules:
@@ -467,6 +468,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: RadioGroupWidgetProps): void {
+    super.componentDidUpdate(prevProps);
     if (
       this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
       this.props.isDirty
@@ -504,6 +506,9 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         disabled={isDisabled}
         height={componentHeight}
         inline={Boolean(isInline)}
+        isDynamicHeightEnabled={
+          this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS
+        }
         key={widgetId}
         labelAlignment={labelAlignment}
         labelPosition={labelPosition}
@@ -515,6 +520,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         loading={isLoading}
         onRadioSelectionChange={this.onRadioSelectionChange}
         options={isArray(options) ? compact(options) : []}
+        ref={this.contentRef}
         selectedOptionValue={selectedOptionValue}
         widgetId={widgetId}
       />

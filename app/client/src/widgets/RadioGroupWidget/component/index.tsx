@@ -13,6 +13,7 @@ import LabelWithTooltip, {
 
 export interface RadioGroupContainerProps {
   compactMode: boolean;
+  isDynamicHeightEnabled?: boolean;
   labelPosition?: LabelPosition;
 }
 
@@ -22,6 +23,9 @@ export const RadioGroupContainer = styled.div<RadioGroupContainerProps>`
     ${({ labelPosition }) =>
       labelPosition === LabelPosition.Left && "min-height: 30px"};
   }
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { height: auto }" : ""};
 `;
 
 export interface StyledRadioGroupProps {
@@ -52,7 +56,10 @@ const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
   }
 `;
 
-function RadioGroupComponent(props: RadioGroupComponentProps) {
+const RadioGroupComponent = React.forwardRef<
+  HTMLDivElement,
+  RadioGroupComponentProps
+>((props, ref) => {
   const {
     accentColor,
     alignment,
@@ -60,6 +67,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     disabled,
     height,
     inline,
+    isDynamicHeightEnabled,
     labelAlignment,
     labelPosition,
     labelStyle,
@@ -86,7 +94,9 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     <RadioGroupContainer
       compactMode={compactMode}
       data-testid="radiogroup-container"
+      isDynamicHeightEnabled={isDynamicHeightEnabled}
       labelPosition={labelPosition}
+      ref={ref}
     >
       {labelText && (
         <LabelWithTooltip
@@ -132,7 +142,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
       </StyledRadioGroup>
     </RadioGroupContainer>
   );
-}
+});
 
 export interface RadioGroupComponentProps extends ComponentProps {
   options: RadioOption[];
@@ -140,6 +150,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   selectedOptionValue: string;
   disabled: boolean;
   loading: boolean;
+  isDynamicHeightEnabled?: boolean;
   inline: boolean;
   alignment: Alignment;
   compactMode: boolean;
@@ -154,5 +165,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   height?: number;
   accentColor: string;
 }
+
+RadioGroupComponent.displayName = "RadioGroupComponent";
 
 export default RadioGroupComponent;
