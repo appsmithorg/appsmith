@@ -1,13 +1,9 @@
 package com.external.plugins;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.DeleteObjectsResult;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.Base64;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -27,11 +23,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -72,12 +72,7 @@ import static com.external.utils.TemplateUtils.FILE_PICKER_MULTIPLE_FILES_DATA_E
 import static com.external.utils.TemplateUtils.LIST_FILES_TEMPLATE_NAME;
 import static com.external.utils.TemplateUtils.LIST_OF_FILES_STRING;
 import static com.external.utils.TemplateUtils.READ_FILE_TEMPLATE_NAME;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -91,12 +86,16 @@ public class AmazonS3PluginTest {
     private static String region;
     private static String serviceProvider;
 
+    @InjectMocks
+    private AmazonS3Plugin amazonS3Plugin;
+
     @BeforeClass
     public static void setUp() {
         accessKey   = "access_key";
         secretKey   = "secret_key";
         region      = "ap-south-1";
         serviceProvider = "amazon-s3";
+
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -232,6 +231,24 @@ public class AmazonS3PluginTest {
                     assertTrue(errorList.get(0).contains("The AWS Access Key Id you provided does not exist in our records"));
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteCommonForAmazonServiceException() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        String signatureError = "The request signature we calculated does not match the signature you provided.(service";
+        ActionConfiguration mockAction = Mockito.mock(ActionConfiguration.class);
+        AmazonS3 mockConnection = Mockito.mock(AmazonS3.class);
+        when(mockAction.getFormData()).thenThrow(new AmazonServiceException(signatureError));
+        Method executeCommon = AmazonS3Plugin.S3PluginExecutor.class
+                .getDeclaredMethod("executeCommon", AmazonS3.class,
+                        DatasourceConfiguration.class, ActionConfiguration.class);
+        executeCommon.setAccessible(true);
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        Mono<ActionExecutionResult> invoke = (Mono<ActionExecutionResult>) executeCommon
+                .invoke(pluginExecutor, mockConnection, datasourceConfiguration, mockAction);
+        ActionExecutionResult actionExecutionResult = invoke.block();
+        assertEquals("The request signature we calculated does not match the signature you provided.", actionExecutionResult.getReadableError());
     }
 
     @Test
