@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef, useCallback } from "react";
 import styled from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
 import { LabelPosition } from "components/constants";
@@ -72,12 +72,8 @@ export interface RichtextEditorComponentProps {
   isValid?: boolean;
   onValueChange: (valueAsString: string) => void;
 }
-interface State {
-  text: string;
-  isUserEdit: boolean;
-}
 
-const initValue = "<p></p>";
+// const initValue = "<p></p>";
 export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const {
     compactMode,
@@ -91,41 +87,18 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     labelWidth,
   } = props;
 
-  const [value, setValue] = React.useState<State>({
-    text: props.value as string,
-    isUserEdit: false,
-  });
-
-  const editorRef = useRef<any>(null);
+  const valueRef = useRef(props.value);
 
   const toolbarConfig =
     "insertfile undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | forecolor backcolor emoticons' | help";
 
-  useEffect(() => {
-    if (!value.text && !props.value) return;
-    // This Prevents calling onTextChange when initialized
-    if (!value.isUserEdit) return;
-    const timeOutId = setTimeout(() => props.onValueChange(value.text), 1000);
-    return () => clearTimeout(timeOutId);
-  }, [value]);
-
-  useEffect(() => {
-    setValue({ text: props.value as string, isUserEdit: false });
-  }, [props.value]);
-
-  const onEditorChange = (newValue: string) => {
-    // Prevents cursur shift in Markdown
-    if (newValue === "" && props.isMarkdown) {
-      setValue({ text: initValue, isUserEdit: true });
-    } else {
-      /**
-       * due to lazy data load, props.value can trigger after initialization
-       * in that case this method called, so handle by comparing newValue and props.value
-       */
-      setValue({ text: newValue, isUserEdit: newValue !== props.value });
-    }
-  };
-
+  const handleEditorChange = useCallback(
+    (newValue: string) => {
+      valueRef.current = newValue;
+      props.onValueChange(newValue);
+    },
+    [props.onValueChange],
+  );
   return (
     <StyledRTEditor
       borderRadius={props.borderRadius}
@@ -168,13 +141,10 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             ],
           }}
           key={`editor_${props.isToolbarHidden}`}
-          onEditorChange={onEditorChange}
-          onInit={(evt, editor) => {
-            editorRef.current = editor;
-          }}
+          onEditorChange={handleEditorChange}
           tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/tinymce.min.js"
           toolbar={props.isToolbarHidden ? false : toolbarConfig}
-          value={value.text}
+          value={valueRef.current}
         />
       </RichTextEditorInputWrapper>
     </StyledRTEditor>
