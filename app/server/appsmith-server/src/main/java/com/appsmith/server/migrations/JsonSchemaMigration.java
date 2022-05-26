@@ -50,6 +50,12 @@ public class JsonSchemaMigration {
             case 3:
                 // File structure migration to update git directory structure
                 applicationJson.setServerSchemaVersion(4);
+            case 4:
+                // Remove unwanted fields from DTO and allow serialization for JsonIgnore fields
+                MigrationHelperMethods.arrangeApplicationPagesAsPerImportedPageOrder(applicationJson);
+                MigrationHelperMethods.updateMongoEscapedWidget(applicationJson);
+                MigrationHelperMethods.updateUserSetOnLoadAction(applicationJson);
+                applicationJson.setServerSchemaVersion(5);
             default:
                 // Unable to detect the serverSchema
         }

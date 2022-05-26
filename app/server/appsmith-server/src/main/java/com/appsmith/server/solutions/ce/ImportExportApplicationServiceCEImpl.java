@@ -30,12 +30,10 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.CompareDslActionDTO;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
@@ -85,7 +83,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
@@ -843,11 +840,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 for(ApplicationPage applicationPage : unpublishedPages) {
                                     NewPage newPage = pageNameMap.get(applicationPage.getId());
                                     applicationPage.setId(newPage.getId());
+                                    applicationPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
                                 }
 
                                 for(ApplicationPage applicationPage : publishedPages) {
                                     NewPage newPage = pageNameMap.get(applicationPage.getId());
                                     applicationPage.setId(newPage.getId());
+                                    applicationPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
                                 }
 
                                 return applicationPages;
