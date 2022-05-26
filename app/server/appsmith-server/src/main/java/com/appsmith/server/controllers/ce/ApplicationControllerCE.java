@@ -10,6 +10,7 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -89,13 +90,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     public Mono<ResponseDTO<Boolean>> publish(@PathVariable String defaultApplicationId,
                                               @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return applicationPageService.publish(defaultApplicationId, branchName, true)
-                .flatMap(application ->
-                        // This event should parallel a similar event sent from the client, so we want it to be sent by the
-                        // controller and not the service method.
-                        applicationPageService.sendApplicationPublishedEvent(application)
-                                // This will only be called when the publishing was successful, so we can always return `true` here.
-                                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null))
-                );
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 
     @PutMapping("/{defaultApplicationId}/page/{defaultPageId}/makeDefault")
@@ -194,13 +189,14 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @PostMapping("/ssh-keypair/{applicationId}")
-    public Mono<ResponseDTO<GitAuth>> generateSSHKeyPair(@PathVariable String applicationId) {
-        return service.createOrUpdateSshKeyPair(applicationId)
+    public Mono<ResponseDTO<GitAuth>> generateSSHKeyPair(@PathVariable String applicationId,
+                                                         @RequestParam(required = false) String keyType) {
+        return service.createOrUpdateSshKeyPair(applicationId, keyType)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @GetMapping("/ssh-keypair/{applicationId}")
-    public Mono<ResponseDTO<GitAuth>> getSSHKey(@PathVariable String applicationId) {
+    public Mono<ResponseDTO<GitAuthDTO>> getSSHKey(@PathVariable String applicationId) {
         return service.getSshKey(applicationId)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }

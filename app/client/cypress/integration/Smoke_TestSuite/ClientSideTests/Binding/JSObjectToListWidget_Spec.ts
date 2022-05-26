@@ -32,7 +32,7 @@ describe("Validate JSObj binding to Table widget", () => {
       paste: false,
       completeReplace: false,
       toRun: true,
-      shouldNavigate: true,
+      shouldCreateNewJSObj: true,
     });
     cy.get("@jsObjName").then((jsObj) => {
       jsName = jsObj;

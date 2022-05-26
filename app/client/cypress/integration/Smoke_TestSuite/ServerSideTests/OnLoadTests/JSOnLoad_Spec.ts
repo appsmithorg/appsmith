@@ -39,7 +39,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
     jsEditor.EnableDisableAsyncFuncSettings("getId", false, true); //Only before calling confirmation is enabled by User here
@@ -143,7 +143,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage("Failed to execute actions during page load"); //When Confirmation is NO
     table.WaitForTableEmpty();
-    cy.reload();
+    agHelper.RefreshPage();
     agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementPresence(
       jsEditor._dialogBody((jsName as string) + ".getId"),
@@ -189,7 +189,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
 
@@ -251,7 +251,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
 
@@ -440,7 +440,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
 
@@ -481,7 +481,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       //   `{{` +
       //     jsObjName +
       //     `.callCountry();
-      //     showAlert('Your country is: ' + getCountry.data[0].country, 'info')}}`,
+      //     Select1.selectedOptionValue? showAlert('Your country is: ' + getCountry.data[0].country, 'info'): null`,
       //   true,
       //   true,
       // );
@@ -510,7 +510,7 @@ describe("JSObjects OnLoad Actions tests", function() {
 
   it("12. Tc #1646 - Honouring the order of execution & Bug 13826 + Bug 13646 - Delpoy page", () => {
     agHelper.DeployApp();
-
+    agHelper.Sleep(2000);
     agHelper.AssertElementPresence(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "getBooks" has failed');
