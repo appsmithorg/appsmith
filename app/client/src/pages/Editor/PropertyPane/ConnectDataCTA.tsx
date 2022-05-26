@@ -21,7 +21,7 @@ const StyledDiv = styled.div`
     props.theme.colors.propertyPane.ctaBackgroundColor};
   padding: ${(props) => props.theme.spaces[3]}px ${(props) =>
   props.theme.spaces[7]}px;
-  margin: ${(props) => props.theme.spaces[2]}px 0px;
+  margin: ${(props) => props.theme.spaces[2]}px 0.75rem;
 
   button:first-child {
     margin-top: ${(props) => props.theme.spaces[2]}px;
