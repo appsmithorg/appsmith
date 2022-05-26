@@ -148,6 +148,7 @@ export class BaseTextInput extends Component<TextInputProps, TextInputState> {
           onFocus={this.handleFocus}
           {...rest}
           className={replayHighlightClass}
+          tabIndex={0}
         />
         {hasError && <TextInputError>{meta ? meta.error : ""}</TextInputError>}
       </InputContainer>

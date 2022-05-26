@@ -58,8 +58,10 @@ const StyledSelectWrapper = styled.div`
   width: 100%;
 `;
 
-const isValid = (schemaItem: SelectFieldProps["schemaItem"], value?: unknown) =>
-  !schemaItem.isRequired || !isNil(value);
+export const isValid = (
+  schemaItem: SelectFieldProps["schemaItem"],
+  value?: unknown,
+) => !schemaItem.isRequired || (value !== "" && !isNil(value));
 
 const composeDefaultValue = (
   schemaItemDefaultValue: DefaultValue,
