@@ -53,10 +53,10 @@ jobs:
       - name: Figure out the PR number
         run: echo ${{ github.event.pull_request.number }}
 
-      - name: Use Node.js 16.15.0
+      - name: Use Node.js 16.14.0
         uses: actions/setup-node@v1
         with:
-          node-version: "16.15.0"
+          node-version: "16.14.0"
 
       - name: Get yarn cache directory path
         id: yarn-dep-cache-dir-path
