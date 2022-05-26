@@ -136,8 +136,8 @@ const TabsWrapper = styled.div<{
 
 export const TabTitle = styled.span<{ responseViewer?: boolean }>`
   font-size: ${(props) => props.theme.typography.h4.fontSize}px;
-  font-weight: ${(props) => props.theme.typography.h4.fontWeight - 100};
-  line-height: ${(props) => props.theme.typography.h4.lineHeight - 3}px;
+  font-weight: ${(props) => props.theme.fontWeights[1]};
+  line-height: ${(props) => props.theme.spaces[11]}px;
   letter-spacing: ${(props) => props.theme.typography.h4.letterSpacing}px;
   margin: 0;
   display: flex;
