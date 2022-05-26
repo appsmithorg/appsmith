@@ -84,6 +84,7 @@ import {
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
 import { EvalMetaUpdates } from "./types";
+import { isJSObjectFunction } from "./utils";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -181,34 +182,22 @@ export default class DataTreeEvaluator {
     return { evalTree: this.evalTree, jsUpdates: jsUpdates, evalMetaUpdates };
   }
 
-  isJSObjectResolvedFunction(
-    dataTree: DataTree,
-    jsObjectName: string,
-    key: string,
-  ) {
-    const entity = dataTree[jsObjectName];
-    if (isJSAction(entity)) {
-      const jsObjectResolvedFunctions = this.resolvedFunctions[jsObjectName];
-      return (
-        jsObjectResolvedFunctions &&
-        jsObjectResolvedFunctions.hasOwnProperty(key)
-      );
-    }
-    return false;
-  }
-
   updateLocalUnEvalTree(dataTree: DataTree) {
     //add functions and variables to unevalTree
     Object.keys(this.currentJSCollectionState).forEach((update) => {
       const updates = this.currentJSCollectionState[update];
-      if (!!dataTree[update]) {
+      const entity = dataTree[update];
+      if (!!entity) {
         Object.keys(updates).forEach((key) => {
-          const data = _.get(dataTree, `${update}.${key}.data`, undefined);
-          if (this.isJSObjectResolvedFunction(dataTree, update, key)) {
-            _.set(dataTree, `${update}.${key}`, new String(updates[key]));
-            _.set(dataTree, `${update}.${key}.data`, data);
-          } else {
-            _.set(dataTree, `${update}.${key}`, updates[key]);
+          const updatePath = `${update}.${key}`;
+          if (_.has(dataTree, updatePath)) {
+            const data = _.get(dataTree, `${updatePath}.data`, undefined);
+            if (isJSObjectFunction(dataTree, update, key)) {
+              _.set(dataTree, updatePath, new String(updates[key]));
+              _.set(dataTree, `${updatePath}.data`, data);
+            } else {
+              _.set(dataTree, `${updatePath}`, updates[key]);
+            }
           }
         });
       }
