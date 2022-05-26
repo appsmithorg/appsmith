@@ -21,6 +21,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 import CheckboxGroupComponent from "../component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -503,6 +504,9 @@ class CheckboxGroupWidget extends BaseWidget<
           )
         }
         isDisabled={this.props.isDisabled}
+        isDynamicHeightEnabled={
+          this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS
+        }
         isInline={this.props.isInline}
         isRequired={this.props.isRequired}
         isSelectAll={this.props.isSelectAll}
