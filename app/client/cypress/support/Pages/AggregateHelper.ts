@@ -571,10 +571,10 @@ export class AggregateHelper {
       });
   }
 
-  public AssertElementAbsence(selector: string) {
+  public AssertElementAbsence(selector: string){//Should not exists - cannot take indexes
     let locator = selector.startsWith("//")
       ? cy.xpath(selector, { timeout: 0 })
-      : cy.get(selector, { timeout: 0 });
+      : cy.get(selector, { timeout: 0 })
     locator.should("not.exist");
   }
 

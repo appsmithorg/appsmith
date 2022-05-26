@@ -59,6 +59,7 @@ export class CommonLocators {
     _inputFieldByName = (fieldName: string) => "//p[text()='" + fieldName + "']/parent::label/following-sibling::div"
     _existingFieldTextByName = (fieldName: string) => "//label[text()='" + fieldName + "']/ancestor::div[contains(@class, 't--property-control-" + fieldName.replace(/ +/g, "").toLowerCase() + "')]"
     _existingFieldValueByName = (fieldName: string) => this._existingFieldTextByName(fieldName) + "//div[contains(@class,'CodeMirror-code')]"
+    _existingActualValueByName = (fieldName: string) => this._existingFieldValueByName(fieldName) + "//span/span"
     _evaluatedCurrentValue = "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre"
     _multiSelectOptions = (option: string) => "div[title='" + option + "'] input[type='checkbox']"
     _divWithClass = (className: string) => "//div[contains(@class, '" + className + "')]"

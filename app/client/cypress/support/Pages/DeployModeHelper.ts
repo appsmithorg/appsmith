@@ -4,10 +4,12 @@ export class DeployMode {
   private locator = ObjectsRegistry.CommonLocators;
   private agHelper = ObjectsRegistry.AggregateHelper;
 
-  _existingJsonFormFieldByName = (fieldName: string, input: boolean) =>
+  _jsonFormFieldByName = (fieldName: string, input: boolean) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='input-container']//${
       input ? "input" : "textarea"
     }`;
+  _jsonFormRadioFieldByName = (fieldName: string) =>
+    `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='radiogroup-container']//input`;
 
   //refering PublishtheApp from command.js
   public DeployApp(
@@ -15,7 +17,7 @@ export class DeployMode {
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
     // Wait before publish
-    this.agHelper.Sleep(2000); //wait for elements load!
+    this.agHelper.Sleep(2000); //wait for elements settle!
     this.agHelper.AssertAutoSave();
     // Stubbing window.open to open in the same tab
     cy.window().then((window) => {
@@ -46,10 +48,14 @@ export class DeployMode {
     });
   }
 
-  public EnterJSONFieldValue(selector: string, value: string) {
+  public EnterJSONFieldValue(selector: string, value: string, index = 0) {
     let locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    locator.click().type(value).wait(500);
+    locator
+      .eq(index)
+      .click()
+      .type(value)
+      .wait(500);
   }
 }

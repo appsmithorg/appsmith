@@ -2,8 +2,9 @@ import datasourceFormData from "../../fixtures/datasources.json";
 import { ObjectsRegistry } from "../Objects/Registry";
 export class DataSources {
   private agHelper = ObjectsRegistry.AggregateHelper;
-  private locator = ObjectsRegistry.CommonLocators;
+  private table = ObjectsRegistry.Table;
   private ee = ObjectsRegistry.EntityExplorer;
+  private locator = ObjectsRegistry.CommonLocators;
 
   private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]";
   private _addNewDataSource = ".datasources .t--entity-add-btn";
@@ -48,6 +49,8 @@ export class DataSources {
   _queryTableResponse =
     "//div[@data-guided-tour-id='query-table-response']//div[@class='tbody']//div[@class ='td']";
   _refreshIcon = "button .bp3-icon-refresh";
+  _addIcon = "button .bp3-icon-add";
+  _queryError = "span.t--query-error"
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -287,5 +290,23 @@ export class DataSources {
       .xpath(this._queryTableResponse)
       .eq(index)
       .invoke("text");
+  }
+
+  public AssertJSONFormHeader(
+    rowindex: number,
+    colIndex: number,
+    headerString: string,
+    validateCellData: "" | string = "",
+  ) {
+    this.table.ReadTableRowColumnData(rowindex, colIndex).then(($cellData) => {
+      if (validateCellData) expect($cellData).to.eq(validateCellData);
+      this.agHelper
+        .GetText(this.locator._jsonFormHeader)
+        .then(($header: any) =>
+          expect($header).to.eq(
+            "Update Row " + headerString + ": " + $cellData,
+          ),
+        );
+    });
   }
 }
