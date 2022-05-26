@@ -3,21 +3,21 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
-import { Diff } from "deep-diff";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
 
 export interface UpdateWidgetMetaPropertyPayload {
   widgetId: string;
   propertyName: string;
-  propertyValue: any;
+  propertyValue: unknown;
 }
-export const updateWidgetMetaProperty = (
+
+export const updateWidgetMetaPropAndEval = (
   widgetId: string,
   propertyName: string,
-  propertyValue: any,
+  propertyValue: unknown,
 ): BatchAction<UpdateWidgetMetaPropertyPayload> => {
   return batchAction({
-    type: ReduxActionTypes.SET_META_PROP,
+    type: ReduxActionTypes.SET_META_PROP_AND_EVAL,
     payload: {
       widgetId,
       propertyName,
@@ -49,15 +49,33 @@ export const resetChildrenMetaProperty = (
   };
 };
 
-export const updateMetaState = (
-  updates: Diff<any, any>[],
-  updatedDataTree: DataTree,
-) => {
+export const updateMetaState = (evalMetaUpdates: EvalMetaUpdates) => {
   return {
     type: ReduxActionTypes.UPDATE_META_STATE,
     payload: {
-      updates,
-      updatedDataTree,
+      evalMetaUpdates,
+    },
+  };
+};
+
+export const triggerEvalOnMetaUpdate = () => {
+  return batchAction({
+    type: ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL,
+    payload: {},
+  });
+};
+
+export const syncUpdateWidgetMetaProperty = (
+  widgetId: string,
+  propertyName: string,
+  propertyValue: unknown,
+) => {
+  return {
+    type: ReduxActionTypes.SET_META_PROP,
+    payload: {
+      widgetId,
+      propertyName,
+      propertyValue,
     },
   };
 };
