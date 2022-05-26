@@ -77,9 +77,9 @@ export function PropertyControlsGenerator(
 ) {
   const config = WidgetFactory.getWidgetPropertyPaneConfig(props.type);
   return (
-    <>
+    <div className="px-3">
       {generatePropertyControl(config as readonly PropertyPaneConfig[], props)}
-    </>
+    </div>
   );
 }
 
