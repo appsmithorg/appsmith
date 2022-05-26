@@ -283,6 +283,7 @@ class SelectComponent extends React.Component<
         compactMode={compactMode}
         data-testid="select-container"
         labelPosition={labelPosition}
+        ref={this.props.innerRef}
       >
         <DropdownStyles
           accentColor={accentColor}
@@ -393,6 +394,7 @@ export interface SelectComponentProps extends ComponentProps {
   options: DropdownOption[];
   isLoading: boolean;
   isFilterable: boolean;
+  innerRef?: React.RefObject<HTMLDivElement>;
   isValid: boolean;
   width: number;
   dropDownWidth: number;
@@ -408,4 +410,11 @@ export interface SelectComponentProps extends ComponentProps {
   accentColor?: string;
 }
 
-export default React.memo(SelectComponent);
+export default React.memo(
+  React.forwardRef<HTMLDivElement, SelectComponentProps>((props, ref) => (
+    <SelectComponent
+      {...props}
+      innerRef={ref as React.RefObject<HTMLDivElement>}
+    />
+  )),
+);
