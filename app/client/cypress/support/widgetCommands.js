@@ -995,11 +995,29 @@ Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
   return tabVal;
 });
 
+Cypress.Commands.add("readTableV2data", (rowNum, colNum) => {
+  // const selector = `.t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
+  const selector = `.tbody .td[data-rowindex="${rowNum}"][data-colindex="${colNum}"]`;
+  const tabVal = cy.get(selector).invoke("text");
+  return tabVal;
+});
+
 Cypress.Commands.add(
   "readTabledataPublish",
   (rowNum, colNum, shouldNotGoOneLeveDeeper) => {
     // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
     const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
+      !shouldNotGoOneLeveDeeper ? "div" : ""
+    }`;
+    const tabVal = cy.get(selector).invoke("text");
+    return tabVal;
+  },
+);
+
+Cypress.Commands.add(
+  "readTableV2dataPublish",
+  (rowNum, colNum, shouldNotGoOneLeveDeeper) => {
+    const selector = `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
       !shouldNotGoOneLeveDeeper ? "div" : ""
     }`;
     const tabVal = cy.get(selector).invoke("text");

@@ -79,7 +79,7 @@ export default {
     {
       helpText: "Selects row(s) by default",
       propertyName: "defaultSelectedRowIndices",
-      label: "Default Selected Row(s)",
+      label: "Default Selected Rows",
       controlType: "INPUT_TEXT",
       placeholderText: "[0]",
       isBindProperty: true,

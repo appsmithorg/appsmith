@@ -993,6 +993,14 @@ Cypress.Commands.add("ValidateTableData", (value) => {
   });
 });
 
+Cypress.Commands.add("ValidateTableV2Data", (value) => {
+  // cy.isSelectRow(0);
+  cy.readTableV2data("0", "0").then((tabData) => {
+    const tableData = tabData;
+    expect(tableData).to.equal(value.toString());
+  });
+});
+
 Cypress.Commands.add("ValidatePublishTableData", (value) => {
   cy.isSelectRow(0);
   cy.readTabledataPublish("0", "0").then((tabData) => {
