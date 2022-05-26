@@ -129,6 +129,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
+    ee.expandCollapseEntity("PAGES")
     ee.ActionContextMenuByEntityName("Employees", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
   });
@@ -615,7 +616,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
-    dataSources.RunQuery();
+    dataSources.RunQuery(false);
     agHelper
       .GetText(dataSources._queryError)
       .then(($errorText) =>
@@ -624,8 +625,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("20. Delete the datasource", () => {
-    dataSources.DeleteDatasouceFromWinthinDS(dsName);
+  it("20. verify Deletion of the datasource", () => {
+    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //ProductLines, Employees pages are still using this ds
   });
 
   function GenerateCRUDNValidateDeployPage(

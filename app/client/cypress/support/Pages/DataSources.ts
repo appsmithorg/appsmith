@@ -208,7 +208,7 @@ export class DataSources {
     this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
   }
 
-  public DeleteDatasouceFromWinthinDS(datasourceName: string) {
+  public DeleteDatasouceFromWinthinDS(datasourceName: string, expectedStatus = 200) {
     this.NavigateToDSCreateNew();
     this.agHelper.GetNClick(this._activeTab);
     cy.get(this._datasourceCard)
@@ -219,7 +219,7 @@ export class DataSources {
     this.agHelper.Sleep(2000); //for the Datasource page to open
     this.agHelper.ClickButton("Delete");
     this.agHelper.ClickButton("Are you sure?");
-    this.agHelper.ValidateNetworkStatus("@deleteDatasource", 200);
+    this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedStatus);
   }
 
   public NavigateFromActiveDS(datasourceName: string, createQuery: boolean) {
@@ -278,9 +278,9 @@ export class DataSources {
     cy.get(this._importSuccessModalClose).click({ force: true });
   }
 
-  RunQuery() {
+  RunQuery(expectedStatus = true) {
     cy.get(this._runQueryBtn).click({ force: true });
-    this.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    this.agHelper.ValidateNetworkExecutionSuccess("@postExecute", expectedStatus);
   }
 
   public ReadQueryTableResponse(index: number, timeout = 100) {
