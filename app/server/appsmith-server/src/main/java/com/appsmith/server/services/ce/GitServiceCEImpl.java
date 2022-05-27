@@ -2424,19 +2424,20 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                           Boolean isRepoPrivate,
                                                           Boolean isSystemGenerated) {
         GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-        String defaultApplicationId = gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())
-                ? ""
-                : gitData.getDefaultApplicationId();
-        String gitHostingProvider = gitData == null
-                ? ""
-                : GitUtils.getGitProviderName(application.getGitApplicationMetadata().getRemoteUrl());
-
-        Map<String, Object> analyticsProps = new HashMap<>(Map.of("applicationId", defaultApplicationId,
-                "organizationId", defaultIfNull(application.getOrganizationId(), ""),
+        String defaultApplicationId = "", gitHostingProvider = "", branchName = "";
+        if (gitData != null) {
+            defaultApplicationId = gitData.getDefaultApplicationId();
+            branchName = gitData.getBranchName();
+            gitHostingProvider = GitUtils.getGitProviderName(gitData.getRemoteUrl());
+        }
+        Map<String, Object> analyticsProps = new HashMap<>(Map.of(
+                FieldName.APPLICATION_ID, defaultApplicationId,
+                FieldName.ORGANIZATION_ID, defaultIfNull(application.getOrganizationId(), ""),
                 "branchApplicationId", defaultIfNull(application.getId(), ""),
                 "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
                 "gitHostingProvider", defaultIfNull(gitHostingProvider, ""),
-                "isSystemGenerated", defaultIfNull(isSystemGenerated, "")
+                "isSystemGenerated", defaultIfNull(isSystemGenerated, ""),
+                FieldName.BRANCH_NAME, branchName
         ));
 
         return sessionUserService.getCurrentUser()
