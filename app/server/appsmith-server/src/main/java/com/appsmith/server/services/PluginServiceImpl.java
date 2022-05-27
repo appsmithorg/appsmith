@@ -1,11 +1,11 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.OrganizationPlugin;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.dtos.OrganizationPluginStatus;
-import com.appsmith.server.dtos.RemotePluginOrgDTO;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
+import com.appsmith.server.dtos.RemotePluginWorkspaceDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
@@ -33,37 +33,28 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              PluginRepository repository,
                              AnalyticsService analyticsService,
-                             OrganizationService organizationService,
+                             WorkspaceService workspaceService,
                              PluginManager pluginManager,
                              ReactiveRedisTemplate<String, String> reactiveTemplate,
                              ChannelTopic topic,
                              ObjectMapper objectMapper) {
-        super(scheduler,
-                validator,
-                mongoConverter,
-                reactiveMongoTemplate,
-                repository,
-                analyticsService,
-                organizationService,
-                pluginManager,
-                reactiveTemplate,
-                topic,
-                objectMapper);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
+                workspaceService, pluginManager, reactiveTemplate, topic, objectMapper);
     }
 
     /**
      * This method is only available to EE for now, since the interface to install a plugin selectively is exposed via
      * an Appsmith app only in the SaaS Integration Creator app
      *
-     * @param plugin The DTO that contains plugin information along with organization id
+     * @param plugin The DTO that contains plugin information along with workspace id
      * @return A Void Mono on success
      */
     @Override
-    public Mono<Void> installRemotePlugin(RemotePluginOrgDTO plugin) {
+    public Mono<Void> installRemotePlugin(RemotePluginWorkspaceDTO plugin) {
         final Plugin remotePlugin = plugin.getPlugin();
         remotePlugin.setId(null);
         // Look for an existing definition of this plugin
-        final Mono<OrganizationPlugin> organizationPluginMono = this.findUniqueRemotePlugin(remotePlugin)
+        final Mono<WorkspacePlugin> workspacePluginMono = this.findUniqueRemotePlugin(remotePlugin)
                 .switchIfEmpty(Mono.just(remotePlugin))
                 .flatMap(retrievedPlugin -> {
                     remotePlugin.setId(retrievedPlugin.getId());
@@ -71,20 +62,20 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
                     // lets also save the plugin now instead of waiting for the scheduled sync job
                     return repository.save(remotePlugin);
                 })
-                .map(savedPlugin -> new OrganizationPlugin(savedPlugin.getId(), OrganizationPluginStatus.ACTIVATED));
+                .map(savedPlugin -> new WorkspacePlugin(savedPlugin.getId(), WorkspacePluginStatus.ACTIVATED));
 
-        // Look for the organization that the plugin needs to be installed in
-        final Mono<Organization> organizationMono = Mono.justOrEmpty(plugin.getOrganizationId())
+        // Look for the workspace that the plugin needs to be installed in
+        final Mono<Workspace> workspaceMono = Mono.justOrEmpty(plugin.getOrganizationId())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID)))
-                .flatMap(this.organizationService::retrieveById)
+                .flatMap(this.workspaceService::retrieveById)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION_ID, plugin.getOrganizationId())));
-        return organizationPluginMono
-                .zipWith(organizationMono)
+        return workspacePluginMono
+                .zipWith(workspaceMono)
                 .flatMap(tuple -> {
-                    final Organization organization = tuple.getT2();
-                    final OrganizationPlugin organizationPlugin = tuple.getT1();
-                    organization.getPlugins().add(organizationPlugin);
-                    return this.organizationService.save(organization);
+                    final Workspace workspace = tuple.getT2();
+                    final WorkspacePlugin workspacePlugin = tuple.getT1();
+                    workspace.getPlugins().add(workspacePlugin);
+                    return this.workspaceService.save(workspace);
                 })
                 .then();
     }
