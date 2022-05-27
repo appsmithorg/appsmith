@@ -75,9 +75,11 @@ async function createGitStorageArchive(destFolder) {
 
 async function writeVersion(path) {
   // TODO: Find a less fragile way do get the version here.
-  const content = await fsPromises.readFile('/opt/appsmith/rts/version.js', {encoding: 'utf8'});
-  const version = content.match(/\bexports\.VERSION\s*=\s*"([^"]+)"/)[1];
-  await fsPromises.writeFile(path + '/version.txt', version);
+  // const content = await fsPromises.readFile('/opt/appsmith/rts/version.js', {encoding: 'utf8'});
+  // const version = content.match(/\bexports\.VERSION\s*=\s*["']([^"]+)["']/)[1];
+  // await fsPromises.writeFile(path + '/version.txt', version);
+  shell.exec(`awk -F '=' '/^exports.VERSION/{print $NF}' /opt/appsmith/rts/version.js | sed 's/[;'\\''\\" ]//g' | tail -n 1 > ${path}/version.js`)
+}
 }
 
 async function createFinalArchive(destFolder, timestamp) {
