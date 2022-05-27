@@ -18,6 +18,7 @@ import {
 import { getWidgets } from "sagas/selectors";
 import { extractColorsFromString } from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
+import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 const FocusTrap = require("focus-trap-react");
 
 const MAX_COLS = 10;
@@ -316,11 +317,15 @@ function ColorPickerComponent(props: ColorPickerProps) {
   );
 
   const currentFocus = useRef(0);
+  const dispatchInteractionAnalyticsEvent = useInteractionAnalyticsEvent(
+    inputRef,
+  );
 
   const handleKeydown = (e: KeyboardEvent) => {
     if (isOpen) {
       switch (e.key) {
         case "Escape":
+          dispatchInteractionAnalyticsEvent({ key: e.key });
           setIsOpen(false);
           setTimeout(() => {
             inputGroupRef.current?.focus();
@@ -328,6 +333,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
           e.stopPropagation();
           break;
         case "Tab":
+          dispatchInteractionAnalyticsEvent({ key: e.key });
           currentFocus.current = 0;
           if (document.activeElement === inputGroupRef.current) {
             setTimeout(() => {
@@ -340,6 +346,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
           break;
         case "Enter":
         case " ":
+          dispatchInteractionAnalyticsEvent({ key: e.key });
           (document.activeElement as any)?.click();
           setTimeout(() => {
             inputGroupRef.current?.focus();
@@ -347,6 +354,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
           e.preventDefault();
           break;
         case "ArrowRight": {
+          dispatchInteractionAnalyticsEvent({ key: e.key });
           const totalColors =
             document.activeElement?.parentElement?.childElementCount ?? 0;
           currentFocus.current = currentFocus.current + 1;
@@ -364,6 +372,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
           break;
         }
         case "ArrowLeft": {
+          dispatchInteractionAnalyticsEvent({ key: e.key });
           const totalColors =
             document.activeElement?.parentElement?.childElementCount ?? 0;
           currentFocus.current = currentFocus.current - 1;
@@ -381,6 +390,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
           break;
         }
         case "ArrowDown": {
+          dispatchInteractionAnalyticsEvent({ key: e.key });
           const totalColors =
             document.activeElement?.parentElement?.childElementCount ?? 0;
           if (totalColors < MAX_COLS) break;
@@ -393,6 +403,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
           break;
         }
         case "ArrowUp": {
+          dispatchInteractionAnalyticsEvent({ key: e.key });
           const totalColors =
             document.activeElement?.parentElement?.childElementCount ?? 0;
           if (totalColors < MAX_COLS) break;
@@ -413,6 +424,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
     } else if (document.activeElement === inputGroupRef.current) {
       switch (e.key) {
         case "Enter":
+          dispatchInteractionAnalyticsEvent({ key: e.key });
           setIsOpen(true);
           const firstElement = popupRef.current?.querySelectorAll(
             "[tabindex='0']",
@@ -420,6 +432,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
           firstElement?.focus();
           break;
         case "Escape":
+          dispatchInteractionAnalyticsEvent({ key: e.key });
           inputGroupRef.current?.blur();
       }
     }
