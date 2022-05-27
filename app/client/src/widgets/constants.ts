@@ -1,4 +1,5 @@
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { WidgetFeatures } from "utils/WidgetFeatures";
@@ -37,9 +38,10 @@ export interface DSLWidget extends WidgetProps {
   children?: DSLWidget[];
 }
 
-export type CanvasWidgetStructure = {
-  widgetId: string;
-  type: string;
+export type CanvasWidgetStructure = Pick<
+  WidgetProps,
+  keyof typeof WIDGET_STATIC_PROPS
+> & {
   children?: CanvasWidgetStructure[];
 };
 

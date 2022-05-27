@@ -12,12 +12,16 @@ import { generateReactKey } from "./generators";
 import { memoize } from "lodash";
 import { WidgetFeatureProps } from "./WidgetFeatures";
 import { WidgetConfiguration } from "widgets/constants";
+import withWidgetProps from "widgets/withWidgetProps";
 
 const generateWidget = memoize(function getWidgetComponent(
   Widget: typeof BaseWidget,
   needsMeta: boolean,
 ) {
-  const widget = needsMeta ? withMeta(Widget) : Widget;
+  let widget = withWidgetProps(Widget);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  widget = needsMeta ? withMeta(widget) : widget;
   return Sentry.withProfiler(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore

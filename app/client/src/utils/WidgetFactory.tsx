@@ -16,6 +16,7 @@ import {
   convertFunctionsToString,
   enhancePropertyPaneConfig,
 } from "./WidgetFactoryHelpers";
+import { CanvasWidgetStructure } from "widgets/constants";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -96,10 +97,10 @@ class WidgetFactory {
   }
 
   static createWidget(
-    widgetData: WidgetDataProps,
+    widgetData: CanvasWidgetStructure,
     renderMode: RenderMode,
   ): React.ReactNode {
-    const widgetProps: WidgetProps = {
+    const widgetProps = {
       key: widgetData.widgetId,
       isVisible: true,
       ...widgetData,
@@ -108,6 +109,8 @@ class WidgetFactory {
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
       // TODO validate props here
+      // eslint-disable-next-line
+      // @ts-ignore
       const widget = widgetBuilder.buildWidget(widgetProps);
       return widget;
     } else {

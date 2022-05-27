@@ -231,16 +231,25 @@ export const getWidgetCards = createSelector(
   },
 );
 
-const getMainContainer = (
+export const computeMainContainerWidget = (
+  widget: FlattenedWidgetProps,
+  mainCanvasProps: MainCanvasReduxState,
+) => ({
+  ...widget,
+  rightColumn: mainCanvasProps.width,
+  minHeight: mainCanvasProps.height,
+});
+
+export const getMainContainer = (
   canvasWidgets: CanvasWidgetsReduxState,
   evaluatedDataTree: DataTree,
   mainCanvasProps: MainCanvasReduxState,
 ) => {
-  const canvasWidget = {
-    ...canvasWidgets[MAIN_CONTAINER_WIDGET_ID],
-    rightColumn: mainCanvasProps.width,
-    minHeight: mainCanvasProps.height,
-  };
+  const canvasWidget = computeMainContainerWidget(
+    canvasWidgets[MAIN_CONTAINER_WIDGET_ID],
+    mainCanvasProps,
+  );
+
   //TODO: Need to verify why `evaluatedDataTree` is required here.
   const evaluatedWidget = find(evaluatedDataTree, {
     widgetId: MAIN_CONTAINER_WIDGET_ID,
@@ -434,7 +443,7 @@ export const getActionById = createSelector(
   },
 );
 
-const createCanvasWidget = (
+export const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
   evaluatedWidget: DataTreeWidget,
 ) => {

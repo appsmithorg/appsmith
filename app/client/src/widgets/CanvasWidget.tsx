@@ -8,6 +8,7 @@ import DropTargetComponent from "components/editorComponents/DropTargetComponent
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { klona } from "klona";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -57,14 +58,17 @@ class CanvasWidget extends ContainerWidget {
       return null;
     }
 
+    const childWidget = klona(childWidgetData);
+
     const snapSpaces = this.getSnapSpaces();
 
-    childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
-    childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
-    if (this.props.noPad) childWidgetData.noContainerOffset = true;
-    childWidgetData.parentId = this.props.widgetId;
-
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    childWidget.parentColumnSpace = snapSpaces.snapColumnSpace;
+    childWidget.parentRowSpace = snapSpaces.snapRowSpace;
+    if (this.props.noPad) childWidget.noContainerOffset = true;
+    childWidget.parentId = this.props.widgetId;
+    // eslint-disable-next-line
+    // @ts-ignore
+    return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
 
   getPageView() {

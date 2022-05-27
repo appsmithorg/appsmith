@@ -35,6 +35,8 @@ export function AppPage(props: AppPageProps) {
   return (
     <PageView className="t--app-viewer-page" width={props.dsl.rightColumn}>
       {props.dsl.widgetId &&
+        // eslint-disable-next-line
+        // @ts-ignore
         WidgetFactory.createWidget(props.dsl, RenderModes.PAGE)}
     </PageView>
   );

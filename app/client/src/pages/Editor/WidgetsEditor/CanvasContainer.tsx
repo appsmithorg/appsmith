@@ -6,6 +6,7 @@ import {
   getCanvasWidgetDsl,
   getViewModePageList,
   previewModeSelector,
+  getCanvasWidth,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
@@ -48,7 +49,8 @@ function CanvasContainer() {
   const dispatch = useDispatch();
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
-  const widgets = useSelector(getCanvasWidgetDsl);
+  // const widgets = useSelector(getCanvasWidgetDsl);
+  const canvasWidth = useSelector(getCanvasWidth);
   const widgetsStructure = useSelector(getCanvasWidgetsStructure);
   const pages = useSelector(getViewModePageList);
   const theme = useSelector(getCurrentThemeDetails);
@@ -57,10 +59,7 @@ function CanvasContainer() {
   const params = useParams<{ applicationId: string; pageId: string }>();
   const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
-  console.log("CanvasContainer", {
-    widgetsStructure,
-    widgets,
-  });
+
   useEffect(() => {
     return () => {
       dispatch(forceOpenWidgetPanel(false));
@@ -80,8 +79,14 @@ function CanvasContainer() {
     node = pageLoading;
   }
 
-  if (!isFetchingPage && widgets) {
-    node = <Canvas dsl={widgets} pageId={params.pageId} />;
+  if (!isFetchingPage && widgetsStructure) {
+    node = (
+      <Canvas
+        canvasWidth={canvasWidth}
+        pageId={params.pageId}
+        widgetsStructure={widgetsStructure}
+      />
+    );
   }
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar

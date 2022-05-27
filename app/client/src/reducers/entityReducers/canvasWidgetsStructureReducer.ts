@@ -7,6 +7,8 @@ import {
 import { WidgetProps } from "widgets/BaseWidget";
 import { CanvasWidgetStructure } from "widgets/constants";
 import { klona } from "klona";
+import { pick } from "lodash";
+import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
 
 const initialState: CanvasWidgetsReduxState = {};
 
@@ -20,11 +22,12 @@ function denormalize(
     denormalize(childId, widgets),
   );
 
-  return {
-    widgetId: rootWidget.widgetId,
-    type: rootWidget.type,
-    children,
-  };
+  const structure = pick(rootWidget, Object.keys(WIDGET_STATIC_PROPS));
+  const { type, widgetId, widgetName } = rootWidget;
+
+  // eslint-disable-next-line
+  // @ts-ignore
+  return { type, widgetId, widgetName, children };
 }
 
 export type FlattenedWidgetProps<orType = never> =

@@ -1,3 +1,5 @@
+// eslint-disable-next-line
+// @ts-nocheck
 import React from "react";
 import BaseWidget, { WidgetProps } from "./BaseWidget";
 import { isObject, debounce, fromPairs, isEqual } from "lodash";
@@ -47,7 +49,12 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
 
     constructor(props: WidgetProps) {
       super(props);
-      const metaProperties = WrappedWidget.getMetaPropertiesMap();
+      let metaProperties;
+      try {
+        metaProperties = WrappedWidget.getMetaPropertiesMap();
+      } catch {
+        debugger;
+      }
       this.initialMetaState = fromPairs(
         Object.keys(metaProperties).map((metaProperty) => {
           return [metaProperty, this.props[metaProperty]];
