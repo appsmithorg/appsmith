@@ -3,17 +3,17 @@ package com.appsmith.server.configurations;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.OrganizationPlugin;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.UserState;
-import com.appsmith.server.dtos.OrganizationPluginStatus;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -51,7 +51,7 @@ public class SeedMongoData {
 
     @Bean
     ApplicationRunner init(UserRepository userRepository,
-                           OrganizationRepository organizationRepository,
+                           WorkspaceRepository workspaceRepository,
                            ApplicationRepository applicationRepository,
                            PageRepository pageRepository,
                            PluginRepository pluginRepository,
@@ -126,9 +126,9 @@ public class SeedMongoData {
                 {"developer test", DEV_USER_EMAIL, UserState.ACTIVATED, Set.of(readDevUserPolicy, userManageOrgPolicy)},
         };
         Object[][] orgData = {
-                {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com", "spring-test-organization",
+                {"Spring Test Workspace", "appsmith-spring-test.com", "appsmith.com", "spring-test-workspace",
                         Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy, inviteUserOrgPolicy)},
-                {"Another Test Organization", "appsmith-another-test.com", "appsmith.com", "another-test-organization",
+                {"Another Test Workspace", "appsmith-another-test.com", "appsmith.com", "another-test-workspace",
                         Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy, inviteUserOrgPolicy)}
         };
 
@@ -174,25 +174,25 @@ public class SeedMongoData {
                 .flatMap(userRepository::save)
                 .cache();
 
-        // Seed the organization data into the DB
-        Flux<Organization> organizationFlux = mongoTemplate
+        // Seed the workspace data into the DB
+        Flux<Workspace> workspaceFlux = mongoTemplate
                 .find(new Query().addCriteria(where("name").in(pluginData[0][0], pluginData[1][0], pluginData[2][0])), Plugin.class)
-                .map(plugin -> new OrganizationPlugin(plugin.getId(), OrganizationPluginStatus.FREE))
+                .map(plugin -> new WorkspacePlugin(plugin.getId(), WorkspacePluginStatus.FREE))
                 .collect(Collectors.toSet())
                 .cache()
                 .repeat()
                 .zipWithIterable(List.of(orgData))
                 .map(tuple -> {
-                    final Set<OrganizationPlugin> orgPlugins = tuple.getT1();
+                    final Set<WorkspacePlugin> orgPlugins = tuple.getT1();
                     final Object[] orgArray = tuple.getT2();
 
-                    Organization organization = new Organization();
-                    organization.setName((String) orgArray[0]);
-                    organization.setDomain((String) orgArray[1]);
-                    organization.setWebsite((String) orgArray[2]);
-                    organization.setSlug((String) orgArray[3]);
-                    organization.setPolicies((Set<Policy>) orgArray[4]);
-                    organization.setPlugins(orgPlugins);
+                    Workspace workspace = new Workspace();
+                    workspace.setName((String) orgArray[0]);
+                    workspace.setDomain((String) orgArray[1]);
+                    workspace.setWebsite((String) orgArray[2]);
+                    workspace.setSlug((String) orgArray[3]);
+                    workspace.setPolicies((Set<Policy>) orgArray[4]);
+                    workspace.setPlugins(orgPlugins);
 
                     List<UserRole> userRoles = new ArrayList<>();
                     UserRole userRole = new UserRole();
@@ -201,32 +201,32 @@ public class SeedMongoData {
                     userRole.setUsername(API_USER_EMAIL);
                     userRole.setRoleName(roleName);
                     userRoles.add(userRole);
-                    organization.setUserRoles(userRoles);
+                    workspace.setUserRoles(userRoles);
 
-                    log.debug("In the orgFlux. Create Organization: {}", organization);
-                    return organization;
+                    log.debug("In the orgFlux. Create Workspace: {}", workspace);
+                    return workspace;
                 })
-                .flatMap(organizationRepository::save);
+                .flatMap(workspaceRepository::save);
 
-        Flux<Organization> organizationFlux1 = organizationRepository.deleteAll()
+        Flux<Workspace> workspaceFlux1 = workspaceRepository.deleteAll()
                 .thenMany(pluginFlux)
                 .thenMany(userFlux)
-                .thenMany(organizationFlux);
+                .thenMany(workspaceFlux);
 
-        Flux<User> addUserOrgFlux = organizationFlux1
-                .flatMap(organization -> userFlux
+        Flux<User> addUserOrgFlux = workspaceFlux1
+                .flatMap(workspace -> userFlux
                         .flatMap(user -> {
                             log.debug("**** In the addUserOrgFlux");
                             log.debug("User: {}", user);
-                            log.debug("Org: {}", organization);
-                            user.setCurrentOrganizationId(organization.getId());
+                            log.debug("Org: {}", workspace);
+                            user.setCurrentOrganizationId(workspace.getId());
                             Set<String> organizationIds = user.getOrganizationIds();
                             if (organizationIds == null) {
                                 organizationIds = new HashSet<>();
                             }
-                            organizationIds.add(organization.getId());
+                            organizationIds.add(workspace.getId());
                             user.setOrganizationIds(organizationIds);
-                            log.debug("AddUserOrg User: {}, Org: {}", user, organization);
+                            log.debug("AddUserOrg User: {}, Org: {}", user, workspace);
                             return userRepository.save(user)
                                     .map(u -> {
                                         log.debug("Saved the org to user. User: {}", u);
@@ -235,14 +235,14 @@ public class SeedMongoData {
                         }));
 
         Query orgNameQuery = new Query(where("slug").is(orgData[0][3]));
-        Mono<Organization> orgByNameMono = mongoTemplate.findOne(orgNameQuery, Organization.class)
+        Mono<Workspace> orgByNameMono = mongoTemplate.findOne(orgNameQuery, Workspace.class)
                 .switchIfEmpty(Mono.error(new Exception("Can't find org")));
 
         Query appNameQuery = new Query(where("name").is(appData[0][0]));
         Mono<Application> appByNameMono = mongoTemplate.findOne(appNameQuery, Application.class)
                 .switchIfEmpty(Mono.error(new Exception("Can't find app")));
         return args -> {
-            organizationFlux1
+            workspaceFlux1
                     .thenMany(addUserOrgFlux)
                     // Query the seed data to get the organizationId (required for application creation)
                     .then(orgByNameMono)

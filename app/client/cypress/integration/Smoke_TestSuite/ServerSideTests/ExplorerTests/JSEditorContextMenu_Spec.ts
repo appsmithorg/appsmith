@@ -43,7 +43,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
 
   it("5. Validate Move JSObject", function() {
     const newPageId = "Page2";
-    agHelper.AddNewPage();
+    ee.AddNewPage();
     ee.AssertEntityPresenceInExplorer(newPageId);
     ee.SelectEntityByName(pageId);
     ee.expandCollapseEntity("QUERIES/JS");
