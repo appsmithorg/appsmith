@@ -236,6 +236,7 @@ public class UserServiceTest {
                     // will get a clone of the default workspace when they first login. So, we expect it to be
                     // empty here.
                     assertThat(user.getOrganizationIds()).hasSize(1);
+                    assertThat(user.getTenantId() != null);
                 })
                 .verifyComplete();
     }
