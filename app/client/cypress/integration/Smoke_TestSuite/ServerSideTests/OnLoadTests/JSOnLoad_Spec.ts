@@ -44,7 +44,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       },
     );
     jsEditor.EnableDisableAsyncFuncSettings("getId", false, true); //Only before calling confirmation is enabled by User here
-    dataSources.NavigateFromActiveDS(guid, false);
+    dataSources.NavigateFromActiveDS(guid, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("GetUser");
     cy.get("@jsObjName").then((jsObjName) => {
@@ -410,7 +410,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     //apiPage.OnPageLoadRun(true); //OnPageLoad made true after mapping to JSONForm
     apiPage.ConfirmBeforeRunningApi(true);
 
-    dataSources.NavigateFromActiveDS(guid, false);
+    dataSources.NavigateFromActiveDS(guid, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("getCitiesList");
     agHelper.EnterValue(
