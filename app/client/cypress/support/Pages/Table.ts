@@ -75,7 +75,7 @@ export class Table {
     });
   }
 
-  public ReadTableRowColumnData(rowNum: number, colNum: number, timeout = 200) { //timeout can be sent higher values incase of larger tables
+  public ReadTableRowColumnData(rowNum: number, colNum: number, timeout = 1000) { //timeout can be sent higher values incase of larger tables
     this.agHelper.Sleep(timeout)//Settling time for table!
     return cy.get(this._tableRowColumnData(rowNum, colNum)).invoke("text");
   }

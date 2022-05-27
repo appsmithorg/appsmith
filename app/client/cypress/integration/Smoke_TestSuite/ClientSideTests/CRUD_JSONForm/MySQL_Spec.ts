@@ -453,7 +453,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     table.WaitUntilTableLoad();
   });
 
-  it("15. Verify Add/Insert from Deploy page - on Stores - new record + Bug 14063", () => {
+  it("15. Verify Add/Insert from Deploy page - on Stores - new record", () => {
     agHelper.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     ee.expandCollapseEntity("WIDGETS");
@@ -524,7 +524,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       .then(($len) => expect($len).to.eq(1));
   });
 
-  it("16. Verify Update fields/Delete from Deploy page - on Stores - newly inserted record + Bug 14063", () => {
+  it("16. Verify Update fields/Delete from Deploy page - on Stores - newly inserted record", () => {
     table.SelectTableRow(0);
 
     //validating update happened fine!
@@ -625,7 +625,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("20. verify Deletion of the datasource", () => {
+  it("20. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //ProductLines, Employees pages are still using this ds
   });
 
