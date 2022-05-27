@@ -4,7 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 
 public class Permission {
 
-    String id;
+    String documentId;
 
     AclPermission aclPermission;
 
