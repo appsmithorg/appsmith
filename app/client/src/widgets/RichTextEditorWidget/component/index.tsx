@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from "react";
+import React, { useRef, useCallback, useEffect } from "react";
 import styled from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
 import { LabelPosition } from "components/constants";
@@ -73,7 +73,6 @@ export interface RichtextEditorComponentProps {
   onValueChange: (valueAsString: string) => void;
 }
 
-// const initValue = "<p></p>";
 export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const {
     compactMode,
@@ -88,17 +87,29 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   } = props;
 
   const valueRef = useRef(props.value);
+  const initialRender = useRef(true);
 
   const toolbarConfig =
     "insertfile undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | forecolor backcolor emoticons' | help";
 
   const handleEditorChange = useCallback(
     (newValue: string) => {
-      valueRef.current = newValue;
-      props.onValueChange(newValue);
+      // avoid updating value, when there is no actual change.
+      if (newValue !== props.value) {
+        valueRef.current = newValue;
+        props.onValueChange(newValue);
+      }
     },
     [props.onValueChange],
   );
+
+  useEffect(() => {
+    if (!initialRender.current && valueRef.current !== props.value) {
+      valueRef.current = props.value;
+    } else {
+      initialRender.current = false;
+    }
+  }, [props.value]);
   return (
     <StyledRTEditor
       borderRadius={props.borderRadius}
