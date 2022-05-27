@@ -93,6 +93,7 @@ import {
   LINT_TOOLTIP_CLASS,
   LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
 } from "./constants";
+import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -430,11 +431,19 @@ class CodeEditor extends Component<Props, State> {
       case " ":
         if (document.activeElement === this.codeEditorTarget.current) {
           this.editor.focus();
+          this.codeEditorTarget.current?.dispatchEvent(
+            interactionAnalyticsEvent({ key: e.key }),
+          );
           e.preventDefault();
         }
         break;
       case "Escape":
-        if (this.state.isFocused) this.codeEditorTarget.current?.focus();
+        if (this.state.isFocused) {
+          this.codeEditorTarget.current?.focus();
+          this.codeEditorTarget.current?.dispatchEvent(
+            interactionAnalyticsEvent({ key: e.key }),
+          );
+        }
         break;
     }
   };
