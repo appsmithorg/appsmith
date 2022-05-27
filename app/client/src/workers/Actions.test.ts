@@ -425,4 +425,42 @@ describe("Add functions", () => {
       ]),
     );
   });
+
+  it("setTimeout works", () => {
+    const callback = () => "test";
+    const interval = 5000;
+    const id = "myTimeout";
+
+    expect(dataTreeWithFunctions.setTimeout(callback, interval, id)).toBe(
+      undefined,
+    );
+    expect(self.TRIGGER_COLLECTOR).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          payload: {
+            callback: 'function () { return "test"; }',
+            id: "myTimeout",
+            interval: 5000,
+          },
+          type: "SET_TIMEOUT",
+        }),
+      ]),
+    );
+  });
+
+  it("clearTimeout works", () => {
+    const id = "myTimeout";
+
+    expect(dataTreeWithFunctions.clearTimeout(id)).toBe(undefined);
+    expect(self.TRIGGER_COLLECTOR).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          payload: {
+            id: "myTimeout",
+          },
+          type: "CLEAR_TIMEOUT",
+        }),
+      ]),
+    );
+  });
 });
