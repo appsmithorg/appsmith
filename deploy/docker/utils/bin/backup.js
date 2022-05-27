@@ -7,7 +7,7 @@ const shell = require('shelljs');
 const utils = require('./utils');
 const Constants = require('./constants');
 
-
+ 
 async function run() {
   let errorCode = 0;
   try {
@@ -33,6 +33,7 @@ async function run() {
     await createGitStorageArchive(backupContentsPath);
 
     await writeVersion(backupContentsPath);
+    await exportDockerEnvFile(backupContentsPath);
 
     const archivePath = await createFinalArchive(backupRootPath, timestamp);
 
@@ -40,8 +41,8 @@ async function run() {
 
     console.log('Starting backend & rts\n');
 
-    console.log('Finished taking a baceup at', archive);
-    console.log('Please remember to also take the `docker.env` separately since it includes sensitive, but critical information.')
+    console.log('Finished taking a baceup at', archivePath);
+    // console.log('Please remember to also take the `docker.env` separately since it includes sensitive, but critical information.')
 
   } catch (err) {
     console.log(err);
@@ -80,6 +81,12 @@ async function writeVersion(path) {
   // await fsPromises.writeFile(path + '/version.txt', version);
   shell.exec(`awk -F '=' '/^exports.VERSION/{print $NF}' /opt/appsmith/rts/version.js | sed 's/[;'\\''\\" ]//g' | tail -n 1 > ${path}/version.js`)
 }
+
+async function exportDockerEnvFile(destFolder) {
+  console.log('Exporting docker environment file');
+  shell.exec(`sed '/^APPSMITH_ENCRYPTION.*/d' /appsmith-stacks/configuration/docker.env > ${destFolder}/docker.env`);
+  console.log('Exporting docker environment file done.');
+  console.log('Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file because those values are not included in the backup export.')
 }
 
 async function createFinalArchive(destFolder, timestamp) {
