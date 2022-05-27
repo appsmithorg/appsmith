@@ -17,21 +17,11 @@ import {
   DropdownContainer,
   MenuItem,
 } from "./index.styled";
-import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import { LabelPosition } from "components/constants";
 import SelectButton from "./SelectButton";
 import LabelWithTooltip from "components/ads/LabelWithTooltip";
 import { labelMargin } from "../../WidgetUtils";
-
-const FUSE_OPTIONS = {
-  shouldSort: true,
-  threshold: 0.5,
-  location: 0,
-  minMatchCharLength: 3,
-  findAllMatches: true,
-  keys: ["label", "value"],
-};
 
 const DEBOUNCE_TIMEOUT = 800;
 const ITEM_SIZE = 40;
@@ -92,8 +82,15 @@ class SelectComponent extends React.Component<
 
   itemListPredicate(query: string, items: DropdownOption[]) {
     if (!query) return items;
-    const fuse = new Fuse(items, FUSE_OPTIONS);
-    return fuse.search(query);
+
+    const filter = items.filter(
+      (item) =>
+        item.label?.toLowerCase().includes(query.toLowerCase()) ||
+        String(item.value)
+          .toLowerCase()
+          .includes(query.toLowerCase()),
+    );
+    return filter;
   }
 
   onItemSelect = (item: DropdownOption): void => {
@@ -286,6 +283,7 @@ class SelectComponent extends React.Component<
         compactMode={compactMode}
         data-testid="select-container"
         labelPosition={labelPosition}
+        ref={this.props.innerRef}
       >
         <DropdownStyles
           accentColor={accentColor}
@@ -396,6 +394,7 @@ export interface SelectComponentProps extends ComponentProps {
   options: DropdownOption[];
   isLoading: boolean;
   isFilterable: boolean;
+  innerRef?: React.RefObject<HTMLDivElement>;
   isValid: boolean;
   width: number;
   dropDownWidth: number;
@@ -411,4 +410,11 @@ export interface SelectComponentProps extends ComponentProps {
   accentColor?: string;
 }
 
-export default React.memo(SelectComponent);
+export default React.memo(
+  React.forwardRef<HTMLDivElement, SelectComponentProps>((props, ref) => (
+    <SelectComponent
+      {...props}
+      innerRef={ref as React.RefObject<HTMLDivElement>}
+    />
+  )),
+);

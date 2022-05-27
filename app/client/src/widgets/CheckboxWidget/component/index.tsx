@@ -2,8 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { Alignment, Checkbox, Classes } from "@blueprintjs/core";
-import { AlignWidget } from "widgets/constants";
+import { AlignWidgetTypes } from "widgets/constants";
 import { Colors } from "constants/Colors";
+import { LabelPosition } from "components/constants";
+import { FontStyleTypes } from "constants/WidgetConstants";
 
 type StyledCheckboxProps = {
   checked?: boolean;
@@ -31,18 +33,35 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
     height: 100%;
     justify-content: flex-start;
     width: 100%;
-    &.${Alignment.RIGHT} {
-      justify-content: flex-end;
-
-      label {
-        flex-direction: row-reverse;
-      }
+    .${Classes.CHECKBOX} {
+      width: 100%;
     }
     & .bp3-control-indicator {
       border: ${(props) =>
         !props.isValid && `1px solid ${props.theme.colors.error} !important`};
     }
   }
+`;
+
+const CheckboxLabel = styled.div<{
+  disabled?: boolean;
+  labelPosition: LabelPosition;
+  labelTextColor?: string;
+  labelTextSize?: string;
+  labelStyle?: string;
+}>`
+  width: 100%;
+  display: inline-block;
+  vertical-align: top;
+  text-align: ${({ labelPosition }) => labelPosition.toLowerCase()};
+  ${({ disabled, labelStyle, labelTextColor, labelTextSize }) => `
+  color: ${disabled ? Colors.GREY_8 : labelTextColor || "inherit"};
+  font-size: ${labelTextSize ?? "inherit"};
+  font-weight: ${labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
+  font-style: ${
+    labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : "normal"
+  };
+  `}
 `;
 
 export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
@@ -95,7 +114,9 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
 class CheckboxComponent extends React.Component<CheckboxComponentProps> {
   render() {
     const checkboxAlignClass =
-      this.props.alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
+      this.props.alignWidget === AlignWidgetTypes.RIGHT
+        ? Alignment.RIGHT
+        : Alignment.LEFT;
 
     // If the prop isValid has a value true/false (it was explicitly passed to this component),
     // it take priority over the internal logic to determine if the field is valid or not.
@@ -109,9 +130,9 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
 
     return (
       <CheckboxContainer
-        className={checkboxAlignClass}
         isValid={isValid}
         noContainerPadding={this.props.noContainerPadding}
+        ref={this.props.innerRef}
       >
         <StyledCheckbox
           accentColor={this.props.accentColor || DEFAULT_BACKGROUND_COLOR}
@@ -123,7 +144,18 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
           }
           disabled={this.props.isDisabled}
           inputRef={this.props.inputRef}
-          label={this.props.label}
+          labelElement={
+            <CheckboxLabel
+              className="t--checkbox-widget-label"
+              disabled={this.props.isDisabled}
+              labelPosition={this.props.labelPosition}
+              labelStyle={this.props.labelStyle}
+              labelTextColor={this.props.labelTextColor}
+              labelTextSize={this.props.labelTextSize}
+            >
+              {this.props.label}
+            </CheckboxLabel>
+          }
           onChange={this.onCheckChange}
           rowSpace={this.props.rowSpace}
         />
@@ -137,7 +169,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
 }
 
 export interface CheckboxComponentProps extends ComponentProps {
-  alignWidget?: AlignWidget;
+  alignWidget?: AlignWidgetTypes;
   noContainerPadding?: boolean;
   isChecked: boolean;
   isLoading: boolean;
@@ -146,9 +178,21 @@ export interface CheckboxComponentProps extends ComponentProps {
   label: string;
   onCheckChange: (isChecked: boolean) => void;
   rowSpace: number;
+  innerRef?: React.MutableRefObject<HTMLDivElement>;
   inputRef?: (el: HTMLInputElement | null) => any;
   accentColor: string;
   borderRadius: string;
+  labelPosition: LabelPosition;
+  labelTextColor?: string;
+  labelTextSize?: string;
+  labelStyle?: string;
 }
 
-export default CheckboxComponent;
+export default React.forwardRef<HTMLDivElement, CheckboxComponentProps>(
+  (props, ref) => (
+    <CheckboxComponent
+      {...props}
+      innerRef={ref as React.MutableRefObject<HTMLDivElement>}
+    />
+  ),
+);

@@ -37,7 +37,7 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { updateWidgetMetaProperty } from "actions/metaActions";
+import { updateWidgetMetaPropAndEval } from "actions/metaActions";
 import { focusWidget } from "actions/widgetActions";
 import log from "loglevel";
 import { flatten } from "lodash";
@@ -149,7 +149,7 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   if (!metaProps || !metaProps.isVisible) {
     // Then show the modal we would like to show.
     yield put(
-      updateWidgetMetaProperty(action.payload.modalId, "isVisible", true),
+      updateWidgetMetaPropAndEval(action.payload.modalId, "isVisible", true),
     );
     yield delay(1000);
   }
@@ -206,7 +206,7 @@ export function* closeModalSaga(
         flatten(
           widgetIds.map((widgetId: string) => {
             return [
-              put(updateWidgetMetaProperty(widgetId, "isVisible", false)),
+              put(updateWidgetMetaPropAndEval(widgetId, "isVisible", false)),
             ];
           }),
         ),

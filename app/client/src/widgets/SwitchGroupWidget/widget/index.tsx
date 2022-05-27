@@ -414,6 +414,7 @@ class SwitchGroupWidget extends BaseWidget<
         labelWidth={this.getLabelWidth()}
         onChange={this.handleSwitchStateChange}
         options={options}
+        ref={this.contentRef}
         required={isRequired}
         selected={selectedValues}
         valid={isValid}
