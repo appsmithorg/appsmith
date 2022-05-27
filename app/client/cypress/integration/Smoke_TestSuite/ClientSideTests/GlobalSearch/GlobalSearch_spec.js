@@ -2,6 +2,8 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/MultipleWidgetDsl.json");
 const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
+const datasourceHomeLocators = require("../../../../locators/apiWidgetslocator.json");
+const datasourceLocators = require("../../../../locators/DatasourcesEditor.json");
 
 describe("GlobalSearch", function() {
   before(() => {
@@ -138,5 +140,32 @@ describe("GlobalSearch", function() {
       cy.get("body").type("{esc}");
       cy.get(commonlocators.globalSearchModal).should("not.exist");
     }
+  });
+
+  it("7. Api actions should have API as prefix", () => {
+    cy.get(globalSearchLocators.createNew).click({ force: true });
+    cy.get(globalSearchLocators.blankDatasource).click({ force: true });
+    cy.get(datasourceHomeLocators.createAuthApiDatasource).click();
+    cy.wait("@createDatasource").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    cy.get(datasourceLocators.datasourceTitleLocator).click();
+    cy.get(`${datasourceLocators.datasourceTitleLocator} input`)
+      .clear()
+      .type("omnibarApiDatasource", { force: true })
+      .blur();
+
+    cy.get(globalSearchLocators.createNew).click({ force: true });
+    cy.contains(
+      globalSearchLocators.fileOperation,
+      "omnibarApiDatasource",
+    ).click();
+    cy.wait("@createNewApi");
+    cy.get(datasourceHomeLocators.apiTxt)
+      .invoke("val")
+      .then((title) => expect(title).includes("Api"));
+    cy.NavigateToHome();
   });
 });

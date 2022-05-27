@@ -220,11 +220,11 @@ export const Entity = forwardRef(
 
     /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
-      if (props.isDefaultExpanded) {
+      if (props.isDefaultExpanded || props.searchKeyword) {
         open(true);
         props.onToggle && props.onToggle(true);
       }
-    }, [props.isDefaultExpanded]);
+    }, [props.isDefaultExpanded, props.searchKeyword]);
     useEffect(() => {
       if (!props.searchKeyword && !props.isDefaultExpanded) {
         open(false);

@@ -8,7 +8,6 @@ import {
   StyledInputGroup,
   StyledPropertyPaneButton,
 } from "./StyledControls";
-
 import { DropDownOptionWithKey } from "./OptionControl";
 import { DropdownOption } from "components/constants";
 import { generateReactKey } from "utils/generators";

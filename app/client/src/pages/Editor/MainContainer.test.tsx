@@ -20,6 +20,7 @@ import { getAbsolutePixels } from "utils/helpers";
 import { UpdatedMainContainer } from "test/testMockedWidgets";
 import { AppState } from "reducers";
 import { generateReactKey } from "utils/generators";
+import * as useDynamicAppLayoutHook from "utils/hooks/useDynamicAppLayout";
 
 const renderNestedComponent = () => {
   const initialState = (store.getState() as unknown) as Partial<AppState>;
@@ -88,6 +89,9 @@ const renderNestedComponent = () => {
 describe("Drag and Drop widgets into Main container", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
+  jest
+    .spyOn(useDynamicAppLayoutHook, "useDynamicAppLayout")
+    .mockImplementation(() => [true, jest.fn()]);
 
   const pushState = jest.spyOn(window.history, "pushState");
   pushState.mockImplementation((state: any, title: any, url: any) => {

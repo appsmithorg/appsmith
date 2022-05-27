@@ -23,6 +23,7 @@ import {
 } from "entities/DataTree/actionTriggers";
 import { AppTheme } from "entities/AppTheming";
 import { PluginId } from "api/PluginApi";
+import log from "loglevel";
 
 export type ActionDispatcher = (
   ...args: any[]
@@ -117,6 +118,7 @@ export interface DataTreeWidget extends WidgetProps {
   propertyOverrideDependency: PropertyOverrideDependency;
   overridingPropertyPaths: OverridingPropertyPaths;
   privateWidgets: PrivateWidgets;
+  meta: Record<string, unknown>;
 }
 
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
@@ -164,6 +166,9 @@ export class DataTreeFactory {
     widgetsMeta,
   }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
+    const start = performance.now();
+    const startActions = performance.now();
+
     actions.forEach((action) => {
       const editorConfig = editorConfigs[action.config.pluginId];
       const dependencyConfig = pluginDependencyConfig[action.config.pluginId];
@@ -173,15 +178,24 @@ export class DataTreeFactory {
         dependencyConfig,
       );
     });
+    const endActions = performance.now();
+
+    const startJsActions = performance.now();
+
     jsActions.forEach((js) => {
       dataTree[js.config.name] = generateDataTreeJSAction(js);
     });
+    const endJsActions = performance.now();
+
+    const startWidgets = performance.now();
+
     Object.values(widgets).forEach((widget) => {
       dataTree[widget.widgetName] = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.widgetId],
       );
     });
+    const endWidgets = performance.now();
 
     dataTree.pageList = pageList;
     dataTree.appsmith = {
@@ -192,6 +206,17 @@ export class DataTreeFactory {
       theme,
     } as DataTreeAppsmith;
     (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
+    const end = performance.now();
+
+    const out = {
+      total: end - start,
+      widgets: endWidgets - startWidgets,
+      actions: endActions - startActions,
+      jsActions: endJsActions - startJsActions,
+    };
+
+    log.debug("### Create unevalTree timing", out);
+
     return dataTree;
   }
 }
