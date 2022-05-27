@@ -30,7 +30,7 @@ const MAX_COLS = 10;
  */
 interface ColorPickerProps {
   color: string;
-  changeColor: (color: string) => void;
+  changeColor: (color: string, isUpdatedViaKeyboard: boolean) => void;
   showThemeColors?: boolean;
   showApplicationColors?: boolean;
   evaluatedColorValue?: string;
@@ -91,7 +91,7 @@ interface ColorPickerPopupProps {
   containerRef: React.MutableRefObject<HTMLDivElement | null>;
   setColor: (color: string) => unknown;
   setIsOpen: (isOpen: boolean) => unknown;
-  changeColor: (color: string) => unknown;
+  changeColor: (color: string, isUpdatedViaKeyboard: boolean) => unknown;
   showThemeColors?: boolean;
   showApplicationColors?: boolean;
 }
@@ -158,6 +158,7 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
                       getThemePropertyBinding(
                         `${colorsPropertyName}.${colorKey}`,
                       ),
+                      !e.isTrusted,
                     );
                   }}
                   style={{ backgroundColor: themeColors[colorKey] }}
@@ -179,10 +180,10 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
                     color === colorCode ? "ring-1" : ""
                   }`}
                   key={colorCode}
-                  onClick={() => {
+                  onClick={(e) => {
                     setColor(colorCode);
                     setIsOpen(false);
-                    changeColor(colorCode);
+                    changeColor(colorCode, !e.isTrusted);
                   }}
                   style={{ backgroundColor: colorCode }}
                   tabIndex={colorIndex === 0 ? 0 : -1}
@@ -210,7 +211,10 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
                     setIsOpen(false);
                     e.stopPropagation();
                     setColor(TAILWIND_COLORS[colorKey][singleColorKey]);
-                    changeColor(TAILWIND_COLORS[colorKey][singleColorKey]);
+                    changeColor(
+                      TAILWIND_COLORS[colorKey][singleColorKey],
+                      !e.isTrusted,
+                    );
                   }}
                   style={{
                     backgroundColor: TAILWIND_COLORS[colorKey][singleColorKey],
@@ -225,9 +229,9 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
             className={`${COLOR_BOX_CLASSES}  ${
               color === "#fff" ? "ring-1" : ""
             }`}
-            onClick={() => {
+            onClick={(e) => {
               setColor("#fff");
-              changeColor("#fff");
+              changeColor("#fff", !e.isTrusted);
             }}
             tabIndex={-1}
           />
@@ -235,9 +239,9 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
             className={`${COLOR_BOX_CLASSES}  diagnol-cross ${
               color === "transparent" ? "ring-1" : ""
             }`}
-            onClick={() => {
+            onClick={(e) => {
               setColor("transparent");
-              changeColor("transparent");
+              changeColor("transparent", !e.isTrusted);
             }}
             tabIndex={-1}
           />
@@ -310,8 +314,8 @@ function ColorPickerComponent(props: ColorPickerProps) {
   );
 
   const debouncedOnChange = React.useCallback(
-    debounce((color: string) => {
-      props.changeColor(color);
+    debounce((color: string, isUpdatedViaKeyboard: boolean) => {
+      props.changeColor(color, isUpdatedViaKeyboard);
     }, DEBOUNCE_TIMER),
     [],
   );
@@ -447,7 +451,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
 
   const handleChangeColor = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    debouncedOnChange(value);
+    debouncedOnChange(value, true);
     setColor(value);
   };
 
