@@ -11,6 +11,7 @@ import {
 import { RenderModes } from "constants/WidgetConstants";
 
 describe("evaluateSync", () => {
+  // @ts-expect-error: meta property not provided
   const widget: DataTreeWidget = {
     bottomRow: 0,
     isLoading: false,

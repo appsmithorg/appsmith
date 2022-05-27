@@ -201,6 +201,7 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   },
 };
 
+// @ts-expect-error: meta is required
 const BASE_WIDGET: DataTreeWidget = {
   logBlackList: {},
   widgetId: "randomID",

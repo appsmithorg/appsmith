@@ -421,6 +421,15 @@ describe("overrideWidgetProperties", () => {
           widgetId: "egwwwfgab",
           widgetName: "Input1",
           children: [],
+          bottomRow: 0,
+          isLoading: false,
+          parentColumnSpace: 0,
+          parentRowSpace: 0,
+          version: 1,
+          leftColumn: 0,
+          renderMode: RenderModes.CANVAS,
+          rightColumn: 0,
+          topRow: 0,
         },
         {},
       );
@@ -441,17 +450,20 @@ describe("overrideWidgetProperties", () => {
 
       expect(evalMetaUpdates).toStrictEqual([
         {
+          //@ts-expect-error: widgetId does not exits on type DataTreeEntity
           widgetId: currentTree.Input1.widgetId,
           metaPropertyPath: ["inputText"],
           value: "abcde",
         },
         {
+          //@ts-expect-error: widgetId does not exits on type DataTreeEntity
           widgetId: currentTree.Input1.widgetId,
           metaPropertyPath: ["text"],
           value: "abcde",
         },
       ]);
 
+      //@ts-expect-error: meta does not exits on type DataTreeEntity
       expect(currentTree.Input1.meta).toStrictEqual({
         text: "abcde",
         inputText: "abcde",
@@ -472,6 +484,7 @@ describe("overrideWidgetProperties", () => {
 
       expect(evalMetaUpdates).toStrictEqual([]);
 
+      //@ts-expect-error: text does not exits on type DataTreeEntity
       expect(currentTree.Input1.text).toStrictEqual("abcdefg");
     });
   });
@@ -485,6 +498,15 @@ describe("overrideWidgetProperties", () => {
           widgetId: "random",
           widgetName: "Table1",
           children: [],
+          bottomRow: 0,
+          isLoading: false,
+          parentColumnSpace: 0,
+          parentRowSpace: 0,
+          version: 1,
+          leftColumn: 0,
+          renderMode: RenderModes.CANVAS,
+          rightColumn: 0,
+          topRow: 0,
         },
         {},
       );
@@ -505,18 +527,22 @@ describe("overrideWidgetProperties", () => {
 
       expect(evalMetaUpdates).toStrictEqual([
         {
+          //@ts-expect-error: widgetId does not exits on type DataTreeEntity
           widgetId: currentTree.Table1.widgetId,
           metaPropertyPath: ["selectedRowIndex"],
           value: [0, 1],
         },
         {
+          //@ts-expect-error: widgetId does not exits on type DataTreeEntity
           widgetId: currentTree.Table1.widgetId,
           metaPropertyPath: ["selectedRowIndices"],
           value: [0, 1],
         },
       ]);
 
+      //@ts-expect-error: meta does not exits on type DataTreeEntity
       expect(currentTree.Table1.meta.selectedRowIndex).toStrictEqual([0, 1]);
+      //@ts-expect-error: meta does not exits on type DataTreeEntity
       expect(currentTree.Table1.meta.selectedRowIndices).toStrictEqual([0, 1]);
     });
     // When meta.selectedRowIndex is re-evaluated it will override values selectedRowIndex
@@ -534,6 +560,7 @@ describe("overrideWidgetProperties", () => {
 
       expect(evalMetaUpdates).toStrictEqual([]);
 
+      //@ts-expect-error: selectedRowIndex does not exits on type DataTreeEntity
       expect(currentTree.Table1.selectedRowIndex).toStrictEqual(0);
     });
   });

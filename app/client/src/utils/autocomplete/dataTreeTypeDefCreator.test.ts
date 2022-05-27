@@ -12,6 +12,7 @@ import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 
 describe("dataTreeTypeDefCreator", () => {
   it("creates the right def for a widget", () => {
+    // @ts-expect-error: meta property not provided
     const dataTreeEntity: DataTreeWidget = {
       widgetId: "yolo",
       widgetName: "Input1",
