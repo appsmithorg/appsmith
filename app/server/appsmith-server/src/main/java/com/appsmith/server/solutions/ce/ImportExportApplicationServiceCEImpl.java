@@ -2,7 +2,6 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.converters.GsonISOStringToInstantConverter;
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
@@ -85,6 +84,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -629,8 +629,17 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             importedApplication.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
         }
 
-        List<ApplicationPage> publishedPages = new ArrayList<>(importedApplication.getPublishedPages());
-        List<ApplicationPage> unpublishedPages = new ArrayList<>(importedApplication.getPages());
+        Gson gson = new Gson();
+        importedApplication.setViewMode(true);
+        final List<ApplicationPage> publishedPages = new ArrayList<>(importedApplication.getPages().size());
+        importedApplication.getPages().parallelStream()
+                .forEach(applicationPage -> publishedPages.add(gson.fromJson(gson.toJson(applicationPage), ApplicationPage.class)));
+
+        importedApplication.setViewMode(false);
+        final List<ApplicationPage> unpublishedPages = new ArrayList<>(importedApplication.getPages().size());
+        importedApplication.getPages().parallelStream()
+                .forEach(applicationPage -> unpublishedPages.add(gson.fromJson(gson.toJson(applicationPage), ApplicationPage.class)));
+
 
         importedApplication.setPages(null);
         importedApplication.setPublishedPages(null);
@@ -688,7 +697,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     // for this instance
                                     datasource.setDatasourceConfiguration(null);
                                     datasource.setPluginId(null);
-                                    AppsmithBeanUtils.copyNestedNonNullProperties(datasource, existingDatasource);
+                                    copyNestedNonNullProperties(datasource, existingDatasource);
                                     existingDatasource.setStructure(null);
                                     // Don't update the datasource configuration for already available datasources
                                     existingDatasource.setDatasourceConfiguration(null);
@@ -749,7 +758,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                     // The isPublic flag has a default value as false and this would be confusing to user
                                                     // when it is reset to false during importing where the application already is present in DB
                                                     importedApplication.setIsPublic(null);
-                                                    AppsmithBeanUtils.copyNestedNonNullProperties(importedApplication, existingApplication);
+                                                    copyNestedNonNullProperties(importedApplication, existingApplication);
                                                     // We are expecting the changes present in DB are committed to git directory
                                                     // so that these won't be lost when we are pulling changes from remote and
                                                     // rehydrate the application. We are now rehydrating the application with/without
@@ -839,12 +848,20 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 );
                                 for(ApplicationPage applicationPage : unpublishedPages) {
                                     NewPage newPage = pageNameMap.get(applicationPage.getId());
+                                    if (newPage == null) {
+                                        log.debug("Unable to find the page during import for appId {}, with name {}", applicationId, applicationPage.getId());
+                                        unpublishedPages.remove(applicationPage);
+                                    }
                                     applicationPage.setId(newPage.getId());
                                     applicationPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
                                 }
 
                                 for(ApplicationPage applicationPage : publishedPages) {
                                     NewPage newPage = pageNameMap.get(applicationPage.getId());
+                                    if (newPage == null) {
+                                        log.debug("Unable to find the page during import for appId {}, with name {}", applicationId, applicationPage.getId());
+                                        publishedPages.remove(applicationPage);
+                                    }
                                     applicationPage.setId(newPage.getId());
                                     applicationPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
                                 }
@@ -1077,9 +1094,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Map<String, String> oldToNewLayoutIds = new HashMap<>();
         pages.forEach(newPage -> {
-            if (newPage.getDefaultResources() != null) {
-                newPage.getDefaultResources().setBranchName(branchName);
-            }
             newPage.setApplicationId(application.getId());
             if (newPage.getUnpublishedPage() != null) {
                 applicationPageService.generateAndSetPagePolicies(application, newPage.getUnpublishedPage());
@@ -1115,7 +1129,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         if (newPage.getGitSyncId() != null && savedPagesGitIdToPageMap.containsKey(newPage.getGitSyncId())) {
                             //Since the resource is already present in DB, just update resource
                             NewPage existingPage = savedPagesGitIdToPageMap.get(newPage.getGitSyncId());
-                            AppsmithBeanUtils.copyNestedNonNullProperties(newPage, existingPage);
+                            copyNestedNonNullProperties(newPage, existingPage);
+                            // Update branchName
+                            existingPage.getDefaultResources().setBranchName(branchName);
                             // Recover the deleted state present in DB from imported page
                             existingPage.getUnpublishedPage().setDeletedAt(newPage.getUnpublishedPage().getDeletedAt());
                             existingPage.setDeletedAt(newPage.getDeletedAt());
@@ -1202,10 +1218,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     ActionDTO unpublishedAction = newAction.getUnpublishedAction();
                     ActionDTO publishedAction = newAction.getPublishedAction();
 
-                    if (newAction.getDefaultResources() != null) {
-                        newAction.getDefaultResources().setBranchName(branchName);
-                    }
-
                     // If pageId is missing in the actionDTO create a fallback pageId
                     final String fallbackParentPageId = unpublishedAction.getPageId();
 
@@ -1237,7 +1249,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                         //Since the resource is already present in DB, just update resource
                         NewAction existingAction = savedActionsGitIdToActionsMap.get(newAction.getGitSyncId());
-                        AppsmithBeanUtils.copyNestedNonNullProperties(newAction, existingAction);
+                        copyNestedNonNullProperties(newAction, existingAction);
+                        // Update branchName
+                        existingAction.getDefaultResources().setBranchName(branchName);
                         // Recover the deleted state present in DB from imported action
                         existingAction.getUnpublishedAction().setDeletedAt(newAction.getUnpublishedAction().getDeletedAt());
                         existingAction.setDeletedAt(newAction.getDeletedAt());
@@ -1346,9 +1360,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .filter(actionCollection -> actionCollection.getUnpublishedCollection() != null
                         && !StringUtils.isEmpty(actionCollection.getUnpublishedCollection().getPageId()))
                 .flatMap(actionCollection -> {
-                    if (actionCollection.getDefaultResources() != null) {
-                        actionCollection.getDefaultResources().setBranchName(branchName);
-                    }
                     final String importedActionCollectionId = actionCollection.getId();
                     NewPage parentPage = new NewPage();
                     final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
@@ -1389,7 +1400,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                         //Since the resource is already present in DB, just update resource
                         ActionCollection existingActionCollection = savedActionCollectionGitIdToCollectionsMap.get(actionCollection.getGitSyncId());
-                        AppsmithBeanUtils.copyNestedNonNullProperties(actionCollection, existingActionCollection);
+                        copyNestedNonNullProperties(actionCollection, existingActionCollection);
+                        // Update branchName
+                        existingActionCollection.getDefaultResources().setBranchName(branchName);
                         // Recover the deleted state present in DB from imported actionCollection
                         existingActionCollection.getUnpublishedCollection().setDeletedAt(actionCollection.getUnpublishedCollection().getDeletedAt());
                         existingActionCollection.setDeletedAt(actionCollection.getDeletedAt());
@@ -1722,7 +1735,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         final DatasourceConfiguration datasourceConfig = datasource.getDatasourceConfiguration();
         AuthenticationResponse authResponse = new AuthenticationResponse();
         if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
-            AppsmithBeanUtils.copyNestedNonNullProperties(
+            copyNestedNonNullProperties(
                     datasourceConfig.getAuthentication().getAuthenticationResponse(), authResponse);
             datasourceConfig.getAuthentication().setAuthenticationResponse(null);
             datasourceConfig.getAuthentication().setAuthenticationType(null);
