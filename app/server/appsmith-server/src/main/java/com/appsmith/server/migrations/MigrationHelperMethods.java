@@ -92,7 +92,7 @@ public class MigrationHelperMethods {
         for(String pageName : pageOrderList) {
             ApplicationPage publishedAppPage = new ApplicationPage();
             publishedAppPage.setId(pageName);
-            publishedAppPage.setIsDefault(StringUtils.equals(pageName, applicationJson.getUnpublishedDefaultPageName()));
+            publishedAppPage.setIsDefault(StringUtils.equals(pageName, applicationJson.getPublishedDefaultPageName()));
             applicationPages.get(VIEW).add(publishedAppPage);
         }
         applicationJson.getExportedApplication().setPages(applicationPages.get(EDIT));
@@ -126,8 +126,8 @@ public class MigrationHelperMethods {
                     && publishedMongoEscapedWidget.containsKey(newPage.getPublishedPage().getName())
                     && !CollectionUtils.isNullOrEmpty(newPage.getPublishedPage().getLayouts())) {
 
-                newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
-                    layout.setMongoEscapedWidgetNames(unpublishedMongoEscapedWidget.get(layout.getId()));
+                newPage.getPublishedPage().getLayouts().forEach(layout -> {
+                    layout.setMongoEscapedWidgetNames(publishedMongoEscapedWidget.get(layout.getId()));
                 });
             }
         });
