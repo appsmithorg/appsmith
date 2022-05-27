@@ -32,6 +32,9 @@ class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
       this.props.onBatchUpdateProperties(updates);
     }
   };
+  static getControlType() {
+    return "BASE_CONTROL";
+  }
 }
 
 export interface ControlBuilder<T extends ControlProps> {

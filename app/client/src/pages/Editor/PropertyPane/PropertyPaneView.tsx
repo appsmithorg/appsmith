@@ -72,6 +72,9 @@ function PropertyPaneView(
     const event = e as CustomEvent<InteractionAnalyticsEventDetail>;
     AnalyticsUtil.logEvent("PROPERTY_PANE_KEYPRESS", {
       key: event.detail.key,
+      propertyName: event.detail.propertyName,
+      propertyType: event.detail.propertyType,
+      widgetType: event.detail.widgetType,
     });
   };
 
