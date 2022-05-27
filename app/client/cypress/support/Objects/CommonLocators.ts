@@ -21,10 +21,11 @@ export class CommonLocators {
     _inputWidgetInDeployed = this._widgetInDeployed("inputwidgetv2") + " input"
     _inputWidgetv1InDeployed = this._widgetInDeployed("inputwidget") + " input"
     _textAreainputWidgetv1InDeployed = this._widgetInDeployed("inputwidget") + " textarea"
+    _textAreainputWidgetv2InDeployed = this._widgetInDeployed("inputwidgetv2") + " textarea"
     _imageWidget = ".t--draggable-imagewidget"
     _backToEditor = ".t--back-to-editor"
     _newPage = ".pages .t--entity-add-btn"
-    _toastMsg = ".t--toast-action"
+    _toastMsg = "div.t--toast-action"
     _empty = "span[name='no-response']"
     _contextMenuInPane = "span[name='context-menu']"
     _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']"
@@ -69,4 +70,6 @@ export class CommonLocators {
     _multiSelectItem = (item: string) => "//span[text()='" + item + "']/ancestor::div[@class ='rc-select-selection-overflow-item']//span[contains(@class, 'remove-icon')]"
     _listWidget = "div[type='LIST_WIDGET']"
     _dropdownText = ".t--dropdown-option"
+    _jsonFormInputField = (fieldName: string) =>  `.t--jsonformfield-${fieldName} input`
+    _lintErrorElement = `span.CodeMirror-lint-mark-error`
 }

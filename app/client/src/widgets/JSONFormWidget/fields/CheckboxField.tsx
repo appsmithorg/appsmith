@@ -16,6 +16,7 @@ import {
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import { LabelPosition } from "components/constants";
 
 type CheckboxComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -113,6 +114,7 @@ function CheckboxField({
           isRequired={schemaItem.isRequired}
           isValid={isDirty ? isValueValid : true}
           label=""
+          labelPosition={LabelPosition.Left}
           noContainerPadding
           onCheckChange={onCheckChange}
           rowSpace={20}
