@@ -81,6 +81,13 @@ export class JSEditor {
 
   //#endregion
 
+  //#region constants
+  private isMac = Cypress.platform === "darwin";
+  private selectJSObjectContentShortcut = `${
+    this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
+  }`;
+  //#endregion
+
   //#region Page functions
   public NavigateToNewJSEditor() {
     cy.get(this.locator._createNew)
@@ -119,13 +126,7 @@ export class JSEditor {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
         .focus()
-        .type(
-          "{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}",
-        )
-        .type(
-          "{shift}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}",
-          { force: true },
-        )
+        .type(this.selectJSObjectContentShortcut)
         .type("{backspace}", { force: true });
 
       // .type("{uparrow}", { force: true })
@@ -171,15 +172,15 @@ export class JSEditor {
     this.GetJSObjectName();
   }
 
-  //Not working - To improve!
-  public EditJSObj(existingTxt: string, newTxt: string) {
-    cy.get(this.locator._codeEditorTarget)
-      .contains(existingTxt)
-      .dblclick(); //.type("{backspace}").type(newTxt)
-    cy.get("body")
-      .type("{backspace}")
-      .type(newTxt);
-    this.agHelper.AssertAutoSave(); //Ample wait due to open bug # 10284
+  //Edit the name of a JSObject's property (variable or function)
+  public EditJSObj(newContent: string) {
+    cy.get(this.locator._codeMirrorTextArea)
+      .first()
+      .focus()
+      .type(this.selectJSObjectContentShortcut, { force: true })
+      .then((el: any) => {
+        this.agHelper.Paste(el, newContent);
+      });
   }
 
   public EnterJSContext(

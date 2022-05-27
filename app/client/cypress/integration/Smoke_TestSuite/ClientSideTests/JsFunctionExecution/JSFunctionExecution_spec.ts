@@ -166,4 +166,53 @@ describe("JS Function Execution", function() {
       expect($cellData).to.eq("1"); //validating id column value - row 0
     });
   });
+
+  it("6. edit", () => {
+    const cyclicDependencyToastMessage = "Cyclic dependency found";
+    const JSCode = `export default {
+      myFun1 :()=>{
+        return "yes"
+      }
+    }`;
+
+    const JSCodeWithRenamedFunction1 = `export default {
+      myFun2 :()=>{
+        return "yes"
+      }
+    }`;
+
+    const JSCodeWithRenamedFunction2 = `export default {
+      myFun3 :()=>{
+        return "yes"
+      }
+    }`;
+
+    const JSCodeWithRenamedFunction3 = `export default {
+      myFun4 :()=>{
+        return "yes"
+      }
+    }`;
+    const JSCodeWithRenamedFunction4 = `export default {
+      myFun5 :()=>{
+        return "yes"
+      }
+    }`;
+
+    jsEditor.CreateJSObject(JSCode, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+
+    // change function name and test that cyclic dependency is not created
+    jsEditor.EditJSObj(JSCodeWithRenamedFunction1);
+    cy.contains(cyclicDependencyToastMessage).should("not.exist");
+    jsEditor.EditJSObj(JSCodeWithRenamedFunction2);
+    cy.contains(cyclicDependencyToastMessage).should("not.exist");
+    jsEditor.EditJSObj(JSCodeWithRenamedFunction3);
+    cy.contains(cyclicDependencyToastMessage).should("not.exist");
+    jsEditor.EditJSObj(JSCodeWithRenamedFunction4);
+    cy.contains(cyclicDependencyToastMessage).should("not.exist");
+  });
 });
