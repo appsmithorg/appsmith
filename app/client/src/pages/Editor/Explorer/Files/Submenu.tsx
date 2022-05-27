@@ -222,6 +222,7 @@ export default function ExplorerSubMenu({
         onMenuClose();
       }}
       placement="right-start"
+      transitionDuration={0}
     >
       <TooltipComponent
         boundary="viewport"

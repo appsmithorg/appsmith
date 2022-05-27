@@ -25,6 +25,7 @@ export type TooltipProps = CommonComponentProps & {
   onOpening?: typeof noop;
   popoverClassName?: string;
   donotUsePortal?: boolean;
+  transitionDuration?: number;
 };
 
 const portalContainer = document.getElementById("tooltip-root");
@@ -50,6 +51,7 @@ function TooltipComponent(props: TooltipProps) {
         ""}`}
       portalContainer={portalContainer as HTMLDivElement}
       position={props.position}
+      transitionDuration={props.transitionDuration || 0}
       usePortal={!props.donotUsePortal}
     >
       {props.children}
