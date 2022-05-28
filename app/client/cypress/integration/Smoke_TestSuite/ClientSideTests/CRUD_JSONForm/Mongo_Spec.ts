@@ -8,7 +8,7 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   dataSources = ObjectsRegistry.DataSources;
 
 describe("Validate Mongo CRUD with JSON Form", () => {
-  it("1. Verify storeValue via .then via direct Promises", () => {
+  it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       dataSources.NavigateToDSCreateNew();
@@ -29,7 +29,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
       agHelper.GetNClick(dataSources._selectTableDropdown);
       agHelper.GetNClickByContains(
         dataSources._dropdownOption,
-        "samples_pokemon",
+        "pokemon",
       );
       agHelper.GetNClick(dataSources._generatePageBtn);
     });

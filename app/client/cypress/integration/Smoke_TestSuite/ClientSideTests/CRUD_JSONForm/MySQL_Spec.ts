@@ -24,7 +24,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     } else cy.log("MySQL DB is found, hence using actual DB");
   });
 
-  it("1. Create DS & then Add new Page and generate CRUD template using existing supported datasource", () => {
+  it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       dataSources.NavigateToDSCreateNew();
