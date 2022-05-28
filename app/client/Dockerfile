@@ -1,3 +1,4 @@
+
 FROM nginx:1.20-alpine
 
 COPY ./build /var/www/appsmith
@@ -16,5 +17,5 @@ COPY ./docker/templates/nginx-app-https.conf.template /nginx-app-https.conf.temp
 
 # This is the script that is used to start Nginx when the Docker container starts
 COPY ./docker/start-nginx.sh /start-nginx.sh
-HEALTHCHECK --interval=15s --timeout=15s --start-period=15s --retries=3 CMD curl -f http://localhost:80/ || exit 1
+HEALTHCHECK --interval=15s --timeout=15s --start-period=15s --retries=3 CMD curl -Lfk http://localhost/ || exit 1
 CMD ["/start-nginx.sh"]
