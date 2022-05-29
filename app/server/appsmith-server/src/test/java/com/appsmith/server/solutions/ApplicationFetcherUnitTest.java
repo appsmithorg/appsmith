@@ -22,9 +22,7 @@ import com.appsmith.server.services.UserService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
@@ -77,6 +75,7 @@ public class ApplicationFetcherUnitTest {
     User testUser;
 
     final static String defaultPageId = "defaultPageId";
+    final static String defaultTenantId = "defaultTenantId";
 
     @Before
     public void setup() {
@@ -159,6 +158,7 @@ public class ApplicationFetcherUnitTest {
             Workspace workspace = new Workspace();
             workspace.setId("org-" + i);
             workspace.setName(workspace.getId());
+            workspace.setTenantId(defaultTenantId);
             workspaceList.add(workspace);
         }
         return workspaceList;
@@ -169,10 +169,11 @@ public class ApplicationFetcherUnitTest {
         testUser.setEmail("application-fetcher-test-user");
         testUser.setIsAnonymous(false);
         testUser.setOrganizationIds(Set.of("org-1", "org-2", "org-3", "org-4"));
+        testUser.setTenantId(defaultTenantId);
 
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(testUser));
         Mockito.when(userService.findByEmail(testUser.getEmail())).thenReturn(Mono.just(testUser));
-        Mockito.when(workspaceService.findByIdsIn(testUser.getOrganizationIds(), READ_ORGANIZATIONS))
+        Mockito.when(workspaceService.findByIdsIn(testUser.getOrganizationIds(), defaultTenantId, READ_ORGANIZATIONS))
                 .thenReturn(Flux.fromIterable(createDummyWorkspaces()));
         Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
         Mockito.when(releaseNotesService.computeNewFrom(any())).thenReturn("0");
@@ -203,7 +204,7 @@ public class ApplicationFetcherUnitTest {
                     .thenReturn(updateDefaultPageIdsWithinApplication(application));
         }
 
-        Mockito.when(applicationService.createOrUpdateSshKeyPair(Mockito.anyString()))
+        Mockito.when(applicationService.createOrUpdateSshKeyPair(Mockito.anyString(), Mockito.any()))
                 .thenReturn(Mono.just(new GitAuth()));
 
         StepVerifier.create(applicationFetcher.getAllApplications())
@@ -211,6 +212,7 @@ public class ApplicationFetcherUnitTest {
                     List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
                     assertThat(dtos.size()).isEqualTo(4);
                     for (WorkspaceApplicationsDTO dto : dtos) {
+                        assertThat(dto.getOrganization().getTenantId()).isEqualTo(defaultTenantId);
                         assertThat(dto.getApplications().size()).isEqualTo(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
@@ -249,7 +251,7 @@ public class ApplicationFetcherUnitTest {
                     .thenReturn(updateDefaultPageIdsWithinApplication(application));
         }
 
-        Mockito.when(applicationService.createOrUpdateSshKeyPair(Mockito.anyString()))
+        Mockito.when(applicationService.createOrUpdateSshKeyPair(Mockito.anyString(), null))
                 .thenReturn(Mono.just(new GitAuth()));
 
         StepVerifier.create(applicationFetcher.getAllApplications())
@@ -257,6 +259,7 @@ public class ApplicationFetcherUnitTest {
                     List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
                     assertThat(dtos.size()).isEqualTo(4);
                     for (WorkspaceApplicationsDTO dto : dtos) {
+                        assertThat(dto.getOrganization().getTenantId()).isEqualTo(defaultTenantId);
                         assertThat(dto.getApplications().size()).isEqualTo(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
@@ -280,7 +283,7 @@ public class ApplicationFetcherUnitTest {
                     return Mono.just(applicationList.get(0));
                 })
                 // After choosing the any app randomly to connect to git, Generate keys and stop the process
-                .flatMap(application -> applicationService.createOrUpdateSshKeyPair(application.getId()))
+                .flatMap(application -> applicationService.createOrUpdateSshKeyPair(application.getId(), null))
                 .then(applicationFetcher.getAllApplications());
 
         StepVerifier.create(userHomepageDTOMono)
