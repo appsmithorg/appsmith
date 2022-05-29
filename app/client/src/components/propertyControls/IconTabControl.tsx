@@ -5,12 +5,16 @@ import ButtonTabComponent, {
 } from "components/ads/ButtonTabComponent";
 
 class IconTabControl extends BaseControl<IconTabControlProps> {
-  selectOption = (value: string) => {
+  selectOption = (value: string, isUpdatedViaKeyboard = false) => {
     const { defaultValue, propertyValue } = this.props;
     if (propertyValue === value) {
-      this.updateProperty(this.props.propertyName, defaultValue);
+      this.updateProperty(
+        this.props.propertyName,
+        defaultValue,
+        isUpdatedViaKeyboard,
+      );
     } else {
-      this.updateProperty(this.props.propertyName, value);
+      this.updateProperty(this.props.propertyName, value, isUpdatedViaKeyboard);
     }
   };
   render() {

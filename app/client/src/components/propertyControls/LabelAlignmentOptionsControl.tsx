@@ -46,8 +46,8 @@ class LabelAlignmentOptionsControl extends BaseControl<
     );
   }
 
-  private handleAlign(align: string) {
-    this.updateProperty(this.props.propertyName, align);
+  private handleAlign(align: string, isUpdatedViaKeyboard = false) {
+    this.updateProperty(this.props.propertyName, align, isUpdatedViaKeyboard);
   }
 }
 

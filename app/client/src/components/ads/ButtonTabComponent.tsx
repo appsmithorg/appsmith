@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ControlIcons } from "icons/ControlIcons";
 import _ from "lodash";
+import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
 const ItemWrapper = styled.div<{ selected: boolean }>`
   min-width: 32px;
@@ -48,7 +49,7 @@ export interface ButtonTabOption {
 interface ButtonTabComponentProps {
   options: ButtonTabOption[];
   values: Array<string>;
-  selectButton: (value: string) => void;
+  selectButton: (value: string, isUpdatedViaKeyboard: boolean) => void;
 }
 
 function ButtonTabComponent(props: ButtonTabComponentProps) {
@@ -61,25 +62,33 @@ function ButtonTabComponent(props: ButtonTabComponentProps) {
     }
   }
 
+  const {
+    dispatchInteractionAnalyticsEvent,
+    eventEmitterRef,
+  } = useInteractionAnalyticsEvent<HTMLDivElement>();
+
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     switch (e.key) {
       case "ArrowRight":
       case "Right":
+        dispatchInteractionAnalyticsEvent({ key: e.key });
         setFocusedIndex((prev) =>
           prev === props.options.length - 1 ? 0 : prev + 1,
         );
         break;
       case "ArrowLeft":
       case "Left":
+        dispatchInteractionAnalyticsEvent({ key: e.key });
         setFocusedIndex((prev) =>
           prev === 0 ? props.options.length - 1 : prev - 1,
         );
         break;
       case "Enter":
       case " ":
-        props.selectButton(props.options[focusedIndex].value);
+        dispatchInteractionAnalyticsEvent({ key: e.key });
+        props.selectButton(props.options[focusedIndex].value, true);
         e.preventDefault();
         break;
     }
@@ -90,6 +99,7 @@ function ButtonTabComponent(props: ButtonTabComponentProps) {
       onBlur={() => setFocusedIndex(-1)}
       onFocus={() => setFocusedIndex(firstValueIndex)}
       onKeyDown={handleKeyDown}
+      ref={eventEmitterRef}
       role="tablist"
       tabIndex={0}
     >
@@ -111,7 +121,7 @@ function ButtonTabComponent(props: ButtonTabComponentProps) {
               }`}
               key={index}
               onClick={() => {
-                props.selectButton(value);
+                props.selectButton(value, false);
                 setFocusedIndex(index);
               }}
               role="tab"

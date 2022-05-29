@@ -6,7 +6,7 @@ import ButtonTabComponent, {
 import produce from "immer";
 
 class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
-  selectButton = (value: string) => {
+  selectButton = (value: string, isUpdatedViaKeyboard = false) => {
     const { defaultValue, propertyValue } = this.props;
     const values: string[] = propertyValue
       ? propertyValue.split(",")
@@ -15,12 +15,20 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
       : [];
     if (values.includes(value)) {
       values.splice(values.indexOf(value), 1);
-      this.updateProperty(this.props.propertyName, values.join(","));
+      this.updateProperty(
+        this.props.propertyName,
+        values.join(","),
+        isUpdatedViaKeyboard,
+      );
     } else {
       const updatedValues: string[] = produce(values, (draft: string[]) => {
         draft.push(value);
       });
-      this.updateProperty(this.props.propertyName, updatedValues.join(","));
+      this.updateProperty(
+        this.props.propertyName,
+        updatedValues.join(","),
+        isUpdatedViaKeyboard,
+      );
     }
   };
   render() {

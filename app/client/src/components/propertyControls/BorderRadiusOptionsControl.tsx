@@ -52,8 +52,12 @@ class BorderRadiusOptionsControl extends BaseControl<
     return (
       <ButtonTabComponent
         options={options}
-        selectButton={(value) => {
-          this.updateProperty(this.props.propertyName, value);
+        selectButton={(value, isUpdatedViaKeyboard = false) => {
+          this.updateProperty(
+            this.props.propertyName,
+            value,
+            isUpdatedViaKeyboard,
+          );
         }}
         values={this.props.evaluatedValue ? [this.props.evaluatedValue] : []}
       />
