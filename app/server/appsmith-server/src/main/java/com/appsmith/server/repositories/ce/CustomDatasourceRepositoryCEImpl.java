@@ -6,6 +6,7 @@ import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.mongodb.client.result.UpdateResult;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -28,7 +29,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     @Override
     public Flux<Datasource> findAllByOrganizationId(String organizationId, AclPermission permission) {
         Criteria orgIdCriteria = where(fieldName(QDatasource.datasource.organizationId)).is(organizationId);
-        return queryAll(List.of(orgIdCriteria), permission);
+        return queryAll(List.of(orgIdCriteria), permission, Sort.by(fieldName(QDatasource.datasource.name)));
     }
 
     @Override
