@@ -31,6 +31,7 @@ const StyledNumericInput = styled(NumericInput)<ThemeProp & INumericInputProps>`
 `;
 
 class NumericInputControl extends BaseControl<NumericInputControlProps> {
+  inputElement: HTMLInputElement | null | undefined;
   static getControlType() {
     return "NUMERIC_INPUT";
   }
@@ -48,6 +49,9 @@ class NumericInputControl extends BaseControl<NumericInputControlProps> {
     return (
       <StyledNumericInput
         fill
+        inputRef={(elm) => {
+          this.inputElement = elm;
+        }}
         large
         majorStepSize={majorStepSize}
         max={max}
@@ -63,7 +67,11 @@ class NumericInputControl extends BaseControl<NumericInputControlProps> {
 
   private handleValueChange = (_v: number, value: string) => {
     // Update the propertyValue
-    this.updateProperty(this.props.propertyName, value);
+    this.updateProperty(
+      this.props.propertyName,
+      value,
+      document.activeElement === this.inputElement,
+    );
   };
 }
 
