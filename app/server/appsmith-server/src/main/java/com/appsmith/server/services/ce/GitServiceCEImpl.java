@@ -2427,7 +2427,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         String defaultApplicationId = "", gitHostingProvider = "", branchName = "";
         if (gitData != null) {
             defaultApplicationId = gitData.getDefaultApplicationId();
-            branchName = gitData.getBranchName();
+            branchName = StringUtils.isEmptyOrNull(gitData.getBranchName()) ? "" : gitData.getBranchName();
             gitHostingProvider = GitUtils.getGitProviderName(gitData.getRemoteUrl());
         }
         Map<String, Object> analyticsProps = new HashMap<>(Map.of(
