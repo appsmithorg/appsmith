@@ -321,7 +321,8 @@ function ColorPickerComponent(props: ColorPickerProps) {
   );
 
   const currentFocus = useRef(0);
-  const dispatchInteractionAnalyticsEvent = useInteractionAnalyticsEvent(
+  const { dispatchInteractionAnalyticsEvent } = useInteractionAnalyticsEvent(
+    false,
     inputRef,
   );
 

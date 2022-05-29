@@ -951,7 +951,8 @@ export default function Dropdown(props: DropdownProps) {
     }
   };
 
-  const dispatchInteractionAnalyticsEvent = useInteractionAnalyticsEvent(
+  const { dispatchInteractionAnalyticsEvent } = useInteractionAnalyticsEvent(
+    false,
     dropdownWrapperRef,
   );
 

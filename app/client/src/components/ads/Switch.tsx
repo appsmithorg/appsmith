@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import styled from "constants/DefaultTheme";
 import { ISwitchProps, Switch } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
@@ -16,10 +16,11 @@ const StyledSwitch = styled(Switch)`
 `;
 
 export default function AdsSwitch(props: ISwitchProps) {
-  const wrapperRef = useRef<HTMLInputElement>(null);
-  const dispatchInteractionAnalyticsEvent = useInteractionAnalyticsEvent(
-    wrapperRef,
-  );
+  const {
+    dispatchInteractionAnalyticsEvent,
+    eventEmitterRefCallback,
+  } = useInteractionAnalyticsEvent<HTMLInputElement>(true);
+
   const handleKeydown = (e: React.KeyboardEvent) => {
     switch (e.key) {
       case "Enter":
@@ -30,17 +31,16 @@ export default function AdsSwitch(props: ISwitchProps) {
   };
 
   return (
-    <div ref={wrapperRef}>
-      <StyledSwitch
-        {...props}
-        className={
-          props.className
-            ? props.className + " " + replayHighlightClass
-            : replayHighlightClass
-        }
-        onKeyDown={handleKeydown}
-        tabIndex={0}
-      />
-    </div>
+    <StyledSwitch
+      {...props}
+      className={
+        props.className
+          ? props.className + " " + replayHighlightClass
+          : replayHighlightClass
+      }
+      inputRef={eventEmitterRefCallback}
+      onKeyDown={handleKeydown}
+      tabIndex={0}
+    />
   );
 }
