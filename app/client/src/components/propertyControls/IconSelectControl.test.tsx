@@ -225,7 +225,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       "iconName",
       "add-row-top",
-      undefined,
+      true,
     );
     await waitForElementToBeRemoved(screen.getByRole("list"));
 
@@ -244,7 +244,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       "iconName",
       "add-to-artifact",
-      undefined,
+      true,
     );
   });
 });
