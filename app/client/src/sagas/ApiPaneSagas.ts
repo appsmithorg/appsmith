@@ -413,17 +413,17 @@ export function* updateFormFields(
       };
     } else {
       // when user switches to GET method, do not clear off content type headers, instead leave them.
+      if (_.isEmpty(values?.actionConfiguration?.body)) {
+        apiContentType = HTTP_METHODS_DEFAULT_FORMAT_TYPES.GET;
+        extraFormDataToBeChanged = true;
+      }
+
       if (contentTypeHeaderIndex > -1) {
         actionConfigurationHeaders[contentTypeHeaderIndex] = {
           key: CONTENT_TYPE_HEADER_KEY,
           value: apiContentType,
         };
       } else {
-        if (_.isEmpty(values.body)) {
-          apiContentType = HTTP_METHODS_DEFAULT_FORMAT_TYPES.GET;
-          extraFormDataToBeChanged = true;
-        }
-
         actionConfigurationHeaders[indexToUpdate] = {
           key: CONTENT_TYPE_HEADER_KEY,
           value: HTTP_METHODS_DEFAULT_FORMAT_TYPES.GET,
