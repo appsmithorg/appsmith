@@ -1,6 +1,13 @@
 import { RefObject, useRef } from "react";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 
+export function emitInteractionAnalyticsEvent<T extends HTMLElement>(
+  element: T | null,
+  args: Record<string, unknown>,
+) {
+  element?.dispatchEvent(interactionAnalyticsEvent(args));
+}
+
 export default function useInteractionAnalyticsEvent<T extends HTMLElement>(
   isCallbackRef = false,
   ref?: React.RefObject<T>,
@@ -19,9 +26,8 @@ export default function useInteractionAnalyticsEvent<T extends HTMLElement>(
   }
 
   function dispatchInteractionAnalyticsEvent(args: Record<string, unknown>) {
-    if (isCallbackRef) element?.dispatchEvent(interactionAnalyticsEvent(args));
-    else
-      eventEmitterRef.current?.dispatchEvent(interactionAnalyticsEvent(args));
+    if (isCallbackRef) emitInteractionAnalyticsEvent(element, args);
+    else emitInteractionAnalyticsEvent(eventEmitterRef.current, args);
   }
 
   return {
