@@ -9,7 +9,6 @@ import {
 } from "actions/datasourceActions";
 import { DropdownOption } from "components/ads/Dropdown";
 import { useDispatch } from "react-redux";
-import { isObject } from "lodash";
 
 export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {
@@ -67,30 +66,31 @@ export const useDatasourceOptions = ({
   return dataSourceOptions;
 };
 
-const GOOGLE_SHEET_METHODS = {
-  GET_ALL_SPREADSHEETS: "LIST", // Get all the spreadsheets
-  GET_ALL_SHEETS: "INFO", // fetch all the sub-sheets
-  GET_ALL_COLUMNS: "GET_STRUCTURE", // Get column names
-};
+// const GOOGLE_SHEET_METHODS = {
+//   GET_ALL_SPREADSHEETS: "LIST", // Get all the spreadsheets
+//   GET_ALL_SHEETS: "INFO", // fetch all the sub-sheets
+//   GET_ALL_COLUMNS: "GET_STRUCTURE", // Get column names
+// };
 
-const demoRequest: Record<any, string> = {
-  method: "",
-  sheetUrl: "",
-  range: "",
-  spreadsheetName: "",
-  tableHeaderIndex: "1",
-  queryFormat: "ROWS",
-  rowLimit: "",
-  sheetName: "",
-  rowOffset: "",
-  rowObject: "",
-  rowObjects: "",
-  rowIndex: "",
-  deleteFormat: "SHEET",
-};
+// const demoRequest: Record<any, string> = {
+//   method: "",
+//   sheetUrl: "",
+//   range: "",
+//   spreadsheetName: "",
+//   tableHeaderIndex: "1",
+//   queryFormat: "ROWS",
+//   rowLimit: "",
+//   sheetName: "",
+//   rowOffset: "",
+//   rowObject: "",
+//   rowObjects: "",
+//   rowIndex: "",
+//   deleteFormat: "SHEET",
+// };
 
 type FetchAllSpreadSheets = {
   selectedDatasourceId: string;
+  pluginId: string;
   requestObject?: Record<any, string>;
 };
 
@@ -130,24 +130,15 @@ export const useSpreadSheets = ({
   const onFetchAllSpreadsheetSuccess = useCallback(
     (
       payload: executeDatasourceQuerySuccessPayload<
-        Array<{ id: string; name: string }>
+        Array<{ label: string; value: string }>
       >,
     ) => {
       setIsFetchingSpreadsheets(false);
-
-      const tableOptions: DropdownOptions = [];
-      if (payload.data && payload.data.body) {
-        const spreadSheets = payload.data.body;
+      if (payload.data && payload.data.trigger) {
+        const spreadSheets = payload.data.trigger;
 
         if (Array.isArray(spreadSheets)) {
-          spreadSheets.map(({ id, name }) => {
-            tableOptions.push({
-              id,
-              label: name,
-              value: name,
-            });
-            setSelectedDatasourceTableOptions(tableOptions);
-          });
+          setSelectedDatasourceTableOptions(spreadSheets);
         } else {
           // to handle error like "401 Unauthorized"
           setSelectedDatasourceIsInvalid(true);
@@ -162,18 +153,20 @@ export const useSpreadSheets = ({
   );
 
   const fetchAllSpreadsheets = useCallback(
-    ({ requestObject, selectedDatasourceId }: FetchAllSpreadSheets) => {
+    ({
+      pluginId,
+      requestObject,
+      selectedDatasourceId,
+    }: FetchAllSpreadSheets) => {
       setIsFetchingSpreadsheets(true);
       setFailedFetchingSpreadsheets(false);
-
-      let requestData = { ...demoRequest };
-      if (isObject(requestObject) && Object.keys(requestObject).length) {
-        requestData = { ...requestObject };
-      }
-      requestData.method = GOOGLE_SHEET_METHODS.GET_ALL_SPREADSHEETS;
-      const formattedRequestData = Object.entries(
-        requestData,
-      ).map(([dataKey, dataValue]) => ({ key: dataKey, value: dataValue }));
+      const formattedRequestData = {
+        datasourceId: selectedDatasourceId,
+        displayType: "DROP_DOWN",
+        pluginId,
+        requestType: "SPREADSHEET_SELECTOR",
+        ...requestObject,
+      };
       dispatch(
         executeDatasourceQuery({
           payload: {
@@ -223,7 +216,8 @@ export const getSheetUrl = (sheetId: string): string =>
 
 export type FetchSheetsList = {
   selectedDatasourceId: string;
-  selectedSpreadsheetId: string;
+  selectedSpreadsheetUrl: string;
+  pluginId: string;
   requestObject?: Record<any, string>;
 };
 
@@ -234,7 +228,7 @@ export type UseSheetListReturn = {
   fetchSheetsList: ({
     requestObject,
     selectedDatasourceId,
-    selectedSpreadsheetId,
+    selectedSpreadsheetUrl,
   }: FetchSheetsList) => void;
 };
 
@@ -257,31 +251,17 @@ export const useSheetsList = (): UseSheetListReturn => {
 
   const onFetchAllSheetSuccess = useCallback(
     (
-      payload: executeDatasourceQuerySuccessPayload<{
-        sheets: Sheets;
-        name: string;
-        id: string;
-      }>,
+      payload: executeDatasourceQuerySuccessPayload<
+        Array<{ label: string; value: string }>
+      >,
     ) => {
       setIsFetchingSheetsList(false);
-      const sheetOptions: DropdownOptions = [];
-
-      if (payload.data && payload.data.body) {
-        const responseBody = payload.data.body;
-        if (isObject(responseBody)) {
-          const { sheets = [] } = responseBody;
-          if (Array.isArray(sheets)) {
-            sheets.map(({ title }) => {
-              sheetOptions.push({
-                id: title,
-                label: title,
-                value: title,
-              });
-              setSheetsList(sheetOptions);
-            });
-          } else {
-            // to handle error like "401 Unauthorized"
-          }
+      if (payload.data && payload.data.trigger) {
+        const responseBody = payload.data.trigger;
+        if (Array.isArray(responseBody)) {
+          setSheetsList(responseBody);
+        } else {
+          // to handle error like "401 Unauthorized"
         }
       }
     },
@@ -290,23 +270,23 @@ export const useSheetsList = (): UseSheetListReturn => {
 
   const fetchSheetsList = useCallback(
     ({
-      requestObject,
+      pluginId,
+      // requestObject,
       selectedDatasourceId,
-      selectedSpreadsheetId,
+      selectedSpreadsheetUrl,
     }: FetchSheetsList) => {
       setSheetsList([]);
       setIsFetchingSheetsList(true);
       setFailedFetchingSheetsList(false);
-
-      let requestData = { ...demoRequest };
-      if (isObject(requestObject) && Object.keys(requestObject).length) {
-        requestData = { ...requestObject };
-      }
-      requestData.method = GOOGLE_SHEET_METHODS.GET_ALL_SHEETS;
-      requestData.sheetUrl = getSheetUrl(selectedSpreadsheetId);
-      const formattedRequestData = Object.entries(
-        requestData,
-      ).map(([dataKey, dataValue]) => ({ key: dataKey, value: dataValue }));
+      const formattedRequestData = {
+        datasourceId: selectedDatasourceId,
+        displayType: "DROP_DOWN",
+        parameters: {
+          sheetUrl: selectedSpreadsheetUrl,
+        },
+        pluginId: pluginId,
+        requestType: "SHEET_SELECTOR",
+      };
       dispatch(
         executeDatasourceQuery({
           payload: {
@@ -337,10 +317,11 @@ export const useSheetsList = (): UseSheetListReturn => {
 
 export type FetchColumnHeaderListParams = {
   selectedDatasourceId: string;
-  selectedSpreadsheetId: string;
+  selectedSpreadsheetUrl: string;
   sheetName: string;
+  pluginId: string;
   tableHeaderIndex: string;
-  requestObject?: Record<any, string>;
+  requestObject?: Record<any, string>; //possily unneccesary
 };
 
 export type UseSheetColumnHeadersReturn = {
@@ -349,7 +330,7 @@ export type UseSheetColumnHeadersReturn = {
   errorFetchingColumnHeaderList: string;
   fetchColumnHeaderList: ({
     selectedDatasourceId,
-    selectedSpreadsheetId,
+    selectedSpreadsheetUrl,
     sheetName,
     tableHeaderIndex,
   }: FetchColumnHeaderListParams) => void;
@@ -383,24 +364,11 @@ export const useSheetColumnHeaders = () => {
       payload: executeDatasourceQuerySuccessPayload<Record<string, string>[]>,
     ) => {
       setIsFetchingColumnHeaderList(false);
-      const columnHeaders: DropdownOptions = [];
 
-      if (payload.data && payload.data.body) {
-        const responseBody = payload.data.body;
-        if (Array.isArray(responseBody) && responseBody.length) {
-          const headersObject = responseBody[0];
-          delete headersObject.rowIndex;
-          const headers = Object.keys(headersObject);
-          if (Array.isArray(headers) && headers.length) {
-            headers.map((header, index) => {
-              columnHeaders.push({
-                id: `${header}_${index}`,
-                label: header,
-                value: header,
-              });
-            });
-            setColumnHeaderList(columnHeaders);
-          }
+      if (payload.data && payload.data.trigger) {
+        const responseBody = payload.data.trigger;
+        if (Array.isArray(responseBody)) {
+          setColumnHeaderList(responseBody);
         } else {
           let error = "Failed fetching Column headers";
           if (typeof responseBody === "string") {
@@ -422,24 +390,17 @@ export const useSheetColumnHeaders = () => {
     (params: FetchColumnHeaderListParams) => {
       setIsFetchingColumnHeaderList(true);
       setErrorFetchingColumnHeaderList("");
+      const formattedRequestData = {
+        datasourceId: params.selectedDatasourceId,
+        displayType: "DROP_DOWN",
+        parameters: {
+          sheetName: params.sheetName,
+          sheetUrl: params.selectedSpreadsheetUrl,
+        },
+        pluginId: params.pluginId,
+        requestType: "COLUMNS_SELECTOR",
+      };
 
-      let requestData = { ...demoRequest };
-      if (
-        isObject(params.requestObject) &&
-        Object.keys(params.requestObject).length
-      ) {
-        requestData = { ...params.requestObject };
-      }
-      requestData.method = GOOGLE_SHEET_METHODS.GET_ALL_COLUMNS;
-      requestData.sheetUrl = getSheetUrl(params.selectedSpreadsheetId);
-      requestData.tableHeaderIndex = params.tableHeaderIndex;
-      requestData.rowLimit = "1";
-      requestData.rowOffset = "0";
-      requestData.sheetName = params.sheetName;
-
-      const formattedRequestData = Object.entries(
-        requestData,
-      ).map(([dataKey, dataValue]) => ({ key: dataKey, value: dataValue }));
       dispatch(
         executeDatasourceQuery({
           payload: {

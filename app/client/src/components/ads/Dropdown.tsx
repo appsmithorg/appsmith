@@ -326,7 +326,7 @@ export const DropdownWrapper = styled.div<{
 `;
 
 const SearchComponentWrapper = styled.div`
-  margin: 0px 5px;
+  margin: 0px 5px 5px;
 `;
 
 const DropdownOptionsWrapper = styled.div<{

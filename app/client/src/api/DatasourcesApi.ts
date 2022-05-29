@@ -25,7 +25,8 @@ export interface EmbeddedRestDatasourceRequest {
   pluginId: string;
 }
 
-type executeQueryData = Array<{ key?: string; value?: string }>;
+// type executeQueryData = Array<{ key?: string; value?: string }>;
+type executeQueryData = Record<string, any>;
 
 export interface executeDatasourceQueryRequest {
   datasourceId: string;
@@ -99,6 +100,13 @@ class DatasourcesApi extends API {
       DatasourcesApi.url + `/datasource-query` + `/${datasourceId}`,
       data,
     );
+  }
+
+  static executeGoogleSheetsDatasourceQuery({
+    data,
+    datasourceId,
+  }: executeDatasourceQueryRequest) {
+    return API.post(DatasourcesApi.url + `/${datasourceId}` + `/trigger`, data);
   }
 }
 
