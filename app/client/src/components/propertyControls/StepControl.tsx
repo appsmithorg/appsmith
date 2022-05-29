@@ -31,8 +31,12 @@ class StepControl extends BaseControl<StepControlProps> {
         displayFormat={displayFormat}
         max={max}
         min={min}
-        onChange={(value: number) => {
-          this.updateProperty(this.props.propertyName, value);
+        onChange={(value: number, isUpdatedViaKeyboard: boolean) => {
+          this.updateProperty(
+            this.props.propertyName,
+            value,
+            isUpdatedViaKeyboard,
+          );
         }}
         steps={steps}
         value={this.props.propertyValue}

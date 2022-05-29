@@ -2,6 +2,7 @@ import React from "react";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
+import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
 const StyledIncreaseIcon = styled(
   ControlIcons.INCREASE_CONTROL as AnyStyledComponent,
@@ -64,51 +65,70 @@ interface StepComponentProps {
   max: number;
   steps: number;
   displayFormat: (value: number) => string;
-  onChange: (value: number) => void;
+  onChange: (value: number, isUpdatedViaKeyboard: boolean) => void;
 }
 
 export function StepComponent(props: StepComponentProps) {
-  function decrease() {
+  const {
+    dispatchInteractionAnalyticsEvent,
+    eventEmitterRef,
+  } = useInteractionAnalyticsEvent<HTMLDivElement>();
+
+  function decrease(isUpdatedViaKeyboard = false) {
     if (props.value < props.min) {
       return;
     }
     const value = props.value - props.steps;
-    props.onChange(value);
+    props.onChange(value, isUpdatedViaKeyboard);
   }
-  function increase() {
+
+  function increase(isUpdatedViaKeyboard = false) {
     if (props.value > props.max) {
       return;
     }
     const value = props.value + props.steps;
-    props.onChange(value);
+    props.onChange(value, isUpdatedViaKeyboard);
   }
+
   function handleKeydown(e: React.KeyboardEvent) {
     switch (e.key) {
       case "ArrowUp":
       case "Up":
       case "ArrowRight":
       case "Right":
-        increase();
+        dispatchInteractionAnalyticsEvent({ key: e.key });
+        increase(true);
         e.preventDefault();
         break;
       case "ArrowDown":
       case "Down":
       case "ArrowLeft":
       case "Left":
-        decrease();
+        dispatchInteractionAnalyticsEvent({ key: e.key });
+        decrease(true);
         e.preventDefault();
         break;
     }
   }
+
   return (
     <StepWrapper
       data-testid="step-wrapper"
       onKeyDown={handleKeydown}
+      ref={eventEmitterRef}
       tabIndex={0}
     >
-      <StyledDecreaseIcon height={2} onClick={decrease} width={12} />
+      <StyledDecreaseIcon
+        height={2}
+        onClick={() => decrease(false)}
+        width={12}
+      />
       <InputWrapper>{props.displayFormat(props.value)}</InputWrapper>
-      <StyledIncreaseIcon height={12} onClick={increase} width={12} />
+      <StyledIncreaseIcon
+        height={12}
+        onClick={() => increase(false)}
+        width={12}
+      />
     </StepWrapper>
   );
 }
