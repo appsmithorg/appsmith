@@ -11,7 +11,7 @@ import { TextSize } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
 import Icon from "components/ads/Icon";
 import { Alignment, Classes } from "@blueprintjs/core";
-import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import { getClosestCanvas, WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
@@ -98,7 +98,10 @@ function MultiSelectComponent({
     }
   }, [options, value]);
 
-  const getPopupContainer = useCallback(() => _menu.current as HTMLElement, []);
+  const getPopupContainer = useCallback(() => {
+    const node = _menu.current;
+    return getClosestCanvas(node);
+  }, []);
 
   const handleSelectAll = () => {
     if (!isSelectAll) {
