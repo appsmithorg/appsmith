@@ -40,14 +40,19 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
   }
 
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
-    // TODO(aswath): We need to allow CSV values. ex: BOLD,ITALIC
-    if (
-      (config as DropDownControlProps)?.options
-        ?.map((x: { value: string }) => x.value)
-        .includes(value)
-    )
-      return true;
-    return false;
+    const allowedValues = new Set(
+      (config as DropDownControlProps)?.options?.map(
+        (x: { value: string }) => x.value,
+      ),
+    );
+
+    const values = value.split(",");
+
+    for (const x of values) {
+      if (!allowedValues.has(x)) return false;
+    }
+
+    return true;
   }
 }
 
