@@ -1,8 +1,8 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.DecryptedSensitiveFields;
+import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
@@ -12,7 +12,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Transient;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,10 +41,10 @@ public class ApplicationJson {
     List<NewPage> pageList;
 
     @Deprecated
-    List<String> pageOrder = new ArrayList<>();
+    List<String> pageOrder;
 
     @Deprecated
-    List<String> publishedPageOrder = new ArrayList<>();
+    List<String> publishedPageOrder;
 
     @Deprecated
     String publishedDefaultPageName;

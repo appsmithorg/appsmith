@@ -67,7 +67,7 @@ public class MigrationHelperMethods {
         } else {
             pageOrderList = applicationJson.getPageList()
                     .parallelStream()
-                    .filter(newPage -> newPage.getUnpublishedPage().getDeletedAt() == null)
+                    .filter(newPage -> newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getDeletedAt() == null)
                     .map(newPage -> newPage.getUnpublishedPage().getName())
                     .collect(Collectors.toList());
         }
@@ -78,7 +78,7 @@ public class MigrationHelperMethods {
             applicationPages.get(EDIT).add(unpublishedAppPage);
         }
 
-        // Reorder the pages based on edit mode page sequence
+        // Reorder the pages based on view mode page sequence
         pageOrderList.clear();
         if(!CollectionUtils.isNullOrEmpty(applicationJson.getPublishedPageOrder())) {
             pageOrderList = applicationJson.getPublishedPageOrder();
