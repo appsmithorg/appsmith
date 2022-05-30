@@ -167,7 +167,7 @@ describe("JS Function Execution", function() {
     });
   });
 
-  it("6. edit", () => {
+  it("6. Doesn't cause cyclic dependency when function name is edited", () => {
     const syncJSCode = `export default {
       myFun1 :()=>{
         return "yes"
