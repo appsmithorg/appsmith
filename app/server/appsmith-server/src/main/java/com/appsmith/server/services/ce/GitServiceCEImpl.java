@@ -400,9 +400,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         Mono<String> commitMono = this.getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    Path baseRepoSuffix =
-                            Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
-                    return RedisUtils.addFileLock(baseRepoSuffix)
+                    return RedisUtils.addFileLock(gitData.getDefaultApplicationId())
                             .then(Mono.just(application));
                 })
                 .flatMap(defaultApplication -> {
@@ -570,12 +568,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                     update.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
                     update.setIsManualUpdate(false);
 
-                    Path baseRepoSuffix = Paths.get(childApplication.getOrganizationId(),
-                            childApplication.getGitApplicationMetadata().getDefaultApplicationId(),
-                            childApplication.getGitApplicationMetadata().getRepoName());
                     return applicationService.update(childApplication.getId(), update)
                             // Release the file lock on git repo
-                            .flatMap(application -> RedisUtils.releaseFileLock(baseRepoSuffix))
+                            .flatMap(application -> RedisUtils.releaseFileLock(childApplication.getGitApplicationMetadata().getDefaultApplicationId()))
                             .then(addAnalyticsForGitOperation(
                                     AnalyticsEvents.GIT_COMMIT.getEventName(),
                                     childApplication,
@@ -1372,9 +1367,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         Mono<GitPullDTO> pullMono = getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    Path baseRepoSuffix =
-                            Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
-                    return RedisUtils.addFileLock(baseRepoSuffix)
+                    return RedisUtils.addFileLock(gitData.getDefaultApplicationId())
                             .then(Mono.just(application));
                 })
                 .flatMap(defaultApplication -> {
@@ -1597,9 +1590,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         Mono<MergeStatusDTO> mergeMono = getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    Path baseRepoSuffix =
-                            Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
-                    return RedisUtils.addFileLock(baseRepoSuffix)
+                    return RedisUtils.addFileLock(gitData.getDefaultApplicationId())
                             .then(Mono.just(application));
                 })
                 .flatMap(defaultApplication -> {
@@ -1695,10 +1686,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 GitCommitDTO commitDTO = new GitCommitDTO();
                                 commitDTO.setDoPush(true);
                                 commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.SYNC_REMOTE_AFTER_MERGE.getReason() + sourceBranch);
-                                Path repoSuffix = Paths.get(application1.getOrganizationId(),
-                                        application1.getGitApplicationMetadata().getDefaultApplicationId(),
-                                        application1.getGitApplicationMetadata().getRepoName());
-                                return RedisUtils.releaseFileLock(repoSuffix)
+                                return RedisUtils.releaseFileLock(application1.getGitApplicationMetadata().getDefaultApplicationId())
                                         .flatMap(result -> this.commitApplication(commitDTO, defaultApplicationId, destinationBranch)
                                                 .retryWhen(Retry.fixedDelay(3, RETRY_DELAY))
                                                 .map(commitStatus -> mergeStatusDTO)
@@ -2427,8 +2415,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             gitPullDTO.setApplication(responseUtils.updateApplicationWithDefaultResources(application));
 
                             // Make commit and push after pull is successful to have a clean repo
-                            Path baseRepoSuffix = Paths.get(branchedApplication.getOrganizationId(), application.getId(), application.getGitApplicationMetadata().getRepoName());
-                            return RedisUtils.releaseFileLock(baseRepoSuffix)
+                            return RedisUtils.releaseFileLock(application.getId())
                                     .flatMap(value -> this.commitApplication(commitDTO, application.getGitApplicationMetadata().getDefaultApplicationId(), branchName)
                                             .retryWhen(Retry.fixedDelay(3, RETRY_DELAY))
                                             .thenReturn(gitPullDTO));

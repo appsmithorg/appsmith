@@ -543,7 +543,6 @@ public class GitExecutorImpl implements GitExecutor {
                     git.getRepository().writeMergeCommitMsg(null);
                     git.getRepository().writeMergeHeads(null);
                     processStopwatch.stopAndLogTimeInMillis();
-                    git.close();
                     throw new Exception(e);
                 }
             }
@@ -673,8 +672,7 @@ public class GitExecutorImpl implements GitExecutor {
                 config.setString("branch", branchName, "remote", "origin");
                 config.setString("branch", branchName, "merge", "refs/heads/" + branchName);
                 config.save();
-                String branch = git.getRepository().getBranch();
-                return branch;
+                return git.getRepository().getBranch();
             }
         })
         .subscribeOn(scheduler);

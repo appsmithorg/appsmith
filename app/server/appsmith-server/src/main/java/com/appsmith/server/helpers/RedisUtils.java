@@ -20,19 +20,19 @@ public class RedisUtils {
 
     private final static Duration FILE_LOCK_TIME_LIMIT = Duration.ofSeconds(20);
 
-    public static Mono<Boolean> addFileLock(Path baseRepoSuffix) {
-        return redisOperations.opsForValue().get(baseRepoSuffix.toString())
+    public static Mono<Boolean> addFileLock(String key) {
+        return redisOperations.opsForValue().get(key)
                 .flatMap(object -> {
                     if (object.equals(REDIS_FILE_RELEASE_VALUE)) {
-                        return redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT);
+                        return redisOperations.opsForValue().set(key, REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT);
                     } else {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
                     }
                 })
-                .switchIfEmpty(redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT));
+                .switchIfEmpty(redisOperations.opsForValue().set(key, REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT));
     }
 
-    public static Mono<Boolean> releaseFileLock(Path baseRepoSuffix) {
-        return redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_RELEASE_VALUE, FILE_LOCK_TIME_LIMIT);
+    public static Mono<Boolean> releaseFileLock(String key) {
+        return redisOperations.opsForValue().set(key, REDIS_FILE_RELEASE_VALUE, FILE_LOCK_TIME_LIMIT);
     }
 }
