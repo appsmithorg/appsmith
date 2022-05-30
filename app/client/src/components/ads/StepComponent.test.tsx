@@ -37,7 +37,7 @@ describe("<StepComponent /> - Keyboard navigation", () => {
       render(getTestComponent(fn));
       userEvent.tab();
       userEvent.keyboard(k);
-      expect(fn).toBeCalledWith(55);
+      expect(fn).toBeCalledWith(55, true);
     },
   );
 
@@ -48,7 +48,7 @@ describe("<StepComponent /> - Keyboard navigation", () => {
       render(getTestComponent(fn));
       userEvent.tab();
       userEvent.keyboard(k);
-      expect(fn).toBeCalledWith(45);
+      expect(fn).toBeCalledWith(45, true);
     },
   );
 });
