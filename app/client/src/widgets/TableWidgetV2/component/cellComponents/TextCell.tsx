@@ -149,6 +149,7 @@ export function TextCell({
         onChange={onChange}
         onDiscard={onDiscard}
         onSave={onSave}
+        textSize={textSize}
         value={value}
         verticalAlignment={verticalAlignment}
       />
