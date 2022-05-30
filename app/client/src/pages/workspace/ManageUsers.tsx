@@ -40,7 +40,7 @@ const StyledManageUsers = styled("a")`
 
 function ManageUsers({ workspaceId }: { workspaceId: string }) {
   const currentPath = useLocation().pathname;
-  const pathRegex = /(?:\/org\/)\w+(?:\/settings)/;
+  const pathRegex = /(?:\/workspace\/)\w+(?:\/settings)/;
 
   return !pathRegex.test(currentPath) ? (
     <StyledManageUsers

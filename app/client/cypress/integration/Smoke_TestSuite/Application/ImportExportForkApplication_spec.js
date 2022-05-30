@@ -100,7 +100,7 @@ describe("Import, Export and Fork application and validate data binding", functi
         cy.writeFile("cypress/fixtures/exportedApp.json", body, "utf-8");
         cy.generateUUID().then((uid) => {
           workspaceId = uid;
-          localStorage.setItem("OrgName", workspaceId);
+          localStorage.setItem("WorkspaceName", workspaceId);
           cy.createWorkspace();
           cy.wait("@createWorkspace").then((createWorkspaceInterception) => {
             newWorkspaceName =

@@ -14,7 +14,7 @@ describe("Create new workspace and share with a user", function() {
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
       appid = uid;
-      localStorage.setItem("OrgName", workspaceId);
+      localStorage.setItem("WorkspaceName", workspaceId);
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((interception) => {
         newWorkspaceName = interception.response.body.data.name;

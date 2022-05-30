@@ -72,7 +72,7 @@ export class HomePage {
 
   public CreateNewWorkspace(workspaceNewName: string) {
     let oldName: string = "";
-    cy.xpath(this._visibleTextSpan("New Organization"))
+    cy.xpath(this._visibleTextSpan("New Workspace"))
       .should("be.visible")
       .first()
       .click({ force: true });

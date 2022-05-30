@@ -14,7 +14,7 @@ describe("Application Settings", () => {
   it("checks that workspace settings have correct styling", async (done) => {
     const { findByText } = render(<GeneralSettings />);
 
-    const workspaceNameField = await findByText("Organization Name");
+    const workspaceNameField = await findByText("Workspace Name");
     expect(workspaceNameField.closest("div")).toHaveStyle({ width: "150px;" });
 
     await done();

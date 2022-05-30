@@ -8,7 +8,7 @@ describe("Update Workspace", function() {
     cy.NavigateToHome();
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
-      localStorage.setItem("OrgName", workspaceId);
+      localStorage.setItem("WorkspaceName", workspaceId);
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((interception) => {
         newWorkspaceName = interception.response.body.data.name;
@@ -18,7 +18,7 @@ describe("Update Workspace", function() {
     });
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
-      localStorage.setItem("OrgName", workspaceId);
+      localStorage.setItem("WorkspaceName", workspaceId);
       cy.get(homePage.workspaceNameInput).click({ force: true });
       cy.get(homePage.workspaceNameInput).clear();
       cy.get(homePage.workspaceNameInput).type(workspaceId);

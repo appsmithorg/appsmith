@@ -10,7 +10,7 @@ describe("Create workspace and a new app / delete and recreate app", function() 
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
       appid = uid;
-      localStorage.setItem("OrgName", workspaceId);
+      localStorage.setItem("WorkspaceName", workspaceId);
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((interception) => {
         newWorkspaceName = interception.response.body.data.name;

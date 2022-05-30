@@ -14,7 +14,7 @@ describe("Leave workspace test spec", function() {
       newWorkspaceId = interception.response.body.data.name;
       cy.visit("/applications");
       cy.openWorkspaceOptionsPopup(newWorkspaceName);
-      cy.contains("Leave Organization");
+      cy.contains("Leave Workspace");
     });
   });
 
@@ -26,7 +26,7 @@ describe("Leave workspace test spec", function() {
       newWorkspaceId = interception.response.body.data.name;
       cy.visit("/applications");
       cy.openWorkspaceOptionsPopup(newWorkspaceName);
-      cy.contains("Leave Organization").click();
+      cy.contains("Leave Workspace").click();
       cy.contains("Are you sure").click();
       cy.wait("@leaveWorkspaceApiCall").then((httpResponse) => {
         expect(httpResponse.status).to.equal(400);
@@ -56,7 +56,7 @@ describe("Leave workspace test spec", function() {
         .find("a")
         .should("have.length", 1)
         .first()
-        .contains("Leave Organization");
+        .contains("Leave Workspace");
     });
   });
 });

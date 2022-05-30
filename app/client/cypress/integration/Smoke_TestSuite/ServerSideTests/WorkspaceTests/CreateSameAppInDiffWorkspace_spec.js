@@ -10,7 +10,7 @@ describe("Create app same name in different workspace", function() {
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
       appid = uid;
-      localStorage.setItem("OrgName", workspaceId);
+      localStorage.setItem("WorkspaceName", workspaceId);
       cy.createWorkspace();
       // stub the response and
       // find app name

@@ -12,7 +12,7 @@ describe("Delete workspace test spec", function() {
       newWorkspaceName = interception.response.body.data.name;
       cy.visit("/applications");
       cy.openWorkspaceOptionsPopup(newWorkspaceName);
-      cy.contains("Delete Organization").click();
+      cy.contains("Delete Workspace").click();
       cy.contains("Are you sure").click();
       cy.wait("@deleteWorkspaceApiCall").then((httpResponse) => {
         expect(httpResponse.status).to.equal(200);
@@ -29,7 +29,7 @@ describe("Delete workspace test spec", function() {
       newWorkspaceName = interception.response.body.data.name;
       cy.visit("/applications");
       cy.openWorkspaceOptionsPopup(newWorkspaceName);
-      cy.contains("Delete Organization");
+      cy.contains("Delete Workspace");
       cy.inviteUserForWorkspace(
         newWorkspaceName,
         Cypress.env("TESTUSERNAME1"),
@@ -40,7 +40,7 @@ describe("Delete workspace test spec", function() {
       cy.visit("/applications");
       cy.openWorkspaceOptionsPopup(newWorkspaceName);
       cy.get(homePage.workspaceNamePopoverContent)
-        .contains("Delete Organization")
+        .contains("Delete Workspace")
         .should("not.exist");
       cy.LogOut();
     });

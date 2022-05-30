@@ -281,7 +281,7 @@ export function* createWorkspaceSaga(
       yield call(resolve);
     }
 
-    // get created org in focus
+    // get created workspace in focus
     const workspaceId = response.data.id;
     history.push(`${window.location.pathname}#${workspaceId}`);
   } catch (error) {

@@ -45,7 +45,7 @@ function* fetchPluginsSaga(
     if (action.payload?.workspaceId) workspaceId = action.payload?.workspaceId;
 
     if (!workspaceId) {
-      throw Error("Org id does not exist");
+      throw Error("Workspace id does not exist");
     }
     const pluginsResponse = yield call(PluginsApi.fetchPlugins, workspaceId);
     const isValid = yield validateResponse(pluginsResponse);

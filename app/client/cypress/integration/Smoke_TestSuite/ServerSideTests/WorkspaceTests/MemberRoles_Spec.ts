@@ -11,7 +11,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.get("@guid").then((uid) => {
       workspaceId = uid;
       appid = uid;
-      //localStorage.setItem("OrgName", workspaceId);
+      //localStorage.setItem("WorkspaceName", workspaceId);
       homePage.CreateNewWorkspace(workspaceId);
       homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
       homePage.InviteUserToWorkspace(
@@ -95,7 +95,11 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.get(homePage._applicationCard)
       .first()
       .trigger("mouseover");
-    homePage.InviteUserToWorkspace(workspaceId, Cypress.env("TESTUSERNAME2"), "App Viewer");
+    homePage.InviteUserToWorkspace(
+      workspaceId,
+      Cypress.env("TESTUSERNAME2"),
+      "App Viewer",
+    );
     homePage.LogOutviaAPI();
   });
 
