@@ -25,7 +25,7 @@ let res = [
         "_id" : ObjectId("5df8c225078d501fc3f45361"),
         "name" : "Admin",
         "displayName" : "Admin",
-        "workspaceId" : "default-org",
+        "workspaceId" : "default-workspace",
         "permissions" : [ 
             "read:groups", 
             "read:workspaces", 
@@ -92,7 +92,7 @@ let res = [
         "_id" : ObjectId("5df8c1fa078d501fc3f44d41"),
         "name" : "Member",
         "displayName" : "Member",
-        "workspaceId" : "default-org",
+        "workspaceId" : "default-workspace",
         "permissions" : [ 
             "read:groups", 
             "read:workspaces", 
@@ -158,7 +158,7 @@ let res = [
         "_id" : ObjectId("5df8c1e0078d501fc3f4491b"),
         "name" : "Owner",
         "displayName" : "Owner",
-        "workspaceId" : "default-org",
+        "workspaceId" : "default-workspace",
         "permissions" : [ 
             "read:groups", 
             "read:workspaces", 
