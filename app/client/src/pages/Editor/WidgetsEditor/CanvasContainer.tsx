@@ -83,7 +83,7 @@ function CanvasContainer() {
     node = pageLoading;
   }
 
-  if (!isPageInitializing && widgets) {
+  if (!isPageInitializing && widgetsStructure) {
     node = (
       <Canvas
         canvasWidth={canvasWidth}

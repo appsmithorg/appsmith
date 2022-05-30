@@ -1,8 +1,6 @@
-// eslint-disable-next-line
-// @ts-nocheck
 import React from "react";
-import BaseWidget, { WidgetProps } from "./BaseWidget";
-import { debounce, fromPairs } from "lodash";
+import BaseWidget, { WidgetProps, WIDGET_STATIC_PROPS } from "./BaseWidget";
+import { debounce, fromPairs, pick } from "lodash";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -11,6 +9,17 @@ import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionC
 import { connect } from "react-redux";
 import { getWidgetMetaProps } from "sagas/selectors";
 import { AppState } from "reducers";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  getWidgetEvalValues,
+  getIsWidgetLoading,
+} from "selectors/dataTreeSelectors";
+import {
+  computeMainContainerWidget,
+  createCanvasWidget,
+  getMainCanvasProps,
+} from "selectors/editorSelectors";
+import { getCanvasWidget } from "selectors/entitiesSelector";
 
 export type DebouncedExecuteActionPayload = Omit<
   ExecuteTriggerPayload,
@@ -30,6 +39,8 @@ export interface WithMeta {
 type WidgetMetaProps = { metaState: Record<string, unknown> };
 type metaHOCProps = WidgetProps & WidgetMetaProps;
 
+const STATIC_PROPS = Object.keys(WIDGET_STATIC_PROPS);
+
 function withMeta(WrappedWidget: typeof BaseWidget) {
   class MetaHOC extends React.PureComponent<metaHOCProps> {
     static contextType = EditorContext;
@@ -40,12 +51,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
     updatedProperties: Record<string, boolean>;
     constructor(props: metaHOCProps) {
       super(props);
-      let metaProperties;
-      try {
-        metaProperties = WrappedWidget.getMetaPropertiesMap();
-      } catch {
-        debugger;
-      }
+      const metaProperties = WrappedWidget.getMetaPropertiesMap();
       this.initialMetaState = fromPairs(
         Object.keys(metaProperties).map((metaProperty) => {
           return [metaProperty, this.props[metaProperty]];
@@ -180,10 +186,33 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
     };
 
     updatedProps = () => {
+      const staticProps = pick(this.props, STATIC_PROPS);
+      const {
+        canvasWidget,
+        children,
+        evaluatedWidget,
+        isLoading,
+        mainCanvasProps,
+        widgetId,
+      } = this.props;
+      const canvasWidgetProps =
+        widgetId === MAIN_CONTAINER_WIDGET_ID
+          ? computeMainContainerWidget(canvasWidget, mainCanvasProps)
+          : canvasWidget;
+
+      const widgetProps: WidgetProps = createCanvasWidget(
+        canvasWidgetProps,
+        evaluatedWidget,
+      );
+
+      widgetProps.isLoading = isLoading;
+
+      widgetProps.children = children;
       return {
         ...this.initialMetaState, // this contains stale default values and are used when widget is reset. Ideally, widget should reset to its default values instead of stale default values.
-        ...this.props, // if default values are changed we expect to get new values from here.
+        ...widgetProps, // if default values are changed we expect to get new values from here.
         ...this.props.metaState,
+        ...staticProps,
       };
     };
 
@@ -199,6 +228,10 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
 
   const mapStateToProps = (state: AppState, ownProps: WidgetProps) => {
     return {
+      canvasWidget: getCanvasWidget(state, ownProps.widgetId),
+      evaluatedWidget: getWidgetEvalValues(state, ownProps.widgetName),
+      isLoading: getIsWidgetLoading(state, ownProps.widgetName),
+      mainCanvasProps: getMainCanvasProps(state),
       metaState: getWidgetMetaProps(state, ownProps.widgetId),
     };
   };

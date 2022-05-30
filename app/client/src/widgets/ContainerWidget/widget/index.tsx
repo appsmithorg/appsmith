@@ -168,7 +168,7 @@ class ContainerWidget extends BaseWidget<
       return null;
     }
 
-    const childWidget = klona(childWidgetData);
+    const childWidget = childWidgetData;
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
 
