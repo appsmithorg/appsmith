@@ -49,6 +49,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
+import static com.appsmith.external.constants.GitConstants.PAGE_LIST;
+import static com.appsmith.external.constants.GitConstants.ACTION_LIST;
+import static com.appsmith.external.constants.GitConstants.ACTION_COLLECTION_LIST;
 import static com.appsmith.git.constants.GitDirectories.ACTION_COLLECTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.DATASOURCE_DIRECTORY;
@@ -148,6 +151,7 @@ public class FileUtilsImpl implements FileInterface {
                             .create();
 
                     Set<String> validFileNames = new HashSet<>();
+                    Map<String, Map<String, Boolean>> updatedResources = applicationGitReference.getUpdatedResources();
                     // Save application
                     saveFile(applicationGitReference.getApplication(), baseRepo.resolve(CommonConstants.APPLICATION + CommonConstants.JSON_EXTENSION), gson);
 
@@ -159,59 +163,95 @@ public class FileUtilsImpl implements FileInterface {
                     // Save application theme
                     saveFile(applicationGitReference.getTheme(), baseRepo.resolve(CommonConstants.THEME + CommonConstants.JSON_EXTENSION), gson);
 
-                    Path pageDirectory = baseRepo.resolve(PAGE_DIRECTORY);
-                    try {
-                        // Remove relevant directories to avoid any stale files
-                        FileUtils.deleteDirectory(pageDirectory.toFile());
-                        FileUtils.deleteDirectory(baseRepo.resolve(ACTION_DIRECTORY).toFile());
-                        FileUtils.deleteDirectory(baseRepo.resolve(ACTION_COLLECTION_DIRECTORY).toFile());
-                    } catch (IOException e) {
-                        log.debug("Unable to delete directory for path {} with message {}", pageDirectory, e.getMessage());
-                    }
                     // Save pages
-                    for (Map.Entry<String, Object> pageResource : applicationGitReference.getPages().entrySet()) {
+                    Path pageDirectory = baseRepo.resolve(PAGE_DIRECTORY);
+                    Set<Map.Entry<String, Object>> pageEntries = applicationGitReference.getPages().entrySet();
+
+                    Set<String> validPages = new HashSet<>();
+                    for (Map.Entry<String, Object> pageResource : pageEntries) {
                         final String pageName = pageResource.getKey();
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
-                        saveFile(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
+                        Boolean isResourceUpdated = updatedResources.get(PAGE_LIST).get(pageName);
+                        if(isResourceUpdated != null && isResourceUpdated){
+                            saveFile(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
+                        }
+                        validPages.add(pageName);
                     }
 
+                    scanAndDeleteDirectoryForDeletedResources(validPages, baseRepo.resolve(PAGE_DIRECTORY));
+
                     // Save actions
+                    HashMap<String, Set> validActionsMap = new HashMap<>();
                     for (Map.Entry<String, Object> resource : applicationGitReference.getActions().entrySet()) {
                         // queryName_pageName => nomenclature for the keys
                         // TODO
                         //  queryName => for app level queries, this is not implemented yet
-                        String[] names = resource.getKey().split(NAME_SEPARATOR);
+                        String resourceKey = resource.getKey();
+                        Boolean isResourceUpdated = updatedResources.get(ACTION_LIST).get(resourceKey);
+                        String[] names = resourceKey.split(NAME_SEPARATOR);
                         if (names.length > 1 && StringUtils.hasLength(names[1])) {
                             // For actions, we are referring to validNames to maintain unique file names as just name
                             // field don't guarantee unique constraint for actions within JSObject
                             final String queryName = names[0].replace(".", "-");
                             final String pageName = names[1];
                             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
-                            saveFile(
-                                    resource.getValue(),
-                                    pageSpecificDirectory.resolve(ACTION_DIRECTORY).resolve(queryName + CommonConstants.JSON_EXTENSION),
-                                    gson
-                            );
+                            Set<String> quriesSet = new HashSet<>();
+                            quriesSet.add(queryName + CommonConstants.JSON_EXTENSION);
+                            if(validActionsMap.containsKey(pageName)) {
+                                quriesSet.addAll(validActionsMap.get(pageName));
+                            }
+                            validActionsMap.put(pageName, quriesSet);
+
+                            if(isResourceUpdated != null && isResourceUpdated) {
+                                saveFile(
+                                        resource.getValue(),
+                                        pageSpecificDirectory.resolve(ACTION_DIRECTORY).resolve(queryName + CommonConstants.JSON_EXTENSION),
+                                        gson
+                                );
+                            }
+
                         }
                     }
 
+                    validActionsMap.forEach((pageName, validActionNames) -> {
+                        Path pageSpecificDirectory = pageDirectory.resolve(pageName);
+                        scanAndDeleteFileForDeletedResources(validActionNames, pageSpecificDirectory.resolve(ACTION_DIRECTORY));
+                    });
+
                     // Save JSObjects
+                    HashMap<String, Set> validActionCollectionsMap = new HashMap<>();
                     for (Map.Entry<String, Object> resource : applicationGitReference.getActionsCollections().entrySet()) {
                         // JSObjectName_pageName => nomenclature for the keys
                         // TODO
                         //  JSObjectName => for app level JSObjects, this is not implemented yet
-                        String[] names = resource.getKey().split(NAME_SEPARATOR);
+                        String resourceKey = resource.getKey();
+                        Boolean isResourceUpdated = updatedResources.get(ACTION_COLLECTION_LIST).get(resourceKey);
+                        String[] names = resourceKey.split(NAME_SEPARATOR);
                         if (names.length > 1 && StringUtils.hasLength(names[1])) {
                             final String actionCollectionName = names[0];
                             final String pageName = names[1];
                             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
-                            saveFile(
-                                    resource.getValue(),
-                                    pageSpecificDirectory.resolve(ACTION_COLLECTION_DIRECTORY).resolve(actionCollectionName + CommonConstants.JSON_EXTENSION),
-                                    gson
-                            );
+
+                            Set<String> actionCollectionSet = new HashSet<>();
+                            actionCollectionSet.add(actionCollectionName + CommonConstants.JSON_EXTENSION);
+                            if(validActionCollectionsMap.containsKey(pageName)) {
+                                actionCollectionSet.addAll(validActionCollectionsMap.get(pageName));
+                            }
+                            validActionCollectionsMap.put(pageName, actionCollectionSet);
+                            if(isResourceUpdated != null && isResourceUpdated) {
+                                saveFile(
+                                        resource.getValue(),
+                                        pageSpecificDirectory.resolve(ACTION_COLLECTION_DIRECTORY).resolve(actionCollectionName + CommonConstants.JSON_EXTENSION),
+                                        gson
+                                );
+                            }
                         }
                     }
+
+                    validActionCollectionsMap.forEach((pageName, validActionCollectionNames) -> {
+                        Path pageSpecificDirectory = pageDirectory.resolve(pageName);
+                        scanAndDeleteFileForDeletedResources(validActionCollectionNames, pageSpecificDirectory.resolve(ACTION_COLLECTION_DIRECTORY));
+                    });
 
                     // Save datasources ref
                     for (Map.Entry<String, Object> resource : applicationGitReference.getDatasources().entrySet()) {
@@ -262,6 +302,36 @@ public class FileUtilsImpl implements FileInterface {
                 .forEach(this::deleteFile);
         } catch (IOException e) {
             log.debug("Error while scanning directory: {}, with error {}", resourceDirectory, e);
+        }
+    }
+
+    /**
+     * This method will delete the JSON resource directory available in local git directory on subsequent commit made after the
+     * deletion of respective resource from DB
+     * @param validResources resources those are still available in DB
+     * @param resourceDirectory directory which needs to be scanned for possible file deletion operations
+     */
+    private void scanAndDeleteDirectoryForDeletedResources(Set<String> validResources, Path resourceDirectory) {
+        // Scan resource directory and delete any unwanted directory if present
+        // unwanted directory : corresponding resource from DB has been deleted
+        try (Stream<Path> paths = Files.walk(resourceDirectory, 1)) {
+            paths
+                    .filter(path -> Files.isDirectory(path) && !path.equals(resourceDirectory) && !validResources.contains(path.getFileName().toString()))
+                    .forEach(this::deleteDirectory);
+        } catch (IOException e) {
+            log.debug("Error while scanning directory: {}, with error {}", resourceDirectory, e);
+        }
+    }
+
+    /**
+     * This method will delete the directory and all its contents
+     * @param directory
+     */
+    private void deleteDirectory(Path directory){
+        try {
+            FileUtils.deleteDirectory(directory.toFile());
+        } catch (IOException e){
+            log.debug("Unable to delete directory for path {} with message {}", directory, e.getMessage());
         }
     }
 

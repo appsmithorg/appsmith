@@ -237,6 +237,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     // Refactor application to remove the ids
                     final String workspaceId = application.getOrganizationId();
+                    Instant applicationLastCommittedAt = application.getGitApplicationMetadata().getLastCommittedAt();
                     List<String> pageOrderList = application.getPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
                     List<String> publishedPageOrderList = application.getPublishedPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
                     removeUnwantedFieldsFromApplicationDuringExport(application);
@@ -299,6 +300,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         }
                                     }
                                     newPage.setApplicationId(null);
+                                    Instant newPageUpdatedAt = newPage.getUpdatedAt();
+                                    boolean isNewPageNotUpdated = applicationLastCommittedAt != null && newPageUpdatedAt != null && applicationLastCommittedAt.isAfter(newPageUpdatedAt);
+                                    if(isNewPageNotUpdated){
+                                        newPage.setUpdatedAt(null);
+                                    }
                                     examplesWorkspaceCloner.makePristine(newPage);
                                 });
                                 applicationJson.setPageList(newPageList);
@@ -345,7 +351,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 actionCollection.setOrganizationId(null);
                                 actionCollection.setPolicies(null);
                                 actionCollection.setApplicationId(null);
-                                actionCollection.setUpdatedAt(null);
+
+                                Instant actionCollectionUpdatedAt = actionCollection.getUpdatedAt();
+                                boolean isActionCollectionNotUpdated = applicationLastCommittedAt != null && actionCollectionUpdatedAt != null && applicationLastCommittedAt.isAfter(actionCollectionUpdatedAt);
+                                if(isActionCollectionNotUpdated){
+                                    actionCollection.setUpdatedAt(null);
+                                }
 
                                 // Set unique ids for actionCollection, also populate collectionIdToName map which will
                                 // be used to replace collectionIds in action
@@ -389,7 +400,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 newAction.setOrganizationId(null);
                                 newAction.setPolicies(null);
                                 newAction.setApplicationId(null);
-                                newAction.setUpdatedAt(null);
+
+                                Instant newActionUpdatedAt = newAction.getUpdatedAt();
+                                boolean isNewActionNotUpdated = applicationLastCommittedAt != null && newActionUpdatedAt != null && applicationLastCommittedAt.isAfter(newActionUpdatedAt);
+                                if(isNewActionNotUpdated){
+                                    newAction.setUpdatedAt(null);
+                                }
+
                                 dbNamesUsedInActions.add(
                                         sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceIdToNameMap, pluginMap, null, true)
                                 );

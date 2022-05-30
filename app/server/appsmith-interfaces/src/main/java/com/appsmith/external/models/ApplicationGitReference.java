@@ -20,5 +20,5 @@ public class ApplicationGitReference {
     Map<String, Object> actionsCollections;
     Map<String, Object> pages;
     Map<String, Object> datasources;
-
+    Map<String, Map<String, Boolean>> updatedResources;
 }
