@@ -4,9 +4,9 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { ActionCreator } from "components/editorComponents/ActionCreator";
 
 class ActionSelectorControl extends BaseControl<ControlProps> {
-  handleValueUpdate = (newValue: string) => {
+  handleValueUpdate = (newValue: string, isUpdatedViaKeyboard = false) => {
     const { propertyName } = this.props;
-    this.updateProperty(propertyName, newValue);
+    this.updateProperty(propertyName, newValue, isUpdatedViaKeyboard);
   };
 
   render() {

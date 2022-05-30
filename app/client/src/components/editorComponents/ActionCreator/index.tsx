@@ -567,7 +567,7 @@ function useIntegrationsOptionTree() {
 
 type ActionCreatorProps = {
   value: string;
-  onValueChange: (newValue: string) => void;
+  onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
 
