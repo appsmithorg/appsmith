@@ -150,9 +150,6 @@ public class GitServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    @Autowired
-    ReactiveMongoOperations mongoOperations;
-
     private static String orgId;
     private static Application gitConnectedApplication = new Application();
     private static final String DEFAULT_GIT_PROFILE = "default";
