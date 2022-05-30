@@ -7,7 +7,8 @@ type DropdownWrapperProps = {
     value?: string;
     onChange?: (value?: string) => void;
   };
-  options: Array<{ id: string; value: string; label: string }>;
+  options: Array<{ id: string; value: string; label?: string }>;
+  fillOptions?: boolean;
 };
 
 function DropdownWrapper(props: DropdownWrapperProps) {
@@ -28,6 +29,7 @@ function DropdownWrapper(props: DropdownWrapperProps) {
 
   return (
     <Dropdown
+      fillOptions={props.fillOptions}
       onSelect={onSelectHandler}
       options={props.options}
       selected={selectedOption}

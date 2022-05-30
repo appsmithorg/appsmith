@@ -14,6 +14,7 @@ import {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
 } from "components/ads/LabelWithTooltip";
+import { lightenColor } from "widgets/WidgetUtils";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? 0 : 270)}deg);
@@ -53,6 +54,8 @@ const rcSelectDropdownSlideUpOut = keyframes`
 export const DropdownStyles = createGlobalStyle<{
   dropDownWidth: number;
   id: string;
+  accentColor: string;
+  borderRadius: string;
 }>`
 ${({ dropDownWidth, id }) => `
   .treeselect-popover-width-${id} {
@@ -209,7 +212,36 @@ ${({ dropDownWidth, id }) => `
   border-radius: 0px;
   margin-top: 5px;
   background: white;
+  border-radius: ${({ borderRadius }) =>
+    borderRadius >= `1.5rem` ? `0.375rem` : borderRadius};
+  overflow: hidden;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+  &&&& .${Classes.ALIGN_LEFT} {
+    font-size: 14px;
+    padding-bottom: 10px;
+    margin-left: 16px ;
+    .${Classes.CONTROL_INDICATOR} {
+      margin-right: 20px;
+    }
+  }
+  &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
+    background: white;
+    box-shadow: none;
+    border-width: 2px;
+    border-style: solid;
+    border-color: ${Colors.GEYSER};
+    &::before {
+      width: auto;
+      height: 1em;
+    }
+  }
+  .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
+    background: ${({ accentColor }) => accentColor} !important;
+    color: rgb(255, 255, 255);
+    border-color: ${({ accentColor }) => accentColor} !important;
+    box-shadow: none;
+    outline: none !important;
+  }
   ${CommonSelectFilterStyle}
   .rc-tree-select-item {
     font-size: 16px;
@@ -223,8 +255,7 @@ ${({ dropDownWidth, id }) => `
       margin-bottom: 0;
     }
   }
-
-
+}
 
 .rc-tree-select-tree {
 	margin: 0;
@@ -337,15 +368,15 @@ ${({ dropDownWidth, id }) => `
 }
 
 .rc-tree-select-tree-checkbox-indeterminate .rc-tree-select-tree-checkbox-inner:after {
-    top: 50%;
-    left: 50%;
-    width: 8px;
-    height: 8px;
-    background-color: rgb(3, 179, 101) !important;
-    border: 0;
-    transform: translate(-50%,-50%) scale(1);
-    opacity: 1;
-    content: " ";
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background-color: ${({ accentColor }) => accentColor} !important;
+  border: 0;
+  transform: translate(-50%,-50%) scale(1);
+  opacity: 1;
+  content: " ";
 }
 
 .rc-tree-select-tree-checkbox:hover:after, .rc-tree-select-tree-checkbox-wrapper:hover .rc-tree-select-tree-checkbox:after {
@@ -377,12 +408,12 @@ ${({ dropDownWidth, id }) => `
 
 
 .rc-tree-select-tree-checkbox-wrapper:hover .rc-tree-select-tree-checkbox-inner, .rc-tree-select-tree-checkbox:hover .rc-tree-select-tree-checkbox-inner, .rc-tree-select-tree-checkbox-input:focus+.rc-tree-select-tree-checkbox-inner {
- border-color: rgb(3, 179, 101) !important;
-}
-.rc-tree-select-tree-checkbox-checked .rc-tree-select-tree-checkbox-inner {
-  border-color: rgb(3, 179, 101) !important;
-  background: rgb(3, 179, 101) !important;
-}
+  border-color: ${({ accentColor }) => accentColor} !important;
+ }
+ .rc-tree-select-tree-checkbox-checked .rc-tree-select-tree-checkbox-inner {
+   border-color: ${({ accentColor }) => accentColor} !important;
+   background: ${({ accentColor }) => accentColor} !important;
+ }
 
 .rc-tree-select-tree-checkbox-inner {
     position: relative;
@@ -399,11 +430,11 @@ ${({ dropDownWidth, id }) => `
     transition: all .3s;
 }
   .rc-tree-select-tree
-	.rc-tree-select-tree-treenode
-	span.rc-tree.select-tree-checkbox-checked {
+  .rc-tree-select-tree-treenode
+  span.rc-tree.select-tree-checkbox-checked {
     .rc-tree-select-tree-checkbox-inner {
-      border-color: rgb(3, 179, 101) !important;
-      background: rgb(3, 179, 101) !important;
+      border-color: ${({ accentColor }) => accentColor} !important;
+      background: ${({ accentColor }) => accentColor} !important;
     }
   }
   .single-tree-select-dropdown
@@ -503,10 +534,14 @@ ${({ dropDownWidth, id }) => `
 .rc-tree-select-tree-treenode-active,
 .rc-tree-select-tree-treenode-selected
 {
-	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+	background: ${({ accentColor }) => lightenColor(accentColor)};
 }
 .rc-tree-select-tree-treenode:hover {
-	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+	background: ${({ accentColor }) => lightenColor(accentColor)};
+
+  .rc-tree-select-tree-iconEle {
+    border-color: ${({ accentColor }) => accentColor} !important;;
+  }
 }
 .rc-tree-select-tree-node-selected {
 	background-color: none;
@@ -519,7 +554,13 @@ ${({ dropDownWidth, id }) => `
 
   .rc-tree-select-tree-icon__customize {
     border: none !important;
-    background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='2' y='2' width='10' height='10' rx='5' stroke='%2350AF6C' stroke-width='4'/%3E%3C/svg%3E%0A") !important;
+    background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='2' y='2' width='10' height='10' rx='5' stroke='${({
+      accentColor,
+    }) =>
+      accentColor?.replace(
+        "#",
+        "%23",
+      )}' stroke-width='4'/%3E%3C/svg%3E%0A") !important;
   }
 }
 .rc-tree-select-tree-icon__open {
@@ -566,6 +607,9 @@ export const TreeSelectContainer = styled.div<{
   compactMode: boolean;
   isValid: boolean;
   labelPosition?: LabelPosition;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }>`
   ${labelLayoutStyles}
   & .${LABEL_CONTAINER_CLASS} {
@@ -661,20 +705,22 @@ export const TreeSelectContainer = styled.div<{
     display: flex;
     flex-wrap: wrap;
     padding-right: 42px;
-    box-shadow: none;
-    border: 1.2px solid
+    border: 1px solid
       ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
     box-sizing: border-box;
-    border-radius: 0px;
+    background: ${Colors.WHITE};
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+    overflow: hidden;
     width: 100%;
-    transition: border-color 0.15s ease-in-out 0s,
-      box-shadow 0.15s ease-in-out 0s;
-    background-color: white;
+    transition: none;
     height: 100%;
+
     .rc-tree-select-selection-search {
       width: 100%;
       height: 100%;
       input {
+        background: ${Colors.WHITE};
         width: 100%;
         appearance: none;
         &::-webkit-search-cancel-button {
@@ -684,6 +730,7 @@ export const TreeSelectContainer = styled.div<{
         font-family: system-ui;
 
         height: 100%;
+        min-height: 30px;
         border: none;
       }
     }
@@ -711,15 +758,16 @@ export const TreeSelectContainer = styled.div<{
       padding: 1px;
       box-shadow: none;
       border: 1px solid rgb(231, 231, 231);
-      border-radius: 0px;
+      background: ${Colors.WHITE};
+      border-radius: ${({ borderRadius }) => borderRadius};
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       width: 100%;
-      transition: border-color 0.15s ease-in-out 0s,
-        box-shadow 0.15s ease-in-out 0s;
+      transition: none;
       background-color: white;
       .rc-tree-select-selection-item {
         background: none;
         border: 1px solid rgb(208, 215, 221);
-        border-radius: 2px;
+        border-radius: ${({ borderRadius }) => borderRadius};
         margin: 3px 2px;
         max-width: 273.926px;
         height: 24px;
@@ -827,8 +875,7 @@ export const TreeSelectContainer = styled.div<{
       border-radius: 0px;
       height: inherit;
       width: 100%;
-      transition: border-color 0.15s ease-in-out 0s,
-        box-shadow 0.15s ease-in-out 0s;
+      transition: none;
     }
   }
   && .rc-tree-select-show-arrow.rc-tree-select-focused {
@@ -837,9 +884,11 @@ export const TreeSelectContainer = styled.div<{
       ${(props) =>
         props.isValid
           ? `
-          border: 1.2px solid ${Colors.GREEN_SOLID};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
-          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
+          border: 1px solid ${props.accentColor};
+          box-shadow: 0px 0px 0px 3px ${lightenColor(
+            props.isValid ? props.accentColor : Colors.DANGER_SOLID,
+          )} !important;`
+          : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
   }
   .rc-tree-select-show-arrow {
@@ -883,8 +932,19 @@ export const TreeSelectContainer = styled.div<{
         transform: translateY(5px);
       }
     }
+    .rc-tree-select-show-arrow.rc-tree-select-focused {
+      .rc-tree-select-selector {
+        outline: 0px;
+        ${(props) =>
+          props.isValid
+            ? `
+            border: 1px solid ${props.accentColor};
+            box-shadow: 0px 0px 0px 2px ${props.accentColor};`
+            : `border: 1px solid ${Colors.DANGER_SOLID};`}
+      }
+    }
   }
-  
+
 `;
 export const StyledCheckbox = styled(Checkbox)`
   &&.${Classes.CHECKBOX}.${Classes.CONTROL} {

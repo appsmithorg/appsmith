@@ -73,16 +73,23 @@ function DisconnectGitModal() {
   const disconnectingApp = useSelector(getDisconnectingGitApplication);
   const gitDisconnectDocumentUrl = useSelector(getDisconnectDocUrl);
   const [appName, setAppName] = useState("");
-
+  const [isRevoking, setIsRevoking] = useState(false);
   const handleClose = useCallback(() => {
     dispatch(setIsDisconnectGitModalOpen(false));
   }, [dispatch, setIsDisconnectGitModalOpen]);
 
   const onDisconnectGit = useCallback(() => {
+    setIsRevoking(true);
     dispatch(disconnectGit());
   }, [dispatch, disconnectGit]);
 
   const theme = useTheme() as Theme;
+
+  const shouldDisableRevokeButton =
+    disconnectingApp.id === "" ||
+    appName !== disconnectingApp.name ||
+    isRevoking;
+
   return (
     <StyledDialog
       canEscapeKeyClose
@@ -177,9 +184,7 @@ function DisconnectGitModal() {
             <Button
               category={Category.primary}
               className="t--git-revoke-button"
-              disabled={
-                disconnectingApp.id === "" || appName !== disconnectingApp.name
-              }
+              disabled={shouldDisableRevokeButton}
               onClick={onDisconnectGit}
               size={Size.large}
               tag="button"

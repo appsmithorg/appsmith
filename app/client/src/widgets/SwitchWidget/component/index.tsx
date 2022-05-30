@@ -1,52 +1,101 @@
 import { Alignment, Classes, Switch } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
+import { LabelPosition } from "components/constants";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
 import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
-import { AlignWidget } from "widgets/constants";
+import { AlignWidgetTypes } from "widgets/constants";
+import { Colors } from "constants/Colors";
+import { FontStyleTypes } from "constants/WidgetConstants";
 
 export interface SwitchComponentProps extends ComponentProps {
   label: string;
   isSwitchedOn: boolean;
   onChange: (isSwitchedOn: boolean) => void;
   isLoading: boolean;
-  alignWidget: AlignWidget;
+  alignWidget: AlignWidgetTypes;
+  labelPosition: LabelPosition;
+  accentColor: string;
   inputRef?: (ref: HTMLInputElement | null) => any;
+  labelTextColor?: string;
+  labelTextSize?: string;
+  labelStyle?: string;
 }
 
-const SwitchComponentContainer = styled.div`
+const SwitchComponentContainer = styled.div<{
+  accentColor: string;
+}>`
   display: flex;
   flex-direction: row;
   align-items: center;
-  &&& .${Classes.CONTROL} {
-    margin: 0;
-    input:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${Colors.GREEN};
-      border: 1px solid ${Colors.GREEN};
-    }
-  }
-  &.${Alignment.RIGHT} {
-    justify-content: flex-end;
-  }
+  justify-content: stretch;
   ${BlueprintControlTransform}
 `;
 
-export function SwitchComponent({
+const SwitchLabel = styled.div<{
+  disabled?: boolean;
+  labelPosition: LabelPosition;
+  labelTextColor?: string;
+  labelTextSize?: string;
+  labelStyle?: string;
+}>`
+  width: 100%;
+  display: inline-block;
+  vertical-align: top;
+  text-align: ${({ labelPosition }) => labelPosition.toLowerCase()};
+  ${({ disabled, labelStyle, labelTextColor, labelTextSize }) => `
+  color: ${disabled ? Colors.GREY_8 : labelTextColor || "inherit"};
+  font-size: ${labelTextSize ?? "inherit"};
+  font-weight: ${labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
+  font-style: ${
+    labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : "normal"
+  };
+  `}
+`;
+
+export const StyledSwitch = styled(Switch)<{
+  accentColor: string;
+}>`
+  &.${Classes.CONTROL} {
+    margin: 0;
+  }
+
+  &.${Classes.CONTROL} {
+    & input:checked ~ .${Classes.CONTROL_INDICATOR} {
+      background: ${({ accentColor }) => `${accentColor}`} !important;
+      border: 1px solid ${({ accentColor }) => `${accentColor}`} !important;
+    }
+  }
+
+  &.${Classes.SWITCH} {
+    width: 100%;
+    & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
+      background: ${({ accentColor }) => `${accentColor}`} !important;
+    }
+  }
+`;
+
+export default function SwitchComponent({
+  accentColor,
   alignWidget,
   inputRef,
   isDisabled,
   isLoading,
   isSwitchedOn,
   label,
+  labelPosition,
+  labelStyle,
+  labelTextColor,
+  labelTextSize,
   onChange,
 }: SwitchComponentProps) {
   const switchAlignClass =
-    alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
+    alignWidget === AlignWidgetTypes.RIGHT ? Alignment.RIGHT : Alignment.LEFT;
 
   return (
-    <SwitchComponentContainer className={switchAlignClass}>
-      <Switch
+    <SwitchComponentContainer accentColor={accentColor}>
+      <StyledSwitch
+        accentColor={accentColor}
         alignIndicator={switchAlignClass}
         checked={isSwitchedOn}
         className={
@@ -60,7 +109,18 @@ export function SwitchComponent({
         }
         disabled={isDisabled}
         inputRef={inputRef}
-        label={label}
+        labelElement={
+          <SwitchLabel
+            className="t--switch-widget-label"
+            disabled={isDisabled}
+            labelPosition={labelPosition}
+            labelStyle={labelStyle}
+            labelTextColor={labelTextColor}
+            labelTextSize={labelTextSize}
+          >
+            {label}
+          </SwitchLabel>
+        }
         onChange={() => onChange(!isSwitchedOn)}
       />
     </SwitchComponentContainer>
