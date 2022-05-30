@@ -24,7 +24,7 @@ public enum AppsmithError {
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     USER_DOESNT_BELONG_TO_WORKSPACE(400, 4010, "User {0} does not belong to an organization with id {1}",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
-    NO_CONFIGURATION_FOUND_IN_DATASOURCE(400, 4011, "No datasource configuration found. Please configure it and try again.", 
+    NO_CONFIGURATION_FOUND_IN_DATASOURCE(400, 4011, "No datasource configuration found. Please configure it and try again.",
             AppsmithErrorAction.DEFAULT, "Datasource configuration is invalid",  ErrorType.DATASOURCE_CONFIGURATION_ERROR, null),
     INVALID_ACTION_COLLECTION(400, 4038, "{0} is not correctly configured. Please fix the following and then re-run: \n{1}",
             AppsmithErrorAction.DEFAULT, "Collection configuration is invalid",  ErrorType.CONFIGURATION_ERROR, null),
@@ -143,6 +143,7 @@ public enum AppsmithError {
     INVALID_GIT_SSH_URL(400, 4050, "Please enter valid SSH URL of your repository", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, null),
     REPOSITORY_NOT_FOUND(404, 4051, "Unable to find the repository for application {0}, please refresh the page to auto-sync with the remote. This might take couple of minutes", AppsmithErrorAction.DEFAULT, "Repository Not Found Exception", ErrorType.REPOSITORY_NOT_FOUND, null),
     UNKNOWN_PLUGIN_REFERENCE(400, 4052, " Unable to find the {0} plugin. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONFIGURATION_ERROR, null),
+    ENV_FILE_NOT_FOUND(500, 5019, "Admin Settings is unavailable. Unable to read and write to Environment file.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONFIGURATION_ERROR, null),
     ;
 
     private final Integer httpErrorCode;

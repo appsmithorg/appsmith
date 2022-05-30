@@ -2442,28 +2442,25 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                           Boolean isRepoPrivate,
                                                           Boolean isSystemGenerated) {
         GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-        String defaultApplicationId = gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())
-                ? ""
-                : gitData.getDefaultApplicationId();
-        String gitHostingProvider = gitData == null
-                ? ""
-                : GitUtils.getGitProviderName(application.getGitApplicationMetadata().getRemoteUrl());
-
-        Map<String, Object> analyticsProps = new HashMap<>(Map.of("applicationId", defaultApplicationId,
-                "organizationId", defaultIfNull(application.getOrganizationId(), ""),
+        Map<String, Object> analyticsProps = new HashMap<>();
+        if (gitData != null) {
+            analyticsProps.put(FieldName.APPLICATION_ID, gitData.getDefaultApplicationId());
+            analyticsProps.put(FieldName.BRANCH_NAME, gitData.getBranchName());
+            analyticsProps.put("gitHostingProvider", GitUtils.getGitProviderName(gitData.getRemoteUrl()));
+        }
+        // Do not include the error data points in the map for success states
+        if(!StringUtils.isEmptyOrNull(errorMessage) || !StringUtils.isEmptyOrNull(errorType)) {
+            analyticsProps.put("errorMessage", errorMessage);
+            analyticsProps.put("errorType", errorType);
+        }
+        analyticsProps.putAll(Map.of(
+                FieldName.ORGANIZATION_ID, defaultIfNull(application.getOrganizationId(), ""),
                 "branchApplicationId", defaultIfNull(application.getId(), ""),
                 "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
-                "gitHostingProvider", defaultIfNull(gitHostingProvider, ""),
                 "isSystemGenerated", defaultIfNull(isSystemGenerated, "")
         ));
-
         return sessionUserService.getCurrentUser()
                 .map(user -> {
-                    // Do not include the error data points in the map for success states
-                    if(!StringUtils.isEmptyOrNull(errorMessage) || !StringUtils.isEmptyOrNull(errorType)) {
-                        analyticsProps.put("errorMessage", errorMessage);
-                        analyticsProps.put("errorType", errorType);
-                    }
                     analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);
                     return application;
                 });
