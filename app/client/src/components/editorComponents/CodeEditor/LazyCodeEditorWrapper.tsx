@@ -21,7 +21,6 @@ SyntaxHighlighter.registerLanguage("javascript", js);
 
 export const ReadOnlyInput = styled.input`
   width: 100%;
-  color: #4b4848 !important;
   background-color: rgba(0, 0, 0, 0) !important;
   font-family: monospace !important;
   font-weight: 400 !important;
@@ -43,6 +42,7 @@ export const HighlighedCodeContainer = styled("div")`
   line-height: 21px !important;
 
   min-height: inherit;
+  padding: 6px 10px !important;
 
   pre {
     margin: 0 !important;
@@ -79,10 +79,13 @@ const IconWrapper = styled(Icon)`
   margin-right: 4px;
 `;
 
-const LazyEditorWrapper = styled("div")<{ value: string }>`
+const LazyEditorWrapper = styled("div")<{ containsCode: boolean }>`
   position: relative;
   min-height: 38px;
   border: 1px solid;
+  border-color: inherit;
+  height: ${({ containsCode }) => (containsCode ? "auto" : "38px")};
+  overflow: hidden;
 `;
 
 // Lazy load CodeEditor upon focus
@@ -90,6 +93,8 @@ function LazyCodeEditorWrapper(props: any) {
   const [isFocused, setFocus] = useState<boolean>(false);
   const [lintError, setLintError] = useState<string>("");
   const [showLintError, setShowLintError] = useState<boolean>(false);
+  const [containsCode, setContainsCode] = useState<boolean>(false);
+  const [text, setText] = useState<string>("");
   const dynamicData = useSelector((state: AppState) => state.evaluations.tree);
   const handleFocus = (): void => {
     setFocus(true);
@@ -123,14 +128,23 @@ function LazyCodeEditorWrapper(props: any) {
     getPropertyValidation(dynamicData, props?.dataTreePath);
   }, [dynamicData, props.dataTreePath]);
 
+  useEffect(() => {
+    const str: string = props?.input?.value || props?.placeholder || "";
+    if (str && text?.indexOf("{{") > -1) setContainsCode(true);
+    setText(str);
+  }, [props?.input?.value, props?.placeholder]);
+
   const highlightedText = () => {
+    if (!containsCode) {
+      return text;
+    }
     return (
       <SyntaxHighlighter
         language="javascript"
         style={duotoneLight}
         wrapLongLines
       >
-        {props?.input?.value || props.placeholder || ""}
+        {text}
       </SyntaxHighlighter>
     );
   };
@@ -145,7 +159,7 @@ function LazyCodeEditorWrapper(props: any) {
   return isFocused ? (
     <CodeEditor {...props} />
   ) : (
-    <LazyEditorWrapper value={props.input.value}>
+    <LazyEditorWrapper containsCode={containsCode}>
       <EditorWrapper
         border={props.border}
         borderLess={props.borderLess}
