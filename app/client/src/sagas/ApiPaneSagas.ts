@@ -65,7 +65,7 @@ import {
   datasourcesEditorIdURL,
   integrationEditorURL,
 } from "RouteBuilder";
-import _ from "lodash";
+import { isEmpty } from "lodash";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -413,7 +413,7 @@ export function* updateFormFields(
       };
     } else {
       // when user switches to GET method, do not clear off content type headers, instead leave them.
-      if (_.isEmpty(values?.actionConfiguration?.body)) {
+      if (isEmpty(values?.actionConfiguration?.body)) {
         apiContentType = HTTP_METHODS_DEFAULT_FORMAT_TYPES.GET;
         extraFormDataToBeChanged = true;
       }
