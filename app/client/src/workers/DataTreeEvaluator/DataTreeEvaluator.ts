@@ -202,7 +202,7 @@ export default class DataTreeEvaluator {
               _.set(dataTree, updatePath, new String(updates[key]));
               _.set(dataTree, `${updatePath}.data`, data);
             } else {
-              _.set(dataTree, `${updatePath}`, updates[key]);
+              _.set(dataTree, updatePath, updates[key]);
             }
           }
         });
