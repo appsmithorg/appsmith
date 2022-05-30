@@ -517,7 +517,7 @@ export const asyncTagUnevalTree: DataTree = {
   appsmith: ({
     user: {
       email: "anand@appsmith.com",
-      organizationIds: [
+      workspaceIds: [
         "61431979a67ce2289d3c7c6d",
         "61431a95a67ce2289d3c7c74",
         "5f7add8687af934ed846dd6a",
