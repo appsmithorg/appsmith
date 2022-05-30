@@ -478,6 +478,7 @@ const createLoadingWidget = (
     propertyOverrideDependency: {},
     overridingPropertyPaths: {},
     privateWidgets: {},
+    meta: {},
   };
 };
 

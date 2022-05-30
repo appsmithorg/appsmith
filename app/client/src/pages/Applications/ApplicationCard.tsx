@@ -801,14 +801,15 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     <EditButton
                       className="t--application-edit-link"
                       fill
+                      href={editApplicationURL}
                       icon={"edit"}
                       iconPosition={IconPositions.left}
                       onClick={(e) => {
+                        e.preventDefault();
                         e.stopPropagation();
                         history.push(editApplicationURL);
                       }}
                       size={Size.medium}
-                      tag="button"
                       text="Edit"
                     />
                   )}
@@ -817,14 +818,15 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       category={Category.tertiary}
                       className="t--application-view-link"
                       fill
+                      href={viewApplicationURL}
                       icon={"rocket"}
                       iconPosition={IconPositions.left}
                       onClick={(e) => {
+                        e.preventDefault();
                         e.stopPropagation();
                         history.push(viewApplicationURL);
                       }}
                       size={Size.medium}
-                      tag="button"
                       text="Launch"
                     />
                   )}

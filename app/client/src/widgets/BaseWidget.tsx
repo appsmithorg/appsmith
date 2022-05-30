@@ -59,6 +59,7 @@ abstract class BaseWidget<
   K extends WidgetState
 > extends Component<T, K> {
   static contextType = EditorContext;
+  context!: React.ContextType<typeof EditorContext>;
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
@@ -152,7 +153,7 @@ abstract class BaseWidget<
 
   resetChildrenMetaProperty(widgetId: string) {
     const { resetChildrenMetaProperty } = this.context;
-    resetChildrenMetaProperty(widgetId);
+    if (resetChildrenMetaProperty) resetChildrenMetaProperty(widgetId);
   }
 
   /* eslint-disable @typescript-eslint/no-empty-function */
