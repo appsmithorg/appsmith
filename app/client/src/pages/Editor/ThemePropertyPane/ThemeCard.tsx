@@ -25,14 +25,14 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
  * TYPES
  *-----------------------------------------------------------------------------
  */
-interface ThemeCard {
+type ThemeCard = React.PropsWithChildren<{
   theme: AppTheme;
   isSelected?: boolean;
   className?: string;
   selectable?: boolean;
   deletable?: boolean;
   children?: React.ReactElement[] | React.ReactElement;
-}
+}>;
 
 const MainContainer = styled.main<{ backgroundColor: string }>`
   background-color: ${({ backgroundColor }) => backgroundColor};

@@ -22,9 +22,7 @@ function ThemeColorControl(props: ThemeColorControlProps) {
   const { theme, updateTheme } = props;
   const [autoFocus, setAutoFocus] = useState(false);
   const userDefinedColors = theme.properties.colors;
-  const [selectedColor, setSelectedColor] = useState<string | null>(
-    "primaryColor",
-  );
+  const [selectedColor, setSelectedColor] = useState<string>("primaryColor");
 
   return (
     <div className="space-y-2">

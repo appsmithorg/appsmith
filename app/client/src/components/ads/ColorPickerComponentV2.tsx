@@ -298,13 +298,14 @@ const POPOVER_MODFIER = {
 };
 
 function ColorPickerComponent(props: ColorPickerProps) {
+  const { isOpen: isOpenProp = false } = props;
   const inputRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const inputGroupRef = useRef<HTMLInputElement>(null);
   // isClick is used to track whether the input field is in focus by mouse click or by keyboard
   // This is used since we open the popup only on mouse click not on keyboard focus
   const isClick = useRef(false);
-  const [isOpen, setIsOpen] = React.useState(props.isOpen);
+  const [isOpen, setIsOpen] = React.useState(isOpenProp);
   const [color, setColor] = React.useState(
     props.evaluatedColorValue || props.color,
   );

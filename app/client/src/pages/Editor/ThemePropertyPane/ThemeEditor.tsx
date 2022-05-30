@@ -112,7 +112,7 @@ function ThemeEditor() {
    */
   const onResetTheme = useCallback(() => {
     dispatch(resetThemeAction());
-  }, [setAppThemingModeStackAction]);
+  }, [dispatch, resetThemeAction]);
 
   return (
     <>
@@ -164,15 +164,6 @@ function ThemeEditor() {
             </aside>
           </ThemeCard>
         </header>
-        {/* <div className="px-3 mt-4">
-          <Button
-            category={Category.tertiary}
-            className="t--change-theme-btn"
-            onClick={onClickChangeThemeButton}
-            size={Size.medium}
-            text="Change Theme"
-          />
-        </div> */}
         <main className="mt-1">
           {/* FONT  */}
           <SettingSection className="px-3 py-3" isDefaultOpen title="Font">
