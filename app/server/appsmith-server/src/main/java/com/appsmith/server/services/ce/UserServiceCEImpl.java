@@ -13,12 +13,12 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
@@ -31,18 +31,19 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
-import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.UserWorkspaceService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserChangedHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
@@ -103,6 +104,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final UserChangedHandler userChangedHandler;
     private final EncryptionService encryptionService;
     private final UserDataService userDataService;
+    private final TenantService tenantService;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -134,7 +136,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              UserChangedHandler userChangedHandler,
                              EncryptionService encryptionService,
                              ApplicationPageService applicationPageService,
-                             UserDataService userDataService) {
+                             UserDataService userDataService,
+                             TenantService tenantService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -151,6 +154,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.userChangedHandler = userChangedHandler;
         this.encryptionService = encryptionService;
         this.userDataService = userDataService;
+        this.tenantService = tenantService;
     }
 
     @Override
@@ -482,8 +486,21 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             user.getPolicies().addAll(adminUserPolicy(user));
         }
 
+        Mono<User> userWithTenantMono = Mono.just(user)
+                .flatMap(userBeforeSave -> {
+                    if (userBeforeSave.getTenantId() == null) {
+                        return tenantService.getDefaultTenantId()
+                                .map(tenantId -> {
+                                    userBeforeSave.setTenantId(tenantId);
+                                    return userBeforeSave;
+                                });
+                    }
+                    // The tenant has been set already. No need to set the default tenant id.
+                    return Mono.just(userBeforeSave);
+                });
+
         // Save the new user
-        return Mono.just(user)
+        return userWithTenantMono
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
                 .then(Mono.zip(
