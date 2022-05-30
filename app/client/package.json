@@ -199,7 +199,7 @@
     "@types/downloadjs": "^1.4.2",
     "@types/draft-js": "^0.11.1",
     "@types/emoji-mart": "^3.0.4",
-    "@types/jest": "^24.0.22",
+    "@types/jest": "^27.4.1",
     "@types/js-beautify": "^1.13.2",
     "@types/jshint": "^2.12.0",
     "@types/lodash": "^4.14.120",

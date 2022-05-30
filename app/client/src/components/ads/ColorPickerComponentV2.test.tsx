@@ -54,9 +54,6 @@ describe("<ColorPicker />", () => {
 });
 
 describe("<ColorPicker /> - Keyboard Navigation", () => {
-  beforeEach(() => {
-    jest.setTimeout(60000);
-  });
   it("Pressing tab should focus the component", () => {
     render(getTestComponent());
     userEvent.tab();
@@ -207,5 +204,5 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
     userEvent.keyboard("{Enter}");
     expect(onColorChange).toBeCalled();
     await waitForElementToBeRemoved(screen.queryByTestId("color-picker"));
-  });
+  }, 10000);
 });
