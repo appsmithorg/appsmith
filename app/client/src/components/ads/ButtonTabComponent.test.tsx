@@ -113,11 +113,11 @@ describe("<ButtonTabComponent /> - Keyboard Navigation", () => {
     userEvent.keyboard("{ArrowRight}");
     userEvent.keyboard("{Enter}");
     expect(handleClick).toHaveBeenCalledTimes(1);
-    expect(handleClick).toHaveBeenLastCalledWith(options[1].value);
+    expect(handleClick).toHaveBeenLastCalledWith(options[1].value, true);
 
     userEvent.keyboard("{ArrowRight}");
     userEvent.keyboard("{Enter}");
     expect(handleClick).toHaveBeenCalledTimes(2);
-    expect(handleClick).toHaveBeenLastCalledWith(options[2].value);
+    expect(handleClick).toHaveBeenLastCalledWith(options[2].value, true);
   });
 });
