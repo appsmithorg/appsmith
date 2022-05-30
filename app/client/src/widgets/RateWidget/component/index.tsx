@@ -10,6 +10,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import { disable } from "constants/DefaultTheme";
 import { ComponentProps } from "widgets/BaseComponent";
 import { Colors } from "constants/Colors";
+import { DynamicnHeightEnabledComponentProps } from "widgets/WidgetUtils";
 
 /*
   Note:
@@ -19,7 +20,7 @@ import { Colors } from "constants/Colors";
   More info: https://css-tricks.com/line-clampin/
 */
 
-interface RateContainerProps {
+interface RateContainerProps extends DynamicnHeightEnabledComponentProps {
   isDisabled: boolean;
 }
 
@@ -51,11 +52,16 @@ export const RateContainer = styled.div<RateContainerProps>`
   }
 
   ${({ isDisabled }) => isDisabled && disable}
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { height: auto }" : ""};
 `;
 
 export const Star = styled(Icon)``;
 
-export interface RateComponentProps extends ComponentProps {
+export interface RateComponentProps
+  extends ComponentProps,
+    DynamicnHeightEnabledComponentProps {
   value: number;
   isLoading: boolean;
   maxCount: number;
@@ -114,6 +120,7 @@ const RateComponent = React.forwardRef<HTMLDivElement, RateComponentProps>(
       inactiveColor,
       isAllowHalf,
       isDisabled,
+      isDynamicHeightEnabled,
       maxCount,
       onValueChanged,
       readonly,
@@ -122,7 +129,11 @@ const RateComponent = React.forwardRef<HTMLDivElement, RateComponentProps>(
     } = props;
 
     return (
-      <RateContainer isDisabled={Boolean(isDisabled)} ref={rateContainerRef}>
+      <RateContainer
+        isDisabled={Boolean(isDisabled)}
+        isDynamicHeightEnabled={isDynamicHeightEnabled}
+        ref={rateContainerRef}
+      >
         <Rating
           emptySymbol={
             <Star
