@@ -7,12 +7,11 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 
-import java.nio.file.Path;
 import java.time.Duration;
 
 @RequiredArgsConstructor
 public class RedisUtils {
-    private static ReactiveRedisOperations<String, String> redisOperations;
+    private final ReactiveRedisOperations<String, String> redisOperations;
 
     private final static String REDIS_FILE_LOCK_VALUE= "inUse";
 
@@ -20,7 +19,7 @@ public class RedisUtils {
 
     private final static Duration FILE_LOCK_TIME_LIMIT = Duration.ofSeconds(20);
 
-    public static Mono<Boolean> addFileLock(String key) {
+    public Mono<Boolean> addFileLock(String key) {
         return redisOperations.opsForValue().get(key)
                 .flatMap(object -> {
                     if (object.equals(REDIS_FILE_RELEASE_VALUE)) {
@@ -32,7 +31,7 @@ public class RedisUtils {
                 .switchIfEmpty(redisOperations.opsForValue().set(key, REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT));
     }
 
-    public static Mono<Boolean> releaseFileLock(String key) {
+    public Mono<Boolean> releaseFileLock(String key) {
         return redisOperations.opsForValue().set(key, REDIS_FILE_RELEASE_VALUE, FILE_LOCK_TIME_LIMIT);
     }
 }

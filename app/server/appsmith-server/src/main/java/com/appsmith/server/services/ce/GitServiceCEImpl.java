@@ -35,7 +35,6 @@ import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
-import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
@@ -63,6 +62,7 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.redis.core.ReactiveRedisOperations;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -123,6 +123,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final GitDeployKeysRepository gitDeployKeysRepository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
+    private final ReactiveRedisOperations<String, String> redisOperations;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
@@ -136,7 +137,14 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final static String GIT_PROFILE_ERROR = "Unable to find git author configuration for logged-in user. You can" +
             " set up a git profile from the user profile section.";
 
-    private final static Duration RETRY_DELAY = Duration.ofSeconds(10);
+    private final static String REDIS_FILE_LOCK_VALUE= "inUse";
+
+    private final static String REDIS_FILE_RELEASE_VALUE = "isFree";
+
+    private final static Duration FILE_LOCK_TIME_LIMIT = Duration.ofSeconds(20);
+
+    private final static Duration RETRY_DELAY = Duration.ofSeconds(2);
+    private final static Integer MAX_RETRIES = 10;
 
     private enum DEFAULT_COMMIT_REASONS {
         CONFLICT_STATE("for conflicted state"),
@@ -400,7 +408,8 @@ public class GitServiceCEImpl implements GitServiceCE {
         Mono<String> commitMono = this.getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    return RedisUtils.addFileLock(gitData.getDefaultApplicationId())
+                    return addFileLock(gitData.getDefaultApplicationId())
+                            .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY))
                             .then(Mono.just(application));
                 })
                 .flatMap(defaultApplication -> {
@@ -570,7 +579,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     return applicationService.update(childApplication.getId(), update)
                             // Release the file lock on git repo
-                            .flatMap(application -> RedisUtils.releaseFileLock(childApplication.getGitApplicationMetadata().getDefaultApplicationId()))
+                            .flatMap(application -> releaseFileLock(childApplication.getGitApplicationMetadata().getDefaultApplicationId()))
                             .then(addAnalyticsForGitOperation(
                                     AnalyticsEvents.GIT_COMMIT.getEventName(),
                                     childApplication,
@@ -1204,7 +1213,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.BRANCH_CREATED.getReason() + gitData.getBranchName());
                         commitDTO.setDoPush(true);
                         return commitApplication(commitDTO, gitData.getDefaultApplicationId(), gitData.getBranchName())
-                                .retryWhen(Retry.fixedDelay(3, RETRY_DELAY))
+                                .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY))
                                 .thenReturn(application);
                     });
                 })
@@ -1367,7 +1376,8 @@ public class GitServiceCEImpl implements GitServiceCE {
         Mono<GitPullDTO> pullMono = getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    return RedisUtils.addFileLock(gitData.getDefaultApplicationId())
+                    return addFileLock(gitData.getDefaultApplicationId())
+                            .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY))
                             .then(Mono.just(application));
                 })
                 .flatMap(defaultApplication -> {
@@ -1590,7 +1600,8 @@ public class GitServiceCEImpl implements GitServiceCE {
         Mono<MergeStatusDTO> mergeMono = getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    return RedisUtils.addFileLock(gitData.getDefaultApplicationId())
+                    return addFileLock(gitData.getDefaultApplicationId())
+                            .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY))
                             .then(Mono.just(application));
                 })
                 .flatMap(defaultApplication -> {
@@ -1686,9 +1697,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 GitCommitDTO commitDTO = new GitCommitDTO();
                                 commitDTO.setDoPush(true);
                                 commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.SYNC_REMOTE_AFTER_MERGE.getReason() + sourceBranch);
-                                return RedisUtils.releaseFileLock(application1.getGitApplicationMetadata().getDefaultApplicationId())
+                                return releaseFileLock(application1.getGitApplicationMetadata().getDefaultApplicationId())
                                         .flatMap(result -> this.commitApplication(commitDTO, defaultApplicationId, destinationBranch)
-                                                .retryWhen(Retry.fixedDelay(3, RETRY_DELAY))
+                                                .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY))
                                                 .map(commitStatus -> mergeStatusDTO)
                                                 .zipWith(Mono.just(application1))
                                         );
@@ -2415,9 +2426,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                             gitPullDTO.setApplication(responseUtils.updateApplicationWithDefaultResources(application));
 
                             // Make commit and push after pull is successful to have a clean repo
-                            return RedisUtils.releaseFileLock(application.getId())
+                            return releaseFileLock(application.getId())
                                     .flatMap(value -> this.commitApplication(commitDTO, application.getGitApplicationMetadata().getDefaultApplicationId(), branchName)
-                                            .retryWhen(Retry.fixedDelay(3, RETRY_DELAY))
+                                            .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY))
                                             .thenReturn(gitPullDTO));
                         });
             });
@@ -2464,5 +2475,21 @@ public class GitServiceCEImpl implements GitServiceCE {
                     analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);
                     return application;
                 });
+    }
+
+    public Mono<Boolean> addFileLock(String key) {
+        return redisOperations.opsForValue().get(key)
+                .flatMap(object -> {
+                    if (object.equals(REDIS_FILE_RELEASE_VALUE)) {
+                        return redisOperations.opsForValue().set(key, REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT);
+                    } else {
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
+                    }
+                })
+                .switchIfEmpty(redisOperations.opsForValue().set(key, REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT));
+    }
+
+    public Mono<Boolean> releaseFileLock(String key) {
+        return redisOperations.opsForValue().set(key, REDIS_FILE_RELEASE_VALUE, FILE_LOCK_TIME_LIMIT);
     }
 }
