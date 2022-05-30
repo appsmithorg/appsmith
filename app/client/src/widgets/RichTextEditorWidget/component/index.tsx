@@ -103,6 +103,8 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     [props.onValueChange],
   );
 
+  // As this useEffect sets the initialRender.current value as false and order of hooks matter,
+  // we should always keep this useEffect logic at last part of component before return to make sure, initialRender.current value is consumed as expected in the component.
   useEffect(() => {
     if (!initialRender.current && valueRef.current !== props.value) {
       valueRef.current = props.value;
