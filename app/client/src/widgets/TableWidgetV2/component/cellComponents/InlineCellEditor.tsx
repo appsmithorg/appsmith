@@ -9,6 +9,7 @@ const Wrapper = styled.div<{
   compactMode: string;
   allowCellWrapping?: boolean;
   verticalAlignment?: VerticalAlignment;
+  textSize?: string;
 }>`
   padding: 1px;
   border: 1px solid ${(props) => props.accentColor};
@@ -45,6 +46,7 @@ const Wrapper = styled.div<{
       box-shadow: none !important;
       padding: 0px 8px;
       min-height: 34px;
+      font-size: ${(props) => props.textSize};
     }
     .bp3-button-group.bp3-vertical {
       display: none;
@@ -78,6 +80,7 @@ type InlineEditorPropsType = {
   value: any;
   allowCellWrapping?: boolean;
   verticalAlignment?: VerticalAlignment;
+  textSize?: string;
 };
 
 export function InlineCellEditor({
@@ -88,6 +91,7 @@ export function InlineCellEditor({
   onChange,
   onDiscard,
   onSave,
+  textSize,
   value,
   allowCellWrapping,
   verticalAlignment,
@@ -140,6 +144,7 @@ export function InlineCellEditor({
       accentColor={accentColor}
       allowCellWrapping={allowCellWrapping}
       compactMode={compactMode}
+      textSize={textSize}
       verticalAlignment={verticalAlignment}
     >
       <BaseInputComponent
