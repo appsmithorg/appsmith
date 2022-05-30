@@ -361,6 +361,8 @@ describe("AForce - Community Issues page validations", function() {
         "Adding Title Suggestion via script-updating title",
       );
     });
+
+    agHelper.Sleep(3000)//allowing time to save!
   });
 
   it("10. Validate Deleting the newly created issue", () => {
