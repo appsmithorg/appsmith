@@ -252,7 +252,7 @@ export default {
       helpText: "Sets the custom color preset based on the menu button variant",
       label: "Menu Color",
       controlType: "COLOR_PICKER",
-      customJSControl: "COMPUTE_VALUE",
+      customJSControl: "COMPUTE_VALUE_V2",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
