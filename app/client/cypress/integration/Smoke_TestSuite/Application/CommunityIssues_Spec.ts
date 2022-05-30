@@ -297,12 +297,10 @@ describe("AForce - Community Issues page validations", function() {
     table.ReadTableRowColumnData(0, 1, 1000).then((cellData) => {
       expect(cellData).to.be.equal("Adding Title Suggestion via script");
     });
-
-  })
+  });
 
   it("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
-
-    agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"))
+    agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"));
     table.SelectTableRow(0);
     agHelper.AssertElementVisible(locator._widgetInDeployed("tabswidget"));
     agHelper
@@ -362,7 +360,7 @@ describe("AForce - Community Issues page validations", function() {
       );
     });
 
-    agHelper.Sleep(3000)//allowing time to save!
+    agHelper.Sleep(2000); //allowing time to save!
   });
 
   it("10. Validate Deleting the newly created issue", () => {
@@ -373,6 +371,7 @@ describe("AForce - Community Issues page validations", function() {
     cy.get(table._trashIcon)
       .closest("div")
       .click();
+    agHelper.Sleep(3000); //allowing time to delete!
     agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"));
     table.WaitForTableEmpty();
 
