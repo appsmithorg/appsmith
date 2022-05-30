@@ -2741,4 +2741,40 @@ public class GitServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void commitAndPushApplication_WithMultipleUsers_success() throws GitAPIException, IOException {
+        GitCommitDTO commitDTO = new GitCommitDTO();
+        commitDTO.setDoPush(true);
+        commitDTO.setCommitMessage("test commit");
+
+        PageDTO page = new PageDTO();
+        page.setApplicationId(gitConnectedApplication.getId());
+        page.setName("commit_WithMultipleUsers_page");
+        applicationPageService.createPage(page).block();
+
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("")));
+        Mockito.when(gitExecutor.commitApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just("committed successfully"));
+        Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+        Mockito.when(gitExecutor.pushApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("pushed successfully"));
+
+        // First request for commit operation
+        Mono<String> commitMonoReq1 = gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
+        // Second request for commit operation
+        Mono<String> commitMonoReq2 = gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
+
+        // Both the request to execute completely without the file lock error from jgit.
+        StepVerifier
+                .create(Mono.zip(commitMonoReq1, commitMonoReq2))
+                .assertNext(tuple ->{
+                    assertThat(tuple.getT1()).contains("committed successfully");
+                    assertThat(tuple.getT2()).contains("committed successfully");
+                })
+                .verifyComplete();
+    }
 }
