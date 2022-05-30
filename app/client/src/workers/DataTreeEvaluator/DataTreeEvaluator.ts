@@ -84,7 +84,6 @@ import {
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
 import { EvalMetaUpdates } from "./types";
-import { isJSObjectFunction } from "./utils";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -181,6 +180,13 @@ export default class DataTreeEvaluator {
     this.logs.push({ timeTakenForFirstTree });
     return { evalTree: this.evalTree, jsUpdates: jsUpdates, evalMetaUpdates };
   }
+  isJSObjectFunction(dataTree: DataTree, jsObjectName: string, key: string) {
+    const entity = dataTree[jsObjectName];
+    if (isJSAction(entity)) {
+      return entity.meta.hasOwnProperty(key);
+    }
+    return false;
+  }
 
   updateLocalUnEvalTree(dataTree: DataTree) {
     //add functions and variables to unevalTree
@@ -192,7 +198,7 @@ export default class DataTreeEvaluator {
           const updatePath = `${update}.${key}`;
           if (_.has(dataTree, updatePath)) {
             const data = _.get(dataTree, `${updatePath}.data`, undefined);
-            if (isJSObjectFunction(dataTree, update, key)) {
+            if (this.isJSObjectFunction(dataTree, update, key)) {
               _.set(dataTree, updatePath, new String(updates[key]));
               _.set(dataTree, `${updatePath}.data`, data);
             } else {

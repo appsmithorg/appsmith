@@ -83,7 +83,7 @@ export class JSEditor {
 
   //#region constants
   private isMac = Cypress.platform === "darwin";
-  private selectJSObjectContentShortcut = `${
+  private selectAllJSObjectContentShortcut = `${
     this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
   }`;
   //#endregion
@@ -126,7 +126,7 @@ export class JSEditor {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
         .focus()
-        .type(this.selectJSObjectContentShortcut)
+        .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
 
       // .type("{uparrow}", { force: true })
@@ -177,7 +177,7 @@ export class JSEditor {
     cy.get(this.locator._codeMirrorTextArea)
       .first()
       .focus()
-      .type(this.selectJSObjectContentShortcut, { force: true })
+      .type(this.selectAllJSObjectContentShortcut, { force: true })
       .then((el: any) => {
         this.agHelper.Paste(el, newContent);
       });
