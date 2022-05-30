@@ -57,10 +57,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Use Node.js 16.15.0
+      - name: Use Node.js 16.14.0
         uses: actions/setup-node@v1
         with:
-          node-version: "16.15.0"
+          node-version: "16.14.0"
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
@@ -161,10 +161,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Use Node.js 16.15.0
+      - name: Use Node.js 16.14.0
         uses: actions/setup-node@v1
         with:
-          node-version: "16.15.0"
+          node-version: "16.14.0"
 
       - name: Build
         run: |
