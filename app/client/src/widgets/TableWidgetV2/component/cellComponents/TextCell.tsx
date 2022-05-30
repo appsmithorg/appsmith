@@ -81,6 +81,8 @@ const UnsavedChangesMarker = styled.div<{ accentColor: string }>`
 
 const Content = styled.div`
   display: inline;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 interface PropType extends RenderDefaultPropsType {
