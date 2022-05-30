@@ -6,10 +6,13 @@ import {
 import { TreeNode } from "utils/treeManipulationHelpers/dynamicHeightReflow";
 import { xor } from "lodash";
 
-export type DynamicHeightLayoutTreePayload = Record<string, TreeNode>;
+export type DynamicHeightLayoutTreePayload = {
+  tree: Record<string, TreeNode>;
+  canvasLevelMap: Record<string, number>;
+};
 
 export type DynamicHeightLayoutTreeReduxState = {
-  [widgetId: string]: TreeNode;
+  [widgetId: string]: TreeNode & { level?: number };
 };
 const initialState: DynamicHeightLayoutTreeReduxState = {};
 
@@ -18,28 +21,29 @@ const dynamicHeightLayoutTreeReducer = createImmerReducer(initialState, {
     state: DynamicHeightLayoutTreeReduxState,
     action: ReduxAction<DynamicHeightLayoutTreePayload>,
   ) => {
-    for (const widgetId in action.payload) {
+    const { tree } = action.payload;
+    for (const widgetId in tree) {
       if (state[widgetId]) {
         const differentAboves = xor(
           state[widgetId].aboves,
-          action.payload[widgetId].aboves,
+          tree[widgetId].aboves,
         );
         if (differentAboves.length > 0) {
-          state[widgetId].aboves = action.payload[widgetId].aboves;
+          state[widgetId].aboves = tree[widgetId].aboves;
         }
 
         const differentBelows = xor(
           state[widgetId].belows,
-          action.payload[widgetId].belows,
+          tree[widgetId].belows,
         );
         if (differentBelows.length > 0) {
-          state[widgetId].belows = action.payload[widgetId].belows;
+          state[widgetId].belows = tree[widgetId].belows;
         }
 
-        state[widgetId].topRow = action.payload[widgetId].topRow;
-        state[widgetId].bottomRow = action.payload[widgetId].bottomRow;
+        state[widgetId].topRow = tree[widgetId].topRow;
+        state[widgetId].bottomRow = tree[widgetId].bottomRow;
       } else {
-        state[widgetId] = action.payload[widgetId];
+        state[widgetId] = tree[widgetId];
       }
     }
   },

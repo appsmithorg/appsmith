@@ -2,6 +2,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import { setDynamicHeightLayoutTree } from "actions/canvasActions";
 import { UpdateWidgetDynamicHeightPayload } from "actions/controlActions";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
@@ -11,6 +12,7 @@ import {
 import { groupBy } from "lodash";
 import log from "loglevel";
 import { UpdateWidgetsPayload } from "reducers/entityReducers/canvasWidgetsReducer";
+import { CanvasLevelsReduxState } from "reducers/entityReducers/dynamicHeightReducers/canvasLevelsReducer";
 import { DynamicHeightLayoutTreeReduxState } from "reducers/entityReducers/dynamicHeightReducers/dynamicHeightLayoutTreeReducer";
 import {
   all,
@@ -23,7 +25,10 @@ import {
   delay,
 } from "redux-saga/effects";
 import { getOccupiedSpacesGroupedByParentCanvas } from "selectors/editorSelectors";
-import { getDynamicHeightLayoutTree } from "selectors/widgetReflowSelectors";
+import {
+  getCanvasLevelMap,
+  getDynamicHeightLayoutTree,
+} from "selectors/widgetReflowSelectors";
 import {
   computeChangeInPositionBasedOnDelta,
   generateTree,
@@ -88,8 +93,14 @@ export function* updateWidgetDynamicHeightSaga(
     // 1. Get all siblings together.
 
     const expectedUpdatesGroupedByParent = groupBy(expectedUpdates, "parentId");
+
+    const canvasLevelMap: CanvasLevelsReduxState = yield select(
+      getCanvasLevelMap,
+    );
+
     console.log("Dynamic Height: Grouped by parents", {
       expectedUpdatesGroupedByParent,
+      canvasLevelMap,
     });
     const dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState = yield select(
       getDynamicHeightLayoutTree,
@@ -482,7 +493,7 @@ function* batchCallsToUpdateWidgetDynamicHeightSaga(
 
 function* generateTreeForDynamicHeightComputations() {
   const start = performance.now();
-  const occupiedSpaces: Record<string, OccupiedSpace[]> = yield select(
+  const { canvasLevelMap, occupiedSpaces } = yield select(
     getOccupiedSpacesGroupedByParentCanvas,
   );
 
@@ -498,10 +509,7 @@ function* generateTreeForDynamicHeightComputations() {
       );
   }
 
-  yield put({
-    type: ReduxActionTypes.SET_DYNAMIC_HEIGHT_LAYOUT_TREE,
-    payload: tree,
-  });
+  yield put(setDynamicHeightLayoutTree(tree, canvasLevelMap));
   console.log("Dynamic height: Layout Tree", { tree });
   // TODO IMPLEMENT:(abhinav): Push this analytics to sentry|segment?
   log.debug(

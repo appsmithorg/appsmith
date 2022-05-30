@@ -371,7 +371,12 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
   getWidgets,
   (
     widgets: CanvasWidgetsReduxState,
-  ): { [parentCanvasWidgetId: string]: OccupiedSpace[] } => {
+  ): {
+    occupiedSpaces: {
+      [parentCanvasWidgetId: string]: OccupiedSpace[];
+    };
+    canvasLevelMap: Record<string, number>;
+  } => {
     const occupiedSpaces: {
       [parentCanvasWidgetId: string]: OccupiedSpace[];
     } = {};
@@ -380,6 +385,11 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
     const canvasWidgets: FlattenedWidgetProps[] = Object.values(widgets).filter(
       (widget) => widget.type === "CANVAS_WIDGET",
     );
+
+    // Levels signify how deeply nested a canvas is.
+    // For example, the main canvas is always at level 0, if a container exists on the canvas
+    // Then the canvas within this container will be level 1, and so on.
+    const canvasLevelMap: Record<string, number> = {};
 
     // If we have any canvas widgets
     if (canvasWidgets) {
@@ -396,6 +406,7 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
           if (parent.type === "CANVAS_WIDGET") level++;
           parentId = parent.parentId;
         }
+        canvasLevelMap[canvasWidget.widgetId] = level;
         console.log("Dynamic height: Level of canvas widget:", {
           widgetId: canvasWidget.widgetId,
           level,
@@ -427,9 +438,9 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
       });
     }
 
-    // Return the occupied spaces
-    // In an empty canvas it will be like so: { "0": [] }
-    return occupiedSpaces;
+    // Return the occupied spaces and the canvas levels.
+    // In an empty canvas occupied spaces will be like so: { "0": [] }
+    return { occupiedSpaces, canvasLevelMap };
   },
 );
 
