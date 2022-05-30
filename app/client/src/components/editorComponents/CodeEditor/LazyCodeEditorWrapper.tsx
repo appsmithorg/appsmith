@@ -5,7 +5,7 @@ import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import js from "react-syntax-highlighter/dist/cjs/languages/prism/javascript";
 import duotoneLight from "react-syntax-highlighter/dist/esm/styles/prism/duotone-light";
 
-// import CodeEditor from "components/editorComponents/CodeEditor";
+import CodeEditor from "components/editorComponents/CodeEditor";
 import { EditorWrapper } from "./styledComponents";
 import { replayHighlightClass } from "globalStyles/portals";
 import {
@@ -135,62 +135,118 @@ function LazyCodeEditorWrapper(props: any) {
     );
   };
 
-  const CodeEditor = React.lazy((): any =>
-    import("components/editorComponents/CodeEditor"),
+  useEffect(() => {
+    function lazyLoadEditor() {
+      (window as any).requestIdleCallback(() => setFocus(true));
+    }
+    lazyLoadEditor();
+  }, []);
+
+  return isFocused ? (
+    <CodeEditor {...props} />
+  ) : (
+    // <div>{Editor(props)}</div>
+    <LazyEditorWrapper value={props.input.value}>
+      <EditorWrapper
+        border={props.border}
+        borderLess={props.borderLess}
+        className={`${props.className} ${replayHighlightClass} ${
+          lintError ? "t--codemirror-has-error" : ""
+        }`}
+        codeEditorVisibleOverflow={props.codeEditorVisibleOverflow}
+        disabled={props.disabled}
+        editorTheme={props.theme}
+        fill={props.fill}
+        hasError={false}
+        height={props.height}
+        hoverInteraction={props.hoverInteraction}
+        isFocused={isFocused}
+        isNotHover={false}
+        isRawView={false}
+        isReadOnly={false}
+        onMouseEnter={() => setShowLintError(true)}
+        onMouseLeave={() => setShowLintError(false)}
+        size={props.size}
+      >
+        <ReadOnlyInput
+          className="t--code-editor-wrapper unfocused-code-editor"
+          data-testid="lazy-code-editor"
+          onFocus={handleFocus}
+          placeholder={""}
+          type="text"
+          value={""}
+        />
+        <HighlighedCodeContainer>{highlightedText()}</HighlighedCodeContainer>
+      </EditorWrapper>
+      {showLintError && lintError && (
+        <LintErrorContainer>
+          <IconWrapper
+            className="close-debugger t--close-debugger"
+            name="error"
+            size={IconSize.SMALL}
+          />
+          {lintError}
+        </LintErrorContainer>
+      )}
+    </LazyEditorWrapper>
   );
-  return (
-    <Suspense
-      fallback={
-        <LazyEditorWrapper value={props.input.value}>
-          <EditorWrapper
-            border={props.border}
-            borderLess={props.borderLess}
-            className={`${props.className} ${replayHighlightClass} ${
-              lintError ? "t--codemirror-has-error" : ""
-            }`}
-            codeEditorVisibleOverflow={props.codeEditorVisibleOverflow}
-            disabled={props.disabled}
-            editorTheme={props.theme}
-            fill={props.fill}
-            hasError={false}
-            height={props.height}
-            hoverInteraction={props.hoverInteraction}
-            isFocused={isFocused}
-            isNotHover={false}
-            isRawView={false}
-            isReadOnly={false}
-            onMouseEnter={() => setShowLintError(true)}
-            onMouseLeave={() => setShowLintError(false)}
-            size={props.size}
-          >
-            <ReadOnlyInput
-              className="t--code-editor-wrapper unfocused-code-editor"
-              data-testid="lazy-code-editor"
-              onFocus={handleFocus}
-              placeholder={""}
-              type="text"
-              value={""}
-            />
-            <HighlighedCodeContainer>
-              {highlightedText()}
-            </HighlighedCodeContainer>
-          </EditorWrapper>
-          {showLintError && lintError && (
-            <LintErrorContainer>
-              <IconWrapper
-                className="close-debugger t--close-debugger"
-                name="error"
-                size={IconSize.SMALL}
-              />
-              {lintError}
-            </LintErrorContainer>
-          )}
-        </LazyEditorWrapper>
-      }
-    >
-      <CodeEditor {...props} hasFocus />
-    </Suspense>
-  );
+
+  // const CodeEditor = React.lazy((): any =>
+  //   import("components/editorComponents/CodeEditor"),
+  // );
+  // return (
+  //   <Suspense
+  //     fallback={
+  //       <LazyEditorWrapper value={props.input.value}>
+  //         <EditorWrapper
+  //           border={props.border}
+  //           borderLess={props.borderLess}
+  //           className={`${props.className} ${replayHighlightClass} ${
+  //             lintError ? "t--codemirror-has-error" : ""
+  //           }`}
+  //           codeEditorVisibleOverflow={props.codeEditorVisibleOverflow}
+  //           disabled={props.disabled}
+  //           editorTheme={props.theme}
+  //           fill={props.fill}
+  //           hasError={false}
+  //           height={props.height}
+  //           hoverInteraction={props.hoverInteraction}
+  //           isFocused={isFocused}
+  //           isNotHover={false}
+  //           isRawView={false}
+  //           isReadOnly={false}
+  //           onMouseEnter={() => setShowLintError(true)}
+  //           onMouseLeave={() => setShowLintError(false)}
+  //           size={props.size}
+  //         >
+  //           <ReadOnlyInput
+  //             className="t--code-editor-wrapper unfocused-code-editor"
+  //             data-testid="lazy-code-editor"
+  //             onFocus={handleFocus}
+  //             placeholder={""}
+  //             type="text"
+  //             value={""}
+  //           />
+  //           <HighlighedCodeContainer>
+  //             {highlightedText()}
+  //           </HighlighedCodeContainer>
+  //         </EditorWrapper>
+  //         {showLintError && lintError && (
+  //           <LintErrorContainer>
+  //             <IconWrapper
+  //               className="close-debugger t--close-debugger"
+  //               name="error"
+  //               size={IconSize.SMALL}
+  //             />
+  //             {lintError}
+  //           </LintErrorContainer>
+  //         )}
+  //       </LazyEditorWrapper>
+  //     }
+  //   >
+  //     <CodeEditor {...props} hasFocus />
+  //   </Suspense>
+  // );
 
   // return isFocused ? (
   //   <CodeEditor {...props} hasFocus={isFocused} />
