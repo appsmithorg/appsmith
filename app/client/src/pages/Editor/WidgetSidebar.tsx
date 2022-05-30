@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
@@ -27,6 +27,10 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
     }
     setFilteredCards(filteredCards);
   };
+
+  useEffect(() => {
+    if (isActive) searchInputRef.current?.focus();
+  }, [isActive]);
 
   /**
    * filter widgets
