@@ -55,6 +55,7 @@ const SwitchLabel = styled.div<{
 
 export const StyledSwitch = styled(Switch)<{
   accentColor: string;
+  inline?: boolean;
 }>`
   &.${Classes.CONTROL} {
     margin: 0;
@@ -68,7 +69,7 @@ export const StyledSwitch = styled(Switch)<{
   }
 
   &.${Classes.SWITCH} {
-    width: 100%;
+    ${({ inline }) => (!!inline ? "" : "width: 100%;")}
     & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
       background: ${({ accentColor }) => `${accentColor}`} !important;
     }

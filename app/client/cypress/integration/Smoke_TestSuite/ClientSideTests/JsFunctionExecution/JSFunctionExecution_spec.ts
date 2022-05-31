@@ -5,7 +5,8 @@ const jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
   ee = ObjectsRegistry.EntityExplorer,
   table = ObjectsRegistry.Table,
-  agHelper = ObjectsRegistry.AggregateHelper;
+  agHelper = ObjectsRegistry.AggregateHelper,
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("JS Function Execution", function() {
   before(() => {
@@ -160,7 +161,7 @@ describe("JS Function Execution", function() {
     });
 
     // Deploy App and test that table loads properly
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     table.WaitUntilTableLoad();
     table.ReadTableRowColumnData(0, 1, 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //validating id column value - row 0
