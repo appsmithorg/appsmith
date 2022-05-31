@@ -322,7 +322,8 @@ public class RestApiPlugin extends BasePlugin {
                         sslContextSpec.sslContext(sslContextSpec1);
                     });
 
-            if ("true".equals(System.getProperty("java.net.useSystemProxies"))) {
+            if ("true".equals(System.getProperty("java.net.useSystemProxies"))
+                    && (!System.getProperty("http.proxyHost", "").isEmpty() || !System.getProperty("https.proxyHost", "").isEmpty())) {
                 httpClient = httpClient.proxyWithSystemProperties();
             }
 
