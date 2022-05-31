@@ -9,6 +9,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   hideCard: true,
+  isDeprecated: true,
   defaults: {
     inputType: "TEXT",
     rows: 4,
