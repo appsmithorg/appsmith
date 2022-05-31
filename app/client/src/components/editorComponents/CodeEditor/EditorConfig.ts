@@ -1,6 +1,7 @@
 import CodeMirror from "codemirror";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { TruthyPrimitiveTypes } from "utils/TypeHelpers";
 
 export enum EditorModes {
   TEXT = "text/plain",
@@ -52,7 +53,10 @@ export type FieldEntityInformation = {
 export type HintHelper = (
   editor: CodeMirror.Editor,
   data: DataTree,
-  customDataTree?: Record<string, Record<string, unknown> | unknown>,
+  customDataTree?: Record<
+    string,
+    Record<string, unknown> | TruthyPrimitiveTypes
+  >,
 ) => Hinter;
 export type Hinter = {
   showHint: (
