@@ -42,6 +42,7 @@ describe("AForce - Community Issues page validations", function() {
       table.AssertTableHeaderOrder(
         "TypeTitleStatus+1CommentorsVotesAnswerUpVoteStatesupvote_ididgithub_issue_idauthorcreated_atdescriptionlabelsstatelinkupdated_at",
       );
+      agHelper.Sleep();
       //Validating hidden columns:
       table.AssertHiddenColumns([
         "States",
