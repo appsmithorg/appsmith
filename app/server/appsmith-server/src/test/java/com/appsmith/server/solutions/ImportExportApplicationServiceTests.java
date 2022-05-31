@@ -34,7 +34,6 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ActionCollectionService;
@@ -45,9 +44,6 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.ThemeService;
-import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -121,9 +117,6 @@ public class ImportExportApplicationServiceTests {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    UserService userService;
-
-    @Autowired
     PluginRepository pluginRepository;
 
     @Autowired
@@ -142,13 +135,7 @@ public class ImportExportApplicationServiceTests {
     WorkspaceService workspaceService;
 
     @Autowired
-    SessionUserService sessionUserService;
-
-    @Autowired
     LayoutActionService layoutActionService;
-
-    @Autowired
-    NewPageRepository newPageRepository;
 
     @Autowired
     LayoutCollectionService layoutCollectionService;
@@ -161,9 +148,6 @@ public class ImportExportApplicationServiceTests {
 
     @Autowired
     ThemeRepository themeRepository;
-
-    @Autowired
-    ThemeService themeService;
 
     @Autowired
     ApplicationService applicationService;
@@ -402,6 +386,20 @@ public class ImportExportApplicationServiceTests {
                     testWidget.put("testField", "{{ validAction.data }}");
                     children.add(testWidget);
 
+                    JSONObject tableWidget = new JSONObject();
+                    tableWidget.put("widgetName", "Table1");
+                    tableWidget.put("type", "TABLE_WIDGET");
+                    Map<String, Object> primaryColumns = new HashMap<>();
+                    JSONObject jsonObject = new JSONObject(Map.of("key", "value"));
+                    primaryColumns.put("_id", "{{ PageAction.data }}");
+                    primaryColumns.put("_class", jsonObject);
+                    tableWidget.put("primaryColumns", primaryColumns);
+                    final ArrayList<Object> objects = new ArrayList<>();
+                    JSONArray temp2 = new JSONArray();
+                    temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+                    tableWidget.put("dynamicBindingPathList", temp2);
+                    children.add(tableWidget);
+
                     layout.setDsl(dsl);
                     layout.setPublishedDsl(dsl);
 
@@ -479,6 +477,7 @@ public class ImportExportApplicationServiceTests {
                     List<String> DBOnLayoutLoadActionIds = new ArrayList<>();
                     List<String> exportedOnLayoutLoadActionIds = new ArrayList<>();
 
+                    assertThat(DBPages).hasSize(1);
                     DBPages.forEach(newPage ->
                         newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
                             if (layout.getLayoutOnLoadActions() != null) {
@@ -488,7 +487,6 @@ public class ImportExportApplicationServiceTests {
                             }
                         })
                     );
-
                     pageList.forEach(newPage ->
                             newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
                                 if (layout.getLayoutOnLoadActions() != null) {
@@ -500,6 +498,17 @@ public class ImportExportApplicationServiceTests {
                     );
 
                     NewPage defaultPage = pageList.get(0);
+
+                    // Check if the mongo escaped widget names are carried to exported file from DB
+                    Layout pageLayout = DBPages.get(0).getUnpublishedPage().getLayouts().get(0);
+                    Set<String> mongoEscapedWidgets = pageLayout.getMongoEscapedWidgetNames();
+                    Set<String> expectedMongoEscapedWidgets = Set.of("Table1");
+                    assertThat(mongoEscapedWidgets).isEqualTo(expectedMongoEscapedWidgets);
+
+                    pageLayout = pageList.get(0).getUnpublishedPage().getLayouts().get(0);
+                    Set<String> exportedMongoEscapedWidgets = pageLayout.getMongoEscapedWidgetNames();
+                    assertThat(exportedMongoEscapedWidgets).isEqualTo(expectedMongoEscapedWidgets);
+
 
                     assertThat(exportedApp.getName()).isEqualTo(appName);
                     assertThat(exportedApp.getOrganizationId()).isNull();
