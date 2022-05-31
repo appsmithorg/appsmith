@@ -75,7 +75,7 @@ describe("Migration Validate", function() {
 
       //Validating Id column sorting happens as Datatype is Number in app!
       cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='id']",
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='id']",
       )
         .click()
         .wait(2000);
@@ -94,7 +94,7 @@ describe("Migration Validate", function() {
 
       //Revert the Id column sorting!
       cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='id']",
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='id']",
       )
         .click()
         .wait(2000);
@@ -227,7 +227,7 @@ describe("Migration Validate", function() {
           .wait(1000);
 
         cy.xpath(
-          "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='AddcreditLimit']/parent::a",
+          "//div//a[contains(@class, 'bp3-menu-item')]/span[text()='AddcreditLimit']/parent::a",
         )
           .click()
           .wait(2000);
@@ -265,7 +265,7 @@ describe("Migration Validate", function() {
           .wait(1000);
 
         cy.xpath(
-          "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='Reducecreditlimit']/parent::a",
+          "//div//a[contains(@class, 'bp3-menu-item')]/span[text()='Reducecreditlimit']/parent::a",
         )
           .click()
           .wait(2000);
