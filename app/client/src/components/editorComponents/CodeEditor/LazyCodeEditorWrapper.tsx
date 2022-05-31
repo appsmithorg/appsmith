@@ -91,6 +91,32 @@ const ContentWrapper = styled("div")<{ containsCode: boolean }>`
   border-color: inherit;
 `;
 
+/**
+ * Shimming request idle callback as it is not avaialble in Safari browser.
+ * If unavailable, then use a timeout to process callback on a separate thread.
+ */
+(window as any).requestIdleCallback =
+  (window as any).requestIdleCallback ||
+  function(
+    cb: (arg0: { didTimeout: boolean; timeRemaining: () => number }) => void,
+  ) {
+    const start = Date.now();
+    return setTimeout(function() {
+      cb({
+        didTimeout: false,
+        timeRemaining: function() {
+          return Math.max(0, 50 - (Date.now() - start));
+        },
+      });
+    }, 1);
+  };
+
+(window as any).cancelIdleCallback =
+  (window as any).cancelIdleCallback ||
+  function(id: number) {
+    clearTimeout(id);
+  };
+
 // Lazy load CodeEditor upon focus
 function LazyCodeEditorWrapper(props: any) {
   const [isFocused, setFocus] = useState<boolean>(false);
@@ -99,7 +125,9 @@ function LazyCodeEditorWrapper(props: any) {
   const [containsCode, setContainsCode] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
   const dynamicData = useSelector((state: AppState) => state.evaluations.tree);
+  let handle: number;
   const handleFocus = (): void => {
+    (window as any).cancelIdleCallback(handle);
     setFocus(true);
   };
 
@@ -154,7 +182,7 @@ function LazyCodeEditorWrapper(props: any) {
 
   useEffect(() => {
     function lazyLoadEditor() {
-      (window as any).requestIdleCallback(() => setFocus(true));
+      handle = (window as any).requestIdleCallback(() => setFocus(true));
     }
     lazyLoadEditor();
   }, []);
