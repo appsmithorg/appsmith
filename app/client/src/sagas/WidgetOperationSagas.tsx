@@ -513,10 +513,7 @@ export function* getPropertiesUpdatedWidget(
       widget.dynamicBindingPathList = dynamicBindingPathList;
       widget.dynamicTriggerPathList = dynamicTriggerPathList;
 
-      if (
-        dynamicUpdates?.dynamicPropertyPathList &&
-        dynamicUpdates?.dynamicPropertyPathList.length
-      ) {
+      if (dynamicUpdates?.dynamicPropertyPathList?.length) {
         widget.dynamicPropertyPathList = mergeDynamicPropertyPaths(
           widget.dynamicPropertyPathList,
           dynamicUpdates.dynamicPropertyPathList,

@@ -1,3 +1,8 @@
+/*
+ * Select column type is not avialbe for user to choose
+ * we're keeping this file for future usage
+ */
+
 import React from "react";
 import { noop } from "lodash";
 import SelectComponent from "widgets/SelectWidget/component";
@@ -92,7 +97,6 @@ export const SelectCell = (props: SelectProps) => {
           compactMode
           dropDownWidth={width}
           height={TABLE_SIZES[compactMode].ROW_HEIGHT}
-          hideCloseIcon
           isFilterable={false}
           isLoading={false}
           isValid
