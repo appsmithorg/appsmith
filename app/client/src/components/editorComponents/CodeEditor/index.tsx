@@ -178,9 +178,9 @@ export type EditorProps = EditorStyleProps &
     handleMouseLeave?: () => void;
     isReadOnly?: boolean;
     isRawView?: boolean;
+    isJSObject?: boolean;
     // Custom gutter
     customGutter?: CodeEditorGutter;
-    hasFocus?: boolean;
   };
 
 type Props = ReduxStateProps &
@@ -330,12 +330,6 @@ class CodeEditor extends Component<Props, State> {
       // put that code into `options.finishInit()`.
     }
     window.addEventListener("keydown", this.handleKeydown);
-
-    if (this.props.hasFocus) {
-      this.handleEditorFocus(this.editor);
-      this.editor?.focus();
-      this.editor?.setCursor(this.editor?.lineCount(), 0);
-    }
   }
 
   componentDidUpdate(prevProps: Props): void {
@@ -689,7 +683,11 @@ class CodeEditor extends Component<Props, State> {
       [],
     ) as EvaluationError[];
 
-    const annotations = getLintAnnotations(editor.getValue(), errors);
+    const annotations = getLintAnnotations(
+      editor.getValue(),
+      errors,
+      this.props.isJSObject,
+    );
 
     this.updateLintingCallback(editor, annotations);
   }
@@ -858,7 +856,7 @@ class CodeEditor extends Component<Props, State> {
             hasError={isInvalid}
             height={height}
             hoverInteraction={hoverInteraction}
-            isFocused={this.props.hasFocus || this.state.isFocused}
+            isFocused={this.state.isFocused}
             isNotHover={this.state.isFocused || this.state.isOpened}
             isRawView={this.props.isRawView}
             isReadOnly={this.props.isReadOnly}

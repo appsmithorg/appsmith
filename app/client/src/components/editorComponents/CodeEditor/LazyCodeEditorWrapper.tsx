@@ -3,7 +3,7 @@ import _ from "lodash";
 import { useSelector } from "react-redux";
 import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import js from "react-syntax-highlighter/dist/cjs/languages/prism/javascript";
-import duotoneLight from "react-syntax-highlighter/dist/esm/styles/prism/duotone-light";
+import { duotoneLight } from "react-syntax-highlighter/dist/cjs/styles/prism";
 
 import CodeEditor from "components/editorComponents/CodeEditor";
 import { EditorWrapper } from "./styledComponents";
@@ -21,7 +21,6 @@ SyntaxHighlighter.registerLanguage("javascript", js);
 
 export const ReadOnlyInput = styled.input`
   width: 100%;
-  color: #4b4848 !important;
   background-color: rgba(0, 0, 0, 0) !important;
   font-family: monospace !important;
   font-weight: 400 !important;
@@ -43,6 +42,7 @@ export const HighlighedCodeContainer = styled("div")`
   line-height: 21px !important;
 
   min-height: inherit;
+  padding: 6px 10px !important;
 
   pre {
     margin: 0 !important;
@@ -79,11 +79,16 @@ const IconWrapper = styled(Icon)`
   margin-right: 4px;
 `;
 
-const LazyEditorWrapper = styled("div")<{ lintError: string }>`
+const LazyEditorWrapper = styled("div")`
   position: relative;
+`;
+
+const ContentWrapper = styled("div")<{ containsCode: boolean }>`
+  overflow: hidden;
+  height: ${({ containsCode }) => (containsCode ? "auto" : "38px")};
   min-height: 38px;
-  border: ${(props) =>
-    props?.lintError?.length ? "1px solid red" : "1px solid black"};
+  border: 1px solid;
+  border-color: inherit;
 `;
 
 // Lazy load CodeEditor upon focus
@@ -91,6 +96,8 @@ function LazyCodeEditorWrapper(props: any) {
   const [isFocused, setFocus] = useState<boolean>(false);
   const [lintError, setLintError] = useState<string>("");
   const [showLintError, setShowLintError] = useState<boolean>(false);
+  const [containsCode, setContainsCode] = useState<boolean>(false);
+  const [text, setText] = useState<string>("");
   const dynamicData = useSelector((state: AppState) => state.evaluations.tree);
   const handleFocus = (): void => {
     setFocus(true);
@@ -124,53 +131,75 @@ function LazyCodeEditorWrapper(props: any) {
     getPropertyValidation(dynamicData, props?.dataTreePath);
   }, [dynamicData, props.dataTreePath]);
 
+  useEffect(() => {
+    const str: string = props?.input?.value || props?.placeholder || "";
+    if (str && str?.indexOf("{{") > -1) setContainsCode(true);
+    setText(Array.isArray(str) ? str.toString() : str);
+  }, [props?.input?.value, props?.placeholder]);
+
   const highlightedText = () => {
+    if (!containsCode) {
+      return <div>{text}</div>;
+    }
     return (
       <SyntaxHighlighter
         language="javascript"
         style={duotoneLight}
         wrapLongLines
       >
-        {props?.input?.value || props.placeholder || ""}
+        {text}
       </SyntaxHighlighter>
     );
   };
 
+  useEffect(() => {
+    function lazyLoadEditor() {
+      (window as any).requestIdleCallback(() => setFocus(true));
+    }
+    lazyLoadEditor();
+  }, []);
+
+  const toggleLintErrorVisibility = (flag: boolean) => () =>
+    setShowLintError(flag);
+
   return isFocused ? (
-    <CodeEditor {...props} hasFocus={isFocused} />
+    <CodeEditor {...props} />
   ) : (
-    <LazyEditorWrapper lintError={lintError}>
-      <EditorWrapper
-        border={props.border}
-        borderLess={props.borderLess}
-        className={`${props.className} ${replayHighlightClass} ${
-          lintError ? "t--codemirror-has-error" : ""
-        }`}
-        codeEditorVisibleOverflow={props.codeEditorVisibleOverflow}
-        disabled={props.disabled}
-        editorTheme={props.theme}
-        fill={props.fill}
-        hasError={false}
-        height={props.height}
-        hoverInteraction={props.hoverInteraction}
-        isFocused={isFocused}
-        isNotHover={false}
-        isRawView={false}
-        isReadOnly={false}
-        onMouseEnter={() => setShowLintError(true)}
-        onMouseLeave={() => setShowLintError(false)}
-        size={props.size}
-      >
-        <ReadOnlyInput
-          className="t--code-editor-wrapper unfocused-code-editor"
-          data-testid="lazy-code-editor"
-          onFocus={handleFocus}
-          placeholder={""}
-          type="text"
-          value={""}
-        />
-        <HighlighedCodeContainer>{highlightedText()}</HighlighedCodeContainer>
-      </EditorWrapper>
+    <LazyEditorWrapper>
+      <ContentWrapper containsCode={containsCode}>
+        <EditorWrapper
+          border={props.border}
+          borderLess={props.borderLess}
+          className={`${props.className} ${replayHighlightClass} ${
+            lintError ? "t--codemirror-has-error" : ""
+          }`}
+          codeEditorVisibleOverflow={props.codeEditorVisibleOverflow}
+          disabled={props.disabled}
+          editorTheme={props.theme}
+          fill={props.fill}
+          hasError={false}
+          height={props.height}
+          hoverInteraction={props.hoverInteraction}
+          isFocused={isFocused}
+          isNotHover={false}
+          isRawView={false}
+          isReadOnly={false}
+          onMouseEnter={toggleLintErrorVisibility(true)}
+          onMouseLeave={toggleLintErrorVisibility(false)}
+          size={props.size}
+        >
+          <ReadOnlyInput
+            className="t--code-editor-wrapper unfocused-code-editor"
+            data-testid="lazy-code-editor"
+            onFocus={handleFocus}
+            placeholder={""}
+            readOnly
+            type="text"
+            value={""}
+          />
+          <HighlighedCodeContainer>{highlightedText()}</HighlighedCodeContainer>
+        </EditorWrapper>
+      </ContentWrapper>
       {showLintError && lintError && (
         <LintErrorContainer>
           <IconWrapper
