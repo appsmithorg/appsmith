@@ -542,5 +542,5 @@ export const parseSchemaItem = (
 };
 
 export const getClosestCanvas = (node: HTMLElement | null) => {
-  return node?.closest(`${CANVAS_SELECTOR}`) as HTMLElement;
+  return node?.closest(CANVAS_SELECTOR) as HTMLElement;
 };
