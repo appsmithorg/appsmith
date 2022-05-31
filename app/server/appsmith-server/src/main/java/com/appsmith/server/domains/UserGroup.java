@@ -1,20 +1,20 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.dtos.Permission;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Document
-public class PermissionGroup extends BaseDomain {
-
+public class UserGroup extends BaseDomain {
     @NotNull
     String name;
 
     String description;
 
-    List<Permission> permissions;
-
+    // Note : While storing the users information, ensure all the sensitive and unnecessary data is cleared out before
+    // storing inside the user group.
+    List<User> users;
+    
 }
