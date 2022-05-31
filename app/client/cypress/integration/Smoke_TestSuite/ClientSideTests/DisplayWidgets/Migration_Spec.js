@@ -44,7 +44,7 @@ describe("Migration Validate", function() {
 
       //Validating Latitude & Longitude are hidden columns:
       cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='latitude']/parent::div/parent::div",
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='latitude']/ancestor::div[contains(@class, 'TableStyledWrappers__DraggableHeaderWrapper')]",
       )
         .invoke("attr", "class")
         .then((classes) => {
@@ -53,7 +53,7 @@ describe("Migration Validate", function() {
         });
 
       cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='longitude']/parent::div/parent::div",
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='longitude']/ancestor::div[contains(@class, 'TableStyledWrappers__DraggableHeaderWrapper')]",
       )
         .invoke("attr", "class")
         .then((classes) => {
