@@ -269,7 +269,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
       },
-      dependencies: ["primaryColumns", "columnOrder"],
+      dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
     },
     {
       propertyName: "menuVariant",
