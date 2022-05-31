@@ -842,7 +842,7 @@ function* executePluginActionSaga(
       plugin = yield select(getPlugin, pluginAction.pluginId);
     }
 
-    if (!!plugin) {
+    if (!!plugin && payload?.dataTypes?.length > 0) {
       const responseType = payload?.dataTypes.find(
         (type) =>
           plugin?.responseType && type.dataType === plugin?.responseType,
@@ -853,7 +853,7 @@ function* executePluginActionSaga(
           field: "responseDisplayFormat",
           value: responseType
             ? responseType?.dataType
-            : payload?.dataTypes[0].dataType,
+            : payload?.dataTypes[0]?.dataType,
         }),
       );
     }
