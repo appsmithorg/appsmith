@@ -9,7 +9,7 @@ import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SmartSubstitutionUtils {
-    public static final int SMART_JSON_SUBSTITUTION_INDEX = 0;
+    public static final int SMART_SUBSTITUTION_INDEX = 0;
 
     private static SmartSubstitutionUtils smartSubstitutionUtils;
 
@@ -21,26 +21,26 @@ public class SmartSubstitutionUtils {
         return smartSubstitutionUtils;
     }
 
-    public boolean isJsonSmartSubstitutionEnabled(List<Property> properties) {
-        boolean smartJsonSubstitution;
+    public boolean isSmartSubstitutionEnabled(List<Property> properties) {
+        boolean smartSubstitution;
         if (CollectionUtils.isEmpty(properties)) {
             // In case the smart json substitution configuration is missing, default to true
-            smartJsonSubstitution = true;
+            smartSubstitution = true;
 
             // Since properties is not empty, we are guaranteed to find the first property.
-        } else if (properties.get(SMART_JSON_SUBSTITUTION_INDEX) != null) {
-            Object ssubValue = properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue();
+        } else if (properties.get(SMART_SUBSTITUTION_INDEX) != null) {
+            Object ssubValue = properties.get(SMART_SUBSTITUTION_INDEX).getValue();
             if (ssubValue instanceof Boolean) {
-                smartJsonSubstitution = (Boolean) ssubValue;
+                smartSubstitution = (Boolean) ssubValue;
             } else if (ssubValue instanceof String) {
-                smartJsonSubstitution = Boolean.parseBoolean((String) ssubValue);
+                smartSubstitution = Boolean.parseBoolean((String) ssubValue);
             } else {
-                smartJsonSubstitution = true;
+                smartSubstitution = true;
             }
         } else {
-            smartJsonSubstitution = true;
+            smartSubstitution = true;
         }
 
-        return smartJsonSubstitution;
+        return smartSubstitution;
     }
 }
