@@ -159,6 +159,9 @@ function LazyCodeEditorWrapper(props: any) {
     lazyLoadEditor();
   }, []);
 
+  const toggleLintErrorVisibility = (flag: boolean) => () =>
+    setShowLintError(flag);
+
   return isFocused ? (
     <CodeEditor {...props} />
   ) : (
@@ -181,8 +184,8 @@ function LazyCodeEditorWrapper(props: any) {
           isNotHover={false}
           isRawView={false}
           isReadOnly={false}
-          onMouseEnter={() => setShowLintError(true)}
-          onMouseLeave={() => setShowLintError(false)}
+          onMouseEnter={toggleLintErrorVisibility(true)}
+          onMouseLeave={toggleLintErrorVisibility(false)}
           size={props.size}
         >
           <ReadOnlyInput
