@@ -64,10 +64,10 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     agHelper.GetNClickByContains(dataSources._dropdownOption, "friends");
 
     GenerateCRUDNValidateDeployPage(
-      "103",
-      "Atelier graphique",
-      "Schmitt",
-      "customerNumber",
+      "<p>Monica's old friend Rachel moves in with her after leaving her fiancé.</p>",
+      `1994-09-22`,
+      "http://www.tvmaze.com/episodes/40646/friends-1x01-the-one-where-it-all-began",
+      "Id",
     );
 
     agHelper.NavigateBacktoEditor();
@@ -97,10 +97,10 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
-    table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 3, 200).then(($cellData) => {
       expect($cellData).to.eq(col2Text);
     });
-    table.ReadTableRowColumnData(0, 2, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 6, 200).then(($cellData) => {
       expect($cellData).to.eq(col3Text);
     });
 
@@ -113,6 +113,6 @@ describe("Validate Mongo CRUD with JSON Form", () => {
           expect(classes).not.contain("bp3-disabled");
         });
     });
-    dataSources.AssertJSONFormHeader(0, 0, jsonFromHeader);
+    dataSources.AssertJSONFormHeader(0, 11, jsonFromHeader);
   }
 });

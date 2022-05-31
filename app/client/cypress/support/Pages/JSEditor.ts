@@ -99,7 +99,7 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    //this.agHelper.WaitUntilEleDisappear(this.locator._toastMsg, 'created successfully')
+    //this.agHelper.WaitUntilToastDisappear('created successfully')
     this.agHelper.Sleep();
   }
 
