@@ -22,6 +22,7 @@ import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 export function defaultValueValidation(
   value: any,
@@ -484,6 +485,9 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
+        isDynamicHeightEnabled={
+          this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS
+        }
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
