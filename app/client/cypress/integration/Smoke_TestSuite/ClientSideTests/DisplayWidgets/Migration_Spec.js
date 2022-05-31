@@ -199,10 +199,10 @@ describe("Migration Validate", function() {
           });
         });
 
-        cy.get(selector + " span.bp3-popover-target span")
+        cy.get(selector + " span")
           .invoke("text")
           .then((url) => {
-            cy.get(selector + " span.bp3-popover-target span")
+            cy.get(selector + " span")
               .click({ force: true })
               .wait(2000);
             cy.wait("@postExecute");
@@ -227,7 +227,7 @@ describe("Migration Validate", function() {
           .wait(1000);
 
         cy.xpath(
-          "//div//a[contains(@class, 'bp3-menu-item')]/span[text()='AddcreditLimit']/parent::a",
+          "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='AddcreditLimit']/parent::a",
         )
           .click()
           .wait(2000);
@@ -265,7 +265,7 @@ describe("Migration Validate", function() {
           .wait(1000);
 
         cy.xpath(
-          "//div//a[contains(@class, 'bp3-menu-item')]/span[text()='Reducecreditlimit']/parent::a",
+          "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='Reducecreditlimit']/parent::a",
         )
           .click()
           .wait(2000);
@@ -377,10 +377,10 @@ describe("Migration Validate", function() {
           });
         });
 
-        cy.get(selector + " span.bp3-popover-target span")
+        cy.get(selector + " span")
           .invoke("text")
           .then((url) => {
-            cy.get(selector + " span.bp3-popover-target")
+            cy.get(selector + " span")
               .click({ force: true })
               .wait(2000);
             cy.wait("@postExecute");
