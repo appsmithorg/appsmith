@@ -20,5 +20,12 @@ public class ApplicationGitReference {
     Map<String, Object> actionsCollections;
     Map<String, Object> pages;
     Map<String, Object> datasources;
+
+    /**
+     * This field will be used to store map of files to be updated in local file system by comparing the recent
+     * changes in database and the last local git commit.
+     * This field can be used while saving resources to local file system and only update the resource files which
+     * are updated in the database.
+     */
     Map<String, Map<String, Boolean>> updatedResources;
 }

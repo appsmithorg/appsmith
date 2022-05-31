@@ -172,7 +172,7 @@ public class FileUtilsImpl implements FileInterface {
                         final String pageName = pageResource.getKey();
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
                         Boolean isResourceUpdated = updatedResources.get(PAGE_LIST).get(pageName);
-                        if(isResourceUpdated != null && isResourceUpdated){
+                        if(Boolean.TRUE.equals(isResourceUpdated)) {
                             saveFile(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
                         }
                         validPages.add(pageName);
@@ -195,14 +195,13 @@ public class FileUtilsImpl implements FileInterface {
                             final String queryName = names[0].replace(".", "-");
                             final String pageName = names[1];
                             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
-                            Set<String> quriesSet = new HashSet<>();
-                            quriesSet.add(queryName + CommonConstants.JSON_EXTENSION);
-                            if(validActionsMap.containsKey(pageName)) {
-                                quriesSet.addAll(validActionsMap.get(pageName));
-                            }
-                            validActionsMap.put(pageName, quriesSet);
 
-                            if(isResourceUpdated != null && isResourceUpdated) {
+                            if(!validActionsMap.containsKey(pageName)) {
+                                validActionsMap.put(pageName, new HashSet<>());
+                            }
+                            validActionsMap.get(pageName).add(queryName + CommonConstants.JSON_EXTENSION);
+
+                            if(Boolean.TRUE.equals(isResourceUpdated)) {
                                 saveFile(
                                         resource.getValue(),
                                         pageSpecificDirectory.resolve(ACTION_DIRECTORY).resolve(queryName + CommonConstants.JSON_EXTENSION),
@@ -232,13 +231,12 @@ public class FileUtilsImpl implements FileInterface {
                             final String pageName = names[1];
                             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
 
-                            Set<String> actionCollectionSet = new HashSet<>();
-                            actionCollectionSet.add(actionCollectionName + CommonConstants.JSON_EXTENSION);
-                            if(validActionCollectionsMap.containsKey(pageName)) {
-                                actionCollectionSet.addAll(validActionCollectionsMap.get(pageName));
+                            if(!validActionCollectionsMap.containsKey(pageName)) {
+                                validActionCollectionsMap.put(pageName, new HashSet<>());
                             }
-                            validActionCollectionsMap.put(pageName, actionCollectionSet);
-                            if(isResourceUpdated != null && isResourceUpdated) {
+                            validActionCollectionsMap.get(pageName).add(actionCollectionName + CommonConstants.JSON_EXTENSION);
+
+                            if(Boolean.TRUE.equals(isResourceUpdated)) {
                                 saveFile(
                                         resource.getValue(),
                                         pageSpecificDirectory.resolve(ACTION_COLLECTION_DIRECTORY).resolve(actionCollectionName + CommonConstants.JSON_EXTENSION),
