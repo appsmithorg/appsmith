@@ -50,7 +50,7 @@ export class DataSources {
     "//div[@data-guided-tour-id='query-table-response']//div[@class='tbody']//div[@class ='td']";
   _refreshIcon = "button .bp3-icon-refresh";
   _addIcon = "button .bp3-icon-add";
-  _queryError = "span.t--query-error"
+  _queryError = "span.t--query-error";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -208,7 +208,10 @@ export class DataSources {
     this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
   }
 
-  public DeleteDatasouceFromWinthinDS(datasourceName: string, expectedStatus = 200) {
+  public DeleteDatasouceFromWinthinDS(
+    datasourceName: string,
+    expectedStatus = 200,
+  ) {
     this.NavigateToDSCreateNew();
     this.agHelper.GetNClick(this._activeTab);
     cy.get(this._datasourceCard)
@@ -280,7 +283,10 @@ export class DataSources {
 
   RunQuery(expectedStatus = true) {
     cy.get(this._runQueryBtn).click({ force: true });
-    this.agHelper.ValidateNetworkExecutionSuccess("@postExecute", expectedStatus);
+    this.agHelper.ValidateNetworkExecutionSuccess(
+      "@postExecute",
+      expectedStatus,
+    );
   }
 
   public ReadQueryTableResponse(index: number, timeout = 100) {
@@ -297,14 +303,21 @@ export class DataSources {
     colIndex: number,
     headerString: string,
     validateCellData: "" | string = "",
+    isMongo = false,
   ) {
+    let jsonHeaderString = "";
     this.table.ReadTableRowColumnData(rowindex, colIndex).then(($cellData) => {
       if (validateCellData) expect($cellData).to.eq(validateCellData);
+
+      jsonHeaderString =
+        isMongo == true
+          ? "Update Document " + headerString + ": " + $cellData
+          : "Update Row " + headerString + ": " + $cellData;
       this.agHelper
         .GetText(this.locator._jsonFormHeader)
         .then(($header: any) =>
           expect($header).to.eq(
-            "Update Row " + headerString + ": " + $cellData,
+            jsonHeaderString,
           ),
         );
     });
