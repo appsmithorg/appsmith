@@ -18,6 +18,7 @@ import {
   JSToString,
   stringToJS,
 } from "components/editorComponents/ActionCreator/Fields";
+import { TruthyPrimitiveTypes } from "utils/TypeHelpers";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -39,7 +40,10 @@ function InputText(props: {
   expected?: CodeEditorExpected;
   placeholder?: string;
   dataTreePath?: string;
-  additionalDynamicData: Record<string, Record<string, unknown> | unknown>;
+  additionalDynamicData: Record<
+    string,
+    Record<string, unknown> | TruthyPrimitiveTypes
+  >;
   theme: EditorTheme;
 }) {
   const {

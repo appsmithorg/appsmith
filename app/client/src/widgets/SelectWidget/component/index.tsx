@@ -408,7 +408,6 @@ export interface SelectComponentProps extends ComponentProps {
   borderRadius: string;
   boxShadow?: string;
   accentColor?: string;
-  hideCloseIcon?: boolean;
 }
 
 export default React.memo(SelectComponent);

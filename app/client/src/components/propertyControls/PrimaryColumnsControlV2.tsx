@@ -19,8 +19,8 @@ import {
   getDefaultColumnProperties,
   getTableStyles,
   isColumnTypeEditable,
+  reorderColumns,
 } from "widgets/TableWidgetV2/widget/utilities";
-import { reorderColumns } from "widgets/TableWidgetV2/component/TableHelpers";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import {
