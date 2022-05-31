@@ -61,6 +61,30 @@ init_env_file() {
   set +o allexport
 }
 
+setup_proxy_variables() {
+  export NO_PROXY="${NO_PROXY-localhost,127.0.0.1}"
+
+  # If one of HTTPS_PROXY or https_proxy are set, copy it to the other. If both are set, prefer HTTPS_PROXY.
+  if [[ -n ${HTTPS_PROXY-} ]]; then
+    export https_proxy="$HTTPS_PROXY"
+  elif [[ -n ${https_proxy-} ]]; then
+    export HTTPS_PROXY="$https_proxy"
+  fi
+
+  # If set for HTTPS, use the same for HTTP. This is how the apache HttpClient behaves, which the rest plugin uses, so we do it everywhere do be consistent.
+  if [[ -n ${HTTPS_PROXY-} ]]; then
+    export HTTP_PROXY="$HTTPS_PROXY"
+    export http_proxy="$HTTPS_PROXY"
+  else
+    # If one of HTTP_PROXY or http_proxy are set, copy it to the other. If both are set, prefer HTTP_PROXY.
+    if [[ -n ${HTTP_PROXY-} ]]; then
+      export http_proxy="$HTTP_PROXY"
+    elif [[ -n ${http_proxy-} ]]; then
+      export HTTP_PROXY="$http_proxy"
+    fi
+  fi
+}
+
 unset_unused_variables() {
   # Check for enviroment vairalbes
   echo "Checking environment configuration"
@@ -255,9 +279,8 @@ check_redis_compatible_page_size() {
 }
 
 # Main Section
-export NO_PROXY="${NO_PROXY-localhost,127.0.0.1}"
-
 init_env_file
+setup_proxy_variables
 unset_unused_variables
 
 check_mongodb_uri
