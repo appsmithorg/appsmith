@@ -110,7 +110,7 @@ export function MenuButtonCell(props: RenderMenuButtonProps) {
       textSize={textSize}
       verticalAlignment={verticalAlignment}
     >
-      <MenuButton {...props} />
+      <MenuButton {...props} iconName={props.iconName || undefined} />
     </CellWrapper>
   );
 }

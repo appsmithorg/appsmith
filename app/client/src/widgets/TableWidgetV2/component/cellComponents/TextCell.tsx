@@ -83,6 +83,7 @@ const Content = styled.div`
   display: inline;
   overflow: hidden;
   text-overflow: ellipsis;
+  width: 100%;
 `;
 
 interface PropType extends RenderDefaultPropsType {
