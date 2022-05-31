@@ -126,10 +126,6 @@ export function* bindDataToWidgetSaga(
       propertyPath = "tableData";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
-    case WidgetTypes.TABLE_WIDGET_V2:
-      propertyPath = "tableData";
-      propertyValue = `{{${currentAction.config.name}.data}}`;
-      break;
     case WidgetTypes.TEXT_WIDGET:
       propertyPath = "text";
       propertyValue = `{{${currentAction.config.name}.data}}`;

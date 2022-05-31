@@ -62,7 +62,6 @@ import equal from "fast-deep-equal/es6";
 import { sanitizeKey } from "widgets/WidgetUtils";
 import DefaultCell from "../component/cellComponents/DefaultCell";
 import { ButtonCell } from "../component/cellComponents/ButtonCell";
-import { SelectCell } from "../component/cellComponents/SelectCell";
 import { MenuButtonCell } from "../component/cellComponents/MenuButtonCell";
 import { ImageCell } from "../component/cellComponents/ImageCell";
 import { VideoCell } from "../component/cellComponents/VideoCell";
@@ -1319,47 +1318,51 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           />
         );
 
-      case ColumnTypes.SELECT:
-        const onSelect = (value: string) => {
-          this.updateTransientTableData({
-            __original_index__: this.getRowOriginalIndex(rowIndex),
-            [props.cell.column.columnProperties.alias]: value,
-          });
+      /*
+       * Selec column type is not available for users yet
+       * Keeping this changes for future usuage
+       */
+      // case ColumnTypes.SELECT:
+      //   const onSelect = (value: string) => {
+      //     this.updateTransientTableData({
+      //       __original_index__: this.getRowOriginalIndex(rowIndex),
+      //       [props.cell.column.columnProperties.alias]: value,
+      //     });
 
-          if (column.onOptionChange) {
-            this.onColumnEvent({
-              rowIndex,
-              action: column.onOptionChange,
-              triggerPropertyName: "onOptionChange",
-              eventType: EventType.ON_OPTION_CHANGE,
-            });
-          }
-        };
+      //     if (column.onOptionChange) {
+      //       this.onColumnEvent({
+      //         rowIndex,
+      //         action: column.onOptionChange,
+      //         triggerPropertyName: "onOptionChange",
+      //         eventType: EventType.ON_OPTION_CHANGE,
+      //       });
+      //     }
+      //   };
 
-        return (
-          <SelectCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            borderRadius={cellProperties.borderRadius}
-            cellBackground={cellProperties.cellBackground}
-            compactMode={compactMode}
-            fontStyle={cellProperties.fontStyle}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            isCellEditable={cellProperties.isCellEditable}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isEditable={isColumnEditable}
-            isHidden={isHidden}
-            onItemSelect={onSelect}
-            options={column.selectOptions}
-            tableWidth={componentWidth}
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            value={props.cell.value}
-            verticalAlignment={cellProperties.verticalAlignment}
-            width={
-              this.props.columnWidthMap?.[column.id] || DEFAULT_COLUMN_WIDTH
-            }
-          />
-        );
+      //   return (
+      //     <SelectCell
+      //       allowCellWrapping={cellProperties.allowCellWrapping}
+      //       borderRadius={cellProperties.borderRadius}
+      //       cellBackground={cellProperties.cellBackground}
+      //       compactMode={compactMode}
+      //       fontStyle={cellProperties.fontStyle}
+      //       horizontalAlignment={cellProperties.horizontalAlignment}
+      //       isCellEditable={cellProperties.isCellEditable}
+      //       isCellVisible={cellProperties.isCellVisible ?? true}
+      //       isEditable={isColumnEditable}
+      //       isHidden={isHidden}
+      //       onItemSelect={onSelect}
+      //       options={column.selectOptions}
+      //       tableWidth={componentWidth}
+      //       textColor={cellProperties.textColor}
+      //       textSize={cellProperties.textSize}
+      //       value={props.cell.value}
+      //       verticalAlignment={cellProperties.verticalAlignment}
+      //       width={
+      //         this.props.columnWidthMap?.[column.id] || DEFAULT_COLUMN_WIDTH
+      //       }
+      //     />
+      //   );
 
       case ColumnTypes.IMAGE:
         const onClick = column.onClick

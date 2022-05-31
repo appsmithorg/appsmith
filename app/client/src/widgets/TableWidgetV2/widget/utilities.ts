@@ -1,6 +1,6 @@
 import { Colors } from "constants/Colors";
 import { FontStyleTypes } from "constants/WidgetConstants";
-import _, { isBoolean, isObject } from "lodash";
+import _, { isBoolean, isObject, uniq, without } from "lodash";
 import tinycolor from "tinycolor2";
 import {
   CellAlignmentTypes,
@@ -489,4 +489,25 @@ export const getStylesheetValue = (
   const columnType = get(props, `primaryColumns.${columnName}.columnType`);
 
   return get(widgetStylesheet, `childStylesheet.${columnType}.${propertyName}`);
+};
+
+export const reorderColumns = (
+  columns: Record<string, ColumnProperties>,
+  columnOrder: string[],
+) => {
+  const newColumnsInOrder: Record<string, ColumnProperties> = {};
+  uniq(columnOrder).forEach((id: string, index: number) => {
+    if (columns[id]) newColumnsInOrder[id] = { ...columns[id], index };
+  });
+  const remaining = without(
+    Object.keys(columns),
+    ...Object.keys(newColumnsInOrder),
+  );
+  const len = Object.keys(newColumnsInOrder).length;
+  if (remaining && remaining.length > 0) {
+    remaining.forEach((id: string, index: number) => {
+      newColumnsInOrder[id] = { ...columns[id], index: len + index };
+    });
+  }
+  return newColumnsInOrder;
 };
