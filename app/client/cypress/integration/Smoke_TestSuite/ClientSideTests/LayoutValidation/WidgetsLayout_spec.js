@@ -5,7 +5,7 @@ describe("Visual regression tests", () => {
   //  3. New screenshot will be generated in the snapshot folder
 
   it("Verify SwitchGroup inline enable/disbale", () => {
-    cy.dragAndDropToCanvas("switchgroupwidget", { x: 300, y: 700 });
+    cy.dragAndDropToCanvas("switchgroupwidget", { x: 300, y: 300 });
     cy.wait(1000);
 
     //Verify default check
