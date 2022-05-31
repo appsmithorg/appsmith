@@ -56,7 +56,8 @@ function PropertyPaneView(
   const editingProperty: EditingProperty = useSelector(
     widgetContextSelector,
     (left, right) => {
-      return left?.widgetId === right?.widgetId;
+      if (!right) return true;
+      return left?.widgetId === right.widgetId;
     },
   );
   const doActionsExist = useSelector(actionsExist);
