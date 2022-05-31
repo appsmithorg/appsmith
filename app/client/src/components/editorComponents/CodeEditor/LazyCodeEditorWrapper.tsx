@@ -3,7 +3,7 @@ import _ from "lodash";
 import { useSelector } from "react-redux";
 import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import js from "react-syntax-highlighter/dist/cjs/languages/prism/javascript";
-import { duotoneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { duotoneLight } from "react-syntax-highlighter/dist/cjs/styles/prism";
 
 import CodeEditor from "components/editorComponents/CodeEditor";
 import { EditorWrapper } from "./styledComponents";
@@ -79,13 +79,16 @@ const IconWrapper = styled(Icon)`
   margin-right: 4px;
 `;
 
-const LazyEditorWrapper = styled("div")<{ containsCode: boolean }>`
+const LazyEditorWrapper = styled("div")`
   position: relative;
+`;
+
+const ContentWrapper = styled("div")<{ containsCode: boolean }>`
+  overflow: hidden;
+  height: ${({ containsCode }) => (containsCode ? "auto" : "38px")};
   min-height: 38px;
   border: 1px solid;
   border-color: inherit;
-  height: ${({ containsCode }) => (containsCode ? "auto" : "38px")};
-  overflow: hidden;
 `;
 
 // Lazy load CodeEditor upon focus
@@ -130,7 +133,7 @@ function LazyCodeEditorWrapper(props: any) {
 
   useEffect(() => {
     const str: string = props?.input?.value || props?.placeholder || "";
-    if (str && text?.indexOf("{{") > -1) setContainsCode(true);
+    if (str && str?.indexOf("{{") > -1) setContainsCode(true);
     setText(Array.isArray(str) ? str.toString() : str);
   }, [props?.input?.value, props?.placeholder]);
 
@@ -159,39 +162,41 @@ function LazyCodeEditorWrapper(props: any) {
   return isFocused ? (
     <CodeEditor {...props} />
   ) : (
-    <LazyEditorWrapper containsCode={containsCode}>
-      <EditorWrapper
-        border={props.border}
-        borderLess={props.borderLess}
-        className={`${props.className} ${replayHighlightClass} ${
-          lintError ? "t--codemirror-has-error" : ""
-        }`}
-        codeEditorVisibleOverflow={props.codeEditorVisibleOverflow}
-        disabled={props.disabled}
-        editorTheme={props.theme}
-        fill={props.fill}
-        hasError={false}
-        height={props.height}
-        hoverInteraction={props.hoverInteraction}
-        isFocused={isFocused}
-        isNotHover={false}
-        isRawView={false}
-        isReadOnly={false}
-        onMouseEnter={() => setShowLintError(true)}
-        onMouseLeave={() => setShowLintError(false)}
-        size={props.size}
-      >
-        <ReadOnlyInput
-          className="t--code-editor-wrapper unfocused-code-editor"
-          data-testid="lazy-code-editor"
-          onFocus={handleFocus}
-          placeholder={""}
-          readOnly
-          type="text"
-          value={""}
-        />
-        <HighlighedCodeContainer>{highlightedText()}</HighlighedCodeContainer>
-      </EditorWrapper>
+    <LazyEditorWrapper>
+      <ContentWrapper containsCode={containsCode}>
+        <EditorWrapper
+          border={props.border}
+          borderLess={props.borderLess}
+          className={`${props.className} ${replayHighlightClass} ${
+            lintError ? "t--codemirror-has-error" : ""
+          }`}
+          codeEditorVisibleOverflow={props.codeEditorVisibleOverflow}
+          disabled={props.disabled}
+          editorTheme={props.theme}
+          fill={props.fill}
+          hasError={false}
+          height={props.height}
+          hoverInteraction={props.hoverInteraction}
+          isFocused={isFocused}
+          isNotHover={false}
+          isRawView={false}
+          isReadOnly={false}
+          onMouseEnter={() => setShowLintError(true)}
+          onMouseLeave={() => setShowLintError(false)}
+          size={props.size}
+        >
+          <ReadOnlyInput
+            className="t--code-editor-wrapper unfocused-code-editor"
+            data-testid="lazy-code-editor"
+            onFocus={handleFocus}
+            placeholder={""}
+            readOnly
+            type="text"
+            value={""}
+          />
+          <HighlighedCodeContainer>{highlightedText()}</HighlighedCodeContainer>
+        </EditorWrapper>
+      </ContentWrapper>
       {showLintError && lintError && (
         <LintErrorContainer>
           <IconWrapper
