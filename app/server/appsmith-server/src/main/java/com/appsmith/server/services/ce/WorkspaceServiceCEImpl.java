@@ -138,7 +138,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE));
         }
 
-        // Does the user have permissions to create an workspace?
+        // Does the user have permissions to create a workspace?
         boolean isManageOrgPolicyPresent = user.getPolicies().stream()
                 .anyMatch(policy -> policy.getPermission().equals(USER_MANAGE_WORKSPACES.getValue()));
 
@@ -151,6 +151,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         }
 
         workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
+        workspace.setTenantId(user.getTenantId());
 
         return validateObject(workspace)
                 // Install all the default plugins when the org is created
@@ -244,10 +245,10 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     }
 
     @Override
-    public Flux<Workspace> findByIdsIn(Set<String> ids, AclPermission permission) {
+    public Flux<Workspace> findByIdsIn(Set<String> ids, String tenantId, AclPermission permission) {
         Sort sort = Sort.by(FieldName.NAME);
 
-        return repository.findByIdsIn(ids, permission, sort);
+        return repository.findByIdsIn(ids, tenantId, permission, sort);
     }
 
     @Override

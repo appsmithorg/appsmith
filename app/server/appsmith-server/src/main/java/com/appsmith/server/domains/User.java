@@ -82,6 +82,8 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @Transient
     Boolean isAnonymous = false;
 
+    private String tenantId;
+
     // TODO: Populate these attributes for a user. Generally required for OAuth2 logins
     @Override
     public Map<String, Object> getAttributes() {

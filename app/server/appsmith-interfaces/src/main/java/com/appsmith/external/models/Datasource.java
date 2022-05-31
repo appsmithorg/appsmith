@@ -75,6 +75,9 @@ public class Datasource extends BaseDomain {
      */
     Boolean isConfigured;
 
+    @Transient
+    Boolean isRecentlyCreated;
+
     /**
      * This method is here so that the JSON version of this class' instances have a `isValid` field, for backwards
      * compatibility. It may be removed, when sure that no API received is relying on this field.

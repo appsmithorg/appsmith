@@ -207,6 +207,7 @@ class IconSelectControl extends BaseControl<
             icon={iconName || defaultIconName}
             onClick={this.handleButtonClick}
             rightIcon="caret-down"
+            tabIndex={0}
             text={iconName || defaultIconName || NONE}
           />
         </TypedSelect>

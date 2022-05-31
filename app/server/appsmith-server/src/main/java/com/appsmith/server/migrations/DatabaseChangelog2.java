@@ -35,6 +35,7 @@ import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QAction;
 import com.appsmith.server.domains.QActionCollection;
+import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QCollection;
 import com.appsmith.server.domains.QComment;
@@ -56,6 +57,10 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.UsagePulse;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.QTenant;
+import com.appsmith.server.domains.Sequence;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.ActionDTO;
@@ -70,7 +75,6 @@ import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
-
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 
@@ -82,6 +86,7 @@ import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -805,6 +810,7 @@ public class DatabaseChangelog2 {
         );
     }
 
+
     /**
      * We'll remove the uniqe index on organization slugs. We'll also regenerate the slugs for all organizations as
      * most of them are outdated
@@ -875,7 +881,70 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "013", id = "migrate-organizationId-to-workspaceId-in-datasource", author = "")
+    @ChangeSet(order = "012", id = "add-default-tenant", author = "")
+    public void addDefaultTenant(MongockTemplate mongockTemplate) {
+
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant tenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+
+        // if tenant already exists, don't create a new one.
+        if (tenant != null) {
+            return;
+        }
+
+        Tenant defaultTenant = new Tenant();
+        defaultTenant.setDisplayName("Default");
+        defaultTenant.setSlug("default");
+        defaultTenant.setPricingPlan(PricingPlan.FREE);
+
+        mongockTemplate.save(defaultTenant);
+
+    }
+
+    @ChangeSet(order = "013", id = "add-tenant-to-all-workspaces", author = "")
+    public void addTenantToWorkspaces(MongockTemplate mongockTemplate) {
+
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+        assert(defaultTenant != null);
+
+        // Set all the workspaces to be under the default tenant
+        mongockTemplate.updateMulti(
+                new Query(),
+                new Update().set("tenantId", defaultTenant.getId()),
+                Workspace.class
+        );
+
+    }
+
+    @ChangeSet(order = "014", id = "add-tenant-to-all-users-and-flush-redis", author = "")
+    public void addTenantToUsersAndFlushRedis(MongockTemplate mongockTemplate, ReactiveRedisOperations<String, String>reactiveRedisOperations) {
+
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+        assert(defaultTenant != null);
+
+        // Set all the users to be under the default tenant
+        mongockTemplate.updateMulti(
+                new Query(),
+                new Update().set("tenantId", defaultTenant.getId()),
+                User.class
+        );
+
+        // Now sign out all the existing users since this change impacts the user object.
+        final String script =
+                "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))" +
+                        " do redis.call('del',k) " +
+                        "end";
+        final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
+
+        flushdb.subscribe();
+    }
+
+    @ChangeSet(order = "015", id = "migrate-organizationId-to-workspaceId-in-datasource", author = "")
     public void migrateOrganizationIdToWorkspaceIdInDatasource(MongockTemplate mongockTemplate) {
         try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Datasource.class))
             .stream()) { 
@@ -886,8 +955,8 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "014", id = "migrate-organizationId-to-workspaceId-in-user", author = "")
-    public void migrateOrganizationIdToWorkspaceIdInUser(MongockTemplate mongockTemplate) {
+    @ChangeSet(order = "016", id = "migrate-organizationId-to-workspaceId-in-user-and-flush-redis", author = "")
+    public void migrateOrganizationIdToWorkspaceIdInUserAndFlushRedis(MongockTemplate mongockTemplate, ReactiveRedisOperations<String, String>reactiveRedisOperations) {
         try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(User.class))
             .stream()) { 
             stream.forEach((document) -> {
@@ -897,11 +966,7 @@ public class DatabaseChangelog2 {
                 mongockTemplate.save(document, mongockTemplate.getCollectionName(User.class));
             });
         }
-    }
-
-    //Clear all sessions as user object is updated
-    @ChangeSet(order = "115", id = "clear-spring-redis-sessions", author = "")
-    public void clearSpringRedisSession(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
+        // Now sign out all the existing users since this change impacts the user object.
         final String script =
                 "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))" +
                         " do redis.call('del',k) " +
@@ -911,7 +976,7 @@ public class DatabaseChangelog2 {
         flushdb.subscribe();
     }
 
-    @ChangeSet(order = "016", id = "migrate-organizationId-to-workspaceId-in-action", author = "")
+    @ChangeSet(order = "017", id = "migrate-organizationId-to-workspaceId-in-action", author = "")
     public void migrateOrganizationIdToWorkspaceIdInAction(MongockTemplate mongockTemplate) {
         try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Action.class))
             .stream()) { 
@@ -922,7 +987,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "017", id = "migrate-organizationId-to-workspaceId-in-actioncollection", author = "")
+    @ChangeSet(order = "018", id = "migrate-organizationId-to-workspaceId-in-actioncollection", author = "")
     public void migrateOrganizationIdToWorkspaceIdInActionCollection(MongockTemplate mongockTemplate) {
         try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(ActionCollection.class))
             .stream()) { 
@@ -933,7 +998,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "018", id = "migrate-organizationId-to-workspaceId-in-application", author = "")
+    @ChangeSet(order = "019", id = "migrate-organizationId-to-workspaceId-in-application", author = "")
     public void migrateOrganizationIdToWorkspaceIdInApplication(MongockTemplate mongockTemplate) {
         try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Application.class))
             .stream()) { 
@@ -944,7 +1009,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "019", id = "migrate-organizationId-to-workspaceId-in-newaction", author = "")
+    @ChangeSet(order = "020", id = "migrate-organizationId-to-workspaceId-in-newaction", author = "")
     public void migrateOrganizationIdToWorkspaceIdInNewAction(MongockTemplate mongockTemplate) {
         try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(NewAction.class))
             .stream()) { 
@@ -955,7 +1020,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "020", id = "migrate-organizationId-to-workspaceId-in-collection", author = "")
+    @ChangeSet(order = "021", id = "migrate-organizationId-to-workspaceId-in-collection", author = "")
     public void migrateOrganizationIdToWorkspaceIdInCollection(MongockTemplate mongockTemplate) {
         try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Collection.class))
             .stream()) { 
@@ -966,7 +1031,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "021", id = "migrate-organizationId-to-workspaceId-in-group", author = "")
+    @ChangeSet(order = "022", id = "migrate-organizationId-to-workspaceId-in-group", author = "")
     public void migrateOrganizationIdToWorkspaceIdInGroup(MongockTemplate mongockTemplate) {
         try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Group.class))
             .stream()) { 
@@ -977,7 +1042,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "022", id = "migrate-organizationId-to-workspaceId-in-theme", author = "")
+    @ChangeSet(order = "023", id = "migrate-organizationId-to-workspaceId-in-theme", author = "")
     public void migrateOrganizationIdToWorkspaceIdInTheme(MongockTemplate mongockTemplate) {
         try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Theme.class))
             .stream()) { 
@@ -988,7 +1053,7 @@ public class DatabaseChangelog2 {
         }
     }
     
-    @ChangeSet(order = "023", id = "migrate-organizationId-to-workspaceId-in-userdata", author = "")
+    @ChangeSet(order = "024", id = "migrate-organizationId-to-workspaceId-in-userdata", author = "")
     public void migrateOrganizationIdToWorkspaceIdInUserData(MongockTemplate mongockTemplate) {
         try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(UserData.class))
             .stream()) { 
@@ -999,7 +1064,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "024", id = "migrate-organizationId-to-workspaceId-in-workspace", author = "")
+    @ChangeSet(order = "025", id = "migrate-organizationId-to-workspaceId-in-workspace", author = "")
     public void migrateOrganizationIdToWorkspaceIdInWorkspace(MongockTemplate mongockTemplate) {
         try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Workspace.class))
             .stream()) { 
@@ -1010,7 +1075,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "025", id = "migrate-organizationId-to-workspaceId-in-abstract-comment-domain", author = "")
+    @ChangeSet(order = "026", id = "migrate-organizationId-to-workspaceId-in-abstract-comment-domain", author = "")
     public void migrateOrganizationIdToWorkspaceIdInAbstractCommentDomain(MongockTemplate mongockTemplate) {
         try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Comment.class))
             .stream()) { 
@@ -1028,7 +1093,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "026", id = "organization-to-workspace-indexes-recreate", author = "")
+    @ChangeSet(order = "027", id = "organization-to-workspace-indexes-recreate", author = "")
     public void organizationToWorkspaceIndexesRecreate(MongockTemplate mongockTemplate) {
         dropIndexIfExists(mongockTemplate, Application.class, "organization_application_deleted_gitApplicationMetadata_compound_index");
         dropIndexIfExists(mongockTemplate, Datasource.class, "organization_datasource_deleted_compound_index");
@@ -1113,7 +1178,7 @@ public class DatabaseChangelog2 {
         log.info("Done upgrading {}", domainClass.getName());
     }
 
-    @ChangeSet(order = "027", id = "upgrade-acl-permission", author = "")
+    @ChangeSet(order = "028", id = "upgrade-acl-permission", author = "")
     public void upgradeAclPermission(MongockTemplate mongockTemplate) {
         // List of domain classes that contains policies
         List<Class<? extends BaseDomain>> models = Arrays.asList(
@@ -1161,7 +1226,7 @@ public class DatabaseChangelog2 {
         return roleMapping.getOrDefault(role, role);
     }
 
-    @ChangeSet(order = "028", id = "update-role-in-inviteuser", author = "")
+    @ChangeSet(order = "029", id = "update-role-in-inviteuser", author = "")
     public void updateRoleInInviteUser(MongockTemplate mongockTemplate) {
         try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(InviteUser.class))
             .stream()) { 
@@ -1204,7 +1269,7 @@ public class DatabaseChangelog2 {
         return true;
     }
 
-    @ChangeSet(order = "029", id = "update-role-in-workspace", author = "")
+    @ChangeSet(order = "030", id = "update-role-in-workspace", author = "")
     public void updateRoleInWorkspace(MongockTemplate mongockTemplate) {
         try(Stream<Document> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Document.class, mongockTemplate.getCollectionName(Workspace.class))
             .stream()) { 
@@ -1216,7 +1281,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "030", id = "update-template-organization-config", author = "")
+    @ChangeSet(order = "031", id = "update-template-organization-config", author = "")
     public void updateTemplateOrganizationConfig(MongockTemplate mongockTemplate) {
         Config config = mongockTemplate.findOne(query(where(fieldName(QConfig.config1.name)).is("template-organization")), Config.class);
         config.setName("template-workspace");

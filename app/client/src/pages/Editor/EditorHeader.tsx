@@ -16,7 +16,6 @@ import { AppState } from "reducers";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getIsEditorInitialized,
   getIsPublishingApplication,
   previewModeSelector,
   selectURLSlugs,
@@ -88,7 +87,6 @@ import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
-import { getIsInitialized } from "selectors/appViewSelectors";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -344,11 +342,7 @@ export function EditorHeader(props: EditorHeaderProps) {
     (user) => user.username !== props.currentUser?.username,
   );
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
-
-  const isEditorInitialised = useSelector(getIsEditorInitialized);
-  const isViewerInitialised = useSelector(getIsInitialized);
-  const showModes =
-    (isEditorInitialised || isViewerInitialised) && !shouldHideComments;
+  const showModes = !shouldHideComments;
 
   return (
     <ThemeProvider theme={theme}>

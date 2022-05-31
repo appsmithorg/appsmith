@@ -11,9 +11,9 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -21,10 +21,10 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +37,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -384,7 +387,13 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         // Remove branch name as datasources are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         if (params.getFirst(FieldName.WORKSPACE_ID) != null) {
-            return findAllByWorkspaceId(params.getFirst(FieldName.WORKSPACE_ID), AclPermission.READ_DATASOURCES);
+            return findAllByWorkspaceId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES)
+                    .collectList()
+                    .map(datasourceList -> {
+                        markRecentlyUsed(datasourceList, 3);
+                        return datasourceList;
+                    })
+                    .flatMapMany(Flux::fromIterable);
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
@@ -434,5 +443,41 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         analyticsProperties.put("pluginName", datasource.getPluginName());
         analyticsProperties.put("dsName", datasource.getName());
         return analyticsProperties;
+    }
+
+    /**
+     * Sets isRecentlyCreated flag to the datasources that were created recently.
+     * It finds the most recent `recentlyUsedCount` numbers of datasources based on the `createdAt` field and set
+     * the flag on for them.
+     * @param datasourceList List datasources
+     * @param recentlyUsedCount How many should be marked as recently created
+     */
+    private void markRecentlyUsed(List<Datasource> datasourceList, int recentlyUsedCount) {
+        if(CollectionUtils.isEmpty(datasourceList)) { // list is null or empty, nothing to do
+            return;
+        }
+
+        // Here are the steps that we're following here:
+        // 1. Put the index of each datasource and the createdDate into a list of Tuple2<Integer, Instant>
+        // 2. Sort that list based on createdDate in descending order
+        // 3. Take first `recentlyUsedCount` numbers of Tuple2 from the list
+        // 4. Fetch corresponding datasource using the index of Tuple2 and set the recentlyUsed=true
+
+        List<Tuple2<Integer, Instant>> indexAndCreatedDates = new ArrayList<>(datasourceList.size());
+
+        for(int i = 0; i < datasourceList.size(); i++) {
+            Datasource datasource = datasourceList.get(i);
+            indexAndCreatedDates.add(Tuples.of(i, datasource.getCreatedAt()));
+        }
+
+        // provide a comparator to sort Tuple2<Integer, Instant> in reversed order of Instant
+        indexAndCreatedDates.sort(Comparator.comparing(Tuple2::getT2, Comparator.reverseOrder()));
+
+        // set the flag based on indexes from indexAndCreatedDates
+        for(int i = 0; i < recentlyUsedCount && i < indexAndCreatedDates.size(); i++) {
+            Tuple2<Integer, Instant> objects = indexAndCreatedDates.get(i);
+            Datasource datasource = datasourceList.get(objects.getT1());
+            datasource.setIsRecentlyCreated(true);
+        }
     }
 }

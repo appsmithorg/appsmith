@@ -23,6 +23,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -36,13 +37,17 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
@@ -69,7 +74,7 @@ public class DatasourceServiceTest {
     WorkspaceRepository workspaceRepository;
 
     @Autowired
-    NewActionService newActionService;
+    PolicyUtils policyUtils;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -1136,5 +1141,53 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getMessages()).isEmpty();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void get_WhenDatasourcesPresent_SortedAndIsRecentlyCreatedFlagSet() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        String organizationId = UUID.randomUUID().toString();
+        List<Datasource> datasourceList = List.of(
+                createDatasource("D", organizationId), // should have isRecentlyCreated=false
+                createDatasource("C", organizationId), // should have isRecentlyCreated=true
+                createDatasource("B", organizationId), // should have isRecentlyCreated=true
+                createDatasource("A", organizationId)  // should have isRecentlyCreated=true
+        );
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add(FieldName.ORGANIZATION_ID, organizationId);
+
+        Mono<List<Datasource>> listMono = datasourceService.saveAll(datasourceList)
+                .thenMany(datasourceService.get(params))
+                .collectList();
+
+        StepVerifier.create(listMono).assertNext(datasources -> {
+            assertThat(datasources.size()).isEqualTo(4);
+
+            // should be sorted alphabetically
+            assertThat(datasources.get(0).getName()).isEqualTo("A");
+            assertThat(datasources.get(0).getIsRecentlyCreated()).isTrue();
+
+            assertThat(datasources.get(1).getName()).isEqualTo("B");
+            assertThat(datasources.get(1).getIsRecentlyCreated()).isTrue();
+
+            assertThat(datasources.get(2).getName()).isEqualTo("C");
+            assertThat(datasources.get(2).getIsRecentlyCreated()).isTrue();
+
+            assertThat(datasources.get(3).getName()).isEqualTo("D");
+            assertThat(datasources.get(3).getIsRecentlyCreated()).isNull();
+        }).verifyComplete();
+    }
+
+    private Datasource createDatasource(String name, String organizationId) {
+        Datasource datasource = new Datasource();
+        datasource.setPluginId("mongo-plugin");
+        datasource.setOrganizationId(organizationId);
+        datasource.setName(name);
+        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(AclPermission.READ_DATASOURCES), "api_user");
+        datasource.setPolicies(Set.copyOf(policyMap.values()));
+        return datasource;
     }
 }

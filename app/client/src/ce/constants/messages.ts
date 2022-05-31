@@ -479,14 +479,14 @@ export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
 export const IMPORT_APPLICATION_MODAL_LABEL = () =>
   "Where would you like to import your application from?";
 export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
+export const UPLOADING_JSON = () => "Uploading JSON file";
+export const UPLOADING_APPLICATION = () => "Uploading application";
 export const IMPORT_APP_FROM_GIT_TITLE = () => "Import from a Git repo (Beta)";
 export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
   "Drag and drop your file or upload from your computer";
 export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
   "Import an application from its git repository using its SSH URL";
-export const IMPORT_FROM_GIT_REPOSITORY = () => "Import from Git Repository";
-export const IMPORT_FROM_GIT_REPOSITORY_MESSAGE = () =>
-  "While importing Appsmith will does not import the datasource credentials to prevent a breach. After a successfull import you can add the credentials manually so the application behaves normally!";
+export const IMPORT_FROM_GIT_REPOSITORY = () => "Import from git repository";
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS = () =>
   "Reconnect missing datasource credentials";
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION = () =>
@@ -1032,15 +1032,6 @@ export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
 export const DISCONNECT_AUTH_ERROR = () =>
   "Cannot disconnect the only connected authentication method.";
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
-//Reflow Beta Screen
-export const REFLOW_BETA_CHECKBOX_LABEL = () =>
-  "Turn on new drag & drop experience";
-export const REFLOW_INFO_CARD_HEADER = () => "New Drag & Drop Experience";
-export const REFLOW_INFO_CARD_CONTENT_1 = () =>
-  "When dropping a new widget, other widgets now automatically move out of the way.";
-export const REFLOW_INFO_CARD_CONTENT_2 = () =>
-  "Widgets next to the canvas edge will shrink to make space for the new widget.";
-export const REFLOW_LEARN_MORE = () => "LEARN MORE";
 //
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us more about what you do at work?";
@@ -1052,6 +1043,9 @@ export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
 export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
+export const WIDGET_DEPRECATION_WARNING = (widgetName: string) =>
+  `A new version of the ${widgetName}widget is available. Upgrade to enjoy an enhanced experience.`;
+export const WIDGET_DEPRECATION_WARNING_HEADER = () => "Stay Up-to-date";
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 
