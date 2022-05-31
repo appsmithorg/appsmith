@@ -165,7 +165,12 @@ class DatePickerComponent extends React.Component<
         ? new Date(this.state.selectedDate)
         : null;
     return (
-      <div ref={this.props.innerRef}>
+      <div
+        ref={this.props.innerRef}
+        style={
+          this.props.isDynamicHeightEnabled ? { height: "auto" } : undefined
+        }
+      >
         <StyledControlGroup
           accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
@@ -325,6 +330,7 @@ interface DatePickerComponentProps extends ComponentProps {
   timezone?: string;
   datePickerType: DatePickerType;
   isDisabled: boolean;
+  isDynamicHeightEnabled?: boolean;
   onDateSelected: (selectedDate: string) => void;
   isLoading: boolean;
   withoutPortal?: boolean;
