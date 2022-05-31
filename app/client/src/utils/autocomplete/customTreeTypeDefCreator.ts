@@ -1,9 +1,10 @@
+import { TruthyPrimitiveTypes } from "utils/TypeHelpers";
 import { generateTypeDef } from "./dataTreeTypeDefCreator";
 
 let extraDefs: any = {};
 
 export const customTreeTypeDefCreator = (
-  dataTree: Record<string, Record<string, unknown> | unknown>,
+  dataTree: Record<string, Record<string, unknown> | TruthyPrimitiveTypes>,
 ) => {
   const def: any = {
     "!name": "customDataTree",
