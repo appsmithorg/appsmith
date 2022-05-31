@@ -430,22 +430,23 @@ export function* initializeAppViewerSaga(
     [
       fetchActionsForView({ applicationId }),
       fetchJSCollectionsForView({ applicationId }),
-      fetchPublishedPage(toLoadPageId, true, true),
+      fetchPublishedPage(toLoadPageId, true),
       fetchSelectedAppThemeAction(applicationId),
       fetchAppThemesAction(applicationId),
     ],
     [
       ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
       ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
+      ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
       ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
       ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
     ],
     [
       ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
       ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
+      ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
       ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
       ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
-      ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
     ],
   );
 
@@ -453,32 +454,6 @@ export function* initializeAppViewerSaga(
 
   //Delay page load actions till all actions are retrieved.
   yield put(fetchPublishedPageSuccess([executePageLoadActions()]));
-
-  if (toLoadPageId) {
-    yield put(fetchPublishedPage(toLoadPageId, true));
-
-    const resultOfFetchPage: {
-      success: boolean;
-      failure: boolean;
-    } = yield race({
-      success: take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS),
-      failure: take(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR),
-    });
-
-    if (resultOfFetchPage.failure) {
-      yield put({
-        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-        payload: {
-          code: get(
-            resultOfFetchPage,
-            "failure.payload.error.code",
-            ERROR_CODES.SERVER_ERROR,
-          ),
-        },
-      });
-      return;
-    }
-  }
 
   yield put(fetchCommentThreadsInit());
 
