@@ -212,7 +212,11 @@ export class JSEditor {
     //   .type("{del}", { force: true });
 
     if (paste) {
-      this.agHelper.EnterValue(value, endp, notField);
+      this.agHelper.EnterValue(value, {
+        propFieldName: endp,
+        directInput: notField,
+        inputFieldName: "",
+      });
     } else {
       cy.get(
         this.locator._propertyControl +
