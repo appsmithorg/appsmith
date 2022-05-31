@@ -178,7 +178,7 @@ export class JSEditor {
       .first()
       .focus()
       .type(this.selectAllJSObjectContentShortcut, { force: true })
-      .then((el: any) => {
+      .then((el: JQuery<HTMLElement>) => {
         this.agHelper.Paste(el, newContent);
       });
   }
