@@ -79,8 +79,7 @@ export const getBindingAndReactivePathsOfAction = (
         getViewType(action, formConfig.configProperty) === ViewTypes.JSON
       ) {
         bindingPaths[configPath] = getCorrectEvaluationSubstitutionType(
-          alternateViewTypeInputConfig(formConfig.controlType)
-            .evaluationSubstitutionType,
+          alternateViewTypeInputConfig().evaluationSubstitutionType,
         );
       } else if (formConfig.controlType === formControlTypes.ARRAY_FIELD) {
         let actionValue = _.get(action, formConfig.configProperty);

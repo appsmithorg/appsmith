@@ -10,7 +10,6 @@ import { actionPathFromName } from "components/formControls/utils";
 import {
   EditorModes,
   EditorSize,
-  TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 import _ from "lodash";
