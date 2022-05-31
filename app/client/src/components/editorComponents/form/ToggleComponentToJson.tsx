@@ -57,7 +57,7 @@ function ToggleComponentToJsonHandler(props: HandlerProps) {
 function ToggleComponentToJson(props: Props) {
   return props.viewType === ViewTypes.JSON
     ? props.renderCompFunction({
-        ...alternateViewTypeInputConfig(props.componentControlType),
+        ...alternateViewTypeInputConfig(),
         configProperty: props.configProperty,
         formName: props.formName,
         id: props.configProperty,

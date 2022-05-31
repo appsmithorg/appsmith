@@ -10,6 +10,7 @@ import { actionPathFromName } from "components/formControls/utils";
 import {
   EditorModes,
   EditorSize,
+  TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 import _ from "lodash";
@@ -20,6 +21,7 @@ export enum INPUT_TEXT_INPUT_TYPES {
   TEXT = "TEXT",
   PASSWORD = "PASSWORD",
   JSON = "JSON",
+  TEXT_WITH_BINDING = "TEXT_WITH_BINDING",
 }
 
 const StyledDynamicTextField = styled(DynamicTextField)`
@@ -54,6 +56,14 @@ export function InputText(props: {
   if (!!inputType && inputType === INPUT_TEXT_INPUT_TYPES.JSON) {
     editorProps = {
       mode: EditorModes.JSON,
+      size: EditorSize.EXTENDED,
+    };
+  }
+
+  // Set the editor props to enable JSON editing experience
+  if (!!inputType && inputType === INPUT_TEXT_INPUT_TYPES.TEXT_WITH_BINDING) {
+    editorProps = {
+      mode: EditorModes.TEXT_WITH_BINDING,
       size: EditorSize.EXTENDED,
     };
   }

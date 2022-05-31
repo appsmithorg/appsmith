@@ -106,17 +106,13 @@ export enum ViewTypes {
   COMPONENT = "component",
 }
 
-export const alternateViewTypeInputConfig = (controlType: string) => {
-  const controlTypesForFullWidth = ["WHERE_CLAUSE", "SORTING"];
+export const alternateViewTypeInputConfig = () => {
   return {
     label: "",
     isValid: true,
-    controlType: controlTypesForFullWidth.includes(controlType)
-      ? "QUERY_DYNAMIC_TEXT"
-      : "QUERY_DYNAMIC_INPUT_TEXT",
+    controlType: "QUERY_DYNAMIC_INPUT_TEXT",
     evaluationSubstitutionType: "TEMPLATE",
-    // inputType: "JSON",
-    inputType: "TEXT",
+    inputType: "TEXT_WITH_BINDING",
     showLineNumbers: true,
   };
 };
