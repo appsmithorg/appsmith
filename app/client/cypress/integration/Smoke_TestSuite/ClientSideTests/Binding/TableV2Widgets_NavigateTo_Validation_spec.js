@@ -1,18 +1,22 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/tableWidgetDsl.json");
+const dsl = require("../../../../fixtures/tableV2WidgetDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
 
-describe("Table Widget and Navigate to functionality validation", function() {
+describe("Table Widget V2 and Navigate to functionality validation", function() {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Table Widget Functionality with multiple page", function() {
-    cy.openPropertyPane("tablewidget");
-    cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
+  it("Table Widget V2 Functionality with multiple page", function() {
+    cy.openPropertyPane("tablewidgetv2");
+    cy.widgetText(
+      "Table1",
+      widgetsPage.tableWidgetV2,
+      commonlocators.tableV2Inner,
+    );
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
     cy.get(widgetsPage.tableOnRowSelect).click();
     cy.get(commonlocators.chooseAction)

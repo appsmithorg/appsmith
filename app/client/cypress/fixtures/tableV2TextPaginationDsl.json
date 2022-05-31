@@ -21,6 +21,7 @@
       "children": [
         {
           "isVisible": true,
+          "isVisiblePagination": true,
           "label": "Data",
           "widgetName": "Table1",
           "tableData": "",
@@ -29,7 +30,7 @@
           "primaryColumns": {},
           "isLoading": false,
           "parentColumnSpace": 74.125,
-          "parentRowSpace": 40,
+          "parentRowSpace": 10,
           "leftColumn": 0,
           "rightColumn": 8,
           "topRow": 0,
@@ -37,7 +38,7 @@
           "parentId": "0",
           "widgetId": "o3i9y2ya2i",
           "dynamicBindingPathList": [],
-          "serverSidePaginationEnabled": true,
+          "serverSidePaginationEnabled": false,
           "dynamicTriggerPathList": [
             {
               "key": "onPageChange"

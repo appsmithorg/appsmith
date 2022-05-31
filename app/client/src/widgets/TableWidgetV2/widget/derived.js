@@ -105,27 +105,30 @@ export default {
   },
   //
   getPageSize: (props, moment, _) => {
-    /*
-     * TODO(Balaji): Refactor this
-     */
     const TABLE_SIZES = {
       DEFAULT: {
         COLUMN_HEADER_HEIGHT: 32,
         TABLE_HEADER_HEIGHT: 38,
         ROW_HEIGHT: 40,
         ROW_FONT_SIZE: 14,
+        VERTICAL_PADDING: 6,
+        EDIT_ICON_TOP: 10,
       },
       SHORT: {
         COLUMN_HEADER_HEIGHT: 32,
         TABLE_HEADER_HEIGHT: 38,
         ROW_HEIGHT: 20,
         ROW_FONT_SIZE: 12,
+        VERTICAL_PADDING: 0,
+        EDIT_ICON_TOP: 5,
       },
       TALL: {
         COLUMN_HEADER_HEIGHT: 32,
         TABLE_HEADER_HEIGHT: 38,
         ROW_HEIGHT: 60,
         ROW_FONT_SIZE: 18,
+        VERTICAL_PADDING: 16,
+        EDIT_ICON_TOP: 21,
       },
     };
     const compactMode = props.compactMode || "DEFAULT";
@@ -151,10 +154,6 @@ export default {
   },
   //
   getProcessedTableData: (props, moment, _) => {
-    /*
-     * TODO(Balaji): We need to take the inline edited cells and custom column values
-     * from meta and inject that into sanitised data
-     */
     let data;
 
     if (_.isArray(props.tableData)) {

@@ -14,7 +14,7 @@ export const CONFIG = {
   name: "Table",
   iconSVG: IconSVG,
   needsMeta: true,
-  hideCard: true,
+  hideCard: false,
   defaults: {
     rows: 28,
     columns: 34,

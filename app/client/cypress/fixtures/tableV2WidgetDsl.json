@@ -54,12 +54,15 @@
             "children": [
               {
                 "enableClientSideSearch": true,
+                "isVisibleSearch": true,
                 "isVisible": true,
                 "isSortable": true,
                 "label": "Data",
                 "widgetName": "Table1",
                 "tableData": "",
                 "type": "TABLE_WIDGET_V2",
+                "aliasMap": {},
+                "primaryColumns": {},
                 "isLoading": false,
                 "parentColumnSpace": 71.75,
                 "parentRowSpace": 38,

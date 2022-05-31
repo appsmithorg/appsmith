@@ -19,6 +19,7 @@
     "formButtonWidget": ".t--widget-formbuttonwidget",
     "textWidget": ".t--draggable-textwidget",
     "tableWidget": ".t--draggable-tablewidget",
+    "tableWidgetV2": ".t--draggable-tablewidgetv2",
     "jsonFormWidget": ".t--draggable-jsonformwidget",
     "tableOnRowSelected": ".t--property-control-onrowselected",
     "dropdownSelectButton": ".t--open-dropdown-Select",
