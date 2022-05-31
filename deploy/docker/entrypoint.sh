@@ -2,7 +2,9 @@
 
 set -e
 
-function get_maximum_heap(){ 
+stacks_path=/appsmith-stacks
+
+function get_maximum_heap() {
     resource=$(ulimit -u)
     echo "Resource : $resource"
     if [[ "$resource" -le 256 ]]; then
@@ -12,7 +14,7 @@ function get_maximum_heap(){
     fi
 }
 
-function setup_backend_heap_arg(){
+function setup_backend_heap_arg() {
     if [[ ! -z ${maximum_heap} ]]; then
       export APPSMITH_JAVA_HEAP_ARG="-Xmx${maximum_heap}m"
     fi
@@ -25,7 +27,7 @@ init_env_file() {
 
   # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
   printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\"'\"'/; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
-  
+
   echo "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
     # Generate new docker.env file when initializing container for first time or in Heroku which does not have persistent volume
@@ -172,6 +174,42 @@ mount_letsencrypt_directory() {
   ln -s /appsmith-stacks/letsencrypt /etc/letsencrypt
 }
 
+is_empty_directory() {
+  [[ -d $1 && -z "$(ls -A "$1")" ]]
+}
+
+check_setup_custom_ca_certificates() {
+  local stacks_ca_certs_path
+  stacks_ca_certs_path="$stacks_path/ca-certs"
+
+  local container_ca_certs_path
+  container_ca_certs_path="/usr/local/share/ca-certificates"
+
+  if [[ -d $stacks_ca_certs_path ]]; then
+    if [[ ! -L $container_ca_certs_path ]]; then
+      if is_empty_directory "$container_ca_certs_path"; then
+        rmdir -v "$container_ca_certs_path"
+      else
+        echo "The 'ca-certificates' directory inside the container is not empty. Please clear it and restart to use certs from 'stacks/ca-certs' directory." >&2
+        return
+      fi
+    fi
+
+    ln --verbose --force --symbolic --no-target-directory "$stacks_ca_certs_path" "$container_ca_certs_path"
+
+  elif [[ ! -e $container_ca_certs_path ]]; then
+    rm -vf "$container_ca_certs_path"  # If it exists as a broken symlink, this will be needed.
+    mkdir -v "$container_ca_certs_path"
+
+  fi
+
+  if [[ -n "$(ls "$stacks_ca_certs_path"/*.pem 2>/dev/null)" ]]; then
+    echo "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up autatically.".
+  fi
+
+  update-ca-certificates --fresh
+}
+
 configure_supervisord() {
   SUPERVISORD_CONF_PATH="/opt/appsmith/templates/supervisord"
   if [[ -n "$(ls -A /etc/supervisor/conf.d)" ]]; then
@@ -217,20 +255,27 @@ check_redis_compatible_page_size() {
 }
 
 # Main Section
+export NO_PROXY="${NO_PROXY-localhost,127.0.0.1}"
+
 init_env_file
 unset_unused_variables
+
 check_mongodb_uri
 if [[ -z "${DYNO}" ]]; then
   # Don't run MongoDB if running in a Heroku dyno.
   init_mongodb
   init_replica_set
-else 
+else
   # These functions are used to limit heap size for Backend process when deployed on Heroku
   get_maximum_heap
   setup_backend_heap_arg
 fi
+
+check_setup_custom_ca_certificates
 mount_letsencrypt_directory
+
 check_redis_compatible_page_size
+
 configure_supervisord
 
 CREDENTIAL_PATH="/etc/nginx/passwords"
