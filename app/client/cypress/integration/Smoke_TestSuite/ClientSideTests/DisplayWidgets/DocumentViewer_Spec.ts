@@ -2,7 +2,8 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 
 let agHelper = ObjectsRegistry.AggregateHelper,
     ee = ObjectsRegistry.EntityExplorer,
-    locator = ObjectsRegistry.CommonLocators;
+    locator = ObjectsRegistry.CommonLocators,
+    deployMode = ObjectsRegistry.DeployMode;
 
 describe("DocumentViewer Widget Functionality", () => {
   it("1. Add new DocumentViewer and verify in canvas", () => {
@@ -13,7 +14,7 @@ describe("DocumentViewer Widget Functionality", () => {
     ee.NavigateToSwitcher('explorer')
     ee.SelectEntityByName("DocumentViewer1", 'WIDGETS');
     agHelper.ToggleOnOrOff("visible", 'Off');
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     cy.get(locator._widgetInDeployed("documentviewerwidget")).should(
       "not.exist",
     );
@@ -23,7 +24,7 @@ describe("DocumentViewer Widget Functionality", () => {
   it("3. Change visibility & Publish app & verify again", () => {
     ee.SelectEntityByName("DocumentViewer1", 'WIDGETS');
     agHelper.ToggleOnOrOff("visible", 'On');
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     cy.get(locator._widgetInDeployed("documentviewerwidget")).should("exist");
   });
 });
