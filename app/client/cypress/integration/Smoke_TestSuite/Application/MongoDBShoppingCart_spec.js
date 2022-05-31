@@ -140,7 +140,6 @@ describe("Shopping cart App", function() {
       .click();
     cy.assertPageSave();
     cy.wait("@postExecute");
-    cy.wait(5000);
     // Deleting the book from the cart
     cy.get(".tableWrap")
       .children()
@@ -149,6 +148,9 @@ describe("Shopping cart App", function() {
           .closest("div")
           .eq(1)
           .click();
+        cy.wait("@postExecute");
+        cy.wait(5000);
+
         // validating that the book is deleted
         cy.get("span:contains('Delete')")
           .parent("button")
