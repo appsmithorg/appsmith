@@ -93,6 +93,7 @@ function MapScriptWrapper(props: MapScriptWrapperProps) {
               setTitle(value);
             }}
             placeholder="Enter location"
+            tabIndex={-1}
           />
         </StandaloneSearchBox>
       )}

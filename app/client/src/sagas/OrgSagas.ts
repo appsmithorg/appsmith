@@ -258,8 +258,8 @@ export function* createOrgSaga(
     }
 
     // get created org in focus
-    const slug = response.data.slug;
-    history.push(`${window.location.pathname}#${slug}`);
+    const orgId = response.data.id;
+    history.push(`${window.location.pathname}#${orgId}`);
   } catch (error) {
     yield call(reject, { _error: error.message });
     yield put({
