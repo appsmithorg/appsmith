@@ -1,5 +1,4 @@
 import React from "react";
-import { get, has } from "lodash";
 import {
   ChangeSelectedAppThemeAction,
   DeleteAppThemeAction,
@@ -38,18 +37,6 @@ import {
   batchUpdateMultipleWidgetProperties,
   UpdateWidgetPropertyPayload,
 } from "actions/controlActions";
-import {
-  combineDynamicBindings,
-  getDynamicBindings,
-} from "utils/DynamicBindingUtils";
-import {
-  FieldThemeStylesheet,
-  ROOT_SCHEMA_KEY,
-} from "widgets/JSONFormWidget/constants";
-import { parseSchemaItem } from "widgets/WidgetUtils";
-import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { AppTheme } from "entities/AppTheming";
 import { getPropertiesToUpdateForReset } from "entities/AppTheming/utils";
 
 /**

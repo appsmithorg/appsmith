@@ -317,6 +317,10 @@ function ColorPickerComponent(props: ColorPickerProps) {
     [],
   );
 
+  useEffect(() => {
+    setIsOpen(isOpenProp);
+  }, [isOpenProp]);
+
   const currentFocus = useRef(0);
 
   const handleKeydown = (e: KeyboardEvent) => {

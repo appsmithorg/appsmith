@@ -38,9 +38,10 @@ function ThemeColorControl(props: ThemeColorControlProps) {
                     "ring-1": selectedColor === colorName,
                   })}
                   onClick={() => {
+                    setAutoFocus(
+                      selectedColor === colorName ? !autoFocus : true,
+                    );
                     setSelectedColor(colorName);
-
-                    setAutoFocus(true);
                   }}
                 />
               </TooltipComponent>
