@@ -36,9 +36,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.server.acl.AppsmithRole.WORKSPACE_ADMIN;
-import static com.appsmith.server.acl.AppsmithRole.WORKSPACE_DEVELOPER;
-import static com.appsmith.server.acl.AppsmithRole.WORKSPACE_VIEWER;
+import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_ADMIN;
+import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_DEVELOPER;
+import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_VIEWER;
 import static org.junit.Assert.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -142,7 +142,7 @@ class UserWorkspaceServiceTest {
             return userDataService.updateForUser(currentUser, userData);
         });
 
-        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), WORKSPACE_DEVELOPER);
+        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_DEVELOPER);
 
         Mono<User> userMono = userWorkspaceService
                 .addUserToWorkspaceGivenUserObject(this.workspace, currentUser, userRole)
@@ -185,7 +185,7 @@ class UserWorkspaceServiceTest {
     public void updateRoleForMember_WhenAdminRoleRemovedWithNoOtherAdmin_ThrowsExceptions() {
         // add the current user as an admin to the workspace first
         User currentUser = userRepository.findByEmail("api_user").block();
-        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), WORKSPACE_ADMIN);
+        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_ADMIN);
 
         userWorkspaceService.addUserToWorkspaceGivenUserObject(workspace, currentUser, userRole).block();
 
@@ -203,13 +203,13 @@ class UserWorkspaceServiceTest {
     @WithUserDetails(value = "api_user")
     public void updateRoleForMember_WhenAdminRoleRemovedButOtherAdminExists_MemberRemoved() {
         // add another admin role to the workspace
-        UserRole adminRole = createUserRole("dummy_username2", "dummy_user_id2", WORKSPACE_ADMIN);
+        UserRole adminRole = createUserRole("dummy_username2", "dummy_user_id2", ORGANIZATION_ADMIN);
         this.workspace.getUserRoles().add(adminRole);
         this.workspace = workspaceRepository.save(this.workspace).block();
 
         // add the current user as an admin to the workspace
         User currentUser = userRepository.findByEmail("api_user").block();
-        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), WORKSPACE_ADMIN);
+        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_ADMIN);
         userWorkspaceService.addUserToWorkspaceGivenUserObject(workspace, currentUser, userRole).block();
 
         // try to remove the user from workspace
@@ -232,8 +232,8 @@ class UserWorkspaceServiceTest {
                 .switchIfEmpty(userRepository.save(devUser))
                 .block();
 
-        UserRole adminRole = createUserRole("api_user", "api_user", WORKSPACE_ADMIN);
-        UserRole devRole = createUserRole("test_developer", "test_developer", WORKSPACE_DEVELOPER);
+        UserRole adminRole = createUserRole("api_user", "api_user", ORGANIZATION_ADMIN);
+        UserRole devRole = createUserRole("test_developer", "test_developer", ORGANIZATION_DEVELOPER);
 
         List<UserRole> userRoles = new ArrayList<>(2);
         userRoles.add(adminRole);
@@ -266,7 +266,7 @@ class UserWorkspaceServiceTest {
                     return commentThreadRepository.save(commentThread);
                 }).flatMap(commentThread -> {
                     // update an user's role
-                    UserRole updatedRole = createUserRole("test_developer", "test_developer", WORKSPACE_VIEWER);
+                    UserRole updatedRole = createUserRole("test_developer", "test_developer", ORGANIZATION_VIEWER);
                     return userWorkspaceService.updateRoleForMember(
                             workspace.getId(), updatedRole, null
                     ).thenReturn(commentThread);
@@ -337,7 +337,7 @@ class UserWorkspaceServiceTest {
                     List<User> users = new ArrayList<>(1);
                     users.add(user);
                     return userWorkspaceService
-                            .bulkAddUsersToWorkspace(workspace, users, WORKSPACE_DEVELOPER.getName())
+                            .bulkAddUsersToWorkspace(workspace, users, ORGANIZATION_DEVELOPER.getName())
                             .thenReturn(commentThread);
                 }).flatMap(commentThread ->
                         commentThreadRepository.findById(commentThread.getId())

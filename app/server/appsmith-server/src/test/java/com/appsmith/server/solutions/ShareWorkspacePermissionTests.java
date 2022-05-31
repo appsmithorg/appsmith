@@ -126,7 +126,7 @@ public class ShareWorkspacePermissionTests {
         // Invite Admin
         emails.add("admin@solutiontest.com");
         inviteUsersDTO.setUsernames(emails);
-        inviteUsersDTO.setRoleName(AppsmithRole.WORKSPACE_ADMIN.getName());
+        inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
         userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         emails.clear();
@@ -134,7 +134,7 @@ public class ShareWorkspacePermissionTests {
         // Invite Developer
         emails.add("developer@solutiontest.com");
         inviteUsersDTO.setUsernames(emails);
-        inviteUsersDTO.setRoleName(AppsmithRole.WORKSPACE_DEVELOPER.getName());
+        inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_DEVELOPER.getName());
         userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
     }
 
@@ -273,7 +273,7 @@ public class ShareWorkspacePermissionTests {
         String email = "inviteCancellationTestEmail@solutionText.com";
         emails.add(email);
         inviteUsersDTO.setUsernames(emails);
-        inviteUsersDTO.setRoleName(AppsmithRole.WORKSPACE_ADMIN.getName());
+        inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
 
         // Now trigger the invite flow and cancel it almost immediately!
         // NOTE : This is the main test flow. Invite would be triggered and is expected now to run
@@ -345,7 +345,7 @@ public class ShareWorkspacePermissionTests {
                     Optional<UserRole> userRoleOptional = userRoles.stream().filter(userRole -> userRole.getUsername().equals(email.toLowerCase())).findFirst();
                     assertThat(userRoleOptional.isPresent()).isTrue();
                     UserRole userRole = userRoleOptional.get();
-                    assertThat(userRole.getRoleName()).isEqualTo(AppsmithRole.WORKSPACE_ADMIN.getName());
+                    assertThat(userRole.getRoleName()).isEqualTo(AppsmithRole.ORGANIZATION_ADMIN.getName());
 
                     // Assert the policy for the invited user in the workspace application
                     Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())

@@ -174,7 +174,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                     userRole.setUsername(user.getUsername());
                     userRole.setUserId(user.getId());
                     userRole.setName(user.getName());
-                    userRole.setRoleName(AppsmithRole.WORKSPACE_ADMIN.getName());
+                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
                     return userWorkspaceService.addUserToWorkspaceGivenUserObject(createdOrg, user, userRole);
                 })
                 // Now add the org id to the user object and then return the saved org
