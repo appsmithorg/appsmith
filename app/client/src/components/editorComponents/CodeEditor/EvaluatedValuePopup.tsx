@@ -398,7 +398,7 @@ function PopoverContent(props: PopoverContentProps) {
 
   const dispatch = useDispatch();
   const popupContextSelector = getCodePopupSelector(props.entity);
-  const popupContext = useSelector(popupContextSelector);
+  const popupContext = useSelector(popupContextSelector, () => true);
   const pageId = useSelector(getCurrentPageId);
 
   const [openExpectedDataType, setOpenExpectedDataType] = useState(
