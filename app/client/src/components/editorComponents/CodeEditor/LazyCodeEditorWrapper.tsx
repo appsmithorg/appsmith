@@ -131,12 +131,12 @@ function LazyCodeEditorWrapper(props: any) {
   useEffect(() => {
     const str: string = props?.input?.value || props?.placeholder || "";
     if (str && text?.indexOf("{{") > -1) setContainsCode(true);
-    setText(str);
+    setText(Array.isArray(str) ? str.toString() : str);
   }, [props?.input?.value, props?.placeholder]);
 
   const highlightedText = () => {
     if (!containsCode) {
-      return text;
+      return <div>{text}</div>;
     }
     return (
       <SyntaxHighlighter
@@ -186,6 +186,7 @@ function LazyCodeEditorWrapper(props: any) {
           data-testid="lazy-code-editor"
           onFocus={handleFocus}
           placeholder={""}
+          readOnly
           type="text"
           value={""}
         />
