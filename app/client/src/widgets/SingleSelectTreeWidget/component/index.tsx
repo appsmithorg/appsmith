@@ -192,7 +192,6 @@ function SingleSelectTreeComponent({
       <>
         {isFilterable ? (
           <InputGroup
-            autoFocus
             inputRef={inputRef}
             leftIcon="search"
             onChange={onQueryChange}
