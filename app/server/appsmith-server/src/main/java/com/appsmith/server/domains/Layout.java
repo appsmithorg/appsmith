@@ -80,7 +80,7 @@ public class Layout extends BaseDomain {
         return viewMode ? publishedLayoutOnLoadActions : layoutOnLoadActions;
     }
 
-    public void sanitiseForExport() {
+    public void sanitiseToExportDBObject() {
         this.setAllOnPageLoadActionNames(null);
         this.setCreatedAt(null);
         this.setUpdatedAt(null);

@@ -216,7 +216,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     // Refactor application to remove the ids
                     final String workspaceId = application.getOrganizationId();
-                    application.sanitiseForExport();
+                    application.sanitiseToExportDBObject();
                     examplesWorkspaceCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
                     Set<String> dbNamesUsedInActions = new HashSet<>();
@@ -255,7 +255,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             });
                                         }
                                     }
-                                    newPage.sanitiseForExport();
+                                    newPage.sanitiseToExportDBObject();
                                 });
                                 applicationJson.setPageList(newPageList);
 
@@ -304,7 +304,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         actionCollection.setId(updatedCollectionId);
                                     }
                                 }
-                                actionCollection.sanitiseForExport();
+                                actionCollection.sanitiseToExportDBObject();
                                 return actionCollection;
                             })
                             .collectList()
@@ -361,7 +361,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         newAction.setId(updatedActionId);
                                     }
                                 }
-                                newAction.sanitiseForExport();
+                                newAction.sanitiseToExportDBObject();
                                 return newAction;
                             })
                             .collectList()
@@ -380,14 +380,14 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
                                     applicationJson.getDatasourceList().forEach(datasource -> {
                                         decryptedFields.put(datasource.getName(), getDecryptedFields(datasource));
-                                        datasource.removeUnwantedFieldsFromDatasourceDuringExport(pluginMap);
+                                        datasource.sanitiseToExportResource(pluginMap);
                                     });
                                     applicationJson.setDecryptedFields(decryptedFields);
                                 } else {
                                     applicationJson.getDatasourceList().forEach(datasource -> {
                                         // Remove the datasourceConfiguration object as user will configure it once imported to other instance
                                         datasource.setDatasourceConfiguration(null);
-                                        datasource.removeUnwantedFieldsFromDatasourceDuringExport(pluginMap);
+                                        datasource.sanitiseToExportResource(pluginMap);
                                     });
                                 }
 
@@ -628,9 +628,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         if(importedApplication.getApplicationVersion() == null) {
             importedApplication.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
         }
-        final List<ApplicationPage> publishedPages = new ArrayList<>(importedApplication.getPublishedPages());
+        // Create a deep clone of application pages to update independently
+        Gson gson = new Gson();
+        final List<ApplicationPage> publishedPages = new ArrayList<>(importedApplication.getPublishedPages().size());
+        importedApplication.getPages()
+                .forEach(applicationPage -> publishedPages.add(gson.fromJson(gson.toJson(applicationPage), ApplicationPage.class)));
+
         importedApplication.setViewMode(false);
-        final List<ApplicationPage> unpublishedPages = new ArrayList<>(importedApplication.getPages());
+        final List<ApplicationPage> unpublishedPages = new ArrayList<>(importedApplication.getPages().size());
+        importedApplication.getPages()
+                .forEach(applicationPage -> unpublishedPages.add(gson.fromJson(gson.toJson(applicationPage), ApplicationPage.class)));
 
         importedApplication.setPages(null);
         importedApplication.setPublishedPages(null);
@@ -842,9 +849,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     if (newPage == null) {
                                         log.debug("Unable to find the page during import for appId {}, with name {}", applicationId, applicationPage.getId());
                                         unpublishedPages.remove(applicationPage);
+                                    } else {
+                                        applicationPage.setId(newPage.getId());
+                                        applicationPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
                                     }
-                                    applicationPage.setId(newPage.getId());
-                                    applicationPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
                                 }
 
                                 for(ApplicationPage applicationPage : publishedPages) {
@@ -852,9 +860,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     if (newPage == null) {
                                         log.debug("Unable to find the page during import for appId {}, with name {}", applicationId, applicationPage.getId());
                                         publishedPages.remove(applicationPage);
+                                    } else {
+                                        applicationPage.setId(newPage.getId());
+                                        applicationPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
                                     }
-                                    applicationPage.setId(newPage.getId());
-                                    applicationPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
                                 }
 
                                 return applicationPages;

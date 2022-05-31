@@ -29,7 +29,7 @@ public class ActionCollection extends BaseDomain {
 
     ActionCollectionDTO publishedCollection;
 
-    public void sanitiseForExport() {
+    public void sanitiseToExportDBObject() {
         this.setDefaultResources(null);
         ActionCollectionDTO unpublishedCollection = this.getUnpublishedCollection();
         if (unpublishedCollection != null) {
@@ -39,6 +39,6 @@ public class ActionCollection extends BaseDomain {
         if (publishedCollection != null) {
             publishedCollection.sanitiseForExport();
         }
-        this.sanitiseBaseDomainForExport();
+        this.sanitiseToExportBaseObject();
     }
 }

@@ -19,15 +19,15 @@ public class NewPage extends BaseDomain {
 
     PageDTO publishedPage;
 
-    public void sanitiseForExport() {
+    public void sanitiseToExportDBObject() {
         this.setApplicationId(null);
         this.setId(null);
         if (this.getUnpublishedPage() != null) {
-            this.getUnpublishedPage().sanitiseForExport();
+            this.getUnpublishedPage().sanitiseToExportDBObject();
         }
         if (this.getPublishedPage() != null) {
-            this.getPublishedPage().sanitiseForExport();
+            this.getPublishedPage().sanitiseToExportDBObject();
         }
-        this.sanitiseBaseDomainForExport();
+        this.sanitiseToExportBaseObject();
     }
 }

@@ -80,7 +80,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain 
     @JsonIgnore
     String gitSyncId;
 
-    public void sanitiseBaseDomainForExport() {
+    public void sanitiseToExportBaseObject() {
         this.setDefaultResources(null);
         this.setCreatedAt(null);
         this.setUpdatedAt(null);

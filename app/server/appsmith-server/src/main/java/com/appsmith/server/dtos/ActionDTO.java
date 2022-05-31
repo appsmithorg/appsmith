@@ -148,7 +148,7 @@ public class ActionDTO {
             return this.fullyQualifiedName;
         }
     }
-    public void sanitiseForExport() {
+    public void sanitiseToExportDBObject() {
         this.setDefaultResources(null);
         this.setCacheResponse(null);
         if (this.getDatasource() != null) {

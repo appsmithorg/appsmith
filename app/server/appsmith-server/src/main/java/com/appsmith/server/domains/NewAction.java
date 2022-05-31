@@ -35,7 +35,7 @@ public class NewAction extends BaseDomain {
 
     ActionDTO publishedAction;
 
-    public void sanitiseForExport() {
+    public void sanitiseToExportDBObject() {
         this.setTemplateId(null);
         this.setApplicationId(null);
         this.setOrganizationId(null);
@@ -43,13 +43,13 @@ public class NewAction extends BaseDomain {
         this.setDocumentation(null);
         ActionDTO unpublishedAction = this.getUnpublishedAction();
         if (unpublishedAction != null) {
-            unpublishedAction.sanitiseForExport();
+            unpublishedAction.sanitiseToExportDBObject();
         }
         ActionDTO publishedAction = this.getPublishedAction();
         if (publishedAction != null) {
-            publishedAction.sanitiseForExport();
+            publishedAction.sanitiseToExportDBObject();
         }
-        this.sanitiseBaseDomainForExport();
+        this.sanitiseToExportBaseObject();
     }
 
 }

@@ -54,7 +54,7 @@ public class PageDTO {
     @Transient
     DefaultResources defaultResources;
 
-    public void sanitiseForExport() {
-        this.getLayouts().forEach(Layout::sanitiseForExport);
+    public void sanitiseToExportDBObject() {
+        this.getLayouts().forEach(Layout::sanitiseToExportDBObject);
     }
 }

@@ -104,8 +104,8 @@ public class Datasource extends BaseDomain {
                 .isEquals();
     }
 
-    public void removeUnwantedFieldsFromDatasourceDuringExport(Map<String, String> pluginMap) {
-        this.setPolicies(new HashSet<>());
+    public void sanitiseToExportResource(Map<String, String> pluginMap) {
+        this.setPolicies(null);
         this.setStructure(null);
         this.setUpdatedAt(null);
         this.setCreatedAt(null);

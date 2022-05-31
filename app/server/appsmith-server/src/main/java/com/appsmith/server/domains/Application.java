@@ -171,7 +171,7 @@ public class Application extends BaseDomain {
         }
     }
 
-    public void sanitiseForExport() {
+    public void sanitiseToExportDBObject() {
         this.setOrganizationId(null);
         this.setModifiedBy(null);
         this.setCreatedBy(null);
@@ -183,7 +183,7 @@ public class Application extends BaseDomain {
         this.setClientSchemaVersion(null);
         this.setServerSchemaVersion(null);
         this.setIsManualUpdate(false);
-        this.sanitiseBaseDomainForExport();
+        this.sanitiseToExportBaseObject();
     }
 
     public List<ApplicationPage> getPages() {
