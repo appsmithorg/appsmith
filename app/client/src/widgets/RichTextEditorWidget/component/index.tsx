@@ -43,12 +43,14 @@ const StyledRTEditor = styled.div<{
 
 export const RichTextEditorInputWrapper = styled.div<{
   isValid?: boolean;
+  borderRadius: string;
 }>`
   display: flex;
   width: 100%;
   min-width: 0;
   height: 100%;
   border: 1px solid ${(props) => (props.isValid ? "none" : Colors.DANGER_SOLID)};
+  border-radius: ${({ borderRadius }) => borderRadius};
 `;
 
 export interface RichtextEditorComponentProps {
@@ -149,7 +151,10 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           width={labelWidth}
         />
       )}
-      <RichTextEditorInputWrapper isValid={props.isValid}>
+      <RichTextEditorInputWrapper
+        borderRadius={props.borderRadius}
+        isValid={props.isValid}
+      >
         <Editor
           disabled={props.isDisabled}
           id={`rte-${props.widgetId}`}
