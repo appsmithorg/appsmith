@@ -99,15 +99,17 @@ export function* failFastApiCalls(
 ) {
   const triggerEffects = [];
   for (const triggerAction of triggerActions) {
-    triggerEffects.push(put(triggerAction));
+    triggerEffects.push(triggerAction);
   }
+
+  yield all(triggerEffects.map((triggerAction) => put(triggerAction)));
+
   const successEffects = [];
   for (const successAction of successActions) {
-    successEffects.push(take(successAction));
+    successEffects.push(successAction);
   }
-  yield all(triggerEffects);
   const effectRaceResult = yield race({
-    success: all(successEffects),
+    success: all(successEffects.map((successAction) => take(successAction))),
     failure: take(failureActions),
   });
   if (effectRaceResult.failure) {
@@ -432,13 +434,14 @@ export function* initializeAppViewerSaga(
       fetchJSCollectionsForView({ applicationId }),
       fetchSelectedAppThemeAction(applicationId),
       fetchAppThemesAction(applicationId),
-      fetchPublishedPage(toLoadPageId, true, true),
+      fetchPublishedPage(toLoadPageId, true),
     ],
     [
       ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
       ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
       ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
       ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
+      fetchPublishedPageSuccess().type,
     ],
     [
       ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
@@ -450,9 +453,8 @@ export function* initializeAppViewerSaga(
   );
 
   if (!resultOfPrimaryCalls) return;
-
   //Delay page load actions till all actions are retrieved.
-  yield put(fetchPublishedPageSuccess([executePageLoadActions()]));
+  yield put(executePageLoadActions());
 
   yield put(fetchCommentThreadsInit());
 

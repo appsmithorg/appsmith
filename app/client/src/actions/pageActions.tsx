@@ -49,16 +49,11 @@ export const fetchPage = (
   };
 };
 
-export const fetchPublishedPage = (
-  pageId: string,
-  bustCache = false,
-  firstLoad = false,
-) => ({
+export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
   payload: {
     pageId,
     bustCache,
-    firstLoad,
   },
 });
 
@@ -72,11 +67,8 @@ export const fetchPageSuccess = (
   };
 };
 
-export const fetchPublishedPageSuccess = (
-  postEvalActions: Array<AnyReduxAction>,
-): EvaluationReduxAction<undefined> => ({
+export const fetchPublishedPageSuccess = (): EvaluationReduxAction<undefined> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
-  postEvalActions,
   payload: undefined,
 });
 

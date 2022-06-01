@@ -288,11 +288,10 @@ export function* fetchPublishedPageSaga(
   pageRequestAction: ReduxAction<{
     pageId: string;
     bustCache: boolean;
-    firstLoad: boolean;
   }>,
 ) {
   try {
-    const { bustCache, firstLoad, pageId } = pageRequestAction.payload;
+    const { bustCache, pageId } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       {
@@ -321,15 +320,9 @@ export function* fetchPublishedPageSaga(
       // set current page
       yield put(updateCurrentPage(pageId, response.data.slug));
 
-      if (!firstLoad) {
-        // dispatch fetch page success
-        yield put(
-          fetchPublishedPageSuccess(
-            // Execute page load actions post published page eval
-            [executePageLoadActions()],
-          ),
-        );
-      }
+      // dispatch fetch page success
+      yield put(fetchPublishedPageSuccess());
+
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
       );
