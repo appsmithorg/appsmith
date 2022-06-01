@@ -888,10 +888,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                             return importedApplication;
                                                         });
                                             })
-                                            .then(applicationService.save(importedApplication))
-                                            .flatMap(savedApp -> importThemes(savedApp, importedDoc));
+                                            .then(applicationService.save(importedApplication));
                                 })
                 )
+                .flatMap(savedApp -> importThemes(savedApp, importedDoc))
                 .flatMap(savedApp -> {
                     importedApplication.setId(savedApp.getId());
                     if (savedApp.getGitApplicationMetadata() != null) {
@@ -2030,21 +2030,26 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     private Mono<Application> importThemes(Application application, ApplicationJson importedApplicationJson) {
-        Mono<Theme> importedEditModeTheme = themeService.getOrSaveTheme(importedApplicationJson.getEditModeTheme(), application);
-        Mono<Theme> importedPublishedModeTheme = themeService.getOrSaveTheme(importedApplicationJson.getPublishedTheme(), application);
+        if(StringUtils.isEmpty(application.getEditModeThemeId()) && StringUtils.isEmpty(application.getPublishedModeThemeId())) {
+            Mono<Theme> importedEditModeTheme = themeService.getOrSaveTheme(importedApplicationJson.getEditModeTheme(), application);
+            Mono<Theme> importedPublishedModeTheme = themeService.getOrSaveTheme(importedApplicationJson.getPublishedTheme(), application);
 
-        return Mono.zip(importedEditModeTheme, importedPublishedModeTheme).flatMap(importedThemesTuple -> {
-            String editModeThemeId = importedThemesTuple.getT1().getId();
-            String publishedModeThemeId = importedThemesTuple.getT2().getId();
+            return Mono.zip(importedEditModeTheme, importedPublishedModeTheme).flatMap(importedThemesTuple -> {
+                String editModeThemeId = importedThemesTuple.getT1().getId();
+                String publishedModeThemeId = importedThemesTuple.getT2().getId();
 
-            application.setEditModeThemeId(editModeThemeId);
-            application.setPublishedModeThemeId(publishedModeThemeId);
-            // this will update the theme id in DB
-            // also returning the updated application object so that theme id are available to the next pipeline
-            return applicationService.setAppTheme(
-                    application.getId(), editModeThemeId, publishedModeThemeId, MANAGE_APPLICATIONS
-            ).thenReturn(application);
-        });
+                application.setEditModeThemeId(editModeThemeId);
+                application.setPublishedModeThemeId(publishedModeThemeId);
+                // this will update the theme id in DB
+                // also returning the updated application object so that theme id are available to the next pipeline
+                return applicationService.setAppTheme(
+                        application.getId(), editModeThemeId, publishedModeThemeId, MANAGE_APPLICATIONS
+                ).thenReturn(application);
+            });
+        } else {
+            return Mono.just(application);
+        }
+
     }
 
     /**
