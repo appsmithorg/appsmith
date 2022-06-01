@@ -11,6 +11,17 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   table = ObjectsRegistry.Table;
 
 describe("Validate Mongo CRUD with JSON Form", () => {
+  before(() => {
+    dataSources.StartDataSourceRoutes();
+  });
+
+  beforeEach(function() {
+    if (Cypress.env("Mongo") === 0) {
+      cy.log("Mongo DB is not found. Using intercept");
+      dataSources.StartInterceptRoutesForMongo();
+    } else cy.log("Mongo DB is found, hence using actual DB");
+  });
+
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -116,7 +127,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     agHelper.ValidateNetworkStatus("@deletePage", 200);
   });
 
-  it.only("4. Create new CRUD collection 'Productlines' and populate & refresh Entity Explorer to find the new table + Bug 14063", () => {
+  it.only("4. Create new CRUD collection 'AuthorNAwards' & refresh Entity Explorer to find the new table", () => {
     let authorNAwardsArray = `[{
       "_id" : 1,
       "name" : {
@@ -403,26 +414,20 @@ describe("Validate Mongo CRUD with JSON Form", () => {
       inputFieldName: "Collection",
     });
 
-    //Documents
-
     agHelper.EnterValue(authorNAwardsArray, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Documents",
     });
 
-    // agHelper.GetNClick(dataSources._templateMenu);
-    // agHelper.RenameWithInPane("CreateProductLines");
-    // agHelper.EnterValue(tableCreateQuery);
-    // cy.get(".CodeMirror textarea").focus();
-    // //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
+    agHelper.AssertAutoSave();
+    agHelper.Sleep(2000);
+    dataSources.RunQuery();
+    agHelper.ActionContextMenuWithInPane("Delete");
 
-    // dataSources.RunQuery();
-    // agHelper.ActionContextMenuWithInPane("Delete");
-
-    // ee.expandCollapseEntity(dsName);
-    // ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    // agHelper.AssertElementVisible(ee._entityNameInExplorer("productlines"));
+    ee.expandCollapseEntity(dsName);
+    ee.ActionContextMenuByEntityName(dsName, "Refresh");
+    agHelper.AssertElementVisible(ee._entityNameInExplorer("AuthorNAwards"));
   });
 
   function GenerateCRUDNValidateDeployPage(

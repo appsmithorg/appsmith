@@ -507,7 +507,7 @@ export class AggregateHelper {
         this.UpdateCodeInput($field, valueToEnter);
       });
     } else if (inputFieldName && !propFieldName && !directInput) {
-      cy.xpath(this.locator._inputFieldByName(propFieldName)).then(
+      cy.xpath(this.locator._inputFieldByName(inputFieldName)).then(
         ($field: any) => {
           this.UpdateCodeInput($field, valueToEnter);
         },

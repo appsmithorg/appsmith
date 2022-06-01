@@ -105,6 +105,32 @@ export class DataSources {
     }).as("replaceLayoutWithCRUDPage");
   }
 
+  public StartInterceptRoutesForMongo() {
+    //All stubbing
+    this.ReplaceApplicationIdForInterceptPages(
+      "cypress/fixtures/mongo_PUT_replaceLayoutWithCRUD.json",
+    );
+
+    cy.intercept("POST", "/api/v1/datasources/test", {
+      fixture: "testAction.json",
+    }).as("testDatasource");
+    cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*", {
+      fixture: "mongo_GET_selectTableDropdown.json",
+    }).as("getDatasourceStructure");
+    cy.intercept("PUT", "/api/v1/pages/crud-page/*", {
+      fixture: "mongo_PUT_replaceLayoutWithCRUD.json",
+    }).as("replaceLayoutWithCRUDPage");
+    cy.intercept("GET", "/api/v1/actions*", {
+      fixture: "mongo_GET_Actions.json",
+    }).as("getActions");
+    cy.intercept("POST", "/api/v1/actions/execute", {
+      fixture: "mongo_POST_Actions.json",
+    }).as("postExecute");
+    cy.intercept("POST", "/api/v1/pages/crud-page", {
+      fixture: "mongo_PUT_replaceLayoutWithCRUD.json",
+    }).as("post_replaceLayoutCRUDStub");
+  }
+
   public CreatePlugIn(pluginName: string) {
     cy.get(this._createNewPlgin(pluginName))
       .parent("div")
@@ -315,11 +341,7 @@ export class DataSources {
           : "Update Row " + headerString + ": " + $cellData;
       this.agHelper
         .GetText(this.locator._jsonFormHeader)
-        .then(($header: any) =>
-          expect($header).to.eq(
-            jsonHeaderString,
-          ),
-        );
+        .then(($header: any) => expect($header).to.eq(jsonHeaderString));
     });
   }
 }
