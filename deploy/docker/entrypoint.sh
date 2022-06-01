@@ -71,17 +71,11 @@ setup_proxy_variables() {
     export HTTPS_PROXY="$https_proxy"
   fi
 
-  # If set for HTTPS, use the same for HTTP. This is how the apache HttpClient behaves, which the rest plugin uses, so we do it everywhere do be consistent.
-  if [[ -n ${HTTPS_PROXY-} ]]; then
-    export HTTP_PROXY="$HTTPS_PROXY"
-    export http_proxy="$HTTPS_PROXY"
-  else
-    # If one of HTTP_PROXY or http_proxy are set, copy it to the other. If both are set, prefer HTTP_PROXY.
-    if [[ -n ${HTTP_PROXY-} ]]; then
-      export http_proxy="$HTTP_PROXY"
-    elif [[ -n ${http_proxy-} ]]; then
-      export HTTP_PROXY="$http_proxy"
-    fi
+  # If one of HTTP_PROXY or http_proxy are set, copy it to the other. If both are set, prefer HTTP_PROXY.
+  if [[ -n ${HTTP_PROXY-} ]]; then
+    export http_proxy="$HTTP_PROXY"
+  elif [[ -n ${http_proxy-} ]]; then
+    export HTTP_PROXY="$http_proxy"
   fi
 }
 
