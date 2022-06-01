@@ -463,9 +463,9 @@ export function* initializeAppViewerSaga(
     ],
     true,
   );
-  console.log("$$$-resultOfPrimaryCalls-start");
+  console.log("$$$-resultOfPrimaryCalls-start", resultOfPrimaryCalls);
   if (!resultOfPrimaryCalls) return;
-  console.log("$$$-resultOfPrimaryCalls-end");
+  console.log("$$$-resultOfPrimaryCalls-end", resultOfPrimaryCalls);
   //Delay page load actions till all actions are retrieved.
   yield put(executePageLoadActions());
 

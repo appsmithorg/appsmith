@@ -373,9 +373,11 @@ export function* fetchJSCollectionsForViewModeSaga(
 ) {
   const { applicationId } = action.payload;
   try {
+    console.log("$$$-fetchJSCollectionsForViewModeSaga-start");
     const response: GenericApiResponse<JSCollection[]> = yield JSActionAPI.fetchJSCollectionsForViewMode(
       applicationId,
     );
+    console.log("$$$-fetchJSCollectionsForViewModeSaga-end");
     const resultJSCollections = response.data;
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {

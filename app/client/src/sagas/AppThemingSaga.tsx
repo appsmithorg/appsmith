@@ -60,13 +60,13 @@ export function* initAppTheming() {
 export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
   try {
     const { applicationId } = action.payload;
-    const response = yield ThemingApi.fetchThemes(applicationId);
     console.log("$$$-fetchAppThemes-start");
+    const response = yield ThemingApi.fetchThemes(applicationId);
+    console.log("$$$-fetchAppThemes-end");
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
       payload: response.data,
     });
-    console.log("$$$-fetchAppThemes-end");
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
