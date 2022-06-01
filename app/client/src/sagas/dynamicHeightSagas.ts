@@ -11,7 +11,10 @@ import {
 } from "constants/WidgetConstants";
 import { groupBy } from "lodash";
 import log from "loglevel";
-import { UpdateWidgetsPayload } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  UpdateWidgetsPayload,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { CanvasLevelsReduxState } from "reducers/entityReducers/dynamicHeightReducers/canvasLevelsReducer";
 import { DynamicHeightLayoutTreeReduxState } from "reducers/entityReducers/dynamicHeightReducers/dynamicHeightLayoutTreeReducer";
 import {
@@ -37,7 +40,7 @@ import {
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { FlattenedWidgetProps } from "widgets/constants";
-import { getWidget } from "./selectors";
+import { getWidget, getWidgets } from "./selectors";
 
 // TODO: REFACTOR(abhinav): Move to someplace global, and use it in hooks as well
 type PropertyPaths = Array<{
@@ -87,21 +90,35 @@ export function* updateWidgetDynamicHeightSaga(
     });
   }
 
-  console.log("Dynamic height: Expected Changes: ", { expectedUpdates });
-
   if (expectedUpdates.length > 0) {
-    // 1. Get all siblings together.
-
-    const expectedUpdatesGroupedByParent = groupBy(expectedUpdates, "parentId");
-
+    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const canvasLevelMap: CanvasLevelsReduxState = yield select(
       getCanvasLevelMap,
     );
+    // 1. Get all siblings together.
 
-    console.log("Dynamic Height: Grouped by parents", {
-      expectedUpdatesGroupedByParent,
-      canvasLevelMap,
-    });
+    // Get all updates for that level.
+    // Move up a level, add it to the expectedUpdatesGroupedByParent. A new entry if unavailable, or append to an existing entry,
+    // Repeat for the next level.
+    const expectedUpdatesGroupedByParentCanvasWidget = groupBy(
+      expectedUpdates,
+      "parentId",
+    );
+
+    const parentCanvasWidgetsGroupedByLevel: { [level: string]: string[] } = {};
+    let maxLevel = 0;
+    // TODO (abhinav): So far it seems like expectedUpdatesGroupedByParent is only used here
+    // If this turns out to be case, remove this variable and compute directly from expetedUpdates
+    for (const parentCanvasWidgetId in expectedUpdatesGroupedByParentCanvasWidget) {
+      const _level = canvasLevelMap[parentCanvasWidgetId];
+      if (_level > maxLevel) maxLevel = _level;
+      parentCanvasWidgetsGroupedByLevel[_level] = [
+        ...(parentCanvasWidgetsGroupedByLevel[_level] || []),
+        parentCanvasWidgetId,
+      ];
+    }
+
+    const parentCanvasWidgetsForWhomChildUpdatesHaveBeenComputed = [];
     const dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState = yield select(
       getDynamicHeightLayoutTree,
     );
@@ -110,12 +127,33 @@ export function* updateWidgetDynamicHeightSaga(
       string,
       { topRow: number; bottomRow: number }
     > = {};
-    for (const parentId in expectedUpdatesGroupedByParent) {
+
+    // start with the bottom most level (maxLevel)
+    for (let level = maxLevel; level > 0; level--) {
+      const parentCanvasWidgetsToConsider =
+        parentCanvasWidgetsGroupedByLevel[level];
       const delta: Record<string, number> = {};
-      expectedUpdatesGroupedByParent[parentId].forEach((expectedUpdate) => {
-        delta[expectedUpdate.widgetId] =
-          expectedUpdate.expectedChangeInHeightInRows;
+      console.log(
+        "Dynamic height: Expected Changes: ",
+        { expectedUpdates },
+        { expectedUpdatesGroupedByParentCanvasWidget },
+        { level },
+        { parentCanvasWidgetsToConsider },
+        { parentCanvasWidgetsGroupedByLevel },
+        { changesSoFar },
+      );
+      parentCanvasWidgetsToConsider.forEach((parentCanvasWidgetId) => {
+        parentCanvasWidgetsForWhomChildUpdatesHaveBeenComputed.push(
+          parentCanvasWidgetId,
+        );
+        expectedUpdatesGroupedByParentCanvasWidget[
+          parentCanvasWidgetId
+        ].forEach((expectedUpdate) => {
+          delta[expectedUpdate.widgetId] =
+            expectedUpdate.expectedChangeInHeightInRows;
+        });
       });
+
       // 2. Run the reflow computations for them
 
       const siblingWidgetsToUpdate = computeChangeInPositionBasedOnDelta(
@@ -123,47 +161,135 @@ export function* updateWidgetDynamicHeightSaga(
         delta,
       );
 
-      console.log("Dynamic Height: Sibling Widgets To Update:", {
-        siblingWidgetsToUpdate,
-      });
-
       changesSoFar = Object.assign(changesSoFar, siblingWidgetsToUpdate);
-
-      let parent: FlattenedWidgetProps = yield select(getWidget, parentId);
-      let children: string[] = [];
-      while (parent) {
-        if (
-          parent.type === "CANVAS_WIDGET" &&
-          parent.widgetId !== MAIN_CONTAINER_WIDGET_ID
-        ) {
-          parent = yield select(getWidget, parent.parentId || "");
-          children = parent.children || []; // It's never going to be []
-        }
-        if (parent.dynamicHeight === DynamicHeight.HUG_CONTENTS) {
-          // Get the minimum number of rows this parent must have
-          let minHeightInRows =
-            parent.minDynamicHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-          for (const childWidgetId in children) {
-            if (changesSoFar.hasOwnProperty(childWidgetId)) {
-              minHeightInRows = Math.max(
-                minHeightInRows,
-                changesSoFar[childWidgetId].bottomRow,
-              );
-            } else {
-              const childWidget: FlattenedWidgetProps = yield select(
-                getWidget,
-                childWidgetId,
-              );
-              minHeightInRows = Math.max(
-                minHeightInRows,
-                childWidget.bottomRow,
-              );
+      for (const parentCanvasWidgetId of parentCanvasWidgetsToConsider) {
+        const parentCanvasWidget: FlattenedWidgetProps =
+          stateWidgets[parentCanvasWidgetId];
+        if (parentCanvasWidget.parentId) {
+          const parentContainerLikeWidget: FlattenedWidgetProps =
+            stateWidgets[parentCanvasWidget.parentId];
+          if (
+            parentContainerLikeWidget.dynamicHeight ===
+            DynamicHeight.HUG_CONTENTS
+          ) {
+            // Get the minimum number of rows this parent must have
+            let minHeightInRows =
+              parentContainerLikeWidget.minDynamicHeight /
+              GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+            const children = parentCanvasWidget.children || []; // It's never going to be []
+            for (const childWidgetId in children) {
+              if (changesSoFar.hasOwnProperty(childWidgetId)) {
+                minHeightInRows = Math.max(
+                  minHeightInRows,
+                  changesSoFar[childWidgetId].bottomRow,
+                );
+              } else {
+                const childWidget: FlattenedWidgetProps =
+                  stateWidgets[childWidgetId];
+                minHeightInRows = Math.max(
+                  minHeightInRows,
+                  childWidget.bottomRow,
+                );
+              }
+            }
+            const expectedUpdate = {
+              widgetId: parentContainerLikeWidget.widgetId,
+              expectedHeightinPx: updates[parentContainerLikeWidget.widgetId],
+              expectedChangeInHeightInRows:
+                minHeightInRows -
+                (parentContainerLikeWidget.bottomRow -
+                  parentContainerLikeWidget.topRow),
+              currentTopRow: parentContainerLikeWidget.topRow,
+              currentBottomRow: parentContainerLikeWidget.bottomRow,
+              expectedBottomRow:
+                parentContainerLikeWidget.topRow + minHeightInRows,
+              parentId: parentContainerLikeWidget.parentId,
+            };
+            if (parentContainerLikeWidget.parentId) {
+              if (
+                expectedUpdatesGroupedByParentCanvasWidget.hasOwnProperty(
+                  parentContainerLikeWidget.parentId,
+                )
+              ) {
+                expectedUpdatesGroupedByParentCanvasWidget[
+                  parentContainerLikeWidget.parentId
+                ].push(expectedUpdate);
+              } else {
+                expectedUpdatesGroupedByParentCanvasWidget[
+                  parentContainerLikeWidget.parentId
+                ] = [expectedUpdate];
+              }
+              const _level = canvasLevelMap[parentContainerLikeWidget.parentId];
+              parentCanvasWidgetsGroupedByLevel[_level] = [
+                ...(parentCanvasWidgetsGroupedByLevel[_level] || []),
+                parentCanvasWidgetId,
+              ];
             }
           }
-          // expectedUpdatesGroupedByParent[parent.parentId] = [(...expectedUpdatesGroupedByParent[parent.parentId])]
         }
       }
+
+      console.log("Dynamic Height: Sibling Widgets To Update:", {
+        siblingWidgetsToUpdate,
+        changesSoFar,
+        level,
+      });
     }
+
+    // for (const parentId of parentsWidgetIds) {
+    //   const delta: Record<string, number> = {};
+    //   expectedUpdatesGroupedByParent[parentId].forEach((expectedUpdate) => {
+    //     delta[expectedUpdate.widgetId] =
+    //       expectedUpdate.expectedChangeInHeightInRows;
+    //   });
+    //   // 2. Run the reflow computations for them
+
+    //   const siblingWidgetsToUpdate = computeChangeInPositionBasedOnDelta(
+    //     dynamicHeightLayoutTree,
+    //     delta,
+    //   );
+
+    //   console.log("Dynamic Height: Sibling Widgets To Update:", {
+    //     siblingWidgetsToUpdate,
+    //   });
+
+    //   changesSoFar = Object.assign(changesSoFar, siblingWidgetsToUpdate);
+
+    //   let parent: FlattenedWidgetProps = yield select(getWidget, parentId);
+    //   let children: string[] = [];
+    //   while (parent) {
+    //     if (
+    //       parent.type === "CANVAS_WIDGET" &&
+    //       parent.widgetId !== MAIN_CONTAINER_WIDGET_ID
+    //     ) {
+    //       parent = yield select(getWidget, parent.parentId || "");
+    //       children = parent.children || []; // It's never going to be []
+    //     }
+    //     if (parent.dynamicHeight === DynamicHeight.HUG_CONTENTS) {
+    //       // Get the minimum number of rows this parent must have
+    //       let minHeightInRows =
+    //         parent.minDynamicHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    //       for (const childWidgetId in children) {
+    //         if (changesSoFar.hasOwnProperty(childWidgetId)) {
+    //           minHeightInRows = Math.max(
+    //             minHeightInRows,
+    //             changesSoFar[childWidgetId].bottomRow,
+    //           );
+    //         } else {
+    //           const childWidget: FlattenedWidgetProps = yield select(
+    //             getWidget,
+    //             childWidgetId,
+    //           );
+    //           minHeightInRows = Math.max(
+    //             minHeightInRows,
+    //             childWidget.bottomRow,
+    //           );
+    //         }
+    //       }
+    //       // expectedUpdatesGroupedByParent[parent.parentId] = [(...expectedUpdatesGroupedByParent[parent.parentId])]
+    //     }
+    //   }
+    // }
 
     console.log("Dynamic Height: Changes So far:", { changesSoFar });
 
