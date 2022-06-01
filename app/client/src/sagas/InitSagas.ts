@@ -21,7 +21,6 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import {
   fetchPage,
   fetchPublishedPage,
-  fetchPublishedPageSuccess,
   resetApplicationWidgets,
   resetPageList,
   setAppMode,
@@ -87,6 +86,7 @@ import { isURLDeprecated, getUpdatedRoute } from "utils/helpers";
 import { fillPathname, viewerURL, builderURL } from "RouteBuilder";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
+import { fetchPublishedPageSuccess } from "../actions/pageActions";
 import {
   fetchSelectedAppThemeAction,
   fetchAppThemesAction,
@@ -96,20 +96,32 @@ export function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
   successActions: string[],
   failureActions: string[],
+  log = false,
 ) {
   const triggerEffects = [];
+
   for (const triggerAction of triggerActions) {
-    triggerEffects.push(put(triggerAction));
+    triggerEffects.push(triggerAction);
   }
+  log &&
+    console.log("$$$-failFastApiCalls-triggerEffects", {
+      triggerEffects,
+    });
+  yield all(triggerEffects.map((triggerAction) => put(triggerAction)));
+
   const successEffects = [];
   for (const successAction of successActions) {
-    successEffects.push(take(successAction));
+    successEffects.push(successAction);
   }
-  yield all(triggerEffects);
+  log &&
+    console.log("$$$-failFastApiCalls-successEffects-start", {
+      successEffects,
+    });
   const effectRaceResult = yield race({
-    success: all(successEffects),
+    success: all(successEffects.map((successAction) => take(successAction))),
     failure: take(failureActions),
   });
+  log && console.log("$$$-failFastApiCalls-waiting-end", { effectRaceResult });
   if (effectRaceResult.failure) {
     yield put({
       type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
@@ -123,6 +135,7 @@ export function* failFastApiCalls(
     });
     return false;
   }
+  log && console.log("$$$-failFastApiCalls-end", { effectRaceResult });
   return true;
 }
 
@@ -432,13 +445,14 @@ export function* initializeAppViewerSaga(
       fetchJSCollectionsForView({ applicationId }),
       fetchSelectedAppThemeAction(applicationId),
       fetchAppThemesAction(applicationId),
-      fetchPublishedPage(toLoadPageId, true, true),
+      fetchPublishedPage(toLoadPageId, true),
     ],
     [
       ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
       ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
       ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
       ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
+      fetchPublishedPageSuccess().type,
     ],
     [
       ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
@@ -447,12 +461,13 @@ export function* initializeAppViewerSaga(
       ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
       ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
     ],
+    true,
   );
-
+  console.log("$$$-resultOfPrimaryCalls-start");
   if (!resultOfPrimaryCalls) return;
-
+  console.log("$$$-resultOfPrimaryCalls-end");
   //Delay page load actions till all actions are retrieved.
-  yield put(fetchPublishedPageSuccess([executePageLoadActions()]));
+  yield put(executePageLoadActions());
 
   yield put(fetchCommentThreadsInit());
 

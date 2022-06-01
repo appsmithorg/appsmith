@@ -61,11 +61,12 @@ export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
   try {
     const { applicationId } = action.payload;
     const response = yield ThemingApi.fetchThemes(applicationId);
-
+    console.log("$$$-fetchAppThemes-start");
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
       payload: response.data,
     });
+    console.log("$$$-fetchAppThemes-end");
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
@@ -86,7 +87,7 @@ export function* fetchAppSelectedTheme(
 ) {
   const { applicationId } = action.payload;
   const mode: APP_MODE = yield select(getAppMode);
-
+  console.log("$$$-fetchAppSelectedTheme-start");
   try {
     // eslint-disable-next-line
     const response = yield ThemingApi.fetchSelected(applicationId, mode);
@@ -95,6 +96,7 @@ export function* fetchAppSelectedTheme(
       type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
       payload: response.data,
     });
+    console.log("$$$-fetchAppSelectedTheme-end");
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,

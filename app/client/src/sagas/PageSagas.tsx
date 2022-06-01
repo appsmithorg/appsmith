@@ -304,10 +304,12 @@ export function* fetchPublishedPageSaga(
       pageId,
       bustCache,
     };
+    console.log("$$$-fetchPublishedPageSaga-start");
     const response: FetchPublishedPageResponse = yield call(
       PageApi.fetchPublishedPage,
       request,
     );
+    console.log("$$$-fetchPublishedPageSaga-end");
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       // Clear any existing caches
@@ -321,15 +323,9 @@ export function* fetchPublishedPageSaga(
       // set current page
       yield put(updateCurrentPage(pageId, response.data.slug));
 
-      if (!firstLoad) {
-        // dispatch fetch page success
-        yield put(
-          fetchPublishedPageSuccess(
-            // Execute page load actions post published page eval
-            [executePageLoadActions()],
-          ),
-        );
-      }
+      // dispatch fetch page success
+      yield put(fetchPublishedPageSuccess());
+
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
       );
