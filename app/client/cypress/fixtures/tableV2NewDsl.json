@@ -187,7 +187,24 @@
                 "verticalAlignment": "CENTER",
                 "columnSizeMap": {
                     "email": 261
-                }
+                },
+                "childStylesheet": {
+                  "button": {
+                      "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                  },
+                  "menuButton": {
+                      "menuColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                  },
+                  "iconButton": {
+                      "menuColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                  }
+              }
             },
             {
                 "widgetName": "Text1",

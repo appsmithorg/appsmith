@@ -40,6 +40,7 @@
   "dropDownIcon": ".t--property-control-textsize .bp3-popover-target",
   "onDateSelectedField": ".t--property-control-ondateselected",
   "TableRow": ".t--draggable-tablewidget .tbody",
+  "TableV2Row": ".t--draggable-tablewidgetv2 .tbody",
   "Disablejs": ".t--property-control-disabled",
   "spellCheck": ".t--property-control-spellcheck",
   "requiredjs": ".t--property-control-required",
