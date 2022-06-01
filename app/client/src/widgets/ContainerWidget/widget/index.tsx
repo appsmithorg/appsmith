@@ -182,8 +182,7 @@ class ContainerWidget extends BaseWidget<
     childWidget.canExtend = this.props.shouldScrollContents;
 
     childWidget.parentId = this.props.widgetId;
-    // eslint-disable-next-line
-    // @ts-ignore
+
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
 

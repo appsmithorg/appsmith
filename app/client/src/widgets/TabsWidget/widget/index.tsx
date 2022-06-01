@@ -283,8 +283,6 @@ class TabsWidget extends BaseWidget<
     childWidgetData.parentId = this.props.widgetId;
     childWidgetData.minHeight = componentHeight;
 
-    // eslint-disable-next-line
-    // @ts-ignore
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
