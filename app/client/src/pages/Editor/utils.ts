@@ -3,7 +3,9 @@ import _, { debounce } from "lodash";
 import { useMemo } from "react";
 import ReactDOM from "react-dom";
 import { useLocation } from "react-router";
+import { WidgetType } from "constants/WidgetConstants";
 import ResizeObserver from "resize-observer-polyfill";
+import WidgetFactory from "utils/WidgetFactory";
 
 export const draggableElement = (
   id: string,
@@ -234,3 +236,7 @@ export const useQuery = () => {
   const { search } = useLocation();
   return useMemo(() => new URLSearchParams(search), [search]);
 };
+
+export function isWidgetDeprecated(WidgetType: WidgetType) {
+  return !!WidgetFactory.widgetConfigMap.get(WidgetType)?.isDeprecated;
+}

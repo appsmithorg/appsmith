@@ -4,7 +4,8 @@ let dataSet: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
-  table = ObjectsRegistry.Table;
+  table = ObjectsRegistry.Table,
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("Verify various Table property bugs", function () {
   before(() => {
@@ -26,7 +27,7 @@ describe("Verify various Table property bugs", function () {
       `{{currentRow.image.toString().includes('7') ? currentRow.image.toString().split('full/')[1] : "" }}`,
       true)
 
-    agHelper.DeployApp()
+    deployMode.DeployApp()
 
     //table.SelectTableRow(1)
 
@@ -61,7 +62,7 @@ describe("Verify various Table property bugs", function () {
       `{{currentRow.image.toString().includes('7') ? currentRow.image.toString().split('full/')[1] : null }}`,
       true)
 
-    agHelper.DeployApp()
+    deployMode.DeployApp()
 
     table.ReadTableRowColumnData(0, 0).then(($cellData) => {
       expect($cellData).to.eq("1376499.jpg");
@@ -94,7 +95,7 @@ describe("Verify various Table property bugs", function () {
       `{{currentRow.image.toString().includes('7') ? currentRow.image.toString().split('full/')[1] : undefined }}`,
       true)
 
-    agHelper.DeployApp()
+    deployMode.DeployApp()
 
     table.ReadTableRowColumnData(0, 0).then(($cellData) => {
       expect($cellData).to.eq("1376499.jpg");

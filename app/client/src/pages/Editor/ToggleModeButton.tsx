@@ -45,11 +45,13 @@ import { getAppMode } from "../../selectors/applicationSelectors";
 import { setPreviewModeAction } from "actions/editorActions";
 import {
   getCurrentApplicationId,
+  getIsEditorInitialized,
   previewModeSelector,
 } from "selectors/editorSelectors";
 
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { isExploringSelector } from "selectors/onboardingSelectors";
+import { getIsInitialized } from "selectors/appViewSelectors";
 
 const ModeButton = styled.div<{
   active: boolean;
@@ -296,16 +298,16 @@ export const useHideComments = () => {
   const [shouldHide, setShouldHide] = useState(true);
   const location = useLocation();
   const currentUser = useSelector(getCurrentUser);
+  const isEditorInitialized = useSelector(getIsEditorInitialized);
+  const isViewerInitialized = useSelector(getIsInitialized);
   useEffect(() => {
     const pathName = window.location.pathname;
-    const shouldShow = matchBuilderPath(pathName) || matchViewerPath(pathName);
+    const shouldShow =
+      (matchBuilderPath(pathName) && isEditorInitialized) ||
+      (matchViewerPath(pathName) && isViewerInitialized);
     // Disable comment mode toggle for anonymous users
-    setShouldHide(
-      !shouldShow ||
-        !currentUser ||
-        currentUser.username === ANONYMOUS_USERNAME,
-    );
-  }, [location, currentUser]);
+    setShouldHide(!shouldShow || currentUser?.username === ANONYMOUS_USERNAME);
+  }, [location, currentUser, isEditorInitialized, isViewerInitialized]);
 
   return shouldHide;
 };

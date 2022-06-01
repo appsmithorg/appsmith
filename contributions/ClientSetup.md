@@ -2,9 +2,7 @@
 
 Appsmith's client (UI/frontend) uses the ReactJS library and Typescript. The application also uses libraries like react-redux and redux-saga for workflows. We use VS Code Editor as our primary editor.
 
-
 [![How to Setup Appsmith for Client Side Development](../static/images/client-yt-video-thumbnail.jpg)](https://www.youtube.com/watch?v=FwJlVWVx0X0)
-
 
 ### Pre-requisites:
 
@@ -13,16 +11,18 @@ On your development machine, please ensure that:
 1. You have `docker` installed in your system. If not, please visit: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 1. You have `mkcert` installed. Please visit: [https://github.com/FiloSottile/mkcert#installation](https://github.com/FiloSottile/mkcert#installation) for details. For `mkcert` to work with Firefox, you may need to install the `nss` utility. Details are in the link above.
 
-  Note:
-  - On Linux, you can easily install `mkcert` using the following command
-  ```
-  curl -s https://api.github.com/repos/FiloSottile/mkcert/releases/latest \
-  | grep "browser_download_url.*linux-amd64" \
-  | cut -d : -f 2,3 | tr -d \" \
-  | wget -i - -O mkcert
-  chmod +x  mkcert
-  sudo mv mkcert /usr/local/bin
-  ```
+Note:
+
+- On Linux, you can easily install `mkcert` using the following command
+
+```
+curl -s https://api.github.com/repos/FiloSottile/mkcert/releases/latest \
+| grep "browser_download_url.*linux-amd64" \
+| cut -d : -f 2,3 | tr -d \" \
+| wget -i - -O mkcert
+chmod +x  mkcert
+sudo mv mkcert /usr/local/bin
+```
 
 1. You have `envsubst` installed. Use `brew install gettext` on MacOS. Linux machines usually have this installed.
 1. You have cloned the repo in your local machine.
@@ -69,19 +69,19 @@ On your development machine, please ensure that:
 
 1. Run `yarn install`.
 
-    Note:
+   Note:
 
-    - On the Ubuntu Linux platform, please run the following cmd before step 2 below:
+   - On the Ubuntu Linux platform, please run the following cmd before step 2 below:
 
-        ```
-        echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
-        ```
+     ```
+     echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+     ```
 
 2. Run `yarn start`.
 
-    🎉 Your Appsmith client is now running on https://dev.appsmith.com.
+   🎉 Your Appsmith client is now running on https://dev.appsmith.com.
 
-    This URL must be opened with https and not have port 3000 in it.
+   This URL must be opened with https and not have port 3000 in it.
 
 #### Note:
 
@@ -93,22 +93,22 @@ On your development machine, please ensure that:
 This error occurs because the node version is not compatible with the app environment. In this case, Node version manager can be used, allowing multiple node versions in different projects. Check below for installation and usage details:
 
 1. Install a node version manager. For eg: check [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm).
-1. In the project's root, run `nvm use 14.15.4` or `fnm use 14.15.4`.
+1. In the project's root, run `nvm use 16.14.0` or `fnm use 16.14.0`.
 
 #### If you would like to hit a different Appsmith server:
 
 - You can pass the server URL as an arg to the `start-https.sh` script.
 
-    ```bash
-    ./start-https.sh https://release.app.appsmith.com
-    ```
+  ```bash
+  ./start-https.sh https://release.app.appsmith.com
+  ```
 
 - Run
 
-    ```
-    yarn
-    yarn start
-    ```
+  ```
+  yarn
+  yarn start
+  ```
 
 ### Running Tests on Client
 
@@ -122,6 +122,7 @@ This error occurs because the node version is not compatible with the app enviro
    ```
 
 1. run:
+
 ```bash
   cd app/client
   yarn run test
@@ -129,8 +130,8 @@ This error occurs because the node version is not compatible with the app enviro
 
 Please check out our [Testing Contribution](docs/TestAutomation.md) guide for more details on setting up & troubleshooting Cypress runs on your machine.
 
-
 2. To run the Jest unit tests, run:
+
 ```bash
   cd app/client
   yarn run test:unit
@@ -147,6 +148,7 @@ Before you follow the instructions above, make sure to check the following steps
 3. You have **Docker Desktop** installed with the WSL2 backend. If not, please visit: [https://docs.docker.com/docker-for-windows/wsl/](https://docs.docker.com/docker-for-windows/wsl/).
 
 In the above [Docker Desktop Setup](https://docs.docker.com/docker-for-windows/wsl/) instructions, make sure to:
+
 1. Set WSL Distro to run in WSL2 mode.
 2. Enable integration with the WSL Distro in Docker Desktop.
 3. Install [Remote-WSL](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) extension in VSCode.
@@ -155,11 +157,11 @@ Make sure to Clone the Repo in the WSL file system instead of the Windows file s
 
 And finally, you can open the folder in VSCode with WSL by following the instructions in [Docker Desktop Setup](https://docs.docker.com/docker-for-windows/wsl/),
 or by,
+
 1. Clicking on the Green button on the Bottom Left corner in VSCode.
 2. Selecting **Open Folder in WSL** and navigating to the folder in WSL.
 
 After this, you can continue Setting up from [here](#pre-requisites).
-
 
 ### Troubleshooting
 
