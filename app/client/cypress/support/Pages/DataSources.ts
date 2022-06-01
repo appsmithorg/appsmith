@@ -51,6 +51,12 @@ export class DataSources {
   _refreshIcon = "button .bp3-icon-refresh";
   _addIcon = "button .bp3-icon-add";
   _queryError = "span.t--query-error";
+  _queryResponse = (responseType: string) =>
+    "li[data-cy='t--tab-" + responseType + "']";
+  _queryRecordResult = (recordCount: number) =>
+    "//div/span[text()='Result:']/span[contains(text(),'" +
+    recordCount +
+    " Record')]";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -135,6 +141,7 @@ export class DataSources {
     cy.get(this._createNewPlgin(pluginName))
       .parent("div")
       .trigger("click", { force: true });
+    this.agHelper.WaitUntilToastDisappear("datasource created");
   }
 
   public NavigateToDSCreateNew() {
@@ -203,6 +210,7 @@ export class DataSources {
   public TestDatasource(expectedRes = true) {
     cy.get(this._testDs).click();
     this.agHelper.ValidateNetworkDataSuccess("@testDatasource", expectedRes);
+    this.agHelper.WaitUntilToastDisappear("datasource is valid");
   }
 
   public SaveDatasource() {

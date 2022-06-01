@@ -12,7 +12,7 @@ let agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Validate Mongo CRUD with JSON Form", () => {
   before(() => {
-    dataSources.StartDataSourceRoutes();
+    //dataSources.StartDataSourceRoutes(); //already started in index.js beforeeach
   });
 
   beforeEach(function() {
@@ -73,7 +73,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     });
   });
 
-  it.only("2. Create new app and Generate CRUD page using a new datasource", () => {
+  it("2. Create new app and Generate CRUD page using a new datasource", () => {
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
     agHelper.GetNClick(homePage._buildFromDataTableActionCard);
@@ -127,7 +127,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     agHelper.ValidateNetworkStatus("@deletePage", 200);
   });
 
-  it.only("4. Create new CRUD collection 'AuthorNAwards' & refresh Entity Explorer to find the new table", () => {
+  it("4. Create new CRUD collection 'AuthorNAwards' & refresh Entity Explorer to find the new collection", () => {
     let authorNAwardsArray = `[{
       "_id" : 1,
       "name" : {
@@ -197,8 +197,8 @@ describe("Validate Mongo CRUD with JSON Form", () => {
       ]
   },
   {
-      "_id" : 3,
-      "name" : {
+    "_id" : ObjectId("51df07b094c6acd67e492f42"),
+    "name" : {
           "first" : "Grace",
           "last" : "Hopper"
       },
@@ -346,58 +346,6 @@ describe("Validate Mongo CRUD with JSON Form", () => {
               "by" : "The Japan Prize Foundation"
           }
       ]
-  },
-  {
-      "_id" : 8,
-      "name" : {
-          "first" : "Yukihiro",
-          "aka" : "Matz",
-          "last" : "Matsumoto"
-      },
-      "birth" : "1965-04-14T04:00:00Z",
-      "contribs" : [
-          "Ruby"
-      ],
-      "awards" : [
-          {
-              "award" : "Award for the Advancement of Free Software",
-              "year" : "2011",
-              "by" : "Free Software Foundation"
-          }
-      ]
-  },
-  {
-      "_id" : 9,
-      "name" : {
-          "first" : "James",
-          "last" : "Gosling"
-      },
-      "birth" : "1955-05-19T04:00:00Z",
-      "contribs" : [
-          "Java"
-      ],
-      "awards" : [
-          {
-              "award" : "The Economist Innovation Award",
-              "year" : 2002,
-              "by" : "The Economist"
-          },
-          {
-              "award" : "Officer of the Order of Canada",
-              "year" : 2007,
-              "by" : "Canada"
-          }
-      ]
-  },
-  {
-      "_id" : 10,
-      "name" : {
-          "first" : "Martin",
-          "last" : "Odersky"
-      },
-      "contribs" : [
-          "Scala"
-      ]
   }]`;
 
     dataSources.NavigateFromActiveDS(dsName, true);
@@ -421,13 +369,377 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     });
 
     agHelper.AssertAutoSave();
-    agHelper.Sleep(2000);
+    agHelper.Sleep(2000); //for documents value to settle!
     dataSources.RunQuery();
+    agHelper.Sleep(4000); //for capturing right response!
+    cy.get("@postExecute").then((resObj: any) => {
+      //cy.log("response is " + JSON.stringify(resObj));
+      expect(parseInt(JSON.stringify(resObj.response.body.data.body.n))).to.eq(
+        7,
+      );
+    });
     agHelper.ActionContextMenuWithInPane("Delete");
 
     ee.expandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("AuthorNAwards"));
+  });
+
+  it("5. Validate 'Find' record from new collection & verify query response", () => {
+    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Find");
+    dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
+    RunQueryNVerify();
+  });
+
+  it("6. Validate 'Find by ID' record from new collection & verify query response", () => {
+    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Find by ID");
+    dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
+    agHelper.EnterValue(`{"_id": ObjectId("51df07b094c6acd67e492f41")}`, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Query",
+    });
+    RunQueryNVerify();
+  });
+
+  it("7. Validate 'Insert' record from new collection & verify query response", () => {
+    let insertauthorNAwards = `[{
+  "_id" : 8,
+  "name" : {
+      "first" : "Yukihiro",
+      "aka" : "Matz",
+      "last" : "Matsumoto"
+  },
+  "birth" : "1965-04-14T04:00:00Z",
+  "contribs" : [
+      "Ruby"
+  ],
+  "awards" : [
+      {
+          "award" : "Award for the Advancement of Free Software",
+          "year" : "2011",
+          "by" : "Free Software Foundation"
+      }
+  ]
+},
+{
+  "_id" : 9,
+  "name" : {
+      "first" : "James",
+      "last" : "Gosling"
+  },
+  "birth" : "1955-05-19T04:00:00Z",
+  "contribs" : [
+      "Java"
+  ],
+  "awards" : [
+      {
+          "award" : "The Economist Innovation Award",
+          "year" : 2002,
+          "by" : "The Economist"
+      },
+      {
+          "award" : "Officer of the Order of Canada",
+          "year" : 2007,
+          "by" : "Canada"
+      }
+  ]
+},
+{
+"_id" : ObjectId("51df07b094c6acd67e492f51"),
+"name" : {
+      "first" : "Martin",
+      "last" : "Odersky"
+  },
+  "contribs" : [
+      "Scala"
+  ]
+}]`;
+
+    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Insert");
+    dataSources.ValidateNSelectDropdown("Commands", "Insert Document(s)");
+    agHelper.EnterValue(insertauthorNAwards, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Documents",
+    });
+    dataSources.RunQuery();
+    cy.get("@postExecute").then((resObj: any) => {
+      expect(parseInt(JSON.stringify(resObj.response.body.data.body.n))).to.eq(
+        3,
+      );
+    });
+    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.ActionContextMenuWithInPane("Delete");
+  });
+
+  it("8. Validate 'Update' record from new collection & verify query response - Record not present - All Matching Document", () => {
+    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
+    dataSources.ValidateNSelectDropdown("Commands", "Update Document(s)");
+    agHelper.EnterValue(`{"_id": 3}`, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Query",
+    });
+
+    agHelper.EnterValue(`{ "$set": { "birth": "1906-12-09T06:00:00Z" } }`, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Update",
+    });
+    dataSources.ValidateNSelectDropdown("Limit", "All Matching Documents");
+    dataSources.RunQuery();
+    cy.get("@postExecute").then((resObj: any) => {
+      expect(
+        parseInt(JSON.stringify(resObj.response.body.data.body.nModified)),
+      ).to.eq(0);
+    });
+    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.ActionContextMenuWithInPane("Delete");
+  });
+
+  it("9. Validate 'Update' record from new collection & verify query response - Record present - All Matching Document", () => {
+    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
+    dataSources.ValidateNSelectDropdown("Commands", "Update Document(s)");
+    agHelper.EnterValue(
+      `{
+      "name.first": "John",
+      "awards": {
+        "$elemMatch": {
+          "award": "Turing Award"
+        }
+      }
+    }`,
+      {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Query",
+      },
+    );
+
+    agHelper.EnterValue(`{ "$set": { "year": "1988" } }`, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Update",
+    });
+    dataSources.ValidateNSelectDropdown("Limit", "All Matching Documents");
+    dataSources.RunQuery();
+    cy.get("@postExecute").then((resObj: any) => {
+      expect(
+        parseInt(JSON.stringify(resObj.response.body.data.body.nModified)),
+      ).to.eq(2);
+    });
+    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.ActionContextMenuWithInPane("Delete");
+  });
+
+  it("10. Validate 'Update' record from new collection & verify query response - Record present - Single Document", () => {
+    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
+    dataSources.ValidateNSelectDropdown("Commands", "Update Document(s)");
+    agHelper.EnterValue(`{"_id": 4}`, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Query",
+    });
+
+    agHelper.EnterValue(`{ "$set": { "birth": "1926-08-27T05:00:00Z" } }`, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Update",
+    });
+    dataSources.ValidateNSelectDropdown(
+      "Limit",
+      "All Matching Documents",
+      "Single Document",
+    );
+
+    dataSources.RunQuery();
+    cy.get("@postExecute").then((resObj: any) => {
+      expect(
+        parseInt(JSON.stringify(resObj.response.body.data.body.nModified)),
+      ).to.eq(1);
+    });
+    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.ActionContextMenuWithInPane("Delete");
+  });
+
+  it("11. Validate 'Delete' record from new collection & verify query response - Record not present - Single Document", () => {
+    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
+    dataSources.ValidateNSelectDropdown("Commands", "Delete Document(s)");
+    agHelper.EnterValue(`{ "_id": ObjectId("51df07b094c6acd67e492f43") }`, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Query",
+    });
+    dataSources.ValidateNSelectDropdown("Limit", "Single Document");
+    dataSources.RunQuery();
+    cy.get("@postExecute").then((resObj: any) => {
+      expect(parseInt(JSON.stringify(resObj.response.body.data.body.n))).to.eq(
+        0,
+      );
+    });
+    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.ActionContextMenuWithInPane("Delete");
+  });
+
+  it("12. Validate 'Delete' record from new collection & verify query response - Record present - Single Document", () => {
+    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
+    dataSources.ValidateNSelectDropdown("Commands", "Delete Document(s)");
+    agHelper.EnterValue(`{ "_id": ObjectId("51df07b094c6acd67e492f41") }`, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Query",
+    });
+
+    dataSources.ValidateNSelectDropdown("Limit", "Single Document");
+
+    dataSources.RunQuery();
+    cy.get("@postExecute").then((resObj: any) => {
+      expect(parseInt(JSON.stringify(resObj.response.body.data.body.n))).to.eq(
+        1,
+      );
+    });
+    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.ActionContextMenuWithInPane("Delete");
+  });
+
+  it("13. Validate 'Delete' record from new collection & verify query response - Record present - All Matching Document", () => {
+    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
+    dataSources.ValidateNSelectDropdown("Commands", "Delete Document(s)");
+    agHelper.EnterValue(`{ "awards.award": "Rosing Prize" }`, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Query",
+    });
+
+    dataSources.ValidateNSelectDropdown(
+      "Limit",
+      "Single Document",
+      "All Matching Documents",
+    );
+
+    dataSources.RunQuery();
+    cy.get("@postExecute").then((resObj: any) => {
+      expect(Number(JSON.stringify(resObj.response.body.data.body.n))).to.eq(2);
+    });
+    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.ActionContextMenuWithInPane("Delete");
+  });
+
+  it("14. Validate 'Count' record from new collection & verify query response", () => {
+    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Count");
+    dataSources.ValidateNSelectDropdown("Commands", "Count");
+    dataSources.RunQuery();
+    cy.get("@postExecute").then((resObj: any) => {
+      expect(Number(JSON.stringify(resObj.response.body.data.body.n))).to.eq(7);
+    });
+    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.ActionContextMenuWithInPane("Delete");
+  });
+
+  it("15. Validate 'Distinct' record from new collection & verify query response", () => {
+    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Distinct");
+    dataSources.ValidateNSelectDropdown("Commands", "Distinct");
+    agHelper.EnterValue(`{ "awards.award": "National Medal of Technology" }`, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Query",
+    });
+
+    dataSources.RunQuery();
+    cy.get("@postExecute").then((resObj: any) => {
+      expect(
+        JSON.parse(JSON.stringify(resObj.response.body.data.body.values[0])),
+      ).to.eql("51df07b094c6acd67e492f42");
+      expect(
+        JSON.parse(JSON.stringify(resObj.response.body.data.body.values[1])),
+      ).to.eql("51e062189c6ae665454e301d");
+    });
+    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.ActionContextMenuWithInPane("Delete");
+  });
+
+  it("16. Validate 'Aggregate' record from new collection & verify query response", () => {
+    ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Aggregate");
+    dataSources.ValidateNSelectDropdown("Commands", "Aggregate");
+    RunQueryNVerify(7);
+  });
+
+  it("17. Verify Generate CRUD for the new collection & Verify Deploy mode for table - AuthorNAwards", () => {
+    dataSources.NavigateFromActiveDS(dsName, false);
+    agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    agHelper.GetNClick(dataSources._selectTableDropdown);
+    agHelper.GetNClickByContains(dataSources._dropdownOption, "AuthorNAwards");
+    GenerateCRUDNValidateDeployPage(
+      `[{"award":"Award for the Advancement of Free Software","year":2001,"by":"Free Software Foundation"},{"award":"NLUUG Award","year":2003,"by":"NLUUG"}]`,
+      "6",
+      "",
+      3,
+    );
+    // agHelper.NavigateBacktoEditor();
+    // table.WaitUntilTableLoad();
+  });
+
+  //Update, delete, Add goes here
+
+  it("18. Validate Deletion of the Newly Created Page - AuthorNAwards", () => {
+    agHelper.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
+    //Delete the test data
+    ee.expandCollapseEntity("PAGES");
+    ee.ActionContextMenuByEntityName(
+      "AuthorNAwards",
+      "Delete",
+      "Are you sure?",
+    );
+    agHelper.ValidateNetworkStatus("@deletePage", 200);
+  });
+
+  it("19. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
+    let dropCollection = `{ "drop": "AuthorNAwards" }`;
+    dataSources.NavigateFromActiveDS(dsName, true);
+
+    dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
+    agHelper.GetNClick(dataSources._templateMenu);
+
+    agHelper.RenameWithInPane("DropAuthorNAwardsPage");
+    agHelper.EnterValue(dropCollection);
+    cy.get(".CodeMirror textarea").focus();
+    //agHelper.VerifyEvaluatedValue(tableCreateQuery);
+
+    dataSources.RunQuery();
+    agHelper.ActionContextMenuWithInPane("Delete");
+    ee.expandCollapseEntity(dsName);
+    ee.ActionContextMenuByEntityName(dsName, "Refresh");
+    agHelper.AssertElementAbsence(ee._entityNameInExplorer("AuthorNAwards"));
+  });
+
+  it("20. Verify application does not break when user runs the query with wrong table name", function() {
+    let dropCollection = `{ "drop": "AuthorNAwards" }`;
+    dataSources.NavigateFromActiveDS(dsName, true);
+    dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
+    agHelper.GetNClick(dataSources._templateMenu);
+    agHelper.RenameWithInPane("DropStores");
+    agHelper.EnterValue(dropCollection);
+    cy.get(".CodeMirror textarea").focus();
+    //agHelper.VerifyEvaluatedValue(tableCreateQuery);
+
+    dataSources.RunQuery(false);
+    agHelper
+      .GetText(dataSources._queryError)
+      .then(($errorText) =>
+        expect($errorText).to.eq("ns not found."),
+      );
+    agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   function GenerateCRUDNValidateDeployPage(
@@ -468,5 +780,15 @@ describe("Validate Mongo CRUD with JSON Form", () => {
         });
     });
     dataSources.AssertJSONFormHeader(0, idIndex, "Id", "", true);
+  }
+
+  function RunQueryNVerify(expectdRecordCount = 1) {
+    dataSources.RunQuery();
+    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
+    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
+    agHelper.AssertElementVisible(
+      dataSources._queryRecordResult(expectdRecordCount),
+    );
+    agHelper.ActionContextMenuWithInPane("Delete");
   }
 });
