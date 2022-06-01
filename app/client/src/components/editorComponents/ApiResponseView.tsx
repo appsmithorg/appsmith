@@ -1,4 +1,4 @@
-import React, { useRef, RefObject, useCallback } from "react";
+import React, { useRef, RefObject, useCallback, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
@@ -61,6 +61,10 @@ const ResponseContainer = styled.div`
   .react-tabs__tab-panel {
     overflow: hidden;
   }
+
+  .react-tabs__tab-panel > * {
+    padding-bottom: 10px;
+  }
 `;
 const ResponseMetaInfo = styled.div`
   display: flex;
@@ -102,7 +106,7 @@ const TabbedViewWrapper = styled.div`
 `;
 
 const SectionDivider = styled.div`
-  height: 2px;
+  height: 1px;
   width: 100%;
   background: ${(props) => props.theme.colors.apiPane.dividerBg};
 `;
@@ -153,9 +157,9 @@ const StyledCallout = styled(Callout)`
   }
 `;
 
-const InlineButton = styled(Button)`
+export const InlineButton = styled(Button)`
   display: inline-flex;
-  margin: 0 4px;
+  margin: 0 8px;
 `;
 
 const HelpSection = styled.div`
@@ -164,7 +168,10 @@ const HelpSection = styled.div`
 `;
 
 const ResponseBodyContainer = styled.div`
-  padding-bottom: 5px;
+  padding-top: 10px;
+  overflow-y: auto;
+  height: 100%;
+  display: grid;
 `;
 
 interface ReduxStateProps {
@@ -222,12 +229,14 @@ const ResponseDataContainer = styled.div`
   flex: 1;
   overflow: auto;
   display: flex;
-  margin-bottom: 10px;
+  padding-bottom: 10px;
   flex-direction: column;
   & .CodeEditorTarget {
     overflow: hidden;
   }
 `;
+
+export const TableCellHeight = 39;
 
 export const responseTabComponent = (
   responseType: string,
@@ -297,6 +306,10 @@ function ApiResponseView(props: Props) {
     });
   };
 
+  const [tableBodyHeight, setTableBodyHeightHeight] = useState(
+    window.innerHeight,
+  );
+
   const messages = response?.messages;
   let responseHeaders = {};
 
@@ -325,7 +338,11 @@ function ApiResponseView(props: Props) {
         index: index,
         key: dataType.key,
         title: dataType.title,
-        panelComponent: responseTabComponent(dataType.key, response.body),
+        panelComponent: responseTabComponent(
+          dataType.key,
+          response.body,
+          tableBodyHeight,
+        ),
       };
     });
 
@@ -345,8 +362,8 @@ function ApiResponseView(props: Props) {
 
   const tabs = [
     {
-      key: "body",
-      title: "Body",
+      key: "response",
+      title: "Response",
       panelComponent: (
         <ResponseTabWrapper>
           {Array.isArray(messages) && messages.length > 0 && (
@@ -488,7 +505,13 @@ function ApiResponseView(props: Props) {
 
   return (
     <ResponseContainer ref={panelRef}>
-      <Resizer panelRef={panelRef} />
+      <Resizer
+        panelRef={panelRef}
+        setContainerDimensions={(height: number) =>
+          // TableCellHeight in this case is the height of one table cell in pixels.
+          setTableBodyHeightHeight(height - TableCellHeight)
+        }
+      />
       <SectionDivider />
       {isRunning && (
         <LoadingOverlayScreen theme={props.theme}>

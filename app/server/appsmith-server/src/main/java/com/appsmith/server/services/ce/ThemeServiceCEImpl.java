@@ -2,7 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
@@ -13,6 +13,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.ce.ThemeRepositoryCE;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -28,18 +29,21 @@ import javax.validation.Validator;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
 @Slf4j
 public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, String> implements ThemeServiceCE {
 
     private final ApplicationRepository applicationRepository;
+    private final ApplicationService applicationService;
     private final PolicyGenerator policyGenerator;
     private String defaultThemeId;  // acts as a simple cache so that we don't need to fetch from DB always
 
-    public ThemeServiceCEImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ThemeRepository repository, AnalyticsService analyticsService, ApplicationRepository applicationRepository, PolicyGenerator policyGenerator) {
+    public ThemeServiceCEImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ThemeRepository repository, AnalyticsService analyticsService, ApplicationRepository applicationRepository, ApplicationService applicationService, PolicyGenerator policyGenerator) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.applicationRepository = applicationRepository;
+        this.applicationService = applicationService;
         this.policyGenerator = policyGenerator;
     }
 
@@ -68,8 +72,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     }
 
     @Override
-    public Mono<Theme> getApplicationTheme(String applicationId, ApplicationMode applicationMode) {
-        return applicationRepository.findById(applicationId, AclPermission.READ_APPLICATIONS)
+    public Mono<Theme> getApplicationTheme(String applicationId, ApplicationMode applicationMode, String branchName) {
+        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
                 )
@@ -87,8 +91,9 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     }
 
     @Override
-    public Flux<Theme> getApplicationThemes(String applicationId) {
-        return repository.getApplicationThemes(applicationId, READ_THEMES);
+    public Flux<Theme> getApplicationThemes(String applicationId, String branchName) {
+        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, READ_APPLICATIONS)
+                .flatMapMany(application -> repository.getApplicationThemes(application.getId(), READ_THEMES));
     }
 
     @Override
@@ -97,8 +102,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     }
 
     @Override
-    public Mono<Theme> updateTheme(String applicationId, Theme resource) {
-        return applicationRepository.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+    public Mono<Theme> updateTheme(String applicationId, String branchName, Theme resource) {
+        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
                 .flatMap(application -> {
                     // makes sure user has permission to edit application and an application exists by this applicationId
                     // check if this application has already a customized them
@@ -107,8 +112,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     }
 
     @Override
-    public Mono<Theme> changeCurrentTheme(String newThemeId, String applicationId) {
-        return applicationRepository.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+    public Mono<Theme> changeCurrentTheme(String newThemeId, String applicationId, String branchName) {
+        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
                 )
@@ -137,11 +142,11 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                                         && !StringUtils.hasLength(currentTheme.getApplicationId())) {
                                     // current theme is neither a system theme nor app theme, delete the user customizations
                                     return repository.delete(currentTheme).then(applicationRepository.setAppTheme(
-                                            applicationId, savedTheme.getId(),null, MANAGE_APPLICATIONS
+                                            application.getId(), savedTheme.getId(),null, MANAGE_APPLICATIONS
                                     )).thenReturn(savedTheme);
                                 } else {
                                     return applicationRepository.setAppTheme(
-                                            applicationId, savedTheme.getId(),null, MANAGE_APPLICATIONS
+                                            application.getId(), savedTheme.getId(),null, MANAGE_APPLICATIONS
                                     ).thenReturn(savedTheme);
                                 }
                             }).flatMap(savedTheme ->
@@ -269,8 +274,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     }
 
     @Override
-    public Mono<Theme> persistCurrentTheme(String applicationId, Theme resource) {
-        return applicationRepository.findById(applicationId, MANAGE_APPLICATIONS)
+    public Mono<Theme> persistCurrentTheme(String applicationId, String branchName, Theme resource) {
+        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
                 )
@@ -288,7 +293,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                     Application application = themeAndApplicationTuple.getT2();
                     theme.setId(null); // we'll create a copy so setting id to null
                     theme.setSystemTheme(false);
-                    theme.setApplicationId(applicationId);
+                    theme.setApplicationId(application.getId());
                     theme.setOrganizationId(application.getOrganizationId());
                     theme.setPolicies(policyGenerator.getAllChildPolicies(
                             application.getPolicies(), Application.class, Theme.class
@@ -393,5 +398,18 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
             ));
             return repository.save(theme);
         }
+    }
+
+    /**
+     * This will archive themes related to the provided Application.
+     * It'll delete any theme that was saved for this application. It'll also delete the draft themes for this Application.
+     * @param application Application object
+     * @return Provided Application publisher
+     */
+    @Override
+    public Mono<Application> archiveApplicationThemes(Application application) {
+        return repository.archiveByApplicationId(application.getId())
+                .then(repository.archiveDraftThemesById(application.getEditModeThemeId(), application.getPublishedModeThemeId()))
+                .thenReturn(application);
     }
 }

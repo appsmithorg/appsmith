@@ -24,9 +24,11 @@ export type TooltipProps = CommonComponentProps & {
   modifiers?: Modifiers;
   isOpen?: boolean;
   onOpening?: typeof noop;
+  popoverClassName?: string;
   donotUsePortal?: boolean;
   underline?: boolean;
   styles?: any;
+  transitionDuration?: number;
 };
 
 const portalContainer = document.getElementById("tooltip-root");
@@ -71,9 +73,11 @@ function TooltipComponent(props: TooltipProps) {
       }}
       onOpening={props.onOpening}
       openOnTargetFocus={props.openOnTargetFocus}
-      popoverClassName={GLOBAL_STYLE_TOOLTIP_CLASSNAME}
+      popoverClassName={`${GLOBAL_STYLE_TOOLTIP_CLASSNAME} ${props.popoverClassName ??
+        ""}`}
       portalContainer={portalContainer as HTMLDivElement}
       position={props.position}
+      transitionDuration={props.transitionDuration || 0}
       usePortal={!props.donotUsePortal}
       {...(props.styles || {})}
     >

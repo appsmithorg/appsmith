@@ -1,4 +1,5 @@
 import {
+  ARE_YOU_SURE,
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
   CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES,
   CHANGES_ONLY_MIGRATION,
@@ -22,6 +23,10 @@ import {
   DEPLOY,
   DEPLOY_KEY_TITLE,
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
+  DISCARD_CHANGES,
+  DISCARD_CHANGES_WARNING,
+  DISCARD_SUCCESS,
+  DISCARDING_AND_PULLING_CHANGES,
   DISCONNECT,
   DISCONNECT_CAUSE_APPLICATION_BREAK,
   DISCONNECT_EXISTING_REPOSITORIES,
@@ -42,6 +47,7 @@ import {
   GIT_SETTINGS,
   GIT_UPSTREAM_CHANGES,
   GIT_USER_UPDATED_SUCCESSFULLY,
+  IMPORTING_APP_FROM_GIT,
   INVALID_USER_DETAILS_MSG,
   IS_MERGING,
   MERGE,
@@ -66,6 +72,11 @@ import {
   SUBMIT,
   UPDATE_CONFIG,
   USE_DEFAULT_CONFIGURATION,
+  UPLOADING_JSON,
+  UPLOADING_APPLICATION,
+  IMPORT_APP_FROM_FILE_MESSAGE,
+  IMPORT_APP_FROM_GIT_MESSAGE,
+  IMPORT_FROM_GIT_REPOSITORY,
 } from "./messages";
 
 describe("messages", () => {
@@ -108,9 +119,9 @@ describe("git-sync messages", () => {
     },
     {
       key: "COMMITTING_AND_PUSHING_CHANGES",
-      value: "COMMITTING AND PUSHING CHANGES...",
+      value: "Committing and pushing changes...",
     },
-    { key: "IS_MERGING", value: "MERGING CHANGES..." },
+    { key: "IS_MERGING", value: "Merging changes..." },
     {
       key: "MERGE_CHANGES",
       value: "Merge changes",
@@ -137,7 +148,7 @@ describe("git-sync messages", () => {
     },
     {
       key: "REMOTE_URL_INPUT_PLACEHOLDER",
-      value: "git://example.com:user/repo.git",
+      value: "ssh://example.com:user/repo.git",
     },
     { key: "COPIED_SSH_KEY", value: "Copied SSH Key" },
     {
@@ -273,8 +284,33 @@ describe("git-sync messages", () => {
       value: "Appsmith update and user changes since last commit",
     },
     { key: "MERGED_SUCCESSFULLY", value: "Merged successfully" },
+    {
+      key: "DISCARD_CHANGES_WARNING",
+      value: "Discarding these changes will pull previous changes from Git.",
+    },
+    {
+      key: "DISCARD_SUCCESS",
+      value: "Discarded changes successfully.",
+    },
+    {
+      key: "DISCARDING_AND_PULLING_CHANGES",
+      value: "Discarding and pulling changes...",
+    },
+    {
+      key: "ARE_YOU_SURE",
+      value: "Are you sure?",
+    },
+    {
+      key: "DISCARD_CHANGES",
+      value: "Discard changes",
+    },
+    {
+      key: "IMPORTING_APP_FROM_GIT",
+      value: "Importing application from git",
+    },
   ];
   const functions = [
+    ARE_YOU_SURE,
     CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
     CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES,
     CHANGES_ONLY_MIGRATION,
@@ -297,11 +333,17 @@ describe("git-sync messages", () => {
     DEPLOY,
     DEPLOY_KEY_TITLE,
     DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
+    DISCARDING_AND_PULLING_CHANGES,
+    DISCARD_CHANGES,
+    DISCARD_CHANGES_WARNING,
+    DISCARD_SUCCESS,
     DISCONNECT,
     DISCONNECT_CAUSE_APPLICATION_BREAK,
     DISCONNECT_EXISTING_REPOSITORIES,
     DISCONNECT_EXISTING_REPOSITORIES_INFO,
     DISCONNECT_GIT,
+    ERROR_GIT_AUTH_FAIL,
+    ERROR_GIT_INVALID_REMOTE,
     ERROR_WHILE_PULLING_CHANGES,
     FETCH_GIT_STATUS,
     FETCH_MERGE_STATUS,
@@ -314,6 +356,7 @@ describe("git-sync messages", () => {
     GIT_SETTINGS,
     GIT_UPSTREAM_CHANGES,
     GIT_USER_UPDATED_SUCCESSFULLY,
+    IMPORTING_APP_FROM_GIT,
     INVALID_USER_DETAILS_MSG,
     IS_MERGING,
     MERGE,
@@ -338,8 +381,43 @@ describe("git-sync messages", () => {
     SUBMIT,
     UPDATE_CONFIG,
     USE_DEFAULT_CONFIGURATION,
-    ERROR_GIT_AUTH_FAIL,
-    ERROR_GIT_INVALID_REMOTE,
+  ];
+  functions.forEach((fn: () => string) => {
+    it(`${fn.name} returns expected value`, () => {
+      const actual = createMessage(fn);
+      const found = expectedMessages.find((em) => em.key === fn.name);
+      const expected = found && found.value;
+      expect(actual).toEqual(expected);
+    });
+  });
+});
+
+describe("import application messages", () => {
+  const expectedMessages = [
+    { key: "UPLOADING_JSON", value: "Uploading JSON file" },
+    {
+      key: "UPLOADING_APPLICATION",
+      value: "Uploading application",
+    },
+    {
+      key: "IMPORT_APP_FROM_FILE_MESSAGE",
+      value: "Drag and drop your file or upload from your computer",
+    },
+    {
+      key: "IMPORT_APP_FROM_GIT_MESSAGE",
+      value: "Import an application from its git repository using its SSH URL",
+    },
+    {
+      key: "IMPORT_FROM_GIT_REPOSITORY",
+      value: "Import from git repository",
+    },
+  ];
+  const functions = [
+    UPLOADING_JSON,
+    UPLOADING_APPLICATION,
+    IMPORT_APP_FROM_FILE_MESSAGE,
+    IMPORT_APP_FROM_GIT_MESSAGE,
+    IMPORT_FROM_GIT_REPOSITORY,
   ];
   functions.forEach((fn: () => string) => {
     it(`${fn.name} returns expected value`, () => {

@@ -23,6 +23,7 @@ import SegmentHeader from "components/ads/ListSegmentHeader";
 import { useTheme } from "styled-components";
 import { findIndex, isArray } from "lodash";
 import TooltipComponent from "components/ads/Tooltip";
+import { SubTextPosition } from "components/constants";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
 
@@ -34,6 +35,7 @@ export type DropdownOption = {
   leftElement?: string;
   searchText?: string;
   subText?: string;
+  subTextPosition?: SubTextPosition;
   iconSize?: IconSize;
   iconColor?: string;
   onSelect?: DropdownOnSelect;
@@ -41,11 +43,13 @@ export type DropdownOption = {
   isSectionHeader?: boolean;
   disabled?: boolean;
   disabledTooltipText?: string;
+  hasCustomBadge?: boolean;
 };
 export interface DropdownSearchProps {
   enableSearch?: boolean;
   searchPlaceholder?: string;
   onSearch?: (value: any) => void;
+  searchAutoFocus?: boolean;
 }
 
 export interface RenderDropdownOptionType {
@@ -58,7 +62,7 @@ export interface RenderDropdownOptionType {
   optionWidth: string;
 }
 
-type RenderOption = ({
+export type RenderOption = ({
   hasError,
   index,
   option,
@@ -91,6 +95,7 @@ export type DropdownProps = CommonComponentProps &
     errorMsg?: string; // If errorMsg is defined, we show dropDown's error state with the message.
     placeholder?: string;
     helperText?: string;
+    wrapperBgColor?: string;
     /**
      * if fillOptions is true,
      * dropdown popover width will be same as dropdown width
@@ -104,6 +109,9 @@ export type DropdownProps = CommonComponentProps &
     defaultIcon?: IconName;
     allowDeselection?: boolean; //prevents de-selection of the selected option
     truncateOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
+    portalClassName?: string;
+    customBadge?: JSX.Element;
+    selectedHighlightBg?: string;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption | DropdownOption[];
@@ -137,8 +145,7 @@ const DropdownTriggerWrapper = styled.div<{
     props.isOpen && !props.disabled
       ? `
       box-sizing: border-box;
-      border: 1px solid ${Colors.GREEN_1};
-      box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
+      border: 1px solid var(--appsmith-color-black-900);
     `
       : null};
   .${Classes.TEXT} {
@@ -149,39 +156,32 @@ const DropdownTriggerWrapper = styled.div<{
   }
 `;
 
-const StyledCheckmark = styled(Check)`
-  width: 14px;
-  height: 14px;
-  position: absolute;
-  top: -1px;
-  left: -1px;
-`;
-
 const StyledClose = styled(Close)`
-  width: 24px;
-  height: 24px;
-  padding: 3px;
-  padding-right: 10px;
+  width: 18px;
+  height: 18px;
+  margin-right: -2px;
   &:hover {
     background-color: #ebebeb;
   }
 `;
 const SquareBox = styled.div<{
-  backgroundColor?: string;
-  borderColor?: string;
+  checked: boolean;
 }>`
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   box-sizing: border-box;
-  position: relative;
   margin-right: 10px;
   background-color: ${(props) =>
-    props.backgroundColor ? props.backgroundColor : "transparent"};
-  border: ${(props) =>
-    props.borderColor
-      ? `1.8px solid ${props.borderColor}`
-      : "1.8px solid #A9A7A7"};
-  border-width: 1.8px;
+    props.checked ? Colors.GRAY_900 : Colors.WHITE};
+  border: 1.4px solid;
+  border-color: ${(props) =>
+    props.checked ? Colors.GRAY_900 : Colors.GRAY_400};
+
+  & svg {
+    display: ${(props) => (props.checked ? "block" : "none")};
+    width: 14px;
+    height: 14px;
+  }
 `;
 
 const Selected = styled.div<{
@@ -259,7 +259,8 @@ const Selected = styled.div<{
         ? props.hasError
           ? Colors.FAIR_PINK
           : props.theme.colors.dropdown.hovered.bg
-        : Colors.WHITE}
+        : Colors.WHITE};
+  }
 `;
 
 export const DropdownContainer = styled.div<{ width: string; height?: string }>`
@@ -269,13 +270,17 @@ export const DropdownContainer = styled.div<{ width: string; height?: string }>`
   span.bp3-popover-target {
     display: inline-block;
     width: 100%;
+    height: 100%;
+  }
+  span.bp3-popover-target div {
+    height: 100%;
   }
 
   span.bp3-popover-wrapper {
     width: 100%;
   }
 
-  &:focus-visible ${Selected} {
+  &:focus ${Selected} {
     border: 1px solid var(--appsmith-input-focus-border-color);
   }
 `;
@@ -285,34 +290,41 @@ const DropdownSelect = styled.div``;
 export const DropdownWrapper = styled.div<{
   width: string;
   isOpen: boolean;
+  wrapperBgColor?: string;
 }>`
   width: ${(props) => props.width};
-  height: fit-content;
   z-index: 1;
-  background-color: ${(props) => props.theme.colors.dropdown.menu.bg};
+  background-color: ${(props) => props.wrapperBgColor};
   border: 1px solid ${(props) => props.theme.colors.dropdown.menu.border};
-  padding: ${(props) => props.theme.spaces[3]}px 0;
   overflow: hidden;
+  overflow-y: auto;
+  box-shadow: 0px 12px 16px -4px rgba(0, 0, 0, 0.1),
+    0px 4px 6px -2px rgba(0, 0, 0, 0.05);
   display: ${(props) => (props.isOpen ? "inline-block" : "none")};
   .dropdown-search {
     margin: 4px 12px 8px;
     width: calc(100% - 24px);
 
     input {
-      height: 36px;
+      height: 32px;
       font-size: 14px !important;
-      color: ${Colors.GREY_10} !important;
+      color: ${Colors.GRAY_700} !important;
       padding-left: 36px !important;
+      border: 1.2px solid ${Colors.GRAY_200};
+
+      &:hover {
+        background: ${Colors.GRAY_50};
+      }
 
       &:focus {
-        border: 1.2px solid ${Colors.GREEN_1};
-        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
+        color: ${Colors.GRAY_900};
+        border: 1.2px solid var(--appsmith-color-black-900);
       }
     }
 
     .bp3-icon-search {
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       margin: 0px;
       display: flex;
       align-items: center;
@@ -320,13 +332,16 @@ export const DropdownWrapper = styled.div<{
 
       svg {
         width: 14px;
+        path {
+          fill: ${Colors.GRAY_700};
+        }
       }
     }
   }
 `;
 
 const SearchComponentWrapper = styled.div`
-  margin: 0px 5px 5px;
+  margin: 0px 8px 8px 8px;
 `;
 
 const DropdownOptionsWrapper = styled.div<{
@@ -341,18 +356,44 @@ const DropdownOptionsWrapper = styled.div<{
   overflow-x: hidden;
 `;
 
+const StyledSubText = styled(Text)<{
+  showDropIcon?: boolean;
+  subTextPosition?: SubTextPosition;
+}>`
+  ${(props) =>
+    props.subTextPosition === SubTextPosition.BOTTOM
+      ? "margin-top: 3px"
+      : "margin-left: auto"};
+  &&& {
+    color: ${(props) => props.theme.colors.dropdown.menu.subText};
+  }
+  &.sub-text {
+    color: ${(props) => props.theme.colors.dropdown.selected.subtext};
+    text-align: end;
+    margin-right: ${(props) => `${props.theme.spaces[4]}px`};
+  }
+`;
+
 const OptionWrapper = styled.div<{
   disabled?: boolean;
   selected: boolean;
+  subTextPosition?: SubTextPosition;
+  selectedHighlightBg?: string;
 }>`
-  padding: ${(props) => props.theme.spaces[2] + 1}px
+  padding: ${(props) => props.theme.spaces[3] + 1}px
     ${(props) => props.theme.spaces[5]}px;
   ${(props) => (!props.disabled ? "cursor: pointer" : "")};
   display: flex;
-  align-items: center;
   width: 100%;
   min-height: 36px;
-  background-color: ${(props) => (props.selected ? Colors.GREEN_3 : null)};
+  flex-direction: ${(props) =>
+    props.subTextPosition === SubTextPosition.BOTTOM ? "column" : "row"};
+  align-items: ${(props) =>
+    props.subTextPosition === SubTextPosition.BOTTOM ? "flex-start" : "center"};
+  background-color: ${(props) =>
+    props.selected
+      ? props.selectedHighlightBg || `var(--appsmith-color-black-200)`
+      : null};
   &&& svg {
     rect {
       fill: ${(props) => props.theme.colors.dropdownIconBg};
@@ -385,7 +426,8 @@ const OptionWrapper = styled.div<{
   }
 
   &:hover {
-    background-color: ${Colors.GREEN_3};
+    background-color: ${(props) =>
+      props.selectedHighlightBg || props.theme.colors.dropdown.menu.hover};
 
     &&& svg {
       rect {
@@ -395,6 +437,10 @@ const OptionWrapper = styled.div<{
 
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.dropdown.menu.hoverText};
+    }
+
+    ${StyledSubText} {
+      color: ${(props) => props.theme.colors.dropdown.menu.subText};
     }
 
     .${Classes.ICON} {
@@ -421,20 +467,6 @@ const LabelWrapper = styled.div<{ label?: string }>`
   }
 `;
 
-const StyledSubText = styled(Text)<{
-  showDropIcon?: boolean;
-}>`
-  margin-left: auto;
-  && {
-    color: ${(props) => props.theme.colors.dropdown.menu.subText};
-  }
-  &.sub-text {
-    color: ${(props) => props.theme.colors.dropdown.selected.subtext};
-    text-align: end;
-    margin-right: ${(props) => `${props.theme.spaces[4]}px`};
-  }
-`;
-
 const LeftIconWrapper = styled.span`
   font-size: 20px;
   line-height: 19px;
@@ -450,18 +482,26 @@ const HeaderWrapper = styled.div`
   padding: 0px 7px 7px 7px;
 `;
 
-const SelectedDropDownHolder = styled.div`
+const SelectedDropDownHolder = styled.div<{ enableScroll?: boolean }>`
   display: flex;
   align-items: center;
   min-width: 0;
   max-width: 100%;
-  overflow: hidden;
+  overflow: ${(props) => (props.enableScroll ? "auto" : "hidden")};
   width: 100%;
 
   & ${Text} {
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  &.custom-render-option > * {
+    // below if to override any custom margin and padding added in the render option
+    // because the above container already comes with a padding
+    // which will result broken UI
+    margin: 0 !important;
+    padding: 0 !important;
   }
 `;
 
@@ -495,7 +535,6 @@ const SelectedIcon = styled(Icon)`
 `;
 
 const DropdownIcon = styled(Icon)`
-  margin-right: 7px;
   svg {
     fill: ${(props) =>
       props.fillColor ? props.fillColor : props.theme.colors.dropdown.icon};
@@ -524,6 +563,24 @@ const StyledText = styled(Text)`
   text-overflow: ellipsis;
   white-space: nowrap;
 `;
+
+const ChipsWrapper = styled.div`
+  display: flex;
+`;
+
+const Chips = styled.div`
+  border: 1.2px solid ${Colors.GRAY_400};
+  display: flex;
+  height: 24px;
+  align-items: center;
+  padding: 4px 8px;
+  margin-right: 8px;
+`;
+
+const scrollIntoViewOptions: ScrollIntoViewOptions = {
+  behavior: "smooth",
+  block: "nearest",
+};
 
 function TooltipWrappedText(
   props: TextProps & {
@@ -570,22 +627,11 @@ function DefaultDropDownValueNode({
   function Label() {
     if (isMultiSelect && Array.isArray(selected) && selected.length) {
       return (
-        <div style={{ display: "flex", width: "100%", flexWrap: "wrap" }}>
+        <ChipsWrapper>
           {selected?.map((s: DropdownOption) => {
             return (
-              <div
-                key={s.value}
-                style={{
-                  border: "1.2px solid #E0DEDE",
-                  display: "flex",
-                  alignItems: "center",
-                  lineHeight: "19px",
-                  margin: "2px 2px",
-                }}
-              >
-                <span style={{ padding: "3px" }}>
-                  <Text type={TextType.P1}>{s.label}</Text>
-                </span>
+              <Chips key={s.value}>
+                <Text type={TextType.P1}>{s.label}</Text>
                 <StyledClose
                   onClick={(event: any) => {
                     event.stopPropagation();
@@ -594,10 +640,10 @@ function DefaultDropDownValueNode({
                     }
                   }}
                 />
-              </div>
+              </Chips>
             );
           })}
-        </div>
+        </ChipsWrapper>
       );
     } else
       return hasError ? (
@@ -610,7 +656,10 @@ function DefaultDropDownValueNode({
   }
 
   return (
-    <SelectedDropDownHolder>
+    <SelectedDropDownHolder
+      className={renderNode ? "custom-render-option" : ""}
+      enableScroll={isMultiSelect}
+    >
       {renderNode ? (
         renderNode({
           isSelectedNode: true,
@@ -633,6 +682,9 @@ function DefaultDropDownValueNode({
                 size={selected.iconSize || IconSize.XL}
               />
             ) : null}
+            {selected?.leftElement && (
+              <LeftIconWrapper>{selected.leftElement}</LeftIconWrapper>
+            )}
             <Label />
             {selected?.subText && !hideSubText ? (
               <StyledSubText
@@ -655,8 +707,10 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   removeSelectedOptionClickHandler: (option: DropdownOption) => void;
   renderOption?: RenderOption;
   headerLabel?: string;
+  highlightIndex?: number;
   selected: DropdownOption | DropdownOption[];
   optionWidth: string;
+  wrapperBgColor?: string;
   isMultiSelect?: boolean;
   allowDeselection?: boolean;
   isOpen: boolean; // dropdown popover options flashes when closed, this prop helps to make sure it never happens again.
@@ -682,15 +736,20 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
   };
   const theme = useTheme() as Theme;
 
+  if (!options.length) return null;
+
   return (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
+      data-testid="dropdown-options-wrapper"
       isOpen={props.isOpen}
       width={optionWidth}
+      wrapperBgColor={props.wrapperBgColor}
     >
       {props.enableSearch && (
-        <SearchComponentWrapper>
+        <SearchComponentWrapper className="dropdown-search">
           <SearchComponent
+            autoFocus={props.searchAutoFocus}
             onSearch={onOptionSearch}
             placeholder={props.searchPlaceholder || ""}
             value={searchValue}
@@ -740,7 +799,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
             >
               <OptionWrapper
                 aria-selected={isSelected}
-                className="t--dropdown-option"
+                className={`t--dropdown-option ${isSelected ? "selected" : ""}`}
                 disabled={option.disabled}
                 key={index}
                 onClick={
@@ -750,7 +809,13 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                     : () => props.optionClickHandler(option)
                 }
                 role="option"
-                selected={isSelected}
+                selected={
+                props.isMultiSelect
+                  ? props.highlightIndex === index
+                  : isSelected
+              }
+                selectedHighlightBg={props.selectedHighlightBg}
+                subTextPosition={option.subTextPosition ?? SubTextPosition.LEFT}
               >
                 {option.leftElement && (
                   <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
@@ -774,12 +839,18 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                 ) : null}
                 {props.showLabelOnly ? (
                   props.truncateOption ? (
+                  <>
                     <TooltipWrappedText
                       label={option.label || ""}
                       type={TextType.P1}
                     />
+                      {option.hasCustomBadge && props.customBadge}
+                  </>
                   ) : (
+                     <>
                     <Text type={TextType.P1}>{option.label}</Text>
+                    {option.hasCustomBadge && props.customBadge}
+                  </>
                   )
                 ) : option.label && option.value ? (
                   <LabelWrapper className="label-container">
@@ -795,9 +866,12 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                   <Text type={TextType.P1}>{option.value}</Text>
                 )}
                 {option.subText ? (
-                  <StyledSubText type={TextType.P3}>
-                    {option.subText}
-                  </StyledSubText>
+                 <StyledSubText
+                  subTextPosition={option.subTextPosition}
+                  type={TextType.P3}
+                  >
+                  {option.subText}
+                </StyledSubText>
                 ) : null}
               </OptionWrapper>
             </TooltipComponent>
@@ -825,12 +899,14 @@ export default function Dropdown(props: DropdownProps) {
     helperText,
     removeSelectedOption,
     hasError,
+    wrapperBgColor,
     closeOnSpace = true,
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption | DropdownOption[]>(
     props.selected,
   );
+  const [highlight, setHighlight] = useState(-1);
 
   const closeIfOpen = () => {
     if (isOpen && !props.isMultiSelect) {
@@ -840,7 +916,7 @@ export default function Dropdown(props: DropdownProps) {
 
   useEffect(() => {
     setSelected(props.selected);
-    closeIfOpen();
+    if (!props.isMultiSelect) closeIfOpen();
   }, [props.selected]);
 
   const optionClickHandler = useCallback(
@@ -853,7 +929,11 @@ export default function Dropdown(props: DropdownProps) {
         // Multi select -> typeof selected is array of objects
         if (isArray(selected) && selected.length < 1) {
           setSelected([option]);
-        } else {
+        } else if (
+          (selected as DropdownOption[])
+            .map((x) => x.value)
+            .findIndex((x) => option.value === x)
+        ) {
           const newOptions: DropdownOption[] = [
             ...(selected as DropdownOption[]),
             option,
@@ -923,44 +1003,87 @@ export default function Dropdown(props: DropdownProps) {
         case " ":
           if (closeOnSpace) {
             e.preventDefault();
-            if (isOpen && !("length" in selected)) optionClickHandler(selected);
-            else onClickHandler();
+            if (isOpen) {
+              if (props.isMultiSelect) {
+                if (highlight >= 0)
+                  optionClickHandler(props.options[highlight]);
+              } else {
+                optionClickHandler(selected as DropdownOption);
+              }
+            } else {
+              onClickHandler();
+            }
           }
           break;
         case "Enter":
           e.preventDefault();
-          if (isOpen && !("length" in selected)) optionClickHandler(selected);
-          else onClickHandler();
+          if (isOpen) {
+            if (props.isMultiSelect) {
+              if (highlight >= 0) optionClickHandler(props.options[highlight]);
+            } else {
+              optionClickHandler(selected as DropdownOption);
+            }
+          } else {
+            onClickHandler();
+          }
           break;
         case "ArrowUp":
           e.preventDefault();
           if (isOpen) {
-            setSelected((prevSelected) => {
-              if (!("length" in prevSelected)) {
-                let index = findIndex(props.options, prevSelected);
+            if (props.isMultiSelect) {
+              setHighlight((x) => {
+                const index = x < 1 ? props.options.length - 1 : x - 1;
+                document
+                  .querySelectorAll(".t--dropdown-option")
+                  [index]?.scrollIntoView(scrollIntoViewOptions);
+                return index;
+              });
+            } else {
+              setSelected((prevSelected) => {
+                let index = findIndex(
+                  props.options,
+                  prevSelected as DropdownOption,
+                );
                 if (index === 0) index = props.options.length - 1;
                 else index--;
+                document
+                  .querySelectorAll(".t--dropdown-option")
+                  [index]?.scrollIntoView(scrollIntoViewOptions);
                 return props.options[index];
-              }
-              return prevSelected;
-            });
+              });
+            }
           } else {
+            setHighlight(0);
             onClickHandler();
           }
           break;
         case "ArrowDown":
           e.preventDefault();
           if (isOpen) {
-            setSelected((prevSelected) => {
-              if (!(!!prevSelected && "length" in prevSelected)) {
-                let index = findIndex(props.options, prevSelected);
+            if (props.isMultiSelect) {
+              setHighlight((x) => {
+                const index = x + 1 === props.options.length ? 0 : x + 1;
+                document
+                  .querySelectorAll(".t--dropdown-option")
+                  [index]?.scrollIntoView(scrollIntoViewOptions);
+                return index;
+              });
+            } else {
+              setSelected((prevSelected) => {
+                let index = findIndex(
+                  props.options,
+                  prevSelected as DropdownOption,
+                );
                 if (index === props.options.length - 1) index = 0;
                 else index++;
-                return prevSelected ? props.options[index] : props.options[0];
-              }
-              return prevSelected;
-            });
+                document
+                  .querySelectorAll(".t--dropdown-option")
+                  [index]?.scrollIntoView(scrollIntoViewOptions);
+                return props.options[index];
+              });
+            }
           } else {
+            setHighlight(0);
             onClickHandler();
           }
           break;
@@ -971,27 +1094,21 @@ export default function Dropdown(props: DropdownProps) {
           break;
       }
     },
-    [isOpen, props.options, props.selected, selected],
+    [isOpen, props.options, props.selected, selected, highlight],
   );
 
-  const [dropdownWrapperWidth, setDropdownWrapperWidth] = useState<string>(
-    "100%",
-  );
+  const dropdownWrapperRef = useRef<HTMLDivElement>(null);
+  let dropdownWrapperWidth = "100%";
+
+  if (dropdownWrapperRef.current) {
+    const { width } = dropdownWrapperRef.current.getBoundingClientRect();
+    dropdownWrapperWidth = `${width}px`;
+  }
 
   let dropdownHeight = props.isMultiSelect ? "auto" : "38px";
   if (props.height) {
     dropdownHeight = props.height;
   }
-
-  const dropdownWrapperRef = useCallback(
-    (ref: HTMLDivElement) => {
-      if (ref) {
-        const { width } = ref.getBoundingClientRect();
-        setDropdownWrapperWidth(`${width}px`);
-      }
-    },
-    [setDropdownWrapperWidth],
-  );
 
   const dropdownOptionWidth = props.fillOptions
     ? dropdownWrapperWidth
@@ -1072,6 +1189,7 @@ export default function Dropdown(props: DropdownProps) {
         modifiers={{ arrow: { enabled: true } }}
         onInteraction={(state) => !disabled && setIsOpen(state)}
         popoverClassName={`${props.className} none-shadow-popover`}
+        portalClassName={props.portalClassName}
         position={Position.BOTTOM_LEFT}
         usePortal={!props.dontUsePortal}
       >
@@ -1079,12 +1197,14 @@ export default function Dropdown(props: DropdownProps) {
         <RenderDropdownOptions
           {...props}
           allowDeselection={props.allowDeselection}
+          highlightIndex={highlight}
           isMultiSelect={props.isMultiSelect}
           isOpen={isOpen}
           optionClickHandler={optionClickHandler}
           optionWidth={dropdownOptionWidth}
           removeSelectedOptionClickHandler={removeSelectedOptionClickHandler}
           selected={selected ? selected : { id: undefined, value: undefined }}
+          wrapperBgColor={wrapperBgColor}
         />
       </Popover>
     </DropdownContainer>

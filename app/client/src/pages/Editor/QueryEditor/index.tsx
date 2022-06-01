@@ -24,7 +24,6 @@ import { Datasource } from "entities/Datasource";
 import {
   getPluginIdsOfPackageNames,
   getPlugins,
-  getPluginImages,
   getAction,
   getActionResponses,
   getDatasourceByPluginId,
@@ -101,7 +100,6 @@ type ReduxStateProps = {
   pluginIds: Array<string> | undefined;
   responses: any;
   isCreating: boolean;
-  pluginImages: Record<string, string>;
   editorConfig: any;
   settingConfig: any;
   isEditorInitialized: boolean;
@@ -239,6 +237,16 @@ class QueryEditor extends React.Component<Props> {
     }
   }
 
+  onCreateDatasourceClick = () => {
+    const { pageId } = this.props.match.params;
+    history.push(
+      integrationEditorURL({
+        pageId,
+        selectedTab: INTEGRATION_TABS.NEW,
+      }),
+    );
+  };
+
   render() {
     const {
       actionId,
@@ -250,7 +258,6 @@ class QueryEditor extends React.Component<Props> {
       isRunning,
       pluginId,
       pluginIds,
-      pluginImages,
       responses,
       runErrorMessage,
       settingConfig,
@@ -287,23 +294,8 @@ class QueryEditor extends React.Component<Props> {
       );
     }
 
-    const DATASOURCES_OPTIONS = dataSources.map((dataSource) => ({
-      label: dataSource.name,
-      value: dataSource.id,
-      image: pluginImages[dataSource.pluginId],
-    }));
-
-    const onCreateDatasourceClick = () => {
-      history.push(
-        integrationEditorURL({
-          pageId,
-          selectedTab: INTEGRATION_TABS.NEW,
-        }),
-      );
-    };
     return (
       <QueryEditorForm
-        DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
         dataSources={dataSources}
         editorConfig={editorConfig}
         executedQueryData={responses[actionId]}
@@ -311,7 +303,7 @@ class QueryEditor extends React.Component<Props> {
         isDeleting={isDeleting}
         isRunning={isRunning}
         location={this.props.location}
-        onCreateDatasourceClick={onCreateDatasourceClick}
+        onCreateDatasourceClick={this.onCreateDatasourceClick}
         onDeleteClick={this.handleDeleteClick}
         onRunClick={this.handleRunClick}
         runErrorMessage={runErrorMessage[actionId]}
@@ -380,7 +372,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   return {
     actionId,
-    pluginImages: getPluginImages(state),
     pluginId,
     plugins: allPlugins,
     runErrorMessage,

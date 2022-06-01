@@ -11,17 +11,21 @@ import LabelWithTooltip, {
 } from "components/ads/LabelWithTooltip";
 
 const StyledRTEditor = styled.div<{
+  borderRadius: string;
+  boxShadow?: string;
   compactMode: boolean;
   labelPosition?: LabelPosition;
-  isValid?: boolean;
 }>`
   && {
     width: 100%;
     height: 100%;
-    border: 1px solid
-      ${(props) => (props.isValid ? "none" : Colors.DANGER_SOLID)};
     .tox .tox-editor-header {
       z-index: 0;
+    }
+
+    .tox-tinymce {
+      border-radius: ${({ borderRadius }) => borderRadius};
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     }
   }
   .tox {
@@ -37,11 +41,16 @@ const StyledRTEditor = styled.div<{
   ${labelLayoutStyles}
 `;
 
-export const RichTextEditorInputWrapper = styled.div`
+export const RichTextEditorInputWrapper = styled.div<{
+  isValid?: boolean;
+  borderRadius: string;
+}>`
   display: flex;
   width: 100%;
   min-width: 0;
   height: 100%;
+  border: 1px solid ${(props) => (props.isValid ? "none" : Colors.DANGER_SOLID)};
+  border-radius: ${({ borderRadius }) => borderRadius};
 `;
 
 export interface RichtextEditorComponentProps {
@@ -53,6 +62,8 @@ export interface RichtextEditorComponentProps {
   isVisible?: boolean;
   compactMode: boolean;
   isToolbarHidden: boolean;
+  borderRadius: string;
+  boxShadow?: string;
   labelText: string;
   labelPosition?: LabelPosition;
   labelAlignment?: Alignment;
@@ -63,6 +74,11 @@ export interface RichtextEditorComponentProps {
   isValid?: boolean;
   onValueChange: (valueAsString: string) => void;
 }
+interface State {
+  text: string;
+  isUserEdit: boolean;
+}
+
 const initValue = "<p></p>";
 export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const {
@@ -77,42 +93,48 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     labelWidth,
   } = props;
 
-  const [value, setValue] = React.useState<string>(props.value as string);
+  const [value, setValue] = React.useState<State>({
+    text: props.value as string,
+    isUserEdit: false,
+  });
 
   const editorRef = useRef<any>(null);
-  const isInit = useRef<boolean>(false);
 
   const toolbarConfig =
     "insertfile undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | forecolor backcolor emoticons' | help";
 
   useEffect(() => {
-    if (!value && !props.value) return;
+    if (!value.text && !props.value) return;
     // This Prevents calling onTextChange when initialized
-    if (!isInit.current) return;
-    const timeOutId = setTimeout(() => props.onValueChange(value), 1000);
+    if (!value.isUserEdit) return;
+    const timeOutId = setTimeout(() => props.onValueChange(value.text), 1000);
     return () => clearTimeout(timeOutId);
   }, [value]);
 
   useEffect(() => {
-    if (!editorRef.current) return;
-    setValue(props.value as string);
+    setValue({ text: props.value as string, isUserEdit: false });
   }, [props.value]);
 
   const onEditorChange = (newValue: string) => {
     // Prevents cursur shift in Markdown
     if (newValue === "" && props.isMarkdown) {
-      setValue(initValue);
+      setValue({ text: initValue, isUserEdit: true });
     } else {
-      setValue(newValue);
+      /**
+       * due to lazy data load, props.value can trigger after initialization
+       * in that case this method called, so handle by comparing newValue and props.value
+       */
+      setValue({ text: newValue, isUserEdit: newValue !== props.value });
     }
   };
 
   return (
     <StyledRTEditor
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
       className={`container-${props.widgetId}`}
       compactMode={compactMode}
       data-testid="rte-container"
-      isValid={props.isValid}
       labelPosition={labelPosition}
     >
       {labelText && (
@@ -129,7 +151,10 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           width={labelWidth}
         />
       )}
-      <RichTextEditorInputWrapper>
+      <RichTextEditorInputWrapper
+        borderRadius={props.borderRadius}
+        isValid={props.isValid}
+      >
         <Editor
           disabled={props.isDisabled}
           id={`rte-${props.widgetId}`}
@@ -150,11 +175,10 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           onEditorChange={onEditorChange}
           onInit={(evt, editor) => {
             editorRef.current = editor;
-            isInit.current = true;
           }}
           tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/tinymce.min.js"
           toolbar={props.isToolbarHidden ? false : toolbarConfig}
-          value={value}
+          value={value.text}
         />
       </RichTextEditorInputWrapper>
     </StyledRTEditor>

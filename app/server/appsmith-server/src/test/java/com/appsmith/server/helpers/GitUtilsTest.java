@@ -27,6 +27,14 @@ public class GitUtilsTest {
                 .isEqualTo("https://example.in/test/testRepo");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://git@example.test.net:user/test/tests/testRepo.git"))
                 .isEqualTo("https://example.test.net/user/test/tests/testRepo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk.git"))
+                .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk"))
+                .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk.git"))
+                .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk"))
+                .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
     }
     @Test
     public void isRepoPrivate() {
@@ -50,14 +58,16 @@ public class GitUtilsTest {
 
     @Test
     public void getRepoName() {
-        assertThat(GitUtils.getRepoName("git@example.test.net:user/test/tests/testRepo.git"))
-                .isEqualTo("testRepo");
-        assertThat(GitUtils.getRepoName("git@example.com:test/testRepo.git"))
-                .isEqualTo("testRepo");
-        assertThat(GitUtils.getRepoName("git@example.org:test/testRepo.git"))
-                .isEqualTo("testRepo");
-        assertThat(GitUtils.getRepoName("git@example.in:test/testRepo.git"))
-                .isEqualTo("testRepo");
+        assertThat(GitUtils.getRepoName("git@example.test.net:user/test/tests/lakechope.git"))
+                .isEqualTo("lakechope");
+        assertThat(GitUtils.getRepoName("git@example.com:test/ParkMyrtlows.git"))
+                .isEqualTo("ParkMyrtlows");
+        assertThat(GitUtils.getRepoName("git@example.org:test/Lergaf_Wells.git"))
+                .isEqualTo("Lergaf_Wells");
+        assertThat(GitUtils.getRepoName("git@example.in:test/fort-cheporder.git"))
+                .isEqualTo("fort-cheporder");
+        assertThat(GitUtils.getRepoName("git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk"))
+                .isEqualTo("SpaceJunk");
     }
 
     @Test

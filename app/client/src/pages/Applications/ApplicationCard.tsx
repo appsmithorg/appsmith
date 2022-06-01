@@ -592,12 +592,18 @@ export function ApplicationCard(props: ApplicationCardProps) {
     initials += props.application.name[1].toUpperCase() || "";
   }
 
+  // should show correct branch of application when edit mode
+  const params: any = {};
+  if (showGitBadge) {
+    params.branch = showGitBadge;
+  }
   const viewApplicationURL = viewerURL({
     applicationSlug: props.application.slug as string,
     applicationVersion: props.application.applicationVersion,
     pageSlug: defaultPageSlug || "page",
     applicationId: props.application.id,
     pageId: props.application.defaultPageId as string,
+    params,
   });
   const editApplicationURL = builderURL({
     applicationSlug: props.application.slug as string,
@@ -605,6 +611,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     applicationId: props.application.id,
     pageSlug: defaultPageSlug || "page",
     pageId: props.application.defaultPageId as string,
+    params,
   });
 
   const appNameText = (
@@ -794,14 +801,15 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     <EditButton
                       className="t--application-edit-link"
                       fill
+                      href={editApplicationURL}
                       icon={"edit"}
                       iconPosition={IconPositions.left}
                       onClick={(e) => {
+                        e.preventDefault();
                         e.stopPropagation();
                         history.push(editApplicationURL);
                       }}
                       size={Size.medium}
-                      tag="button"
                       text="Edit"
                     />
                   )}
@@ -810,14 +818,15 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       category={Category.tertiary}
                       className="t--application-view-link"
                       fill
+                      href={viewApplicationURL}
                       icon={"rocket"}
                       iconPosition={IconPositions.left}
                       onClick={(e) => {
+                        e.preventDefault();
                         e.stopPropagation();
                         history.push(viewApplicationURL);
                       }}
                       size={Size.medium}
-                      tag="button"
                       text="Launch"
                     />
                   )}

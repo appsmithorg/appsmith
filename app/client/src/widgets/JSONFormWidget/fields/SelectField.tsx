@@ -12,6 +12,8 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DropdownOption } from "widgets/SelectWidget/constants";
 import { isPrimitive } from "../helper";
 import { isNil } from "lodash";
+import { Colors } from "constants/Colors";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
 type MetaProps = {
   filterText?: string;
@@ -21,13 +23,19 @@ type DefaultValue = string | number | DropdownOption | null | undefined;
 
 type SelectComponentProps = FieldComponentBaseProps &
   MetaProps & {
-    placeholderText?: string;
-    options: DropdownOption[];
-    onOptionChange?: string;
-    serverSideFiltering: boolean;
-    onFilterUpdate?: string;
+    borderRadius?: string;
+    boxShadow?: string;
     isFilterable: boolean;
+    onFilterUpdate?: string;
+    onOptionChange?: string;
+    options: DropdownOption[];
+    placeholderText?: string;
+    accentColor?: string;
+    serverSideFiltering: boolean;
   };
+
+const DEFAULT_PRIMARY_COLOR = Colors.GREEN;
+const DEFAULT_BORDER_RADIUS = "0";
 
 const COMPONENT_DEFAULT_VALUES: SelectComponentProps = {
   isDisabled: false,
@@ -35,6 +43,7 @@ const COMPONENT_DEFAULT_VALUES: SelectComponentProps = {
   isRequired: false,
   isVisible: true,
   label: "",
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   serverSideFiltering: false,
   options: [
     { label: "Blue", value: "BLUE" },
@@ -49,8 +58,10 @@ const StyledSelectWrapper = styled.div`
   width: 100%;
 `;
 
-const isValid = (schemaItem: SelectFieldProps["schemaItem"], value?: unknown) =>
-  !schemaItem.isRequired || !isNil(value);
+export const isValid = (
+  schemaItem: SelectFieldProps["schemaItem"],
+  value?: unknown,
+) => !schemaItem.isRequired || (value !== "" && !isNil(value));
 
 const composeDefaultValue = (
   schemaItemDefaultValue: DefaultValue,
@@ -144,6 +155,9 @@ function SelectField({
     () => (
       <StyledSelectWrapper ref={wrapperRef}>
         <SelectComponent
+          accentColor={schemaItem.accentColor || DEFAULT_PRIMARY_COLOR}
+          borderRadius={schemaItem.borderRadius || DEFAULT_BORDER_RADIUS}
+          boxShadow={schemaItem.boxShadow}
           compactMode={false}
           disabled={schemaItem.isDisabled}
           dropDownWidth={dropdownWidth || 100}
@@ -169,6 +183,9 @@ function SelectField({
       selectedOptionIndex,
       schemaItem.serverSideFiltering,
       schemaItem.placeholderText,
+      schemaItem.accentColor,
+      schemaItem.boxShadow,
+      schemaItem.borderRadius,
       options,
       onFilterChange,
       schemaItem.isFilterable,

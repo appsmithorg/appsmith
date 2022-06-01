@@ -1,9 +1,8 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useActiveAction } from "../hooks";
-import { Entity } from "../Entity/index";
+import { Entity, EntityClassNames } from "../Entity/index";
 import {
   createMessage,
-  ADD_QUERY_JS_TOOLTIP,
   ADD_QUERY_JS_BUTTON,
   EMPTY_QUERY_JS_BUTTON_TEXT,
   EMPTY_QUERY_JS_MAIN_TEXT,
@@ -15,18 +14,12 @@ import {
 } from "selectors/editorSelectors";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { Colors } from "constants/Colors";
-import {
-  comboHelpText,
-  filterCategories,
-  SEARCH_CATEGORY_ID,
-} from "components/editorComponents/GlobalSearch/utils";
 import { selectFilesForExplorer } from "selectors/entitiesSelector";
 import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 import Icon from "components/ads/Icon";
-import { noop } from "lodash";
 import { AddEntity, EmptyComponent } from "../common";
+import ExplorerSubMenu from "./Submenu";
 
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -34,16 +27,21 @@ function Files() {
   const files = useSelector(selectFilesForExplorer);
   const dispatch = useDispatch();
   const isFilesOpen = getExplorerStatus(applicationId, "queriesAndJs");
+  const [isMenuOpen, openMenu] = useState(false);
 
   const onCreate = useCallback(() => {
-    dispatch(
-      toggleShowGlobalSearchModal(
-        filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
-      ),
-    );
-  }, [dispatch]);
+    openMenu(true);
+  }, [dispatch, openMenu]);
 
   const activeActionId = useActiveAction();
+
+  useEffect(() => {
+    if (!activeActionId) return;
+    document.getElementById(`entity-${activeActionId}`)?.scrollIntoView({
+      block: "nearest",
+      inline: "nearest",
+    });
+  }, [activeActionId]);
 
   const onFilesToggle = useCallback(
     (isOpen: boolean) => {
@@ -51,6 +49,8 @@ function Files() {
     },
     [applicationId],
   );
+
+  const onMenuClose = useCallback(() => openMenu(false), [openMenu]);
 
   const fileEntities = useMemo(
     () =>
@@ -93,18 +93,19 @@ function Files() {
 
   return (
     <Entity
-      addButtonHelptext={
-        <>
-          {createMessage(ADD_QUERY_JS_TOOLTIP)} (
-          {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
-        </>
-      }
       alwaysShowRightIcon
       className={`group files`}
+      customAddButton={
+        <ExplorerSubMenu
+          className={`${EntityClassNames.ADD_BUTTON} group files`}
+          onMenuClose={onMenuClose}
+          openMenu={isMenuOpen}
+        />
+      }
       disabled={false}
       entityId={pageId + "_widgets"}
       icon={null}
-      isDefaultExpanded={isFilesOpen === null ? true : isFilesOpen}
+      isDefaultExpanded={isFilesOpen ?? true}
       isSticky
       key={pageId + "_widgets"}
       name="QUERIES/JS"
@@ -118,7 +119,7 @@ function Files() {
       ) : (
         <EmptyComponent
           addBtnText={createMessage(EMPTY_QUERY_JS_BUTTON_TEXT)}
-          addFunction={onCreate || noop}
+          addFunction={onCreate}
           mainText={createMessage(EMPTY_QUERY_JS_MAIN_TEXT)}
         />
       )}

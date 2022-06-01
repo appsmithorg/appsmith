@@ -19,7 +19,7 @@ import { Action } from "entities/Action";
 
 const DropdownSelect = styled.div`
   font-size: 14px;
-  width: 20vw;
+  width: 35vw;
 `;
 
 class DropDownControl extends BaseControl<Props> {
@@ -65,7 +65,7 @@ class DropDownControl extends BaseControl<Props> {
 
   render() {
     const styles = {
-      width: "20vw",
+      width: "35vw",
       ...("customStyles" in this.props &&
       typeof this.props.customStyles === "object"
         ? this.props.customStyles

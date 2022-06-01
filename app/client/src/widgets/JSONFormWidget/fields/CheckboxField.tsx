@@ -14,14 +14,22 @@ import {
   FieldEventProps,
 } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import { LabelPosition } from "components/constants";
 
 type CheckboxComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
     alignWidget: AlignWidget;
     onCheckChange?: string;
+    accentColor?: string;
+    borderRadius?: string;
+    boxShadow?: string;
   };
 
 type CheckboxFieldProps = BaseFieldComponentProps<CheckboxComponentProps>;
+
+const DEFAULT_BORDER_RADIUS = "0px";
 
 const StyledCheckboxWrapper = styled.div`
   & label {
@@ -33,6 +41,7 @@ const COMPONENT_DEFAULT_VALUES: CheckboxComponentProps = {
   alignWidget: "LEFT",
   isDisabled: false,
   isRequired: false,
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   isVisible: true,
   label: "",
 };
@@ -44,7 +53,6 @@ const isValid = (
 
 function CheckboxField({
   fieldClassName,
-  hideLabel,
   name,
   passedDefaultValue,
   schemaItem,
@@ -97,6 +105,8 @@ function CheckboxField({
     () => (
       <StyledCheckboxWrapper>
         <CheckboxComponent
+          accentColor={schemaItem.accentColor || Colors.GREEN}
+          borderRadius={schemaItem.borderRadius || DEFAULT_BORDER_RADIUS}
           inputRef={(e) => (inputRef.current = e)}
           isChecked={value}
           isDisabled={schemaItem.isDisabled}
@@ -104,6 +114,7 @@ function CheckboxField({
           isRequired={schemaItem.isRequired}
           isValid={isDirty ? isValueValid : true}
           label=""
+          labelPosition={LabelPosition.Left}
           noContainerPadding
           onCheckChange={onCheckChange}
           rowSpace={20}
@@ -120,7 +131,6 @@ function CheckboxField({
       alignField={schemaItem.alignWidget}
       defaultValue={passedDefaultValue ?? schemaItem.defaultValue}
       fieldClassName={fieldClassName}
-      hideLabel={hideLabel}
       inlineLabel
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}

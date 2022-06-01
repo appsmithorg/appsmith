@@ -1,5 +1,7 @@
 import React, { memo, useCallback } from "react";
-import _, { isEqual } from "lodash";
+import _, { get, isEqual } from "lodash";
+import * as log from "loglevel";
+
 import {
   ControlPropertyLabelContainer,
   ControlWrapper,
@@ -21,8 +23,10 @@ import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
   getEvalValuePath,
+  isDynamicValue,
   isPathADynamicProperty,
   isPathADynamicTrigger,
+  THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
 import {
   getWidgetPropsForPropertyName,
@@ -36,12 +40,17 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import * as log from "loglevel";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import TooltipComponent from "components/ads/Tooltip";
+import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
+import { AppTheme } from "entities/AppTheming";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
   theme: EditorTheme;
 };
+
+const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
@@ -66,6 +75,53 @@ const PropertyControl = memo((props: Props) => {
     isEqual,
   );
 
+  const selectedTheme = useSelector(getSelectedAppTheme);
+
+  /**
+   * A property's stylesheet value can be fetched in 2 ways
+   * 1. If a method is defined on the property config (getStylesheetValue), then
+   *   it's the methods responsibility to resolve the stylesheet value.
+   * 2. If no such method is defined, the value is assumed to be present in the
+   *   theme config and thus it is fetched from there.
+   */
+  const propertyStylesheetValue = (() => {
+    const widgetStylesheet: AppTheme["stylesheet"][string] = get(
+      selectedTheme,
+      `stylesheet.${widgetProperties.type}`,
+    );
+
+    if (props.getStylesheetValue) {
+      return props.getStylesheetValue(
+        widgetProperties,
+        props.propertyName,
+        widgetStylesheet,
+      );
+    }
+
+    return get(widgetStylesheet, props.propertyName);
+  })();
+
+  const propertyValue = _.get(widgetProperties, props.propertyName);
+
+  /**
+   * checks if property value is deviated or not.
+   * by deviation, we mean if value of property is same as
+   * the one defined in the theme stylesheet. if values are different,
+   * that means the property value is deviated from the theme stylesheet.
+   */
+  const isPropertyDeviatedFromTheme =
+    typeof propertyStylesheetValue === "string" &&
+    THEME_BINDING_REGEX.test(propertyStylesheetValue) &&
+    propertyStylesheetValue !== propertyValue;
+
+  /**
+   * resets the value of property to theme stylesheet value
+   * which is a binding to theme object defined in the stylesheet
+   */
+  const resetPropertyValueToTheme = () => {
+    onPropertyChange(props.propertyName, propertyStylesheetValue);
+  };
+
   const {
     autoCompleteEnhancementFn: childWidgetAutoCompleteEnhancementFn,
     customJSControlEnhancementFn: childWidgetCustomJSControlEnhancementFn,
@@ -82,11 +138,26 @@ const PropertyControl = memo((props: Props) => {
         propertyName: propertyName,
         propertyState: !isDynamic ? "JS" : "NORMAL",
       });
+
+      let shouldRejectDynamicBindingPathList = true;
+
+      // we don't want to remove the path from dynamic binding list
+      // on toggling of js in case of few widgets
+      if (
+        SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR.includes(
+          props.controlType,
+        ) &&
+        isDynamicValue(propertyValue)
+      ) {
+        shouldRejectDynamicBindingPathList = false;
+      }
+
       dispatch(
         setWidgetDynamicProperty(
           widgetProperties?.widgetId,
           propertyName,
           !isDynamic,
+          shouldRejectDynamicBindingPathList,
         ),
       );
     },
@@ -310,13 +381,15 @@ const PropertyControl = memo((props: Props) => {
   );
 
   // Do not render the control if it needs to be hidden
-  if (props.hidden && props.hidden(widgetProperties, props.propertyName)) {
+  if (
+    (props.hidden && props.hidden(widgetProperties, props.propertyName)) ||
+    props.invisible
+  ) {
     return null;
   }
 
   const { label, propertyName } = props;
   if (widgetProperties) {
-    const propertyValue = _.get(widgetProperties, propertyName);
     // get the dataTreePath and apply enhancement if exists
     let dataTreePath: string =
       props.dataTreePath || `${widgetProperties.widgetName}.${propertyName}`;
@@ -405,7 +478,7 @@ const PropertyControl = memo((props: Props) => {
     try {
       return (
         <ControlWrapper
-          className={`t--property-control-${className}`}
+          className={`t--property-control-${className} group`}
           data-guided-tour-iid={propertyName}
           id={uniqId}
           key={config.id}
@@ -415,7 +488,7 @@ const PropertyControl = memo((props: Props) => {
               : "VERTICAL"
           }
         >
-          <ControlPropertyLabelContainer>
+          <ControlPropertyLabelContainer className="gap-1">
             <PropertyHelpLabel
               label={label}
               theme={props.theme}
@@ -428,6 +501,29 @@ const PropertyControl = memo((props: Props) => {
                 }
                 isActive={isDynamic}
               />
+            )}
+            {isPropertyDeviatedFromTheme && (
+              <>
+                <TooltipComponent
+                  content="Value deviated from theme"
+                  openOnTargetFocus={false}
+                >
+                  <div className="w-2 h-2 rounded-full bg-primary-500" />
+                </TooltipComponent>
+                <button
+                  className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
+                  onClick={resetPropertyValueToTheme}
+                >
+                  <TooltipComponent
+                    boundary="viewport"
+                    content="Reset value"
+                    openOnTargetFocus={false}
+                    position="top-right"
+                  >
+                    <ResetIcon className="w-5 h-5" />
+                  </TooltipComponent>
+                </button>
+              </>
             )}
           </ControlPropertyLabelContainer>
           {PropertyControlFactory.createControl(

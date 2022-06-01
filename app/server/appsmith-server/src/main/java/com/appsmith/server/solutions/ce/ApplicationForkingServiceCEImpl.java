@@ -1,10 +1,10 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -12,16 +12,18 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.solutions.ExamplesOrganizationCloner;
+import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 
 @RequiredArgsConstructor
@@ -29,26 +31,26 @@ import java.util.Map;
 public class ApplicationForkingServiceCEImpl implements ApplicationForkingServiceCE {
 
     private final ApplicationService applicationService;
-    private final OrganizationService organizationService;
-    private final ExamplesOrganizationCloner examplesOrganizationCloner;
+    private final WorkspaceService workspaceService;
+    private final ExamplesWorkspaceCloner examplesWorkspaceCloner;
     private final PolicyUtils policyUtils;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
     private final ResponseUtils responseUtils;
 
-    public Mono<Application> forkApplicationToOrganization(String srcApplicationId, String targetOrganizationId) {
+    public Mono<Application> forkApplicationToWorkspace(String srcApplicationId, String targetWorkspaceId) {
         final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
-        final Mono<Organization> targetOrganizationMono = organizationService.findById(targetOrganizationId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, targetOrganizationId)));
+        final Mono<Workspace> targetWorkspaceMono = workspaceService.findById(targetWorkspaceId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, targetWorkspaceId)));
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
-        Mono<Application> forkApplicationMono = Mono.zip(sourceApplicationMono, targetOrganizationMono, userMono)
+        Mono<Application> forkApplicationMono = Mono.zip(sourceApplicationMono, targetWorkspaceMono, userMono)
                 .flatMap(tuple -> {
                     final Application application = tuple.getT1();
-                    final Organization targetOrganization = tuple.getT2();
+                    final Workspace targetWorkspace = tuple.getT2();
                     final User user = tuple.getT3();
 
                     //If the forking application is connected to git, do not copy those data to the new forked application
@@ -65,8 +67,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                         return Mono.error(new AppsmithException(AppsmithError.APPLICATION_FORKING_NOT_ALLOWED));
                     }
 
-                    return examplesOrganizationCloner.cloneApplications(
-                            targetOrganization.getId(),
+                    return examplesWorkspaceCloner.cloneApplications(
+                            targetWorkspace.getId(),
                             Flux.fromIterable(Collections.singletonList(application))
                     );
                 })
@@ -74,7 +76,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     final String newApplicationId = applicationIds.get(0);
                     return applicationService.getById(newApplicationId)
                             .flatMap(application ->
-                                    sendForkApplicationAnalyticsEvent(srcApplicationId, targetOrganizationId, application));
+                                    sendForkApplicationAnalyticsEvent(srcApplicationId, targetWorkspaceId, application));
                 });
 
         // Fork application is currently a slow API because it needs to create application, clone all the pages, and then
@@ -89,11 +91,28 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         );
     }
 
-    public Mono<Application> forkApplicationToOrganization(String srcApplicationId,
-                                                           String targetOrganizationId,
+    public Mono<Application> forkApplicationToWorkspace(String srcApplicationId,
+                                                           String targetWorkspaceId,
                                                            String branchName) {
+        if(StringUtils.isEmpty(branchName)) {
+            return applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
+                    .flatMap(application -> {
+                        // For git connected application user can update the default branch
+                        // In such cases we should fork the application from the new default branch
+                        if (!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
+                                && !application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
+                            return applicationService.findBranchedApplicationId(
+                                    application.getGitApplicationMetadata().getDefaultBranchName(),
+                                    srcApplicationId,
+                                    AclPermission.READ_APPLICATIONS
+                            ).flatMap(appId -> forkApplicationToWorkspace(appId, targetWorkspaceId));
+                        }
+                        return forkApplicationToWorkspace(application.getId(), targetWorkspaceId);
+                    });
+        }
         return applicationService.findBranchedApplicationId(branchName, srcApplicationId, AclPermission.READ_APPLICATIONS)
-                .flatMap(branchedApplicationId -> forkApplicationToOrganization(branchedApplicationId, targetOrganizationId))
+                .flatMap(branchedApplicationId -> forkApplicationToWorkspace(branchedApplicationId, targetWorkspaceId))
                 .map(responseUtils::updateApplicationWithDefaultResources);
     }
 

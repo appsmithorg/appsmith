@@ -17,6 +17,7 @@ const renderComponent = (
 };
 
 type TagListFieldProps = {
+  autofocus?: boolean;
   name: string;
   placeholder: string;
   type: string;

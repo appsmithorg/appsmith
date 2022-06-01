@@ -5,28 +5,35 @@ import FormContext from "../FormContext";
 import Field from "widgets/JSONFormWidget/component/Field";
 import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
-import { AlignWidget } from "widgets/constants";
+import { AlignWidget, AlignWidgetTypes } from "widgets/constants";
 import {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
-import { SwitchComponent } from "widgets/SwitchWidget/component";
+import SwitchComponent from "widgets/SwitchWidget/component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import { LabelPosition } from "components/constants";
 
 type SwitchComponentOwnProps = FieldComponentBaseProps &
   FieldEventProps & {
     alignWidget: AlignWidget;
+    accentColor?: string;
     onChange?: string;
   };
 
 type SwitchFieldProps = BaseFieldComponentProps<SwitchComponentOwnProps>;
+
+const DEFAULT_BG_COLOR = Colors.GREEN;
 
 const COMPONENT_DEFAULT_VALUES: SwitchComponentOwnProps = {
   alignWidget: "LEFT",
   isDisabled: false,
   isRequired: false,
   isVisible: true,
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   label: "",
 };
 
@@ -85,17 +92,25 @@ function SwitchField({
   const fieldComponent = useMemo(
     () => (
       <SwitchComponent
-        alignWidget={schemaItem.alignWidget}
+        accentColor={schemaItem.accentColor || DEFAULT_BG_COLOR}
+        alignWidget={schemaItem.alignWidget as AlignWidgetTypes}
         inputRef={(e) => (inputRef.current = e)}
         isDisabled={schemaItem.isDisabled}
         isLoading={false}
         isSwitchedOn={value ?? false}
         label=""
+        labelPosition={LabelPosition.Left}
         onChange={onSwitchChange}
         widgetId=""
       />
     ),
-    [schemaItem.alignWidget, schemaItem.isDisabled, onSwitchChange, value],
+    [
+      schemaItem.alignWidget,
+      schemaItem.accentColor,
+      schemaItem.isDisabled,
+      onSwitchChange,
+      value,
+    ],
   );
 
   return (

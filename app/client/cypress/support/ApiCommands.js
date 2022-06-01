@@ -3,10 +3,6 @@
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
-
-const {
-  addMatchImageSnapshotCommand,
-} = require("cypress-image-snapshot/command");
 import ApiEditor from "../locators/ApiEditor";
 const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
@@ -136,7 +132,7 @@ Cypress.Commands.add(
     }
     cy.get(".string-value").contains(baseurl.concat(path));
     cy.get(".string-value").contains(verb);
-    cy.get("[data-cy=t--tab-body]")
+    cy.get("[data-cy=t--tab-response]")
       .first()
       .click({ force: true });
   },
@@ -465,4 +461,9 @@ Cypress.Commands.add("callApi", (apiname) => {
   cy.get(commonlocators.selectMenuItem)
     .contains(apiname)
     .click({ force: true });
+});
+
+Cypress.Commands.add("checkIfApiPaneIsVisible", () => {
+  cy.get(ApiEditor.datasourcesRightPane).should("exist");
+  cy.get(ApiEditor.datasourcesRightPane).should("be.visible");
 });
