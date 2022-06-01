@@ -199,7 +199,7 @@ init_keycloak() {
   /opt/keycloak/bin/add-user-keycloak.sh --user "$KEYCLOAK_ADMIN_USERNAME" --password "$KEYCLOAK_ADMIN_PASSWORD"
 
   # Make keycloak persistent across reboots
-  ln -s /appsmith-stacks/data/keycloak /opt/keycloak/standalone/data
+  ln --verbose --force --symbolic --no-target-directory /appsmith-stacks/data/keycloak /opt/keycloak/standalone/data
 }
 
 # Keep Let's Encrypt directory persistent
