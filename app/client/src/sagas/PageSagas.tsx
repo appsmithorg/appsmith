@@ -288,11 +288,10 @@ export function* fetchPublishedPageSaga(
   pageRequestAction: ReduxAction<{
     pageId: string;
     bustCache: boolean;
-    firstLoad: boolean;
   }>,
 ) {
   try {
-    const { bustCache, firstLoad, pageId } = pageRequestAction.payload;
+    const { bustCache, pageId } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       {
