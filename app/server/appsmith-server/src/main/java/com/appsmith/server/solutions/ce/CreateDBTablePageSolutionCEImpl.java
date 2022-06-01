@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
@@ -10,7 +11,6 @@ import com.appsmith.external.models.DatasourceStructure.Table;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
@@ -25,6 +25,7 @@ import com.appsmith.server.dtos.CRUDPageResponseDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.services.AnalyticsService;
@@ -78,6 +79,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
     private final ResponseUtils responseUtils;
+    private final PluginExecutorHelper pluginExecutorHelper;
 
     private static final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
 
@@ -574,55 +576,20 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
                     log.debug("Cloning form data for action ");
                     Map<String, Object> formData = actionConfiguration.getFormData();
-                    if (!CollectionUtils.isEmpty(formData)) {
-                        // using for-each loop for iteration over Map.entrySet()
-                        updateFormData(formData, mappedColumns, pluginSpecificTemplateParams);
-                    }
-                    actionDTO.setActionConfiguration(deleteUnwantedWidgetReferenceInActions(actionConfiguration, deletedWidgetNames));
-
-                    return layoutActionService.createSingleAction(actionDTO);
+                    return pluginExecutorHelper
+                            .getPluginExecutorFromPackageName(templateAction.getPluginId())
+                            .map(pluginExecutor -> {
+                                if (!CollectionUtils.isEmpty(formData)) {
+                                    pluginExecutor.updateCrudTemplateFormData(formData, mappedColumns, pluginSpecificTemplateParams);
+                                }
+                                actionDTO.setActionConfiguration(deleteUnwantedWidgetReferenceInActions(actionConfiguration, deletedWidgetNames));
+                                return actionDTO;
+                            })
+                            .flatMap(layoutActionService::createSingleAction);
                 });
     }
 
-    /**
-     * This method will recursively replace the column names from template table to user provided table
-     * @param formData form data from action configuration object
-     * @param mappedColumns column name map from template table to user defined table
-     * @param pluginSpecificTemplateParams plugin specified fields like S3 bucket name etc
-     */
-    private void updateFormData(Map<String, Object> formData,
-                                Map<String, String> mappedColumns,
-                                Map<String, String> pluginSpecificTemplateParams) {
-        for (Map.Entry<String,Object> property : formData.entrySet()) {
-            if (property.getValue() != null) {
-                if (property.getKey() != null && !CollectionUtils.isEmpty(pluginSpecificTemplateParams)
-                        && pluginSpecificTemplateParams.get(property.getKey()) != null){
-                    property.setValue(pluginSpecificTemplateParams.get(property.getKey()));
-                } else {
-                    // Recursively replace the column names from template table with user provided table using mappedColumns
-                    if (property.getValue() instanceof String) {
 
-                        // In case the entire value finds a match in the mappedColumns, replace it
-                        Pattern replacePattern = Pattern.compile(Pattern.quote(property.getValue().toString()));
-                        Matcher matcher = replacePattern.matcher(property.getValue().toString());
-                        property.setValue(matcher.replaceAll(key ->
-                                mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
-                        );
-
-                        // If the column name is present inside a string (like json), then find all the words and replace
-                        // the column name with user one.
-                        matcher = WORD_PATTERN.matcher(property.getValue().toString());
-                        property.setValue(matcher.replaceAll(key ->
-                                mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
-                        );
-                    }
-                    if (property.getValue() instanceof Map) {
-                        updateFormData((Map<String, Object>)property.getValue(), mappedColumns, pluginSpecificTemplateParams);
-                    }
-                }
-            }
-        }
-    }
 
     /**
      * This function maps the column names between the template datasource table and the user's table

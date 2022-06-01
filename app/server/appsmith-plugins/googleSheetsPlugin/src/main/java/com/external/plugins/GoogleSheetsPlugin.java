@@ -367,5 +367,14 @@ public class GoogleSheetsPlugin extends BasePlugin {
                         }
                     });
         }
+
+        @Override
+        public void updateCrudTemplateFormData(Map<String, Object> formData, Map<String, String> mappedColumns, Map<String, String> pluginSpecificTemplateParams) {
+            pluginSpecificTemplateParams.forEach((k, v) -> {
+                if (formData.containsKey(k)) {
+                    setDataValueSafelyInFormData(formData, k, v);
+                }
+            });
+        }
     }
 }

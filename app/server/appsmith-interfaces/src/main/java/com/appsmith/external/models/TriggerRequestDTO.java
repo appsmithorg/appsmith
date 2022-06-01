@@ -16,7 +16,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Getter
 @Setter
-public class TriggerRequestDTO {
+public class  TriggerRequestDTO {
 
     String requestType;
 

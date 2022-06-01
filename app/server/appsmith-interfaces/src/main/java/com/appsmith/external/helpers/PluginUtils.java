@@ -234,9 +234,14 @@ public class PluginUtils {
             setDataValueSafelyInFormData(nestedMap, nestedFieldName, value);
         } else {
             // This is a top level field. Set the value
-            final HashMap<Object, Object> valueMap = new HashMap<>();
-            valueMap.put("data", value);
-            formData.put(field, valueMap);
+            final Object currentValue = formData.get(field);
+            if (currentValue instanceof Map) {
+                ((Map<String, Object>) currentValue).put("data", value);
+            } else {
+                final HashMap<Object, Object> valueMap = new HashMap<>();
+                valueMap.put("data", value);
+                formData.put(field, valueMap);
+            }
         }
     }
 

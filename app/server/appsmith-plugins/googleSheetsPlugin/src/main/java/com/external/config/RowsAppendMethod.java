@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +92,7 @@ public class RowsAppendMethod implements ExecutionMethod {
                 .toBuilder()
                 .queryFormat("RANGE")
                 .spreadsheetRange(rowStart + ":" + rowEnd)
+                .projection(new ArrayList<>())
                 .build();
 
         rowsGetMethod.validateExecutionMethodRequest(newMethodConfig);
