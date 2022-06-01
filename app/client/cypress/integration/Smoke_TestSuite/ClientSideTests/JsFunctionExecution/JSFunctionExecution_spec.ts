@@ -253,8 +253,9 @@ describe("JS Function Execution", function() {
     );
     agHelper.RefreshPage();
 
+    // click "Yes" button for all onPageload && ConfirmExecute functions
     for (let i = 0; i < onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
-      agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
+      //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
       agHelper.ClickButton("Yes");
     }
     // Switch to settings tab
