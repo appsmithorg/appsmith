@@ -133,6 +133,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final static String GIT_PROFILE_ERROR = "Unable to find git author configuration for logged-in user. You can" +
             " set up a git profile from the user profile section.";
 
+    private final static String SYNC_LOCAL_WITH_REMOTE = "Synced with remote successfully";
+
     private enum DEFAULT_COMMIT_REASONS {
         CONFLICT_STATE("for conflicted state"),
         CONNECT_FLOW("initial commit"),
@@ -966,6 +968,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     Mono<Application> applicationMono = Mono.just(application);
                     if (pushResult.toString().contains("REJECTED")) {
+                        // In case of upstream changes pull the remote changes first and then push to remote to maintain
+                        // the history
                         applicationMono = addAnalyticsForGitOperation(
                                 AnalyticsEvents.GIT_PUSH.getEventName(),
                                 application,
@@ -977,7 +981,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         .flatMap(defaultApp -> this.pullAndRehydrateApplication(defaultApp, gitData.getBranchName()))
                         .map(pullStatus -> {
                             pushResult.delete(0, pushResult.length());
-                            pushResult.append("Synced with remote successfully");
+                            pushResult.append(SYNC_LOCAL_WITH_REMOTE);
                             return application;
                         });
                     }
