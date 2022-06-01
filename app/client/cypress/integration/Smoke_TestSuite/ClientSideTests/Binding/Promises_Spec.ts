@@ -4,7 +4,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
-  apiPage = ObjectsRegistry.ApiPage;
+  apiPage = ObjectsRegistry.ApiPage,
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate basic Promises", () => {
   it("1. Verify storeValue via .then via direct Promises", () => {
@@ -19,7 +20,7 @@ describe("Validate basic Promises", () => {
       true,
       true,
     );
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage(date);
     agHelper.NavigateBacktoEditor();
@@ -44,7 +45,7 @@ describe("Validate basic Promises", () => {
       true,
       true,
     );
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("We are on planet Earth");
     agHelper.NavigateBacktoEditor();
@@ -76,7 +77,7 @@ describe("Validate basic Promises", () => {
       true,
       true,
     );
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     cy.get(locator._toastMsg).should("have.length", 2);
     cy.get(locator._toastMsg)
@@ -114,7 +115,7 @@ describe("Validate basic Promises", () => {
     agHelper.ValidateToastMessage(
       "will be executed automatically on page load",
     );
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     cy.get(locator._toastMsg)
       .should("have.length", 1)
@@ -138,7 +139,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
         true,
       );
     });
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     //agHelper.ValidateToastMessage("Today's quote for You")
     cy.get(locator._toastMsg)
@@ -166,7 +167,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       true,
       true,
     );
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     cy.get(locator._toastMsg)
       .should("have.length", 1)
@@ -218,7 +219,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       true,
       true,
     );
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.WaitUntilEleAppear(locator._toastMsg);
     cy.get(locator._toastMsg)
@@ -248,7 +249,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       true,
       true,
     );
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("cat,dog,camel,rabbit,rat");
     agHelper.NavigateBacktoEditor();
@@ -281,7 +282,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
         true,
       );
     });
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     //agHelper.WaitUntilEleAppear(locator._toastMsg)
     cy.get(locator._toastMsg).should("have.length", 3);
@@ -330,7 +331,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
         true,
       );
     });
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     cy.get(locator._toastMsg).should("have.length", 4);
     cy.get(locator._toastMsg)
@@ -353,7 +354,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
       true,
       true,
     );
-    agHelper.DeployApp(locator._inputWidgetInDeployed);
+    deployMode.DeployApp(locator._inputWidgetInDeployed);
     cy.get(locator._inputWidgetInDeployed).type("Update value");
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("Test");
