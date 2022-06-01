@@ -6,7 +6,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
   apiPage = ObjectsRegistry.ApiPage,
-  table = ObjectsRegistry.Table;
+  table = ObjectsRegistry.Table,
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate JSObj binding to Table widget", () => {
   before(() => {
@@ -47,7 +48,7 @@ describe("Validate JSObj binding to Table widget", () => {
       (("{{" + jsName) as string) + ".myFun1()}}",
     );
     cy.get(locator._textWidget).should("have.length", 8);
-    agHelper.DeployApp(locator._textWidgetInDeployed);
+    deployMode.DeployApp(locator._textWidgetInDeployed);
     agHelper.AssertElementLength(locator._textWidgetInDeployed, 8);
     cy.get(locator._textWidgetInDeployed)
       .first()
@@ -76,7 +77,7 @@ describe("Validate JSObj binding to Table widget", () => {
     ee.SelectEntityByName("List1", "WIDGETS");
     jsEditor.EnterJSContext("Item Spacing (px)", "50");
     cy.get(locator._textWidget).should("have.length", 6);
-    agHelper.DeployApp(locator._textWidgetInDeployed);
+    deployMode.DeployApp(locator._textWidgetInDeployed);
     agHelper.AssertElementLength(locator._textWidgetInDeployed, 6);
     cy.get(locator._textWidgetInDeployed)
       .first()
