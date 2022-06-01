@@ -920,6 +920,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 .flatMap(application -> {
+                    // Git  metadata from default app which includes auth details as well
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
 
                     if (gitData == null
@@ -960,25 +961,32 @@ public class GitServiceCEImpl implements GitServiceCE {
                             );
                 })
                 .flatMap(tuple -> {
-                    String pushResult = tuple.getT1();
+                    StringBuilder pushResult = new StringBuilder(tuple.getT1());
                     Application application = tuple.getT2();
-                    if (pushResult.contains("REJECTED")) {
-
-                        return addAnalyticsForGitOperation(
+                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    Mono<Application> applicationMono = Mono.just(application);
+                    if (pushResult.toString().contains("REJECTED")) {
+                        applicationMono = addAnalyticsForGitOperation(
                                 AnalyticsEvents.GIT_PUSH.getEventName(),
                                 application,
                                 AppsmithError.GIT_UPSTREAM_CHANGES.getErrorType(),
                                 AppsmithError.GIT_UPSTREAM_CHANGES.getMessage(),
                                 application.getGitApplicationMetadata().getIsRepoPrivate()
                         )
-                        .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_UPSTREAM_CHANGES)));
+                        .then(applicationService.findById(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS))
+                        .flatMap(defaultApp -> this.pullAndRehydrateApplication(defaultApp, gitData.getBranchName()))
+                        .map(pullStatus -> {
+                            pushResult.delete(0, pushResult.length());
+                            pushResult.append("Synced with remote successfully");
+                            return application;
+                        });
                     }
-                    return Mono.just(pushResult).zipWith(Mono.just(tuple.getT2()));
+                    return applicationMono.zipWhen(app -> Mono.just(pushResult.toString()));
                 })
                 // Add BE analytics
                 .flatMap(tuple -> {
-                    String pushStatus = tuple.getT1();
-                    Application application = tuple.getT2();
+                    Application application = tuple.getT1();
+                    String pushStatus = tuple.getT2();
                     return addAnalyticsForGitOperation(
                             AnalyticsEvents.GIT_PUSH.getEventName(),
                             application,

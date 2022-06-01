@@ -34,6 +34,7 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
@@ -200,16 +201,12 @@ public class GitExecutorImpl implements GitExecutor {
                 TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
 
                 StringBuilder result = new StringBuilder("Pushed successfully with status : ");
-                git.push()
-                        .setTransportConfigCallback(transportConfigCallback)
-                        .setRemote(remoteUrl)
-                        .call()
-                        .forEach(pushResult ->
-                                pushResult.getRemoteUpdates()
-                                        .forEach(remoteRefUpdate -> result.append(remoteRefUpdate.getStatus().name()).append(","))
-                        );
                 // We can support username and password in future if needed
                 // pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("username", "password"));
+                Iterable<PushResult> pushResults = git.push()
+                        .setTransportConfigCallback(transportConfigCallback)
+                        .setRemote(remoteUrl)
+                        .call();
                 processStopwatch.stopAndLogTimeInMillis();
                 return result.substring(0, result.length() - 1);
             }
@@ -360,8 +357,8 @@ public class GitExecutorImpl implements GitExecutor {
                             .call()
                             .getMergeResult();
                     MergeStatusDTO mergeStatus = new MergeStatusDTO();
-                    Long count = Arrays.stream(mergeResult.getMergedCommits()).count();
                     if (mergeResult.getMergeStatus().isSuccessful()) {
+                        Long count = Arrays.stream(mergeResult.getMergedCommits()).count();
                         mergeStatus.setMergeAble(true);
                         mergeStatus.setStatus(count + " commits merged from origin/" + branchName);
                     } else {
