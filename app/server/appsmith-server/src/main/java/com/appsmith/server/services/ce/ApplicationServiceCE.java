@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.services.CrudService;
 import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Flux;
@@ -45,9 +46,9 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Application> setTransientFields(Application application);
 
-    Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId);
+    Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId, String keyType);
 
-    Mono<GitAuth> getSshKey(String applicationId);
+    Mono<GitAuthDTO> getSshKey(String applicationId);
 
     Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
                                                               String defaultApplicationId,
