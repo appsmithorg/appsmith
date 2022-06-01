@@ -1,7 +1,8 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 
 let agHelper = ObjectsRegistry.AggregateHelper,
-    table = ObjectsRegistry.Table;
+    table = ObjectsRegistry.Table,
+    deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate basic binding of Input widget to Input widget", () => {
 
@@ -12,7 +13,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
     });
 
     it("1. Validation of default displayed in Select widget based on row selected", function () {
-        agHelper.DeployApp()
+        deployMode.DeployApp()
 
         //Verify Default selected row is selected by default
         table.ReadTableRowColumnData(0, 0).then($cellData => {

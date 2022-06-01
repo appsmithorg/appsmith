@@ -98,6 +98,7 @@ jobs:
           echo ::set-output name=version::$next_version-SNAPSHOT
 
       - name: Run the jest tests
+        if: github.event_name == 'pull_request'
         run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
 
       # We burn React environment & the Segment analytics key into the build itself.
