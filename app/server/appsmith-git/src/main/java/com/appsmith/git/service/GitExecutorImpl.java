@@ -34,7 +34,6 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
@@ -203,12 +202,16 @@ public class GitExecutorImpl implements GitExecutor {
                 StringBuilder result = new StringBuilder("Pushed successfully with status : ");
                 // We can support username and password in future if needed
                 // pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("username", "password"));
-                Iterable<PushResult> pushResults = git.push()
+                git.push()
                         .setTransportConfigCallback(transportConfigCallback)
                         .setRemote(remoteUrl)
-                        .call();
+                        .call()
+                        .forEach(pushResult ->
+                                pushResult.getRemoteUpdates()
+                                        .forEach(remoteRefUpdate -> result.append(remoteRefUpdate.getStatus().name()).append(","))
+                        );
                 processStopwatch.stopAndLogTimeInMillis();
-                return result.substring(0, result.length() - 1);
+                return result.toString();
             }
         })
         .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))

@@ -20,8 +20,8 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
@@ -38,8 +38,8 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.migrations.JsonSchemaVersions;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -1314,7 +1314,7 @@ public class GitServiceTest {
         mergeStatusDTO.setStatus("2 commits pulled");
         mergeStatusDTO.setMergeAble(true);
 
-        ApplicationJson applicationJson = createAppJson(filePath).block();;
+        ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("upstreamChangesAvailable_pullSuccess");
 
         GitStatusDTO gitStatusDTO = new GitStatusDTO();
@@ -1776,6 +1776,104 @@ public class GitServiceTest {
                     assertThat(commitAndPushMsg).contains("pushed successfully");
                 })
                 .verifyComplete();
+    }
+
+    // Test commit-pull-push flow when there are
+    // - upstream as well as local changes
+    // - Without merge conflicts after pull operation
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void commitPullAndPushApplication_withUpstreamChangesWithoutConflict_success() throws GitAPIException, IOException {
+
+        ApplicationJson applicationJson = createAppJson(filePath).block();
+
+        GitCommitDTO commitDTO = new GitCommitDTO();
+        commitDTO.setDoPush(true);
+        commitDTO.setCommitMessage("commit message");
+
+        MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
+        mergeStatusDTO.setStatus("2 commits pulled");
+        mergeStatusDTO.setMergeAble(true);
+
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("")));
+        Mockito.when(gitExecutor.commitApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just("sample response for commit"));
+        Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+        Mockito.when(gitExecutor.pushApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("REJECTED"), Mono.just("Synced with remote successfully"));
+
+        assert applicationJson != null;
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(applicationJson));
+        Mockito.when(gitExecutor.pullApplication(
+                        Mockito.any(Path.class),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(mergeStatusDTO));
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(true)))
+                .thenReturn(Mono.just("fetched"));
+        Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+
+        Mono<String> commitAndPushMono = gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
+
+        StepVerifier
+                .create(commitAndPushMono.zipWhen(status -> applicationService.findByIdAndBranchName(gitConnectedApplication.getId(), DEFAULT_BRANCH)))
+                .assertNext(tuple -> {
+                    String commitMsg = tuple.getT1();
+                    Application application = tuple.getT2();
+                    assertThat(commitMsg).contains("sample response for commit");
+                    assertThat(commitMsg).contains("Synced with remote successfully");
+                    assertThat(application.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
+                    assertThat(application.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
+                    assertThat(application.getIsManualUpdate()).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    // Test commit-pull-push flow when there are
+    // - upstream as well as local changes
+    // - With merge conflicts after pull operation
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void commitPullAndPushApplication_withUpstreamChangesWithConflict_throwConflictException() throws GitAPIException, IOException {
+
+        ApplicationJson applicationJson = createAppJson(filePath).block();
+
+        GitCommitDTO commitDTO = new GitCommitDTO();
+        commitDTO.setDoPush(true);
+        commitDTO.setCommitMessage("commit message");
+
+        MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
+        mergeStatusDTO.setMergeAble(false);
+
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("")));
+        Mockito.when(gitExecutor.commitApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just("sample response for commit"));
+        Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+        Mockito.when(gitExecutor.pushApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("REJECTED"));
+
+        assert applicationJson != null;
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(applicationJson));
+        Mockito.when(gitExecutor.pullApplication(
+                        Mockito.any(Path.class),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.error(new org.eclipse.jgit.errors.CheckoutConflictException("")));
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(true)))
+                .thenReturn(Mono.just("fetched"));
+        Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+
+        Mono<String> commitAndPushMono = gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
+
+        StepVerifier
+                .create(commitAndPushMono.zipWhen(status -> applicationService.findByIdAndBranchName(gitConnectedApplication.getId(), DEFAULT_BRANCH)))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.GIT_PULL_CONFLICTS.getMessage(new org.eclipse.jgit.errors.CheckoutConflictException("").getMessage())))
+                .verify();
     }
 
     @Test

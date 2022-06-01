@@ -2353,7 +2353,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     gitData.getGitAuth().getPublicKey()
                             ))
                             .onErrorResume(error -> {
-                                if(error.getMessage().contains("conflict")) {
+                                if(error instanceof org.eclipse.jgit.errors.CheckoutConflictException) {
                                     return Mono.error(new AppsmithException(AppsmithError.GIT_PULL_CONFLICTS, error.getMessage()));
                                 }
                                 else if (error.getMessage().contains("Nothing to fetch")) {
