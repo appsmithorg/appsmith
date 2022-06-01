@@ -10,7 +10,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
@@ -26,8 +25,9 @@ import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.ActionDTO;
-import com.appsmith.server.dtos.OrganizationPluginStatus;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
@@ -694,11 +694,11 @@ public class DatabaseChangelog2 {
             }
 
             final Set<String> installedPlugins = organization.getPlugins()
-                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+                    .stream().map(WorkspacePlugin::getPluginId).collect(Collectors.toSet());
 
             if (!installedPlugins.contains(pluginId)) {
                 organization.getPlugins()
-                        .add(new OrganizationPlugin(pluginId, OrganizationPluginStatus.FREE));
+                        .add(new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
             }
 
             mongockTemplate.save(organization);
