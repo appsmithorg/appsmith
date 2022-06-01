@@ -16,6 +16,7 @@ export type RadioProps = CommonComponentProps & {
   defaultValue: string;
   onSelect?: (value: string) => void;
   options: OptionProps[];
+  selectedOptionElements?: Array<JSX.Element | null>;
   backgroundColor?: string;
   // To prevent interference when there are multiple radio groups,
   // options corresponding to the same radio should have same name, which is different from others.
@@ -141,24 +142,29 @@ export default function RadioComponent(props: RadioProps) {
       rows={props.rows}
     >
       {props.options.map((option: OptionProps, index: number) => (
-        <Radio
-          backgroundColor={props.backgroundColor}
-          columns={props.columns}
-          disabled={props.disabled || option.disabled}
-          key={index}
-          rows={props.rows}
-        >
-          {option.label}
-          <input
-            checked={selected === option.value}
+        <>
+          <Radio
+            backgroundColor={props.backgroundColor}
+            columns={props.columns}
             disabled={props.disabled || option.disabled}
-            name={props.name || "radio"}
-            onChange={(e) => option.onSelect && option.onSelect(e.target.value)}
-            type="radio"
-            value={option.value}
-          />
-          <span className="checkbox" />
-        </Radio>
+            key={index}
+            rows={props.rows}
+          >
+            {option.label}
+            <input
+              checked={selected === option.value}
+              disabled={props.disabled || option.disabled}
+              name={props.name || "radio"}
+              onChange={(e) =>
+                option.onSelect && option.onSelect(e.target.value)
+              }
+              type="radio"
+              value={option.value}
+            />
+            <span className="checkbox" />
+          </Radio>
+          {selected === option.value && props.selectedOptionElements?.[index]}
+        </>
       ))}
     </RadioGroup>
   );
