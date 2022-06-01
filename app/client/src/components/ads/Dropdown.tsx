@@ -166,6 +166,8 @@ const StyledClose = styled(Close)`
 `;
 const SquareBox = styled.div<{
   checked: boolean;
+  backgroundColor?: string;
+  borderColor?: string;
 }>`
   width: 16px;
   height: 16px;
@@ -830,11 +832,15 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                 ) : null}
                 {props.isMultiSelect ? (
                   isSelected ? (
-                    <SquareBox backgroundColor="#f86a2b" borderColor="#f86a2b">
+                    <SquareBox
+                      backgroundColor="#f86a2b"
+                      borderColor="#f86a2b"
+                      checked={isSelected}
+                    >
                       <Check />
                     </SquareBox>
                   ) : (
-                    <SquareBox borderColor="#a9a7a7" />
+                    <SquareBox borderColor="#a9a7a7" checked={isSelected} />
                   )
                 ) : null}
                 {props.showLabelOnly ? (

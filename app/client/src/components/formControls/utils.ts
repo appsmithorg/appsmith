@@ -6,7 +6,6 @@ import {
   FormEvalOutput,
 } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormConfigType, HiddenType } from "./BaseControl";
-import { HiddenType } from "./BaseControl";
 import { diff, Diff } from "deep-diff";
 import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
 import { Action } from "@sentry/react/dist/types";
