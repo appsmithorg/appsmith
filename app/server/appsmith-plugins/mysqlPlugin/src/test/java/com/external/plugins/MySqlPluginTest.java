@@ -164,6 +164,31 @@ public class MySqlPluginTest {
         return datasourceConfiguration;
     }
 
+    private static DatasourceConfiguration createDatasourceConfigurationWithBadPWD() {
+        DBAuth authDTO = new DBAuth();
+        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
+        authDTO.setUsername(username);
+        authDTO.setPassword("");
+        authDTO.setDatabaseName(database);
+
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost(address);
+        endpoint.setPort(port.longValue());
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+
+        /* set endpoint */
+        datasourceConfiguration.setAuthentication(authDTO);
+        datasourceConfiguration.setEndpoints(List.of(endpoint));
+
+        /* set ssl mode */
+        datasourceConfiguration.setConnection(new com.appsmith.external.models.Connection());
+        datasourceConfiguration.getConnection().setSsl(new SSLDetails());
+        datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
+
+        return datasourceConfiguration;
+    }
+
     @Test
     public void testConnectMySQLContainer() {
 
@@ -205,6 +230,25 @@ public class MySqlPluginTest {
         StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
                 .assertNext(datasourceTestResult -> {
                     assertNotEquals(0, datasourceTestResult.getInvalids().size());
+                })
+                .verifyComplete();
+
+        /* Reset dsConfig */
+        dsConfig = createDatasourceConfiguration();
+    }
+
+    @Test
+    public void testTestDatasourceForR2dbcPermissionDeniedException() {
+        dsConfig = createDatasourceConfigurationWithBadPWD();
+
+        /* Expect no error */
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> {
+                    //String expectedErrorMessage;
+                    Set<String> invalidMessages = datasourceTestResult.getInvalids();
+                    assertEquals(1, invalidMessages.size());
+                    //new ArrayList<>(invalidMessages).get(0);
+                    assertEquals("Access denied for user 'mysql'@'172.17.0.1' using password: NO.", new ArrayList<>(invalidMessages).get(0));
                 })
                 .verifyComplete();
 

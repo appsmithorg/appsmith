@@ -22,17 +22,9 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.utils.MySqlErrorUtils;
 import com.external.utils.QueryUtils;
-import io.r2dbc.spi.ColumnMetadata;
-import io.r2dbc.spi.Connection;
-import io.r2dbc.spi.ConnectionFactories;
-import io.r2dbc.spi.ConnectionFactoryOptions;
-import io.r2dbc.spi.Option;
-import io.r2dbc.spi.Result;
-import io.r2dbc.spi.Row;
-import io.r2dbc.spi.RowMetadata;
-import io.r2dbc.spi.Statement;
-import io.r2dbc.spi.ValidationDepth;
+import io.r2dbc.spi.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
@@ -80,6 +72,16 @@ public class MySqlPlugin extends BasePlugin {
     private static final String TIMESTAMP_COLUMN_TYPE_NAME = "timestamp";
     private static final int VALIDATION_CHECK_TIMEOUT = 4; // seconds
     private static final String IS_KEY = "is";
+
+    private static MySqlErrorUtils mySqlErrorUtils;
+
+    static {
+        try {
+            mySqlErrorUtils = MySqlErrorUtils.getInstance();
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Example output for COLUMNS_QUERY:
@@ -322,9 +324,11 @@ public class MySqlPlugin extends BasePlugin {
                         if (error instanceof StaleConnectionException) {
                             return Mono.error(error);
                         }
+                        else if (error instanceof R2dbcPermissionDeniedException)
+                            return Mono.error(new AppsmithPluginException(error, AppsmithPluginError.PLUGIN_ERROR, error.getMessage()));
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        result.setErrorInfo(error);
+                        result.setErrorInfo(error, mySqlErrorUtils);
                         return Mono.just(result);
                     })
                     // Now set the request in the result to be returned back to the server
@@ -583,10 +587,14 @@ public class MySqlPlugin extends BasePlugin {
             }
 
             return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
-                    .onErrorResume(exception -> Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                            exception
-                    )))
+                    .onErrorResume(exception -> {
+                        if (exception instanceof R2dbcPermissionDeniedException)
+                            return Mono.error(new AppsmithPluginException(exception, AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, exception));
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                exception
+                        ));
+                    })
                     .subscribeOn(scheduler);
         }
 
@@ -671,7 +679,7 @@ public class MySqlPlugin extends BasePlugin {
                                 ? AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()
                                 : error.getMessage();
                         System.out.println("Error when testing MySQL datasource. " + errorMessage);
-                        return Mono.just(new DatasourceTestResult(errorMessage));
+                        return Mono.just(new DatasourceTestResult(mySqlErrorUtils.getReadableError(error)));
                     })
                     .subscribeOn(scheduler);
 
