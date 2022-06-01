@@ -5,7 +5,8 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
   table = ObjectsRegistry.Table,
-  homePage = ObjectsRegistry.HomePage;
+  homePage = ObjectsRegistry.HomePage,
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("Verify various Table_Filter combinations", function () {
   before(() => {
@@ -19,7 +20,7 @@ describe("Verify various Table_Filter combinations", function () {
     jsEditor.EnterJSContext("Table Data", JSON.stringify(dataSet.TableInput));
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
     cy.get('body').type("{esc}");
-    agHelper.DeployApp()
+    deployMode.DeployApp()
   });
 
   it("2. Table Widget Search Functionality", function () {
@@ -395,7 +396,7 @@ describe("Verify various Table_Filter combinations", function () {
     table.RemoveFilterNVerify("2381224", false, true, 1)
     table.RemoveFilterNVerify("2381224", false, true, 0)
 
-    //Bug 12638 - verification to add here - once closed 
+    //Bug 12638 - verification to add here - once closed
 
     table.ReadTableRowColumnData(1, 3).then(($cellData) => {
       expect($cellData).to.eq("Lindsay Ferguson");
@@ -612,7 +613,7 @@ describe("Verify various Table_Filter combinations", function () {
     cy.visit("/applications");
     homePage.ImportApp("TableFilterImportApp.json");
     homePage.AssertImport();
-    agHelper.DeployApp()
+    deployMode.DeployApp()
     table.WaitUntilTableLoad()
 
     //Contains
