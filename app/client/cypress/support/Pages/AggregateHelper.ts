@@ -494,21 +494,18 @@ export class AggregateHelper {
     this.AssertAutoSave();
   }
 
-    public UpdateCodeInput(selector: string, value: string) {
-        cy.wrap(selector)
-            .find(".unfocused-code-editor")
-            .first()
-            .focus()
-            .get(".CodeMirror")
-            .first()
-            .then((ins: any) => {
-                const input = ins[0].CodeMirror;
-                input.focus();
-                this.Sleep(200)
-                input.setValue(value);
-                this.Sleep(200)
-            });
-    }
+  public UpdateCodeInput(selector: string, value: string) {
+    cy.wrap(selector)
+      .find(".CodeMirror")
+      .first()
+      .then((ins: any) => {
+        const input = ins[0].CodeMirror;
+        input.focus();
+        this.Sleep(200);
+        input.setValue(value);
+        this.Sleep(200);
+      });
+  }
 
   public VerifyEvaluatedValue(currentValue: string) {
     this.Sleep(3000);
