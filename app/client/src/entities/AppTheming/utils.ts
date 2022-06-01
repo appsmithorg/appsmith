@@ -2,8 +2,13 @@ import { get, has } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
+  isDynamicValue,
+  THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
-import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
+import {
+  getBindingTemplate,
+  ROOT_SCHEMA_KEY,
+} from "widgets/JSONFormWidget/constants";
 import { parseSchemaItem } from "widgets/WidgetUtils";
 import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -19,26 +24,37 @@ export const getPropertiesToUpdateForReset = (
 ) => {
   const propertiesToUpdate: UpdateWidgetPropertyPayload[] = [];
 
+  // ignoring these properites as these are objects itself
+  // these are used in json form, table and button group
+  // to style the children fields/components/widgets
   const propertiesToIgnore = [
     "childStylesheet",
     "submitButtonStyles",
     "resetButtonStyles",
   ];
 
+  // iterating over canvas widgets and their properties
+  // so that we can compare them with the value in stylesheet
+  // and if they are different, reset the value to the one stored
+  // in stylesheet
   Object.keys(canvasWidgets).map((widgetId) => {
     const widget = canvasWidgets[widgetId];
     const stylesheetValue = themeStylesheet[widget.type];
     const modifications: any = {};
 
     if (stylesheetValue) {
-      Object.keys(stylesheetValue).map((propertyKey) => {
-        if (
-          stylesheetValue[propertyKey] !== widget[propertyKey] &&
-          propertiesToIgnore.includes(propertyKey) === false
-        ) {
-          modifications[propertyKey] = stylesheetValue[propertyKey];
-        }
-      });
+      Object.keys(stylesheetValue)
+        .filter((propertyKey) => !propertiesToIgnore.includes(propertyKey))
+        .map((propertyKey) => {
+          if (
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            THEME_BINDING_REGEX.test(stylesheetValue[propertyKey]) &&
+            stylesheetValue[propertyKey] !== widget[propertyKey]
+          ) {
+            modifications[propertyKey] = stylesheetValue[propertyKey];
+          }
+        });
 
       if (widget.type === "TABLE_WIDGET") {
         Object.keys(widget.primaryColumns).map((primaryColumnKey) => {
@@ -97,13 +113,22 @@ export const getPropertiesToUpdateForReset = (
 
               Object.keys(fieldStylesheet).map((fieldPropertyKey) => {
                 const fieldStylesheetValue = fieldStylesheet[fieldPropertyKey];
+                const { jsSnippets, stringSegments } = getDynamicBindings(
+                  fieldStylesheet[fieldPropertyKey],
+                );
+                const js = combineDynamicBindings(jsSnippets, stringSegments);
+                const { prefixTemplate, suffixTemplate } = getBindingTemplate(
+                  widget.widgetName,
+                );
+                const computedValue = `${prefixTemplate}${js}${suffixTemplate}`;
 
                 if (
-                  fieldStylesheetValue !== get(schemaItem, fieldPropertyKey)
+                  isDynamicValue(fieldStylesheetValue) &&
+                  computedValue !== get(schemaItem, fieldPropertyKey)
                 ) {
                   modifications[
                     `${[propertyPath]}.${fieldPropertyKey}`
-                  ] = fieldStylesheetValue;
+                  ] = computedValue;
                 }
               });
             },
