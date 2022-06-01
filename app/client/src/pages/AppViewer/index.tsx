@@ -19,7 +19,8 @@ import { EditorContext } from "components/editorComponents/EditorContextProvider
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
   resetChildrenMetaProperty,
-  updateWidgetMetaProperty,
+  syncUpdateWidgetMetaProperty,
+  triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
@@ -166,15 +167,6 @@ function AppViewer(props: Props) {
   );
 
   /**
-   * callback for updating widget meta property
-   */
-  const updateWidgetMetaPropertyCallback = useCallback(
-    (widgetId: string, propertyName: string, propertyValue: any) =>
-      dispatch(updateWidgetMetaProperty(widgetId, propertyName, propertyValue)),
-    [],
-  );
-
-  /**
    * callback for initializing app
    */
   const resetChildrenMetaPropertyCallback = useCallback(
@@ -183,12 +175,31 @@ function AppViewer(props: Props) {
   );
 
   /**
-   * callback for initializing app
+   * callback for updating widget meta property in batch
    */
   const batchUpdateWidgetPropertyCallback = useCallback(
     (widgetId: string, updates: BatchPropertyUpdatePayload) =>
       dispatch(batchUpdateWidgetProperty(widgetId, updates)),
     [batchUpdateWidgetProperty, dispatch],
+  );
+
+  /**
+   * callback for updating widget meta property
+   */
+  const syncUpdateWidgetMetaPropertyCallback = useCallback(
+    (widgetId: string, propertyName: string, propertyValue: unknown) =>
+      dispatch(
+        syncUpdateWidgetMetaProperty(widgetId, propertyName, propertyValue),
+      ),
+    [syncUpdateWidgetMetaProperty, dispatch],
+  );
+
+  /**
+   * callback for triggering evaluation
+   */
+  const triggerEvalOnMetaUpdateCallback = useCallback(
+    () => dispatch(triggerEvalOnMetaUpdate()),
+    [triggerEvalOnMetaUpdate, dispatch],
   );
 
   return (
@@ -197,9 +208,10 @@ function AppViewer(props: Props) {
         <EditorContext.Provider
           value={{
             executeAction: executeActionCallback,
-            updateWidgetMetaProperty: updateWidgetMetaPropertyCallback,
             resetChildrenMetaProperty: resetChildrenMetaPropertyCallback,
             batchUpdateWidgetProperty: batchUpdateWidgetPropertyCallback,
+            syncUpdateWidgetMetaProperty: syncUpdateWidgetMetaPropertyCallback,
+            triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdateCallback,
           }}
         >
           <ContainerWithComments>

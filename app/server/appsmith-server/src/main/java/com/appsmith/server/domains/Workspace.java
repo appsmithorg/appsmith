@@ -42,6 +42,8 @@ public class Workspace extends BaseDomain {
     @JsonIgnore
     private String logoAssetId;
 
+    private String tenantId;
+
     public String makeSlug() {
         return toSlug(name);
     }

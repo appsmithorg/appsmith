@@ -12,12 +12,16 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
+import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Sequence;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -31,9 +35,12 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.redis.core.ReactiveRedisOperations;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -769,6 +776,7 @@ public class DatabaseChangelog2 {
         );
     }
 
+
     /**
      * We'll remove the unique index on organization slugs. We'll also regenerate the slugs for all organizations as
      * most of them are outdated
@@ -801,9 +809,9 @@ public class DatabaseChangelog2 {
         //Memory optimization note:
         //Call stream instead of findAll to avoid out of memory if the collection is big
         //stream implementation lazy loads the data using underlying cursor open on the collection
-        //the data is loaded as as and when needed by the pipeline
-        try(Stream<Organization> stream = mongockTemplate.stream(new Query(), Organization.class)
-            .stream()) { 
+        //the data is loaded as and when needed by the pipeline
+        try (Stream<Organization> stream = mongockTemplate.stream(new Query(), Organization.class)
+                .stream()) {
             stream.forEach((organization) -> {
                 Workspace workspace = gson.fromJson(gson.toJson(organization), Workspace.class);
                 mongockTemplate.insert(workspace);
@@ -819,7 +827,7 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "010", id = "add-workspace-indexes", author = "")
     public void addWorkspaceIndexes(MongockTemplate mongockTemplate) {
         ensureIndexes(mongockTemplate, Workspace.class,
-            makeIndex("createdAt")
+                makeIndex("createdAt")
         );
     }
 
@@ -838,7 +846,70 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "012", id = "migrate-google-sheets-to-uqi", author = "")
+    @ChangeSet(order = "012", id = "add-default-tenant", author = "")
+    public void addDefaultTenant(MongockTemplate mongockTemplate) {
+
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant tenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+
+        // if tenant already exists, don't create a new one.
+        if (tenant != null) {
+            return;
+        }
+
+        Tenant defaultTenant = new Tenant();
+        defaultTenant.setDisplayName("Default");
+        defaultTenant.setSlug("default");
+        defaultTenant.setPricingPlan(PricingPlan.FREE);
+
+        mongockTemplate.save(defaultTenant);
+
+    }
+
+    @ChangeSet(order = "013", id = "add-tenant-to-all-workspaces", author = "")
+    public void addTenantToWorkspaces(MongockTemplate mongockTemplate) {
+
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+        assert (defaultTenant != null);
+
+        // Set all the workspaces to be under the default tenant
+        mongockTemplate.updateMulti(
+                new Query(),
+                new Update().set("tenantId", defaultTenant.getId()),
+                Workspace.class
+        );
+
+    }
+
+    @ChangeSet(order = "014", id = "add-tenant-to-all-users-and-flush-redis", author = "")
+    public void addTenantToUsersAndFlushRedis(MongockTemplate mongockTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
+
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+        assert (defaultTenant != null);
+
+        // Set all the users to be under the default tenant
+        mongockTemplate.updateMulti(
+                new Query(),
+                new Update().set("tenantId", defaultTenant.getId()),
+                User.class
+        );
+
+        // Now sign out all the existing users since this change impacts the user object.
+        final String script =
+                "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))" +
+                        " do redis.call('del',k) " +
+                        "end";
+        final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
+
+        flushdb.subscribe();
+    }
+
+    @ChangeSet(order = "015", id = "migrate-google-sheets-to-uqi", author = "")
     public void migrateGoogleSheetsToUqi(MongockTemplate mongockTemplate) {
 
         // Get plugin references to Google Sheets actions
