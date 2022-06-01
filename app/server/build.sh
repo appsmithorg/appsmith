@@ -3,6 +3,8 @@
 # Remove previous dist directory
 rm -rf dist/
 
+docker image pull mongo:4.4
+
 # Build the code. $@ accepts all the parameters from the input command line and uses it in the maven build command
 mvn clean package "$@"
 
