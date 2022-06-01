@@ -1134,7 +1134,7 @@ export const END_TUTORIAL = () => "END TUTORIAL";
 export const TITLE = () =>
   "In this tutorial we’ll build a tool to display customer information";
 export const DESCRIPTION = () =>
-  "This tool has a table that displays customer data and a form to update a particular customer record. Try out the tool below before you start building this.";
+  "This tool has a table that displays customer data and a form to update a particular customer record. Try out the tool below before you start building.";
 export const BUTTON_TEXT = () => "Start Building";
 // -- Rating --
 export const RATING_TITLE = () =>
