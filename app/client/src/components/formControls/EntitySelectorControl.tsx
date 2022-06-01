@@ -9,11 +9,18 @@ const dropDownFieldConfig: any = {
   controlType: "DROP_DOWN",
   fetchOptionsConditionally: true,
   options: [],
+  customStyles: {
+    width: "20vw",
+  },
 };
 
 const inputFieldConfig: any = {
   label: "",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+  customStyles: {
+    width: "20vw",
+    minHeight: "38px",
+  },
 };
 
 // main container for the entity selector component

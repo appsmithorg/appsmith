@@ -173,11 +173,15 @@ const SquareBox = styled.div<{
   height: 16px;
   box-sizing: border-box;
   margin-right: 10px;
-  background-color: ${(props) =>
-    props.checked ? Colors.GRAY_900 : Colors.WHITE};
+  background-color: ${(props) => {
+    if (props.backgroundColor) return props.backgroundColor;
+    props.checked ? Colors.GRAY_900 : Colors.WHITE;
+  }};
   border: 1.4px solid;
-  border-color: ${(props) =>
-    props.checked ? Colors.GRAY_900 : Colors.GRAY_400};
+  border-color: ${(props) => {
+    if (props.borderColor) return props.borderColor;
+    props.checked ? Colors.GRAY_900 : Colors.GRAY_400;
+  }};
 
   & svg {
     display: ${(props) => (props.checked ? "block" : "none")};

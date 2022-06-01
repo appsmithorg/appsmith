@@ -17,9 +17,11 @@ import { diff } from "deep-diff";
 import { FormDataPaths } from "workers/formEval";
 import { Action } from "entities/Action";
 
-const DropdownSelect = styled.div`
+const DropdownSelect = styled.div<{
+  width: string;
+}>`
   font-size: 14px;
-  width: 35vw;
+  width: ${(props) => (props?.width ? props?.width : "35vw")};
 `;
 
 class DropDownControl extends BaseControl<Props> {
@@ -73,7 +75,11 @@ class DropDownControl extends BaseControl<Props> {
     };
 
     return (
-      <DropdownSelect data-cy={this.props.configProperty} style={styles}>
+      <DropdownSelect
+        data-cy={this.props.configProperty}
+        style={styles}
+        width={styles.width}
+      >
         <Field
           component={renderDropdown}
           name={this.props.configProperty}

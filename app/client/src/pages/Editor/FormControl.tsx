@@ -73,6 +73,7 @@ function FormControl(props: FormControlProps) {
               <ToggleComponentToJson
                 componentControlType={props.config.controlType}
                 configProperty={props.config.configProperty}
+                customStyles={props?.config?.customStyles}
                 disabled={props.config.disabled}
                 formName={props.formName}
                 renderCompFunction={FormControlRenderMethod}

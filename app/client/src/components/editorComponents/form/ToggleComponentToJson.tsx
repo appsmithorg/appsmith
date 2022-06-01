@@ -16,6 +16,7 @@ import { JSToggleButton } from "components/ads";
 
 type Props = {
   viewType: ViewTypes;
+  customStyles: Record<string, any>;
   componentControlType: string;
   configProperty: string;
   children?: JSX.Element;
@@ -59,6 +60,7 @@ function ToggleComponentToJson(props: Props) {
     ? props.renderCompFunction({
         ...alternateViewTypeInputConfig(),
         configProperty: props.configProperty,
+        customStyles: props?.customStyles,
         formName: props.formName,
         id: props.configProperty,
       })
