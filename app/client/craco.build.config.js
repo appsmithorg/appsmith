@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const SentryWebpackPlugin = require("@sentry/webpack-plugin");
-const { merge } = require("webpack-merge");
+const merge = require("webpack-merge");
 const common = require("./craco.common.config.js");
 const WorkboxPlugin = require("workbox-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
