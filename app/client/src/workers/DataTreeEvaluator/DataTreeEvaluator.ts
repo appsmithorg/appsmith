@@ -196,6 +196,8 @@ export default class DataTreeEvaluator {
       if (!!entity) {
         Object.keys(updates).forEach((key) => {
           const updatePath = `${update}.${key}`;
+          // paths not present on the unEvaltree should not be updated
+          // as this could lead to a cyclic dependency
           if (_.has(dataTree, updatePath)) {
             const data = _.get(dataTree, `${updatePath}.data`, undefined);
             if (this.isJSObjectFunction(dataTree, update, key)) {
