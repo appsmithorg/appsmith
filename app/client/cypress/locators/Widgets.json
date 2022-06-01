@@ -126,6 +126,7 @@
     "tableBtn": ".t--draggable-tablewidget .bp3-button",
     "tableV2Btn": ".t--draggable-tablewidgetv2 .bp3-button",
     "tableIconBtn": ".t--draggable-tablewidget .bp3-icon",
+    "tableV2IconBtn": ".t--draggable-tablewidget .bp3-icon",
     "toastAction": ".t--toast-action",
     "toastActionText": ".t--toast-action span",
     "defaultColName": "[data-rbd-draggable-id='customColumn1'] input",

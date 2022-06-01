@@ -98,7 +98,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it.only("6. Check open section and column data in property pane", function() {
+  it("6. Check open section and column data in property pane", function() {
     cy.openPropertyPane("tablewidgetv2");
 
     // Validate the columns are visible in the property pane
@@ -127,6 +127,7 @@ describe("Table Widget V2 property pane feature validation", function() {
   });
 
   it("7. Column Detail - Edit column name and validate test for computed value based on column type selected", function() {
+    cy.openPropertyPane("tablewidgetv2");
     cy.wait(1000);
     cy.makeColumnVisible("email");
     cy.makeColumnVisible("userName");
@@ -212,6 +213,8 @@ describe("Table Widget V2 property pane feature validation", function() {
   });
 
   it("8. Test to validate text allignment", function() {
+    cy.openPropertyPane("tablewidgetv2");
+    cy.get(".t--property-control-visible span.bp3-control-indicator").click();
     // Verifying Center Alignment
     cy.get(widgetsPage.centerAlign)
       .first()
@@ -317,27 +320,5 @@ describe("Table Widget V2 property pane feature validation", function() {
     // Verify the deaullt search text
     cy.get(widgetsPage.searchField).should("have.value", "data");
     cy.get(publish.backToEditor).click();
-  });
-
-  it("13. Verify default selected row", function() {
-    // Open property pane
-    cy.openPropertyPane("tablewidgetv2");
-    cy.testJsontext("defaultsearchtext", "");
-    // Change default selected row value to 1
-    cy.get(widgetsPage.defaultSelectedRowField).type("1");
-    cy.wait(2000);
-    cy.PublishtheApp();
-    // Verify the default selected row
-    cy.get(widgetsPage.selectedRow).should(
-      "have.css",
-      "background-color",
-      "rgb(224, 251, 234)",
-    );
-    cy.get(publish.backToEditor).click();
-  });
-
-  afterEach(() => {
-    // put your clean up code if any
-    cy.goToEditFromPublish();
   });
 });

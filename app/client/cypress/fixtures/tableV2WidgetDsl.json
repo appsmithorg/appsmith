@@ -53,6 +53,23 @@
             "orientation": "VERTICAL",
             "children": [
               {
+                  "childStylesheet": {
+                    "button": {
+                        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                        "boxShadow": "none"
+                    },
+                    "menuButton": {
+                        "menuColor": "{{appsmith.theme.colors.primaryColor}}",
+                        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                        "boxShadow": "none"
+                    },
+                    "iconButton": {
+                        "menuColor": "{{appsmith.theme.colors.primaryColor}}",
+                        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                        "boxShadow": "none"
+                    }
+                },
                 "enableClientSideSearch": true,
                 "isVisibleSearch": true,
                 "isVisible": true,

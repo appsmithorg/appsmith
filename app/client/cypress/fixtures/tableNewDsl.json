@@ -33,7 +33,7 @@
                 "bottomRow": 71,
                 "parentRowSpace": 10,
                 "isSortable": true,
-                "type": "TABLE_WIDGET_V2",
+                "type": "TABLE_WIDGET",
                 "parentColumnSpace": 74,
                 "dynamicTriggerPathList": [],
                 "leftColumn": 0,
