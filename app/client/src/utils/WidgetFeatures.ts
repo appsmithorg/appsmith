@@ -54,12 +54,6 @@ export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
           propertyName: string,
           propertyValue: string,
         ) => {
-          console.log(
-            "Dynamic height: Update hook:",
-            { props },
-            { propertyName },
-            { propertyValue },
-          );
           if (
             propertyValue === DynamicHeight.HUG_CONTENTS &&
             props.shouldScrollContents === false &&

@@ -407,10 +407,6 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
           parentId = parent.parentId;
         }
         canvasLevelMap[canvasWidget.widgetId] = level;
-        console.log("Dynamic height: Level of canvas widget:", {
-          widgetId: canvasWidget.widgetId,
-          level,
-        });
         // Initilise the occupied spaces with an empty array
         occupiedSpaces[canvasWidgetId] = [];
         // If this canvas widget has children

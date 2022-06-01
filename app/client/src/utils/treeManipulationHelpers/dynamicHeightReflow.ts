@@ -1,4 +1,5 @@
 import boxIntersect from "box-intersect";
+// import { difference } from "lodash";
 import log from "loglevel";
 
 export type TreeNode = {
@@ -22,6 +23,7 @@ const MAX_BOX_SIZE = 20000;
 // Which widgets could affect their sibling positions based on changes in height
 export function generateTree(spaces: NodeSpace[]): Record<string, TreeNode> {
   // If widget doesn't exist in this DS, this means that its height changes does not effect any other sibling
+  spaces.sort((a, b) => a.top - b.top); // Sort based on position, top to bottom
   const boxes: Box[] = spaces.map((space) => [
     space.left,
     space.top,
@@ -29,8 +31,10 @@ export function generateTree(spaces: NodeSpace[]): Record<string, TreeNode> {
     space.bottom + MAX_BOX_SIZE,
   ]);
 
-  boxes.sort((a, b) => a[1] - b[1]); // Sort based on position, top to bottom
+  // boxes.sort((a, b) => a[1] - b[1]);
+
   const overlaps = boxIntersect(boxes);
+
   const { aboveMap, belowMap } = getOverlapMap(overlaps);
 
   const tree: Record<string, TreeNode> = {};
@@ -96,9 +100,12 @@ export function computeChangeInPositionBasedOnDelta(
 
   // This is expensive, we need to figure out a better algorithm
   // Iteration 1 (O(n)) - n is the number of widgets changed
+  const allEffectedIds: string[] = [...Object.keys(delta)];
   for (const boxId in delta) {
     // Iteration 2 (O(m*m) - m is the depth and breadth of the children in this node)
     const effectedIds = getEffectedWidgets(boxId, tree);
+    allEffectedIds.push(...effectedIds);
+
     effectedIds.forEach((effectedId) => {
       effectedBoxMap[effectedId] = [
         ...(effectedBoxMap[effectedId] || []),
@@ -110,16 +117,49 @@ export function computeChangeInPositionBasedOnDelta(
   // Iteration 3 (O(o) - o is the number of effected widgets)
   for (const effectedBoxId in effectedBoxMap) {
     // TODO: FIX_ME(abhinav): Handle the scenario where widgets can't freely move up
+    const offset = effectedBoxMap[effectedBoxId].reduce(
+      (prev, next) => prev + next,
+      0,
+    );
     repositionedBoxes[effectedBoxId] = {
-      topRow:
-        tree[effectedBoxId].topRow +
-        effectedBoxMap[effectedBoxId].reduce((prev, next) => prev + next, 0),
-      bottomRow:
-        tree[effectedBoxId].bottomRow +
-        effectedBoxMap[effectedBoxId].reduce((prev, next) => prev + next, 0),
+      topRow: tree[effectedBoxId].topRow + offset,
+      bottomRow: tree[effectedBoxId].bottomRow + offset,
     };
+    // const aboves = tree[effectedBoxId].aboves;
+    // const unchangedAboves = difference(aboves, allEffectedIds);
+    // const firstOrderUnchangedAboves = unchangedAboves.filter((aboveId) => {
+    //   for (const _aboveId in aboves) {
+    //     if (_aboveId !== aboveId) {
+    //       if (tree[_aboveId].aboves.includes(aboveId)) return false;
+    //     }
+    //   }
+    //   return true;
+    // });
+
+    // console.log(
+    //   "Dynamic height: Figuring offsets:",
+    //   { offset },
+    //   { aboves },
+    //   { unchangedAboves },
+    //   { allEffectedIds },
+    //   { firstOrderUnchangedAboves },
+    // );
+
+    // if (firstOrderUnchangedAboves.length === 0) {
+    //   repositionedBoxes[effectedBoxId] = {
+    //     topRow: tree[effectedBoxId].topRow + offset,
+    //     bottomRow: tree[effectedBoxId].bottomRow + offset,
+    //   };
+    // }
   }
 
+  // console.log(
+  //   "Dynamic height computing:",
+  //   { delta },
+  //   { tree },
+  //   { effectedBoxMap },
+  //   { repositionedBoxes },
+  // );
   // Iteration 4 (O(n) - n is the number of widgets changed)
   for (const boxId in delta) {
     const hasAlreadyRepositioned = !!repositionedBoxes[boxId];

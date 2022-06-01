@@ -19,9 +19,6 @@ const canvasLevelsReducer = createImmerReducer(initialState, {
     action: ReduxAction<DynamicHeightLayoutTreePayload>,
   ) => {
     const { canvasLevelMap } = action.payload;
-    console.log("Dynamic Height: Updating reducer canvasLevels", {
-      canvasLevelMap,
-    });
     for (const widgetId in canvasLevelMap) {
       if (state[widgetId] !== canvasLevelMap[widgetId])
         state[widgetId] = canvasLevelMap[widgetId];
