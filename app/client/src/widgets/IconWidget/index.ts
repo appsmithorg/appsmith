@@ -6,6 +6,7 @@ export const CONFIG = {
   name: "Icon",
   iconSVG: IconSVG,
   hideCard: true,
+  isDeprecated: true,
   defaults: {
     widgetName: "Icon",
     rows: 4,
