@@ -57,7 +57,7 @@ export class AggregateHelper {
         ).then((dslDumpResp) => {
           //cy.log("Pages resposne is : " + dslDumpResp.body);
           expect(dslDumpResp.status).equal(200);
-          cy.reload();
+          this.RefreshPage();
         });
       });
     });
@@ -68,7 +68,7 @@ export class AggregateHelper {
     cy.get(this.locator._loading).should("not.exist"); //Checks the spinner is gone & dsl loaded!
   }
 
-  public StartServerAndRoutes() {
+  public StartRoutes() {
     cy.intercept("POST", "/api/v1/actions").as("createNewApi");
     cy.intercept("PUT", "/api/v1/actions/*").as("saveAction");
     //cy.intercept("POST", "/api/v1/users/invite", (req) => { req.headers["origin"] = "Cypress";}).as("mockPostInvite");
@@ -99,61 +99,15 @@ export class AggregateHelper {
     });
   }
 
-  // Stubbing window.open to open in the same tab
-  public StubbingWindow() {
-    cy.window().then((window: any) => {
-      cy.stub(window, "open").callsFake((url) => {
-        window.location.href = url;
-        window.location.target = "_self";
-      });
-    });
-  }
-
-  //refering PublishtheApp from command.js
-  public DeployApp(
-    eleToCheckInDeployPage: string = this.locator._backToEditor,
-  ) {
-    //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
-    // Wait before publish
-    this.Sleep(2000); //wait for elements load!
-    this.AssertAutoSave();
-    // Stubbing window.open to open in the same tab
-    cy.window().then((window) => {
-      cy.stub(window, "open").callsFake((url) => {
-        window.location.href = Cypress.config().baseUrl + url.substring(1);
-      });
-    });
-    cy.get(this.locator._publishButton).click();
-    cy.log("Pagename: " + localStorage.getItem("PageName"));
-    // cy.wait("@publishApp")
-    //   .its("request.url")
-    //   .should("not.contain", "edit");
-    //cy.wait('@publishApp').wait('@publishApp') //waitng for 2 calls to complete
-
-    this.WaitUntilEleAppear(eleToCheckInDeployPage);
-    localStorage.setItem("inDeployedMode", "true");
-  }
-
-  public AddNewPage() {
-    cy.get(this.locator._newPage)
-      .first()
-      .click();
-    cy.wait("@createPage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-  }
-
   public ValidateToastMessage(text: string, length = 1) {
     cy.get(this.locator._toastMsg)
       .should("have.length", length)
       .should("contain.text", text);
   }
 
-  public ClickButton(btnVisibleText: string) {
+  public ClickButton(btnVisibleText: string, index = 0) {
     cy.xpath(this.locator._spanButton(btnVisibleText))
-      .first()
+      .eq(index)
       .scrollIntoView()
       .click({ force: true });
     this.Sleep();
@@ -409,6 +363,18 @@ export class AggregateHelper {
       .wait(500);
   }
 
+  public GetNClickByContains(
+    selector: string,
+    containsText: string,
+    index = 0,
+  ) {
+    cy.get(selector)
+      .contains(containsText)
+      .eq(index)
+      .click()
+      .wait(200);
+  }
+
   public ToggleOnOrOff(propertyName: string, toggle: "On" | "Off") {
     if (toggle == "On") {
       cy.get(this.locator._propertyToggle(propertyName))
@@ -470,12 +436,20 @@ export class AggregateHelper {
     return cy.get(this.locator._queryName).invoke("text");
   }
 
+  public GetElementLength(selector: string) {
+    let locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    return locator.its("length");
+  }
+
   public Sleep(timeout = 1000) {
     cy.wait(timeout);
   }
 
   public RefreshPage() {
     cy.reload();
+    this.Sleep(2000)
   }
 
   public ActionContextMenuWithInPane(
@@ -598,25 +572,36 @@ export class AggregateHelper {
       });
   }
 
-  public AssertElementAbsence(selector: string) {
+  public AssertElementAbsence(selector: string){//Should not exists - cannot take indexes
     let locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
+      ? cy.xpath(selector, { timeout: 0 })
+      : cy.get(selector, { timeout: 0 })
     locator.should("not.exist");
   }
 
-  public GetText(selector: string, textOrValue : 'text'| 'val' = 'text', index = 0) {
+  public GetText(
+    selector: string,
+    textOrValue: "text" | "val" = "text",
+    index = 0,
+  ) {
     let locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator.eq(index).invoke(textOrValue);
   }
 
-  public AssertElementPresence(selector: string, index = 0) {
+  public AssertElementVisible(selector: string, index = 0) {
     let locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     locator.eq(index).should("be.visible");
+  }
+
+  public AssertElementExist(selector: string, index = 0) {
+    let locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    locator.eq(index).should("exist");
   }
 
   public AssertElementLength(
