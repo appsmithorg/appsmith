@@ -169,8 +169,6 @@ describe("JS Function Execution", function() {
   });
 
   it("6. Doesn't cause cyclic dependency when function name is edited", () => {
-    const cyclicDependencyToastMessage =
-      "Cyclic dependency found while evaluating";
     const syncJSCode = `export default {
       myFun1 :()=>{
         return "yes"
@@ -213,16 +211,13 @@ describe("JS Function Execution", function() {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
+    agHelper.WaitUntilToastDisappear("created successfully");
 
     // change sync function name and test that cyclic dependency is not created
     jsEditor.EditJSObj(syncJSCodeWithRenamedFunction1);
-    cy.contains(locator._toastMsg, cyclicDependencyToastMessage).should(
-      "not.exist",
-    );
+    agHelper.AssertElementAbsence(locator._toastMsg);
     jsEditor.EditJSObj(syncJSCodeWithRenamedFunction2);
-    cy.contains(locator._toastMsg, cyclicDependencyToastMessage).should(
-      "not.exist",
-    );
+    agHelper.AssertElementAbsence(locator._toastMsg);
 
     jsEditor.CreateJSObject(asyncJSCode, {
       paste: true,
@@ -230,14 +225,11 @@ describe("JS Function Execution", function() {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
+    agHelper.WaitUntilToastDisappear("created successfully");
     // change async function name and test that cyclic dependency is not created
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction1);
-    cy.contains(locator._toastMsg, cyclicDependencyToastMessage).should(
-      "not.exist",
-    );
+    agHelper.AssertElementAbsence(locator._toastMsg);
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2);
-    cy.contains(locator._toastMsg, cyclicDependencyToastMessage).should(
-      "not.exist",
-    );
+    agHelper.AssertElementAbsence(locator._toastMsg);
   });
 });
