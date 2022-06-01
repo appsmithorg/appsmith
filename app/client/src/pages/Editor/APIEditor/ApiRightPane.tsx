@@ -21,7 +21,7 @@ const EmptyDatasourceContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding: 50px;
-  border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-left: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   height: 100%;
   flex-direction: column;
   .${Classes.TEXT} {
@@ -33,7 +33,7 @@ const DatasourceContainer = styled.div`
   &&&&&&&&&&& .react-tabs__tab-list {
     padding: 0 16px !important;
     border-bottom: none;
-    border-left: 2px solid #e8e8e8;
+    border-left: 1px solid #e8e8e8;
     margin-left: 0px;
     margin-right: 0px;
     .cs-icon {
@@ -42,6 +42,12 @@ const DatasourceContainer = styled.div`
   }
   width: ${(props) => props.theme.actionSidePane.width}px;
   color: ${(props) => props.theme.colors.apiPane.text};
+
+  &&&& {
+    .react-tabs__tab-panel {
+      height: calc(100% - 32px);
+    }
+  }
 `;
 
 const DataSourceListWrapper = styled.div`
@@ -49,7 +55,7 @@ const DataSourceListWrapper = styled.div`
   flex-direction: column;
   height: 100%;
   padding: 10px;
-  border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-left: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   overflow: auto;
 `;
 
@@ -147,7 +153,7 @@ const SelectedDatasourceInfoContainer = styled.div`
 `;
 
 const SomeWrapper = styled.div`
-  border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-left: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   height: 100%;
 `;
 
@@ -220,6 +226,7 @@ function ApiRightPane(props: any) {
     <DatasourceContainer>
       <TabbedViewContainer>
         <TabComponent
+          cypressSelector={"api-right-pane"}
           onSelect={setSelectedIndex}
           selectedIndex={selectedIndex}
           tabs={[

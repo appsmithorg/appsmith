@@ -6,7 +6,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
@@ -41,17 +41,17 @@ public enum AclPermission {
     MANAGE_USERS("manage:users", User.class),
     RESET_PASSWORD_USERS("resetPassword:users", User.class),
 
-    MANAGE_ORGANIZATIONS("manage:organizations", Organization.class),
-    READ_ORGANIZATIONS("read:organizations", Organization.class),
+    MANAGE_ORGANIZATIONS("manage:organizations", Workspace.class),
+    READ_ORGANIZATIONS("read:organizations", Workspace.class),
 
     // Was the user assigned a global permission at the organization level to manage applications?
-    ORGANIZATION_MANAGE_APPLICATIONS("manage:orgApplications", Organization.class),
-    ORGANIZATION_READ_APPLICATIONS("read:orgApplications", Organization.class),
-    ORGANIZATION_PUBLISH_APPLICATIONS("publish:orgApplications", Organization.class),
-    ORGANIZATION_EXPORT_APPLICATIONS("export:orgApplications", Organization.class),
+    ORGANIZATION_MANAGE_APPLICATIONS("manage:orgApplications", Workspace.class),
+    ORGANIZATION_READ_APPLICATIONS("read:orgApplications", Workspace.class),
+    ORGANIZATION_PUBLISH_APPLICATIONS("publish:orgApplications", Workspace.class),
+    ORGANIZATION_EXPORT_APPLICATIONS("export:orgApplications", Workspace.class),
 
     // Invitation related permissions
-    ORGANIZATION_INVITE_USERS("inviteUsers:organization", Organization.class),
+    ORGANIZATION_INVITE_USERS("inviteUsers:organization", Workspace.class),
 
     MANAGE_APPLICATIONS("manage:applications", Application.class),
     READ_APPLICATIONS("read:applications", Application.class),

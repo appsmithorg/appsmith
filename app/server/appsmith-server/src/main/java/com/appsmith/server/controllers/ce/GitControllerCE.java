@@ -4,19 +4,20 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
-import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.GitDeployKeyDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.services.GitService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
@@ -93,9 +94,10 @@ public class GitControllerCE {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<String>> commit(@RequestBody GitCommitDTO commitDTO,
                                             @PathVariable String defaultApplicationId,
-                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                            @RequestParam(required = false, defaultValue = "false") Boolean doAmend) {
         log.debug("Going to commit application {}, branch : {}", defaultApplicationId, branchName);
-        return service.commitApplication(commitDTO, defaultApplicationId, branchName)
+        return service.commitApplication(commitDTO, defaultApplicationId, branchName, doAmend)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
@@ -196,10 +198,10 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
     
-    @PostMapping("/import/{organizationId}")
-    public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromGit(@PathVariable String organizationId,
+    @PostMapping("/import/{workspaceId}")
+    public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromGit(@PathVariable String workspaceId,
                                                                             @RequestBody GitConnectDTO gitConnectDTO) {
-        return service.importApplicationFromGit(organizationId, gitConnectDTO)
+        return service.importApplicationFromGit(workspaceId, gitConnectDTO)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
@@ -223,6 +225,13 @@ public class GitControllerCE {
         log.debug("Going to discard changes for branch {} with defaultApplicationId {}", branchName, defaultApplicationId);
         return service.discardChanges(defaultApplicationId, branchName, doPull)
                 .map(result -> new ResponseDTO<>((HttpStatus.OK.value()), result, null));
+    }
+
+    @GetMapping("/protocol/keys")
+    public Mono<ResponseDTO<List<GitDeployKeyDTO>>> getSupportedKeys() {
+        log.debug("Going to list the list of supported keys");
+        return Mono.just(GitDeployKeyGenerator.getSupportedProtocols())
+                .map(gitDeployKeyDTOS -> new ResponseDTO<>(HttpStatus.OK.value(), gitDeployKeyDTOS, null));
     }
 
 }

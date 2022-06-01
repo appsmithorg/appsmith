@@ -15,7 +15,7 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -23,7 +23,8 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,13 +37,17 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
@@ -63,13 +68,13 @@ public class DatasourceServiceTest {
     PluginService pluginService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
-    OrganizationRepository organizationRepository;
+    WorkspaceRepository workspaceRepository;
 
     @Autowired
-    NewActionService newActionService;
+    PolicyUtils policyUtils;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -88,32 +93,32 @@ public class DatasourceServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        orgId = testOrg == null ? "" : testOrg.getId();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
+        orgId = testWorkspace == null ? "" : testWorkspace.getId();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void datasourceDefaultNameCounterAsPerOrgId() {
-        //Create new organization
-        Organization organization1 = new Organization();
-        organization1.setId("random-org-id-1");
-        organization1.setName("Random Org 1");
+        //Create new workspace
+        Workspace workspace11 = new Workspace();
+        workspace11.setId("random-org-id-1");
+        workspace11.setName("Random Org 1");
 
-        StepVerifier.create(organizationService.create(organization1)
+        StepVerifier.create(workspaceService.create(workspace11)
                 .flatMap(org -> {
                     Datasource datasource = new Datasource();
                     datasource.setOrganizationId(org.getId());
                     return datasourceService.create(datasource);
                 })
                 .flatMap(datasource1 -> {
-                    Organization organization2 = new Organization();
-                    organization2.setId("random-org-id-2");
-                    organization2.setName("Random Org 2");
-                    return Mono.zip(Mono.just(datasource1), organizationService.create(organization2));
+                    Workspace workspace2 = new Workspace();
+                    workspace2.setId("random-org-id-2");
+                    workspace2.setName("Random Org 2");
+                    return Mono.zip(Mono.just(datasource1), workspaceService.create(workspace2));
                 })
                 .flatMap(object -> {
-                    final Organization org2 = object.getT2();
+                    final Workspace org2 = object.getT2();
                     Datasource datasource2 = new Datasource();
                     datasource2.setOrganizationId(org2.getId());
                     return Mono.zip(Mono.just(object.getT1()), datasourceService.create(datasource2));
@@ -155,7 +160,7 @@ public class DatasourceServiceTest {
                 .assertNext(datasource1 -> {
                     assertThat(datasource1.getName()).isEqualTo(datasource.getName());
                     assertThat(datasource1.getIsValid()).isFalse();
-                    assertThat(datasource1.getInvalids().contains(AppsmithError.ORGANIZATION_ID_NOT_GIVEN.getMessage()));
+                    assertThat(datasource1.getInvalids().contains(AppsmithError.WORKSPACE_ID_NOT_GIVEN.getMessage()));
                 })
                 .verifyComplete();
     }
@@ -519,11 +524,11 @@ public class DatasourceServiceTest {
 
         Mono<Datasource> datasourceMono = Mono
                 .zip(
-                        organizationRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS),
+                        workspaceRepository.findByName("Spring Test Workspace", AclPermission.READ_ORGANIZATIONS),
                         pluginService.findByName("Installed Plugin Name")
                 )
                 .flatMap(objects -> {
-                    final Organization organization = objects.getT1();
+                    final Workspace workspace = objects.getT1();
                     final Plugin plugin = objects.getT2();
 
                     Datasource datasource = new Datasource();
@@ -531,17 +536,17 @@ public class DatasourceServiceTest {
                     DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     datasourceConfiguration.setUrl("http://test.com");
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
-                    datasource.setOrganizationId(organization.getId());
+                    datasource.setOrganizationId(workspace.getId());
                     datasource.setPluginId(plugin.getId());
 
                     final Application application = new Application();
                     application.setName("application 1");
 
                     return Mono.zip(
-                            Mono.just(organization),
+                            Mono.just(workspace),
                             Mono.just(plugin),
                             datasourceService.create(datasource),
-                            applicationPageService.createApplication(application, organization.getId())
+                            applicationPageService.createApplication(application, workspace.getId())
                                     .flatMap(application1 -> {
                                         final PageDTO page = new PageDTO();
                                         page.setName("test page 1");
@@ -585,11 +590,11 @@ public class DatasourceServiceTest {
 
         Mono<Datasource> datasourceMono = Mono
                 .zip(
-                        organizationRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS),
+                        workspaceRepository.findByName("Spring Test Workspace", AclPermission.READ_ORGANIZATIONS),
                         pluginService.findByName("Installed Plugin Name")
                 )
                 .flatMap(objects -> {
-                    final Organization organization = objects.getT1();
+                    final Workspace workspace = objects.getT1();
                     final Plugin plugin = objects.getT2();
 
                     Datasource datasource = new Datasource();
@@ -597,17 +602,17 @@ public class DatasourceServiceTest {
                     DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     datasourceConfiguration.setUrl("http://test.com");
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
-                    datasource.setOrganizationId(organization.getId());
+                    datasource.setOrganizationId(workspace.getId());
                     datasource.setPluginId(plugin.getId());
 
                     final Application application = new Application();
                     application.setName("application 2");
 
                     return Mono.zip(
-                            Mono.just(organization),
+                            Mono.just(workspace),
                             Mono.just(plugin),
                             datasourceService.create(datasource),
-                            applicationPageService.createApplication(application, organization.getId())
+                            applicationPageService.createApplication(application, workspace.getId())
                                     .zipWhen(application1 -> {
                                         final PageDTO page = new PageDTO();
                                         page.setName("test page 1");
@@ -1136,5 +1141,53 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getMessages()).isEmpty();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void get_WhenDatasourcesPresent_SortedAndIsRecentlyCreatedFlagSet() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        String organizationId = UUID.randomUUID().toString();
+        List<Datasource> datasourceList = List.of(
+                createDatasource("D", organizationId), // should have isRecentlyCreated=false
+                createDatasource("C", organizationId), // should have isRecentlyCreated=true
+                createDatasource("B", organizationId), // should have isRecentlyCreated=true
+                createDatasource("A", organizationId)  // should have isRecentlyCreated=true
+        );
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add(FieldName.ORGANIZATION_ID, organizationId);
+
+        Mono<List<Datasource>> listMono = datasourceService.saveAll(datasourceList)
+                .thenMany(datasourceService.get(params))
+                .collectList();
+
+        StepVerifier.create(listMono).assertNext(datasources -> {
+            assertThat(datasources.size()).isEqualTo(4);
+
+            // should be sorted alphabetically
+            assertThat(datasources.get(0).getName()).isEqualTo("A");
+            assertThat(datasources.get(0).getIsRecentlyCreated()).isTrue();
+
+            assertThat(datasources.get(1).getName()).isEqualTo("B");
+            assertThat(datasources.get(1).getIsRecentlyCreated()).isTrue();
+
+            assertThat(datasources.get(2).getName()).isEqualTo("C");
+            assertThat(datasources.get(2).getIsRecentlyCreated()).isTrue();
+
+            assertThat(datasources.get(3).getName()).isEqualTo("D");
+            assertThat(datasources.get(3).getIsRecentlyCreated()).isNull();
+        }).verifyComplete();
+    }
+
+    private Datasource createDatasource(String name, String organizationId) {
+        Datasource datasource = new Datasource();
+        datasource.setPluginId("mongo-plugin");
+        datasource.setOrganizationId(organizationId);
+        datasource.setName(name);
+        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(AclPermission.READ_DATASOURCES), "api_user");
+        datasource.setPolicies(Set.copyOf(policyMap.values()));
+        return datasource;
     }
 }

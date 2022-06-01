@@ -2,6 +2,8 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/MultipleWidgetDsl.json");
 const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
+const datasourceHomeLocators = require("../../../../locators/apiWidgetslocator.json");
+const datasourceLocators = require("../../../../locators/DatasourcesEditor.json");
 
 describe("GlobalSearch", function() {
   before(() => {
@@ -122,6 +124,48 @@ describe("GlobalSearch", function() {
           expect(loc.pathname).includes(expectedPage.pageId);
         });
       });
+  });
+
+  it("6. Shortcuts should get triggered when the modal is open", () => {
+    cy.get(commonlocators.globalSearchTrigger).click({ force: true });
+    const isMac = Cypress.platform === "darwin";
+    if (isMac) {
+      cy.get("body").type("{cmd}{p}");
+      cy.get(globalSearchLocators.category).should("be.visible");
+      cy.get("body").type("{esc}");
+      cy.get(commonlocators.globalSearchModal).should("not.exist");
+    } else {
+      cy.get("body").type("{ctrl}{p}");
+      cy.get(globalSearchLocators.category).should("be.visible");
+      cy.get("body").type("{esc}");
+      cy.get(commonlocators.globalSearchModal).should("not.exist");
+    }
+  });
+
+  it("7. Api actions should have API as prefix", () => {
+    cy.get(globalSearchLocators.createNew).click({ force: true });
+    cy.get(globalSearchLocators.blankDatasource).click({ force: true });
+    cy.get(datasourceHomeLocators.createAuthApiDatasource).click();
+    cy.wait("@createDatasource").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    cy.get(datasourceLocators.datasourceTitleLocator).click();
+    cy.get(`${datasourceLocators.datasourceTitleLocator} input`)
+      .clear()
+      .type("omnibarApiDatasource", { force: true })
+      .blur();
+
+    cy.get(globalSearchLocators.createNew).click({ force: true });
+    cy.contains(
+      globalSearchLocators.fileOperation,
+      "omnibarApiDatasource",
+    ).click();
+    cy.wait("@createNewApi");
+    cy.get(datasourceHomeLocators.apiTxt)
+      .invoke("val")
+      .then((title) => expect(title).includes("Api"));
     cy.NavigateToHome();
   });
 });

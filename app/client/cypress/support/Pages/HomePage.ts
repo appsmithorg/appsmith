@@ -29,7 +29,7 @@ export class HomePage {
     private _editAppName = "bp3-editable-text-editing"
     private _appMenu = ".t--editor-appname-menu-portal .bp3-menu-item"
     private _buildFromScratchActionCard = ".t--BuildFromScratch"
-    private _buildFromDataTableActionCard = ".t--GenerateCRUDPage"
+    _buildFromDataTableActionCard = ".t--GenerateCRUDPage"
     private _selectRole = "//span[text()='Select a role']/ancestor::div"
     private _searchInput = "input[type='text']"
     _appHoverIcon = (action: string) => ".t--application-" + action + "-link"
@@ -257,16 +257,13 @@ export class HomePage {
         this.NavigateToHome()
     }
 
-    public ImportApp(fixtureJson: string, reconnect = false) {
+    public ImportApp(fixtureJson: string) {
         cy.get(this._homeIcon).click();
         cy.get(this._optionsIcon).first().click();
         cy.get(this._orgImport).click({ force: true });
         cy.get(this._orgImportAppModal).should("be.visible");
         cy.xpath(this._uploadFile).attachFile(fixtureJson).wait(500);
         cy.get(this._orgImportAppModal).should("not.exist");
-        if (!reconnect) {
-            this.AssertImport()
-        }
     }
 
     public AssertImport() {

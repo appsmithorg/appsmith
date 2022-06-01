@@ -10,6 +10,7 @@ import {
   SingleValueProps,
 } from "react-select";
 import { Datasource } from "entities/Datasource";
+import { getPluginImages } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import FormControl from "../FormControl";
 import { Action, QueryAction, SaaSAction } from "entities/Action";
@@ -85,7 +86,11 @@ import {
   FormEvalOutput,
   isValidFormConfig,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { responseTabComponent } from "components/editorComponents/ApiResponseView";
+import {
+  responseTabComponent,
+  InlineButton,
+  TableCellHeight,
+} from "components/editorComponents/ApiResponseView";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -129,6 +134,7 @@ export const TabbedViewContainer = styled.div`
   }
   .react-tabs__tab-list {
     margin: 0px;
+   
   }
   &&& {
     ul.react-tabs__tab-list {
@@ -141,7 +147,7 @@ export const TabbedViewContainer = styled.div`
     }
   }
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
-  border-top: 2px solid #e8e8e8;
+  border-top: 1px solid #e8e8e8;
 `;
 
 const SettingsWrapper = styled.div`
@@ -192,6 +198,7 @@ const ResponseContentWrapper = styled.div`
   padding: 10px 0px;
   overflow-y: auto;
   height: 100%;
+  display: grid;
 
   ${HelpSection} {
     margin-bottom: 10px;
@@ -347,7 +354,7 @@ const NoDataSourceContainer = styled.div`
 const TabContainerView = styled.div`
   flex: 1;
   overflow: auto;
-  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   ${thinScrollbar}
   a {
     font-size: 14px;
@@ -368,11 +375,6 @@ const TabContainerView = styled.div`
   position: relative;
 `;
 
-const InlineButton = styled(Button)`
-  display: inline-flex;
-  margin: 0 4px;
-`;
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -382,6 +384,7 @@ const Wrapper = styled.div`
 
 const SidebarWrapper = styled.div<{ show: boolean }>`
   border: 1px solid #e8e8e8;
+  border-bottom: 0;
   display: ${(props) => (props.show ? "flex" : "none")};
   width: ${(props) => props.theme.actionSidePane.width}px;
 `;
@@ -393,7 +396,6 @@ type QueryFormProps = {
   isDeleting: boolean;
   isRunning: boolean;
   dataSources: Datasource[];
-  DATASOURCES_OPTIONS: any;
   uiComponent: UIComponentTypes;
   executedQueryData?: {
     body: any;
@@ -436,7 +438,6 @@ export function EditorJSONtoForm(props: Props) {
   const {
     actionName,
     dataSources,
-    DATASOURCES_OPTIONS,
     documentationLink,
     editorConfig,
     executedQueryData,
@@ -831,6 +832,14 @@ export function EditorJSONtoForm(props: Props) {
     props.actionName,
   );
 
+  const pluginImages = useSelector(getPluginImages);
+
+  const DATASOURCES_OPTIONS = dataSources.map((dataSource) => ({
+    label: dataSource.name,
+    value: dataSource.id,
+    image: pluginImages[dataSource.pluginId],
+  }));
+
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
   if (!props.initialized) {
@@ -853,6 +862,11 @@ export function EditorJSONtoForm(props: Props) {
               name={currentActionConfig ? currentActionConfig.name : ""}
               pageId={pageId}
             />
+            <SearchSnippets
+              className="search-snippets"
+              entityId={currentActionConfig?.id}
+              entityType={ENTITY_TYPE.ACTION}
+            />
             <DropdownSelect>
               <DropdownField
                 className={"t--switch-datasource"}
@@ -864,11 +878,6 @@ export function EditorJSONtoForm(props: Props) {
                 width={232}
               />
             </DropdownSelect>
-            <SearchSnippets
-              className="search-snippets"
-              entityId={currentActionConfig?.id}
-              entityType={ENTITY_TYPE.ACTION}
-            />
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"
@@ -972,7 +981,8 @@ export function EditorJSONtoForm(props: Props) {
               <Resizable
                 panelRef={panelRef}
                 setContainerDimensions={(height: number) =>
-                  setTableBodyHeightHeight(height)
+                  // TableCellHeight in this case is the height of one table cell in pixels.
+                  setTableBodyHeightHeight(height - TableCellHeight)
                 }
               />
               {output && !!output.length && (

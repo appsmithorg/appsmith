@@ -8,6 +8,7 @@ describe("Organization Import Application", function() {
 
   before(() => {
     cy.addDsl(dsl);
+    cy.wait(5000);
   });
 
   it("Can Import Application from json", function() {

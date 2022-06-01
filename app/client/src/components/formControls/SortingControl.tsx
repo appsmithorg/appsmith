@@ -26,6 +26,9 @@ const columnFieldConfig: any = {
   inputType: "TEXT",
   // placeholderText: "Select Column",
   placeholderText: "Column name",
+  customStyles: {
+    width: "25vw",
+  },
 };
 
 // Form config for the order field
@@ -44,7 +47,7 @@ const orderFieldConfig: any = {
     },
   ],
   customStyles: {
-    width: `160px`,
+    width: "10vw",
   },
 };
 

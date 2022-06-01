@@ -75,7 +75,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
     .join("")
     .toLowerCase();
   return (
-    <SectionWrapper>
+    <SectionWrapper className="t--property-pane-section-wrapper">
       <SectionTitle
         className={`t--property-pane-section-collapse-${className}`}
         onClick={() => open(!isOpen)}

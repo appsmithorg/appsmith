@@ -87,11 +87,11 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
     }
 
     @Override
-    public Mono<String> getTemplateOrganizationId() {
+    public Mono<String> getTemplateWorkspaceId() {
         return repository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
                 .filter(config -> config.getConfig() != null)
                 .flatMap(config -> Mono.justOrEmpty(config.getConfig().getAsString(FieldName.ORGANIZATION_ID)))
-                .doOnError(error -> log.warn("Error getting template organization ID", error));
+                .doOnError(error -> log.warn("Error getting template workspace ID", error));
     }
 
     @Override

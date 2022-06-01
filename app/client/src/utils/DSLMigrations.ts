@@ -51,12 +51,15 @@ import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget"
 import { DSLWidget } from "widgets/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
+import { migrateStylingPropertiesForTheming } from "./migrations/ThemingMigrations";
+
 import {
   migratePhoneInputWidgetAllowFormatting,
   migratePhoneInputWidgetDefaultDialCode,
 } from "./migrations/PhoneInputWidgetMigrations";
 import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/CurrencyInputWidgetMigrations";
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
+import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1085,6 +1088,16 @@ export const transformDSL = (
 
   if (currentDSL.version === 56) {
     currentDSL = migrateRadioGroupAlignmentProperty(currentDSL);
+    currentDSL.version = 57;
+  }
+
+  if (currentDSL.version === 57) {
+    currentDSL = migrateStylingPropertiesForTheming(currentDSL);
+    currentDSL.version = 58;
+  }
+
+  if (currentDSL.version === 58) {
+    currentDSL = migrateCheckboxSwitchProperty(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

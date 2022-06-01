@@ -15,7 +15,7 @@ import {
   ADMIN_SETTINGS_CATEGORY_PATH,
 } from "constants/routes";
 import { withRouter, RouteComponentProps } from "react-router";
-import AppViewerHeader from "pages/AppViewer/viewer/AppViewerHeader";
+import AppViewerHeader from "pages/AppViewer/AppViewerHeader";
 import AppEditorHeader from "pages/Editor/EditorHeader";
 
 type Props = RouteComponentProps;

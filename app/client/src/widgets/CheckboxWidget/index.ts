@@ -1,5 +1,7 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
+import { LabelPosition } from "components/constants";
+import { AlignWidgetTypes } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -8,12 +10,13 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     rows: 4,
-    columns: 20,
+    columns: 7,
     label: "Label",
     defaultCheckedState: true,
     widgetName: "Checkbox",
     version: 1,
-    alignWidget: "LEFT",
+    alignWidget: AlignWidgetTypes.LEFT,
+    labelPosition: LabelPosition.Left,
     isDisabled: false,
     isRequired: false,
     animateLoading: true,
