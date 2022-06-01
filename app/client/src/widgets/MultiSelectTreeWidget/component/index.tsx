@@ -22,6 +22,7 @@ import { TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import {
   getClosestCanvas,
+  getParentCanvas,
   labelMargin,
   WidgetContainerDiff,
 } from "widgets/WidgetUtils";
@@ -134,6 +135,8 @@ function MultiTreeSelectComponent({
   const [filter, setFilter] = useState(filterText ?? "");
 
   const _menu = useRef<HTMLElement | null>(null);
+  const parentDropDownContainer = useRef<HTMLElement | null>(null);
+
   const labelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
@@ -152,9 +155,12 @@ function MultiTreeSelectComponent({
     [filter],
   );
 
-  const getPopupContainer = useCallback(() => {
+  const getPopupContainer = useCallback(() => getParentCanvas(), []);
+
+  useEffect(() => {
     const node = _menu.current;
-    return getClosestCanvas(node);
+    const parent = getClosestCanvas(node);
+    parentDropDownContainer.current = parent;
   }, []);
   const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
@@ -199,9 +205,17 @@ function MultiTreeSelectComponent({
     [loading, isFilterable, filter, onQueryChange],
   );
 
+  // When Dropdown is opened disable scrolling within the app except the list of options
   const onOpen = useCallback((open: boolean) => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
+      if (parentDropDownContainer.current) {
+        parentDropDownContainer.current.style.overflowY = "hidden";
+      }
+    } else {
+      if (parentDropDownContainer.current) {
+        parentDropDownContainer.current.style.overflowY = "auto";
+      }
     }
   }, []);
 

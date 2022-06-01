@@ -23,6 +23,7 @@ import Icon from "components/ads/Icon";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import {
   getClosestCanvas,
+  getParentCanvas,
   labelMargin,
   WidgetContainerDiff,
 } from "widgets/WidgetUtils";
@@ -106,6 +107,7 @@ function MultiSelectComponent({
   const [filter, setFilter] = useState(filterText ?? "");
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
+  const parentDropDownContainer = useRef<HTMLElement | null>(null);
 
   const _menu = useRef<HTMLElement | null>(null);
   const labelRef = useRef<HTMLDivElement>(null);
@@ -163,9 +165,12 @@ function MultiSelectComponent({
       ) : null,
     [filter],
   );
-  const getPopupContainer = useCallback(() => {
+  const getPopupContainer = useCallback(() => getParentCanvas(), []);
+
+  useEffect(() => {
     const node = _menu.current;
-    return getClosestCanvas(node);
+    const parent = getClosestCanvas(node);
+    parentDropDownContainer.current = parent;
   }, []);
 
   const handleSelectAll = () => {
@@ -190,9 +195,17 @@ function MultiSelectComponent({
     return onChange([]);
   };
 
+  // When Dropdown is opened disable scrolling within the app except the list of options
   const onOpen = useCallback((open: boolean) => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
+      if (parentDropDownContainer.current) {
+        parentDropDownContainer.current.style.overflowY = "hidden";
+      }
+    } else {
+      if (parentDropDownContainer.current) {
+        parentDropDownContainer.current.style.overflowY = "auto";
+      }
     }
   }, []);
 
@@ -203,50 +216,6 @@ function MultiSelectComponent({
     return filteredOptions.map((x) => value.some((y) => y.value === x.value));
   };
 
-  // SelectAll if all options are in Value
-  useEffect(() => {
-    if (
-      !isSelectAll &&
-      filteredOptions.length &&
-      value.length &&
-      !checkOptionsAndValue().includes(false)
-    ) {
-      setIsSelectAll(true);
-    }
-    if (isSelectAll && filteredOptions.length !== value.length) {
-      setIsSelectAll(false);
-    }
-  }, [filteredOptions, value]);
-
-  // Trigger onFilterChange once filter is Updated
-  useEffect(() => {
-    const timeOutId = setTimeout(
-      () => onFilterChange(filter),
-      DEBOUNCE_TIMEOUT,
-    );
-    return () => clearTimeout(timeOutId);
-  }, [filter]);
-
-  // Filter options based on serverSideFiltering
-  useEffect(
-    () => {
-      if (serverSideFiltering) {
-        return setFilteredOptions(options);
-      }
-      const filtered = options.filter((option) => {
-        return (
-          String(option.label)
-            .toLowerCase()
-            .indexOf(filter.toLowerCase()) >= 0 ||
-          String(option.value)
-            .toLowerCase()
-            .indexOf(filter.toLowerCase()) >= 0
-        );
-      });
-      setFilteredOptions(filtered);
-    },
-    serverSideFiltering ? [options] : [filter, options],
-  );
   useEffect(() => {
     const parentWidth = width - WidgetContainerDiff;
     if (compactMode && labelRef.current) {

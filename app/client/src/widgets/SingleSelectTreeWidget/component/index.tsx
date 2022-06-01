@@ -21,6 +21,7 @@ import { TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import {
   getClosestCanvas,
+  getParentCanvas,
   labelMargin,
   WidgetContainerDiff,
 } from "widgets/WidgetUtils";
@@ -134,6 +135,7 @@ function SingleSelectTreeComponent({
   const _menu = useRef<HTMLElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
+  const parentDropDownContainer = useRef<HTMLElement | null>(null);
 
   // treeDefaultExpandAll is uncontrolled after first render,
   // using this to force render to respond to changes in expandAll
@@ -141,9 +143,12 @@ function SingleSelectTreeComponent({
     setKey(Math.random());
   }, [expandAll]);
 
-  const getPopupContainer = useCallback(() => {
+  const getPopupContainer = useCallback(() => getParentCanvas(), []);
+
+  useEffect(() => {
     const node = _menu.current;
-    return getClosestCanvas(node);
+    const parent = getClosestCanvas(node);
+    parentDropDownContainer.current = parent;
   }, []);
   const onSelectionChange = useCallback(
     (value?: DefaultValueType, labelList?: ReactNode[]) => {
@@ -153,9 +158,17 @@ function SingleSelectTreeComponent({
     [],
   );
   const onClear = useCallback(() => onChange([], []), []);
+  // When Dropdown is opened disable scrolling within the app except the list of options
   const onOpen = useCallback((open: boolean) => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
+      if (parentDropDownContainer.current) {
+        parentDropDownContainer.current.style.overflowY = "hidden";
+      }
+    } else {
+      if (parentDropDownContainer.current) {
+        parentDropDownContainer.current.style.overflowY = "auto";
+      }
     }
   }, []);
   const clearButton = useMemo(
