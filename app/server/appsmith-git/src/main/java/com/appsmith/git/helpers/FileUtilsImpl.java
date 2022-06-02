@@ -169,20 +169,17 @@ public class FileUtilsImpl implements FileInterface {
                         // Remove relevant directories to avoid any stale files
                         Mono<List<Boolean>> pageList = Flux.fromStream(Files.walk(baseRepo.resolve(PAGE_DIRECTORY))
                                 .map(Path::toFile))
-                                .map(File::delete)
+                                .map(file -> {
+                                    if(!file.isDirectory() && file.exists()) {
+                                        // do nothing
+                                        return file.delete();
+                                    } else {
+                                        return false;
+                                    }
+                                })
                                 .collectList();
-
-                        Mono<List<Boolean>> actionList = Flux.fromStream(Files.walk(baseRepo.resolve(ACTION_DIRECTORY)))
-                                .map(Path::toFile)
-                                .map(File::delete)
-                                .collectList();
-
-                        Mono<List<Boolean>> actionCollectionList = Flux.fromStream(Files.walk(baseRepo.resolve(ACTION_COLLECTION_DIRECTORY)))
-                                .map(Path::toFile)
-                                .map(File::delete)
-                                .collectList();
-                        return Mono.zip(pageList, actionList, actionCollectionList)
-                                .flatMap(objects -> Mono.zip(Mono.just(baseRepo), Mono.just(gson), Mono.just(validFileNames)));
+                        return pageList
+                                .then(Mono.zip(Mono.just(baseRepo), Mono.just(gson), Mono.just(validFileNames)));
 
                     } catch (IOException e) {
                         log.debug("Unable to delete directory for path {} with message {}", baseRepo.resolve(PAGE_DIRECTORY), e.getMessage());
