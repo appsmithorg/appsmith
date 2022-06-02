@@ -56,13 +56,14 @@ public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils implements Seri
     public String getReadableError(Throwable error) {
         Throwable externalError;
         if (error instanceof AppsmithPluginException) {
-            if (((AppsmithPluginException) error).getExternalError() == null)
+            if (((AppsmithPluginException) error).getExternalError() == null) {
                 return error.getMessage();
+            }
             externalError = ((AppsmithPluginException) error).getExternalError();
         }
-        else
+        else {
             externalError = error;
-
+        }
         if (externalError instanceof AmazonS3Exception) {
             AmazonS3Exception amazonS3Exception = (AmazonS3Exception) externalError;
             /**
