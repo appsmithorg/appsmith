@@ -170,7 +170,7 @@ public class FileUtilsImpl implements FileInterface {
                         Mono<List<Boolean>> pageList = Flux.fromStream(Files.walk(baseRepo.resolve(PAGE_DIRECTORY))
                                 .map(Path::toFile))
                                 .map(file -> {
-                                    if(!file.isDirectory() && file.exists()) {
+                                    if(file.exists() && !file.isDirectory()) {
                                         // do nothing
                                         return file.delete();
                                     } else {
