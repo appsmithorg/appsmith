@@ -6,6 +6,7 @@ import { ApiPage } from "../Pages/ApiPage";
 import { HomePage } from "../Pages/HomePage";
 import { DataSources } from "../Pages/DataSources";
 import { Table } from "../Pages/Table";
+import { TableV2 } from "../Pages/TableV2";
 
 export class ObjectsRegistry {
 
@@ -71,6 +72,14 @@ export class ObjectsRegistry {
             ObjectsRegistry.table__ = new Table()
         }
         return ObjectsRegistry.table__;
+    }
+
+    private static tableV2__: TableV2;
+    static get TableV2(): TableV2 {
+        if (ObjectsRegistry.tableV2__ === undefined) {
+            ObjectsRegistry.tableV2__ = new TableV2()
+        }
+        return ObjectsRegistry.tableV2__;
     }
 }
 

@@ -286,7 +286,11 @@ describe("Table Widget V2 property pane feature validation", function() {
     //cy.closePropertyPane();
 
     // Click on the Menu Button
-    cy.clickButton("Menu button").wait(1000);
+    cy.get(".t--widget-tablewidgetv2 .bp3-button")
+      .first()
+      .click({
+        force: true,
+      });
     // check Menu Item 3 is disable
     cy.get(".bp3-menu-item")
       .eq(2)

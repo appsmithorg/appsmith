@@ -1,8 +1,9 @@
+import { ColumnTypes } from "../constants";
 import {
   sortTableFunction,
   transformTableDataIntoCsv,
 } from "./CommonUtilities";
-import { ColumnTypes, TableColumnProps } from "./Constants";
+import { TableColumnProps } from "./Constants";
 
 describe("TableUtilities", () => {
   it("works as expected for sort table rows", () => {
@@ -36,6 +37,8 @@ describe("TransformTableDataIntoArrayOfArray", () => {
   const columns: TableColumnProps[] = [
     {
       Header: "Id",
+      id: "id",
+      alias: "id",
       accessor: "id",
       minWidth: 60,
       draggable: true,
@@ -44,7 +47,7 @@ describe("TransformTableDataIntoArrayOfArray", () => {
         type: "string",
       },
       columnProperties: {
-        id: "id",
+        id: "Id",
         label: "Id",
         columnType: "string",
         isVisible: true,
@@ -52,6 +55,11 @@ describe("TransformTableDataIntoArrayOfArray", () => {
         width: 60,
         isDerived: false,
         computedValue: "",
+        originalId: "id",
+        alias: "id",
+        isCellEditable: false,
+        isEditable: false,
+        allowCellWrapping: false,
       },
     },
   ];

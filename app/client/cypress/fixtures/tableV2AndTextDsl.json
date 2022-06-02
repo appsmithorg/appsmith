@@ -46,7 +46,7 @@
                 "isSortable": true,
                 "parentRowSpace": 10,
                 "type": "TABLE_WIDGET_V2",
-                "defaultSelectedRow": "0",
+                "defaultSelectedRowIndex": "0",
                 "hideCard": false,
                 "parentColumnSpace": 17.265625,
                 "dynamicTriggerPathList": [],

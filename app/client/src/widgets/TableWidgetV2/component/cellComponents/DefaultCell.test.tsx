@@ -58,8 +58,8 @@ describe("DefaultRendere - ", () => {
         expect(
           getCellText(
             testValue.value,
-            testValue.cellProperties as CellLayoutProperties,
             testValue.columnType,
+            testValue.cellProperties.displayText,
           ),
         ).toEqual(testValue.expected);
       });

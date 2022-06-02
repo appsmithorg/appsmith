@@ -1602,6 +1602,9 @@ describe("reorderColumns", () => {
         isDerived: false,
         label: "phoneNo",
         computedValue: getCurrentRowBinding("Table1", "currentRow.phoneNo"),
+        allowCellWrapping: false,
+        isCellEditable: false,
+        isEditable: false,
       },
       id: {
         isDerived: false,
@@ -1617,6 +1620,9 @@ describe("reorderColumns", () => {
         enableSort: true,
         id: "id",
         verticalAlignment: "CENTER",
+        allowCellWrapping: false,
+        isCellEditable: false,
+        isEditable: false,
       },
       name: {
         index: 2,
@@ -1632,6 +1638,9 @@ describe("reorderColumns", () => {
         isDerived: false,
         label: "name",
         computedValue: getCurrentRowBinding("Table1", "currentRow.name"),
+        allowCellWrapping: false,
+        isCellEditable: false,
+        isEditable: false,
       },
       createdAt: {
         index: 3,
@@ -1647,6 +1656,9 @@ describe("reorderColumns", () => {
         isDerived: false,
         label: "createdAt",
         computedValue: getCurrentRowBinding("Table1", "currentRow.createdAt"),
+        allowCellWrapping: false,
+        isCellEditable: false,
+        isEditable: false,
       },
       updatedAt: {
         index: 4,
@@ -1662,6 +1674,9 @@ describe("reorderColumns", () => {
         isDerived: false,
         label: "updatedAt",
         computedValue: getCurrentRowBinding("Table1", "currentRow.updatedAt"),
+        allowCellWrapping: false,
+        isCellEditable: false,
+        isEditable: false,
       },
       status: {
         index: 5,
@@ -1677,6 +1692,9 @@ describe("reorderColumns", () => {
         isDerived: false,
         label: "status",
         computedValue: getCurrentRowBinding("Table1", "currentRow.status"),
+        allowCellWrapping: false,
+        isCellEditable: false,
+        isEditable: false,
       },
       gender: {
         index: 6,
@@ -1692,6 +1710,9 @@ describe("reorderColumns", () => {
         isDerived: false,
         label: "gender",
         computedValue: getCurrentRowBinding("Table1", "currentRow.gender"),
+        allowCellWrapping: false,
+        isCellEditable: false,
+        isEditable: false,
       },
       avatar: {
         index: 7,
@@ -1707,6 +1728,9 @@ describe("reorderColumns", () => {
         isDerived: false,
         label: "avatar",
         computedValue: getCurrentRowBinding("Table1", "currentRow.avatar"),
+        allowCellWrapping: false,
+        isCellEditable: false,
+        isEditable: false,
       },
       email: {
         isDerived: false,
@@ -1722,6 +1746,9 @@ describe("reorderColumns", () => {
         enableSort: true,
         id: "email",
         verticalAlignment: "CENTER",
+        allowCellWrapping: false,
+        isCellEditable: false,
+        isEditable: false,
       },
       address: {
         index: 9,
@@ -1737,6 +1764,9 @@ describe("reorderColumns", () => {
         isDerived: false,
         label: "address",
         computedValue: getCurrentRowBinding("Table1", "currentRow.address"),
+        allowCellWrapping: false,
+        isCellEditable: false,
+        isEditable: false,
       },
       role: {
         index: 10,
@@ -1752,6 +1782,9 @@ describe("reorderColumns", () => {
         width: 150,
         label: "address",
         computedValue: getCurrentRowBinding("Table1", "currentRow.address"),
+        allowCellWrapping: false,
+        isCellEditable: false,
+        isEditable: false,
       },
       dob: {
         index: 11,
@@ -1767,6 +1800,9 @@ describe("reorderColumns", () => {
         isDerived: false,
         label: "dob",
         computedValue: getCurrentRowBinding("Table1", "currentRow.dob"),
+        allowCellWrapping: false,
+        isCellEditable: false,
+        isEditable: false,
       },
     };
 
