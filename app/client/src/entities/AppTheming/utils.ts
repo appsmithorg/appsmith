@@ -143,7 +143,13 @@ export const getPropertiesToUpdateForReset = (
               // @ts-ignore
               stylesheetValue[buttonStyleKey][propertyKey];
 
-            if (buttonStylesheetValue !== widget[buttonStyleKey][propertyKey]) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            if (
+              THEME_BINDING_REGEX.test(buttonStylesheetValue) &&
+              buttonStylesheetValue !== widget[buttonStyleKey][propertyKey] &&
+              buttonStylesheetValue !== widget[buttonStyleKey][propertyKey]
+            ) {
               modifications[
                 `${buttonStyleKey}.${propertyKey}`
               ] = buttonStylesheetValue;
