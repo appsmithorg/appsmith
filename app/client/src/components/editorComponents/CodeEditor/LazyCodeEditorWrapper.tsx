@@ -118,7 +118,7 @@ const ContentWrapper = styled("div")<{ containsCode: boolean }>`
   };
 
 // Lazy load CodeEditor upon focus
-function CodeEditor(props: any) {
+function LazyCodeEditorWrapper(props: any) {
   const [isFocused, setFocus] = useState<boolean>(false);
   const [lintError, setLintError] = useState<string>("");
   const [showLintError, setShowLintError] = useState<boolean>(false);
@@ -242,4 +242,4 @@ function CodeEditor(props: any) {
   );
 }
 
-export default CodeEditor;
+export default LazyCodeEditorWrapper;
