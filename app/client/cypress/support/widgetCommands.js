@@ -371,6 +371,7 @@ Cypress.Commands.add("testCodeMirrorLast", (value) => {
 });
 
 Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
+  cy.wait(500);
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
@@ -416,6 +417,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
  */
 Cypress.Commands.add("updateCodeInput", ($selector, value) => {
   cy.get($selector)
+    .wait(500)
     .find(".CodeMirror")
     .first()
     .then((ins) => {
