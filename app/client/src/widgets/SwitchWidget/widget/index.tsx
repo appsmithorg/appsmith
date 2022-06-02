@@ -8,6 +8,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidget } from "widgets/constants";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -124,6 +125,9 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         accentColor={this.props.accentColor}
         alignWidget={this.props.alignWidget ? this.props.alignWidget : "LEFT"}
         isDisabled={this.props.isDisabled}
+        isDynamicHeightEnabled={
+          this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS
+        }
         isLoading={this.props.isLoading}
         isSwitchedOn={!!this.props.isSwitchedOn}
         key={this.props.widgetId}
@@ -159,6 +163,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: SwitchWidgetProps): void {
+    super.componentDidUpdate(prevProps);
     if (
       this.props.defaultSwitchState !== prevProps.defaultSwitchState &&
       this.props.isDirty

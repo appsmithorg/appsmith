@@ -13,6 +13,7 @@ export interface SwitchComponentProps extends ComponentProps {
   alignWidget: AlignWidget;
   accentColor: string;
   inputRef?: (ref: HTMLInputElement | null) => any;
+  isDynamicHeightEnabled?: boolean;
 }
 
 const SwitchComponentContainer = styled.div<{
@@ -58,6 +59,7 @@ export const SwitchComponent = React.forwardRef<
       alignWidget,
       inputRef,
       isDisabled,
+      isDynamicHeightEnabled,
       isLoading,
       isSwitchedOn,
       label,
@@ -73,6 +75,7 @@ export const SwitchComponent = React.forwardRef<
         accentColor={accentColor}
         className={switchAlignClass}
         ref={ref}
+        style={isDynamicHeightEnabled ? { height: "auto" } : undefined}
       >
         <StyledSwitch
           accentColor={accentColor}
