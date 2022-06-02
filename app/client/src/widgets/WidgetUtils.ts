@@ -10,7 +10,7 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import generate from "nanoid/generate";
-import { WidgetPositionProps } from "./BaseWidget";
+import { WidgetPositionProps, WidgetProps } from "./BaseWidget";
 import { Theme } from "constants/DefaultTheme";
 import {
   ButtonStyleTypes,
@@ -29,6 +29,7 @@ import { SchemaItem } from "./JSONFormWidget/constants";
 import { find, isEmpty } from "lodash";
 import { rgbaMigrationConstantV56 } from "./constants";
 import { DynamicPath } from "utils/DynamicBindingUtils";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 const punycode = require("punycode/");
 
@@ -538,4 +539,16 @@ export const parseSchemaItem = (
       parseSchemaItem(schemaItem, childPropertyPath, callback);
     });
   }
+};
+
+export interface DynamicnHeightEnabledComponentProps {
+  isDynamicHeightEnabled?: boolean;
+}
+
+/**
+ * A utility function to check whether a widget has dynamic height enabled?
+ * @param props
+ */
+export const isDynamicHeightEnabledForWidget = (props: WidgetProps) => {
+  return props.dynamicHeight === DynamicHeight.HUG_CONTENTS;
 };
