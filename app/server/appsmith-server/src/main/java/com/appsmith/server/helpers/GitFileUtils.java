@@ -136,7 +136,8 @@ public class GitFileUtils {
                 .collect(Collectors.toList());
 
         ApplicationJson applicationMetadata = new ApplicationJson();
-        Map<String, Map<String, Boolean>> updatedResources = new HashMap<>();
+        Map<String, Set<String>> updatedResources = applicationJson.getUpdatedResources();
+        applicationJson.setUpdatedResources(null);
         copyProperties(applicationJson, applicationMetadata, keys);
         applicationReference.setMetadata(applicationMetadata);
 
@@ -147,7 +148,6 @@ public class GitFileUtils {
 
         // Insert only active pages which will then be committed to repo as individual file
         Map<String, Object> resourceMap = new HashMap<>();
-        updatedResources.put(PAGE_LIST, new HashMap<String, Boolean>());
         applicationJson
                 .getPageList()
                 .stream()
@@ -159,9 +159,6 @@ public class GitFileUtils {
                     String pageName = newPage.getUnpublishedPage() != null
                             ? newPage.getUnpublishedPage().getName()
                             : newPage.getPublishedPage().getName();
-                    if(newPage.getUpdatedAt() != null){
-                        updatedResources.get(PAGE_LIST).put(pageName, true);
-                    }
                     removeUnwantedFieldsFromPage(newPage);
                     // pageName will be used for naming the json file
                     resourceMap.put(pageName, newPage);
@@ -174,7 +171,6 @@ public class GitFileUtils {
         // For actions, we are referring to validNames to maintain unique file names as just name
         // field don't guarantee unique constraint for actions within JSObject
         // queryValidName_pageName => nomenclature for the keys
-        updatedResources.put(ACTION_LIST, new HashMap<String, Boolean>());
         applicationJson
                 .getActionList()
                 .stream()
@@ -186,9 +182,6 @@ public class GitFileUtils {
                     String prefix = newAction.getUnpublishedAction() != null ?
                             newAction.getUnpublishedAction().getValidName() + NAME_SEPARATOR + newAction.getUnpublishedAction().getPageId()
                             : newAction.getPublishedAction().getValidName() + NAME_SEPARATOR + newAction.getPublishedAction().getPageId();
-                    if(newAction.getUpdatedAt() != null){
-                        updatedResources.get(ACTION_LIST).put(prefix, true);
-                    }
                     removeUnwantedFieldFromAction(newAction);
                     resourceMap.put(prefix, newAction);
                 });
@@ -197,7 +190,6 @@ public class GitFileUtils {
 
         // Insert JSOObjects and also assign the keys which later will be used for saving the resource in actual filepath
         // JSObjectName_pageName => nomenclature for the keys
-        updatedResources.put(ACTION_COLLECTION_LIST, new HashMap<String, Boolean>());
         applicationJson
                 .getActionCollectionList()
                 .stream()
@@ -209,11 +201,6 @@ public class GitFileUtils {
                     String prefix = actionCollection.getUnpublishedCollection() != null ?
                             actionCollection.getUnpublishedCollection().getName() + NAME_SEPARATOR + actionCollection.getUnpublishedCollection().getPageId()
                             : actionCollection.getPublishedCollection().getName() + NAME_SEPARATOR + actionCollection.getPublishedCollection().getPageId();
-
-                    if(actionCollection.getUpdatedAt() != null){
-                        updatedResources.get(ACTION_COLLECTION_LIST).put(prefix, true);
-                    }
-
                     removeUnwantedFieldFromActionCollection(actionCollection);
 
                     resourceMap.put(prefix, actionCollection);

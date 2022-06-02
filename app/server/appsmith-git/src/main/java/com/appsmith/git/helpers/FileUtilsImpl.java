@@ -151,7 +151,7 @@ public class FileUtilsImpl implements FileInterface {
                             .create();
 
                     Set<String> validFileNames = new HashSet<>();
-                    Map<String, Map<String, Boolean>> updatedResources = applicationGitReference.getUpdatedResources();
+                    Map<String, Set<String>> updatedResources = applicationGitReference.getUpdatedResources();
                     // Save application
                     saveFile(applicationGitReference.getApplication(), baseRepo.resolve(CommonConstants.APPLICATION + CommonConstants.JSON_EXTENSION), gson);
 
@@ -171,7 +171,7 @@ public class FileUtilsImpl implements FileInterface {
                     for (Map.Entry<String, Object> pageResource : pageEntries) {
                         final String pageName = pageResource.getKey();
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
-                        Boolean isResourceUpdated = updatedResources.get(PAGE_LIST).get(pageName);
+                        Boolean isResourceUpdated = updatedResources.get(PAGE_LIST).contains(pageName);
                         if(Boolean.TRUE.equals(isResourceUpdated)) {
                             saveFile(pageResource.getValue(), pageSpecificDirectory.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
                         }
@@ -186,12 +186,11 @@ public class FileUtilsImpl implements FileInterface {
                         // queryName_pageName => nomenclature for the keys
                         // TODO
                         //  queryName => for app level queries, this is not implemented yet
-                        String resourceKey = resource.getKey();
-                        Boolean isResourceUpdated = updatedResources.get(ACTION_LIST).get(resourceKey);
-                        String[] names = resourceKey.split(NAME_SEPARATOR);
+                        String[] names = resource.getKey().split(NAME_SEPARATOR);
                         if (names.length > 1 && StringUtils.hasLength(names[1])) {
                             // For actions, we are referring to validNames to maintain unique file names as just name
                             // field don't guarantee unique constraint for actions within JSObject
+                            Boolean isResourceUpdated = updatedResources.get(ACTION_LIST).contains(names[0])  ;
                             final String queryName = names[0].replace(".", "-");
                             final String pageName = names[1];
                             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
@@ -200,7 +199,6 @@ public class FileUtilsImpl implements FileInterface {
                                 validActionsMap.put(pageName, new HashSet<>());
                             }
                             validActionsMap.get(pageName).add(queryName + CommonConstants.JSON_EXTENSION);
-
                             if(Boolean.TRUE.equals(isResourceUpdated)) {
                                 saveFile(
                                         resource.getValue(),
@@ -223,9 +221,7 @@ public class FileUtilsImpl implements FileInterface {
                         // JSObjectName_pageName => nomenclature for the keys
                         // TODO
                         //  JSObjectName => for app level JSObjects, this is not implemented yet
-                        String resourceKey = resource.getKey();
-                        Boolean isResourceUpdated = updatedResources.get(ACTION_COLLECTION_LIST).get(resourceKey);
-                        String[] names = resourceKey.split(NAME_SEPARATOR);
+                        String[] names = resource.getKey().split(NAME_SEPARATOR);
                         if (names.length > 1 && StringUtils.hasLength(names[1])) {
                             final String actionCollectionName = names[0];
                             final String pageName = names[1];
@@ -235,7 +231,7 @@ public class FileUtilsImpl implements FileInterface {
                                 validActionCollectionsMap.put(pageName, new HashSet<>());
                             }
                             validActionCollectionsMap.get(pageName).add(actionCollectionName + CommonConstants.JSON_EXTENSION);
-
+                            Boolean isResourceUpdated = updatedResources.get(ACTION_COLLECTION_LIST).contains(actionCollectionName);
                             if(Boolean.TRUE.equals(isResourceUpdated)) {
                                 saveFile(
                                         resource.getValue(),

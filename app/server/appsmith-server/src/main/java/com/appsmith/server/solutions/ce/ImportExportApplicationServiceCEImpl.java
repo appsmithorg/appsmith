@@ -259,6 +259,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                 Map<String, Set<String>> publishedMongoEscapedWidgetsNames = new HashMap<>();
                                 Map<String, Set<String>> unpublishedMongoEscapedWidgetsNames = new HashMap<>();
+                                Set<String> updatedPageSet = new HashSet<String>();
                                 newPageList.forEach(newPage -> {
                                     if (newPage.getUnpublishedPage() != null) {
                                         pageIdToNameMap.put(
@@ -302,14 +303,20 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         }
                                     }
                                     newPage.setApplicationId(null);
+
+                                    // Including updated pages list for git file storage
                                     Instant newPageUpdatedAt = newPage.getUpdatedAt();
-                                    boolean isNewPageNotUpdated = applicationLastCommittedAt != null && newPageUpdatedAt != null && applicationLastCommittedAt.isAfter(newPageUpdatedAt);
-                                    if(isNewPageNotUpdated){
-                                        newPage.setUpdatedAt(null);
+                                    boolean isNewPageUpdated = applicationLastCommittedAt == null || newPageUpdatedAt == null || applicationLastCommittedAt.isBefore(newPageUpdatedAt);
+                                    String newPageName = newPage.getUnpublishedPage() != null ?  newPage.getUnpublishedPage().getName() : newPage.getPublishedPage() != null ? newPage.getPublishedPage().getName() : null;
+                                    if(isNewPageUpdated && newPageName != null){
+                                        updatedPageSet.add(newPageName);
                                     }
                                     examplesWorkspaceCloner.makePristine(newPage);
                                 });
                                 applicationJson.setPageList(newPageList);
+                                applicationJson.setUpdatedResources(new HashMap<String, Set<String>>() {{
+                                    put(FieldName.PAGE_LIST, updatedPageSet);
+                                }});
                                 applicationJson.setPublishedLayoutmongoEscapedWidgets(publishedMongoEscapedWidgetsNames);
                                 applicationJson.setUnpublishedLayoutmongoEscapedWidgets(unpublishedMongoEscapedWidgetsNames);
 
@@ -353,13 +360,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 actionCollection.setOrganizationId(null);
                                 actionCollection.setPolicies(null);
                                 actionCollection.setApplicationId(null);
-
-                                Instant actionCollectionUpdatedAt = actionCollection.getUpdatedAt();
-                                boolean isActionCollectionNotUpdated = applicationLastCommittedAt != null && actionCollectionUpdatedAt != null && applicationLastCommittedAt.isAfter(actionCollectionUpdatedAt);
-                                if(isActionCollectionNotUpdated){
-                                    actionCollection.setUpdatedAt(null);
-                                }
-
                                 // Set unique ids for actionCollection, also populate collectionIdToName map which will
                                 // be used to replace collectionIds in action
                                 if (actionCollection.getUnpublishedCollection() != null) {
@@ -391,6 +391,21 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 // Because the actions will have a reference to the collection
                                 applicationJson.setActionCollectionList(actionCollections);
 
+                                Set<String> updatedActionCollectionSet = new HashSet<>();
+                                actionCollections.forEach(actionCollection -> {
+                                    ActionCollectionDTO publishedActionCollectionDTO = actionCollection.getPublishedCollection();
+                                    ActionCollectionDTO unpublishedActionCollectionDTO = actionCollection.getUnpublishedCollection();
+                                    String actionCollectionName = publishedActionCollectionDTO != null ? publishedActionCollectionDTO.getName() : unpublishedActionCollectionDTO != null ? unpublishedActionCollectionDTO.getName() : null;
+                                    Instant actionCollectionUpdatedAt = actionCollection.getUpdatedAt();
+                                    boolean isActionCollectionUpdated = applicationLastCommittedAt == null || actionCollectionUpdatedAt == null || applicationLastCommittedAt.isBefore(actionCollectionUpdatedAt);
+                                    if(isActionCollectionUpdated && actionCollectionName != null){
+                                        updatedActionCollectionSet.add(actionCollectionName);
+                                    }
+                                    actionCollection.setUpdatedAt(null);
+                                });
+
+                                applicationJson.getUpdatedResources().put(FieldName.ACTION_COLLECTION_LIST, updatedActionCollectionSet);
+
                                 Flux<NewAction> actionFlux = Boolean.TRUE.equals(application.getExportWithConfiguration())
                                         ? newActionRepository.findByApplicationId(applicationId, READ_ACTIONS, null)
                                         : newActionRepository.findByApplicationId(applicationId, MANAGE_ACTIONS, null);
@@ -402,13 +417,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 newAction.setOrganizationId(null);
                                 newAction.setPolicies(null);
                                 newAction.setApplicationId(null);
-
-                                Instant newActionUpdatedAt = newAction.getUpdatedAt();
-                                boolean isNewActionNotUpdated = applicationLastCommittedAt != null && newActionUpdatedAt != null && applicationLastCommittedAt.isAfter(newActionUpdatedAt);
-                                if(isNewActionNotUpdated){
-                                    newAction.setUpdatedAt(null);
-                                }
-
                                 dbNamesUsedInActions.add(
                                         sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceIdToNameMap, pluginMap, null, true)
                                 );
@@ -449,24 +457,36 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             })
                             .collectList()
                             .map(actionList -> {
-                                applicationJson.setActionList(actionList);
-
                                 Map<String, InvisibleActionFields> invisibleActionFieldsMap = new HashMap<>();
+                                Set<String> updatedActionSet = new HashSet<>();
                                 applicationJson.setInvisibleActionFields(invisibleActionFieldsMap);
                                 actionList.forEach(newAction -> {
+                                    ActionDTO unpublishedActionDTO = newAction.getUnpublishedAction();
+                                    ActionDTO publishedActionDTO = newAction.getPublishedAction();
+
                                     final InvisibleActionFields invisibleActionFields = new InvisibleActionFields();
 
-                                    if (newAction.getUnpublishedAction() != null) {
-                                        invisibleActionFields.setUnpublishedUserSetOnLoad(newAction.getUnpublishedAction().getUserSetOnLoad());
+                                    if (unpublishedActionDTO != null) {
+                                        invisibleActionFields.setUnpublishedUserSetOnLoad(unpublishedActionDTO.getUserSetOnLoad());
                                     }
-                                    if (newAction.getPublishedAction() != null) {
-                                        invisibleActionFields.setPublishedUserSetOnLoad(newAction.getPublishedAction().getUserSetOnLoad());
+                                    if (publishedActionDTO != null) {
+                                        invisibleActionFields.setPublishedUserSetOnLoad(publishedActionDTO.getUserSetOnLoad());
                                     }
 
                                     if (invisibleActionFields.getPublishedUserSetOnLoad() != null || invisibleActionFields.getUnpublishedUserSetOnLoad() != null) {
                                         invisibleActionFieldsMap.put(newAction.getId(), invisibleActionFields);
                                     }
+
+                                    String newActionName = unpublishedActionDTO != null ? unpublishedActionDTO.getValidName() : publishedActionDTO != null ? unpublishedActionDTO.getValidName(): null;
+                                    Instant newActionUpdatedAt = newAction.getUpdatedAt();
+                                    boolean isNewActionUpdated = applicationLastCommittedAt == null || newActionUpdatedAt == null || applicationLastCommittedAt.isBefore(newActionUpdatedAt);
+                                    if(isNewActionUpdated && newActionName != null){
+                                        updatedActionSet.add(newActionName);
+                                    }
+                                    newAction.setUpdatedAt(null);
                                 });
+                                applicationJson.getUpdatedResources().put(FieldName.ACTION_LIST, updatedActionSet);
+                                applicationJson.setActionList(actionList);
 
                                 // This is where we're removing global datasources that are unused in this application
                                 applicationJson
