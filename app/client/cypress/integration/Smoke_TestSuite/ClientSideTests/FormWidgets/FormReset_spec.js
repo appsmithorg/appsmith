@@ -62,9 +62,10 @@ describe("Form reset functionality", function() {
       "rgb(242, 43, 43)",
     );
 
-    // select widget will remain in error state
+    // Earlier select widget used to remain in error state which wasn't an expected behavior after reset
+    // now even select widget will not show error after reset.
     cy.get(`.rc-select-selector`).should(
-      "have.css",
+      "not.have.css",
       "border-color",
       "rgb(242, 43, 43)",
     );
