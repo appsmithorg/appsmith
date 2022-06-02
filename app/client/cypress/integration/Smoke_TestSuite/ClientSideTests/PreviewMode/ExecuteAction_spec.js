@@ -1,4 +1,4 @@
-const homePage = require("../../../../locators/HomePage");
+import homePage from "../../../../locators/HomePage";
 
 describe("Execute Action Functionality", function() {
   before(() => {
@@ -13,13 +13,34 @@ describe("Execute Action Functionality", function() {
     cy.get(homePage.importAppProgressWrapper).should("be.visible");
   });
 
-  it.skip("checks whether execute action is getting called on page load only once", function() {
-    // Deploying the application
-    cy.get(homePage.deployPopupOptionTrigger).click();
-    cy.get(homePage.currentDeployedPreviewBtn).click({ force: true });
+  it("checks whether execute action is getting called on page load only once", function() {
+    // Open deployed version
+    cy.get(homePage.publishButton).click({ force: true });
 
-    cy.wait("@postExecute").then((interception) => {
-      console.log({ interception });
-    });
+    cy.wait("@publishApp");
+
+    cy.get("@postExecute.all")
+      .then((respBody) => {
+        const totalRequests = [
+          ...new Set(respBody.map((req) => req.browserRequestId)),
+        ];
+        return totalRequests;
+      })
+      .should("have.length", 1);
+
+    cy.wait(500);
+
+    cy.get(".t--page-switch-tab")
+      .contains("Page2")
+      .click({ force: true });
+
+    cy.get("@postExecute.all")
+      .then((respBody) => {
+        const totalRequests = [
+          ...new Set(respBody.map((req) => req.browserRequestId)),
+        ];
+        return totalRequests;
+      })
+      .should("have.length", 1);
   });
 });
