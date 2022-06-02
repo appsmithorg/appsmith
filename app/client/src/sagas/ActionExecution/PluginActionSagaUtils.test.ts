@@ -47,6 +47,39 @@ describe("PluginActionSagasUtils", () => {
     );
   });
 
+  it("If the response type is not present in the dataType, then it should pick the first dataType in the array", () => {
+    const payload = {
+      body: [],
+      headers: {
+        headers: ["test-headers"],
+      },
+      statusCode: "200",
+      dataTypes: [
+        {
+          dataType: "TABLE",
+        },
+        {
+          dataType: "RAW",
+        },
+      ],
+      duration: "1000",
+      size: "10kb",
+    };
+
+    const generator = setDefaultActionDisplayFormat(actionid, plugin, payload);
+
+    expect(generator.next().value).toEqual(
+      put({
+        type: "SET_ACTION_RESPONSE_DISPLAY_FORMAT",
+        payload: {
+          id: "test-id",
+          field: "responseDisplayFormat",
+          value: "TABLE",
+        },
+      }),
+    );
+  });
+
   it("If dataType is an empty array, then no action should be dispatched and no bugs should happen", () => {
     const payload = {
       body: [],
