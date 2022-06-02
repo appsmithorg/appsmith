@@ -61,6 +61,7 @@ export interface TreeSelectProps
   widgetId: string;
   filterText?: string;
   isFilterable: boolean;
+  isDynamicHeightEnabled?: boolean;
 }
 
 const getSvg = (expanded: boolean) => (
@@ -115,6 +116,7 @@ const SingleSelectTreeComponent = React.forwardRef<
       dropDownWidth,
       expandAll,
       filterText,
+      isDynamicHeightEnabled,
       isFilterable,
       isValid,
       labelAlignment,
@@ -238,6 +240,7 @@ const SingleSelectTreeComponent = React.forwardRef<
         isValid={isValid}
         labelPosition={labelPosition}
         ref={_menu as React.RefObject<HTMLDivElement>}
+        style={isDynamicHeightEnabled ? { height: "auto" } : undefined}
       >
         <DropdownStyles
           accentColor={accentColor}
