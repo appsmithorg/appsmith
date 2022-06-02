@@ -5,7 +5,6 @@ import {
   ReduxActionTypes,
   UpdateCanvasPayload,
   ReduxActionErrorTypes,
-  AnyReduxAction,
   WidgetReduxActionTypes,
   ReplayReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
