@@ -83,6 +83,7 @@ function TooltipComponent(props: TooltipProps) {
     >
       <TooltipChildrenWrapper
         helpCursor={!!(!props.disabled && props.underline)}
+        tabIndex={-1}
       >
         {props.children}
         {!props.disabled && props.underline && (
