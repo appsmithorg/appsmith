@@ -56,6 +56,7 @@ export interface MultiSelectProps
   labelTextSize?: TextSize;
   labelStyle?: string;
   compactMode: boolean;
+  isDynamicHeightEnabled?: boolean;
   isValid: boolean;
   allowSelectAll?: boolean;
   filterText?: string;
@@ -83,6 +84,7 @@ const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
       dropdownStyle,
       dropDownWidth,
       filterText,
+      isDynamicHeightEnabled,
       isFilterable,
       isValid,
       labelAlignment,
@@ -338,6 +340,7 @@ const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
         isValid={isValid}
         labelPosition={labelPosition}
         ref={_menu as React.RefObject<HTMLDivElement>}
+        style={isDynamicHeightEnabled ? { height: "auto" } : undefined}
       >
         <DropdownStyles
           accentColor={accentColor}

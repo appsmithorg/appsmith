@@ -26,6 +26,7 @@ import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 export function defaultOptionValueValidation(
   value: unknown,
