@@ -266,38 +266,40 @@ function Form<TValues = any>(
 
   return (
     <FormProvider {...methods}>
-      <StyledForm ref={bodyRef} scrollContents={scrollContents}>
-        <StyledFormBody ref={ref} stretchBodyVertically={stretchBodyVertically}>
-          <StyledTitle>{title}</StyledTitle>
-          {children}
-        </StyledFormBody>
-        {!hideFooter && (
-          <StyledFormFooter
-            backgroundColor={backgroundColor}
-            fixedFooter={fixedFooter}
-            ref={footerRef}
-          >
-            {showReset && (
-              <StyledResetButtonWrapper>
-                <Button
-                  {...resetButtonStyles}
-                  onClick={(e) => onReset(schema, e)}
-                  text={resetButtonLabel}
-                  type="reset"
-                />
-              </StyledResetButtonWrapper>
-            )}
-            <Button
-              {...submitButtonStyles}
-              disabled={disabledWhenInvalid && isFormInValid}
-              loading={isSubmitting}
-              onClick={onSubmit}
-              text={submitButtonLabel}
-              type="submit"
-            />
-          </StyledFormFooter>
-        )}
-      </StyledForm>
+      <div className="dynamic-height-container" ref={ref}>
+        <StyledForm ref={bodyRef} scrollContents={scrollContents}>
+          <StyledFormBody stretchBodyVertically={stretchBodyVertically}>
+            <StyledTitle>{title}</StyledTitle>
+            {children}
+          </StyledFormBody>
+          {!hideFooter && (
+            <StyledFormFooter
+              backgroundColor={backgroundColor}
+              fixedFooter={fixedFooter}
+              ref={footerRef}
+            >
+              {showReset && (
+                <StyledResetButtonWrapper>
+                  <Button
+                    {...resetButtonStyles}
+                    onClick={(e) => onReset(schema, e)}
+                    text={resetButtonLabel}
+                    type="reset"
+                  />
+                </StyledResetButtonWrapper>
+              )}
+              <Button
+                {...submitButtonStyles}
+                disabled={disabledWhenInvalid && isFormInValid}
+                loading={isSubmitting}
+                onClick={onSubmit}
+                text={submitButtonLabel}
+                type="submit"
+              />
+            </StyledFormFooter>
+          )}
+        </StyledForm>
+      </div>
     </FormProvider>
   );
 }
