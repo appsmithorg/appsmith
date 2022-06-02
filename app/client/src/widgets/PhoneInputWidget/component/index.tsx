@@ -68,6 +68,7 @@ class PhoneInputComponent extends React.Component<PhoneInputComponentProps> {
         inputHTMLType="TEL"
         inputType={InputTypes.PHONE_NUMBER}
         intent={this.props.intent}
+        isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}

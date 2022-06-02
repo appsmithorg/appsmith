@@ -571,7 +571,12 @@ class BaseInputComponent extends React.Component<
     const showLabelHeader = label || tooltip;
 
     return (
-      <div ref={this.props.innerRef}>
+      <div
+        ref={this.props.innerRef}
+        style={
+          this.props.isDynamicHeightEnabled ? { height: "auto" } : undefined
+        }
+      >
         <InputComponentWrapper
           compactMode={compactMode}
           data-testid="input-container"
@@ -638,6 +643,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   inputHTMLType?: InputHTMLType;
   disabled?: boolean;
   intent?: Intent;
+  isDynamicHeightEnabled?: boolean;
   defaultValue?: string | number;
   label: string;
   labelAlignment?: Alignment;

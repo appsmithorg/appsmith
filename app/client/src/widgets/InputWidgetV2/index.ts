@@ -3,6 +3,9 @@ import IconSVG from "./icon.svg";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: true,
+  },
   type: Widget.getWidgetType(),
   name: "Input",
   iconSVG: IconSVG,
