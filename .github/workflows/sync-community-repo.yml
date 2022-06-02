@@ -4,32 +4,43 @@ name: Sync Community workflow
 on:
   workflow_dispatch:
   schedule:
-  - cron: "0 * * * *"
+    - cron: "0 * * * *"
 
 jobs:
   repo-sync:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        persist-credentials: false
-        ref: release
-        fetch-depth: 0
-        token: ${{ secrets.PAT_GITHUB }}
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+          ref: release
+          fetch-depth: 0
+          token: ${{ secrets.PAT_GITHUB }}
 
-    # This step pulls the merges the latest release branch from the Appsmith CE into EE repository
-    - name: Sync release branch from community repo
-      run: |
-        git remote add community https://github.com/appsmithorg/appsmith.git
-        git config user.email "automated@github.com"
-        git config user.name "Automated Github Action"
-        git config pull.rebase false
-        git pull community release --no-edit
-    
-    - name: Push changes to the release branch
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.PAT_GITHUB }}
-        branch: release
+      # This step pulls the merges the latest release branch from the Appsmith CE into EE repository
+      - name: Sync release branch from community repo
+        run: |
+          git remote add community https://github.com/appsmithorg/appsmith.git
+          git config user.email "automated@github.com"
+          git config user.name "Automated Github Action"
+          git config pull.rebase false
+          git pull community release --no-edit
 
+      - name: Push changes to the release branch
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.PAT_GITHUB }}
+          branch: release
+
+      - name: Notify Slack if sync workflow fails
+        if: failure()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.APPSMITH_SLACK_WEBHOOK }}
+          SLACK_CHANNEL: team-tech
+          SLACK_COLOR: ${{ job.status }} # or a specific color like 'good' or '#ff00ff'
+          SLACK_ICON: https://github.com/appsmithorg/appsmith-ce/app/client/public/favicon-orange.ico
+          SLACK_TITLE: Sync Workflow failed on EE repo
+          SLACK_MESSAGE: ":alert: The sync workflow has failed to merge code from the release branch of CE repository to the release branch of EE repository. Please check ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} for details."
+          SLACK_USERNAME: appsmith-bot
