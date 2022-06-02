@@ -22,7 +22,7 @@ import {
   Schema,
   SchemaItem,
 } from "widgets/JSONFormWidget/constants";
-import LazyCodeEditorWrapper from "components/editorComponents/CodeEditor/LazyCodeEditorWrapper";
+import CodeEditor from "components/editorComponents/CodeEditor/LazyCodeEditorWrapper";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -125,7 +125,7 @@ export function InputText(props: {
   } = props;
   return (
     <StyledDynamicInput>
-      <LazyCodeEditorWrapper
+      <CodeEditor
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}

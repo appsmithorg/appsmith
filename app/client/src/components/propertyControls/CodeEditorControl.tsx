@@ -6,7 +6,7 @@ import {
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import LazyCodeEditorWrapper from "components/editorComponents/CodeEditor/LazyCodeEditorWrapper";
+import CodeEditor from "components/editorComponents/CodeEditor/LazyCodeEditorWrapper";
 
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {
@@ -25,7 +25,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     if (expected) props.expected = expected;
 
     return (
-      <LazyCodeEditorWrapper
+      <CodeEditor
         additionalDynamicData={this.props.additionalAutoComplete}
         input={{ value: propertyValue, onChange: this.onChange }}
         mode={EditorModes.TEXT_WITH_BINDING}
