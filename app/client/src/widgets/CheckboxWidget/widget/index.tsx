@@ -6,6 +6,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidget } from "widgets/constants";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -176,6 +177,9 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         borderRadius={this.props.borderRadius}
         isChecked={!!this.props.isChecked}
         isDisabled={this.props.isDisabled}
+        isDynamicHeightEnabled={
+          this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS
+        }
         isLoading={this.props.isLoading}
         isRequired={this.props.isRequired}
         key={this.props.widgetId}
