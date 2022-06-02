@@ -603,6 +603,9 @@ class MultiSelectWidget extends BaseWidget<
           zIndex: Layers.dropdownModalWidget,
         }}
         filterText={this.props.filterText}
+        isDynamicHeightEnabled={
+          this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS
+        }
         isFilterable={this.props.isFilterable}
         isValid={!isInvalid}
         labelAlignment={this.props.labelAlignment}
