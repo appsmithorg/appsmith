@@ -125,13 +125,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>2.5.5</version>
+            <version>2.7.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>5.2.3.RELEASE</version>
+            <version>5.3.20</version>
             <scope>test</scope>
         </dependency>
         <dependency>
