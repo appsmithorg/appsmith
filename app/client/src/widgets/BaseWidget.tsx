@@ -221,7 +221,6 @@ abstract class BaseWidget<
   componentDidUpdate(prevProps: T) {
     const expectedHeight = this.contentRef.current?.scrollHeight;
     if (expectedHeight) {
-      console.log("componentDidUpdate", expectedHeight);
       this.updateDynamicHeight(expectedHeight);
     }
   }
