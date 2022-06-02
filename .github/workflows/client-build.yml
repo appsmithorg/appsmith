@@ -54,7 +54,7 @@ jobs:
         run: echo ${{ github.event.pull_request.number }}
 
       - name: Use Node.js 16.14.0
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
