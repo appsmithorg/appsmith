@@ -220,7 +220,6 @@ abstract class BaseWidget<
   /* eslint-disable @typescript-eslint/no-unused-vars */
   componentDidUpdate(prevProps: T) {
     const expectedHeight = this.contentRef.current?.scrollHeight;
-    console.log("componentDidUpdate", expectedHeight);
     if (expectedHeight) {
       this.updateDynamicHeight(expectedHeight);
     }
