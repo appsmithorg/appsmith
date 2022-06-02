@@ -842,19 +842,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                             });
                                                 });
                                     }
-                                    Mono<Application> applicationMono = applicationPageService.setApplicationPolicies(currUserMono, workspaceId, importedApplication);
-                                    return applicationMono
-                                            .flatMap(application1 ->
-                                                applicationService.save(application1)
-                                                        .onErrorResume(DuplicateKeyException.class, error ->
-                                                            applicationPageService
-                                                                    .createOrUpdateSuffixedApplication(
-                                                                            application1,
-                                                                            application1.getName(),
-                                                                            0
-                                                                    )
-                                                        )
-                                            );
+                                    return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
                                 })
                 )
                 .flatMap(savedApp -> importThemes(savedApp, importedDoc))
