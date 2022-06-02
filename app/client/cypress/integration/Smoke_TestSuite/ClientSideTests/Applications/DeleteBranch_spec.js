@@ -1,5 +1,5 @@
 import homePage from "../../../../locators/HomePage";
-
+import gitSyncLocators from "../../../../locators/gitSyncLocators";
 let repoName;
 let branchName;
 describe("Delete branch", () => {
@@ -73,18 +73,21 @@ describe("Delete branch", () => {
         });
       //cy.get('[data-testid="t--default-tag"]').click();
       cy.get(".--widget-chartwidget").should("not.exist");
+      cy.get(gitSyncLocators.branchButton).click({ force: true });
     });
   });
   it("delete barnch from UI, but the same branch should be display in remote ", () => {
     cy.generateUUID().then((uid) => {
       branchName = uid;
+      cy.wait(2000);
       cy.createGitBranch(branchName);
       cy.wait(1000);
-      cy.get('[data-testid="t--branch-button-currentBranch"]').click();
+      //  cy.get('[data-testid="t--branch-button-currentBranch"]').click();
+      // cy.get(gitSyncLocators.branchButton).click({ force: true });
       cy.wait(2000);
-      cy.get('[data-testid="t--default-tag"]').click();
+      cy.switchGitBranch("master");
       cy.wait(2000);
-      cy.get(".t--branch-button").click();
+      cy.get(gitSyncLocators.branchButton).click({ force: true });
       cy.get(".t--branch-item")
         .eq(1)
         .trigger("mouseenter")
@@ -94,7 +97,7 @@ describe("Delete branch", () => {
             .click({ force: true });
           cy.get(".t--branch-more-menu-delete").click();
         });
-      cy.get(".t--branch-button").click();
+      cy.get(gitSyncLocators.branchButton).click({ force: true });
       cy.get('[data-testid="t--git-remote-branch-list-container"]').contains(
         `origin/${branchName}`,
       );
@@ -105,6 +108,7 @@ describe("Delete branch", () => {
       branchName = uid;
       cy.createGitBranch(branchName);
       cy.wait(1000);
+
       cy.get(".t--branch-button").click();
       cy.wait(2000);
       cy.get('[data-testid="t--default-tag"]').click();
