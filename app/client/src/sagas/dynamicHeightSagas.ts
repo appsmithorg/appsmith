@@ -52,7 +52,7 @@ import { getWidgets } from "./selectors";
 export function* updateWidgetDynamicHeightSaga(
   updates: Record<string, number>,
 ) {
-  yield delay(100);
+  yield delay(50);
   const start = performance.now();
 
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -160,9 +160,7 @@ export function* updateWidgetDynamicHeightSaga(
             DynamicHeight.HUG_CONTENTS
           ) {
             // Get the minimum number of rows this parent must have
-            let minHeightInRows =
-              parentContainerLikeWidget.minDynamicHeight /
-              GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+            let minHeightInRows = parentContainerLikeWidget.minDynamicHeight;
             const children = parentCanvasWidget.children || []; // It's never going to be []
             for (const childWidgetId of children) {
               if (changesSoFar.hasOwnProperty(childWidgetId)) {
@@ -184,6 +182,12 @@ export function* updateWidgetDynamicHeightSaga(
             }
             minHeightInRows =
               minHeightInRows + GridDefaults.CANVAS_EXTENSION_OFFSET;
+
+            if (parentContainerLikeWidget.maxDynamicHeight > 0)
+              minHeightInRows = Math.min(
+                parentContainerLikeWidget.maxDynamicHeight,
+                minHeightInRows,
+              );
 
             const expectedUpdate = {
               widgetId: parentContainerLikeWidget.widgetId,
