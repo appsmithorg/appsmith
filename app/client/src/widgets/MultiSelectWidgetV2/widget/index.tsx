@@ -26,6 +26,7 @@ import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -544,6 +545,7 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: MultiSelectWidgetProps): void {
+    super.componentDidUpdate(prevProps);
     // Check if defaultOptionValue is string
     let isStringArray = false;
     if (
@@ -615,6 +617,7 @@ class MultiSelectWidget extends BaseWidget<
         onFilterChange={this.onFilterChange}
         options={options}
         placeholder={this.props.placeholderText as string}
+        ref={this.contentRef}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}
         widgetId={this.props.widgetId}
