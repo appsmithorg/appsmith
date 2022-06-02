@@ -53,12 +53,14 @@ public class MySqlErrorUtils extends AppsmithPluginErrorUtils implements Seriali
     public String getReadableError(Throwable error) {
         Throwable externalError;
         if (error instanceof AppsmithPluginException) {
-            if (((AppsmithPluginException) error).getExternalError() == null)
+            if (((AppsmithPluginException) error).getExternalError() == null){
                 return error.getMessage();
+            }
             externalError = ((AppsmithPluginException) error).getExternalError();
         }
-        else
+        else {
             externalError = error;
+        }
         if (externalError instanceof R2dbcPermissionDeniedException) {
             /**
              * Extract small readable portion of error message from a larger less comprehensible error message of R2dbcPermissionDeniedException.

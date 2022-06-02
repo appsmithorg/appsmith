@@ -324,8 +324,9 @@ public class MySqlPlugin extends BasePlugin {
                         if (error instanceof StaleConnectionException) {
                             return Mono.error(error);
                         }
-                        else if (error instanceof R2dbcPermissionDeniedException)
+                        else if (error instanceof R2dbcPermissionDeniedException) {
                             return Mono.error(new AppsmithPluginException(error, AppsmithPluginError.PLUGIN_ERROR, error.getMessage()));
+                        }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
                         result.setErrorInfo(error, mySqlErrorUtils);
@@ -588,8 +589,9 @@ public class MySqlPlugin extends BasePlugin {
 
             return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
                     .onErrorResume(exception -> {
-                        if (exception instanceof R2dbcPermissionDeniedException)
+                        if (exception instanceof R2dbcPermissionDeniedException) {
                             return Mono.error(new AppsmithPluginException(exception, AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, exception));
+                        }
                         return Mono.error(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                 exception
