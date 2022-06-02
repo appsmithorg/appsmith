@@ -22,7 +22,6 @@
     "@manaflair/redux-batch": "^1.0.0",
     "@sentry/react": "^6.2.4",
     "@sentry/tracing": "^6.2.4",
-    "@sentry/webpack-plugin": "^1.12.1",
     "@tinymce/tinymce-react": "^3.13.0",
     "@types/webfontloader": "^1.6.33",
     "@uppy/core": "^1.16.0",
@@ -189,6 +188,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@sentry/webpack-plugin": "^1.18.9",
     "@testing-library/jest-dom": "5.16.1",
     "@testing-library/react": "12.1.2",
     "@testing-library/react-hooks": "^7.0.2",
@@ -239,7 +239,7 @@
     "babel-plugin-module-resolver": "^4.1.0",
     "babel-plugin-styled-components": "^1.10.7",
     "brotli-webpack-plugin": "^1.1.0",
-    "compression-webpack-plugin": "^6.0.5",
+    "compression-webpack-plugin": "^10.0.0",
     "cra-bundle-analyzer": "^0.1.0",
     "cy-verify-downloads": "^0.0.5",
     "cypress": "8.7.0",
@@ -278,8 +278,8 @@
     "redux-devtools-extension": "^2.13.8",
     "redux-mock-store": "^1.5.4",
     "storybook-addon-designs": "^5.4.0",
-    "webpack-merge": "^4.2.2",
-    "workbox-webpack-plugin": "^5.1.2"
+    "webpack-merge": "^5.8.0",
+    "workbox-webpack-plugin": "^6.5.3"
   },
   "husky": {
     "hooks": {
