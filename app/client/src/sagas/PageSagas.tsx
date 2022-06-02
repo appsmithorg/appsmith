@@ -199,12 +199,10 @@ export const getCanvasWidgetsPayload = (
 
 export function* handleFetchedPage({
   fetchPageResponse,
-  isFirstLoad = false,
   pageId,
 }: {
   fetchPageResponse: FetchPageResponse;
   pageId: string;
-  isFirstLoad?: boolean;
 }) {
   const isValidResponse = yield validateResponse(fetchPageResponse);
   const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
@@ -223,12 +221,7 @@ export function* handleFetchedPage({
     // set current page
     yield put(updateCurrentPage(pageId, pageSlug));
     // dispatch fetch page success
-    yield put(
-      fetchPageSuccess(
-        // Execute page load actions post page load
-        isFirstLoad ? [] : [executePageLoadActions()],
-      ),
-    );
+    yield put(fetchPageSuccess());
     // Sets last updated time
     yield put(setLastUpdatedTime(lastUpdatedTime));
     const extractedDSL = extractCurrentDSL(fetchPageResponse);
@@ -249,7 +242,7 @@ export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { id, isFirstLoad } = pageRequestAction.payload;
+    const { id } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
@@ -257,11 +250,10 @@ export function* fetchPageSaga(
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id,
     });
-
+    // fetchPageSuccess will be called here
     yield handleFetchedPage({
       fetchPageResponse,
       pageId: id,
-      isFirstLoad,
     });
 
     PerformanceTracker.stopAsyncTracking(
@@ -970,25 +962,23 @@ export function* generateTemplatePageSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const pageId = response.data.page.id;
+      // fetchPageSuccess will be called here
       yield handleFetchedPage({
         fetchPageResponse: {
           data: response.data.page,
           responseMeta: response.responseMeta,
         },
         pageId,
-        isFirstLoad: true,
       });
-
-      // TODO : Add this to onSuccess (Redux Action)
       yield put(
         generateTemplateSuccess({
           page: response.data.page,
           isNewPage: !request.pageId, // if pageId if not defined, that means a new page is generated.
         }),
       );
-      // TODO : Add this to onSuccess (Redux Action)
+
+      // TODO: merge this code to initSagas else generateCRUD feature action fetching will need to be maintained separately which is not scalable.
       yield put(fetchActionsForPage(pageId, [executePageLoadActions()]));
-      // TODO : Add it to onSuccessCallback
       history.replace(
         builderURL({
           pageSlug: response.data.page.slug,
