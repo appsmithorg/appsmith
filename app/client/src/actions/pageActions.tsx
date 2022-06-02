@@ -57,12 +57,9 @@ export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
   },
 });
 
-export const fetchPageSuccess = (
-  postEvalActions: Array<AnyReduxAction>,
-): EvaluationReduxAction<undefined> => {
+export const fetchPageSuccess = (): EvaluationReduxAction<undefined> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_SUCCESS,
-    postEvalActions,
     payload: undefined,
   };
 };

@@ -86,7 +86,10 @@ import { isURLDeprecated, getUpdatedRoute } from "utils/helpers";
 import { fillPathname, viewerURL, builderURL } from "RouteBuilder";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
-import { fetchPublishedPageSuccess } from "../actions/pageActions";
+import {
+  fetchPublishedPageSuccess,
+  fetchPageSuccess,
+} from "actions/pageActions";
 import {
   fetchSelectedAppThemeAction,
   fetchAppThemesAction,
@@ -243,19 +246,12 @@ function* initiateEditorApplicationAndPages(payload: InitializeEditorPayload) {
 
   yield call(initiateURLUpdate, toLoadPageId, APP_MODE.EDIT, payload.pageId);
 
-  const fetchPageCallResult: boolean = yield failFastApiCalls(
-    [fetchPage(toLoadPageId, true)],
-    [ReduxActionTypes.FETCH_PAGE_SUCCESS],
-    [ReduxActionErrorTypes.FETCH_PAGE_ERROR],
-  );
-
-  if (!fetchPageCallResult) return;
-
   return toLoadPageId;
 }
 
-function* initiateEditorActions(applicationId: string) {
+function* initiateEditorActions(toLoadPageId: string, applicationId: string) {
   const initActionsCalls = [
+    fetchPage(toLoadPageId, true),
     fetchActions({ applicationId }, []),
     fetchJSCollections({ applicationId }),
     fetchSelectedAppThemeAction(applicationId),
@@ -267,12 +263,14 @@ function* initiateEditorActions(applicationId: string) {
     ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
     ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
     ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
+    fetchPageSuccess().type,
   ];
   const failureActionEffects = [
     ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
     ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
     ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
     ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
+    ReduxActionErrorTypes.FETCH_PAGE_ERROR,
   ];
   const allActionCalls: boolean = yield failFastApiCalls(
     initActionsCalls,
@@ -350,7 +348,8 @@ function* initializeEditorSaga(
       PerformanceTransactionName.INIT_EDIT_APP,
     );
 
-    yield call(initiateEditorApplicationAndPages, payload);
+    const toLoadPageId = yield call(initiateEditorApplicationAndPages, payload);
+    if (!toLoadPageId) return;
 
     const { id: applicationId, name }: ApplicationPayload = yield select(
       getCurrentApplication,
@@ -361,7 +360,7 @@ function* initializeEditorSaga(
     );
 
     yield all([
-      call(initiateEditorActions, applicationId),
+      call(initiateEditorActions, toLoadPageId, applicationId),
       call(initiatePluginsAndDatasources),
       call(populatePageDSLsSaga),
     ]);
