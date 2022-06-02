@@ -1,3 +1,5 @@
+import homePage from "../../../../locators/HomePage";
+
 let repoName;
 let branchName;
 describe("Delete branch", () => {
@@ -57,6 +59,10 @@ describe("Delete branch", () => {
       cy.dragAndDropToCanvas("chartwidget", { x: 210, y: 300 });
       cy.get(".t--widget-chartwidget").should("exist");
       cy.commitAndPush();
+      cy.wait(1000);
+      cy.get(".t--branch-button").click();
+      cy.get('[data-testid="t--default-tag"]').click();
+      cy.wait(2000);
       cy.get(".t--branch-button").click();
       cy.get(".t--branch-item")
         .eq(1)
@@ -65,8 +71,8 @@ describe("Delete branch", () => {
           cy.get(".git-branch-more-menu").click();
           cy.get(".t--branch-more-menu-delete").click();
         });
-      cy.get('[data-testid="t--default-tag"]').click();
-      cy.get(".t--draggable-checkboxwidget").should("not.exist");
+      //cy.get('[data-testid="t--default-tag"]').click();
+      cy.get(".--widget-chartwidget").should("not.exist");
     });
   });
   it("delete barnch from UI, but the same branch should be display in remote ", () => {
@@ -83,10 +89,12 @@ describe("Delete branch", () => {
         .eq(1)
         .trigger("mouseenter")
         .within(() => {
-          cy.get(".git-branch-more-menu").click();
+          cy.get(".git-branch-more-menu")
+            .scrollIntoView()
+            .click({ force: true });
           cy.get(".t--branch-more-menu-delete").click();
         });
-      cy.get('[data-testid="t--branch-button-currentBranch"]').click();
+      cy.get(".t--branch-button").click();
       cy.get('[data-testid="t--git-remote-branch-list-container"]').contains(
         `origin/${branchName}`,
       );
@@ -97,22 +105,69 @@ describe("Delete branch", () => {
       branchName = uid;
       cy.createGitBranch(branchName);
       cy.wait(1000);
-      cy.get('[data-testid="t--branch-button-currentBranch"]').click();
+      cy.get(".t--branch-button").click();
       cy.wait(2000);
       cy.get('[data-testid="t--default-tag"]').click();
       cy.wait(2000);
+      //cy.get(".t--branch-button").click();
+      cy.get(".t--branch-item")
+        .eq(2)
+        .trigger("mouseenter")
+        .within(() => {
+          cy.get(".git-branch-more-menu")
+            .scrollIntoView()
+            .click({ force: true });
+          cy.get(".t--branch-more-menu-delete").click();
+        });
       cy.get(".t--branch-button").click();
+      cy.get('[data-testid="t--git-remote-branch-list-container"]')
+        .contains(`origin/${branchName}`)
+        .click();
+    });
+  });
+  it("Default branch deletion not allowed ", () => {
+    cy.generateUUID().then((uid) => {
+      branchName = uid;
+      cy.createGitBranch(branchName);
+      cy.wait(1000);
+      cy.get(".t--branch-button").click();
+      cy.wait(2000);
+      cy.get('[data-testid="t--default-tag"]')
+        .click()
+        .trigger("mouseenter")
+        .within(() => {
+          cy.get(".git-branch-more-menu")
+            .scrollIntoView()
+            .click({ force: true });
+          cy.get(".t--branch-more-menu-delete").click();
+        });
+      cy.get(homePage.toastMessage).should(
+        "contain",
+        "Cannot delete default branch: master",
+      );
+    });
+  });
+  it("local branch deletion not allowed ", () => {
+    cy.generateUUID().then((uid) => {
+      branchName = uid;
+      cy.createGitBranch(branchName);
+      cy.wait(1000);
+      cy.get(".t--branch-button").click();
+      cy.wait(2000);
       cy.get(".t--branch-item")
         .eq(1)
         .trigger("mouseenter")
         .within(() => {
-          cy.get(".git-branch-more-menu").click();
+          cy.get(".git-branch-more-menu")
+            .scrollIntoView()
+            .click({ force: true });
+          //cy.get("[data-testid='t--branch-more-menu-delete']").click();
           cy.get(".t--branch-more-menu-delete").click();
         });
-      cy.get('[data-testid="t--branch-button-currentBranch"]').click();
-      cy.get('[data-testid="t--git-remote-branch-list-container"]')
-        .contains(`origin/${branchName}`)
-        .click();
+      cy.get(homePage.toastMessage).should(
+        "contain",
+        "Cannot delete checked out branch. Please check out other branch before deleting:${branchName} .",
+      );
     });
   });
 });
