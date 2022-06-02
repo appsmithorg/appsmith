@@ -34,7 +34,7 @@ import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtil
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_AND_ACTION_CONFIG;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class HintMessageUtils {
 
     public enum DUPLICATE_ATTRIBUTE_LOCATION {
@@ -46,15 +46,6 @@ public class HintMessageUtils {
     protected enum ATTRIBUTE {
         HEADER,
         PARAM
-    }
-
-    protected static HintMessageUtils hintMessageUtils;
-    public static HintMessageUtils getInstance() {
-        if (hintMessageUtils == null) {
-            hintMessageUtils = new HintMessageUtils();
-        }
-
-        return hintMessageUtils;
     }
 
     protected static String HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_DATASOURCE_CONFIG = "API queries linked to this " +
@@ -75,7 +66,7 @@ public class HintMessageUtils {
                     "remove the duplicate definition(s) from the ''{2}'' section of either the API query or the " +
                     "datasource. Please note that some of the authentication mechanisms also implicitly define a " +
                     "{0}.";
-    
+
     public Set<String> getDatasourceHintMessages(DatasourceConfiguration datasourceConfiguration) {
         Set<String> datasourceHintMessages = new HashSet<>();
 

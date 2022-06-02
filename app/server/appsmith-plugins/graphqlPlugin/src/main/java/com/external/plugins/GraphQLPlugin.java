@@ -15,6 +15,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
+import com.external.utils.GraphQLHintMessageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -33,10 +34,11 @@ import java.util.Set;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInPropertyList;
-import static com.external.utils.BodyUtils.QUERY_VARIABLES_INDEX;
-import static com.external.utils.BodyUtils.convertToGraphQLPOSTBodyFormat;
-import static com.external.utils.BodyUtils.getGraphQLQueryParamsForBodyAndVariables;
-import static com.external.utils.BodyUtils.validateBodyAndVariablesSyntax;
+import static com.external.utils.GraphQLPaginationUtils.updateVariablesWithPaginationValues;
+import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
+import static com.external.utils.GraphQLBodyUtils.convertToGraphQLPOSTBodyFormat;
+import static com.external.utils.GraphQLBodyUtils.getGraphQLQueryParamsForBodyAndVariables;
+import static com.external.utils.GraphQLBodyUtils.validateBodyAndVariablesSyntax;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -52,6 +54,9 @@ public class GraphQLPlugin extends BasePlugin {
 
         public GraphQLPluginExecutor(SharedConfig sharedConfig) {
             super(sharedConfig);
+
+            GraphQLHintMessageUtils hintMessageUtils = new GraphQLHintMessageUtils();
+            super.setHintMessageUtils(hintMessageUtils);
         }
 
         /**
@@ -114,23 +119,28 @@ public class GraphQLPlugin extends BasePlugin {
                 return Mono.error(e);
             }
 
+            Set<String> hintMessages = new HashSet<String>();
+            if (actionConfiguration.getPaginationType() != null
+                    && executeActionDTO.getPaginationField() != null) {
+                updateVariablesWithPaginationValues(actionConfiguration, executeActionDTO, hintMessages);
+            }
+
             // Filter out any empty headers
             headerUtils.removeEmptyHeaders(actionConfiguration);
 
-            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, parameters);
+            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, parameters,
+                    hintMessages);
         }
 
         public Mono<ActionExecutionResult> executeCommon(APIConnection apiConnection,
                                                          DatasourceConfiguration datasourceConfiguration,
                                                          ActionConfiguration actionConfiguration,
-                                                         List<Map.Entry<String, String>> insertedParams) {
+                                                         List<Map.Entry<String, String>> insertedParams,
+                                                         Set<String> hintMessages) {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
             initUtils.initializeResponseWithError(errorResult);
-
-            // Set of hint messages that can be returned to the user.
-            Set<String> hintMessages = new HashSet<String>();
 
             // Initializing request URL
             String url = initUtils.initializeRequestUrl(actionConfiguration, datasourceConfiguration);

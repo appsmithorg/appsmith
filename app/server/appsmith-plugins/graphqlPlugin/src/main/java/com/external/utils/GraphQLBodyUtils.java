@@ -16,7 +16,7 @@ import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromProper
 import static com.appsmith.external.helpers.PluginUtils.parseStringIntoJSONObject;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-public class BodyUtils {
+public class GraphQLBodyUtils {
     public static final int QUERY_VARIABLES_INDEX = 1;
     public static final String QUERY_KEY = "query";
     public static final String VARIABLES_KEY = "variables";
@@ -68,7 +68,9 @@ public class BodyUtils {
 
         final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
         String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
-        queryParams.add(new Property(VARIABLES_KEY, variables));
+        if (!isEmpty(variables)) {
+            queryParams.add(new Property(VARIABLES_KEY, variables));
+        }
 
         return queryParams;
     }
