@@ -14,6 +14,7 @@ import { StyledSwitch } from "widgets/SwitchWidget/component";
 
 export interface SwitchGroupContainerProps {
   compactMode: boolean;
+  isDynamicHeightEnabled?: boolean;
   labelPosition?: LabelPosition;
 }
 
@@ -23,6 +24,9 @@ export const SwitchGroupContainer = styled.div<SwitchGroupContainerProps>`
     ${({ labelPosition }) =>
       labelPosition === LabelPosition.Left && "min-height: 30px"};
   }
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { height: auto }" : ""};
 `;
 
 export interface InputContainerProps {
@@ -51,7 +55,10 @@ export interface OptionProps {
   value: string;
 }
 
-function SwitchGroupComponent(props: SwitchGroupComponentProps) {
+const SwitchGroupComponent = React.forwardRef<
+  HTMLDivElement,
+  React.PropsWithChildren<SwitchGroupComponentProps>
+>((props, ref) => {
   const {
     accentColor,
     alignment,
@@ -59,6 +66,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
     disabled,
     height,
     inline,
+    isDynamicHeightEnabled,
     labelAlignment,
     labelPosition,
     labelStyle,
@@ -78,7 +86,9 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
     <SwitchGroupContainer
       compactMode={compactMode}
       data-testid="switchgroup-container"
+      isDynamicHeightEnabled={isDynamicHeightEnabled}
       labelPosition={labelPosition}
+      ref={ref}
     >
       {labelText && (
         <LabelWithTooltip
@@ -122,12 +132,13 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
       </InputContainer>
     </SwitchGroupContainer>
   );
-}
+});
 
 export interface SwitchGroupComponentProps {
   alignment: Alignment;
   disabled: boolean;
   inline: boolean;
+  isDynamicHeightEnabled?: boolean;
   options: OptionProps[];
   onChange: (value: string) => React.FormEventHandler<HTMLInputElement>;
   required: boolean;
@@ -145,5 +156,7 @@ export interface SwitchGroupComponentProps {
   height: number;
   accentColor: string;
 }
+
+SwitchGroupComponent.displayName = "SwitchGroupComponent";
 
 export default SwitchGroupComponent;
