@@ -1,4 +1,4 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
+const jsonform = require("../../../../../locators/jsonFormWidget.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonText = require("../../../../../fixtures/jsonTextDsl.json");
 
@@ -11,10 +11,10 @@ describe("Verify syntax to create Datpicker field type", () => {
   });
 
   it("Validate calendar on clicking date field", () => {
-    cy.xpath("//div[@data-testid='datepicker-container']").click({
+    cy.xpath(jsonform.datepickerContainer).click({
       force: true,
     });
-    cy.get(".DayPicker-Months").should("be.visible");
+    cy.get(jsonform.calendarPopup).should("be.visible");
   });
 });
 
@@ -27,8 +27,8 @@ describe("Verify syntax to boolean type", () => {
   });
 
   it("Validate calendar on clicking date field", () => {
-    cy.get(".t--switch-widget-active").should("be.visible");
-    cy.get(".t--switch-widget-active").click({ force: true });
+    cy.get(jsonform.switchStatus).should("be.visible");
+    cy.get(jsonform.switchStatus).click({ force: true });
   });
 });
 
@@ -41,8 +41,8 @@ describe("Verify syntax to create email type", () => {
   });
 
   it("Validate email input field in form", () => {
-    cy.xpath("//input[@type='email']").should("be.visible");
-    cy.xpath("//input[@type='email']").should("have.value", "Value@mail.com");
+    cy.xpath(jsonform.emailField).should("be.visible");
+    cy.xpath(jsonform.emailField).should("have.value", "Value@mail.com");
   });
 });
 
@@ -55,8 +55,8 @@ describe("Verify syntax for Text type", () => {
   });
 
   it("Validate email input field in form", () => {
-    cy.get(".t--jsonformfield-Key input").should("be.visible");
-    cy.get(".t--jsonformfield-Key input").should("have.value", "value");
+    cy.get(jsonform.keyInput).should("be.visible");
+    cy.get(jsonform.keyInput).should("have.value", "value");
   });
 });
 
@@ -73,29 +73,26 @@ describe("Verify mandatory field check and also submit button active/inactive", 
   });
 
   it("Modify a field to be mandatory", () => {
-    cy.get(".t--edit-column-btn")
+    cy.get(jsonform.settings)
       .first()
       .should("be.visible")
       .click({ force: true });
     cy.wait(3000);
-    cy.get(".t--jsonformfield-name div :contains(" * ")").should("not.exist");
-    cy.get(".t--property-control-required .bp3-control-indicator")
+    cy.get(jsonform.mandatoryAsterisk).should("not.exist");
+    cy.get(jsonform.mandatoryFieldControl)
       .should("be.visible")
       .click({ force: true });
     cy.wait(5000);
-    cy.get(".t--jsonformfield-name div :contains('*')").should("be.visible");
+    cy.get(jsonform.mandatoryAsterisk).should("be.visible");
   });
 
   it("Checks when mandatory field is blank", () => {
-    cy.get(".t--jsonformfield-name input").clear({ force: true });
-    cy.get(".bp3-popover-content").should(
-      "have.text",
-      "This field is required",
-    );
-    cy.get("button:contains('Submit')").should("be.disabled");
-    cy.get(".t--jsonformfield-name input").type("test Mandatory");
-    cy.get(".bp3-popover-content").should("not.exist");
-    cy.get("button:contains('Submit')").should("be.enabled");
+    cy.get(jsonform.jsformInput).clear({ force: true });
+    cy.get(jsonform.msg).should("have.text", "This field is required");
+    cy.get(jsonform.submit).should("be.disabled");
+    cy.get(jsonform.jsformInput).type("test Mandatory");
+    cy.get(jsonform.msg).should("not.exist");
+    cy.get(jsonform.submit).should("be.enabled");
   });
 });
 
@@ -106,12 +103,12 @@ describe("Verify property name change with json/text widget binding", () => {
   });
 
   it("Modify property name and check how the binding value changes", () => {
-    cy.get(".t--edit-column-btn")
+    cy.get(jsonform.settings)
       .first()
       .should("be.visible")
       .click({ force: true });
     cy.wait(3000);
-    cy.get(".t--code-editor-wrapper")
+    cy.get(jsonform.propertyName)
       .find(".CodeMirror")
       .first()
       .type("NewProperty");
