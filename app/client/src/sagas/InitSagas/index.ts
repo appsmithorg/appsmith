@@ -48,8 +48,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { getPersistentAppStore } from "constants/AppConstants";
-import { getDefaultPageId } from "./selectors";
-import { populatePageDSLsSaga } from "./PageSagas";
+import { getDefaultPageId } from "../selectors";
+import { populatePageDSLsSaga } from "../PageSagas";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import {
@@ -88,46 +88,11 @@ import { isURLDeprecated, getUpdatedRoute } from "utils/helpers";
 import { fillPathname, viewerURL, builderURL } from "RouteBuilder";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
+import { failFastApiCalls } from "./utils";
 import {
   fetchSelectedAppThemeAction,
   fetchAppThemesAction,
 } from "actions/appThemingActions";
-
-export function* failFastApiCalls(
-  triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
-  successActions: string[],
-  failureActions: string[],
-) {
-  const triggerEffects = [];
-  for (const triggerAction of triggerActions) {
-    triggerEffects.push(triggerAction);
-  }
-
-  yield all(triggerEffects.map((triggerAction) => put(triggerAction)));
-
-  const successEffects = [];
-  for (const successAction of successActions) {
-    successEffects.push(successAction);
-  }
-  const effectRaceResult = yield race({
-    success: all(successEffects.map((successAction) => take(successAction))),
-    failure: take(failureActions),
-  });
-  if (effectRaceResult.failure) {
-    yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-      payload: {
-        code: get(
-          effectRaceResult,
-          "failure.payload.error.code",
-          ERROR_CODES.SERVER_ERROR,
-        ),
-      },
-    });
-    return false;
-  }
-  return true;
-}
 
 /**
  * this saga is called once then application is loaded.
@@ -430,20 +395,20 @@ export function* initializeAppViewerSaga(
       fetchActionsForView({ applicationId }),
       fetchJSCollectionsForView({ applicationId }),
       fetchSelectedAppThemeAction(applicationId),
-      fetchAppThemesAction(applicationId),
+
       fetchPublishedPage(toLoadPageId, true),
     ],
     [
       ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
       ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
-      ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
+
       ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
       fetchPublishedPageSuccess().type,
     ],
     [
       ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
       ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
-      ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
+
       ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
       ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
     ],
@@ -454,6 +419,10 @@ export function* initializeAppViewerSaga(
   yield put(executePageLoadActions());
 
   yield put(fetchCommentThreadsInit());
+
+  // fetchAppThemesAction(applicationId),
+  //   ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
+  //   ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
 
   yield put({
     type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
