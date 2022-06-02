@@ -58,7 +58,7 @@ jobs:
           fetch-depth: 0
 
       - name: Use Node.js 16.14.0
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v1
         with:
           node-version: "16.14.0"
 
@@ -162,7 +162,7 @@ jobs:
           fetch-depth: 0
 
       - name: Use Node.js 16.14.0
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v1
         with:
           node-version: "16.14.0"
 
