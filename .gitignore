@@ -1,3 +1,6 @@
+# Github config changes from CE
+.github/config.json
+
 .DS_Store
 .idea
 *.iml
