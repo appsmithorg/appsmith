@@ -195,6 +195,7 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [PhoneInputWidget, PHONE_INPUT_WIDGET_V2_CONFIG],
   [CurrencyInputWidget, CURRENCY_INPUT_WIDGET_V2_CONFIG],
   [JSONFormWidget, JSON_FORM_WIDGET_CONFIG],
+  [TableWidgetV2, TABLE_WIDGET_CONFIG_V2],
 
   //Deprecated Widgets
   [InputWidget, INPUT_WIDGET_CONFIG],
@@ -206,7 +207,6 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [FormButtonWidget, FORM_BUTTON_WIDGET_CONFIG],
   [ProgressWidget, PROGRESS_WIDGET_CONFIG],
   [CircularProgressWidget, CIRCULAR_PROGRESS_WIDGET_CONFIG],
-  [TableWidgetV2, TABLE_WIDGET_CONFIG_V2],
   /*
    * If a newly added widget works well inside the list widget,
    * please add widget type in the List widget's allowed widget
