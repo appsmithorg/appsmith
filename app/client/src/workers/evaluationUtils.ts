@@ -156,6 +156,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
           typeof difference.lhs === "string" && isDynamicValue(difference.lhs);
       }
 
+      // JsObject function renaming
       // remove .data from a String instance manually
       // since it won't be identified when calculating diffs
       // source for .data in a String instance -> `updateLocalUnEvalTree`
