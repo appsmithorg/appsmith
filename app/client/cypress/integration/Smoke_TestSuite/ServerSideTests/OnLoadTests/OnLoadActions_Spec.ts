@@ -2,11 +2,11 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let dsl: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
-  homePage = ObjectsRegistry.HomePage,
   ee = ObjectsRegistry.EntityExplorer,
   apiPage = ObjectsRegistry.ApiPage,
   jsEditor = ObjectsRegistry.JSEditor,
-  locator = ObjectsRegistry.CommonLocators;
+  locator = ObjectsRegistry.CommonLocators,
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("Layout OnLoad Actions tests", function() {
   before(() => {
@@ -125,7 +125,7 @@ describe("Layout OnLoad Actions tests", function() {
     //   });
     // });
 
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.Sleep(); //waiting for error toast - incase it wants to appear!
     agHelper.AssertElementAbsence(locator._toastMsg);
     agHelper.Sleep(5000); //for all api's to ccomplete call!
@@ -180,7 +180,7 @@ describe("Layout OnLoad Actions tests", function() {
       value: "{{RandomUser.data.results[0].name.first}}",
     }); // verifies Bug 10055
 
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.Sleep(); //waiting for error toast - incase it wants to appear!
     agHelper.AssertElementAbsence(locator._toastMsg);
     agHelper.Sleep(5000); //for all api's to ccomplete call!
