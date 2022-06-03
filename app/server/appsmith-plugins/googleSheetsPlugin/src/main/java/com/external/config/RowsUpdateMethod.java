@@ -84,6 +84,7 @@ public class RowsUpdateMethod implements ExecutionMethod {
                 .toBuilder()
                 .queryFormat("RANGE")
                 .spreadsheetRange(row + ":" + row)
+                .projection(new ArrayList<>())
                 .build();
 
         rowsGetMethod.validateExecutionMethodRequest(newMethodConfig);

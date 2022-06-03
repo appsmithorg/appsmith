@@ -367,5 +367,20 @@ public class GoogleSheetsPlugin extends BasePlugin {
                         }
                     });
         }
+
+        /**
+         * This overridden implementation conforms to the form/JS mode data structure that was introduced in UQI
+         * @param formData form data from action configuration object
+         * @param mappedColumns column name map from template table to user defined table
+         * @param pluginSpecificTemplateParams plugin specified fields like S3 bucket name etc
+         */
+        @Override
+        public void updateCrudTemplateFormData(Map<String, Object> formData, Map<String, String> mappedColumns, Map<String, String> pluginSpecificTemplateParams) {
+            pluginSpecificTemplateParams.forEach((k, v) -> {
+                if (formData.containsKey(k)) {
+                    setDataValueSafelyInFormData(formData, k, v);
+                }
+            });
+        }
     }
 }
