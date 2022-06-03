@@ -12,6 +12,7 @@ import {
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   INSPECT_ENTITY,
+  CONSOLE,
 } from "@appsmith/constants/messages";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
@@ -63,6 +64,11 @@ const DEBUGGER_TABS = [
     key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
     title: createMessage(INSPECT_ENTITY),
     panelComponent: <EntityDeps />,
+  },
+  {
+    key: DEBUGGER_TAB_KEYS.CONSOLE_TAB,
+    title: createMessage(CONSOLE),
+    panelComponent: <DebuggerLogs />,
   },
 ];
 

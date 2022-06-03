@@ -13,6 +13,7 @@ import { Colors } from "constants/Colors";
 import { isArray, isEmpty, isString } from "lodash";
 import {
   CHECK_REQUEST_BODY,
+  CONSOLE,
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
@@ -500,6 +501,11 @@ function ApiResponseView(props: Props) {
       key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
       title: createMessage(INSPECT_ENTITY),
       panelComponent: <EntityDeps />,
+    },
+    {
+      key: DEBUGGER_TAB_KEYS.CONSOLE_TAB,
+      title: createMessage(CONSOLE),
+      panelComponent: <DebuggerLogs />,
     },
   ];
 

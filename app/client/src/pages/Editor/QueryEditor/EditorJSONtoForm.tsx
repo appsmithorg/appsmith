@@ -42,6 +42,7 @@ import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import { isHidden } from "components/formControls/utils";
 import {
+  CONSOLE,
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
@@ -859,6 +860,11 @@ export function EditorJSONtoForm(props: Props) {
       key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
       title: createMessage(INSPECT_ENTITY),
       panelComponent: <EntityDeps />,
+    },
+    {
+      key: DEBUGGER_TAB_KEYS.CONSOLE_TAB,
+      title: createMessage(CONSOLE),
+      panelComponent: <DebuggerLogs />,
     },
   ];
 
