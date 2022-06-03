@@ -212,6 +212,14 @@ export function* handleFetchedPage({
   const pageSlug = fetchPageResponse.data.slug;
 
   if (isValidResponse) {
+    // Add this to the page DSLs for entity explorer
+    yield put({
+      type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
+      payload: {
+        pageId: fetchPageResponse.data.id,
+        dsl: extractCurrentDSL(fetchPageResponse),
+      },
+    });
     // Clear any existing caches
     yield call(clearEvalCache);
     // Set url params
@@ -874,6 +882,7 @@ export function* setDataUrl() {
 
 function* fetchPageDSLSaga(pageId: string) {
   try {
+    console.log("$$$-fetchPageDSLSaga", pageId);
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id: pageId,
     });
