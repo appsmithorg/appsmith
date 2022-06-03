@@ -22,6 +22,7 @@ import {
   fetchPage,
   fetchPageSuccess,
   fetchPublishedPage,
+  fetchPublishedPageSuccess,
   resetApplicationWidgets,
   resetPageList,
   setAppMode,
@@ -87,10 +88,6 @@ import { isURLDeprecated, getUpdatedRoute } from "utils/helpers";
 import { fillPathname, viewerURL, builderURL } from "RouteBuilder";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
-import {
-  fetchPublishedPageSuccess,
-  fetchPageSuccess,
-} from "actions/pageActions";
 import {
   fetchSelectedAppThemeAction,
   fetchAppThemesAction,
