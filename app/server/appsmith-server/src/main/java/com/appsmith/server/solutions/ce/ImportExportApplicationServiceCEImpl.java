@@ -891,7 +891,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             .then(applicationService.save(importedApplication));
                                 })
                 )
-                .flatMap(savedApp -> importThemes(savedApp, importedDoc))
+                .flatMap(savedApp -> importThemes(savedApp, importedDoc, appendToApp))
                 .flatMap(savedApp -> {
                     importedApplication.setId(savedApp.getId());
                     if (savedApp.getGitApplicationMetadata() != null) {
@@ -2029,27 +2029,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         return srcTheme;
     }
 
-    private Mono<Application> importThemes(Application application, ApplicationJson importedApplicationJson) {
-        if(StringUtils.isEmpty(application.getEditModeThemeId()) && StringUtils.isEmpty(application.getPublishedModeThemeId())) {
-            Mono<Theme> importedEditModeTheme = themeService.getOrSaveTheme(importedApplicationJson.getEditModeTheme(), application);
-            Mono<Theme> importedPublishedModeTheme = themeService.getOrSaveTheme(importedApplicationJson.getPublishedTheme(), application);
-
-            return Mono.zip(importedEditModeTheme, importedPublishedModeTheme).flatMap(importedThemesTuple -> {
-                String editModeThemeId = importedThemesTuple.getT1().getId();
-                String publishedModeThemeId = importedThemesTuple.getT2().getId();
-
-                application.setEditModeThemeId(editModeThemeId);
-                application.setPublishedModeThemeId(publishedModeThemeId);
-                // this will update the theme id in DB
-                // also returning the updated application object so that theme id are available to the next pipeline
-                return applicationService.setAppTheme(
-                        application.getId(), editModeThemeId, publishedModeThemeId, MANAGE_APPLICATIONS
-                ).thenReturn(application);
-            });
-        } else {
+    private Mono<Application> importThemes(Application application, ApplicationJson importedApplicationJson, boolean appendToApp) {
+        if(appendToApp) { // appending to existing app, theme should not change
             return Mono.just(application);
         }
-
+        return themeService.importThemesToApplication(application, importedApplicationJson);
     }
 
     /**
