@@ -49,7 +49,7 @@ import { getCurrentApplication } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { getPersistentAppStore } from "constants/AppConstants";
 import { getDefaultPageId } from "./selectors";
-import { populatePageDSLsSaga } from "./PageSagas";
+// import { populatePageDSLsSaga } from "./PageSagas";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import {
@@ -363,7 +363,7 @@ function* initializeEditorSaga(
     yield all([
       call(initiateEditorActions, toLoadPageId, applicationId),
       call(initiatePluginsAndDatasources),
-      call(populatePageDSLsSaga),
+      // call(populatePageDSLsSaga),
     ]);
 
     AnalyticsUtil.logEvent("EDITOR_OPEN", {
