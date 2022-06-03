@@ -12,6 +12,11 @@ export interface DropdownOption {
   intent?: BlueprintIntent;
 }
 
+export enum SubTextPosition {
+  BOTTOM,
+  LEFT,
+}
+
 export const InputTypes: { [key: string]: string } = {
   TEXT: "TEXT",
   NUMBER: "NUMBER",
@@ -30,6 +35,7 @@ export enum ButtonBorderRadiusTypes {
   ROUNDED = "ROUNDED",
   CIRCLE = "CIRCLE",
 }
+
 export type ButtonBorderRadius = keyof typeof ButtonBorderRadiusTypes;
 
 export enum ButtonBoxShadowTypes {
@@ -92,6 +98,7 @@ export enum LabelPosition {
   Auto = "Auto",
   Top = "Top",
   Left = "Left",
+  Right = "Right",
 }
 
 /**

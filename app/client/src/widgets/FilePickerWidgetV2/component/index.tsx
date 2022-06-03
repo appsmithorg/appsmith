@@ -1,58 +1,49 @@
-import * as React from "react";
+import React from "react";
 import { ComponentProps } from "widgets/BaseComponent";
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
 import { BaseButton } from "widgets/ButtonWidget/component";
-import { Colors } from "../../../constants/Colors";
+import { Colors } from "constants/Colors";
 
-class FilePickerComponent extends React.Component<
-  FilePickerComponentProps,
-  FilePickerComponentState
-> {
-  constructor(props: FilePickerComponentProps) {
-    super(props);
-    this.state = {
-      isOpen: false,
-    };
+function FilePickerComponent(props: FilePickerComponentProps) {
+  let computedLabel = props.label;
+
+  if (props.files && props.files.length) {
+    computedLabel = `${props.files.length} files selected`;
   }
 
-  openModal = () => {
-    if (!this.props.isDisabled) {
-      this.props.uppy.getPlugin("Dashboard").openModal();
-    }
+  /**
+   * opens modal
+   */
+  const openModal = () => {
+    props.uppy.getPlugin("Dashboard").openModal();
   };
 
-  render() {
-    let label = this.props.label;
-    if (this.props.files && this.props.files.length) {
-      label = `${this.props.files.length} files selected`;
-    }
-    return (
-      <BaseButton
-        buttonColor={Colors.GREEN}
-        disabled={this.props.isDisabled}
-        loading={this.props.isLoading}
-        onClick={this.openModal}
-        text={label}
-      />
-    );
-  }
-
-  public closeModal() {
-    this.props.uppy.getPlugin("Dashboard").closeModal();
-  }
+  return (
+    <BaseButton
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
+      buttonColor={props.buttonColor}
+      disabled={props.isDisabled}
+      loading={props.isLoading}
+      onClick={openModal}
+      text={computedLabel}
+    />
+  );
 }
-
-export interface FilePickerComponentState {
-  isOpen: boolean;
-}
-
 export interface FilePickerComponentProps extends ComponentProps {
   label: string;
   uppy: any;
   isLoading: boolean;
   files?: any[];
+  buttonColor: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
+
+FilePickerComponent.defaultProps = {
+  backgroundColor: Colors.GREEN,
+};
 
 export default FilePickerComponent;

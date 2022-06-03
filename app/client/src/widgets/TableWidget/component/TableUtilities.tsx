@@ -11,6 +11,7 @@ import {
   CellCheckbox,
   ActionWrapper,
   DraggableHeaderWrapper,
+  IconButtonWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
@@ -23,7 +24,7 @@ import {
   TableStyles,
   MenuItems,
 } from "./Constants";
-import { isString, isEmpty, findIndex, isNil, isNaN } from "lodash";
+import { isString, isEmpty, findIndex, isNil, isNaN, get, set } from "lodash";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import { ControlIcons } from "icons/ControlIcons";
@@ -33,22 +34,19 @@ import { Colors } from "constants/Colors";
 import { DropdownOption } from "widgets/DropdownWidget/constants";
 import { IconName, IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
-import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
+import { FontStyleTypes } from "constants/WidgetConstants";
 import { noop } from "utils/AppsmithUtils";
 
 import { ReactComponent as CheckBoxLineIcon } from "assets/icons/widget/table/checkbox-line.svg";
 import { ReactComponent as CheckBoxCheckIcon } from "assets/icons/widget/table/checkbox-check.svg";
 
-import {
-  ButtonVariant,
-  ButtonBoxShadow,
-  ButtonBorderRadius,
-} from "components/constants";
+import { ButtonVariant } from "components/constants";
 
 //TODO(abstraction leak)
 import { StyledButton } from "widgets/IconButtonWidget/component";
 import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import { stopClickEventPropagation } from "utils/helpers";
+import tinycolor from "tinycolor2";
 import { generateTableColumnId } from "./TableHelpers";
 
 export const renderCell = (
@@ -188,9 +186,8 @@ interface RenderIconButtonProps {
   iconName?: IconName;
   buttonVariant: ButtonVariant;
   buttonColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow: ButtonBoxShadow;
-  boxShadowColor: string;
+  borderRadius: string;
+  boxShadow: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   isCellVisible: boolean;
   disabled: boolean;
@@ -222,7 +219,6 @@ export const renderIconButton = (
             action={action}
             borderRadius={props.borderRadius}
             boxShadow={props.boxShadow}
-            boxShadowColor={props.boxShadowColor}
             buttonColor={props.buttonColor}
             buttonVariant={props.buttonVariant}
             disabled={props.disabled}
@@ -243,9 +239,8 @@ function IconButton(props: {
   action: ColumnAction;
   buttonColor: string;
   buttonVariant: ButtonVariant;
-  borderRadius: ButtonBorderRadius;
-  boxShadow: ButtonBoxShadow;
-  boxShadowColor: string;
+  borderRadius: string;
+  boxShadow: string;
   disabled: boolean;
 }): JSX.Element {
   const [loading, setLoading] = useState(false);
@@ -266,11 +261,10 @@ function IconButton(props: {
     }
   };
   return (
-    <div onClick={handlePropagation}>
+    <IconButtonWrapper disabled={props.disabled} onClick={handlePropagation}>
       <StyledButton
         borderRadius={props.borderRadius}
         boxShadow={props.boxShadow}
-        boxShadowColor={props.boxShadowColor}
         buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
         disabled={props.disabled}
@@ -278,7 +272,7 @@ function IconButton(props: {
         loading={loading}
         onClick={handleClick}
       />
-    </div>
+    </IconButtonWrapper>
   );
 }
 
@@ -286,6 +280,10 @@ interface RenderActionProps {
   isSelected: boolean;
   columnActions?: ColumnAction[];
   backgroundColor: string;
+  borderRadius: string;
+  boxShadow?: string;
+
+  buttonLabelColor: string;
   buttonVariant: ButtonVariant;
   isDisabled: boolean;
   isCellVisible: boolean;
@@ -302,9 +300,8 @@ export interface RenderMenuButtonProps {
   menuItems: MenuItems;
   menuVariant?: ButtonVariant;
   menuColor?: string;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius?: string;
+  boxShadow?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
 }
@@ -336,6 +333,9 @@ export const renderActions = (
           <TableAction
             action={action}
             backgroundColor={props.backgroundColor}
+            borderRadius={props.borderRadius}
+            boxShadow={props.boxShadow}
+            buttonLabelColor={props.buttonLabelColor}
             buttonVariant={props.buttonVariant}
             isCellVisible={props.isCellVisible}
             isDisabled={props.isDisabled}
@@ -372,7 +372,6 @@ interface MenuButtonProps extends Omit<RenderMenuButtonProps, "columnActions"> {
 function MenuButton({
   borderRadius,
   boxShadow,
-  boxShadowColor,
   iconAlign,
   iconName,
   isCompact,
@@ -402,7 +401,6 @@ function MenuButton({
       <MenuButtonTableComponent
         borderRadius={borderRadius}
         boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
         iconAlign={iconAlign}
         iconName={iconName}
         isCompact={isCompact}
@@ -421,9 +419,13 @@ function TableAction(props: {
   isSelected: boolean;
   action: ColumnAction;
   backgroundColor: string;
+  boxShadow?: string;
+
+  buttonLabelColor: string;
   buttonVariant: ButtonVariant;
   isDisabled: boolean;
   isCellVisible: boolean;
+  borderRadius: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -439,6 +441,7 @@ function TableAction(props: {
 
   return (
     <ActionWrapper
+      disabled={props.isDisabled}
       onClick={(e) => {
         if (props.isSelected) {
           e.stopPropagation();
@@ -447,6 +450,8 @@ function TableAction(props: {
     >
       {props.isCellVisible ? (
         <StyledButton
+          borderRadius={props.borderRadius}
+          boxShadow={props.boxShadow}
           buttonColor={props.backgroundColor}
           buttonVariant={props.buttonVariant}
           disabled={props.isDisabled}
@@ -461,8 +466,14 @@ function TableAction(props: {
   );
 }
 
-export const renderCheckBoxCell = (isChecked: boolean) => (
+export const renderCheckBoxCell = (
+  isChecked: boolean,
+  accentColor: string,
+  borderRadius: string,
+) => (
   <CellCheckboxWrapper
+    accentColor={accentColor}
+    borderRadius={borderRadius}
     className="td t--table-multiselect"
     isCellVisible
     isChecked={isChecked}
@@ -476,13 +487,16 @@ export const renderCheckBoxCell = (isChecked: boolean) => (
 export const renderCheckBoxHeaderCell = (
   onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void,
   checkState: number | null,
+  accentColor: string,
+  borderRadius: string,
 ) => (
   <CellCheckboxWrapper
+    accentColor={accentColor}
+    borderRadius={borderRadius}
     className="th header-reorder t--table-multiselect-header"
     isChecked={!!checkState}
     onClick={onClick}
     role="columnheader"
-    style={{ padding: "0px", justifyContent: "center" }}
   >
     <CellCheckbox>
       {checkState === 1 && <CheckBoxCheckIcon className="th-svg" />}
@@ -500,6 +514,8 @@ export const renderEmptyRows = (
   page: any,
   prepareRow: any,
   multiRowSelection = false,
+  accentColor: string,
+  borderRadius: string,
 ) => {
   const rows: string[] = new Array(rowCount).fill("");
   if (page.length) {
@@ -512,14 +528,23 @@ export const renderEmptyRows = (
       };
       return (
         <div {...rowProps} className="tr" key={index}>
-          {multiRowSelection && renderCheckBoxCell(false)}
+          {multiRowSelection &&
+            renderCheckBoxCell(false, accentColor, borderRadius)}
           {row.cells.map((cell: any, cellIndex: number) => {
             const cellProps = cell.getCellProps();
-            if (columns[0]?.columnProperties?.cellBackground) {
-              cellProps.style.background =
-                columns[0].columnProperties.cellBackground;
-            }
-            return <div {...cellProps} className="td" key={cellIndex} />;
+            set(
+              cellProps,
+              "style.backgroundColor",
+              get(cell, "column.columnProperties.cellBackground"),
+            );
+            return (
+              <div
+                {...cellProps}
+                className="td"
+                data-cy={`empty-row-${index}-cell-${cellIndex}`}
+                key={cellIndex}
+              />
+            );
           })}
         </div>
       );
@@ -540,7 +565,8 @@ export const renderEmptyRows = (
                 flex: "1 0 auto",
               }}
             >
-              {multiRowSelection && renderCheckBoxCell(false)}
+              {multiRowSelection &&
+                renderCheckBoxCell(false, accentColor, borderRadius)}
               {tableColumns.map((column: any, colIndex: number) => {
                 return (
                   <div
@@ -550,6 +576,10 @@ export const renderEmptyRows = (
                       width: column.width + "px",
                       boxSizing: "border-box",
                       flex: `${column.width} 0 auto`,
+                      backgroundColor: get(
+                        column,
+                        "columnProperties.cellBackground",
+                      ),
                     }}
                   />
                 );
@@ -654,7 +684,7 @@ export function TableHeaderCell(props: {
 export function getDefaultColumnProperties(
   accessor: string,
   index: number,
-  widgetName: string,
+  widgetProperties: any,
   isDerived?: boolean,
 ): ColumnProperties {
   const id = generateTableColumnId(accessor);
@@ -666,7 +696,7 @@ export function getDefaultColumnProperties(
     verticalAlignment: VerticalAlignmentTypes.CENTER,
     columnType: ColumnTypes.TEXT,
     textColor: Colors.THUNDER,
-    textSize: TextSizes.PARAGRAPH,
+    textSize: "0.875rem",
     fontStyle: FontStyleTypes.REGULAR,
     enableFilter: true,
     enableSort: true,
@@ -677,7 +707,7 @@ export function getDefaultColumnProperties(
     label: accessor,
     computedValue: isDerived
       ? ""
-      : `{{${widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${id}))}}`,
+      : `{{${widgetProperties}.sanitizedTableData.map((currentRow) => ( currentRow.${id}))}}`,
   };
 
   return columnProps;
@@ -796,4 +826,42 @@ export const renderDropdown = (props: {
       </StyledSingleDropDown>
     </div>
   );
+};
+
+/**
+ * returns selected row bg color
+ *
+ * if the color is dark, use 80% lighter color for selected row
+ * if color is light, use 10% darker color for selected row
+ *
+ * @param accentColor
+ */
+export const getSelectedRowBgColor = (accentColor: string) => {
+  const tinyAccentColor = tinycolor(accentColor);
+  const brightness = tinycolor(accentColor)
+    .greyscale()
+    .getBrightness();
+
+  const percentageBrightness = (brightness / 255) * 100;
+  let nextBrightness = 0;
+
+  switch (true) {
+    case percentageBrightness > 70:
+      nextBrightness = 10;
+      break;
+    case percentageBrightness > 50:
+      nextBrightness = 35;
+      break;
+    case percentageBrightness > 50:
+      nextBrightness = 55;
+      break;
+    default:
+      nextBrightness = 60;
+  }
+
+  if (brightness > 180) {
+    return tinyAccentColor.darken(10).toString();
+  } else {
+    return tinyAccentColor.lighten(nextBrightness).toString();
+  }
 };

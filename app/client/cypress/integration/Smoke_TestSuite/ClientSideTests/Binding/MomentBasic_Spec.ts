@@ -4,7 +4,8 @@ let dataSet: any;
 let agHelper = ObjectsRegistry.AggregateHelper,
     ee = ObjectsRegistry.EntityExplorer,
     jsEditor = ObjectsRegistry.JSEditor,
-    locator = ObjectsRegistry.CommonLocators;
+    locator = ObjectsRegistry.CommonLocators,
+    deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate basic binding of Input widget to Input widget", () => {
 
@@ -32,7 +33,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
 
     it("3. Publish widget and validate the data displayed in input widgets", function () {
         var currentTime = new Date();
-        agHelper.DeployApp(locator._inputWidgetInDeployed)
+        deployMode.DeployApp(locator._inputWidgetInDeployed)
         cy.get(locator._inputWidgetInDeployed).first()
             .should("contain.value", currentTime.getFullYear());
         cy.get(locator._inputWidgetInDeployed).last()

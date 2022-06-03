@@ -99,7 +99,6 @@ function CopyUrlForm(
           handleCopy={handleCopy}
           helperText={props.helpText}
           iscopy={"true"}
-          label={"URL"}
           name={props.fieldName}
         />
       </BodyContainer>

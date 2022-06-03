@@ -1,0 +1,5 @@
+{
+  "githubClientId": "[name='APPSMITH_OAUTH2_GITHUB_CLIENT_ID']",
+  "githubClientSecret": "[name='APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET']",
+  "saveBtn": ".t--admin-settings-save-button"
+}

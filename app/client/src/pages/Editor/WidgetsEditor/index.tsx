@@ -17,7 +17,6 @@ import Debugger from "components/editorComponents/Debugger";
 import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
 import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
@@ -50,7 +49,6 @@ function WidgetsEditor() {
     getIsOnboardingWidgetSelection,
   );
   const guidedTourEnabled = useSelector(inGuidedTour);
-  useDynamicAppLayout();
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
   });
@@ -121,9 +119,9 @@ function WidgetsEditor() {
       ) : (
         <>
           {guidedTourEnabled && <Guide />}
-          <div className="relative overflow-hidden flex flex-row w-full">
+          <div className="relative flex flex-row w-full overflow-hidden">
             <div
-              className="relative overflow-hidden flex flex-row w-full"
+              className="relative flex flex-row w-full overflow-hidden"
               data-testid="widgets-editor"
               draggable
               onClick={handleWrapperClick}

@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.git.constants.GitDirectories.ACTION_COLLECTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.DATASOURCE_DIRECTORY;
@@ -131,7 +132,6 @@ public class FileUtilsImpl implements FileInterface {
         // Checkout to mentioned branch if not already checked-out
         Stopwatch processStopwatch = new Stopwatch("FS application save");
         return gitExecutor.resetToLastCommit(baseRepoSuffix, branchName)
-                .then(gitExecutor.checkoutToBranch(baseRepoSuffix, branchName))
                 .flatMap(isSwitched -> {
 
                     Path baseRepo = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
@@ -180,7 +180,7 @@ public class FileUtilsImpl implements FileInterface {
                         // queryName_pageName => nomenclature for the keys
                         // TODO
                         //  queryName => for app level queries, this is not implemented yet
-                        String[] names = resource.getKey().split("_");
+                        String[] names = resource.getKey().split(NAME_SEPARATOR);
                         if (names.length > 1 && StringUtils.hasLength(names[1])) {
                             // For actions, we are referring to validNames to maintain unique file names as just name
                             // field don't guarantee unique constraint for actions within JSObject
@@ -200,7 +200,7 @@ public class FileUtilsImpl implements FileInterface {
                         // JSObjectName_pageName => nomenclature for the keys
                         // TODO
                         //  JSObjectName => for app level JSObjects, this is not implemented yet
-                        String[] names = resource.getKey().split("_");
+                        String[] names = resource.getKey().split(NAME_SEPARATOR);
                         if (names.length > 1 && StringUtils.hasLength(names[1])) {
                             final String actionCollectionName = names[0];
                             final String pageName = names[1];
@@ -327,9 +327,9 @@ public class FileUtilsImpl implements FileInterface {
      * @throws IOException
      */
     @Override
-    public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
-                                        String viewModeUrl,
-                                        String editModeUrl) throws IOException {
+    public Mono<Path> initializeReadme(Path baseRepoSuffix,
+                                       String viewModeUrl,
+                                       String editModeUrl) throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream(gitServiceConfig.getReadmeTemplatePath());
 
@@ -345,8 +345,9 @@ public class FileUtilsImpl implements FileInterface {
     }
 
     @Override
-    public Mono<Boolean> detachRemote(Path baseRepoSuffix) {
-        File file = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile();
+    public Mono<Boolean> deleteLocalRepo(Path baseRepoSuffix) {
+        // Remove the complete directory from path: baseRepo/organizationId/defaultApplicationId
+        File file = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).getParent().toFile();
         while (file.exists()) {
             FileSystemUtils.deleteRecursively(file);
         }

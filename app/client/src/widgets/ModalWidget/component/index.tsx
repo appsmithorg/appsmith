@@ -25,6 +25,7 @@ import { getCanvasClassName } from "utils/generators";
 import { AppState } from "reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Colors } from "constants/Colors";
 import { closeTableFilterPane } from "actions/widgetActions";
 
 const Container = styled.div<{
@@ -38,6 +39,8 @@ const Container = styled.div<{
   maxWidth?: number;
   minSize?: number;
   isEditMode?: boolean;
+  backgroundColor: string;
+  borderRadius: string;
 }>`
   &&& {
     .${Classes.OVERLAY} {
@@ -68,12 +71,13 @@ const Container = styled.div<{
         height: ${(props) => (props.height ? `${props.height}px` : "auto")};
         min-height: ${(props) => `${props.minSize}px`};
         min-width: ${(props) => `${props.minSize}px`};
-        background: white;
-        border-radius: ${(props) => props.theme.radii[0]}px;
         top: ${(props) => props.top}px;
         left: ${(props) => props.left}px;
         bottom: ${(props) => props.bottom}px;
         right: ${(props) => props.right}px;
+        background: ${({ backgroundColor }) =>
+          `${backgroundColor || Colors.WHITE}`};
+        border-radius: ${({ borderRadius }) => borderRadius};
       }
     }
   }
@@ -122,7 +126,10 @@ export type ModalComponentProps = {
   resizeModal?: (dimensions: UIElementSize) => void;
   maxWidth?: number;
   minSize?: number;
+  widgetId: string;
   widgetName: string;
+  backgroundColor: string;
+  borderRadius: string;
 };
 
 /* eslint-disable react/display-name */
@@ -169,6 +176,19 @@ export default function ModalComponent(props: ModalComponentProps) {
   }, []);
 
   useEffect(() => {
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  });
+
+  const handleKeydown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      if (props.canEscapeKeyClose) props.onClose(e);
+    }
+  };
+
+  useEffect(() => {
     if (!props.scrollContents) {
       modalContentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -198,6 +218,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   };
 
   const getResizableContent = () => {
+    //id for Content is required for Copy Paste inside the modal
     return (
       <Resizable
         allowResize
@@ -215,6 +236,7 @@ export default function ModalComponent(props: ModalComponentProps) {
       >
         <Content
           className={`${getCanvasClassName()} ${props.className}`}
+          id={props.widgetId}
           ref={modalContentRef}
           scroll={props.scrollContents}
         >
@@ -227,6 +249,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   const getEditorView = () => {
     return (
       <Overlay
+        autoFocus={false}
         canEscapeKeyClose={false}
         canOutsideClickClose={false}
         enforceFocus={false}
@@ -236,6 +259,8 @@ export default function ModalComponent(props: ModalComponentProps) {
         usePortal={false}
       >
         <Container
+          backgroundColor={props.backgroundColor}
+          borderRadius={props.borderRadius}
           bottom={props.bottom}
           height={props.height}
           isEditMode={props.isEditMode}
@@ -250,6 +275,7 @@ export default function ModalComponent(props: ModalComponentProps) {
           }
         >
           <Overlay
+            autoFocus={false}
             canEscapeKeyClose={props.canEscapeKeyClose}
             canOutsideClickClose={props.canOutsideClickClose}
             className={props.overlayClassName}

@@ -18,7 +18,7 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Theme;
@@ -45,7 +45,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
@@ -94,6 +94,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -138,7 +139,7 @@ public class ImportExportApplicationServiceTests {
     NewActionService newActionService;
     
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     SessionUserService sessionUserService;
@@ -169,7 +170,7 @@ public class ImportExportApplicationServiceTests {
 
     private static final String INVALID_JSON_FILE = "invalid json file";
     private static Plugin installedPlugin;
-    private static String orgId;
+    private static String workspaceId;
     private static String testAppId;
     private static Datasource jsDatasource;
     private static final Map<String, Datasource> datasourceMap = new HashMap<>();
@@ -187,25 +188,25 @@ public class ImportExportApplicationServiceTests {
             return;
         }
         installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
-        Organization organization = new Organization();
-        organization.setName("Import-Export-Test-Organization");
-        Organization savedOrganization = organizationService.create(organization).block();
-        orgId = savedOrganization.getId();
+        Workspace workspace = new Workspace();
+        workspace.setName("Import-Export-Test-Organization");
+        Workspace savedWorkspace = workspaceService.create(workspace).block();
+        workspaceId = savedWorkspace.getId();
 
         Application testApplication = new Application();
         testApplication.setName("Export-Application-Test-Application");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setOrganizationId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
         testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
 
-        Application savedApplication = applicationPageService.createApplication(testApplication, orgId).block();
+        Application savedApplication = applicationPageService.createApplication(testApplication, workspaceId).block();
         testAppId = savedApplication.getId();
 
         Datasource ds1 = new Datasource();
         ds1.setName("DS1");
-        ds1.setOrganizationId(orgId);
+        ds1.setOrganizationId(workspaceId);
         ds1.setPluginId(installedPlugin.getId());
         final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://httpbin.org/get");
@@ -218,14 +219,14 @@ public class ImportExportApplicationServiceTests {
         ds2.setName("DS2");
         ds2.setPluginId(installedPlugin.getId());
         ds2.setDatasourceConfiguration(new DatasourceConfiguration());
-        ds2.setOrganizationId(orgId);
+        ds2.setOrganizationId(workspaceId);
         DBAuth auth = new DBAuth();
         auth.setPassword("awesome-password");
         ds2.getDatasourceConfiguration().setAuthentication(auth);
 
         jsDatasource = new Datasource();
         jsDatasource.setName("Default JS datasource");
-        jsDatasource.setOrganizationId(orgId);
+        jsDatasource.setOrganizationId(workspaceId);
         installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
         assert installedJsPlugin != null;
         jsDatasource.setPluginId(installedJsPlugin.getId());
@@ -281,10 +282,10 @@ public class ImportExportApplicationServiceTests {
                 });
     }
 
-    private Organization createTemplateOrganization() {
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization");
-        return organizationService.create(newOrganization).block();
+    private Workspace createTemplateWorkspace() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization");
+        return workspaceService.create(newWorkspace).block();
     }
 
     @Test
@@ -338,16 +339,16 @@ public class ImportExportApplicationServiceTests {
         Application testApplication = new Application();
         testApplication.setName("Another Export Application");
 
-        final Mono<ApplicationJson> resultMono = organizationService.getById(orgId)
-                .flatMap(organization -> {
+        final Mono<ApplicationJson> resultMono = workspaceService.getById(workspaceId)
+                .flatMap(workspace -> {
 
                     final Datasource ds1 = datasourceMap.get("DS1");
-                    ds1.setOrganizationId(organization.getId());
+                    ds1.setOrganizationId(workspace.getId());
 
                     final Datasource ds2 = datasourceMap.get("DS2");
-                    ds2.setOrganizationId(organization.getId());
+                    ds2.setOrganizationId(workspace.getId());
 
-                    return  applicationPageService.createApplication(testApplication, orgId);
+                    return  applicationPageService.createApplication(testApplication, workspaceId);
                 })
                 .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId(), ""));
 
@@ -365,12 +366,12 @@ public class ImportExportApplicationServiceTests {
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithActionAndActionCollectionTest() {
 
-        Organization newOrganization = new Organization();
-        newOrganization.setName("template-org-with-ds");
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("template-org-with-ds");
 
         Application testApplication = new Application();
         testApplication.setName("ApplicationWithActionCollectionAndDatasource");
-        testApplication = applicationPageService.createApplication(testApplication, orgId).block();
+        testApplication = applicationPageService.createApplication(testApplication, workspaceId).block();
 
         assert testApplication != null;
         final String appName = testApplication.getName();
@@ -580,12 +581,12 @@ public class ImportExportApplicationServiceTests {
     public void createExportAppJsonForGitTest() {
 
         final Mono<ApplicationJson> resultMono = Mono.zip(
-                organizationService.getById(orgId),
+                workspaceService.getById(workspaceId),
                 applicationRepository.findById(testAppId)
             )
             .flatMap(tuple -> {
 
-                Organization organization = tuple.getT1();
+                Workspace workspace = tuple.getT1();
                 Application testApp = tuple.getT2();
 
                 final String pageId = testApp.getPages().get(0).getId();
@@ -681,7 +682,7 @@ public class ImportExportApplicationServiceTests {
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
         Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
 
-        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId, filepart);
+        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(workspaceId, filepart);
 
         StepVerifier
                 .create(resultMono)
@@ -709,7 +710,7 @@ public class ImportExportApplicationServiceTests {
     public void importApplicationFromInvalidJsonFileWithoutPagesTest() {
         
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-pages.json");
-        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId,filePart);
+        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(workspaceId,filePart);
         
         StepVerifier
             .create(resultMono)
@@ -723,7 +724,7 @@ public class ImportExportApplicationServiceTests {
     public void importApplicationFromInvalidJsonFileWithoutApplicationTest() {
         
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-app.json");
-        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId,filePart);
+        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(workspaceId,filePart);
         
         StepVerifier
             .create(resultMono)
@@ -738,8 +739,8 @@ public class ImportExportApplicationServiceTests {
         
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
     
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization");
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization");
     
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
             .users(Set.of("api_user"))
@@ -748,10 +749,10 @@ public class ImportExportApplicationServiceTests {
             .users(Set.of("api_user"))
             .build();
     
-        final Mono<ApplicationImportDTO> resultMono = organizationService
-            .create(newOrganization)
-            .flatMap(organization -> importExportApplicationService
-                .extractFileAndSaveApplication(organization.getId(), filePart)
+        final Mono<ApplicationImportDTO> resultMono = workspaceService
+            .create(newWorkspace)
+            .flatMap(workspace -> importExportApplicationService
+                .extractFileAndSaveApplication(workspace.getId(), filePart)
             );
         
         StepVerifier
@@ -846,25 +847,25 @@ public class ImportExportApplicationServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
 
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Midway cancel import app organization");
-        newOrganization = organizationService.create(newOrganization).block();
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Midway cancel import app workspace");
+        newWorkspace = workspaceService.create(newWorkspace).block();
 
         importExportApplicationService
-                .extractFileAndSaveApplication(newOrganization.getId(), filePart)
+                .extractFileAndSaveApplication(newWorkspace.getId(), filePart)
                 .timeout(Duration.ofMillis(10))
                 .subscribe();
 
         // Wait for import to complete
-        Mono<Application> importedAppFromDbMono = Mono.just(newOrganization)
-                .flatMap(organization -> {
+        Mono<Application> importedAppFromDbMono = Mono.just(newWorkspace)
+                .flatMap(workspace -> {
                     try {
                         // Before fetching the imported application, sleep for 5 seconds to ensure that the import completes
                         Thread.sleep(5000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationRepository.findByOrganizationId(organization.getId(), READ_APPLICATIONS)
+                    return applicationRepository.findByOrganizationId(workspace.getId(), READ_APPLICATIONS)
                             .next();
                 });
 
@@ -877,18 +878,18 @@ public class ImportExportApplicationServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationInOrganization_WhenCustomizedThemes_ThemesCreated() {
+    public void importApplicationInWorkspace_WhenCustomizedThemes_ThemesCreated() {
         FilePart filePart = createFilePart(
                 "test_assets/ImportExportServiceTest/valid-application-with-custom-themes.json"
         );
 
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Import theme test org");
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Import theme test org");
 
-        final Mono<ApplicationImportDTO> resultMono = organizationService
-                .create(newOrganization)
-                .flatMap(organization -> importExportApplicationService
-                        .extractFileAndSaveApplication(organization.getId(), filePart)
+        final Mono<ApplicationImportDTO> resultMono = workspaceService
+                .create(newWorkspace)
+                .flatMap(workspace -> importExportApplicationService
+                        .extractFileAndSaveApplication(workspace.getId(), filePart)
                 );
 
         StepVerifier
@@ -922,8 +923,8 @@ public class ImportExportApplicationServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-without-action-collection.json");
 
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization");
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization");
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
@@ -932,10 +933,10 @@ public class ImportExportApplicationServiceTests {
                 .users(Set.of("api_user"))
                 .build();
 
-        final Mono<ApplicationImportDTO> resultMono = organizationService
-                .create(newOrganization)
-                .flatMap(organization -> importExportApplicationService
-                        .extractFileAndSaveApplication(organization.getId(), filePart)
+        final Mono<ApplicationImportDTO> resultMono = workspaceService
+                .create(newWorkspace)
+                .flatMap(workspace -> importExportApplicationService
+                        .extractFileAndSaveApplication(workspace.getId(), filePart)
                 );
 
         StepVerifier
@@ -1000,12 +1001,12 @@ public class ImportExportApplicationServiceTests {
     public void importApplication_WithoutThemes_LegacyThemesAssigned() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-without-theme.json");
 
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization");
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization");
 
-        final Mono<ApplicationImportDTO> resultMono = organizationService.create(newOrganization)
-                .flatMap(organization -> importExportApplicationService
-                        .extractFileAndSaveApplication(organization.getId(), filePart)
+        final Mono<ApplicationImportDTO> resultMono = workspaceService.create(newWorkspace)
+                .flatMap(workspace -> importExportApplicationService
+                        .extractFileAndSaveApplication(workspace.getId(), filePart)
                 );
 
         StepVerifier
@@ -1023,13 +1024,13 @@ public class ImportExportApplicationServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-application-without-pageId-action-collection.json");
 
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization");
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization");
 
-        final Mono<ApplicationImportDTO> resultMono = organizationService
-                .create(newOrganization)
-                .flatMap(organization -> importExportApplicationService
-                        .extractFileAndSaveApplication(organization.getId(), filePart)
+        final Mono<ApplicationImportDTO> resultMono = workspaceService
+                .create(newWorkspace)
+                .flatMap(workspace -> importExportApplicationService
+                        .extractFileAndSaveApplication(workspace.getId(), filePart)
                 );
 
         StepVerifier
@@ -1068,7 +1069,7 @@ public class ImportExportApplicationServiceTests {
     public void exportImportApplication_importWithBranchName_updateApplicationResourcesWithBranch() {
         Application testApplication = new Application();
         testApplication.setName("Export-Import-Update-Branch_Test-App");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setOrganizationId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
@@ -1077,7 +1078,7 @@ public class ImportExportApplicationServiceTests {
         gitData.setBranchName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
 
-        Application savedApplication = applicationPageService.createApplication(testApplication, orgId)
+        Application savedApplication = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
                     application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
@@ -1099,7 +1100,7 @@ public class ImportExportApplicationServiceTests {
                             .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS));
                 })
                 .then(importExportApplicationService.exportApplicationById(savedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
-                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, savedApplication.getId(), gitData.getBranchName())))
+                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson, savedApplication.getId(), gitData.getBranchName())))
                 .cache();
 
         Mono<List<NewPage>> updatedPagesMono = result.then(newPageService.findNewPagesByApplicationId(savedApplication.getId(), READ_PAGES).collectList());
@@ -1131,7 +1132,7 @@ public class ImportExportApplicationServiceTests {
     @WithUserDetails(value = "api_user")
     public void importApplication_incompatibleJsonFile_throwException() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/incompatible_version.json");
-        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId,filePart);
+        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(workspaceId,filePart);
 
         StepVerifier
                 .create(resultMono)
@@ -1145,8 +1146,8 @@ public class ImportExportApplicationServiceTests {
     public void importApplication_withUnConfiguredDatasources_Success() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-with-un-configured-datasource.json");
 
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization");
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization");
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
@@ -1155,10 +1156,10 @@ public class ImportExportApplicationServiceTests {
                 .users(Set.of("api_user"))
                 .build();
 
-        final Mono<ApplicationImportDTO> resultMono = organizationService
-                .create(newOrganization)
-                .flatMap(organization -> importExportApplicationService
-                        .extractFileAndSaveApplication(organization.getId(), filePart)
+        final Mono<ApplicationImportDTO> resultMono = workspaceService
+                .create(newWorkspace)
+                .flatMap(workspace -> importExportApplicationService
+                        .extractFileAndSaveApplication(workspace.getId(), filePart)
                 );
 
         StepVerifier
@@ -1227,10 +1228,10 @@ public class ImportExportApplicationServiceTests {
                 .verifyComplete();
     }
 
-    public void importApplicationIntoOrganization_pageRemovedAndUpdatedDefaultPageNameInBranchApplication_Success() {
+    public void importApplicationIntoWorkspace_pageRemovedAndUpdatedDefaultPageNameInBranchApplication_Success() {
         Application testApplication = new Application();
         testApplication.setName("importApplicationIntoOrganization_pageRemovedInBranchApplication_Success");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setOrganizationId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
@@ -1239,7 +1240,7 @@ public class ImportExportApplicationServiceTests {
         gitData.setBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
-        Application application = applicationPageService.createApplication(testApplication, orgId)
+        Application application = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
                     application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
@@ -1261,7 +1262,7 @@ public class ImportExportApplicationServiceTests {
         ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application-with-page-removed.json").block();
         applicationJson.getPageList().get(0).setGitSyncId(gitSyncIdBeforeImport);
 
-        Application importedApplication = importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, application.getId(), "master").block();
+        Application importedApplication = importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson, application.getId(), "master").block();
 
         assert importedApplication != null;
         Mono<List<NewPage>> pageList = Flux.fromIterable(
@@ -1291,10 +1292,10 @@ public class ImportExportApplicationServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationIntoOrganization_pageAddedInBranchApplication_Success() {
+    public void importApplicationIntoWorkspace_pageAddedInBranchApplication_Success() {
         Application testApplication = new Application();
         testApplication.setName("importApplicationIntoOrganization_pageAddedInBranchApplication_Success");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setOrganizationId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
@@ -1303,7 +1304,7 @@ public class ImportExportApplicationServiceTests {
         gitData.setBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
-        Application application = applicationPageService.createApplication(testApplication, orgId)
+        Application application = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
                     application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
@@ -1321,7 +1322,7 @@ public class ImportExportApplicationServiceTests {
         ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application-with-page-added.json").block();
         applicationJson.getPageList().get(0).setGitSyncId(gitSyncIdBeforeImport);
 
-        Application applicationMono = importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, application.getId(), "master").block();
+        Application applicationMono = importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson, application.getId(), "master").block();
 
         Mono<List<NewPage>> pageList = Flux.fromIterable(
                 applicationMono.getPages()
@@ -1347,7 +1348,7 @@ public class ImportExportApplicationServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importUpdatedApplicationIntoOrganizationFromFile_publicApplication_visibilityFlagNotReset() {
+    public void importUpdatedApplicationIntoWorkspaceFromFile_publicApplication_visibilityFlagNotReset() {
         // Create a application and make it public
         // Now add a page and export the same import it to the app
         // Check if the policies and visibility flag are not reset
@@ -1361,7 +1362,7 @@ public class ImportExportApplicationServiceTests {
 
         Application testApplication = new Application();
         testApplication.setName("importUpdatedApplicationIntoOrganizationFromFile_publicApplication_visibilityFlagNotReset");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setOrganizationId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
@@ -1370,7 +1371,7 @@ public class ImportExportApplicationServiceTests {
         gitData.setBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
-        Application application = applicationPageService.createApplication(testApplication, orgId)
+        Application application = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
                     application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
@@ -1380,7 +1381,7 @@ public class ImportExportApplicationServiceTests {
         applicationService.changeViewAccess(application.getId(), "master", applicationAccessDTO).block();
 
         Mono<Application> applicationMono = importExportApplicationService.exportApplicationById(application.getId(), "master")
-                .flatMap(applicationJson -> importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, application.getId(), "master"));
+                .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson, application.getId(), "master"));
 
         StepVerifier
                 .create(applicationMono)
@@ -1409,11 +1410,11 @@ public class ImportExportApplicationServiceTests {
         4. Added page should be deleted from DB
          */
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
-        String orgId = createTemplateOrganization().getId();
+        String orgId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-page-added");
-                    return importExportApplicationService.importApplicationInOrganization(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
                 })
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
@@ -1473,7 +1474,7 @@ public class ImportExportApplicationServiceTests {
                                             importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
                                             importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
                                             return applicationService.save(importedApplication)
-                                                    .then(importExportApplicationService.importApplicationInOrganization(
+                                                    .then(importExportApplicationService.importApplicationInWorkspace(
                                                             importedApplication.getOrganizationId(),
                                                             applicationJson,
                                                             importedApplication.getId(),
@@ -1517,12 +1518,12 @@ public class ImportExportApplicationServiceTests {
     public void discardChange_addNewActionAfterImport_addedActionRemoved() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
-        String orgId = createTemplateOrganization().getId();
+        String orgId = createTemplateWorkspace().getId();
 
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-action-added");
-                    return importExportApplicationService.importApplicationInOrganization(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
                 })
                 .flatMap(application -> {
                     ActionDTO action = new ActionDTO();
@@ -1566,7 +1567,7 @@ public class ImportExportApplicationServiceTests {
                                     importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
                                     importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
                                     return applicationService.save(importedApplication)
-                                            .then(importExportApplicationService.importApplicationInOrganization(
+                                            .then(importExportApplicationService.importApplicationInWorkspace(
                                                     importedApplication.getOrganizationId(),
                                                     applicationJson,
                                                     importedApplication.getId(),
@@ -1607,11 +1608,11 @@ public class ImportExportApplicationServiceTests {
     public void discardChange_addNewActionCollectionAfterImport_addedActionCollectionRemoved() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application-without-action-collection.json");
-        String orgId = createTemplateOrganization().getId();
+        String orgId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-collection-added");
-                    return importExportApplicationService.importApplicationInOrganization(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
                 })
                 .flatMap(application -> {
                     ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
@@ -1667,7 +1668,7 @@ public class ImportExportApplicationServiceTests {
                                             importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
                                             importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
                                             return applicationService.save(importedApplication)
-                                                    .then(importExportApplicationService.importApplicationInOrganization(
+                                                    .then(importExportApplicationService.importApplicationInWorkspace(
                                                             importedApplication.getOrganizationId(),
                                                             applicationJson,
                                                             importedApplication.getId(),
@@ -1714,11 +1715,11 @@ public class ImportExportApplicationServiceTests {
     public void discardChange_removeNewPageAfterImport_removedPageRestored() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
-        String orgId = createTemplateOrganization().getId();
+        String orgId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-page-removed");
-                    return importExportApplicationService.importApplicationInOrganization(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
                 })
                 .flatMap(application -> {
                     Optional<ApplicationPage> applicationPage = application
@@ -1758,7 +1759,7 @@ public class ImportExportApplicationServiceTests {
                                             importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
                                             importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
                                             return applicationService.save(importedApplication)
-                                                    .then(importExportApplicationService.importApplicationInOrganization(
+                                                    .then(importExportApplicationService.importApplicationInWorkspace(
                                                             importedApplication.getOrganizationId(),
                                                             applicationJson,
                                                             importedApplication.getId(),
@@ -1798,12 +1799,12 @@ public class ImportExportApplicationServiceTests {
     public void discardChange_removeNewActionAfterImport_removedActionRestored() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
-        String orgId = createTemplateOrganization().getId();
+        String orgId = createTemplateWorkspace().getId();
         final String[] deletedActionName = new String[1];
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-action-removed");
-                    return importExportApplicationService.importApplicationInOrganization(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
                 })
                 .flatMap(application -> {
                     return getActionsInApplication(application)
@@ -1844,7 +1845,7 @@ public class ImportExportApplicationServiceTests {
                                             importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
                                             importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
                                             return applicationService.save(importedApplication)
-                                                    .then(importExportApplicationService.importApplicationInOrganization(
+                                                    .then(importExportApplicationService.importApplicationInWorkspace(
                                                             importedApplication.getOrganizationId(),
                                                             applicationJson,
                                                             importedApplication.getId(),
@@ -1885,12 +1886,12 @@ public class ImportExportApplicationServiceTests {
     public void discardChange_removeNewActionCollection_removedActionCollectionRestored() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
-        String orgId = createTemplateOrganization().getId();
+        String orgId = createTemplateWorkspace().getId();
         final String[] deletedActionCollectionNames = new String[1];
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-collection-removed");
-                    return importExportApplicationService.importApplicationInOrganization(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
                 })
                 .flatMap(application -> {
                     return actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
@@ -1931,7 +1932,7 @@ public class ImportExportApplicationServiceTests {
                                             importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
                                             importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
                                             return applicationService.save(importedApplication)
-                                                    .then(importExportApplicationService.importApplicationInOrganization(
+                                                    .then(importExportApplicationService.importApplicationInWorkspace(
                                                             importedApplication.getOrganizationId(),
                                                             applicationJson,
                                                             importedApplication.getId(),
@@ -1994,13 +1995,13 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void exportApplication_withDatasourceConfig_exportedWithDecryptedFields() {
-        Organization newOrganization = new Organization();
-        newOrganization.setName("template-org-with-ds");
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("template-org-with-ds");
 
         Application testApplication = new Application();
         testApplication.setName("exportApplication_withCredentialsForSampleApps_SuccessWithDecryptFields");
         testApplication.setExportWithConfiguration(true);
-        testApplication = applicationPageService.createApplication(testApplication, orgId).block();
+        testApplication = applicationPageService.createApplication(testApplication, workspaceId).block();
         assert testApplication != null;
         exportWithConfigurationAppId = testApplication.getId();
         ApplicationAccessDTO accessDTO = new ApplicationAccessDTO();
@@ -2234,20 +2235,20 @@ public class ImportExportApplicationServiceTests {
 
         ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
 
-        Organization testOrganization = new Organization();
-        testOrganization.setName("Duplicate datasource with different plugin org");
-        testOrganization = organizationService.create(testOrganization).block();
+        Workspace testWorkspace = new Workspace();
+        testWorkspace.setName("Duplicate datasource with different plugin org");
+        testWorkspace = workspaceService.create(testWorkspace).block();
 
         Datasource testDatasource = new Datasource();
         // Chose any plugin except for mongo, as json static file has mongo plugin for datasource
         Plugin postgreSQLPlugin = pluginRepository.findByName("PostgreSQL").block();
         testDatasource.setPluginId(postgreSQLPlugin.getId());
-        testDatasource.setOrganizationId(testOrganization.getId());
+        testDatasource.setOrganizationId(testWorkspace.getId());
         final String datasourceName = applicationJson.getDatasourceList().get(0).getName();
         testDatasource.setName(datasourceName);
         datasourceService.create(testDatasource).block();
 
-        final Mono<Application> resultMono = importExportApplicationService.importApplicationInOrganization(testOrganization.getId(), applicationJson);
+        final Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(testWorkspace.getId(), applicationJson);
 
         StepVerifier
                 .create(resultMono
@@ -2287,20 +2288,20 @@ public class ImportExportApplicationServiceTests {
 
         ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
 
-        Organization testOrganization = new Organization();
-        testOrganization.setName("Duplicate datasource with same plugin org");
-        testOrganization = organizationService.create(testOrganization).block();
+        Workspace testWorkspace = new Workspace();
+        testWorkspace.setName("Duplicate datasource with same plugin org");
+        testWorkspace = workspaceService.create(testWorkspace).block();
 
         Datasource testDatasource = new Datasource();
         // Chose plugin same as mongo, as json static file has mongo plugin for datasource
         Plugin postgreSQLPlugin = pluginRepository.findByName("MongoDB").block();
         testDatasource.setPluginId(postgreSQLPlugin.getId());
-        testDatasource.setOrganizationId(testOrganization.getId());
+        testDatasource.setOrganizationId(testWorkspace.getId());
         final String datasourceName = applicationJson.getDatasourceList().get(0).getName();
         testDatasource.setName(datasourceName);
         datasourceService.create(testDatasource).block();
 
-        final Mono<Application> resultMono = importExportApplicationService.importApplicationInOrganization(testOrganization.getId(), applicationJson);
+        final Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(testWorkspace.getId(), applicationJson);
 
         StepVerifier
                 .create(resultMono
@@ -2336,14 +2337,14 @@ public class ImportExportApplicationServiceTests {
     
     @Test
     @WithUserDetails(value = "api_user")
-    public void exportAndImportApplication_withMultiplePages_PagesOrderIsMaintained() {
-        Organization newOrganization = new Organization();
-        newOrganization.setName("template-org-with-ds");
+    public void exportAndImportApplication_withMultiplePagesOrderSameInDeployAndEditMode_PagesOrderIsMaintainedInEditAndViewMode() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("template-org-with-ds");
 
         Application testApplication = new Application();
-        testApplication.setName("exportApplication_withMultiplePages_PagesOrderIsMaintainedINExportedAppJson");
+        testApplication.setName("exportAndImportApplication_withMultiplePagesOrderSameInDeployAndEditMode_PagesOrderIsMaintainedInEditAndViewMode");
         testApplication.setExportWithConfiguration(true);
-        testApplication = applicationPageService.createApplication(testApplication, orgId).block();
+        testApplication = applicationPageService.createApplication(testApplication, workspaceId).block();
         assert testApplication != null;
 
         PageDTO testPage = new PageDTO();
@@ -2359,22 +2360,30 @@ public class ImportExportApplicationServiceTests {
         // Set order for the newly created pages
         applicationPageService.reorderPage(testApplication.getId(), page1.getId(), 0, null).block();
         applicationPageService.reorderPage(testApplication.getId(), page2.getId(), 1, null).block();
+        // Deploy the current application
+        applicationPageService.publish(testApplication.getId(), true).block();
 
         Mono<ApplicationJson> applicationJsonMono = importExportApplicationService.exportApplicationById(testApplication.getId(), "");
 
         StepVerifier
                 .create(applicationJsonMono)
                 .assertNext(applicationJson -> {
-                    List<NewPage> pageList = applicationJson.getPageList();
-                    assertThat(pageList.get(0).getUnpublishedPage().getName()).isEqualTo("123");
-                    assertThat(pageList.get(1).getUnpublishedPage().getName()).isEqualTo("abc");
-                    assertThat(pageList.get(2).getUnpublishedPage().getName()).isEqualTo("Page1");
+                    List<String> pageList = applicationJson.getPageOrder();
+                    assertThat(pageList.get(0)).isEqualTo("123");
+                    assertThat(pageList.get(1)).isEqualTo("abc");
+                    assertThat(pageList.get(2)).isEqualTo("Page1");
+
+                    List<String> publishedPageList = applicationJson.getPublishedPageOrder();
+                    assertThat(publishedPageList.get(0)).isEqualTo("123");
+                    assertThat(publishedPageList.get(1)).isEqualTo("abc");
+                    assertThat(publishedPageList.get(2)).isEqualTo("Page1");
                 })
                 .verifyComplete();
 
         ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(testApplication.getId(), "").block();
-        Application application = importExportApplicationService.importApplicationInOrganization(orgId, applicationJson).block();
+        Application application = importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson).block();
 
+        // Get the unpublished pages and verify the order
         List<ApplicationPage> pageDTOS = application.getPages();
         Mono<NewPage> newPageMono1 = newPageService.findById(pageDTOS.get(0).getId(), MANAGE_PAGES);
         Mono<NewPage> newPageMono2 = newPageService.findById(pageDTOS.get(1).getId(), MANAGE_PAGES);
@@ -2396,6 +2405,201 @@ public class ImportExportApplicationServiceTests {
                 })
                 .verifyComplete();
 
+        // Get the published pages
+        List<ApplicationPage> publishedPageDTOs = application.getPublishedPages();
+        Mono<NewPage> newPublishedPageMono1 = newPageService.findById(publishedPageDTOs.get(0).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPublishedPageMono2 = newPageService.findById(publishedPageDTOs.get(1).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPublishedPageMono3 = newPageService.findById(publishedPageDTOs.get(2).getId(), MANAGE_PAGES);
+
+        StepVerifier
+                .create(Mono.zip(newPublishedPageMono1, newPublishedPageMono2, newPublishedPageMono3))
+                .assertNext(objects -> {
+                    NewPage newPage1 = objects.getT1();
+                    NewPage newPage2 = objects.getT2();
+                    NewPage newPage3 = objects.getT3();
+                    assertThat(newPage1.getPublishedPage().getName()).isEqualTo("123");
+                    assertThat(newPage2.getPublishedPage().getName()).isEqualTo("abc");
+                    assertThat(newPage3.getPublishedPage().getName()).isEqualTo("Page1");
+
+                    assertThat(newPage1.getId()).isEqualTo(publishedPageDTOs.get(0).getId());
+                    assertThat(newPage2.getId()).isEqualTo(publishedPageDTOs.get(1).getId());
+                    assertThat(newPage3.getId()).isEqualTo(publishedPageDTOs.get(2).getId());
+                })
+                .verifyComplete();
+
     }
-    
+
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportAndImportApplication_withMultiplePagesOrderDifferentInDeployAndEditMode_PagesOrderIsMaintainedInEditAndViewMode() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("template-org-with-ds");
+
+        Application testApplication = new Application();
+        testApplication.setName("exportAndImportApplication_withMultiplePagesOrderDifferentInDeployAndEditMode_PagesOrderIsMaintainedInEditAndViewMode");
+        testApplication.setExportWithConfiguration(true);
+        testApplication = applicationPageService.createApplication(testApplication, workspaceId).block();
+        assert testApplication != null;
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("123");
+        testPage.setApplicationId(testApplication.getId());
+        PageDTO page1 = applicationPageService.createPage(testPage).block();
+
+        testPage = new PageDTO();
+        testPage.setName("abc");
+        testPage.setApplicationId(testApplication.getId());
+        PageDTO page2 = applicationPageService.createPage(testPage).block();
+
+        // Deploy the current application so that edit and view mode will have different page order
+        applicationPageService.publish(testApplication.getId(), true).block();
+
+        // Set order for the newly created pages
+        applicationPageService.reorderPage(testApplication.getId(), page1.getId(), 0, null).block();
+        applicationPageService.reorderPage(testApplication.getId(), page2.getId(), 1, null).block();
+
+        Mono<ApplicationJson> applicationJsonMono = importExportApplicationService.exportApplicationById(testApplication.getId(), "");
+
+        StepVerifier
+                .create(applicationJsonMono)
+                .assertNext(applicationJson -> {
+                    List<String> pageList = applicationJson.getPageOrder();
+                    assertThat(pageList.get(0)).isEqualTo("123");
+                    assertThat(pageList.get(1)).isEqualTo("abc");
+                    assertThat(pageList.get(2)).isEqualTo("Page1");
+
+                    List<String> publishedPageOrder = applicationJson.getPageOrder();
+                    assertThat(publishedPageOrder.get(0)).isEqualTo("123");
+                    assertThat(publishedPageOrder.get(1)).isEqualTo("abc");
+                    assertThat(publishedPageOrder.get(2)).isEqualTo("Page1");
+                })
+                .verifyComplete();
+
+        ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(testApplication.getId(), "").block();
+        Application application = importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson).block();
+
+        // Get the unpublished pages and verify the order
+        List<ApplicationPage> pageDTOS = application.getPages();
+        Mono<NewPage> newPageMono1 = newPageService.findById(pageDTOS.get(0).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPageMono2 = newPageService.findById(pageDTOS.get(1).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPageMono3 = newPageService.findById(pageDTOS.get(2).getId(), MANAGE_PAGES);
+
+        StepVerifier
+                .create(Mono.zip(newPageMono1, newPageMono2, newPageMono3))
+                .assertNext(objects -> {
+                    NewPage newPage1 = objects.getT1();
+                    NewPage newPage2 = objects.getT2();
+                    NewPage newPage3 = objects.getT3();
+                    assertThat(newPage1.getUnpublishedPage().getName()).isEqualTo("123");
+                    assertThat(newPage2.getUnpublishedPage().getName()).isEqualTo("abc");
+                    assertThat(newPage3.getUnpublishedPage().getName()).isEqualTo("Page1");
+
+                    assertThat(newPage1.getId()).isEqualTo(pageDTOS.get(0).getId());
+                    assertThat(newPage2.getId()).isEqualTo(pageDTOS.get(1).getId());
+                    assertThat(newPage3.getId()).isEqualTo(pageDTOS.get(2).getId());
+                })
+                .verifyComplete();
+
+        // Get the published pages
+        List<ApplicationPage> publishedPageDTOs = application.getPublishedPages();
+        Mono<NewPage> newPublishedPageMono1 = newPageService.findById(publishedPageDTOs.get(0).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPublishedPageMono2 = newPageService.findById(publishedPageDTOs.get(1).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPublishedPageMono3 = newPageService.findById(publishedPageDTOs.get(2).getId(), MANAGE_PAGES);
+
+        StepVerifier
+                .create(Mono.zip(newPublishedPageMono1, newPublishedPageMono2, newPublishedPageMono3))
+                .assertNext(objects -> {
+                    NewPage newPage1 = objects.getT1();
+                    NewPage newPage2 = objects.getT2();
+                    NewPage newPage3 = objects.getT3();
+                    assertThat(newPage1.getPublishedPage().getName()).isEqualTo("Page1");
+                    assertThat(newPage2.getPublishedPage().getName()).isEqualTo("123");
+                    assertThat(newPage3.getPublishedPage().getName()).isEqualTo("abc");
+
+                    assertThat(newPage1.getId()).isEqualTo(publishedPageDTOs.get(0).getId());
+                    assertThat(newPage2.getId()).isEqualTo(publishedPageDTOs.get(1).getId());
+                    assertThat(newPage3.getId()).isEqualTo(publishedPageDTOs.get(2).getId());
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportApplicationById_WhenThemeDoesNotExist_ExportedWithDefaultTheme() {
+        Theme customTheme = new Theme();
+        customTheme.setName("my-custom-theme");
+
+        String randomId = UUID.randomUUID().toString();
+        Application testApplication = new Application();
+        testApplication.setName("Application_" + randomId);
+        Mono<ApplicationJson> exportedAppJson = applicationPageService.createApplication(testApplication, workspaceId)
+                .flatMap(application -> {
+                    application.setEditModeThemeId("invalid-theme-id");
+                    application.setPublishedModeThemeId("invalid-theme-id");
+                    String branchName = null;
+                    return applicationService.save(application)
+                            .then(importExportApplicationService.exportApplicationById(application.getId(), branchName));
+                });
+
+        StepVerifier.create(exportedAppJson).assertNext(applicationJson -> {
+            assertThat(applicationJson.getEditModeTheme().getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
+            assertThat(applicationJson.getPublishedTheme().getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_invalidPluginReferenceForDatasource_throwException() {
+
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization");
+
+        ApplicationJson appJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
+        assert appJson != null;
+        final String randomId = UUID.randomUUID().toString();
+        appJson.getDatasourceList().get(0).setPluginId(randomId);
+        final Mono<Application> resultMono = workspaceService
+                .create(newWorkspace)
+                .flatMap(workspace -> importExportApplicationService.importApplicationInWorkspace(workspace.getId(), appJson));
+
+        StepVerifier
+                .create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.UNKNOWN_PLUGIN_REFERENCE.getMessage(randomId)))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_importSameApplicationTwice_applicationImportedLaterWithSuffixCount() {
+
+        Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application-without-action-collection.json");
+
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization");
+
+        Mono<Workspace> createWorkspaceMono = workspaceService.create(newWorkspace).cache();
+        final Mono<Application> importApplicationMono = createWorkspaceMono
+                .zipWith(applicationJsonMono)
+                .flatMap(tuple -> {
+                    Workspace workspace = tuple.getT1();
+                    ApplicationJson applicationJson = tuple.getT2();
+                    return importExportApplicationService
+                                    .importApplicationInWorkspace(workspace.getId(), applicationJson);
+                });
+
+        StepVerifier
+                .create(importApplicationMono.zipWhen(application -> importApplicationMono))
+                .assertNext(tuple -> {
+                    Application firstImportedApplication = tuple.getT1();
+                    Application secondImportedApplication = tuple.getT2();
+                    assertThat(firstImportedApplication.getName()).isEqualTo("valid_application");
+                    assertThat(secondImportedApplication.getName()).isEqualTo("valid_application (1)");
+                    assertThat(firstImportedApplication.getOrganizationId()).isEqualTo(secondImportedApplication.getOrganizationId());
+                    assertThat(firstImportedApplication.getOrganizationId()).isNotNull();
+                })
+                .verifyComplete();
+    }
 }

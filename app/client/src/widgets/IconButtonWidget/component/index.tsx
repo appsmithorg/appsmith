@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
-import { Button } from "@blueprintjs/core";
+import { Button, Position } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 
 import { ComponentProps } from "widgets/BaseComponent";
@@ -13,9 +13,6 @@ import {
 import _ from "lodash";
 import {
   ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadow,
-  ButtonBoxShadowTypes,
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
@@ -23,8 +20,33 @@ import {
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
-  getCustomTextColor,
+  getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
+import { createGlobalStyle } from "constants/DefaultTheme";
+import Interweave from "interweave";
+import { Popover2 } from "@blueprintjs/popover2";
+
+const ToolTipWrapper = styled.div`
+  height: 100%;
+  && .bp3-popover2-target {
+    height: 100%;
+    width: 100%;
+    & > div {
+      height: 100%;
+    }
+  }
+`;
+
+const TooltipStyles = createGlobalStyle`
+  .iconBtnTooltipContainer {
+    .bp3-popover2-content {
+      max-width: 350px;
+      overflow-wrap: anywhere;
+      padding: 10px 12px;
+      border-radius: 0px;
+    }
+  }
+`;
 
 type IconButtonContainerProps = {
   disabled?: boolean;
@@ -53,9 +75,9 @@ const IconButtonContainer = styled.div<IconButtonContainerProps>`
     bottom: 0;
     position: absolute;
   }
-  
+
   `}
-  
+
   ${({ buttonColor, buttonVariant, hasOnClickAction, renderMode, theme }) => `
 
   ${
@@ -72,7 +94,7 @@ const IconButtonContainer = styled.div<IconButtonContainerProps>`
       } !important;
     }`
       : ""
-  }  
+  }
 `}
 
   ${({ disabled }) => disabled && "cursor: not-allowed;"}
@@ -80,8 +102,7 @@ const IconButtonContainer = styled.div<IconButtonContainerProps>`
 
 export interface ButtonStyleProps {
   borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
   buttonColor: string;
   buttonVariant?: ButtonVariant;
   dimension?: number;
@@ -95,7 +116,6 @@ export const StyledButton = styled((props) => (
       "buttonStyle",
       "borderRadius",
       "boxShadow",
-      "boxShadowColor",
       "dimension",
       "hasOnClickAction",
     ])}
@@ -104,6 +124,9 @@ export const StyledButton = styled((props) => (
   background-image: none !important;
   height: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
   width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
+  min-height: 32px !important;
+  min-width: 32px !important;
+
   ${({ buttonColor, buttonVariant, hasOnClickAction, theme }) => `
     &:enabled {
       background: ${
@@ -141,6 +164,9 @@ export const StyledButton = styled((props) => (
       background-color: ${theme.colors.button.disabled.bgColor} !important;
       border-color: ${theme.colors.button.disabled.bgColor} !important;
       color: ${theme.colors.button.disabled.textColor} !important;
+      > span {
+        color: ${theme.colors.button.disabled.textColor} !important;
+      }
     }
 
     border: ${
@@ -160,7 +186,7 @@ export const StyledButton = styled((props) => (
 
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY
-          ? getCustomTextColor(theme, buttonColor)
+          ? getComplementaryGrayscaleColor(buttonColor)
           : getCustomBackgroundColor(
               ButtonVariantTypes.PRIMARY,
               buttonColor,
@@ -171,52 +197,31 @@ export const StyledButton = styled((props) => (
     }
 
     & > span > svg {
-      height: 60%;
-      width: 60%;
+      height: 100%;
+      width: 100%;
       min-height: 16px;
       min-width: 16px;
     }
   `}
 
-  border-radius: ${({ borderRadius }) =>
-    borderRadius === ButtonBorderRadiusTypes.CIRCLE
-      ? "50%"
-      : borderRadius === ButtonBorderRadiusTypes.ROUNDED
-      ? "10px"
-      : 0};
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => boxShadow || "none"} !important;
 
-  box-shadow: ${({ boxShadow, boxShadowColor, theme }) =>
-    boxShadow === ButtonBoxShadowTypes.VARIANT1
-      ? `0px 0px 4px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant1}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT2
-      ? `3px 3px 4px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant2}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT3
-      ? `0px 1px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant3}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT4
-      ? `2px 2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant4}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT5
-      ? `-2px -2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant5}`
-      : "none"} !important;
 `;
 
 export interface IconButtonComponentProps extends ComponentProps {
   iconName?: IconName;
   buttonColor?: string;
   buttonVariant: ButtonVariant;
-  borderRadius: ButtonBorderRadius;
-  boxShadow: ButtonBoxShadow;
-  boxShadowColor: string;
+  borderRadius: string;
+  boxShadow: string;
   isDisabled: boolean;
   isVisible: boolean;
   hasOnClickAction: boolean;
   onClick: () => void;
   renderMode: RenderMode;
   height: number;
+  tooltip?: string;
   width: number;
 }
 
@@ -224,7 +229,6 @@ function IconButtonComponent(props: IconButtonComponentProps) {
   const {
     borderRadius,
     boxShadow,
-    boxShadowColor,
     buttonColor,
     buttonVariant,
     hasOnClickAction,
@@ -232,6 +236,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     isDisabled,
     onClick,
     renderMode,
+    tooltip,
     width,
   } = props;
 
@@ -248,7 +253,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     return width - WIDGET_PADDING * 2;
   }, [width, height]);
 
-  return (
+  const iconBtnWrapper = (
     <IconButtonContainer
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
@@ -263,7 +268,6 @@ function IconButtonComponent(props: IconButtonComponentProps) {
       <StyledButton
         borderRadius={borderRadius}
         boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
         buttonColor={buttonColor}
         buttonVariant={_.trim(buttonVariant)}
         dimension={dimension}
@@ -273,6 +277,24 @@ function IconButtonComponent(props: IconButtonComponentProps) {
         large
       />
     </IconButtonContainer>
+  );
+
+  if (!tooltip) return iconBtnWrapper;
+
+  return (
+    <ToolTipWrapper>
+      <TooltipStyles />
+      <Popover2
+        autoFocus={false}
+        content={<Interweave content={tooltip} />}
+        hoverOpenDelay={200}
+        interactionKind="hover"
+        portalClassName="iconBtnTooltipContainer"
+        position={Position.TOP}
+      >
+        {iconBtnWrapper}
+      </Popover2>
+    </ToolTipWrapper>
   );
 }
 

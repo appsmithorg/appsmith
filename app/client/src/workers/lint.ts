@@ -11,8 +11,8 @@ import {
   EvaluationScriptType,
   ScriptTemplate,
 } from "workers/evaluate";
-import { ECMA_VERSION } from "workers/constants";
 import { getLintSeverity } from "components/editorComponents/CodeEditor/lintHelpers";
+import { ECMA_VERSION } from "constants/ast";
 
 export const getPositionInEvaluationScript = (
   type: EvaluationScriptType,

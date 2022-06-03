@@ -403,12 +403,20 @@
                   "value": "EQ"
                 },
                 {
+                  "label": "!=",
+                  "value": "NOT_EQ"
+                },
+                {
                   "label": ">=",
                   "value": "GTE"
                 },
                 {
                   "label": ">",
                   "value": "GT"
+                },
+                {
+                  "label": "contains",
+                  "value": "CONTAINS"
                 },
                 {
                   "label": "in",

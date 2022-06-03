@@ -35,7 +35,8 @@ import {
   shouldReplaceOldMovement,
   sortCollidingSpacesByDistance,
   getModifiedCollidingSpace,
-  shouldProcessNodeForTree,
+  checkProcessNodeForTree,
+  getRelativeCollidingValue,
 } from "./reflowUtils";
 
 /**
@@ -99,6 +100,10 @@ export function getMovementMap(
 
   const directionalVariables: DirectionalVariables = {};
 
+  //globalProcessedNodes are the global cache to not generate the collision tree for spaces processed unnecessarily
+  //this is done for the sake of performance
+  const globalProcessedNodes: CollisionTreeCache = {};
+
   //solve the tree structure to get the movement values
   for (let i = 0; i < collisionTrees.length; i++) {
     const childNode = collisionTrees[i];
@@ -122,6 +127,7 @@ export function getMovementMap(
       i,
       0,
       shouldResize,
+      globalProcessedNodes,
     );
 
     let staticDepth = 0,
@@ -205,7 +211,10 @@ export function getCollisionTree(
 
   for (let i = 0; i < collidingSpaces.length; i++) {
     const collidingSpace = collidingSpaces[i];
-    if (shouldProcessNodeForTree(collidingSpace, globalProcessedNodes)) {
+    if (
+      checkProcessNodeForTree(collidingSpace, globalProcessedNodes)
+        .shouldProcessNode
+    ) {
       // This is required if we suddenly switch orientations, like from horizontal to vertical or vice versa
       const {
         currentAccessors,
@@ -225,7 +234,10 @@ export function getCollisionTree(
       );
 
       // this method recursively builds the tree structure
-      const currentCollisionTree = getCollisionTreeHelper(
+      const {
+        collisionTree: currentCollisionTree,
+        depth,
+      } = getCollisionTreeHelper(
         newSpacePositions,
         currentOccSpaces,
         currentOccSpacesMap,
@@ -245,11 +257,18 @@ export function getCollisionTree(
         globalProcessedNodes,
         secondOrderCollisionMap,
       );
-
+      //To get colliding Value of the space relative to the Canvas edges
+      const relativeCollidingValue = getRelativeCollidingValue(
+        currentAccessors,
+        currentCollidingSpace.collidingValue,
+        currentDirection,
+        gridProps,
+        depth,
+      );
       if (currentCollisionTree) {
         collisionTrees.push({
           ...currentCollisionTree,
-          collidingValue: currentCollidingSpace.collidingValue,
+          collidingValue: relativeCollidingValue,
           collidingId: currentCollidingSpace.collidingId,
         });
 
@@ -260,7 +279,14 @@ export function getCollisionTree(
         //add value to cache
         globalProcessedNodes[currentCollidingSpace.id][
           currentCollidingSpace.direction
-        ] = currentCollidingSpace.collidingValue;
+        ] = {
+          value: relativeCollidingValue,
+          childNode: {
+            ...currentCollisionTree,
+            collidingValue: relativeCollidingValue,
+            collidingId: currentCollidingSpace.collidingId,
+          },
+        };
       }
     }
   }
@@ -315,7 +341,8 @@ function getCollisionTreeHelper(
   globalProcessedNodes: CollisionTreeCache,
   secondOrderCollisionMap?: SecondOrderCollisionMap,
 ) {
-  if (!collidingSpace) return;
+  if (!collidingSpace) return {};
+  let depth = 0;
   const collisionTree: CollisionTree = { ...collidingSpace, children: {} };
 
   // we resize the space to either increase the width or height based on movement
@@ -344,7 +371,7 @@ function getCollisionTreeHelper(
       isSecondRun,
     )
   )
-    return;
+    return {};
 
   // to get it's colliding spaces
   const {
@@ -397,12 +424,16 @@ function getCollisionTreeHelper(
       prevMovementMap,
       gridProps,
     );
-
-    if (
-      shouldProcessNodeForTree(modifiedCollidingSpace, globalProcessedNodes)
-    ) {
+    const { currentChildNode, shouldProcessNode } = checkProcessNodeForTree(
+      modifiedCollidingSpace,
+      globalProcessedNodes,
+    );
+    if (shouldProcessNode) {
       //Recursively call to build the tree
-      const currentCollisionTree = getCollisionTreeHelper(
+      const {
+        collisionTree: currentCollisionTree,
+        depth: currentDepth,
+      } = getCollisionTreeHelper(
         filteredNewSpacePositions,
         currentOccSpaces,
         currentOccSpacesMap,
@@ -427,19 +458,41 @@ function getCollisionTreeHelper(
       if (!globalProcessedNodes[modifiedCollidingSpace.id]) {
         globalProcessedNodes[modifiedCollidingSpace.id] = {};
       }
-      //add value to cache
-      globalProcessedNodes[modifiedCollidingSpace.id][
-        modifiedCollidingSpace.direction
-      ] = modifiedCollidingSpace.collidingValue;
 
-      if (currentCollisionTree && collisionTree.children) {
-        collisionTree.children[currentCollidingSpace.id] = {
-          ...currentCollisionTree,
+      if (currentCollisionTree) {
+        //To get colliding Value of the space relative to the Canvas edges
+        const relativeCollidingValue = getRelativeCollidingValue(
+          currentAccessors,
+          modifiedCollidingSpace.collidingValue,
+          currentDirection,
+          gridProps,
+          currentDepth,
+        );
+        //add value to cache
+        globalProcessedNodes[modifiedCollidingSpace.id][
+          modifiedCollidingSpace.direction
+        ] = {
+          value: relativeCollidingValue,
+          childNode: {
+            ...currentCollisionTree,
+          },
         };
+
+        if (collisionTree.children) {
+          collisionTree.children[currentCollidingSpace.id] = {
+            ...currentCollisionTree,
+          };
+        }
       }
+      //store overall maximum depth
+      if (currentDepth) depth = Math.max(depth, currentDepth);
+    } else if (currentChildNode && collisionTree.children) {
+      collisionTree.children[currentChildNode.id] = {
+        ...currentChildNode,
+      };
     }
   }
-  return collisionTree;
+  return { collisionTree, depth: depth + 1 };
 }
 
 /**
@@ -539,6 +592,7 @@ export function getModifiedArgumentsForCollisionTree(
  * @param index index of insertion if a collision node is of different direction from it's parent
  * @param emptySpaces current number of emptySpaces it's parent ancestors encountered while reflowed
  * @param shouldResize if the reflowed widgets can be reflowed
+ * @param globalProcessedNodes cache to make sure to not generate a tree for the same space in the getCollision Tree
  * @returns movement map of current collision tree node
  */
 function getMovementMapHelper(
@@ -554,6 +608,7 @@ function getMovementMapHelper(
   index: number,
   emptySpaces = 0,
   shouldResize: boolean,
+  globalProcessedNodes: CollisionTreeCache,
 ) {
   let maxOccupiedSpace = 0,
     depth = 0,
@@ -571,24 +626,52 @@ function getMovementMapHelper(
         emptySpaces +
         Math.abs(prevWidgetDistance - childNode[accessors.oppositeDirection]);
 
-      const {
+      let {
         currentEmptySpaces: childEmptySpaces,
         depth: currentDepth,
         occupiedSpace,
-      } = getMovementMapHelper(
-        childNode,
-        movementMap,
-        dimensions,
-        gridProps,
-        direction,
-        accessors,
-        childNode[accessors.direction],
-        distanceBeforeCollision,
-        globalCollisionTrees,
-        index,
-        nextEmptySpaces,
-        shouldResize,
-      );
+        shouldProcessNode,
+      } = checkProcessNodeForTree(childNode, globalProcessedNodes);
+      //process the nodes if either one is undefined
+      if (
+        shouldProcessNode ||
+        currentDepth === undefined ||
+        occupiedSpace === undefined ||
+        childEmptySpaces === undefined
+      ) {
+        const movementVariables = getMovementMapHelper(
+          childNode,
+          movementMap,
+          dimensions,
+          gridProps,
+          direction,
+          accessors,
+          childNode[accessors.direction],
+          distanceBeforeCollision,
+          globalCollisionTrees,
+          index,
+          nextEmptySpaces,
+          shouldResize,
+          globalProcessedNodes,
+        );
+        //initialize if undefined
+        if (!globalProcessedNodes[childNode.id]) {
+          globalProcessedNodes[childNode.id] = {};
+        }
+        //add value to cache
+        globalProcessedNodes[childNode.id][childNode.direction] = {
+          value: childNode.collidingValue,
+          depth: movementVariables.depth,
+          occupiedSpace: movementVariables.occupiedSpace,
+          currentEmptySpaces: movementVariables.currentEmptySpaces,
+        };
+
+        //set current values
+        shouldProcessNode = false;
+        currentDepth = movementVariables.depth;
+        occupiedSpace = movementVariables.occupiedSpace;
+        childEmptySpaces = movementVariables.currentEmptySpaces;
+      }
 
       if (maxOccupiedSpace < occupiedSpace) {
         currentEmptySpaces = childEmptySpaces;

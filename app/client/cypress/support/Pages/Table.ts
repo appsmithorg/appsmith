@@ -1,11 +1,12 @@
 import { ObjectsRegistry } from "../Objects/Registry"
 const path = require("path");
 
-type filterTypes ='contains' | 'does not contain' | 'starts with' | 'ends with' | 'is exactly' | 'empty' | 'not empty' | 'is equal to' |'not equal to' |'greater than' |'greater than or equal to' |'less than'|'less than or equal to';
+type filterTypes = 'contains' | 'does not contain' | 'starts with' | 'ends with' | 'is exactly' | 'empty' | 'not empty' | 'is equal to' | 'not equal to' | 'greater than' | 'greater than or equal to' | 'less than' | 'less than or equal to';
+type columnTypeValues = 'Plain Text' | 'URL' | 'Number' | 'Image' | 'Video' | 'Date' | 'Button' | 'Menu Button' | 'Icon Button';
 
 export class Table {
   public agHelper = ObjectsRegistry.AggregateHelper
-  public locator = ObjectsRegistry.CommonLocators
+  public deployMode = ObjectsRegistry.DeployMode
 
   private _tableWrap = "//div[@class='tableWrap']"
   private _tableHeader = this._tableWrap + "//div[@class='thead']//div[@class='tr'][1]"
@@ -39,7 +40,9 @@ export class Table {
   _filterOperatorDropdown = ".t--table-filter-operators-dropdown"
   private _downloadBtn = ".t--table-download-btn"
   private _downloadOption = ".t--table-download-data-option"
-
+  _columnSettings = (columnName: string) => "//input[@placeholder='Column Title'][@value='" + columnName + "']/parent::div/parent::div/following-sibling::div[contains(@class, 't--edit-column-btn')]"
+  _showPageItemsCount = "div.show-page-items"
+  _filtersCount = this._filterBtn + " span.action-title"
 
   public WaitUntilTableLoad() {
     cy.waitUntil(() => this.ReadTableRowColumnData(0, 0, 2000),
@@ -125,7 +128,7 @@ export class Table {
       });
   }
 
-  public SelectTableRow(rowIndex: number) {
+  public SelectTableRow(rowIndex: number) {//0 for 1st row
     cy.get(this._tableRow(rowIndex, 0)).first().click({ force: true });
     this.agHelper.Sleep()//for select to reflect
   }
@@ -145,14 +148,18 @@ export class Table {
     });
   }
 
-  public FilterTable(colName: string, colCondition: filterTypes, inputText = "", operator: 'AND' | 'OR' | '' = '', index = 0) {
+  public OpenFilter() {
+    this.agHelper.GetNClick(this._filterBtn)
+  }
+
+  public OpenNFilterTable(colName: string, colCondition: filterTypes, inputText = "", operator: 'AND' | 'OR' | '' = '', index = 0) {
     if (operator) {
       this.agHelper.GetNClick(this._addFilter)
       this.agHelper.GetNClick(this._filterOperatorDropdown)
       cy.get(this._dropdownText).contains(operator).click()
     }
     else
-      this.agHelper.GetNClick(this._filterBtn)
+      this.OpenFilter()
 
     this.agHelper.GetNClick(this._filterColumnsDropdown, index)
     cy.get(this._dropdownText).contains(colName).click()
@@ -206,13 +213,30 @@ export class Table {
     }).should((buffer) => expect(buffer).to.contain(textToBePresent));
   }
 
+  public ChangeColumnType(columnName: string, newDataType: columnTypeValues) {
+    this.agHelper.GetNClick(this._columnSettings(columnName))
+    this.agHelper.SelectDropdownList('Column Type', newDataType)
+    this.agHelper.ValidateNetworkStatus("@updateLayout")
+  }
+
+  public AssertURLColumnNavigation(row: number, col: number, expectedURL: string) {
+    this.deployMode.StubbingWindow()
+    this.agHelper.GetNClick(this._tableRowColumnData(row, col)).then($cellData => {
+      //Cypress.$($cellData).trigger('click');
+      cy.url().should("eql", expectedURL);
+      this.agHelper.Sleep()
+      cy.go(-1);
+      this.WaitUntilTableLoad()
+    });
+  }
+
   //List methods - keeping it for now!
   public NavigateToNextPage_List() {
     let curPageNo: number;
     cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
       curPageNo = Number($currentPageNo))
     cy.get(this._liNextPage).click()
-    cy.scrollTo('top', { easing: 'linear' })
+    //cy.scrollTo('top', { easing: 'linear' })
     cy.xpath(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
       expect(Number($newPageNo)).to.eq(curPageNo + 1))
   }
@@ -222,7 +246,7 @@ export class Table {
     cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
       curPageNo = Number($currentPageNo))
     cy.get(this._liPreviousPage).click()
-    cy.scrollTo('top', { easing: 'linear' })
+    //cy.scrollTo('top', { easing: 'linear' })
     cy.xpath(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
       expect(Number($newPageNo)).to.eq(curPageNo - 1))
   }
