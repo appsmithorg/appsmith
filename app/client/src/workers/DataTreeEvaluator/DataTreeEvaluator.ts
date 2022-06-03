@@ -180,6 +180,7 @@ export default class DataTreeEvaluator {
     this.logs.push({ timeTakenForFirstTree });
     return { evalTree: this.evalTree, jsUpdates: jsUpdates, evalMetaUpdates };
   }
+
   isJSObjectFunction(dataTree: DataTree, jsObjectName: string, key: string) {
     const entity = dataTree[jsObjectName];
     if (isJSAction(entity)) {
