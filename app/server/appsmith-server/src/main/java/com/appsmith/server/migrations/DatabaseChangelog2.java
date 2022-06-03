@@ -345,6 +345,7 @@ public class DatabaseChangelog2 {
         if (key != null) {
             final HashMap<String, Object> map = new HashMap<>();
             map.put("data", value);
+            // If the element has a binding, it would not make sense to display it in the component mode.
             if (hasBinding) {
                 map.put("jsonData", value);
                 map.put("viewType", "json");
@@ -1042,6 +1043,8 @@ public class DatabaseChangelog2 {
                 }
             case 8:
                 if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(7)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(7).getValue())) {
+                    // Sheet name will now have a dropdown component that is selected from a pre-populated list.
+                    // Bindings would need to be placed in the JS mode
                     boolean hasBinding = action.getDynamicBindingPathList().stream().anyMatch(dynamicBindingPath -> {
                         return dynamicBindingPath.getKey().contains("pluginSpecifiedTemplates[7]");
                     });
@@ -1079,6 +1082,8 @@ public class DatabaseChangelog2 {
                 }
             case 2:
                 if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(1)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(1).getValue())) {
+                    // Sheet URL will now have a dropdown component that is selected from a pre-populated list.
+                    // Bindings would need to be placed in the JS mode
                     boolean hasBinding = action.getDynamicBindingPathList().stream().anyMatch(dynamicBindingPath -> {
                         return dynamicBindingPath.getKey().contains("pluginSpecifiedTemplates[1]");
                     });

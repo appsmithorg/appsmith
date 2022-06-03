@@ -13,6 +13,10 @@ public interface CrudTemplateService {
 
     /**
      * This method will recursively replace the column names from template table to user provided table
+     * This generic implementation makes sure that CRUD generation for each plugin goes through by default
+     * The guideline to follow to figure out if this implementation applies to the plugin is:
+     * - The plugin follows pre-UQI data structure for queries
+     * - The plugin has a datasource structure that is used to generate query templates
      * @param formData form data from action configuration object
      * @param mappedColumns column name map from template table to user defined table
      * @param pluginSpecificTemplateParams plugin specified fields like S3 bucket name etc
