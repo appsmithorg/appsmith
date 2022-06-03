@@ -203,9 +203,10 @@ const StyledSharedIcon = styled(Icon)`
   display: inline-block;
 `;
 
-const HamburgerContainer = styled.div`
+const HamburgerContainer = styled.div<{ isPreviewMode: boolean }>`
   height: 34px;
   width: 34px;
+  visibility: ${(props) => (props.isPreviewMode ? `hidden` : "visible")};
 
   :hover {
     background-color: ${Colors.GEYSER_LIGHT};
@@ -345,7 +346,10 @@ export function EditorHeader(props: EditorHeaderProps) {
     <ThemeProvider theme={theme}>
       <HeaderWrapper className="pr-3" data-testid="t--appsmith-editor-header">
         <HeaderSection className="space-x-3">
-          <HamburgerContainer className="relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400">
+          <HamburgerContainer
+            className="relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400"
+            isPreviewMode={isPreviewMode}
+          >
             <TooltipComponent
               content={
                 <div className="flex items-center justify-between">
