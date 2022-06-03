@@ -331,6 +331,7 @@ describe("Git sync apps", function() {
   });
   it("Commit and push changes, validate data binding on all pages in edit and deploy mode on tempBranch", () => {
     // commit and push changes
+    cy.get(commonlocators._backToEditor).click();
     cy.get(homePage.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
