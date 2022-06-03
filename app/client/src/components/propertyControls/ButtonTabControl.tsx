@@ -1,9 +1,10 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import ButtonTabComponent, {
   ButtonTabOption,
 } from "components/ads/ButtonTabComponent";
 import produce from "immer";
+import { DropDownControlProps } from "./DropDownControl";
 
 class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
   selectButton = (value: string, isUpdatedViaKeyboard = false) => {
@@ -44,6 +45,22 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
 
   static getControlType() {
     return "BUTTON_TABS";
+  }
+
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    const allowedValues = new Set(
+      (config as DropDownControlProps)?.options?.map(
+        (x: { value: string }) => x.value,
+      ),
+    );
+
+    const values = value.split(",");
+
+    for (const x of values) {
+      if (!allowedValues.has(x)) return false;
+    }
+
+    return true;
   }
 }
 

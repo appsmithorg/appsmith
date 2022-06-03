@@ -70,13 +70,17 @@ class PropertyControlRegistry {
       (Control: typeof BaseControl & { getControlType: () => string }) => {
         const ControlWithAnalytics = withAnalytics(Control);
         const controlType = ControlWithAnalytics.getControlType();
-        PropertyControlFactory.registerControlBuilder(controlType, {
-          buildPropertyControl(
-            controlProps: PropertyControlPropsType,
-          ): JSX.Element {
-            return <ControlWithAnalytics {...controlProps} />;
+        PropertyControlFactory.registerControlBuilder(
+          controlType,
+          {
+            buildPropertyControl(
+              controlProps: PropertyControlPropsType,
+            ): JSX.Element {
+              return <ControlWithAnalytics {...controlProps} />;
+            },
           },
-        });
+          Control.canDisplayValueInUI,
+        );
       },
     );
   }

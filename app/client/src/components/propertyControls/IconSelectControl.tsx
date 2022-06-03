@@ -107,6 +107,7 @@ const ICON_NAMES = Object.keys(IconNames).map<IconType>(
   (name: string) => IconNames[name as keyof typeof IconNames],
 );
 ICON_NAMES.unshift(NONE);
+const icons = new Set(ICON_NAMES);
 
 const TypedSelect = Select.ofType<IconType>();
 
@@ -424,6 +425,14 @@ class IconSelectControl extends BaseControl<
 
   static getControlType() {
     return "ICON_SELECT";
+  }
+
+  static canDisplayValueInUI(
+    config: IconSelectControlProps,
+    value: any,
+  ): boolean {
+    if (icons.has(value)) return true;
+    return false;
   }
 }
 

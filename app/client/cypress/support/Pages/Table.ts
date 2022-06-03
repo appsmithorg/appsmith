@@ -6,7 +6,7 @@ type columnTypeValues = 'Plain Text' | 'URL' | 'Number' | 'Image' | 'Video' | 'D
 
 export class Table {
   public agHelper = ObjectsRegistry.AggregateHelper
-  public locator = ObjectsRegistry.CommonLocators
+  public deployMode = ObjectsRegistry.DeployMode
 
   private _tableWrap = "//div[@class='tableWrap']"
   private _tableHeader = this._tableWrap + "//div[@class='thead']//div[@class='tr'][1]"
@@ -220,7 +220,7 @@ export class Table {
   }
 
   public AssertURLColumnNavigation(row: number, col: number, expectedURL: string) {
-    this.agHelper.StubbingWindow()
+    this.deployMode.StubbingWindow()
     this.agHelper.GetNClick(this._tableRowColumnData(row, col)).then($cellData => {
       //Cypress.$($cellData).trigger('click');
       cy.url().should("eql", expectedURL);
