@@ -42,6 +42,7 @@
     "caniuse-lite": "^1.0.30001208",
     "classnames": "^2.3.1",
     "codemirror": "^5.59.2",
+    "console-feed": "^3.3.0",
     "copy-to-clipboard": "^3.3.1",
     "core-js": "^3.9.1",
     "craco-alias": "^2.1.1",
