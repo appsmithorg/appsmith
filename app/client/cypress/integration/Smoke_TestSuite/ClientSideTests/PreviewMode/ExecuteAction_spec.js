@@ -15,15 +15,19 @@ describe("Execute Action Functionality", function() {
 
   it("checks whether execute action is getting called on page load only once", function() {
     // Open deployed version
-    cy.get(homePage.publishButton).click({ force: true });
+    cy.get(homePage.deployPopupOptionTrigger).click({ force: true });
+    cy.get(homePage.currentDeployedPreviewBtn)
+      .invoke("removeAttr", "target")
+      .click();
 
-    cy.wait("@publishApp");
+    let completedIds = [];
 
     cy.get("@postExecute.all")
       .then((respBody) => {
         const totalRequests = [
           ...new Set(respBody.map((req) => req.browserRequestId)),
         ];
+        completedIds = totalRequests;
         return totalRequests;
       })
       .should("have.length", 1);
@@ -34,12 +38,14 @@ describe("Execute Action Functionality", function() {
       .contains("Page2")
       .click({ force: true });
 
+    cy.wait(1000);
+
     cy.get("@postExecute.all")
       .then((respBody) => {
         const totalRequests = [
           ...new Set(respBody.map((req) => req.browserRequestId)),
         ];
-        return totalRequests;
+        return totalRequests.filter((reqId) => !completedIds.includes(reqId));
       })
       .should("have.length", 1);
   });
