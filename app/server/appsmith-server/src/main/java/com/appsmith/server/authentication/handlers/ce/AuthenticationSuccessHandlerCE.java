@@ -181,7 +181,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         ServerWebExchange exchange = webFilterExchange.getExchange();
         String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);
         String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
-        String prefix = Security.STATE_PARAMETER_ORIGIN + "=";
+        String prefix = Security.STATE_PARAMETER_ORIGIN;
         if (state != null && !state.isEmpty()) {
             String[] stateArray = state.split(",");
             for (String stateVar : stateArray) {
