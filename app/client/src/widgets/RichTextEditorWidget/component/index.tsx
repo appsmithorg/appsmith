@@ -167,6 +167,28 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
               "searchreplace visualblocks code fullscreen",
               "insertdatetime media table paste code help",
             ],
+            contextmenu: "link useBrowserSpellcheck image table",
+            setup: function(editor) {
+              editor.ui.registry.addMenuItem("useBrowserSpellcheck", {
+                text: "Use `Ctrl+Right click` to access spellchecker",
+                onAction: function() {
+                  editor.notificationManager.open({
+                    text:
+                      "To access the spellchecker, hold the Control (Ctrl) key and right-click on the misspelt word.",
+                    type: "info",
+                    timeout: 5000,
+                    closeButton: true,
+                  });
+                },
+              });
+              editor.ui.registry.addContextMenu("useBrowserSpellcheck", {
+                update: function() {
+                  return editor.selection.isCollapsed()
+                    ? ["useBrowserSpellcheck"]
+                    : [];
+                },
+              });
+            },
           }}
           key={`editor_${props.isToolbarHidden}`}
           onEditorChange={onEditorChange}
