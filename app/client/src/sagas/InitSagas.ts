@@ -20,6 +20,7 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 
 import {
   fetchPage,
+  fetchPageSuccess,
   fetchPublishedPage,
   resetApplicationWidgets,
   resetPageList,
@@ -263,7 +264,7 @@ function* initiateEditorActions(toLoadPageId: string, applicationId: string) {
     ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
     ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
     ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-    fetchPageSuccess().type,
+    fetchPageSuccess([]).type,
   ];
   const failureActionEffects = [
     ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,

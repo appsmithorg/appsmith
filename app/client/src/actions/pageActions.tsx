@@ -5,7 +5,6 @@ import {
   ReduxActionTypes,
   UpdateCanvasPayload,
   ReduxActionErrorTypes,
-  AnyReduxAction,
   WidgetReduxActionTypes,
   ReplayReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -18,6 +17,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { GenerateTemplatePageRequest } from "api/PageApi";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
+import { AnyReduxAction } from "../ce/constants/ReduxActionConstants";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -57,9 +57,12 @@ export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
   },
 });
 
-export const fetchPageSuccess = (): EvaluationReduxAction<undefined> => {
+export const fetchPageSuccess = (
+  postEvalActions: Array<AnyReduxAction>,
+): EvaluationReduxAction<undefined> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_SUCCESS,
+    postEvalActions,
     payload: undefined,
   };
 };

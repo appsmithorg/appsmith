@@ -199,10 +199,12 @@ export const getCanvasWidgetsPayload = (
 
 export function* handleFetchedPage({
   fetchPageResponse,
+  isFirstLoad = false,
   pageId,
 }: {
   fetchPageResponse: FetchPageResponse;
   pageId: string;
+  isFirstLoad?: boolean;
 }) {
   const isValidResponse = yield validateResponse(fetchPageResponse);
   const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
@@ -221,7 +223,10 @@ export function* handleFetchedPage({
     // set current page
     yield put(updateCurrentPage(pageId, pageSlug));
     // dispatch fetch page success
-    yield put(fetchPageSuccess());
+    yield put(
+      fetchPageSuccess(isFirstLoad ? [] : [executePageLoadActions()]),
+      // Execute page load actions post page load
+    );
     // Sets last updated time
     yield put(setLastUpdatedTime(lastUpdatedTime));
     const extractedDSL = extractCurrentDSL(fetchPageResponse);
@@ -242,7 +247,7 @@ export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { id } = pageRequestAction.payload;
+    const { id, isFirstLoad } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
@@ -254,6 +259,7 @@ export function* fetchPageSaga(
     yield handleFetchedPage({
       fetchPageResponse,
       pageId: id,
+      isFirstLoad,
     });
 
     PerformanceTracker.stopAsyncTracking(
