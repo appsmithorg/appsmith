@@ -457,7 +457,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
         if(!StringUtils.hasLength(existingThemeId)) {
             return getOrSaveTheme(themeFromJson, destinationApp);
         }
-        return repository.findById(existingThemeId, MANAGE_THEMES).flatMap(existingTheme -> {
+        return repository.findById(existingThemeId, READ_THEMES).flatMap(existingTheme -> {
             if(!existingTheme.isSystemTheme()){
                 if(!themeFromJson.isSystemTheme()) {
                     return repository.updateById(existingThemeId, themeFromJson, MANAGE_THEMES);
