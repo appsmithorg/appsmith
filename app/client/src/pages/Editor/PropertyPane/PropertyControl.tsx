@@ -488,6 +488,13 @@ const PropertyControl = memo((props: Props) => {
     )
       isToggleDisabled = true;
 
+    if (
+      typeof propertyStylesheetValue === "string" &&
+      THEME_BINDING_REGEX.test(propertyStylesheetValue) &&
+      propertyStylesheetValue === propertyValue
+    )
+      isToggleDisabled = false;
+
     try {
       return (
         <ControlWrapper
