@@ -624,10 +624,10 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       cy.wrap(entity).as("entity");
     });
     cy.runQuery();
-    cy.xpath(queryLocators.suggestedWidgetDropdown)
-      .click()
-      .wait(1000);
-    cy.get(".t--draggable-dropdownwidget").validateWidgetExists();
+    // cy.xpath(queryLocators.suggestedWidgetDropdown)
+    //   .click()
+    //   .wait(1000);
+    // cy.get(".t--draggable-dropdownwidget").validateWidgetExists();
 
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
     cy.get(queryLocators.suggestedTableWidget)
