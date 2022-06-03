@@ -102,10 +102,6 @@ describe("App Theming funtionality", function() {
     //cy.contains("Color").click({ force: true });
 
     //Change the primary color:
-    cy.get(".border-2")
-      .first()
-      .click({ force: true });
-    cy.wait(500);
     cy.get(widgetsPage.colorPickerV2Popover)
       .click({ force: true })
       .click();
@@ -252,10 +248,6 @@ describe("App Theming funtionality", function() {
     // cy.contains("Color")
     //   .click({ force: true })
     //   .wait(200);
-    cy.get(".border-2")
-      .first()
-      .click({ force: true });
-    cy.wait(500);
     cy.get(widgetsPage.colorPickerV2Popover)
       .click({ force: true })
       .click();
@@ -402,7 +394,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to testtheme
 
-    cy.contains("Current Theme")
+    cy.contains("Applied Theme")
       .click()
       .parent()
       .siblings()
@@ -486,7 +478,7 @@ describe("App Theming funtionality", function() {
     cy.xpath(applyTheme("Featured Themes", "Modern"))
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
-    cy.contains("Current Theme")
+    cy.contains("Applied Theme")
       .click()
       .parent()
       .siblings()
@@ -497,7 +489,7 @@ describe("App Theming funtionality", function() {
         expect(backgroudColor).to.eq("rgb(85, 61, 233)");
       });
 
-    cy.contains("Current Theme")
+    cy.contains("Applied Theme")
       .click()
       .parent()
       .siblings()
@@ -514,7 +506,7 @@ describe("App Theming funtionality", function() {
     cy.xpath(applyTheme("Featured Themes", "Classic"))
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
-    cy.contains("Current Theme")
+    cy.contains("Applied Theme")
       .click()
       .parent()
       .siblings()
@@ -525,7 +517,7 @@ describe("App Theming funtionality", function() {
         expect(backgroudColor).to.eq("rgb(22, 163, 74)");
       });
 
-    cy.contains("Current Theme")
+    cy.contains("Applied Theme")
       .click()
       .parent()
       .siblings()
@@ -542,7 +534,7 @@ describe("App Theming funtionality", function() {
     cy.xpath(applyTheme("Featured Themes", "Sharp"))
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
-    cy.contains("Current Theme")
+    cy.contains("Applied Theme")
       .click()
       .parent()
       .siblings()
@@ -553,7 +545,7 @@ describe("App Theming funtionality", function() {
         expect(backgroudColor).to.eq("rgb(59, 125, 221)");
       });
 
-    cy.contains("Current Theme")
+    cy.contains("Applied Theme")
       .click()
       .parent()
       .siblings()
@@ -570,7 +562,7 @@ describe("App Theming funtionality", function() {
     cy.xpath(applyTheme("Featured Themes", "Rounded"))
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
-    cy.contains("Current Theme")
+    cy.contains("Applied Theme")
       .click()
       .parent()
       .siblings()
@@ -581,7 +573,7 @@ describe("App Theming funtionality", function() {
         expect(backgroudColor).to.eq("rgb(222, 21, 147)");
       });
 
-    cy.contains("Current Theme")
+    cy.contains("Applied Theme")
       .click()
       .parent()
       .siblings()
@@ -598,7 +590,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to created test theme
 
-    cy.contains("Current Theme")
+    cy.contains("Applied Theme")
       .click()
       .parent()
       .siblings()
@@ -609,7 +601,7 @@ describe("App Theming funtionality", function() {
         expect(backgroudColor).to.eq("rgb(126, 34, 206)");
       });
 
-    cy.contains("Current Theme")
+    cy.contains("Applied Theme")
       .click()
       .parent()
       .siblings()
