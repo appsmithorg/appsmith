@@ -10,6 +10,7 @@ import {
   getActions,
   getAllPageWidgets,
   getJSCollections,
+  getPluginIdMap,
   getPlugins,
 } from "selectors/entitiesSelector";
 import { useSelector } from "store";
@@ -35,6 +36,7 @@ export const useFilteredFileOperations = (query = "") => {
    *  We don't have it store as an svg
    */
   const plugins = useSelector(getPlugins);
+  const pluginIdMap = useSelector(getPluginIdMap);
   const restApiPlugin = plugins.find(
     (plugin) => plugin.type === PluginType.API,
   );
@@ -51,10 +53,11 @@ export const useFilteredFileOperations = (query = "") => {
     from: EventLocation,
     ds: Datasource,
   ) => {
-    const newActionName =
-      ds.pluginId === restApiPlugin?.id
-        ? createNewApiName(actions, pageId)
-        : createNewQueryName(actions, pageId);
+    const isAPIPlugin = pluginIdMap[ds.pluginId].type === PluginType.API;
+    const isDBPlugin = pluginIdMap[ds.pluginId].type === PluginType.DB;
+    const newActionName = isDBPlugin
+      ? createNewQueryName(actions, pageId)
+      : createNewApiName(actions, pageId);
     const defaultApiActionConfig: ApiActionConfig = {
       ...DEFAULT_API_ACTION_CONFIG,
       headers: DEFAULT_API_ACTION_CONFIG.headers,
@@ -66,10 +69,9 @@ export const useFilteredFileOperations = (query = "") => {
       datasource: {
         id: ds.id,
       },
-      actionConfiguration:
-        ds.pluginId === restApiPlugin?.id ? defaultApiActionConfig : {},
+      actionConfiguration: isAPIPlugin ? defaultApiActionConfig : {},
       eventData: {
-        actionType: ds.pluginId === restApiPlugin?.id ? "API" : "Query",
+        actionType: isDBPlugin ? "Query" : "API",
         from: from,
         dataSource: ds?.name,
       },

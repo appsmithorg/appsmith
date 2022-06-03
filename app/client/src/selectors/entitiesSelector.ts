@@ -12,7 +12,7 @@ import {
   isEmbeddedRestDatasource,
 } from "entities/Datasource";
 import { Action, PluginType } from "entities/Action";
-import { find, get, sortBy } from "lodash";
+import { find, get, keyBy, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -214,6 +214,10 @@ export const getDatasourcesByPluginId = (
 };
 
 export const getPlugins = (state: AppState) => state.entities.plugins.list;
+
+export const getPluginIdMap = createSelector(getPlugins, (plugins) =>
+  keyBy(plugins, "id"),
+);
 
 export const getPluginByPackageName = (state: AppState, name: string) =>
   state.entities.plugins.list.find((p) => p.packageName === name);
