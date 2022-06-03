@@ -31,7 +31,6 @@ type ThemeCard = React.PropsWithChildren<{
   className?: string;
   selectable?: boolean;
   deletable?: boolean;
-  children?: React.ReactElement[] | React.ReactElement;
 }>;
 
 const MainContainer = styled.main<{ backgroundColor: string }>`

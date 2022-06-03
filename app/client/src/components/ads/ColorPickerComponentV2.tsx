@@ -319,7 +319,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
 
   useEffect(() => {
     setIsOpen(isOpenProp);
-  }, [isOpenProp]);
+  }, [isOpenProp, setIsOpen]);
 
   const currentFocus = useRef(0);
 
