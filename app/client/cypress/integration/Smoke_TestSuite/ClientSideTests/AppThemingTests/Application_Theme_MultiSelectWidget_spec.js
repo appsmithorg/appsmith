@@ -105,9 +105,6 @@ describe("Theme validation usecase for multi-select widget", function() {
 
     //Color
     cy.wait(3000);
-    cy.get(themelocator.color)
-      .eq(0)
-      .click({ force: true });
     cy.get(themelocator.inputColor).clear();
     cy.get(themelocator.inputColor).type("purple");
     cy.get(themelocator.inputColor).should("have.value", "purple");
@@ -115,6 +112,7 @@ describe("Theme validation usecase for multi-select widget", function() {
       .eq(1)
       .click({ force: true });
     cy.get(themelocator.inputColor).clear();
+    cy.wait(2000);
     cy.get(themelocator.inputColor).type("brown");
     cy.get(themelocator.inputColor).should("have.value", "brown");
     cy.wait(2000);
@@ -145,9 +143,7 @@ describe("Theme validation usecase for multi-select widget", function() {
     cy.goToEditFromPublish();
     cy.get("#canvas-selection-0").click({ force: true });
     //Change the Theme
-    cy.get(commonlocators.changeThemeBtn)
-      .should("be.visible")
-      .click({ force: true });
+    cy.get(commonlocators.changeThemeBtn).click({ force: true });
     cy.get(themelocator.currentTheme).click({ force: true });
     cy.get(".t--theme-card main > main")
       .first()

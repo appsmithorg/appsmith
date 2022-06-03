@@ -271,9 +271,8 @@ describe("Container Widget Functionality", function() {
       widgetsPage.listWidgetName,
       widgetsPage.listWidgetName + " " + commonlocators.listWidgetNameTag,
     );
-    cy.closePropertyPane();
     // Change the list widget name from Entity Explorer
-    cy.SearchEntityandDblClick("List2").type("List1{enter}");
+    cy.renameEntity("List2", "List1");
     // Mouse over to list name
     cy.SearchEntityandOpen("List1");
     cy.get(widgetsPage.listWidgetName)
