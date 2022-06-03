@@ -406,7 +406,7 @@ describe("translateDiffEvent", () => {
     expect(expectedTranslations).toStrictEqual(actualTranslations);
   });
 
-  it("handles JsObject renaming", () => {
+  it("handles JsObject function renaming", () => {
     // cyclic dependency case
     const lhs = new String("() => {}");
     _.set(lhs, "data", {});
