@@ -44,10 +44,13 @@ import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
+import org.bson.UuidRepresentation;
 import org.bson.codecs.BsonTypeClassMap;
 import org.bson.codecs.BsonValueCodecProvider;
 import org.bson.codecs.DocumentCodec;
 import org.bson.codecs.DocumentCodecProvider;
+import org.bson.codecs.IterableCodecProvider;
+import org.bson.codecs.MapCodecProvider;
 import org.bson.codecs.ValueCodecProvider;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -70,6 +73,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -188,15 +192,16 @@ public class MongoPlugin extends BasePlugin {
 
     private static final MongoErrorUtils mongoErrorUtils = MongoErrorUtils.getInstance();
 
-    private static final CodecRegistry DEFAULT_REGISTRY = CodecRegistries.fromProviders(
-            asList(new ValueCodecProvider(),
-                    new BsonValueCodecProvider(),
-                    new DocumentCodecProvider(),
-                    new DBRefCodecProvider(),
-                    new DBObjectCodecProvider(),
-                    new BsonValueCodecProvider(),
-                    new GeoJsonCodecProvider(),
-                    new GridFSFileCodecProvider()));
+    private static final CodecRegistry DEFAULT_REGISTRY = CodecRegistries.withUuidRepresentation(CodecRegistries.fromProviders(Arrays.asList(
+            new ValueCodecProvider(),
+            new IterableCodecProvider(),
+            new BsonValueCodecProvider(),
+            new DocumentCodecProvider(),
+            new MapCodecProvider(),
+            new DBRefCodecProvider(),
+            new GeoJsonCodecProvider(),
+            new GridFSFileCodecProvider()
+    )), UuidRepresentation.STANDARD);
 
     private static final BsonTypeClassMap DEFAULT_BSON_TYPE_CLASS_MAP = new org.bson.codecs.BsonTypeClassMap();
 

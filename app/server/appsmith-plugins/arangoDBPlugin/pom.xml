@@ -52,6 +52,12 @@
             <groupId>com.github.goodforgod</groupId>
             <artifactId>arangodb-testcontainer</artifactId>
             <version>2.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>
