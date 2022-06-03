@@ -274,7 +274,10 @@ function* initiateEditorActions(toLoadPageId: string, applicationId: string) {
     initActionsCalls,
     successActionEffects,
     failureActionEffects,
+    true,
   );
+
+  console.log("$$$-allActionCalls", allActionCalls);
 
   if (!allActionCalls) {
     return;
@@ -460,9 +463,9 @@ export function* initializeAppViewerSaga(
     ],
     true,
   );
-  console.log("$$$-resultOfPrimaryCalls-start", resultOfPrimaryCalls);
+  console.log("$$$-resultOfPrimaryCalls", resultOfPrimaryCalls);
   if (!resultOfPrimaryCalls) return;
-  console.log("$$$-resultOfPrimaryCalls-end", resultOfPrimaryCalls);
+
   //Delay page load actions till all actions are retrieved.
   yield put(executePageLoadActions());
 

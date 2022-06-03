@@ -637,6 +637,9 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
 }
 
 function* executePageLoadAction(pageAction: PageAction) {
+  console.log(`$$$-executePageLoadAction-${pageAction.name}-start`, {
+    pageAction,
+  });
   if (pageAction.hasOwnProperty("collectionId")) {
     yield call(executeOnPageLoadJSAction, pageAction);
   } else {
@@ -710,6 +713,7 @@ function* executePageLoadAction(pageAction: PageAction) {
         undefined,
         pageAction.id,
       );
+      console.log(`$$$-executePageLoadAction-${pageAction.name}-end`);
       yield put(
         executePluginActionSuccess({
           id: pageAction.id,
@@ -724,6 +728,7 @@ function* executePageLoadAction(pageAction: PageAction) {
 
 function* executePageLoadActionsSaga() {
   try {
+    console.log("$$$-executePageLoadActionsSaga");
     const pageActions: PageAction[][] = yield select(getLayoutOnLoadActions);
     const actionCount = _.flatten(pageActions).length;
     PerformanceTracker.startAsyncTracking(
