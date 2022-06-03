@@ -10,7 +10,9 @@ import com.appsmith.external.models.Property;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.ParseException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
@@ -27,6 +29,55 @@ import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class GraphQLPaginationUtils {
+    public static Map getPaginationData(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
+        final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+        String paginationData = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
+        JSONObject paginationDataJson;
+        try {
+            paginationDataJson = parseStringIntoJSONObject(paginationData);
+        } catch (ParseException e) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_ERROR,
+                    "Appsmith server encountered an unexpected error: failed to parse pagination data into JSON. " +
+                            "Please reach out to our customer support to resolve this."
+            );
+        }
+
+        HashMap<String, Object> paginationDataMap = new HashMap<String, Object>();
+        if (PaginationType.PAGE_NO.equals(actionConfiguration.getPaginationType())) {
+            String limitVarName = ((JSONObject) paginationDataJson.get(LIMIT)).getAsString(NAME);
+            int limitValue;
+            try {
+                limitValue = ((JSONObject) paginationDataJson.get(LIMIT)).getAsNumber(VALUE).intValue();
+            } catch (NumberFormatException e) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Please provide a valid number for variable '" + limitVarName + "' in the pagination " +
+                                "tab."
+                );
+            }
+
+            String offsetVarName = ((JSONObject) paginationDataJson.get(OFFSET)).getAsString(NAME);
+            int offsetValue;
+            try {
+                offsetValue = ((JSONObject) paginationDataJson.get(OFFSET)).getAsNumber(VALUE).intValue();
+            } catch (NumberFormatException e) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Please provide a valid number for variable '" + offsetVarName + "' in the pagination " +
+                                "tab."
+                );
+            }
+
+            paginationDataMap.put(LIMIT_VARIABLE_NAME, limitVarName);
+            paginationDataMap.put(LIMIT_VARIABLE_VAL, limitValue);
+            paginationDataMap.put(OFFSET_VARIABLE_NAME, offsetVarName);
+            paginationDataMap.put(OFFSET_VARIABLE_VAL, offsetValue);
+        }
+
+        return paginationDataMap;
+    }
+
     public static void updateVariablesWithPaginationValues(ActionConfiguration actionConfiguration,
                                                            ExecuteActionDTO executeActionDTO,
                                                            Set<String> hintMessages) throws AppsmithPluginException {
