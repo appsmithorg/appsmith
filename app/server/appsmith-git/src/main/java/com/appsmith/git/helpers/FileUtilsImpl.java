@@ -177,7 +177,18 @@ public class FileUtilsImpl implements FileInterface {
                                         return false;
                                     }
                                 })
-                                .collectList();
+                                .collectList()
+                                .flatMap(pageListStatus -> {
+                                    if(baseRepo.resolve(ACTION_DIRECTORY).toFile().exists()){
+                                        deleteDirectory(baseRepo.resolve(ACTION_DIRECTORY));
+                                    }
+
+                                    if(baseRepo.resolve(ACTION_COLLECTION_DIRECTORY).toFile().exists()){
+                                        deleteDirectory(baseRepo.resolve(ACTION_DIRECTORY));
+                                    }
+                                    return Mono.just(pageListStatus);
+                                });
+
                         return pageList
                                 .then(Mono.zip(Mono.just(baseRepo), Mono.just(gson), Mono.just(validFileNames)));
 
@@ -503,5 +514,15 @@ public class FileUtilsImpl implements FileInterface {
 
     private boolean isFileFormatCompatible(int savedFileFormat) {
         return savedFileFormat <= CommonConstants.fileFormatVersion;
+    }
+
+    private void deleteDirectory(Path filePath) {
+        if(filePath.toFile().exists()) {
+            try {
+                FileUtils.deleteDirectory(filePath.toFile());
+            } catch (IOException e) {
+                log.debug("Unable to delete directory for path {} with message {}", filePath, e.getMessage());
+            }
+        }
     }
 }
