@@ -111,6 +111,8 @@ interface DatePickerComponentProps {
   onChange?: (selectedDate: Date, isUserChange: boolean) => void;
   formatDate?: (date: Date) => string;
   parseDate?: (dateStr: string) => Date | null;
+  tabIndex?: number;
+  inputRef?: React.RefObject<HTMLInputElement>;
 }
 
 function getKeyboardFocusableElements(element: HTMLDivElement) {
@@ -134,7 +136,10 @@ function whetherItIsTheLastButtonInDatepicker(
   );
 }
 
-function useKeyboardNavigation(clearButtonText: string) {
+function useKeyboardNavigation(
+  clearButtonText: string,
+  inputRef: React.RefObject<HTMLInputElement>,
+) {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   // to get the latest visibility value
@@ -142,7 +147,6 @@ function useKeyboardNavigation(clearButtonText: string) {
   DatePickerVisibilityRef.current = isDatePickerVisible;
 
   const popoverRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   function handleDateInputClick() {
     setDatePickerVisibility(true);
@@ -252,7 +256,6 @@ function useKeyboardNavigation(clearButtonText: string) {
     isDatePickerVisible,
 
     // references
-    inputRef,
     popoverRef,
 
     // event handlers
@@ -266,15 +269,17 @@ function DatePickerComponent(props: DatePickerComponentProps) {
   // this was added to check the Datepickers
   // footer action bar last Clear button
   const clearButtonText = "Clear";
+  let inputRef = useRef<HTMLInputElement>(null);
+
+  inputRef = props.inputRef ? props.inputRef : inputRef;
 
   const {
     handleDateInputClick,
     handleInteraction,
     handleTimePickerKeydown,
-    inputRef,
     isDatePickerVisible,
     popoverRef,
-  } = useKeyboardNavigation(clearButtonText);
+  } = useKeyboardNavigation(clearButtonText, inputRef);
 
   return (
     <StyledDateInput
@@ -286,6 +291,7 @@ function DatePickerComponent(props: DatePickerComponentProps) {
       inputProps={{
         inputRef: inputRef,
         onClick: handleDateInputClick,
+        tabIndex: props.tabIndex,
       }}
       maxDate={props.maxDate}
       minDate={props.minDate}
