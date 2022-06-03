@@ -262,7 +262,7 @@
     "cra-bundle-analyzer": "^0.1.0",
     "craco-babel-loader": "^0.1.4",
     "cy-verify-downloads": "^0.0.5",
-    "cypress": "8.7.0",
+    "cypress": "10.0.1",
     "cypress-file-upload": "^4.1.1",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-multi-reporters": "^1.2.4",
