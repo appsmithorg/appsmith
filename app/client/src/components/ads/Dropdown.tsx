@@ -1063,6 +1063,9 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case "Tab":
+          dispatchInteractionAnalyticsEvent({
+            key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+          });
           if (isOpen) {
             setIsOpen(false);
           }

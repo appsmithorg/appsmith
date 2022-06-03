@@ -27,6 +27,11 @@ export default function AdsSwitch(props: ISwitchProps) {
       case " ":
         dispatchInteractionAnalyticsEvent({ key: e.key });
         break;
+      case "Tab":
+        dispatchInteractionAnalyticsEvent({
+          key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+        });
+        break;
     }
   };
 

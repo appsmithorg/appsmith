@@ -223,6 +223,13 @@ export const StyledInputGroup = React.forwardRef(
             e.preventDefault();
           }
           break;
+        case "Tab":
+          if (document.activeElement === wrapperRef?.current) {
+            dispatchInteractionAnalyticsEvent({
+              key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+            });
+          }
+          break;
       }
     };
 

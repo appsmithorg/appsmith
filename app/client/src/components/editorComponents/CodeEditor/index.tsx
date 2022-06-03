@@ -445,6 +445,15 @@ class CodeEditor extends Component<Props, State> {
           );
         }
         break;
+      case "Tab":
+        if (document.activeElement === this.codeEditorTarget.current) {
+          this.codeEditorTarget.current?.dispatchEvent(
+            interactionAnalyticsEvent({
+              key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+            }),
+          );
+        }
+        break;
     }
   };
 

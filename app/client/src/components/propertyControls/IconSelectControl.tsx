@@ -336,14 +336,20 @@ class IconSelectControl extends BaseControl<
           e.stopPropagation();
         }
       }
-    } else if (
-      this.iconSelectTargetRef.current === document.activeElement &&
-      (e.key === "ArrowUp" ||
-        e.key === "Up" ||
-        e.key === "ArrowDown" ||
-        e.key === "Down")
-    ) {
-      this.debouncedSetState({ isOpen: true }, this.handleButtonClick);
+    } else if (this.iconSelectTargetRef.current === document.activeElement) {
+      switch (e.key) {
+        case "ArrowUp":
+        case "Up":
+        case "ArrowDown":
+        case "Down":
+          this.debouncedSetState({ isOpen: true }, this.handleButtonClick);
+          break;
+        case "Tab":
+          emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+            key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+          });
+          break;
+      }
     }
   };
 

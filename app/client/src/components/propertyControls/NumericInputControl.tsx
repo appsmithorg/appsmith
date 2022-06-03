@@ -4,6 +4,7 @@ import { Classes, INumericInputProps, NumericInput } from "@blueprintjs/core";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ThemeProp } from "components/ads/common";
+import { emitInteractionAnalyticsEvent } from "utils/hooks/useInteractionAnalyticsEvent";
 
 const StyledNumericInput = styled(NumericInput)<ThemeProp & INumericInputProps>`
   &&& {
@@ -31,10 +32,24 @@ const StyledNumericInput = styled(NumericInput)<ThemeProp & INumericInputProps>`
 `;
 
 class NumericInputControl extends BaseControl<NumericInputControlProps> {
-  inputElement: HTMLInputElement | null | undefined;
+  inputElement: HTMLInputElement | null;
+
+  constructor(props: NumericInputControlProps) {
+    super(props);
+    this.inputElement = null;
+  }
+
   static getControlType() {
     return "NUMERIC_INPUT";
   }
+
+  handleKeydown = (e: React.KeyboardEvent) => {
+    if (e.key === "Tab") {
+      emitInteractionAnalyticsEvent(this.inputElement, {
+        key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+      });
+    }
+  };
 
   public render() {
     const {
@@ -57,6 +72,7 @@ class NumericInputControl extends BaseControl<NumericInputControlProps> {
         max={max}
         min={min}
         minorStepSize={minorStepSize}
+        onKeyDown={this.handleKeydown}
         onValueChange={this.handleValueChange}
         placeholder={placeholderText}
         stepSize={stepSize}

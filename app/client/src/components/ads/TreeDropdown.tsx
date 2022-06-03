@@ -480,6 +480,9 @@ function TreeDropdown(props: TreeDropdownProps) {
         }
         break;
       case "Tab":
+        dispatchInteractionAnalyticsEvent({
+          key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+        });
         if (isOpen) {
           setIsOpen(false);
           // reset selected option

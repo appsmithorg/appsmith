@@ -108,6 +108,11 @@ export function StepComponent(props: StepComponentProps) {
         decrease(true);
         e.preventDefault();
         break;
+      case "Tab":
+        dispatchInteractionAnalyticsEvent({
+          key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+        });
+        break;
     }
   }
 

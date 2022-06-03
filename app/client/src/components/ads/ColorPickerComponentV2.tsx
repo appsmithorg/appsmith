@@ -338,7 +338,9 @@ function ColorPickerComponent(props: ColorPickerProps) {
           e.stopPropagation();
           break;
         case "Tab":
-          dispatchInteractionAnalyticsEvent({ key: e.key });
+          dispatchInteractionAnalyticsEvent({
+            key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+          });
           currentFocus.current = 0;
           if (document.activeElement === inputGroupRef.current) {
             setTimeout(() => {
@@ -439,6 +441,11 @@ function ColorPickerComponent(props: ColorPickerProps) {
         case "Escape":
           dispatchInteractionAnalyticsEvent({ key: e.key });
           inputGroupRef.current?.blur();
+          break;
+        case "Tab":
+          dispatchInteractionAnalyticsEvent({
+            key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+          });
       }
     }
   };

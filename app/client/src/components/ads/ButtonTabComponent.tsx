@@ -91,6 +91,11 @@ function ButtonTabComponent(props: ButtonTabComponentProps) {
         props.selectButton(props.options[focusedIndex].value, true);
         e.preventDefault();
         break;
+      case "Tab":
+        dispatchInteractionAnalyticsEvent({
+          key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+        });
+        break;
     }
   };
 
