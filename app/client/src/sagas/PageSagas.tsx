@@ -977,6 +977,7 @@ export function* generateTemplatePageSaga(
           responseMeta: response.responseMeta,
         },
         pageId,
+        isFirstLoad: true,
       });
       yield put(
         generateTemplateSuccess({
