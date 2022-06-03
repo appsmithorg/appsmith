@@ -136,7 +136,7 @@ export function* failFastApiCalls(
     });
     return false;
   }
-  log && console.log("$$$-failFastApiCalls-end", { effectRaceResult });
+
   return true;
 }
 

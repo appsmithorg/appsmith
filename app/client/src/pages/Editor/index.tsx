@@ -98,8 +98,11 @@ class Editor extends Component<Props> {
     const branch = getSearchQuery(search, "branch");
 
     const { applicationId, pageId } = this.props.match.params;
-    if (applicationId || pageId)
+    if (applicationId || pageId) {
+      console.log("$$$-initEditor-called", { pageId });
       this.props.initEditor({ applicationId, pageId, branch });
+    }
+
     this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
 
@@ -157,6 +160,7 @@ class Editor extends Component<Props> {
 
     // to prevent re-init during connect
     if (prevBranch && isBranchUpdated && (applicationId || pageId)) {
+      console.log("$$$-initEditor-called", { pageId, prevPageId });
       this.props.initEditor({ pageId, branch, applicationId });
     } else {
       /**
@@ -165,6 +169,7 @@ class Editor extends Component<Props> {
        * when redirected to the default page
        */
       if (prevPageId && pageId && isPageIdUpdated) {
+        console.log("$$$-fetchPage-called", { pageId, prevPageId });
         this.props.updateCurrentPage(pageId);
         this.props.fetchPage(pageId);
       }
