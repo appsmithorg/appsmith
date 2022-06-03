@@ -76,16 +76,24 @@ async function createGitStorageArchive(destFolder) {
 
 async function writeVersion(path) {
   // TODO: Find a less fragile way do get the version here.
-  // const content = await fsPromises.readFile('/opt/appsmith/rts/version.js', {encoding: 'utf8'});
-  // const version = content.match(/\bexports\.VERSION\s*=\s*["']([^"]+)["']/)[1];
-  // await fsPromises.writeFile(path + '/version.txt', version);
-  shell.exec(`awk -F '=' '/^exports.VERSION/{print $NF}' /opt/appsmith/rts/version.js | sed 's/[;'\\''\\" ]//g' | tail -n 1 > ${path}/version.js`)
+  const content = await fsPromises.readFile('/opt/appsmith/rts/version.js', {encoding: 'utf8'});
+  const version = content.match(/\bexports\.VERSION\s*=\s*["']([^"]+)["']/)[1];
+  await fsPromises.writeFile(path + '/version.txt', version);
+  // shell.exec(`awk -F '=' '/^exports.VERSION/{print $NF}' /opt/appsmith/rts/version.js | sed 's/[;'\\''\\" ]//g' | tail -n 1 > ${path}/version.js`)
 }
 
 async function exportDockerEnvFile(destFolder) {
   console.log('Exporting docker environment file');
-  shell.exec(`sed '/^APPSMITH_ENCRYPTION.*/d' /appsmith-stacks/configuration/docker.env > ${destFolder}/docker.env`);
+  // shell.exec(`sed '/^APPSMITH_ENCRYPTION.*/d' /appsmith-stacks/configuration/docker.env > ${destFolder}/docker.env`);
+  const content = await fsPromises.readFile('/appsmith-stacks/configuration/docker.env', {encoding: 'utf8'});
+  const output_lines = []
+  content.split(/\r?\n/).forEach(line =>  {
+    if (!(line.startsWith("APPSMITH_ENCRYPTION")))
+      output_lines.push(line)
+ });
+  await fsPromises.writeFile(destFolder + '/docker.env', output_lines.join('\n'));
   console.log('Exporting docker environment file done.');
+
   console.log('Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file because those values are not included in the backup export.')
 }
 
