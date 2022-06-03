@@ -37,8 +37,19 @@ export type AppTheme = {
   // styles for specific widgets
   stylesheet: {
     [key: string]: {
-      [key: string]: string | Stylesheet;
+      [key: string]:
+        | string
+        | Stylesheet
+        | {
+            [key: string]: string;
+          };
       childStylesheet: Stylesheet;
+      resetButtonStyles: {
+        [key: string]: string;
+      };
+      submitButtonStyles: {
+        [key: string]: string;
+      };
     };
   };
   // current values for the theme
