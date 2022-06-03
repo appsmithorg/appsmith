@@ -21,6 +21,7 @@ import {
   NO_JS_FUNCTION_RETURN_VALUE,
   JS_ACTION_EXECUTION_ERROR,
   UPDATING_JS_COLLECTION,
+  CONSOLE,
 } from "@appsmith/constants/messages";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
@@ -47,6 +48,7 @@ import { Button, Size } from "components/ads";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
 import { getIsSavingEntity } from "selectors/editorSelectors";
 import { getJSResponseViewState } from "./utils";
+import ConsoleTab from "./Debugger/ConsoleTab";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -309,6 +311,11 @@ function JSResponseView(props: Props) {
       key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={jsObject?.name} />,
+    },
+    {
+      key: DEBUGGER_TAB_KEYS.CONSOLE_TAB,
+      title: createMessage(CONSOLE),
+      panelComponent: <ConsoleTab />,
     },
   ];
 
