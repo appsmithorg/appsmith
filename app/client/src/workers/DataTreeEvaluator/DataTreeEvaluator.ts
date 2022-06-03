@@ -192,20 +192,14 @@ export default class DataTreeEvaluator {
     //add functions and variables to unevalTree
     Object.keys(this.currentJSCollectionState).forEach((update) => {
       const updates = this.currentJSCollectionState[update];
-      const entity = dataTree[update];
-      if (!!entity) {
+      if (!!dataTree[update]) {
         Object.keys(updates).forEach((key) => {
-          const updatePath = `${update}.${key}`;
-          // paths not present on the unEvaltree should not be updated
-          // as this could lead to a cyclic dependency
-          if (_.has(dataTree, updatePath)) {
-            const data = _.get(dataTree, `${updatePath}.data`, undefined);
-            if (this.isJSObjectFunction(dataTree, update, key)) {
-              _.set(dataTree, updatePath, new String(updates[key]));
-              _.set(dataTree, `${updatePath}.data`, data);
-            } else {
-              _.set(dataTree, updatePath, updates[key]);
-            }
+          const data = _.get(dataTree, `${update}.${key}.data`, undefined);
+          if (this.isJSObjectFunction(dataTree, update, key)) {
+            _.set(dataTree, `${update}.${key}`, new String(updates[key]));
+            _.set(dataTree, `${update}.${key}.data`, data);
+          } else {
+            _.set(dataTree, `${update}.${key}`, updates[key]);
           }
         });
       }
