@@ -88,6 +88,10 @@ import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { updateMetaState } from "actions/metaActions";
 import { getAllActionValidationConfig } from "selectors/entitiesSelector";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
+import { JSUpdate } from "utils/JSPaneUtils";
+import { DataTreeDiff } from "workers/evaluationUtils";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -123,10 +127,20 @@ function* evaluateTreeSaga(
     dataTree,
     dependencies,
     errors,
+    evalMetaUpdates,
     evaluationOrder,
     jsUpdates,
     logs,
     unEvalUpdates,
+  }: {
+    dataTree: DataTree;
+    dependencies: Record<string, string[]>;
+    errors: EvalError[];
+    evalMetaUpdates: EvalMetaUpdates;
+    evaluationOrder: string[];
+    jsUpdates: Record<string, JSUpdate>;
+    logs: any[];
+    unEvalUpdates: DataTreeDiff[];
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -138,18 +152,23 @@ function* evaluateTreeSaga(
 
   const updates = diff(oldDataTree, dataTree) || [];
 
-  yield put(setEvaluatedTree(dataTree, updates));
+  yield put(setEvaluatedTree(updates));
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
+  // if evalMetaUpdates are present only then dispatch updateMetaState
+  if (evalMetaUpdates.length) {
+    yield put(updateMetaState(evalMetaUpdates));
+  }
+  log.debug({ evalMetaUpdates });
 
-  yield put(updateMetaState(updates, dataTree));
-
-  const updatedDataTree = yield select(getDataTree);
+  const updatedDataTree: DataTree = yield select(getDataTree);
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
-  yield call(evalErrorHandler, errors, updatedDataTree, evaluationOrder);
+  // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
+  yield call(evalErrorHandler as any, errors, updatedDataTree, evaluationOrder);
+
   const appMode = yield select(getAppMode);
   if (appMode !== APP_MODE.PUBLISHED) {
     yield call(makeUpdateJSCollection, jsUpdates);
@@ -318,7 +337,11 @@ export function* clearEvalCache() {
 export function* executeFunction(collectionName: string, action: JSAction) {
   const functionCall = `${collectionName}.${action.name}()`;
   const { isAsync } = action.actionConfiguration;
-  let response;
+  let response: {
+    errors: any[];
+    result: any;
+  };
+
   if (isAsync) {
     try {
       response = yield call(
@@ -340,8 +363,10 @@ export function* executeFunction(collectionName: string, action: JSAction) {
   }
 
   const { errors, result } = response;
+  const isDirty = !!errors.length;
+
   yield call(evalErrorHandler, errors);
-  return result;
+  return { result, isDirty };
 }
 
 export function* validateProperty(

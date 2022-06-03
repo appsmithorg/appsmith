@@ -1,4 +1,8 @@
 import {
+  createMessage,
+  SCHEMA_NOT_AVAILABLE,
+} from "@appsmith/constants/messages";
+import {
   DatasourceStructure as DatasourceStructureType,
   DatasourceTable,
 } from "entities/Datasource";
@@ -42,7 +46,7 @@ const Container = (props: Props) => {
           props.datasourceStructure.error &&
           props.datasourceStructure.error.message
             ? props.datasourceStructure.error.message
-            : "No information available"}
+            : createMessage(SCHEMA_NOT_AVAILABLE)}
         </EntityPlaceholder>
       );
     }
