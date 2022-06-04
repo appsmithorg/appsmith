@@ -4,8 +4,9 @@ let dataSet: any;
 let agHelper = ObjectsRegistry.AggregateHelper,
     ee = ObjectsRegistry.EntityExplorer,
     jsEditor = ObjectsRegistry.JSEditor,
-    locator = ObjectsRegistry.CommonLocators;
-    
+    locator = ObjectsRegistry.CommonLocators,
+    deployMode = ObjectsRegistry.DeployMode;
+
 describe("Validate basic binding of Input widget to Input widget", () => {
 
     before(() => {
@@ -33,7 +34,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
     });
 
     it("3. Publish and validate the data displayed in input widgets value for aToB and bToa", function () {
-        agHelper.DeployApp(locator._inputWidgetInDeployed)
+        deployMode.DeployApp(locator._inputWidgetInDeployed)
         cy.get(locator._inputWidgetInDeployed).first().invoke("attr", "value")
             .should("contain", "A")
         cy.get(locator._inputWidgetInDeployed).last().invoke("attr", "value")
