@@ -671,11 +671,11 @@ export const GLOBAL_FUNCTIONS = {
     "!type": "fn(id: string) -> void",
   },
   setTimeout: {
-    "!doc": "Execute triggers after a given interval",
+    "!doc": "Execute trigger after a given interval",
     "!type": "fn(callback: fn, interval: number, id?: string) -> void",
   },
   clearTimeout: {
-    "!doc": "Stop executing a setTimeout with id",
+    "!doc": "Stop executing a setTimeout callback corresponding to a given id",
     "!type": "fn(id: string) -> void",
   },
 };

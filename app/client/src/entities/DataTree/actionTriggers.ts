@@ -24,7 +24,7 @@ export enum ActionTriggerType {
 
 export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
   [ActionTriggerType.CLEAR_INTERVAL]: "clearInterval",
-  [ActionTriggerType.CLEAR_TIMEOUT]: "clearTImeout",
+  [ActionTriggerType.CLEAR_TIMEOUT]: "clearTimeout",
   [ActionTriggerType.CLEAR_PLUGIN_ACTION]: "action.clear",
   [ActionTriggerType.CLOSE_MODAL]: "closeModal",
   [ActionTriggerType.COPY_TO_CLIPBOARD]: "copyToClipboard",

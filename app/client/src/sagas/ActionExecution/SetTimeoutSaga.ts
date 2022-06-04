@@ -40,19 +40,7 @@ function* executeAfterDelay(
   if (
     // only execute if the id exists in the activeTimers obj
     id in activeTimers
-    //&&
-    /*
-       While editing the callback can change for the same id.
-       At that time we want only execute the new callback
-       so end the loop if the callback is not the same as the one this
-       saga was started
-  
-       But if no id is provided, it will always run
-      */
-    //   (activeTimers[id] === callback || id === TIMER_WITHOUT_ID_KEY)
   ) {
-    // Even if there is an error, the set interval should still keep
-    // running. This is according to the spec of setInterval
     try {
       yield delay(interval);
       yield call(executeAppAction, {

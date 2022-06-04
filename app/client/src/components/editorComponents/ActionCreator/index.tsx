@@ -53,7 +53,6 @@ import {
   RESET_WIDGET,
   SET_INTERVAL,
   SET_TIMEOUT,
-  JS_SETTINGS_EXECUTE_TIMEOUT,
   SHOW_MESSAGE,
   STOP_WATCH_GEO_LOCATION,
   STORE_VALUE,
@@ -388,13 +387,13 @@ function getFieldFromValue(
 
   if (value.indexOf("clearInterval") !== -1) {
     fields.push({
-      field: FieldType.CLEAR_INTERVAL_ID_FIELD,
+      field: FieldType.CLEAR_ID_FIELD,
     });
   }
 
   if (value.indexOf("clearTimeout") !== -1) {
     fields.push({
-      field: FieldType.CLEAR_TIMEOUT_ID_FIELD,
+      field: FieldType.CLEAR_ID_FIELD,
     });
   }
   if (value.indexOf("getCurrentPosition") !== -1) {

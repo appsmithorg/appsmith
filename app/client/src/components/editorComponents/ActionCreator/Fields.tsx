@@ -356,8 +356,7 @@ export enum FieldType {
   CALLBACK_FUNCTION_FIELD = "CALLBACK_FUNCTION_FIELD",
   DELAY_FIELD = "DELAY_FIELD",
   ID_FIELD = "ID_FIELD",
-  CLEAR_INTERVAL_ID_FIELD = "CLEAR_INTERVAL_ID_FIELD",
-  CLEAR_TIMEOUT_ID_FIELD = "CLEAR_TIMEOUT_ID_FIELD",
+  CLEAR_ID_FIELD = "CLEAR_ID_FIELD",
 }
 
 type FieldConfig = {
@@ -619,16 +618,7 @@ const fieldConfigs: FieldConfigs = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
-  [FieldType.CLEAR_INTERVAL_ID_FIELD]: {
-    getter: (value: string) => {
-      return textGetter(value, 0);
-    },
-    setter: (value: string, currentValue: string) => {
-      return textSetter(value, currentValue, 0);
-    },
-    view: ViewTypes.TEXT_VIEW,
-  },
-  [FieldType.CLEAR_TIMEOUT_ID_FIELD]: {
+  [FieldType.CLEAR_ID_FIELD]: {
     getter: (value: string) => {
       return textGetter(value, 0);
     },
@@ -807,8 +797,7 @@ function renderField(props: {
     case FieldType.CALLBACK_FUNCTION_FIELD:
     case FieldType.DELAY_FIELD:
     case FieldType.ID_FIELD:
-    case FieldType.CLEAR_TIMEOUT_ID_FIELD:
-    case FieldType.CLEAR_INTERVAL_ID_FIELD:
+    case FieldType.CLEAR_ID_FIELD:
       let fieldLabel = "";
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
@@ -831,8 +820,6 @@ function renderField(props: {
       } else if (fieldType === FieldType.DELAY_FIELD) {
         fieldLabel = "Delay (ms)";
       } else if (fieldType === FieldType.ID_FIELD) {
-        fieldLabel = "Id";
-      } else if (fieldType === FieldType.CLEAR_INTERVAL_ID_FIELD) {
         fieldLabel = "Id";
       }
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
