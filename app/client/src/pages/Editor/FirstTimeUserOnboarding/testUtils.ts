@@ -1,3 +1,4 @@
+import { klona } from "klona";
 import _ from "lodash";
 import configureStore from "redux-mock-store";
 
@@ -59,7 +60,7 @@ const mockStore = configureStore();
 export function getStore(step: number) {
   switch (step) {
     case 0:
-      state = _.cloneDeep(initialState);
+      state = klona(initialState);
       break;
     case 1:
       state.entities.datasources.list.push({});

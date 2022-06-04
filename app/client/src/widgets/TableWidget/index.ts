@@ -1,5 +1,6 @@
 import { Colors } from "constants/Colors";
-import { cloneDeep, set } from "lodash";
+import { klona } from "klona";
+import { set } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
@@ -155,7 +156,7 @@ export const CONFIG = {
         {
           type: BlueprintOperationTypes.MODIFY_PROPS,
           fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
-            const primaryColumns = cloneDeep(widget.primaryColumns);
+            const primaryColumns = klona(widget.primaryColumns);
             const columnIds = Object.keys(primaryColumns);
             columnIds.forEach((columnId) => {
               set(

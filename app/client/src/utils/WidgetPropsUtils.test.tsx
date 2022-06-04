@@ -11,7 +11,6 @@ import {
   widgetCanvasFactory,
   buildDslWithChildren,
 } from "test/factories/WidgetFactoryUtils";
-import { cloneDeep } from "lodash";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   extractCurrentDSL,
@@ -19,6 +18,7 @@ import {
   getMousePositionsOnCanvas,
 } from "./WidgetPropsUtils";
 import { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
+import { klona } from "klona/full";
 
 describe("WidgetProps tests", () => {
   it("should convert WidgetDraggingBlocks to occupied Spaces", () => {
@@ -193,7 +193,7 @@ describe("WidgetProps tests", () => {
   });
   it("Grid density migration - Main container widgets", () => {
     const dsl: any = buildDslWithChildren([{ type: "TABS_WIDGET" }]);
-    const newMigratedDsl: any = migrateToNewLayout(cloneDeep(dsl));
+    const newMigratedDsl: any = migrateToNewLayout(klona(dsl));
     expect(dsl.children[0].topRow * GRID_DENSITY_MIGRATION_V1).toBe(
       newMigratedDsl.children[0].topRow,
     );
@@ -217,7 +217,7 @@ describe("WidgetProps tests", () => {
     const dslWithContainer: any = buildDslWithChildren([
       { type: "CONTAINER_WIDGET", children: childrenInsideContainer },
     ]);
-    const newMigratedDsl: any = migrateToNewLayout(cloneDeep(dslWithContainer));
+    const newMigratedDsl: any = migrateToNewLayout(klona(dslWithContainer));
     // Container migrated checks
     const containerWidget = dslWithContainer.children[0];
     const migratedContainer = newMigratedDsl.children[0];

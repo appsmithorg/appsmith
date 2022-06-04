@@ -41,7 +41,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, isString, set } from "lodash";
+import _, { isString, set } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import {
@@ -139,6 +139,7 @@ import { reflow } from "reflow";
 import { getBottomMostRow } from "reflow/reflowUtils";
 import { flashElementsById } from "utils/helpers";
 import { getSlidingCanvasName } from "constants/componentClassNameConstants";
+import { klona } from "klona/full";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -396,7 +397,7 @@ export function* setWidgetDynamicPropertySaga(
     widgetId,
   } = action.payload;
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
-  let widget = cloneDeep({ ...stateWidget });
+  let widget = klona({ ...stateWidget });
   const propertyValue = _.get(widget, propertyPath);
 
   let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
@@ -450,7 +451,7 @@ export function getPropertiesToUpdate(
   dynamicBindingPathList: DynamicPath[];
 } {
   // Create a
-  const widgetWithUpdates = _.cloneDeep(widget);
+  const widgetWithUpdates = klona(widget);
   Object.entries(updates).forEach(([propertyPath, propertyValue]) => {
     set(widgetWithUpdates, propertyPath, propertyValue);
   });
@@ -531,7 +532,7 @@ export function* getPropertiesUpdatedWidget(
   // if there is no widget in the state, don't do anything
   if (!stateWidget) return;
 
-  let widget = cloneDeep(stateWidget);
+  let widget = klona(stateWidget);
   try {
     if (Object.keys(modify).length > 0) {
       const {
@@ -1362,7 +1363,7 @@ function* pasteWidgetSaga(
 
         widgetList.forEach((widget) => {
           // Create a copy of the widget properties
-          const newWidget = cloneDeep(widget);
+          const newWidget = klona(widget);
           newWidget.widgetId = generateReactKey();
           // Add the new widget id so that it maps the previous widget id
           widgetIdMap[widget.widgetId] = newWidget.widgetId;

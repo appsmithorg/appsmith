@@ -1,4 +1,5 @@
-import { cloneDeep, get, indexOf, isString } from "lodash";
+import { klona } from "klona";
+import { get, indexOf, isString } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
@@ -242,7 +243,7 @@ export const CONFIG = {
 
             canvas.children &&
               get(canvas, "children", []).forEach((child: string) => {
-                const childWidget = cloneDeep(get(widgets, `${child}`));
+                const childWidget = klona(get(widgets, `${child}`));
                 const logBlackList: { [key: string]: boolean } = {};
                 const keys = Object.keys(childWidget);
 

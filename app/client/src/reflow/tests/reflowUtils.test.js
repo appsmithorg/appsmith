@@ -1489,6 +1489,17 @@ describe("Test reflow util methods", () => {
         ),
       ).toEqual(modifiedOccupiedSpacesMap);
     });
+    it("should return deep clone of occupiedSpaceMap", () => {
+      expect(getModifiedOccupiedSpacesMap(
+        occupiedSpaceMap,
+        undefined,
+        true,
+        gridProps,
+        SpaceAttributes.bottom,
+        SpaceAttributes.top,
+      ),
+      ).toEqual(occupiedSpaceMap);
+    });
   });
   describe("Test getModifiedCollidingSpace method", () => {
     const collidingSpace = {

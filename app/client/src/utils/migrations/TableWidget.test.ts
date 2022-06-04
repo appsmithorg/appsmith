@@ -1,4 +1,4 @@
-import { cloneDeep } from "lodash";
+import { klona } from "klona/full";
 import { DSLWidget } from "widgets/constants";
 import {
   tableWidgetPropertyPaneMigrations,
@@ -2301,7 +2301,7 @@ describe("Table Widget numeric column name to string update", () => {
     };
     // using cloneDeep, create new reference of inputDsl
     // otherwise migration function will modify inputDsl too
-    const newDsl = migrateTableWidgetNumericColumnName(cloneDeep(inputDsl));
+    const newDsl = migrateTableWidgetNumericColumnName(klona(inputDsl));
     const outputDsl: DSLWidget = {
       widgetName: "MainContainer",
       backgroundColor: "none",

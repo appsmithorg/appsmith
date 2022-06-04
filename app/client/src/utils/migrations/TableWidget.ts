@@ -15,10 +15,11 @@ import {
 } from "widgets/TableWidget/component/Constants";
 import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import { cloneDeep, isString } from "lodash";
+import { isString } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { DSLWidget } from "widgets/constants";
 import { getSubstringBetweenTwoWords } from "utils/helpers";
+import { klona } from "klona";
 
 export const isSortableMigration = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
@@ -33,7 +34,7 @@ export const isSortableMigration = (currentDSL: DSLWidget) => {
 };
 export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((_child: WidgetProps) => {
-    let child = cloneDeep(_child);
+    let child = klona(_child);
     // If the current child is a TABLE_WIDGET
     if (child.type === "TABLE_WIDGET") {
       const hiddenColumns = child.hiddenColumns || [];

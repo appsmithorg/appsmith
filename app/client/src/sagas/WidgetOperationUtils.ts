@@ -51,6 +51,7 @@ import {
 import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
+import { klona } from "klona/full";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -116,7 +117,7 @@ export const handleIfParentIsListWidgetWhilePasting = (
   while (root && root.parentId && root.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
     if (root.type === "LIST_WIDGET") {
       const listWidget = root;
-      const currentWidget = _.cloneDeep(widget);
+      const currentWidget = klona(widget);
       let template = _.get(listWidget, "template", {});
       const dynamicBindingPathList: any[] = _.get(
         listWidget,
@@ -1241,7 +1242,7 @@ export const filterOutSelectedWidgets = function*(
   parentId: string,
   copiedWidgetGroups: CopiedWidgetGroup[],
 ) {
-  const canvasWidgets: CanvasWidgetsReduxState = yield _.cloneDeep(
+  const canvasWidgets: CanvasWidgetsReduxState = yield klona(
     select(getWidgets),
   );
 

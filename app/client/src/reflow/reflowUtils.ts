@@ -1,5 +1,6 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { cloneDeep, isUndefined } from "lodash";
+import { klona } from "klona/full";
+import { isUndefined } from "lodash";
 import { Rect } from "utils/WidgetPropsUtils";
 import {
   CollidingSpace,
@@ -1347,7 +1348,7 @@ export function getModifiedOccupiedSpacesMap(
   directionMax: SpaceAttributes,
   directionMin: SpaceAttributes,
 ) {
-  if (!prevMovementMap) return cloneDeep(occupiedSpacesMap);
+  if (!prevMovementMap) return klona(occupiedSpacesMap);
 
   const spaceKeys = Object.keys(occupiedSpacesMap);
   const directionalOccupiedSpacesMap: SpaceMap = {};

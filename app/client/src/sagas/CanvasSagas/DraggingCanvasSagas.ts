@@ -10,7 +10,6 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import log from "loglevel";
-import { cloneDeep } from "lodash";
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import { calculateDropTargetRows } from "components/editorComponents/DropTargetUtils";
 import { GridDefaults } from "constants/WidgetConstants";
@@ -21,6 +20,7 @@ import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import { klona } from "klona/full";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -176,7 +176,7 @@ function* moveAndUpdateWidgets(
   draggedBlocksToUpdate: WidgetDraggingUpdateParams[],
   canvasId: string,
 ) {
-  const widgets = cloneDeep(allWidgets);
+  const widgets = klona(allWidgets);
   const bottomMostRowAfterMove = getBottomMostRowAfterMove(
     draggedBlocksToUpdate,
     allWidgets,

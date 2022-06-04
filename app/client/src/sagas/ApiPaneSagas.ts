@@ -3,7 +3,6 @@
  * */
 import get from "lodash/get";
 import omit from "lodash/omit";
-import cloneDeep from "lodash/cloneDeep";
 import { all, select, put, takeEvery, call, take } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import {
@@ -65,6 +64,7 @@ import {
   datasourcesEditorIdURL,
   integrationEditorURL,
 } from "RouteBuilder";
+import { klona } from "klona/full";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -178,7 +178,7 @@ function* handleUpdateBodyContentType(
     },
   });
 
-  const headers = cloneDeep(values.actionConfiguration.headers);
+  const headers = klona(values.actionConfiguration.headers);
 
   const contentTypeHeaderIndex = headers.findIndex(
     (element: { key: string; value: string }) =>
@@ -212,7 +212,7 @@ function* handleUpdateBodyContentType(
     change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
   );
 
-  const bodyFormData = cloneDeep(values.actionConfiguration.bodyFormData);
+  const bodyFormData = klona(values.actionConfiguration.bodyFormData);
 
   if (
     displayFormatValue === POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED ||
@@ -377,7 +377,7 @@ export function* updateFormFields(
     const { actionConfiguration } = values;
     if (!actionConfiguration.headers) return;
 
-    const actionConfigurationHeaders = cloneDeep(actionConfiguration.headers);
+    const actionConfigurationHeaders = klona(actionConfiguration.headers);
     const contentTypeHeaderIndex = actionConfigurationHeaders.findIndex(
       (header: { key: string; value: string }) =>
         header?.key?.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,

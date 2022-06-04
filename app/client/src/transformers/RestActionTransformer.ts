@@ -5,10 +5,10 @@ import {
 import { ApiAction } from "entities/Action";
 import isEmpty from "lodash/isEmpty";
 import isString from "lodash/isString";
-import cloneDeep from "lodash/cloneDeep";
+import { klona } from "klona/full";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
-  let action = cloneDeep(data);
+  let action = klona(data);
   const actionConfigurationHeaders = action.actionConfiguration.headers;
 
   const contentTypeHeaderIndex = actionConfigurationHeaders.findIndex(
