@@ -31,7 +31,6 @@ import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
-import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QAction;
 import com.appsmith.server.domains.QActionCollection;
