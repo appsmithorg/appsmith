@@ -7,6 +7,7 @@ import {
   ReduxActionErrorTypes,
   WidgetReduxActionTypes,
   ReplayReduxActionTypes,
+  AnyReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperation } from "widgets/BaseWidget";
@@ -17,7 +18,6 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { GenerateTemplatePageRequest } from "api/PageApi";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
-import { AnyReduxAction } from "../ce/constants/ReduxActionConstants";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -49,26 +49,43 @@ export const fetchPage = (
   };
 };
 
-export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
+export const fetchPublishedPage = (
+  pageId: string,
+  bustCache = false,
+  firstLoad = false,
+) => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
   payload: {
     pageId,
     bustCache,
+    firstLoad,
   },
 });
 
-export const fetchPageSuccess = (
-  postEvalActions: Array<AnyReduxAction>,
-): EvaluationReduxAction<undefined> => {
+export const fetchPageSuccess = (): EvaluationReduxAction<undefined> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_SUCCESS,
-    postEvalActions,
     payload: undefined,
   };
 };
 
 export const fetchPublishedPageSuccess = (): EvaluationReduxAction<undefined> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
+  payload: undefined,
+});
+
+/**
+ * After all page entities are fetched like DSL, actions and JsObjects,
+ * we trigger evaluation using this redux action, here we supply postEvalActions
+ * to trigger action after evaluation has been completed like executeOnPageLoadAction
+ *
+ * @param {Array<AnyReduxAction>} postEvalActions
+ */
+export const fetchAllPageEntityCompletion = (
+  postEvalActions: Array<AnyReduxAction>,
+) => ({
+  type: ReduxActionTypes.FETCH_ALL_PAGE_ENTITY_COMPLETION,
+  postEvalActions,
   payload: undefined,
 });
 

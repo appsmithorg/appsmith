@@ -87,6 +87,7 @@ import { isURLDeprecated, getUpdatedRoute } from "utils/helpers";
 import { fillPathname, viewerURL, builderURL } from "RouteBuilder";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
+import { fetchAllPageEntityCompletion } from "actions/pageActions";
 import {
   fetchSelectedAppThemeAction,
   fetchAppThemesAction,
@@ -260,7 +261,7 @@ function* initiateEditorActions(toLoadPageId: string, applicationId: string) {
     ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
     ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
     ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-    fetchPageSuccess([]).type,
+    fetchPageSuccess().type,
   ];
   const failureActionEffects = [
     ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
@@ -284,7 +285,7 @@ function* initiateEditorActions(toLoadPageId: string, applicationId: string) {
     yield put({
       type: ReduxActionTypes.FETCH_PLUGIN_AND_JS_ACTIONS_SUCCESS,
     });
-    yield put(executePageLoadActions());
+    yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 }
 
@@ -444,7 +445,7 @@ export function* initializeAppViewerSaga(
       fetchJSCollectionsForView({ applicationId }),
       fetchSelectedAppThemeAction(applicationId),
       fetchAppThemesAction(applicationId),
-      fetchPublishedPage(toLoadPageId, true),
+      fetchPublishedPage(toLoadPageId, true, true),
     ],
     [
       ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
@@ -465,8 +466,7 @@ export function* initializeAppViewerSaga(
   console.log("$$$-resultOfPrimaryCalls", resultOfPrimaryCalls);
   if (!resultOfPrimaryCalls) return;
 
-  //Delay page load actions till all actions are retrieved.
-  yield put(executePageLoadActions());
+  yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
 
   yield put(fetchCommentThreadsInit());
 

@@ -48,5 +48,7 @@ describe("Execute Action Functionality", function() {
         return totalRequests.filter((reqId) => !completedIds.includes(reqId));
       })
       .should("have.length", 1);
+
+    cy.wait(2000);
   });
 });
