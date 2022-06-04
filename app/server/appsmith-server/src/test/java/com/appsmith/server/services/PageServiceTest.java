@@ -308,6 +308,47 @@ public class PageServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void updatePage_WhenCustomSlugSet_CustomSlugIsNotUpdated() {
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("Before Page Name Change");
+        testPage.setCustomSlug("my-custom-slug");
+        setupTestApplication();
+        testPage.setApplicationId(application.getId());
+
+        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage)
+                .flatMap(page -> {
+                    PageDTO newPage = new PageDTO();
+                    newPage.setId(page.getId());
+                    newPage.setName("New Page Name");
+                    return newPageService.updatePage(page.getId(), newPage);
+                });
+
+        StepVerifier
+                .create(pageMono)
+                .assertNext(page -> {
+                    assertThat(page).isNotNull();
+                    assertThat(page.getId()).isNotNull();
+                    assertThat(page.getName()).isEqualTo("New Page Name");
+                    assertThat(page.getSlug()).isEqualTo(TextUtils.makeSlug(page.getName()));
+                    assertThat(page.getCustomSlug()).isEqualTo("my-custom-slug");
+
+                    // Check for the policy object not getting overwritten during update
+                    assertThat(page.getPolicies()).isNotEmpty();
+                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void clonePage() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
