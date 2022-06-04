@@ -133,8 +133,8 @@ public class MySqlPluginTest {
                                     ")"
                             );
                 })
-                .flatMap(batch -> Mono.from(batch.execute()))
-                .block();
+                .flatMapMany(batch -> Flux.from(batch.execute()))
+                .blockLast(); //wait until completion of all the queries
 
         return;
     }
@@ -255,8 +255,8 @@ public class MySqlPluginTest {
                                 "GRANT ALL PRIVILEGES ON *.* TO 'mysql'@'%' WITH GRANT OPTION;\n" +
                                 "FLUSH PRIVILEGES;")
                         )
-                .flatMap(batch -> Mono.from(batch.execute()))
-                .block();
+                .flatMapMany(batch -> Flux.from(batch.execute()))
+                .blockLast(); //wait until completion of all the queries
 
 
         // change to ordinary user
@@ -537,8 +537,8 @@ public class MySqlPluginTest {
                             .add("insert into test_real_types values (1, 1.123, 3.123, 5.123)")
                             .add("insert into test_real_types values (2, 11.123, 13.123, 15.123)")
                 )
-                .flatMap(batch -> Mono.from(batch.execute()))
-                .block();
+                .flatMapMany(batch -> Flux.from(batch.execute()))
+                .blockLast(); //wait until completion of all the queries
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -593,8 +593,8 @@ public class MySqlPluginTest {
                         connection.createBatch()
                                 .add("drop table test_real_types")
                 )
-                .flatMap(batch -> Mono.from(batch.execute()))
-                .block();
+                .flatMapMany(batch -> Flux.from(batch.execute()))
+                .blockLast(); //wait until completion of all the queries
     }
 
     @Test
@@ -610,8 +610,8 @@ public class MySqlPluginTest {
                             .add("insert into test_boolean_type values (2, True)")
                             .add("insert into test_boolean_type values (3, False)")
                 )
-                .flatMap(batch -> Mono.from(batch.execute()))
-                .block();
+                .flatMapMany(batch -> Flux.from(batch.execute()))
+                .blockLast(); //wait until completion of all the queries
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -649,8 +649,8 @@ public class MySqlPluginTest {
                         connection.createBatch()
                                 .add("drop table test_boolean_type")
                 )
-                .flatMap(batch -> Mono.from(batch.execute()))
-                .block();
+                .flatMapMany(batch -> Flux.from(batch.execute()))
+                .blockLast(); //wait until completion of all the queries
     }
 
     @Test
@@ -834,8 +834,8 @@ public class MySqlPluginTest {
                             .add(query_create_table_geometry_types)
                             .add(query_insert_geometry_types);
                 })
-                .flatMap(batch -> Mono.from(batch.execute()))
-                .block();
+                .flatMapMany(batch -> Flux.from(batch.execute()))
+                .blockLast(); //wait until completion of all the queries
 
         /* Test numeric types */
         testExecute(query_select_from_test_numeric_types);
