@@ -432,7 +432,7 @@ export function* initializeAppViewerSaga(
       fetchJSCollectionsForView({ applicationId }),
       fetchSelectedAppThemeAction(applicationId),
       fetchAppThemesAction(applicationId),
-      fetchPublishedPage(toLoadPageId, true),
+      fetchPublishedPage(toLoadPageId, true, true),
     ],
     [
       ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
