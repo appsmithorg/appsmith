@@ -147,7 +147,8 @@ export function computeChangeInPositionBasedOnDelta(
         if (_offset === undefined) _offset = _aboveOffset;
         _offset = Math.max(_aboveOffset, _offset);
       } else {
-        _offset = 0;
+        // Stick to the widget above.
+        _offset = tree[aboveId].bottomRow - tree[effectedBoxId].topRow;
       }
     }
     if (_offset === undefined) {
