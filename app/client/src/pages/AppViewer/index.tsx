@@ -8,7 +8,6 @@ import {
   BuilderRouteParams,
   GIT_BRANCH_QUERY_KEY,
 } from "constants/routes";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getIsInitialized,
   getAppViewHeaderHeight,
@@ -43,7 +42,7 @@ import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
 import { fetchPublishedPage, initAppViewer } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
-import { getIsBranchUpdated } from "utils";
+import { getIsBranchUpdated } from "../utils";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
