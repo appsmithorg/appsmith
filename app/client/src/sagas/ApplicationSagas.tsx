@@ -85,7 +85,7 @@ import {
   fetchDatasources,
   setUnconfiguredDatasourcesDuringImport,
 } from "actions/datasourceActions";
-import { failFastApiCalls } from "./InitSagas";
+import { failFastApiCalls } from "./InitSagas/utils";
 import { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { builderURL, generateTemplateURL, viewerURL } from "RouteBuilder";

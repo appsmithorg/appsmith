@@ -1,20 +1,10 @@
-import { get } from "lodash";
-import {
-  all,
-  call,
-  put,
-  race,
-  select,
-  take,
-  takeLatest,
-} from "redux-saga/effects";
+import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
 import {
   ApplicationPayload,
   Page,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-  ReduxActionWithoutPayload,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 
@@ -89,6 +79,7 @@ import { fillPathname, viewerURL, builderURL } from "RouteBuilder";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
 import { failFastApiCalls } from "./utils";
+import { fetchAllPageEntityCompletion } from "actions/pageActions";
 import {
   fetchSelectedAppThemeAction,
   fetchAppThemesAction,
@@ -236,7 +227,7 @@ function* initiateEditorActions(toLoadPageId: string, applicationId: string) {
     yield put({
       type: ReduxActionTypes.FETCH_PLUGIN_AND_JS_ACTIONS_SUCCESS,
     });
-    yield put(executePageLoadActions());
+    yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 }
 
@@ -395,34 +386,30 @@ export function* initializeAppViewerSaga(
       fetchActionsForView({ applicationId }),
       fetchJSCollectionsForView({ applicationId }),
       fetchSelectedAppThemeAction(applicationId),
-
-      fetchPublishedPage(toLoadPageId, true),
+      fetchAppThemesAction(applicationId),
+      fetchPublishedPage(toLoadPageId, true, true),
     ],
     [
       ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
       ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
-
+      ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
       ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
       fetchPublishedPageSuccess().type,
     ],
     [
       ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
       ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
-
+      ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
       ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
       ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
     ],
   );
 
   if (!resultOfPrimaryCalls) return;
-  //Delay page load actions till all actions are retrieved.
-  yield put(executePageLoadActions());
+
+  yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
 
   yield put(fetchCommentThreadsInit());
-
-  // fetchAppThemesAction(applicationId),
-  //   ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-  //   ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
 
   yield put({
     type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,

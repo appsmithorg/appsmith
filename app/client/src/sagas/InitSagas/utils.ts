@@ -8,25 +8,13 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 
 export function* failFastApiCalls(
-  triggerActions:
-    | Array<ReduxAction<unknown> | ReduxActionWithoutPayload>
-    | Array<any>,
+  triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
   successActions: string[],
   failureActions: string[],
 ) {
-  const triggerEffects = [];
-  for (const triggerAction of triggerActions) {
-    triggerEffects.push(triggerAction);
-  }
-
-  yield all(triggerEffects.map((triggerAction) => put(triggerAction)));
-
-  const successEffects = [];
-  for (const successAction of successActions) {
-    successEffects.push(successAction);
-  }
+  yield all(triggerActions.map((triggerAction) => put(triggerAction)));
   const effectRaceResult = yield race({
-    success: all(successEffects.map((successAction) => take(successAction))),
+    success: all(successActions.map((successAction) => take(successAction))),
     failure: take(failureActions),
   });
   if (effectRaceResult.failure) {

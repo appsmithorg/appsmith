@@ -24,6 +24,9 @@ import {
   setLastUpdatedTime,
   ClonePageActionPayload,
   CreatePageActionPayload,
+  generateTemplateError,
+  generateTemplateSuccess,
+  fetchAllPageEntityCompletion,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -76,6 +79,8 @@ import {
   fetchActionsForPage,
   setActionsToExecuteOnPageLoad,
   setJSActionsToExecuteOnPageLoad,
+  fetchActionsForPageSuccess,
+  fetchActionsForPageError,
 } from "actions/pluginActionActions";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
@@ -93,10 +98,7 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
 import { GenerateTemplatePageRequest } from "api/PageApi";
-import {
-  generateTemplateError,
-  generateTemplateSuccess,
-} from "actions/pageActions";
+
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
@@ -105,11 +107,16 @@ import {
   getFirstTimeUserOnboardingApplicationId,
   inGuidedTour,
 } from "selectors/onboardingSelectors";
-import { fetchJSCollectionsForPage } from "actions/jsActionActions";
+import {
+  fetchJSCollectionsForPage,
+  fetchJSCollectionsForPageSuccess,
+  fetchJSCollectionsForPageError,
+} from "actions/jsActionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { builderURL, generateTemplateURL } from "RouteBuilder";
+import { failFastApiCalls } from "./InitSagas/utils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -199,10 +206,12 @@ export const getCanvasWidgetsPayload = (
 
 export function* handleFetchedPage({
   fetchPageResponse,
+  isFirstLoad = false,
   pageId,
 }: {
   fetchPageResponse: FetchPageResponse;
   pageId: string;
+  isFirstLoad?: boolean;
 }) {
   const isValidResponse = yield validateResponse(fetchPageResponse);
   const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
@@ -222,6 +231,14 @@ export function* handleFetchedPage({
     yield put(updateCurrentPage(pageId, pageSlug));
     // dispatch fetch page success
     yield put(fetchPageSuccess());
+
+    /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page
+     */
+    // Hence, if is not isFirstLoad then trigger evaluation with execute pageLoad action
+    if (!isFirstLoad) {
+      yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+    }
+
     // Sets last updated time
     yield put(setLastUpdatedTime(lastUpdatedTime));
     const extractedDSL = extractCurrentDSL(fetchPageResponse);
@@ -242,7 +259,7 @@ export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { id } = pageRequestAction.payload;
+    const { id, isFirstLoad } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
@@ -250,10 +267,11 @@ export function* fetchPageSaga(
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id,
     });
-    // fetchPageSuccess will be called here
+
     yield handleFetchedPage({
       fetchPageResponse,
       pageId: id,
+      isFirstLoad,
     });
 
     PerformanceTracker.stopAsyncTracking(
@@ -280,10 +298,11 @@ export function* fetchPublishedPageSaga(
   pageRequestAction: ReduxAction<{
     pageId: string;
     bustCache: boolean;
+    firstLoad: boolean;
   }>,
 ) {
   try {
-    const { bustCache, pageId } = pageRequestAction.payload;
+    const { bustCache, firstLoad, pageId } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       {
@@ -314,6 +333,13 @@ export function* fetchPublishedPageSaga(
 
       // dispatch fetch page success
       yield put(fetchPublishedPageSuccess());
+
+      /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page
+       */
+      // Hence, if is not isFirstLoad then trigger evaluation with execute pageLoad action
+      if (!firstLoad) {
+        yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+      }
 
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
@@ -962,23 +988,47 @@ export function* generateTemplatePageSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const pageId = response.data.page.id;
-      // fetchPageSuccess will be called here
+
+      yield put(
+        generateTemplateSuccess({
+          page: response.data.page,
+          isNewPage: !request.pageId,
+          // if pageId if not defined, that means a new page is generated.
+        }),
+      );
+
       yield handleFetchedPage({
         fetchPageResponse: {
           data: response.data.page,
           responseMeta: response.responseMeta,
         },
         pageId,
+        isFirstLoad: true,
       });
-      yield put(
-        generateTemplateSuccess({
-          page: response.data.page,
-          isNewPage: !request.pageId, // if pageId if not defined, that means a new page is generated.
-        }),
+
+      // trigger evaluation after completion of page success & fetch actions for page + fetch jsobject for page
+
+      const triggersAfterPageFetch = [
+        fetchActionsForPage(pageId),
+        fetchJSCollectionsForPage(pageId),
+      ];
+
+      const afterActionsFetch = yield failFastApiCalls(
+        triggersAfterPageFetch,
+        [
+          fetchActionsForPageSuccess([]).type,
+          fetchJSCollectionsForPageSuccess([]).type,
+        ],
+        [
+          fetchActionsForPageError().type,
+          fetchJSCollectionsForPageError().type,
+        ],
       );
 
-      // TODO: merge this code to initSagas else generateCRUD feature action fetching will need to be maintained separately which is not scalable.
-      yield put(fetchActionsForPage(pageId, [executePageLoadActions()]));
+      if (!afterActionsFetch) {
+        throw new Error("Failed generating template");
+      }
+
       history.replace(
         builderURL({
           pageSlug: response.data.page.slug,
