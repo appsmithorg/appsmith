@@ -40,9 +40,11 @@ import {
 } from "actions/controlActions";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
-import { fetchPublishedPage, initAppViewer } from "actions/pageActions";
+import { fetchPublishedPage } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
+import { APP_MODE } from "entities/App";
+import { initAppViewer } from "actions/initActions";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -99,7 +101,21 @@ function AppViewer(props: Props) {
    * initializes the widgets factory and registers all widgets
    */
   useEffect(() => {
-    editorInitializer().then(() => setRegistered(true));
+    editorInitializer().then(() => {
+      setRegistered(true);
+    });
+
+    // onMount initPage
+    if (applicationId || pageId) {
+      dispatch(
+        initAppViewer({
+          applicationId,
+          branch,
+          pageId,
+          mode: APP_MODE.PUBLISHED,
+        }),
+      );
+    }
   }, []);
 
   /**
@@ -117,7 +133,14 @@ function AppViewer(props: Props) {
     const isPageIdUpdated = pageId !== prevPageId;
 
     if (prevBranch && isBranchUpdated && (applicationId || pageId)) {
-      dispatch(initAppViewer({ branch, applicationId, pageId }));
+      dispatch(
+        initAppViewer({
+          applicationId,
+          branch,
+          pageId,
+          mode: APP_MODE.PUBLISHED,
+        }),
+      );
     } else {
       /**
        * First time load is handled by init sagas
@@ -125,6 +148,7 @@ function AppViewer(props: Props) {
        * when redirected to the default page
        */
       if (prevPageId && pageId && isPageIdUpdated) {
+        console.log("$$$-fetchPublishedPage-isPageIdUpdated", pageId);
         dispatch(fetchPublishedPage(pageId, true));
       }
     }

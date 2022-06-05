@@ -54,6 +54,8 @@ import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
 import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
 import ImportedApplicationSuccessModal from "./gitSync/ImportedAppSuccessModal";
 import { getIsBranchUpdated } from "../utils";
+import { APP_MODE } from "entities/App";
+import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -96,11 +98,16 @@ class Editor extends Component<Props> {
     const {
       location: { search },
     } = this.props;
-    const branch = getSearchQuery(search, "branch");
+    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
     const { applicationId, pageId } = this.props.match.params;
-    if (applicationId || pageId)
-      this.props.initEditor({ applicationId, pageId, branch });
+    if (pageId)
+      this.props.initEditor({
+        applicationId,
+        pageId,
+        branch,
+        mode: APP_MODE.EDIT,
+      });
     this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
 
@@ -143,14 +150,25 @@ class Editor extends Component<Props> {
       prevProps.location,
     );
 
-    const branch = getSearchQuery(this.props.location.search, "branch");
-    const prevBranch = getSearchQuery(prevProps.location.search, "branch");
+    const branch = getSearchQuery(
+      this.props.location.search,
+      GIT_BRANCH_QUERY_KEY,
+    );
+    const prevBranch = getSearchQuery(
+      prevProps.location.search,
+      GIT_BRANCH_QUERY_KEY,
+    );
 
     const isPageIdUpdated = pageId !== prevPageId;
 
     // to prevent re-init during connect
-    if (prevBranch && isBranchUpdated && (applicationId || pageId)) {
-      this.props.initEditor({ pageId, branch, applicationId });
+    if (prevBranch && isBranchUpdated && pageId) {
+      this.props.initEditor({
+        applicationId,
+        pageId,
+        branch,
+        mode: APP_MODE.EDIT,
+      });
     } else {
       /**
        * First time load is handled by init sagas
@@ -175,7 +193,7 @@ class Editor extends Component<Props> {
     const {
       location: { search },
     } = this.props;
-    const branch = getSearchQuery(search, "branch");
+    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
     this.props.resetEditorRequest();
     if (typeof this.unlisten === "function") this.unlisten();
     this.props.collabStopSharingPointerEvent(
