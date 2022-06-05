@@ -1,5 +1,5 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
 import { DropdownOption } from "components/ads/Dropdown";
 import { isNil } from "lodash";
@@ -127,6 +127,16 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
   static getControlType() {
     return "DROP_DOWN";
+  }
+
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    if (
+      (config as DropDownControlProps)?.options
+        ?.map((x: { value: string }) => x.value)
+        .includes(value)
+    )
+      return true;
+    return false;
   }
 }
 
