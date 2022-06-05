@@ -392,12 +392,18 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
             return repository.getSystemThemeByName(theme.getName())
                     .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
         } else {
-            theme.setApplicationId(null);
-            theme.setOrganizationId(null);
-            theme.setPolicies(policyGenerator.getAllChildPolicies(
+            // create a new theme
+            Theme newTheme = new Theme();
+            newTheme.setPolicies(policyGenerator.getAllChildPolicies(
                     destApplication.getPolicies(), Application.class, Theme.class
             ));
-            return repository.save(theme);
+            newTheme.setStylesheet(theme.getStylesheet());
+            newTheme.setProperties(theme.getProperties());
+            newTheme.setConfig(theme.getConfig());
+            newTheme.setName(theme.getName());
+            newTheme.setDisplayName(theme.getDisplayName());
+            newTheme.setSystemTheme(false);
+            return repository.save(newTheme);
         }
     }
 
@@ -430,7 +436,6 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Application> importThemesToApplication(Application destinationApp, ApplicationJson sourceJson) {
-        // application already has a theme
         Mono<Theme> editModeTheme = updateExistingAppThemeFromJSON(
                 destinationApp, destinationApp.getEditModeThemeId(), sourceJson.getEditModeTheme()
         );
@@ -458,17 +463,17 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
             return getOrSaveTheme(themeFromJson, destinationApp);
         }
         return repository.findById(existingThemeId, READ_THEMES).flatMap(existingTheme -> {
-            if(!existingTheme.isSystemTheme()){
-                if(!themeFromJson.isSystemTheme()) {
-                    return repository.updateById(existingThemeId, themeFromJson, MANAGE_THEMES);
-                } else {
+            if(existingTheme.isSystemTheme()) {
+                return getOrSaveTheme(themeFromJson, destinationApp);
+            } else {
+                if(themeFromJson.isSystemTheme()) {
                     return getOrSaveTheme(themeFromJson, destinationApp).flatMap(importedTheme -> {
                         // need to delete the old existingTheme
                         return repository.archiveById(existingThemeId).thenReturn(importedTheme);
                     });
+                } else {
+                    return repository.updateById(existingThemeId, themeFromJson, MANAGE_THEMES);
                 }
-            } else {
-                return getOrSaveTheme(themeFromJson, destinationApp);
             }
         });
     }
