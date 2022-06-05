@@ -99,85 +99,74 @@ export function computeChangeInPositionBasedOnDelta(
   const effectedBoxMap: Record<string, number[]> = {};
 
   // This is expensive, we need to figure out a better algorithm
-  // Iteration 1 (O(n)) - n is the number of widgets changed
-  const allEffectedIds: string[] = [...Object.keys(delta)];
-  for (const boxId in delta) {
-    // Iteration 2 (O(m*m) - m is the depth and breadth of the children in this node)
-    const effectedIds = getEffectedWidgets(boxId, tree);
-    allEffectedIds.push(...effectedIds);
 
+  for (const boxId in delta) {
+    const effectedIds = getEffectedWidgets(boxId, tree);
+    // These effectedIds may not be necessary.
     effectedIds.forEach((effectedId) => {
       effectedBoxMap[effectedId] = [
         ...(effectedBoxMap[effectedId] || []),
         delta[boxId],
       ];
     });
-  }
-
-  // Iteration 3 (O(o) - o is the number of effected widgets)
-  for (const effectedBoxId in effectedBoxMap) {
-    // TODO: FIX_ME(abhinav): Handle the scenario where widgets can't freely move up
-    const offset = effectedBoxMap[effectedBoxId].reduce(
-      (prev, next) => prev + next,
-      0,
-    );
-    repositionedBoxes[effectedBoxId] = {
-      topRow: tree[effectedBoxId].topRow + offset,
-      bottomRow: tree[effectedBoxId].bottomRow + offset,
+    repositionedBoxes[boxId] = {
+      topRow: tree[boxId].topRow,
+      bottomRow: tree[boxId].bottomRow + delta[boxId],
     };
-    // const aboves = tree[effectedBoxId].aboves;
-    // const unchangedAboves = difference(aboves, allEffectedIds);
-    // const firstOrderUnchangedAboves = unchangedAboves.filter((aboveId) => {
-    //   for (const _aboveId in aboves) {
-    //     if (_aboveId !== aboveId) {
-    //       if (tree[_aboveId].aboves.includes(aboveId)) return false;
-    //     }
-    //   }
-    //   return true;
-    // });
-
-    // console.log(
-    //   "Dynamic height: Figuring offsets:",
-    //   { offset },
-    //   { aboves },
-    //   { unchangedAboves },
-    //   { allEffectedIds },
-    //   { firstOrderUnchangedAboves },
-    // );
-
-    // if (firstOrderUnchangedAboves.length === 0) {
-    //   repositionedBoxes[effectedBoxId] = {
-    //     topRow: tree[effectedBoxId].topRow + offset,
-    //     bottomRow: tree[effectedBoxId].bottomRow + offset,
-    //   };
-    // }
   }
 
-  // console.log(
-  //   "Dynamic height computing:",
-  //   { delta },
-  //   { tree },
-  //   { effectedBoxMap },
-  //   { repositionedBoxes },
-  // );
-  // Iteration 4 (O(n) - n is the number of widgets changed)
-  for (const boxId in delta) {
-    const hasAlreadyRepositioned = !!repositionedBoxes[boxId];
-    const existingBottomRow = hasAlreadyRepositioned
-      ? repositionedBoxes[boxId].bottomRow
-      : tree[boxId].bottomRow;
-    if (!hasAlreadyRepositioned) {
-      repositionedBoxes[boxId] = {
-        bottomRow: existingBottomRow + delta[boxId],
-        topRow: tree[boxId].topRow,
-      };
+  const sortedEffectedBoxIds = Object.keys(effectedBoxMap).sort(
+    (a, b) => tree[a].bottomRow - tree[b].bottomRow,
+  );
+
+  for (const effectedBoxId of sortedEffectedBoxIds) {
+    const aboves = tree[effectedBoxId].aboves;
+    const bottomMostAboves: string[] = aboves.reduce(
+      (prev: string[], next: string) => {
+        if (!prev[0]) return [next];
+        let nextBottomRow = tree[next].bottomRow;
+        let prevBottomRow = tree[prev[0]].bottomRow;
+        if (repositionedBoxes[next]) {
+          nextBottomRow = repositionedBoxes[next].bottomRow;
+        }
+        if (repositionedBoxes[prev[0]]) {
+          prevBottomRow = repositionedBoxes[prev[0]].bottomRow;
+        }
+        if (nextBottomRow > prevBottomRow) return [next];
+        else if (nextBottomRow === prevBottomRow) return [...prev, next];
+        else return prev;
+      },
+      [],
+    );
+    let _offset;
+
+    for (const aboveId of bottomMostAboves) {
+      if (Array.isArray(effectedBoxMap[aboveId]) || delta[aboveId]) {
+        const _aboveOffset =
+          repositionedBoxes[aboveId].bottomRow - tree[aboveId].bottomRow;
+        if (_offset === undefined) _offset = _aboveOffset;
+        _offset = Math.max(_aboveOffset, _offset);
+      } else {
+        _offset = 0;
+      }
+    }
+    if (_offset === undefined) {
+      _offset = effectedBoxMap[effectedBoxId].reduce(
+        (prev, next) => prev + next,
+        0,
+      );
+    }
+    if (repositionedBoxes[effectedBoxId]) {
+      repositionedBoxes[effectedBoxId].bottomRow += _offset;
+      repositionedBoxes[effectedBoxId].topRow += _offset;
     } else {
-      repositionedBoxes[boxId].bottomRow = existingBottomRow + delta[boxId];
+      repositionedBoxes[effectedBoxId] = {
+        topRow: tree[effectedBoxId].topRow + _offset,
+        bottomRow: tree[effectedBoxId].bottomRow + _offset,
+      };
     }
   }
 
-  // Worst case scenario : O((n*m*m) + o + n)
-  // Looks like, I have forgotten most of the big-O stuff.
   log.debug(
     "Dynamic Height: Reflow computations took:",
     performance.now() - start,

@@ -37,6 +37,7 @@ import BuiltOn from "./BrandingBadge";
 import {
   BatchPropertyUpdatePayload,
   batchUpdateWidgetProperty,
+  updateWidgetDynamicHeightAction,
 } from "actions/controlActions";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
@@ -191,6 +192,13 @@ function AppViewer(props: Props) {
     [batchUpdateWidgetProperty, dispatch],
   );
 
+  const updateWidgetDynamicHeightCallback = useCallback(
+    (widgetId: string, height: number) => {
+      dispatch(updateWidgetDynamicHeightAction(widgetId, height));
+    },
+    [updateWidgetDynamicHeightAction, dispatch],
+  );
+
   return (
     <ThemeProvider theme={lightTheme}>
       <GlobalHotKeys>
@@ -200,6 +208,7 @@ function AppViewer(props: Props) {
             updateWidgetMetaProperty: updateWidgetMetaPropertyCallback,
             resetChildrenMetaProperty: resetChildrenMetaPropertyCallback,
             batchUpdateWidgetProperty: batchUpdateWidgetPropertyCallback,
+            updateWidgetDynamicHeight: updateWidgetDynamicHeightCallback,
           }}
         >
           <ContainerWithComments>

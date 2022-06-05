@@ -180,12 +180,13 @@ export function* updateWidgetDynamicHeightSaga(
                 }
               }
             }
+
             minHeightInRows =
               minHeightInRows + GridDefaults.CANVAS_EXTENSION_OFFSET;
 
             if (parentContainerLikeWidget.maxDynamicHeight > 0)
               minHeightInRows = Math.min(
-                parentContainerLikeWidget.maxDynamicHeight,
+                parentContainerLikeWidget.maxDynamicHeight || 10000,
                 minHeightInRows,
               );
 
