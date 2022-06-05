@@ -1025,8 +1025,8 @@ export function* generateTemplatePageSaga(
         ],
       );
 
-      if (afterActionsFetch) {
-        yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+      if (!afterActionsFetch) {
+        throw new Error("Failed generating template");
       }
 
       history.replace(

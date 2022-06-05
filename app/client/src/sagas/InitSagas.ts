@@ -99,19 +99,9 @@ export function* failFastApiCalls(
   successActions: string[],
   failureActions: string[],
 ) {
-  const triggerEffects = [];
-  for (const triggerAction of triggerActions) {
-    triggerEffects.push(triggerAction);
-  }
-
-  yield all(triggerEffects.map((triggerAction) => put(triggerAction)));
-
-  const successEffects = [];
-  for (const successAction of successActions) {
-    successEffects.push(successAction);
-  }
+  yield all(triggerActions.map((triggerAction) => put(triggerAction)));
   const effectRaceResult = yield race({
-    success: all(successEffects.map((successAction) => take(successAction))),
+    success: all(successActions.map((successAction) => take(successAction))),
     failure: take(failureActions),
   });
   if (effectRaceResult.failure) {
