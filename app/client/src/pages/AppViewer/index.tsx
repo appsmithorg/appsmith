@@ -148,7 +148,6 @@ function AppViewer(props: Props) {
        * when redirected to the default page
        */
       if (prevPageId && pageId && isPageIdUpdated) {
-        console.log("$$$-fetchPublishedPage-isPageIdUpdated", pageId);
         dispatch(fetchPublishedPage(pageId, true));
       }
     }
