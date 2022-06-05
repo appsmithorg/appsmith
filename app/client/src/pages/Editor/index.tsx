@@ -53,6 +53,7 @@ import GuidedTourModal from "./GuidedTour/DeviationModal";
 import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
 import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
 import ImportedApplicationSuccessModal from "./gitSync/ImportedAppSuccessModal";
+import { getIsBranchUpdated } from "../utils";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -110,22 +111,11 @@ class Editor extends Component<Props> {
     }
   }
 
-  getIsBranchUpdated(props1: Props, props2: Props) {
-    const {
-      location: { search: search1 },
-    } = props1;
-    const {
-      location: { search: search2 },
-    } = props2;
-
-    const branch1 = getSearchQuery(search1, "branch");
-    const branch2 = getSearchQuery(search2, "branch");
-
-    return branch1 !== branch2;
-  }
-
   shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
-    const isBranchUpdated = this.getIsBranchUpdated(this.props, nextProps);
+    const isBranchUpdated = getIsBranchUpdated(
+      this.props.location,
+      nextProps.location,
+    );
 
     return (
       isBranchUpdated ||
@@ -148,7 +138,10 @@ class Editor extends Component<Props> {
   componentDidUpdate(prevProps: Props) {
     const { applicationId, pageId } = this.props.match.params || {};
     const { pageId: prevPageId } = prevProps.match.params || {};
-    const isBranchUpdated = this.getIsBranchUpdated(this.props, prevProps);
+    const isBranchUpdated = getIsBranchUpdated(
+      this.props.location,
+      prevProps.location,
+    );
 
     const branch = getSearchQuery(this.props.location.search, "branch");
     const prevBranch = getSearchQuery(prevProps.location.search, "branch");

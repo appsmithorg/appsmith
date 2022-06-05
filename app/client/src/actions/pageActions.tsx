@@ -36,6 +36,23 @@ export interface CreatePageActionPayload {
   blockNavigation?: boolean;
 }
 
+export const initAppViewer = ({
+  applicationId,
+  branch,
+  pageId,
+}: {
+  branch: string;
+  applicationId: string;
+  pageId: string;
+}) => ({
+  type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
+  payload: {
+    branch: branch,
+    applicationId,
+    pageId,
+  },
+});
+
 export const fetchPage = (
   pageId: string,
   isFirstLoad = false,
