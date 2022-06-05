@@ -1028,6 +1028,7 @@ export function* generateTemplatePageSaga(
       if (!afterActionsFetch) {
         throw new Error("Failed generating template");
       }
+      yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
 
       history.replace(
         builderURL({
