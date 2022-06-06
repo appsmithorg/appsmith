@@ -287,7 +287,7 @@ export default function evaluateSync(
       }
     }
 
-    return { result, errors, logs: userLogs.flushLogs() };
+    return { result, errors, logs: userLogs.flushLogs(result) };
   })();
 }
 
@@ -341,7 +341,7 @@ export async function evaluateAsync(
       completePromise(requestId, {
         result,
         errors,
-        logs: userLogs.flushLogs(),
+        logs: userLogs.flushLogs(result),
         triggers: Array.from(self.TRIGGER_COLLECTOR),
       });
       for (const entity in GLOBAL_DATA) {

@@ -360,10 +360,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
       state: {
         response: result,
-        logs: JSON.stringify(
-          logs.map((log: any) => log.value).join(`
-        `),
-        ),
+        logs: logs,
       },
     });
 
