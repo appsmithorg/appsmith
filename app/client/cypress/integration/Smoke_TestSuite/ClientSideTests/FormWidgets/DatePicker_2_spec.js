@@ -36,10 +36,11 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
   });
 
   it("Text widgets binding with datepicker", function() {
-    cy.SearchEntityandOpen("Text1");
+    // cy.SearchEntityandOpen("Text1");
+    cy.selectEntityByName("Text1");
     cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
     cy.closePropertyPane();
-    cy.SearchEntityandOpen("Text2");
+    cy.selectEntityByName("Text2");
     cy.testJsontext("text", "{{DatePicker1.selectedDate}}");
     cy.closePropertyPane();
   });
@@ -75,7 +76,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       "contain.value",
       "4 May, 2021",
     );
-    cy.get(".t--widget-datepickerwidget2 .bp3-input").trigger("focus");
+    cy.get(".t--widget-datepickerwidget2 .bp3-input").click({ force: true });
     cy.get(".DayPicker-NavButton--next").click({ force: true });
     cy.get(".t--widget-datepickerwidget2 .bp3-input").should(
       "contain.value",

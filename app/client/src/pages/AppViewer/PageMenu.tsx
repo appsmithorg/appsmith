@@ -72,7 +72,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
       {/* BG OVERLAY */}
       <div
         className={classNames({
-          "fixed h-full w-full bg-black bg-opacity-30 transform transition-all": true,
+          "fixed h-full w-full bg-black/30 transform transition-all": true,
           "opacity-0 hidden": !isOpen,
           "opacity-100": isOpen,
         })}

@@ -328,7 +328,9 @@ function* executeTriggerRequestSaga(
   } catch (error) {
     // When error occurs in execution of triggers,
     // a success: false is sent to reject the promise
-    responsePayload.data.reason = (error as Error).message;
+
+    // @ts-expect-error: reason is of type string
+    responsePayload.data.reason = error;
     responsePayload.success = false;
   }
   responseChannel.put({
