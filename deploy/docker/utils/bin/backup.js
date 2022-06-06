@@ -95,7 +95,9 @@ async function exportDockerEnvFile(destFolder) {
   await fsPromises.writeFile(destFolder + '/docker.env', output_lines.join('\n'));
   console.log('Exporting docker environment file done.');
 
-  console.log('Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file because those values are not included in the backup export.')
+  console.log('!!!!!!!!');
+  console.log('!!!   Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file because those values are not included in the backup export.');
+  console.log('!!!!!!!!');
 }
 
 async function createFinalArchive(destFolder, timestamp) {
