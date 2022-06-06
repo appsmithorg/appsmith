@@ -49,6 +49,7 @@ import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
 import { getIsSavingEntity } from "selectors/editorSelectors";
 import { getJSResponseViewState } from "./utils";
 import ConsoleTab from "./Debugger/ConsoleTab";
+import { Message } from "workers/UserLog";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -165,7 +166,7 @@ type Props = ReduxStateProps &
     errors: Array<EvaluationError>;
     disabled: boolean;
     isLoading: boolean;
-    logs: Record<string, any>;
+    logs: Message[];
     onButtonClick: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   };
 
@@ -190,10 +191,6 @@ function JSResponseView(props: Props) {
   const response =
     currentFunction && currentFunction.id && currentFunction.id in responses
       ? responses[currentFunction.id]
-      : "";
-  const log =
-    currentFunction && currentFunction.id && currentFunction.id in logs
-      ? logs[currentFunction.id]
       : "";
   // parse error found while trying to execute function
   const hasExecutionParseErrors = responseStatus === JSResponseState.IsDirty;
@@ -220,6 +217,11 @@ function JSResponseView(props: Props) {
     );
   }, [responses, isExecuting, currentFunction, isSaving, isDirty]);
   const tabs = [
+    {
+      key: DEBUGGER_TAB_KEYS.CONSOLE_TAB,
+      title: createMessage(CONSOLE),
+      panelComponent: <ConsoleTab logs={logs} />,
+    },
     {
       key: "body",
       title: "Response",
@@ -293,9 +295,7 @@ function JSResponseView(props: Props) {
                     folding
                     height={"100%"}
                     input={{
-                      value: `${log
-                        .map((l: any) => `//${l.value}`)
-                        .join("\n")}\n${response}`,
+                      value: response,
                     }}
                   />
                 )}
@@ -319,11 +319,6 @@ function JSResponseView(props: Props) {
       key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={jsObject?.name} />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.CONSOLE_TAB,
-      title: createMessage(CONSOLE),
-      panelComponent: <ConsoleTab />,
     },
   ];
 
@@ -354,7 +349,7 @@ const mapStateToProps = (
       (action: JSCollectionData) => action.config.id === jsObject.id,
     );
   const responses = (seletedJsObject && seletedJsObject.data) || {};
-  const logs = (seletedJsObject && seletedJsObject.logs) || {};
+  const logs = (seletedJsObject && seletedJsObject.logs) || [];
   const isDirty = (seletedJsObject && seletedJsObject.isDirty) || {};
   const isExecuting = (seletedJsObject && seletedJsObject.isExecuting) || {};
   return {
