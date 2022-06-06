@@ -165,7 +165,11 @@ ctx.addEventListener(
             unEvalUpdates = updateResponse.unEvalUpdates;
             dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
             jsUpdates = updateResponse.jsUpdates;
-            evalMetaUpdates = updateResponse.evalMetaUpdates;
+            // evalMetaUpdates can have moment object as value which will cause DataCloneError
+            // hence, stringify and parse to avoid such errors
+            evalMetaUpdates = JSON.parse(
+              JSON.stringify(updateResponse.evalMetaUpdates),
+            );
           }
           dependencies = dataTreeEvaluator.inverseDependencyMap;
           errors = dataTreeEvaluator.errors;
