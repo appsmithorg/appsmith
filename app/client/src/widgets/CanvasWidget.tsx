@@ -66,7 +66,8 @@ class CanvasWidget extends ContainerWidget {
     childWidget.parentRowSpace = snapSpaces.snapRowSpace;
     if (this.props.noPad) childWidget.noContainerOffset = true;
     childWidget.parentId = this.props.widgetId;
-
+    // eslint-disable-next-line
+    // @ts-ignore
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
 

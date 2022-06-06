@@ -19,7 +19,6 @@ import { compact, map, sortBy } from "lodash";
 
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
-import { klona } from "klona";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -182,7 +181,8 @@ class ContainerWidget extends BaseWidget<
     childWidget.canExtend = this.props.shouldScrollContents;
 
     childWidget.parentId = this.props.widgetId;
-
+    // eslint-disable-next-line
+    // @ts-ignore
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
 

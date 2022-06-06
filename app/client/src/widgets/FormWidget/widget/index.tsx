@@ -60,7 +60,7 @@ class FormWidget extends ContainerWidget {
     if (!hasChanges) {
       return childWidgets.some(
         (child) =>
-          child.children &&
+          child.children?.length &&
           this.checkFormValueChanges(get(child, "children[0]")),
       );
     }

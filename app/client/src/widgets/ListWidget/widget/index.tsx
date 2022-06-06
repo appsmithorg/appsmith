@@ -356,6 +356,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       ? componentHeight - LIST_WIDGET_PAGINATION_HEIGHT
       : componentHeight;
 
+    // eslint-disable-next-line
+    // @ts-ignore
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 

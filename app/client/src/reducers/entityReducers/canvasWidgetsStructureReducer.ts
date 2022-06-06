@@ -4,7 +4,7 @@ import {
   UpdateCanvasPayload,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps, WIDGET_DISPLAY_PROPS } from "widgets/BaseWidget";
 import { CanvasWidgetStructure } from "widgets/constants";
 import { pick } from "lodash";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
@@ -21,7 +21,24 @@ function denormalize(
     denormalize(childId, widgets),
   );
 
-  const structure = pick(rootWidget, Object.keys(WIDGET_STATIC_PROPS));
+  const staticProps = [
+    ...Object.keys(WIDGET_STATIC_PROPS),
+    ...Object.keys(WIDGET_DISPLAY_PROPS),
+    ...[
+      "componentHeight",
+      "componentWidth",
+      "positionType",
+      "xPosition",
+      "yPosition",
+      "xPositionUnit",
+      "yPositionUnit",
+      "heightUnit",
+      "widthUnit",
+      "key",
+    ],
+  ];
+
+  const structure = pick(rootWidget, staticProps);
   // const { type, widgetId, widgetName } = rootWidget;
 
   structure.children = children;

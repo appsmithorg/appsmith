@@ -123,6 +123,8 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     childWidgetData.minHeight = this.props.height;
     childWidgetData.rightColumn =
       this.getModalWidth(this.props.width) + WIDGET_PADDING * 2;
+    // eslint-disable-next-line
+    // @ts-ignore
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 

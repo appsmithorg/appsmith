@@ -1,6 +1,6 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WIDGET_STATIC_PROPS } from "./BaseWidget";
-import { debounce, fromPairs, pick } from "lodash";
+import BaseWidget, { WidgetProps } from "./BaseWidget";
+import { debounce, fromPairs, merge } from "lodash";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -38,8 +38,6 @@ export interface WithMeta {
 
 type WidgetMetaProps = { metaState: Record<string, unknown> };
 type metaHOCProps = WidgetProps & WidgetMetaProps;
-
-const STATIC_PROPS = Object.keys(WIDGET_STATIC_PROPS);
 
 function withMeta(WrappedWidget: typeof BaseWidget) {
   class MetaHOC extends React.PureComponent<metaHOCProps> {
@@ -186,14 +184,13 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
     };
 
     updatedProps = () => {
-      const staticProps = pick(this.props, STATIC_PROPS);
       const {
         canvasWidget,
         children,
         evaluatedWidget,
-        isLoading,
         mainCanvasProps,
         widgetId,
+        ...rest
       } = this.props;
       const canvasWidgetProps =
         widgetId === MAIN_CONTAINER_WIDGET_ID
@@ -205,15 +202,15 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
         evaluatedWidget,
       );
 
-      widgetProps.isLoading = isLoading;
-
       widgetProps.children = children;
-      return {
-        ...this.initialMetaState, // this contains stale default values and are used when widget is reset. Ideally, widget should reset to its default values instead of stale default values.
-        ...widgetProps, // if default values are changed we expect to get new values from here.
-        ...this.props.metaState,
-        ...staticProps,
-      };
+
+      return merge(
+        {},
+        rest,
+        this.initialMetaState, // this contains stale default values and are used when widget is reset. Ideally, widget should reset to its default values instead of stale default values.
+        widgetProps, // if default values are changed we expect to get new values from here.
+        this.props.metaState,
+      );
     };
 
     render() {

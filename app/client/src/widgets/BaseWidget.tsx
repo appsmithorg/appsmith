@@ -39,7 +39,6 @@ import PreventInteractionsOverlay from "components/editorComponents/PreventInter
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
-import withWidgetProps from "./withWidgetProps";
 
 /***
  * BaseWidget
