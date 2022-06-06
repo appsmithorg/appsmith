@@ -36,10 +36,9 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.OrganizationPlugin;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
-import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QActionCollection;
@@ -65,11 +64,10 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
-import com.appsmith.server.dtos.OrganizationPluginStatus;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.TextUtils;
-import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
@@ -244,11 +242,11 @@ public class DatabaseChangelog {
             }
 
             final Set<String> installedPlugins = organization.getPlugins()
-                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+                    .stream().map(WorkspacePlugin::getPluginId).collect(Collectors.toSet());
 
             if (!installedPlugins.contains(pluginId)) {
                 organization.getPlugins()
-                        .add(new OrganizationPlugin(pluginId, OrganizationPluginStatus.FREE));
+                        .add(new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
             }
 
             mongockTemplate.save(organization);
@@ -311,23 +309,11 @@ public class DatabaseChangelog {
         dropIndexIfExists(mongoTemplate, Organization.class, "name");
     }
 
-    @ChangeSet(order = "003", id = "add-org-slugs", author = "")
-    public void addOrgSlugs(MongockTemplate mongoTemplate, OrganizationService organizationService) {
-        // For all existing organizations, add a slug field, which should be unique.
-        // We are blocking here for adding a slug to each existing organization. This is bad and slow. Do NOT copy this
-        // code fragment into the services' control flow. This is a single migration code and is expected to run once in
-        // lifetime of a deployment.
-        for (Organization organization : mongoTemplate.findAll(Organization.class)) {
-            if (organization.getSlug() == null) {
-                organizationService.getNextUniqueSlug(organization.makeSlug())
-                        .doOnSuccess(slug -> {
-                            organization.setSlug(slug);
-                            mongoTemplate.save(organization);
-                        })
-                        .block();
-            }
-        }
-    }
+    /*
+     * @ChangeSet(order = "003", id = "add-org-slugs", author = "")
+     * This migration has been removed as it's no more required. A newer version of this migration has been added
+     * in the @ChangeLog(order = "008") with id="update-organization-slugs"
+     */
 
     /**
      * We are creating indexes manually because Spring's index resolver creates indexes on fields as well.
@@ -368,11 +354,6 @@ public class DatabaseChangelog {
                 makeIndex("email").unique()
         );
 
-        ensureIndexes(mongoTemplate, Organization.class,
-                createdAtIndex,
-                makeIndex("slug").unique()
-        );
-
         ensureIndexes(mongoTemplate, Page.class,
                 createdAtIndex,
                 makeIndex("applicationId", "name").unique().named("application_page_compound_index")
@@ -383,9 +364,12 @@ public class DatabaseChangelog {
                 makeIndex("email").unique().expire(3600, TimeUnit.SECONDS)
         );
 
-        ensureIndexes(mongoTemplate, Permission.class,
-                createdAtIndex
-        );
+        /*
+        Removing the code for ensuring index for a class which has never been used and now being removed.
+         */
+//        ensureIndexes(mongoTemplate, Permission.class,
+//                createdAtIndex
+//        );
 
         ensureIndexes(mongoTemplate, Plugin.class,
                 createdAtIndex,
@@ -513,12 +497,12 @@ public class DatabaseChangelog {
             }
 
             final Set<String> installedPlugins = organization.getPlugins()
-                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+                    .stream().map(WorkspacePlugin::getPluginId).collect(Collectors.toSet());
 
             for (Plugin defaultPlugin : defaultPlugins) {
                 if (!installedPlugins.contains(defaultPlugin.getId())) {
                     organization.getPlugins()
-                            .add(new OrganizationPlugin(defaultPlugin.getId(), OrganizationPluginStatus.FREE));
+                            .add(new WorkspacePlugin(defaultPlugin.getId(), WorkspacePluginStatus.FREE));
                 }
             }
 
@@ -3129,11 +3113,11 @@ public class DatabaseChangelog {
             final Set<String> installedPlugins = organization
                     .getPlugins()
                     .stream()
-                    .map(OrganizationPlugin::getPluginId)
+                    .map(WorkspacePlugin::getPluginId)
                     .collect(Collectors.toSet());
 
             if (installedPlugins.contains(mongoUqiPlugin.getId())) {
-                OrganizationPlugin mongoUqiOrganizationPlugin = organization.getPlugins()
+                WorkspacePlugin mongoUqiOrganizationPlugin = organization.getPlugins()
                         .stream()
                         .filter(organizationPlugin -> organizationPlugin.getPluginId().equals(mongoUqiPlugin.getId()))
                         .findFirst()
@@ -4901,7 +4885,7 @@ public class DatabaseChangelog {
 
         for (Application application : mongockTemplate.find(query, Application.class)) {
             if(!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()) {
-                GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
+                GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(null);
                 GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                 gitApplicationMetadata.setGitAuth(gitAuth);
                 application.setGitApplicationMetadata(gitApplicationMetadata);

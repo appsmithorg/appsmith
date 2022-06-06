@@ -184,9 +184,7 @@ describe("Theme validation usecases", function() {
       .and("eq", "rgb(21, 128, 61)");
     cy.get("#canvas-selection-0").click({ force: true });
     //Change the Theme
-    cy.get(commonlocators.changeThemeBtn)
-      .should("be.visible")
-      .click({ force: true });
+    cy.get(commonlocators.changeThemeBtn).click({ force: true });
     cy.get(themelocator.currentTheme).click({ force: true });
     cy.get(".t--theme-card main > main")
       .first()
@@ -244,9 +242,7 @@ describe("Theme validation usecases", function() {
     cy.get("#canvas-selection-0").click({ force: true });
 
     //Change the Theme
-    cy.get(commonlocators.changeThemeBtn)
-      .should("be.visible")
-      .click({ force: true });
+    cy.get(commonlocators.changeThemeBtn).click({ force: true });
     // select a theme
     cy.get(commonlocators.themeCard)
       .last()

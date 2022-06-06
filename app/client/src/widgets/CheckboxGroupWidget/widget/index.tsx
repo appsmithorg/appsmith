@@ -525,7 +525,7 @@ class CheckboxGroupWidget extends BaseWidget<
         options={compact(this.props.options)}
         ref={this.contentRef}
         rowSpace={this.props.parentRowSpace}
-        selectedValues={this.props.selectedValues}
+        selectedValues={this.props.selectedValues || []}
         widgetId={this.props.widgetId}
       />
     );
@@ -537,7 +537,7 @@ class CheckboxGroupWidget extends BaseWidget<
 
   private handleCheckboxChange = (value: string) => {
     return (event: React.FormEvent<HTMLElement>) => {
-      let { selectedValues } = this.props;
+      let { selectedValues = [] } = this.props;
       const isChecked = (event.target as HTMLInputElement).checked;
       if (isChecked) {
         selectedValues = [...selectedValues, value];
@@ -564,7 +564,7 @@ class CheckboxGroupWidget extends BaseWidget<
 
   private handleSelectAllChange = (state: SelectAllState) => {
     return () => {
-      let { selectedValues } = this.props;
+      let { selectedValues = [] } = this.props;
 
       switch (state) {
         case SelectAllStates.UNCHECKED:

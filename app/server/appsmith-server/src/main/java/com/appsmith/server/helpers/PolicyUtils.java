@@ -158,12 +158,12 @@ public class PolicyUtils {
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
-    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByOrgId(String orgId, Map<String, Policy> newPoliciesMap, boolean addPolicyToObject) {
+    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByWorkspaceId(String workspaceId, Map<String, Policy> newPoliciesMap, boolean addPolicyToObject) {
 
         return datasourceRepository
                 // fetch datasources with execute permissions so that app viewers can invite other app viewers
-                .findAllByOrganizationId(orgId, AclPermission.EXECUTE_DATASOURCES)
-                // In case we have come across a datasource for this organization that the current user is not allowed to manage, move on.
+                .findAllByOrganizationId(workspaceId, AclPermission.EXECUTE_DATASOURCES)
+                // In case we have come across a datasource for this workspace that the current user is not allowed to manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .map(datasource -> {
                     if (addPolicyToObject) {
@@ -196,12 +196,12 @@ public class PolicyUtils {
                 .flatMapMany(datasources -> datasourceRepository.saveAll(datasources));
     }
 
-    public Flux<Application> updateWithNewPoliciesToApplicationsByOrgId(String orgId, Map<String, Policy> newAppPoliciesMap, boolean addPolicyToObject) {
+    public Flux<Application> updateWithNewPoliciesToApplicationsByWorkspaceId(String workspaceId, Map<String, Policy> newAppPoliciesMap, boolean addPolicyToObject) {
 
         return applicationRepository
                 // fetch applications with read permissions so that app viewers can invite other app viewers
-                .findByOrganizationId(orgId, AclPermission.READ_APPLICATIONS)
-                // In case we have come across an application for this organization that the current user is not allowed to manage, move on.
+                .findByOrganizationId(workspaceId, AclPermission.READ_APPLICATIONS)
+                // In case we have come across an application for this workspace that the current user is not allowed to manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .map(application -> {
                     if (addPolicyToObject) {

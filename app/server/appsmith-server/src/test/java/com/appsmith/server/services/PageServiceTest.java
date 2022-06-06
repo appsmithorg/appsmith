@@ -78,7 +78,7 @@ public class PageServiceTest {
     LayoutService layoutService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     ApplicationService applicationService;
@@ -150,7 +150,7 @@ public class PageServiceTest {
                             .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(tuple -> importExportApplicationService.importApplicationInOrganization(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                 .block();
     }
 
@@ -297,6 +297,47 @@ public class PageServiceTest {
                     assertThat(page.getId()).isNotNull();
                     assertThat(page.getName()).isEqualTo("New Page Name");
                     assertThat(page.getSlug()).isEqualTo(TextUtils.makeSlug(page.getName()));
+
+                    // Check for the policy object not getting overwritten during update
+                    assertThat(page.getPolicies()).isNotEmpty();
+                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updatePage_WhenCustomSlugSet_CustomSlugIsNotUpdated() {
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("Before Page Name Change");
+        testPage.setCustomSlug("my-custom-slug");
+        setupTestApplication();
+        testPage.setApplicationId(application.getId());
+
+        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage)
+                .flatMap(page -> {
+                    PageDTO newPage = new PageDTO();
+                    newPage.setId(page.getId());
+                    newPage.setName("New Page Name");
+                    return newPageService.updatePage(page.getId(), newPage);
+                });
+
+        StepVerifier
+                .create(pageMono)
+                .assertNext(page -> {
+                    assertThat(page).isNotNull();
+                    assertThat(page.getId()).isNotNull();
+                    assertThat(page.getName()).isEqualTo("New Page Name");
+                    assertThat(page.getSlug()).isEqualTo(TextUtils.makeSlug(page.getName()));
+                    assertThat(page.getCustomSlug()).isEqualTo("my-custom-slug");
 
                     // Check for the policy object not getting overwritten during update
                     assertThat(page.getPolicies()).isNotEmpty();

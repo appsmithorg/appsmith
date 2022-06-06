@@ -60,6 +60,7 @@ abstract class BaseWidget<
 > extends Component<T, K> {
   static contextType = EditorContext;
   contentRef = React.createRef<HTMLDivElement>();
+  context!: React.ContextType<typeof EditorContext>;
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
@@ -153,7 +154,7 @@ abstract class BaseWidget<
 
   resetChildrenMetaProperty(widgetId: string) {
     const { resetChildrenMetaProperty } = this.context;
-    resetChildrenMetaProperty(widgetId);
+    if (resetChildrenMetaProperty) resetChildrenMetaProperty(widgetId);
   }
 
   /*
@@ -171,8 +172,10 @@ abstract class BaseWidget<
     const shouldUpdate = this.shouldUpdateDynamicHeight(height);
 
     const { updateWidgetDynamicHeight } = this.context;
-    const { widgetId } = this.props;
-    shouldUpdate && updateWidgetDynamicHeight(widgetId, height);
+    if (updateWidgetDynamicHeight) {
+      const { widgetId } = this.props;
+      shouldUpdate && updateWidgetDynamicHeight(widgetId, height);
+    }
   }
 
   // TODO: ADD_TEST(abhinav): Write a unit test

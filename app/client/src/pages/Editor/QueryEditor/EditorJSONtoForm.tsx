@@ -82,6 +82,7 @@ import {
 import {
   responseTabComponent,
   InlineButton,
+  TableCellHeight,
 } from "components/editorComponents/ApiResponseView";
 
 const QueryFormContainer = styled.form`
@@ -126,6 +127,7 @@ export const TabbedViewContainer = styled.div`
   }
   .react-tabs__tab-list {
     margin: 0px;
+   
   }
   &&& {
     ul.react-tabs__tab-list {
@@ -189,6 +191,7 @@ const ResponseContentWrapper = styled.div`
   padding: 10px 0px;
   overflow-y: auto;
   height: 100%;
+  display: grid;
 
   ${HelpSection} {
     margin-bottom: 10px;
@@ -1012,7 +1015,8 @@ export function EditorJSONtoForm(props: Props) {
               <Resizable
                 panelRef={panelRef}
                 setContainerDimensions={(height: number) =>
-                  setTableBodyHeightHeight(height)
+                  // TableCellHeight in this case is the height of one table cell in pixels.
+                  setTableBodyHeightHeight(height - TableCellHeight)
                 }
               />
               {output && !!output.length && (

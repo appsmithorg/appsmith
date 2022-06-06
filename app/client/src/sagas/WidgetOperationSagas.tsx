@@ -130,7 +130,12 @@ import {
   collisionCheckPostReflow,
   getBottomRowAfterReflow,
 } from "utils/reflowHookUtils";
-import { PrevReflowState, ReflowDirection, SpaceMap } from "reflow/reflowTypes";
+import {
+  GridProps,
+  PrevReflowState,
+  ReflowDirection,
+  SpaceMap,
+} from "reflow/reflowTypes";
 import { WidgetSpace } from "constants/CanvasEditorConstants";
 import { reflow } from "reflow";
 import { getBottomMostRow } from "reflow/reflowUtils";
@@ -353,6 +358,37 @@ function* updateWidgetPropertySaga(
   );
 }
 
+export function removeDynamicBindingProperties(
+  propertyPath: string,
+  dynamicBindingPathList: DynamicPath[],
+) {
+  /*
+  we are doing this because when you toggle js off we only 
+  receive the  `primaryColumns.` properties not the `derivedColumns.`
+  properties therefore we need just a hard-codded check.
+  (TODO) - Arsalan remove this primaryColumns check when the Table widget v2 is live.
+  */
+
+  if (_.startsWith(propertyPath, "primaryColumns")) {
+    // primaryColumns.customColumn1.isVisible -> customColumn1.isVisible
+    const tableProperty = propertyPath
+      .split(".")
+      .splice(1)
+      .join(".");
+    const tablePropertyPathsToRemove = [
+      propertyPath, // primaryColumns.customColumn1.isVisible
+      `derivedColumns.${tableProperty}`, // derivedColumns.customColumn1.isVisible
+    ];
+    return _.reject(dynamicBindingPathList, ({ key }) =>
+      tablePropertyPathsToRemove.includes(key),
+    );
+  } else {
+    return _.reject(dynamicBindingPathList, {
+      key: propertyPath,
+    });
+  }
+}
+
 export function* setWidgetDynamicPropertySaga(
   action: ReduxAction<SetWidgetDynamicPropertyPayload>,
 ) {
@@ -384,9 +420,10 @@ export function* setWidgetDynamicPropertySaga(
     });
 
     if (shouldRejectDynamicBindingPathList) {
-      dynamicBindingPathList = _.reject(dynamicBindingPathList, {
-        key: propertyPath,
-      });
+      dynamicBindingPathList = removeDynamicBindingProperties(
+        propertyPath,
+        dynamicBindingPathList,
+      );
     }
     const { parsed } = yield call(
       validateProperty,
@@ -396,6 +433,7 @@ export function* setWidgetDynamicPropertySaga(
     );
     widget = set(widget, propertyPath, parsed);
   }
+
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
   widget.dynamicBindingPathList = dynamicBindingPathList;
   const stateWidgets = yield select(getWidgets);
@@ -848,7 +886,6 @@ export function calculateNewWidgetPosition(
  * @param copiedTotalWidth total width of the copied widgets
  * @param copiedTopMostRow top row of the top most copied widget
  * @param copiedLeftMostColumn left column of the left most copied widget
- * @param shouldGroup boolean to indicate if the user is grouping instead of pasting
  * @returns
  */
 const getNewPositions = function*(
@@ -857,11 +894,7 @@ const getNewPositions = function*(
   copiedTotalWidth: number,
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
-  shouldGroup: boolean,
 ) {
-  // if it is grouping instead of pasting then skip the pasting logic
-  if (shouldGroup) return {};
-
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const {
@@ -1190,16 +1223,18 @@ function* pasteWidgetSaga(
   let widgets: CanvasWidgetsReduxState = canvasWidgets;
   const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
 
+  let reflowedMovementMap,
+    bottomMostRow: number | undefined,
+    gridProps: GridProps | undefined,
+    newPastingPositionMap: SpaceMap | undefined,
+    canvasId;
+
   let pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
     canvasWidgets,
     selectedWidget,
   );
 
-  let isThereACollision: boolean = yield isSelectedWidgetsColliding(
-    widgets,
-    copiedWidgetGroups,
-    pastingIntoWidgetId,
-  );
+  let isThereACollision = false;
 
   // if this is true, selected widgets will be grouped in container
   if (shouldGroup) {
@@ -1207,7 +1242,6 @@ function* pasteWidgetSaga(
     pastingIntoWidgetId = yield getParentWidgetIdForGrouping(
       widgets,
       copiedWidgetGroups,
-      pastingIntoWidgetId,
     );
     widgets = yield filterOutSelectedWidgets(
       copiedWidgetGroups[0].parentId,
@@ -1219,10 +1253,20 @@ function* pasteWidgetSaga(
       pastingIntoWidgetId,
     );
 
-    copiedWidgetGroups = yield groupWidgetsIntoContainer(
+    //while grouping, the container around the selected widgets will increase by 2 rows,
+    //hence if there are any widgets in that path then we reflow those widgets
+    // If there are already widgets inside the selection box even before grouping
+    //then we will have to move it down to the bottom most row
+    ({
+      bottomMostRow,
+      copiedWidgetGroups,
+      gridProps,
+      reflowedMovementMap,
+    } = yield groupWidgetsIntoContainer(
       copiedWidgetGroups,
       pastingIntoWidgetId,
-    );
+      isThereACollision,
+    ));
   } else if (isCopiedModalWidget(copiedWidgetGroups, widgets)) {
     pastingIntoWidgetId = MAIN_CONTAINER_WIDGET_ID;
   }
@@ -1245,25 +1289,27 @@ function* pasteWidgetSaga(
     widgets,
   );
 
-  // new pasting positions, the variables are undefined if the positions cannot be calculated,
-  // then it pastes the regular way at the bottom of the canvas
-  const {
-    bottomMostRow,
-    canvasId,
-    gridProps,
-    newPastingPositionMap,
-    reflowedMovementMap,
-  }: NewPastePositionVariables = yield call(
-    getNewPositions,
-    copiedWidgetGroups,
-    action.payload.mouseLocation,
-    copiedTotalWidth,
-    topMostWidget.topRow,
-    leftMostWidget.leftColumn,
-    shouldGroup,
-  );
+  // skip new position calculation if grouping
+  if (!shouldGroup) {
+    // new pasting positions, the variables are undefined if the positions cannot be calculated,
+    // then it pastes the regular way at the bottom of the canvas
+    ({
+      bottomMostRow,
+      canvasId,
+      gridProps,
+      newPastingPositionMap,
+      reflowedMovementMap,
+    } = yield call(
+      getNewPositions,
+      copiedWidgetGroups,
+      action.payload.mouseLocation,
+      copiedTotalWidth,
+      topMostWidget.topRow,
+      leftMostWidget.leftColumn,
+    ));
 
-  if (canvasId) pastingIntoWidgetId = canvasId;
+    if (canvasId) pastingIntoWidgetId = canvasId;
+  }
 
   yield all(
     copiedWidgetGroups.map((copiedWidgets) =>
@@ -1494,6 +1540,11 @@ function* pasteWidgetSaga(
   );
 
   yield put(updateAndSaveLayout(reflowedWidgets));
+
+  yield put({
+    type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
+    payload: newlyCreatedWidgetIds,
+  });
 
   //if pasting at the bottom of the canvas, then flash it.
   if (shouldGroup || !newPastingPositionMap) {

@@ -1,5 +1,7 @@
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { LabelPosition } from "components/constants";
+import { AlignWidgetTypes } from "widgets/constants";
 
 export const CONFIG = {
   features: {
@@ -15,7 +17,8 @@ export const CONFIG = {
     columns: 12,
     defaultSwitchState: true,
     widgetName: "Switch",
-    alignWidget: "LEFT",
+    alignWidget: AlignWidgetTypes.LEFT,
+    labelPosition: LabelPosition.Left,
     version: 1,
     isDisabled: false,
     animateLoading: true,

@@ -87,6 +87,7 @@ export default function SharedUserList(props: any) {
           interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
           key={el.username}
           position={Position.BOTTOM}
+          transitionDuration={0}
           usePortal={false}
         >
           <ProfileImage
@@ -105,6 +106,7 @@ export default function SharedUserList(props: any) {
           hoverCloseDelay={0}
           interactionKind={PopoverInteractionKind.CLICK}
           position={Position.BOTTOM}
+          transitionDuration={0}
           usePortal={false}
         >
           <ProfileImageMore

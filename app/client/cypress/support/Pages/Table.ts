@@ -6,7 +6,7 @@ type columnTypeValues = 'Plain Text' | 'URL' | 'Number' | 'Image' | 'Video' | 'D
 
 export class Table {
   public agHelper = ObjectsRegistry.AggregateHelper
-  public locator = ObjectsRegistry.CommonLocators
+  public deployMode = ObjectsRegistry.DeployMode
 
   private _tableWrap = "//div[@class='tableWrap']"
   private _tableHeader = this._tableWrap + "//div[@class='thead']//div[@class='tr'][1]"
@@ -40,12 +40,12 @@ export class Table {
   _filterOperatorDropdown = ".t--table-filter-operators-dropdown"
   private _downloadBtn = ".t--table-download-btn"
   private _downloadOption = ".t--table-download-data-option"
-  _columnSettings = (columnName: string) => "//input[@placeholder='Column Title'][@value='" + columnName + "']/parent::div/following-sibling::div[contains(@class, 't--edit-column-btn')]"
+  _columnSettings = (columnName: string) => "//input[@placeholder='Column Title'][@value='" + columnName + "']/parent::div/parent::div/following-sibling::div[contains(@class, 't--edit-column-btn')]"
   _showPageItemsCount = "div.show-page-items"
   _filtersCount = this._filterBtn + " span.action-title"
 
-  public WaitUntilTableLoad() {
-    cy.waitUntil(() => this.ReadTableRowColumnData(0, 0, 2000),
+  public WaitUntilTableLoad(rowIndex = 0, colIndex = 0) {
+    cy.waitUntil(() => this.ReadTableRowColumnData(rowIndex, colIndex, 2000),
       {
         errorMsg: "Table is not populated",
         timeout: 10000,
@@ -220,7 +220,7 @@ export class Table {
   }
 
   public AssertURLColumnNavigation(row: number, col: number, expectedURL: string) {
-    this.agHelper.StubbingWindow()
+    this.deployMode.StubbingWindow()
     this.agHelper.GetNClick(this._tableRowColumnData(row, col)).then($cellData => {
       //Cypress.$($cellData).trigger('click');
       cy.url().should("eql", expectedURL);
