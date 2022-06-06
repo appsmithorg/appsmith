@@ -88,9 +88,10 @@ async function exportDockerEnvFile(destFolder) {
   const content = await fsPromises.readFile('/appsmith-stacks/configuration/docker.env', {encoding: 'utf8'});
   const output_lines = []
   content.split(/\r?\n/).forEach(line =>  {
-    if (!(line.startsWith("APPSMITH_ENCRYPTION")))
+    if (!line.startsWith("APPSMITH_ENCRYPTION")) {
       output_lines.push(line)
- });
+    }
+  });
   await fsPromises.writeFile(destFolder + '/docker.env', output_lines.join('\n'));
   console.log('Exporting docker environment file done.');
 
