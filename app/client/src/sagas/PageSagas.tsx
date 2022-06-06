@@ -1029,7 +1029,7 @@ export function* generateTemplatePageSaga(
         fetchJSCollectionsForPage(pageId),
       ];
 
-      const afterActionsFetch = yield failFastApiCalls(
+      const afterActionsFetch: unknown = yield failFastApiCalls(
         triggersAfterPageFetch,
         [
           fetchActionsForPageSuccess([]).type,
