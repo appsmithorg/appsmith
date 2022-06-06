@@ -519,19 +519,12 @@ export class AggregateHelper {
     }
     this.AssertAutoSave();
   }
-  /**
-   * Focus on the code editor wrapper to render the code editor
-   * @param index: number -> index of the code edtior element to focus on
-   */
-  public FocusEditorWrapper(index: number): void {
-    cy.find(this.locator._codeEditorWrapper)
-      .eq(index || 0)
-      .focus();
-  }
 
-  public UpdateCodeInput(selector: string, value: string) {
-    this.FocusEditorWrapper(0);
+  public UpdateCodeInput(selector: string, value: string, index = 0) {
     cy.wrap(selector)
+      .find(this.locator._codeEditorWrapper)
+      .eq(index)
+      .focus()
       .find(".CodeMirror")
       .first()
       .then((ins: any) => {
