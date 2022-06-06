@@ -36,6 +36,7 @@ export class DeployMode {
 
     this.agHelper.WaitUntilEleAppear(eleToCheckInDeployPage);
     localStorage.setItem("inDeployedMode", "true");
+    this.agHelper.Sleep(2000) //for Depoy page to settle!
   }
 
   // Stubbing window.open to open in the same tab

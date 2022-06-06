@@ -129,7 +129,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    ee.expandCollapseEntity("PAGES")
+    ee.expandCollapseEntity("PAGES");
     ee.ActionContextMenuByEntityName("Employees", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
   });
@@ -471,7 +471,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     table.AssertSelectedRow(0);
 
     agHelper.GetNClick(dataSources._addIcon);
-    agHelper.AssertElementVisible(locator._jsonFormWidget, 1); //Insert Modal
+    agHelper.Sleep(1000); //time for new Modal to settle
+    agHelper.AssertElementVisible(locator._jsonFormWidget, 1); //Insert Modal at index 1
     agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("Column 'store_id' cannot be null");
