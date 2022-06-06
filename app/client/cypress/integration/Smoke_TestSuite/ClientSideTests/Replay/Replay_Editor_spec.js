@@ -61,6 +61,7 @@ describe("Undo/Redo functionality", function() {
     cy.get(apiwidget.onPageLoad).click({ force: true });
     cy.get("body").click(0, 0);
     cy.get("body").type(`{${modifierKey}}z`);
+    cy.wait(1000);
     cy.get("body").type(`{${modifierKey}}z`);
     cy.wait(2000);
     cy.get(apiwidget.headers).should("have.class", "react-tabs__tab--selected");
