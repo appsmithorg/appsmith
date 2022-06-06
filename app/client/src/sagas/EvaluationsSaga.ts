@@ -71,7 +71,7 @@ import {
   SNIPPET_EXECUTION_SUCCESS,
 } from "@appsmith/constants/messages";
 import { validate } from "workers/validations";
-import { diff, Diff } from "deep-diff";
+import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
@@ -125,22 +125,22 @@ function* evaluateTreeSaga(
 
   const {
     dataTree,
-    dependencies = {},
-    errors = [],
+    dependencies,
+    errors,
     evalMetaUpdates = [],
-    evaluationOrder = [],
-    jsUpdates = {},
-    logs = [],
-    unEvalUpdates = [],
+    evaluationOrder,
+    jsUpdates,
+    logs,
+    unEvalUpdates,
   }: {
-    dataTree?: DataTree;
-    dependencies?: Record<string, string[]>;
-    errors?: EvalError[];
-    evalMetaUpdates?: EvalMetaUpdates;
-    evaluationOrder?: string[];
-    jsUpdates?: Record<string, JSUpdate>;
-    logs?: any[];
-    unEvalUpdates?: DataTreeDiff[];
+    dataTree: DataTree;
+    dependencies: Record<string, string[]>;
+    errors: EvalError[];
+    evalMetaUpdates: EvalMetaUpdates;
+    evaluationOrder: string[];
+    jsUpdates: Record<string, JSUpdate>;
+    logs: any[];
+    unEvalUpdates: DataTreeDiff[];
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -148,19 +148,16 @@ function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  const oldDataTree: DataTree = yield select(getDataTree);
+  const oldDataTree = yield select(getDataTree);
 
-  const updates = (diff(oldDataTree, dataTree) || []) as Diff<
-    DataTree,
-    DataTree
-  >[];
+  const updates = diff(oldDataTree, dataTree) || [];
 
   yield put(setEvaluatedTree(updates));
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
   // if evalMetaUpdates are present only then dispatch updateMetaState
-  if (evalMetaUpdates && evalMetaUpdates.length) {
+  if (evalMetaUpdates.length) {
     yield put(updateMetaState(evalMetaUpdates));
   }
   log.debug({ evalMetaUpdates });
