@@ -10,7 +10,7 @@ const dropDownFieldConfig: any = {
   fetchOptionsConditionally: true,
   options: [],
   customStyles: {
-    width: "20vw",
+    width: "19vw",
   },
 };
 
@@ -18,17 +18,16 @@ const inputFieldConfig: any = {
   label: "",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
   customStyles: {
-    width: "20vw",
-    minHeight: "38px",
+    width: "19vw",
   },
 };
 
 // main container for the entity selector component
 const EntitySelectorContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: min-content;
-  justify-content: space-between;
+  max-width: 1100px;
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 `;
 
 const EntitySelectorWrapper = styled.div<{ marginRight: string }>`

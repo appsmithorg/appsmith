@@ -1,4 +1,4 @@
-import { call, fork, take, select, put } from "redux-saga/effects";
+import { call, fork, take, select, put, race, delay } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -18,6 +18,12 @@ import { ActionConfig } from "entities/Action";
 import { FormConfigType } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";
 import { ApiResponse } from "api/ApiResponses";
+
+import { getAction } from "selectors/entitiesSelector";
+import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
+import { get } from "lodash";
 
 let isEvaluating = false; // Flag to maintain the queue of evals
 
@@ -96,6 +102,15 @@ function* setFormEvaluationSagaAsync(
           const queueOfValuesToBeFetched = extractQueueOfValuesToBeFetched(
             evalOutput,
           );
+
+          // wait for dataTree to be updated with the latest values before fetching dynamic values.
+          yield race([
+            ReduxActionTypes.SET_LOADING_ENTITIES,
+            ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
+          ]);
+          // then wait some more just to be sure.
+          yield delay(500);
+
           // Pass the queue to the saga to fetch the dynamic values
           yield call(
             fetchDynamicValuesSaga,
@@ -149,7 +164,10 @@ function* fetchDynamicValueSaga(
   configProperty: string,
 ) {
   try {
-    const { evaluatedConfig } = value.fetchDynamicValues as DynamicValues;
+    const {
+      config,
+      evaluatedConfig,
+    } = value.fetchDynamicValues as DynamicValues;
     const { params } = evaluatedConfig;
 
     dynamicFetchedValues.hasStarted = true;
@@ -163,6 +181,63 @@ function* fetchDynamicValueSaga(
     )
       url = evaluatedConfig.url;
 
+    // Eval Action is the current action as it is stored in the dataTree
+    let evalAction: any;
+    // Evaluated params is the object that will hold the evaluated values of the parameters as computed in the dataTree
+    let evaluatedParams;
+    // this is a temporary variable, used to derive the evaluated value of the current parameters before being stored in the evaluated params
+    let substitutedParameters = {};
+
+    const action = yield select(getAction, actionId);
+    const dataTree = yield select(getDataTree);
+
+    if (!!action) {
+      evalAction = dataTree[action.name];
+    }
+
+    // we use the config parameters to get the action diff path value of the parameters i.e. {{actionConfiguration.formData.sheetUrl.data}. Note that it is enclosed within dynamic bindings
+    if ("parameters" in config?.params && !!evalAction) {
+      Object.entries(config?.params.parameters).forEach(([key, value]) => {
+        // we extract the action diff path of the param value from the dynamic binding i.e. actionConfiguration.formData.sheetUrl.data
+        const dynamicBindingValue = getDynamicBindings(value as string)
+          ?.jsSnippets[0];
+        // we convert this action Diff path into the same format as it is stored in the dataTree i.e. config.formData.sheetUrl.data
+        const dataTreeActionConfigPath = getDataTreeActionConfigPath(
+          dynamicBindingValue,
+        );
+        // then we get the value of the current parameter from the evaluatedValues in the action object stored in the dataTree.
+        const evaluatedValue = get(
+          evalAction?.__evaluation__?.evaluatedValues,
+          dataTreeActionConfigPath,
+        );
+        // if it exists, we store it in the substituted params object.
+        // we check if that value is enclosed in dynamic bindings i.e the value has not been evaluated or somehow still contains a js expression
+        // if it is, we return an empty string since we don't want to send dynamic bindings to the server.
+        // if it contains a value, we send the value to the server
+        if (!!evaluatedValue) {
+          substitutedParameters = {
+            ...substitutedParameters,
+            [key]: isDynamicValue(evaluatedValue) ? "" : evaluatedValue,
+          };
+        }
+      });
+    }
+
+    // we destructure the values back to the appropriate places.
+    if ("parameters" in params) {
+      evaluatedParams = {
+        ...params,
+        parameters: {
+          ...params.parameters,
+          ...substitutedParameters,
+        },
+      };
+    } else {
+      evaluatedParams = {
+        ...params,
+      };
+    }
+
     // Call the API to fetch the dynamic values
     const response: ApiResponse = yield call(
       PluginsApi.fetchDynamicFormValues,
@@ -172,7 +247,7 @@ function* fetchDynamicValueSaga(
         configProperty,
         datasourceId,
         pluginId,
-        ...params,
+        ...evaluatedParams,
       },
     );
     dynamicFetchedValues.isLoading = false;

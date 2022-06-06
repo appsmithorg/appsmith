@@ -19,12 +19,9 @@ enum OrderDropDownValues {
 // Form config for the column field
 const columnFieldConfig: any = {
   key: "column",
-  // controlType: "DROP_DOWN",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
   initialValue: "",
-  // options: [],
   inputType: "TEXT",
-  // placeholderText: "Select Column",
   placeholderText: "Column name",
   customStyles: {
     width: "25vw",

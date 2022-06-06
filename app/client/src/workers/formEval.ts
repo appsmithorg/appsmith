@@ -269,7 +269,7 @@ function evaluate(
                 isActionDiffADependency = true;
               }
 
-              // if the actionDiffPath is a dependency or if the route has changed of if there's no actionDiffPath at all
+              // if the actionDiffPath is a dependency or if the route has changed (navigated to another action/page) of if there's no actionDiffPath at all (when the page is refreshed)
               // we want to trigger an API call for the dynamic values.
               if (
                 isActionDiffADependency ||
@@ -286,11 +286,6 @@ function evaluate(
                   (currentEvalState[key].fetchDynamicValues as DynamicValues)
                     .config,
                 ) as DynamicValuesConfig;
-              } else {
-                (currentEvalState[key]
-                  .fetchDynamicValues as DynamicValues).allowedToFetch = false;
-                (currentEvalState[key]
-                  .fetchDynamicValues as DynamicValues).isLoading = false;
               }
             } else if (
               conditionType === ConditionType.EVALUATE_FORM_CONFIG &&

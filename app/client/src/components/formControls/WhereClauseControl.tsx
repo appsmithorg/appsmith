@@ -11,7 +11,8 @@ import { WhereClauseSubComponent } from "./utils";
 import Tooltip from "components/ads/Tooltip";
 
 //Dropdwidth and Icon have fixed widths
-const DropdownWidth = 100; //pixel value
+const DropdownWidth = 82; //pixel value
+const OperatorDropdownWidth = 100; // operators should have longer dropdown widths.
 const Margin = 8; //pixel value, space between two adjacent fields
 //Offsets are pixel values adjusted for Margin = 8px, and DropdownWidth = 100px
 //Offsets are used to calculate flexible width of Key and Value fields
@@ -199,7 +200,10 @@ function ConditionComponent(props: any, index: number) {
       <FormControl
         config={{
           ...conditionFieldConfig,
-          customStyles: { width: `${DropdownWidth}px`, margin: "0 8px" },
+          customStyles: {
+            width: `${OperatorDropdownWidth}px`,
+            margin: "0 8px",
+          },
           configProperty: conditionPath,
           options: props.comparisonTypes,
           initialValue: props.comparisonTypes[0].value,

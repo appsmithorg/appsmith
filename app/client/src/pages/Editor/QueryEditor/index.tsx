@@ -176,25 +176,13 @@ class QueryEditor extends React.Component<Props> {
 
     const formDataDiff = diff(prevProps.formData, this.props.formData);
 
-    // we only concern ourselves with formDataDiffs that is not of type "E", i.e. that has not been edited.
-    // we focus on diffs that have been deleted or that are new
-    let filteredFormDataDiff: any = [];
-
-    if (!!formDataDiff) {
-      filteredFormDataDiff = formDataDiff.filter((diff) => diff.kind !== "E");
-    }
-
     // actionDiffPath is the path of the form input which was changed by the user.
     let actionDiffPath = "";
+    // hasRouteChanged tells us if the redux form state has changed (this usually happens when we route to another action.)
     let hasRouteChanged = false;
 
-    // if the filteredFormDataDiff is greater than 1, it means a lot of form controls have either been added or deleted
-    // which we can infer as a route change.
-    // Also we compare the id of the formData, if the id's don't match, the formData has been changed, hence the route has changed.
-    if (
-      (!!filteredFormDataDiff && filteredFormDataDiff?.length > 1) ||
-      prevProps?.formData?.id !== this.props?.formData?.id
-    ) {
+    // we compare the id of the formData, if the id's don't match, the formData has been changed, hence the route has changed.
+    if (prevProps?.formData?.id !== this.props?.formData?.id) {
       hasRouteChanged = true;
     }
 

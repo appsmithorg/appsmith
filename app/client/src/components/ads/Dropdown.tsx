@@ -220,7 +220,7 @@ const Selected = styled.div<{
   ${(props) =>
     props.isMultiSelect &&
     `
-    min-height: 38px;
+    min-height: 36px;
     padding: 2px 8px;
   `}
   cursor: ${(props) =>
@@ -1115,7 +1115,7 @@ export default function Dropdown(props: DropdownProps) {
     dropdownWrapperWidth = `${width}px`;
   }
 
-  let dropdownHeight = props.isMultiSelect ? "auto" : "38px";
+  let dropdownHeight = props.isMultiSelect ? "auto" : "36px";
   if (props.height) {
     dropdownHeight = props.height;
   }
