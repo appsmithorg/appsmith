@@ -19,7 +19,6 @@ async function run() {
       }
     });
 
-    console.log('Stopping backend & rts');
     utils.stop(['backend', 'rts']);
 
     const timestamp = new Date().toISOString().replace(/:/g, '-')
