@@ -98,16 +98,17 @@ async function restoreGitStorageArchive(restoreContentsPath, backupName){
   // TODO: Consider APPSMITH_GIT_ROOT env for later iterations
   const gitRoot = '/appsmith-stacks/git-storage';
   await utils.execCommand(['mv', gitRoot, gitRoot + '.' + backupName]);
-  await utils.execCommand(['cp', '-R', restoreContentsPath + '/git-storage', '/appsmith-stacks']);
+  await utils.execCommand(['mv', restoreContentsPath + '/git-storage', '/appsmith-stacks']);
   console.log('Restoring git-storage archive completed');
 
 }
 async function checkRestoreVersionCompatability(restoreContentsPath){
   const content = await fsPromises.readFile('/opt/appsmith/rts/version.js', {encoding: 'utf8'});
   const currentVersion = content.match(/\bexports\.VERSION\s*=\s*["']([^"]+)["']/)[1];
-  const restoreVersion = await fsPromises.readFile(restoreContentsPath + '/version.txt', {encoding: 'utf8'});
+  const manifest_data = await fsPromises.readFile(restoreContentsPath + '/manifest.json', {encoding: 'utf8'});
+  const manifest_json = JSON.parse(manifest_data)
   console.log('Current Appsmith Version: ' + currentVersion);
-  console.log('Restore Appsmith Version: ' + restoreVersion);
+  console.log('Restore Appsmith Version: ' + manifest_json["appsmithVersion"]);
 
   if (currentVersion === restoreVersion){
     console.log('The restore instance is compatible with the current appsmith version');
@@ -140,7 +141,7 @@ async function run() {
         process.exit(errorCode);
       } else {
         const backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
-        const backupName = backupFileName.slice(0,-7);
+        const backupName = backupFileName.replace(/\.tar\.gz$/, "");
         const restoreRootPath = await fsPromises.mkdtemp(os.tmpdir());
         const restoreContentsPath = path.join(restoreRootPath, backupName);
 
