@@ -10,13 +10,17 @@ class PropertyControlRegistry {
     Object.values(PropertyControls).forEach(
       (Control: typeof BaseControl & { getControlType: () => string }) => {
         const controlType = Control.getControlType();
-        PropertyControlFactory.registerControlBuilder(controlType, {
-          buildPropertyControl(
-            controlProps: PropertyControlPropsType,
-          ): JSX.Element {
-            return <Control {...controlProps} />;
+        PropertyControlFactory.registerControlBuilder(
+          controlType,
+          {
+            buildPropertyControl(
+              controlProps: PropertyControlPropsType,
+            ): JSX.Element {
+              return <Control {...controlProps} />;
+            },
           },
-        });
+          Control.canDisplayValueInUI,
+        );
       },
     );
   }

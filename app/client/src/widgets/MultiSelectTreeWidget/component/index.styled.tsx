@@ -532,6 +532,9 @@ border: 1px solid #E8E8E8;
   .rc-tree-select-tree-title {
     color: ${Colors.GREY_9};
   }
+  .rc-tree-select-tree-checkbox-indeterminate .rc-tree-select-tree-checkbox-inner {
+    background-color: ${({ accentColor }) => accentColor} !important;
+  }
   :not(.rc-tree-select-tree-treenode-checkbox-checked) .rc-tree-select-tree-checkbox-inner {
     background-color:  ${({ accentColor }) => lightenColor(accentColor)};
     border-color: ${({ accentColor }) => accentColor};
