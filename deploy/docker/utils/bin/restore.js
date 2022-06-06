@@ -107,8 +107,9 @@ async function checkRestoreVersionCompatability(restoreContentsPath){
   const currentVersion = content.match(/\bexports\.VERSION\s*=\s*["']([^"]+)["']/)[1];
   const manifest_data = await fsPromises.readFile(restoreContentsPath + '/manifest.json', {encoding: 'utf8'});
   const manifest_json = JSON.parse(manifest_data)
+  const restoreVersion = manifest_json["appsmithVersion"]
   console.log('Current Appsmith Version: ' + currentVersion);
-  console.log('Restore Appsmith Version: ' + manifest_json["appsmithVersion"]);
+  console.log('Restore Appsmith Version: ' + restoreVersion);
 
   if (currentVersion === restoreVersion){
     console.log('The restore instance is compatible with the current appsmith version');
