@@ -117,7 +117,15 @@ const ContentWrapper = styled("div")<{ containsCode: boolean }>`
     clearTimeout(id);
   };
 
-// Lazy load CodeEditor upon focus
+/**
+ * A wrapper to lazily render CodeEditor component.
+ * Need: CodeMirror is a performance intensive component to render.
+ * Many widgets have multiple properties that require a CodeEditor component to be rendered.
+ * Solution: 1. Lazy load the CodeEditor component when the system is idle.
+ * 2. Render a similar looking replica component initially.
+ * 3. If there isn't enough idle time to render the CodeEditor component,
+ * then render it immediately upon focus event.
+ */
 function CodeEditor(props: any) {
   const [isFocused, setFocus] = useState<boolean>(false);
   const [lintError, setLintError] = useState<string>("");

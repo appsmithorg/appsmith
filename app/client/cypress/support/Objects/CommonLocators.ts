@@ -70,4 +70,5 @@ export class CommonLocators {
     _jsonFormHeader = ".t--jsonform-body > div:first-child"
     _jsonFormWidget = ".t--widget-jsonformwidget"
     _lintErrorElement = `span.CodeMirror-lint-mark-error`
+    _codeEditorWrapper = ".unfocused-code-editor"
 }
