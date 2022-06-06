@@ -39,8 +39,6 @@ async function run() {
 
     await fsPromises.rm(backupRootPath, {recursive: true, force: true});
 
-    console.log('Starting backend & rts\n');
-
     console.log('Finished taking a baceup at', archivePath);
     // console.log('Please remember to also take the `docker.env` separately since it includes sensitive, but critical information.')
 
