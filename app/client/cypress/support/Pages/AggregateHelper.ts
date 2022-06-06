@@ -530,8 +530,8 @@ export class AggregateHelper {
   }
 
   public UpdateCodeInput(selector: string, value: string) {
+    this.FocusEditorWrapper(0);
     cy.wrap(selector)
-      .then(() => this.FocusEditorWrapper(0))
       .find(".CodeMirror")
       .first()
       .then((ins: any) => {
