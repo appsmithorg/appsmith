@@ -11,7 +11,7 @@ const Constants = require('./constants');
 async function run() {
   let errorCode = 0;
   try {
-    check_supervisord_status_cmd = '/usr/bin/supervisorctl >/dev/null 2>&1';
+    const check_supervisord_status_cmd = '/usr/bin/supervisorctl >/dev/null 2>&1';
     shell.exec(check_supervisord_status_cmd, function (code) {
       if (code > 0) {
         shell.echo('application is not running, starting supervisord');
