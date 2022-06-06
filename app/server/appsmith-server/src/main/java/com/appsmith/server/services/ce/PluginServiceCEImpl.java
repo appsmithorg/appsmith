@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, String> implements PluginServiceCE {
 
     public static final String UQI_DB_EDITOR_FORM = "UQIDbEditorForm";
-    private final WorkspaceService workspaceService;
+    protected final WorkspaceService workspaceService;
     private final PluginManager pluginManager;
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
     private final ChannelTopic topic;
