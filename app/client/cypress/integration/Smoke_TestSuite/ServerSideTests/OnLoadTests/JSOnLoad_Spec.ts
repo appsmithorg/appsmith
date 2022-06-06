@@ -511,7 +511,6 @@ describe("JSObjects OnLoad Actions tests", function() {
 
   it("12. Tc #1646 - Honouring the order of execution & Bug 13826 + Bug 13646 - Delpoy page", () => {
     deployMode.DeployApp();
-    agHelper.Sleep(2000);
     agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "getBooks" has failed');
