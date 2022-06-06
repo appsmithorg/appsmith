@@ -46,6 +46,7 @@ describe("Migration Validate", function() {
       cy.xpath(
         "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='latitude']/ancestor::div[contains(@class, 'TableStyledWrappers__DraggableHeaderWrapper')]",
       )
+        .scrollIntoView()
         .invoke("attr", "class")
         .then((classes) => {
           cy.log("classes are:" + classes);
@@ -55,6 +56,7 @@ describe("Migration Validate", function() {
       cy.xpath(
         "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='longitude']/ancestor::div[contains(@class, 'TableStyledWrappers__DraggableHeaderWrapper')]",
       )
+        .scrollIntoView()
         .invoke("attr", "class")
         .then((classes) => {
           cy.log("classes are:" + classes);
@@ -65,6 +67,7 @@ describe("Migration Validate", function() {
       cy.xpath(
         "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]",
       )
+        .scrollIntoView()
         .invoke("text")
         .then((x) => {
           expect(x).to.eq(

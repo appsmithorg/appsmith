@@ -127,6 +127,7 @@ export class Table {
   public AssertHiddenColumns(columnNames: string[]) {
     columnNames.forEach(($header) => {
       cy.xpath(this._columnHeader($header))
+        .scrollIntoView()
         .invoke("attr", "class")
         .then((classes) => {
           expect(classes).includes("hidden-header");
