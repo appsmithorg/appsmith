@@ -71,7 +71,7 @@ import {
   SNIPPET_EXECUTION_SUCCESS,
 } from "@appsmith/constants/messages";
 import { validate } from "workers/validations";
-import { diff } from "deep-diff";
+import { diff, Diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
@@ -125,22 +125,22 @@ function* evaluateTreeSaga(
 
   const {
     dataTree,
-    dependencies,
-    errors,
+    dependencies = {},
+    errors = [],
     evalMetaUpdates = [],
-    evaluationOrder,
-    jsUpdates,
-    logs,
-    unEvalUpdates,
+    evaluationOrder = [],
+    jsUpdates = {},
+    logs = [],
+    unEvalUpdates = [],
   }: {
-    dataTree: DataTree;
-    dependencies: Record<string, string[]>;
-    errors: EvalError[];
+    dataTree?: DataTree;
+    dependencies?: Record<string, string[]>;
+    errors?: EvalError[];
     evalMetaUpdates?: EvalMetaUpdates;
-    evaluationOrder: string[];
-    jsUpdates: Record<string, JSUpdate>;
-    logs: any[];
-    unEvalUpdates: DataTreeDiff[];
+    evaluationOrder?: string[];
+    jsUpdates?: Record<string, JSUpdate>;
+    logs?: any[];
+    unEvalUpdates?: DataTreeDiff[];
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -148,9 +148,12 @@ function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  const oldDataTree = yield select(getDataTree);
+  const oldDataTree: DataTree = yield select(getDataTree);
 
-  const updates = diff(oldDataTree, dataTree) || [];
+  const updates = (diff(oldDataTree, dataTree) || []) as Diff<
+    DataTree,
+    DataTree
+  >[];
 
   yield put(setEvaluatedTree(updates));
   PerformanceTracker.stopAsyncTracking(

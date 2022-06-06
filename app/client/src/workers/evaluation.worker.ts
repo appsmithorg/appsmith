@@ -149,7 +149,6 @@ ctx.addEventListener(
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
             dataTree = dataTreeResponse.evalTree;
             jsUpdates = dataTreeResponse.jsUpdates;
-            evalMetaUpdates = dataTreeResponse.evalMetaUpdates;
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
             if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
