@@ -127,7 +127,7 @@ function* evaluateTreeSaga(
     dataTree,
     dependencies,
     errors,
-    evalMetaUpdates,
+    evalMetaUpdates = [],
     evaluationOrder,
     jsUpdates,
     logs,
@@ -136,7 +136,7 @@ function* evaluateTreeSaga(
     dataTree: DataTree;
     dependencies: Record<string, string[]>;
     errors: EvalError[];
-    evalMetaUpdates: EvalMetaUpdates;
+    evalMetaUpdates?: EvalMetaUpdates;
     evaluationOrder: string[];
     jsUpdates: Record<string, JSUpdate>;
     logs: any[];
@@ -157,7 +157,7 @@ function* evaluateTreeSaga(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
   // if evalMetaUpdates are present only then dispatch updateMetaState
-  if (evalMetaUpdates.length) {
+  if (evalMetaUpdates && evalMetaUpdates.length) {
     yield put(updateMetaState(evalMetaUpdates));
   }
   log.debug({ evalMetaUpdates });
