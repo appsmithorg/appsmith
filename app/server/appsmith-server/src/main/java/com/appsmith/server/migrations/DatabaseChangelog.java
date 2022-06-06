@@ -39,7 +39,6 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
-import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QActionCollection;
@@ -365,9 +364,12 @@ public class DatabaseChangelog {
                 makeIndex("email").unique().expire(3600, TimeUnit.SECONDS)
         );
 
-        ensureIndexes(mongoTemplate, Permission.class,
-                createdAtIndex
-        );
+        /*
+        Removing the code for ensuring index for a class which has never been used and now being removed.
+         */
+//        ensureIndexes(mongoTemplate, Permission.class,
+//                createdAtIndex
+//        );
 
         ensureIndexes(mongoTemplate, Plugin.class,
                 createdAtIndex,
