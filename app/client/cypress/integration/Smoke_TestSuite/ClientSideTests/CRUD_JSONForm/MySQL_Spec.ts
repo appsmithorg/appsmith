@@ -60,7 +60,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
 
-    //Unable to delete ds until app is published again
+    //Should not be able to delete ds until app is published again
     //coz if app is published & shared then deleting ds may cause issue, So!
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
