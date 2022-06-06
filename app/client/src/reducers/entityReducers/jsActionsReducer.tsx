@@ -7,13 +7,14 @@ import {
 } from "ce/constants/ReduxActionConstants";
 import { set, keyBy, findIndex, unset } from "lodash";
 import produce from "immer";
+import { Message } from "workers/UserLog";
 
 const initialState: JSCollectionDataState = [];
 export interface JSCollectionData {
   isLoading: boolean;
   config: JSCollection;
   data?: Record<string, unknown>;
-  logs?: Record<string, unknown>;
+  logs?: Message[];
   isExecuting?: Record<string, boolean>;
   activeJSActionId?: string;
   // Existence of parse errors for each action (updates after execution)
@@ -299,8 +300,8 @@ const jsActionsReducer = createReducer(initialState, {
       isDirty: boolean;
       logs: any;
     }>,
-  ): JSCollectionDataState =>
-    state.map((a) => {
+  ): JSCollectionDataState => {
+    return state.map((a) => {
       if (a.config.id === action.payload.collectionId) {
         return {
           ...a,
@@ -308,10 +309,9 @@ const jsActionsReducer = createReducer(initialState, {
             ...a.data,
             [action.payload.actionId]: action.payload.results,
           },
-          logs: {
-            ...a.logs,
-            [action.payload.actionId]: action.payload.logs,
-          },
+          logs: !!a.logs
+            ? [...a.logs, ...action.payload.logs]
+            : action.payload.logs,
           isExecuting: {
             ...a.isExecuting,
             [action.payload.actionId]: false,
@@ -323,7 +323,8 @@ const jsActionsReducer = createReducer(initialState, {
         };
       }
       return a;
-    }),
+    });
+  },
   [ReduxActionTypes.UPDATE_JS_FUNCTION_PROPERTY_SUCCESS]: (
     state: JSCollectionDataState,
     action: ReduxAction<{ collection: JSCollection }>,
