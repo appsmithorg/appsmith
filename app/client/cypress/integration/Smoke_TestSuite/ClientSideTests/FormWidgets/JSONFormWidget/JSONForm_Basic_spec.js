@@ -1,7 +1,7 @@
-const { type } = require("os");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+const jsonform = require("../../../../../locators/jsonFormWidget.json");
 
 describe("JsonForm widget basis c usecases", function() {
   it("Validate Drag and drop jsonform widget", function() {
@@ -13,11 +13,11 @@ describe("JsonForm widget basis c usecases", function() {
 
   it("json form widget validate default data", function() {
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--jsonformfield-name input").should(
+    cy.get(jsonform.jsformInput).should(
       "have.value",
       this.data.defaultSource.name,
     );
-    cy.get(".t--jsonformfield-date_of_birth input").should(
+    cy.get(jsonform.jsformDOB).should(
       "have.value",
       this.data.defaultSource.date_of_birth,
     );
@@ -29,24 +29,24 @@ describe("JsonForm widget basis c usecases", function() {
 
   it("json form widget validate reset button function", function() {
     cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--jsonformfield-name input").clear({ force: true });
-    cy.get(".t--jsonformfield-name input").type("TestReset");
-    cy.get(".t--jsonformfield-employee_id input").clear({ force: true });
-    cy.get(".t--jsonformfield-employee_id input").type("375");
-    cy.get(".t--jsonformfield-name input").should(
+    cy.get(jsonform.jsformInput).clear({ force: true });
+    cy.get(jsonform.jsformInput).type("TestReset");
+    cy.get(jsonform.jsformEmpID).clear({ force: true });
+    cy.get(jsonform.jsformEmpID).type("375");
+    cy.get(jsonform.jsformInput).should(
       "not.have.value",
       this.data.defaultSource.name,
     );
-    cy.get(".t--jsonformfield-employee_id input").should(
+    cy.get(jsonform.jsformEmpID).should(
       "not.have.value",
       this.data.defaultSource.employee_id,
     );
     cy.get("button:contains('Reset')").click({ force: true });
-    cy.get(".t--jsonformfield-name input").should(
+    cy.get(jsonform.jsformInput).should(
       "have.value",
       this.data.defaultSource.name,
     );
-    cy.get(".t--jsonformfield-employee_id input").should(
+    cy.get(jsonform.jsformEmpID).should(
       "have.value",
       this.data.defaultSource.employee_id,
     );
