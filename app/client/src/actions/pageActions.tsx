@@ -49,6 +49,10 @@ export const fetchPage = (
   };
 };
 
+export const fetchPageDSLs = () => ({
+  type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
+});
+
 export const fetchPublishedPage = (
   pageId: string,
   bustCache = false,

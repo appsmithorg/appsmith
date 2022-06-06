@@ -2,6 +2,8 @@ import {
   ReduxActionTypes,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
+import { APP_MODE } from "entities/App";
+import { AppEnginePayload } from "entities/Engine";
 
 export type InitializeEditorPayload = {
   applicationId?: string;
@@ -11,9 +13,12 @@ export type InitializeEditorPayload = {
 
 export const initEditor = (
   payload: InitializeEditorPayload,
-): ReduxAction<InitializeEditorPayload> => ({
+): ReduxAction<AppEnginePayload> => ({
   type: ReduxActionTypes.INITIALIZE_EDITOR,
-  payload,
+  payload: {
+    ...payload,
+    mode: APP_MODE.EDIT,
+  },
 });
 
 export const resetEditorRequest = () => ({

@@ -41,6 +41,7 @@ import {
 } from "actions/controlActions";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
+import { APP_MODE } from "entities/App";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -153,6 +154,7 @@ function AppViewer(props: Props) {
         branch: branch,
         applicationId,
         pageId,
+        mode: APP_MODE.PUBLISHED,
       },
     });
   };
