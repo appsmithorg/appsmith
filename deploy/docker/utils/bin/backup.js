@@ -32,7 +32,7 @@ async function run() {
 
     await createGitStorageArchive(backupContentsPath);
 
-    await writeVersion(backupContentsPath);
+    await createManifestFile(backupContentsPath);
     await exportDockerEnvFile(backupContentsPath);
 
     const archivePath = await createFinalArchive(backupRootPath, timestamp);
@@ -74,17 +74,15 @@ async function createGitStorageArchive(destFolder) {
   console.log('Created git-storage archive');
 }
 
-async function writeVersion(path) {
-  // TODO: Find a less fragile way do get the version here.
+async function createManifestFile(path) {
   const content = await fsPromises.readFile('/opt/appsmith/rts/version.js', {encoding: 'utf8'});
   const version = content.match(/\bexports\.VERSION\s*=\s*["']([^"]+)["']/)[1];
-  await fsPromises.writeFile(path + '/version.txt', version);
-  // shell.exec(`awk -F '=' '/^exports.VERSION/{print $NF}' /opt/appsmith/rts/version.js | sed 's/[;'\\''\\" ]//g' | tail -n 1 > ${path}/version.js`)
+  const manifest_data = {"appsmithVersion": version} 
+  await fsPromises.writeFile(path + '/manifest.json', JSON.stringify(manifest_data));
 }
 
 async function exportDockerEnvFile(destFolder) {
   console.log('Exporting docker environment file');
-  // shell.exec(`sed '/^APPSMITH_ENCRYPTION.*/d' /appsmith-stacks/configuration/docker.env > ${destFolder}/docker.env`);
   const content = await fsPromises.readFile('/appsmith-stacks/configuration/docker.env', {encoding: 'utf8'});
   const output_lines = []
   content.split(/\r?\n/).forEach(line =>  {
@@ -95,9 +93,9 @@ async function exportDockerEnvFile(destFolder) {
   await fsPromises.writeFile(destFolder + '/docker.env', output_lines.join('\n'));
   console.log('Exporting docker environment file done.');
 
-  console.log('!!!!!!!!');
-  console.log('!!!   Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file because those values are not included in the backup export.');
-  console.log('!!!!!!!!');
+  console.log('!!!!!!!!!!!!!!!!!!!!!!!!!! Important !!!!!!!!!!!!!!!!!!!!!!!!!!');
+  console.log('!!! Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file because those values are not included in the backup export.');
+  console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
 }
 
 async function createFinalArchive(destFolder, timestamp) {
