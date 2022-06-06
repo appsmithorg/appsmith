@@ -124,23 +124,23 @@ function* evaluateTreeSaga(
   );
 
   const {
-    dataTree,
-    dependencies,
+    dataTree = {},
+    dependencies = {},
     errors,
     evalMetaUpdates = [],
-    evaluationOrder,
-    jsUpdates,
-    logs,
-    unEvalUpdates,
+    evaluationOrder = [],
+    jsUpdates = {},
+    logs = [],
+    unEvalUpdates = [],
   }: {
-    dataTree: DataTree;
-    dependencies: Record<string, string[]>;
+    dataTree?: DataTree;
+    dependencies?: Record<string, string[]>;
     errors: EvalError[];
-    evalMetaUpdates: EvalMetaUpdates;
-    evaluationOrder: string[];
-    jsUpdates: Record<string, JSUpdate>;
-    logs: any[];
-    unEvalUpdates: DataTreeDiff[];
+    evalMetaUpdates?: EvalMetaUpdates;
+    evaluationOrder?: string[];
+    jsUpdates?: Record<string, JSUpdate>;
+    logs?: any[];
+    unEvalUpdates?: DataTreeDiff[];
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,

@@ -25,6 +25,7 @@ import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
 import { setFormEvaluationSaga } from "./formEval";
 import { isEmpty } from "lodash";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
+import { klona } from "klona";
 
 const CANVAS = "canvas";
 
@@ -47,16 +48,27 @@ function messageEventListener(
     const { method, requestData, requestId } = e.data;
     if (method) {
       const responseData = fn(method, requestData, requestId);
+
       if (responseData) {
+        const resp = {
+          dataTree: responseData.dataTree,
+          dependencies: responseData.dependencies,
+          errors: klona(responseData.errors),
+          evalMetaUpdates: responseData.evalMetaUpdates,
+          evaluationOrder: responseData.evaluationOrder,
+          jsUpdates: responseData.jsUpdates,
+          logs: responseData.logs,
+          unEvalUpdates: responseData.unEvalUpdates,
+        };
         const endTime = performance.now();
         try {
           ctx.postMessage({
             requestId,
-            responseData,
+            responseData: resp,
             timeTaken: (endTime - startTime).toFixed(2),
           });
         } catch (e) {
-          console.error(e);
+          console.trace({ requestId, responseData }, e);
           // we dont want to log dataTree because it is huge.
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { dataTree, ...rest } = requestData;
