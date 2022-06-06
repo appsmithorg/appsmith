@@ -119,9 +119,7 @@ public class AmazonS3Plugin extends BasePlugin {
     public static class S3PluginExecutor implements PluginExecutor<AmazonS3>, SmartSubstitutionInterface {
         private final Scheduler scheduler = Schedulers.elastic();
         private final FilterDataService filterDataService;
-
         private static final AmazonS3ErrorUtils amazonS3ErrorUtils;
-
         static {
             try {
                 amazonS3ErrorUtils = AmazonS3ErrorUtils.getInstance();
@@ -845,7 +843,6 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        //result.setErrorInfo(e);
                         result.setErrorInfo(e, amazonS3ErrorUtils);
                         return Mono.just(result);
 
@@ -1014,7 +1011,6 @@ public class AmazonS3Plugin extends BasePlugin {
 
                         return new DatasourceTestResult();
                     })
-                    //.onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error))))
                     .subscribeOn(scheduler);
         }
