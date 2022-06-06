@@ -577,8 +577,10 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 copyNewFieldValuesIntoOldObject(actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
                                 return dbActionCollection;
                             });
-                })
-                .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
+                }).flatMap(actionCollection -> {
+                    actionCollection.setUpdatedAt(Instant.now());
+                    return actionCollectionService.update(actionCollection.getId(), actionCollection);
+                }).flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
                 .flatMap(analyticsService::sendUpdateEvent)
                 .flatMap(actionCollection -> actionCollectionService.generateActionCollectionByViewMode(actionCollection, false)
                         .flatMap(actionCollectionDTO1 -> actionCollectionService.populateActionCollectionByViewMode(
