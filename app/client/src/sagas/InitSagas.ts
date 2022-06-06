@@ -128,14 +128,10 @@ function* bootstrap(payload: InitializeEditorPayload) {
   const { branch, mode } = payload;
   if (mode === APP_MODE.EDIT) {
     yield put(resetEditorSuccess());
-    yield put(updateBranchLocally(branch || ""));
-    yield put(setAppMode(mode));
-    yield put({ type: ReduxActionTypes.START_EVALUATION });
-  } else {
-    yield put(updateBranchLocally(branch || ""));
-    yield put(setAppMode(mode));
-    yield put({ type: ReduxActionTypes.START_EVALUATION });
   }
+  yield put(updateBranchLocally(branch || ""));
+  yield put(setAppMode(mode));
+  yield put({ type: ReduxActionTypes.START_EVALUATION });
 }
 
 function* initiateURLUpdate(
@@ -224,7 +220,7 @@ function* initiateApplication(payload: InitializeEditorPayload) {
   const defaultPageId: string = yield select(getDefaultPageId);
   toLoadPageId = toLoadPageId || defaultPageId;
 
-  yield call(initiateURLUpdate, toLoadPageId, APP_MODE.EDIT, payload.pageId);
+  yield call(initiateURLUpdate, toLoadPageId, mode, payload.pageId);
 
   return toLoadPageId;
 }
@@ -423,7 +419,7 @@ export function* initializeAppViewerSaga(
     PerformanceTransactionName.INIT_VIEW_APP,
   );
   const { payload } = action;
-  const { branch, mode, pageId } = payload;
+  const { branch, mode } = payload;
 
   yield call(bootstrap, payload);
 
@@ -436,8 +432,6 @@ export function* initializeAppViewerSaga(
   yield put(
     updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),
   );
-
-  yield call(initiateURLUpdate, toLoadPageId, mode, pageId);
 
   const pageAndActionsFetch = yield call(
     initiatePageAndAllActions,
