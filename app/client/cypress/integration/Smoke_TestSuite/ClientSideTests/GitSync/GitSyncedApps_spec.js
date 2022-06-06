@@ -192,22 +192,26 @@ describe("Git sync apps", function() {
   });
   it("Commit and push changes, validate data binding on all pages in edit and deploy mode on master", () => {
     // verfiy data binding on all pages in edit mode
-    cy.get(".bp3-input")
+    cy.get(".t--draggable-inputwidgetv2")
       .first()
+      .find(".bp3-input")
       .should("have.value", "morpheus");
-    cy.get(".bp3-input")
-      .eq(1)
-      .should("have.value", "This is a test");
 
+    cy.get(".t--draggable-inputwidgetv2")
+      .last()
+      .find(".bp3-input")
+      .should("have.value", "This is a test");
     cy.get(`.t--entity-item:contains(${newPage})`)
       .first()
       .click();
     cy.wait("@getPage");
-    cy.get(".bp3-input")
+    cy.get(".t--draggable-inputwidgetv2")
       .first()
+      .find(".bp3-input")
       .should("have.value", "morpheus");
-    cy.get(".bp3-input")
-      .eq(1)
+    cy.get(".t--draggable-inputwidgetv2")
+      .last()
+      .find(".bp3-input")
       .should("have.value", "This is a test");
 
     cy.get(`.t--entity-item:contains(${pageName} Copy)`).click();
@@ -373,11 +377,10 @@ describe("Git sync apps", function() {
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
     // verfiy data binding on all pages in edit mode
-    /* cy.get(".bp3-input")
-      .first()
-      .should("have.value", "morpheus");
-    cy.get(".bp3-input")
-      .eq(1)
+    /* cy.get(".t--draggable-inputwidgetv2").first().find(".bp3-input").should("have.value", "morpheus");
+     cy.get(".t--draggable-inputwidgetv2")
+      .last()
+      .find(".bp3-input")
       .should("have.value", "This is a test");
     cy.get(`.t--entity-item:contains(Child_Page)`)
       .first()
@@ -395,11 +398,10 @@ describe("Git sync apps", function() {
       .first()
       .click();
     cy.wait("@getPage");
-    cy.get(".bp3-input")
-      .first()
-      .should("have.value", "morpheus");
-    cy.get(".bp3-input")
-      .eq(1)
+    cy.get(".t--draggable-inputwidgetv2").first().find(".bp3-input").should("have.value", "morpheus");
+     cy.get(".t--draggable-inputwidgetv2")
+      .last()
+      .find(".bp3-input")
       .should("have.value", "This is a test");
 
     cy.get(`.t--entity-item:contains(${pageName} Copy)`).click();
