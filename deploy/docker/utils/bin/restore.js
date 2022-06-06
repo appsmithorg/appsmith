@@ -62,7 +62,7 @@ async function restoreDockerEnvFile(restoreContentsPath, backupName){
                 "APPSMITH_ENCRYPTION_PASSWORD=" + encryptionPwd + "\n" +
                 "APPSMITH_ENCRYPTION_SALT" + encryptionSalt);
 
-  if ((encryptionPwd !== undefined) && (encryptionSalt !== undefined)){
+  if ((encryptionPwd != null) && (encryptionSalt != null)){
     const input = readlineSync.question('Would you like to proceed using the existing encryption values?\n\
     Press Enter to continue with existing encryption values\n\
     Or Type "n"/"No" to provide encryption key & password for the restore instance.\n');
