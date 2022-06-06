@@ -3,7 +3,8 @@ import homePage from "../../../../locators/HomePage";
 describe("Visual regression tests", () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
   //  1. Delete the required screenshot which you want to update.
-  //  2. Run test in headless mode with any browser except chrome.(to maintain same resolution in CI)
+  //  2. Run test in headless mode with any browser
+  //      command: "npx cypress run --spec cypress/integration/Smoke_TestSuite/ClientSideTests/LayoutValidation/AppPageLayout_spec.js  --browser chrome"
   //  3. New screenshot will be generated in the snapshot folder.
 
   it("Layout validation for app page in edit mode", () => {
@@ -48,7 +49,7 @@ describe("Visual regression tests", () => {
     cy.get("#root").matchImageSnapshot("Profile");
   });
 
-  it.skip("Layout validation for login page", () => {
+  it("Layout validation for login page", () => {
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
     cy.wait(500);
@@ -65,13 +66,6 @@ describe("Visual regression tests", () => {
     cy.get(".bp3-label")
       .first()
       .click();
-    /* cy.xpath("//a")
-      .eq(3)
-      .should("have.text", "Privacy Policy");
-    cy.xpath("//a")
-      .eq(4)
-      .should("have.text", "Terms and conditions"); */
-    // taking screenshot of login page
     cy.matchImageSnapshot("loginpage");
   });
 });
