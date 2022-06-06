@@ -38,7 +38,7 @@ class UserLog {
         return;
       },
       error: (...args: any) => {
-        error.call(this, args);
+        error.apply(this, args);
         const parsed = this.parseLogs("error", args);
         if (parsed) {
           this.logs.push(parsed);
@@ -46,7 +46,7 @@ class UserLog {
         return;
       },
       log: (...args: any) => {
-        log.call(this, args);
+        log.apply(this, args);
         const parsed = this.parseLogs("log", args);
         if (parsed) {
           this.logs.push(parsed);
@@ -54,7 +54,7 @@ class UserLog {
         return;
       },
       debug: (...args: any) => {
-        debug.call(this, args);
+        debug.apply(this, args);
         const parsed = this.parseLogs("debug", args);
         if (parsed) {
           this.logs.push(parsed);
@@ -62,7 +62,7 @@ class UserLog {
         return;
       },
       warn: (...args: any) => {
-        warn.call(this, args);
+        warn.apply(this, args);
         const parsed = this.parseLogs("warn", args);
         if (parsed) {
           this.logs.push(parsed);
@@ -70,7 +70,7 @@ class UserLog {
         return;
       },
       info: (...args: any) => {
-        info.call(this, args);
+        info.apply(this, args);
         const parsed = this.parseLogs("info", args);
         if (parsed) {
           this.logs.push(parsed);
@@ -78,7 +78,7 @@ class UserLog {
         return;
       },
       clear: () => {
-        clear.call(this);
+        clear.apply(this);
         const parsed = this.parseLogs("info", ["console was cleared"]);
         if (parsed) {
           this.logs.push(parsed);
