@@ -9,6 +9,7 @@ import { Colors } from "constants/Colors";
 import LabelWithTooltip, {
   labelLayoutStyles,
 } from "components/ads/LabelWithTooltip";
+import { isMacOs } from "utils/AppsmithUtils";
 
 const StyledRTEditor = styled.div<{
   borderRadius: string;
@@ -170,11 +171,14 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             contextmenu: "link useBrowserSpellcheck image table",
             setup: function(editor) {
               editor.ui.registry.addMenuItem("useBrowserSpellcheck", {
-                text: "Use `Ctrl+Right click` to access spellchecker",
+                text: `Use "${
+                  isMacOs() ? "Control" : "Ctrl"
+                }+Right" click to access spellchecker`,
                 onAction: function() {
                   editor.notificationManager.open({
-                    text:
-                      "To access the spellchecker, hold the Control (Ctrl) key and right-click on the misspelt word.",
+                    text: `To access the spellchecker, hold the ${
+                      isMacOs() ? "Control" : "Ctrl"
+                    } key and right-click on the misspelt word.`,
                     type: "info",
                     timeout: 5000,
                     closeButton: true,
