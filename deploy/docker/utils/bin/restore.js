@@ -117,9 +117,9 @@ async function checkRestoreVersionCompatability(restoreContentsPath){
     console.log('Please update your appsmith image to \"index.docker.io/appsmith/appsmith-ce:' + restoreVersion +
                 '\" in the \"docker-compose.yml\" file\nand run the cmd: \"docker-compose restart\" ' + 
                 'after the restore process is completed, to ensure the restored instance runs successfully.');
-  const confirm = readlineSync.question('Press Enter to continue \nOr Type "c" to cancel the restore process.\n');
-  if (confirm.toLowerCase() === 'c') {
-    process.exit(0);
+    const confirm = readlineSync.question('Press Enter to continue \nOr Type "c" to cancel the restore process.\n');
+    if (confirm.toLowerCase() === 'c') {
+      process.exit(0);
     }
   }
 }
