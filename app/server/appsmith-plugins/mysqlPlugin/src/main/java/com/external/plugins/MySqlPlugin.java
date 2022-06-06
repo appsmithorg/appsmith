@@ -24,7 +24,17 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.utils.MySqlErrorUtils;
 import com.external.utils.QueryUtils;
-import io.r2dbc.spi.*;
+import io.r2dbc.spi.ColumnMetadata;
+import io.r2dbc.spi.Connection;
+import io.r2dbc.spi.ConnectionFactories;
+import io.r2dbc.spi.ConnectionFactoryOptions;
+import io.r2dbc.spi.R2dbcPermissionDeniedException;
+import io.r2dbc.spi.Option;
+import io.r2dbc.spi.Result;
+import io.r2dbc.spi.Row;
+import io.r2dbc.spi.RowMetadata;
+import io.r2dbc.spi.Statement;
+import io.r2dbc.spi.ValidationDepth;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
@@ -321,11 +331,17 @@ public class MySqlPlugin extends BasePlugin {
                         return result;
                     })
                     .onErrorResume(error -> {
+                        if (error instanceof R2dbcPermissionDeniedException) {
+                            return Mono.error(new AppsmithPluginException(error, AppsmithPluginError.PLUGIN_ERROR, error.getMessage()));
+                        }
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        result.setErrorInfo(error, mySqlErrorUtils);
+                        return Mono.just(result);
+                    })
+                    .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
                             return Mono.error(error);
-                        }
-                        else if (error instanceof R2dbcPermissionDeniedException) {
-                            return Mono.error(new AppsmithPluginException(error, AppsmithPluginError.PLUGIN_ERROR, error.getMessage()));
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);

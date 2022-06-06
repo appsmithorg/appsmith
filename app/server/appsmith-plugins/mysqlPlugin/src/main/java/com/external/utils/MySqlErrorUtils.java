@@ -61,6 +61,7 @@ public class MySqlErrorUtils extends AppsmithPluginErrorUtils implements Seriali
         else {
             externalError = error;
         }
+
         if (externalError instanceof R2dbcPermissionDeniedException) {
             /**
              * Extract small readable portion of error message from a larger less comprehensible error message of R2dbcPermissionDeniedException.
