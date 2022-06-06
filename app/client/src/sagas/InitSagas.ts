@@ -86,7 +86,6 @@ import { fillPathname, viewerURL, builderURL } from "RouteBuilder";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
 import { fetchAllPageEntityCompletion } from "actions/pageActions";
-
 import {
   fetchSelectedAppThemeAction,
   fetchAppThemesAction,
@@ -292,7 +291,6 @@ function* initiatePageAndAllActions(
     default:
       return false;
   }
-
   const allActionCalls: boolean = yield failFastApiCalls(
     initActionsCalls,
     successActionEffects,
@@ -449,6 +447,7 @@ export function* initializeAppViewerSaga(
   );
 
   if (!pageAndActionsFetch) return;
+  yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
 
   yield put(fetchCommentThreadsInit());
 

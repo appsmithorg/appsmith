@@ -13,6 +13,7 @@ export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages
   ReduxActionTypes.FETCH_ALL_PAGE_ENTITY_COMPLETION,
 ];
+
 export const EVALUATE_REDUX_ACTIONS = [
   ...FIRST_EVAL_REDUX_ACTIONS,
   // Actions
