@@ -344,7 +344,8 @@ export function* handleExecuteJSFunctionSaga(data: {
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
-        results: `${logs.map((log: any) => log.value).join("\n")}\n${result}`,
+        results: result,
+        logs: logs,
         collectionId,
         actionId,
         isDirty,

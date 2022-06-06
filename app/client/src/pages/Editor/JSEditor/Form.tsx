@@ -57,6 +57,7 @@ import {
   StyledFormRow,
   TabbedViewContainer,
 } from "./styledComponents";
+import { linkMarkers } from "components/editorComponents/CodeEditor/markHelpers";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -235,6 +236,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                           onChange: handleEditorChange,
                         }}
                         isJSObject
+                        marking={[linkMarkers]}
                         mode={EditorModes.JAVASCRIPT}
                         placeholder="Let's write some code!"
                         showLightningMenu={false}

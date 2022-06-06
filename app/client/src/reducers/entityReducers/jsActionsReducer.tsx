@@ -13,6 +13,7 @@ export interface JSCollectionData {
   isLoading: boolean;
   config: JSCollection;
   data?: Record<string, unknown>;
+  logs?: Record<string, unknown>;
   isExecuting?: Record<string, boolean>;
   activeJSActionId?: string;
   // Existence of parse errors for each action (updates after execution)
@@ -296,6 +297,7 @@ const jsActionsReducer = createReducer(initialState, {
       collectionId: string;
       actionId: string;
       isDirty: boolean;
+      logs: any;
     }>,
   ): JSCollectionDataState =>
     state.map((a) => {
@@ -305,6 +307,10 @@ const jsActionsReducer = createReducer(initialState, {
           data: {
             ...a.data,
             [action.payload.actionId]: action.payload.results,
+          },
+          logs: {
+            ...a.logs,
+            [action.payload.actionId]: action.payload.logs,
           },
           isExecuting: {
             ...a.isExecuting,

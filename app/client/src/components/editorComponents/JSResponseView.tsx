@@ -163,6 +163,7 @@ type Props = ReduxStateProps &
     errors: Array<EvaluationError>;
     disabled: boolean;
     isLoading: boolean;
+    logs: Record<string, any>;
     onButtonClick: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   };
 
@@ -175,6 +176,7 @@ function JSResponseView(props: Props) {
     isExecuting,
     isLoading,
     jsObject,
+    logs,
     onButtonClick,
     responses,
   } = props;
@@ -186,6 +188,10 @@ function JSResponseView(props: Props) {
   const response =
     currentFunction && currentFunction.id && currentFunction.id in responses
       ? responses[currentFunction.id]
+      : "";
+  const log =
+    currentFunction && currentFunction.id && currentFunction.id in logs
+      ? logs[currentFunction.id]
       : "";
   // parse error found while trying to execute function
   const hasExecutionParseErrors = responseStatus === JSResponseState.IsDirty;
@@ -285,7 +291,9 @@ function JSResponseView(props: Props) {
                     folding
                     height={"100%"}
                     input={{
-                      value: response,
+                      value: `${log
+                        .map((l: any) => `//${l.value}`)
+                        .join("\n")}\n${response}`,
                     }}
                   />
                 )}
@@ -339,12 +347,14 @@ const mapStateToProps = (
       (action: JSCollectionData) => action.config.id === jsObject.id,
     );
   const responses = (seletedJsObject && seletedJsObject.data) || {};
+  const logs = (seletedJsObject && seletedJsObject.logs) || {};
   const isDirty = (seletedJsObject && seletedJsObject.isDirty) || {};
   const isExecuting = (seletedJsObject && seletedJsObject.isExecuting) || {};
   return {
     responses,
     isExecuting,
     isDirty,
+    logs,
   };
 };
 
