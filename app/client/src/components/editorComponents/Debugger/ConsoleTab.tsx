@@ -5,9 +5,10 @@ import { Severity } from "entities/AppsmithConsole";
 import FilterHeader from "./FilterHeader";
 import { BlankState } from "./helpers";
 // import { createMessage, NO_LOGS } from "@appsmith/constants/messages";
-import { Console, Decode, Hook, Unhook } from "console-feed";
+import { Console } from "console-feed";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { usePagination } from "./hooks/debuggerHooks";
+import { Message } from "workers/UserLog";
 
 const LIST_HEADER_HEIGHT = "38px";
 
@@ -25,6 +26,7 @@ export const ListWrapper = styled.div`
 
 type Props = {
   searchQuery: string;
+  logs: Message[];
   hasShortCut?: boolean;
 };
 
@@ -33,55 +35,20 @@ const LOGS_FILTER_OPTIONS = [
     label: "All",
     value: "",
   },
-  { label: "Success", value: Severity.INFO },
+  { label: "Info", value: Severity.INFO },
   { label: "Warnings", value: Severity.WARNING },
   { label: "Errors", value: Severity.ERROR },
 ];
 
 function ConsoleTab(props: Props) {
-  const [logs, setLogs] = useState<any>([]);
-  const [discardedLogs, setDiscardedLogs] = useState<any>([]);
   const [filter, setFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState(props.searchQuery);
   const listRef = useRef<HTMLDivElement>(null);
-  const { next } = usePagination([logs]);
+  const { next } = usePagination([]);
   const selectedFilter = useMemo(
     () => LOGS_FILTER_OPTIONS.find((option) => option.value === filter),
     [filter],
   );
-
-  function getNumberStringWithWidth(num: number, width: number) {
-    const str = num.toString();
-    if (width > str.length) return "0".repeat(width - str.length) + str;
-    return str.substr(0, width);
-  }
-
-  function getTimestamp() {
-    const date = new Date();
-    const h = getNumberStringWithWidth(date.getHours(), 2);
-    const min = getNumberStringWithWidth(date.getMinutes(), 2);
-    const sec = getNumberStringWithWidth(date.getSeconds(), 2);
-    const ms = getNumberStringWithWidth(date.getMilliseconds(), 3);
-    return `${h}:${min}:${sec}.${ms}`;
-  }
-
-  // run once!
-  useEffect(() => {
-    const hookedConsole = Hook(console, (log) => {
-      const decoded = Decode(log);
-      if (!decoded) {
-        setDiscardedLogs([...discardedLogs, log]);
-        return;
-      }
-      decoded.timestamp = getTimestamp();
-      setLogs((currLogs: any) => [...currLogs, decoded]);
-    });
-
-    global.console.log("test", hookedConsole);
-    return () => {
-      Unhook(hookedConsole);
-    };
-  }, []);
 
   const handleScroll = (e: Event) => {
     if ((e.target as HTMLDivElement).scrollTop === 0) {
@@ -98,8 +65,6 @@ function ConsoleTab(props: Props) {
 
   return (
     <ContainerWrapper>
-      <p>{logs.length}</p>
-      <p>{JSON.stringify(discardedLogs)}</p>
       <FilterHeader
         defaultValue={props.searchQuery}
         onChange={setSearchQuery}
@@ -110,10 +75,10 @@ function ConsoleTab(props: Props) {
       />
 
       <ListWrapper className="debugger-list" ref={listRef}>
-        {!logs.length ? (
-          <BlankState placeholderText="No console life" />
+        {!props.logs.length ? (
+          <BlankState placeholderText="No logs to show" />
         ) : (
-          <Console key={Math.random()} logs={logs} variant="light" />
+          <Console key={Math.random()} logs={props.logs} variant="light" />
         )}
       </ListWrapper>
     </ContainerWrapper>
