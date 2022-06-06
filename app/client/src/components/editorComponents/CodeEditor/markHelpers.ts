@@ -53,48 +53,54 @@ export const linkMarkers: MarkHelper = (
   options: Record<string, any>,
 ) => {
   const { dataTree } = options;
+  editor
+    .getDoc()
+    .getAllMarks()
+    .map((marker) => marker.clear());
   if (!dataTree) return;
   const entities = Object.keys(dataTree).join("|");
-  const matchExp = new RegExp("\\b(" + entities + ")\\b");
+  const matchExp = new RegExp("\\b(" + entities + ")\\b", "g");
   editor.eachLine((line: CodeMirror.LineHandle) => {
     const lineNo = editor.getLineNumber(line) || 0;
-    const match = matchExp.exec(line.text);
-    if (match) {
-      const ch = match.index;
-      const range = editor.findWordAt({ line: lineNo, ch }) || "";
-      if (!range.empty()) {
-        const text = line.text;
-        const spanEle = document.createElement("span");
-        const variable = text.slice(ch, range.to().ch);
-        spanEle.classList.add("cm-variable");
-        spanEle.classList.add("linked-doc");
-        spanEle.innerHTML = variable;
-        spanEle.onclick = function(e) {
-          e.stopPropagation();
-          if (!(e as MouseEvent).ctrlKey && !(e as MouseEvent).metaKey) return;
-          const entity = dataTree[variable];
-          if (!entity) return;
-          if (!("ENTITY_TYPE" in entity)) return;
-          if (isWidgetEntity(entity)) {
-            history.push(builderURL({ hash: entity.widgetId }));
-            return;
-          }
-          if (isJSAction(entity)) {
-            history.push(jsCollectionIdURL({ collectionId: entity.id }));
-            return;
-          }
-          if (isActionEntity(entity)) {
-            if (entity.pluginType === PluginType.API) {
-              history.push(apiEditorIdURL({ apiId: entity.actionId }));
+    const matches = [...line.text.matchAll(matchExp)];
+    matches &&
+      [...matches].forEach((match) => {
+        const ch = match.index;
+        const range = editor.findWordAt({ line: lineNo, ch: ch || 0 }) || "";
+        if (!range.empty()) {
+          const text = line.text;
+          const spanEle = document.createElement("span");
+          const variable = text.slice(ch, range.to().ch);
+          spanEle.classList.add("cm-variable");
+          spanEle.classList.add("linked-doc");
+          spanEle.innerHTML = variable;
+          spanEle.onclick = function(e) {
+            e.stopPropagation();
+            if (!(e as MouseEvent).ctrlKey && !(e as MouseEvent).metaKey)
+              return;
+            const entity = dataTree[variable];
+            if (!entity) return;
+            if (!("ENTITY_TYPE" in entity)) return;
+            if (isWidgetEntity(entity)) {
+              history.push(builderURL({ hash: entity.widgetId }));
               return;
             }
-          }
-        };
-        editor.markText(range.from(), range.to(), {
-          clearWhenEmpty: true,
-          replacedWith: spanEle,
-        });
-      }
-    }
+            if (isJSAction(entity)) {
+              history.push(jsCollectionIdURL({ collectionId: entity.id }));
+              return;
+            }
+            if (isActionEntity(entity)) {
+              if (entity.pluginType === PluginType.API) {
+                history.push(apiEditorIdURL({ apiId: entity.actionId }));
+                return;
+              }
+            }
+          };
+          editor.markText(range.from(), range.to(), {
+            clearWhenEmpty: true,
+            replacedWith: spanEle,
+          });
+        }
+      });
   });
 };
