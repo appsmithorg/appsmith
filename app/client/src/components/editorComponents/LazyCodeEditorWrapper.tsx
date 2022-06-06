@@ -5,8 +5,8 @@ import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import js from "react-syntax-highlighter/dist/cjs/languages/prism/javascript";
 import { duotoneLight } from "react-syntax-highlighter/dist/cjs/styles/prism";
 
-import CodeEditor from "components/editorComponents/CodeEditor";
-import { EditorWrapper } from "./styledComponents";
+import Editor from "components/editorComponents/CodeEditor";
+import { EditorWrapper } from "./CodeEditor/styledComponents";
 import { replayHighlightClass } from "globalStyles/portals";
 import {
   EvaluationError,
@@ -118,7 +118,7 @@ const ContentWrapper = styled("div")<{ containsCode: boolean }>`
   };
 
 // Lazy load CodeEditor upon focus
-function LazyCodeEditorWrapper(props: any) {
+function CodeEditor(props: any) {
   const [isFocused, setFocus] = useState<boolean>(false);
   const [lintError, setLintError] = useState<string>("");
   const [showLintError, setShowLintError] = useState<boolean>(false);
@@ -191,7 +191,7 @@ function LazyCodeEditorWrapper(props: any) {
     setShowLintError(flag);
 
   return isFocused ? (
-    <CodeEditor {...props} />
+    <Editor {...props} />
   ) : (
     <LazyEditorWrapper>
       <ContentWrapper containsCode={containsCode}>
@@ -242,4 +242,4 @@ function LazyCodeEditorWrapper(props: any) {
   );
 }
 
-export default LazyCodeEditorWrapper;
+export default CodeEditor;
