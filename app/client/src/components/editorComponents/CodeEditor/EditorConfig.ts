@@ -64,7 +64,10 @@ export type Hinter = {
   fireOnFocus?: boolean;
 };
 
-export type MarkHelper = (editor: CodeMirror.Editor) => void;
+export type MarkHelper = (
+  editor: CodeMirror.Editor,
+  options: Record<string, any>,
+) => void;
 
 export enum CodeEditorBorder {
   NONE = "none",

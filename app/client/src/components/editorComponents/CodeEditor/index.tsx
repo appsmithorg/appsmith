@@ -51,7 +51,10 @@ import {
   EditorWrapper,
   IconContainer,
 } from "components/editorComponents/CodeEditor/styledComponents";
-import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
+import {
+  bindingMarker,
+  linkMarkers,
+} from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
@@ -75,7 +78,10 @@ import {
   removeEventFromHighlightedElement,
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
-import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import {
+  getEntityNameAndPropertyPath,
+  isJSAction,
+} from "workers/evaluationUtils";
 import Button from "components/ads/Button";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
@@ -85,7 +91,7 @@ import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { startingEntityUpdation } from "actions/editorActions";
-import { SlashCommandPayload } from "entities/Action";
+import { PluginType, SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
 import {
@@ -93,6 +99,8 @@ import {
   LINT_TOOLTIP_CLASS,
   LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
 } from "./constants";
+import history from "utils/history";
+import { apiEditorIdURL, builderURL, jsCollectionIdURL } from "RouteBuilder";
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -200,7 +208,7 @@ type State = {
 
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
-    marking: [bindingMarker],
+    marking: [bindingMarker, linkMarkers],
     hinting: [bindingHint, commandsHelper],
   };
   // this is the higlighted element for any highlighted text in the codemirror
@@ -312,7 +320,9 @@ class CodeEditor extends Component<Props, State> {
           editor.setSize("100%", "100%");
         }
 
-        CodeEditor.updateMarkings(editor, this.props.marking);
+        CodeEditor.updateMarkings(editor, this.props.marking, {
+          dataTree: this.props.dynamicData,
+        });
 
         this.hinters = CodeEditor.startAutocomplete(
           editor,
@@ -354,7 +364,9 @@ class CodeEditor extends Component<Props, State> {
           // handles case when inputValue changes from a truthy to a falsy value
           this.editor.setValue("");
         }
-        CodeEditor.updateMarkings(this.editor, this.props.marking);
+        CodeEditor.updateMarkings(this.editor, this.props.marking, {
+          dataTree: this.props.dynamicData,
+        });
       } else {
         // Update the dynamic bindings for autocomplete
         if (prevProps.dynamicData !== this.props.dynamicData) {
@@ -362,6 +374,9 @@ class CodeEditor extends Component<Props, State> {
             (hinter) => hinter.update && hinter.update(this.props.dynamicData),
           );
         }
+        CodeEditor.updateMarkings(this.editor, this.props.marking, {
+          dataTree: this.props.dynamicData,
+        });
       }
     });
   }
@@ -557,7 +572,11 @@ class CodeEditor extends Component<Props, State> {
       });
       this.props.input.onChange(value);
     }
-    CodeEditor.updateMarkings(this.editor, this.props.marking);
+    CodeEditor.updateMarkings(
+      this.editor,
+      this.props.marking,
+      this.props.dynamicData,
+    );
   };
 
   handleDebouncedChange = _.debounce(this.handleChange, 600);
@@ -642,7 +661,6 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteKeyup = (cm: CodeMirror.Editor, event: KeyboardEvent) => {
     const key = event.key;
-    if (isModifierKey(key)) return;
     const code = `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`;
     if (isCloseKey(code) || isCloseKey(key)) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -695,8 +713,9 @@ class CodeEditor extends Component<Props, State> {
   static updateMarkings = (
     editor: CodeMirror.Editor,
     marking: Array<MarkHelper>,
+    options: Record<any, any> = {},
   ) => {
-    marking.forEach((helper) => helper(editor));
+    marking.forEach((helper) => helper(editor, options));
   };
 
   updatePropertyValue(value: string, cursor?: number) {

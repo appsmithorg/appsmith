@@ -336,7 +336,7 @@ export function* handleExecuteJSFunctionSaga(data: {
   }
 
   try {
-    const { isDirty, result } = yield call(
+    const { isDirty, logs, result } = yield call(
       executeFunction,
       collectionName,
       action,
@@ -345,6 +345,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
         results: result,
+        logs: logs,
         collectionId,
         actionId,
         isDirty,
@@ -357,14 +358,20 @@ export function* handleExecuteJSFunctionSaga(data: {
         name: collectionName + "." + action.name,
         id: collectionId,
       },
-      state: { response: result },
+      state: {
+        response: result,
+        logs: JSON.stringify(
+          logs.map((log: any) => log.value).join(`
+        `),
+        ),
+      },
     });
-    appMode === APP_MODE.EDIT &&
-      !isDirty &&
-      Toaster.show({
-        text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
-        variant: Variant.success,
-      });
+
+    Toaster.show({
+      text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
+      variant: Variant.success,
+      disabled: appMode !== APP_MODE.EDIT || isDirty,
+    });
   } catch (e) {
     AppsmithConsole.addError({
       id: actionId,

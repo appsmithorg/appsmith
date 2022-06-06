@@ -23,6 +23,13 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     border-radius: 1px;
   }
 
+  .linked-doc {
+    &:hover {
+      cursor:pointer;
+      text-decoration: underline;
+    }
+  }
+
   .CodeMirror-hint {
     height: 24px;
     color: ${(props) =>
