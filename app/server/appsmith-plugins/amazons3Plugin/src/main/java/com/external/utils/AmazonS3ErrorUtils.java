@@ -18,8 +18,9 @@ public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils implements Seri
         /**
          * Prevention of creating any other new object by using constructor
          */
-        if (amazonS3ErrorUtils != null)
+        if (amazonS3ErrorUtils != null) {
             throw new InstantiationException();
+        }
     }
 
     /**
@@ -40,8 +41,9 @@ public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils implements Seri
     public static AmazonS3ErrorUtils getInstance() throws InstantiationException {
         if (amazonS3ErrorUtils == null) {
             synchronized (AmazonS3ErrorUtils.class) {
-                if (amazonS3ErrorUtils == null)
+                if (amazonS3ErrorUtils == null){
                     amazonS3ErrorUtils = new AmazonS3ErrorUtils();
+                }
             }
         }
         return amazonS3ErrorUtils;
@@ -68,6 +70,7 @@ public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils implements Seri
             AmazonS3Exception amazonS3Exception = (AmazonS3Exception) externalError;
             /**
              * parsing the unreadable AmazonS3Exception error messages into readable
+             * example: null (Service : Amazon S3; Status Code : 404)
              * and returning the readable message
              */
             return amazonS3Exception.getErrorMessage().split("\\(")[0].trim();
@@ -76,6 +79,7 @@ public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils implements Seri
             AmazonServiceException amazonServiceException = (AmazonServiceException) externalError;
             /**
              * parsing the unreadable AmazonServiceException error messages into readable
+             * example : The request signature we calculated does not match the signature you provided. Check your key and signing method. (Service : Amazon S3; Status Code : 403)
              * and returning the readable message
              */
             return amazonServiceException.getErrorMessage().split("\\(")[0].trim();

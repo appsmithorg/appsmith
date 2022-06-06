@@ -22,18 +22,22 @@ public class AmazonS3ErrorUtilsTest {
 
     @Test
     public void getReadableErrorWithAmazonServiceException() throws InstantiationException {
-        AmazonServiceException amazonServiceException = new AmazonServiceException(noSuchBucketErrorMessage);
+        AmazonServiceException amazonServiceException = new AmazonServiceException(signatureDoesNotMatchErrorMessage);
+        String expectedMessage = "The request signature we calculated does not match the signature you provided. Check your key and signing method.";
         String message = AmazonS3ErrorUtils.getInstance().getReadableError(amazonServiceException);
         assertFalse(message.isEmpty());
         assertNotNull(message);
+        assertEquals(expectedMessage, message);
     }
 
     @Test
     public void getReadableErrorWithAmazonS3Exception() throws InstantiationException {
-        AmazonS3Exception amazonS3Exception = new AmazonS3Exception(signatureDoesNotMatchErrorMessage);
+        AmazonS3Exception amazonS3Exception = new AmazonS3Exception(noSuchBucketErrorMessage);
+        String expectedMessage = "null";
         String message = AmazonS3ErrorUtils.getInstance().getReadableError(amazonS3Exception);
         assertFalse(message.isEmpty());
         assertNotNull(message);
+        assertEquals(expectedMessage, message);
     }
 
 }
