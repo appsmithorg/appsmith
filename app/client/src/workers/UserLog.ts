@@ -1,17 +1,5 @@
 import { uuid4 } from "@sentry/utils";
 
-/* eslint-disable no-console */
-const methods = [
-  "log",
-  "debug",
-  "table",
-  "clear",
-  "time",
-  "timeEnd",
-  "count",
-  "assert",
-];
-
 export type Methods =
   | "log"
   | "debug"
@@ -38,52 +26,66 @@ class UserLog {
   }
   private logs: Message[] = [];
   private initiate() {
-    for (const method of methods) {
-      if (console.hasOwnProperty(method)) {
-        let NativeMethod = console[method as Methods];
-        NativeMethod = (...args: any) => {
-          // NativeMethod.call(this, args);
-          const parsed = this.parseLogs(method as Methods, args);
-          if (parsed) {
-            this.logs.push(parsed);
-            // let encoded: Message = parsed as Message;
-            // if (encode) {
-            // encoded = Encode(parsed) as Message;
-            // }
-            // callback(encoded, parsed);
-          }
-          return;
-        };
-        console = {
-          ...console,
-          [method]: NativeMethod,
-        };
-      }
-    }
-    // const { debug, error, log, table } = console;
-    // console = {
-    //   ...console,
-    //   table: function(value: any) {
-    //     table.call(this, value);
-    //     userLogs.addLog(value, "TABLE");
-    //     return value;
-    //   },
-    //   error: function(value: any) {
-    //     error.call(this, value);
-    //     userLogs.addLog(value, "ERROR");
-    //     return value;
-    //   },
-    //   log: function(...args) {
-    //     log.call(this, args);
-    //     userLogs.addLog(args, "INFO");
-    //     return;
-    //   },
-    //   debug: function(value: any) {
-    //     debug.call(this, value);
-    //     userLogs.addLog(value, "DEBUG");
-    //     return value;
-    //   },
-    // };
+    const { clear, debug, error, info, log, table, warn } = console;
+    console = {
+      ...console,
+      table: (...args: any) => {
+        table.call(this, args);
+        const parsed = this.parseLogs("table", args);
+        if (parsed) {
+          this.logs.push(parsed);
+        }
+        return;
+      },
+      error: (...args: any) => {
+        error.call(this, args);
+        const parsed = this.parseLogs("error", args);
+        if (parsed) {
+          this.logs.push(parsed);
+        }
+        return;
+      },
+      log: (...args: any) => {
+        log.call(this, args);
+        const parsed = this.parseLogs("log", args);
+        if (parsed) {
+          this.logs.push(parsed);
+        }
+        return;
+      },
+      debug: (...args: any) => {
+        debug.call(this, args);
+        const parsed = this.parseLogs("debug", args);
+        if (parsed) {
+          this.logs.push(parsed);
+        }
+        return;
+      },
+      warn: (...args: any) => {
+        warn.call(this, args);
+        const parsed = this.parseLogs("warn", args);
+        if (parsed) {
+          this.logs.push(parsed);
+        }
+        return;
+      },
+      info: (...args: any) => {
+        info.call(this, args);
+        const parsed = this.parseLogs("info", args);
+        if (parsed) {
+          this.logs.push(parsed);
+        }
+        return;
+      },
+      clear: () => {
+        clear.call(this);
+        const parsed = this.parseLogs("info", ["console was cleared"]);
+        if (parsed) {
+          this.logs.push(parsed);
+        }
+        return;
+      },
+    };
   }
   public getNumberStringWithWidth(num: number, width: number) {
     const str = num.toString();
