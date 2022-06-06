@@ -176,7 +176,7 @@
     "eject": "react-scripts eject",
     "start-prod": "REACT_APP_ENVIRONMENT=PRODUCTION craco start",
     "cytest": "REACT_APP_TESTING=TESTING REACT_APP_ENVIRONMENT=DEVELOPMENT craco start & ./node_modules/.bin/cypress open",
-    "test:unit": "$(npm bin)/jest -b --colors --no-cache --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
+    "test:unit": "$(npm bin)/jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
     "test:jest": "$(npm bin)/jest --watch",
     "generate:widget": "plop --plopfile generators/index.js",
     "postinstall": "patch-package"
