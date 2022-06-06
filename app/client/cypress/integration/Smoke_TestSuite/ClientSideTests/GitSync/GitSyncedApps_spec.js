@@ -99,6 +99,7 @@ describe("Git sync apps", function() {
       cy.createTestGithubRepo(repoName);
       cy.connectToGitRepo(repoName);
     });
+    cy.wait(3000);
     // rename page to crud_page
     cy.renameEntity("Page1", pageName);
     cy.get(`.t--entity-name:contains(${pageName})`)
