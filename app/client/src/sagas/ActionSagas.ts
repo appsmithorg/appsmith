@@ -292,9 +292,8 @@ export function* fetchActionsForPageSaga(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(
-        fetchActionsForPageSuccess(response.data, action.postEvalActions),
-      );
+      yield put(fetchActionsForPageSuccess(response.data));
+      // wait for success of
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_ACTIONS_API,
       );

@@ -32,6 +32,12 @@ import { APP_MODE } from "entities/App";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import { getBetaFlag, setBetaFlag, STORAGE_KEYS } from "utils/storage";
+import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
+import {
+  batchUpdateMultipleWidgetProperties,
+  UpdateWidgetPropertyPayload,
+} from "actions/controlActions";
+import { getPropertiesToUpdateForReset } from "entities/AppTheming/utils";
 import { ApiResponse } from "api/ApiResponses";
 import { AppTheme } from "entities/AppTheming";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -264,10 +270,33 @@ function* closeisBetaCardShown() {
   } catch (error) {}
 }
 
+/**
+ * resets widget styles
+ */
+function* resetTheme() {
+  try {
+    const canvasWidgets: CanvasWidgetsReduxState = yield select(
+      getCanvasWidgets,
+    );
+    // @ts-expect-error: Type the StyleSheet
+    const themeStylesheet = yield select(getSelectedAppThemeStylesheet);
+
+    const propertiesToUpdate: UpdateWidgetPropertyPayload[] = getPropertiesToUpdateForReset(
+      canvasWidgets,
+      themeStylesheet,
+    );
+
+    if (propertiesToUpdate.length) {
+      yield put(batchUpdateMultipleWidgetProperties(propertiesToUpdate));
+    }
+  } catch (error) {}
+}
+
 export default function* appThemingSaga() {
   yield all([takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, initAppTheming)]);
   yield all([
     takeLatest(ReduxActionTypes.FETCH_APP_THEMES_INIT, fetchAppThemes),
+    takeLatest(ReduxActionTypes.RESET_APP_THEME_INIT, resetTheme),
     takeLatest(
       ReduxActionTypes.FETCH_SELECTED_APP_THEME_INIT,
       fetchAppSelectedTheme,

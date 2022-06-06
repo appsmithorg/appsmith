@@ -25,13 +25,13 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
  * TYPES
  *-----------------------------------------------------------------------------
  */
-interface ThemeCard {
+type ThemeCard = React.PropsWithChildren<{
   theme: AppTheme;
   isSelected?: boolean;
   className?: string;
   selectable?: boolean;
   deletable?: boolean;
-}
+}>;
 
 const MainContainer = styled.main<{ backgroundColor: string }>`
   background-color: ${({ backgroundColor }) => backgroundColor};
@@ -212,6 +212,7 @@ export function ThemeCard(props: ThemeCard) {
               Apply Theme
             </div>
           </aside>
+          {props.children}
         </div>
       </div>
       <DeleteThemeModal

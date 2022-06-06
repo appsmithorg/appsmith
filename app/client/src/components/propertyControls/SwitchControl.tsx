@@ -1,5 +1,5 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import Switch from "components/ads/Switch";
 
 class SwitchControl extends BaseControl<ControlProps> {
@@ -21,6 +21,10 @@ class SwitchControl extends BaseControl<ControlProps> {
 
   static getControlType() {
     return "SWITCH";
+  }
+
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    return value === "true" || value === "false";
   }
 }
 
