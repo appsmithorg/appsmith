@@ -322,10 +322,12 @@ public class FileUtilsImpl implements FileInterface {
      * @param directory
      */
     private void deleteDirectory(Path directory){
-        try {
-            FileUtils.deleteDirectory(directory.toFile());
-        } catch (IOException e){
-            log.debug("Unable to delete directory for path {} with message {}", directory, e.getMessage());
+        if(directory.toFile().exists()) {
+            try {
+                FileUtils.deleteDirectory(directory.toFile());
+            } catch (IOException e){
+                log.debug("Unable to delete directory for path {} with message {}", directory, e.getMessage());
+            }
         }
     }
 
