@@ -136,12 +136,9 @@ async function run() {
       });
 
       const backupFileName = await getBackupFileName();
-      if (backupFileName == undefined)
-      {
-        process.exit(errorCode) ;
-      }
-      else
-      {
+      if (backupFileName == null) {
+        process.exit(errorCode);
+      } else {
         const backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
         const backupName = backupFileName.slice(0,-7);
         const restoreRootPath = await fsPromises.mkdtemp(os.tmpdir());
