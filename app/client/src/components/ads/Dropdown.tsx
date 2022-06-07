@@ -380,7 +380,7 @@ const OptionWrapper = styled.div<{
   background-color: ${(props) =>
     props.selected
       ? props.selectedHighlightBg || `var(--appsmith-color-black-200)`
-      : null};
+      : Colors.WHITE};
   &&& svg {
     rect {
       fill: ${(props) => props.theme.colors.dropdownIconBg};

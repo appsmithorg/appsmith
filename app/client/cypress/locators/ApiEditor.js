@@ -29,4 +29,8 @@ export default {
   rawResponseTab: "[data-cy=t--tab-RAW]",
   datasourcesRightPane: "[data-cy=t--tab-datasources]",
   connectionsRightPane: "[data-cy=t--tab-Connections]",
+  httpDropDownOptions: ".t--dropdown-option",
+  codeEditorWrapper: ".t--code-editor-wrapper",
+  apiSearchHint: ".datasource-hint",
+  slashCommandButton: ".commands-button",
 };

@@ -2476,7 +2476,7 @@ export const light: ColorType = {
       border: lightShades[13],
       bg: lightShades[11],
       text: lightShades[8],
-      hover: lightShades[2],
+      hover: lightShades[21],
       hoverText: lightShades[10],
       subText: lightShades[15],
     },
