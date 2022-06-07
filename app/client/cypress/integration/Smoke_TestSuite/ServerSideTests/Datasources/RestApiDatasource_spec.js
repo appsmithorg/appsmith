@@ -9,6 +9,7 @@ describe("Create a rest datasource", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("Testapi");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
+    cy.assertPageSave();
     cy.get(".t--store-as-datasource")
       .trigger("click")
       .wait(500);

@@ -36,6 +36,14 @@ export class PropertyPane {
     "']//ancestor::div[@class= 'space-y-1 group']";
   private _jsonFieldConfigList =
     "//div[contains(@class, 't--property-control-fieldconfiguration group')]//div[contains(@class, 'content')]/div//input";
+  _propertyToggle = (controlToToggle: string) =>
+    ".t--property-control-" +
+    controlToToggle.replace(/ +/g, "").toLowerCase() +
+    " input[type='checkbox']";
+
+  public OpenJsonFormFieldSettings(fieldName: string) {
+    this.agHelper.GetNClick(this._fieldConfig(fieldName));
+  }
 
   public ChangeJsonFormFieldType(
     fieldName: string,
@@ -46,7 +54,7 @@ export class PropertyPane {
     //     this.NavigateBackToPropertyPane();
     //   }
     // });
-    this.agHelper.GetNClick(this._fieldConfig(fieldName));
+    this.OpenJsonFormFieldSettings(fieldName);
     this.agHelper.SelectDropdownList("Field Type", newDataType);
     this.agHelper.ValidateNetworkStatus("@updateLayout");
     this.agHelper.AssertAutoSave();
@@ -93,5 +101,18 @@ export class PropertyPane {
       this.jsEditor.EnterJSContext("Default Value", "");
       this.NavigateBackToPropertyPane();
     });
+  }
+
+  public ToggleOnOrOff(propertyName: string, toggle: "On" | "Off" = "On") {
+    if (toggle == "On") {
+      cy.get(this._propertyToggle(propertyName))
+        .check({ force: true })
+        .should("be.checked");
+    } else {
+      cy.get(this._propertyToggle(propertyName))
+        .uncheck({ force: true })
+        .should("not.be.checked");
+    }
+    this.agHelper.AssertAutoSave();
   }
 }

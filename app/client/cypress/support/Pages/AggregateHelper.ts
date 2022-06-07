@@ -386,19 +386,6 @@ export class AggregateHelper {
       .wait(200);
   }
 
-  public ToggleOnOrOff(propertyName: string, toggle: "On" | "Off") {
-    if (toggle == "On") {
-      cy.get(this.locator._propertyToggle(propertyName))
-        .check({ force: true })
-        .should("be.checked");
-    } else {
-      cy.get(this.locator._propertyToggle(propertyName))
-        .uncheck({ force: true })
-        .should("not.be.checked");
-    }
-    this.AssertAutoSave();
-  }
-
   public CheckUncheck(selector: string, check = true) {
     let locator = selector.startsWith("//")
       ? cy.xpath(selector)
@@ -621,7 +608,7 @@ export class AggregateHelper {
     let locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    locator.eq(index).should("be.visible");
+    locator.eq(index).scrollIntoView().should("be.visible");
   }
 
   public AssertElementExist(selector: string, index = 0) {

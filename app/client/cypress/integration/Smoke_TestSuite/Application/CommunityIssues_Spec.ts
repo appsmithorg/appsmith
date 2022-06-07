@@ -8,7 +8,8 @@ let homePage = ObjectsRegistry.HomePage,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  propPane = ObjectsRegistry.PropertyPane;
 
 describe("AForce - Community Issues page validations", function() {
   before(function() {
@@ -105,7 +106,7 @@ describe("AForce - Community Issues page validations", function() {
     agHelper.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     ee.SelectEntityByName("Table1", "WIDGETS");
-    agHelper.ToggleOnOrOff("serversidepagination", "Off");
+    propPane.ToggleOnOrOff("serversidepagination", "Off");
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
     table.AssertPageNumber(1, "Off");
@@ -113,7 +114,7 @@ describe("AForce - Community Issues page validations", function() {
     agHelper.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     ee.SelectEntityByName("Table1", "WIDGETS");
-    agHelper.ToggleOnOrOff("serversidepagination", "On");
+    propPane.ToggleOnOrOff("serversidepagination", "On");
   });
 
   it("4. Change Default selected row in table and verify", () => {
@@ -178,7 +179,7 @@ describe("AForce - Community Issues page validations", function() {
     table.WaitUntilTableLoad();
 
     ee.SelectEntityByName("Table1", "WIDGETS");
-    agHelper.ToggleOnOrOff("enableclientsidesearch", "Off");
+    propPane.ToggleOnOrOff("enableclientsidesearch", "Off");
 
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
@@ -194,7 +195,7 @@ describe("AForce - Community Issues page validations", function() {
     agHelper.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     ee.SelectEntityByName("Table1", "WIDGETS");
-    agHelper.ToggleOnOrOff("enableclientsidesearch", "On");
+    propPane.ToggleOnOrOff("enableclientsidesearch", "On");
   });
 
   it("7. Validate Filter table", () => {
