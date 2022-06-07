@@ -40,7 +40,7 @@ describe("Migration Validate", function() {
       cy.wrap(`app${name}`).as("appname");
 
       cy.reload();
-      cy.wait(5000);
+      cy.wait(10000);
 
       // Validating data binding for the imported application - Page1
 
@@ -60,6 +60,7 @@ describe("Migration Validate", function() {
       //Validating Latitude & Longitude are hidden columns:
       cy.xpath(
         "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='latitude']/ancestor::div[contains(@class, 'TableStyledWrappers__DraggableHeaderWrapper')]",
+        { timeout: 5000 },
       )
         .scrollIntoView()
         .invoke("attr", "class")
@@ -70,6 +71,7 @@ describe("Migration Validate", function() {
 
       cy.xpath(
         "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='longitude']/ancestor::div[contains(@class, 'TableStyledWrappers__DraggableHeaderWrapper')]",
+        { timeout: 5000 },
       )
         .scrollIntoView()
         .invoke("attr", "class")

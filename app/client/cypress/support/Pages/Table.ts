@@ -127,7 +127,7 @@ export class Table {
 
   public AssertHiddenColumns(columnNames: string[]) {
     columnNames.forEach(($header) => {
-      cy.xpath(this._columnHeader($header))
+      cy.xpath(this._columnHeader($header), {timeout: 5000})
         //.scrollIntoView()
         .invoke("attr", "class")
         .then((classes) => {

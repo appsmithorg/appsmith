@@ -42,7 +42,10 @@ describe("AForce - Community Issues page validations", function() {
       //agHelper.Sleep();
       //cy.wait(10000);
     });
+
     agHelper.RefreshPage()
+    table.WaitUntilTableLoad();
+
     //Validating order of header columns!
     table.AssertTableHeaderOrder(
       "TypeTitleStatus+1CommentorsVotesAnswerUpVoteStatesupvote_ididgithub_issue_idauthorcreated_atdescriptionlabelsstatelinkupdated_at",
