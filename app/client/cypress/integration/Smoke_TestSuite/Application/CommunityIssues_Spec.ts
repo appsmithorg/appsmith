@@ -43,6 +43,7 @@ describe("AForce - Community Issues page validations", function() {
         "TypeTitleStatus+1CommentorsVotesAnswerUpVoteStatesupvote_ididgithub_issue_idauthorcreated_atdescriptionlabelsstatelinkupdated_at",
       );
       agHelper.Sleep();
+      cy.wait(10000);
       //Validating hidden columns:
       table.AssertHiddenColumns([
         "States",

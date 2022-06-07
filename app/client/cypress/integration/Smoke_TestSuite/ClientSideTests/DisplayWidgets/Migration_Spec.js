@@ -38,7 +38,7 @@ describe("Migration Validate", function() {
       cy.AppSetupForRename();
       cy.get(homePage.applicationName).type(`app${name}`);
       cy.wrap(`app${name}`).as("appname");
-      cy.wait(2000);
+      cy.wait(10000);
 
       // Validating data binding for the imported application - Page1
 
