@@ -15,7 +15,7 @@ import PrimaryCTA from "./PrimaryCTA";
 import Button from "./AppViewerButton";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getCurrentOrgId } from "@appsmith/selectors/organizationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import BrandingBadge from "./BrandingBadgeMobile";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
