@@ -89,11 +89,15 @@ export const shouldProcessBatchedAction = (action: ReduxAction<unknown>) => {
 };
 
 export const setEvaluatedTree = (
+  dataTree: DataTree,
   updates: Diff<DataTree, DataTree>[],
-): ReduxAction<{ updates: Diff<DataTree, DataTree>[] }> => {
+): ReduxAction<{
+  dataTree: DataTree;
+  updates: Diff<DataTree, DataTree>[];
+}> => {
   return {
     type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: { updates },
+    payload: { dataTree, updates },
   };
 };
 
