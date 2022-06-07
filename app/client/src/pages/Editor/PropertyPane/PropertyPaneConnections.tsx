@@ -6,7 +6,8 @@ import Dropdown, {
   DropdownOption,
 } from "components/ads/Dropdown";
 import Tooltip from "components/ads/Tooltip";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { AppState } from "reducers";
+import { useDispatch, useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { isAction, isWidget } from "workers/evaluationUtils";
 import Text, { TextType } from "components/ads/Text";
@@ -27,7 +28,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { Position } from "@blueprintjs/core";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import { selectDependencies } from "selectors/editorSelectors";
 
 const CONNECTION_HEIGHT = 28;
 
@@ -191,8 +191,8 @@ const doConnectionsHaveErrors = (
 };
 
 const useDependencyList = (name: string) => {
-  const dataTree = useSelector(getDataTree, shallowEqual);
-  const deps = useSelector(selectDependencies, shallowEqual);
+  const dataTree = useSelector(getDataTree);
+  const deps = useSelector((state: AppState) => state.evaluations.dependencies);
   const guidedTour = useSelector(inGuidedTour);
 
   const getEntityId = useCallback((name) => {
