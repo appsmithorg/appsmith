@@ -61,3 +61,12 @@ ff4j:
         param:
           - name: weight
             value: 1
+
+    - uid: RBAC
+      enable: true
+      description: Enable access control settings
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com
