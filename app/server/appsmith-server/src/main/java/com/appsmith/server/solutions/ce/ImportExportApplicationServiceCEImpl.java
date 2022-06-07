@@ -1119,14 +1119,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 }
                                 return mapActionAndCollectionIdWithPageLayout(
                                         newPage, actionIdMap, unpublishedActionIdToCollectionIdMap, publishedActionIdToCollectionIdMap
-                                )
-                                .flatMap(newPageService::save);
+                                );
                             })
+                            .collectList()
+                            .flatMapMany(newPageService::saveAll)
                             .then(applicationService.update(importedApplication.getId(), importedApplication))
                             .zipWith(currUserMono)
                             .map(tuple -> {
                                 Application application = tuple.getT1();
                                 stopwatch.stopTimer();
+                                stopwatch.stopAndLogTimeInMillis();
                                 final Map<String, Object> data = Map.of(
                                         FieldName.APPLICATION_ID, application.getId(),
                                         FieldName.ORGANIZATION_ID, application.getOrganizationId(),
@@ -1637,7 +1639,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
                     return newAction;
                 })
-                .flatMap(newAction -> newActionService.update(newAction.getId(), newAction));
+                .collectList()
+                .flatMapMany(newActionService::saveAll);
     }
 
     private Mono<NewPage> saveNewPageAndUpdateDefaultResources(NewPage newPage, String branchName) {
