@@ -529,6 +529,10 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   );
 }
 
+/**
+ * Creates an API with datasource as DEFAULT_REST_DATASOURCE (No user created datasource)
+ * @param action
+ */
 function* handleCreateNewApiActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
 ) {

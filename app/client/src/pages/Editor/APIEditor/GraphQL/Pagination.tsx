@@ -5,7 +5,7 @@ import { change, formValueSelector } from "redux-form";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
-import Text, { Case, TextType } from "components/ads/Text";
+import Text, { TextType } from "components/ads/Text";
 import {
   CodeEditorBorder,
   EditorTheme,
@@ -18,12 +18,7 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import log from "loglevel";
 import Tooltip from "components/ads/Tooltip";
-import {
-  FormLabel,
-  FormInfoText,
-  FormSubtitleText,
-  FormEncrytedSection,
-} from "components/editorComponents/form/fields/StyledFormComponents";
+import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
 import { FormIcons } from "icons/FormIcons";
 
 interface PaginationProps {
@@ -45,8 +40,8 @@ const Description = styled(Text)`
 
 const SubHeading = styled(Text)`
   display: block;
-  margin-bottom: ${(props) => props.theme.spaces[3]}px;
-  color: ${(props) => props.theme.colors.apiPane.pagination.description};
+  margin-bottom: ${(props) => props.theme.spaces[8]}px;
+  color: ${(props) => props.theme.colors.apiPane.pagination.stepTitle};
 `;
 
 const PaginationTypeView = styled.div`
@@ -89,7 +84,7 @@ const Step = styled(FormLabel)`
   align-items: center;
   flex-shrink: 0;
   margin-right: ${(props) => props.theme.spaces[6]}px;
-  color: ${(props) => props.theme.colors.apiPane.pagination.label};
+  color: ${(props) => props.theme.colors.apiPane.pagination.bindingBg};
   width: 100%;
   p {
     text-decoration: underline;
@@ -241,7 +236,8 @@ function Pagination(props: PaginationProps) {
             <PaginationTypeView key={PaginationType.LIMIT}>
               <PaginationSection>
                 <Description type={TextType.P1}>
-                  Pagination via Limit Based
+                  Specify a specific limit (number of results) and offset (the
+                  number of records that needed to be skipped).
                 </Description>
                 {/* Limit */}
                 <PaginationTypeBasedWrapper
@@ -291,10 +287,11 @@ function Pagination(props: PaginationProps) {
             </PaginationTypeView>,
             <PaginationTypeView key={PaginationType.CURSOR}>
               <Description type={TextType.P1}>
-                Pagination via Cursor based
+                Specify the previous and next cursor variables along with a
+                limit value.
               </Description>
               <PaginationSection>
-                <SubHeading type={TextType.P1}>
+                <SubHeading type={TextType.P3}>
                   Configure Previous Page
                 </SubHeading>
                 {/* Previous Cursor Values */}
@@ -339,7 +336,7 @@ function Pagination(props: PaginationProps) {
                 />
               </PaginationSection>
               <PaginationSection>
-                <SubHeading type={TextType.P1}>Configure Next Page</SubHeading>
+                <SubHeading type={TextType.P3}>Configure Next Page</SubHeading>
                 {/* Next Cursor Values */}
                 <PaginationTypeBasedWrapper
                   dataReplayId={btoa("actionConfiguration.next.cursor")}

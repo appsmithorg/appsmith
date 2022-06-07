@@ -20,7 +20,6 @@ import { Datasource } from "entities/Datasource";
 import {
   getAction,
   getActionData,
-  getActionResponses,
 } from "../../../../selectors/entitiesSelector";
 import { isEmpty } from "lodash";
 import CommonEditorForm, { CommonFormProps } from "../CommonEditorForm";
@@ -225,11 +224,10 @@ export default connect(
     const actionConfigurationBody =
       selector(state, "actionConfiguration.body") || "";
 
-    const responses = getActionResponses(state);
     let hasResponse = false;
     let suggestedWidgets;
-    if (apiId && apiId in responses) {
-      const response = responses[apiId] || EMPTY_RESPONSE;
+    if (apiId) {
+      const response = getActionData(state, apiId) || EMPTY_RESPONSE;
       hasResponse =
         !isEmpty(response.statusCode) && response.statusCode[0] === "2";
       suggestedWidgets = response.suggestedWidgets;
