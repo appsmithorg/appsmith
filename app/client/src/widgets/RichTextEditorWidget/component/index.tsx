@@ -173,7 +173,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
               editor.ui.registry.addMenuItem("useBrowserSpellcheck", {
                 text: `Use "${
                   isMacOs() ? "Control" : "Ctrl"
-                }+Right" click to access spellchecker`,
+                } + Right click" to access spellchecker`,
                 onAction: function() {
                   editor.notificationManager.open({
                     text: `To access the spellchecker, hold the ${
