@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-class CustomPluginRepositoryTest {
+public class CustomPluginRepositoryTest {
 
     @Autowired
     PluginRepository pluginRepository;

@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-class NewPageServiceTest {
+public class NewPageServiceTest {
 
     @Autowired
     NewPageService newPageService;
