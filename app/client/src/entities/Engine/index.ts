@@ -14,7 +14,7 @@ import { getDefaultPageId } from "sagas/selectors";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import history from "utils/history";
 import URLGenerator from "entities/URLGenerator";
-import { URLGeneratorFactory } from "entities/URLGenerator/factory";
+import URLGeneratorFactory from "entities/URLGenerator/factory";
 import { updateBranchLocally } from "actions/gitSyncActions";
 
 export type AppEnginePayload = {
@@ -24,7 +24,17 @@ export type AppEnginePayload = {
   mode: APP_MODE;
 };
 
-export default abstract class AppEngine {
+export interface IAppEngine {
+  startPerformanceTracking(): any;
+  bootstrapEditor(payload: AppEnginePayload): any;
+  loadAppData(payload: AppEnginePayload): any;
+  initiateURLUpdate(pageId: string, pageIdInUrl?: string): any;
+  loadAppEntities(toLoadPageId: string, applicationId: string): any;
+  initiateGit(applicationId: string): any;
+  completeChore(): any;
+}
+
+export default abstract class AppEngine implements IAppEngine {
   private _mode: APP_MODE;
   constructor(mode: APP_MODE) {
     this._mode = mode;
@@ -59,7 +69,10 @@ export default abstract class AppEngine {
     const defaultPageId: string = yield select(getDefaultPageId);
     toLoadPageId = toLoadPageId || defaultPageId;
 
-    this._urlGenerator = URLGeneratorFactory(applicationVersion, this._mode);
+    this._urlGenerator = URLGeneratorFactory.create(
+      applicationVersion,
+      this._mode,
+    );
     return { toLoadPageId, applicationId: id };
   }
 

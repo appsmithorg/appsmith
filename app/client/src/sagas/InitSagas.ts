@@ -26,7 +26,7 @@ import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSel
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
 import { AppEnginePayload } from "entities/Engine";
-import { AppEngineFactory } from "entities/Engine/factory";
+import AppEngineFactory from "entities/Engine/factory";
 
 export function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -56,7 +56,7 @@ export function* failFastApiCalls(
 
 function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
   try {
-    const engine = AppEngineFactory(action.payload.mode);
+    const engine = AppEngineFactory.create(action.payload.mode);
     engine.startPerformanceTracking();
     yield call(engine.bootstrapEditor.bind(engine), action.payload);
     const { applicationId, toLoadPageId } = yield call(
