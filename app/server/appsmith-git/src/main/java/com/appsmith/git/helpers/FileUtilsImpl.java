@@ -287,7 +287,7 @@ public class FileUtilsImpl implements FileInterface {
      * @param validResources resources those are still available in DB
      * @param resourceDirectory directory which needs to be scanned for possible file deletion operations
      */
-    private void scanAndDeleteFileForDeletedResources(Set<String> validResources, Path resourceDirectory) {
+    public void scanAndDeleteFileForDeletedResources(Set<String> validResources, Path resourceDirectory) {
         // Scan resource directory and delete any unwanted file if present
         // unwanted file : corresponding resource from DB has been deleted
         try (Stream<Path> paths = Files.walk(resourceDirectory)) {
