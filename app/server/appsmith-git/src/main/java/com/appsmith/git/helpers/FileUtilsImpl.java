@@ -190,7 +190,7 @@ public class FileUtilsImpl implements FileInterface {
                         if (names.length > 1 && StringUtils.hasLength(names[1])) {
                             // For actions, we are referring to validNames to maintain unique file names as just name
                             // field don't guarantee unique constraint for actions within JSObject
-                            Boolean isResourceUpdated = updatedResources.get(ACTION_LIST).contains(names[0])  ;
+                            Boolean isResourceUpdated = updatedResources.get(ACTION_LIST).contains(resource.getKey());
                             final String queryName = names[0].replace(".", "-");
                             final String pageName = names[1];
                             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
@@ -231,7 +231,7 @@ public class FileUtilsImpl implements FileInterface {
                                 validActionCollectionsMap.put(pageName, new HashSet<>());
                             }
                             validActionCollectionsMap.get(pageName).add(actionCollectionName + CommonConstants.JSON_EXTENSION);
-                            Boolean isResourceUpdated = updatedResources.get(ACTION_COLLECTION_LIST).contains(actionCollectionName);
+                            Boolean isResourceUpdated = updatedResources.get(ACTION_COLLECTION_LIST).contains(resource.getKey());
                             if(Boolean.TRUE.equals(isResourceUpdated)) {
                                 saveFile(
                                         resource.getValue(),
