@@ -38,9 +38,22 @@ describe("Migration Validate", function() {
       cy.AppSetupForRename();
       cy.get(homePage.applicationName).type(`app${name}`);
       cy.wrap(`app${name}`).as("appname");
-      cy.wait(10000);
+      //cy.wait(10000);
 
       // Validating data binding for the imported application - Page1
+
+      //Validating order of header row!
+      cy.xpath(
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]",
+      )
+        .scrollIntoView()
+        .invoke("text")
+        .then((x) => {
+          expect(x).to.eq(
+            "Card NumberidNameاسمaddress住所PhoneemailCompanyjobimagessnPin CodeCreditLimitOutstandingStateAvailable LimitCard TypeChange Credit limitimageURLlatitudelongitude",
+          );
+          cy.log("header set is:" + x);
+        });
 
       //Validating Latitude & Longitude are hidden columns:
       cy.xpath(
@@ -61,19 +74,6 @@ describe("Migration Validate", function() {
         .then((classes) => {
           cy.log("classes are:" + classes);
           expect(classes).includes("hidden-header");
-        });
-
-      //Validating order of header row!
-      cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]",
-      )
-        .scrollIntoView()
-        .invoke("text")
-        .then((x) => {
-          expect(x).to.eq(
-            "Card NumberidNameاسمaddress住所PhoneemailCompanyjobimagessnPin CodeCreditLimitOutstandingStateAvailable LimitCard TypeChange Credit limitimageURLlatitudelongitude",
-          );
-          cy.log("header set is:" + x);
         });
 
       //Validating Id column sorting happens as Datatype is Number in app!

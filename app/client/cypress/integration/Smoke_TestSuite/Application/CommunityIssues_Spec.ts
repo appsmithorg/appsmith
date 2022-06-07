@@ -38,27 +38,28 @@ describe("AForce - Community Issues page validations", function() {
       }
       //Validate table is not empty!
       table.WaitUntilTableLoad();
-      //Validating order of header columns!
-      table.AssertTableHeaderOrder(
-        "TypeTitleStatus+1CommentorsVotesAnswerUpVoteStatesupvote_ididgithub_issue_idauthorcreated_atdescriptionlabelsstatelinkupdated_at",
-      );
-      agHelper.Sleep();
-      cy.wait(10000);
-      //Validating hidden columns:
-      table.AssertHiddenColumns([
-        "States",
-        "upvote_id",
-        "id",
-        "github_issue_id",
-        "author",
-        "created_at",
-        "description",
-        "labels",
-        "state",
-        "link",
-        "updated_at",
-      ]);
+
+      //agHelper.Sleep();
+      //cy.wait(10000);
     });
+    //Validating order of header columns!
+    table.AssertTableHeaderOrder(
+      "TypeTitleStatus+1CommentorsVotesAnswerUpVoteStatesupvote_ididgithub_issue_idauthorcreated_atdescriptionlabelsstatelinkupdated_at",
+    );
+    //Validating hidden columns:
+    table.AssertHiddenColumns([
+      "States",
+      "upvote_id",
+      "id",
+      "github_issue_id",
+      "author",
+      "created_at",
+      "description",
+      "labels",
+      "state",
+      "link",
+      "updated_at",
+    ]);
   });
 
   it("2. Validate table navigation with Server Side pagination enabled with Default selected row", () => {
