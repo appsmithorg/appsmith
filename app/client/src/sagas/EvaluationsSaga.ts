@@ -71,7 +71,7 @@ import {
   SNIPPET_EXECUTION_SUCCESS,
 } from "@appsmith/constants/messages";
 import { validate } from "workers/validations";
-import { diff } from "deep-diff";
+import { Diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
@@ -131,6 +131,7 @@ function* evaluateTreeSaga(
     evaluationOrder,
     jsUpdates,
     logs,
+    updates,
     unEvalUpdates,
   }: {
     dataTree: DataTree;
@@ -140,6 +141,7 @@ function* evaluateTreeSaga(
     evaluationOrder: string[];
     jsUpdates: Record<string, JSUpdate>;
     logs: any[];
+    updates: Diff<DataTree, DataTree>[];
     unEvalUpdates: DataTreeDiff[];
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
@@ -148,11 +150,11 @@ function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  const oldDataTree = yield select(getDataTree);
+  // const oldDataTree = yield select(getDataTree);
 
-  const updates = diff(oldDataTree, dataTree) || [];
+  // const updates = diff(oldDataTree, dataTree) || [];
 
-  yield put(setEvaluatedTree(updates));
+  yield put(setEvaluatedTree(dataTree, updates));
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
