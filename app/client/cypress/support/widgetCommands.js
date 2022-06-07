@@ -373,7 +373,8 @@ Cypress.Commands.add("testCodeMirrorLast", (value) => {
 
 Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.get(".t--property-control-" + endp)
-    .click()
+    .first()
+    .click({ force: true })
     .wait(1000)
     .get(".CodeMirror textarea")
     .first()
