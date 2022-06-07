@@ -383,10 +383,15 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.focused().then(($cm) => {
     if ($cm.contents !== "") {
       cy.log("The field is not empty");
-      cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+      cy.get(".t--property-control-" + endp)
+        .click()
+        .wait(1000)
+        .get(".CodeMirror textarea")
         .first()
         .click({ force: true })
         .focused({ force: true })
+        .type("{uparrow}", { force: true })
+        .type("{ctrl}{shift}{downarrow}", { force: true })
         .clear({
           force: true,
         });
