@@ -48,17 +48,18 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     }
 
     /**
-     * This method defines a critical section that can be executed only by one thread at a time. Earlier multiple
-     * threads could subscribe to a publisher that created connection to a datasource - which resulted in a data race
-     * condition resulting in multiple orphan connections.
+     * This method defines a critical section that can be executed only by one thread at a time per datasource id - i
+     * .e. if two threads want to create datasource for different datasouce ids then they shouldn't would not be
+     * synchronized. Earlier multiple threads could subscribe to a publisher that created connection to a datasource
+     * - which resulted in a data race condition resulting in multiple orphan connections.
      * Ref: https://github.com/appsmithorg/appsmith/issues/14117
      * This method caches the result from the source publisher and forces concurrent subscriptions to re-use the cached
-     * value. Hence, even if multiple threads subscribe to the source publisher they get the pre-computed cached
+     * value. Hence, even if multiple threads subscribe to the same source publisher they get the pre-computed cached
      * value instead of creating a new connection for each subscription of the source publisher.
      *
      * @param datasource - datasource for which a new datasource context / connection needs to be created
      * @param pluginExecutor - plugin executor associated with the datasource's plugin
-     * @param monitor
+     * @param monitor - unique monitor object per datasource id. Lock is acquired on this monitor object.
      * @return a cached source publisher which upon subscription produces / returns the latest datasource context /
      * connection.
      */
