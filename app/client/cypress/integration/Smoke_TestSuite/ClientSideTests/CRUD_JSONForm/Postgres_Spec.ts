@@ -106,7 +106,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    propPane.ChangeTheme("Rounded")
+    propPane.ChangeTheme("Rounded");
   });
 
   it("3. Generate CRUD page from datasource present in ACTIVE section", function() {
@@ -321,7 +321,12 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.SelectJsonFormDropDown("Pleasure Craft");
 
     deployMode.ClearJSONFieldValue("Timezone");
-    deployMode.EnterJSONInputValue("Timezone", "-5");
+    deployMode.EnterJSONInputValue("Timezone", "-15");
+    agHelper.AssertElementVisible(
+      locator._visibleTextDiv("Not a valid timezone!"),
+    );
+    deployMode.ClearJSONFieldValue("Timezone");
+    deployMode.EnterJSONInputValue("Timezone", "-7");
 
     deployMode.ClearJSONFieldValue("Status Name");
     deployMode.EnterJSONInputValue("Status Name", "Underway by Sail");
@@ -360,7 +365,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       expect($cellData).to.eq("Pleasure Craft");
     });
     table.ReadTableRowColumnData(5, 7, 100).then(($cellData) => {
-      expect($cellData).to.eq("-5");
+      expect($cellData).to.eq("-7");
     });
     table.ReadTableRowColumnData(5, 8, 100).then(($cellData) => {
       expect($cellData).to.eq("Underway by Sail");
@@ -402,15 +407,20 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.ClearJSONFieldValue("Area Code");
     deployMode.ClearJSONFieldValue("Speed");
     //deployMode.ClearJSONFieldValue("Eta Updated");
-    deployMode.ClearJSONFieldValue("Distance To Go");
     deployMode.ClearJSONFieldValue("Current Port");
 
-    agHelper.ClickButton("Update"); //Update does not work, Bug 14063
-    agHelper.ValidateToastMessage(
+    agHelper.ClickButton("Update");
+    agHelper.WaitUntilToastDisappear(
       `null value in column "vessel_type" violates not-null constraint`,
     );
-
     deployMode.SelectJsonFormDropDown("Passenger");
+
+    deployMode.ClearJSONFieldValue("Distance To Go");
+    agHelper.ClickButton("Update");
+    agHelper.WaitUntilToastDisappear(
+      `null value in column "distance_to_go" violates not-null constraint`,
+    );
+    deployMode.EnterJSONInputValue("Distance To Go", "7.4");
 
     updateNVerify(8, 3, "");
   });
@@ -445,10 +455,10 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._refreshIcon);
 
     //Store Address deletion remains
-    table.ReadTableRowColumnData(5, 3, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(7, 3, 200).then(($cellData) => {
       expect($cellData).to.eq("");
     });
-    table.ReadTableRowColumnData(5, 4, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(7, 4, 200).then(($cellData) => {
       expect($cellData).to.eq("");
     });
 
@@ -468,9 +478,51 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     table.WaitUntilTableLoad();
   });
 
-  it("12. Verify Add/Insert from Deploy page - on Vessels - new record", () => {
+  it.only("12. Update the InsertQuery to insert all columns from UI", () => {
     agHelper.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
+    let insertQuery = `INSERT INTO public."vessels" (
+      "ship_id",
+      "callsign",
+      "shipname",
+      "country",
+      "next_port_name",
+      "destination",
+      "vessel_type",
+      "timezone",
+      "status_name",
+      "year_built",
+      "area_code",
+      "speed",
+      "eta_updated",
+      "distance_to_go",
+      "current_port"
+    )
+    VALUES (
+      '{{insert_form.formData.ship_id}}',
+      UPPER('{{insert_form.formData.callsign}}'),
+      '{{insert_form.formData.shipname}}',
+      '{{insert_form.formData.country}}',
+      '{{insert_form.formData.next_port_name}}',
+      '{{insert_form.formData.destination}}',
+      '{{insert_form.formData.vessel_type}}',
+      '{{insert_form.formData.timezone}}',
+      '{{insert_form.formData.status_name}}',
+      '{{insert_form.formData.year_built}}',
+      '{{insert_form.formData.area_code}}',
+      '{{insert_form.formData.speed}}',
+      '{{insert_form.formData.eta_updated}}',
+      '{{insert_form.formData.distance_to_go}}',
+      '{{insert_form.formData.current_port}}'
+    );`;
+
+    ee.SelectEntityByName("InsertQuery", "QUERIES/JS");
+    agHelper.EnterValue(insertQuery);
+    agHelper.AssertAutoSave();
+    ee.expandCollapseEntity("QUERIES/JS", false);
+  });
+
+  it.only("13. Verify Add/Insert from Deploy page - on Vessels - new record", () => {
     ee.expandCollapseEntity("WIDGETS");
     ee.expandCollapseEntity("Insert_Modal");
     ee.SelectEntityByName("insert_form");
@@ -480,54 +532,95 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     propPane.UpdateJSONFormWithPlaceholders();
 
     //Updating JSON field properties similar to Update JSON!
-    //updatingStoreJSONPropertyFileds();
+    updatingVesselsJSONPropertyFileds();
 
     deployMode.DeployApp();
     table.AssertSelectedRow(0);
 
     agHelper.GetNClick(dataSources._addIcon);
+    agHelper.Sleep()
     agHelper.AssertElementVisible(locator._jsonFormWidget, 1); //Insert Modal
     agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
     agHelper.ClickButton("Submit");
-    agHelper.ValidateToastMessage("Column 'ship_id' cannot be null");
+    agHelper.ValidateToastMessage(
+      `null value in column "ship_id" violates not-null constraint`,
+    );
 
-    // deployMode.EnterJSONFieldValue(
-    //   deployMode._jsonFormFieldByName("Store Id", true),
-    //   "2106",
-    // );
-    // deployMode.EnterJSONFieldValue(
-    //   deployMode._jsonFormFieldByName("Name", true),
-    //   "Keokuk Spirits",
-    //   1,
-    // );
-    // cy.xpath(deployMode._jsonFormRadioFieldByName("Store Status"))
-    //   .eq(3)
-    //   .check({ force: true });
-    // deployMode.EnterJSONFieldValue(
-    //   deployMode._jsonFormFieldByName("Store Address", false),
-    //   "1013 Main Keokuk, IA 526320000 (40.40003235900008, -91.38771983999999)",
-    //   1,
-    // );
-    // deployMode.EnterJSONFieldValue(
-    //   deployMode._jsonFormFieldByName("Store Secret Code", true),
-    //   "1013 M K IA 5",
-    //   1,
-    // );
-    // cy.xpath(deployMode._jsonFormFieldByName("Store Secret Code", true))
-    //   .invoke("attr", "type")
-    //   .should("eq", "password");
+    deployMode.EnterJSONInputValue("Ship Id", "159196");
+    deployMode.EnterJSONInputValue("Callsign", "9HUQ9", 1);
 
-    // agHelper.ClickButton("Submit");
-    // agHelper.ValidateToastMessage("Duplicate entry '2106' for key 'PRIMARY'");
+    //Checking Required field validations
+    cy.xpath(locator._spanButton("Update") + "/parent::div").eq(1).should(
+      "have.attr",
+      "disabled",
+    );
+    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON");
+    cy.xpath(locator._spanButton("Update") + "/parent::div").eq(1).should(
+      "not.have.attr",
+      "disabled",
+    );
 
-    // cy.xpath(deployMode._jsonFormFieldByName("Store Id", true))
-    //   .clear()
-    //   .wait(500);
+    deployMode.ClearJSONFieldValue("Country");
+    deployMode.EnterJSONInputValue("Country", "Malta", 1);
 
-    // deployMode.EnterJSONFieldValue(
-    //   deployMode._jsonFormFieldByName("Store Id", true),
-    //   "2105",
-    // );
+    deployMode.EnterJSONInputValue("Next Port Name", "CORFU", 1);
+
+    deployMode.ClearJSONFieldValue("Destination");
+    deployMode.EnterJSONInputValue("Destination", "CORFU", 1);
+
+    deployMode.SelectJsonFormDropDown("Special Craft", 1);
+
+    deployMode.ClearJSONFieldValue("Timezone");
+    deployMode.EnterJSONInputValue("Timezone", "-12", 1);
+    agHelper.AssertElementVisible(
+      locator._visibleTextDiv("Not a valid timezone!"),
+    );
+    deployMode.EnterJSONInputValue("Timezone", "-2", 1);
+
+    deployMode.ClearJSONFieldValue("Status Name");
+    deployMode.EnterJSONInputValue("Status Name", "Moored", 1);
+
+    deployMode.ClearJSONFieldValue("Year Built");
+    deployMode.EnterJSONInputValue("Year Built", "1967", 1);
+
+    deployMode.ClearJSONFieldValue("Area Code");
+    deployMode.EnterJSONInputValue("Area Code", "USG - Gulf of Mexico", 1);
+
+    deployMode.ClearJSONFieldValue("Speed");
+    deployMode.EnterJSONInputValue("Speed", "0.6", 1);
+
+    agHelper.GetNClick(
+      deployMode._jsonFormDatepickerFieldByName("Eta Updated"), 1
+    );
+    agHelper.GetNClick(locator._datePicker(2), 1);
+
+    deployMode.ClearJSONFieldValue("Distance To Go");
+    deployMode.EnterJSONInputValue("Distance To Go", "18.1", 1);
+
+    deployMode.ClearJSONFieldValue("Current Port");
+    deployMode.EnterJSONInputValue("Current Port", "GALVESTON", 1);
+
+    cy.xpath(deployMode._jsonFormFieldByName("Callsign", true)).eq(1)
+      .invoke("attr", "type")
+      .should("eq", "password");
+
+    deployMode.ClearJSONFieldValue("Shipname");
+    agHelper.AssertElementVisible(
+      locator._visibleTextDiv("This field is required"),
+    );
+    cy.xpath(locator._spanButton("Update") + "/parent::div").eq(1).should(
+      "have.attr",
+      "disabled",
+    );
+    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON");
+
+    agHelper.ClickButton("Submit");
+    agHelper.ValidateToastMessage(
+      `duplicate key value violates unique constraint "vessels_pkey" Detail: Key (ship_id)=(159196) already exists.`,
+    );
+
+    deployMode.ClearJSONFieldValue("Ship Id");
+    deployMode.EnterJSONInputValue("Ship Id", "159180");
     agHelper.ClickButton("Submit");
 
     //asserting only Update JSON form is present, &  Insert Modal is closed
@@ -539,48 +632,29 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       .then(($len) => expect($len).to.eq(1));
   });
 
-  it("12. Verify Update fields/Delete from Deploy page - on Vessels - newly inserted record", () => {
+  it.only("14. Verify Update fields/Delete from Deploy page - on Vessels - newly inserted record", () => {
     table.SelectTableRow(0);
 
     //validating update happened fine!
-    dataSources.AssertJSONFormHeader(0, 0, "ship_id", "2105"); //Validaing new record got inserted in 1st position due to id used
+    dataSources.AssertJSONFormHeader(0, 0, "ship_id", "159180"); //Validaing new record got inserted in 1st position due to id used
 
-    cy.xpath(deployMode._jsonFormRadioFieldByName("Store Status"))
-      .eq(0)
-      .check({ force: true });
-    cy.xpath(deployMode._jsonFormFieldByName("Store Address", false))
-      .clear()
-      .wait(500);
-    // deployMode.EnterJSONFieldValue(
-    //   deployMode._jsonFormFieldByName("Store Address", false),
-    //   "116 Main Pocahontas, IA 505740000 (42.73259393100005, -94.67824592399995)",
-    // );
-    updateNVerify(
-      0,
-      3,
-      "116 Main Pocahontas, IA 505740000 (42.73259393100005, -94.67824592399995)",
-    );
+    deployMode.ClearJSONFieldValue("Shipname");
+    deployMode.EnterJSONInputValue("Shipname", "MAJESTIC MAERSK");
 
-    cy.xpath(deployMode._jsonFormFieldByName("Store Secret Code", true))
-      .clear()
-      .wait(500);
-    // generateVesselsSecretInfo(0); //verifying the secret code is password field //Password type check failing due to bug STRING TO NULL
-    // cy.get("@secretInfo").then(($secretInfo) => {
-    //   newStoreSecret = $secretInfo;
-    //   cy.log("newStoreSecret is : " + newStoreSecret);
-    // });
-    // updateNVerify(0, 4, newStoreSecret as string);
+    deployMode.ClearJSONFieldValue("Next Port Name");
+
+    updateNVerify(0, 2, "MAJESTIC MAERSK");
 
     table.NavigateToNextPage(); //page 2
     agHelper.Sleep(3000); //wait for table navigation to take effect!
-    table.WaitUntilTableLoad(); //page 2 //newly inserted record would have pushed the existing record to next page!
-    agHelper.AssertElementVisible(locator._jsonFormWidget); //JSON form should be present
+    table.WaitForTableEmpty(); //page 2
+    agHelper.AssertElementAbsence(locator._jsonFormWidget); //JSON form should be present
 
     table.NavigateToPreviousPage();
     agHelper.Sleep(3000); //wait for table navigation to take effect!
     table.WaitUntilTableLoad();
 
-    dataSources.AssertJSONFormHeader(0, 0, "ship_id", "2105");
+    dataSources.AssertJSONFormHeader(0, 0, "ship_id", "159180");
     agHelper.ClickButton("Delete", 0);
     agHelper.AssertElementVisible(locator._modal);
     agHelper.AssertElementVisible(
@@ -594,11 +668,11 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     table.AssertSelectedRow(0); //Control going back to 1st row in table
 
     table.ReadTableRowColumnData(0, 0, 200).then(($cellData) => {
-      expect($cellData).not.eq("2105"); //Deleted record Store_ID
+      expect($cellData).not.eq("159180"); //Deleted record Store_ID
     });
   });
 
-  it("13. Validate Deletion of the Newly Created Page - Vessels", () => {
+  it("15. Validate Deletion of the Newly Created Page - Vessels", () => {
     agHelper.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
@@ -606,7 +680,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ValidateNetworkStatus("@deletePage", 200);
   });
 
-  it("14. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
+  it("16. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
     let deleteTblQuery = "DROP TABLE Vessels;";
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
@@ -622,7 +696,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("Vessels"));
   });
 
-  it("15. Verify application does not break when user runs the query with wrong table name", function() {
+  it("17. Verify application does not break when user runs the query with wrong table name", function() {
     let deleteTblQuery = "DROP TABLE Vessels;";
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
@@ -640,7 +714,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("16. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
+  it("18. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //ProductLines, Employees pages are still using this ds
   });
 
@@ -690,8 +764,9 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       table.ReadTableRowColumnData(rowIndex, 11, 200).then(($areaCode: any) => {
         table.ReadTableRowColumnData(rowIndex, 3, 200).then(($country: any) => {
           var callSign =
-            ($country as string).slice(0, 2)
-             + ($areaCode as string).slice(0,3) + ($yearBuilt as string).slice(0, 2); //(/(?<=\()).+?(?=\))/g)
+            ($country as string).slice(0, 2) +
+            ($areaCode as string).slice(0, 3) +
+            ($yearBuilt as string).slice(0, 2); //(/(?<=\()).+?(?=\))/g)
           deployMode.ClearJSONFieldValue("Callsign");
           deployMode.EnterJSONInputValue("Callsign", callSign);
           cy.xpath(deployMode._jsonFormFieldByName("Callsign", true))
@@ -732,7 +807,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     propPane.ChangeJsonFormFieldType("Vessel Type", "Select");
     jsEditor.EnterJSContext(
       "Options",
-      `{{["Cargo", "Pleasure Craft", "Passenger", "Fishing"].map(item=> {return {
+      `{{["Cargo", "Pleasure Craft", "Passenger", "Fishing", "Special Craft"].map(item=> {return {
         label: item,
         value: item
         }})}}`,
