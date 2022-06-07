@@ -19,6 +19,7 @@ import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.config.ExecutionMethod;
 import com.external.config.GoogleSheetsMethodStrategy;
 import com.external.config.MethodConfig;
+import com.external.config.TemplateMethod;
 import com.external.config.TriggerMethod;
 import com.external.constants.FieldName;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -381,6 +382,10 @@ public class GoogleSheetsPlugin extends BasePlugin {
                     setDataValueSafelyInFormData(formData, k, v);
                 }
             });
+
+            final TemplateMethod templateMethod = GoogleSheetsMethodStrategy.getTemplateMethod(formData);
+
+            templateMethod.replaceMethodConfigTemplate(formData, mappedColumns);
         }
     }
 }

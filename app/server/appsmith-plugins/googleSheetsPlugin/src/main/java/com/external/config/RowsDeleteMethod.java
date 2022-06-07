@@ -19,12 +19,15 @@ import java.util.Map;
 /**
  * API reference: https://developers.google.com/sheets/api/samples/rowcolumn#delete_rows_or_columns
  */
-public class RowsDeleteMethod implements ExecutionMethod {
+public class RowsDeleteMethod implements ExecutionMethod, TemplateMethod {
 
     ObjectMapper objectMapper;
 
     public RowsDeleteMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+    }
+
+    public RowsDeleteMethod() {
     }
 
     @Override

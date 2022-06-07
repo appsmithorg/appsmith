@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
+import org.h2.jdbc.JdbcSQLSyntaxErrorException;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
@@ -207,9 +208,12 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 rowsList.add(row);
             }
         } catch (SQLException e) {
-            // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
+            // Getting an SQL Exception here means that our generated query is incorrect. Raise an alarm!
             log.error(e.getMessage());
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Filtering failure seen : " + e.getMessage());
+            if (e instanceof JdbcSQLSyntaxErrorException) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Filtering failure seen : " + ((JdbcSQLSyntaxErrorException) e).getOriginalMessage());
+            }
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Filtering failure seen : " + e);
         }
 
         return rowsList;
