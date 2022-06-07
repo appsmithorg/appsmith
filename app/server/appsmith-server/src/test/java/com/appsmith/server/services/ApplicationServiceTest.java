@@ -9,6 +9,7 @@ import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -115,7 +116,6 @@ public class ApplicationServiceTest {
 
     @Autowired
     UserService userService;
-
     @Autowired
     WorkspaceService workspaceService;
 
@@ -2885,5 +2885,23 @@ public class ApplicationServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getSshKey_notConnectedToGit_SuccessResponseWithoutSshKey() {
+        Application app = new Application();
+        app.setOrganizationId(orgId);
+        app.setName("getSshKey_notConnectedToGit_SuccessResponseWithoutSshKey");
+        Application application = applicationPageService.createApplication(app).block();
+
+        StepVerifier
+                .create(applicationService.getSshKey(application.getId()))
+                .assertNext(gitAuthDTO -> {
+                    assertThat(gitAuthDTO.getDocUrl()).isEqualTo(Assets.GIT_DEPLOY_KEY_DOC_URL);
+                    assertThat(gitAuthDTO.getGitSupportedSSHKeyType()).isNotEmpty();
+                    assertThat(gitAuthDTO.getPublicKey()).isNull();
+                })
+                .verifyComplete();
     }
 }

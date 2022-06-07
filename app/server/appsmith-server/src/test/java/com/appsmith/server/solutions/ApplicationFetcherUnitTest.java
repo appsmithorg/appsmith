@@ -40,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 
 @RunWith(SpringRunner.class)
 public class ApplicationFetcherUnitTest {
@@ -251,7 +252,7 @@ public class ApplicationFetcherUnitTest {
                     .thenReturn(updateDefaultPageIdsWithinApplication(application));
         }
 
-        Mockito.when(applicationService.createOrUpdateSshKeyPair(Mockito.anyString(), null))
+        Mockito.when(applicationService.createOrUpdateSshKeyPair(Mockito.anyString(), nullable(String.class)))
                 .thenReturn(Mono.just(new GitAuth()));
 
         StepVerifier.create(applicationFetcher.getAllApplications())

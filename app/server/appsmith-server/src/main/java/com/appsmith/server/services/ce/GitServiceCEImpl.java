@@ -1123,12 +1123,18 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.just(srcApplication.getGitApplicationMetadata().getGitAuth());
                     }
                     return applicationService.getSshKey(gitData.getDefaultApplicationId())
-                            .map(gitAuthDTO -> {
+                            .flatMap(gitAuthDTO -> {
+                                if(StringUtils.isEmptyOrNull(gitAuthDTO.getPublicKey())) {
+                                    return Mono.error(new AppsmithException(
+                                            AppsmithError.INVALID_GIT_CONFIGURATION,
+                                            "Can't find valid SSH key. Please configure the application with git"
+                                    ));
+                                }
                                 GitAuth gitAuth = new GitAuth();
                                 gitAuth.setPrivateKey(gitAuthDTO.getPrivateKey());
                                 gitAuth.setPublicKey(gitAuthDTO.getPublicKey());
                                 gitAuth.setDocUrl(gitAuthDTO.getDocUrl());
-                                return gitAuth;
+                                return Mono.just(gitAuth);
                             });
                 })
                 .flatMap(tuple -> {

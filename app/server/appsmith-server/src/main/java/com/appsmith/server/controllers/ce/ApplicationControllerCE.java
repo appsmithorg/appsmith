@@ -198,7 +198,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @GetMapping("/ssh-keypair/{applicationId}")
     public Mono<ResponseDTO<GitAuthDTO>> getSSHKey(@PathVariable String applicationId) {
         return service.getSshKey(applicationId)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+                .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
     @Override

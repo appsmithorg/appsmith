@@ -500,10 +500,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     List<GitDeployKeyDTO> gitDeployKeyDTOList =GitDeployKeyGenerator.getSupportedProtocols();
                     if (gitData == null) {
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.INVALID_GIT_CONFIGURATION,
-                                "Can't find valid SSH key. Please configure the application with git"
-                        ));
+                        GitAuthDTO gitAuthDTO = new GitAuthDTO();
+                        gitAuthDTO.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
+                        gitAuthDTO.setGitSupportedSSHKeyType(gitDeployKeyDTOList);
+                        gitAuthDTO.setPublicKey("");
+                        return Mono.just(gitAuthDTO);
                     }
                     // Check if the application is root application
                     if (applicationId.equals(gitData.getDefaultApplicationId())) {
@@ -516,10 +517,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         return Mono.just(gitAuthDTO);
                     }
                     if (gitData.getDefaultApplicationId() == null) {
-                        throw new AppsmithException(
+                        return Mono.error(new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION,
                                 "Can't find root application. Please configure the application with git"
-                        );
+                        ));
                     }
 
 
