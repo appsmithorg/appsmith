@@ -29,6 +29,8 @@ public class PageDTO {
 
     String slug;
 
+    String customSlug;
+
     @Transient
     String applicationId;
 
