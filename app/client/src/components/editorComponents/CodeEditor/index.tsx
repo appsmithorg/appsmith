@@ -275,8 +275,7 @@ class CodeEditor extends Component<Props, State> {
         gutters.add(this.props.customGutter.gutterId);
       }
 
-      const isReadOnly = !this.props.input.onChange || this.props.disabled;
-      if (!isReadOnly) {
+      if (!this.props.isReadOnly) {
         const autoIndentKey = getAutoIndentShortcutKey();
         options.extraKeys[autoIndentKey] = (editor) => {
           autoIndentCode(editor);
