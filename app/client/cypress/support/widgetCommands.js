@@ -1157,7 +1157,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("FocusCodeEditor", (index) => {
   cy.wait(2000);
-  cy.find("[class^=t--property-control-]")
+  cy.get("[class^=t--property-control-]")
     .eq(index || 0)
     .focus();
 });
