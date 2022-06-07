@@ -23,6 +23,7 @@ import {
   TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { IconNames } from "@blueprintjs/icons";
+import { getStylesheetValue } from "./helpers";
 
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
@@ -903,6 +904,7 @@ export default [
                 },
                 {
                   propertyName: "buttonColor",
+                  getStylesheetValue,
                   label: "Button Color",
                   controlType: "COLOR_PICKER",
                   helpText: "Changes the color of the button",

@@ -79,24 +79,44 @@ export class ApiPage {
   }
 
   EnterURL(url: string) {
-    this.agHelper.EnterValue(url, this._resourceUrl, true);
+    this.agHelper.EnterValue(url, {
+      propFieldName: this._resourceUrl,
+      directInput: true,
+      inputFieldName: "",
+    });
     this.agHelper.AssertAutoSave();
   }
 
   EnterHeader(hKey: string, hValue: string) {
     this.SelectPaneTab("Headers");
-    this.agHelper.EnterValue(hKey, this._headerKey(0), true);
+    this.agHelper.EnterValue(hKey, {
+      propFieldName: this._headerKey(0),
+      directInput: true,
+      inputFieldName: "",
+    });
     cy.get("body").type("{esc}");
-    this.agHelper.EnterValue(hValue, this._headerValue(0), true);
+    this.agHelper.EnterValue(hValue, {
+      propFieldName: this._headerValue(0),
+      directInput: true,
+      inputFieldName: "",
+    });
     cy.get("body").type("{esc}");
     this.agHelper.AssertAutoSave();
   }
 
   EnterParams(pKey: string, pValue: string) {
     this.SelectPaneTab("Params");
-    this.agHelper.EnterValue(pKey, this._paramKey(0), true);
+    this.agHelper.EnterValue(pKey, {
+      propFieldName: this._paramKey(0),
+      directInput: true,
+      inputFieldName: "",
+    });
     cy.get("body").type("{esc}");
-    this.agHelper.EnterValue(pValue, this._paramValue(0), true);
+    this.agHelper.EnterValue(pValue, {
+      propFieldName: this._paramValue(0),
+      directInput: true,
+      inputFieldName: "",
+    });
     cy.get("body").type("{esc}");
     this.agHelper.AssertAutoSave();
   }
@@ -114,7 +134,11 @@ export class ApiPage {
       cy.get(this._trashDelete).click();
       cy.xpath(this._visibleTextSpan("Add more")).click();
     }
-    this.agHelper.EnterValue(bKey, this._bodyKey(0), true);
+    this.agHelper.EnterValue(bKey, {
+      propFieldName: this._bodyKey(0),
+      directInput: true,
+      inputFieldName: "",
+    });
     cy.get("body").type("{esc}");
 
     if (type) {
@@ -123,7 +147,11 @@ export class ApiPage {
         .click();
       cy.xpath(this._visibleTextDiv(type)).click();
     }
-    this.agHelper.EnterValue(bValue, this._bodyValue(0), true);
+    this.agHelper.EnterValue(bValue, {
+      propFieldName: this._bodyValue(0),
+      directInput: true,
+      inputFieldName: "",
+    });
     cy.get("body").type("{esc}");
     this.agHelper.AssertAutoSave();
   }
@@ -144,14 +172,14 @@ export class ApiPage {
 
   OnPageLoadRun(enable = true || false) {
     this.SelectPaneTab("Settings");
-    if(enable)
-    cy.get(this._onPageLoad).check({
-      force: true,
-    });
+    if (enable)
+      cy.get(this._onPageLoad).check({
+        force: true,
+      });
     else
-    cy.get(this._onPageLoad).uncheck({
-      force: true,
-    });
+      cy.get(this._onPageLoad).uncheck({
+        force: true,
+      });
   }
 
   ConfirmBeforeRunningApi(enable = true || false) {
