@@ -364,13 +364,13 @@ export class AggregateHelper {
     });
   }
 
-  public GetNClick(selector: string, index = 0) {
+  public GetNClick(selector: string, index = 0, force = false) {
     let locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator
       .eq(index)
-      .click()
+      .click( {force: force})
       .wait(500);
   }
 
