@@ -522,9 +522,10 @@ export class AggregateHelper {
 
   public UpdateCodeInput(selector: string, value: string, index = 0) {
     cy.wrap(selector)
-      .find(this.locator._codeEditorWrapper)
-      .eq(index)
-      .focus()
+      .wait(1000)
+      // .find(this.locator._codeEditorWrapper)
+      // .eq(index)
+      // .focus()
       .find(".CodeMirror")
       .first()
       .then((ins: any) => {

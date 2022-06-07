@@ -1148,8 +1148,9 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("FocusCodeEditor", (index) => {
-  cy.find(commonlocators._codeEditorWrapper)
-    .eq(index || 0)
-    .focus();
+Cypress.Commands.add("FocusCodeEditor", () => {
+  cy.wait(1000);
+  // cy.find(commonlocators._codeEditorWrapper)
+  //   .eq(index || 0)
+  //   .focus();
 });
