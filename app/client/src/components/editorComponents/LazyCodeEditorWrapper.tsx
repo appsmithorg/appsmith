@@ -169,7 +169,8 @@ function CodeEditor(props: any) {
 
   useEffect(() => {
     const str: string = props?.input?.value || props?.placeholder || "";
-    if (str && str?.indexOf("{{") > -1) setContainsCode(true);
+    if (str && typeof str === "string" && str?.indexOf("{{") > -1)
+      setContainsCode(true);
     setText(Array.isArray(str) ? str.toString() : str);
   }, [props?.input?.value, props?.placeholder]);
 
