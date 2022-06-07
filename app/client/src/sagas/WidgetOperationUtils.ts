@@ -208,7 +208,7 @@ export const handleSpecificCasesWhilePasting = (
         }
       }
 
-      // updating dynamicBindingPath in copied widget if the copied widge thas reference to oldWidgetNames
+      // updating dynamicBindingPath in copied widget if the copied widget thas reference to oldWidgetNames
       widget.dynamicBindingPathList = (widget.dynamicBindingPathList || []).map(
         (path: any) => {
           if (path.key.startsWith(`template.${oldWidgetName}`)) {
@@ -224,7 +224,7 @@ export const handleSpecificCasesWhilePasting = (
         },
       );
 
-      // updating dynamicTriggerPath in copied widget if the copied widge thas reference to oldWidgetNames
+      // updating dynamicTriggerPath in copied widget if the copied widget thas reference to oldWidgetNames
       widget.dynamicTriggerPathList = (widget.dynamicTriggerPathList || []).map(
         (path: any) => {
           if (path.key.startsWith(`template.${oldWidgetName}`)) {
