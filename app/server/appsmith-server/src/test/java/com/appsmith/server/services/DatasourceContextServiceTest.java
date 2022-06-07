@@ -16,20 +16,15 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringRunner;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -165,10 +160,11 @@ public class DatasourceContextServiceTest {
         Datasource datasource = new Datasource();
         datasource.setId("id");
 
+        Object monitor = new Object();
         Mono<DatasourceContext> dsContextMono1 = datasourceContextService.getCachedDatasourceContextMono(datasource,
-                spyMockPluginExecutor);
+                spyMockPluginExecutor, monitor);
         Mono<DatasourceContext> dsContextMono2 = datasourceContextService.getCachedDatasourceContextMono(datasource,
-                spyMockPluginExecutor);
+                spyMockPluginExecutor, monitor);
         Mono<Tuple2<DatasourceContext, DatasourceContext>> zipMono = Mono.zip(dsContextMono1, dsContextMono2);
         StepVerifier.create(zipMono)
                 .assertNext(tuple -> {

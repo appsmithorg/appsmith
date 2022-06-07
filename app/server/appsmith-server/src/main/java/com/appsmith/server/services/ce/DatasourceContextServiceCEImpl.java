@@ -27,6 +27,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     //This is DatasourceId mapped to the DatasourceContext
     private final Map<String, DatasourceContext> datasourceContextMap;
     private final Map<String, Mono<DatasourceContext>> datasourceContextMonoMap;
+    private final Map<String, Object> datasourceContextSynchronizationMonitorMap;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
@@ -43,6 +44,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         this.encryptionService = encryptionService;
         this.datasourceContextMap = new ConcurrentHashMap<>();
         this.datasourceContextMonoMap = new ConcurrentHashMap<>();
+        this.datasourceContextSynchronizationMonitorMap = new ConcurrentHashMap<>();
     }
 
     /**
@@ -56,72 +58,79 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
      *
      * @param datasource - datasource for which a new datasource context / connection needs to be created
      * @param pluginExecutor - plugin executor associated with the datasource's plugin
+     * @param monitor
      * @return a cached source publisher which upon subscription produces / returns the latest datasource context /
      * connection.
      */
-    synchronized public Mono<DatasourceContext> getCachedDatasourceContextMono(Datasource datasource,
-                                                            PluginExecutor<Object> pluginExecutor) {
-        /* Destroy any stale connection to free up resource */
-        String datasourceId = datasource.getId();
-        final boolean isStale = getIsStale(datasource);
-        if (isStale) {
-            final Object connection = datasourceContextMap.get(datasourceId).getConnection();
-            if (connection != null) {
-                try {
-                    pluginExecutor.datasourceDestroy(connection);
-                } catch (Exception e) {
-                    log.info("Error destroying stale datasource connection", e);
+    public Mono<DatasourceContext> getCachedDatasourceContextMono(Datasource datasource,
+                                                                  PluginExecutor<Object> pluginExecutor,
+                                                                  Object monitor) {
+        synchronized (monitor) {
+            /* Destroy any stale connection to free up resource */
+            String datasourceId = datasource.getId();
+            final boolean isStale = getIsStale(datasource);
+            if (isStale) {
+                final Object connection = datasourceContextMap.get(datasourceId).getConnection();
+                if (connection != null) {
+                    try {
+                        pluginExecutor.datasourceDestroy(connection);
+                    } catch (Exception e) {
+                        log.info("Error destroying stale datasource connection", e);
+                    }
                 }
             }
-        }
 
-        /*
-         * If a publisher with cached value already exists then return it. Please note that even if this publisher is
-         * evaluated multiple times the actual datasource creation will only happen once and get cached and the same
-         * value would directly be returned to further evaluations / subscriptions.
-         */
-        if (datasourceId != null && datasourceContextMonoMap.get(datasourceId) != null) {
-            log.debug("Cached resource context mono exists. Returning the same.");
-            return datasourceContextMonoMap.get(datasourceId);
-        }
+            /*
+             * If a publisher with cached value already exists then return it. Please note that even if this publisher is
+             * evaluated multiple times the actual datasource creation will only happen once and get cached and the same
+             * value would directly be returned to further evaluations / subscriptions.
+             */
+            if (datasourceId != null && datasourceContextMonoMap.get(datasourceId) != null) {
+                log.debug("Cached resource context mono exists. Returning the same.");
+                return datasourceContextMonoMap.get(datasourceId);
+            }
 
-        /* Create a fresh datasource context */
-        DatasourceContext datasourceContext = new DatasourceContext();
-        if (datasourceId != null) {
+            /* Create a fresh datasource context */
+            DatasourceContext datasourceContext = new DatasourceContext();
+            if (datasourceId != null) {
             /* For this datasource, either the context doesn't exist, or the context is stale. Replace (or add) with
             the new connection in the context map. */
-            datasourceContextMap.put(datasourceId, datasourceContext);
-        }
+                datasourceContextMap.put(datasourceId, datasourceContext);
+            }
 
-        Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource.getDatasourceConfiguration());
-        Mono<DatasourceContext> datasourceContextMonoCache = connectionMono
-                .flatMap(connection -> {
-                    Mono<Datasource> datasourceMono1 = Mono.just(datasource);
-                    if (connection instanceof UpdatableConnection) {
-                        datasource.setUpdatedAt(Instant.now());
-                        datasource
-                                .getDatasourceConfiguration()
-                                .setAuthentication(
-                                        ((UpdatableConnection) connection).getAuthenticationDTO(
-                                                datasource.getDatasourceConfiguration().getAuthentication()));
-                        datasourceMono1 = datasourceService.update(datasource.getId(), datasource);
-                    }
-                    return datasourceMono1.thenReturn(connection);
-                })
-                .map(connection -> {
+            Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource.getDatasourceConfiguration());
+            Mono<DatasourceContext> datasourceContextMonoCache = connectionMono
+                    .flatMap(connection -> {
+                        Mono<Datasource> datasourceMono1 = Mono.just(datasource);
+                        if (connection instanceof UpdatableConnection) {
+                            datasource.setUpdatedAt(Instant.now());
+                            datasource
+                                    .getDatasourceConfiguration()
+                                    .setAuthentication(
+                                            ((UpdatableConnection) connection).getAuthenticationDTO(
+                                                    datasource.getDatasourceConfiguration().getAuthentication()));
+                            datasourceMono1 = datasourceService.update(datasource.getId(), datasource);
+                        }
+                        return datasourceMono1.thenReturn(connection);
+                    })
+                    .map(connection -> {
                     /* When a connection object exists and makes sense for the plugin, we put it in the
                      context. Example, DB plugins. */
-                    datasourceContext.setConnection(connection);
-                    return datasourceContext;
-                })
-                .defaultIfEmpty(
+                        datasourceContext.setConnection(connection);
+                        return datasourceContext;
+                    })
+                    .defaultIfEmpty(
                         /* When a connection object doesn't make sense for the plugin, we get an empty mono and we
                         just return the context object as is. */
-                        datasourceContext
-                )
-                .cache(); /* Cache the value so that further evaluations don't result in new connections */
-        datasourceContextMonoMap.put(datasourceId, datasourceContextMonoCache);
-        return datasourceContextMonoCache;
+                            datasourceContext
+                    )
+                    .cache(); /* Cache the value so that further evaluations don't result in new connections */
+            if (datasourceId != null) {
+                datasourceContextMonoMap.put(datasourceId, datasourceContextMonoCache);
+            }
+            return datasourceContextMonoCache;
+
+        }
     }
 
     Mono<DatasourceContext> createNewDatasourceContext(Datasource datasource) {
@@ -146,7 +155,29 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 .flatMap(objects -> {
                     Datasource datasource1 = objects.getT1();
                     PluginExecutor<Object> pluginExecutor = objects.getT2();
-                    return getCachedDatasourceContextMono(datasource1, pluginExecutor);
+
+                    /**
+                     * Keep one monitor object against each datasource id. The synchronized method
+                     * `getCachedDatasourceContextMono` would then acquire lock on the monitor object which is unique
+                     * for each datasourceId hence ensuring that if competing threads want to create datasource context
+                     * on different datasource id then they are not blocked on each other and can run concurrently.
+                     * Only threads that want to create a new datasource context on the same datasource id would be
+                     * synchronized.
+                     */
+                    Object monitor = new Object();
+                    if (datasourceId != null) {
+                        if (datasourceContextSynchronizationMonitorMap.get(datasourceId) == null) {
+                            synchronized (this) {
+                                if (datasourceContextSynchronizationMonitorMap.get(datasourceId) == null) {
+                                    datasourceContextSynchronizationMonitorMap.put(datasourceId, new Object());
+                                }
+                            }
+                        }
+
+                        monitor = datasourceContextSynchronizationMonitorMap.get(datasourceId);
+                    }
+
+                    return getCachedDatasourceContextMono(datasource1, pluginExecutor, monitor);
                 });
     }
 
