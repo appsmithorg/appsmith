@@ -543,12 +543,12 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
 
     //Checking Required field validations
-    cy.xpath(locator._spanButton("Submit") + "/parent::div").eq(1).should(
+    cy.xpath(locator._spanButton("Submit") + "/parent::div").should(
       "have.attr",
       "disabled",
     );
-    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON");
-    cy.xpath(locator._spanButton("Submit") + "/parent::div").eq(1).should(
+    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 1);
+    cy.xpath(locator._spanButton("Submit") + "/parent::div").should(
       "not.have.attr",
       "disabled",
     );
@@ -607,15 +607,15 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       .invoke("attr", "type")
       .should("eq", "password");
 
-    deployMode.ClearJSONFieldValue("Shipname");
+    deployMode.ClearJSONFieldValue("Shipname", true, 1);
     agHelper.AssertElementVisible(
       locator._visibleTextDiv("This field is required"),
     );
-    cy.xpath(locator._spanButton("Submit") + "/parent::div").eq(1).should(
+    cy.xpath(locator._spanButton("Submit") + "/parent::div").should(
       "have.attr",
       "disabled",
     );
-    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON");
+    deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 1);
 
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage(
