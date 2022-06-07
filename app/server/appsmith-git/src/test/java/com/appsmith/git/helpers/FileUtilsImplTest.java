@@ -139,7 +139,7 @@ public class FileUtilsImplTest extends TestCase {
             try {
                 FileUtils.deleteDirectory(localTestDirectoryPath.toFile());
             } catch (IOException e){
-                //log.debug("Unable to delete directory for path {} with message {}", directory, e.getMessage());
+
             }
         }
     }
