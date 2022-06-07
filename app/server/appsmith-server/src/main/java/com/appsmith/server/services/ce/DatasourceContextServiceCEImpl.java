@@ -49,7 +49,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
     /**
      * This method defines a critical section that can be executed only by one thread at a time per datasource id - i
-     * .e. if two threads want to create datasource for different datasouce ids then they shouldn't would not be
+     * .e. if two threads want to create datasource for different datasource ids then they shouldn't would not be
      * synchronized. Earlier multiple threads could subscribe to a publisher that created connection to a datasource
      * - which resulted in a data race condition resulting in multiple orphan connections.
      * Ref: https://github.com/appsmithorg/appsmith/issues/14117
