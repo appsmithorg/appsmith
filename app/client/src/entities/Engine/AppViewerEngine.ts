@@ -47,7 +47,7 @@ export default class AppViewerEngine extends AppEngine {
   }
 
   *bootstrapEditor(payload: AppEnginePayload): any {
-    yield call(super.bootstrapEditor, payload);
+    yield call(super.bootstrapEditor.bind(this), payload);
   }
 
   startPerformanceTracking() {
