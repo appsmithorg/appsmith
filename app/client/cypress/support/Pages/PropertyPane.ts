@@ -56,8 +56,8 @@ export class PropertyPane {
     // });
     this.OpenJsonFormFieldSettings(fieldName);
     this.agHelper.SelectDropdownList("Field Type", newDataType);
-    this.agHelper.ValidateNetworkStatus("@updateLayout");
     this.agHelper.AssertAutoSave();
+    this.agHelper.ValidateNetworkStatus("@updateLayout");
   }
 
   public NavigateBackToPropertyPane() {
