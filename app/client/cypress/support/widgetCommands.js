@@ -372,7 +372,7 @@ Cypress.Commands.add("testCodeMirrorLast", (value) => {
 
 Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.get(".t--property-control-" + endp)
-    .FocusCodeEditor(0)
+    .click()
     .get(".CodeMirror textarea")
     .first()
     .focus({ force: true })
@@ -1149,7 +1149,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("FocusCodeEditor", () => {
-  cy.wait(1000);
+  cy.wait(2000);
   // cy.find(commonlocators._codeEditorWrapper)
   //   .eq(index || 0)
   //   .focus();

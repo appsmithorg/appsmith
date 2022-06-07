@@ -32,8 +32,8 @@ describe("Chart Widget Functionality", function() {
      * @param{Text} Random Input Value
      */
     cy.testCodeMirror(this.data.chartIndata);
-    cy.FocusCodeEditor();
     cy.get(viewWidgetsPage.chartInnerText)
+      .click()
       .contains("App Sign Up")
       .should("have.text", "App Sign Up");
 
