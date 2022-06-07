@@ -25,6 +25,7 @@ import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
 import { setFormEvaluationSaga } from "./formEval";
 import { isEmpty } from "lodash";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
+import { Diff } from "deep-diff";
 
 const CANVAS = "canvas";
 
@@ -101,6 +102,7 @@ ctx.addEventListener(
         let errors: EvalError[] = [];
         let logs: any[] = [];
         let dependencies: DependencyMap = {};
+        let updates: Diff<DataTree, DataTree>[] = [];
         let evaluationOrder: string[] = [];
         let unEvalUpdates: DataTreeDiff[] = [];
         let jsUpdates: Record<string, any> = {};
@@ -161,6 +163,7 @@ ctx.addEventListener(
               replayMap[CANVAS]?.update({ widgets, theme });
             }
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
+            updates = JSON.parse(JSON.stringify(updateResponse.updates));
             evaluationOrder = updateResponse.evaluationOrder;
             unEvalUpdates = updateResponse.unEvalUpdates;
             dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
@@ -199,6 +202,7 @@ ctx.addEventListener(
           errors,
           evaluationOrder,
           logs,
+          updates,
           unEvalUpdates,
           jsUpdates,
           evalMetaUpdates,
