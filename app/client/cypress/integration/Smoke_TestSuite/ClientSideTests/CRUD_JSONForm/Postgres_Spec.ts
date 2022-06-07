@@ -479,8 +479,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("12. Update the InsertQuery to insert all columns from UI", () => {
-    // agHelper.NavigateBacktoEditor();
-    // table.WaitUntilTableLoad();
+    agHelper.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
     let insertQuery = `INSERT INTO public."vessels" (
       "ship_id",
       "callsign",
@@ -541,13 +541,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.Sleep()
     agHelper.AssertElementVisible(locator._jsonFormWidget, 1); //Insert Modal
     agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
-    agHelper.ClickButton("Submit");
-    agHelper.ValidateToastMessage(
-      `null value in column "ship_id" violates not-null constraint`,
-    );
-
-    deployMode.EnterJSONInputValue("Ship Id", "159196");
-    deployMode.EnterJSONInputValue("Callsign", "9HUQ9", 1);
 
     //Checking Required field validations
     cy.xpath(locator._spanButton("Update") + "/parent::div").eq(1).should(
@@ -559,6 +552,16 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       "not.have.attr",
       "disabled",
     );
+
+    //Checking Primary Key validation error toast
+    agHelper.ClickButton("Submit");
+    agHelper.ValidateToastMessage(
+      `null value in column "ship_id" violates not-null constraint`,
+    );
+
+    deployMode.EnterJSONInputValue("Ship Id", "159196");
+
+    deployMode.EnterJSONInputValue("Callsign", "9HUQ9", 1);
 
     deployMode.ClearJSONFieldValue("Country");
     deployMode.EnterJSONInputValue("Country", "Malta", 1);
