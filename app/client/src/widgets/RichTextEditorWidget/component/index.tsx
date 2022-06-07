@@ -95,7 +95,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const handleEditorChange = useCallback(
     (newValue: string) => {
       // avoid updating value, when there is no actual change.
-      if (newValue !== props.value) {
+      if (newValue !== valueRef.current) {
         valueRef.current = newValue;
         props.onValueChange(newValue);
       }
@@ -108,6 +108,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   useEffect(() => {
     if (!initialRender.current && valueRef.current !== props.value) {
       valueRef.current = props.value;
+      props.onValueChange(props.value as string);
     } else {
       initialRender.current = false;
     }
