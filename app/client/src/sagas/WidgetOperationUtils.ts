@@ -223,6 +223,22 @@ export const handleSpecificCasesWhilePasting = (
           return path;
         },
       );
+
+      // updating dynamicTriggerPath in copied widget if the copied widge thas reference to oldWidgetNames
+      widget.dynamicTriggerPathList = (widget.dynamicTriggerPathList || []).map(
+        (path: any) => {
+          if (path.key.startsWith(`template.${oldWidgetName}`)) {
+            return {
+              key: path.key.replace(
+                `template.${oldWidgetName}`,
+                `template.${newWidgetName}`,
+              ),
+            };
+          }
+
+          return path;
+        },
+      );
     });
 
     widgets[widget.widgetId] = widget;
