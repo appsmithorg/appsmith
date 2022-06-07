@@ -189,9 +189,11 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
         children,
         evaluatedWidget,
         mainCanvasProps,
+        metaState,
         widgetId,
         ...rest
       } = this.props;
+
       const canvasWidgetProps =
         widgetId === MAIN_CONTAINER_WIDGET_ID
           ? computeMainContainerWidget(canvasWidget, mainCanvasProps)
@@ -202,6 +204,23 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
         evaluatedWidget,
       );
 
+      if (
+        widgetId !== MAIN_CONTAINER_WIDGET_ID &&
+        this.props.type === "CANVAS_WIDGET"
+      ) {
+        widgetProps.rightColumn = this.props.rightColumn;
+        widgetProps.bottomRow = this.props.bottomRow;
+        widgetProps.minHeight = this.props.minHeight;
+        widgetProps.isVisible = this.props.isVisible;
+        widgetProps.shouldScrollContents = this.props.shouldScrollContents;
+        widgetProps.canExtend = this.props.canExtend;
+        widgetProps.parentId = this.props.parentId;
+      } else {
+        widgetProps.parentColumnSpace = this.props.parentColumnSpace;
+        widgetProps.parentRowSpace = this.props.parentRowSpace;
+        widgetProps.parentId = this.props.parentId;
+      }
+
       widgetProps.children = children;
 
       return merge(
@@ -209,7 +228,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
         rest,
         this.initialMetaState, // this contains stale default values and are used when widget is reset. Ideally, widget should reset to its default values instead of stale default values.
         widgetProps, // if default values are changed we expect to get new values from here.
-        this.props.metaState,
+        metaState,
       );
     };
 
