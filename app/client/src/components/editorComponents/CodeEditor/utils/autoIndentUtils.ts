@@ -1,5 +1,6 @@
 import { getPlatformOS, PLATFORM_OS } from "utils/helpers";
 import CodeMirror from "codemirror";
+import { isNil } from "lodash";
 
 const autoIndentShortcut = {
   [PLATFORM_OS.MAC]: "Shift-Cmd-P",
@@ -30,8 +31,9 @@ export const getAutoIndentShortcutKeyText = () => {
 export const autoIndentCode = (editor: CodeMirror.Editor) => {
   editor.eachLine((line: any) => {
     const lineNumber = editor.getLineNumber(line);
-    if (!!lineNumber) {
+    if (!isNil(lineNumber)) {
       editor.indentLine(lineNumber);
     }
   });
+  editor.refresh();
 };
