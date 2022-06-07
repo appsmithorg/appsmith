@@ -2900,7 +2900,7 @@ public class ApplicationServiceTest {
                 .assertNext(gitAuthDTO -> {
                     assertThat(gitAuthDTO.getDocUrl()).isEqualTo(Assets.GIT_DEPLOY_KEY_DOC_URL);
                     assertThat(gitAuthDTO.getGitSupportedSSHKeyType()).isNotEmpty();
-                    assertThat(gitAuthDTO.getPublicKey()).isNull();
+                    assertThat(gitAuthDTO.getPublicKey()).isEmpty();
                 })
                 .verifyComplete();
     }

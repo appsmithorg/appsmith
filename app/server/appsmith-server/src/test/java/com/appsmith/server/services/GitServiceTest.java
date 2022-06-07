@@ -2622,7 +2622,7 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void deleteBranch_defaultBranchUpdated_Success() throws IOException, GitAPIException {
-        Application application = createApplicationConnectedToGit("deleteBranch_defaultBranchUpdated_Successw", "master");
+        Application application = createApplicationConnectedToGit("deleteBranch_defaultBranchUpdated_Success1", "master");
         application.getGitApplicationMetadata().setDefaultBranchName("f1");
         applicationService.save(application).block();
 
