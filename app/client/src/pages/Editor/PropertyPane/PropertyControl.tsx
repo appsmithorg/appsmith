@@ -46,6 +46,7 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
+import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -482,18 +483,21 @@ const PropertyControl = memo((props: Props) => {
 
     let isToggleDisabled = false;
     if (
-      isDynamic &&
-      propertyValue !== "" &&
-      !canDisplayValueInUI?.(config, propertyValue)
-    )
+      isDynamic && // JS mode is enabled
+      propertyValue !== "" && // value is not empty
+      !canDisplayValueInUI?.(config, propertyValue) // value can't be represented in UI mode
+    ) {
       isToggleDisabled = true;
+    }
 
+    // Checks if the value is same as the one defined in theme stylesheet.
     if (
       typeof propertyStylesheetValue === "string" &&
       THEME_BINDING_REGEX.test(propertyStylesheetValue) &&
       propertyStylesheetValue === propertyValue
-    )
+    ) {
       isToggleDisabled = false;
+    }
 
     try {
       return (
@@ -516,7 +520,7 @@ const PropertyControl = memo((props: Props) => {
             />
             {isConvertible && (
               <Tooltip
-                content="A dynamic or invalid value cannot be represented in the UI mode. Please update the value or clear the value to toggle back to UI mode."
+                content={JS_TOGGLE_DISABLED_MESSAGE}
                 disabled={!isToggleDisabled}
                 hoverOpenDelay={200}
                 openOnTargetFocus={false}
