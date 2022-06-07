@@ -20,6 +20,7 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import BrandingBadge from "./BrandingBadgeMobile";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
+import { getShowBrandingBadge } from "@appsmith/selectors/organizationSelectors";
 
 type AppViewerHeaderProps = {
   isOpen?: boolean;
@@ -41,6 +42,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
   );
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const [query, setQuery] = useState("");
+  const showBrandingBadge = useSelector(getShowBrandingBadge);
 
   // hide menu on click outside
   useOnClickOutside(
@@ -137,7 +139,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
             />
           )}
           <PrimaryCTA className="t--back-to-editor--mobile" url={props.url} />
-          <BrandingBadge />
+          {showBrandingBadge && <BrandingBadge />}
         </div>
       </div>
     </>
