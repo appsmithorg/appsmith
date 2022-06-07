@@ -93,6 +93,7 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
                 .toBuilder()
                 .queryFormat("RANGE")
                 .spreadsheetRange(rowStart + ":" + rowEnd)
+                .projection(new ArrayList<>())
                 .build();
 
         rowsGetMethod.validateExecutionMethodRequest(newMethodConfig);

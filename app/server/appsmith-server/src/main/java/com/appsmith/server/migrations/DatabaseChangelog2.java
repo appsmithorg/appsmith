@@ -69,7 +69,7 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 public class DatabaseChangelog2 {
 
     public static ObjectMapper objectMapper = new ObjectMapper();
-    static Pattern sheetRangePattern = Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?.*");
+    static Pattern sheetRangePattern = Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?[^\"]*");
 
     @ChangeSet(order = "001", id = "fix-plugin-title-casing", author = "")
     public void fixPluginTitleCasing(MongockTemplate mongockTemplate) {
@@ -342,14 +342,24 @@ public class DatabaseChangelog2 {
     }
 
     private static void convertToFormDataObject(Map<String, Object> formDataMap, String key, Object value) {
+        convertToFormDataObject(formDataMap, key, value, false);
+    }
+
+    private static void convertToFormDataObject(Map<String, Object> formDataMap, String key, Object value, boolean hasBinding) {
         if (value == null) {
             return;
         }
         if (key != null) {
             final HashMap<String, Object> map = new HashMap<>();
             map.put("data", value);
-            map.put("componentData", value);
-            map.put("viewType", "component");
+            // If the element has a binding, it would not make sense to display it in the component mode.
+            if (hasBinding) {
+                map.put("jsonData", value);
+                map.put("viewType", "json");
+            } else {
+                map.put("componentData", value);
+                map.put("viewType", "component");
+            }
             formDataMap.put(key, map);
         }
     }
@@ -1104,7 +1114,12 @@ public class DatabaseChangelog2 {
                 }
             case 8:
                 if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(7)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(7).getValue())) {
-                    convertToFormDataObject(f, "sheetName", pluginSpecifiedTemplates.get(7).getValue());
+                    // Sheet name will now have a dropdown component that is selected from a pre-populated list.
+                    // Bindings would need to be placed in the JS mode
+                    boolean hasBinding = action.getDynamicBindingPathList().stream().anyMatch(dynamicBindingPath -> {
+                        return dynamicBindingPath.getKey().contains("pluginSpecifiedTemplates[7]");
+                    });
+                    convertToFormDataObject(f, "sheetName", pluginSpecifiedTemplates.get(7).getValue(), hasBinding);
                 }
             case 7:
                 if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(6)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(6).getValue())) {
@@ -1138,12 +1153,19 @@ public class DatabaseChangelog2 {
                 }
             case 2:
                 if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(1)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(1).getValue())) {
+                    // Sheet URL will now have a dropdown component that is selected from a pre-populated list.
+                    // Bindings would need to be placed in the JS mode
+                    boolean hasBinding = action.getDynamicBindingPathList().stream().anyMatch(dynamicBindingPath -> {
+                        return dynamicBindingPath.getKey().contains("pluginSpecifiedTemplates[1]");
+                    });
                     final String spreadsheetUrl = (String) pluginSpecifiedTemplates.get(1).getValue();
                     final Matcher matcher = sheetRangePattern.matcher(spreadsheetUrl);
+
                     if (matcher.find()) {
-                        convertToFormDataObject(f, "sheetUrl", "https://docs.google.com/spreadsheets/d/" + matcher.group(1) + "/edit");
+                        final String newSpreadsheetUrl = matcher.replaceAll("https://docs.google.com/spreadsheets/d/" + matcher.group(1) + "/edit");
+                        convertToFormDataObject(f, "sheetUrl", newSpreadsheetUrl, hasBinding);
                     } else {
-                        convertToFormDataObject(f, "sheetUrl", spreadsheetUrl);
+                        convertToFormDataObject(f, "sheetUrl", spreadsheetUrl, hasBinding);
                     }
                 }
         }
@@ -1163,7 +1185,7 @@ public class DatabaseChangelog2 {
                         if (oldWhereClauseCondition != null) {
                             Map<String, Object> newWhereClauseCondition = new HashMap<>();
                             final Map clauseCondition = (Map) oldWhereClauseCondition;
-                            if (clauseCondition.containsKey("key")) {
+                            if (clauseCondition.containsKey("path")) {
                                 newWhereClauseCondition.put("key", clauseCondition.get("path"));
                             }
                             if (clauseCondition.containsKey("operator")) {
