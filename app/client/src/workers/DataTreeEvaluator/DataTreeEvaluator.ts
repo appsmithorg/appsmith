@@ -98,7 +98,9 @@ export default class DataTreeEvaluator {
   resolvedFunctions: Record<string, any> = {};
   currentJSCollectionState: Record<string, any> = {};
   logs: unknown[] = [];
-  allActionValidationConfig?: { [actionId: string]: ActionValidationConfigMap };
+  allActionValidationConfig?: {
+    [actionId: string]: ActionValidationConfigMap;
+  };
   public hasCyclicalDependency = false;
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
@@ -178,7 +180,11 @@ export default class DataTreeEvaluator {
       },
     };
     this.logs.push({ timeTakenForFirstTree });
-    return { evalTree: this.evalTree, jsUpdates: jsUpdates, evalMetaUpdates };
+    return {
+      evalTree: this.evalTree,
+      jsUpdates: jsUpdates,
+      evalMetaUpdates,
+    };
   }
 
   isJSObjectFunction(dataTree: DataTree, jsObjectName: string, key: string) {
@@ -239,6 +245,7 @@ export default class DataTreeEvaluator {
   updateDataTree(
     unEvalTree: DataTree,
   ): {
+    updates: Diff<DataTree, DataTree>[];
     evaluationOrder: string[];
     unEvalUpdates: DataTreeDiff[];
     jsUpdates: Record<string, JSUpdate>;
@@ -247,6 +254,7 @@ export default class DataTreeEvaluator {
     let localUnEvalTree = Object.assign({}, unEvalTree);
     const totalStart = performance.now();
     let jsUpdates: Record<string, JSUpdate> = {};
+    const oldEvalTree = _.cloneDeep(this.evalTree);
     // Calculate diff
     const diffCheckTimeStart = performance.now();
     //update uneval tree from previously saved current state of collection
@@ -284,6 +292,7 @@ export default class DataTreeEvaluator {
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
       return {
+        updates: [],
         evaluationOrder: [],
         unEvalUpdates: [],
         jsUpdates: {},
@@ -364,6 +373,8 @@ export default class DataTreeEvaluator {
 
     const evalTreeDiffsStart = performance.now();
 
+    const evaluationChanges = diff(oldEvalTree, newEvalTree);
+
     const evalTreeDiffsStop = performance.now();
 
     const totalEnd = performance.now();
@@ -387,6 +398,7 @@ export default class DataTreeEvaluator {
     this.logs.push({ timeTakenForSubTreeEval });
 
     return {
+      updates: evaluationChanges || [],
       evaluationOrder,
       unEvalUpdates: translatedDiffs,
       jsUpdates: jsUpdates,
@@ -486,7 +498,10 @@ export default class DataTreeEvaluator {
           entity,
           entityName,
         );
-        dependencyMap = { ...dependencyMap, ...entityListedDependencies };
+        dependencyMap = {
+          ...dependencyMap,
+          ...entityListedDependencies,
+        };
       }
     });
     Object.keys(dependencyMap).forEach((key) => {
@@ -516,7 +531,10 @@ export default class DataTreeEvaluator {
     Object.keys(dataTree).forEach((entityName) => {
       const entity = dataTree[entityName];
       if (isWidget(entity) && !_.isEmpty(entity.privateWidgets)) {
-        privateWidgets = { ...privateWidgets, ...entity.privateWidgets };
+        privateWidgets = {
+          ...privateWidgets,
+          ...entity.privateWidgets,
+        };
       }
     });
     return privateWidgets;
@@ -606,7 +624,10 @@ export default class DataTreeEvaluator {
     oldUnevalTree: DataTree,
     resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
-  ): { evaluatedTree: DataTree; evalMetaUpdates: EvalMetaUpdates } {
+  ): {
+    evaluatedTree: DataTree;
+    evalMetaUpdates: EvalMetaUpdates;
+  } {
     const tree = klona(oldUnevalTree);
     const evalMetaUpdates: EvalMetaUpdates = [];
     try {
@@ -1660,8 +1681,12 @@ export default class DataTreeEvaluator {
         EvaluationSubstitutionType.TEMPLATE,
         // params can be accessed via "this.params" or "executionParams"
         {
-          thisContext: { [THIS_DOT_PARAMS_KEY]: evaluatedExecutionParams },
-          globalContext: { [EXECUTION_PARAM_KEY]: evaluatedExecutionParams },
+          thisContext: {
+            [THIS_DOT_PARAMS_KEY]: evaluatedExecutionParams,
+          },
+          globalContext: {
+            [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
+          },
         },
       );
     });
