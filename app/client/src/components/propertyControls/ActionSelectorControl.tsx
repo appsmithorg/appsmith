@@ -1,5 +1,5 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 // import DynamicActionCreator from "components/editorComponents/DynamicActionCreator";
 import { ActionCreator } from "components/editorComponents/ActionCreator";
 
@@ -23,6 +23,11 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
 
   static getControlType() {
     return "ACTION_SELECTOR";
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    return true;
   }
 }
 
