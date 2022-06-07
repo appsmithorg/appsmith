@@ -357,6 +357,7 @@ Cypress.Commands.add("testCodeMirrorLast", (value) => {
 
       cy.get(".CodeMirror textarea")
         .last()
+        .type("{ctrl}{shift}{downarrow}")
         .clear({ force: true })
         .type(value, {
           force: true,
@@ -373,6 +374,7 @@ Cypress.Commands.add("testCodeMirrorLast", (value) => {
 Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.get(".t--property-control-" + endp)
     .click()
+    .wait(1000)
     .get(".CodeMirror textarea")
     .first()
     .focus({ force: true })
@@ -1148,9 +1150,9 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("FocusCodeEditor", () => {
+Cypress.Commands.add("FocusCodeEditor", (index) => {
   cy.wait(2000);
-  // cy.find(commonlocators._codeEditorWrapper)
-  //   .eq(index || 0)
-  //   .focus();
+  cy.find("[class^=t--property-control-]")
+    .eq(index || 0)
+    .focus();
 });

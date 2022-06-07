@@ -62,7 +62,7 @@ describe("Git discard changes:", function() {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
-    cy.wait(500);
+    cy.FocusCodeEditor(1);
     cy.get(dynamicInputLocators.input)
       .eq(1)
       .click({ force: true })
@@ -82,6 +82,7 @@ describe("Git discard changes:", function() {
     // bind input widget to JSObject response on page2
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
+    cy.FocusCodeEditor(1);
     cy.get(dynamicInputLocators.input)
       .eq(1)
       .click({ force: true })
