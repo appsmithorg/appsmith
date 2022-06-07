@@ -418,7 +418,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
  */
 Cypress.Commands.add("updateCodeInput", ($selector, value) => {
   cy.get($selector)
-    .wait(500)
+    .click()
     .find(".CodeMirror")
     .first()
     .then((ins) => {
