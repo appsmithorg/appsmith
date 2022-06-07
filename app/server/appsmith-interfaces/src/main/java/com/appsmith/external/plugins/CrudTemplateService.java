@@ -3,13 +3,10 @@ package com.appsmith.external.plugins;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import static com.appsmith.external.helpers.PluginUtils.replaceMappedColumnInStringValue;
 
 public interface CrudTemplateService {
-
-    // Pattern to match all words in the text
-    Pattern WORD_PATTERN = Pattern.compile("\\w+");
 
     /**
      * This method will recursively replace the column names from template table to user provided table
@@ -32,23 +29,11 @@ public interface CrudTemplateService {
                 } else {
                     // Recursively replace the column names from template table with user provided table using mappedColumns
                     if (property.getValue() instanceof String) {
-
-                        // In case the entire value finds a match in the mappedColumns, replace it
-                        Pattern replacePattern = Pattern.compile(Pattern.quote(property.getValue().toString()));
-                        Matcher matcher = replacePattern.matcher(property.getValue().toString());
-                        property.setValue(matcher.replaceAll(key ->
-                                mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
-                        );
-
-                        // If the column name is present inside a string (like json), then find all the words and replace
-                        // the column name with user one.
-                        matcher = WORD_PATTERN.matcher(property.getValue().toString());
-                        property.setValue(matcher.replaceAll(key ->
-                                mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
-                        );
+                        final String replacedValue = replaceMappedColumnInStringValue(mappedColumns, property.getValue());
+                        property.setValue(replacedValue);
                     }
                     if (property.getValue() instanceof Map) {
-                        updateCrudTemplateFormData((Map<String, Object>)property.getValue(), mappedColumns, pluginSpecificTemplateParams);
+                        updateCrudTemplateFormData((Map<String, Object>) property.getValue(), mappedColumns, pluginSpecificTemplateParams);
                     }
                 }
             }

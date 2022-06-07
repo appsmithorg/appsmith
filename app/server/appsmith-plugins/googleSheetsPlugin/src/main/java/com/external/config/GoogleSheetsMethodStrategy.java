@@ -67,4 +67,23 @@ public class GoogleSheetsMethodStrategy {
         }
 
     }
+
+    public static TemplateMethod getTemplateMethod(Map<String, Object> formData) {
+        final String type = getDataValueSafelyFromFormData(formData, FieldName.ENTITY_TYPE, STRING_TYPE)
+                + "_"
+                + getDataValueSafelyFromFormData(formData, FieldName.COMMAND, STRING_TYPE);
+
+        switch (type) {
+            case MethodIdentifiers.ROWS_INSERT_ONE:
+                return new RowsAppendMethod();
+            case MethodIdentifiers.ROWS_FETCH_MANY:
+                return new RowsGetMethod();
+            case MethodIdentifiers.ROWS_UPDATE_ONE:
+                return new RowsUpdateMethod();
+            case MethodIdentifiers.ROWS_DELETE_ONE:
+                return new RowsDeleteMethod();
+            default:
+                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown execution method type: " + type));
+        }
+    }
 }

@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -46,6 +48,9 @@ public class PluginUtils {
     };
     public static final TypeReference<Object> OBJECT_TYPE = new TypeReference<>() {
     };
+
+    // Pattern to match all words in the text
+    private static final Pattern WORD_PATTERN = Pattern.compile("\\w+");
 
     /**
      * - Regex to match everything inside double or single quotes, including the quotes.
@@ -384,5 +389,25 @@ public class PluginUtils {
 
     public static Object getValueSafelyFromPropertyList(List<Property> properties, int index) {
         return getValueSafelyFromPropertyList(properties, index, Object.class);
+    }
+
+    public static String replaceMappedColumnInStringValue(Map<String, String> mappedColumns, Object propertyValue) {
+        // In case the entire value finds a match in the mappedColumns, replace it
+        Pattern replacePattern = Pattern.compile(Pattern.quote(propertyValue.toString()));
+        Matcher matcher = replacePattern.matcher(propertyValue.toString());
+        if (matcher.find()) {
+            return matcher.replaceAll(key ->
+                    mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()));
+        }
+
+        // If the column name is present inside a string (like json), then find all the words and replace
+        // the column name with user one.
+        matcher = WORD_PATTERN.matcher(propertyValue.toString());
+        if (matcher.find()) {
+            return matcher.replaceAll(key ->
+                    mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()));
+        }
+
+        return propertyValue.toString();
     }
 }
