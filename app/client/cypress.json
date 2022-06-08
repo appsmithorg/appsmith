@@ -4,7 +4,7 @@
 	"requestTimeout": 21000,
 	"responseTimeout": 30000,
 	"pageLoadTimeout": 40000,
-	"video": false,
+	"video": true,
 	"videoUploadOnPasses": false,
 	"reporter": "mochawesome",
 	"reporterOptions": {
@@ -20,7 +20,7 @@
 	"viewportHeight": 1100,
 	"viewportWidth": 1400,
 	"retries": {
-		"runMode": 2,
+		"runMode": 1,
 		"openMode": 0
 	}
 }
