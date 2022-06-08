@@ -649,11 +649,26 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return updatedChildren;
   };
 
+  /**
+   * We add a flag here to not fetch the widgets from the canvasWidgets
+   * in the metaHOC base on the widget id. Rather use the props as is.
+   */
+  addFlags = (children: DSLWidget[]) => {
+    return (children || []).map((childWidget) => {
+      childWidget.skipWidgetPropsHydration = true;
+
+      childWidget.children = this.addFlags(childWidget?.children || []);
+
+      return childWidget;
+    });
+  };
+
   updateGridChildrenProps = (children: DSLWidget[]) => {
     let updatedChildren = this.useNewValues(children);
     updatedChildren = this.updateActions(updatedChildren);
     updatedChildren = this.paginateItems(updatedChildren);
     updatedChildren = this.updatePosition(updatedChildren);
+    updatedChildren = this.addFlags(updatedChildren);
 
     return updatedChildren;
   };
@@ -693,12 +708,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   renderChildren = () => {
     if (
-      this.props.children &&
-      this.props.children.length > 0 &&
+      this.props.childWidgets &&
+      this.props.childWidgets.length > 0 &&
       this.props.listData
     ) {
       const { page } = this.state;
-      const children = removeFalsyEntries(klona(this.props.children));
+      const children = removeFalsyEntries(klona(this.props.childWidgets));
       const childCanvas = children[0];
 
       const canvasChildren = childCanvas.children;
@@ -890,6 +905,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
 export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   children?: T[];
+  childWidgets?: T[];
   shouldScrollContents?: boolean;
   onListItemClick?: string;
   listData?: Array<Record<string, unknown>>;

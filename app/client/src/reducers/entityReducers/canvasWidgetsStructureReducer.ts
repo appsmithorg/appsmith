@@ -24,18 +24,6 @@ function denormalize(
   const staticProps = [
     ...Object.keys(WIDGET_STATIC_PROPS),
     ...Object.keys(WIDGET_DISPLAY_PROPS),
-    ...[
-      "componentHeight",
-      "componentWidth",
-      "positionType",
-      "xPosition",
-      "yPosition",
-      "xPositionUnit",
-      "yPositionUnit",
-      "heightUnit",
-      "widthUnit",
-      "key",
-    ],
   ];
 
   const structure = pick(rootWidget, staticProps);

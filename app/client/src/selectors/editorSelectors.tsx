@@ -301,6 +301,36 @@ export const getCanvasWidgetDsl = createSelector(
   },
 );
 
+export const getChildWidgets = (state: AppState, widgetId: string) => {
+  const canvasWidgets = state.entities.canvasWidgets;
+  const evaluatedDataTree = state.evaluations.tree;
+  const loadingEntities = state.evaluations.loadingEntities;
+
+  const parentWidget = canvasWidgets[widgetId];
+
+  if (parentWidget.children) {
+    return parentWidget.children.map((childWidgetId) => {
+      const childWidget = canvasWidgets[childWidgetId];
+      const evaluatedWidget = evaluatedDataTree[
+        childWidget.widgetName
+      ] as DataTreeWidget;
+      const widget = evaluatedWidget
+        ? createCanvasWidget(childWidget, evaluatedWidget)
+        : createLoadingWidget(childWidget);
+
+      widget.isLoading = loadingEntities.has(childWidget.widgetName);
+
+      if (widget?.children?.length > 0) {
+        widget.children = getChildWidgets(state, childWidgetId);
+      }
+
+      return widget;
+    });
+  }
+
+  return [];
+};
+
 const getOccupiedSpacesForContainer = (
   containerWidgetId: string,
   widgets: FlattenedWidgetProps[],

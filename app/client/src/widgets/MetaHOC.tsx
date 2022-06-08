@@ -17,6 +17,7 @@ import {
 import {
   computeMainContainerWidget,
   createCanvasWidget,
+  getChildWidgets,
   getMainCanvasProps,
 } from "selectors/editorSelectors";
 import { getCanvasWidget } from "selectors/entitiesSelector";
@@ -190,9 +191,18 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
         evaluatedWidget,
         mainCanvasProps,
         metaState,
+        skipWidgetPropsHydration,
         widgetId,
         ...rest
       } = this.props;
+
+      if (skipWidgetPropsHydration) {
+        return {
+          ...this.initialMetaState, // this contains stale default values and are used when widget is reset. Ideally, widget should reset to its default values instead of stale default values.
+          ...this.props, // if default values are changed we expect to get new values from here.
+          ...this.props.metaState,
+        };
+      }
 
       const canvasWidgetProps =
         widgetId === MAIN_CONTAINER_WIDGET_ID
@@ -243,12 +253,21 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
   }
 
   const mapStateToProps = (state: AppState, ownProps: WidgetProps) => {
+    if (ownProps.skipWidgetPropsHydration) return;
+
+    let childWidgets;
+
+    if (ownProps.type === "LIST_WIDGET") {
+      childWidgets = getChildWidgets(state, ownProps.widgetId);
+    }
+
     return {
       canvasWidget: getCanvasWidget(state, ownProps.widgetId),
       evaluatedWidget: getWidgetEvalValues(state, ownProps.widgetName),
       isLoading: getIsWidgetLoading(state, ownProps.widgetName),
       mainCanvasProps: getMainCanvasProps(state),
       metaState: getWidgetMetaProps(state, ownProps.widgetId),
+      childWidgets,
     };
   };
   return connect(mapStateToProps)(MetaHOC);
