@@ -12,19 +12,22 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.appsmith.caching.aspects.ReactiveCacheAspect;
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.caching.model.TestModel;
 import com.appsmith.caching.service.CacheTestService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Slf4j
 public class TestCachingMethods {
 
     @Autowired
     private CacheTestService cacheTestService;
 
     @Autowired
-    private ReactiveCacheAspect reactiveCacheAspect;
+    private CacheManager cacheManager;
 
     @Test
     public void testCacheAndEvictMono() {
@@ -66,8 +69,22 @@ public class TestCachingMethods {
         assertNotEquals(model2, model2_2);
     }
 
+    @Test
+    public void measurePerformance() {
+        // Cache first
+        TestModel model1 = cacheTestService.getObjectFor("test1").block();
+        long initialTime = System.nanoTime();
+        int count = 100;
+        for(int i = 0; i < count; i++) {
+            cacheTestService.getObjectFor("test1").block();
+        }
+        long finalTime = System.nanoTime();
+        long timeTaken = finalTime - initialTime;
+        log.info("Time taken for cache operation " + (timeTaken / count) + " nanos");
+    }
+
     @AfterAll
     public void tearDown() {
-        reactiveCacheAspect.logStats();
+        cacheManager.logStats();
     }
 }

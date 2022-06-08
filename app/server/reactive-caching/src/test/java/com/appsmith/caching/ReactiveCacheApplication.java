@@ -8,5 +8,4 @@ public class ReactiveCacheApplication {
     public static void main(String[] args) {
         SpringApplication.run(ReactiveCacheApplication.class, args);
     }
-
 }
