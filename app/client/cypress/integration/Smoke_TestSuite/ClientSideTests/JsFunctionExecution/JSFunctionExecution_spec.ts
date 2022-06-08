@@ -169,6 +169,7 @@ describe("JS Function Execution", function() {
       agHelper.NavigateBacktoEditor();
     });
   });
+
   it("6. Doesn't cause cyclic dependency when function name is edited", () => {
     const syncJSCode = `export default {
       myFun1 :()=>{
@@ -233,6 +234,7 @@ describe("JS Function Execution", function() {
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2);
     agHelper.AssertElementAbsence(locator._toastMsg);
   });
+
   it("7. Maintains order of async functions in settings tab alphabetically at all times", function() {
     const FUNCTIONS_SETTINGS_DEFAULT_DATA = [
       {
@@ -266,6 +268,7 @@ describe("JS Function Execution", function() {
     const onPageLoadAndConfirmExecuteFunctionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.filter(
       (func) => func.onPageLoad && func.confirmBeforeExecute,
     ).length;
+
     const getJSObject = () => {
       let JS_OBJECT_BODY = `export default`;
       for (let i = 0; i < functionsLength; i++) {
@@ -283,6 +286,7 @@ describe("JS Function Execution", function() {
       }
       return JS_OBJECT_BODY;
     };
+
     const assertAsyncFunctionsOrder = () => {
       cy.get(jsEditor._asyncJSFunctionSettings).then(function($lis) {
         const asyncFunctionLength = $lis.length;
@@ -290,7 +294,7 @@ describe("JS Function Execution", function() {
         expect(asyncFunctionLength).to.equal(functionsLength);
         Object.values(FUNCTIONS_SETTINGS_DEFAULT_DATA).forEach(
           (functionSetting, idx) => {
-            // Assert same order
+            // Assert alphabetical order
             expect($lis.eq(idx)).to.have.id(
               jsEditor._getJSFunctionSettingsId(functionSetting.name),
             );
@@ -317,12 +321,16 @@ describe("JS Function Execution", function() {
         );
       },
     );
-    agHelper.RefreshPage();
 
+    //After JSObj is created - check methods are in alphabetical order
+    assertAsyncFunctionsOrder();
+
+    agHelper.RefreshPage();
     // click "Yes" button for all onPageload && ConfirmExecute functions
-    for (let i = 0; i < onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
+    for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
       //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
       agHelper.ClickButton("Yes");
+      agHelper.Sleep();
     }
     // Switch to settings tab
     agHelper.GetNClick(jsEditor._settingsTab);
