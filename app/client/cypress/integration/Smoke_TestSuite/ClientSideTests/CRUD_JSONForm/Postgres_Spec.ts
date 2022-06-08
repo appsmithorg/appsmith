@@ -575,7 +575,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.AssertElementVisible(
       locator._visibleTextDiv("Not a valid timezone!"),
     );
-    deployMode.ClearJSONFieldValue("Timezone");
+    deployMode.ClearJSONFieldValue("Timezone", 1);
     deployMode.EnterJSONInputValue("Timezone", "-2", 1);
 
     deployMode.EnterJSONInputValue("Status Name", "Moored", 1);
