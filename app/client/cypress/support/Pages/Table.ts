@@ -44,8 +44,8 @@ export class Table {
   _showPageItemsCount = "div.show-page-items"
   _filtersCount = this._filterBtn + " span.action-title"
 
-  public WaitUntilTableLoad() {
-    cy.waitUntil(() => this.ReadTableRowColumnData(0, 0, 2000),
+  public WaitUntilTableLoad(rowIndex = 0, colIndex = 0) {
+    cy.waitUntil(() => this.ReadTableRowColumnData(rowIndex, colIndex, 2000),
       {
         errorMsg: "Table is not populated",
         timeout: 10000,

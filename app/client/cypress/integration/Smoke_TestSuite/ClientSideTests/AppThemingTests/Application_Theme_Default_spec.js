@@ -86,10 +86,8 @@ describe("Theme validation for default data", function() {
       .and("eq", "rgb(21, 128, 61)");
     cy.get("#canvas-selection-0").click({ force: true });
     //Change the Theme
-    cy.get(commonlocators.changeThemeBtn)
-      .should("be.visible")
-      .click({ force: true });
-    cy.get(".cursor-pointer:contains('Current Theme')").click({ force: true });
+    cy.get(commonlocators.changeThemeBtn).click({ force: true });
+    cy.get(".cursor-pointer:contains('Applied Theme')").click({ force: true });
     cy.get(".t--theme-card main > main")
       .first()
       .invoke("css", "background-color")

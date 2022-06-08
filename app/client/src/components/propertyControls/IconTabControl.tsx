@@ -1,5 +1,5 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import ButtonTabComponent, {
   ButtonTabOption,
 } from "components/ads/ButtonTabComponent";
@@ -26,6 +26,16 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
 
   static getControlType() {
     return "ICON_TABS";
+  }
+
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    if (
+      (config as IconTabControlProps)?.options
+        ?.map((x: { value: string }) => x.value)
+        .includes(value)
+    )
+      return true;
+    return false;
   }
 }
 
