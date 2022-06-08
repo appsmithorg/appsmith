@@ -782,14 +782,26 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
     .last()
     .click({ force: true })
     .selectOnClickOption("Show message")
-    .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
-    .last()
-    .click()
-    .type(forFailure)
-    .get("button.t--open-dropdown-Select-type")
-    .last()
-    .click({ force: true })
-    .selectOnClickOption(forFailure);
+    .wait(1000)
+    .get("div.t--property-control-" + endp)
+    .then(($el) => {
+      // Check if CodeEditor wrapper exists -> click to render CodeEditor
+      if ($el.find(".unfocused-code-editor")?.length > 0) {
+        cy.find(".unfocused-code-editor")
+          .last()
+          .click({ force: true })
+          .wait(1000);
+      } else {
+        cy.get("div.t--property-control-" + endp + " div.CodeMirror-lines")
+          .last()
+          .click({ force: true })
+          .type(forFailure)
+          .get("button.t--open-dropdown-Select-type")
+          .last()
+          .click({ force: true })
+          .selectOnClickOption(forFailure);
+      }
+    });
 });
 
 Cypress.Commands.add("isSelectRow", (index) => {

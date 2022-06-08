@@ -523,6 +523,7 @@ export class AggregateHelper {
   public UpdateCodeInput(selector: string, value: string, index = 0) {
     cy.wrap(selector)
       .click({ force: true })
+      .wait(1000)
       .find(".CodeMirror")
       .first()
       .then((ins: any) => {

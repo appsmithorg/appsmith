@@ -376,7 +376,15 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
     .first()
     .click({ force: true })
     .wait(1000)
-    .find(".CodeMirror textarea")
+    .then(($el) => {
+      if ($el.find(".unfocused-code-editor")?.length > 0) {
+        cy.get(".t--property-control-" + endp + ".unfocused-code-editor")
+          .first()
+          .click({ force: true })
+          .wait(1000);
+      }
+    });
+  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
     .type("{uparrow}", { force: true })
