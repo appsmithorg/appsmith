@@ -377,8 +377,21 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
     .click({ force: true })
     .wait(1000)
     .then(($el) => {
-      if ($el.find(".unfocused-code-editor")?.length > 0) {
-        cy.get(".t--property-control-" + endp + ".unfocused-code-editor")
+      if (
+        $el.find(
+          ".t--property-control-" +
+            endp +
+            " " +
+            commonlocators.codeEditorWrapper,
+        )?.length > 0
+      ) {
+        $el
+          .get(
+            ".t--property-control-" +
+              endp +
+              " " +
+              commonlocators.codeEditorWrapper,
+          )
           .first()
           .click({ force: true })
           .wait(1000);

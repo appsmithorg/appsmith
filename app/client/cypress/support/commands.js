@@ -767,7 +767,7 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
     .click({ force: true })
     .selectOnClickOption("Show message")
     .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
-    .click()
+    .click({ force: true })
     .type(forSuccess)
     .get("button.t--open-dropdown-Select-type")
     .first()
