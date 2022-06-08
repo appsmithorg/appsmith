@@ -111,5 +111,4 @@ public class FieldName {
     public static final String THEME = "theme";
     public static final String EDIT_MODE_THEME = "editModeTheme";
     public static final String FLOW_NAME = "flowName";
-    public static final String NAME_SEPARATOR = "##ENTITY_SEPARATOR##";
 }

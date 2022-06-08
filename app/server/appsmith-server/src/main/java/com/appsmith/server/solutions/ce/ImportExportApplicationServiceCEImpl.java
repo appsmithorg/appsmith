@@ -91,7 +91,7 @@ import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
-import static com.appsmith.server.constants.FieldName.NAME_SEPARATOR;
+import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -396,7 +396,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 actionCollections.forEach(actionCollection -> {
                                     ActionCollectionDTO publishedActionCollectionDTO = actionCollection.getPublishedCollection();
                                     ActionCollectionDTO unpublishedActionCollectionDTO = actionCollection.getUnpublishedCollection();
-                                    String actionCollectionName = unpublishedActionCollectionDTO != null ? unpublishedActionCollectionDTO.getName() + NAME_SEPARATOR + unpublishedActionCollectionDTO.getPageId() : publishedActionCollectionDTO != null ? publishedActionCollectionDTO.getName() + NAME_SEPARATOR + publishedActionCollectionDTO.getPageId() : null;
+                                    ActionCollectionDTO actionCollectionDTO = unpublishedActionCollectionDTO != null ? unpublishedActionCollectionDTO : publishedActionCollectionDTO;
+                                    String actionCollectionName = actionCollectionDTO != null ? actionCollectionDTO.getName() + NAME_SEPARATOR + actionCollectionDTO.getPageId() : null;
                                     Instant actionCollectionUpdatedAt = actionCollection.getUpdatedAt();
                                     boolean isActionCollectionUpdated = applicationLastCommittedAt == null || actionCollectionUpdatedAt == null || applicationLastCommittedAt.isBefore(actionCollectionUpdatedAt);
                                     if(isActionCollectionUpdated && actionCollectionName != null){
@@ -478,7 +479,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         invisibleActionFieldsMap.put(newAction.getId(), invisibleActionFields);
                                     }
 
-                                    String newActionName = unpublishedActionDTO != null ? unpublishedActionDTO.getValidName() + NAME_SEPARATOR + unpublishedActionDTO.getPageId() : publishedActionDTO != null ? publishedActionDTO.getValidName() + NAME_SEPARATOR + publishedActionDTO.getPageId(): null;
+                                    ActionDTO actionDTO = unpublishedActionDTO != null ? unpublishedActionDTO : publishedActionDTO;
+                                    String newActionName = actionDTO != null ? actionDTO.getValidName() + NAME_SEPARATOR + actionDTO.getPageId() : null;
                                     Instant newActionUpdatedAt = newAction.getUpdatedAt();
                                     boolean isNewActionUpdated = applicationLastCommittedAt == null || newActionUpdatedAt == null || applicationLastCommittedAt.isBefore(newActionUpdatedAt);
                                     if(isNewActionUpdated && newActionName != null){
