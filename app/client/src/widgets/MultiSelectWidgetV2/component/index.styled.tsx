@@ -346,6 +346,14 @@ ${({ dropDownWidth, id }) => `
     outline: none !important;
   }
   ${CommonSelectFilterStyle}
+  .select-backdrop {
+    position: fixed;
+    width: 100vw;
+    height:100vh;
+    background:transparent ;
+    top: 0;
+    left: 0;
+  }
   .rc-select-item {
     font-size: 14px;
     padding: 5px 16px;

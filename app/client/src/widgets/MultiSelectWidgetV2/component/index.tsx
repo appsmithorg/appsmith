@@ -18,12 +18,11 @@ import MenuItemCheckBox, {
   StyledCheckbox,
   InputContainer,
 } from "./index.styled";
-import { TextSize } from "constants/WidgetConstants";
+import { RenderMode, RenderModes, TextSize } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import {
-  getClosestCanvas,
-  getParentCanvas,
+  getMainCanvas,
   labelMargin,
   WidgetContainerDiff,
 } from "widgets/WidgetUtils";
@@ -67,6 +66,7 @@ export interface MultiSelectProps
   accentColor?: string;
   onFocus?: (e: React.FocusEvent) => void;
   onBlur?: (e: React.FocusEvent) => void;
+  renderMode?: RenderMode;
 }
 
 const DEBOUNCE_TIMEOUT = 1000;
@@ -98,6 +98,7 @@ function MultiSelectComponent({
   onFocus,
   options,
   placeholder,
+  renderMode,
   serverSideFiltering,
   value,
   widgetId,
@@ -107,7 +108,8 @@ function MultiSelectComponent({
   const [filter, setFilter] = useState(filterText ?? "");
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
-  const parentDropDownContainer = useRef<HTMLElement | null>(null);
+  const popupContainer = useRef<HTMLElement | null>(null);
+  const selectRef = useRef<Select<LabelValueType[]> | null>(null);
 
   const _menu = useRef<HTMLElement | null>(null);
   const labelRef = useRef<HTMLDivElement>(null);
@@ -137,6 +139,12 @@ function MultiSelectComponent({
     return () => clearTimeout(timeOutId);
   }, [filter]);
 
+  // Get PopupContainer with is main Canvas
+  useEffect(() => {
+    const parent = getMainCanvas();
+    popupContainer.current = parent;
+  }, []);
+
   // Filter options based on serverSideFiltering
   useEffect(
     () => {
@@ -157,6 +165,11 @@ function MultiSelectComponent({
     },
     serverSideFiltering ? [options] : [filter, options],
   );
+  const closeBackDrop = useCallback(() => {
+    if (selectRef.current) {
+      selectRef.current.blur();
+    }
+  }, []);
 
   const clearButton = useMemo(
     () =>
@@ -165,13 +178,10 @@ function MultiSelectComponent({
       ) : null,
     [filter],
   );
-  const getPopupContainer = useCallback(() => getParentCanvas(), []);
-
-  useEffect(() => {
-    const node = _menu.current;
-    const parent = getClosestCanvas(node);
-    parentDropDownContainer.current = parent;
-  }, []);
+  const getPopupContainer = useCallback(
+    () => popupContainer.current as HTMLElement,
+    [],
+  );
 
   const handleSelectAll = () => {
     if (!isSelectAll) {
@@ -199,12 +209,12 @@ function MultiSelectComponent({
   const onOpen = useCallback((open: boolean) => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
-      if (parentDropDownContainer.current) {
-        parentDropDownContainer.current.style.overflowY = "hidden";
+      if (popupContainer.current && renderMode === RenderModes.CANVAS) {
+        popupContainer.current.style.overflowY = "hidden";
       }
     } else {
-      if (parentDropDownContainer.current) {
-        parentDropDownContainer.current.style.overflowY = "auto";
+      if (popupContainer.current && renderMode === RenderModes.CANVAS) {
+        popupContainer.current.style.overflowY = "auto";
       }
     }
   }, []);
@@ -241,6 +251,7 @@ function MultiSelectComponent({
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
       <>
+        <div className="select-backdrop" onClick={closeBackDrop} />
         {isFilterable ? (
           <InputGroup
             inputRef={inputRef}
@@ -318,9 +329,9 @@ function MultiSelectComponent({
         <Select
           animation="slide-up"
           choiceTransitionName="rc-select-selection__choice-zoom"
+          className="rc-select"
           // TODO: Make Autofocus a variable in the property pane
           // autoFocus
-          className="rc-select"
           defaultActiveFirstOption={false}
           disabled={disabled}
           dropdownClassName={`multi-select-dropdown multiselect-popover-width-${widgetId}`}
@@ -348,6 +359,7 @@ function MultiSelectComponent({
           onFocus={onFocus}
           options={filteredOptions}
           placeholder={placeholder || "select option(s)"}
+          ref={selectRef}
           removeIcon={
             <Icon
               className="remove-icon"

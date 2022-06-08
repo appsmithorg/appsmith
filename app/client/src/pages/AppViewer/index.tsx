@@ -220,6 +220,7 @@ function AppViewer(props: Props) {
               backgroundColor={selectedTheme.properties.colors.backgroundColor}
             >
               <AppViewerBody
+                className="canvas"
                 hasPages={pages.length > 1}
                 headerHeight={headerHeight}
                 showGuidedTourMessage={showGuidedTourMessage}

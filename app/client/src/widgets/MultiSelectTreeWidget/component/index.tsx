@@ -22,7 +22,7 @@ import { TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import {
   getClosestCanvas,
-  getParentCanvas,
+  getMainCanvas,
   labelMargin,
   WidgetContainerDiff,
 } from "widgets/WidgetUtils";
@@ -155,7 +155,7 @@ function MultiTreeSelectComponent({
     [filter],
   );
 
-  const getPopupContainer = useCallback(() => getParentCanvas(), []);
+  const getPopupContainer = useCallback(() => getMainCanvas(), []);
 
   useEffect(() => {
     const node = _menu.current;

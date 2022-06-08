@@ -4,7 +4,6 @@
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import {
-  CANVAS_CLASSNAME,
   CANVAS_SELECTOR,
   CONTAINER_GRID_PADDING,
   GridDefaults,
@@ -545,5 +544,5 @@ export const parseSchemaItem = (
 export const getClosestCanvas = (node: HTMLElement | null) => {
   return node?.closest(CANVAS_SELECTOR) as HTMLElement;
 };
-export const getParentCanvas = () =>
-  document.querySelector(CANVAS_CLASSNAME) as HTMLElement;
+export const getMainCanvas = () =>
+  document.querySelector(CANVAS_SELECTOR) as HTMLElement;
