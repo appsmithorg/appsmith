@@ -1127,7 +1127,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 if(StringUtils.isEmptyOrNull(gitAuthDTO.getPublicKey())) {
                                     return Mono.error(new AppsmithException(
                                             AppsmithError.INVALID_GIT_CONFIGURATION,
-                                            "Can't find valid SSH key. Please configure the application with git"
+                                            GIT_CONFIG_ERROR
                                     ));
                                 }
                                 GitAuth gitAuth = new GitAuth();
