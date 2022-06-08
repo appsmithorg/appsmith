@@ -284,7 +284,8 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(126, 34, 206)");
 
     // Changing text color to PURPLE and validate using JS
-    cy.get(widgetsPage.toggleJsColor).click();
+    cy.get(widgetsPage.toggleJsColor).click({ force: true });
+    cy.wait(500);
     cy.testCodeMirrorLast("purple");
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");

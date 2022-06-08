@@ -345,7 +345,7 @@ Cypress.Commands.add("testCodeMirrorLast", (value) => {
   cy.get(".CodeMirror textarea")
     .last()
     .focus()
-    .type("{ctrl}{shift}{downarrow}")
+    .type("{ctrl}{shift}{downarrow}", { force: true })
     .then(($cm) => {
       if ($cm.val() !== "") {
         cy.get(".CodeMirror textarea")
@@ -357,7 +357,7 @@ Cypress.Commands.add("testCodeMirrorLast", (value) => {
 
       cy.get(".CodeMirror textarea")
         .last()
-        .type("{ctrl}{shift}{downarrow}")
+        .type("{ctrl}{shift}{downarrow}", { force: true })
         .clear({ force: true })
         .type(value, {
           force: true,
