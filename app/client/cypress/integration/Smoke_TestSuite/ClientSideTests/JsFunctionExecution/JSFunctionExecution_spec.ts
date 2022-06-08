@@ -8,7 +8,6 @@ const jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode;
 
-
 describe("JS Function Execution", function() {
   before(() => {
     ee.DragDropWidgetNVerify("tablewidget", 300, 300);
@@ -169,10 +168,72 @@ describe("JS Function Execution", function() {
       expect($cellData).to.eq("1"); //validating id column value - row 0
       agHelper.NavigateBacktoEditor();
     });
-
-  it("4. Maintains order of async functions in settings tab alphabetically at all times", function() {
   });
-  it("6. Maintains order of async functions in settings tab alphabetically at all times", function() {
+  it("6. Doesn't cause cyclic dependency when function name is edited", () => {
+    const syncJSCode = `export default {
+      myFun1 :()=>{
+        return "yes"
+      }
+    }`;
+
+    const syncJSCodeWithRenamedFunction1 = `export default {
+      myFun2 :()=>{
+        return "yes"
+      }
+    }`;
+
+    const syncJSCodeWithRenamedFunction2 = `export default {
+      myFun3 :()=>{
+        return "yes"
+      }
+    }`;
+
+    const asyncJSCode = `export default {
+      myFun1 :async ()=>{
+        return "yes"
+      }
+    }`;
+
+    const asyncJSCodeWithRenamedFunction1 = `export default {
+      myFun2 :async ()=>{
+        return "yes"
+      }
+    }`;
+
+    const asyncJSCodeWithRenamedFunction2 = `export default {
+      myFun3 :async ()=>{
+        return "yes"
+      }
+    }`;
+
+    jsEditor.CreateJSObject(syncJSCode, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+    agHelper.WaitUntilToastDisappear("created successfully");
+
+    // change sync function name and test that cyclic dependency is not created
+    jsEditor.EditJSObj(syncJSCodeWithRenamedFunction1);
+    agHelper.AssertElementAbsence(locator._toastMsg);
+    jsEditor.EditJSObj(syncJSCodeWithRenamedFunction2);
+    agHelper.AssertElementAbsence(locator._toastMsg);
+
+    jsEditor.CreateJSObject(asyncJSCode, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+    agHelper.WaitUntilToastDisappear("created successfully");
+    // change async function name and test that cyclic dependency is not created
+    jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction1);
+    agHelper.AssertElementAbsence(locator._toastMsg);
+    jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2);
+    agHelper.AssertElementAbsence(locator._toastMsg);
+  });
+  it("7. Maintains order of async functions in settings tab alphabetically at all times", function() {
     const FUNCTIONS_SETTINGS_DEFAULT_DATA = [
       {
         name: "getId",
@@ -246,86 +307,6 @@ describe("JS Function Execution", function() {
     });
     // Switch to settings tab
     agHelper.GetNClick(jsEditor._settingsTab);
-    // Assert alphabetical order of async functions
-    assertAsyncFunctionsOrder();
-    // run a function
-    cy.get(jsEditor._runButton)
-      .first()
-      .click()
-      .wait(2000);
-    // Assert that order remains the same
-    assertAsyncFunctionsOrder();
-  });
-
-  it("6. Doesn't cause cyclic dependency when function name is edited", () => {
-    const syncJSCode = `export default {
-      myFun1 :()=>{
-        return "yes"
-      }
-    }`;
-
-    const syncJSCodeWithRenamedFunction1 = `export default {
-      myFun2 :()=>{
-        return "yes"
-      }
-    }`;
-
-    const syncJSCodeWithRenamedFunction2 = `export default {
-      myFun3 :()=>{
-        return "yes"
-      }
-    }`;
-
-    const asyncJSCode = `export default {
-      myFun1 :async ()=>{
-        return "yes"
-      }
-    }`;
-
-    const asyncJSCodeWithRenamedFunction1 = `export default {
-      myFun2 :async ()=>{
-        return "yes"
-      }
-    }`;
-
-    const asyncJSCodeWithRenamedFunction2 = `export default {
-      myFun3 :async ()=>{
-        return "yes"
-      }
-    }`;
-
-    jsEditor.CreateJSObject(syncJSCode, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      shouldCreateNewJSObj: true,
-    });
-    agHelper.WaitUntilToastDisappear("created successfully");
-
-    // change sync function name and test that cyclic dependency is not created
-    jsEditor.EditJSObj(syncJSCodeWithRenamedFunction1);
-    agHelper.AssertElementAbsence(locator._toastMsg);
-    jsEditor.EditJSObj(syncJSCodeWithRenamedFunction2);
-    agHelper.AssertElementAbsence(locator._toastMsg);
-
-    jsEditor.CreateJSObject(asyncJSCode, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      shouldCreateNewJSObj: true,
-    });
-    agHelper.WaitUntilToastDisappear("created successfully");
-    // change async function name and test that cyclic dependency is not created
-    jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction1);
-    agHelper.AssertElementAbsence(locator._toastMsg);
-    jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2);
-    agHelper.AssertElementAbsence(locator._toastMsg);
-
-    jsEditor.EnableDisableAsyncFuncSettings("getId", true, false);
-    jsEditor.EnableDisableAsyncFuncSettings("zip", true, false);
-    jsEditor.EnableDisableAsyncFuncSettings("base", true, false);
-
-    cy.reload();
     // Add settings for each function (according to data)
     Object.values(FUNCTIONS_SETTINGS_DEFAULT_DATA).forEach(
       (functionSetting) => {
@@ -338,11 +319,12 @@ describe("JS Function Execution", function() {
     );
     agHelper.RefreshPage();
 
-    // click "Yes" button for all onPageload && ConfirmExecute functions
+    // click "Yes" button in confirmation dialog for all functions set to run onPageload && ConfirmBeforeExecute
     for (let i = 0; i < onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
-      //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
+      agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
       agHelper.ClickButton("Yes");
     }
+
     // Switch to settings tab
     agHelper.GetNClick(jsEditor._settingsTab);
     // Assert that order remains the same
