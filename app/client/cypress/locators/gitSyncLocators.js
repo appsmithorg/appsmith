@@ -52,8 +52,9 @@ export default {
   gitConnectionContainer: "[data-test=t--git-connection-container]",
   gitRemoteURLContainer: "[data-test=t--remote-url-container]",
   discardChanges: ".t--discard-button",
-  regenerateSSHKey: "[data-cy='t--regenerate-sshkey']",
-  confirmButton: "//span[text()='Yes']",
   gitBranchContextMenu: ".git-branch-more-menu",
   gitBranchDelete: ".t--branch-more-menu-delete",
+  SSHKeycontextmenu: ".bp3-popover-wrapper.more",
+  regenerateSSHKey: "[data-cy='t--regenerate-sshkey']",
+  confirmButton: "//span[text()='Yes']",
 };
