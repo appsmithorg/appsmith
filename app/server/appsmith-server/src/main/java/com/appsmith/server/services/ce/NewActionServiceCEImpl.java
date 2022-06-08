@@ -301,7 +301,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             invalids.add(AppsmithError.NO_CONFIGURATION_FOUND_IN_ACTION.getMessage());
         }
 
-        if (action.getPluginType() == PluginType.JS && Boolean.FALSE.equals(action.getActionConfiguration().getIsValid())) {
+        if (action.getPluginType() == PluginType.JS && action.getActionConfiguration() != null && Boolean.FALSE.equals(action.getActionConfiguration().getIsValid())) {
             action.setIsValid(false);
             invalids.add(AppsmithError.INVALID_JS_ACTION.getMessage());
         }
