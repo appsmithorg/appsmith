@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class ApplicationFetcherTest {
+class ApplicationFetcherTest {
 
     @Autowired
     private ApplicationPageService applicationPageService;

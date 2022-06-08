@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-public class WorkspaceRepositoryTest {
+class WorkspaceRepositoryTest {
 
     @Autowired
     private WorkspaceRepository organizationRepository;

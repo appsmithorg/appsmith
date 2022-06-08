@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
-public class CustomUserDataRepositoryImplTest {
+class CustomUserDataRepositoryImplTest {
 
     @Autowired
     private UserDataRepository userDataRepository;
