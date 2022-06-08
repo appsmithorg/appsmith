@@ -27,7 +27,7 @@ public class ApplicationTemplateControllerCE {
 
     @GetMapping
     public Mono<ResponseDTO<List<ApplicationTemplate>>> getAll() {
-        return applicationTemplateService.getActiveTemplates(null).collectList()
+        return applicationTemplateService.getActiveTemplates(null)
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 
@@ -58,7 +58,7 @@ public class ApplicationTemplateControllerCE {
 
     @GetMapping("recent")
     public Mono<ResponseDTO<List<ApplicationTemplate>>> getRecentlyUsedTemplates() {
-        return applicationTemplateService.getRecentlyUsedTemplates().collectList()
+        return applicationTemplateService.getRecentlyUsedTemplates()
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 
