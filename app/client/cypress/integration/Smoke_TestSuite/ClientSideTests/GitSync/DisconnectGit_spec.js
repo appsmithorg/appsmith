@@ -55,9 +55,11 @@ describe("Git disconnect modal:", function() {
     // disconnect button should be disabled
     cy.get(gitSyncLocators.disconnectButton).should("be.disabled");
     cy.get(gitSyncLocators.closeDisconnectModal).click();
+    cy.wait(2000);
   });
 
   it("should have disconnect repo button", function() {
+    cy.wait(2000);
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
     cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
 
