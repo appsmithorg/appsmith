@@ -2,7 +2,9 @@ package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.OAuth2;
+import com.external.constants.FieldName;
 import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -26,12 +28,15 @@ import java.util.Map;
 /**
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
  */
-public class RowsUpdateMethod implements ExecutionMethod {
+public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
 
     ObjectMapper objectMapper;
 
     public RowsUpdateMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+    }
+
+    public RowsUpdateMethod() {
     }
 
     @Override
@@ -214,4 +219,10 @@ public class RowsUpdateMethod implements ExecutionMethod {
                 .initialize();
     }
 
+    @Override
+    public void replaceMethodConfigTemplate(Map<String, Object> formData, Map<String, String> mappedColumns) {
+        String rowObjects = PluginUtils.getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.ROW_OBJECTS);
+        rowObjects = PluginUtils.replaceMappedColumnInStringValue(mappedColumns, rowObjects);
+        PluginUtils.setDataValueSafelyInFormData(formData, FieldName.ROW_OBJECTS, rowObjects);
+    }
 }

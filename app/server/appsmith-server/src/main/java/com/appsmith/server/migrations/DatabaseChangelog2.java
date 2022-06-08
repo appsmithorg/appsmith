@@ -1116,9 +1116,12 @@ public class DatabaseChangelog2 {
                 if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(7)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(7).getValue())) {
                     // Sheet name will now have a dropdown component that is selected from a pre-populated list.
                     // Bindings would need to be placed in the JS mode
-                    boolean hasBinding = action.getDynamicBindingPathList().stream().anyMatch(dynamicBindingPath -> {
-                        return dynamicBindingPath.getKey().contains("pluginSpecifiedTemplates[7]");
-                    });
+                    boolean hasBinding = false;
+                    if (action.getDynamicBindingPathList() != null) {
+                        hasBinding = action.getDynamicBindingPathList().stream().anyMatch(dynamicBindingPath -> {
+                            return dynamicBindingPath.getKey().contains("pluginSpecifiedTemplates[7]");
+                        });
+                    }
                     convertToFormDataObject(f, "sheetName", pluginSpecifiedTemplates.get(7).getValue(), hasBinding);
                 }
             case 7:
@@ -1155,9 +1158,12 @@ public class DatabaseChangelog2 {
                 if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(1)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(1).getValue())) {
                     // Sheet URL will now have a dropdown component that is selected from a pre-populated list.
                     // Bindings would need to be placed in the JS mode
-                    boolean hasBinding = action.getDynamicBindingPathList().stream().anyMatch(dynamicBindingPath -> {
-                        return dynamicBindingPath.getKey().contains("pluginSpecifiedTemplates[1]");
-                    });
+                    boolean hasBinding = false;
+                    if (action.getDynamicBindingPathList() != null) {
+                        hasBinding = action.getDynamicBindingPathList().stream().anyMatch(dynamicBindingPath -> {
+                            return dynamicBindingPath.getKey().contains("pluginSpecifiedTemplates[1]");
+                        });
+                    }
                     final String spreadsheetUrl = (String) pluginSpecifiedTemplates.get(1).getValue();
                     final Matcher matcher = sheetRangePattern.matcher(spreadsheetUrl);
 

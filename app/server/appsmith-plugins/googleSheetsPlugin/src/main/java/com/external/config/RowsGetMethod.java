@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
  */
 @Slf4j
-public class RowsGetMethod implements ExecutionMethod {
+public class RowsGetMethod implements ExecutionMethod, TemplateMethod {
 
     ObjectMapper objectMapper;
     FilterDataService filterDataService;
@@ -35,6 +35,9 @@ public class RowsGetMethod implements ExecutionMethod {
     public RowsGetMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         this.filterDataService = FilterDataService.getInstance();
+    }
+
+    public RowsGetMethod() {
     }
 
     // Used to capture the range of columns in this request. The handling for this regex makes sure that
