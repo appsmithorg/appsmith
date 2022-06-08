@@ -269,6 +269,9 @@ describe("JS Function Execution", function() {
       (func) => func.onPageLoad && func.confirmBeforeExecute,
     ).length;
 
+    const SORTED_FUNCTIONS_SETTINGS_DEFAULT_DATA = FUNCTIONS_SETTINGS_DEFAULT_DATA.sort(
+      (a, b) => a.name.localeCompare(b.name),
+    );
     const getJSObject = () => {
       let JS_OBJECT_BODY = `export default`;
       for (let i = 0; i < functionsLength; i++) {
@@ -292,7 +295,7 @@ describe("JS Function Execution", function() {
         const asyncFunctionLength = $lis.length;
         // Assert that there are four async functions
         expect(asyncFunctionLength).to.equal(functionsLength);
-        Object.values(FUNCTIONS_SETTINGS_DEFAULT_DATA).forEach(
+        Object.values(SORTED_FUNCTIONS_SETTINGS_DEFAULT_DATA).forEach(
           (functionSetting, idx) => {
             // Assert alphabetical order
             expect($lis.eq(idx)).to.have.id(
