@@ -134,6 +134,12 @@ export const fetchJSCollectionsForPageSuccess = (actions: JSCollection[]) => {
   };
 };
 
+export const fetchJSCollectionsForPageError = () => {
+  return {
+    type: ReduxActionErrorTypes.FETCH_JS_ACTIONS_FOR_PAGE_ERROR,
+  };
+};
+
 export const fetchJSCollectionsForView = ({
   applicationId,
 }: {
