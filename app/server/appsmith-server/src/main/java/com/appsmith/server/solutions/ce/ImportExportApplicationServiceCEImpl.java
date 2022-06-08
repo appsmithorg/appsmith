@@ -842,27 +842,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                             });
                                                 });
                                     }
-                                    Mono<Application> applicationMono = applicationPageService.setApplicationPolicies(currUserMono, workspaceId, importedApplication);
-                                    return applicationService
-                                            .findByOrganizationId(workspaceId, MANAGE_APPLICATIONS)
-                                            .collectList()
-                                            .zipWith(applicationMono)
-                                            .flatMap(objects -> {
-                                                Application application1 = objects.getT2();
-                                                List<Application> applicationList = objects.getT1();
-                                                Application duplicateNameApp = applicationList
-                                                        .stream()
-                                                        .filter(application2 -> StringUtils.equals(application2.getName(), application1.getName()))
-                                                        .findAny()
-                                                        .orElse(null);
-
-                                                return getUniqueSuffixForDuplicateNameEntity(duplicateNameApp, workspaceId)
-                                                        .map(suffix -> {
-                                                            importedApplication.setName(importedApplication.getName() + suffix);
-                                                            return importedApplication;
-                                                        });
-                                            })
-                                            .then(applicationService.save(importedApplication));
+                                    return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
                                 })
                 )
                 .flatMap(savedApp -> importThemes(savedApp, importedDoc))
