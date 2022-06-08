@@ -21,7 +21,6 @@ import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import { RenderMode, RenderModes, TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import {
-  getClosestCanvas,
   getMainCanvas,
   labelMargin,
   WidgetContainerDiff,
@@ -139,7 +138,6 @@ function MultiTreeSelectComponent({
   const [filter, setFilter] = useState(filterText ?? "");
 
   const _menu = useRef<HTMLElement | null>(null);
-  const parentDropDownContainer = useRef<HTMLElement | null>(null);
   const selectRef = useRef<Select<LabelValueType[]> | null>(null);
 
   const labelRef = useRef<HTMLDivElement>(null);
@@ -177,11 +175,7 @@ function MultiTreeSelectComponent({
     () => popupContainer.current as HTMLElement,
     [],
   );
-  useEffect(() => {
-    const node = _menu.current;
-    const parent = getClosestCanvas(node);
-    parentDropDownContainer.current = parent;
-  }, []);
+
   const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     setFilter(event.target.value);

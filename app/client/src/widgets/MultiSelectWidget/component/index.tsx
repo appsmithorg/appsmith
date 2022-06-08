@@ -7,11 +7,15 @@ import {
   MultiSelectContainer,
   StyledCheckbox,
 } from "./index.styled";
-import { TextSize } from "constants/WidgetConstants";
+import {
+  CANVAS_SELECTOR,
+  MODAL_PORTAL_CLASSNAME,
+  TextSize,
+} from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
 import Icon from "components/ads/Icon";
 import { Alignment, Classes } from "@blueprintjs/core";
-import { getClosestCanvas, WidgetContainerDiff } from "widgets/WidgetUtils";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
@@ -98,9 +102,14 @@ function MultiSelectComponent({
     }
   }, [options, value]);
 
-  const getPopupContainer = useCallback(() => {
+  const getDropdownPosition = useCallback(() => {
     const node = _menu.current;
-    return getClosestCanvas(node);
+    if (Boolean(node?.closest(`.${MODAL_PORTAL_CLASSNAME}`))) {
+      return document.querySelector(
+        `.${MODAL_PORTAL_CLASSNAME}`,
+      ) as HTMLElement;
+    }
+    return document.querySelector(`.${CANVAS_SELECTOR}`) as HTMLElement;
   }, []);
 
   const handleSelectAll = () => {
@@ -195,7 +204,7 @@ function MultiSelectComponent({
         dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
         filterOption={serverSideFiltering ? false : filterOption}
-        getPopupContainer={getPopupContainer}
+        getPopupContainer={getDropdownPosition}
         inputIcon={
           <Icon
             className="dropdown-icon"

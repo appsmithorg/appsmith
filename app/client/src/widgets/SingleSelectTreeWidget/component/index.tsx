@@ -20,7 +20,6 @@ import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
 import { RenderMode, RenderModes, TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import {
-  getClosestCanvas,
   getMainCanvas,
   labelMargin,
   WidgetContainerDiff,
@@ -141,7 +140,6 @@ function SingleSelectTreeComponent({
   const _menu = useRef<HTMLElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
-  const parentDropDownContainer = useRef<HTMLElement | null>(null);
 
   // treeDefaultExpandAll is uncontrolled after first render,
   // using this to force render to respond to changes in expandAll
@@ -164,11 +162,7 @@ function SingleSelectTreeComponent({
     () => popupContainer.current as HTMLElement,
     [],
   );
-  useEffect(() => {
-    const node = _menu.current;
-    const parent = getClosestCanvas(node);
-    parentDropDownContainer.current = parent;
-  }, []);
+
   const onSelectionChange = useCallback(
     (value?: DefaultValueType, labelList?: ReactNode[]) => {
       setFilter("");

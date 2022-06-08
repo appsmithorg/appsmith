@@ -41,6 +41,7 @@ import {
 } from "actions/controlActions";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
+import { CANVAS_SELECTOR } from "constants/WidgetConstants";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -220,7 +221,7 @@ function AppViewer(props: Props) {
               backgroundColor={selectedTheme.properties.colors.backgroundColor}
             >
               <AppViewerBody
-                className="canvas"
+                className={CANVAS_SELECTOR}
                 hasPages={pages.length > 1}
                 headerHeight={headerHeight}
                 showGuidedTourMessage={showGuidedTourMessage}
