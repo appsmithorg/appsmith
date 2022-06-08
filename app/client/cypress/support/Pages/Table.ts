@@ -37,7 +37,7 @@ export class Table {
     this._tableWrap +
     "//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='" +
     columnName +
-    "']/ancestor::div[contains(@class, 'TableStyledWrappers__DraggableHeaderWrapper')]";
+    "']/parent::div/parent::div/parent::div";
   private _nextPage = ".t--widget-tablewidget .t--table-widget-next-page";
   private _previousPage = ".t--widget-tablewidget .t--table-widget-prev-page";
   private _pageNumber = ".t--widget-tablewidget .page-item";
@@ -127,8 +127,7 @@ export class Table {
 
   public AssertHiddenColumns(columnNames: string[]) {
     columnNames.forEach(($header) => {
-      cy.xpath(this._columnHeader($header), {timeout: 5000})
-        //.scrollIntoView()
+      cy.xpath(this._columnHeader($header))
         .invoke("attr", "class")
         .then((classes) => {
           expect(classes).includes("hidden-header");

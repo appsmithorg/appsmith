@@ -38,13 +38,7 @@ describe("AForce - Community Issues page validations", function() {
       }
       //Validate table is not empty!
       table.WaitUntilTableLoad();
-
-      //agHelper.Sleep();
-      //cy.wait(10000);
     });
-
-    agHelper.RefreshPage()
-    table.WaitUntilTableLoad();
 
     //Validating order of header columns!
     table.AssertTableHeaderOrder(

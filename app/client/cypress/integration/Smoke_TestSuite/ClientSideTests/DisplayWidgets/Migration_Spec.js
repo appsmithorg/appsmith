@@ -38,9 +38,7 @@ describe("Migration Validate", function() {
       cy.AppSetupForRename();
       cy.get(homePage.applicationName).type(`app${name}`);
       cy.wrap(`app${name}`).as("appname");
-
-      cy.reload();
-      cy.wait(10000);
+      cy.wait(2000);
 
       // Validating data binding for the imported application - Page1
 
@@ -48,7 +46,6 @@ describe("Migration Validate", function() {
       cy.xpath(
         "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]",
       )
-        .scrollIntoView()
         .invoke("text")
         .then((x) => {
           expect(x).to.eq(
@@ -59,10 +56,8 @@ describe("Migration Validate", function() {
 
       //Validating Latitude & Longitude are hidden columns:
       cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='latitude']/ancestor::div[contains(@class, 'TableStyledWrappers__DraggableHeaderWrapper')]",
-        { timeout: 5000 },
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='latitude']/parent::div/parent::div/parent::div",
       )
-        .scrollIntoView()
         .invoke("attr", "class")
         .then((classes) => {
           cy.log("classes are:" + classes);
@@ -70,10 +65,8 @@ describe("Migration Validate", function() {
         });
 
       cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='longitude']/ancestor::div[contains(@class, 'TableStyledWrappers__DraggableHeaderWrapper')]",
-        { timeout: 5000 },
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='longitude']/parent::div/parent::div/parent::div",
       )
-        .scrollIntoView()
         .invoke("attr", "class")
         .then((classes) => {
           cy.log("classes are:" + classes);
