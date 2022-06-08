@@ -91,7 +91,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getId", false, true);
     deployMode.DeployApp();
-    agHelper.ValidateToastMessage('The action "GetUser" has failed');
+    agHelper.WaitUntilToastDisappear('The action "GetUser" has failed');
     agHelper.NavigateBacktoEditor();
   });
 

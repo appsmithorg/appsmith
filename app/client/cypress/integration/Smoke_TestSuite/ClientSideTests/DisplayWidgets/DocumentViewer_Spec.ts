@@ -24,7 +24,7 @@ describe("DocumentViewer Widget Functionality", () => {
 
   it("3. Change visibility & Publish app & verify again", () => {
     ee.SelectEntityByName("DocumentViewer1", 'WIDGETS');
-    propPane.ToggleOnOrOff("Vßisible", 'On');
+    propPane.ToggleOnOrOff("Visible", 'On');
     deployMode.DeployApp();
     cy.get(locator._widgetInDeployed("documentviewerwidget")).should("exist");
   });
