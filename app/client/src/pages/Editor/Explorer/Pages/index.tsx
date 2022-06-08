@@ -38,6 +38,8 @@ import useResize, {
   DIRECTION,
   CallbackResponseType,
 } from "utils/hooks/useResize";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useLocation } from "react-router";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -80,6 +82,7 @@ function Pages() {
   const pageResizeRef = useRef<HTMLDivElement>(null);
   const storedHeightKey = "pagesContainerHeight_" + applicationId;
   const storedHeight = localStorage.getItem(storedHeightKey);
+  const location = useLocation();
 
   const resizeAfterCallback = (data: CallbackResponseType) => {
     localStorage.setItem(storedHeightKey, data.height.toString());
@@ -101,14 +104,26 @@ function Pages() {
     }
   }, [pageResizeRef]);
 
-  const switchPage = useCallback((page: Page) => {
-    history.push(
-      builderURL({
-        pageSlug: page.slug as string,
-        pageId: page.pageId,
-      }),
-    );
-  }, []);
+  const switchPage = useCallback(
+    (page: Page) => {
+      AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
+        name: page.pageName,
+        fromUrl: location.pathname,
+        type: "PAGES",
+        toUrl: builderURL({
+          pageSlug: page.slug as string,
+          pageId: page.pageId,
+        }),
+      });
+      history.push(
+        builderURL({
+          pageSlug: page.slug as string,
+          pageId: page.pageId,
+        }),
+      );
+    },
+    [location.pathname],
+  );
 
   const createPageCallback = useCallback(() => {
     const name = getNextEntityName(
