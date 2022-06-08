@@ -27,6 +27,14 @@ const FlexWrapper = styled.div`
   }
 `;
 
+const LabelWrapper = styled.div`
+  display: flex;
+`;
+
+const RequiredFieldWrapper = styled.span`
+  color: var(--appsmith-color-red-500);
+`;
+
 interface FormConfigProps extends FormControlProps {
   children: JSX.Element;
   configErrors: EvaluationError[];
@@ -130,14 +138,21 @@ function renderFormConfigTop(props: {
                   minWidth: !!props.changesViewType && "unset",
                 }}
               >
-                <Tooltip
-                  content={tooltipText as string}
-                  disabled={!tooltipText}
-                  hoverOpenDelay={200}
-                  underline
-                >
-                  <p className="label-icon-wrapper">
-                    {label} {isRequired && "*"}
+                <LabelWrapper>
+                  <Tooltip
+                    content={tooltipText as string}
+                    disabled={!tooltipText}
+                    hoverOpenDelay={200}
+                    underline
+                  >
+                    <p className="label-icon-wrapper">{label}</p>
+                  </Tooltip>
+                  <span>
+                    {isRequired && (
+                      <RequiredFieldWrapper>
+                        {isRequired && "*"}
+                      </RequiredFieldWrapper>
+                    )}
                     {encrypted && (
                       <FormEncrytedSection>
                         <FormIcons.LOCK_ICON
@@ -150,8 +165,8 @@ function renderFormConfigTop(props: {
                         </FormSubtitleText>
                       </FormEncrytedSection>
                     )}
-                  </p>
-                </Tooltip>
+                  </span>
+                </LabelWrapper>
               </FormLabel>
               {props.changesViewType && (
                 <ToggleComponentToJsonHandler

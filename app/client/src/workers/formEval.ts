@@ -10,9 +10,10 @@ import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { ActionConfig } from "entities/Action";
 import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
 import { FormConfigType } from "components/formControls/BaseControl";
-import { isEmpty, merge } from "lodash";
+import { isArray, isEmpty, isString, merge, uniq } from "lodash";
 import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { isTrueObject } from "./evaluationUtils";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
@@ -30,6 +31,10 @@ export enum FormDataPaths {
 
 // Object to hold the initial eval object
 let finalEvalObj: FormEvalOutput;
+
+// This variable, holds an array of strings that represent the path for the evalConfigs.
+// This path os used to configure the evalFormConfig objects for various form configs
+let evalConfigPaths: string[] = [];
 
 // This regex matches the config property string up to countless places.
 const MATCH_ACTION_CONFIG_PROPERTY = /\b(actionConfiguration\.\w+.(?:(\w+.)){1,})\b/g;
@@ -92,21 +97,21 @@ const generateInitialEvalState = (formConfig: FormConfigType) => {
       dependencyPaths = [...dependencyPaths, ...enableOrDisableDependencies];
     }
 
-    if (allConditionTypes.includes(ConditionType.EVALUATE_FORM_CONFIG)) {
-      // Setting the component as invisible since it has elements that will be evaluated later
-      conditionTypes.visible = false;
-      const evaluateFormConfig: EvaluatedFormConfig = {
-        updateEvaluatedConfig: false,
-        paths: formConfig.conditionals.evaluateFormConfig.paths,
-        evaluateFormConfigObject: extractEvalConfigFromFormConfig(
-          formConfig,
-          formConfig.conditionals.evaluateFormConfig.paths,
-        ),
-      };
-      conditionTypes.evaluateFormConfig = evaluateFormConfig;
-      conditionals.evaluateFormConfig =
-        formConfig.conditionals.evaluateFormConfig.condition;
-    }
+    // if (allConditionTypes.includes(ConditionType.EVALUATE_FORM_CONFIG)) {
+    //   // Setting the component as invisible since it has elements that will be evaluated later
+    //   conditionTypes.visible = false;
+    //   const evaluateFormConfig: EvaluatedFormConfig = {
+    //     updateEvaluatedConfig: false,
+    //     paths: formConfig.conditionals.evaluateFormConfig.paths,
+    //     evaluateFormConfigObject: extractEvalConfigFromFormConfig(
+    //       formConfig,
+    //       formConfig.conditionals.evaluateFormConfig.paths,
+    //     ),
+    //   };
+    //   conditionTypes.evaluateFormConfig = evaluateFormConfig;
+    //   conditionals.evaluateFormConfig =
+    //     formConfig.conditionals.evaluateFormConfig.condition;
+    // }
 
     if (allConditionTypes.includes(ConditionType.FETCH_DYNAMIC_VALUES)) {
       const fetchDynamicValuesDependencies = matchExact(
@@ -134,6 +139,31 @@ const generateInitialEvalState = (formConfig: FormConfigType) => {
       conditionTypes.fetchDynamicValues = dynamicValues;
       conditionals.fetchDynamicValues =
         formConfig.conditionals.fetchDynamicValues.condition;
+    }
+
+    // make the evalConfigPaths empty before calling the generateFormEvalFormConfigPaths
+    // this is helpful since we are iterating through the form configs and we do not want to store the value of a
+    // prev form config into another one.
+    evalConfigPaths = [];
+
+    // recursively generate the paths for form cofigs that need evalFormConfig.
+    // and we store them in the evalFormFonfig
+    generateEvalFormConfigPaths(formConfig);
+
+    // we generate a unique array of paths, if the paths are greater than 0,
+    // we generate and add the evaluateFormConfig object to the current formConfig.
+    if (uniq(evalConfigPaths).length > 0) {
+      conditionTypes.visible = false;
+      const evaluateFormConfig: EvaluatedFormConfig = {
+        updateEvaluatedConfig: false,
+        paths: uniq(evalConfigPaths),
+        evaluateFormConfigObject: extractEvalConfigFromFormConfig(
+          formConfig,
+          uniq(evalConfigPaths),
+        ),
+      };
+      conditionTypes.evaluateFormConfig = evaluateFormConfig;
+      conditionals.evaluateFormConfig = "{{true}}";
     }
   }
 
@@ -169,6 +199,56 @@ const generateInitialEvalState = (formConfig: FormConfigType) => {
       generateInitialEvalState({ ...config }),
     );
 };
+
+// The idea here is to recursively go through each of the key value pairs of the current form config
+// then we check if the form config or its children/options/schemas have dynamic values
+// if the children/options/schemas have dynamic values within them, we add the key name of the parent to the evalFormConfigPaths
+// this might sound strange but we add the evaluateFormConfig property to the parent.
+// this is why we pass the parent key into the function and use it to update the evalFormConfig.
+function generateEvalFormConfigPaths(
+  formConfig: FormConfigType,
+  parentKey = "",
+) {
+  // this stores all the paths for the current form config,
+  // we then use this path to update the evalFormConfig array with the parent
+  const paths: string[] = [];
+  // we never check the conditionals object, or the placeholderText.
+  // the second placeHolderText is due to a rogue value in the formConfig of one of S3 datasource form config.
+  const configToBeChecked = {
+    ...formConfig,
+    conditionals: undefined,
+    placeholderText: undefined,
+    placeHolderText: undefined,
+  };
+
+  Object.entries(configToBeChecked).forEach(([key, value]) => {
+    // we check if the current value for the key is a dynamic value, if yes, we push the current key into our paths array.
+    if (!!value) {
+      if (isString(value)) {
+        if (isDynamicValue(value)) {
+          paths.push(key);
+        }
+      }
+
+      // if it's an array, we run it recursively on the array values.
+      if (isArray(value)) {
+        value.forEach((val) => {
+          generateEvalFormConfigPaths(val, key);
+        });
+      }
+
+      // if it is an object, we do the same.
+      if (isTrueObject(value as FormConfigType)) {
+        generateEvalFormConfigPaths(value, key);
+      }
+    }
+  });
+
+  // if the path array is greater than one, we update the evalConfigPaths with parent key.
+  if (paths.length > 0) {
+    evalConfigPaths.push(parentKey);
+  }
+}
 
 function evaluateDynamicValuesConfig(
   actionConfiguration: ActionConfig,

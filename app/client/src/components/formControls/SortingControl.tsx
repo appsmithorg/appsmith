@@ -139,16 +139,24 @@ function SortingComponent(props: any) {
     // for some reason the fields object is initially undefined in first render, before being initialized with the correct values after.
     // so we check to see if the sortObjectValue exist first (if the value has been initalized).
     // and if after it has been initalized the data value is not an array (which we expect it to be) it means the data value has not been assigned a value yet
-    if (!!sortObjectValue && !isArray(sortDataValue)) {
-      // then we check if the fields have any items in it, if it does not, we push an empty field.
-      if (props.fields.length < 1) {
-        props.fields.push({
-          column: "",
-          order: OrderDropDownValues.ASCENDING,
-        });
-      } else {
-        onDeletePressed(props.index);
-      }
+    if (!!sortObjectValue && !!sortDataValue && !isArray(sortDataValue)) {
+      return;
+    }
+
+    // then we check if the fields have any items in it,
+    // and we also check if the value exists in the redux state and if that value is also empty
+    // if they are both empty we want to push a new field.
+    if (
+      props.fields.length < 1 &&
+      !!sortDataValue &&
+      sortDataValue.length < 1
+    ) {
+      props.fields.push({
+        column: "",
+        order: OrderDropDownValues.ASCENDING,
+      });
+    } else {
+      onDeletePressed(props.index);
     }
   }, [props.fields.length]);
 
