@@ -20,7 +20,10 @@ import {
   previewModeSelector,
   selectURLSlugs,
 } from "selectors/editorSelectors";
-import { getAllUsers, getCurrentOrgId } from "selectors/organizationSelectors";
+import {
+  getAllUsers,
+  getCurrentOrgId,
+} from "@appsmith/selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import { EditInteractionKind, SavingState } from "components/ads/EditableText";

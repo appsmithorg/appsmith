@@ -176,6 +176,19 @@ export default function ModalComponent(props: ModalComponentProps) {
   }, []);
 
   useEffect(() => {
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  });
+
+  const handleKeydown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      if (props.canEscapeKeyClose) props.onClose(e);
+    }
+  };
+
+  useEffect(() => {
     if (!props.scrollContents) {
       modalContentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -236,6 +249,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   const getEditorView = () => {
     return (
       <Overlay
+        autoFocus={false}
         canEscapeKeyClose={false}
         canOutsideClickClose={false}
         enforceFocus={false}
@@ -261,6 +275,7 @@ export default function ModalComponent(props: ModalComponentProps) {
           }
         >
           <Overlay
+            autoFocus={false}
             canEscapeKeyClose={props.canEscapeKeyClose}
             canOutsideClickClose={props.canOutsideClickClose}
             className={props.overlayClassName}

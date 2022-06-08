@@ -79,7 +79,7 @@ import {
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 import { getLogToSentryFromResponse } from "utils/helpers";
-import { getCurrentOrg } from "selectors/organizationSelectors";
+import { getCurrentOrg } from "@appsmith/selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
