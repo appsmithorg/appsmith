@@ -11,12 +11,12 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   getCurrentError,
   getCurrentOrg,
-} from "selectors/organizationSelectors";
+} from "@appsmith/selectors/organizationSelectors";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "@blueprintjs/core";
-import { getOrgLoadingStates } from "selectors/organizationSelectors";
+import { getOrgLoadingStates } from "@appsmith/selectors/organizationSelectors";
 import {
   SetProgress,
   UploadCallback,

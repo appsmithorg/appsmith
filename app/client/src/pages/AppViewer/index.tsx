@@ -34,7 +34,7 @@ import { getSearchQuery } from "utils/helpers";
 import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
-import BuiltOn from "./BrandingBadge";
+import BrandingBadge from "./BrandingBadge";
 import {
   BatchPropertyUpdatePayload,
   batchUpdateWidgetProperty,
@@ -42,6 +42,7 @@ import {
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
 import { CANVAS_SELECTOR } from "constants/WidgetConstants";
+import { getShowBrandingBadge } from "@appsmith/selectors/organizationSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -92,6 +93,7 @@ function AppViewer(props: Props) {
   const showGuidedTourMessage = useSelector(showPostCompletionMessage);
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+  const showBrandingBadge = useSelector(getShowBrandingBadge);
 
   /**
    * initializes the widgets factory and registers all widgets
@@ -228,7 +230,7 @@ function AppViewer(props: Props) {
               >
                 {isInitialized && registered && <AppViewerPageContainer />}
               </AppViewerBody>
-              <BuiltOn />
+              {showBrandingBadge && <BrandingBadge />}
             </AppViewerBodyContainer>
           </ContainerWithComments>
           <AddCommentTourComponent />
