@@ -4,7 +4,7 @@ import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { IPanelProps, Position } from "@blueprintjs/core";
 
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
-import PropertyControlsGenerator from "./Generator";
+import PropertyControlsGenerator, { PropertyPaneGroup } from "./Generator";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
@@ -21,6 +21,7 @@ import {
   WIDGET_DEPRECATION_WARNING,
   WIDGET_DEPRECATION_WARNING_HEADER,
 } from "@appsmith/constants/messages";
+import { TabComponent } from "components/ads/Tabs";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -155,12 +156,48 @@ function PropertyPaneView(
             textColor={Colors.BROWN}
           />
         )}
-        <PropertyControlsGenerator
-          id={widgetProperties.widgetId}
-          panel={panel}
-          theme={EditorTheme.LIGHT}
-          type={widgetProperties.type}
-        />
+        {/* TODO(aswath): Bring in feature flag here */}
+        {true && (
+          <TabComponent
+            tabs={[
+              {
+                key: "content",
+                title: "Content",
+                panelComponent: (
+                  <PropertyControlsGenerator
+                    group={PropertyPaneGroup.CONTENT}
+                    id={widgetProperties.widgetId}
+                    panel={panel}
+                    theme={EditorTheme.LIGHT}
+                    type={widgetProperties.type}
+                  />
+                ),
+              },
+              {
+                key: "style",
+                title: "Style",
+                panelComponent: (
+                  <PropertyControlsGenerator
+                    group={PropertyPaneGroup.STYLE}
+                    id={widgetProperties.widgetId}
+                    panel={panel}
+                    theme={EditorTheme.LIGHT}
+                    type={widgetProperties.type}
+                  />
+                ),
+              },
+            ]}
+          />
+        )}
+        {/* TODO(aswath): Bring in feature flag here */}
+        {false && (
+          <PropertyControlsGenerator
+            id={widgetProperties.widgetId}
+            panel={panel}
+            theme={EditorTheme.LIGHT}
+            type={widgetProperties.type}
+          />
+        )}
       </div>
     </div>
   );

@@ -30,6 +30,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 

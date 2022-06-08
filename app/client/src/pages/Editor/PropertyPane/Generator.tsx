@@ -13,8 +13,14 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import Boxed from "../GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
 
+export enum PropertyPaneGroup {
+  CONTENT,
+  STYLE,
+}
+
 export type PropertyControlsGeneratorProps = {
   id: string;
+  group?: PropertyPaneGroup;
   type: WidgetType;
   panel: IPanelProps;
   theme: EditorTheme;
@@ -75,7 +81,17 @@ export const generatePropertyControl = (
 export function PropertyControlsGenerator(
   props: PropertyControlsGeneratorProps,
 ) {
-  const config = WidgetFactory.getWidgetPropertyPaneConfig(props.type);
+  let config;
+  switch (props.group) {
+    case PropertyPaneGroup.CONTENT:
+      config = WidgetFactory.getWidgetPropertyPaneContentConfig(props.type);
+      break;
+    case PropertyPaneGroup.STYLE:
+      config = WidgetFactory.getWidgetPropertyPaneStyleConfig(props.type);
+      break;
+    default:
+      config = WidgetFactory.getWidgetPropertyPaneConfig(props.type);
+  }
   return (
     <div className="px-3">
       {generatePropertyControl(config as readonly PropertyPaneConfig[], props)}
