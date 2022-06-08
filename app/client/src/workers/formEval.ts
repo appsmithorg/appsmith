@@ -227,6 +227,9 @@ function generateEvalFormConfigPaths(
       if (isString(value)) {
         if (isDynamicValue(value)) {
           paths.push(key);
+          // if parent key is empty, then there is a very good chance it's coming from the root form config.
+          // and in that case we can just set it to it.
+          if (!parentKey) parentKey = key;
         }
       }
 
