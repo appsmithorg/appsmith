@@ -42,7 +42,7 @@ import {
   commentsTourStepsEditModeTypes,
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
-import { getCurrentAppOrg } from "selectors/organizationSelectors";
+import { getCurrentAppOrg } from "@appsmith/selectors/organizationSelectors";
 import useOrg from "utils/hooks/useOrg";
 import { getCanCreateApplications } from "utils/helpers";
 
