@@ -13,6 +13,7 @@ import _, {
   xorWith,
   isEmpty,
   union,
+  cloneDeep,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -102,6 +103,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       },
       transientTableData: {},
       editableCell: {},
+      savedRows: [],
     };
   }
 
@@ -535,6 +537,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     if (isTableDataModified) {
       this.props.updateWidgetMetaProperty("transientTableData", {});
       this.props.updateWidgetMetaProperty("editableCell", {});
+      this.props.updateWidgetMetaProperty("savedRows", []);
     }
 
     if (!pageNo) {
@@ -1192,6 +1195,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (this.props.transientTableData) {
       cellProperties.hasUnsavedChanged =
+        this.props.savedRows.indexOf(originalIndex) === -1 &&
         this.props.transientTableData.hasOwnProperty(originalIndex) &&
         this.props.transientTableData[originalIndex].hasOwnProperty(
           props.cell.column.columnProperties.alias,
@@ -1300,15 +1304,23 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               action: string,
               onComplete: () => void,
               eventType: EventType,
-            ) =>
+            ) => {
+              const onCompleteAction = (payload?: { success: boolean }) => {
+                if (eventType === EventType.ON_ROW_SAVE && payload?.success) {
+                  this.addRowToSavedRows(originalIndex);
+                }
+
+                onComplete();
+              };
+
               this.onColumnEvent({
                 rowIndex,
                 action,
-                onComplete,
+                onComplete: onCompleteAction,
                 triggerPropertyName: "onClick",
                 eventType: eventType,
-              })
-            }
+              });
+            }}
             onDiscard={() =>
               this.removeRowFromTransientTableData(originalIndex)
             }
@@ -1576,10 +1588,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         action === EditableCellActions.SAVE &&
         value !== this.props.editableCell.initialValue
       ) {
+        const originalIndex = this.getRowOriginalIndex(rowIndex);
         this.updateTransientTableData({
-          __original_index__: this.getRowOriginalIndex(rowIndex),
+          __original_index__: originalIndex,
           [alias]: value,
         });
+        this.removeRowFromSavedRows(originalIndex);
 
         if (onSubmit && !this.hasRowEditActionsColumn()) {
           this.onColumnEvent({
@@ -1596,12 +1610,33 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       }
 
       /*
-       * We need to let the evaulations compute derived property (filteredTableData)
+       * We need to let the evaulations compute derived property (processedTableData)
        * before we clear the editableCell to avoid the text flickering
        */
       this.editTimer = setTimeout(() => {
         this.props.updateWidgetMetaProperty("editableCell", {});
       }, 100);
+    }
+  };
+
+  addRowToSavedRows = (index: number) => {
+    if (!isNil(index) && this.props.savedRows?.indexOf(index) === -1) {
+      this.props.updateWidgetMetaProperty("savedRows", [
+        ...this.props.savedRows,
+        index,
+      ]);
+    }
+  };
+
+  removeRowFromSavedRows = (index: number) => {
+    const itemIndex = this.props.savedRows?.indexOf(index);
+
+    if (!isNil(index) && itemIndex !== -1) {
+      const savedRows = cloneDeep(this.props.savedRows);
+
+      savedRows.splice(itemIndex, 1);
+
+      this.props.updateWidgetMetaProperty("savedRows", savedRows);
     }
   };
 }

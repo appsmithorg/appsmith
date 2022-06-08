@@ -128,7 +128,7 @@ export type TransientDataPayload = {
 export type OnColumnEventArgs = {
   rowIndex: number;
   action: string;
-  onComplete?: () => void;
+  onComplete?: (payload?: { success: boolean }) => void;
   triggerPropertyName: string;
   eventType: EventType;
   row?: Record<string, unknown>;

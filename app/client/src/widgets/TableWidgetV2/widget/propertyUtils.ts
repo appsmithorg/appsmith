@@ -426,13 +426,13 @@ export const updateEditActionsColumnEventsHook = (
 
     propertiesToUpdate.push({
       propertyPath: `${baseProperty}.isSaveDisabled`,
-      propertyValue: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
+      propertyValue: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex) || ${widgetName}.savedRows.indexOf(currentIndex) !== -1))}}`,
       isDynamicPropertyPath: true,
     });
 
     propertiesToUpdate.push({
       propertyPath: `${baseProperty}.isDiscardDisabled`,
-      propertyValue: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
+      propertyValue: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex) || ${widgetName}.savedRows.indexOf(currentIndex) !== -1))}}`,
       isDynamicPropertyPath: true,
     });
 
