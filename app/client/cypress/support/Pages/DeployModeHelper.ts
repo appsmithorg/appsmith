@@ -70,7 +70,7 @@ export class DeployMode {
       .wait(500);
   }
 
-  public ClearJSONFieldValue(fieldName: string, isInput = true, index = 0) {
+  public ClearJSONFieldValue(fieldName: string, index = 0, isInput = true) {
     cy.xpath(this._jsonFormFieldByName(fieldName, isInput))
       .eq(index)
       .clear()

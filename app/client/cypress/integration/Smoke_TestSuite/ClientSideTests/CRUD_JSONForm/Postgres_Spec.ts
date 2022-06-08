@@ -563,33 +563,27 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     deployMode.EnterJSONInputValue("Callsign", "9HUQ9", 1);
 
-    deployMode.ClearJSONFieldValue("Country");
     deployMode.EnterJSONInputValue("Country", "Malta", 1);
 
     deployMode.EnterJSONInputValue("Next Port Name", "CORFU", 1);
 
-    deployMode.ClearJSONFieldValue("Destination");
     deployMode.EnterJSONInputValue("Destination", "CORFU", 1);
 
     deployMode.SelectJsonFormDropDown("Special Craft", 1);
 
-    deployMode.ClearJSONFieldValue("Timezone");
     deployMode.EnterJSONInputValue("Timezone", "-12", 1);
     agHelper.AssertElementVisible(
       locator._visibleTextDiv("Not a valid timezone!"),
     );
+    deployMode.ClearJSONFieldValue("Timezone");
     deployMode.EnterJSONInputValue("Timezone", "-2", 1);
 
-    deployMode.ClearJSONFieldValue("Status Name");
     deployMode.EnterJSONInputValue("Status Name", "Moored", 1);
 
-    deployMode.ClearJSONFieldValue("Year Built");
     deployMode.EnterJSONInputValue("Year Built", "1967", 1);
 
-    deployMode.ClearJSONFieldValue("Area Code");
     deployMode.EnterJSONInputValue("Area Code", "USG - Gulf of Mexico", 1);
 
-    deployMode.ClearJSONFieldValue("Speed");
     deployMode.EnterJSONInputValue("Speed", "0.6", 1);
 
     agHelper.GetNClick(
@@ -597,17 +591,15 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     );
     agHelper.GetNClick(locator._datePicker(2), 1);
 
-    deployMode.ClearJSONFieldValue("Distance To Go");
     deployMode.EnterJSONInputValue("Distance To Go", "18.1", 1);
 
-    deployMode.ClearJSONFieldValue("Current Port");
     deployMode.EnterJSONInputValue("Current Port", "GALVESTON", 1);
 
     cy.xpath(deployMode._jsonFormFieldByName("Callsign", true)).eq(1)
       .invoke("attr", "type")
       .should("eq", "password");
 
-    deployMode.ClearJSONFieldValue("Shipname", true, 1);
+    deployMode.ClearJSONFieldValue("Shipname", 1);
     agHelper.AssertElementVisible(
       locator._visibleTextDiv("This field is required"),
     );
