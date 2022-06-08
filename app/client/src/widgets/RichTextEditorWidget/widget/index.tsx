@@ -21,6 +21,7 @@ const RichTextEditorComponent = lazy(() =>
   ),
 );
 
+const converter = new showdown.Converter();
 class RichTextEditorWidget extends BaseWidget<
   RichTextEditorWidgetProps,
   WidgetState
@@ -359,7 +360,6 @@ class RichTextEditorWidget extends BaseWidget<
   getPageView() {
     let value = this.props.text ?? "";
     if (this.props.inputType === RTEFormats.MARKDOWN) {
-      const converter = new showdown.Converter();
       value = converter.makeHtml(value);
     }
 

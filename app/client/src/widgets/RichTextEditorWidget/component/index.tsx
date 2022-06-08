@@ -145,7 +145,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             height: "100%",
             menubar: false,
             toolbar_mode: "sliding",
-            forced_root_block: false,
+            forced_root_block: "p",
             branding: false,
             resize: false,
             plugins: [
