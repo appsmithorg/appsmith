@@ -34,6 +34,13 @@ import LabelWithTooltip from "components/ads/LabelWithTooltip";
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;
 };
+
+type BackDropProps = {
+  onClick: () => void;
+};
+export function BackDrop({ onClick }: BackDropProps) {
+  return <div className="select-backdrop" onClick={onClick} />;
+}
 export interface MultiSelectProps
   extends Required<
     Pick<
@@ -251,7 +258,7 @@ function MultiSelectComponent({
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
       <>
-        <div className="select-backdrop" onClick={closeBackDrop} />
+        <BackDrop onClick={closeBackDrop} />
         {isFilterable ? (
           <InputGroup
             inputRef={inputRef}

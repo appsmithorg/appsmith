@@ -15,10 +15,10 @@ import {
   InputContainer,
 } from "./index.styled";
 import "rc-tree-select/assets/index.less";
-import { DefaultValueType } from "rc-tree-select/lib/interface";
+import { DefaultValueType, LabelValueType } from "rc-tree-select/lib/interface";
 import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
 import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
-import { TextSize } from "constants/WidgetConstants";
+import { RenderMode, RenderModes, TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import {
   getClosestCanvas,
@@ -30,6 +30,8 @@ import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import { BackDrop } from "widgets/MultiSelectWidgetV2/component";
+import Select from "rc-select";
 
 export interface TreeSelectProps
   extends Required<
@@ -64,6 +66,7 @@ export interface TreeSelectProps
   widgetId: string;
   filterText?: string;
   isFilterable: boolean;
+  renderMode?: RenderMode;
 }
 
 const getSvg = (expanded: boolean) => (
@@ -127,6 +130,7 @@ function MultiTreeSelectComponent({
   onChange,
   options,
   placeholder,
+  renderMode,
   value,
   widgetId,
   width,
@@ -136,9 +140,12 @@ function MultiTreeSelectComponent({
 
   const _menu = useRef<HTMLElement | null>(null);
   const parentDropDownContainer = useRef<HTMLElement | null>(null);
+  const selectRef = useRef<Select<LabelValueType[]> | null>(null);
 
   const labelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const popupContainer = useRef<HTMLElement | null>(null);
+
   const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
 
   // treeDefaultExpandAll is uncontrolled after first render,
@@ -147,6 +154,12 @@ function MultiTreeSelectComponent({
     setKey(Math.random());
   }, [expandAll]);
 
+  // Get PopupContainer with is main Canvas
+  useEffect(() => {
+    const parent = getMainCanvas();
+    popupContainer.current = parent;
+  }, []);
+
   const clearButton = useMemo(
     () =>
       filter ? (
@@ -154,9 +167,16 @@ function MultiTreeSelectComponent({
       ) : null,
     [filter],
   );
+  const closeBackDrop = useCallback(() => {
+    if (selectRef.current) {
+      selectRef.current.blur();
+    }
+  }, []);
 
-  const getPopupContainer = useCallback(() => getMainCanvas(), []);
-
+  const getPopupContainer = useCallback(
+    () => popupContainer.current as HTMLElement,
+    [],
+  );
   useEffect(() => {
     const node = _menu.current;
     const parent = getClosestCanvas(node);
@@ -186,6 +206,7 @@ function MultiTreeSelectComponent({
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
       <>
+        <BackDrop onClick={closeBackDrop} />
         {isFilterable ? (
           <InputGroup
             inputRef={inputRef}
@@ -209,12 +230,12 @@ function MultiTreeSelectComponent({
   const onOpen = useCallback((open: boolean) => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
-      if (parentDropDownContainer.current) {
-        parentDropDownContainer.current.style.overflowY = "hidden";
+      if (popupContainer.current && renderMode === RenderModes.CANVAS) {
+        popupContainer.current.style.overflowY = "hidden";
       }
     } else {
-      if (parentDropDownContainer.current) {
-        parentDropDownContainer.current.style.overflowY = "auto";
+      if (popupContainer.current && renderMode === RenderModes.CANVAS) {
+        popupContainer.current.style.overflowY = "auto";
       }
     }
   }, []);
@@ -291,6 +312,7 @@ function MultiTreeSelectComponent({
           onClear={onClear}
           onDropdownVisibleChange={onOpen}
           placeholder={placeholder}
+          ref={selectRef}
           removeIcon={
             <Icon
               className="remove-icon"
