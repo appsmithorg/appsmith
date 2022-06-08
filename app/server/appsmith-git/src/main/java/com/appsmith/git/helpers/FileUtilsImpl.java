@@ -26,7 +26,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -42,6 +45,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -71,6 +75,8 @@ public class FileUtilsImpl implements FileInterface {
     private static final String VIEW_MODE_URL_TEMPLATE = "{{viewModeUrl}}";
 
     private static final Pattern ALLOWED_FILE_EXTENSION_PATTERN = Pattern.compile("(.*?)\\.(md|git|gitignore|yml)$");
+
+    private final Scheduler scheduler = Schedulers.boundedElastic();
 
     /**
          Application will be stored in the following structure:
@@ -132,7 +138,6 @@ public class FileUtilsImpl implements FileInterface {
         // Checkout to mentioned branch if not already checked-out
         Stopwatch processStopwatch = new Stopwatch("FS application save");
         return gitExecutor.resetToLastCommit(baseRepoSuffix, branchName)
-                .then(gitExecutor.checkoutToBranch(baseRepoSuffix, branchName))
                 .flatMap(isSwitched -> {
 
                     Path baseRepo = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
@@ -160,15 +165,43 @@ public class FileUtilsImpl implements FileInterface {
                     // Save application theme
                     saveFile(applicationGitReference.getTheme(), baseRepo.resolve(CommonConstants.THEME + CommonConstants.JSON_EXTENSION), gson);
 
-                    Path pageDirectory = baseRepo.resolve(PAGE_DIRECTORY);
                     try {
                         // Remove relevant directories to avoid any stale files
-                        FileUtils.deleteDirectory(pageDirectory.toFile());
-                        FileUtils.deleteDirectory(baseRepo.resolve(ACTION_DIRECTORY).toFile());
-                        FileUtils.deleteDirectory(baseRepo.resolve(ACTION_COLLECTION_DIRECTORY).toFile());
+                        Mono<List<Boolean>> pageList = Flux.fromStream(Files.walk(baseRepo.resolve(PAGE_DIRECTORY))
+                                .map(Path::toFile))
+                                .map(file -> {
+                                    if(file.exists() && !file.isDirectory()) {
+                                        // do nothing
+                                        return file.delete();
+                                    } else {
+                                        return false;
+                                    }
+                                })
+                                .collectList()
+                                .flatMap(pageListStatus -> {
+                                    if(baseRepo.resolve(ACTION_DIRECTORY).toFile().exists()){
+                                        deleteDirectory(baseRepo.resolve(ACTION_DIRECTORY));
+                                    }
+
+                                    if(baseRepo.resolve(ACTION_COLLECTION_DIRECTORY).toFile().exists()){
+                                        deleteDirectory(baseRepo.resolve(ACTION_DIRECTORY));
+                                    }
+                                    return Mono.just(pageListStatus);
+                                });
+
+                        return pageList
+                                .then(Mono.zip(Mono.just(baseRepo), Mono.just(gson), Mono.just(validFileNames)));
+
                     } catch (IOException e) {
-                        log.debug("Unable to delete directory for path {} with message {}", pageDirectory, e.getMessage());
+                        log.debug("Unable to delete directory for path {} with message {}", baseRepo.resolve(PAGE_DIRECTORY), e.getMessage());
                     }
+                    return Mono.zip(Mono.just(baseRepo), Mono.just(gson), Mono.just(validFileNames));
+                })
+                .flatMap(objects -> {
+                    Path baseRepo = objects.getT1();
+                    Path pageDirectory = baseRepo.resolve(PAGE_DIRECTORY);
+                    Gson gson = objects.getT2();
+                    Set<String> validFileNames = objects.getT3();
                     // Save pages
                     for (Map.Entry<String, Object> pageResource : applicationGitReference.getPages().entrySet()) {
                         final String pageName = pageResource.getKey();
@@ -195,7 +228,6 @@ public class FileUtilsImpl implements FileInterface {
                             );
                         }
                     }
-
                     // Save JSObjects
                     for (Map.Entry<String, Object> resource : applicationGitReference.getActionsCollections().entrySet()) {
                         // JSObjectName_pageName => nomenclature for the keys
@@ -225,7 +257,8 @@ public class FileUtilsImpl implements FileInterface {
                     }
                     processStopwatch.stopAndLogTimeInMillis();
                     return Mono.just(baseRepo);
-                });
+                })
+                .subscribeOn(scheduler);
     }
 
     /**
@@ -315,7 +348,8 @@ public class FileUtilsImpl implements FileInterface {
                     ApplicationGitReference applicationGitReference = fetchApplicationReference(baseRepoPath, gson);
                     processStopwatch.stopAndLogTimeInMillis();
                     return applicationGitReference;
-                });
+                })
+                .subscribeOn(scheduler);
     }
 
     /**
@@ -331,18 +365,20 @@ public class FileUtilsImpl implements FileInterface {
     public Mono<Path> initializeReadme(Path baseRepoSuffix,
                                        String viewModeUrl,
                                        String editModeUrl) throws IOException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream(gitServiceConfig.getReadmeTemplatePath());
+        return Mono.fromCallable(() -> {
+            ClassLoader classLoader = getClass().getClassLoader();
+            InputStream inputStream = classLoader.getResourceAsStream(gitServiceConfig.getReadmeTemplatePath());
 
-        StringWriter stringWriter = new StringWriter();
-        IOUtils.copy(inputStream, stringWriter, "UTF-8");
-        String data = stringWriter.toString().replace(EDIT_MODE_URL_TEMPLATE, editModeUrl).replace(VIEW_MODE_URL_TEMPLATE, viewModeUrl);
+            StringWriter stringWriter = new StringWriter();
+            IOUtils.copy(inputStream, stringWriter, "UTF-8");
+            String data = stringWriter.toString().replace(EDIT_MODE_URL_TEMPLATE, editModeUrl).replace(VIEW_MODE_URL_TEMPLATE, viewModeUrl);
 
-        File file = new File(Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().toString());
-        FileUtils.writeStringToFile(file, data, "UTF-8", true);
+            File file = new File(Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().toString());
+            FileUtils.writeStringToFile(file, data, "UTF-8", true);
 
-        // Remove readme.md from the path
-        return Mono.just(file.toPath().getParent());
+            // Remove readme.md from the path
+            return file.toPath().getParent();
+        }).subscribeOn(scheduler);
     }
 
     @Override
@@ -478,5 +514,15 @@ public class FileUtilsImpl implements FileInterface {
 
     private boolean isFileFormatCompatible(int savedFileFormat) {
         return savedFileFormat <= CommonConstants.fileFormatVersion;
+    }
+
+    private void deleteDirectory(Path filePath) {
+        if(filePath.toFile().exists()) {
+            try {
+                FileUtils.deleteDirectory(filePath.toFile());
+            } catch (IOException e) {
+                log.debug("Unable to delete directory for path {} with message {}", filePath, e.getMessage());
+            }
+        }
     }
 }

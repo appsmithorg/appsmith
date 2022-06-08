@@ -1,4 +1,5 @@
 export default {
+  selectGet: "//span[text()='GET']",
   selectPost: "//span[text()='POST']",
   selectDelete: "//span[text()='DELETE']",
   pagebutton: "//div[text()='Page1']",

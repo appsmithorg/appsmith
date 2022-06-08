@@ -1,5 +1,18 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 
+export interface ICreateJSObjectOptions {
+  paste: boolean;
+  completeReplace: boolean;
+  toRun: boolean;
+  shouldCreateNewJSObj: boolean;
+}
+const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
+  paste: true,
+  completeReplace: false,
+  toRun: true,
+  shouldCreateNewJSObj: true,
+};
+
 export class JSEditor {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
@@ -10,7 +23,9 @@ export class JSEditor {
   private _settingsTab = ".tab-title:contains('Settings')";
   private _codeTab = ".tab-title:contains('Code')";
   private _jsObjectParseErrorCallout =
-    "//div[contains(@class,'t--js-response-parse-error-call-out')]";
+    "div.t--js-response-parse-error-call-out";
+  private _jsFunctionExecutionParseErrorCallout =
+    "div.t--function-execution-parse-error-call-out";
   private _onPageLoadRadioButton = (functionName: string, onLoad: boolean) =>
     `.${functionName}-on-page-load-setting label:contains(${
       onLoad ? "Yes" : "No"
@@ -61,11 +76,13 @@ export class JSEditor {
     "')]//*[contains(text(),'" +
     jsFuncName +
     "')]";
+  _funcDropdown = ".t--formActionButtons div[role='listbox']";
+  _funcDropdownOptions = ".ads-dropdown-options-wrapper div > div";
 
   //#endregion
 
   //#region Page functions
-  public NavigateToJSEditor() {
+  public NavigateToNewJSEditor() {
     cy.get(this.locator._createNew)
       .last()
       .click({ force: true });
@@ -82,18 +99,17 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    //this.agHelper.WaitUntilEleDisappear(this.locator._toastMsg, 'created successfully')
+    //this.agHelper.WaitUntilToastDisappear('created successfully')
     this.agHelper.Sleep();
   }
 
   public CreateJSObject(
     JSCode: string,
-    paste = true,
-    completeReplace = false,
-    toRun = true,
+    options: ICreateJSObjectOptions = DEFAULT_CREATE_JS_OBJECT_OPTIONS,
   ) {
-    this.NavigateToJSEditor();
+    const { completeReplace, paste, shouldCreateNewJSObj, toRun } = options;
 
+    shouldCreateNewJSObj && this.NavigateToNewJSEditor();
     if (!completeReplace) {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
@@ -151,7 +167,6 @@ export class JSEditor {
           .wait(3000);
       });
       cy.get(this.locator._empty).should("not.exist");
-      cy.get(this.locator._toastMsg).should("have.length", 0);
     }
     this.GetJSObjectName();
   }
@@ -197,7 +212,11 @@ export class JSEditor {
     //   .type("{del}", { force: true });
 
     if (paste) {
-      this.agHelper.EnterValue(value, endp, notField);
+      this.agHelper.EnterValue(value, {
+        propFieldName: endp,
+        directInput: notField,
+        inputFieldName: "",
+      });
     } else {
       cy.get(
         this.locator._propertyControl +
@@ -323,7 +342,7 @@ export class JSEditor {
   //   this.agHelper.GetNClick(this._closeSettings)
   // }
 
-  public VerifyOnPageLoadSetting(
+  public VerifyAsyncFuncSettings(
     funName: string,
     onLoad = true,
     bfrCalling = true,
@@ -337,15 +356,15 @@ export class JSEditor {
     this.agHelper.GetNClick(this._settingsTab);
     this.agHelper.AssertExistingToggleState(
       this._onPageLoadRadioButtonStatus(funName, onLoad),
-      onLoad == true ? "checked" : "unchecked",
+      "checked",
     );
     this.agHelper.AssertExistingToggleState(
       this._confirmBeforeExecuteRadioButtonStatus(funName, bfrCalling),
-      bfrCalling == true ? "checked" : "unchecked",
+      "checked",
     );
   }
 
-  public EnableDisableOnPageLoad(
+  public EnableDisableAsyncFuncSettings(
     funName: string,
     onLoad = true,
     bfrCalling = true,
@@ -361,12 +380,26 @@ export class JSEditor {
     // Return to code tab
     this.agHelper.GetNClick(this._codeTab);
   }
-
-  public AssertParseError(exists: boolean) {
+  /**
+ *
+  There are two types of parse errors in the JS Editor
+  1. Parse errors that render the JS Object invalid and all functions unrunnable
+  2. Parse errors within functions that throw errors when executing those functions
+ */
+  public AssertParseError(
+    exists: boolean,
+    isFunctionExecutionParseError: boolean,
+  ) {
+    const {
+      _jsFunctionExecutionParseErrorCallout,
+      _jsObjectParseErrorCallout,
+    } = this;
     // Assert presence/absence of parse error
-    cy.xpath(this._jsObjectParseErrorCallout).should(
-      exists ? "exist" : "not.exist",
-    );
+    cy.get(
+      isFunctionExecutionParseError
+        ? _jsFunctionExecutionParseErrorCallout
+        : _jsObjectParseErrorCallout,
+    ).should(exists ? "exist" : "not.exist");
   }
 
   //#endregion
