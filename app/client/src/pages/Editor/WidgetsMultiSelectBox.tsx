@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from "react";
 import styled from "styled-components";
-import { get, minBy, maxBy } from "lodash";
+import { get, minBy } from "lodash";
 import { useSelector, useDispatch } from "react-redux";
 
 import {
@@ -15,7 +15,6 @@ import { FormIcons } from "icons/FormIcons";
 import Tooltip from "components/ads/Tooltip";
 import { ControlIcons } from "icons/ControlIcons";
 import { getSelectedWidgets } from "selectors/ui";
-import { generateClassName } from "utils/generators";
 
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
@@ -25,7 +24,8 @@ import WidgetFactory from "utils/WidgetFactory";
 import { AppState } from "reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { commentModeSelector } from "selectors/commentsSelectors";
-import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
+import { getBoundariesFromSelectedWidgets } from "sagas/WidgetOperationUtils";
+import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 const StyledSelectionBox = styled.div`
@@ -158,16 +158,10 @@ const groupHelpText = (
   </>
 );
 
-interface OffsetBox {
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-}
-
 function WidgetsMultiSelectBox(props: {
   widgetId: string;
   widgetType: string;
+  noContainerOffset: boolean;
   snapColumnSpace: number;
   snapRowSpace: number;
 }): any {
@@ -239,32 +233,32 @@ function WidgetsMultiSelectBox(props: {
    */
   const { height, left, top, width } = useMemo(() => {
     if (shouldRender) {
-      const widgetClasses = selectedWidgetIDs
-        .map((id) => `.${generateClassName(id)}.${POSITIONED_WIDGET}`)
-        .join(",");
-      const elements = document.querySelectorAll<HTMLElement>(widgetClasses);
-
-      const rects: OffsetBox[] = [];
-
-      elements.forEach((el) => {
-        rects.push({
-          top: el.offsetTop,
-          left: el.offsetLeft,
-          width: el.offsetWidth,
-          height: el.offsetHeight,
-        });
-      });
+      const {
+        leftMostColumn,
+        topMostRow,
+        totalHeight,
+        totalWidth,
+      } = getBoundariesFromSelectedWidgets(selectedWidgets);
 
       return {
-        top: minBy(rects, (rect) => rect.top),
-        left: minBy(rects, (rect) => rect.left),
-        height: maxBy(rects, (rect) => rect.top + rect.height),
-        width: maxBy(rects, (rect) => rect.left + rect.width),
+        top:
+          topMostRow * props.snapRowSpace +
+          (props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
+        left:
+          leftMostColumn * props.snapColumnSpace +
+          (props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
+        height: totalHeight * props.snapRowSpace,
+        width: totalWidth * props.snapColumnSpace,
       };
     }
 
     return {};
-  }, [selectedWidgets]);
+  }, [
+    selectedWidgets,
+    props.snapColumnSpace,
+    props.snapRowSpace,
+    props.noContainerOffset,
+  ]);
 
   /**
    * copies the selected widgets
@@ -336,12 +330,10 @@ function WidgetsMultiSelectBox(props: {
       onMouseOver={() => focusWidget()}
       ref={draggableRef}
       style={{
-        left: left?.left,
-        top: top?.top,
-        height:
-          get(height, "top", 0) + get(height, "height", 0) - get(top, "top", 0),
-        width:
-          get(width, "left", 0) + get(width, "width", 0) - get(left, "left", 0),
+        left,
+        top,
+        height,
+        width,
       }}
     >
       <StyledSelectBoxHandleTop />
