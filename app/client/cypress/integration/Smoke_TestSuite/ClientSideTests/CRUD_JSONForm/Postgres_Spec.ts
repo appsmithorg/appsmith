@@ -525,6 +525,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   it("13. Verify Add/Insert from Deploy page - on Vessels - new record", () => {
     ee.expandCollapseEntity("WIDGETS");
     ee.expandCollapseEntity("Insert_Modal");
+    ee.ActionContextMenuByEntityName("JSONForm1Copy", "Delete")
     ee.SelectEntityByName("insert_form");
     agHelper.Sleep(2000);
 
@@ -609,7 +610,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     );
     deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 1);
 
-    agHelper.ClickButton("Submit", 0, false);
+    agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage(
       `duplicate key value violates unique constraint "vessels_pkey" Detail: Key (ship_id)=(159196) already exists.`,
     );
@@ -704,7 +705,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper
       .GetText(dataSources._queryError)
       .then(($errorText) =>
-        expect($errorText).to.eq(`table "vessels" does not exist`),
+        expect($errorText).to.contain(`table "vessels" does not exist`),
       );
     agHelper.ActionContextMenuWithInPane("Delete");
   });

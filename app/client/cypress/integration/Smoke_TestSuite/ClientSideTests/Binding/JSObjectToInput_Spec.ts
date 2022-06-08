@@ -55,24 +55,35 @@ describe("Validate JSObjects binding to Input widget", () => {
     //   });
   });
 
-  it.skip("2. Bug 10284, 11529 - Verify autosave while editing JSObj & reference changes when JSObj is mapped", function() {
+  it("2. Bug 10284, 11529 - Verify autosave while editing JSObj & reference changes when JSObj is mapped", function() {
+    const jsBody = `export default {
+      myVar1: [],
+      myVar2: {},
+      renamed: () => {
+        return "Success";//write code here
+      },
+      myFun2: async () => {
+        //use async-await or promises
+      }
+    }`;
     ee.SelectEntityByName(jsOjbNameReceived as string, "QUERIES/JS");
-    jsEditor.EditJSObj("myFun1", "newName");
+    jsEditor.EditJSObj(jsBody);
+    agHelper.AssertAutoSave();
 
-    //jsEditor.CreateJSObject('return "Success";', true);
-    // ee.expandCollapseEntity("Form1")
-    // ee.SelectEntityByName("Input2")
-    // cy.get("@jsObjName").then((jsObjName) => {
-    //   jsEditor.EnterJSContext("defaulttext", "{{" + jsObjName + ".myFun1()}}")
-    // });
-    // // cy.wait("@updateLayout").should(
-    // //   "have.nested.property",
-    // //   "response.body.responseMeta.status",
-    // //   200,
-    // // );
-    // cy.get(locator._inputWidget).last().invoke("attr", "value").should("equal", 'Success');
-    // agHelper.DeployApp(locator._inputWidgetInDeployed)
-    // cy.get(locator._inputWidgetInDeployed).first().should('have.value', 'Hello')
-    // cy.get(locator._inputWidgetInDeployed).last().should('have.value', 'Success')
+    ee.expandCollapseEntity("Form1");
+    ee.SelectEntityByName("Input2");
+
+    this.agHelper
+      .GetText(this.locator._existingActualValueByName("Default Text"))
+      .then(($defaultText: any) => {
+        expect($defaultText as string).to.eq(
+          "{{" + jsOjbNameReceived + ".renamed()}}",
+        );
+      });
+
+    cy.get(locator._inputWidget).last().invoke("attr", "value").should("equal", 'Success');
+    deployMode.DeployApp(locator._inputWidgetInDeployed)
+    cy.get(locator._inputWidgetInDeployed).first().should('have.value', 'Hello')
+    cy.get(locator._inputWidgetInDeployed).last().should('have.value', 'Success')
   });
 });
