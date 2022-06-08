@@ -99,7 +99,7 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    //this.agHelper.WaitUntilEleDisappear(this.locator._toastMsg, 'created successfully')
+    //this.agHelper.WaitUntilToastDisappear('created successfully')
     this.agHelper.Sleep();
   }
 
@@ -212,7 +212,11 @@ export class JSEditor {
     //   .type("{del}", { force: true });
 
     if (paste) {
-      this.agHelper.EnterValue(value, endp, notField);
+      this.agHelper.EnterValue(value, {
+        propFieldName: endp,
+        directInput: notField,
+        inputFieldName: "",
+      });
     } else {
       cy.get(
         this.locator._propertyControl +

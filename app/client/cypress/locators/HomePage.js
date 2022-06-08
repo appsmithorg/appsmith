@@ -95,4 +95,5 @@ export default {
   workspaceNameText: ".t--workspace-name-text",
   optionsIcon: ".t--options-icon",
   reconnectDatasourceModal: ".reconnect-datasource-modal",
+  importAppProgressWrapper: ".t-import-app-progress-wrapper",
 };

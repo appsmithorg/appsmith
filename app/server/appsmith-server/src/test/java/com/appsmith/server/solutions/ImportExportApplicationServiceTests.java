@@ -2570,4 +2570,36 @@ public class ImportExportApplicationServiceTests {
                         throwable.getMessage().equals(AppsmithError.UNKNOWN_PLUGIN_REFERENCE.getMessage(randomId)))
                 .verify();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_importSameApplicationTwice_applicationImportedLaterWithSuffixCount() {
+
+        Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application-without-action-collection.json");
+
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization");
+
+        Mono<Workspace> createWorkspaceMono = workspaceService.create(newWorkspace).cache();
+        final Mono<Application> importApplicationMono = createWorkspaceMono
+                .zipWith(applicationJsonMono)
+                .flatMap(tuple -> {
+                    Workspace workspace = tuple.getT1();
+                    ApplicationJson applicationJson = tuple.getT2();
+                    return importExportApplicationService
+                                    .importApplicationInWorkspace(workspace.getId(), applicationJson);
+                });
+
+        StepVerifier
+                .create(importApplicationMono.zipWhen(application -> importApplicationMono))
+                .assertNext(tuple -> {
+                    Application firstImportedApplication = tuple.getT1();
+                    Application secondImportedApplication = tuple.getT2();
+                    assertThat(firstImportedApplication.getName()).isEqualTo("valid_application");
+                    assertThat(secondImportedApplication.getName()).isEqualTo("valid_application (1)");
+                    assertThat(firstImportedApplication.getOrganizationId()).isEqualTo(secondImportedApplication.getOrganizationId());
+                    assertThat(firstImportedApplication.getOrganizationId()).isNotNull();
+                })
+                .verifyComplete();
+    }
 }

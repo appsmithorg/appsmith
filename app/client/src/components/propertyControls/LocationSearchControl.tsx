@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 import StandaloneSearchBox from "react-google-maps/lib/components/places/StandaloneSearchBox";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import { StyledInputGroup } from "./StyledControls";
 import log from "loglevel";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 const { google } = getAppsmithConfigs();
 
@@ -57,6 +58,10 @@ class LocationSearchControl extends BaseControl<ControlProps> {
   static getControlType() {
     return "LOCATION_SEARCH";
   }
+
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    return !isDynamicValue(value);
+  }
 }
 
 interface MapScriptWrapperProps {
@@ -93,6 +98,7 @@ function MapScriptWrapper(props: MapScriptWrapperProps) {
               setTitle(value);
             }}
             placeholder="Enter location"
+            tabIndex={-1}
           />
         </StandaloneSearchBox>
       )}

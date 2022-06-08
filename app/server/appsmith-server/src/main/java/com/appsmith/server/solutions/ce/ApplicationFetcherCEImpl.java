@@ -144,7 +144,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                     );
 
                     return workspaceService
-                            .findByIdsIn(workspaceIdss, READ_WORKSPACES)
+                            .findByIdsIn(workspaceIdss, user.getTenantId(), READ_WORKSPACES)
                             .collectMap(Workspace::getId, v -> v)
                             .zipWith(applicationsMapMono)
                             .map(tuple -> {

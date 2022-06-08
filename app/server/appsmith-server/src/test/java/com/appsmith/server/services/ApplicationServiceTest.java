@@ -2596,7 +2596,7 @@ public class ApplicationServiceTest {
         unsavedApplication.setName("ssh-test-app");
 
         Mono<Application> applicationMono = applicationRepository.save(unsavedApplication)
-                .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId())
+                .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId(), null)
                         .thenReturn(savedApplication.getId())
                 ).flatMap(testApplicationId -> applicationRepository.findById(testApplicationId, MANAGE_APPLICATIONS));
 
@@ -2624,7 +2624,7 @@ public class ApplicationServiceTest {
         unsavedMainApp.setWorkspaceId(workspaceId);
 
         Mono<Tuple2<Application, Application>> tuple2Mono = applicationRepository.save(unsavedMainApp)
-                .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId()).thenReturn(savedApplication))
+                .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId(), null).thenReturn(savedApplication))
                 .flatMap(savedMainApp -> {
                     Application unsavedChildApp = new Application();
                     unsavedChildApp.setGitApplicationMetadata(new GitApplicationMetadata());
@@ -2635,7 +2635,7 @@ public class ApplicationServiceTest {
                     return applicationRepository.save(unsavedChildApp);
                 })
                 .flatMap(savedChildApp ->
-                        applicationService.createOrUpdateSshKeyPair(savedChildApp.getId()).thenReturn(savedChildApp)
+                        applicationService.createOrUpdateSshKeyPair(savedChildApp.getId(), null).thenReturn(savedChildApp)
                 )
                 .flatMap(savedChildApp -> {
                     // fetch and return both child and main applications

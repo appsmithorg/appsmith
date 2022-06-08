@@ -80,6 +80,7 @@ public class FieldName {
     public static String CONTAINER_WIDGET = "CONTAINER_WIDGET";
     public static String CANVAS_WIDGET = "CANVAS_WIDGET";
     public static String FORM_WIDGET = "FORM_WIDGET";
+    public static String JSON_FORM_WIDGET = "JSON_FORM_WIDGET";
     public static String DROP_DOWN_WIDGET = "DROP_DOWN_WIDGET";
     public static String OPTIONS = "options";
     public static String DEFAULT_OPTION = "defaultOptionValue";

@@ -236,6 +236,7 @@ public class UserServiceTest {
                     // will get a clone of the default workspace when they first login. So, we expect it to be
                     // empty here.
                     assertThat(user.getWorkspaceIds()).hasSize(1);
+                    assertThat(user.getTenantId() != null);
                 })
                 .verifyComplete();
     }
@@ -442,7 +443,7 @@ public class UserServiceTest {
                     users.add(newUserEmail);
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setWorkspaceId(workspace1.getId());
-                    inviteUsersDTO.setRoleName(AppsmithRole.WORKSPACE_VIEWER.getName());
+                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 }).block();

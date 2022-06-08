@@ -322,6 +322,10 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);
     yield put(updateAndSaveLayout(updatedWidgets));
+    yield put({
+      type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
+      payload: [addChildAction.payload.newWidgetId],
+    });
     log.debug("add child computations took", performance.now() - start, "ms");
     // go up till MAIN_CONTAINER, if there is a operation CHILD_OPERATIONS IN ANY PARENT,
     // call execute

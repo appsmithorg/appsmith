@@ -796,7 +796,7 @@ Cypress.Commands.add("isSelectRow", (index) => {
   cy.get('.tbody .td[data-rowindex="' + index + '"][data-colindex="' + 0 + '"]')
     .first()
     .click({ force: true });
-  cy.wait(1000); //for selection to show!
+  cy.wait(500); //for selection to show!
 });
 
 Cypress.Commands.add("getDate", (date, dateFormate) => {
@@ -922,8 +922,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/items/addToPage").as("add3PApiToPage");
 
   cy.route("GET", "/api/v1/plugins/*/form").as("getPluginForm");
-  cy.route("POST", "/api/v1/datasources").as("createDatasource");
-  cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
   cy.route("POST", "/api/v1/applications?workspaceId=*").as(
     "createNewApplication",

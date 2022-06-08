@@ -20,8 +20,8 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
@@ -38,8 +38,8 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.migrations.JsonSchemaVersions;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -82,9 +82,12 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -2738,6 +2741,52 @@ public class GitServiceTest {
                 .create(applicationFromDbMono)
                 .assertNext(application1 -> {
                     assertThat(application1).isNotEqualTo(application);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteBranch_cancelledMidway_success() throws GitAPIException, IOException {
+
+        final String DEFAULT_BRANCH = "master", TO_BE_DELETED_BRANCH = "deleteBranch";
+        Application application = createApplicationConnectedToGit("deleteBranch_defaultBranchUpdated_Success", DEFAULT_BRANCH);
+        application.getGitApplicationMetadata().setDefaultBranchName(DEFAULT_BRANCH);
+        applicationService.save(application).block();
+
+        Application branchApp = createApplicationConnectedToGit("deleteBranch_defaultBranchUpdated_Success2", TO_BE_DELETED_BRANCH);
+        branchApp.getGitApplicationMetadata().setDefaultBranchName(DEFAULT_BRANCH);
+        branchApp.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
+        applicationService.save(branchApp).block();
+
+        Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+
+        gitService
+                .deleteBranch(application.getId(), TO_BE_DELETED_BRANCH)
+                .timeout(Duration.ofMillis(5))
+                .subscribe();
+
+        // Wait for git delete branch to complete
+        Mono<List<Application>> applicationsFromDbMono = Mono.just(application)
+                .flatMapMany(DBApplication -> {
+                    try {
+                        // Before fetching the git connected application, sleep for 5 seconds to ensure that the delete
+                        // completes
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return applicationService.findAllApplicationsByDefaultApplicationId(DBApplication.getId(), MANAGE_APPLICATIONS);
+                })
+                .collectList();
+
+        StepVerifier
+                .create(applicationsFromDbMono)
+                .assertNext(applicationList -> {
+                    Set<String> branchNames = new HashSet<>();
+                    applicationList.forEach(application1 -> branchNames.add(application1.getGitApplicationMetadata().getBranchName()));
+                    assertThat(branchNames).doesNotContain(TO_BE_DELETED_BRANCH);
                 })
                 .verifyComplete();
     }

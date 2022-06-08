@@ -322,6 +322,11 @@ public class RestApiPlugin extends BasePlugin {
                         sslContextSpec.sslContext(sslContextSpec1);
                     });
 
+            if ("true".equals(System.getProperty("java.net.useSystemProxies"))
+                    && (!System.getProperty("http.proxyHost", "").isEmpty() || !System.getProperty("https.proxyHost", "").isEmpty())) {
+                httpClient = httpClient.proxyWithSystemProperties();
+            }
+
             WebClient.Builder webClientBuilder = WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient));
 
             // Adding headers from datasource

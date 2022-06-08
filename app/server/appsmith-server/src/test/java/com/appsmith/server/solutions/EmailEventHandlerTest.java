@@ -82,7 +82,7 @@ public class EmailEventHandlerTest {
         // add a role with email receiver username
         UserRole userRole = new UserRole();
         userRole.setUsername(emailReceiverUsername);
-        userRole.setRole(AppsmithRole.WORKSPACE_ADMIN);
+        userRole.setRole(AppsmithRole.ORGANIZATION_ADMIN);
         workspace.setUserRoles(List.of(userRole));
 
         Mockito.when(applicationRepository.findById(applicationId)).thenReturn(Mono.just(application));

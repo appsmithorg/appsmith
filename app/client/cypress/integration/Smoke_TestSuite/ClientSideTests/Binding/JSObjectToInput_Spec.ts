@@ -3,7 +3,8 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
-  locator = ObjectsRegistry.CommonLocators;
+  locator = ObjectsRegistry.CommonLocators,
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate JSObjects binding to Input widget", () => {
   before(() => {
@@ -36,7 +37,7 @@ describe("Validate JSObjects binding to Input widget", () => {
       .last()
       .invoke("attr", "value")
       .should("equal", "Success"); //After mapping JSObject value of input
-    agHelper.DeployApp(locator._inputWidgetInDeployed);
+    deployMode.DeployApp(locator._inputWidgetInDeployed);
     cy.get(locator._inputWidgetInDeployed)
       .first()
       .should("have.value", "Hello");
