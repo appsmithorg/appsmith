@@ -31,6 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 @Service
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
@@ -204,5 +205,14 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             super(UriComponentsBuilder.fromHttpUrl(baseUriTemplate));
             super.setEncodingMode(EncodingMode.NONE);
         }
+    }
+
+    @Override
+    public Mono<Application> mergeTemplateWithApplication(String templateId, String applicationId, String organizationId, String branchName, List<String> pagesToImport) {
+        return getApplicationJsonFromTemplate(templateId).flatMap(applicationJson ->
+                importExportApplicationService.mergeApplicationJsonWithApplication(
+                        organizationId, applicationId, null, applicationJson, pagesToImport
+                )
+        );
     }
 }
