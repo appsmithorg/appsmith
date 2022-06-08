@@ -116,12 +116,12 @@ export class AggregateHelper {
       .should("contain.text", text);
   }
 
-  public ClickButton(btnVisibleText: string, index = 0) {
+  public ClickButton(btnVisibleText: string, index = 0, shouldSleep = true) {
     cy.xpath(this.locator._spanButton(btnVisibleText))
       .eq(index)
       .scrollIntoView()
       .click({ force: true });
-    this.Sleep();
+    shouldSleep && this.Sleep();
   }
 
   public Paste(selector: any, pastePayload: string) {
@@ -370,7 +370,7 @@ export class AggregateHelper {
       : cy.get(selector);
     return locator
       .eq(index)
-      .click( {force: force})
+      .click({ force: force })
       .wait(500);
   }
 
@@ -608,7 +608,10 @@ export class AggregateHelper {
     let locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    locator.eq(index).scrollIntoView().should("be.visible");
+    locator
+      .eq(index)
+      .scrollIntoView()
+      .should("be.visible");
   }
 
   public AssertElementExist(selector: string, index = 0) {

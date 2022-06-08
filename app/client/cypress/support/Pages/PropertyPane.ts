@@ -63,7 +63,7 @@ export class PropertyPane {
   public NavigateBackToPropertyPane() {
     this.agHelper.GetNClick(this._goBackToProperty);
     this.agHelper.AssertElementVisible(this._copyWidget);
-    this.agHelper.AssertElementVisible(this._deleteWidget);
+    //this.agHelper.AssertElementVisible(this._deleteWidget); //extra valisation, hence commenting!
   }
 
   public ChangeTheme(newTheme: string) {

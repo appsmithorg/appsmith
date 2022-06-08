@@ -609,7 +609,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     );
     deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 1);
 
-    agHelper.ClickButton("Submit");
+    agHelper.ClickButton("Submit", 0, false);
     agHelper.ValidateToastMessage(
       `duplicate key value violates unique constraint "vessels_pkey" Detail: Key (ship_id)=(159196) already exists.`,
     );
