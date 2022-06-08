@@ -14,7 +14,7 @@ describe("Execute Action Functionality", function() {
     cy.wait(3000);
   });
 
-  it("checks whether execute action is getting called on page load only once", function() {
+  it("1. Checks whether execute action is getting called on page load only once", function() {
     // Open deployed version
     cy.get(".t--draggable-textwidget").should("be.visible");
 
@@ -36,7 +36,7 @@ describe("Execute Action Functionality", function() {
         completedIds = totalRequests;
         return totalRequests;
       })
-      .should("have.length", 2);
+      .should("have.length", 2); //Count from Initial Import + Deployed Mode - Page 1 execute call - hence count 2
     cy.wait(500);
 
     cy.get(".t--page-switch-tab")
@@ -51,7 +51,7 @@ describe("Execute Action Functionality", function() {
         ];
         return totalRequests.filter((reqId) => !completedIds.includes(reqId));
       })
-      .should("have.length", 1);
+      .should("have.length", 1); // Since Page 2 is switched - previous count is washed out, and this is only call
 
     cy.get(".t--page-switch-tab")
       .contains("Page1")
@@ -65,6 +65,6 @@ describe("Execute Action Functionality", function() {
         ];
         return totalRequests.filter((reqId) => !completedIds.includes(reqId));
       })
-      .should("have.length", 2);
+      .should("have.length", 2); // Since its within deployed page, switching to Page 1 , adds one more to previous count!
   });
 });

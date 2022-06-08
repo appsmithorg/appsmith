@@ -525,7 +525,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   it("13. Verify Add/Insert from Deploy page - on Vessels - new record", () => {
     ee.expandCollapseEntity("WIDGETS");
     ee.expandCollapseEntity("Insert_Modal");
-    ee.ActionContextMenuByEntityName("JSONForm1Copy", "Delete")
+    //ee.ActionContextMenuByEntityName("JSONForm1Copy", "Delete")
     ee.SelectEntityByName("insert_form");
     agHelper.Sleep(2000);
 
@@ -612,7 +612,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage(
-      `duplicate key value violates unique constraint "vessels_pkey" Detail: Key (ship_id)=(159196) already exists.`,
+      `duplicate key value violates unique constraint "vessels_pkey"`,
     );
 
     deployMode.ClearJSONFieldValue("Ship Id");
