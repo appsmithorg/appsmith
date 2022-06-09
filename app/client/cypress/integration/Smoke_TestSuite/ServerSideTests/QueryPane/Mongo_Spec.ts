@@ -638,7 +638,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.ValidateNetworkStatus("@deletePage", 200);
   });
 
-  it("17. Validate Drop of the Newly Created - Stores - Table from datasource", () => {
+  it("17. Validate Drop of the Newly Created - AuthorNAwards - collection from datasource", () => {
     let dropCollection = `{ "drop": "AuthorNAwards" }`;
     dataSources.NavigateFromActiveDS(dsName, true);
 
