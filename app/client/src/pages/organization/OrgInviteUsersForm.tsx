@@ -9,7 +9,7 @@ import {
   getRolesForField,
   getAllUsers,
   getCurrentAppOrg,
-} from "selectors/organizationSelectors";
+} from "@appsmith/selectors/organizationSelectors";
 import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { InviteUsersToOrgFormValues, inviteUsersToOrg } from "./helpers";
