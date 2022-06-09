@@ -81,6 +81,13 @@ export class JSEditor {
 
   //#endregion
 
+  //#region constants
+  private isMac = Cypress.platform === "darwin";
+  private selectAllJSObjectContentShortcut = `${
+    this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
+  }`;
+  //#endregion
+
   //#region Page functions
   public NavigateToNewJSEditor() {
     cy.get(this.locator._createNew)
@@ -99,7 +106,7 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    //this.agHelper.WaitUntilEleDisappear(this.locator._toastMsg, 'created successfully')
+    //this.agHelper.WaitUntilToastDisappear('created successfully')
     this.agHelper.Sleep();
   }
 
@@ -119,13 +126,7 @@ export class JSEditor {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
         .focus()
-        .type(
-          "{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}",
-        )
-        .type(
-          "{shift}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}",
-          { force: true },
-        )
+        .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
 
       // .type("{uparrow}", { force: true })
@@ -171,15 +172,15 @@ export class JSEditor {
     this.GetJSObjectName();
   }
 
-  //Not working - To improve!
-  public EditJSObj(existingTxt: string, newTxt: string) {
-    cy.get(this.locator._codeEditorTarget)
-      .contains(existingTxt)
-      .dblclick(); //.type("{backspace}").type(newTxt)
-    cy.get("body")
-      .type("{backspace}")
-      .type(newTxt);
-    this.agHelper.AssertAutoSave(); //Ample wait due to open bug # 10284
+  //Edit the name of a JSObject's property (variable or function)
+  public EditJSObj(newContent: string) {
+    cy.get(this.locator._codeMirrorTextArea)
+      .first()
+      .focus()
+      .type(this.selectAllJSObjectContentShortcut, { force: true })
+      .then((el: JQuery<HTMLElement>) => {
+        this.agHelper.Paste(el, newContent);
+      });
   }
 
   public EnterJSContext(
@@ -212,7 +213,11 @@ export class JSEditor {
     //   .type("{del}", { force: true });
 
     if (paste) {
-      this.agHelper.EnterValue(value, endp, notField);
+      this.agHelper.EnterValue(value, {
+        propFieldName: endp,
+        directInput: notField,
+        inputFieldName: "",
+      });
     } else {
       cy.get(
         this.locator._propertyControl +

@@ -412,7 +412,7 @@ function LeftPane() {
             <MenuItem
               className="create-organization"
               cypressSelector="t--org-new-organization-auto-create"
-              icon="add-circle-line"
+              icon="add-more"
               onSelect={() =>
                 submitCreateOrganizationForm(
                   {
