@@ -56,9 +56,6 @@ describe("Validate Mongo Query Pane Validations", () => {
     );
 
     agHelper.NavigateBacktoEditor();
-    //Delete the test data
-    ee.ActionContextMenuByEntityName("Page1", "Delete", "Are you sure?");
-    agHelper.ValidateNetworkStatus("@deletePage", 200);
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -648,7 +645,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
     agHelper.GetNClick(dataSources._templateMenu);
 
-    agHelper.RenameWithInPane("DropAuthorNAwardsPage");
+    agHelper.RenameWithInPane("DropAuthorNAwards");
     agHelper.EnterValue(dropCollection);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
@@ -665,7 +662,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
     agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("DropAuthorNAwardsPage");
+    agHelper.RenameWithInPane("DropAuthorNAwards");
     agHelper.EnterValue(dropCollection);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
@@ -678,9 +675,13 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("19. Verify Deletion of the datasource", () => {
+    //Delete the test data
+    // ee.expandCollapseEntity("PAGES")
+    // ee.ActionContextMenuByEntityName("Page1", "Delete", "Are you sure?"); //Cant be deleted since this is the Home page!
+    // agHelper.ValidateNetworkStatus("@deletePage", 200);
     deployMode.DeployApp();
     agHelper.NavigateBacktoEditor();
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
+    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Friends pages are still using this ds
   });
 
   function GenerateCRUDNValidateDeployPage(
