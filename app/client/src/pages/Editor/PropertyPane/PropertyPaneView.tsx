@@ -22,6 +22,7 @@ import {
   WIDGET_DEPRECATION_WARNING_HEADER,
 } from "@appsmith/constants/messages";
 import { TabComponent } from "components/ads/Tabs";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -49,6 +50,7 @@ function PropertyPaneView(
   const { ...panel } = props;
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
   const doActionsExist = useSelector(actionsExist);
+  const featureFlags = useSelector(selectFeatureFlags);
   const hideConnectDataCTA = useMemo(() => {
     if (widgetProperties) {
       return excludeList.includes(widgetProperties.type);
@@ -156,8 +158,7 @@ function PropertyPaneView(
             textColor={Colors.BROWN}
           />
         )}
-        {/* TODO(aswath): Bring in feature flag here */}
-        {true && (
+        {featureFlags.PROPERTY_PANE_GROUPING ? (
           <TabComponent
             tabs={[
               {
@@ -188,9 +189,7 @@ function PropertyPaneView(
               },
             ]}
           />
-        )}
-        {/* TODO(aswath): Bring in feature flag here */}
-        {false && (
+        ) : (
           <PropertyControlsGenerator
             id={widgetProperties.widgetId}
             panel={panel}
