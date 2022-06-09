@@ -521,12 +521,10 @@ export class AggregateHelper {
   }
 
   public UpdateCodeInput(selector: string, value: string) {
+    this.EnableAllEditors();
     cy.wrap(selector)
       .click({ force: true })
       .wait(1000)
-      .then(() => {
-        this.EnableAllEditors();
-      })
       .find(".CodeMirror")
       .first()
       .then((ins: any) => {
