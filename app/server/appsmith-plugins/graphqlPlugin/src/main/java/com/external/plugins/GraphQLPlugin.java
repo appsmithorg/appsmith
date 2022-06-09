@@ -81,7 +81,6 @@ public class GraphQLPlugin extends BasePlugin {
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
             // TODO: handle smart substitution for query body and query variables
-            // TODO: handle cursor pagination
 
             Boolean smartSubstitution = this.smartSubstitutionUtils.isSmartSubstitutionEnabled(properties);
             if (TRUE.equals(smartSubstitution)) {
