@@ -293,7 +293,7 @@ describe("JS Function Execution", function() {
     const assertAsyncFunctionsOrder = () => {
       cy.get(jsEditor._asyncJSFunctionSettings).then(function($lis) {
         const asyncFunctionLength = $lis.length;
-        // Assert that there are four async functions
+        // Assert number of async functions
         expect(asyncFunctionLength).to.equal(functionsLength);
         Object.values(SORTED_FUNCTIONS_SETTINGS_DEFAULT_DATA).forEach(
           (functionSetting, idx) => {
@@ -324,7 +324,8 @@ describe("JS Function Execution", function() {
         );
       },
     );
-
+    // Switch to settings tab
+    agHelper.GetNClick(jsEditor._settingsTab);
     //After JSObj is created - check methods are in alphabetical order
     assertAsyncFunctionsOrder();
 
