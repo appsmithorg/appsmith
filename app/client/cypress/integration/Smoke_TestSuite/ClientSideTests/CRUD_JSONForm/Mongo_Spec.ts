@@ -8,7 +8,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   homePage = ObjectsRegistry.HomePage,
   dataSources = ObjectsRegistry.DataSources,
   deployMode = ObjectsRegistry.DeployMode,
-  table = ObjectsRegistry.Table;
+  table = ObjectsRegistry.Table,
+  propPane = ObjectsRegistry.PropertyPane;
 
 describe("Validate Mongo CRUD with JSON Form", () => {
   before(() => {
@@ -23,6 +24,8 @@ describe("Validate Mongo CRUD with JSON Form", () => {
   });
 
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
+    propPane.ChangeTheme("Sharp");
+
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       dataSources.NavigateToDSCreateNew();
@@ -54,6 +57,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
 
     agHelper.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
+
     //Delete the test data
     ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
@@ -65,12 +69,8 @@ describe("Validate Mongo CRUD with JSON Form", () => {
       dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
     });
 
-    deployMode.DeployApp();
-    agHelper.NavigateBacktoEditor();
-    cy.get("@dsName").then(($dsName) => {
-      dsName = $dsName;
-      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
-    });
+    // deployMode.DeployApp();
+    // agHelper.NavigateBacktoEditor();
   });
 
   it("2. Generate CRUD page from datasource present in ACTIVE section", function() {
@@ -78,31 +78,19 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     agHelper.ValidateNetworkStatus("@getDatasourceStructure");
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "coffeeCafe");
-
     GenerateCRUDNValidateDeployPage("", "", "Washington, US", 11);
-
     agHelper.NavigateBacktoEditor();
     table.WaitUntilTableLoad(1, 0);
     //Delete the test data
     ee.expandCollapseEntity("PAGES");
     ee.ActionContextMenuByEntityName("CoffeeCafe", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
+    deployMode.DeployApp();
+    agHelper.NavigateBacktoEditor();
+    dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
   });
 
   //Update, delete, Add goes here
-
-  it("3. Validate Deletion of the Newly Created Page - add name here", () => {
-    agHelper.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
-    //Delete the test data
-    ee.expandCollapseEntity("PAGES");
-    ee.ActionContextMenuByEntityName(
-      "AuthorNAwards",
-      "Delete",
-      "Are you sure?",
-    );
-    agHelper.ValidateNetworkStatus("@deletePage", 200);
-  });
 
   function GenerateCRUDNValidateDeployPage(
     col1Text: string,

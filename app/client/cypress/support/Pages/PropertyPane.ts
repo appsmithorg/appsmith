@@ -69,7 +69,7 @@ export class PropertyPane {
   public ChangeTheme(newTheme: string) {
     this.agHelper.GetNClick(this._changeThemeBtn, 0, true);
     this.agHelper.GetNClick(this._themeCard(newTheme));
-    this.agHelper.ValidateToastMessage("Theme " + newTheme + " Applied");
+    this.agHelper.ValidateToastMessage("Theme " + (newTheme == "Modern" ? "Default" : newTheme) + " Applied");
   }
 
   public GetJSONFormConfigurationFileds() {

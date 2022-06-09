@@ -8,7 +8,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   homePage = ObjectsRegistry.HomePage,
   dataSources = ObjectsRegistry.DataSources,
   deployMode = ObjectsRegistry.DeployMode,
-  table = ObjectsRegistry.Table;
+  table = ObjectsRegistry.Table,
+  propPane = ObjectsRegistry.PropertyPane;
 
 describe("Validate Mongo Query Pane Validations", () => {
   before(() => {
@@ -58,6 +59,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
+    propPane.ChangeTheme("Modern");
   });
 
   it("2. Create new CRUD collection 'AuthorNAwards' & refresh Entity Explorer to find the new collection", () => {
@@ -313,6 +315,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     agHelper.ActionContextMenuWithInPane("Delete");
 
+    ee.expandCollapseEntity("DATASOURCES")
     ee.expandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("AuthorNAwards"));
