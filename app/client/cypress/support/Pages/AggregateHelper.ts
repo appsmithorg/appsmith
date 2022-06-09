@@ -649,11 +649,15 @@ export class AggregateHelper {
   public EnableAllEditors() {
     cy.get("body").then(($body) => {
       if ($body.find(this.locator._codeEditorWrapper)?.length > 0) {
-        $body.find(this.locator._codeEditorWrapper).each((index, $el) => {
-          cy.wrap($el)
-            .click({ force: true })
-            .wait(200);
-        });
+        let count = $body.find(this.locator._codeEditorWrapper)?.length || 0;
+        while (count) {
+          $body
+            .find(this.locator._codeEditorWrapper)
+            .eq(0)
+            .trigger("click", { force: true });
+          cy.wait(200);
+          count = $body.find(this.locator._codeEditorWrapper)?.length || 0;
+        }
       }
     });
     cy.wait(2000);

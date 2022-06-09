@@ -1161,16 +1161,15 @@ Cypress.Commands.add(
 Cypress.Commands.add("EnableAllCodeEditors", () => {
   cy.get("body").then(($body) => {
     if ($body.find(commonlocators.codeEditorWrapper)?.length > 0) {
-      $body.find(commonlocators.codeEditorWrapper).each((index, $el) => {
-        cy.wrap($el)
-          .should(($elem) => {
-            expect($elem).to.have.length(1);
-          })
-          .then(($elem) => {
-            $elem.trigger("click", { force: true });
-          })
-          .click({ force: true });
-      });
+      let count = $body.find(commonlocators.codeEditorWrapper)?.length || 0;
+      while (count) {
+        $body
+          .find(commonlocators.codeEditorWrapper)
+          .eq(0)
+          .trigger("click", { force: true });
+        cy.wait(200);
+        count = $body.find(commonlocators.codeEditorWrapper)?.length || 0;
+      }
     }
   });
   cy.wait(2000);
