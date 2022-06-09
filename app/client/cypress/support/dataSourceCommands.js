@@ -7,6 +7,7 @@ const pages = require("../locators/Pages.json");
 const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
 const explorer = require("../locators/explorerlocators.json");
+const apiWidgetslocator = require("../locators/apiWidgetslocator.json");
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -398,4 +399,55 @@ Cypress.Commands.add("fillMongoDatasourceFormWithURI", () => {
 
 Cypress.Commands.add("ReconnectDatasource", (datasource) => {
   cy.xpath(`//span[text()='${datasource}']`).click();
+});
+
+Cypress.Commands.add("createNewAuthApiDatasource", (renameVal) => {
+  cy.NavigateToAPI_Panel();
+  //Click on Authenticated API
+  cy.get(apiWidgetslocator.createAuthApiDatasource).click();
+  //Verify weather Authenticated API is successfully created.
+  cy.wait("@createDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+  cy.get(datasourceEditor.datasourceTitleLocator).click();
+  cy.get(`${datasourceEditor.datasourceTitleLocator} input`)
+    .clear()
+    .type(renameVal, { force: true })
+    .blur();
+  //Fill dummy inputs and save
+  cy.fillAuthenticatedAPIForm();
+  cy.saveDatasource();
+  // Added because api name edit takes some time to
+  // reflect in api sidebar after the call passes.
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+});
+
+Cypress.Commands.add("deleteAuthApiDatasource", (renameVal) => {
+  //Navigate to active datasources panel.
+  cy.get(pages.addEntityAPI)
+    .last()
+    .should("be.visible")
+    .click({ force: true });
+  cy.get(pages.integrationActiveTab)
+    .should("be.visible")
+    .click({ force: true });
+  cy.get("#loading").should("not.exist");
+  //Select the datasource to delete
+  cy.get(".t--datasource-name")
+    .contains(renameVal)
+    .click();
+  //Click on delete and later confirm
+  cy.get(".t--delete-datasource").click();
+  cy.get(".t--delete-datasource")
+    .contains("Are you sure?")
+    .click();
+  //Verify the status of deletion
+  cy.wait("@deleteDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
 });
