@@ -753,7 +753,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     //assuming modifiedAt will be always available
     editedOn = howMuchTimeBeforeText(editedOn);
     editedOn = editedOn !== "" ? editedOn + " ago" : "";
-    // return editedBy + " edited " + editedOn;
+
     return {
       editedBy,
       editedOn: " edited " + editedOn,
