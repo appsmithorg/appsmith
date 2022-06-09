@@ -8,7 +8,7 @@ import {
   JsFileIconV2,
   jsFunctionIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { getWidgetOptionsTree } from "sagas/selectors";
@@ -61,6 +61,7 @@ import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
+import { Switch } from "components/ads/Switcher";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -145,6 +146,7 @@ const getBaseOptions = (featureFlags: FeatureFlags) => {
 
 function getFieldFromValue(
   value: string | undefined,
+  activeTabNavigateTo: Switch,
   getParentValue?: Function,
   dataTree?: DataTree,
 ): any[] {
@@ -183,6 +185,7 @@ function getFieldFromValue(
         }
         const successFields = getFieldFromValue(
           successValue,
+          activeTabNavigateTo,
           (changeValue: string) => {
             const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
             const args = [
@@ -209,6 +212,7 @@ function getFieldFromValue(
         }
         const errorFields = getFieldFromValue(
           errorValue,
+          activeTabNavigateTo,
           (changeValue: string) => {
             const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
             const args = [
@@ -280,8 +284,17 @@ function getFieldFromValue(
   });
   if (value.indexOf("navigateTo") !== -1) {
     fields.push({
-      field: FieldType.URL_FIELD,
+      field: FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD,
     });
+    if (activeTabNavigateTo.id === NAVIGATE_TO_TAB_OPTIONS.PAGE_NAME) {
+      fields.push({
+        field: FieldType.PAGE_SELECTOR_FIELD,
+      });
+    } else {
+      fields.push({
+        field: FieldType.URL_FIELD,
+      });
+    }
     fields.push({
       field: FieldType.QUERY_PARAMS_FIELD,
     });
@@ -571,23 +584,55 @@ type ActionCreatorProps = {
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
 
+const NAVIGATE_TO_TAB_OPTIONS = {
+  PAGE_NAME: "page-name",
+  URL: "url",
+};
+
 export const ActionCreator = React.forwardRef(
   (props: ActionCreatorProps, ref: any) => {
+    const NAVIGATE_TO_TAB_SWITCHER: Array<Switch> = [
+      {
+        id: "page-name",
+        text: "Page Name",
+        action: () => {
+          setActiveTabNavigateTo(NAVIGATE_TO_TAB_SWITCHER[0]);
+        },
+      },
+      {
+        id: "url",
+        text: "URL",
+        action: () => {
+          setActiveTabNavigateTo(NAVIGATE_TO_TAB_SWITCHER[1]);
+        },
+      },
+    ];
+
+    const [activeTabNavigateTo, setActiveTabNavigateTo] = useState(
+      NAVIGATE_TO_TAB_SWITCHER[0],
+    );
     const dataTree = useSelector(getDataTree);
     const integrationOptionTree = useIntegrationsOptionTree();
     const widgetOptionTree = useSelector(getWidgetOptionsTree);
     const modalDropdownList = useModalDropdownList();
     const pageDropdownOptions = useSelector(getPageListAsOptions);
-    const fields = getFieldFromValue(props.value, undefined, dataTree);
+    const fields = getFieldFromValue(
+      props.value,
+      activeTabNavigateTo,
+      undefined,
+      dataTree,
+    );
     return (
-      <TreeStructure ref={ref}>
+      <TreeStructure>
         <Fields
+          activeNavigateToTab={activeTabNavigateTo}
           additionalAutoComplete={props.additionalAutoComplete}
           depth={1}
           fields={fields}
           integrationOptionTree={integrationOptionTree}
           maxDepth={1}
           modalDropdownList={modalDropdownList}
+          navigateToSwitches={NAVIGATE_TO_TAB_SWITCHER}
           onValueChange={props.onValueChange}
           pageDropdownOptions={pageDropdownOptions}
           value={props.value}
