@@ -109,7 +109,7 @@ function MultiSelectComponent({
         `.${MODAL_PORTAL_CLASSNAME}`,
       ) as HTMLElement;
     }
-    return document.querySelector(`.${CANVAS_SELECTOR}`) as HTMLElement;
+    return document.querySelector(CANVAS_SELECTOR) as HTMLElement;
   }, []);
 
   const handleSelectAll = () => {
