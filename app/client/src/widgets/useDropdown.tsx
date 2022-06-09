@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import { getMainCanvas } from "./WidgetUtils";
 import styled from "styled-components";
 import Select from "rc-select";
@@ -23,13 +23,7 @@ const FOCUS_TIMEOUT = 500;
 
 // TODO: Refactor More functionalities in MultiSelect, MultiTreeSelect and TreeSelect Components
 const useDropdown = ({ inputRef, renderMode, selectRef }: useDropdownProps) => {
-  const popupContainer = useRef<HTMLElement | null>(null);
-
-  // Get PopupContainer on main Canvas
-  useLayoutEffect(() => {
-    const parent = getMainCanvas();
-    popupContainer.current = parent;
-  }, []);
+  const popupContainer = useRef<HTMLElement>(getMainCanvas());
 
   const closeBackDrop = useCallback(() => {
     if (selectRef.current) {
@@ -41,15 +35,14 @@ const useDropdown = ({ inputRef, renderMode, selectRef }: useDropdownProps) => {
   function BackDrop() {
     return <BackDropContainer onClick={closeBackDrop} />;
   }
-  const getPopupContainer = useCallback(
-    () => popupContainer.current as HTMLElement,
-    [],
-  );
+  // Get PopupContainer on main Canvas
+  const getPopupContainer = useCallback(() => popupContainer.current, []);
 
   // When Dropdown is opened disable scrolling within the app except the list of options
   const onOpen = useCallback((open: boolean) => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
+      console.log(popupContainer.current);
       if (popupContainer.current && renderMode === RenderModes.CANVAS) {
         popupContainer.current.style.overflowY = "hidden";
       }
