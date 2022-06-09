@@ -374,7 +374,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
-    .type("{uparrow}", { force: true })
+    .type("{ctrl}{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
     if ($cm.contents !== "") {

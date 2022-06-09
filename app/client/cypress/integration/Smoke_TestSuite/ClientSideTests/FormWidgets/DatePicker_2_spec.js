@@ -36,7 +36,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
   });
 
   it("Text widgets binding with datepicker", function() {
-    cy.SearchEntityandOpen("Text1");
+    cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
     cy.closePropertyPane();
     cy.SearchEntityandOpen("Text2");
@@ -66,6 +66,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       "defaultdate",
       '{{moment("04/05/2021 05:25", "DD/MM/YYYY HH:mm").toISOString()}}',
     );
+    cy.testJsontext("mindate", "");
     cy.get(formWidgetsPage.toggleJsMinDate).click();
     cy.get(".t--property-control-mindate .bp3-input").clear();
     cy.get(".t--property-control-mindate .bp3-input").type("2020-02-01");
@@ -170,6 +171,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       .should("contain", "true");
     // Change defaultDate
     cy.openPropertyPane("datepickerwidget2");
+    cy.testJsontext("defaultdate", "");
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
     cy.get(".t--property-control-defaultdate .bp3-input").clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
