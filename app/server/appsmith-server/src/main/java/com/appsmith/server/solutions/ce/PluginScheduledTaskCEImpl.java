@@ -1,11 +1,12 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.util.WebClientUtils;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -14,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.StringUtils;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -104,7 +104,7 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
         }
 
         return configService.getInstanceId()
-                .flatMap(instanceId -> WebClient
+                .flatMap(instanceId -> WebClientUtils
                         .create(
                                 baseUrl + "/api/v1/plugins?instanceId=" + instanceId
                                         + "&lastUpdatedAt=" + lastUpdatedAt)

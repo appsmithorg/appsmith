@@ -6,6 +6,7 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
+import com.appsmith.util.WebClientUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -101,7 +102,7 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
     }
 
     private Mono<OAuth2> generateOAuth2Token(OAuth2 oAuth2) {
-        WebClient.Builder webClientBuilder = WebClient.builder()
+        WebClient.Builder webClientBuilder = WebClientUtils.builder()
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .exchangeStrategies(ExchangeStrategies
                         .builder()

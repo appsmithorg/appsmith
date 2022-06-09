@@ -3,6 +3,7 @@ package com.external.config;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.util.WebClientUtils;
 import com.external.constants.GoogleSheets;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,7 +49,7 @@ public class DeleteSheetMethod implements Method {
             return Mono.just(true);
         }
 
-        WebClient client = WebClient.builder()
+        WebClient client = WebClientUtils.builder()
                 .exchangeStrategies(EXCHANGE_STRATEGIES)
                 .build();
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,

@@ -1,11 +1,11 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.EnvVariables;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.EnvChangesResponseDTO;
@@ -18,9 +18,9 @@ import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
-import com.appsmith.server.services.AnalyticsService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,13 +48,13 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -70,13 +70,13 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_PASSWORD;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_PORT;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_SMTP_AUTH;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_USERNAME;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GITHUB_CLIENT_ID;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_RECAPTCHA_SECRET_KEY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_RECAPTCHA_SITE_KEY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_REPLY_TO;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SIGNUP_ALLOWED_DOMAINS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SIGNUP_DISABLED;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GITHUB_CLIENT_ID;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -159,11 +159,53 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 .collect(Collectors.toList());
 
         for (final String name : remainingChangedNames) {
-            outLines.add(name + "=" + changes.get(name));
+            outLines.add(name + "='" + changes.get(name).replace("'", "'\\''") + "'");
         }
 
         return outLines;
     }
+
+    /*
+    final void parseEnvLine(String line) {
+        String[] parts = line.split("=", 1);
+        final String name = parts[0];
+
+        final char[] valueChars = line.toCharArray();
+        String state = "normal";
+
+        StringBuilder value = new StringBuilder();
+
+        for (int i = 0; i <= valueChars.length; ++i) {
+            final char c = valueChars[i];
+
+            if ("escape-next".equals(state)) {
+                state =
+
+            } else if (c == '\\') {
+                state = "escape-next";
+
+            } else if (c == '"') {
+                if (i > 0 && valueChars[i - 1] == '\\') {
+                    value.append('"');
+                } else if ("in-double-quote".equals(state)) {
+                    state = "normal";
+                } else {
+                    state = "in-double-quote";
+                }
+
+            } else if (c == '\'') {
+                if ("in-single-quote".equals(state)) {
+                    state = "normal";
+                } else {
+                    state = "in-single-quote";
+                }
+
+            } else {
+                value.append(c);
+
+            }
+        }
+    }//*/
 
     private Mono<Void> validateChanges(User user, Map<String, String> changes) {
         if(changes.containsKey(APPSMITH_ADMIN_EMAILS.name())) {

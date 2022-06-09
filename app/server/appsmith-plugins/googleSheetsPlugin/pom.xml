@@ -160,12 +160,6 @@
             <version>2.2.4.RELEASE</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>io.projectreactor.netty</groupId>
-            <artifactId>reactor-netty</artifactId>
-            <version>0.9.4.RELEASE</version>
-            <scope>provided</scope>
-        </dependency>
 
     </dependencies>
 

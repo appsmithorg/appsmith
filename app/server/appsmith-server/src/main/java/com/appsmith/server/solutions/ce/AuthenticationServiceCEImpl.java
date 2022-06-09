@@ -25,6 +25,7 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
@@ -164,7 +165,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .flatMap(datasourceService::getById)
                 .flatMap(datasource -> {
                     OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
-                    WebClient.Builder builder = WebClient.builder().baseUrl(oAuth2.getAccessTokenUrl());
+                    WebClient.Builder builder = WebClientUtils.builder().baseUrl(oAuth2.getAccessTokenUrl());
 
                     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 
@@ -333,9 +334,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             return integrationDTO;
                         }))
                 .flatMap(integrationDTO -> {
-                    WebClient.Builder builder = WebClient.builder();
-                    builder.baseUrl(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/appsmith");
-                    return builder.build()
+                    return WebClientUtils.create(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/appsmith")
                             .method(HttpMethod.POST)
                             .body(BodyInserters.fromValue(integrationDTO))
                             .exchange()
@@ -382,7 +381,6 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap(datasource -> {
-                    WebClient.Builder builder = WebClient.builder();
                     UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
                     try {
                         uriBuilder.uri(new URI(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/token"))
@@ -390,7 +388,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     } catch (URISyntaxException e) {
                         log.debug("Error while parsing access token URL.", e);
                     }
-                    return builder.build()
+                    return WebClientUtils.create()
                             .method(HttpMethod.POST)
                             .uri(uriBuilder.build(true).toUri())
                             .exchange()
@@ -442,11 +440,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     integrationDTO.setPluginName(plugin.getPluginName());
                     integrationDTO.setPluginVersion(plugin.getVersion());
 
-                    WebClient.Builder builder = WebClient
-                            .builder()
-                            .baseUrl(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/refresh");
-
-                    return builder.build()
+                    return WebClientUtils.create(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/refresh")
                             .method(HttpMethod.POST)
                             .body(BodyInserters.fromValue(integrationDTO))
                             .exchange()

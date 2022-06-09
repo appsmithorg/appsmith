@@ -14,6 +14,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.appsmith.util.WebClientUtils;
 import com.external.config.GoogleSheetsMethodStrategy;
 import com.external.config.Method;
 import com.external.config.MethodConfig;
@@ -153,12 +154,10 @@ public class GoogleSheetsPlugin extends BasePlugin {
             // Convert unreadable map to a DTO
             MethodConfig methodConfig = new MethodConfig(properties);
 
-            // Initializing webClient to be used for http call
-            WebClient.Builder webClientBuilder = WebClient.builder();
-
             method.validateMethodRequest(methodConfig);
 
-            WebClient client = webClientBuilder
+            // Initializing webClient to be used for http call
+            WebClient client = WebClientUtils.builder()
                     .exchangeStrategies(EXCHANGE_STRATEGIES)
                     .build();
 

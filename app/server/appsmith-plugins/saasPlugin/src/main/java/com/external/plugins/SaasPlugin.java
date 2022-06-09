@@ -12,6 +12,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
+import com.appsmith.util.WebClientUtils;
 import com.external.helpers.RequestCaptureFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -105,7 +106,7 @@ public class SaasPlugin extends BasePlugin {
 
 
             // Initializing webClient to be used for http call
-            WebClient.Builder webClientBuilder = WebClient.builder();
+            WebClient.Builder webClientBuilder = WebClientUtils.builder();
             webClientBuilder.defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE);
             final RequestCaptureFilter requestCaptureFilter = new RequestCaptureFilter(objectMapper);
             webClientBuilder.filter(requestCaptureFilter);

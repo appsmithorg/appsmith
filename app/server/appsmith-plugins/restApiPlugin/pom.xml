@@ -134,11 +134,6 @@
             <version>5.2.3.RELEASE</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>io.projectreactor.netty</groupId>
-            <artifactId>reactor-netty-http</artifactId>
-            <scope>provided</scope>
-        </dependency>
 
     </dependencies>
 

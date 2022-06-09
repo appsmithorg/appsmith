@@ -3,6 +3,7 @@ package com.external.config;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.util.WebClientUtils;
 import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -74,7 +75,7 @@ public class BulkUpdateMethod implements Method {
 
     @Override
     public Mono<Object> executePrerequisites(MethodConfig methodConfig, OAuth2 oauth2) {
-        WebClient client = WebClient.builder()
+        WebClient client = WebClientUtils.builder()
                 .exchangeStrategies(EXCHANGE_STRATEGIES)
                 .build();
         final GetValuesMethod getValuesMethod = new GetValuesMethod(this.objectMapper);

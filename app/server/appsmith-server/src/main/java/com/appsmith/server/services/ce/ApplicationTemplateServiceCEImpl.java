@@ -13,6 +13,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
+import com.appsmith.util.WebClientUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -32,7 +33,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.List;
 
 @Service
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
@@ -59,7 +59,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         final String apiUrl = String.format("%s/api/v1/app-templates/%s/similar?version=%s",
                 cloudServicesConfig.getBaseUrl(), templateId, releaseNotesService.getReleasedVersion()
         );
-        return WebClient
+        return WebClientUtils
                 .create(apiUrl)
                 .get()
                 .exchangeToFlux(clientResponse -> {
@@ -87,7 +87,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         // uriComponents will build url in format: version=version&id=id1&id=id2&id=id3
         UriComponents uriComponents = uriComponentsBuilder.build();
 
-        return WebClient
+        return WebClientUtils
                 .create(baseUrl + "/api/v1/app-templates?" + uriComponents.getQuery())
                 .get()
                 .exchangeToFlux(clientResponse -> {
@@ -124,7 +124,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     public Mono<ApplicationTemplate> getTemplateDetails(String templateId) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
 
-        return WebClient
+        return WebClientUtils
                 .create(baseUrl + "/api/v1/app-templates/" + templateId)
                 .get()
                 .exchangeToMono(clientResponse -> {
@@ -144,7 +144,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             /* using a custom url builder factory because default builder always encodes URL.
              It's expected that the appDataUrl is already encoded, so we don't need to encode that again.
              Encoding an encoded URL will not work and end up resulting a 404 error */
-        WebClient webClient = WebClient.builder()
+        WebClient webClient = WebClientUtils.builder()
                 .uriBuilderFactory(new NoEncodingUriBuilderFactory(templateUrl))
                 .build();
 
@@ -197,7 +197,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     public Mono<ApplicationTemplate> getFilters() {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
 
-        return WebClient
+        return WebClientUtils
                 .create(baseUrl + "/api/v1/app-templates/filters")
                 .get()
                 .exchangeToMono(clientResponse -> {

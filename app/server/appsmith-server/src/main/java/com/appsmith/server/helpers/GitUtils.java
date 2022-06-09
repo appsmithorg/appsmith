@@ -1,18 +1,14 @@
 package com.appsmith.server.helpers;
 
 
-import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.util.WebClientUtils;
 import org.eclipse.jgit.util.StringUtils;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClientRequest;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,7 +63,7 @@ public class GitUtils {
      * @throws IOException exception thrown during openConnection
      */
     public static Mono<Boolean> isRepoPrivate(String remoteHttpsUrl) {
-        return WebClient
+        return WebClientUtils
                 .create(remoteHttpsUrl)
                 .get()
                 .httpRequest(httpRequest -> {
