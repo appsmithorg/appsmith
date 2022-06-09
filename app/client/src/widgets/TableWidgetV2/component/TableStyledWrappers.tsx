@@ -577,7 +577,7 @@ export const MenuStyledOptionHeader = styled.div`
   font-weight: 600;
 `;
 
-export const TooltipContentWrapper = styled.div<{ width: number }>`
+export const TooltipContentWrapper = styled.div<{ width?: number }>`
   word-break: break-all;
   max-width: ${(props) => props.width}px;
 `;

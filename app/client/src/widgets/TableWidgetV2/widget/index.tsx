@@ -1506,6 +1506,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             cellBackground={cellProperties.cellBackground}
             columnType={column.columnType}
             compactMode={compactMode}
+            disabledEditIcon={
+              this.props.updatedRowIndices.length &&
+              this.props.updatedRowIndices.indexOf(originalIndex) === -1
+            }
             displayText={cellProperties.displayText}
             fontStyle={cellProperties.fontStyle}
             hasUnsavedChanged={cellProperties.hasUnsavedChanged}

@@ -1,5 +1,6 @@
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
+import { Tooltip } from "@blueprintjs/core";
 import AutoToolTipComponent from "./AutoToolTipComponent";
 import { RenderDefaultPropsType } from "./DefaultCell";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
@@ -8,6 +9,7 @@ import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { ALIGN_ITEMS, TABLE_SIZES, VerticalAlignment } from "../Constants";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { CELL_WRAPPER_LINE_HEIGHT } from "../TableStyledWrappers";
+import { TooltipContentWrapper } from "../TableStyledWrappers";
 
 const Container = styled.div<{
   isCellEditMode?: boolean;
@@ -49,13 +51,15 @@ const StyledEditIcon = styled.div<{
   accentColor?: string;
   backgroundColor?: string;
   compactMode: string;
+  disabledEditIcon: boolean;
 }>`
   position: absolute;
   right: 6px;
   top: ${(props) => TABLE_SIZES[props.compactMode].EDIT_ICON_TOP}px;
-  background: ${(props) => props.accentColor};
+  background: ${(props) =>
+    props.disabledEditIcon ? "#999" : props.accentColor};
   padding: 2px;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabledEditIcon ? "default" : "pointer")};
   display: none;
 
   & svg {
@@ -99,6 +103,7 @@ export function TextCell({
   cellBackground,
   columnType,
   compactMode,
+  disabledEditIcon,
   fontStyle,
   hasUnsavedChanged,
   horizontalAlignment,
@@ -121,7 +126,7 @@ export function TextCell({
 
   const onEditHandler = useCallback(
     (e: React.MouseEvent<SVGElement | HTMLDivElement>) => {
-      if (isCellEditable) {
+      if (isCellEditable && !disabledEditIcon) {
         e.stopPropagation();
         onEdit();
       }
@@ -196,9 +201,25 @@ export function TextCell({
             backgroundColor={cellBackground}
             className="editable-cell-icon"
             compactMode={compactMode}
+            disabledEditIcon={disabledEditIcon}
             onMouseUp={onEditHandler}
           >
-            <EditIcon onClick={(e) => e.stopPropagation()} />
+            {disabledEditIcon ? (
+              <Tooltip
+                autoFocus={false}
+                content={
+                  <TooltipContentWrapper>
+                    Save the unsaved row before editing this row
+                  </TooltipContentWrapper>
+                }
+                hoverOpenDelay={1000}
+                position="top"
+              >
+                <EditIcon onClick={(e) => e.stopPropagation()} />
+              </Tooltip>
+            ) : (
+              <EditIcon onClick={(e) => e.stopPropagation()} />
+            )}
           </StyledEditIcon>
         )}
       </Wrapper>
