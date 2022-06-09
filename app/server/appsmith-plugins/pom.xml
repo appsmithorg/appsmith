@@ -74,5 +74,6 @@
         <module>jsPlugin</module>
         <module>saasPlugin</module>
         <module>smtpPlugin</module>
+        <module>oraclePlugin</module>
     </modules>
 </project>
