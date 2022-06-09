@@ -277,14 +277,6 @@ border: 1px solid #E8E8E8;
 						outline: none !important;
     }
     ${CommonSelectFilterStyle}
-    .select-backdrop {
-    position: fixed;
-    width: 100vw;
-    height:100vh;
-    background:transparent ;
-    top: 0;
-    left: 0;
-  }
     .rc-tree-select-item {
 	font-size: 16px;
 	line-height: 1.5;

@@ -17,19 +17,15 @@ import {
 import "rc-tree-select/assets/index.less";
 import { DefaultValueType, LabelValueType } from "rc-tree-select/lib/interface";
 import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
-import { RenderMode, RenderModes, TextSize } from "constants/WidgetConstants";
+import { RenderMode, TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
-import {
-  getMainCanvas,
-  labelMargin,
-  WidgetContainerDiff,
-} from "widgets/WidgetUtils";
+import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import LabelWithTooltip from "components/ads/LabelWithTooltip";
 import Select from "rc-select";
-import { BackDrop } from "widgets/MultiSelectWidgetV2/component";
+import useDropdown from "widgets/useDropdown";
 
 export interface TreeSelectProps
   extends Required<
@@ -100,7 +96,6 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
   }
   return getSvg(treeNode.expanded);
 };
-const FOCUS_TIMEOUT = 500;
 
 function SingleSelectTreeComponent({
   accentColor,
@@ -134,34 +129,23 @@ function SingleSelectTreeComponent({
   const [key, setKey] = useState(Math.random());
   const [filter, setFilter] = useState(filterText ?? "");
 
-  const popupContainer = useRef<HTMLElement | null>(null);
   const selectRef = useRef<Select<LabelValueType[]> | null>(null);
   const labelRef = useRef<HTMLDivElement>(null);
   const _menu = useRef<HTMLElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
 
+  const { BackDrop, getPopupContainer, onOpen } = useDropdown({
+    selectRef,
+    inputRef,
+    renderMode,
+  });
+
   // treeDefaultExpandAll is uncontrolled after first render,
   // using this to force render to respond to changes in expandAll
   useEffect(() => {
     setKey(Math.random());
   }, [expandAll]);
-
-  // Get PopupContainer with is main Canvas
-  useEffect(() => {
-    const parent = getMainCanvas();
-    popupContainer.current = parent;
-  }, []);
-
-  const closeBackDrop = useCallback(() => {
-    if (selectRef.current) {
-      selectRef.current.blur();
-    }
-  }, []);
-  const getPopupContainer = useCallback(
-    () => popupContainer.current as HTMLElement,
-    [],
-  );
 
   const onSelectionChange = useCallback(
     (value?: DefaultValueType, labelList?: ReactNode[]) => {
@@ -171,19 +155,7 @@ function SingleSelectTreeComponent({
     [],
   );
   const onClear = useCallback(() => onChange([], []), []);
-  // When Dropdown is opened disable scrolling within the app except the list of options
-  const onOpen = useCallback((open: boolean) => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
-      if (popupContainer.current && renderMode === RenderModes.CANVAS) {
-        popupContainer.current.style.overflowY = "hidden";
-      }
-    } else {
-      if (popupContainer.current && renderMode === RenderModes.CANVAS) {
-        popupContainer.current.style.overflowY = "auto";
-      }
-    }
-  }, []);
+
   const clearButton = useMemo(
     () =>
       filter ? (
@@ -216,7 +188,7 @@ function SingleSelectTreeComponent({
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
       <>
-        <BackDrop onClick={closeBackDrop} />
+        <BackDrop />
         {isFilterable ? (
           <InputGroup
             inputRef={inputRef}

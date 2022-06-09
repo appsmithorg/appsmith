@@ -18,29 +18,20 @@ import MenuItemCheckBox, {
   StyledCheckbox,
   InputContainer,
 } from "./index.styled";
-import { RenderMode, RenderModes, TextSize } from "constants/WidgetConstants";
+import { RenderMode, TextSize } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
-import {
-  getMainCanvas,
-  labelMargin,
-  WidgetContainerDiff,
-} from "widgets/WidgetUtils";
+import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { uniqBy } from "lodash";
 import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import useDropdown from "widgets/useDropdown";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;
 };
 
-type BackDropProps = {
-  onClick: () => void;
-};
-export function BackDrop({ onClick }: BackDropProps) {
-  return <div className="select-backdrop" onClick={onClick} />;
-}
 export interface MultiSelectProps
   extends Required<
     Pick<
@@ -77,7 +68,6 @@ export interface MultiSelectProps
 }
 
 const DEBOUNCE_TIMEOUT = 1000;
-const FOCUS_TIMEOUT = 500;
 
 function MultiSelectComponent({
   accentColor,
@@ -115,12 +105,17 @@ function MultiSelectComponent({
   const [filter, setFilter] = useState(filterText ?? "");
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
-  const popupContainer = useRef<HTMLElement | null>(null);
   const selectRef = useRef<Select<LabelValueType[]> | null>(null);
 
   const _menu = useRef<HTMLElement | null>(null);
   const labelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { BackDrop, getPopupContainer, onOpen } = useDropdown({
+    selectRef,
+    inputRef,
+    renderMode,
+  });
 
   // SelectAll if all options are in Value
   useEffect(() => {
@@ -146,12 +141,6 @@ function MultiSelectComponent({
     return () => clearTimeout(timeOutId);
   }, [filter]);
 
-  // Get PopupContainer with is main Canvas
-  useEffect(() => {
-    const parent = getMainCanvas();
-    popupContainer.current = parent;
-  }, []);
-
   // Filter options based on serverSideFiltering
   useEffect(
     () => {
@@ -172,11 +161,6 @@ function MultiSelectComponent({
     },
     serverSideFiltering ? [options] : [filter, options],
   );
-  const closeBackDrop = useCallback(() => {
-    if (selectRef.current) {
-      selectRef.current.blur();
-    }
-  }, []);
 
   const clearButton = useMemo(
     () =>
@@ -184,10 +168,6 @@ function MultiSelectComponent({
         <Button icon="cross" minimal onClick={() => setFilter("")} />
       ) : null,
     [filter],
-  );
-  const getPopupContainer = useCallback(
-    () => popupContainer.current as HTMLElement,
-    [],
   );
 
   const handleSelectAll = () => {
@@ -211,20 +191,6 @@ function MultiSelectComponent({
     }
     return onChange([]);
   };
-
-  // When Dropdown is opened disable scrolling within the app except the list of options
-  const onOpen = useCallback((open: boolean) => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
-      if (popupContainer.current && renderMode === RenderModes.CANVAS) {
-        popupContainer.current.style.overflowY = "hidden";
-      }
-    } else {
-      if (popupContainer.current && renderMode === RenderModes.CANVAS) {
-        popupContainer.current.style.overflowY = "auto";
-      }
-    }
-  }, []);
 
   const checkOptionsAndValue = () => {
     const emptyFalseArr = [false];
@@ -258,7 +224,7 @@ function MultiSelectComponent({
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
       <>
-        <BackDrop onClick={closeBackDrop} />
+        <BackDrop />
         {isFilterable ? (
           <InputGroup
             inputRef={inputRef}
