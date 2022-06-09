@@ -1,5 +1,19 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 
+type templateActions =
+  | "SELECT"
+  | "INSERT"
+  | "UPDATE"
+  | "DELETE"
+  | "Find"
+  | "Find by ID"
+  | "Insert"
+  | "Update"
+  | "Delete"
+  | "Count"
+  | "Distinct"
+  | "Aggregate";
+
 export class EntityExplorer {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
@@ -97,7 +111,7 @@ export class EntityExplorer {
 
   public ActionTemplateMenuByEntityName(
     entityNameinLeftSidebar: string,
-    action: "SELECT" | "INSERT" | "UPDATE" | "DELETE",
+    action: templateActions,
   ) {
     cy.xpath(this._templateMenuTrigger(entityNameinLeftSidebar))
       .last()
