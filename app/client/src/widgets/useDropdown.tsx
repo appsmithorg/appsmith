@@ -43,6 +43,7 @@ const useDropdown = ({ inputRef, renderMode }: useDropdownProps) => {
     (open: boolean) => {
       if (open) {
         setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
+        // for more context, the Element we attach to in view mode doesn't have an overflow style, so this only applies to edit mode.
         if (popupContainer.current && renderMode === RenderModes.CANVAS) {
           popupContainer.current.style.overflowY = "hidden";
         }
