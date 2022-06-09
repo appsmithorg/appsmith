@@ -1162,7 +1162,14 @@ Cypress.Commands.add("EnableAllCodeEditors", () => {
   cy.get("body").then(($body) => {
     if ($body.find(commonlocators.codeEditorWrapper)?.length > 0) {
       $body.find(commonlocators.codeEditorWrapper).each((index, $el) => {
-        cy.wrap($el).click({ force: true });
+        cy.wrap($el)
+          .should(($elem) => {
+            expect($elem).to.have.length(1);
+          })
+          .then(($elem) => {
+            $elem.trigger("click", { force: true });
+          })
+          .click({ force: true });
       });
     }
   });
