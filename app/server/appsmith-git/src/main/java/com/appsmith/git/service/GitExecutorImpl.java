@@ -10,12 +10,12 @@ import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.AppsmithBotAsset;
-import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.constants.Constraint;
 import com.appsmith.git.constants.GitDirectories;
 import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
 import com.appsmith.git.helpers.StopwatchHelpers;
+import com.appsmith.git.helpers.StringOutputStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.CreateBranchCommand;
@@ -56,6 +56,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.appsmith.git.constants.CommonConstants.CANVAS;
+import static com.appsmith.git.constants.CommonConstants.JSON_EXTENSION;
 
 @RequiredArgsConstructor
 @Component
@@ -477,7 +482,7 @@ public class GitExecutorImpl implements GitExecutor {
                 long modifiedJSObjects = 0L;
                 long modifiedDatasources = 0L;
                 for (String x : modifiedAssets) {
-                    if (x.contains(CommonConstants.CANVAS)) {
+                    if (x.contains(CANVAS)) {
                         modifiedPages++;
                     } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
                         modifiedQueries++;
@@ -495,27 +500,32 @@ public class GitExecutorImpl implements GitExecutor {
                 response.setModifiedJSObjects(modifiedJSObjects);
                 response.setModifiedDatasources(modifiedDatasources);
 
-                BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
-                if (trackingStatus != null) {
-                    response.setAheadCount(trackingStatus.getAheadCount());
-                    response.setBehindCount(trackingStatus.getBehindCount());
-                    response.setRemoteBranch(trackingStatus.getRemoteTrackingBranch());
-                } else {
-                    log.debug("Remote tracking details not present for branch: {}, repo: {}", branchName, repoPath);
-                    response.setAheadCount(0);
-                    response.setBehindCount(0);
-                    response.setRemoteBranch("untracked");
-                }
-
                 // Remove modified changes from current branch so that checkout to other branches will be possible
                 if (!status.isClean()) {
-                    return resetToLastCommit(git)
+                    // Check the diff and make a migration commit
+                    // Check if the changes are only in canvas.json => Get diff => If diff includes "version" change do the commit
+                    return checkAndCommitClientMigrationChanges(repoPath, branchName, response)
+                            .flatMap(isMigrationCommit -> {
+                                try {
+                                    getBranchTrackingStatus(response, git, branchName);
+                                    return resetToLastCommit(git)
+                                            .thenReturn(isMigrationCommit);
+                                } catch (GitAPIException e) {
+                                    log.error("Error while hard resetting to latest commit {0}", e);
+                                    return Mono.just(isMigrationCommit);
+                                } catch (IOException e) {
+                                    log.error("Error while tracking branch status {0}", e);
+                                    return Mono.just(isMigrationCommit);
+                                }
+                            })
                             .map(ref -> {
                                 processStopwatch.stopAndLogTimeInMillis();
                                 return response;
                             });
                 }
+                getBranchTrackingStatus(response, git, branchName);
                 processStopwatch.stopAndLogTimeInMillis();
+
                 return Mono.just(response);
             }
         })
@@ -524,7 +534,72 @@ public class GitExecutorImpl implements GitExecutor {
         .subscribeOn(scheduler);
     }
 
-    @Override
+    private void getBranchTrackingStatus(GitStatusDTO status, Git git, String branchName) throws IOException {
+        BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
+        if (trackingStatus != null) {
+            status.setAheadCount(trackingStatus.getAheadCount());
+            status.setBehindCount(trackingStatus.getBehindCount());
+            status.setRemoteBranch(trackingStatus.getRemoteTrackingBranch());
+        } else {
+            log.debug("Remote tracking details not present for branch: {}, repo: {}", branchName, git.getRepository().getDirectory().getParent());
+            status.setAheadCount(0);
+            status.setBehindCount(0);
+            status.setRemoteBranch("untracked");
+        }
+    }
+
+    private Mono<GitStatusDTO> checkAndCommitClientMigrationChanges(Path repoPath, String branchName, GitStatusDTO status) {
+        log.debug(Thread.currentThread().getName() + ": Check and commit client migration if any for repo  " + repoPath + ", branch " + branchName);
+        try (Git git = Git.open(repoPath.toFile())) {
+            if (Boolean.TRUE.equals(status.getIsClean())) {
+                return Mono.just(status);
+            }
+
+            for (String modifiedFilePath : status.getModified()) {
+                // Check if we only have client side migration which will be present in canvas.json which includes the
+                // page DSL
+                if (!modifiedFilePath.contains(CANVAS + JSON_EXTENSION)) {
+                    return Mono.just(status);
+                }
+            }
+            StringOutputStream stream = new StringOutputStream();
+            git.diff().setOutputStream(stream).call();
+            // Check if the diff is due to client migration
+            // Sample diff for ref when we run client side migration:
+            //        "           \"canExtend\": true,"
+            //        "-          \"version\": 58,"
+            //        "+          \"version\": 59,"
+            //        "           \"minHeight\": 1292,"
+            final String regex = "version.+\\n.+version";
+            final Pattern pattern = Pattern.compile(regex);
+            final Matcher matcher = pattern.matcher(stream.toString());
+            if (!matcher.find()) {
+                // If diff does not contain the version change means user has updated the page manually
+                return Mono.just(status);
+            }
+
+            return this.commitApplication(repoPath, "Migration commit", null, null, false, false)
+                    .map(commitMessage -> {
+                        // Update the status to reflect migration commit
+                        status.setIsClean(true);
+                        status.getModified().clear();
+                        status.setModifiedPages(0L);
+                        return status;
+                    })
+                    .onErrorResume(error -> {
+                        log.error("Error occurred during migration commit, {0}", error);
+                        return Mono.just(status);
+                    })
+                    .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        }
+        return Mono.just(status);
+    }
+
+        @Override
     public Mono<String> mergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
         return Mono.fromCallable(() -> {
                     Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_MERGE.getEventName());
