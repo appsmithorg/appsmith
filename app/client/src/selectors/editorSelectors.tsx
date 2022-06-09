@@ -138,9 +138,6 @@ export const getCurrentApplicationId = (state: AppState) =>
 export const selectCurrentApplicationSlug = (state: AppState) =>
   state.ui.applications.currentApplication?.slug || PLACEHOLDER_APP_SLUG;
 
-export const selectCurrentApplicationIcon = (state: AppState) =>
-  state.ui.applications.currentApplication?.icon;
-
 export const selectApplicationVersion = (state: AppState) =>
   state.ui.applications.currentApplication?.applicationVersion ||
   ApplicationVersion.DEFAULT;

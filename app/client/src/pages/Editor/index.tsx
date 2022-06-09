@@ -14,7 +14,6 @@ import {
   getIsEditorLoading,
   getIsPublishingApplication,
   getPublishingError,
-  selectCurrentApplicationIcon,
 } from "selectors/editorSelectors";
 import {
   initEditor,
@@ -77,7 +76,6 @@ type EditorProps = {
   collabStartSharingPointerEvent: (pageId: string) => void;
   collabStopSharingPointerEvent: (pageId?: string) => void;
   pageLevelSocketRoomId: string;
-  currentAppIcon?: string;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -255,7 +253,6 @@ const mapStateToProps = (state: AppState) => ({
   currentPageId: getCurrentPageId(state),
   isPageLevelSocketConnected: getIsPageLevelSocketConnected(state),
   loadingGuidedTour: loading(state),
-  currentAppIcon: selectCurrentApplicationIcon(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
