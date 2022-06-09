@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import SettingsControl, { Activities } from "./SettingsControl";
 import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -22,6 +21,7 @@ import {
 import { bindDataToWidget } from "actions/propertyPaneActions";
 import { hideErrors } from "selectors/debuggerSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
+import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 
 const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   position: absolute;
@@ -63,9 +63,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const showTableFilterPane = useShowTableFilterPane();
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
-  const propertyPaneState: PropertyPaneReduxState = useSelector(
-    (state: AppState) => state.ui.propertyPane,
-  );
+  const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
   const selectedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
@@ -87,6 +85,9 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
 
   const isTableFilterPaneVisible = useSelector(getIsTableFilterPaneVisible);
 
+  const propertyPaneWidgetId =
+    selectedWidgets.length === 1 ? selectedWidgets[0] : undefined;
+
   const togglePropertyEditor = (e: any) => {
     if (isSnipingMode) {
       dispatch(
@@ -95,9 +96,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
         }),
       );
     } else if (
-      (!propertyPaneState.isVisible &&
-        props.widgetId === propertyPaneState.widgetId) ||
-      props.widgetId !== propertyPaneState.widgetId
+      (!isPropPaneVisible && props.widgetId === propertyPaneWidgetId) ||
+      props.widgetId !== propertyPaneWidgetId
     ) {
       PerformanceTracker.startTracking(
         PerformanceTransactionName.OPEN_PROPERTY_PANE,
@@ -157,8 +157,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   if (showAsSelected) currentActivity = Activities.SELECTED;
   if (
     showAsSelected &&
-    propertyPaneState.isVisible &&
-    propertyPaneState.widgetId === props.widgetId
+    isPropPaneVisible &&
+    propertyPaneWidgetId === props.widgetId
   )
     currentActivity = Activities.ACTIVE;
 
