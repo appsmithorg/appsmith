@@ -1382,11 +1382,7 @@ jobs:
     needs: [build, server-build]
     # Only run if the build step is successful
     if: success()
-    strategy:
-      fail-fast: false
-      matrix:
-        machine: [ubuntu-latest, buildjet-4vcpu-ubuntu-2004]
-    runs-on: ${{ matrix.machine }}
+    runs-on: buildjet-4vcpu-ubuntu-2004
     defaults:
       run:
         working-directory: app/client
