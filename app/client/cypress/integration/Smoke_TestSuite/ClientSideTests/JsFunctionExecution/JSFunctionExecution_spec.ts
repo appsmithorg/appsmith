@@ -31,6 +31,7 @@ describe("JS Function Execution", function() {
     );
 
     jsEditor.AssertParseError(false, false);
+    agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
   it("2. Prevents execution of js function when parse errors are present in code", function() {
@@ -49,6 +50,7 @@ describe("JS Function Execution", function() {
     );
 
     jsEditor.AssertParseError(true, false);
+    agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
   it("3. Prioritizes parse errors that render JS Object invalid over function execution parse errors in debugger callouts", function() {
@@ -85,6 +87,7 @@ describe("JS Function Execution", function() {
 
     // Assert presence of parse error callout (entire JS Object is invalid)
     jsEditor.AssertParseError(true, false);
+    agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
   it("4. Shows lint error and toast modal when JS Object doesn't start with 'export default'", () => {
@@ -123,6 +126,7 @@ describe("JS Function Execution", function() {
       cy.get(locator._lintErrorElement)
         .should("exist")
         .should("contain.text", highlightedLintText);
+      agHelper.ActionContextMenuWithInPane("Delete", "", true);
     };
 
     assertInvalidJSObjectStart(jsObjectStartingWithAComment, jsComment);
@@ -131,11 +135,6 @@ describe("JS Function Execution", function() {
   });
 
   it("5. Supports the use of large JSON data (doesn't crash)", () => {
-    ee.expandCollapseEntity("QUERIES/JS")
-    ee.ActionContextMenuByEntityName("JSObject1", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("JSObject2", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("JSObject3", "Delete", "Are you sure?");
-
     const jsObjectWithLargeJSONData = `export default{
       largeData: ${JSON.stringify(largeJSONData)},
       myfun1: ()=> this.largeData

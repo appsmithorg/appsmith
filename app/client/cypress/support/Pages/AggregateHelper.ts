@@ -453,18 +453,22 @@ export class AggregateHelper {
   public ActionContextMenuWithInPane(
     action: "Copy to page" | "Move to page" | "Delete",
     subAction = "",
+    jsDelete = false,
   ) {
     cy.get(this.locator._contextMenuInPane).click();
     cy.xpath(this.locator._visibleTextDiv(action))
       .should("be.visible")
       .click();
     if (action == "Delete") {
-      cy.xpath(this.locator._visibleTextDiv("Are you sure?")).click();
-      this.ValidateNetworkStatus("@deleteAction");
+      subAction = "Are you sure?";
     }
     if (subAction) {
       cy.xpath(this.locator._visibleTextDiv(subAction)).click();
       this.Sleep(500);
+    }
+    if (action == "Delete") {
+      !jsDelete && this.ValidateNetworkStatus("@deleteAction");
+      jsDelete && this.ValidateNetworkStatus("@deleteJSCollection");
     }
   }
 
