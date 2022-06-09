@@ -372,26 +372,16 @@ Cypress.Commands.add("testCodeMirrorLast", (value) => {
 });
 
 Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
+  const editorWrapperSelector =
+    ".t--property-control-" + endp + " " + commonlocators.codeEditorWrapper;
   cy.get(".t--property-control-" + endp)
     .first()
     .click({ force: true })
     .wait(1000)
     .then(($el) => {
-      if (
-        $el.find(
-          ".t--property-control-" +
-            endp +
-            " " +
-            commonlocators.codeEditorWrapper,
-        )?.length > 0
-      ) {
+      if ($el.find(editorWrapperSelector)?.length > 0) {
         $el
-          .get(
-            ".t--property-control-" +
-              endp +
-              " " +
-              commonlocators.codeEditorWrapper,
-          )
+          .get(editorWrapperSelector)
           .first()
           .click({ force: true })
           .wait(1000);
@@ -405,11 +395,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.focused().then(($cm) => {
     if ($cm.contents !== "") {
       cy.log("The field is not empty");
-      cy.get(".t--property-control-" + endp)
-        .first()
-        .click({ force: true })
-        .wait(1000)
-        .find(".CodeMirror textarea")
+      cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
         .first()
         .click({ force: true })
         .focused({ force: true })
