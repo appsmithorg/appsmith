@@ -791,62 +791,6 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
     .last()
     .click({ force: true })
     .selectOnClickOption(forFailure);
-
-  // // Filling the messages for success/failure in the onClickAction of the button widget.
-  // // For Success
-  // cy.get(".code-highlight", { timeout: 10000 })
-  //   .children()
-  //   .contains("No action")
-  //   .first()
-  //   .click({ force: true })
-  //   .selectOnClickOption("Show message")
-  //   .get("div.t--property-control-" + endp)
-  //   .then(($el) => {
-  //     if ($el.find(".unfocused-code-editor")?.length > 0) {
-  //       cy.find(".unfocused-code-editor")
-  //         .last()
-  //         .click({ force: true })
-  //         .wait(1000);
-  //     } else {
-  //       cy.get("div.t--property-control-" + endp + " div.CodeMirror-lines")
-  //         .first()
-  //         .click({ force: true })
-  //         .type(forSuccess)
-  //         .get("button.t--open-dropdown-Select-type")
-  //         .first()
-  //         .click({ force: true })
-  //         .selectOnClickOption(forSuccess);
-  //     }
-  //   });
-
-  // cy.wait(2000);
-  // // For Failure
-  // cy.get(".code-highlight")
-  //   .children()
-  //   .contains("No action")
-  //   .last()
-  //   .click({ force: true })
-  //   .selectOnClickOption("Show message")
-  //   .wait(1000)
-  //   .get("div.t--property-control-" + endp)
-  //   .then(($el) => {
-  //     // Check if CodeEditor wrapper exists -> click to render CodeEditor
-  //     if ($el.find(".unfocused-code-editor")?.length > 0) {
-  //       cy.find(".unfocused-code-editor")
-  //         .last()
-  //         .click({ force: true })
-  //         .wait(1000);
-  //     } else {
-  //       cy.get("div.t--property-control-" + endp + " div.CodeMirror-lines")
-  //         .last()
-  //         .click({ force: true })
-  //         .type(forFailure)
-  //         .get("button.t--open-dropdown-Select-type")
-  //         .last()
-  //         .click({ force: true })
-  //         .selectOnClickOption(forFailure);
-  //     }
-  //   });
 });
 
 Cypress.Commands.add("isSelectRow", (index) => {

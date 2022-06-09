@@ -411,58 +411,6 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2500); //Allowing time for Evaluate value to capture value
-
-  // const editorWrapperSelector =
-  //   ".t--property-control-" + endp + " " + commonlocators.codeEditorWrapper;
-  // cy.get(".t--property-control-" + endp)
-  //   .first()
-  //   .click({ force: true })
-  //   .wait(1000)
-  //   .then(($el) => {
-  //     if ($el.find(editorWrapperSelector)?.length > 0) {
-  //       $el
-  //         .get(editorWrapperSelector)
-  //         .first()
-  //         .click({ force: true })
-  //         .wait(1000);
-  //     }
-  //   });
-  // cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
-  //   .first()
-  //   .focus({ force: true })
-  //   .type("{uparrow}", { force: true })
-  //   .type("{ctrl}{shift}{downarrow}", { force: true });
-  // cy.focused().then(($cm) => {
-  //   if ($cm.contents !== "") {
-  //     cy.log("The field is not empty");
-  //     cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
-  //       .first()
-  //       .click({ force: true })
-  //       .focused({ force: true })
-  //       .type("{uparrow}", { force: true })
-  //       .type("{ctrl}{shift}{downarrow}", { force: true })
-  //       .clear({
-  //         force: true,
-  //       });
-  //   }
-  //   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  //   cy.wait(500);
-  //   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
-  //     .first()
-  //     .then((el) => {
-  //       const input = cy.get(el);
-  //       if (paste) {
-  //         input.invoke("val", value);
-  //       } else {
-  //         input.type(value, {
-  //           force: true,
-  //           parseSpecialCharSequences: false,
-  //         });
-  //       }
-  //     });
-  // });
-  // // eslint-disable-next-line cypress/no-unnecessary-waiting
-  // cy.wait(2500); //Allowing time for Evaluate value to capture value
 });
 
 /**
@@ -1208,19 +1156,13 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("FocusCodeEditor", (index) => {
-  cy.wait(2000);
-  cy.get("[class^=t--property-control-]")
-    .eq(index || 0)
-    .click({ force: true });
-});
-
 Cypress.Commands.add("EnableAllCodeEditors", () => {
   cy.get("body").then(($body) => {
     if ($body.get(commonlocators.codeEditorWrapper)?.length > 0) {
       $body.get(commonlocators.codeEditorWrapper).each(($el) => {
-        $el.click({ force: true });
+        $el.click({ force: true }).wait(200);
       });
     }
   });
+  cy.wait(2000);
 });
