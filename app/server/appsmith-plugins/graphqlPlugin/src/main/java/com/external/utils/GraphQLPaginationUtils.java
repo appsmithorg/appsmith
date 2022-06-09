@@ -19,10 +19,22 @@ import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromProper
 import static com.appsmith.external.helpers.PluginUtils.parseStringIntoJSONObject;
 import static com.external.utils.GraphQLConstants.CURSOR;
 import static com.external.utils.GraphQLConstants.LIMIT;
+import static com.external.utils.GraphQLConstants.LIMIT_VAL;
+import static com.external.utils.GraphQLConstants.LIMIT_VARIABLE_NAME;
 import static com.external.utils.GraphQLConstants.NAME;
 import static com.external.utils.GraphQLConstants.NEXT;
+import static com.external.utils.GraphQLConstants.NEXT_CURSOR_VAL;
+import static com.external.utils.GraphQLConstants.NEXT_CURSOR_VARIABLE_NAME;
+import static com.external.utils.GraphQLConstants.NEXT_LIMIT_VAL;
+import static com.external.utils.GraphQLConstants.NEXT_LIMIT_VARIABLE_NAME;
 import static com.external.utils.GraphQLConstants.OFFSET;
+import static com.external.utils.GraphQLConstants.OFFSET_VAL;
+import static com.external.utils.GraphQLConstants.OFFSET_VARIABLE_NAME;
 import static com.external.utils.GraphQLConstants.PREV;
+import static com.external.utils.GraphQLConstants.PREV_CURSOR_VAL;
+import static com.external.utils.GraphQLConstants.PREV_CURSOR_VARIABLE_NAME;
+import static com.external.utils.GraphQLConstants.PREV_LIMIT_VAL;
+import static com.external.utils.GraphQLConstants.PREV_LIMIT_VARIABLE_NAME;
 import static com.external.utils.GraphQLConstants.VALUE;
 import static com.external.utils.GraphQLHintMessageUtils.getHintMessagesForDuplicatesInQueryVariables;
 import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
@@ -70,9 +82,59 @@ public class GraphQLPaginationUtils {
             }
 
             paginationDataMap.put(LIMIT_VARIABLE_NAME, limitVarName);
-            paginationDataMap.put(LIMIT_VARIABLE_VAL, limitValue);
+            paginationDataMap.put(LIMIT_VAL, limitValue);
             paginationDataMap.put(OFFSET_VARIABLE_NAME, offsetVarName);
-            paginationDataMap.put(OFFSET_VARIABLE_VAL, offsetValue);
+            paginationDataMap.put(OFFSET_VAL, offsetValue);
+        }
+        else if (PaginationType.CURSOR.equals(actionConfiguration.getPaginationType())) {
+            String prevLimitVarName =
+                    (((JSONObject)((JSONObject)paginationDataJson.get(PREV)).get(LIMIT)).getAsString(NAME));
+            int prevLimitValue;
+            try {
+                prevLimitValue =
+                        ((JSONObject)((JSONObject)paginationDataJson.get(PREV)).get(LIMIT)).getAsNumber(VALUE).intValue();
+            } catch (NumberFormatException e) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Please provide a valid number for variable '" + prevLimitVarName + "' in the pagination " +
+                                "tab."
+                );
+            }
+
+            String prevCursorVarName =
+                    (((JSONObject)((JSONObject)paginationDataJson.get(PREV)).get(CURSOR)).getAsString(NAME));
+            String prevCursorValue =
+                    ((JSONObject)((JSONObject)paginationDataJson.get(PREV)).get(CURSOR)).getAsString(VALUE);
+
+
+            String nextLimitVarName =
+                    (((JSONObject)((JSONObject)paginationDataJson.get(NEXT)).get(LIMIT)).getAsString(NAME));
+            int nextLimitValue;
+            try {
+                nextLimitValue =
+                        ((JSONObject)((JSONObject)paginationDataJson.get(NEXT)).get(LIMIT)).getAsNumber(VALUE).intValue();
+            } catch (NumberFormatException e) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Please provide a valid number for variable '" + nextLimitVarName + "' in the pagination " +
+                                "tab."
+                );
+            }
+
+            String nextCursorVarName =
+                    (((JSONObject)((JSONObject)paginationDataJson.get(NEXT)).get(CURSOR)).getAsString(NAME));
+            String nextCursorValue =
+                    ((JSONObject)((JSONObject)paginationDataJson.get(NEXT)).get(CURSOR)).getAsString(VALUE);
+
+
+            paginationDataMap.put(PREV_LIMIT_VARIABLE_NAME, prevLimitVarName);
+            paginationDataMap.put(PREV_LIMIT_VAL, prevLimitValue);
+            paginationDataMap.put(PREV_CURSOR_VARIABLE_NAME, prevCursorVarName);
+            paginationDataMap.put(PREV_CURSOR_VAL, prevCursorValue);
+            paginationDataMap.put(NEXT_LIMIT_VARIABLE_NAME, nextLimitVarName);
+            paginationDataMap.put(NEXT_LIMIT_VAL, nextLimitValue);
+            paginationDataMap.put(NEXT_CURSOR_VARIABLE_NAME, nextCursorVarName);
+            paginationDataMap.put(NEXT_CURSOR_VAL, nextCursorValue);
         }
 
         return paginationDataMap;

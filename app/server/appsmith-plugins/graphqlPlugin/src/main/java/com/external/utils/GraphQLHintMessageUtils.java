@@ -15,6 +15,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
@@ -23,10 +24,17 @@ import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
 import static com.external.utils.GraphQLConstants.CURSOR;
 import static com.external.utils.GraphQLConstants.HINT_MESSAGE_FOR_DUPLICATE_VARIABLE_DEFINITION;
 import static com.external.utils.GraphQLConstants.LIMIT;
+import static com.external.utils.GraphQLConstants.LIMIT_VARIABLE_NAME;
 import static com.external.utils.GraphQLConstants.NAME;
 import static com.external.utils.GraphQLConstants.NEXT;
+import static com.external.utils.GraphQLConstants.NEXT_CURSOR_VARIABLE_NAME;
+import static com.external.utils.GraphQLConstants.NEXT_LIMIT_VARIABLE_NAME;
 import static com.external.utils.GraphQLConstants.OFFSET;
+import static com.external.utils.GraphQLConstants.OFFSET_VARIABLE_NAME;
 import static com.external.utils.GraphQLConstants.PREV;
+import static com.external.utils.GraphQLConstants.PREV_CURSOR_VARIABLE_NAME;
+import static com.external.utils.GraphQLConstants.PREV_LIMIT_VARIABLE_NAME;
+import static com.external.utils.GraphQLPaginationUtils.getPaginationData;
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
 @NoArgsConstructor
@@ -35,34 +43,22 @@ public class GraphQLHintMessageUtils extends HintMessageUtils {
     // TODO: add comments
     public static Set<String> getHintMessagesForDuplicatesInQueryVariables(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
         Set<String> hintMessages = new HashSet<String>();
+        List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+        String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
+        JSONObject queryVariablesJson = new JSONObject();
+        try {
+            queryVariablesJson = parseStringIntoJSONObject(variables);
+        } catch (ParseException e) {
+            /* Not returning an exception here since the user is still editing the query variables and hence it is
+-            expected that the query variables would not be parseable till the final edit. */
+        }
 
         if (actionConfiguration.getPaginationType() != null) {
-            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            String paginationData = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
-            JSONObject paginationDataJson;
-            try {
-                paginationDataJson = parseStringIntoJSONObject(paginationData);
-            } catch (ParseException e) {
-                throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Appsmith server encountered an unexpected error: failed to parse pagination data into JSON. " +
-                                "Please reach out to our customer support to resolve this."
-                );
-            }
-
-            String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
-            JSONObject queryVariablesJson = new JSONObject();
-            try {
-                queryVariablesJson = parseStringIntoJSONObject(variables);
-            } catch (ParseException e) {
-            /* Not returning an exception here since the user is still editing the query variables and hence it is
-            expected that the query variables would not be parseable till the final edit. */
-            }
-
+            Map<String, Object> paginationDataMap = getPaginationData(actionConfiguration);
             List<String> duplicateVariables = new ArrayList<String>();
             if (PaginationType.PAGE_NO.equals(actionConfiguration.getPaginationType())) {
-                String limitVarName = ((JSONObject)paginationDataJson.get(LIMIT)).getAsString(NAME);
-                String offsetVarName = ((JSONObject)paginationDataJson.get(OFFSET)).getAsString(NAME);
+                String limitVarName = (String) paginationDataMap.get(LIMIT_VARIABLE_NAME);
+                String offsetVarName = (String) paginationDataMap.get(OFFSET_VARIABLE_NAME);
 
                 if (queryVariablesJson.containsKey(limitVarName)) {
                     duplicateVariables.add(limitVarName);
@@ -73,15 +69,10 @@ public class GraphQLHintMessageUtils extends HintMessageUtils {
                 }
             }
             else if (PaginationType.CURSOR.equals(actionConfiguration.getPaginationType())) {
-                // TODO: remove duplication
-                String prevLimitVarName =
-                        (((JSONObject)((JSONObject)paginationDataJson.get(PREV)).get(LIMIT)).getAsString(NAME));
-                String prevCursorVarName =
-                        (((JSONObject)((JSONObject)paginationDataJson.get(PREV)).get(CURSOR)).getAsString(NAME));
-                String nextLimitVarName =
-                        (((JSONObject)((JSONObject)paginationDataJson.get(NEXT)).get(LIMIT)).getAsString(NAME));
-                String nextCursorVarName =
-                        (((JSONObject)((JSONObject)paginationDataJson.get(NEXT)).get(CURSOR)).getAsString(NAME));
+                String prevLimitVarName = (String) paginationDataMap.get(PREV_LIMIT_VARIABLE_NAME);
+                String prevCursorVarName = (String) paginationDataMap.get(PREV_CURSOR_VARIABLE_NAME);
+                String nextLimitVarName = (String) paginationDataMap.get(NEXT_LIMIT_VARIABLE_NAME);
+                String nextCursorVarName = (String) paginationDataMap.get(NEXT_CURSOR_VARIABLE_NAME);
 
                 if (queryVariablesJson.containsKey(prevLimitVarName)) {
                     duplicateVariables.add(prevLimitVarName);
