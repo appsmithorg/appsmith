@@ -36,6 +36,7 @@ export type RenderDefaultPropsType = {
   displayText?: string;
   fontStyle?: string;
   textSize?: string;
+  disabledEditIcon: boolean;
 };
 
 type editPropertyType = {
@@ -71,6 +72,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
     cellBackground,
     columnType,
     compactMode,
+    disabledEditIcon,
     displayText,
     fontStyle,
     hasUnsavedChanged,
@@ -140,6 +142,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
       cellBackground={cellBackground}
       columnType={columnType}
       compactMode={compactMode}
+      disabledEditIcon={disabledEditIcon}
       fontStyle={fontStyle}
       hasUnsavedChanged={hasUnsavedChanged}
       horizontalAlignment={horizontalAlignment}
