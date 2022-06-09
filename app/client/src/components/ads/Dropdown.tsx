@@ -76,6 +76,7 @@ export type DropdownProps = CommonComponentProps &
     width?: string;
     height?: string;
     showLabelOnly?: boolean;
+    labelRenderer?: (selected: Partial<DropdownOption>[]) => JSX.Element;
     optionWidth?: string;
     dropdownHeight?: string;
     dropdownMaxHeight?: string;
@@ -113,6 +114,7 @@ export type DropdownProps = CommonComponentProps &
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption | DropdownOption[];
   showLabelOnly?: boolean;
+  labelRenderer?: (selected: Partial<DropdownOption>[]) => JSX.Element;
   isMultiSelect?: boolean;
   isOpen?: boolean;
   hasError?: boolean;
@@ -270,7 +272,7 @@ export const DropdownContainer = styled.div<{ width: string; height?: string }>`
     width: 100%;
   }
 
-  &:focus-visible ${Selected} {
+  &:focus ${Selected} {
     border: 1px solid var(--appsmith-input-focus-border-color);
   }
 `;
@@ -592,6 +594,7 @@ function DefaultDropDownValueNode({
   hasError,
   hideSubText,
   isMultiSelect,
+  labelRenderer,
   optionWidth,
   placeholder,
   renderNode,
@@ -611,7 +614,7 @@ function DefaultDropDownValueNode({
 
   function Label() {
     if (isMultiSelect && Array.isArray(selected) && selected.length) {
-      return (
+      return !labelRenderer ? (
         <ChipsWrapper>
           {selected?.map((s: DropdownOption) => {
             return (
@@ -629,6 +632,8 @@ function DefaultDropDownValueNode({
             );
           })}
         </ChipsWrapper>
+      ) : (
+        labelRenderer(selected)
       );
     } else
       return hasError ? (
@@ -1098,6 +1103,7 @@ export default function Dropdown(props: DropdownProps) {
           hasError={errorFlag}
           hideSubText={props.hideSubText}
           isMultiSelect={props.isMultiSelect}
+          labelRenderer={props.labelRenderer}
           optionWidth={dropdownOptionWidth}
           placeholder={placeholder}
           renderNode={renderOption}

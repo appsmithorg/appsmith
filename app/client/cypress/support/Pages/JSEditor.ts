@@ -4,13 +4,13 @@ export interface ICreateJSObjectOptions {
   paste: boolean;
   completeReplace: boolean;
   toRun: boolean;
-  shouldNavigate: boolean;
+  shouldCreateNewJSObj: boolean;
 }
 const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   paste: true,
   completeReplace: false,
   toRun: true,
-  shouldNavigate: true,
+  shouldCreateNewJSObj: true,
 };
 
 export class JSEditor {
@@ -81,8 +81,15 @@ export class JSEditor {
 
   //#endregion
 
+  //#region constants
+  private isMac = Cypress.platform === "darwin";
+  private selectAllJSObjectContentShortcut = `${
+    this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
+  }`;
+  //#endregion
+
   //#region Page functions
-  public NavigateToJSEditor() {
+  public NavigateToNewJSEditor() {
     cy.get(this.locator._createNew)
       .last()
       .click({ force: true });
@@ -99,7 +106,7 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    //this.agHelper.WaitUntilEleDisappear(this.locator._toastMsg, 'created successfully')
+    //this.agHelper.WaitUntilToastDisappear('created successfully')
     this.agHelper.Sleep();
   }
 
@@ -107,9 +114,9 @@ export class JSEditor {
     JSCode: string,
     options: ICreateJSObjectOptions = DEFAULT_CREATE_JS_OBJECT_OPTIONS,
   ) {
-    const { completeReplace, paste, shouldNavigate, toRun } = options;
+    const { completeReplace, paste, shouldCreateNewJSObj, toRun } = options;
 
-    shouldNavigate && this.NavigateToJSEditor();
+    shouldCreateNewJSObj && this.NavigateToNewJSEditor();
     if (!completeReplace) {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
@@ -119,13 +126,7 @@ export class JSEditor {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
         .focus()
-        .type(
-          "{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}",
-        )
-        .type(
-          "{shift}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}",
-          { force: true },
-        )
+        .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
 
       // .type("{uparrow}", { force: true })
@@ -171,15 +172,15 @@ export class JSEditor {
     this.GetJSObjectName();
   }
 
-  //Not working - To improve!
-  public EditJSObj(existingTxt: string, newTxt: string) {
-    cy.get(this.locator._codeEditorTarget)
-      .contains(existingTxt)
-      .dblclick(); //.type("{backspace}").type(newTxt)
-    cy.get("body")
-      .type("{backspace}")
-      .type(newTxt);
-    this.agHelper.AssertAutoSave(); //Ample wait due to open bug # 10284
+  //Edit the name of a JSObject's property (variable or function)
+  public EditJSObj(newContent: string) {
+    cy.get(this.locator._codeMirrorTextArea)
+      .first()
+      .focus()
+      .type(this.selectAllJSObjectContentShortcut, { force: true })
+      .then((el: JQuery<HTMLElement>) => {
+        this.agHelper.Paste(el, newContent);
+      });
   }
 
   public EnterJSContext(
@@ -212,7 +213,11 @@ export class JSEditor {
     //   .type("{del}", { force: true });
 
     if (paste) {
-      this.agHelper.EnterValue(value, endp, notField);
+      this.agHelper.EnterValue(value, {
+        propFieldName: endp,
+        directInput: notField,
+        inputFieldName: "",
+      });
     } else {
       cy.get(
         this.locator._propertyControl +
@@ -377,7 +382,7 @@ export class JSEditor {
     this.agHelper.GetNClick(this._codeTab);
   }
   /**
- * 
+ *
   There are two types of parse errors in the JS Editor
   1. Parse errors that render the JS Object invalid and all functions unrunnable
   2. Parse errors within functions that throw errors when executing those functions

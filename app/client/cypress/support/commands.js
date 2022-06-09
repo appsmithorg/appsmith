@@ -796,7 +796,7 @@ Cypress.Commands.add("isSelectRow", (index) => {
   cy.get('.tbody .td[data-rowindex="' + index + '"][data-colindex="' + 0 + '"]')
     .first()
     .click({ force: true });
-  cy.wait(1000); //for selection to show!
+  cy.wait(500); //for selection to show!
 });
 
 Cypress.Commands.add("getDate", (date, dateFormate) => {
@@ -922,8 +922,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/items/addToPage").as("add3PApiToPage");
 
   cy.route("GET", "/api/v1/plugins/*/form").as("getPluginForm");
-  cy.route("POST", "/api/v1/datasources").as("createDatasource");
-  cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
   cy.route("POST", "/api/v1/applications?orgId=*").as("createNewApplication");
   cy.route("PUT", "/api/v1/applications/*").as("updateApplication");
@@ -967,7 +965,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/users/super").as("createSuperUser");
   cy.intercept("POST", "/api/v1/actions/execute").as("postExecute");
   cy.intercept("GET", "/api/v1/admin/env").as("getEnvVariables");
-
+  cy.intercept("DELETE", "/api/v1/git/branch/*").as("deleteBranch");
+  cy.intercept("GET", "/api/v1/git/status/*").as("gitStatus");
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
   cy.intercept("GET", "/api/v1/organizations/*/members").as("getMembers");
 });

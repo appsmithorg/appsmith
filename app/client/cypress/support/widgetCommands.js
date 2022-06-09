@@ -240,6 +240,14 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.contains(innercss, text);
 });
 
+Cypress.Commands.add("verifyUpdatedWidgetName", (text) => {
+  cy.get(commonlocators.editWidgetName)
+    .click({ force: true })
+    .type(text, { delay: 300 })
+    .type("{enter}");
+  cy.get(".t--widget-name").contains(text);
+});
+
 Cypress.Commands.add("verifyWidgetText", (text, inputcss, innercss) => {
   cy.get(inputcss)
     .first()
@@ -708,7 +716,7 @@ Cypress.Commands.add("DeleteModal", () => {
     .click({ force: true });
 });
 
-Cypress.Commands.add("Createpage", (pageName) => {
+Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
   let pageId;
   cy.get(pages.AddPage)
     .first()
@@ -726,7 +734,9 @@ Cypress.Commands.add("Createpage", (pageName) => {
       pageidcopy = pageName;
       cy.wrap(pageId).as("currentPageId");
     }
-    cy.get(generatePage.buildFromScratchActionCard).click();
+    if (navigateToCanvasPage) {
+      cy.get(generatePage.buildFromScratchActionCard).click();
+    }
     cy.get("#loading").should("not.exist");
   });
 });

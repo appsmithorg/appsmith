@@ -7,7 +7,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   ee = ObjectsRegistry.EntityExplorer,
   table = ObjectsRegistry.Table,
-  apiPage = ObjectsRegistry.ApiPage;
+  apiPage = ObjectsRegistry.ApiPage,
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("[Bug] - 10784 - Passing params from JS to SQL query should not break", () => {
   before(() => {
@@ -26,7 +27,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
       agHelper.RenameWithInPane(guid, false);
       dataSources.TestSaveDatasource();
       cy.log("ds name is :" + guid);
-      dataSources.NavigateToActiveDSQueryPane(guid);
+      dataSources.NavigateFromActiveDS(guid, true);
       agHelper.GetNClick(dataSources._templateMenu);
       agHelper.RenameWithInPane("ParamsTest");
       agHelper.EnterValue(
@@ -38,7 +39,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
           paste: true,
           completeReplace: false,
           toRun: false,
-          shouldNavigate: true,
+          shouldCreateNewJSObj: true,
         },
       );
     });
@@ -58,7 +59,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     ee.SelectEntityByName("ParamsTest", "QUERIES/JS");
     apiPage.OnPageLoadRun(false); //Bug 12476
 
-    agHelper.DeployApp(locator._spanButton("Submit"));
+    deployMode.DeployApp(locator._spanButton("Submit"));
     agHelper.SelectDropDown("7");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
@@ -74,7 +75,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{(function() { return this?.params?.condition })() || '1=1'}} order by id",
     );
-    agHelper.DeployApp(locator._spanButton("Submit"));
+    deployMode.DeployApp(locator._spanButton("Submit"));
     agHelper.SelectDropDown("9");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
@@ -89,7 +90,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{(() => { return this?.params?.condition })() || '1=1'}} order by id",
     );
-    agHelper.DeployApp(locator._spanButton("Submit"));
+    deployMode.DeployApp(locator._spanButton("Submit"));
     agHelper.SelectDropDown("7");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
@@ -104,7 +105,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{this?.params.condition || '1=1'}} order by id",
     );
-    agHelper.DeployApp(locator._spanButton("Submit"));
+    deployMode.DeployApp(locator._spanButton("Submit"));
     agHelper.SelectDropDown("9");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
@@ -119,7 +120,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{(function() { return this?.params.condition })() || '1=1'}} order by id",
     );
-    agHelper.DeployApp(locator._spanButton("Submit"));
+    deployMode.DeployApp(locator._spanButton("Submit"));
     agHelper.SelectDropDown("7");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
@@ -134,7 +135,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{(() => { return this?.params.condition })() || '1=1'}} order by id",
     );
-    agHelper.DeployApp(locator._spanButton("Submit"));
+    deployMode.DeployApp(locator._spanButton("Submit"));
     agHelper.SelectDropDown("9");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
@@ -149,7 +150,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{this.params.condition || '1=1'}} order by id",
     );
-    agHelper.DeployApp(locator._spanButton("Submit"));
+    deployMode.DeployApp(locator._spanButton("Submit"));
     agHelper.SelectDropDown("7");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
@@ -164,7 +165,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{(function() { return this.params.condition })() || '1=1'}} order by id",
     );
-    agHelper.DeployApp(locator._spanButton("Submit"));
+    deployMode.DeployApp(locator._spanButton("Submit"));
     agHelper.SelectDropDown("8");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
@@ -179,7 +180,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })() || '1=1'}} order by id",
     );
-    agHelper.DeployApp(locator._spanButton("Submit"));
+    deployMode.DeployApp(locator._spanButton("Submit"));
     agHelper.SelectDropDown("9");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
@@ -195,7 +196,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })() || '7'}} order by id",
     );
 
-    agHelper.DeployApp(locator._spanButton("Submit"));
+    deployMode.DeployApp(locator._spanButton("Submit"));
     //Verifh when No selected option passed
     cy.xpath(
       locator._selectWidgetDropdownInDeployed("selectwidget"),
@@ -213,7 +214,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })()}} order by id",
     );
-    agHelper.DeployApp(locator._spanButton("Submit"));
+    deployMode.DeployApp(locator._spanButton("Submit"));
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {

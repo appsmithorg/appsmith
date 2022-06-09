@@ -624,7 +624,6 @@ function ApplicationsSection(props: any) {
       <CenteredWrapper
         style={{
           flexDirection: "column",
-          marginTop: "-150px",
           position: "static",
         }}
       >

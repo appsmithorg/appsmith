@@ -8,7 +8,8 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators,
   homePage = ObjectsRegistry.HomePage,
-  apiPage = ObjectsRegistry.ApiPage;
+  apiPage = ObjectsRegistry.ApiPage,
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("JSObjects OnLoad Actions tests", function() {
   before(() => {
@@ -39,11 +40,11 @@ describe("JSObjects OnLoad Actions tests", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
     jsEditor.EnableDisableAsyncFuncSettings("getId", false, true); //Only before calling confirmation is enabled by User here
-    dataSources.NavigateToActiveDSQueryPane(guid);
+    dataSources.NavigateFromActiveDS(guid, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("GetUser");
     cy.get("@jsObjName").then((jsObjName) => {
@@ -59,9 +60,9 @@ describe("JSObjects OnLoad Actions tests", function() {
         (("[" + jsName) as string) +
           ".getId, GetUser] will be executed automatically on page load",
       );
-      agHelper.DeployApp();
-      agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
-      agHelper.AssertElementPresence(
+      deployMode.DeployApp();
+      agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
+      agHelper.AssertElementVisible(
         jsEditor._dialogBody((jsName as string) + ".getId"),
       );
       agHelper.ClickButton("Yes");
@@ -75,8 +76,8 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   it("3. Tc 54, 55 - Verify OnPage Load - auto enabled from above case for JSOBject", function() {
-    agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
-    agHelper.AssertElementPresence(
+    agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
+    agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getId"),
     );
     agHelper.ClickButton("Yes");
@@ -89,7 +90,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   it("4. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function() {
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getId", false, true);
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ValidateToastMessage('The action "GetUser" has failed');
     agHelper.NavigateBacktoEditor();
   });
@@ -97,7 +98,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   it("5. Tc 53 - Verify OnPage Load - Enabling back & Before Function calling disabled for JSOBject", function() {
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getId", true, false);
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.AssertElementAbsence(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementAbsence(
       jsEditor._dialogBody((jsName as string) + ".getId"),
@@ -114,9 +115,9 @@ describe("JSObjects OnLoad Actions tests", function() {
   it("6. Tc 55 - Verify OnPage Load - Enabling & Before Function calling Enabling for JSOBject", function() {
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getId", true, true);
-    agHelper.DeployApp();
-    agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
-    agHelper.AssertElementPresence(
+    deployMode.DeployApp();
+    agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
+    agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getId"),
     );
     agHelper.ClickButton("Yes");
@@ -126,8 +127,8 @@ describe("JSObjects OnLoad Actions tests", function() {
       expect(cellData).to.be.equal("8");
     });
     agHelper.NavigateBacktoEditor();
-    agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
-    agHelper.AssertElementPresence(
+    agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
+    agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getId"),
     );
     agHelper.ClickButton("Yes");
@@ -135,17 +136,17 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   it("7. Tc 56 - Verify OnPage Load - Enabled & Before Function calling Enabled for JSOBject & User clicks No in Confirmation dialog", function() {
-    agHelper.DeployApp();
-    agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
-    agHelper.AssertElementPresence(
+    deployMode.DeployApp();
+    agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
+    agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getId"),
     );
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage("Failed to execute actions during page load"); //When Confirmation is NO
     table.WaitForTableEmpty();
-    cy.reload();
-    agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
-    agHelper.AssertElementPresence(
+    agHelper.RefreshPage();
+    agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
+    agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getId"),
     );
     agHelper.ClickButton("Yes");
@@ -155,8 +156,8 @@ describe("JSObjects OnLoad Actions tests", function() {
       expect(cellData).to.be.equal("8");
     });
     agHelper.NavigateBacktoEditor();
-    agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
-    agHelper.AssertElementPresence(
+    agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
+    agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getId"),
     );
     agHelper.ClickButton("Yes");
@@ -189,7 +190,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
 
@@ -251,7 +252,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
 
@@ -292,20 +293,20 @@ describe("JSObjects OnLoad Actions tests", function() {
           ".callTrump] will be executed automatically on page load",
       );
 
-      agHelper.DeployApp();
+      deployMode.DeployApp();
 
       //One Quotes confirmation - for API true
-      agHelper.AssertElementPresence(jsEditor._dialogBody("Quotes"));
+      agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
       agHelper.ClickButton("No");
       agHelper.ValidateToastMessage('The action "Quotes" has failed');
 
       //Another for API called via JS callQuotes()
-      agHelper.AssertElementPresence(jsEditor._dialogBody("Quotes"));
+      agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
       agHelper.ClickButton("No");
       agHelper.ValidateToastMessage('The action "Quotes" has failed');
 
       //Confirmation - first JSObj then API
-      agHelper.AssertElementPresence(
+      agHelper.AssertElementVisible(
         jsEditor._dialogBody((jsName as string) + ".callTrump"),
       );
       agHelper.ClickButton("No");
@@ -315,18 +316,18 @@ describe("JSObjects OnLoad Actions tests", function() {
       agHelper.AssertElementAbsence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is NO, dependent API confirmation should not appear
 
       agHelper.RefreshPage();
-      agHelper.AssertElementPresence(jsEditor._dialogBody("Quotes"));
+      agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
       agHelper.ClickButton("Yes");
 
-      agHelper.AssertElementPresence(jsEditor._dialogBody("Quotes"));
+      agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
       agHelper.ClickButton("Yes");
 
-      agHelper.AssertElementPresence(
+      agHelper.AssertElementVisible(
         jsEditor._dialogBody((jsName as string) + ".callTrump"),
       );
       agHelper.ClickButton("Yes");
 
-      agHelper.AssertElementPresence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
+      agHelper.AssertElementVisible(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
       agHelper.ClickButton("Yes");
 
       agHelper.Sleep(2000); //to let the api's call be finished & populate the text fields before validation!
@@ -347,16 +348,16 @@ describe("JSObjects OnLoad Actions tests", function() {
 
   it("10. API with OnPageLoad & Confirmation both enabled & called directly & setting previous Api's confirmation to false", () => {
     agHelper.NavigateBacktoEditor();
-    agHelper.AssertElementPresence(jsEditor._dialogBody("Quotes"));
+    agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "Quotes" has failed');
 
     agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');
-    agHelper.AssertElementPresence(jsEditor._dialogBody("Quotes"));
+    agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
     agHelper.ClickButton("No"); //Ask Favour abt below
     //agHelper.ValidateToastMessage("callQuotes ran successfully"); //Verify this toast comes in EDIT page only
 
-    agHelper.AssertElementPresence(
+    agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".callTrump"),
     );
     agHelper.ClickButton("No");
@@ -384,14 +385,14 @@ describe("JSObjects OnLoad Actions tests", function() {
     jsEditor.EnableDisableAsyncFuncSettings("callQuotes", false, false); //OnPageLoad made true once mapped with widget
     jsEditor.EnableDisableAsyncFuncSettings("callTrump", false, false); //OnPageLoad made true once mapped with widget
 
-    agHelper.DeployApp();
-    agHelper.AssertElementPresence(jsEditor._dialogBody("CatFacts"));
+    deployMode.DeployApp();
+    agHelper.AssertElementVisible(jsEditor._dialogBody("CatFacts"));
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "CatFacts" has failed');
 
     agHelper.WaitUntilToastDisappear('The action "CatFacts" has failed');
     agHelper.GetNClick(locator._widgetInDeployed("imagewidget"));
-    agHelper.AssertElementPresence(jsEditor._dialogBody("CatFacts"));
+    agHelper.AssertElementVisible(jsEditor._dialogBody("CatFacts"));
     agHelper.ClickButton("Yes");
     cy.get(locator._toastMsg).contains(/Your cat fact|Oh No/g);
   });
@@ -409,7 +410,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     //apiPage.OnPageLoadRun(true); //OnPageLoad made true after mapping to JSONForm
     apiPage.ConfirmBeforeRunningApi(true);
 
-    dataSources.NavigateToActiveDSQueryPane(guid);
+    dataSources.NavigateFromActiveDS(guid, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("getCitiesList");
     agHelper.EnterValue(
@@ -440,7 +441,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         paste: true,
         completeReplace: true,
         toRun: false,
-        shouldNavigate: true,
+        shouldCreateNewJSObj: true,
       },
     );
 
@@ -481,7 +482,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       //   `{{` +
       //     jsObjName +
       //     `.callCountry();
-      //     showAlert('Your country is: ' + getCountry.data[0].country, 'info')}}`,
+      //     Select1.selectedOptionValue? showAlert('Your country is: ' + getCountry.data[0].country, 'info'): null`,
       //   true,
       //   true,
       // );
@@ -509,9 +510,9 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   it("12. Tc #1646 - Honouring the order of execution & Bug 13826 + Bug 13646 - Delpoy page", () => {
-    agHelper.DeployApp();
-
-    agHelper.AssertElementPresence(jsEditor._dialogBody("getBooks"));
+    deployMode.DeployApp();
+    agHelper.Sleep(2000);
+    agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "getBooks" has failed');
     agHelper
@@ -528,7 +529,7 @@ describe("JSObjects OnLoad Actions tests", function() {
 
     agHelper.WaitUntilToastDisappear('The action "getBooks" has failed');
     agHelper.GetNClick(locator._widgetInDeployed("imagewidget"));
-    agHelper.AssertElementPresence(jsEditor._dialogBody("getBooks"));
+    agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("Yes");
     agHelper.Sleep(2000);
     //callBooks, getId confirmations also expected aft bug 13646 is fixed & covering tc 1646
@@ -540,7 +541,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       .then(($url) => expect($url).not.be.empty);
 
     agHelper.NavigateBacktoEditor();
-    agHelper.AssertElementPresence(jsEditor._dialogBody("getBooks"));
+    agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "getBooks" has failed');
 

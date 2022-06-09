@@ -15,6 +15,7 @@ describe("Import, Export and Fork application and validate data binding", functi
     cy.get(homePage.orgImportAppOption).click({ force: true });
     cy.get(homePage.orgImportAppModal).should("be.visible");
     cy.xpath(homePage.uploadLogo).attachFile("forkedApp.json");
+    cy.get(homePage.importAppProgressWrapper).should("be.visible");
     cy.wait("@importNewApplication").then((interception) => {
       cy.wait(100);
       // should check reconnect modal openning
@@ -45,10 +46,10 @@ describe("Import, Export and Fork application and validate data binding", functi
       cy.wait(2000);
       // validating data binding for the imported application
       cy.xpath("//input[@value='Submit']").should("be.visible");
-      cy.xpath("//div[text()='schema_name']").should("be.visible");
-      cy.xpath("//div[text()='id']").should("be.visible");
-      cy.xpath("//div[text()='title']").should("be.visible");
-      cy.xpath("//div[text()='due']").should("be.visible");
+      cy.xpath("//span[text()='schema_name']").should("be.visible");
+      cy.xpath("//span[text()='id']").should("be.visible");
+      cy.xpath("//span[text()='title']").should("be.visible");
+      cy.xpath("//span[text()='due']").should("be.visible");
     });
   });
 
@@ -68,10 +69,10 @@ describe("Import, Export and Fork application and validate data binding", functi
     cy.wait(4000);
     // validating data binding for the forked application
     cy.xpath("//input[@value='Submit']").should("be.visible");
-    cy.xpath("//div[text()='schema_name']").should("be.visible");
-    cy.xpath("//div[text()='id']").should("be.visible");
-    cy.xpath("//div[text()='title']").should("be.visible");
-    cy.xpath("//div[text()='due']").should("be.visible");
+    cy.xpath("//span[text()='schema_name']").should("be.visible");
+    cy.xpath("//span[text()='id']").should("be.visible");
+    cy.xpath("//span[text()='title']").should("be.visible");
+    cy.xpath("//span[text()='due']").should("be.visible");
   });
 
   it("Export and import application and validate data binding for the widgets", function() {
@@ -136,13 +137,13 @@ describe("Import, Export and Fork application and validate data binding", functi
                 );
                 // validating data binding for imported application
                 cy.xpath("//input[@value='Submit']").should("be.visible");
-                cy.xpath("//div[text()='schema_name']").should("be.visible");
-                // cy.xpath("//div[text()='information_schema']").should(
+                cy.xpath("//span[text()='schema_name']").should("be.visible");
+                // cy.xpath("//span[text()='information_schema']").should(
                 //   "be.visible",
                 // );
-                cy.xpath("//div[text()='id']").should("be.visible");
-                cy.xpath("//div[text()='title']").should("be.visible");
-                cy.xpath("//div[text()='due']").should("be.visible");
+                cy.xpath("//span[text()='id']").should("be.visible");
+                cy.xpath("//span[text()='title']").should("be.visible");
+                cy.xpath("//span[text()='due']").should("be.visible");
 
                 cy.url().should(
                   "include",
