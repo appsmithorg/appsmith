@@ -676,6 +676,12 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
+  it("19. Verify Deletion of the datasource", () => {
+    deployMode.DeployApp();
+    agHelper.NavigateBacktoEditor();
+    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
+  });
+
   function GenerateCRUDNValidateDeployPage(
     col1Text: string,
     col2Text: string,
