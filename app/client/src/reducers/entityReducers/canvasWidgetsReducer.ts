@@ -6,6 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { get, set } from "lodash";
+import log from "loglevel";
 
 /* This type is an object whose keys are widgetIds and values are arrays with property paths
 and property values 
@@ -45,6 +46,7 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateWidgetsPayload>,
   ) => {
+    const start = performance.now();
     // For each widget whose properties we would like to update
     for (const [widgetId, propertyPathsToUpdate] of Object.entries(
       action.payload,
@@ -60,6 +62,11 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
           set(state, path, propertyValue);
       });
     }
+    log.debug(
+      "Dynamic Height: Update redux store took:",
+      performance.now() - start,
+      "ms",
+    );
   },
 });
 

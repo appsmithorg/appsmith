@@ -9,6 +9,8 @@ import pluginsReducer from "reducers/entityReducers/pluginsReducer";
 import metaReducer from "./metaReducer";
 import appReducer from "./appReducer";
 import jsActionsReducer from "./jsActionsReducer";
+import dynamicHeightLayoutTreeReducer from "./dynamicHeightReducers/dynamicHeightLayoutTreeReducer";
+import canvasLevelsReducer from "./dynamicHeightReducers/canvasLevelsReducer";
 
 const entityReducer = combineReducers({
   canvasWidgets: canvasWidgetsReducer,
@@ -21,6 +23,8 @@ const entityReducer = combineReducers({
   meta: metaReducer,
   app: appReducer,
   jsActions: jsActionsReducer,
+  dynamicHeightLayoutTree: dynamicHeightLayoutTreeReducer,
+  canvasLevels: canvasLevelsReducer,
 });
 
 export default entityReducer;

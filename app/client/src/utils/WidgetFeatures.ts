@@ -1,5 +1,9 @@
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { WidgetProps } from "widgets/BaseWidget";
+
+// eslint-disable-next-line prettier/prettier
+import type { AutocompleteDataType } from "./autocomplete/TernServer";
 
 export interface WidgetFeatures {
   dynamicHeight: boolean;
@@ -35,6 +39,52 @@ export function hideDynamicHeightPropertyControl(props: WidgetProps) {
   return props.dynamicHeight !== DynamicHeight.HUG_CONTENTS;
 }
 
+function validateMinHeight(value: unknown, props: WidgetProps) {
+  const _value: number = parseInt(value as string, 10);
+  const _maxHeight: number = parseInt(props.maxDynamicHeight as string, 10);
+  if (isNaN(_value) || _value <= 2) {
+    return {
+      isValid: false,
+      messages: [`Value should be a positive integer greater than 2`],
+      parsed: 2,
+    };
+  } else if (_value > _maxHeight) {
+    return {
+      isValid: false,
+      messages: [`Value should be less than or equal Max. Height`],
+      parsed: _maxHeight || 2,
+    };
+  }
+  return {
+    isValid: true,
+    parsed: _value,
+    messages: [],
+  };
+}
+
+function validateMaxHeight(value: unknown, props:WidgetProps) {
+  const _value: number = parseInt(value as string, 10);
+  const _minHeight: number = parseInt(props.minDynamicHeight as string, 10);
+  if(isNaN(_value) || _value <= 2) {
+    return {
+      isValid: false,
+      messages: [`Value should be a positive integer greater than 2`],
+      parsed: 1000,
+    }
+  } else if (_value < _minHeight) {
+    return {
+      isValid: false,
+      messages: [`Value should be greater than or equal Min. Height`],
+      parsed: _minHeight || 2
+    }
+  }
+  return {
+    isValid: true,
+    parsed: _value,
+    messages: []
+  }
+}
+// TODO FEATURE:(abhinav) Add validations to these properties
 export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
   DYNAMIC_HEIGHT: {
     sectionName: "Layout Features",
@@ -47,6 +97,25 @@ export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
         controlType: "DROP_DOWN",
         isBindProperty: false,
         isTriggerProperty: false,
+        dependencies: ["shouldScrollContents"],
+        updateHook: (
+          props: WidgetProps,
+          propertyName: string,
+          propertyValue: string,
+        ) => {
+          if (
+            propertyValue === DynamicHeight.HUG_CONTENTS &&
+            props.shouldScrollContents === false &&
+            propertyName === "dynamicHeight"
+          ) {
+            return [
+              {
+                propertyPath: "shouldScrollContents",
+                propertyValue: true,
+              },
+            ];
+          }
+        },
         options: [
           {
             label: "Hug Contents",
@@ -66,8 +135,19 @@ export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
         hidden: hideDynamicHeightPropertyControl,
         dependencies: ["dynamicHeight"],
         isJSConvertible: false,
-        isBindProperty: false,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: validateMinHeight,
+            expected: {
+              type: "Number of Rows. Less than or equal to Max Height",
+              example: 10,
+              autocompleteDataType: "NUMBER" as AutocompleteDataType,
+            },
+          },
+        },
       },
       {
         propertyName: "maxDynamicHeight",
@@ -76,8 +156,19 @@ export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
         controlType: "INPUT_TEXT",
         dependencies: ["dynamicHeight"],
         hidden: hideDynamicHeightPropertyControl,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: validateMaxHeight,
+            expected: {
+              type: "Number of Rows. Greater than or equal to Min. Height",
+              example: 1000,
+              autocompleteDataType: "NUMBER" as AutocompleteDataType,
+            },
+          },
+        },
         isJSConvertible: false,
-        isBindProperty: false,
+        isBindProperty: true,
         isTriggerProperty: false,
       },
     ],

@@ -4,13 +4,13 @@ import Widget from "./widget";
 import { LabelPosition } from "components/constants";
 
 export const CONFIG = {
-  features: {
-    dynamicHeight: true,
-  },
   type: Widget.getWidgetType(),
   name: "Radio Group",
   iconSVG: IconSVG,
   needsMeta: true,
+  features: {
+    dynamicHeight: true,
+  },
   defaults: {
     rows: 8,
     columns: 20,

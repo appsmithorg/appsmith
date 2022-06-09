@@ -62,6 +62,12 @@ import SettingsReducer, {
   SettingsReduxState,
 } from "@appsmith/reducers/settingsReducer";
 
+// eslint-disable-next-line prettier/prettier
+import type { CanvasLevelsReduxState } from "./entityReducers/dynamicHeightReducers/canvasLevelsReducer";
+
+// eslint-disable-next-line prettier/prettier
+import type { DynamicHeightLayoutTreeReduxState } from "./entityReducers/dynamicHeightReducers/dynamicHeightLayoutTreeReducer";
+
 const appReducer = combineReducers({
   entities: entityReducer,
   ui: uiReducer,
@@ -127,6 +133,8 @@ export interface AppState {
     meta: MetaState;
     app: AppDataState;
     jsActions: JSCollectionDataState;
+    dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState;
+    canvasLevels: CanvasLevelsReduxState
   };
   evaluations: {
     tree: EvaluatedTreeState;

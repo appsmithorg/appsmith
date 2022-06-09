@@ -40,7 +40,7 @@ export interface StyledRadioGroupProps {
 
 const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
   ${BlueprintRadioSwitchGroupTransform}
-  height: ${({ inline }) => (inline ? "32px" : "100%")};
+  height: ${({ inline }) => (inline ? "32px" : "auto")};
 
   .${Classes.CONTROL} {
     & input:checked ~ .${Classes.CONTROL_INDICATOR} {

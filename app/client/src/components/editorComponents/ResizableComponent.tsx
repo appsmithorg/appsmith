@@ -44,6 +44,7 @@ import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -111,8 +112,9 @@ export const ResizableComponent = memo(function ResizableComponent(
       width: newDimensions.width - dimensions.width,
     };
     const newRowCols: WidgetRowCols = computeRowCols(delta, position, props);
-    let canResizeHorizontally = true,
-      canResizeVertically = true;
+    let canResizeVertically =
+      props.dynamicHeight !== DynamicHeight.HUG_CONTENTS;
+    let canResizeHorizontally = true;
 
     // this is required for list widget so that template have no collision
     if (props.ignoreCollision)
@@ -277,6 +279,14 @@ export const ResizableComponent = memo(function ResizableComponent(
     }
   };
 
+  const snapGrid = useMemo(
+    () => ({
+      x: props.parentColumnSpace,
+      y: props.parentRowSpace,
+    }),
+    [props.parentColumnSpace, props.parentRowSpace],
+  );
+
   return (
     <Resizable
       allowResize={!isMultiSelectedWidget}
@@ -290,7 +300,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       onStop={updateSize}
       originalPositions={originalPositions}
       parentId={props.parentId}
-      snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
+      snapGrid={snapGrid}
       updateBottomRow={updateBottomRow}
       widgetId={props.widgetId}
       // Used only for performance tracking, can be removed after optimization.

@@ -160,7 +160,9 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
 
     const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     let widget = { ...stateWidget };
-    const stateWidgets = yield select(getWidgets);
+    const stateWidgets: {
+      [widgetId: string]: FlattenedWidgetProps;
+    } = yield select(getWidgets);
     const widgets = { ...stateWidgets };
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
@@ -436,7 +438,9 @@ export function* setWidgetDynamicPropertySaga(
 
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
   widget.dynamicBindingPathList = dynamicBindingPathList;
-  const stateWidgets = yield select(getWidgets);
+  const stateWidgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  } = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
 
   // Save the layout
@@ -581,7 +585,9 @@ function* batchUpdateWidgetPropertySaga(
     getPropertiesUpdatedWidget,
     action.payload,
   );
-  const stateWidgets = yield select(getWidgets);
+  const stateWidgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  } = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: updatedWidget };
   log.debug(
     "Batch widget property update calculations took: ",
@@ -597,7 +603,9 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
 ) {
   const start = performance.now();
   const { updatesArray } = action.payload;
-  const stateWidgets = yield select(getWidgets);
+  const stateWidgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  } = yield select(getWidgets);
   const updatedWidgets: WidgetProps[] = yield all(
     updatesArray.map((eachUpdate) => {
       return call(getPropertiesUpdatedWidget, eachUpdate);
@@ -717,7 +725,10 @@ function* updateCanvasSize(
   action: ReduxAction<{ canvasWidgetId: string; snapRows: number }>,
 ) {
   const { canvasWidgetId, snapRows } = action.payload;
-  const canvasWidget = yield select(getWidget, canvasWidgetId);
+  const canvasWidget: FlattenedWidgetProps = yield select(
+    getWidget,
+    canvasWidgetId,
+  );
 
   const originalSnapRows = canvasWidget.bottomRow - canvasWidget.topRow;
 
@@ -1921,10 +1932,5 @@ export default function* widgetOperationSagas() {
     takeLeading(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
-    // TODO: DEBUG(abhinav): Is takeEvery the right way?
-    takeEvery(
-      ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_HEIGHT,
-      updateWidgetDynamicHeightSaga,
-    ),
   ]);
 }

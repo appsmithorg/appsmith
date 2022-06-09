@@ -273,7 +273,9 @@ export const BlueprintRadioSwitchGroupTransform = css<{
   optionCount: number;
 }>`
   width: 100%;
-  height: 100%;
+  && {
+    height: auto;
+  }
 
   ${({ alignment, inline, optionCount }) => `
     display: ${

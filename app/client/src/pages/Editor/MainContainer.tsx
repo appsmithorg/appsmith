@@ -22,7 +22,7 @@ const Container = styled.div`
     100vh - ${(props) => props.theme.smallHeaderHeight} -
       ${(props) => props.theme.bottomBarHeight}
   );
-  background-color: ${(props) => props.theme.appBackground};
+  // background-color: ${(props) => props.theme.appBackground};
 `;
 function MainContainer() {
   const dispatch = useDispatch();

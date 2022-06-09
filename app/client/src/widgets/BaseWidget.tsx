@@ -7,6 +7,7 @@ import {
   CONTAINER_GRID_PADDING,
   CSSUnit,
   CSSUnits,
+  GridDefaults,
   PositionType,
   PositionTypes,
   RenderMode,
@@ -60,7 +61,6 @@ abstract class BaseWidget<
 > extends Component<T, K> {
   static contextType = EditorContext;
   contentRef = React.createRef<HTMLDivElement>();
-  context!: React.ContextType<typeof EditorContext>;
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
@@ -181,8 +181,10 @@ abstract class BaseWidget<
   // TODO: ADD_TEST(abhinav): Write a unit test
   shouldUpdateDynamicHeight(expectedHeight: number): boolean {
     // The current height in pixels of the widget
-    const currentHeight =
-      (this.props.bottomRow - this.props.topRow) * this.props.parentRowSpace;
+    const currentHeightInRows = this.props.bottomRow - this.props.topRow;
+    const expectedHeightInRows = Math.ceil(
+      expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    );
 
     // Does this widget have dynamic height enabled
     const isDynamicHeightEnabled =
@@ -193,23 +195,23 @@ abstract class BaseWidget<
 
     // If current height is less than the expected height
     // We're trying to see if we can increase the height
-    if (currentHeight < expectedHeight) {
+    if (currentHeightInRows < expectedHeightInRows) {
       // Get the max possible height for the widget
-      const widgetMaxHeight = this.props.maxDynamicHeight;
+      const widgetMaxHeightInRows = this.props.maxDynamicHeight;
       // If we're not already at the max height, we can increase height
-      if (widgetMaxHeight > currentHeight) {
+      if (widgetMaxHeightInRows > currentHeightInRows) {
         return true;
       }
     }
 
     // If current height is greater than expected height
     // We're trying to see if we can reduce the height
-    if (currentHeight > expectedHeight) {
+    if (currentHeightInRows > expectedHeightInRows) {
       // Get the minimum possible height for the widget
-      const widgetMinHeight = this.props.minDynamicHeight;
+      const widgetMinHeightInRows = this.props.minDynamicHeight;
       // If our attempt to reduce does not go below the min possible height
       // We can safely reduce the height
-      if (widgetMinHeight < currentHeight) {
+      if (widgetMinHeightInRows < expectedHeightInRows) {
         return true;
       }
     }
