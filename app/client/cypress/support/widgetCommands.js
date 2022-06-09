@@ -423,6 +423,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
 Cypress.Commands.add("updateCodeInput", ($selector, value) => {
   cy.EnableAllCodeEditors();
   cy.get($selector)
+    .first()
     .click()
     .find(".CodeMirror")
     .first()
