@@ -42,7 +42,6 @@ const useDropdown = ({ inputRef, renderMode, selectRef }: useDropdownProps) => {
   const onOpen = useCallback((open: boolean) => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
-      console.log(popupContainer.current);
       if (popupContainer.current && renderMode === RenderModes.CANVAS) {
         popupContainer.current.style.overflowY = "hidden";
       }
