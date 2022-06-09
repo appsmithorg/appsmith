@@ -207,7 +207,7 @@ describe("AForce - Community Issues page validations", function() {
     //One filter
     table.OpenNFilterTable("Type", "is exactly", "Bug");
     for (let i = 0; i < 3; i++) {
-      table.ReadTableRowColumnData(i, 0, 200).then(($cellData) => {
+      table.ReadTableRowColumnData(i, 0).then(($cellData) => {
         expect($cellData).to.eq("Bug");
       });
     }
@@ -216,13 +216,13 @@ describe("AForce - Community Issues page validations", function() {
     //Two filters - OR
     table.OpenNFilterTable("Type", "starts with", "Trouble");
     for (let i = 0; i < 5; i++) {
-      table.ReadTableRowColumnData(i, 0, 200).then(($cellData) => {
+      table.ReadTableRowColumnData(i, 0).then(($cellData) => {
         expect($cellData).to.eq("Troubleshooting");
       });
     }
 
     table.OpenNFilterTable("Title", "contains", "query", "OR", 1);
-    table.ReadTableRowColumnData(1, 0, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0).then(($cellData) => {
       expect($cellData).to.be.oneOf(["Troubleshooting", "Question"]);
     });
 
