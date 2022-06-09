@@ -90,7 +90,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   it("4. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function() {
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getId", false, true);
-    deployMode.DeployApp();
+    deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
     agHelper.WaitUntilToastDisappear('The action "GetUser" has failed');
     agHelper.NavigateBacktoEditor();
   });

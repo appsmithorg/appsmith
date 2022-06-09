@@ -17,7 +17,7 @@ export class DeployMode {
 
   //refering PublishtheApp from command.js
   public DeployApp(
-    eleToCheckInDeployPage: string = this.locator._backToEditor,
+    eleToCheckInDeployPage: string = this.locator._backToEditor, toCheckFailureToast= true
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
     // Wait before publish
@@ -40,7 +40,7 @@ export class DeployMode {
 
     this.agHelper.WaitUntilEleAppear(eleToCheckInDeployPage);
     localStorage.setItem("inDeployedMode", "true");
-    this.agHelper.AssertElementAbsence(this.locator._toastMsg);//Validating bug - 14141
+    toCheckFailureToast && this.agHelper.AssertElementAbsence(this.locator._toastMsg);//Validating bug - 14141
     this.agHelper.Sleep(2000); //for Depoy page to settle!
   }
 
