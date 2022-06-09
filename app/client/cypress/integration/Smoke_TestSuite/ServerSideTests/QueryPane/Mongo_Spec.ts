@@ -56,6 +56,9 @@ describe("Validate Mongo Query Pane Validations", () => {
     );
 
     agHelper.NavigateBacktoEditor();
+    //Delete the test data
+    ee.ActionContextMenuByEntityName("Page1", "Delete", "Are you sure?");
+    agHelper.ValidateNetworkStatus("@deletePage", 200);
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -315,7 +318,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     agHelper.ActionContextMenuWithInPane("Delete");
 
-    ee.expandCollapseEntity("DATASOURCES")
+    ee.expandCollapseEntity("DATASOURCES");
     ee.expandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("AuthorNAwards"));
@@ -670,9 +673,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     dataSources.RunQuery(false);
     agHelper
       .GetText(dataSources._queryError)
-      .then(($errorText) =>
-        expect($errorText).to.eq("ns not found."),
-      );
+      .then(($errorText) => expect($errorText).to.eq("ns not found."));
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
