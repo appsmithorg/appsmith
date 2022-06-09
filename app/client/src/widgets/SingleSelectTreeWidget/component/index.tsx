@@ -15,7 +15,7 @@ import {
   InputContainer,
 } from "./index.styled";
 import "rc-tree-select/assets/index.less";
-import { DefaultValueType, LabelValueType } from "rc-tree-select/lib/interface";
+import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
 import { RenderMode, TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
@@ -24,7 +24,6 @@ import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import LabelWithTooltip from "components/ads/LabelWithTooltip";
-import Select from "rc-select";
 import useDropdown from "widgets/useDropdown";
 
 export interface TreeSelectProps
@@ -129,14 +128,12 @@ function SingleSelectTreeComponent({
   const [key, setKey] = useState(Math.random());
   const [filter, setFilter] = useState(filterText ?? "");
 
-  const selectRef = useRef<Select<LabelValueType[]> | null>(null);
   const labelRef = useRef<HTMLDivElement>(null);
   const _menu = useRef<HTMLElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
 
-  const { BackDrop, getPopupContainer, onOpen } = useDropdown({
-    selectRef,
+  const { BackDrop, getPopupContainer, onOpen, selectRef } = useDropdown({
     inputRef,
     renderMode,
   });

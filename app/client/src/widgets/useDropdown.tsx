@@ -15,15 +15,15 @@ const BackDropContainer = styled.div`
 `;
 
 type useDropdownProps = {
-  selectRef: React.MutableRefObject<Select<LabelValueType[]> | null>;
   inputRef: React.RefObject<HTMLInputElement>;
   renderMode?: RenderMode;
 };
 const FOCUS_TIMEOUT = 500;
 
 // TODO: Refactor More functionalities in MultiSelect, MultiTreeSelect and TreeSelect Components
-const useDropdown = ({ inputRef, renderMode, selectRef }: useDropdownProps) => {
+const useDropdown = ({ inputRef, renderMode }: useDropdownProps) => {
   const popupContainer = useRef<HTMLElement>(getMainCanvas());
+  const selectRef = useRef<Select<LabelValueType[]> | null>(null);
 
   const closeBackDrop = useCallback(() => {
     if (selectRef.current) {
@@ -39,23 +39,27 @@ const useDropdown = ({ inputRef, renderMode, selectRef }: useDropdownProps) => {
   const getPopupContainer = useCallback(() => popupContainer.current, []);
 
   // When Dropdown is opened disable scrolling within the app except the list of options
-  const onOpen = useCallback((open: boolean) => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
-      if (popupContainer.current && renderMode === RenderModes.CANVAS) {
-        popupContainer.current.style.overflowY = "hidden";
+  const onOpen = useCallback(
+    (open: boolean) => {
+      if (open) {
+        setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
+        if (popupContainer.current && renderMode === RenderModes.CANVAS) {
+          popupContainer.current.style.overflowY = "hidden";
+        }
+      } else {
+        if (popupContainer.current && renderMode === RenderModes.CANVAS) {
+          popupContainer.current.style.overflowY = "auto";
+        }
       }
-    } else {
-      if (popupContainer.current && renderMode === RenderModes.CANVAS) {
-        popupContainer.current.style.overflowY = "auto";
-      }
-    }
-  }, []);
+    },
+    [renderMode],
+  );
 
   return {
     BackDrop,
     getPopupContainer,
     onOpen,
+    selectRef,
   };
 };
 

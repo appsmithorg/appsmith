@@ -105,14 +105,12 @@ function MultiSelectComponent({
   const [filter, setFilter] = useState(filterText ?? "");
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
-  const selectRef = useRef<Select<LabelValueType[]> | null>(null);
 
   const _menu = useRef<HTMLElement | null>(null);
   const labelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { BackDrop, getPopupContainer, onOpen } = useDropdown({
-    selectRef,
+  const { BackDrop, getPopupContainer, onOpen, selectRef } = useDropdown({
     inputRef,
     renderMode,
   });

@@ -15,7 +15,7 @@ import {
   InputContainer,
 } from "./index.styled";
 import "rc-tree-select/assets/index.less";
-import { DefaultValueType, LabelValueType } from "rc-tree-select/lib/interface";
+import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
 import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import { RenderMode, TextSize } from "constants/WidgetConstants";
@@ -25,7 +25,6 @@ import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import LabelWithTooltip from "components/ads/LabelWithTooltip";
-import Select from "rc-select";
 import useDropdown from "widgets/useDropdown";
 
 export interface TreeSelectProps
@@ -133,15 +132,13 @@ function MultiTreeSelectComponent({
   const [filter, setFilter] = useState(filterText ?? "");
 
   const _menu = useRef<HTMLElement | null>(null);
-  const selectRef = useRef<Select<LabelValueType[]> | null>(null);
 
   const labelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
 
-  const { BackDrop, getPopupContainer, onOpen } = useDropdown({
-    selectRef,
+  const { BackDrop, getPopupContainer, onOpen, selectRef } = useDropdown({
     inputRef,
     renderMode,
   });
