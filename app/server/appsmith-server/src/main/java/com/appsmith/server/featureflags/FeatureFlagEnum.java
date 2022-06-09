@@ -29,5 +29,7 @@ public enum FeatureFlagEnum {
     MULTIPLAYER,
     GIT,
     GIT_IMPORT,
-    APP_TEMPLATE;
+    APP_TEMPLATE,
+    PROPERTY_PANE_GROUPING,
+    RBAC,
 }
