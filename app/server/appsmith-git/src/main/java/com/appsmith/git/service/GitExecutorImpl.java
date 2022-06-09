@@ -587,19 +587,19 @@ public class GitExecutorImpl implements GitExecutor {
                         return status;
                     })
                     .onErrorResume(error -> {
-                        log.error("Error occurred during migration commit, {0}", error);
+                        log.error("Error occurred during migration commit to repo {}, exception: {0}", repoPath, error);
                         return Mono.just(status);
                     })
                     .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS));
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (GitAPIException e) {
-            e.printStackTrace();
+        } catch (IOException error) {
+            log.error("Error occurred while opening git repo {}, exception: {}", repoPath, error);
+        } catch (GitAPIException error) {
+            log.error("Error occurred while checking git diff for repo {}, exception: {}", repoPath, error);
         }
         return Mono.just(status);
     }
 
-        @Override
+    @Override
     public Mono<String> mergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
         return Mono.fromCallable(() -> {
                     Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_MERGE.getEventName());
