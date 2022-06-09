@@ -23,6 +23,7 @@ import {
 } from "@appsmith/constants/messages";
 import { TabComponent } from "components/ads/Tabs";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import WidgetFactory from "utils/WidgetFactory";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -121,6 +122,13 @@ function PropertyPaneView(
   );
   const deprecationHeader = createMessage(WIDGET_DEPRECATION_WARNING_HEADER);
 
+  // TODO(aswathkk): remove this when PROPERTY_PANE_GROUPING feature is released
+  const isContentAndStyleConfigAvailable =
+    WidgetFactory.getWidgetPropertyPaneContentConfig(widgetProperties.type)
+      .length &&
+    WidgetFactory.getWidgetPropertyPaneStyleConfig(widgetProperties.type)
+      .length;
+
   return (
     <div
       className="relative flex flex-col w-full pt-3 overflow-y-auto"
@@ -158,7 +166,8 @@ function PropertyPaneView(
             textColor={Colors.BROWN}
           />
         )}
-        {featureFlags.PROPERTY_PANE_GROUPING ? (
+        {featureFlags.PROPERTY_PANE_GROUPING &&
+        isContentAndStyleConfigAvailable ? (
           <TabComponent
             tabs={[
               {
