@@ -7,14 +7,14 @@ const EE_BreadcrumbCategories = {
   [SettingCategories.SAML_AUTH]: {
     href: adminSettingsCategoryUrl({
       category: SettingCategories.AUTHENTICATION,
-      subCategory: SettingCategories.SAML_AUTH,
+      selected: SettingCategories.SAML_AUTH,
     }),
     text: "SSO Authentication",
   },
   [SettingCategories.OIDC_AUTH]: {
     href: adminSettingsCategoryUrl({
       category: SettingCategories.AUTHENTICATION,
-      subCategory: SettingCategories.OIDC_AUTH,
+      selected: SettingCategories.OIDC_AUTH,
     }),
     text: "OIDC Authentication",
   },
