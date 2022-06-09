@@ -1125,10 +1125,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return applicationService.getSshKey(gitData.getDefaultApplicationId())
                             .flatMap(gitAuthDTO -> {
                                 if(StringUtils.isEmptyOrNull(gitAuthDTO.getPublicKey())) {
-                                    return Mono.error(new AppsmithException(
-                                            AppsmithError.INVALID_GIT_CONFIGURATION,
-                                            GIT_CONFIG_ERROR
-                                    ));
+                                    return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                                 }
                                 GitAuth gitAuth = new GitAuth();
                                 gitAuth.setPrivateKey(gitAuthDTO.getPrivateKey());
