@@ -399,12 +399,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMapMany(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     if (gitData != null && !StringUtils.isEmpty(gitData.getDefaultApplicationId()) && !StringUtils.isEmpty(gitData.getRepoName())) {
-                        String repoName = gitData.getRepoName();
-                        Path repoPath = Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), repoName);
-                        // Delete git repo from local and delete the applications from DB
-                        return gitFileUtils.deleteLocalRepo(repoPath)
-                                .flatMapMany(isCleared -> applicationService
-                                        .findAllApplicationsByDefaultApplicationId(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS));
+                        return applicationService
+                                .findAllApplicationsByDefaultApplicationId(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS);
                     }
                     return Flux.fromIterable(List.of(application));
                 })
@@ -412,7 +408,18 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     log.debug("Archiving application with id: {}", application.getId());
                     return deleteApplicationByResource(application);
                 })
-                .then(applicationMono);
+                .then(applicationMono)
+                .flatMap(application ->{
+                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    if (gitData != null && !StringUtils.isEmpty(gitData.getDefaultApplicationId()) && !StringUtils.isEmpty(gitData.getRepoName())) {
+                        String repoName = gitData.getRepoName();
+                        Path repoPath = Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), repoName);
+                        // Delete git repo from local
+                        return gitFileUtils.deleteLocalRepo(repoPath)
+                                .then(Mono.just(application));
+                    }
+                    return Mono.just(application);
+                });
     }
 
     public Mono<Application> deleteApplicationByResource(Application application) {
