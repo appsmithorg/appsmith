@@ -620,7 +620,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Submit");
 
     //asserting only Update JSON form is present, &  Insert Modal is closed
-    agHelper.Sleep(2000); //for Insert to reflect!
+    agHelper.Sleep(3000); //for Insert to reflect!
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper

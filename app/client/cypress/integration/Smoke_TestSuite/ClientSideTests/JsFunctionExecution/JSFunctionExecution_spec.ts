@@ -86,6 +86,7 @@ describe("JS Function Execution", function() {
     // Assert presence of parse error callout (entire JS Object is invalid)
     jsEditor.AssertParseError(true, false);
   });
+
   it("4. Shows lint error and toast modal when JS Object doesn't start with 'export default'", () => {
     const invalidJSObjectStartToastMessage = "Start object with export default";
     const jsComment = "// This is a comment";
@@ -130,6 +131,11 @@ describe("JS Function Execution", function() {
   });
 
   it("5. Supports the use of large JSON data (doesn't crash)", () => {
+    ee.expandCollapseEntity("QUERIES/JS")
+    ee.ActionContextMenuByEntityName("JSObject1", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("JSObject2", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("JSObject3", "Delete", "Are you sure?");
+
     const jsObjectWithLargeJSONData = `export default{
       largeData: ${JSON.stringify(largeJSONData)},
       myfun1: ()=> this.largeData
