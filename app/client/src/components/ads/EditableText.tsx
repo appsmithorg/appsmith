@@ -62,6 +62,7 @@ export function EditableText(props: EditableTextProps) {
     isEditingDefault,
     isInvalid: inputValidation,
     savingState: defaultSavingState,
+    wrapperRef,
     ...others
   } = props;
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);
@@ -69,7 +70,6 @@ export function EditableText(props: EditableTextProps) {
   const [savingState, setSavingState] = useState<SavingState>(
     SavingState.NOT_STARTED,
   );
-  const inputRef = React.useRef(null);
 
   const editMode = useCallback(
     (e: React.MouseEvent) => {
@@ -139,7 +139,7 @@ export function EditableText(props: EditableTextProps) {
         isEditing={isEditing}
         isEditingDefault={isEditingDefault}
         isInvalid={isInvalid}
-        ref={inputRef}
+        ref={wrapperRef}
         savingState={savingState}
         setIsEditing={setIsEditing}
         setIsInvalid={setIsInvalid}

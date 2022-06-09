@@ -32,6 +32,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "components/ads";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { SAML_SIGNUP_SETUP_DOC } from "constants/ThirdPartyConstants";
 
 export type MenuItemsProps = {
   id: string;
@@ -250,6 +251,7 @@ function MetadataForm(
           actionLabel="Read Documentation"
           title={providerForm.callout}
           type="Info"
+          url={SAML_SIGNUP_SETUP_DOC}
         />
       )}
       <Info>{providerForm.subText}</Info>

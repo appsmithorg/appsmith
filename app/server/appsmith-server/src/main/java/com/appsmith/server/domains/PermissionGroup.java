@@ -1,21 +1,19 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import com.appsmith.server.dtos.Permission;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
-@Getter
-@Setter
-@ToString
 @Document
-public class Permission extends BaseDomain {
+public class PermissionGroup extends BaseDomain {
 
     @NotNull
-    private String name;
+    String name;
 
-    private String description;
+    String description;
+
+    List<Permission> permissions;
+
 }
