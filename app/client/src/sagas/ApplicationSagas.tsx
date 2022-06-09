@@ -72,7 +72,7 @@ import {
   reconnectAppLevelWebsocket,
   reconnectPageLevelWebsocket,
 } from "actions/websocketActions";
-import { getCurrentOrg } from "selectors/organizationSelectors";
+import { getCurrentOrg } from "@appsmith/selectors/organizationSelectors";
 
 import {
   getCurrentStep,
