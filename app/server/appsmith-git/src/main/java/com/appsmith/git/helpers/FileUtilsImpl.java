@@ -27,6 +27,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -74,6 +76,8 @@ public class FileUtilsImpl implements FileInterface {
     private static final String VIEW_MODE_URL_TEMPLATE = "{{viewModeUrl}}";
 
     private static final Pattern ALLOWED_FILE_EXTENSION_PATTERN = Pattern.compile("(.*?)\\.(md|git|gitignore|yml)$");
+
+    private final Scheduler scheduler = Schedulers.boundedElastic();
 
     /**
          Application will be stored in the following structure:
@@ -258,7 +262,8 @@ public class FileUtilsImpl implements FileInterface {
                     }
                     processStopwatch.stopAndLogTimeInMillis();
                     return Mono.just(baseRepo);
-                });
+                })
+                .subscribeOn(scheduler);
     }
 
     /**
@@ -380,7 +385,8 @@ public class FileUtilsImpl implements FileInterface {
                     ApplicationGitReference applicationGitReference = fetchApplicationReference(baseRepoPath, gson);
                     processStopwatch.stopAndLogTimeInMillis();
                     return applicationGitReference;
-                });
+                })
+                .subscribeOn(scheduler);
     }
 
     /**
@@ -396,18 +402,20 @@ public class FileUtilsImpl implements FileInterface {
     public Mono<Path> initializeReadme(Path baseRepoSuffix,
                                        String viewModeUrl,
                                        String editModeUrl) throws IOException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream(gitServiceConfig.getReadmeTemplatePath());
+        return Mono.fromCallable(() -> {
+            ClassLoader classLoader = getClass().getClassLoader();
+            InputStream inputStream = classLoader.getResourceAsStream(gitServiceConfig.getReadmeTemplatePath());
 
-        StringWriter stringWriter = new StringWriter();
-        IOUtils.copy(inputStream, stringWriter, "UTF-8");
-        String data = stringWriter.toString().replace(EDIT_MODE_URL_TEMPLATE, editModeUrl).replace(VIEW_MODE_URL_TEMPLATE, viewModeUrl);
+            StringWriter stringWriter = new StringWriter();
+            IOUtils.copy(inputStream, stringWriter, "UTF-8");
+            String data = stringWriter.toString().replace(EDIT_MODE_URL_TEMPLATE, editModeUrl).replace(VIEW_MODE_URL_TEMPLATE, viewModeUrl);
 
-        File file = new File(Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().toString());
-        FileUtils.writeStringToFile(file, data, "UTF-8", true);
+            File file = new File(Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().toString());
+            FileUtils.writeStringToFile(file, data, "UTF-8", true);
 
-        // Remove readme.md from the path
-        return Mono.just(file.toPath().getParent());
+            // Remove readme.md from the path
+            return file.toPath().getParent();
+        }).subscribeOn(scheduler);
     }
 
     @Override

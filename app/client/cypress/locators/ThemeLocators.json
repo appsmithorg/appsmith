@@ -8,6 +8,6 @@
     "colorPicker": "[data-testid='color-picker']",
     "greenColor": "[style='background-color: rgb(21, 128, 61);']",
     "fontsSelected": ".leading-normal",
-    "currentTheme": ".cursor-pointer:contains('Current Theme')",
+    "currentTheme": ".cursor-pointer:contains('Applied Theme')",
     "purpleColor": "[style='background-color: rgb(107,114,128);']"
 }
