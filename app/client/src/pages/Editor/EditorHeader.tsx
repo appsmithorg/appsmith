@@ -351,8 +351,8 @@ export function EditorHeader(props: EditorHeaderProps) {
           <HamburgerContainer
             className={classNames({
               "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400": true,
-              "-translate-y-full opacity-0": isPreviewMode,
-              "translate-y-0 opacity-100": !isPreviewMode,
+              "-translate-x-full opacity-0": isPreviewMode,
+              "translate-x-0 opacity-100": !isPreviewMode,
             })}
           >
             <TooltipComponent
