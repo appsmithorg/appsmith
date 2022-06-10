@@ -735,7 +735,7 @@ Cypress.Commands.add("DeleteModal", () => {
     .click({ force: true });
 });
 
-Cypress.Commands.add("Createpage", (pageName) => {
+Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
   let pageId;
   cy.get(pages.AddPage)
     .first()
@@ -753,7 +753,9 @@ Cypress.Commands.add("Createpage", (pageName) => {
       pageidcopy = pageName;
       cy.wrap(pageId).as("currentPageId");
     }
-    cy.get(generatePage.buildFromScratchActionCard).click();
+    if (navigateToCanvasPage) {
+      cy.get(generatePage.buildFromScratchActionCard).click();
+    }
     cy.get("#loading").should("not.exist");
   });
 });

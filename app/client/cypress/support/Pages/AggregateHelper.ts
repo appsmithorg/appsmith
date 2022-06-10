@@ -3,6 +3,17 @@ const uuid = require("uuid");
 import { ObjectsRegistry } from "../Objects/Registry";
 
 let LOCAL_STORAGE_MEMORY: any = {};
+export interface IEnterValue {
+  propFieldName: string;
+  directInput: boolean;
+  inputFieldName: string;
+}
+
+const DEFAULT_ENTERVALUE_OPTIONS = {
+  propFieldName: "",
+  directInput: false,
+  inputFieldName: "",
+};
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
 
@@ -449,7 +460,7 @@ export class AggregateHelper {
 
   public RefreshPage() {
     cy.reload();
-    this.Sleep(2000)
+    this.Sleep(2000);
   }
 
   public ActionContextMenuWithInPane(
@@ -471,21 +482,36 @@ export class AggregateHelper {
   }
 
   public TypeValueNValidate(valueToType: string, fieldName = "") {
-    this.EnterValue(valueToType, fieldName);
+    this.EnterValue(valueToType, {
+      propFieldName: fieldName,
+      directInput: false,
+      inputFieldName: "",
+    });
     this.VerifyEvaluatedValue(valueToType);
   }
 
-  public EnterValue(valueToEnter: string, fieldName = "", notField = false) {
-    if (fieldName && !notField) {
-      cy.xpath(this.locator._existingFieldTextByName(fieldName)).then(
+  public EnterValue(
+    valueToEnter: string,
+    options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
+  ) {
+    const { propFieldName, directInput, inputFieldName } = options;
+
+    if (propFieldName && !directInput && !inputFieldName) {
+      cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
         ($field: any) => {
           this.UpdateCodeInput($field, valueToEnter);
         },
       );
-    } else if (fieldName && notField) {
-      cy.get(fieldName).then(($field: any) => {
+    } else if (propFieldName && directInput && !inputFieldName) {
+      cy.get(propFieldName).then(($field: any) => {
         this.UpdateCodeInput($field, valueToEnter);
       });
+    } else if (inputFieldName && !propFieldName && !directInput) {
+      cy.xpath(this.locator._inputFieldByName(inputFieldName)).then(
+        ($field: any) => {
+          this.UpdateCodeInput($field, valueToEnter);
+        },
+      );
     } else {
       cy.get(this.locator._codeEditorTarget).then(($field: any) => {
         this.UpdateCodeInput($field, valueToEnter);
@@ -572,10 +598,11 @@ export class AggregateHelper {
       });
   }
 
-  public AssertElementAbsence(selector: string){//Should not exists - cannot take indexes
+  public AssertElementAbsence(selector: string) {
+    //Should not exists - cannot take indexes
     let locator = selector.startsWith("//")
       ? cy.xpath(selector, { timeout: 0 })
-      : cy.get(selector, { timeout: 0 })
+      : cy.get(selector, { timeout: 0 });
     locator.should("not.exist");
   }
 

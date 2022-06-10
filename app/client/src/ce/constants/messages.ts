@@ -1045,7 +1045,7 @@ export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
 export const WIDGET_DEPRECATION_WARNING = (widgetName: string) =>
   `A new version of the ${widgetName}widget is available. Upgrade to enjoy an enhanced experience.`;
-export const WIDGET_DEPRECATION_WARNING_HEADER = () => "Stay Up-to-date";
+export const WIDGET_DEPRECATION_WARNING_HEADER = () => "Stay up-to-date";
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
