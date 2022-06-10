@@ -165,48 +165,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return outLines;
     }
 
-    /*
-    final void parseEnvLine(String line) {
-        String[] parts = line.split("=", 1);
-        final String name = parts[0];
-
-        final char[] valueChars = line.toCharArray();
-        String state = "normal";
-
-        StringBuilder value = new StringBuilder();
-
-        for (int i = 0; i <= valueChars.length; ++i) {
-            final char c = valueChars[i];
-
-            if ("escape-next".equals(state)) {
-                state =
-
-            } else if (c == '\\') {
-                state = "escape-next";
-
-            } else if (c == '"') {
-                if (i > 0 && valueChars[i - 1] == '\\') {
-                    value.append('"');
-                } else if ("in-double-quote".equals(state)) {
-                    state = "normal";
-                } else {
-                    state = "in-double-quote";
-                }
-
-            } else if (c == '\'') {
-                if ("in-single-quote".equals(state)) {
-                    state = "normal";
-                } else {
-                    state = "in-single-quote";
-                }
-
-            } else {
-                value.append(c);
-
-            }
-        }
-    }//*/
-
     private Mono<Void> validateChanges(User user, Map<String, String> changes) {
         if(changes.containsKey(APPSMITH_ADMIN_EMAILS.name())) {
             String emailCsv = StringUtils.trimAllWhitespace(changes.get(APPSMITH_ADMIN_EMAILS.name()));
