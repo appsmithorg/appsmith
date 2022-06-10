@@ -1,33 +1,21 @@
-import { Colors } from "constants/Colors";
 import IconSVG from "./icon.svg";
-import Widget from "./widget";
+import Widget from "../ProgressBarWidget/widget";
+import { ProgressType } from "../ProgressWidget/constants";
+
+import { CONFIG as BASE_CONFIG } from "../ProgressWidget";
 
 export const CONFIG = {
-  type: Widget.getWidgetType(),
+  ...BASE_CONFIG,
+  type: "CIRCULAR_PROGRESS_WIDGET",
   name: "Circular Progress",
-  hideCard: true,
-  isDeprecated: true,
   iconSVG: IconSVG,
   defaults: {
-    counterClockWise: false,
-    fillColor: Colors.GREEN,
-    isVisible: true,
-    progress: 65,
-    showResult: true,
-
+    ...BASE_CONFIG.defaults,
+    widgetName: "CircularProgress",
+    progressType: ProgressType.CIRCULAR,
     rows: 17,
     columns: 16,
-    widgetName: "CircularProgress",
-    shouldScroll: false,
-    shouldTruncate: false,
-    version: 1,
-    animateLoading: true,
-  },
-  properties: {
-    derived: Widget.getDerivedPropertiesMap(),
-    default: Widget.getDefaultPropertiesMap(),
-    meta: Widget.getMetaPropertiesMap(),
-    config: Widget.getPropertyPaneConfig(),
+    showResult: true,
   },
 };
 
