@@ -3,6 +3,7 @@ package com.appsmith.server.domains;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.DecryptedSensitiveFields;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Transient;
@@ -54,6 +55,7 @@ public class ApplicationJson {
      * This field can be used while saving resources to local file system and only update the resource files which
      * are updated in the database.
      */
+    @JsonIgnore
     Map<String, Set<String>> updatedResources;
 
     Map<String, DecryptedSensitiveFields> decryptedFields;
