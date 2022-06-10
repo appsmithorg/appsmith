@@ -214,6 +214,7 @@ export const getWidgetCards = createSelector(
         iconSVG,
         key,
         rows,
+        searchTags,
         type,
       } = config;
       return {
@@ -224,6 +225,7 @@ export const getWidgetCards = createSelector(
         detachFromLayout,
         displayName,
         icon: iconSVG,
+        searchTags,
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
