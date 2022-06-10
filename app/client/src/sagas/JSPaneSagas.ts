@@ -444,10 +444,11 @@ function* handleUpdateJSCollectionBody(
     getJSCollection,
     actionPayload.payload.id,
   );
+  // @ts-expect-error: Object jsCollection is possibly undefined
+  jsCollection["body"] = actionPayload.payload.body;
 
   try {
     if (jsCollection) {
-      jsCollection.body = actionPayload.payload.body;
       const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.updateJSCollection(
         jsCollection,
       );

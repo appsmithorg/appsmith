@@ -1029,7 +1029,8 @@ function* executeDatasourceQuerySaga(
       },
     });
     if (action.onErrorCallback) {
-      action.onErrorCallback((error as Error).message);
+      // @ts-expect-error: onErrorCallback expects string
+      action.onErrorCallback(error);
     }
   }
 }

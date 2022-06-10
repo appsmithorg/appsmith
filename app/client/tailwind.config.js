@@ -14,6 +14,7 @@ module.exports = {
         "2xl": "1536px",
       },
       colors: {
+        current: "currentColor",
         // https://tailwindcss.com/docs/upgrade-guide#removed-color-aliases
         green: colors.emerald,
         yellow: colors.amber,

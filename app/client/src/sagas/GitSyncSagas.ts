@@ -527,9 +527,8 @@ function* fetchMergeStatusSaga(action: ReduxAction<MergeStatusPayload>) {
       yield put(fetchMergeStatusSuccess(response?.data));
     }
   } catch (error) {
-    yield put(
-      fetchMergeStatusFailure({ error: (error as Error).message, show: false }),
-    );
+    // @ts-expect-error: fetchMergeStatusFailure expects string
+    yield put(fetchMergeStatusFailure({ error, show: false }));
     if (!response || response?.responseMeta?.success) {
       throw error;
     }
@@ -763,11 +762,11 @@ export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
       }
     }
   } catch (error) {
-    yield put(
-      getSSHKeyPairError({ error: (error as Error).message, show: false }),
-    );
+    // @ts-expect-error: getSSHKeyPairError expects string
+    yield put(getSSHKeyPairError({ error, show: false }));
     if (action.onErrorCallback) {
-      action.onErrorCallback((error as Error).message);
+      // @ts-expect-error: onErrorCallback expects string
+      action.onErrorCallback(error);
     }
   }
 }
@@ -799,7 +798,8 @@ export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
     }
   } catch (error) {
     if (action.onErrorCallback) {
-      action.onErrorCallback((error as Error).message);
+      // @ts-expect-error: onErrorCallback expects string
+      action.onErrorCallback(error);
     }
     yield call(handleRepoLimitReachedError, response);
   }

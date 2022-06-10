@@ -3535,10 +3535,10 @@
   version "2.0.3"
   resolved "https://registry.npmjs.org/@types/unist/-/unist-2.0.3.tgz"
 
-"@types/webfontloader@^1.6.33":
-  version "1.6.34"
-  resolved "https://registry.npmjs.org/@types/webfontloader/-/webfontloader-1.6.34.tgz"
-  integrity sha512-yNIPDl3P1yK/ag9C8CdleEhWrtU1myGr3cxb0yEBN/tkCYoGP5PbQa53mQCXcOLFAvBFzJJQfuEahOZ0ARakqw==
+"@types/webfontloader@1.6.33":
+  version "1.6.33"
+  resolved "https://registry.yarnpkg.com/@types/webfontloader/-/webfontloader-1.6.33.tgz#cdef66b53341193ce1b4d4ad771703689db77708"
+  integrity sha512-2oOYQp0UBo/+NFsxdlF9ZwS1rq1q/wGnLsZMN7X+/xArRZoLPQhOGecesaRYJ2uhHyJ53TgitDORu2IV47FhHw==
 
 "@types/ws@^8.5.1":
   version "8.5.3"
@@ -5007,7 +5007,7 @@ browserslist@^4.14.5, browserslist@^4.16.6, browserslist@^4.18.1, browserslist@^
 
 bs-logger@0.x:
   version "0.2.6"
-  resolved "https://registry.npmjs.org/bs-logger/-/bs-logger-0.2.6.tgz"
+  resolved "https://registry.yarnpkg.com/bs-logger/-/bs-logger-0.2.6.tgz#eb7d365307a72cf974cc6cda76b68354ad336bd8"
   integrity sha512-pd8DCoxmbgc7hyPKOvxtqNcjYoOsABPQdcCUjGp3d42VR2CX1ORhk2A87oqqu5R1kk+76nsxZupkmyd+MVtCog==
   dependencies:
     fast-json-stable-stringify "2.x"
@@ -5025,7 +5025,7 @@ buffer-crc32@^0.2.1, buffer-crc32@^0.2.13, buffer-crc32@~0.2.3:
 
 buffer-from@1.x:
   version "1.1.2"
-  resolved "https://registry.npmjs.org/buffer-from/-/buffer-from-1.1.2.tgz"
+  resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.2.tgz#2b146a6fd72e80b4f55d255f35ed59a3a9a41bd5"
   integrity sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==
 
 buffer-from@^1.0.0:
@@ -16255,7 +16255,7 @@ tryer@^1.0.1:
 
 ts-jest@27.0.0:
   version "27.0.0"
-  resolved "https://registry.npmjs.org/ts-jest/-/ts-jest-27.0.0.tgz"
+  resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-27.0.0.tgz#b94dbad8f39276b583edc7712e6b3c29e16c8863"
   integrity sha512-YhuEjDZz9ZjxKbUlgT3XtJb9lyditEjctlo1nLcn983my3Xz4BE3c2ogHhonmGlAdUUiGlz/Dq2KOMXmf1WHfA==
   dependencies:
     bs-logger "0.x"
@@ -17224,20 +17224,9 @@ workbox-sw@6.5.3:
   resolved "https://registry.npmjs.org/workbox-sw/-/workbox-sw-6.5.3.tgz"
   integrity sha512-BQBzm092w+NqdIEF2yhl32dERt9j9MDGUTa2Eaa+o3YKL4Qqw55W9yQC6f44FdAHdAJrJvp0t+HVrfh8AiGj8A==
 
-workbox-webpack-plugin@^6.4.1:
+workbox-webpack-plugin@^6.4.1, workbox-webpack-plugin@^6.5.3:
   version "6.5.3"
   resolved "https://registry.npmjs.org/workbox-webpack-plugin/-/workbox-webpack-plugin-6.5.3.tgz"
-  integrity sha512-Es8Xr02Gi6Kc3zaUwR691ZLy61hz3vhhs5GztcklQ7kl5k2qAusPh0s6LF3wEtlpfs9ZDErnmy5SErwoll7jBA==
-  dependencies:
-    fast-json-stable-stringify "^2.1.0"
-    pretty-bytes "^5.4.1"
-    upath "^1.2.0"
-    webpack-sources "^1.4.3"
-    workbox-build "6.5.3"
-
-workbox-webpack-plugin@^6.5.3:
-  version "6.5.3"
-  resolved "https://registry.yarnpkg.com/workbox-webpack-plugin/-/workbox-webpack-plugin-6.5.3.tgz#c37bb323be4952311565c07db51054fe59c87d73"
   integrity sha512-Es8Xr02Gi6Kc3zaUwR691ZLy61hz3vhhs5GztcklQ7kl5k2qAusPh0s6LF3wEtlpfs9ZDErnmy5SErwoll7jBA==
   dependencies:
     fast-json-stable-stringify "^2.1.0"
