@@ -20,13 +20,6 @@ public enum AclPermission {
      * For example, USER_MANAGE_ORGANIZATIONS, ORGANIZATION_MANAGE_APPLICATIONS, etc.
      */
 
-    // These are generic permissions created to make the transition to the new ACL format easy. They must be removed
-    // TODO: These have a potential to throw NPEs in the `getPermissionByValue` method.
-    CREATE("create", null),
-    READ("read", null),
-    UPDATE("update", null),
-    DELETE("delete", null),
-
     // Does the user have manage organization permission
     USER_MANAGE_ORGANIZATIONS("manage:userOrganization", User.class),
     //Does the user have read organization permissions
@@ -43,20 +36,34 @@ public enum AclPermission {
 
     MANAGE_ORGANIZATIONS("manage:organizations", Workspace.class),
     READ_ORGANIZATIONS("read:organizations", Workspace.class),
+    DELETE_WORKSPACE("delete:workspace", Workspace.class),
+
+    // Resource creation permissions for workspace
+    CREATE_APPLICATION("create:applications", Workspace.class),
+    CREATE_DATASOURCE("create:datasources", Workspace.class),
 
     // Was the user assigned a global permission at the organization level to manage applications?
     ORGANIZATION_MANAGE_APPLICATIONS("manage:orgApplications", Workspace.class),
     ORGANIZATION_READ_APPLICATIONS("read:orgApplications", Workspace.class),
     ORGANIZATION_PUBLISH_APPLICATIONS("publish:orgApplications", Workspace.class),
     ORGANIZATION_EXPORT_APPLICATIONS("export:orgApplications", Workspace.class),
+    WORKSPACE_DELETE_APPLICATIONS("delete:workspaceApplications", Workspace.class),
+    WORKSPACE_MAKE_PUBLIC_APPLICATIONS("makePublic:workspaceApplications", Workspace.class),
 
-    // Invitation related permissions
+    // Was the user assigned a global permission at the workspace level to manage datasources?
+    WORKSPACE_MANAGE_DATASOURCES("manage:workspaceDatasources", Workspace.class),
+    WORKSPACE_READ_DATASOURCES("read:workspaceDatasources", Workspace.class),
+    WORKSPACE_DELETE_DATASOURCES("delete:workspaceDatasources", Workspace.class),
+    WORKSPACE_EXECUTE_DATASOURCES("execute:workspaceDatasources", Workspace.class),
+
+    // Invitation related permissions : TODO : Delete this since invitation would be led by user groups
     ORGANIZATION_INVITE_USERS("inviteUsers:organization", Workspace.class),
 
     MANAGE_APPLICATIONS("manage:applications", Application.class),
     READ_APPLICATIONS("read:applications", Application.class),
     PUBLISH_APPLICATIONS("publish:applications", Application.class),
     EXPORT_APPLICATIONS("export:applications", Application.class),
+    DELETE_APPLICATIONS("delete:applications", Application.class),
 
     // Making an application public permission at Organization level
     MAKE_PUBLIC_APPLICATIONS("makePublic:applications", Application.class),
