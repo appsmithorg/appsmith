@@ -2,6 +2,7 @@ import { DependencyMap } from "utils/DynamicBindingUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import {
+  DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
@@ -19,7 +20,7 @@ import {
 } from "./evaluationUtils";
 import { warn as logWarn } from "loglevel";
 import { Diff } from "deep-diff";
-import { flatten } from "lodash";
+import _, { flatten } from "lodash";
 import { overrideWidgetProperties } from "./evaluationUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
@@ -400,6 +401,48 @@ describe("translateDiffEvent", () => {
 
     const actualTranslations = flatten(
       diffs.map((diff) => translateDiffEventToDataTreeDiffEvent(diff, {})),
+    );
+
+    expect(expectedTranslations).toStrictEqual(actualTranslations);
+  });
+
+  it("handles JsObject function renaming", () => {
+    // cyclic dependency case
+    const lhs = new String("() => {}");
+    _.set(lhs, "data", {});
+    const diffs: Diff<any, any>[] = [
+      {
+        kind: "E",
+        path: ["JsObject", "myFun1"],
+        rhs: "() => {}",
+        lhs,
+      },
+    ];
+
+    const expectedTranslations: DataTreeDiff[] = [
+      {
+        event: DataTreeDiffEvent.DELETE,
+        payload: {
+          propertyPath: "JsObject.myFun1.data",
+        },
+      },
+      {
+        event: DataTreeDiffEvent.EDIT,
+        payload: {
+          propertyPath: "JsObject.myFun1",
+          value: "() => {}",
+        },
+      },
+    ];
+
+    const actualTranslations = flatten(
+      diffs.map((diff) =>
+        translateDiffEventToDataTreeDiffEvent(diff, {
+          JsObject: ({
+            ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+          } as unknown) as DataTreeEntity,
+        }),
+      ),
     );
 
     expect(expectedTranslations).toStrictEqual(actualTranslations);

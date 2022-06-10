@@ -138,7 +138,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.wait("@updateLayout");
     cy.get(".t--draggable-textwidget .bp3-ui-text")
       .first()
-      .should("have.text", "May 4, 2021 6:25 AM");
+      .should("contain.text", "May 4, 2021 6:25 AM");
   });
 
   it("Check isDirty meta property", function() {

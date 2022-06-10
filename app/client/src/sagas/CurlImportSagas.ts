@@ -12,7 +12,7 @@ import {
   createMessage,
   CURL_IMPORT_SUCCESS,
 } from "@appsmith/constants/messages";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getCurrentOrgId } from "@appsmith/selectors/organizationSelectors";
 import transformCurlImport from "transformers/CurlImportTransformer";
 import history from "utils/history";
 import { Toaster } from "components/ads/Toast";

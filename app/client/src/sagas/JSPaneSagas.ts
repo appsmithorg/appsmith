@@ -48,7 +48,7 @@ import {
   updateJSFunction,
   executeJSFunctionInit,
 } from "actions/jsPaneActions";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getCurrentOrgId } from "@appsmith/selectors/organizationSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { PluginType } from "entities/Action";
 import { Toaster } from "components/ads/Toast";

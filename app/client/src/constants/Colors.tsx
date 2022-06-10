@@ -212,6 +212,7 @@ export const Colors = {
   WARNING_600: "#DFA211",
 
   TRANSPARENT: "transparent",
+  FOCUS: "#6EB9F0",
 
   ENTERPRISE_DARK: "#00407D",
   ENTERPRISE_LIGHT: "#E8F5FA",

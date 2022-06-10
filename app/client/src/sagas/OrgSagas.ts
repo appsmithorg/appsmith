@@ -27,7 +27,7 @@ import OrgApi, {
 import { ApiResponse } from "api/ApiResponses";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { getCurrentOrg } from "selectors/organizationSelectors";
+import { getCurrentOrg } from "@appsmith/selectors/organizationSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Org } from "constants/orgConstants";
 import history from "utils/history";

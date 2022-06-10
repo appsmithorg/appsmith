@@ -621,6 +621,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const ContextMenu = (
     <ContextDropdownWrapper>
       <Menu
+        autoFocus={false}
         className="more"
         onClosing={() => {
           setIsMenuOpen(false);

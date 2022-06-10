@@ -136,7 +136,7 @@ function* evaluateTreeSaga(
     dataTree,
     dependencies,
     errors,
-    evalMetaUpdates,
+    evalMetaUpdates = [],
     evaluationOrder,
     jsUpdates,
     logs,

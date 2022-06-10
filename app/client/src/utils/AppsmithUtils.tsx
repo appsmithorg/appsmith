@@ -22,6 +22,7 @@ import { trimQueryString } from "./helpers";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { builderURL, viewerURL } from "RouteBuilder";
+import { osName } from "react-device-detect";
 
 export const createReducer = (
   initialState: any,
@@ -452,4 +453,9 @@ export const base64ToBlob = (
 
   const blob = new Blob(byteArrays, { type: contentType });
   return blob;
+};
+
+// util function to detect current os is Mac
+export const isMacOs = () => {
+  return osName === "Mac OS";
 };
