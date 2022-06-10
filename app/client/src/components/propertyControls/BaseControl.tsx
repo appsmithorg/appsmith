@@ -24,6 +24,12 @@ class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
       this.props.onBatchUpdateProperties(updates);
     }
   };
+
+  // Checks whether a particular value can be displayed UI from JS edit mode
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    return false;
+  }
 }
 
 export interface ControlBuilder<T extends ControlProps> {
