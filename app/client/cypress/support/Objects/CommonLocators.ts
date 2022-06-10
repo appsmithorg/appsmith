@@ -51,7 +51,6 @@ export class CommonLocators {
     _actionTextArea = (actionName: string) => "//label[text()='" + actionName + "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea"
     _existingDefaultTextInput = ".t--property-control-defaulttext .CodeMirror-code"
     _widgetPageIcon = (widgetType: string) => `.t--widget-card-draggable-${widgetType}`
-    _propertyToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " input[type='checkbox']"
     _propertyToggleValue = (controlToToggle: string) => "//div[contains(@class, 't--property-control-" + controlToToggle + "')]//input[@type='checkbox']/parent::label"
     _openNavigationTab = (tabToOpen: string) => `#switcher--${tabToOpen}`
     _selectWidgetDropdown = (widgetType: string) => `//div[contains(@class, 't--draggable-${widgetType}')]//button`
@@ -72,4 +71,5 @@ export class CommonLocators {
     _jsonFormWidget = ".t--widget-jsonformwidget"
     _lintErrorElement = `span.CodeMirror-lint-mark-error`
     _codeEditorWrapper = ".unfocused-code-editor"
+    _datePicker = (date: number) => "//div[@class ='bp3-datepicker']//div[@class = 'DayPicker-Day']//div[text()='" + date + "']";
 }
