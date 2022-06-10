@@ -11,6 +11,8 @@ import {
   createMessage,
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+  INPUT_DEFAULT_TEXT_MAX_NUM_ERROR,
+  INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
 } from "@appsmith/constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
@@ -443,7 +445,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       conditionalProps.minNum = this.props.minNum;
     }
 
-    if (this.props.inputType === "TEXT" && this.props.maxChars) {
+    if (this.props.inputType === InputTypes.TEXT && this.props.maxChars) {
       // pass maxChars only for Text type inputs, undefined for other types
       conditionalProps.maxChars = this.props.maxChars;
       if (
@@ -453,6 +455,27 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         isInvalid = true;
         conditionalProps.errorMessage = createMessage(
           INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+        );
+      }
+    }
+
+    if (this.props.inputType === InputTypes.NUMBER && this.props.defaultText) {
+      // check the default text is neither greater than max nor less than min value.
+      if (
+        !isNil(this.props.minNum) &&
+        this.props.minNum > Number(this.props.defaultText)
+      ) {
+        isInvalid = true;
+        conditionalProps.errorMessage = createMessage(
+          INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
+        );
+      } else if (
+        !isNil(this.props.maxNum) &&
+        this.props.maxNum < Number(this.props.defaultText)
+      ) {
+        isInvalid = true;
+        conditionalProps.errorMessage = createMessage(
+          INPUT_DEFAULT_TEXT_MAX_NUM_ERROR,
         );
       }
     }
@@ -495,7 +518,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         multiline={
           (this.props.bottomRow - this.props.topRow) /
             minInputSingleLineHeight >
-            1 && this.props.inputType === "TEXT"
+            1 && this.props.inputType === InputTypes.TEXT
         }
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
