@@ -124,7 +124,7 @@ public class FilterDataServiceTest {
         try {
 
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
-            Map<String, DataType> schema = filterDataService.generateSchema(items);
+            Map<String, DataType> schema = filterDataService.generateSchema(items, null);
 
             Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");

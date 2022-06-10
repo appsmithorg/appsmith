@@ -49,7 +49,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     public static final String PAGINATE_LIMIT_KEY = "limit";
     public static final String PAGINATE_OFFSET_KEY = "offset";
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
     private Connection connection;
 
     private static final String URL = "jdbc:h2:mem:filterDb;DATABASE_TO_UPPER=FALSE";
@@ -97,6 +97,10 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
      * @return filtered data
      */
     public ArrayNode filterDataNew(ArrayNode items, UQIDataFilterParams uqiDataFilterParams) {
+        return this.filterDataNew(items, uqiDataFilterParams, null);
+    }
+
+    public ArrayNode filterDataNew(ArrayNode items, UQIDataFilterParams uqiDataFilterParams, Map<DataType, DataType> dataTypeConversionMap) {
         if (items == null || items.size() == 0) {
             return items;
         }
@@ -107,11 +111,11 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             uqiDataFilterParams.setCondition(updatedCondition);
         }
 
-        Map<String, DataType> schema = generateSchema(items);
+        Map<String, DataType> schema = generateSchema(items, dataTypeConversionMap);
         String tableName = generateTable(schema);
 
         // insert the data
-        insertAllData(tableName, items, schema);
+        insertAllData(tableName, items, schema, dataTypeConversionMap);
 
         // Filter the data
         List<Map<String, Object>> finalResults = executeFilterQueryNew(tableName, schema, uqiDataFilterParams);
@@ -320,10 +324,6 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 .allMatch(sortCondition -> isBlank(sortCondition.get(SORT_BY_COLUMN_NAME_KEY)));
     }
 
-    public void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema) {
-        insertAllData(tableName, items, schema, null);
-    }
-
     /**
      * Overloaded Method to handle plugin-based DataType conversion.
      *
@@ -523,11 +523,6 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         executeDbQuery(dropTableQuery);
     }
 
-
-    public Map<String, DataType> generateSchema(ArrayNode items) {
-        return generateSchema(items, null);
-    }
-
     /**
      * Overloaded Method to handle plugin-based DataType conversion.
      *
@@ -621,8 +616,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         return schema;
     }
 
-    private PreparedStatement setValueInStatement(PreparedStatement preparedStatement, int index, String value, DataType dataType) {
-        return setValueInStatement(preparedStatement, index, value, dataType, null);
+    private void setValueInStatement(PreparedStatement preparedStatement, int index, String value, DataType dataType) {
+        setValueInStatement(preparedStatement, index, value, dataType, null);
     }
 
     /**

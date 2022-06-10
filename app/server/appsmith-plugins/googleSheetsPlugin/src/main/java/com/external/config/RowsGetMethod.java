@@ -172,7 +172,8 @@ public class RowsGetMethod implements ExecutionMethod {
                             methodConfig.getWhereConditions(),
                             methodConfig.getProjection(),
                             methodConfig.getSortBy(),
-                            methodConfig.getPaginateBy()));
+                            methodConfig.getPaginateBy()),
+                    getDataTypeConversionMap());
         }
 
         return preFilteringResponse;
