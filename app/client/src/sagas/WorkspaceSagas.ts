@@ -27,7 +27,7 @@ import WorkspaceApi, {
 import { ApiResponse } from "api/ApiResponses";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { getCurrentWorkspace } from "selectors/workspaceSelectors";
+import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Workspace } from "constants/workspaceConstants";
 import history from "utils/history";
@@ -281,7 +281,7 @@ export function* createWorkspaceSaga(
       yield call(resolve);
     }
 
-    // get created org in focus
+    // get created worskpace in focus
     const workspaceId = response.data.id;
     history.push(`${window.location.pathname}#${workspaceId}`);
   } catch (error) {

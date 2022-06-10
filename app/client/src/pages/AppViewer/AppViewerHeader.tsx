@@ -13,7 +13,7 @@ import { getEditorURL } from "selectors/appViewSelectors";
 import { getViewModePageList } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
-import { getCurrentWorkspaceId } from "selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";

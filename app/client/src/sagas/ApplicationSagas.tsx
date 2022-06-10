@@ -72,7 +72,7 @@ import {
   reconnectAppLevelWebsocket,
   reconnectPageLevelWebsocket,
 } from "actions/websocketActions";
-import { getCurrentWorkspace } from "selectors/workspaceSelectors";
+import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 import {
   getCurrentStep,

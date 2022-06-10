@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 
-import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 
 const useWorkspace = (workspaceId: string) => {

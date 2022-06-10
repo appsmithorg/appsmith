@@ -26,7 +26,7 @@ import {
 
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
-import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import useWorkspace from "utils/hooks/useWorkspace";
 import { getCanCreateApplications } from "utils/helpers";
 

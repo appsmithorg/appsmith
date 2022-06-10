@@ -79,7 +79,7 @@ import {
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 import { getLogToSentryFromResponse } from "utils/helpers";
-import { getCurrentWorkspace } from "selectors/workspaceSelectors";
+import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { Workspace } from "constants/workspaceConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
