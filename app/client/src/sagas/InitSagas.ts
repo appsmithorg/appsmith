@@ -376,6 +376,7 @@ function* initializeEditorSaga(
       call(initiatePageAndAllActions, toLoadPageId, applicationId, mode),
       // only in edit mode
       call(initiatePluginsAndDatasources),
+      call(populatePageDSLsSaga),
     ]);
 
     AnalyticsUtil.logEvent("EDITOR_OPEN", {
@@ -390,7 +391,6 @@ function* initializeEditorSaga(
 
     // For omnibar to show all entities search
     // only in edit mode
-    yield call(populatePageDSLsSaga);
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
