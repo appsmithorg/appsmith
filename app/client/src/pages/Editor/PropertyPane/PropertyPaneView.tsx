@@ -24,6 +24,18 @@ import {
 import { TabComponent } from "components/ads/Tabs";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import WidgetFactory from "utils/WidgetFactory";
+import styled from "styled-components";
+
+const PropertyPaneContent = styled.div`
+  .react-tabs__tab-list {
+    border-bottom: 1px solid ${Colors.GREY_4};
+    padding: 0 0.5rem;
+  }
+
+  .tab-title {
+    font-size: 12px;
+  }
+`;
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -142,8 +154,8 @@ function PropertyPaneView(
         widgetType={widgetProperties?.type}
       />
 
-      <div
-        className="pt-3 pb-24 overflow-x-hidden overflow-y-scroll t--property-pane-view"
+      <PropertyPaneContent
+        className="pt-3 t--property-pane-view"
         data-guided-tour-id="property-pane"
       >
         {!doActionsExist && !hideConnectDataCTA && (
@@ -172,7 +184,7 @@ function PropertyPaneView(
             tabs={[
               {
                 key: "content",
-                title: "Content",
+                title: "CONTENT",
                 panelComponent: (
                   <PropertyControlsGenerator
                     group={PropertyPaneGroup.CONTENT}
@@ -185,7 +197,7 @@ function PropertyPaneView(
               },
               {
                 key: "style",
-                title: "Style",
+                title: "STYLE",
                 panelComponent: (
                   <PropertyControlsGenerator
                     group={PropertyPaneGroup.STYLE}
@@ -206,7 +218,7 @@ function PropertyPaneView(
             type={widgetProperties.type}
           />
         )}
-      </div>
+      </PropertyPaneContent>
     </div>
   );
 }
