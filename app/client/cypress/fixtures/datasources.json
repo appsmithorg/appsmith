@@ -2,7 +2,7 @@
     "mongo-authenticationAuthtype": "SCRAM-SHA-1",
     "mongo-host": "localhost",
     "mongo-port": 28017,
-    "mongo-databaseName": "sample_airbnb",
+    "mongo-databaseName": "mongo_samples",
     "mongo-uri": "mongodb+srv://localhost:localhost@mockdb.net/mock?retryWrites=true&w=majority",
     "postgres-host": "localhost",
     "postgres-port": 5432,

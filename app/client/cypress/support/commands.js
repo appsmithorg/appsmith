@@ -758,6 +758,7 @@ Cypress.Commands.add("closePropertyPane", () => {
 });
 
 Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
+  cy.EnableAllCodeEditors();
   // Filling the messages for success/failure in the onClickAction of the button widget.
   // For Success
   cy.get(".code-highlight", { timeout: 10000 })
@@ -965,7 +966,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/users/super").as("createSuperUser");
   cy.intercept("POST", "/api/v1/actions/execute").as("postExecute");
   cy.intercept("GET", "/api/v1/admin/env").as("getEnvVariables");
-
+  cy.intercept("DELETE", "/api/v1/git/branch/*").as("deleteBranch");
+  cy.intercept("GET", "/api/v1/git/status/*").as("gitStatus");
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
   cy.intercept("GET", "/api/v1/organizations/*/members").as("getMembers");
 });

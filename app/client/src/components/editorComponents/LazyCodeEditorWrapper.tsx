@@ -171,7 +171,11 @@ function CodeEditor(props: any) {
     const str: string = props?.input?.value || props?.placeholder || "";
     if (str && typeof str === "string" && str?.indexOf("{{") > -1)
       setContainsCode(true);
-    setText(Array.isArray(str) ? str.toString() : str);
+    setText(
+      Array.isArray(str) || typeof str === "object"
+        ? JSON.stringify(str, null, 2)
+        : str,
+    );
   }, [props?.input?.value, props?.placeholder]);
 
   const highlightedText = () => {

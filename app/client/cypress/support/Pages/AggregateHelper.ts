@@ -520,9 +520,11 @@ export class AggregateHelper {
     this.AssertAutoSave();
   }
 
-  public UpdateCodeInput(selector: string, value: string, index = 0) {
+  public UpdateCodeInput(selector: string, value: string) {
+    this.EnableAllEditors();
     cy.wrap(selector)
-      .click()
+      .click({ force: true })
+      .wait(1000)
       .find(".CodeMirror")
       .first()
       .then((ins: any) => {
@@ -642,6 +644,23 @@ export class AggregateHelper {
       : cy.get(selector);
     if (index) locator.eq(index).should("have.length", length);
     else locator.should("have.length", length);
+  }
+
+  public EnableAllEditors() {
+    cy.get("body").then(($body) => {
+      if ($body.find(this.locator._codeEditorWrapper)?.length > 0) {
+        let count = $body.find(this.locator._codeEditorWrapper)?.length || 0;
+        while (count) {
+          $body
+            .find(this.locator._codeEditorWrapper)
+            .eq(0)
+            .trigger("click", { force: true });
+          cy.wait(200);
+          count = $body.find(this.locator._codeEditorWrapper)?.length || 0;
+        }
+      }
+    });
+    cy.wait(2000);
   }
 
   //Not used:

@@ -179,5 +179,6 @@
   "themeCard": ".t--theme-card",
   "saveThemeBtn": ".t--save-theme-btn",
   "selectThemeBackBtn": ".t--theme-select-back-btn",
-  "themeAppBorderRadiusBtn": ".t--theme-appBorderRadius"
+  "themeAppBorderRadiusBtn": ".t--theme-appBorderRadius",
+  "codeEditorWrapper": ".unfocused-code-editor"
 }
