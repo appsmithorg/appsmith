@@ -17,6 +17,8 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
 
   const fuse = new Fuse(cards, {
     keys: ["displayName", "searchTags"],
+    threshold: 0.5,
+    distance: 100,
   });
 
   const filterCards = (keyword: string) => {
