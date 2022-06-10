@@ -77,7 +77,7 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   httpMethod: DEFAULT_METHOD_TYPE,
   headers: EMPTY_KEY_VALUE_PAIRS.slice(),
   queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
-  body: `{{\n\t{}\n}}`,
+  body: "",
   bodyFormData: [],
   formData: {
     apiContentType: HTTP_METHODS_DEFAULT_FORMAT_TYPES[DEFAULT_METHOD_TYPE],

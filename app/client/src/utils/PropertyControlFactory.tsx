@@ -1,5 +1,5 @@
 import { ControlType } from "constants/PropertyControlConstants";
-import {
+import BaseControl, {
   ControlBuilder,
   ControlProps,
   ControlFunctions,
@@ -8,12 +8,18 @@ import {
 
 class PropertyControlFactory {
   static controlMap: Map<ControlType, ControlBuilder<ControlProps>> = new Map();
+  static controlUIToggleValidation: Map<
+    ControlType,
+    typeof BaseControl.canDisplayValueInUI
+  > = new Map();
 
   static registerControlBuilder(
     controlType: ControlType,
     controlBuilder: ControlBuilder<ControlProps>,
+    validationFn: typeof BaseControl.canDisplayValueInUI,
   ) {
     this.controlMap.set(controlType, controlBuilder);
+    this.controlUIToggleValidation.set(controlType, validationFn);
   }
 
   static createControl(
