@@ -611,7 +611,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 1);
 
     agHelper.ClickButton("Submit");
-    agHelper.ValidateToastMessage(
+    agHelper.WaitUntilToastDisappear(
       `duplicate key value violates unique constraint "vessels_pkey"`,
     );
 
@@ -620,9 +620,9 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Submit");
 
     //asserting only Update JSON form is present, &  Insert Modal is closed
+    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.Sleep(3000); //for Insert to reflect!
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper
       .GetElementLength(locator._jsonFormWidget)
       .then(($len) => expect($len).to.eq(1));

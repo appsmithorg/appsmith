@@ -93,6 +93,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
     agHelper.WaitUntilToastDisappear('The action "GetUser" has failed');
     agHelper.NavigateBacktoEditor();
+    agHelper.WaitUntilToastDisappear('The action "GetUser" has failed');
   });
 
   it("5. Tc 53 - Verify OnPage Load - Enabling back & Before Function calling disabled for JSOBject", function() {
