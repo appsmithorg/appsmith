@@ -49,6 +49,16 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             },
           },
           {
+            helpText: "Show helper text with button on hover",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Add Input Field",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             propertyName: "isDisabled",
             helpText: "Disables input to the widget",
             label: "Disabled",
@@ -183,6 +193,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
       iconName,
       isDisabled,
       isVisible,
+      tooltip,
       widgetId,
     } = this.props;
 
@@ -201,6 +212,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         isVisible={isVisible}
         onClick={this.handleClick}
         renderMode={this.props.renderMode}
+        tooltip={tooltip}
         widgetId={widgetId}
         width={
           (this.props.rightColumn - this.props.leftColumn) *
