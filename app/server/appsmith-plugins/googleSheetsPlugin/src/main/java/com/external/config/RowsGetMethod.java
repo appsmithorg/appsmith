@@ -66,6 +66,9 @@ public class RowsGetMethod implements ExecutionMethod {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Unexpected format for table header index. Please use a number starting from 1");
             }
+        } else {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    "Unexpected format for table header index. Please use a number starting from 1");
         }
         if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
             if (methodConfig.getSpreadsheetRange() == null || methodConfig.getSpreadsheetRange().isBlank()) {

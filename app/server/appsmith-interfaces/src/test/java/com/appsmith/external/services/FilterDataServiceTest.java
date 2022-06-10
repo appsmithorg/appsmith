@@ -950,7 +950,7 @@ public class FilterDataServiceTest {
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
             Condition condition = parseWhereClause(unparsedWhereClause);
 
-            ArrayNode filteredData = filterDataService.filterDataNew(items,new UQIDataFilterParams(condition, null,
+            ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null,
                     null, null));
 
             assertEquals(filteredData.size(), 2);
@@ -1231,7 +1231,7 @@ public class FilterDataServiceTest {
             paginateBy.put(PAGINATE_OFFSET_KEY, "1");
 
             ArrayNode filteredData = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition,
-                    projectColumns, sortBy,paginateBy));
+                    projectColumns, sortBy, paginateBy));
 
             assertEquals(filteredData.size(), 1);
 
@@ -1309,6 +1309,75 @@ public class FilterDataServiceTest {
             returnedOrder.add(filteredData.get(0).get("orderAmount").asText());
             returnedOrder.add(filteredData.get(1).get("orderAmount").asText());
             assertEquals(expectedOrder, returnedOrder);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testFilterEmptyAndNonEmptyCondition() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"NOT READY\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"orderStatus\",\n" +
+                "        \"condition\": \"EQ\",\n" +
+                "        \"value\": \"\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"key\": \"productName\",\n" +
+                "        \"condition\": \"EQ\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            ArrayNode filteredData = filterDataService.filterDataNew(
+                    items,
+                    new UQIDataFilterParams(
+                            condition,
+                            null,
+                            null,
+                            null));
+
+            assertEquals(filteredData.size(), 1);
+
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail(e.getMessage());
