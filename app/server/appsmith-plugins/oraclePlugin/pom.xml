@@ -90,25 +90,26 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.2.4</version>
-                <configuration>
-                    <minimizeJar>false</minimizeJar>
-                    <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <manifestEntries>
-                                <Plugin-Id>${plugin.id}</Plugin-Id>
-                                <Plugin-Class>${plugin.class}</Plugin-Class>
-                                <Plugin-Version>${plugin.version}</Plugin-Version>
-                                <Plugin-Provider>${plugin.provider}</Plugin-Provider>
-                            </manifestEntries>
-                        </transformer>
-                    </transformers>
-                </configuration>
                 <executions>
                     <execution>
+                        <id>shade-plugin-jar</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <minimizeJar>false</minimizeJar>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Plugin-Id>${plugin.id}</Plugin-Id>
+                                        <Plugin-Class>${plugin.class}</Plugin-Class>
+                                        <Plugin-Version>${plugin.version}</Plugin-Version>
+                                        <Plugin-Provider>${plugin.provider}</Plugin-Provider>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
