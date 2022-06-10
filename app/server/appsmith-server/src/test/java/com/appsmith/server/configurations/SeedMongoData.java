@@ -38,6 +38,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -72,6 +73,10 @@ public class SeedMongoData {
                 .build();
 
         Policy manageOrgAppPolicy = Policy.builder().permission(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
+                .users(Set.of(API_USER_EMAIL))
+                .build();
+
+        Policy exportOrgAppPolicy = Policy.builder().permission(ORGANIZATION_EXPORT_APPLICATIONS.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
@@ -127,9 +132,9 @@ public class SeedMongoData {
         };
         Object[][] orgData = {
                 {"Spring Test Workspace", "appsmith-spring-test.com", "appsmith.com", "spring-test-workspace",
-                        Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy, inviteUserOrgPolicy)},
+                        Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy, inviteUserOrgPolicy, exportOrgAppPolicy)},
                 {"Another Test Workspace", "appsmith-another-test.com", "appsmith.com", "another-test-workspace",
-                        Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy, inviteUserOrgPolicy)}
+                        Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy, inviteUserOrgPolicy, exportOrgAppPolicy)}
         };
 
         Object[][] appData = {
