@@ -28,11 +28,13 @@ export const updateWidgetMetaPropAndEval = (
 
 export const resetWidgetMetaProperty = (
   widgetId: string,
-): BatchAction<{ widgetId: string }> => {
+  evaluatedWidget: unknown,
+): BatchAction<{ widgetId: string; widget: unknown }> => {
   return batchAction({
     type: ReduxActionTypes.RESET_WIDGET_META,
     payload: {
       widgetId,
+      evaluatedWidget,
     },
     postEvalActions: [{ type: ReduxActionTypes.RESET_WIDGET_META_EVALUATED }],
   });

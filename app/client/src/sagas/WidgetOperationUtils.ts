@@ -51,6 +51,7 @@ import {
 import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
+import { DSLWidget } from "../widgets/constants";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -254,8 +255,7 @@ export const handleSpecificCasesWhilePasting = (
 
   return widgets;
 };
-
-export function getWidgetChildren(
+export function getWidgetChildrenIds(
   canvasWidgets: CanvasWidgetsReduxState,
   widgetId: string,
 ): any {
@@ -273,7 +273,7 @@ export function getWidgetChildren(
       if (children.hasOwnProperty(childIndex)) {
         const child = children[childIndex];
         childrenIds.push(child);
-        const grandChildren = getWidgetChildren(canvasWidgets, child);
+        const grandChildren = getWidgetChildrenIds(canvasWidgets, child);
         if (grandChildren.length) {
           childrenIds.push(...grandChildren);
         }
@@ -281,6 +281,45 @@ export function getWidgetChildren(
     }
   }
   return childrenIds;
+}
+
+export function getWidgetChildren(
+  canvasWidgets: CanvasWidgetsReduxState,
+  denormalizedWidgets: DSLWidget,
+  widgetId: string,
+  evaluatedDataTree: DataTree,
+): { id: string; widget: unknown }[] {
+  const childrenList: { id: string; widget: unknown }[] = [];
+  const widget = _.get(canvasWidgets, widgetId);
+  // When a form widget tries to resetChildrenMetaProperties
+  // But one or more of its container like children
+  // have just been deleted, widget can be undefined
+  if (widget === undefined) {
+    return [];
+  }
+
+  const { children = [] } = widget;
+  if (children && children.length) {
+    for (const childIndex in children) {
+      if (children.hasOwnProperty(childIndex)) {
+        const childWidgetId = children[childIndex];
+        // TODO we need to get child widget name here somehow - denormalized data could help
+        const childWidgetName = ""; // use denormalized to get name
+        const childWidget = evaluatedDataTree[childWidgetName];
+        childrenList.push({ id: childWidgetId, widget: childWidget });
+        const grandChildren = getWidgetChildren(
+          canvasWidgets,
+          denormalizedWidgets,
+          childWidgetId,
+          evaluatedDataTree,
+        );
+        if (grandChildren.length) {
+          childrenList.push(...grandChildren);
+        }
+      }
+    }
+  }
+  return childrenList;
 }
 
 export const getParentWidgetIdForPasting = function*(
@@ -371,7 +410,7 @@ export const getSelectedWidgetIfPastingIntoListWidget = function(
     selectedWidget.children &&
     selectedWidget?.type === "LIST_WIDGET"
   ) {
-    const childrenIds: string[] = getWidgetChildren(
+    const childrenIds: string[] = getWidgetChildrenIds(
       canvasWidgets,
       selectedWidget.children[0],
     );

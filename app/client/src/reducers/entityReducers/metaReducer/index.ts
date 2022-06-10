@@ -9,6 +9,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import produce from "immer";
 import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
+import { klona } from "klona";
 
 export type MetaState = Record<string, Record<string, unknown>>;
 
@@ -93,11 +94,30 @@ export const metaReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.RESET_WIDGET_META]: (
     state: MetaState,
-    action: ReduxAction<{ widgetId: string }>,
+    action: ReduxAction<{ widgetId: string; evaluatedWidget: any }>,
   ) => {
-    const widgetId = action.payload.widgetId;
+    const { evaluatedWidget, widgetId } = action.payload;
+    console.log("$$$", evaluatedWidget);
+    const resetMetaObj = {};
+    if (evaluatedWidget) {
+      const { propertyOverrideDependency } = evaluatedWidget;
+      Object.entries(propertyOverrideDependency).map(
+        ([propertyName, dependency]) => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          const defaultPropertyName = dependency.DEFAULT;
+          const defaultPropertyValue = evaluatedWidget[defaultPropertyName];
+          if (defaultPropertyValue !== undefined) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            resetMetaObj[propertyName] = klona(defaultPropertyValue);
+          }
+        },
+      );
+    }
+
     if (widgetId in state) {
-      return { ...state, [widgetId]: {} };
+      return { ...state, [widgetId]: resetMetaObj };
     }
     return state;
   },

@@ -15,6 +15,7 @@ import {
 } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { getDataTree } from "../../selectors/dataTreeSelectors";
 
 export default function* resetWidgetActionSaga(
   payload: ResetWidgetDescription["payload"],
@@ -28,13 +29,13 @@ export default function* resetWidgetActionSaga(
       getType(widgetName),
     );
   }
-
+  const dataTree = yield select(getDataTree);
   const widget = yield select(getWidgetByName, widgetName);
   if (!widget) {
     throw new TriggerFailureError(`Widget ${payload.widgetName} not found`);
   }
-
-  yield put(resetWidgetMetaProperty(widget.widgetId));
+  const evaluatedWidget = dataTree[widget.widgetName];
+  yield put(resetWidgetMetaProperty(widget.widgetId, evaluatedWidget));
   if (payload.resetChildren) {
     yield put(resetChildrenMetaProperty(widget.widgetId));
   }

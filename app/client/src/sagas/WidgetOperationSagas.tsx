@@ -142,6 +142,7 @@ import { getSlidingCanvasName } from "constants/componentClassNameConstants";
 import { matchGeneratePagePath } from "constants/routes";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -701,15 +702,22 @@ const unsetPropertyPath = (obj: Record<string, unknown>, path: string) => {
 };
 
 function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
-  const parentWidgetId = action.payload.widgetId;
+  const { widgetId: parentWidgetId } = action.payload;
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const childrenIds: string[] = getWidgetChildren(
+  const evaluatedDataTree = yield select(getDataTree);
+  const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
     canvasWidgets,
+  });
+  const childrenList = getWidgetChildren(
+    canvasWidgets,
+    denormalizedWidgets,
     parentWidgetId,
+    evaluatedDataTree,
   );
-  for (const childIndex in childrenIds) {
-    const childId = childrenIds[childIndex];
-    yield put(resetWidgetMetaProperty(childId));
+
+  for (const childIndex in childrenList) {
+    const { id: childId, widget: childWidget } = childrenList[childIndex];
+    yield put(resetWidgetMetaProperty(childId, childWidget));
   }
 }
 
