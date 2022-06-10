@@ -42,7 +42,7 @@ import {
   commentsTourStepsEditModeTypes,
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
-import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import useWorkspace from "utils/hooks/useWorkspace";
 import { getCanCreateApplications } from "utils/helpers";
 

@@ -1,10 +1,11 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -391,12 +392,18 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
             return repository.getSystemThemeByName(theme.getName())
                     .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
         } else {
-            theme.setApplicationId(null);
-            theme.setWorkspaceId(null);
-            theme.setPolicies(policyGenerator.getAllChildPolicies(
+            // create a new theme
+            Theme newTheme = new Theme();
+            newTheme.setPolicies(policyGenerator.getAllChildPolicies(
                     destApplication.getPolicies(), Application.class, Theme.class
             ));
-            return repository.save(theme);
+            newTheme.setStylesheet(theme.getStylesheet());
+            newTheme.setProperties(theme.getProperties());
+            newTheme.setConfig(theme.getConfig());
+            newTheme.setName(theme.getName());
+            newTheme.setDisplayName(theme.getDisplayName());
+            newTheme.setSystemTheme(false);
+            return repository.save(newTheme);
         }
     }
 
@@ -411,5 +418,63 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
         return repository.archiveByApplicationId(application.getId())
                 .then(repository.archiveDraftThemesById(application.getEditModeThemeId(), application.getPublishedModeThemeId()))
                 .thenReturn(application);
+    }
+
+    /**
+     * This method imports a theme from a JSON file to an application. The destination application can already have
+     * a theme set or not. If no theme is set, it means the application is being created from a JSON import, git import.
+     * In that case, we'll import the edit mode theme and published mode theme from the JSON file and update the application.
+     * If the destination application already has a theme, it means we're doing any of these Git operations -
+     * pull, merge, discard. In this case, we'll decide based on this decision tree:
+     * - If current theme is a customized one and source theme is also customized, replace the current theme properties with source theme properties
+     * - If current theme is a customized one and source theme is system theme, set the current theme to system and delete the old one
+     * - If current theme is system theme, update the current theme as per source theme
+     * @param destinationApp Application object
+     * @param sourceJson ApplicationJSON from file or Git
+     * @return Updated application that has editModeThemeId and publishedModeThemeId set
+     */
+
+    @Override
+    public Mono<Application> importThemesToApplication(Application destinationApp, ApplicationJson sourceJson) {
+        Mono<Theme> editModeTheme = updateExistingAppThemeFromJSON(
+                destinationApp, destinationApp.getEditModeThemeId(), sourceJson.getEditModeTheme()
+        );
+
+        Mono<Theme> publishedModeTheme = updateExistingAppThemeFromJSON(
+                destinationApp, destinationApp.getPublishedModeThemeId(), sourceJson.getPublishedTheme()
+        );
+
+        return Mono.zip(editModeTheme, publishedModeTheme).flatMap(importedThemesTuple -> {
+            String editModeThemeId = importedThemesTuple.getT1().getId();
+            String publishedModeThemeId = importedThemesTuple.getT2().getId();
+
+            destinationApp.setEditModeThemeId(editModeThemeId);
+            destinationApp.setPublishedModeThemeId(publishedModeThemeId);
+            // this will update the theme id in DB
+            // also returning the updated application object so that theme id are available to the next pipeline
+            return applicationService.setAppTheme(
+                    destinationApp.getId(), editModeThemeId, publishedModeThemeId, MANAGE_APPLICATIONS
+            ).thenReturn(destinationApp);
+        });
+    }
+
+    private Mono<Theme> updateExistingAppThemeFromJSON(Application destinationApp, String existingThemeId, Theme themeFromJson) {
+        if(!StringUtils.hasLength(existingThemeId)) {
+            return getOrSaveTheme(themeFromJson, destinationApp);
+        }
+        return repository.findById(existingThemeId, READ_THEMES).flatMap(existingTheme -> {
+            if(existingTheme.isSystemTheme()) {
+                return getOrSaveTheme(themeFromJson, destinationApp);
+            } else {
+                if(themeFromJson.isSystemTheme()) {
+                    return getOrSaveTheme(themeFromJson, destinationApp).flatMap(importedTheme -> {
+                        // need to delete the old existingTheme
+                        return repository.archiveById(existingThemeId).thenReturn(importedTheme);
+                    });
+                } else {
+                    return repository.updateById(existingThemeId, themeFromJson, MANAGE_THEMES);
+                }
+            }
+        });
     }
 }

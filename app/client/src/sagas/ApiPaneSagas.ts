@@ -39,7 +39,7 @@ import {
 } from "actions/pluginActionActions";
 import { Datasource } from "entities/Datasource";
 import { Action, ApiAction, PluginType } from "entities/Action";
-import { getCurrentWorkspaceId } from "selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import log from "loglevel";
 import PerformanceTracker, {
   PerformanceTransactionName,

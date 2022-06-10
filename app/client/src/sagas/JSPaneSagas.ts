@@ -44,7 +44,7 @@ import {
   updateJSFunction,
   executeJSFunctionInit,
 } from "actions/jsPaneActions";
-import { getCurrentWorkspaceId } from "selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { PluginType } from "entities/Action";
 import { Toaster } from "components/ads/Toast";

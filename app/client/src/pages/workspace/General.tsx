@@ -16,7 +16,7 @@ import {
   getCurrentError,
   getCurrentWorkspace,
   getWorkspaceLoadingStates,
-} from "selectors/workspaceSelectors";
+} from "@appsmith/selectors/workspaceSelectors";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";

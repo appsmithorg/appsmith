@@ -4,6 +4,7 @@ export type InviteUsersToWorkspaceByRoleValues = {
   id: string;
   users?: string;
   role?: string;
+  roles?: any[];
 };
 export type InviteUsersToWorkspaceFormValues = {
   usersByRole: InviteUsersToWorkspaceByRoleValues[];

@@ -6,7 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import PluginsApi, { PluginFormPayload } from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
-import { getCurrentWorkspaceId } from "selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import {
   getDatasources,
   getPlugin,

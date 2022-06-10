@@ -6,7 +6,7 @@ import {
   Link,
   Route,
 } from "react-router-dom";
-import { getCurrentWorkspace } from "selectors/workspaceSelectors";
+import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import Text, { TextType } from "components/ads/Text";
