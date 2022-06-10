@@ -144,6 +144,12 @@ import VideoWidget, {
 import ProgressWidget, {
   CONFIG as PROGRESS_WIDGET_CONFIG,
 } from "widgets/ProgressWidget";
+import TextAreaWidget, {
+  CONFIG as TEXTAREA_WIDGET_V2_CONFIG,
+} from "widgets/TextAreaWidget";
+import BarChartWidget, {
+  CONFIG as BAR_CHART_WIDGET_CONFIG,
+} from "widgets/BarChartWidget";
 import { registerWidget } from "./WidgetRegisterHelpers";
 import { WidgetConfiguration } from "widgets/constants";
 
@@ -192,6 +198,8 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [PhoneInputWidget, PHONE_INPUT_WIDGET_V2_CONFIG],
   [CurrencyInputWidget, CURRENCY_INPUT_WIDGET_V2_CONFIG],
   [JSONFormWidget, JSON_FORM_WIDGET_CONFIG],
+  [TextAreaWidget, TEXTAREA_WIDGET_V2_CONFIG],
+  [BarChartWidget, BAR_CHART_WIDGET_CONFIG],
 
   //Deprecated Widgets
   [InputWidget, INPUT_WIDGET_CONFIG],
