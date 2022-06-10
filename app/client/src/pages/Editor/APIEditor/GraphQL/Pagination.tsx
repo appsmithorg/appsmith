@@ -6,13 +6,9 @@ import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
 import Text, { TextType } from "components/ads/Text";
-import {
-  CodeEditorBorder,
-  EditorTheme,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Maybe } from "graphql/jsutils/Maybe";
-import { Dropdown } from "components/ads";
-import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
+import { Dropdown, TextInput, Checkbox } from "components/ads";
 import { AnyAction, bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -75,7 +71,6 @@ const PaginationFieldWrapper = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: ${(props) => props.theme.spaces[5]}px;
-  justify-content: space-between;
   width: 48%;
 `;
 
@@ -88,6 +83,13 @@ const Step = styled(FormLabel)`
   width: 100%;
   p {
     text-decoration: underline;
+  }
+`;
+
+const CheckboxFieldWrapper = styled.div`
+  margin-top: 8px;
+  div > span {
+    font-size: ${(props) => props.theme.fontSizes[2]}px;
   }
 `;
 
@@ -119,10 +121,19 @@ const graphqlParseVariables = (queryBody: string) => {
 
 type PaginationTypeBasedWrapperProps = {
   dataReplayId: string;
+  onInputChange?: any;
   onSelectVariable: any;
+  onSeparateKeyChange?: any;
   selectedVariable: any;
+  separateKeyFlag?: boolean;
+  separateKeyLabel?: string;
+  separateKeyPath?: string;
+  // This states that is separate value for any text is enabled or not
+  separateValueFlag?: boolean;
   valueClassName: string;
+  valueData: any;
   valuePath: string;
+  valuePlaceholder?: string;
   valueText: string;
   variablesOptions: Array<any>;
   variableText: string;
@@ -132,10 +143,18 @@ type PaginationTypeBasedWrapperProps = {
 
 function PaginationTypeBasedWrapper({
   dataReplayId,
+  onInputChange,
   onSelectVariable,
+  onSeparateKeyChange,
   selectedVariable,
+  separateKeyFlag,
+  separateKeyLabel,
+  separateKeyPath,
+  separateValueFlag,
   valueClassName,
+  valueData,
   valuePath,
+  valuePlaceholder,
   valueText,
   valueTooltip,
   variablesOptions,
@@ -175,13 +194,29 @@ function PaginationTypeBasedWrapper({
             </Tooltip>
           )}
         </Step>
-        <DynamicTextField
-          border={CodeEditorBorder.ALL_SIDE}
+        <TextInput
+          border
           className={valueClassName}
-          fill={!!true}
-          height="100%"
+          defaultValue={valueData}
+          disabled={separateKeyFlag && !separateValueFlag}
           name={valuePath}
+          onChange={onInputChange}
+          placeholder={valuePlaceholder || ""}
         />
+        {separateKeyFlag &&
+          separateKeyPath &&
+          separateKeyLabel &&
+          onSeparateKeyChange && (
+            <CheckboxFieldWrapper>
+              <Checkbox
+                fill
+                isDefaultChecked={separateValueFlag}
+                label={separateKeyLabel}
+                name={separateKeyPath}
+                onCheckChange={onSeparateKeyChange}
+              />
+            </CheckboxFieldWrapper>
+          )}
       </PaginationFieldWrapper>
     </PaginationFieldContainer>
   );
@@ -207,6 +242,28 @@ function Pagination(props: PaginationProps) {
       `actionConfiguration.${keyPath}.${key}`,
       value,
     );
+  };
+
+  const setSeparateOrSameLimitValue = ({
+    actualKeyPath,
+    dependentKeyPath,
+    isSeparateEnabled,
+    value,
+  }: {
+    actualKeyPath: string;
+    dependentKeyPath: string;
+    isSeparateEnabled: boolean;
+    value: any;
+  }) => {
+    if (!isSeparateEnabled) {
+      props.change(
+        props.formName,
+        `actionConfiguration.${dependentKeyPath}`,
+        value,
+      );
+    }
+
+    props.change(props.formName, `actionConfiguration.${actualKeyPath}`, value);
   };
 
   return (
@@ -244,18 +301,29 @@ function Pagination(props: PaginationProps) {
                   dataReplayId={btoa(
                     "actionConfiguration.pluginSpecifiedTemplates[2]",
                   )}
+                  onInputChange={(value: any) => {
+                    setPaginationValue(
+                      "pluginSpecifiedTemplates[2].limit",
+                      "value",
+                      value,
+                    );
+                  }}
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
                     Object.keys(values).forEach((key: string) => {
                       setPaginationValue(
-                        "pluginSpecifiedTemplates[2].limit.key",
+                        "pluginSpecifiedTemplates[2].limit",
                         key,
-                        dropdownOption.value[key],
+                        values[key],
                       );
                     });
                   }}
-                  selectedVariable={props.limitBased?.limit?.key}
+                  selectedVariable={{
+                    label: props.limitBased?.limit?.key,
+                    value: props.limitBased?.limit?.key,
+                  }}
                   valueClassName="t--apiFormPaginationLimit"
+                  valueData={props.limitBased?.limit?.value}
                   valuePath="actionConfiguration.pluginSpecifiedTemplates[2].limit.value"
                   valueText="Limit Value"
                   variableText="Limit Variable"
@@ -266,18 +334,29 @@ function Pagination(props: PaginationProps) {
                   dataReplayId={btoa(
                     "actionConfiguration.pluginSpecifiedTemplates[2]",
                   )}
+                  onInputChange={(value: any) => {
+                    setPaginationValue(
+                      "pluginSpecifiedTemplates[2].offset",
+                      "value",
+                      value,
+                    );
+                  }}
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
                     Object.keys(values).forEach((key: string) => {
                       setPaginationValue(
-                        "pluginSpecifiedTemplates[2].offset.key",
+                        "pluginSpecifiedTemplates[2].offset",
                         key,
-                        dropdownOption.value[key],
+                        values[key],
                       );
                     });
                   }}
-                  selectedVariable={props.limitBased?.offset?.key}
+                  selectedVariable={{
+                    label: props.limitBased?.offset?.key,
+                    value: props.limitBased?.offset?.key,
+                  }}
                   valueClassName="t--apiFormPaginationOffset"
+                  valueData={props.limitBased?.offset?.value}
                   valuePath="actionConfiguration.pluginSpecifiedTemplates[2].offset.value"
                   valueText="Offset Value"
                   variableText="Offset Variable"
@@ -287,94 +366,130 @@ function Pagination(props: PaginationProps) {
             </PaginationTypeView>,
             <PaginationTypeView key={PaginationType.CURSOR}>
               <Description type={TextType.P1}>
-                Specify the previous and next cursor variables along with a
-                limit value.
+                Specfiy the previous and next cursor variables along with a
+                limit value.{" "}
+                <a
+                  href="https://graphql.org/learn/pagination/"
+                  rel="noreferrer"
+                  style={{ textDecoration: "underline" }}
+                  target={"_blank"}
+                >
+                  Refer documentation
+                </a>{" "}
+                for more information
               </Description>
               <PaginationSection>
                 <SubHeading type={TextType.P3}>
                   Configure Previous Page
                 </SubHeading>
-                {/* Previous Cursor Values */}
-                <PaginationTypeBasedWrapper
-                  dataReplayId={btoa("actionConfiguration.prev.cursor")}
-                  onSelectVariable={(_: any, dropdownOption: any) => {
-                    const values = variablesList[dropdownOption.value];
-                    Object.keys(values).forEach((key: string) => {
-                      setPaginationValue(
-                        "prev.cursor",
-                        key,
-                        dropdownOption.value[key],
-                      );
-                    });
-                  }}
-                  selectedVariable={props.paginationPrev?.cursor?.key}
-                  valueClassName="t--apiFormPaginationCursorPrev"
-                  valuePath="actionConfiguration.prev.cursor.value"
-                  valueText="Start Cursor Value"
-                  variableText="Start Cursor Variable"
-                  variablesOptions={variablesOptions}
-                />
                 {/* Previous Limit Value */}
                 <PaginationTypeBasedWrapper
                   dataReplayId={btoa("actionConfiguration.prev.limit")}
+                  onInputChange={(value: any) => {
+                    setSeparateOrSameLimitValue({
+                      actualKeyPath: "prev.limit.value",
+                      dependentKeyPath: "next.limit.value",
+                      value: value,
+                      isSeparateEnabled: !!props.paginationNext?.limit
+                        ?.isSeparate,
+                    });
+                  }}
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
                     Object.keys(values).forEach((key: string) => {
-                      setPaginationValue(
-                        "prev.limit",
-                        key,
-                        dropdownOption.value[key],
-                      );
+                      setPaginationValue("prev.limit", key, values[key]);
                     });
                   }}
-                  selectedVariable={props.paginationPrev?.limit?.key}
+                  selectedVariable={{
+                    label: props.paginationPrev?.limit?.key,
+                    value: props.paginationPrev?.limit?.key,
+                  }}
                   valueClassName="t--apiFormPaginationCursorPrev"
+                  valueData={props.paginationPrev?.limit?.value}
                   valuePath="actionConfiguration.prev.limit.value"
                   valueText="Limit Variable Value"
                   variableText="Limit Variable Name"
                   variablesOptions={variablesOptions}
                 />
-              </PaginationSection>
-              <PaginationSection>
-                <SubHeading type={TextType.P3}>Configure Next Page</SubHeading>
-                {/* Next Cursor Values */}
+                {/* Previous Cursor Values */}
                 <PaginationTypeBasedWrapper
-                  dataReplayId={btoa("actionConfiguration.next.cursor")}
+                  dataReplayId={btoa("actionConfiguration.prev.cursor")}
+                  onInputChange={(value: any) => {
+                    setPaginationValue("prev.cursor", "value", value);
+                  }}
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
                     Object.keys(values).forEach((key: string) => {
-                      setPaginationValue(
-                        "next.cursor",
-                        key,
-                        dropdownOption.value[key],
-                      );
+                      setPaginationValue("prev.cursor", key, values[key]);
                     });
                   }}
-                  selectedVariable={props.paginationNext?.cursor?.key}
-                  valueClassName="t--apiFormPaginationCursorNext"
-                  valuePath="actionConfiguration.next.cursor.value"
+                  selectedVariable={{
+                    label: props.paginationPrev?.cursor?.key,
+                    value: props.paginationPrev?.cursor?.key,
+                  }}
+                  valueClassName="t--apiFormPaginationCursorPrev"
+                  valueData={props.paginationPrev?.cursor?.value}
+                  valuePath="actionConfiguration.prev.cursor.value"
+                  valuePlaceholder="{{Table1.firstRow.cursor}}"
                   valueText="Start Cursor Value"
                   variableText="Start Cursor Variable"
                   variablesOptions={variablesOptions}
                 />
+              </PaginationSection>
+              <PaginationSection>
+                <SubHeading type={TextType.P3}>Configure Next Page</SubHeading>
                 {/* Next Limit Value */}
                 <PaginationTypeBasedWrapper
                   dataReplayId={btoa("actionConfiguration.next.limit")}
+                  onInputChange={(value: any) => {
+                    setPaginationValue("next.limit", "value", value);
+                  }}
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
                     Object.keys(values).forEach((key: string) => {
-                      setPaginationValue(
-                        "next.limit",
-                        key,
-                        dropdownOption.value[key],
-                      );
+                      setPaginationValue("next.limit", key, values[key]);
                     });
                   }}
-                  selectedVariable={props.paginationNext?.limit?.key}
+                  onSeparateKeyChange={(value: any) => {
+                    setPaginationValue("next.limit", "isSeparate", value);
+                  }}
+                  selectedVariable={{
+                    label: props.paginationNext?.limit?.key,
+                    value: props.paginationNext?.limit?.key,
+                  }}
+                  separateKeyFlag
+                  separateKeyLabel="Enable seperate value for first limit variable"
+                  separateKeyPath="actionConfiguration.next.limit.isSeparate"
+                  separateValueFlag={!!props.paginationNext?.limit?.isSeparate}
                   valueClassName="t--apiFormPaginationCursorNext"
+                  valueData={props.paginationNext?.limit?.value}
                   valuePath="actionConfiguration.next.limit.value"
                   valueText="Limit Variable Value"
                   variableText="Limit Variable Name"
+                  variablesOptions={variablesOptions}
+                />
+                {/* Next Cursor Values */}
+                <PaginationTypeBasedWrapper
+                  dataReplayId={btoa("actionConfiguration.next.cursor")}
+                  onInputChange={(value: any) => {
+                    setPaginationValue("next.cursor", "value", value);
+                  }}
+                  onSelectVariable={(_: any, dropdownOption: any) => {
+                    const values = variablesList[dropdownOption.value];
+                    Object.keys(values).forEach((key: string) => {
+                      setPaginationValue("next.cursor", key, values[key]);
+                    });
+                  }}
+                  selectedVariable={{
+                    label: props.paginationNext?.cursor?.key,
+                    value: props.paginationNext?.cursor?.key,
+                  }}
+                  valueClassName="t--apiFormPaginationCursorNext"
+                  valueData={props.paginationNext?.cursor?.value}
+                  valuePath="actionConfiguration.next.cursor.value"
+                  valuePlaceholder="{{Table1.lastRow.cursor}}"
+                  valueText="Start Cursor Value"
+                  variableText="Start Cursor Variable"
                   variablesOptions={variablesOptions}
                 />
               </PaginationSection>
