@@ -41,9 +41,9 @@ export function SamlAuthTest() {
   );
 }
 
-export function Sso() {
+export function Saml() {
   const params = useParams() as any;
-  const { category, subCategory } = params;
+  const { category, selected: subCategory } = params;
   const details = getSettingDetail(category, subCategory);
   const pageTitle = getSettingLabel(
     details?.title || (subCategory ?? category),

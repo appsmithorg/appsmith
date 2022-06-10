@@ -18,9 +18,9 @@ import {
   MenuContainer,
   HeaderSecondary,
   RenderForm,
-  SettingsFormWrapper,
   InputProps,
 } from "./components";
+import { SettingsFormWrapper } from "pages/Settings/components";
 import { getSettingDetail, getSettingLabel } from "../saml";
 import { SSO_IDENTITY_PROVIDER_FORM } from "@appsmith/constants/forms";
 import { fetchSamlMetadata } from "@appsmith/actions/settingsAction";
@@ -150,7 +150,7 @@ function MetadataForm(
     },
 ) {
   const params = useParams() as any;
-  const { category, subCategory } = params;
+  const { category, selected: subCategory } = params;
   const dispatch = useDispatch();
   const isSavable = AdminConfig.savableCategories.includes(
     subCategory ?? category,
