@@ -142,7 +142,6 @@ import { getSlidingCanvasName } from "constants/componentClassNameConstants";
 import { matchGeneratePagePath } from "constants/routes";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -705,12 +704,8 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
   const { widgetId: parentWidgetId } = action.payload;
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const evaluatedDataTree = yield select(getDataTree);
-  const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
-    canvasWidgets,
-  });
   const childrenList = getWidgetChildren(
     canvasWidgets,
-    denormalizedWidgets,
     parentWidgetId,
     evaluatedDataTree,
   );

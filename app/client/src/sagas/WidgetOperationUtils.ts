@@ -51,7 +51,6 @@ import {
 import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
-import { DSLWidget } from "../widgets/constants";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -285,7 +284,6 @@ export function getWidgetChildrenIds(
 
 export function getWidgetChildren(
   canvasWidgets: CanvasWidgetsReduxState,
-  denormalizedWidgets: DSLWidget,
   widgetId: string,
   evaluatedDataTree: DataTree,
 ): { id: string; widget: unknown }[] {
@@ -303,13 +301,13 @@ export function getWidgetChildren(
     for (const childIndex in children) {
       if (children.hasOwnProperty(childIndex)) {
         const childWidgetId = children[childIndex];
-        // TODO we need to get child widget name here somehow - denormalized data could help
-        const childWidgetName = ""; // use denormalized to get name
+
+        const childCanvasWidget = _.get(canvasWidgets, childWidgetId);
+        const childWidgetName = childCanvasWidget.widgetName;
         const childWidget = evaluatedDataTree[childWidgetName];
         childrenList.push({ id: childWidgetId, widget: childWidget });
         const grandChildren = getWidgetChildren(
           canvasWidgets,
-          denormalizedWidgets,
           childWidgetId,
           evaluatedDataTree,
         );

@@ -10,8 +10,10 @@ import {
 import produce from "immer";
 import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
 import { klona } from "klona";
+import { DataTreeWidget } from "../../../entities/DataTree/dataTreeFactory";
 
-export type MetaState = Record<string, Record<string, unknown>>;
+export type WidgetMetaState = Record<string, unknown>;
+export type MetaState = Record<string, WidgetMetaState>;
 
 export const initialState: MetaState = {};
 
@@ -94,22 +96,18 @@ export const metaReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.RESET_WIDGET_META]: (
     state: MetaState,
-    action: ReduxAction<{ widgetId: string; evaluatedWidget: any }>,
+    action: ReduxAction<{ widgetId: string; evaluatedWidget: DataTreeWidget }>,
   ) => {
     const { evaluatedWidget, widgetId } = action.payload;
-    console.log("$$$", evaluatedWidget);
-    const resetMetaObj = {};
+
+    const resetMetaObj: WidgetMetaState = {};
     if (evaluatedWidget) {
       const { propertyOverrideDependency } = evaluatedWidget;
       Object.entries(propertyOverrideDependency).map(
         ([propertyName, dependency]) => {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
-          const defaultPropertyName = dependency.DEFAULT;
-          const defaultPropertyValue = evaluatedWidget[defaultPropertyName];
+          const defaultPropertyValue =
+            dependency.DEFAULT && evaluatedWidget[dependency.DEFAULT];
           if (defaultPropertyValue !== undefined) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
             resetMetaObj[propertyName] = klona(defaultPropertyValue);
           }
         },
