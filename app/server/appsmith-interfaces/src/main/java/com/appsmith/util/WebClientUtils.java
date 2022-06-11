@@ -26,14 +26,26 @@ public class WebClientUtils {
     }
 
     public static WebClient.Builder builder() {
-        HttpClient httpClient = HttpClient.create();
+        HttpClient httpClient = applyProxyIfConfigured(HttpClient.create());
 
         if (shouldUseSystemProxy()) {
             httpClient = httpClient.proxyWithSystemProperties();
         }
 
+        return builder(httpClient);
+    }
+
+    public static WebClient.Builder builder(HttpClient httpClient) {
         return WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient));
+    }
+
+    private static HttpClient applyProxyIfConfigured(HttpClient httpClient) {
+        if (shouldUseSystemProxy()) {
+            httpClient = httpClient.proxyWithSystemProperties();
+        }
+
+        return httpClient;
     }
 
 }
