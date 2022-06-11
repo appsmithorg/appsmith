@@ -488,6 +488,32 @@ Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
   cy.wait(200);
 });
 
+Cypress.Commands.add("toggleJsAndUpdateWithIndex", (endp, value, index) => {
+  cy.get(".CodeMirror textarea")
+    .eq(index)
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(($cm) => {
+    if ($cm.contents !== "") {
+      cy.log("The field is empty");
+      cy.get(".CodeMirror textarea")
+        .eq(index)
+        .clear({
+          force: true,
+        });
+    }
+    cy.get(".CodeMirror textarea")
+      .eq(index)
+      .type(value, {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
+  });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(200);
+});
+
 Cypress.Commands.add("assertControlVisibility", (endp) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror")
     .first()
