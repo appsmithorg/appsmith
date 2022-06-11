@@ -51,6 +51,8 @@ import {
 import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { isWidget } from "../workers/evaluationUtils";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -282,12 +284,14 @@ export function getWidgetChildrenIds(
   return childrenIds;
 }
 
+export type ChildrenWidgetMap = { id: string; widget: DataTreeWidget };
+
 export function getWidgetChildren(
   canvasWidgets: CanvasWidgetsReduxState,
   widgetId: string,
   evaluatedDataTree: DataTree,
-): { id: string; widget: unknown }[] {
-  const childrenList: { id: string; widget: unknown }[] = [];
+): ChildrenWidgetMap[] {
+  const childrenList: ChildrenWidgetMap[] = [];
   const widget = _.get(canvasWidgets, widgetId);
   // When a form widget tries to resetChildrenMetaProperties
   // But one or more of its container like children
@@ -305,14 +309,19 @@ export function getWidgetChildren(
         const childCanvasWidget = _.get(canvasWidgets, childWidgetId);
         const childWidgetName = childCanvasWidget.widgetName;
         const childWidget = evaluatedDataTree[childWidgetName];
-        childrenList.push({ id: childWidgetId, widget: childWidget });
-        const grandChildren = getWidgetChildren(
-          canvasWidgets,
-          childWidgetId,
-          evaluatedDataTree,
-        );
-        if (grandChildren.length) {
-          childrenList.push(...grandChildren);
+        if (isWidget(childWidget)) {
+          childrenList.push({
+            id: childWidgetId,
+            widget: childWidget,
+          });
+          const grandChildren = getWidgetChildren(
+            canvasWidgets,
+            childWidgetId,
+            evaluatedDataTree,
+          );
+          if (grandChildren.length) {
+            childrenList.push(...grandChildren);
+          }
         }
       }
     }

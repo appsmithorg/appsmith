@@ -1,6 +1,9 @@
 import { set } from "lodash";
 import { createReducer } from "utils/AppsmithUtils";
-import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
+import {
+  UpdateWidgetMetaPropertyPayload,
+  ResetWidgetMetaPayload,
+} from "actions/metaActions";
 
 import {
   ReduxActionTypes,
@@ -10,7 +13,6 @@ import {
 import produce from "immer";
 import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
 import { klona } from "klona";
-import { DataTreeWidget } from "../../../entities/DataTree/dataTreeFactory";
 
 export type WidgetMetaState = Record<string, unknown>;
 export type MetaState = Record<string, WidgetMetaState>;
@@ -96,11 +98,12 @@ export const metaReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.RESET_WIDGET_META]: (
     state: MetaState,
-    action: ReduxAction<{ widgetId: string; evaluatedWidget: DataTreeWidget }>,
+    action: ReduxAction<ResetWidgetMetaPayload>,
   ) => {
     const { evaluatedWidget, widgetId } = action.payload;
 
     const resetMetaObj: WidgetMetaState = {};
+
     if (evaluatedWidget) {
       const { propertyOverrideDependency } = evaluatedWidget;
       Object.entries(propertyOverrideDependency).map(

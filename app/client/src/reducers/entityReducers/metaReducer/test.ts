@@ -20,59 +20,61 @@ const noAction = (): ReduxAction<unknown> => {
   };
 };
 
-test("should return the initial state", () => {
-  expect(metaReducer(undefined, noAction())).toEqual(previousState);
-});
-
-test("Add a widget meta values", () => {
-  previousState = initialState;
-  expect(
-    metaReducer(previousState, {
-      type: ReduxActionTypes.SET_META_PROP,
-      payload: {
-        widgetId: inputWidget.widgetId,
-        propertyName: inputWidget.propertyName,
-        propertyValue: inputWidget.propertyValue,
-      },
-    }),
-  ).toEqual({
-    incwlne: {
-      selectedValues: ["GREEN", "BLUE", "YELLOW"],
-    },
+describe("Meta Reducer action", () => {
+  test("should return the initial state", () => {
+    expect(metaReducer(undefined, noAction())).toEqual(previousState);
   });
-});
 
-test("Update widget meta state using evalMetaUpdates", () => {
-  const evalMetaUpdates = [
-    { widgetId: "incwlne", metaPropertyPath: ["text"], value: "test123" },
-    {
-      widgetId: "incwlne",
-      metaPropertyPath: ["selectedValues"],
-      value: ["YELLOW"],
-    },
-  ];
-  const newMetaReducerState = metaReducer(
-    previousState,
-    updateMetaState(evalMetaUpdates),
-  );
-  expect(newMetaReducerState).toEqual({
-    incwlne: {
-      text: "test123",
-      selectedValues: ["YELLOW"],
-    },
-  });
-  previousState = newMetaReducerState;
-});
-
-test("Reset widget", () => {
-  expect(
-    metaReducer(previousState, {
-      type: ReduxActionTypes.RESET_WIDGET_META,
-      payload: {
-        widgetId: inputWidget.widgetId,
+  test("Add a widget meta values", () => {
+    previousState = initialState;
+    expect(
+      metaReducer(previousState, {
+        type: ReduxActionTypes.SET_META_PROP,
+        payload: {
+          widgetId: inputWidget.widgetId,
+          propertyName: inputWidget.propertyName,
+          propertyValue: inputWidget.propertyValue,
+        },
+      }),
+    ).toEqual({
+      incwlne: {
+        selectedValues: ["GREEN", "BLUE", "YELLOW"],
       },
-    }),
-  ).toEqual({
-    incwlne: {},
+    });
+  });
+
+  test("Update widget meta state using evalMetaUpdates", () => {
+    const evalMetaUpdates = [
+      { widgetId: "incwlne", metaPropertyPath: ["text"], value: "test123" },
+      {
+        widgetId: "incwlne",
+        metaPropertyPath: ["selectedValues"],
+        value: ["YELLOW"],
+      },
+    ];
+    const newMetaReducerState = metaReducer(
+      previousState,
+      updateMetaState(evalMetaUpdates),
+    );
+    expect(newMetaReducerState).toEqual({
+      incwlne: {
+        text: "test123",
+        selectedValues: ["YELLOW"],
+      },
+    });
+    previousState = newMetaReducerState;
+  });
+
+  test("Reset widget", () => {
+    expect(
+      metaReducer(previousState, {
+        type: ReduxActionTypes.RESET_WIDGET_META,
+        payload: {
+          widgetId: inputWidget.widgetId,
+        },
+      }),
+    ).toEqual({
+      incwlne: {},
+    });
   });
 });
