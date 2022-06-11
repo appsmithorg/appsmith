@@ -36,9 +36,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
-
 import { klona } from "klona";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
@@ -492,48 +490,30 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         );
 
         if (
-          propertyValue.indexOf("currentItem") > -1 &&
-          propertyValue.indexOf("{{((currentItem) => {") === -1
+          (propertyValue.indexOf("currentItem") > -1 &&
+            propertyValue.indexOf("{{((currentItem) => {") === -1) ||
+          (propertyValue.indexOf("currentIndex") > -1 &&
+            propertyValue.indexOf("{{((currentIndex) => {") === -1)
         ) {
           const { jsSnippets } = getDynamicBindings(propertyValue);
-          const listItem = this.props.listData?.[itemIndex] || {};
-          const stringifiedListItem = JSON.stringify(listItem);
-          const escapedStringifiedListItem = escapeSpecialChars(
-            stringifiedListItem,
-          );
+
+          const widgetName = this.props.widgetName;
           const newPropertyValue = jsSnippets.reduce(
             (prev: string, next: string) => {
-              if (next.indexOf("currentItem") > -1) {
+              if (
+                next.indexOf("currentItem") > -1 ||
+                next.indexOf("currentIndex") > -1
+              ) {
                 return (
                   prev +
-                  `{{((currentItem) => { ${next}})(JSON.parse('${escapedStringifiedListItem}'))}}`
+                  `{{((currentItem = {}, currentIndex) => {${next}})(${widgetName}.listData?.[${itemIndex}], ${itemIndex})}}`
                 );
               }
               return prev + `{{${next}}}`;
             },
             "",
           );
-          set(widget, path, newPropertyValue);
-        }
 
-        if (
-          propertyValue.indexOf("currentIndex") > -1 &&
-          propertyValue.indexOf("{{((currentIndex) => {") === -1
-        ) {
-          const { jsSnippets } = getDynamicBindings(propertyValue);
-
-          const newPropertyValue = jsSnippets.reduce(
-            (prev: string, next: string) => {
-              if (next.indexOf("currentIndex") > -1) {
-                return (
-                  prev +
-                  `{{((currentIndex) => { ${next}})(JSON.parse('${itemIndex}'))}}`
-                );
-              }
-              return prev + `{{${next}}}`;
-            },
-            "",
-          );
           set(widget, path, newPropertyValue);
         }
       });
