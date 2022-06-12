@@ -24,7 +24,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
       threshold: 0.5,
       distance: 100,
     });
-  }, []);
+  }, [cards]);
 
   const filterCards = (keyword: string) => {
     if (keyword.trim().length > 0) {
