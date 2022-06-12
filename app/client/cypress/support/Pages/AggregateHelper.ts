@@ -485,7 +485,7 @@ export class AggregateHelper {
     valueToEnter: string,
     options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
   ) {
-    const { propFieldName, directInput, inputFieldName } = options;
+    const { directInput, inputFieldName, propFieldName } = options;
 
     if (propFieldName && !directInput && !inputFieldName) {
       cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
@@ -594,7 +594,7 @@ export class AggregateHelper {
 
   public AssertElementAbsence(selector: string) {
     //Should not exists - cannot take indexes
-    let locator = selector.startsWith("//")
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector, { timeout: 0 })
       : cy.get(selector, { timeout: 0 });
     locator.should("not.exist");
@@ -641,17 +641,13 @@ export class AggregateHelper {
   }
 
   public EnableAllEditors() {
-    cy.get("body").then(($body) => {
+    cy.get("body").then(($body: any) => {
       if ($body.find(this.locator._codeEditorWrapper)?.length > 0) {
-        let count = $body.find(this.locator._codeEditorWrapper)?.length || 0;
-        while (count) {
-          $body
-            .find(this.locator._codeEditorWrapper)
-            .eq(0)
-            .trigger("click", { force: true });
-          cy.wait(200);
-          count = $body.find(this.locator._codeEditorWrapper)?.length || 0;
-        }
+        $body
+          .find(this.locator._codeEditorWrapper)
+          ?.each((index: number, $el: any) => {
+            cy.wrap($el).click({ force: true });
+          });
       }
     });
     cy.wait(2000);
