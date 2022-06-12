@@ -643,9 +643,11 @@ export class AggregateHelper {
   public EnableAllEditors() {
     cy.get("body").then(($body: any) => {
       if ($body.find(this.locator._codeEditorWrapper)?.length > 0) {
-        $body.find(this.locator._codeEditorWrapper)?.each(($el: any) => {
-          cy.wrap($el).click({ force: true });
-        });
+        $body
+          .find(this.locator._codeEditorWrapper)
+          ?.each((index: number, $el: any) => {
+            cy.wrap($el).click({ force: true });
+          });
       }
     });
     cy.wait(2000);
