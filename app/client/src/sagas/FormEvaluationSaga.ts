@@ -24,6 +24,7 @@ import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { get } from "lodash";
+import { klona } from "klona/lite";
 
 let isEvaluating = false; // Flag to maintain the queue of evals
 
@@ -61,6 +62,17 @@ const extractQueueOfValuesToBeFetched = (evalOutput: FormEvalOutput) => {
   return output;
 };
 
+// function to extract all objects that have dynamic values
+const extractFetchDynamicValueFormConfigs = (evalOutput: FormEvalOutput) => {
+  let output: Record<string, ConditionalOutput> = {};
+  Object.entries(evalOutput).forEach(([key, value]) => {
+    if ("fetchDynamicValues" in value && !!value.fetchDynamicValues) {
+      output = { ...output, [key]: value };
+    }
+  });
+  return output;
+};
+
 function* setFormEvaluationSagaAsync(
   action: ReduxAction<FormEvalActionPayload>,
 ): any {
@@ -80,6 +92,19 @@ function* setFormEvaluationSagaAsync(
         ...action,
         currentEvalState,
       });
+
+      if (action?.type === ReduxActionTypes.INIT_FORM_EVALUATION) {
+        const fetchDynamicValueFormConfigs = extractFetchDynamicValueFormConfigs(
+          workerResponse[action?.payload?.formId],
+        );
+        yield put({
+          type: ReduxActionTypes.INIT_TRIGGER_VALUES,
+          payload: {
+            [action?.payload?.formId]: klona(fetchDynamicValueFormConfigs),
+          },
+        });
+      }
+
       // Update the eval state in redux only if it is not empty
       if (!!workerResponse) {
         yield put({
@@ -99,9 +124,17 @@ function* setFormEvaluationSagaAsync(
         const formId = action.payload.formId;
         const evalOutput = workerResponse[formId];
         if (!!evalOutput && typeof evalOutput === "object") {
-          const queueOfValuesToBeFetched = extractQueueOfValuesToBeFetched(
-            evalOutput,
+          const queueOfValuesToBeFetched = klona(
+            extractQueueOfValuesToBeFetched(evalOutput),
           );
+
+          yield put({
+            type: ReduxActionTypes.FETCH_TRIGGER_VALUES_INIT,
+            payload: {
+              formId,
+              values: queueOfValuesToBeFetched,
+            },
+          });
 
           // wait for dataTree to be updated with the latest values before fetching dynamic values.
           yield race([
@@ -109,14 +142,13 @@ function* setFormEvaluationSagaAsync(
             ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
           ]);
           // then wait some more just to be sure.
-          yield delay(500);
+          yield delay(300);
 
           // Pass the queue to the saga to fetch the dynamic values
           yield call(
             fetchDynamicValuesSaga,
             queueOfValuesToBeFetched,
             formId,
-            evalOutput,
             action.payload.datasourceId ? action.payload.datasourceId : "",
             action.payload.pluginId ? action.payload.pluginId : "",
           );
@@ -133,25 +165,31 @@ function* setFormEvaluationSagaAsync(
 function* fetchDynamicValuesSaga(
   queueOfValuesToBeFetched: Record<string, ConditionalOutput>,
   formId: string,
-  evalOutput: FormEvalOutput,
   datasourceId: string,
   pluginId: string,
 ) {
   for (const key of Object.keys(queueOfValuesToBeFetched)) {
-    evalOutput[key].fetchDynamicValues = yield call(
+    queueOfValuesToBeFetched[key].fetchDynamicValues = yield call(
       fetchDynamicValueSaga,
       queueOfValuesToBeFetched[key],
-      Object.assign({}, evalOutput[key].fetchDynamicValues as DynamicValues),
+      Object.assign(
+        {},
+        queueOfValuesToBeFetched[key].fetchDynamicValues as DynamicValues,
+      ),
       formId,
       datasourceId,
       pluginId,
       key,
     );
   }
+
   // Set the values to the state once all values are fetched
   yield put({
-    type: ReduxActionTypes.SET_FORM_EVALUATION,
-    payload: { [formId]: evalOutput },
+    type: ReduxActionTypes.FETCH_TRIGGER_VALUES_SUCCESS,
+    payload: {
+      formId,
+      values: queueOfValuesToBeFetched,
+    },
   });
 }
 

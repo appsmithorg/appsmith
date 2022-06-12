@@ -43,7 +43,7 @@ export const getDynamicFetchedValues = (
 ): DynamicValues => {
   const conditionalOutput = extractConditionalOutput(
     config,
-    state.evaluations.formEvaluation[getActionIdFromURL() as string],
+    state.evaluations.triggers[getActionIdFromURL() as string],
   );
   return !!conditionalOutput.fetchDynamicValues
     ? conditionalOutput.fetchDynamicValues

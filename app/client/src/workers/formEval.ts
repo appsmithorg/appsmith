@@ -213,10 +213,13 @@ function generateEvalFormConfigPaths(
   // we then use this path to update the evalFormConfig array with the parent
   const paths: string[] = [];
   // we never check the conditionals object, or the placeholderText.
+  // we also never check children and schema cause the recursive function that this function is called in already checks the children and schemas (to prevent double recursive checks).
   // the second placeHolderText is due to a rogue value in the formConfig of one of S3 datasource form config.
   const configToBeChecked = {
     ...formConfig,
     conditionals: undefined,
+    children: undefined,
+    schema: undefined,
     placeholderText: undefined,
     placeHolderText: undefined,
   };
@@ -369,6 +372,11 @@ function evaluate(
                   (currentEvalState[key].fetchDynamicValues as DynamicValues)
                     .config,
                 ) as DynamicValuesConfig;
+              } else {
+                (currentEvalState[key]
+                  .fetchDynamicValues as DynamicValues).allowedToFetch = false;
+                (currentEvalState[key]
+                  .fetchDynamicValues as DynamicValues).isLoading = false;
               }
             } else if (
               conditionType === ConditionType.EVALUATE_FORM_CONFIG &&

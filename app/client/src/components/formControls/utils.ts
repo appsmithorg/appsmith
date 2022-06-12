@@ -9,6 +9,7 @@ import { FormConfigType, HiddenType } from "./BaseControl";
 import { diff, Diff } from "deep-diff";
 import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
 import { Action } from "@sentry/react/dist/types";
+import { klona } from "klona/full";
 
 export const evaluateCondtionWithType = (
   conditions: Array<boolean> | undefined,
@@ -115,7 +116,7 @@ export const alternateViewTypeInputConfig = () => {
     controlType: "QUERY_DYNAMIC_INPUT_TEXT",
     evaluationSubstitutionType: "TEMPLATE",
     inputType: "TEXT_WITH_BINDING",
-    showLineNumbers: true,
+    // showLineNumbers: true,
   };
 };
 
@@ -438,7 +439,14 @@ export const updateEvaluatedSectionConfig = (
   conditionalOutput: ConditionalOutput,
   enabled = true,
 ) => {
-  const updatedSection = { ...section };
+  // we deep clone the section coming from the editorConfig to prevent any mutations of
+  // the editorConfig in the redux state.
+  // just spreading the object does a shallow clone(top level cloning), so we use the klona package to deep clone
+  // klona is faster than deepClone from lodash.
+
+  // leaving the commented code as a reminder of the above observation.
+  // const updatedSection = { ...section };
+  const updatedSection = klona(section);
   let evaluatedConfig: FormConfigEvalObject = {};
   if (
     conditionalOutput.hasOwnProperty("evaluateFormConfig") &&
