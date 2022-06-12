@@ -130,6 +130,7 @@ import { reflow } from "reflow";
 import { getBottomMostRow } from "reflow/reflowUtils";
 import { flashElementsById } from "utils/helpers";
 import { getSlidingCanvasName } from "constants/componentClassNameConstants";
+import { generateDynamicHeightComputationTree } from "ce/actions/dynamicHeightActions";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -180,6 +181,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(stopReflowAction());
     yield put(updateAndSaveLayout(movedWidgets));
+    yield put(generateDynamicHeightComputationTree(true));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -1485,6 +1487,8 @@ function* pasteWidgetSaga(
 
   yield put(updateAndSaveLayout(reflowedWidgets));
 
+  yield put(generateDynamicHeightComputationTree(true));
+
   //if pasting at the bottom of the canvas, then flash it.
   if (shouldGroup || !newPastingPositionMap) {
     flashElementsById(newlyCreatedWidgetIds, 100);
@@ -1508,7 +1512,9 @@ function* cutWidgetSaga() {
 
   const selectedWidgetProps = selectedWidgets.map((each) => allWidgets[each]);
 
-  const saveResult = yield createSelectedWidgetsCopy(selectedWidgetProps);
+  const saveResult: boolean = yield createSelectedWidgetsCopy(
+    selectedWidgetProps,
+  );
 
   selectedWidgetProps.forEach((each) => {
     const eventName = "WIDGET_CUT_VIA_SHORTCUT"; // cut only supported through a shortcut

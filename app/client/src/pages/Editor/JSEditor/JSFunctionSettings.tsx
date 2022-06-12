@@ -3,7 +3,7 @@ import {
   ASYNC_FUNCTION_SETTINGS_HEADING,
   createMessage,
   NO_ASYNC_FUNCTIONS,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 import { AppIcon, Radio, RadioComponent } from "components/ads";
 import TooltipComponent from "components/ads/Tooltip";
 import { JSAction } from "entities/JSCollection";

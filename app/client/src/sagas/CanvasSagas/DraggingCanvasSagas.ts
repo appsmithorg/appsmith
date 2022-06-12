@@ -21,6 +21,7 @@ import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import { generateDynamicHeightComputationTree } from "ce/actions/dynamicHeightActions";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -230,6 +231,8 @@ function* moveWidgetsSaga(
       throw Error;
     }
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));
+    yield put(generateDynamicHeightComputationTree(true));
+
     log.debug("move computations took", performance.now() - start, "ms");
   } catch (error) {
     yield put({

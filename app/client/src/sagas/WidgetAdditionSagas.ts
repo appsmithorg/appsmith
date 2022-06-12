@@ -39,6 +39,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
+import { generateDynamicHeightComputationTree } from "ce/actions/dynamicHeightActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -322,6 +323,8 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);
     yield put(updateAndSaveLayout(updatedWidgets));
+    yield put(generateDynamicHeightComputationTree(true));
+
     log.debug("add child computations took", performance.now() - start, "ms");
     // go up till MAIN_CONTAINER, if there is a operation CHILD_OPERATIONS IN ANY PARENT,
     // call execute
@@ -345,10 +348,10 @@ export function* addChildrenSaga(
 ) {
   try {
     const { children, widgetId } = addChildrenAction.payload;
-    const stateWidgets = yield select(getWidgets);
+    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const widgets = { ...stateWidgets };
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-    const entityNames = yield call(getEntityNames);
+    const entityNames: string[] = yield call(getEntityNames);
 
     children.forEach((child) => {
       // Create only if it doesn't already exist
@@ -366,6 +369,7 @@ export function* addChildrenSaga(
           ...child,
           widgetName: newWidgetName,
           renderMode: RenderModes.CANVAS,
+          version: 1,
         };
 
         const existingChildren = widgets[widgetId].children || [];
@@ -378,6 +382,7 @@ export function* addChildrenSaga(
     });
 
     yield put(updateAndSaveLayout(widgets));
+    yield put(generateDynamicHeightComputationTree(true));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,

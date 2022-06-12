@@ -4,6 +4,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { setDynamicHeightLayoutTree } from "actions/canvasActions";
 import { UpdateWidgetDynamicHeightPayload } from "actions/controlActions";
+import { checkContainersForDynamicHeightUpdate } from "ce/actions/dynamicHeightActions";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -302,8 +303,13 @@ function* batchCallsToUpdateWidgetDynamicHeightSaga(
   );
 }
 
-function* generateTreeForDynamicHeightComputations() {
+function* generateTreeForDynamicHeightComputations(
+  action: ReduxAction<{
+    shouldCheckContainersForDynamicHeightUpdates: boolean;
+  }>,
+) {
   const start = performance.now();
+
   const { canvasLevelMap, occupiedSpaces } = yield select(
     getOccupiedSpacesGroupedByParentCanvas,
   );
@@ -319,12 +325,81 @@ function* generateTreeForDynamicHeightComputations() {
   }
 
   yield put(setDynamicHeightLayoutTree(tree, canvasLevelMap));
+  const { shouldCheckContainersForDynamicHeightUpdates } = action.payload;
+
+  if (shouldCheckContainersForDynamicHeightUpdates) {
+    yield put(checkContainersForDynamicHeightUpdate());
+  }
   // TODO IMPLEMENT:(abhinav): Push this analytics to sentry|segment?
   log.debug(
     "Dynamic Height: Tree generation took:",
     performance.now() - start,
     "ms",
   );
+}
+
+function* dynamicallyUpdateContainersSaga() {
+  const start = performance.now();
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const canvasWidgets: FlattenedWidgetProps[] | undefined = Object.values(
+    stateWidgets,
+  ).filter((widget: FlattenedWidgetProps) => widget.type === "CANVAS_WIDGET");
+  const canvasLevelMap: CanvasLevelsReduxState = yield select(
+    getCanvasLevelMap,
+  );
+
+  const groupedByCanvasLevel = groupBy(
+    canvasWidgets,
+    (widget) => canvasLevelMap[widget.widgetId],
+  );
+
+  const levels = Object.keys(groupedByCanvasLevel)
+    .map((level) => parseInt(level, 10))
+    .sort((a, b) => b - a);
+
+  const updates: Record<string, number> = {};
+
+  for (const level of levels) {
+    const canvasWidgetsAtThisLevel = groupedByCanvasLevel[`${level}`];
+    for (const canvasWidget of canvasWidgetsAtThisLevel) {
+      if (canvasWidget.parentId) {
+        const parentContainerWidget = stateWidgets[canvasWidget.parentId];
+        if (
+          parentContainerWidget.dynamicHeight === DynamicHeight.HUG_CONTENTS
+        ) {
+          if (
+            Array.isArray(canvasWidget.children) &&
+            canvasWidget.children.length > 0
+          ) {
+            let maxBottomRow = canvasWidget.children.reduce(
+              (prev: number, next: string) => {
+                if (stateWidgets[next].bottomRow > prev)
+                  return stateWidgets[next].bottomRow;
+                return prev;
+              },
+              0,
+            );
+            maxBottomRow += GridDefaults.CANVAS_EXTENSION_OFFSET;
+
+            if (maxBottomRow !== parentContainerWidget.bottomRow) {
+              if (!updates.hasOwnProperty(parentContainerWidget.widgetId)) {
+                updates[parentContainerWidget.widgetId] =
+                  maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  console.log(
+    "Dynamic height: Container computations took:",
+    performance.now() - start,
+    "ms",
+  );
+  if (Object.keys(updates).length > 0) {
+    yield fork(updateWidgetDynamicHeightSaga, updates);
+  }
 }
 
 export default function* widgetOperationSagas() {
@@ -336,11 +411,15 @@ export default function* widgetOperationSagas() {
     ),
     takeLatest(
       [
-        ReduxActionTypes.UPDATE_LAYOUT,
+        ReduxActionTypes.GENERATE_DYNAMIC_HEIGHT_COMPUTATION_TREE,
         ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
         ReduxActionTypes.INIT_CANVAS_LAYOUT,
       ],
       generateTreeForDynamicHeightComputations,
+    ),
+    takeLatest(
+      ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT,
+      dynamicallyUpdateContainersSaga,
     ),
   ]);
 }
