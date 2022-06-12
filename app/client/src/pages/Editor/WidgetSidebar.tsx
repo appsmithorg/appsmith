@@ -9,22 +9,27 @@ import {
   WIDGET_SIDEBAR_CAPTION,
 } from "@appsmith/constants/messages";
 import Fuse from "fuse.js";
+import { WidgetCardProps } from "widgets/BaseWidget";
 
 function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
-  const fuse = new Fuse(cards, {
-    keys: ["displayName", "searchTags"],
-    threshold: 0.5,
-    distance: 100,
-  });
+  let fuse: Fuse<WidgetCardProps, Fuse.FuseOptions<WidgetCardProps>>;
+
+  useEffect(() => {
+    fuse = new Fuse(cards, {
+      keys: ["displayName", "searchTags"],
+      threshold: 0.5,
+      distance: 100,
+    });
+  }, []);
 
   const filterCards = (keyword: string) => {
     if (keyword.trim().length > 0) {
       const searchResult = fuse.search(keyword);
-      setFilteredCards(searchResult);
+      setFilteredCards(searchResult as WidgetCardProps[]);
     } else {
       setFilteredCards(cards);
     }
