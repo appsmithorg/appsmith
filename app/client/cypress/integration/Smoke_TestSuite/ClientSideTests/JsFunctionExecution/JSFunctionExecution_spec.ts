@@ -236,7 +236,12 @@ describe("JS Function Execution", function() {
   });
 
   it("7. Maintains order of async functions in settings tab alphabetically at all times", function() {
-    const FUNCTIONS_SETTINGS_DEFAULT_DATA = [
+    interface IFunctionSettingData {
+      name: string;
+      onPageLoad: boolean;
+      confirmBeforeExecute: boolean;
+    }
+    const FUNCTIONS_SETTINGS_DEFAULT_DATA: IFunctionSettingData[] = [
       {
         name: "getId",
         onPageLoad: true,
@@ -254,6 +259,33 @@ describe("JS Function Execution", function() {
       },
       {
         name: "assert",
+        onPageLoad: false,
+        confirmBeforeExecute: false,
+      },
+      {
+        name: "test",
+        onPageLoad: true,
+        confirmBeforeExecute: true,
+      },
+    ];
+    const FUNCTIONS_SETTINGS_RENAMED_DATA: IFunctionSettingData[] = [
+      {
+        name: "newGetId",
+        onPageLoad: true,
+        confirmBeforeExecute: false,
+      },
+      {
+        name: "zip1",
+        onPageLoad: true,
+        confirmBeforeExecute: true,
+      },
+      {
+        name: "base",
+        onPageLoad: false,
+        confirmBeforeExecute: false,
+      },
+      {
+        name: "newAssert",
         onPageLoad: true,
         confirmBeforeExecute: false,
       },
@@ -268,14 +300,13 @@ describe("JS Function Execution", function() {
     const onPageLoadAndConfirmExecuteFunctionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.filter(
       (func) => func.onPageLoad && func.confirmBeforeExecute,
     ).length;
-
-    const SORTED_FUNCTIONS_SETTINGS_DEFAULT_DATA = FUNCTIONS_SETTINGS_DEFAULT_DATA.sort(
-      (a, b) => a.name.localeCompare(b.name),
-    );
-    const getJSObject = () => {
+    // sorts functions alphabetically
+    const sortFunctions = (data: IFunctionSettingData[]) =>
+      data.sort((a, b) => a.name.localeCompare(b.name));
+    const getJSObject = (data: IFunctionSettingData[]) => {
       let JS_OBJECT_BODY = `export default`;
       for (let i = 0; i < functionsLength; i++) {
-        const functionName = FUNCTIONS_SETTINGS_DEFAULT_DATA[i].name;
+        const functionName = data[i].name;
         JS_OBJECT_BODY +=
           i === 0
             ? `{
@@ -290,23 +321,21 @@ describe("JS Function Execution", function() {
       return JS_OBJECT_BODY;
     };
 
-    const assertAsyncFunctionsOrder = () => {
+    const assertAsyncFunctionsOrder = (data: IFunctionSettingData[]) => {
       cy.get(jsEditor._asyncJSFunctionSettings).then(function($lis) {
         const asyncFunctionLength = $lis.length;
         // Assert number of async functions
         expect(asyncFunctionLength).to.equal(functionsLength);
-        Object.values(SORTED_FUNCTIONS_SETTINGS_DEFAULT_DATA).forEach(
-          (functionSetting, idx) => {
-            // Assert alphabetical order
-            expect($lis.eq(idx)).to.have.id(
-              jsEditor._getJSFunctionSettingsId(functionSetting.name),
-            );
-          },
-        );
+        Object.values(sortFunctions(data)).forEach((functionSetting, idx) => {
+          // Assert alphabetical order
+          expect($lis.eq(idx)).to.have.id(
+            jsEditor._getJSFunctionSettingsId(functionSetting.name),
+          );
+        });
       });
     };
     // Create js object
-    jsEditor.CreateJSObject(getJSObject(), {
+    jsEditor.CreateJSObject(getJSObject(FUNCTIONS_SETTINGS_DEFAULT_DATA), {
       paste: true,
       completeReplace: true,
       toRun: false,
@@ -327,7 +356,7 @@ describe("JS Function Execution", function() {
     // Switch to settings tab
     agHelper.GetNClick(jsEditor._settingsTab);
     //After JSObj is created - check methods are in alphabetical order
-    assertAsyncFunctionsOrder();
+    assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
 
     agHelper.RefreshPage();
     // click "Yes" button for all onPageload && ConfirmExecute functions
@@ -336,9 +365,31 @@ describe("JS Function Execution", function() {
       agHelper.ClickButton("Yes");
       agHelper.Sleep();
     }
-    // Switch to settings tab
+    // Switch to settings tab and assert order
     agHelper.GetNClick(jsEditor._settingsTab);
-    // Assert that order remains the same
-    assertAsyncFunctionsOrder();
+    assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
+
+    // clone page and assert order of functions
+    ee.clonePage();
+    // click "Yes" button for all onPageload && ConfirmExecute functions
+    for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
+      //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
+      agHelper.ClickButton("Yes");
+      agHelper.Sleep();
+    }
+
+    cy.get("@jsObjName").then((jsObjName: any) => {
+      ee.SelectEntityByName(jsObjName, "QUERIES/JS");
+    });
+
+    agHelper.GetNClick(jsEditor._settingsTab);
+    assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
+
+    // rename functions and assert order
+    agHelper.GetNClick(jsEditor._codeTab);
+    jsEditor.EditJSObj(getJSObject(FUNCTIONS_SETTINGS_RENAMED_DATA));
+    cy.wait(3000);
+    agHelper.GetNClick(jsEditor._settingsTab);
+    assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
   });
 });

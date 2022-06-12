@@ -21,7 +21,7 @@ export class JSEditor {
   //#region Element locators
   _runButton = "button.run-js-action";
   _settingsTab = ".tab-title:contains('Settings')";
-  private _codeTab = ".tab-title:contains('Code')";
+  _codeTab = ".tab-title:contains('Code')";
   private _jsObjectParseErrorCallout =
     "div.t--js-response-parse-error-call-out";
   private _jsFunctionExecutionParseErrorCallout =

@@ -40,6 +40,11 @@ export class EntityExplorer {
     "']/ancestor::div[contains(@class, 't--entity-item')]//div[contains(@class, 't--template-menu-trigger')]";
   private _templateMenuItem = (menuItem: string) =>
     "//div[contains(@class, 'bp3-popover-dismiss')][text()='" + menuItem + "']";
+  private _moreOptionsPopover =
+    "//*[local-name()='g' and @id='Icon/Outline/more-vertical']";
+  private _pageClone = ".single-select >div:contains('Clone')";
+  private getPageLocator = (pageName: string) =>
+    `.t--entity-name:contains(${pageName})`;
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
@@ -133,5 +138,22 @@ export class EntityExplorer {
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
     cy.get(this.locator._widgetInCanvas(widgetType)).should("exist");
+  }
+
+  public clonePage(pageName = "Page1") {
+    cy.get(this.getPageLocator(pageName))
+      .trigger("mouseover")
+      .click({ force: true });
+    cy.xpath(this._moreOptionsPopover)
+      .first()
+      .should("be.hidden")
+      .invoke("show")
+      .click({ force: true });
+    cy.get(this._pageClone).click({ force: true });
+    cy.wait("@clonePage").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
   }
 }
