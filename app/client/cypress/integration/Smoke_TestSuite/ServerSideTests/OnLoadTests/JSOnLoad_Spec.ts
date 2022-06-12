@@ -90,9 +90,10 @@ describe("JSObjects OnLoad Actions tests", function() {
   it("4. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function() {
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getId", false, true);
-    deployMode.DeployApp();
-    agHelper.ValidateToastMessage('The action "GetUser" has failed');
+    deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
+    agHelper.WaitUntilToastDisappear('The action "GetUser" has failed');
     agHelper.NavigateBacktoEditor();
+    agHelper.WaitUntilToastDisappear('The action "GetUser" has failed');
   });
 
   it("5. Tc 53 - Verify OnPage Load - Enabling back & Before Function calling disabled for JSOBject", function() {
@@ -511,7 +512,6 @@ describe("JSObjects OnLoad Actions tests", function() {
 
   it("12. Tc #1646 - Honouring the order of execution & Bug 13826 + Bug 13646 - Delpoy page", () => {
     deployMode.DeployApp();
-    agHelper.Sleep(2000);
     agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "getBooks" has failed');
