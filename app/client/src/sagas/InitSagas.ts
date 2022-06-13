@@ -297,7 +297,6 @@ function* initiatePageAndAllActions(
     return false;
   } else {
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
-
     return true;
   }
 }
@@ -376,6 +375,8 @@ function* initializeEditorSaga(
       call(initiatePageAndAllActions, toLoadPageId, applicationId, mode),
       // only in edit mode
       call(initiatePluginsAndDatasources),
+      // For omnibar to show all entities search
+      // only in edit mode
       call(populatePageDSLsSaga),
     ]);
 
@@ -388,9 +389,6 @@ function* initializeEditorSaga(
     yield call(initiateGit, applicationId);
 
     yield put(fetchCommentThreadsInit());
-
-    // For omnibar to show all entities search
-    // only in edit mode
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
@@ -441,7 +439,6 @@ export function* initializeAppViewerSaga(
   );
 
   if (!pageAndActionsFetch) return;
-  yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
 
   yield put(fetchCommentThreadsInit());
 
