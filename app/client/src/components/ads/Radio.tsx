@@ -142,12 +142,11 @@ export default function RadioComponent(props: RadioProps) {
       rows={props.rows}
     >
       {props.options.map((option: OptionProps, index: number) => (
-        <>
+        <React.Fragment key={index}>
           <Radio
             backgroundColor={props.backgroundColor}
             columns={props.columns}
             disabled={props.disabled || option.disabled}
-            key={index}
             rows={props.rows}
           >
             {option.label}
@@ -164,7 +163,7 @@ export default function RadioComponent(props: RadioProps) {
             <span className="checkbox" />
           </Radio>
           {selected === option.value && props.selectedOptionElements?.[index]}
-        </>
+        </React.Fragment>
       ))}
     </RadioGroup>
   );

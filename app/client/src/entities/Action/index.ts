@@ -15,7 +15,6 @@ export enum PaginationType {
   NONE = "NONE",
   PAGE_NO = "PAGE_NO",
   URL = "URL",
-  LIMIT = "LIMIT",
   CURSOR = "CURSOR",
 }
 
