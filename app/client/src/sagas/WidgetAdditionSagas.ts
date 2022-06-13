@@ -1,8 +1,4 @@
-import {
-  updateAndSaveLayout,
-  WidgetAddChild,
-  WidgetAddChildren,
-} from "actions/pageActions";
+import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import { Toaster } from "components/ads/Toast";
 import {
   ReduxAction,
@@ -340,59 +336,6 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   }
 }
 
-// This is different from addChildSaga
-// It does not go through the blueprint based creation
-// It simply uses the provided widget props to create widgets
-// Use this only when we're 100% sure of all the props the children will need
-export function* addChildrenSaga(
-  addChildrenAction: ReduxAction<WidgetAddChildren>,
-) {
-  try {
-    const { children, widgetId } = addChildrenAction.payload;
-    const stateWidgets = yield select(getWidgets);
-    const widgets = { ...stateWidgets };
-    const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-    const entityNames = yield call(getEntityNames);
-
-    children.forEach((child) => {
-      // Create only if it doesn't already exist
-      if (!widgets[child.widgetId]) {
-        const defaultConfig: any = WidgetFactory.widgetConfigMap.get(
-          child.type,
-        );
-        const newWidgetName = getNextEntityName(defaultConfig.widgetName, [
-          ...widgetNames,
-          ...entityNames,
-        ]);
-        // update the list of widget names for the next iteration
-        widgetNames.push(newWidgetName);
-        widgets[child.widgetId] = {
-          ...child,
-          widgetName: newWidgetName,
-          renderMode: RenderModes.CANVAS,
-        };
-
-        const existingChildren = widgets[widgetId].children || [];
-
-        widgets[widgetId] = {
-          ...widgets[widgetId],
-          children: [...existingChildren, child.widgetId],
-        };
-      }
-    });
-
-    yield put(updateAndSaveLayout(widgets));
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
-      payload: {
-        action: WidgetReduxActionTypes.WIDGET_ADD_CHILDREN,
-        error,
-      },
-    });
-  }
-}
-
 const getChildTabData = (
   tabProps: WidgetProps,
   tab: {
@@ -469,7 +412,6 @@ function* addNewTabChildSaga(
 export default function* widgetAdditionSagas() {
   yield all([
     takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
-    takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_NEW_TAB_CHILD, addNewTabChildSaga),
   ]);
 }

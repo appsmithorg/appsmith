@@ -31,6 +31,7 @@ describe("JS Function Execution", function() {
     );
 
     jsEditor.AssertParseError(false, false);
+    agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
   it("2. Prevents execution of js function when parse errors are present in code", function() {
@@ -49,6 +50,7 @@ describe("JS Function Execution", function() {
     );
 
     jsEditor.AssertParseError(true, false);
+    agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
   it("3. Prioritizes parse errors that render JS Object invalid over function execution parse errors in debugger callouts", function() {
@@ -85,7 +87,9 @@ describe("JS Function Execution", function() {
 
     // Assert presence of parse error callout (entire JS Object is invalid)
     jsEditor.AssertParseError(true, false);
+    agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
+
   it("4. Shows lint error and toast modal when JS Object doesn't start with 'export default'", () => {
     const invalidJSObjectStartToastMessage = "Start object with export default";
     const jsComment = "// This is a comment";
@@ -122,6 +126,7 @@ describe("JS Function Execution", function() {
       cy.get(locator._lintErrorElement)
         .should("exist")
         .should("contain.text", highlightedLintText);
+      agHelper.ActionContextMenuWithInPane("Delete", "", true);
     };
 
     assertInvalidJSObjectStart(jsObjectStartingWithAComment, jsComment);
