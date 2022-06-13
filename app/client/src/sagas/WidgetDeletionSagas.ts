@@ -36,6 +36,7 @@ import {
   isExploringSelector,
 } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
+import { generateDynamicHeightComputationTree } from "ce/actions/dynamicHeightActions";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -317,6 +318,7 @@ function* postDelete(
   })[],
 ) {
   showUndoRedoToast(widgetName, false, false, true);
+  yield put(generateDynamicHeightComputationTree(true));
 
   if (widgetId) {
     otherWidgetsToDelete.map((widget) => {

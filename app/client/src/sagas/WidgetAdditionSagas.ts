@@ -35,6 +35,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
+import { generateDynamicHeightComputationTree } from "ce/actions/dynamicHeightActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -322,6 +323,8 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
       payload: [addChildAction.payload.newWidgetId],
     });
+    yield put(generateDynamicHeightComputationTree(true));
+
     log.debug("add child computations took", performance.now() - start, "ms");
     // go up till MAIN_CONTAINER, if there is a operation CHILD_OPERATIONS IN ANY PARENT,
     // call execute

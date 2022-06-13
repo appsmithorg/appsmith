@@ -145,6 +145,7 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import { matchGeneratePagePath } from "constants/routes";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
+import { generateDynamicHeightComputationTree } from "ce/actions/dynamicHeightActions";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -195,6 +196,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(stopReflowAction());
     yield put(updateAndSaveLayout(movedWidgets));
+    yield put(generateDynamicHeightComputationTree(true));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -1567,6 +1569,7 @@ function* pasteWidgetSaga(
     type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
     payload: newlyCreatedWidgetIds,
   });
+  yield put(generateDynamicHeightComputationTree(true));
 
   //if pasting at the bottom of the canvas, then flash it.
   if (shouldGroup || !newPastingPositionMap) {
@@ -1591,7 +1594,9 @@ function* cutWidgetSaga() {
 
   const selectedWidgetProps = selectedWidgets.map((each) => allWidgets[each]);
 
-  const saveResult = yield createSelectedWidgetsCopy(selectedWidgetProps);
+  const saveResult: boolean = yield createSelectedWidgetsCopy(
+    selectedWidgetProps,
+  );
 
   selectedWidgetProps.forEach((each) => {
     const eventName = "WIDGET_CUT_VIA_SHORTCUT"; // cut only supported through a shortcut

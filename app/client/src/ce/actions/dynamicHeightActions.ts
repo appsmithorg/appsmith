@@ -9,3 +9,18 @@ export function storeDynamicHeightLayoutTreeAction(
     payload: tree,
   };
 }
+
+export function generateDynamicHeightComputationTree(
+  shouldCheckContainersForDynamicHeightUpdates: boolean,
+) {
+  return {
+    type: ReduxActionTypes.GENERATE_DYNAMIC_HEIGHT_COMPUTATION_TREE,
+    payload: { shouldCheckContainersForDynamicHeightUpdates },
+  };
+}
+
+export function checkContainersForDynamicHeightUpdate() {
+  return {
+    type: ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT,
+  };
+}
