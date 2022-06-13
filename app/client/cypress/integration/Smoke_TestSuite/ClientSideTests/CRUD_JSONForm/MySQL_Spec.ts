@@ -471,7 +471,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     agHelper.GetNClick(dataSources._addIcon);
     agHelper.Sleep(1000); //time for new Modal to settle
-    agHelper.AssertElementVisible(locator._jsonFormWidget, 1); //Insert Modal at index 1
+    //agHelper.AssertElementVisible(locator._jsonFormWidget, 1); //Insert Modal at index 1
     agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("Column 'store_id' cannot be null");
