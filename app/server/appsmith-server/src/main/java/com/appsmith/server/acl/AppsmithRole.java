@@ -45,7 +45,7 @@ public enum AppsmithRole {
     public static AppsmithRole generateAppsmithRoleFromName(String name) {
         List<AppsmithRole> appsmithRoles = Arrays.asList(AppsmithRole.values());
         for (AppsmithRole role : appsmithRoles) {
-            if (!role.name().contains("ORGANIZATION") && role.getName().equals(name)) {
+            if (role.getName().equals(name)) {
                 return role;
             }
         }
