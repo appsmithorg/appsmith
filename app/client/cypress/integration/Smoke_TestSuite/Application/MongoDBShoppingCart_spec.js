@@ -2,7 +2,6 @@ const dsl = require("../../../fixtures/mongoAppdsl.json");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
-const commonlocators = require("../../../locators/commonlocators.json");
 
 let repoName;
 describe("Shopping cart App", function() {
@@ -140,17 +139,22 @@ describe("Shopping cart App", function() {
       .eq(1)
       .click();
     cy.assertPageSave();
-    cy.wait(8000);
+    cy.wait("@postExecute");
     // Deleting the book from the cart
     cy.get(".tableWrap")
       .children()
       .within(() => {
         cy.get("span:contains('Delete')")
           .closest("div")
-          .eq(0)
+          .eq(1)
           .click();
+        cy.wait("@postExecute");
+        cy.wait(5000);
+
         // validating that the book is deleted
-        cy.get("span:contains('Delete')").should("have.length", 1);
+        cy.get("span:contains('Delete')")
+          .parent("button")
+          .should("have.length", 1);
       });
     // Updating the book quantity from edit cart
     cy.xpath(appPage.editbookquantity)
@@ -168,6 +172,7 @@ describe("Shopping cart App", function() {
       .eq(3)
       .should("have.text", "3");
   });
+
   /*it("Connect the appplication to git and validate data in deploy mode and edit mode", function() {
     cy.generateUUID().then((uid) => {
       repoName = uid;
