@@ -351,8 +351,9 @@ describe("AForce - Community Issues page validations", function() {
       "multiselectwidget",
     );
     agHelper.ClickButton("Save");
+    agHelper.Sleep(2000)
 
-    table.ReadTableRowColumnData(0, 0, 1000).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("Troubleshooting");
     });
 
