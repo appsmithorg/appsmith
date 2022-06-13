@@ -540,7 +540,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     agHelper.GetNClick(dataSources._addIcon);
     agHelper.Sleep()
-    agHelper.AssertElementVisible(locator._jsonFormWidget, 1); //Insert Modal
+    //agHelper.AssertElementVisible(locator._jsonFormWidget, 1); //Insert Modal
     agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
 
     //Checking Required field validations
