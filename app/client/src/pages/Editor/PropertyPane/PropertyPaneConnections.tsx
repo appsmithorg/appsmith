@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useCallback, useEffect } from "react";
+import React, { memo, useMemo, useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import Dropdown, {
@@ -28,6 +28,11 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { Position } from "@blueprintjs/core";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import {
+  interactionAnalyticsEvent,
+  InteractionAnalyticsEventDetail,
+  INTERACTION_ANALYTICS_EVENT,
+} from "utils/AppsmithUtils";
 
 const CONNECTION_HEIGHT = 28;
 
@@ -170,6 +175,7 @@ const OptionContentWrapper = styled.div<{
 
 type PropertyPaneConnectionsProps = {
   widgetName: string;
+  widgetType: string;
 };
 
 type TriggerNodeProps = DefaultDropDownValueNodeProps & {
@@ -346,6 +352,35 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   const dependencies = useDependencyList(props.widgetName);
   const { navigateToEntity } = useEntityLink();
   const debuggerErrors = useSelector(getFilteredErrors);
+  const topLayerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    topLayerRef.current?.addEventListener(
+      INTERACTION_ANALYTICS_EVENT,
+      handleKbdEvent,
+    );
+    return () => {
+      topLayerRef.current?.removeEventListener(
+        INTERACTION_ANALYTICS_EVENT,
+        handleKbdEvent,
+      );
+    };
+  }, []);
+
+  const handleKbdEvent = (e: Event) => {
+    const event = e as CustomEvent<InteractionAnalyticsEventDetail>;
+    if (!event.detail?.propertyName) {
+      e.stopPropagation();
+      topLayerRef.current?.dispatchEvent(
+        interactionAnalyticsEvent({
+          key: event.detail.key,
+          propertyType: "PROPERTY_PANE_CONNECTION",
+          propertyName: "propertyPaneConnections",
+          widgetType: props.widgetType,
+        }),
+      );
+    }
+  };
 
   const errorIncomingConnections = useMemo(() => {
     return doConnectionsHaveErrors(
@@ -362,7 +397,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   }, [dependencies.inverseDependencyOptions, debuggerErrors]);
 
   return (
-    <TopLayer>
+    <TopLayer ref={topLayerRef}>
       <Dropdown
         SelectedValueNode={(selectedValueProps) => (
           <TriggerNode

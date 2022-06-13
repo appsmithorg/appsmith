@@ -178,7 +178,10 @@ function PropertyPaneView(
             widgetType={widgetProperties?.type}
           />
         )}
-        <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
+        <PropertyPaneConnections
+          widgetName={widgetProperties.widgetName}
+          widgetType={widgetProperties.type}
+        />
         {isDeprecated && (
           <BannerMessage
             backgroundColor={Colors.WARNING_ORANGE}
