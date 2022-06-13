@@ -380,8 +380,9 @@ border: 1px solid #E8E8E8;
     top: 7px;
     left: 3px;
     right: 3px;
-    background-color: ${Colors.WHITE};
+    background-color: ${Colors.WHITE} !important;
     position: absolute;
+    transform: unset;
   }
 }
 
@@ -531,6 +532,9 @@ border: 1px solid #E8E8E8;
 	background: ${({ accentColor }) => lightenColor(accentColor)};
   .rc-tree-select-tree-title {
     color: ${Colors.GREY_9};
+  }
+  .rc-tree-select-tree-checkbox-indeterminate .rc-tree-select-tree-checkbox-inner {
+    background-color: ${({ accentColor }) => accentColor} !important;
   }
   :not(.rc-tree-select-tree-treenode-checkbox-checked) .rc-tree-select-tree-checkbox-inner {
     background-color:  ${({ accentColor }) => lightenColor(accentColor)};
