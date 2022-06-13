@@ -286,6 +286,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     ee.SelectEntityByName("update_form", "WIDGETS");
     updatingVesselsJSONPropertyFileds();
     deployMode.DeployApp();
+    agHelper.Sleep(2000)
     table.SelectTableRow(0); //to make JSON form hidden
     agHelper.AssertElementAbsence(locator._jsonFormWidget);
 
