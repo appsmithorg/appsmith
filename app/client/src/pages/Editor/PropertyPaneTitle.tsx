@@ -177,12 +177,13 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   }, []);
 
   function handleTabKeyDown(e: React.KeyboardEvent) {
-    dispatchInteractionAnalyticsEvent({
-      key: e.key,
-      propertyType: "LABEL",
-      propertyName: "widgetName",
-      widgetType: props.widgetType,
-    });
+    if (e.key === "Tab")
+      dispatchInteractionAnalyticsEvent({
+        key: e.key,
+        propertyType: "LABEL",
+        propertyName: "widgetName",
+        widgetType: props.widgetType,
+      });
   }
 
   return props.widgetId || props.isPanelTitle ? (
