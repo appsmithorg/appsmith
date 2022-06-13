@@ -2750,11 +2750,11 @@ public class GitServiceTest {
     public void deleteBranch_cancelledMidway_success() throws GitAPIException, IOException {
 
         final String DEFAULT_BRANCH = "master", TO_BE_DELETED_BRANCH = "deleteBranch";
-        Application application = createApplicationConnectedToGit("deleteBranch_defaultBranchUpdated_Success", DEFAULT_BRANCH);
+        Application application = createApplicationConnectedToGit("deleteBranch_cancelledMidway_success", DEFAULT_BRANCH);
         application.getGitApplicationMetadata().setDefaultBranchName(DEFAULT_BRANCH);
         applicationService.save(application).block();
 
-        Application branchApp = createApplicationConnectedToGit("deleteBranch_defaultBranchUpdated_Success2", TO_BE_DELETED_BRANCH);
+        Application branchApp = createApplicationConnectedToGit("deleteBranch_cancelledMidway_success", TO_BE_DELETED_BRANCH);
         branchApp.getGitApplicationMetadata().setDefaultBranchName(DEFAULT_BRANCH);
         branchApp.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
         applicationService.save(branchApp).block();
@@ -2787,6 +2787,38 @@ public class GitServiceTest {
                     Set<String> branchNames = new HashSet<>();
                     applicationList.forEach(application1 -> branchNames.add(application1.getGitApplicationMetadata().getBranchName()));
                     assertThat(branchNames).doesNotContain(TO_BE_DELETED_BRANCH);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getStatus_cleanStatus_success() throws GitAPIException, IOException {
+
+        Application application = createApplicationConnectedToGit("getStatus", DEFAULT_BRANCH);
+        application.getGitApplicationMetadata().setDefaultBranchName(DEFAULT_BRANCH);
+        applicationService.save(application).block();
+
+        GitStatusDTO gitStatusDTO = new GitStatusDTO();
+        gitStatusDTO.setAheadCount(0);
+        gitStatusDTO.setBehindCount(0);
+        gitStatusDTO.setIsClean(true);
+
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("path")));
+        Mockito.when(gitExecutor.getStatus(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(gitStatusDTO));
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(true)))
+                .thenReturn(Mono.just("fetched"));
+        Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+
+        Mono<GitStatusDTO> gitStatusMono = gitService.getStatus(application.getId(), DEFAULT_BRANCH);
+
+        StepVerifier
+                .create(gitStatusMono)
+                .assertNext(statusDTO -> {
+                    assertThat(statusDTO.getIsClean()).isTrue();
                 })
                 .verifyComplete();
     }

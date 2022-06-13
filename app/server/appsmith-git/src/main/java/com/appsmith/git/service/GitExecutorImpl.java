@@ -454,7 +454,8 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     /**
-     * This method will handle the git-status functionality
+     * This method will handle the git-status functionality. Depending upon the client side migrations present in
+     * canvas.jason file we make a auto-commit in such situations
      *
      * @param repoPath Path to actual repo
      * @param branchName branch name for which the status is required

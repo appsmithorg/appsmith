@@ -1490,7 +1490,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     /**
-     * Get the status of the mentioned branch
+     * Get the status of the mentioned branch.
+     * Also commit the client side migration changes if any present in the canvas file where page DSL gets serialised
      *
      * @param defaultApplicationId root/default application
      * @param branchName           for which the status is required
@@ -1536,17 +1537,20 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                 })
                 .flatMap(tuple -> {
-                    Mono<GitStatusDTO> branchedStatusMono = gitExecutor.getStatus(tuple.getT1(), finalBranchName).cache();
-                    try {
-                        return gitExecutor.fetchRemote(tuple.getT1(), tuple.getT2().getPublicKey(), tuple.getT2().getPrivateKey(), true)
-                                .then(branchedStatusMono)
-                                // Remove any files which are copied by hard resetting the repo
-                                .then(gitExecutor.resetToLastCommit(tuple.getT3(), branchName))
-                                .then(branchedStatusMono)
-                                .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
-                    } catch (GitAPIException | IOException e) {
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, e.getMessage()));
-                    }
+                    Mono<GitStatusDTO> branchedStatusMono = gitExecutor.getStatus(tuple.getT1(), finalBranchName);
+                    return gitExecutor.fetchRemote(tuple.getT1(), tuple.getT2().getPublicKey(), tuple.getT2().getPrivateKey(), true)
+                            .then(branchedStatusMono)
+                            // Remove any files which are copied by hard resetting the repo
+                            .flatMap(status -> {
+                                try {
+                                    return gitExecutor.resetToLastCommit(tuple.getT3(), branchName)
+                                        .thenReturn(status);
+                                } catch (GitAPIException | IOException e) {
+                                    log.error("Error while resetting to last commit for appId {}, exception {}", defaultApplicationId, e);
+                                }
+                                return Mono.just(status);
+                            })
+                            .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
                 });
 
         return Mono.create(sink -> statusMono

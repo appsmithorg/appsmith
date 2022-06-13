@@ -6,7 +6,6 @@ import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
-import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.service.GitExecutorImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -44,9 +43,6 @@ public class GitExecutorTest {
     @Autowired
     private GitExecutor gitExecutor;
 
-    @Autowired
-    private GitServiceConfig gitServiceConfig;
-
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
@@ -54,10 +50,12 @@ public class GitExecutorTest {
 
     private Path path;
 
+    private String defaultBranch;
     @Before
-    public void setUp() throws GitAPIException {
-        git = Git.init().setDirectory( tempFolder.getRoot() ).call();
-        path = git.getRepository().getDirectory().toPath();
+    public void setUp() throws GitAPIException, IOException {
+        git = Git.init().setDirectory(tempFolder.getRoot()).call();
+        path = git.getRepository().getDirectory().toPath().getParent();
+        defaultBranch = git.getRepository().getBranch();
     }
 
     @After
@@ -67,7 +65,7 @@ public class GitExecutorTest {
     }
 
     private void createFileInThePath(String fileName) throws IOException {
-        File file = new File(path.toString().replace(".git", "") + "/" + fileName);
+        File file = new File(path.resolve(fileName).toString());
         FileUtils.writeStringToFile(file, "Add test data", "UTF-8", false);
     }
 
@@ -138,7 +136,7 @@ public class GitExecutorTest {
 
         StepVerifier
                 .create(mergeableStatus)
-                .assertNext( s -> {
+                .assertNext(s -> {
                     assertThat(s.isMergeAble());
                 })
                 .verifyComplete();
@@ -163,7 +161,7 @@ public class GitExecutorTest {
 
         StepVerifier
                 .create(mergeableStatus)
-                .assertNext( s -> {
+                .assertNext(s -> {
                     assertThat(s.isMergeAble());
                 })
                 .verifyComplete();
@@ -182,7 +180,9 @@ public class GitExecutorTest {
                 .create(branchStatus)
                 .expectErrorMatches(throwable -> throwable instanceof RefNotFoundException
                         && throwable.getMessage().contains("Ref main1 cannot be resolved"));
-    };
+    }
+
+    ;
 
     @Test
     public void checkoutBranch_ValidBranchName_Success() throws IOException {
@@ -198,7 +198,9 @@ public class GitExecutorTest {
                     assertThat(status).isEqualTo(Boolean.TRUE);
                 })
                 .verifyComplete();
-    };
+    }
+
+    ;
 
     @Test
     public void checkoutBranch_NothingToCommit_Success() throws IOException {
@@ -219,7 +221,9 @@ public class GitExecutorTest {
                     }
                 })
                 .verifyComplete();
-    };
+    }
+
+    ;
 
     @Test
     public void checkoutBranch_ModifiedFilesNonConflictingChanges_Success() throws IOException {
@@ -242,14 +246,16 @@ public class GitExecutorTest {
                     }
                 })
                 .verifyComplete();
-    };
+    }
+
+    ;
 
     @Test
     public void checkoutBranch_ModifiedFileContent_Success() throws IOException {
         createFileInThePath("TestFIle4");
         commitToRepo();
         gitExecutor.createAndCheckoutToBranch(path, "main").block();
-        Path filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        Path filePath = Paths.get(String.valueOf(path).replace("/.git", ""), "TestFIle4");
         FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", false);
         String defaultBranch = git.getRepository().getBranch();
 
@@ -266,12 +272,10 @@ public class GitExecutorTest {
                     }
                 })
                 .verifyComplete();
-    };
+    }
 
     @Test
-    public void listBranches_LocalMode_Success() throws IOException {
-        createFileInThePath("listBranch");
-        commitToRepo();
+    public void listBranches_LocalMode_Success() {
         Mono<String> branchMono = gitExecutor.createAndCheckoutToBranch(path, "test1")
                 .flatMap(s -> gitExecutor.createAndCheckoutToBranch(path, "test2"));
         Mono<List<GitBranchDTO>> gitBranchDTOMono = branchMono
@@ -280,8 +284,7 @@ public class GitExecutorTest {
         StepVerifier
                 .create(gitBranchDTOMono)
                 .assertNext(gitBranchDTOS -> {
-                   assertThat(gitBranchDTOS.stream().count()).isEqualTo(3);
-                   
+                    assertThat((long) gitBranchDTOS.size()).isEqualTo(3);
                 });
     }
 
@@ -290,7 +293,7 @@ public class GitExecutorTest {
         createFileInThePath("TestFIle4");
         commitToRepo();
         gitExecutor.createAndCheckoutToBranch(path, "main").block();
-        Path filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        Path filePath = Paths.get(String.valueOf(path).replace("/.git", ""), "TestFIle4");
         FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", false);
         commitToRepo();
         String defaultBranch = git.getRepository().getBranch();
@@ -311,14 +314,14 @@ public class GitExecutorTest {
         createFileInThePath("TestFIle4");
         commitToRepo();
         gitExecutor.createAndCheckoutToBranch(path, "test1").block();
-        Path filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        Path filePath = Paths.get(String.valueOf(path).replace("/.git", ""), "TestFIle4");
         FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", true);
         commitToRepo();
 
         //Create a 2nd branch
         gitExecutor.checkoutToBranch(path, "master").block();
         gitExecutor.createAndCheckoutToBranch(path, "test2").block();
-        filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        filePath = Paths.get(String.valueOf(path).replace("/.git", ""), "TestFIle4");
         FileUtils.writeStringToFile(filePath.toFile(), "Added test data", "UTF-8", true);
         commitToRepo();
 
@@ -338,13 +341,13 @@ public class GitExecutorTest {
         createFileInThePath("TestFIle4");
         commitToRepo();
         gitExecutor.createAndCheckoutToBranch(path, "test1").block();
-        Path filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        Path filePath = Paths.get(String.valueOf(path).replace("/.git", ""), "TestFIle4");
         FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", false);
         commitToRepo();
 
         //Create a 2nd branch
         gitExecutor.createAndCheckoutToBranch(path, "test2").block();
-        filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        filePath = Paths.get(String.valueOf(path).replace("/.git", ""), "TestFIle4");
         FileUtils.writeStringToFile(filePath.toFile(), "Added test data", "UTF-8", false);
         commitToRepo();
 
@@ -364,7 +367,7 @@ public class GitExecutorTest {
         createFileInThePath("TestFIle4");
         commitToRepo();
         gitExecutor.createAndCheckoutToBranch(path, "main").block();
-        Path filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        Path filePath = Paths.get(String.valueOf(path).replace("/.git", ""), "TestFIle4");
         FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", false);
         commitToRepo();
         String defaultBranch = git.getRepository().getBranch();
@@ -384,13 +387,13 @@ public class GitExecutorTest {
         createFileInThePath("TestFIle4");
         commitToRepo();
         gitExecutor.createAndCheckoutToBranch(path, "test1").block();
-        Path filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        Path filePath = Paths.get(String.valueOf(path).replace("/.git", ""), "TestFIle4");
         FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", false);
         commitToRepo();
 
         //Create a 2nd branch
         gitExecutor.createAndCheckoutToBranch(path, "test2").block();
-        filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        filePath = Paths.get(String.valueOf(path).replace("/.git", ""), "TestFIle4");
         FileUtils.writeStringToFile(filePath.toFile(), "Added test data", "UTF-8", false);
         commitToRepo();
 
@@ -410,14 +413,14 @@ public class GitExecutorTest {
         createFileInThePath("TestFIle4");
         commitToRepo();
         gitExecutor.createAndCheckoutToBranch(path, "test1").block();
-        Path filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        Path filePath = Paths.get(String.valueOf(path).replace("/.git", ""), "TestFIle4");
         FileUtils.writeStringToFile(filePath.toFile(), "Conflicts added TestFIle4", "UTF-8", true);
         commitToRepo();
 
         //Create a 2nd branch
         gitExecutor.checkoutToBranch(path, "master").block();
         gitExecutor.createAndCheckoutToBranch(path, "test2").block();
-        filePath = Paths.get(String.valueOf(path).replace("/.git",""), "TestFIle4");
+        filePath = Paths.get(String.valueOf(path).replace("/.git", ""), "TestFIle4");
         FileUtils.writeStringToFile(filePath.toFile(), "Added test data", "UTF-8", true);
         commitToRepo();
 
@@ -551,6 +554,54 @@ public class GitExecutorTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void getStatus_cleanRepo_success() {
+        commitToRepo();
+        Mono<GitStatusDTO> statusMono = gitExecutor.getStatus(path, defaultBranch);
+
+        StepVerifier
+                .create(statusMono)
+                .assertNext(status -> {
+                    assertThat(status).isNotNull();
+                    assertThat(status.getIsClean()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getStatus_uncleanRepo_success() throws IOException {
+
+        createFileInThePath("random_file.txt");
+        Mono<GitStatusDTO> statusMono = gitExecutor.getStatus(path, defaultBranch);
+
+        StepVerifier
+                .create(statusMono)
+                .assertNext(status -> {
+                    assertThat(status).isNotNull();
+                    assertThat(status.getIsClean()).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getStatus_clientMigrationChanges_migrationChangesCommitted() throws IOException {
+
+        final String diff = "\"key1\": true,\n" +
+                "-          \"version\": 58,\n" +
+                "+          \"version\": 59,\n" +
+                "           \"key2\": value2";
+        File file = new File(path.resolve("canvas.json").toString());
+        FileUtils.writeStringToFile(file, diff, "UTF-8", false);
+        Mono<GitStatusDTO> statusMono = gitExecutor.getStatus(path, defaultBranch);
+
+        StepVerifier
+                .create(statusMono)
+                .assertNext(status -> {
+                    assertThat(status).isNotNull();
+                    assertThat(status.getIsClean()).isTrue();
+                })
+                .verifyComplete();
+    }
 
     // TODO cover the below mentioned test cases
     /*
