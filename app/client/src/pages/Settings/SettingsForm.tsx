@@ -67,7 +67,7 @@ export function SettingsForm(
   props: InjectedFormProps & RouteComponentProps & FormProps,
 ) {
   const params = useParams() as any;
-  const { category, subCategory } = params;
+  const { category, selected: subCategory } = params;
   const settingsDetails = getSettingsConfig(category, subCategory);
   const { settings, settingsConfig } = props;
   const details = getSettingDetail(category, subCategory);

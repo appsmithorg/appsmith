@@ -31,6 +31,7 @@ describe("JS Function Execution", function() {
     );
 
     jsEditor.AssertParseError(false, false);
+    agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
   it("2. Prevents execution of js function when parse errors are present in code", function() {
@@ -49,6 +50,7 @@ describe("JS Function Execution", function() {
     );
 
     jsEditor.AssertParseError(true, false);
+    agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
   it("3. Prioritizes parse errors that render JS Object invalid over function execution parse errors in debugger callouts", function() {
@@ -85,7 +87,9 @@ describe("JS Function Execution", function() {
 
     // Assert presence of parse error callout (entire JS Object is invalid)
     jsEditor.AssertParseError(true, false);
+    agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
+
   it("4. Shows lint error and toast modal when JS Object doesn't start with 'export default'", () => {
     const invalidJSObjectStartToastMessage = "Start object with export default";
     const jsComment = "// This is a comment";
@@ -122,6 +126,7 @@ describe("JS Function Execution", function() {
       cy.get(locator._lintErrorElement)
         .should("exist")
         .should("contain.text", highlightedLintText);
+      agHelper.ActionContextMenuWithInPane("Delete", "", true);
     };
 
     assertInvalidJSObjectStart(jsObjectStartingWithAComment, jsComment);
@@ -165,6 +170,72 @@ describe("JS Function Execution", function() {
     table.WaitUntilTableLoad();
     table.ReadTableRowColumnData(0, 1, 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //validating id column value - row 0
+      agHelper.NavigateBacktoEditor();
     });
+  });
+
+  it("6. Doesn't cause cyclic dependency when function name is edited", () => {
+    const syncJSCode = `export default {
+      myFun1 :()=>{
+        return "yes"
+      }
+    }`;
+
+    const syncJSCodeWithRenamedFunction1 = `export default {
+      myFun2 :()=>{
+        return "yes"
+      }
+    }`;
+
+    const syncJSCodeWithRenamedFunction2 = `export default {
+      myFun3 :()=>{
+        return "yes"
+      }
+    }`;
+
+    const asyncJSCode = `export default {
+      myFun1 :async ()=>{
+        return "yes"
+      }
+    }`;
+
+    const asyncJSCodeWithRenamedFunction1 = `export default {
+      myFun2 :async ()=>{
+        return "yes"
+      }
+    }`;
+
+    const asyncJSCodeWithRenamedFunction2 = `export default {
+      myFun3 :async ()=>{
+        return "yes"
+      }
+    }`;
+
+    jsEditor.CreateJSObject(syncJSCode, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+    agHelper.WaitUntilToastDisappear("created successfully");
+
+    // change sync function name and test that cyclic dependency is not created
+    jsEditor.EditJSObj(syncJSCodeWithRenamedFunction1);
+    agHelper.AssertElementAbsence(locator._toastMsg);
+    jsEditor.EditJSObj(syncJSCodeWithRenamedFunction2);
+    agHelper.AssertElementAbsence(locator._toastMsg);
+
+    jsEditor.CreateJSObject(asyncJSCode, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+    agHelper.WaitUntilToastDisappear("created successfully");
+    // change async function name and test that cyclic dependency is not created
+    jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction1);
+    agHelper.AssertElementAbsence(locator._toastMsg);
+    jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2);
+    agHelper.AssertElementAbsence(locator._toastMsg);
   });
 });
