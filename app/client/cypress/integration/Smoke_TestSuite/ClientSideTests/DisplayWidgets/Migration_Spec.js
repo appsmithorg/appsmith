@@ -42,25 +42,6 @@ describe("Migration Validate", function() {
 
       // Validating data binding for the imported application - Page1
 
-      //Validating Latitude & Longitude are hidden columns:
-      cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='latitude']/parent::div/parent::div",
-      )
-        .invoke("attr", "class")
-        .then((classes) => {
-          cy.log("classes are:" + classes);
-          expect(classes).includes("hidden-header");
-        });
-
-      cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='longitude']/parent::div/parent::div",
-      )
-        .invoke("attr", "class")
-        .then((classes) => {
-          cy.log("classes are:" + classes);
-          expect(classes).includes("hidden-header");
-        });
-
       //Validating order of header row!
       cy.xpath(
         "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]",
@@ -73,9 +54,28 @@ describe("Migration Validate", function() {
           cy.log("header set is:" + x);
         });
 
+      //Validating Latitude & Longitude are hidden columns:
+      cy.xpath(
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='latitude']/parent::div/parent::div/parent::div",
+      )
+        .invoke("attr", "class")
+        .then((classes) => {
+          cy.log("classes are:" + classes);
+          expect(classes).includes("hidden-header");
+        });
+
+      cy.xpath(
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='longitude']/parent::div/parent::div/parent::div",
+      )
+        .invoke("attr", "class")
+        .then((classes) => {
+          cy.log("classes are:" + classes);
+          expect(classes).includes("hidden-header");
+        });
+
       //Validating Id column sorting happens as Datatype is Number in app!
       cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='id']",
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='id']",
       )
         .click()
         .wait(2000);
@@ -94,7 +94,7 @@ describe("Migration Validate", function() {
 
       //Revert the Id column sorting!
       cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='id']",
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='id']",
       )
         .click()
         .wait(2000);
@@ -199,10 +199,10 @@ describe("Migration Validate", function() {
           });
         });
 
-        cy.get(selector + " span.bp3-popover-target span")
+        cy.get(selector + " span")
           .invoke("text")
           .then((url) => {
-            cy.get(selector + " span.bp3-popover-target span")
+            cy.get(selector + " span")
               .click({ force: true })
               .wait(2000);
             cy.wait("@postExecute");
@@ -377,10 +377,10 @@ describe("Migration Validate", function() {
           });
         });
 
-        cy.get(selector + " span.bp3-popover-target span")
+        cy.get(selector + " span")
           .invoke("text")
           .then((url) => {
-            cy.get(selector + " span.bp3-popover-target")
+            cy.get(selector + " span")
               .click({ force: true })
               .wait(2000);
             cy.wait("@postExecute");
