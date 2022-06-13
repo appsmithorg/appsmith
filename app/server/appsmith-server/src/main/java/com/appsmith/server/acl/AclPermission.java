@@ -6,6 +6,9 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Theme;
@@ -19,6 +22,11 @@ public enum AclPermission {
      * 1. Composite permissions are more often than not used in the generation of the hierarchical graphs.
      * For example, USER_MANAGE_ORGANIZATIONS, ORGANIZATION_MANAGE_APPLICATIONS, etc.
      */
+
+    // Tenant level permissions
+    CREATE_WORKSPACES("create:workspace", Tenant.class),
+    CREATE_USER_GROUPS("create:userGroups", Tenant.class),
+    CREATE_PERMISSION_GROUPS("create:permissionGroups", Tenant.class),
 
     // Does the user have manage organization permission
     USER_MANAGE_ORGANIZATIONS("manage:userOrganization", User.class),
@@ -36,7 +44,7 @@ public enum AclPermission {
 
     MANAGE_ORGANIZATIONS("manage:organizations", Workspace.class),
     READ_ORGANIZATIONS("read:organizations", Workspace.class),
-    DELETE_WORKSPACE("delete:workspace", Workspace.class),
+    DELETE_WORKSPACES("delete:workspace", Workspace.class),
 
     // Resource creation permissions for workspace
     CREATE_APPLICATION("create:applications", Workspace.class),
@@ -71,16 +79,24 @@ public enum AclPermission {
     // Can the user create a comment thread on a given application?
     COMMENT_ON_APPLICATIONS("canComment:applications", Application.class),
 
+    CREATE_PAGES("create:pages", Application.class),
+
     MANAGE_PAGES("manage:pages", Page.class),
     READ_PAGES("read:pages", Page.class),
+    DELETE_PAGES("delete:pages", Page.class),
+
+    CREATE_PAGE_ACTIONS("create:pageActions", Page.class),
 
     MANAGE_ACTIONS("manage:actions", Action.class),
     READ_ACTIONS("read:actions", Action.class),
     EXECUTE_ACTIONS("execute:actions", Action.class),
+    DELETE_ACTIONS("delete:actions", Action.class),
 
     MANAGE_DATASOURCES("manage:datasources", Datasource.class),
     READ_DATASOURCES("read:datasources", Datasource.class),
     EXECUTE_DATASOURCES("execute:datasources", Datasource.class),
+    DELETE_DATASOURCES("delete:datasources", Datasource.class),
+    CREATE_DATASOURCE_ACTIONS("create:datasourceActions", Datasource.class),
 
     COMMENT_ON_THREADS("canComment:commentThreads", CommentThread.class),
     READ_THREADS("read:commentThreads", CommentThread.class),
@@ -91,7 +107,20 @@ public enum AclPermission {
 
     READ_THEMES("read:themes", Theme.class),
     MANAGE_THEMES("manage:themes", Theme.class),
+
+    // User Group Permissions
+    MANAGE_USER_GROUPS("manage:userGroups", UserGroup.class),
+    READ_USER_GROUPS("read:userGroups", UserGroup.class),
+    DELETE_USER_GROUPS("delete:userGroups", UserGroup.class),
+    INVITE_USER_GROUPS("invite:userGroups", UserGroup.class),
+
+    // Permission Group Permissions
+    MANAGE_PERMISSION_GROUPS("manage:permissionGroups", PermissionGroup.class),
+    READ_PERMISSION_GROUPS("read:permissionGroups", PermissionGroup.class),
+    DELETE_PERMISSION_GROUPS("delete:permissionGroups", UserGroup.class),
+
     ;
+
 
     private final String value;
     private final Class<? extends BaseDomain> entity;
