@@ -70,19 +70,22 @@ export function* updateWidgetDynamicHeightSaga(
   }> = [];
   for (const widgetId in updates) {
     const widget: FlattenedWidgetProps = stateWidgets[widgetId];
-    expectedUpdates.push({
-      widgetId,
-      expectedHeightinPx: updates[widgetId],
-      expectedChangeInHeightInRows:
-        updates[widgetId] / GridDefaults.DEFAULT_GRID_ROW_HEIGHT -
-        (widget.bottomRow - widget.topRow),
-      currentTopRow: widget.topRow,
-      currentBottomRow: widget.bottomRow,
-      expectedBottomRow:
-        widget.topRow +
-        updates[widgetId] / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      parentId: widget.parentId,
-    });
+    console.log("Dynamic height: Call for updates: 2", widgetId, widget);
+    if (widget) {
+      expectedUpdates.push({
+        widgetId,
+        expectedHeightinPx: updates[widgetId],
+        expectedChangeInHeightInRows:
+          updates[widgetId] / GridDefaults.DEFAULT_GRID_ROW_HEIGHT -
+          (widget.bottomRow - widget.topRow),
+        currentTopRow: widget.topRow,
+        currentBottomRow: widget.bottomRow,
+        expectedBottomRow:
+          widget.topRow +
+          updates[widgetId] / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        parentId: widget.parentId,
+      });
+    }
   }
 
   if (expectedUpdates.length > 0) {

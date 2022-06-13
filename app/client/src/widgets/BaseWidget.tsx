@@ -174,6 +174,7 @@ abstract class BaseWidget<
     const { updateWidgetDynamicHeight } = this.context;
     if (updateWidgetDynamicHeight) {
       const { widgetId } = this.props;
+      console.log("updateDynamicHeight", shouldUpdate);
       shouldUpdate && updateWidgetDynamicHeight(widgetId, height);
     }
   }
@@ -197,7 +198,7 @@ abstract class BaseWidget<
     // We're trying to see if we can increase the height
     if (currentHeightInRows < expectedHeightInRows) {
       // Get the max possible height for the widget
-      const widgetMaxHeightInRows = this.props.maxDynamicHeight;
+      const widgetMaxHeightInRows = this.props.maxDynamicHeight || 1000;
       // If we're not already at the max height, we can increase height
       if (widgetMaxHeightInRows > currentHeightInRows) {
         return true;
@@ -208,7 +209,7 @@ abstract class BaseWidget<
     // We're trying to see if we can reduce the height
     if (currentHeightInRows > expectedHeightInRows) {
       // Get the minimum possible height for the widget
-      const widgetMinHeightInRows = this.props.minDynamicHeight;
+      const widgetMinHeightInRows = this.props.minDynamicHeight || 2;
       // If our attempt to reduce does not go below the min possible height
       // We can safely reduce the height
       if (widgetMinHeightInRows < expectedHeightInRows) {
