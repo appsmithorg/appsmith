@@ -906,7 +906,7 @@ export default [
                   propertyName: "buttonColor",
                   getStylesheetValue,
                   label: "Button Color",
-                  controlType: "COLOR_PICKER",
+                  controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                   helpText: "Changes the color of the button",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
