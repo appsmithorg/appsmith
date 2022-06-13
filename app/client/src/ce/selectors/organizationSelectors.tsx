@@ -57,3 +57,7 @@ export const getDefaultRole = createSelector(getRoles, (roles?: OrgRole[]) => {
 export const getCurrentError = (state: AppState) => {
   return state.ui.errors.currentError;
 };
+
+export const getShowBrandingBadge = () => {
+  return true;
+};
