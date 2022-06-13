@@ -142,6 +142,9 @@ import { getBottomMostRow } from "reflow/reflowUtils";
 import { flashElementsById } from "utils/helpers";
 import { getSlidingCanvasName } from "constants/componentClassNameConstants";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import { matchGeneratePagePath } from "constants/routes";
+import { builderURL } from "RouteBuilder";
+import history from "utils/history";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -1551,6 +1554,14 @@ function* pasteWidgetSaga(
   );
 
   yield put(updateAndSaveLayout(reflowedWidgets));
+
+  if (
+    copiedWidgetGroups &&
+    copiedWidgetGroups.length > 0 &&
+    matchGeneratePagePath(window.location.pathname)
+  ) {
+    history.push(builderURL());
+  }
 
   yield put({
     type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
