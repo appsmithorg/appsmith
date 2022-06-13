@@ -36,7 +36,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentWorkspaceId } from "selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 

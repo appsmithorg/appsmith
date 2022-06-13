@@ -9,7 +9,7 @@ import {
   getAllUsers,
   getCurrentAppWorkspace,
   getCurrentWorkspaceId,
-} from "selectors/workspaceSelectors";
+} from "@appsmith/selectors/workspaceSelectors";
 import useWorkspace from "utils/hooks/useWorkspace";
 
 const useWorkspaceUsers = () => {
@@ -19,7 +19,7 @@ const useWorkspaceUsers = () => {
   const { id } = useSelector(getCurrentAppWorkspace) || {};
   const currentWorkspace = useWorkspace(id);
 
-  // to check if user is added to an workspace
+  // to check if user is added to a workspace
   const canInviteToWorkspace = isPermitted(
     currentWorkspace?.userPermissions || [],
     PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,

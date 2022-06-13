@@ -9,7 +9,7 @@ import {
   getRolesForField,
   getAllUsers,
   getCurrentAppWorkspace,
-} from "selectors/workspaceSelectors";
+} from "@appsmith/selectors/workspaceSelectors";
 import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {

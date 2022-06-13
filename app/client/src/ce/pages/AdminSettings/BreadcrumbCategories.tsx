@@ -36,21 +36,21 @@ export const BreadcrumbCategories = {
   [SettingCategories.FORM_AUTH]: {
     href: adminSettingsCategoryUrl({
       category: SettingCategories.AUTHENTICATION,
-      subCategory: SettingCategories.FORM_AUTH,
+      selected: SettingCategories.FORM_AUTH,
     }),
     text: "Form Login",
   },
   [SettingCategories.GOOGLE_AUTH]: {
     href: adminSettingsCategoryUrl({
       category: SettingCategories.AUTHENTICATION,
-      subCategory: SettingCategories.GOOGLE_AUTH,
+      selected: SettingCategories.GOOGLE_AUTH,
     }),
     text: "Google Authentication",
   },
   [SettingCategories.GITHUB_AUTH]: {
     href: adminSettingsCategoryUrl({
       category: SettingCategories.AUTHENTICATION,
-      subCategory: SettingCategories.GITHUB_AUTH,
+      selected: SettingCategories.GITHUB_AUTH,
     }),
     text: "Github Authentication",
   },

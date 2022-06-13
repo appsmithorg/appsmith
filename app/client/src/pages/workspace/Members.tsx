@@ -5,7 +5,7 @@ import {
   getAllRoles,
   getCurrentWorkspace,
   getWorkspaceLoadingStates,
-} from "selectors/workspaceSelectors";
+} from "@appsmith/selectors/workspaceSelectors";
 import PageSectionHeader from "pages/common/PageSectionHeader";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { RouteComponentProps } from "react-router";
