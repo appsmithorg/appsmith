@@ -734,6 +734,7 @@ function ApplicationsSection(props: any) {
                       )}
                     {(currentUser || isFetchingApplications) && !isMobile && (
                       <Menu
+                        autoFocus={false}
                         className="t--org-name"
                         closeOnItemClick
                         cypressSelector="t--org-name"
