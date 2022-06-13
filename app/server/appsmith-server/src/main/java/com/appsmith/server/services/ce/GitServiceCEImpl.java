@@ -1820,19 +1820,19 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .flatMap(srcBranchStatus -> {
                                 if (!Integer.valueOf(0).equals(srcBranchStatus.getBehindCount())) {
                                     return fileLockMono
-                                            .then(Mono.error(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, srcBranchStatus.getBehindCount(), sourceBranch)));
+                                            .then(Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, srcBranchStatus.getBehindCount(), sourceBranch))));
                                 } else if (!CollectionUtils.isNullOrEmpty(srcBranchStatus.getModified())) {
                                     return fileLockMono
-                                            .then(Mono.error(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch)));
+                                            .then(Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch))));
                                 }
                                 return this.getStatus(defaultApplicationId, destinationBranch, false)
                                         .map(destBranchStatus -> {
                                             if (!Integer.valueOf(0).equals(destBranchStatus.getBehindCount())) {
                                                 fileLockMono
-                                                        .then(Mono.error(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, destBranchStatus.getBehindCount(), destinationBranch)));
+                                                        .then(Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, destBranchStatus.getBehindCount(), destinationBranch))));
                                             } else if (!CollectionUtils.isNullOrEmpty(destBranchStatus.getModified())) {
                                                 fileLockMono
-                                                        .then(Mono.error(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, destinationBranch)));
+                                                        .then(Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, destinationBranch))));
                                             }
                                             return destBranchStatus;
                                         });
