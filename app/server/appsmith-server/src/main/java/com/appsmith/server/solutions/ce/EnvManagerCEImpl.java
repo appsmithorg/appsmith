@@ -37,7 +37,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import javax.mail.MessagingException;
 import java.io.File;
@@ -47,7 +46,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -281,16 +279,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         commonConfig.setTelemetryDisabled("true".equals(changesCopy.remove(APPSMITH_DISABLE_TELEMETRY.name())));
                     }
 
-                    // Ideally, we should only need a restart here if `changesCopy` is not empty. However, some of these
-                    // env variables are also used in client code, which means restart might be necessary there. So, to
-                    // provide a more uniform and predictable experience, we always restart.
-                    Mono.delay(Duration.ofSeconds(1))
-                            .then(dependentTasks)
-                            .then(restart())
-                            .subscribeOn(Schedulers.boundedElastic())
-                            .subscribe();
-
-                    return Mono.just(new EnvChangesResponseDTO(true));
+                    return dependentTasks.thenReturn(new EnvChangesResponseDTO(true));
                 });
     }
 
