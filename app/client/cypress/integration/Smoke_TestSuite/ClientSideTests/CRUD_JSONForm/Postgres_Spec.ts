@@ -624,9 +624,9 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.Sleep(3000); //for Insert to reflect!
-    agHelper
-      .GetElementLength(locator._jsonFormWidget)
-      .then(($len) => expect($len).to.eq(1));
+    // agHelper
+    //   .GetElementLength(locator._jsonFormWidget)
+    //   .then(($len) => expect($len).to.eq(1));
   });
 
   it("14. Verify Update fields/Delete from Deploy page - on Vessels - newly inserted record", () => {
