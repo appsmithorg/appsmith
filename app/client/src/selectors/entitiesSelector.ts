@@ -29,7 +29,6 @@ import {
   EVAL_ERROR_PATH,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { CanvasWidgetStructure } from "widgets/constants";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;

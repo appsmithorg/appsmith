@@ -1,9 +1,4 @@
-import {
-  WidgetBuilder,
-  WidgetDataProps,
-  WidgetProps,
-  WidgetState,
-} from "widgets/BaseWidget";
+import { WidgetBuilder, WidgetProps, WidgetState } from "widgets/BaseWidget";
 import React from "react";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 

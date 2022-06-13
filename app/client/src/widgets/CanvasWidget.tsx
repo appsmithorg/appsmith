@@ -3,7 +3,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import ContainerWidget, {
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
-import { GridDefaults, RenderModes } from "constants/WidgetConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";

@@ -556,7 +556,7 @@ class MultiSelectWidget extends BaseWidget<
         isStringArray = true;
       }
     } catch (e) {
-      debugger;
+      // debugger;
     }
 
     const hasChanges = isStringArray
