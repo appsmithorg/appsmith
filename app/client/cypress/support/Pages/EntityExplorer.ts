@@ -140,7 +140,8 @@ export class EntityExplorer {
     cy.get(this.locator._widgetInCanvas(widgetType)).should("exist");
   }
 
-  public clonePage(pageName = "Page1") {
+  public ClonePage(pageName = "Page1") {
+    this.expandCollapseEntity("WIDGETS")
     cy.get(this.getPageLocator(pageName))
       .trigger("mouseover")
       .click({ force: true });
@@ -150,10 +151,6 @@ export class EntityExplorer {
       .invoke("show")
       .click({ force: true });
     cy.get(this._pageClone).click({ force: true });
-    cy.wait("@clonePage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    this.agHelper.ValidateNetworkStatus("@clonePage", 201);
   }
 }
