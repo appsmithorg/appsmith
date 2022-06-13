@@ -1,8 +1,8 @@
 import { WidgetType } from "constants/WidgetConstants";
-import { WidgetProps } from "widgets/BaseWidget";
 import ContainerWidget from "widgets/ContainerWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
+import { CanvasWidgetStructure } from "widgets/constants";
 
 class StatboxWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -103,9 +103,9 @@ class StatboxWidget extends ContainerWidget {
     ];
   }
 
-  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
+  renderChildWidget(childWidgetData: CanvasWidgetStructure): React.ReactNode {
     if (childWidgetData.children) {
-      childWidgetData.children.forEach((grandChild: WidgetProps) => {
+      childWidgetData.children.forEach((grandChild: CanvasWidgetStructure) => {
         if (grandChild.type === "ICON_BUTTON_WIDGET" && !!grandChild.onClick) {
           grandChild.boxShadow = "VARIANT1";
         }

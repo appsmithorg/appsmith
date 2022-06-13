@@ -34,7 +34,7 @@ import ListPagination, {
 import { GridDefaults } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
-import { DSLWidget } from "widgets/constants";
+import { CanvasWidgetStructure, DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
@@ -341,7 +341,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
   };
 
-  renderChild = (childWidgetData: WidgetProps) => {
+  renderChild = (childWidgetData: CanvasWidgetStructure) => {
     const { shouldPaginate } = this.shouldPaginate();
     const { componentHeight, componentWidth } = this.getComponentDimensions();
 
@@ -356,8 +356,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       ? componentHeight - LIST_WIDGET_PAGINATION_HEIGHT
       : componentHeight;
 
-    // eslint-disable-next-line
-    // @ts-ignore
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 

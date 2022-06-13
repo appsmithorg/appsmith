@@ -1,5 +1,6 @@
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
+import { omit } from "lodash";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { WidgetFeatures } from "utils/WidgetFeatures";
@@ -39,11 +40,28 @@ export interface DSLWidget extends WidgetProps {
   children?: DSLWidget[];
 }
 
+const staticProps = omit(WIDGET_STATIC_PROPS, "children");
 export type CanvasWidgetStructure = Pick<
   WidgetProps,
-  keyof typeof WIDGET_STATIC_PROPS
+  keyof typeof staticProps
 > & {
   children?: CanvasWidgetStructure[];
+  // TODO (Ashit): Remove these after refactor in container and container like widgets
+  containerStyle: string;
+  shouldScrollContents: boolean;
+  canExtend?: boolean;
+  isVisible?: boolean;
+  // List widget
+  noPad?: boolean;
+
+  //  TODO (Ashit): Statbox widget - remove
+  onClick?: any;
+  boxShadow?: string;
+
+  // Form widget
+  isFormValid?: boolean;
+  onReset?: any;
+  isValid?: boolean;
 };
 
 export enum FileDataTypes {

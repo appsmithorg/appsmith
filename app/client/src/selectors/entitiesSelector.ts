@@ -473,11 +473,7 @@ export const getCanvasWidget = createSelector(
     canvasWidgets[widgetId],
 );
 
-export const getCanvasWidgetsStructure = (
-  state: AppState,
-): CanvasWidgetStructure =>
-  // eslint-disable-next-line
-  // @ts-ignore
+export const getCanvasWidgetsStructure = (state: AppState) =>
   state.entities.canvasWidgetsStructure;
 
 const getPageWidgets = (state: AppState) => state.ui.pageWidgets;

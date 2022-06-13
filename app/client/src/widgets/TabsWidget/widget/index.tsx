@@ -13,6 +13,7 @@ import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
 import { isEqual, find } from "lodash";
+import { CanvasWidgetStructure } from "widgets/constants";
 
 export function selectedTabValidation(
   value: unknown,
@@ -263,7 +264,9 @@ class TabsWidget extends BaseWidget<
 
   renderComponent = () => {
     const selectedTabWidgetId = this.props.selectedTabWidgetId;
-    const childWidgetData: TabContainerWidgetProps = this.props.children
+    // TODO (Ashit): Fix the typing here
+    const childWidgetData = ((this.props
+      .children as unknown) as CanvasWidgetStructure[])
       ?.filter(Boolean)
       .filter((item) => {
         return selectedTabWidgetId === item.widgetId;
@@ -283,8 +286,6 @@ class TabsWidget extends BaseWidget<
     childWidgetData.parentId = this.props.widgetId;
     childWidgetData.minHeight = componentHeight;
 
-    // eslint-disable-next-line
-    // @ts-ignore
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 

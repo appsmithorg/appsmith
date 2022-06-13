@@ -19,6 +19,7 @@ import { compact, map, sortBy } from "lodash";
 
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import { CanvasWidgetStructure } from "widgets/constants";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -161,12 +162,7 @@ class ContainerWidget extends BaseWidget<
     };
   };
 
-  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
-    // For now, isVisible prop defines whether to render a detached widget
-    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
-      return null;
-    }
-
+  renderChildWidget(childWidgetData: CanvasWidgetStructure): React.ReactNode {
     const childWidget = childWidgetData;
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
@@ -176,13 +172,12 @@ class ContainerWidget extends BaseWidget<
       ? childWidget.bottomRow
       : componentHeight;
     childWidget.minHeight = componentHeight;
-    childWidget.isVisible = this.props.isVisible;
+    // childWidget.isVisible = this.props.isVisible;
     childWidget.shouldScrollContents = false;
     childWidget.canExtend = this.props.shouldScrollContents;
 
     childWidget.parentId = this.props.widgetId;
-    // eslint-disable-next-line
-    // @ts-ignore
+
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
 

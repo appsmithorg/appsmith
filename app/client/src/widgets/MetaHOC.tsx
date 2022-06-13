@@ -1,6 +1,6 @@
 import React from "react";
 import BaseWidget, { WidgetProps } from "./BaseWidget";
-import { debounce, fromPairs, merge } from "lodash";
+import { debounce, fromPairs } from "lodash";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -9,18 +9,6 @@ import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionC
 import { connect } from "react-redux";
 import { getWidgetMetaProps } from "sagas/selectors";
 import { AppState } from "reducers";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import {
-  getWidgetEvalValues,
-  getIsWidgetLoading,
-} from "selectors/dataTreeSelectors";
-import {
-  computeMainContainerWidget,
-  createCanvasWidget,
-  getChildWidgets,
-  getMainCanvasProps,
-} from "selectors/editorSelectors";
-import { getCanvasWidget } from "selectors/entitiesSelector";
 
 export type DebouncedExecuteActionPayload = Omit<
   ExecuteTriggerPayload,
@@ -185,61 +173,11 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
     };
 
     updatedProps = () => {
-      const {
-        canvasWidget,
-        children,
-        evaluatedWidget,
-        mainCanvasProps,
-        metaState,
-        skipWidgetPropsHydration,
-        widgetId,
-        ...rest
-      } = this.props;
-
-      if (skipWidgetPropsHydration) {
-        return {
-          ...this.initialMetaState, // this contains stale default values and are used when widget is reset. Ideally, widget should reset to its default values instead of stale default values.
-          ...this.props, // if default values are changed we expect to get new values from here.
-          ...this.props.metaState,
-        };
-      }
-
-      const canvasWidgetProps =
-        widgetId === MAIN_CONTAINER_WIDGET_ID
-          ? computeMainContainerWidget(canvasWidget, mainCanvasProps)
-          : canvasWidget;
-
-      const widgetProps: WidgetProps = createCanvasWidget(
-        canvasWidgetProps,
-        evaluatedWidget,
-      );
-
-      if (
-        widgetId !== MAIN_CONTAINER_WIDGET_ID &&
-        this.props.type === "CANVAS_WIDGET"
-      ) {
-        widgetProps.rightColumn = this.props.rightColumn;
-        widgetProps.bottomRow = this.props.bottomRow;
-        widgetProps.minHeight = this.props.minHeight;
-        widgetProps.isVisible = this.props.isVisible;
-        widgetProps.shouldScrollContents = this.props.shouldScrollContents;
-        widgetProps.canExtend = this.props.canExtend;
-        widgetProps.parentId = this.props.parentId;
-      } else {
-        widgetProps.parentColumnSpace = this.props.parentColumnSpace;
-        widgetProps.parentRowSpace = this.props.parentRowSpace;
-        widgetProps.parentId = this.props.parentId;
-      }
-
-      widgetProps.children = children;
-
-      return merge(
-        {},
-        rest,
-        this.initialMetaState, // this contains stale default values and are used when widget is reset. Ideally, widget should reset to its default values instead of stale default values.
-        widgetProps, // if default values are changed we expect to get new values from here.
-        metaState,
-      );
+      return {
+        ...this.initialMetaState, // this contains stale default values and are used when widget is reset. Ideally, widget should reset to its default values instead of stale default values.
+        ...this.props, // if default values are changed we expect to get new values from here.
+        ...this.props.metaState,
+      };
     };
 
     render() {
@@ -253,21 +191,8 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
   }
 
   const mapStateToProps = (state: AppState, ownProps: WidgetProps) => {
-    if (ownProps.skipWidgetPropsHydration) return;
-
-    let childWidgets;
-
-    if (ownProps.type === "LIST_WIDGET") {
-      childWidgets = getChildWidgets(state, ownProps.widgetId);
-    }
-
     return {
-      canvasWidget: getCanvasWidget(state, ownProps.widgetId),
-      evaluatedWidget: getWidgetEvalValues(state, ownProps.widgetName),
-      isLoading: getIsWidgetLoading(state, ownProps.widgetName),
-      mainCanvasProps: getMainCanvasProps(state),
       metaState: getWidgetMetaProps(state, ownProps.widgetId),
-      childWidgets,
     };
   };
   return connect(mapStateToProps)(MetaHOC);

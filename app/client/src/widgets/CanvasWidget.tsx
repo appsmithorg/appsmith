@@ -9,6 +9,7 @@ import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { klona } from "klona";
+import { CanvasWidgetStructure } from "./constants";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -43,20 +44,8 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
-  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
+  renderChildWidget(childWidgetData: CanvasWidgetStructure): React.ReactNode {
     if (!childWidgetData) return null;
-    // For now, isVisible prop defines whether to render a detached widget
-    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
-      return null;
-    }
-
-    // We don't render invisible widgets in view mode
-    if (
-      this.props.renderMode === RenderModes.PAGE &&
-      !childWidgetData.isVisible
-    ) {
-      return null;
-    }
 
     const childWidget = klona(childWidgetData);
 
@@ -66,8 +55,7 @@ class CanvasWidget extends ContainerWidget {
     childWidget.parentRowSpace = snapSpaces.snapRowSpace;
     if (this.props.noPad) childWidget.noContainerOffset = true;
     childWidget.parentId = this.props.widgetId;
-    // eslint-disable-next-line
-    // @ts-ignore
+
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
 

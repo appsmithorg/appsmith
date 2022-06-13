@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import {
   getCurrentPageId,
   getIsFetchingPage,
-  getCanvasWidgetDsl,
   getViewModePageList,
   previewModeSelector,
   getCanvasWidth,

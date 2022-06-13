@@ -6,12 +6,13 @@ import ContainerWidget, {
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
 import { ContainerComponentProps } from "widgets/ContainerWidget/component";
+import { CanvasWidgetStructure } from "widgets/constants";
 
 class FormWidget extends ContainerWidget {
-  checkInvalidChildren = (children: WidgetProps[]): boolean => {
+  checkInvalidChildren = (children: CanvasWidgetStructure[]): boolean => {
     return some(children, (child) => {
       if ("children" in child) {
-        return this.checkInvalidChildren(child.children);
+        return this.checkInvalidChildren(child.children || []);
       }
       if ("isValid" in child) {
         return !child.isValid;
@@ -89,10 +90,10 @@ class FormWidget extends ContainerWidget {
     return formData;
   }
 
-  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
+  renderChildWidget(childWidgetData: CanvasWidgetStructure): React.ReactNode {
     if (childWidgetData.children) {
       const isInvalid = this.checkInvalidChildren(childWidgetData.children);
-      childWidgetData.children.forEach((grandChild: WidgetProps) => {
+      childWidgetData.children.forEach((grandChild: CanvasWidgetStructure) => {
         if (isInvalid) grandChild.isFormValid = false;
         // Add submit and reset handlers
         grandChild.onReset = this.handleResetInputs;

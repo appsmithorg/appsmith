@@ -39,6 +39,7 @@ import PreventInteractionsOverlay from "components/editorComponents/PreventInter
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
+import { CanvasWidgetStructure } from "./constants";
 
 /***
  * BaseWidget
@@ -205,6 +206,14 @@ abstract class BaseWidget<
   }, JSON.stringify);
 
   render() {
+    if (this.props.detachFromLayout && !this.props.isVisible) {
+      return null;
+    }
+
+    if (this.props.renderMode === RenderModes.PAGE && !this.props.isVisible) {
+      return null;
+    }
+
     return this.getWidgetView();
   }
 
@@ -431,7 +440,10 @@ export interface BaseStyle {
 
 export type WidgetState = Record<string, unknown>;
 
-export interface WidgetBuilder<T extends WidgetProps, S extends WidgetState> {
+export interface WidgetBuilder<
+  T extends CanvasWidgetStructure,
+  S extends WidgetState
+> {
   buildWidget(widgetProps: T): JSX.Element;
 }
 
