@@ -9,7 +9,7 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     rows: 4,
-    columns: 10,
+    columns: 20,
     animateLoading: true,
     maxCount: 5,
     defaultRate: 3,
