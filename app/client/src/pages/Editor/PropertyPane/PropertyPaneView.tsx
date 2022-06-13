@@ -104,17 +104,18 @@ function PropertyPaneView(
    */
   const onCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
 
-  const handleTabKeyDown = (propertyName: string) => (
-    e: React.KeyboardEvent,
-  ) => {
-    if (e.key === "Tab")
-      emitInteractionAnalyticsEvent(containerRef?.current, {
-        key: e.key,
-        propertyName,
-        propertyType: "BUTTON",
-        widgetType: widgetProperties?.type,
-      });
-  };
+  const handleTabKeyDownForButton = useCallback(
+    (propertyName: string) => (e: React.KeyboardEvent) => {
+      if (e.key === "Tab")
+        emitInteractionAnalyticsEvent(containerRef?.current, {
+          key: e.key,
+          propertyName,
+          propertyType: "BUTTON",
+          widgetType: widgetProperties?.type,
+        });
+    },
+    [],
+  );
 
   /**
    * actions shown on the right of title
@@ -132,7 +133,7 @@ function PropertyPaneView(
           <button
             className="p-1 hover:bg-warmGray-100 focus:bg-warmGray-100 group t--copy-widget"
             onClick={onCopy}
-            onKeyDown={handleTabKeyDown("widgetCopy")}
+            onKeyDown={handleTabKeyDownForButton("widgetCopy")}
           >
             <CopyIcon className="w-4 h-4 text-gray-500" />
           </button>
@@ -145,14 +146,14 @@ function PropertyPaneView(
           <button
             className="p-1 hover:bg-warmGray-100 focus:bg-warmGray-100 group t--delete-widget"
             onClick={onDelete}
-            onKeyDown={handleTabKeyDown("widgetDelete")}
+            onKeyDown={handleTabKeyDownForButton("widgetDelete")}
           >
             <DeleteIcon className="w-4 h-4 text-gray-500" />
           </button>
         ),
       },
     ];
-  }, [onCopy, onDelete]);
+  }, [onCopy, onDelete, handleTabKeyDownForButton]);
 
   if (!widgetProperties) return null;
 
