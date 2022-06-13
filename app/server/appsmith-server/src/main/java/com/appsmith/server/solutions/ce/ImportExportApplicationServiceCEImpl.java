@@ -242,6 +242,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     final String workspaceId = application.getOrganizationId();
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     Instant applicationLastCommittedAt = gitApplicationMetadata != null ? gitApplicationMetadata.getLastCommittedAt() : null;
+                    boolean isClientSchemaMigrated = application.getClientSchemaVersion() != JsonSchemaVersions.clientVersion;
+                    boolean isServerSchemaMigrated = application.getServerSchemaVersion() != JsonSchemaVersions.serverVersion;
                     List<String> pageOrderList = application.getPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
                     List<String> publishedPageOrderList = application.getPublishedPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
                     removeUnwantedFieldsFromApplicationDuringExport(application);
@@ -308,7 +310,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                     // Including updated pages list for git file storage
                                     Instant newPageUpdatedAt = newPage.getUpdatedAt();
-                                    boolean isNewPageUpdated = applicationLastCommittedAt == null || newPageUpdatedAt == null || applicationLastCommittedAt.isBefore(newPageUpdatedAt);
+                                    boolean isNewPageUpdated = isClientSchemaMigrated || isServerSchemaMigrated || applicationLastCommittedAt == null || newPageUpdatedAt == null || applicationLastCommittedAt.isBefore(newPageUpdatedAt);
                                     String newPageName = newPage.getUnpublishedPage() != null ?  newPage.getUnpublishedPage().getName() : newPage.getPublishedPage() != null ? newPage.getPublishedPage().getName() : null;
                                     if(isNewPageUpdated && newPageName != null){
                                         updatedPageSet.add(newPageName);
@@ -400,7 +402,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     ActionCollectionDTO actionCollectionDTO = unpublishedActionCollectionDTO != null ? unpublishedActionCollectionDTO : publishedActionCollectionDTO;
                                     String actionCollectionName = actionCollectionDTO != null ? actionCollectionDTO.getName() + NAME_SEPARATOR + actionCollectionDTO.getPageId() : null;
                                     Instant actionCollectionUpdatedAt = actionCollection.getUpdatedAt();
-                                    boolean isActionCollectionUpdated = applicationLastCommittedAt == null || actionCollectionUpdatedAt == null || applicationLastCommittedAt.isBefore(actionCollectionUpdatedAt);
+                                    boolean isActionCollectionUpdated = isClientSchemaMigrated || isServerSchemaMigrated || applicationLastCommittedAt == null || actionCollectionUpdatedAt == null || applicationLastCommittedAt.isBefore(actionCollectionUpdatedAt);
                                     if(isActionCollectionUpdated && actionCollectionName != null){
                                         updatedActionCollectionSet.add(actionCollectionName);
                                     }
@@ -483,7 +485,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     ActionDTO actionDTO = unpublishedActionDTO != null ? unpublishedActionDTO : publishedActionDTO;
                                     String newActionName = actionDTO != null ? actionDTO.getValidName() + NAME_SEPARATOR + actionDTO.getPageId() : null;
                                     Instant newActionUpdatedAt = newAction.getUpdatedAt();
-                                    boolean isNewActionUpdated = applicationLastCommittedAt == null || newActionUpdatedAt == null || applicationLastCommittedAt.isBefore(newActionUpdatedAt);
+                                    boolean isNewActionUpdated = isClientSchemaMigrated || isServerSchemaMigrated || applicationLastCommittedAt == null || newActionUpdatedAt == null || applicationLastCommittedAt.isBefore(newActionUpdatedAt);
                                     if(isNewActionUpdated && newActionName != null){
                                         updatedActionSet.add(newActionName);
                                     }
