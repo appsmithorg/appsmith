@@ -49,6 +49,7 @@ import {
 } from "sagas/ActionExecution/GetCurrentLocationSaga";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
+import { get } from "lodash";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -149,7 +150,7 @@ export function* executeActionTriggers(
   return response;
 }
 
-export function* executeAppAction(payload: ExecuteTriggerPayload) {
+export function* executeAppAction(payload: ExecuteTriggerPayload): any {
   const {
     callbackData,
     dynamicString,
@@ -163,7 +164,7 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
     throw new Error("Executing undefined action");
   }
 
-  yield call(
+  return yield call(
     evaluateAndExecuteDynamicTrigger,
     dynamicString,
     type,
@@ -181,9 +182,11 @@ function* initiateActionTriggerExecution(
   // it will be created again while execution
   AppsmithConsole.deleteError(`${source?.id}-${triggerPropertyName}`);
   try {
-    yield call(executeAppAction, action.payload);
+    const res: unknown[] = yield call(executeAppAction, action.payload);
     if (event.callback) {
-      event.callback({ success: true });
+      // return success based on api result
+      // in error, result will be undefined
+      event.callback({ success: !!get(res, "result") });
     }
   } catch (e) {
     if (e instanceof UncaughtPromiseError || e instanceof TriggerFailureError) {
