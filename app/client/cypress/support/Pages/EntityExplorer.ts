@@ -141,7 +141,7 @@ export class EntityExplorer {
   }
 
   public ClonePage(pageName = "Page1") {
-    this.expandCollapseEntity("WIDGETS")
+    this.expandCollapseEntity("PAGES")
     cy.get(this.getPageLocator(pageName))
       .trigger("mouseover")
       .click({ force: true });
