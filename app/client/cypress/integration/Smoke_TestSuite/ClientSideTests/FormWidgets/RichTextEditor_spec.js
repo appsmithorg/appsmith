@@ -150,6 +150,96 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
 
+  it("Check if the binding is getting removed from the text and the RTE widget", function() {
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(".t--property-control-text", `{{RichTextEditor1.text}}`);
+    // Change defaultText of the RTE
+    cy.openPropertyPane("richtexteditorwidget");
+    cy.testJsontext("defaulttext", "Test Content");
+
+    //Check if the text widget has the defaultText of RTE
+    cy.get(".t--widget-textwidget").should("contain", "Test Content");
+
+    //Clear the default text from RTE
+    cy.openPropertyPane("richtexteditorwidget");
+    cy.testJsontext("defaulttext", "");
+
+    //Check if text widget and RTE widget does not have any text in it.
+    cy.get(".t--widget-richtexteditorwidget").should("contain", "");
+    cy.get(".t--widget-textwidget").should("contain", "");
+  });
+
+  it("Check if text does not re-appear when cut, inside the RTE widget", function() {
+    cy.window().then((win) => {
+      const tinyMceId = "rte-6h8j08u7ea";
+
+      const editor = win.tinymce.editors[tinyMceId];
+
+      //Set the content
+      editor.setContent("Test Content");
+
+      //Check the content:
+      expect(editor.getContent({ format: "text" })).to.be.equal("Test Content");
+
+      //Set the content
+      editor.setContent("");
+
+      //Check the content:
+      expect(editor.getContent({ format: "text" })).to.be.equal("");
+    });
+  });
+
+  it("Check if the cursor position is at the end for the RTE widget", function() {
+    const tinyMceId = "rte-6h8j08u7ea";
+    const testString = "Test Content";
+    const testStringLen = testString.length;
+
+    // Set the content inside RTE widget
+    cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then(($iframe) => {
+      const $body = $iframe.contents().find("body");
+      cy.wrap($body)
+        .find("p")
+        .type(testString);
+    });
+
+    cy.window().then((win) => {
+      const editor = win.tinymce.editors[tinyMceId];
+
+      // Get the current cursor location
+      const getCurrentCursorLocation = editor.selection.getSel().anchorOffset;
+
+      // Check if the cursor is at the end.
+      expect(getCurrentCursorLocation).to.be.equal(testStringLen);
+    });
+  });
+
+  it("Check if different font size texts are supported inside the RTE widget", function() {
+    const tinyMceId = "rte-6h8j08u7ea";
+    const testString = "Test Content";
+
+    // Set the content inside RTE widget by typing
+    cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then(($iframe) => {
+      const $body = $iframe.contents().find("body");
+      cy.wrap($body)
+        .find("p")
+        .type(`${testString} {enter} ${testString} 1`);
+    });
+
+    cy.get(".tox-tbtn--bespoke").click({ force: true });
+    cy.contains("Heading 1").click({ force: true });
+
+    cy.window().then((win) => {
+      const editor = win.tinymce.editors[tinyMceId];
+
+      // Get the current editor text
+      const getCurrentHtmlContent = editor.getContent();
+
+      // Check if the editor contains text of font sizes h1 and p;
+      expect(getCurrentHtmlContent).contains("<h1>");
+      expect(getCurrentHtmlContent).contains("<p>");
+    });
+  });
+
   afterEach(() => {
     cy.goToEditFromPublish();
   });
