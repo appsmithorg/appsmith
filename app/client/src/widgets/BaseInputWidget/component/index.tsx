@@ -434,9 +434,7 @@ class BaseInputComponent extends React.Component<
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => {
-    if (typeof this.props.onKeyUp === "function") {
-      this.props.onKeyUp(e);
-    }
+    this.props.onKeyUp?.(e);
   };
 
   private numericInputComponent = () => {

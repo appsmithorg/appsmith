@@ -3,8 +3,13 @@ import { generateTypeDef } from "./dataTreeTypeDefCreator";
 
 let extraDefs: any = {};
 
+export type AdditionalDynamicDataTree = Record<
+  string,
+  Record<string, unknown> | TruthyPrimitiveTypes
+>;
+
 export const customTreeTypeDefCreator = (
-  dataTree: Record<string, Record<string, unknown> | TruthyPrimitiveTypes>,
+  dataTree: AdditionalDynamicDataTree,
 ) => {
   const def: any = {
     "!name": "customDataTree",

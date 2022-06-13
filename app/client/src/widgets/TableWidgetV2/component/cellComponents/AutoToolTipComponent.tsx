@@ -21,6 +21,11 @@ export const ColumnWrapper = styled.div<{
   color: ${(props) => props.textColor};
 `;
 
+export const Content = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
 interface Props {
   isHidden?: boolean;
   isCellVisible?: boolean;
@@ -49,7 +54,7 @@ function LinkWrapper(props: Props) {
     } else {
       updateToolTip(false);
     }
-  }, [ref.current]);
+  }, [props.children, ref.current]);
   return (
     <CellWrapper
       allowCellWrapping={props.allowCellWrapping}
@@ -70,7 +75,7 @@ function LinkWrapper(props: Props) {
       useLinkToolTip={useToolTip}
       verticalAlignment={props.verticalAlignment}
     >
-      <div className="link-text" ref={ref}>
+      <div className="link-text">
         {useToolTip && props.children ? (
           <Tooltip
             autoFocus={false}
@@ -82,10 +87,10 @@ function LinkWrapper(props: Props) {
             hoverOpenDelay={1000}
             position="top"
           >
-            {props.children}
+            {<Content ref={ref}>{props.children}</Content>}
           </Tooltip>
         ) : (
-          props.children
+          <Content ref={ref}>{props.children}</Content>
         )}
       </div>
       <OpenNewTabIconWrapper className="hidden-icon">
@@ -105,7 +110,7 @@ function AutoToolTipComponent(props: Props) {
     } else {
       updateToolTip(false);
     }
-  }, [ref.current]);
+  }, [props.children, ref.current]);
   if (props.columnType === ColumnTypes.URL && props.title) {
     return <LinkWrapper {...props} />;
   }
@@ -120,7 +125,6 @@ function AutoToolTipComponent(props: Props) {
         isCellVisible={props.isCellVisible}
         isHidden={props.isHidden}
         isTextType
-        ref={ref}
         textColor={props.textColor}
         textSize={props.textSize}
         verticalAlignment={props.verticalAlignment}
@@ -136,10 +140,10 @@ function AutoToolTipComponent(props: Props) {
             hoverOpenDelay={1000}
             position="top"
           >
-            {props.children}
+            {<Content ref={ref}>{props.children}</Content>}
           </Tooltip>
         ) : (
-          props.children
+          <Content ref={ref}>{props.children}</Content>
         )}
       </CellWrapper>
     </ColumnWrapper>

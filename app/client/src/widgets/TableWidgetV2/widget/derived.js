@@ -105,9 +105,6 @@ export default {
   },
   //
   getPageSize: (props, moment, _) => {
-    /*
-     * TODO(Balaji): Refactor this
-     */
     const TABLE_SIZES = {
       DEFAULT: {
         COLUMN_HEADER_HEIGHT: 32,
