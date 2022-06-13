@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.appsmith.caching.annotations.ReactiveCacheEvict;
 import com.appsmith.caching.annotations.ReactiveCacheable;
+import com.appsmith.caching.model.ArgumentModel;
 import com.appsmith.caching.model.TestModel;
 
 import reactor.core.publisher.Flux;
@@ -60,4 +61,18 @@ public class CacheTestService {
         return Mono.empty();
     }
     
+
+    //methods for testing key name generation
+    @ReactiveCacheable(cacheName = "objectcache1", key = "#argumentModel.name")
+    public Mono<TestModel> getObjectForWithKey(ArgumentModel argumentModel) {
+        TestModel model = factory.manufacturePojo(TestModel.class);
+        model.setId(argumentModel.getName());
+        return Mono.just(model).delayElement(Duration.ofSeconds(2));
+    }
+
+    //This method uses sifferent expression but generates same key
+    @ReactiveCacheEvict(cacheName = "objectcache1", key = "#id")
+    public Mono<Void> evictObjectForWithKey(String id) {
+        return Mono.empty();
+    }
 }

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.appsmith.caching.components.CacheManager;
+import com.appsmith.caching.model.ArgumentModel;
 import com.appsmith.caching.model.TestModel;
 import com.appsmith.caching.service.CacheTestService;
 
@@ -37,6 +38,7 @@ public class TestCachingMethods {
 
         cacheTestService.evictObjectFor("test1").block();
 
+        // If not evicted with above call, this will return the same object
         model2 = cacheTestService.getObjectFor("test1").block();
         assertNotEquals(model, model2);
     }
@@ -49,6 +51,7 @@ public class TestCachingMethods {
 
         cacheTestService.evictListFor("test1").block();
 
+        // If not evicted with above call, this will return the same object
         model2 = cacheTestService.getListFor("test1").collectList().block();
         for(int i = model.size() - 1; i >= 0; i--) {
             assertNotEquals(model.get(i), model2.get(i));
@@ -67,6 +70,19 @@ public class TestCachingMethods {
 
         assertNotEquals(model1, model1_2);
         assertNotEquals(model2, model2_2);
+    }
+
+    @Test
+    public void testExpression() {
+        TestModel model = cacheTestService.getObjectForWithKey(ArgumentModel.of("test1")).block();
+        TestModel model2 = cacheTestService.getObjectForWithKey(ArgumentModel.of("test1")).block();
+        assertEquals(model, model2);
+
+        cacheTestService.evictObjectForWithKey("test1").block();
+
+        // If not evicted with above call, this will return the same object
+        model2 = cacheTestService.getObjectForWithKey(ArgumentModel.of("test1")).block();
+        assertNotEquals(model, model2);
     }
 
     @Test

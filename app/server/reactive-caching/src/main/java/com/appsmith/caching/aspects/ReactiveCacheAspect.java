@@ -1,7 +1,6 @@
 package com.appsmith.caching.aspects;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -10,8 +9,13 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.cache.interceptor.SimpleKey;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.appsmith.caching.annotations.ReactiveCacheEvict;
 import com.appsmith.caching.annotations.ReactiveCacheable;
@@ -29,8 +33,8 @@ public class ReactiveCacheAspect {
 
     private final CacheManager cacheManager;
 
+    public static final ExpressionParser EXPRESSION_PARSER = new SpelExpressionParser();
     
-
     @Autowired
     public ReactiveCacheAspect(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
@@ -60,13 +64,46 @@ public class ReactiveCacheAspect {
         }
     }
 
+    // This is how Cacheable (non-reactive) annotation derive the key name
+    private String deriveKeyWithArguments(Object[] args) {
+        if(args.length == 0) {
+            return SimpleKey.EMPTY.toString();
+        } else if(args.length == 1) {
+            return args[0].toString();
+        } else {
+            SimpleKey simpleKey = new SimpleKey(args);
+            return simpleKey.toString();
+        }
+    }
+
+    private String deriveKeyWithExpression(String expression, String[] parameterNames, Object[] args) {
+        EvaluationContext evaluationContext = new StandardEvaluationContext();
+        for (int i = 0; i < args.length; i ++) {
+            evaluationContext.setVariable(parameterNames[i], args[i]);
+        }
+        return EXPRESSION_PARSER.parseExpression(expression).getValue(evaluationContext, String.class);
+    }
+
+    private String deriveKey(String expression, String[] parameterNames, Object[] args) {
+        if(expression.isEmpty()) {
+            return deriveKeyWithArguments(args);
+        } else {
+            return deriveKeyWithExpression(expression, parameterNames, args);
+        }
+    }
+
     @Around("execution(public * *(..)) && @annotation(com.appsmith.caching.annotations.ReactiveCacheable)")
     public Object reactiveCacheable(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         ReactiveCacheable annotation = method.getAnnotation(ReactiveCacheable.class);
         String cacheName = annotation.cacheName();
-        String key = String.valueOf(Arrays.hashCode(joinPoint.getArgs()));
+
+        //derive key
+        String[] parameterNames = signature.getParameterNames();
+        Object[] args = joinPoint.getArgs();
+        String key = deriveKey(annotation.key(), parameterNames, args);
+
         Class<?> returnType = method.getReturnType();
         if (returnType.isAssignableFrom(Mono.class)) {
             return cacheManager.get(cacheName, key)
@@ -97,7 +134,10 @@ public class ReactiveCacheAspect {
             return cacheManager.evictAll(cacheName)
                 .then((Mono<?>) joinPoint.proceed());
         } else {
-            String key = String.valueOf(Arrays.hashCode(joinPoint.getArgs()));
+            //derive key
+            String[] parameterNames = signature.getParameterNames();
+            Object[] args = joinPoint.getArgs();
+            String key = deriveKey(annotation.key(), parameterNames, args);
             return cacheManager.evict(cacheName, key)
                 .then((Mono<?>) joinPoint.proceed());
         }

@@ -11,6 +11,8 @@ public @interface ReactiveCacheEvict {
 
     String cacheName();
 
+    String key() default "";
+
     boolean all() default false;
     
 }
