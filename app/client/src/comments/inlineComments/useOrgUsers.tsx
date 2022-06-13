@@ -9,7 +9,7 @@ import {
   getAllUsers,
   getCurrentAppOrg,
   getCurrentOrgId,
-} from "selectors/organizationSelectors";
+} from "@appsmith/selectors/organizationSelectors";
 import useOrg from "utils/hooks/useOrg";
 
 const useOrgUsers = () => {

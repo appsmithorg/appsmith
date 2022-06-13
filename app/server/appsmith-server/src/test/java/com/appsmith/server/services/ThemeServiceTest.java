@@ -7,6 +7,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -25,6 +26,7 @@ import reactor.util.function.Tuples;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -742,6 +744,39 @@ public class ThemeServiceTest {
             assertThat(theme.getApplicationId()).isNotNull();
             assertThat(theme.getOrganizationId()).isEqualTo("test-org");
             assertThat(theme.getConfig()).isNotNull();
+        }).verifyComplete();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void importThemesToApplication_WhenBothImportedThemesAreCustom_NewThemesCreated() {
+        Application application = createApplication("api_user", Set.of(MANAGE_APPLICATIONS));
+        application.setOrganizationId("test-org");
+
+        // create a application json with a custom theme set as both edit mode and published mode
+        ApplicationJson applicationJson = new ApplicationJson();
+        Theme customTheme = new Theme();
+        customTheme.setName("Custom theme name");
+        customTheme.setDisplayName("Custom theme display name");
+        applicationJson.setEditModeTheme(customTheme);
+        applicationJson.setPublishedTheme(customTheme);
+
+        Mono<Application> applicationMono = themeService.getDefaultThemeId()
+                .flatMap(defaultThemeId -> {
+                    application.setEditModeThemeId(defaultThemeId);
+                    application.setPublishedModeThemeId(defaultThemeId);
+                    return applicationRepository.save(application);
+                })
+                .flatMap(savedApplication ->
+                        themeService.importThemesToApplication(savedApplication, applicationJson)
+                                .thenReturn(Objects.requireNonNull(savedApplication.getId()))
+                )
+                .flatMap(applicationId ->
+                    applicationRepository.findById(applicationId, MANAGE_APPLICATIONS)
+                );
+
+        StepVerifier.create(applicationMono).assertNext(app -> {
+            assertThat(app.getEditModeThemeId().equals(app.getPublishedModeThemeId())).isFalse();
         }).verifyComplete();
     }
 

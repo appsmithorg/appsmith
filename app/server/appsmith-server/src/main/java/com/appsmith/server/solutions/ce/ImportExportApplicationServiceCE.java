@@ -35,6 +35,8 @@ public interface ImportExportApplicationServiceCE {
      */
     Mono<ApplicationImportDTO> extractFileAndSaveApplication(String orgId, Part filePart);
 
+    Mono<Application> mergeApplicationJsonWithApplication(String organizationId, String applicationId, String branchName, ApplicationJson applicationJson, List<String> pagesToImport);
+
     /**
      * This function will save the application to workspace from the application resource
      *
