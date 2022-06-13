@@ -736,7 +736,7 @@ export default [
                 {
                   propertyName: "textColor",
                   label: "Text Color",
-                  controlType: "COLOR_PICKER",
+                  controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
@@ -760,7 +760,7 @@ export default [
                 {
                   propertyName: "cellBackground",
                   label: "Cell Background",
-                  controlType: "COLOR_PICKER",
+                  controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
@@ -1048,7 +1048,7 @@ export default [
                   helpText:
                     "Sets the custom color preset based on the menu button variant",
                   label: "Menu Color",
-                  controlType: "COLOR_PICKER",
+                  controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   isBindProperty: true,
@@ -1207,7 +1207,7 @@ export default [
                             helpText:
                               "Sets the background color of a menu item",
                             label: "Background color",
-                            controlType: "COLOR_PICKER",
+                            controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                             isJSConvertible: true,
                             isBindProperty: true,
                             isTriggerProperty: false,
@@ -1224,7 +1224,7 @@ export default [
                             propertyName: "textColor",
                             helpText: "Sets the text color of a menu item",
                             label: "Text color",
-                            controlType: "COLOR_PICKER",
+                            controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                             isBindProperty: false,
                             isTriggerProperty: false,
                             updateHook: updateDerivedColumnsHook,
@@ -1294,7 +1294,7 @@ export default [
                             propertyName: "iconColor",
                             helpText: "Sets the icon color of a menu item",
                             label: "Icon color",
-                            controlType: "COLOR_PICKER",
+                            controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                             isBindProperty: false,
                             isTriggerProperty: false,
                             updateHook: updateDerivedColumnsHook,
