@@ -47,6 +47,9 @@ type RenderComponentProps = {
   isAllColumnEditable?: boolean;
 };
 
+const PADDING_WITHOUT_CHECKBOX = 60;
+const PADDING_WITH_CHECKBOX = 90;
+
 export function DraggableListCard(props: RenderComponentProps) {
   const [value, setValue] = useState(props.item.label);
   const [isEditing, setEditing] = useState(false);
@@ -156,7 +159,9 @@ export function DraggableListCard(props: RenderComponentProps) {
         onFocus={onFocus}
         placeholder={placeholder}
         ref={ref}
-        rightPadding={showCheckbox ? 90 : 60}
+        rightPadding={
+          showCheckbox ? PADDING_WITH_CHECKBOX : PADDING_WITHOUT_CHECKBOX
+        }
         value={value}
         width="100%"
       />

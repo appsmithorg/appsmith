@@ -18,7 +18,7 @@ import {
   JSToString,
   stringToJS,
 } from "components/editorComponents/ActionCreator/Fields";
-import { TruthyPrimitiveTypes } from "utils/TypeHelpers";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -32,7 +32,7 @@ const CurlyBraces = styled.span`
   font-size: 10px;
 `;
 
-function InputText(props: {
+type InputTextProp = {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
@@ -40,12 +40,11 @@ function InputText(props: {
   expected?: CodeEditorExpected;
   placeholder?: string;
   dataTreePath?: string;
-  additionalDynamicData: Record<
-    string,
-    Record<string, unknown> | TruthyPrimitiveTypes
-  >;
+  additionalDynamicData: AdditionalDynamicDataTree;
   theme: EditorTheme;
-}) {
+};
+
+function InputText(props: InputTextProp) {
   const {
     additionalDynamicData,
     dataTreePath,

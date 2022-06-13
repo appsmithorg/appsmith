@@ -12,11 +12,13 @@ import {
   VerticalAlignment,
 } from "./Constants";
 import { Colors, Color } from "constants/Colors";
-import { hideScrollbar } from "constants/DefaultTheme";
+import { hideScrollbar, invisible } from "constants/DefaultTheme";
 import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
 
+const OFFSET_WITHOUT_HEADER = 40;
+const OFFSET_WITH_HEADER = 80;
 export const TableWrapper = styled.div<{
   width: number;
   height: number;
@@ -70,7 +72,9 @@ export const TableWrapper = styled.div<{
     }
     .tbody {
       height: ${(props) =>
-        props.isHeaderVisible ? props.height - 80 : props.height - 40}px;
+        props.isHeaderVisible
+          ? props.height - OFFSET_WITH_HEADER
+          : props.height - OFFSET_WITHOUT_HEADER}px;
       width: 100%;
       overflow-y: auto;
       ${hideScrollbar};
@@ -331,7 +335,7 @@ export const CellWrapper = styled.div<{
   justify-content: flex-start;
   width: 100%;
   height: 100%;
-  opacity: ${(props) => (props.isHidden ? "0.6" : "1")};
+  ${(props) => (props.isHidden ? invisible : "")};
   font-weight: ${(props) =>
     props.fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
   color: ${(props) => props.textColor};

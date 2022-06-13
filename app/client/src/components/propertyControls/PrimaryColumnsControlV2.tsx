@@ -33,6 +33,7 @@ import {
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { DraggableListCard } from "components/ads/DraggableListCard";
 import { Checkbox } from "components/ads";
+import { DEFAULT_BUTTON_COLOR } from "widgets/TableWidgetV2/constants";
 
 const TabsWrapper = styled.div`
   width: 100%;
@@ -73,8 +74,10 @@ type EvaluatedValuePopupWrapperProps = ReduxStateProps & {
   children: JSX.Element;
 };
 
+type ColumnsType = Record<string, ColumnProperties>;
+
 const getOriginalColumn = (
-  columns: Record<string, ColumnProperties>,
+  columns: ColumnsType,
   index: number,
   columnOrder?: string[],
 ): ColumnProperties | undefined => {
@@ -97,7 +100,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   constructor(props: ControlProps) {
     super(props);
 
-    const columns: Record<string, ColumnProperties> = props.propertyValue || {};
+    const columns: ColumnsType = props.propertyValue || {};
     const columnOrder = Object.keys(columns);
     const reorderedColumns = reorderColumns(columns, columnOrder);
     const tableColumnLabels = _.map(reorderedColumns, "label");
@@ -147,8 +150,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
 
   render() {
     // Get columns from widget properties
-    const columns: Record<string, ColumnProperties> =
-      this.props.propertyValue || {};
+    const columns: ColumnsType = this.props.propertyValue || {};
 
     // If there are no columns, show empty state
     if (Object.keys(columns).length === 0) {
@@ -253,11 +255,15 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   }
 
   addNewColumn = () => {
-    const columns: Record<string, ColumnProperties> =
-      this.props.propertyValue || {};
-    const columnIds = Object.values(columns).map((column) => column.originalId);
+    const columns: ColumnsType = this.props.propertyValue || {};
+    const columnsArray = Object.values(columns);
+    const columnIds = columnsArray.map((column) => column.originalId);
     const newColumnName = getNextEntityName("customColumn", columnIds);
-    const nextIndex = columnIds.length;
+    const lastItemIndex = columnsArray
+      .map((column) => column.index)
+      .sort()
+      .pop();
+    const nextIndex = lastItemIndex ? lastItemIndex + 1 : columnIds.length;
     const columnProps: ColumnProperties = getDefaultColumnProperties(
       newColumnName,
       newColumnName,
@@ -268,7 +274,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     const tableStyles = getTableStyles(this.props.widgetProperties);
     const column = {
       ...columnProps,
-      buttonStyle: "rgb(3, 179, 101)",
+      buttonStyle: DEFAULT_BUTTON_COLOR,
       isDisabled: false,
       ...tableStyles,
     };
@@ -277,8 +283,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   };
 
   onEdit = (index: number) => {
-    const columns: Record<string, ColumnProperties> =
-      this.props.propertyValue || [];
+    const columns: ColumnsType = this.props.propertyValue || {};
 
     const originalColumn = getOriginalColumn(
       columns,
@@ -300,8 +305,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   };
 
   toggleVisibility = (index: number) => {
-    const columns: Record<string, ColumnProperties> =
-      this.props.propertyValue || {};
+    const columns: ColumnsType = this.props.propertyValue || {};
     const originalColumn = getOriginalColumn(
       columns,
       index,
@@ -317,8 +321,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   };
 
   toggleCheckbox = (index: number, checked: boolean) => {
-    const columns: Record<string, ColumnProperties> =
-      this.props.propertyValue || {};
+    const columns: ColumnsType = this.props.propertyValue || {};
     const originalColumn = getOriginalColumn(
       columns,
       index,
@@ -346,8 +349,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   };
 
   deleteOption = (index: number) => {
-    const columns: Record<string, ColumnProperties> =
-      this.props.propertyValue || {};
+    const columns: ColumnsType = this.props.propertyValue || {};
     const derivedColumns = this.props.widgetProperties.derivedColumns || {};
     const columnOrder = this.props.widgetProperties.columnOrder || [];
 
@@ -377,8 +379,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   };
 
   updateOption = (index: number, updatedLabel: string) => {
-    const columns: Record<string, ColumnProperties> =
-      this.props.propertyValue || {};
+    const columns: ColumnsType = this.props.propertyValue || {};
     const originalColumn = getOriginalColumn(
       columns,
       index,
@@ -411,7 +412,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   };
 
   isAllColumnsEditable = () => {
-    const columns: Record<string, ColumnProperties> = this.props.propertyValue;
+    const columns: ColumnsType = this.props.propertyValue || {};
 
     return !Object.values(columns).find(
       (column) => !column.isEditable && isColumnTypeEditable(column.columnType),
@@ -420,8 +421,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
 
   toggleAllColumnsEditability = () => {
     const isEditable = this.isAllColumnsEditable();
-    const columns: Record<string, ColumnProperties> =
-      this.props.propertyValue || {};
+    const columns: ColumnsType = this.props.propertyValue || {};
 
     Object.values(columns).forEach((column) => {
       if (isColumnTypeEditable(column.columnType)) {
