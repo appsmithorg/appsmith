@@ -184,6 +184,10 @@ function AppViewer(props: Props) {
     }
 
     document.body.style.fontFamily = appFontFamily;
+
+    return function reset() {
+      document.body.style.fontFamily = "inherit";
+    };
   }, [selectedTheme.properties.fontFamily.appFont]);
 
   /**
