@@ -167,7 +167,7 @@ export function* changeSelectedTheme(
 
     // shows toast
     Toaster.show({
-      text: createMessage(CHANGE_APP_THEME, theme.name),
+      text: createMessage(CHANGE_APP_THEME, theme.displayName),
       variant: Variant.success,
       actionElement: (
         <span onClick={() => store.dispatch(undoAction())}>Undo</span>
