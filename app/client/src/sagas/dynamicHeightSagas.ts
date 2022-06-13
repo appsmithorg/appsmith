@@ -279,6 +279,7 @@ export function* updateWidgetDynamicHeightSaga(
       type: ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
       payload: widgetsToUpdate,
     });
+
     log.debug(
       "Dynamic Height: Overall time taken: ",
       performance.now() - start,
@@ -381,7 +382,10 @@ function* dynamicallyUpdateContainersSaga() {
             );
             maxBottomRow += GridDefaults.CANVAS_EXTENSION_OFFSET;
 
-            if (maxBottomRow !== parentContainerWidget.bottomRow) {
+            if (
+              maxBottomRow !==
+              parentContainerWidget.bottomRow - parentContainerWidget.topRow
+            ) {
               if (!updates.hasOwnProperty(parentContainerWidget.widgetId)) {
                 updates[parentContainerWidget.widgetId] =
                   maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
@@ -392,7 +396,7 @@ function* dynamicallyUpdateContainersSaga() {
       }
     }
   }
-  console.log(
+  log.debug(
     "Dynamic height: Container computations took:",
     performance.now() - start,
     "ms",
