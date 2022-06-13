@@ -533,7 +533,7 @@ public class ActionCollectionServiceTest {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testActionCollection");
         actionCollectionDTO.setApplicationId(testApp.getId());
-        actionCollectionDTO.setOrganizationId(testApp.getOrganizationId());
+        actionCollectionDTO.setWorkspaceId(testApp.getWorkspaceId());
         actionCollectionDTO.setPageId(testPage.getId());
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setPluginType(PluginType.JS);
