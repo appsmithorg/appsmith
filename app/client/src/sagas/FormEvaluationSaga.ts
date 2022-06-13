@@ -23,7 +23,7 @@ import { getAction } from "selectors/entitiesSelector";
 import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
-import { get } from "lodash";
+import { get, isEmpty } from "lodash";
 import { klona } from "klona/lite";
 
 let isEvaluating = false; // Flag to maintain the queue of evals
@@ -40,6 +40,11 @@ export type FormEvalActionPayload = {
 };
 
 const evalQueue: ReduxAction<FormEvalActionPayload>[] = [];
+
+// This value holds an array of values that needs to be dynamically fetched
+// when we run form evaluations we store dynamic values to be fetched in this array
+// and when evaluations are finally done, we pick the last dynamic values and call it.
+let fetchDynamicValQueue: any = [];
 
 // Function to set isEvaluating flag
 const setIsEvaluating = (newState: boolean) => {
@@ -105,6 +110,15 @@ function* setFormEvaluationSagaAsync(
         });
       }
 
+      if (action?.type === ReduxActionTypes.RUN_FORM_EVALUATION) {
+        const queue = extractQueueOfValuesToBeFetched(
+          workerResponse[action?.payload?.formId],
+        );
+        if (!isEmpty(queue)) {
+          fetchDynamicValQueue.push(queue);
+        }
+      }
+
       // Update the eval state in redux only if it is not empty
       if (!!workerResponse) {
         yield put({
@@ -124,8 +138,9 @@ function* setFormEvaluationSagaAsync(
         const formId = action.payload.formId;
         const evalOutput = workerResponse[formId];
         if (!!evalOutput && typeof evalOutput === "object") {
+          // cloning the queue to prevent mutations in the formEvalutionState
           const queueOfValuesToBeFetched = klona(
-            extractQueueOfValuesToBeFetched(evalOutput),
+            fetchDynamicValQueue[fetchDynamicValQueue.length - 1],
           );
 
           yield put({
@@ -135,6 +150,9 @@ function* setFormEvaluationSagaAsync(
               values: queueOfValuesToBeFetched,
             },
           });
+
+          // resetting the fetch dynamic values.
+          fetchDynamicValQueue = [];
 
           // wait for dataTree to be updated with the latest values before fetching dynamic values.
           yield race([

@@ -150,7 +150,7 @@ function SortingComponent(props: any) {
       (props.fields.length < 1 &&
         isArray(sortDataValue) &&
         sortDataValue.length < 1) ||
-      !sortDataValue
+      (props.fields.length < 1 && !sortDataValue)
     ) {
       props.fields.push({
         column: "",
