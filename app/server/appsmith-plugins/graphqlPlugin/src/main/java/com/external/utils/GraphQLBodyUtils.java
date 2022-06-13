@@ -14,6 +14,7 @@ import java.util.List;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
 import static com.appsmith.external.helpers.PluginUtils.parseStringIntoJSONObject;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class GraphQLBodyUtils {
@@ -27,12 +28,14 @@ public class GraphQLBodyUtils {
 
         final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
         String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
-        try {
-            JSONObject json = parseStringIntoJSONObject(variables);
-            query.put(VARIABLES_KEY, json);
-        } catch (ParseException e) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "GraphQL query " +
-                    "variables are not in proper JSON format: " + e.getMessage());
+        if (!isBlank(variables)) {
+            try {
+                JSONObject json = parseStringIntoJSONObject(variables);
+                query.put(VARIABLES_KEY, json);
+            } catch (ParseException | ClassCastException e) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "GraphQL query " +
+                        "variables are not in proper JSON format: " + e.getMessage());
+            }
         }
 
         return query.toString();
@@ -68,7 +71,7 @@ public class GraphQLBodyUtils {
 
         final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
         String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
-        if (!isEmpty(variables)) {
+        if (!isBlank(variables)) {
             queryParams.add(new Property(VARIABLES_KEY, variables));
         }
 

@@ -314,7 +314,7 @@ public class PluginUtils {
 
     public static JSONObject parseStringIntoJSONObject(String body) throws ParseException {
         JSONParser parser = new JSONParser(MODE_PERMISSIVE);
-        return (JSONObject) parser.parse(body);
+        return parser.parse(body, JSONObject.class);
     }
 
     public static void setValueSafelyInPropertyList(List<Property> properties, int index, Object value) throws AppsmithPluginException {

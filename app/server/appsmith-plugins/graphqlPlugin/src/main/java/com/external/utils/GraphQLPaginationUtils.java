@@ -48,7 +48,7 @@ public class GraphQLPaginationUtils {
         JSONObject paginationDataJson;
         try {
             paginationDataJson = parseStringIntoJSONObject(paginationData);
-        } catch (ParseException e) {
+        } catch (ParseException | ClassCastException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
                     "Appsmith server encountered an unexpected error: failed to parse pagination data into JSON. " +
@@ -57,7 +57,7 @@ public class GraphQLPaginationUtils {
         }
 
         HashMap<String, Object> paginationDataMap = new HashMap<String, Object>();
-        if (PaginationType.PAGE_NO.equals(actionConfiguration.getPaginationType())) {
+        if (PaginationType.LIMIT.equals(actionConfiguration.getPaginationType())) {
             String limitVarName = ((JSONObject) paginationDataJson.get(LIMIT)).getAsString(NAME);
             int limitValue;
             try {
@@ -157,7 +157,7 @@ public class GraphQLPaginationUtils {
         }
 
         Map<String, Object> paginationDataMap = getPaginationData(actionConfiguration);
-        if (PaginationType.PAGE_NO.equals(actionConfiguration.getPaginationType())) {
+        if (PaginationType.LIMIT.equals(actionConfiguration.getPaginationType())) {
             String limitVarName = (String) paginationDataMap.get(LIMIT_VARIABLE_NAME);
             int limitValue = (int) paginationDataMap.get(LIMIT_VAL);
             String offsetVarName = (String) paginationDataMap.get(OFFSET_VARIABLE_NAME);

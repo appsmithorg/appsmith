@@ -42,21 +42,31 @@ public class GraphQLHintMessageUtils extends HintMessageUtils {
 
     // TODO: add comments
     public static Set<String> getHintMessagesForDuplicatesInQueryVariables(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
+        if (actionConfiguration == null) {
+            return new HashSet<>();
+        }
+
         Set<String> hintMessages = new HashSet<String>();
         List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
         String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
         JSONObject queryVariablesJson = new JSONObject();
         try {
             queryVariablesJson = parseStringIntoJSONObject(variables);
-        } catch (ParseException e) {
+        } catch (ParseException | ClassCastException e) {
             /* Not returning an exception here since the user is still editing the query variables and hence it is
 -            expected that the query variables would not be parseable till the final edit. */
         }
 
-        if (actionConfiguration.getPaginationType() != null) {
-            Map<String, Object> paginationDataMap = getPaginationData(actionConfiguration);
+        if (!PaginationType.NONE.equals(actionConfiguration.getPaginationType())) {
+            Map<String, Object> paginationDataMap = null;
+            try {
+                paginationDataMap = getPaginationData(actionConfiguration);
+            } catch (AppsmithPluginException e) {
+                // TODO: add comment
+                return new HashSet<>();
+            }
             List<String> duplicateVariables = new ArrayList<String>();
-            if (PaginationType.PAGE_NO.equals(actionConfiguration.getPaginationType())) {
+            if (PaginationType.LIMIT.equals(actionConfiguration.getPaginationType())) {
                 String limitVarName = (String) paginationDataMap.get(LIMIT_VARIABLE_NAME);
                 String offsetVarName = (String) paginationDataMap.get(OFFSET_VARIABLE_NAME);
 
