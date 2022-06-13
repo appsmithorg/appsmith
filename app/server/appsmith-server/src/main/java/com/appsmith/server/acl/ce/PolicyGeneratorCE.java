@@ -193,8 +193,12 @@ public class PolicyGeneratorCE {
             AclPermission childPermission = hierarchyGraph.getEdgeTarget(edge);
 
             if (childPermission.getEntity().equals(destinationEntity)) {
-                childPolicySet.add(Policy.builder().permission(childPermission.getValue())
-                        .users(policy.getUsers()).build());
+                childPolicySet
+                        .add(Policy.builder().permission(childPermission.getValue())
+                                .users(policy.getUsers())
+                                .permissionGroups(policy.getPermissionGroups())
+                        .build());
+
             }
 
             // Check the lateral graph to derive the child permissions that must be given to this document
@@ -227,6 +231,10 @@ public class PolicyGeneratorCE {
                 HashSet<String> groups = new HashSet<>(mergedPolicy.getGroups());
                 groups.addAll(policy.getGroups());
                 mergedPolicy.setGroups(groups);
+
+                HashSet<String> permissionGroups = new HashSet<>(mergedPolicy.getPermissionGroups());
+                permissionGroups.addAll(policy.getPermissionGroups());
+                mergedPolicy.setPermissionGroups(permissionGroups);
 
                 policyMap.put(policy.getPermission(), mergedPolicy);
             } else {
