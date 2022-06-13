@@ -56,6 +56,7 @@ export function* updateWidgetDynamicHeightSaga(
   yield delay(50);
   const start = performance.now();
 
+  log.debug("Dynamic height: Call for updates: ", { updates });
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
   const expectedUpdates: Array<{
@@ -415,7 +416,7 @@ export default function* widgetOperationSagas() {
     ),
     takeLatest(
       [
-        ReduxActionTypes.GENERATE_DYNAMIC_HEIGHT_COMPUTATION_TREE,
+        ReduxActionTypes.GENERATE_DYNAMIC_HEIGHT_COMPUTATION_TREE, // add, move, paste, cut, delete, undo/redo
         ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
         ReduxActionTypes.INIT_CANVAS_LAYOUT,
       ],
