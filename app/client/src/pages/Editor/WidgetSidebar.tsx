@@ -22,7 +22,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
     fuse = new Fuse(cards, {
       keys: ["displayName", "searchTags"],
       threshold: 0.5,
-      distance: 100,
+      distance: 20,
     });
   }, [cards]);
 
