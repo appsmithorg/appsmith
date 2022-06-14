@@ -72,9 +72,9 @@ module.exports = class Perf {
   constructor(launchOptions = {}) {
     this.launchOptions = {
       defaultViewport: null,
-      args: ["--window-size=1920,1080","--no-sandbox"],
       ignoreHTTPSErrors: true, // @todo Remove it after initial testing
       ...launchOptions,
+      args: ["--window-size=1920,1080", "--no-sandbox"],
     };
 
     if (process.env.PERF_TEST_ENV === "dev") {
