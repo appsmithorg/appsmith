@@ -242,8 +242,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     final String workspaceId = application.getOrganizationId();
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     Instant applicationLastCommittedAt = gitApplicationMetadata != null ? gitApplicationMetadata.getLastCommittedAt() : null;
-                    boolean isClientSchemaMigrated = application.getClientSchemaVersion() != JsonSchemaVersions.clientVersion;
-                    boolean isServerSchemaMigrated = application.getServerSchemaVersion() != JsonSchemaVersions.serverVersion;
+                    boolean isClientSchemaMigrated = !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());
+                    boolean isServerSchemaMigrated = !JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion());
                     List<String> pageOrderList = application.getPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
                     List<String> publishedPageOrderList = application.getPublishedPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
                     removeUnwantedFieldsFromApplicationDuringExport(application);
