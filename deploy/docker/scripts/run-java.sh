@@ -13,7 +13,7 @@ if [[ ${HTTP_PROXY-} =~ ^http://(.*):(.*)$ && ${BASH_REMATCH[2]} != 0 ]]; then
   proxy_configured=1
 fi
 
-if [[ ${HTTPS_PROXY-} =~ ^http://(.*):(.*)$ && ${BASH_REMATCH[2]} != 0 ]]; then
+if [[ ${HTTPS_PROXY-} =~ ^https?://(.*):(.*)$ && ${BASH_REMATCH[2]} != 0 ]]; then
   proxy_args+=(-Dhttps.proxyHost="${BASH_REMATCH[1]}" -Dhttps.proxyPort="${BASH_REMATCH[2]}")
   proxy_configured=1
 fi
