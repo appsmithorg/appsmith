@@ -8,7 +8,7 @@ export const CONFIG = {
   name: "Rich Text Editor",
   iconSVG: IconSVG,
   needsMeta: true,
-  searchTags: ["input"],
+  searchTags: ["input", "rte"],
   defaults: {
     defaultText: "This is the initial <b>content</b> of the editor",
     rows: 20,
