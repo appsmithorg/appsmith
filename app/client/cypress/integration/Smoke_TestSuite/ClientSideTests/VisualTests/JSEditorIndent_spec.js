@@ -20,9 +20,12 @@ describe("JSEditor Indendation - Visual tests", () => {
     showAlert("Running all api's", "warning");
     return Promise.all(allFuncs).then(() =>
     showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Please check your api's again", "error")); `,
-      true,
-      false,
-      false,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      },
     );
 
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify1");
