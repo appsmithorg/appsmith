@@ -170,7 +170,7 @@ describe("JS Function Execution", function() {
     table.WaitUntilTableLoad();
     table.ReadTableRowColumnData(0, 1, 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //validating id column value - row 0
-      agHelper.NavigateBacktoEditor();
+      deployMode.NavigateBacktoEditor();
     });
   });
 

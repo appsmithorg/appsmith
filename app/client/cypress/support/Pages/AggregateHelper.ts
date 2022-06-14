@@ -417,11 +417,11 @@ export class AggregateHelper {
     }
   }
 
-  public NavigateBacktoEditor() {
-    cy.get(this.locator._backToEditor).click();
-    this.Sleep(2000);
-    localStorage.setItem("inDeployedMode", "false");
-  }
+  // public NavigateBacktoEditor() {
+  //   cy.get(this.locator._backToEditor).click();
+  //   this.Sleep(2000);
+  //   localStorage.setItem("inDeployedMode", "false");
+  // }
 
   public GenerateUUID() {
     let id = uuid.v4();
@@ -509,6 +509,18 @@ export class AggregateHelper {
       });
     }
     this.AssertAutoSave();
+  }
+
+  public EnterInputText(name: string, input: string, toClear = false) {
+    toClear && this.ClearInputText(name)
+    cy.xpath(this.locator._inputWidgetValueField(name))
+      .click()
+      .type(input);
+  }
+
+  public ClearInputText(name: string) {
+    cy.xpath(this.locator._inputWidgetValueField(name))
+      .clear();
   }
 
   public UpdateCodeInput(selector: string, value: string) {
