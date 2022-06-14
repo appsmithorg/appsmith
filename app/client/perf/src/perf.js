@@ -3,6 +3,7 @@ const puppeteer = require("puppeteer");
 var sanitize = require("sanitize-filename");
 const fs = require("fs");
 const path = require("path");
+const cp = require("child_process");
 
 const {
   delay,
@@ -16,6 +17,56 @@ const selectors = {
   fileInput: "#fileInput",
   importButton: '[data-cy*="t--org-import-app-button"]',
   createNewApp: ".createnew",
+};
+
+const cleanTheHost = async () => {
+  await cp.exec("pidof chrome", (error, stdout, stderr) => {
+    if (error) {
+      console.log(`error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.log(`stderr: ${stderr}`);
+      return;
+    }
+    console.log(`stdout: chrome process ids before: ${stdout}`);
+    stdout.split(" ").forEach((PID) => {
+      cp.execSync(`kill -9 ${PID}`);
+    });
+  });
+
+  // await cp.exec("sync; echo 3 | sudo tee /proc/sys/vm/drop_caches");
+  // await delay(5000);
+
+  await cp.exec("pidof chrome", (error, stdout, stderr) => {
+    if (error) {
+      console.log(`error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.log(`stderr: ${stderr}`);
+      return;
+    }
+    console.log(`stdout: chrome process ids after: ${stdout}`);
+  });
+};
+
+const setProcessPriority = async () => {
+  await cp.exec("pidof chrome", (error, stdout, stderr) => {
+    if (error) {
+      console.log(`error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.log(`stderr: ${stderr}`);
+      return;
+    }
+    console.log(`stdout: setting priority: ${stdout}`);
+
+    stdout.split(" ").forEach((PID) => {
+      cp.execSync(`renice -20 ${PID}`);
+    });
+  });
 };
 module.exports = class Perf {
   constructor(launchOptions = {}) {
@@ -62,9 +113,11 @@ module.exports = class Perf {
    * Launches the browser and, gives you the page
    */
   launch = async () => {
+    await cleanTheHost();
     this.browser = await puppeteer.launch(this.launchOptions);
     const pages_ = await this.browser.pages();
     this.page = pages_[0];
+    await setProcessPriority();
     await this._login();
   };
 
