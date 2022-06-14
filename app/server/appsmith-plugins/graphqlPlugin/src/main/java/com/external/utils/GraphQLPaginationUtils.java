@@ -114,6 +114,12 @@ public class GraphQLPaginationUtils {
         }
 
         Map<String, String> paginationDataMap = getPaginationData(actionConfiguration);
+        if (isEmpty(paginationDataMap)) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Appsmith " +
+                    "server could not find any GraphQL pagination data even though pagination is toggled on. Please " +
+                    "provide pagination data by editing relevant fields in the pagination tab.");
+        }
+
         if (PaginationType.PAGE_NO.equals(actionConfiguration.getPaginationType())) {
             String limitVarName = paginationDataMap.get(LIMIT_VARIABLE_NAME);
             String limitValueString = paginationDataMap.get(LIMIT_VAL);

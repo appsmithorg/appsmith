@@ -11,6 +11,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
@@ -34,6 +35,7 @@ import java.util.Set;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInPropertyList;
+import static com.external.utils.GraphQLBodyUtils.PAGINATION_DATA_INDEX;
 import static com.external.utils.GraphQLPaginationUtils.updateVariablesWithPaginationValues;
 import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
 import static com.external.utils.GraphQLBodyUtils.convertToGraphQLPOSTBodyFormat;
@@ -121,7 +123,7 @@ public class GraphQLPlugin extends BasePlugin {
             }
 
             Set<String> hintMessages = new HashSet<String>();
-            if (actionConfiguration.getPaginationType() != null) {
+            if (actionConfiguration.getPaginationType() != null && !PaginationType.NONE.equals(actionConfiguration.getPaginationType())) {
                 updateVariablesWithPaginationValues(actionConfiguration, executeActionDTO, hintMessages);
             }
 
