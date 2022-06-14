@@ -153,11 +153,11 @@ function EditorsRouter() {
             exact
             path={`${path}${PROVIDER_TEMPLATE_PATH}`}
           />
-          <SentryRoute
+          {/* <SentryRoute
             component={GeneratePage}
             exact
             path={`${path}${GENERATE_TEMPLATE_PATH}`}
-          />
+          /> */}
           <SentryRoute
             component={GeneratePage}
             exact

@@ -565,31 +565,12 @@ export function* createPageSaga(
       });
       // route to generate template for new page created
       if (!createPageAction.payload.blockNavigation) {
-        const firstTimeUserOnboardingApplicationId: string = yield select(
-          getFirstTimeUserOnboardingApplicationId,
+        history.push(
+          builderURL({
+            pageSlug: response.data.slug,
+            pageId: response.data.id,
+          }),
         );
-        const isFirstTimeUserOnboardingEnabled: boolean = yield select(
-          getIsFirstTimeUserOnboardingEnabled,
-        );
-        if (
-          firstTimeUserOnboardingApplicationId ==
-            createPageAction.payload.applicationId &&
-          isFirstTimeUserOnboardingEnabled
-        ) {
-          history.push(
-            builderURL({
-              pageSlug: response.data.slug,
-              pageId: response.data.id,
-            }),
-          );
-        } else {
-          history.push(
-            generateTemplateURL({
-              pageSlug: response.data.slug,
-              pageId: response.data.id,
-            }),
-          );
-        }
       }
     }
   } catch (error) {
