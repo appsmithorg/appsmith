@@ -429,7 +429,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._refreshIcon);
 
     //Store Address deletion remains
-    table.ReadTableRowColumnData(4, 3, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(4, 3, 2000).then(($cellData) => {
       expect($cellData).to.eq("");
     });
     table.ReadTableRowColumnData(7, 3, 200).then(($cellData) => {
