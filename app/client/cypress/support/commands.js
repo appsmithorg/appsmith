@@ -758,7 +758,7 @@ Cypress.Commands.add("closePropertyPane", () => {
 });
 
 Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
-  cy.EnableAllCodeEditors();
+  //cy.EnableAllCodeEditors();
   // Filling the messages for success/failure in the onClickAction of the button widget.
   // For Success
   cy.get(".code-highlight", { timeout: 10000 })
