@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.DatasourceDTO;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.dtos.ExecutePluginDTO;
@@ -21,7 +22,6 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionProvider;
@@ -140,24 +140,24 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final ResponseUtils responseUtils;
 
     public NewActionServiceCEImpl(Scheduler scheduler,
-                                Validator validator,
-                                MongoConverter mongoConverter,
-                                ReactiveMongoTemplate reactiveMongoTemplate,
-                                NewActionRepository repository,
-                                AnalyticsService analyticsService,
-                                DatasourceService datasourceService,
-                                PluginService pluginService,
-                                DatasourceContextService datasourceContextService,
-                                PluginExecutorHelper pluginExecutorHelper,
-                                MarketplaceService marketplaceService,
-                                PolicyGenerator policyGenerator,
-                                NewPageService newPageService,
-                                ApplicationService applicationService,
-                                SessionUserService sessionUserService,
-                                PolicyUtils policyUtils,
-                                AuthenticationValidator authenticationValidator,
-                                ConfigService configService,
-                                ResponseUtils responseUtils) {
+                                  Validator validator,
+                                  MongoConverter mongoConverter,
+                                  ReactiveMongoTemplate reactiveMongoTemplate,
+                                  NewActionRepository repository,
+                                  AnalyticsService analyticsService,
+                                  DatasourceService datasourceService,
+                                  PluginService pluginService,
+                                  DatasourceContextService datasourceContextService,
+                                  PluginExecutorHelper pluginExecutorHelper,
+                                  MarketplaceService marketplaceService,
+                                  PolicyGenerator policyGenerator,
+                                  NewPageService newPageService,
+                                  ApplicationService applicationService,
+                                  SessionUserService sessionUserService,
+                                  PolicyUtils policyUtils,
+                                  AuthenticationValidator authenticationValidator,
+                                  ConfigService configService,
+                                  ResponseUtils responseUtils) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -406,7 +406,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedAction.getApplicationId(), ""));
                     analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedAction.getOrganizationId(), ""));
                     analyticsProperties.put("actionName", ObjectUtils.defaultIfNull(unpublishedAction.getValidName(), ""));
-                    if(unpublishedAction.getDatasource() != null) {
+                    if (unpublishedAction.getDatasource() != null) {
                         analyticsProperties.put("dsName", ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getName(), ""));
                     }
 
@@ -567,8 +567,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         return pluginExecutorMono
                 .flatMap(pluginExecutor -> {
-                    action.getUnpublishedAction().setActionConfiguration(pluginExecutor
-                            .extractAndSetNativeQueryFromFormData(action.getUnpublishedAction().getActionConfiguration()));
+                    pluginExecutor.extractAndSetNativeQueryFromFormData(
+                            action.getUnpublishedAction().getActionConfiguration()
+                    );
 
                     return Mono.just(action);
                 })
@@ -858,7 +859,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 })
                 .collectList()
                 .flatMap(params -> {
-                    if(dto.getActionId() == null) {
+                    if (dto.getActionId() == null) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID));
                     }
                     dto.setParams(params);
@@ -917,14 +918,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private void transformRequestParams(ActionExecutionResult result, Map<String, String> labelMap) {
         Map<String, Object> transformedParams = new LinkedHashMap<>();
         Map<String, RequestParamDTO> requestParamsConfigMap = new HashMap();
-        ((List)result.getRequest().getRequestParams()).stream()
+        ((List) result.getRequest().getRequestParams()).stream()
                 .forEach(param -> requestParamsConfigMap.put(((RequestParamDTO) param).getConfigProperty(),
                         (RequestParamDTO) param));
 
         labelMap.entrySet().stream()
                 .forEach(e -> {
                     String configProperty = e.getKey();
-                    if(requestParamsConfigMap.containsKey(configProperty)) {
+                    if (requestParamsConfigMap.containsKey(configProperty)) {
                         RequestParamDTO param = requestParamsConfigMap.get(configProperty);
                         transformedParams.put(e.getValue(), param);
                     }
@@ -935,7 +936,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     private ActionExecutionResult addDataTypesAndSetSuggestedWidget(ActionExecutionResult result, Boolean viewMode) {
 
-        if(FALSE.equals(viewMode)) {
+        if (FALSE.equals(viewMode)) {
             result.setSuggestedWidgets(getSuggestedWidgets(result.getBody()));
         }
 
@@ -1271,8 +1272,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Mono<DatasourceConfiguration> dsConfigMono;
         if (action.getDatasource().getDatasourceConfiguration() != null) {
             dsConfigMono = Mono.just(action.getDatasource().getDatasourceConfiguration());
-        }
-        else if (action.getDatasource().getId() != null) {
+        } else if (action.getDatasource().getId() != null) {
             dsConfigMono = datasourceService.findById(action.getDatasource().getId())
                     .flatMap(datasource -> {
                         if (datasource.getDatasourceConfiguration() == null) {
@@ -1290,13 +1290,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                     )
                             )
                     );
-        }
-        else {
+        } else {
             dsConfigMono = Mono.just(new DatasourceConfiguration());
         }
 
         return Mono.zip(pluginExecutorMono, dsConfigMono)
-                .flatMap(tuple ->{
+                .flatMap(tuple -> {
                     PluginExecutor pluginExecutor = tuple.getT1();
                     DatasourceConfiguration dsConfig = tuple.getT2();
 
@@ -1388,13 +1387,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     /**
      * This method is meant to be used to check for any missing or bad values in NewAction object and attempt to fix it.
-     *
+     * <p>
      * This method is added in response to certain cases where it was found that pluginId and pluginType keys
      * were missing from the NewAction object in the database.Since it is currently not know what exactly causes
      * these values to go missing, this check will serve as a workaround by fetching and setting pluginId and
      * pluginType using the datasource object contained in the ActionDTO object.
      * Ref: https://github.com/appsmithorg/appsmith/issues/11927
-     *
      */
     public Mono<NewAction> sanitizeAction(NewAction action) {
         Mono<NewAction> actionMono = Mono.just(action);
@@ -1426,8 +1424,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Datasource datasource = actionDTO.getDatasource();
         if (actionDTO.getCollectionId() != null) {
             return setPluginIdAndTypeForJSAction(action);
-        }
-        else if (datasource != null && datasource.getPluginId() != null) {
+        } else if (datasource != null && datasource.getPluginId() != null) {
             String pluginId = datasource.getPluginId();
             action.setPluginId(pluginId);
 
