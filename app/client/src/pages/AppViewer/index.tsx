@@ -46,7 +46,6 @@ import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { initAppViewer } from "actions/initActions";
-import { getShowBrandingBadge } from "@appsmith/selectors/organizationSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
