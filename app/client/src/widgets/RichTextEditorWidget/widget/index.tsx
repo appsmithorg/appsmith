@@ -375,6 +375,7 @@ class RichTextEditorWidget extends BaseWidget<
               1
             )
           }
+          defaultText={this.props.defaultText}
           isDisabled={this.props.isDisabled}
           isMarkdown={this.props.inputType === RTEFormats.MARKDOWN}
           isToolbarHidden={!!this.props.isToolbarHidden}

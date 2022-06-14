@@ -55,6 +55,7 @@ export const RichTextEditorInputWrapper = styled.div<{
 `;
 
 export interface RichtextEditorComponentProps {
+  defaultText: string;
   value?: string;
   isMarkdown: boolean;
   placeholder?: string;
@@ -111,11 +112,16 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   useEffect(() => {
     if (!initialRender.current && valueRef.current !== props.value) {
       valueRef.current = props.value;
-      props.onValueChange(props.value as string);
     } else {
       initialRender.current = false;
     }
   }, [props.value]);
+
+  useEffect(() => {
+    if (valueRef.current !== props.defaultText) {
+      valueRef.current = props.defaultText;
+    }
+  }, [props.defaultText]);
   return (
     <StyledRTEditor
       borderRadius={props.borderRadius}
