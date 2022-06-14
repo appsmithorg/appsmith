@@ -10,7 +10,7 @@ import {
   createMessage,
   DEPRECATION_WIDGET_REPLACEMENT_MESSAGE,
   WIDGET_DEPRECATION_MESSAGE,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 
 export const draggableElement = (
   id: string,
