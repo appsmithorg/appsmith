@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -9,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -24,7 +27,7 @@ public class ApplicationTemplateControllerCE {
 
     @GetMapping
     public Mono<ResponseDTO<List<ApplicationTemplate>>> getAll() {
-        return applicationTemplateService.getActiveTemplates(null).collectList()
+        return applicationTemplateService.getActiveTemplates(null)
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 
@@ -55,7 +58,17 @@ public class ApplicationTemplateControllerCE {
 
     @GetMapping("recent")
     public Mono<ResponseDTO<List<ApplicationTemplate>>> getRecentlyUsedTemplates() {
-        return applicationTemplateService.getRecentlyUsedTemplates().collectList()
+        return applicationTemplateService.getRecentlyUsedTemplates()
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
+    }
+
+    @PostMapping("{templateId}/merge/{applicationId}/{organizationId}")
+    public Mono<ResponseDTO<Application>> mergeTemplateWithApplication(@PathVariable String templateId,
+                                                                       @PathVariable String applicationId,
+                                                                       @PathVariable String organizationId,
+                                                                       @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                                       @RequestBody(required = false) List<String> pagesToImport) {
+        return applicationTemplateService.mergeTemplateWithApplication(templateId, applicationId, organizationId, branchName, pagesToImport)
+                .map(importedApp -> new ResponseDTO<>(HttpStatus.OK.value(), importedApp, null));
     }
 }
