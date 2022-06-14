@@ -288,7 +288,11 @@ export class AggregateHelper {
     cy.get(this.locator._widgetInDeployed(endp) + " div.rc-select-selector")
       .eq(index)
       .scrollIntoView()
-      .click();
+      .then(($element) => {
+        cy.get($element).click(+$element.width - 10, +$element.height / 2, {
+          force: true,
+        });
+      });
 
     if (check) {
       options.forEach(($each) => {
