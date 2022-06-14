@@ -74,6 +74,9 @@ export const matchViewerForkPath = (pathName: string) =>
   match(`${VIEWER_PATH_DEPRECATED}${VIEWER_FORK_PATH}`)(pathName);
 export const matchTemplatesPath = match(TEMPLATES_PATH);
 export const matchTemplatesIdPath = match(TEMPLATES_ID_PATH);
+export const matchGeneratePagePath = (pathName: string) =>
+  match(`${BUILDER_PATH}${GENERATE_TEMPLATE_PATH}`)(pathName) ||
+  match(`${BUILDER_PATH_DEPRECATED}${GENERATE_TEMPLATE_PATH}`)(pathName);
 
 export const addBranchParam = (branch: string) => {
   const url = new URL(window.location.href);
