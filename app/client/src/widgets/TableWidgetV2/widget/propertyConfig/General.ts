@@ -1,11 +1,15 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import {
+  InlineEditingSaveOptions,
+  TableWidgetProps,
+} from "widgets/TableWidgetV2/constants";
 import {
   totalRecordsCountValidation,
   uniqueColumnNameValidation,
   updateColumnOrderHook,
+  updateEditActionsColumnHook,
 } from "../propertyUtils";
 import {
   createMessage,
@@ -226,6 +230,31 @@ export default {
       controlType: "SWITCH",
       isBindProperty: false,
       isTriggerProperty: false,
+    },
+    {
+      propertyName: "inlineEditingSaveOption",
+      helpText: "choose the save option to save edited the cell",
+      label: "Show save button on",
+      controlType: "DROP_DOWN",
+      isBindProperty: true,
+      isTriggerProperty: false,
+      hidden: (props: TableWidgetProps) => {
+        return !Object.values(props.primaryColumns).find(
+          (column) => column.isEditable,
+        );
+      },
+      dependencies: ["primaryColumns"],
+      options: [
+        {
+          label: "Row level",
+          value: InlineEditingSaveOptions.ROW_LEVEL,
+        },
+        {
+          label: "Custom",
+          value: InlineEditingSaveOptions.CUSTOM,
+        },
+      ],
+      updateHook: updateEditActionsColumnHook,
     },
   ],
 };

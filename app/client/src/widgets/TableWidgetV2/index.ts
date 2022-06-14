@@ -6,6 +6,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
+import { InlineEditingSaveOptions } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { escapeString } from "./widget/utilities";
@@ -224,6 +225,7 @@ export const CONFIG = {
     isSortable: true,
     delimiter: ",",
     version: 3,
+    inlineEditingSaveOption: InlineEditingSaveOptions.CUSTOM,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
