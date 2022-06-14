@@ -8,7 +8,6 @@ import {
   BuilderRouteParams,
   GIT_BRANCH_QUERY_KEY,
 } from "constants/routes";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getIsInitialized,
   getAppViewHeaderHeight,
@@ -34,13 +33,19 @@ import { getSearchQuery } from "utils/helpers";
 import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
-import BuiltOn from "./BrandingBadge";
+import BrandingBadge from "./BrandingBadge";
 import {
   BatchPropertyUpdatePayload,
   batchUpdateWidgetProperty,
 } from "actions/controlActions";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
+import { fetchPublishedPage } from "actions/pageActions";
+import usePrevious from "utils/hooks/usePrevious";
+import { getIsBranchUpdated } from "../utils";
+import { APP_MODE } from "entities/App";
+import { initAppViewer } from "actions/initActions";
+import { getShowBrandingBadge } from "@appsmith/selectors/organizationSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -79,7 +84,7 @@ const DEFAULT_FONT_NAME = "System Default";
 
 function AppViewer(props: Props) {
   const dispatch = useDispatch();
-  const { search } = props.location;
+  const { pathname, search } = props.location;
   const { applicationId, pageId } = props.match.params;
   const [registered, setRegistered] = useState(false);
   const isInitialized = useSelector(getIsInitialized);
@@ -90,23 +95,65 @@ function AppViewer(props: Props) {
   );
   const showGuidedTourMessage = useSelector(showPostCompletionMessage);
   const headerHeight = useSelector(getAppViewHeaderHeight);
+  const showBrandingBadge = useSelector(getShowBrandingBadge);
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+  const prevValues = usePrevious({ branch, location: props.location, pageId });
 
   /**
    * initializes the widgets factory and registers all widgets
    */
   useEffect(() => {
-    editorInitializer().then(() => setRegistered(true));
+    editorInitializer().then(() => {
+      setRegistered(true);
+    });
+
+    // onMount initPage
+    if (applicationId || pageId) {
+      dispatch(
+        initAppViewer({
+          applicationId,
+          branch,
+          pageId,
+          mode: APP_MODE.PUBLISHED,
+        }),
+      );
+    }
   }, []);
 
   /**
    * initialize the app if branch, pageId or application is changed
    */
   useEffect(() => {
-    if (applicationId || pageId) {
-      initializeAppViewerCallback(branch, applicationId, pageId);
+    const prevBranch = prevValues?.branch;
+    const prevLocation = prevValues?.location;
+    const prevPageId = prevValues?.pageId;
+    let isBranchUpdated = false;
+    if (prevBranch && prevLocation) {
+      isBranchUpdated = getIsBranchUpdated(props.location, prevLocation);
     }
-  }, [branch, pageId, applicationId]);
+
+    const isPageIdUpdated = pageId !== prevPageId;
+
+    if (prevBranch && isBranchUpdated && (applicationId || pageId)) {
+      dispatch(
+        initAppViewer({
+          applicationId,
+          branch,
+          pageId,
+          mode: APP_MODE.PUBLISHED,
+        }),
+      );
+    } else {
+      /**
+       * First time load is handled by init sagas
+       * If we don't check for `prevPageId`: fetch page is retriggered
+       * when redirected to the default page
+       */
+      if (prevPageId && pageId && isPageIdUpdated) {
+        dispatch(fetchPublishedPage(pageId, true));
+      }
+    }
+  }, [branch, pageId, applicationId, pathname]);
 
   useEffect(() => {
     const header = document.querySelector(".js-appviewer-header");
@@ -138,24 +185,6 @@ function AppViewer(props: Props) {
 
     document.body.style.fontFamily = appFontFamily;
   }, [selectedTheme.properties.fontFamily.appFont]);
-
-  /**
-   * callback for initialize app
-   */
-  const initializeAppViewerCallback = (
-    branch: string,
-    applicationId: string,
-    pageId: string,
-  ) => {
-    dispatch({
-      type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
-      payload: {
-        branch: branch,
-        applicationId,
-        pageId,
-      },
-    });
-  };
 
   /**
    * callback for executing an action
@@ -226,7 +255,7 @@ function AppViewer(props: Props) {
               >
                 {isInitialized && registered && <AppViewerPageContainer />}
               </AppViewerBody>
-              <BuiltOn />
+              {showBrandingBadge && <BrandingBadge />}
             </AppViewerBodyContainer>
           </ContainerWithComments>
           <AddCommentTourComponent />

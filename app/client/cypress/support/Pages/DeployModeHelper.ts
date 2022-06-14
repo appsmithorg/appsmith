@@ -4,16 +4,20 @@ export class DeployMode {
   private locator = ObjectsRegistry.CommonLocators;
   private agHelper = ObjectsRegistry.AggregateHelper;
 
-  _jsonFormFieldByName = (fieldName: string, input: boolean) =>
+  _jsonFormFieldByName = (fieldName: string, input: boolean = true) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='input-container']//${
       input ? "input" : "textarea"
     }`;
   _jsonFormRadioFieldByName = (fieldName: string) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='radiogroup-container']//input`;
+    _jsonFormDatepickerFieldByName = (fieldName: string) =>
+    `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='datepicker-container']//input`;
+  _jsonSelectDropdown = "button.select-button";
+  _clearDropdown = "button.select-button span.cancel-icon"
 
   //refering PublishtheApp from command.js
   public DeployApp(
-    eleToCheckInDeployPage: string = this.locator._backToEditor,
+    eleToCheckInDeployPage: string = this.locator._backToEditor, toCheckFailureToast= true
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
     // Wait before publish
@@ -36,6 +40,8 @@ export class DeployMode {
 
     this.agHelper.WaitUntilEleAppear(eleToCheckInDeployPage);
     localStorage.setItem("inDeployedMode", "true");
+    toCheckFailureToast && this.agHelper.AssertElementAbsence(this.locator._toastMsg);//Validating bug - 14141
+    this.agHelper.Sleep(2000); //for Depoy page to settle!
   }
 
   // Stubbing window.open to open in the same tab
@@ -48,14 +54,35 @@ export class DeployMode {
     });
   }
 
-  public EnterJSONFieldValue(selector: string, value: string, index = 0) {
-    let locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    locator
+  public EnterJSONInputValue(fieldName: string, value: string, index = 0) {
+    cy.xpath(this._jsonFormFieldByName(fieldName))
       .eq(index)
       .click()
       .type(value)
       .wait(500);
+  }
+
+  public EnterJSONTextAreaValue(fieldName: string, value: string, index = 0) {
+    cy.xpath(this._jsonFormFieldByName(fieldName, false))
+      .eq(index)
+      .click()
+      .type(value)
+      .wait(500);
+  }
+
+  public ClearJSONFieldValue(fieldName: string, index = 0, isInput = true) {
+    cy.xpath(this._jsonFormFieldByName(fieldName, isInput))
+      .eq(index)
+      .clear()
+      .wait(500);
+  }
+
+  public SelectJsonFormDropDown(ddOption: string, index = 0) {
+    cy.get(this._jsonSelectDropdown)
+      .eq(index)
+      .scrollIntoView()
+      .click();
+    cy.get(this.locator._selectOptionValue(ddOption)).click({ force: true });
+    this.agHelper.Sleep(); //for selected value to reflect!
   }
 }
