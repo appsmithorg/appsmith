@@ -4,7 +4,7 @@ import {
   UpdateCanvasPayload,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import { WidgetProps, WIDGET_DISPLAY_PROPS } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import { CanvasWidgetStructure } from "widgets/constants";
 import { pick } from "lodash";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
@@ -32,7 +32,10 @@ function denormalize(
 
   const staticProps = [
     ...Object.keys(WIDGET_STATIC_PROPS),
-    ...Object.keys(WIDGET_DISPLAY_PROPS),
+    "isVisible",
+    "isLoading",
+    "isDisabled",
+    "backgroundColor",
   ];
 
   const structure = pick(rootWidget, staticProps) as CanvasWidgetStructure;

@@ -1,4 +1,7 @@
+import equal from "fast-deep-equal/es6";
 import React from "react";
+
+import BaseWidget, { WidgetProps } from "./BaseWidget";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import {
   getWidgetEvalValues,
@@ -10,11 +13,10 @@ import {
   createCanvasWidget,
   getChildWidgets,
 } from "selectors/editorSelectors";
-import { getCanvasWidget } from "selectors/entitiesSelector";
-import BaseWidget, { WidgetProps } from "./BaseWidget";
-import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { CanvasWidgetStructure } from "./constants";
+import { getCanvasWidget } from "selectors/entitiesSelector";
+import { useSelector } from "react-redux";
 
 function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   function WrappedComponent(
@@ -45,7 +47,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       if (type !== "LIST_WIDGET") return null;
 
       return getChildWidgets(state, widgetId);
-    });
+    }, equal);
 
     let widgetProps: WidgetProps | null = null;
 
