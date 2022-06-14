@@ -18,7 +18,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import BaseInputWidget from "widgets/BaseInputWidget";
-import { isNil, merge, toString } from "lodash";
+import { isNil, isNumber, merge, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
@@ -459,7 +459,10 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       }
     }
 
-    if (this.props.inputType === InputTypes.NUMBER && this.props.defaultText) {
+    if (
+      this.props.inputType === InputTypes.NUMBER &&
+      isNumber(this.props.defaultText)
+    ) {
       // check the default text is neither greater than max nor less than min value.
       if (
         !isNil(this.props.minNum) &&
