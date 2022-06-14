@@ -38,6 +38,8 @@ public class SessionUserServiceCEImpl implements SessionUserServiceCE {
                 .map(auth -> (User) auth.getPrincipal());
     }
 
+    // Used mono istead of flux because operation to convert flux into a set is synchronized and this function takes care if that
+    // and hence calling function doesn't need to do extra operations for converting multiple fluxes into a set
     @Override
     public Mono<Set<String>> getCurrentPermissionGroups() {
         // TODO implement this method
