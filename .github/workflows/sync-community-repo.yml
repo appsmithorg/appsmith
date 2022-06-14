@@ -27,7 +27,7 @@ jobs:
           git config pull.rebase false
           if ! git pull community release --no-edit; then
             conflict_files="$(git status --short | awk '$1 == "UU" {print $2}')"
-            if [[ "$conflict_files" == ".github/config.json" ]]; do
+            if [[ "$conflict_files" == ".github/config.json" ]]; then
               // The `:3:` gets the file from CE here. See <https://git-scm.com/docs/gitrevisions#Documentation/gitrevisions.txt-emltngtltpathgtemegem0READMEememREADMEem>.
               git show :3:.github/config.json > .github/config.json
               git add .github/config.json
