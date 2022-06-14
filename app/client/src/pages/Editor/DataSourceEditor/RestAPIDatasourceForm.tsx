@@ -834,6 +834,27 @@ class DatasourceRestAPIEditor extends React.Component<
             false,
           )}
         </FormInputContainer>
+        <FormInputContainer
+          data-replay-id={btoa("authentication.isAuthorizationHeader")}
+        >
+          {this.renderDropdownControlViaFormControl(
+            "authentication.isAuthorizationHeader",
+            [
+              {
+                label: "Send as Basic Auth header",
+                value: true,
+              },
+              {
+                label: "Send client credentials in body",
+                value: false,
+              },
+            ],
+            "Client Authentication",
+            "",
+            false,
+            "",
+          )}
+        </FormInputContainer>
       </>
     );
   };
@@ -993,27 +1014,6 @@ class DatasourceRestAPIEditor extends React.Component<
             "Custom Authentication Parameters",
             "",
             false,
-          )}
-        </FormInputContainer>
-        <FormInputContainer
-          data-replay-id={btoa("authentication.isAuthorizationHeader")}
-        >
-          {this.renderDropdownControlViaFormControl(
-            "authentication.isAuthorizationHeader",
-            [
-              {
-                label: "Send as Basic Auth header",
-                value: true,
-              },
-              {
-                label: "Send client credentials in body",
-                value: false,
-              },
-            ],
-            "Client Authentication",
-            "",
-            false,
-            "",
           )}
         </FormInputContainer>
 
