@@ -854,7 +854,7 @@ public class ExamplesWorkspaceClonerTests {
                     DatasourceConfiguration dc2 = new DatasourceConfiguration();
                     ds2.setDatasourceConfiguration(dc2);
                     dc2.setAuthentication(new OAuth2(
-                            OAuth2.RefreshTokenClientCredentialsLocation.BODY,
+
                             OAuth2.Type.CLIENT_CREDENTIALS,
                             true,
                             true,
@@ -865,6 +865,7 @@ public class ExamplesWorkspaceClonerTests {
                             "scope",
                             Set.of("scope1", "scope2", "scope3"),
                             true,
+                            OAuth2.RefreshTokenClientCredentialsLocation.BODY,
                             "header prefix",
                             Set.of(
                                     new Property("custom token param 1", "custom token param value 1"),
