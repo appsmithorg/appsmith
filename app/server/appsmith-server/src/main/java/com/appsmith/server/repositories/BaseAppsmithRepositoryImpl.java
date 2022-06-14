@@ -54,6 +54,8 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
     //TODO move and implement, maybe do not take user as argument
     // this will include user's and anonymous
+    // Used mono istead of flux because operation to convert flux into a set is synchronized and this function takes care if that
+    // and hence calling function doesn't need to do extra operations for converting flux into a set
     protected Mono<Set<String>> getCurrentPermissionGroups(User user) {
         Set<String> permissions = new HashSet<>();
         return Mono.just(permissions);
