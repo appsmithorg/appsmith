@@ -385,6 +385,7 @@ function GitConnection({ isImport }: Props) {
     return () => {
       dispatch(remoteUrlInputValue({ tempRemoteUrl: "" }));
       dispatch(resetSSHKeys());
+      dispatch(setIsGitSyncModalOpen({ isOpen: false }));
     };
   }, []);
 
