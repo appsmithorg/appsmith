@@ -16,6 +16,10 @@ import com.appsmith.caching.model.CacheStats;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+/**
+ * ReactiveCacheManagerImpl is a class that implements the ReactiveCacheManager interface.
+ * Used Redis as the cache backend.
+ */
 @Component
 @ConditionalOnClass({ReactiveRedisTemplate.class})
 @Slf4j
@@ -27,6 +31,10 @@ public class RedisCacheManagerImpl implements CacheManager {
 
     Map<String, CacheStats> statsMap = new ConcurrentHashMap<>();
 
+    /**
+     * Ensures that the key for cacheName is present in statsMap.
+     * @param cacheName The name of the cache.
+     */
     private void ensureStats(String cacheName) {
         if (!statsMap.containsKey(cacheName)) {
             statsMap.put(cacheName, CacheStats.newInstance());
@@ -41,6 +49,9 @@ public class RedisCacheManagerImpl implements CacheManager {
         });
     }
 
+    /**
+     * Resets the stats.
+     */
     public void resetStats() {
         statsMap.clear();
     }
@@ -59,10 +70,12 @@ public class RedisCacheManagerImpl implements CacheManager {
         String path = applicationName + ":" + cacheName + ":" + key;
         return reactiveRedisTemplate.opsForValue().get(path)
             .map(value -> {
+                //This is a cache hit, update stats and return value
                 statsMap.get(cacheName).getHits().incrementAndGet();
                 return value;
             })
             .switchIfEmpty(Mono.defer(() -> {
+                //This is a cache miss, update stats and return empty
                 statsMap.get(cacheName).getMisses().incrementAndGet();
                 return Mono.empty();
             }));
@@ -88,6 +101,7 @@ public class RedisCacheManagerImpl implements CacheManager {
         ensureStats(cacheName);
         statsMap.get(cacheName).getCompleteEvictions().incrementAndGet();
         String path = applicationName + ":" + cacheName;
+        //Remove all matching keys with wildcard
         final String script =
             "for _,k in ipairs(redis.call('keys','" + path + ":*'))" +
                     " do redis.call('del',k) " +

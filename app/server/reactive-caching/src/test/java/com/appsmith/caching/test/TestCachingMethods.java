@@ -30,6 +30,9 @@ public class TestCachingMethods {
     @Autowired
     private CacheManager cacheManager;
 
+    /**
+     * This Test is used to test the caching of a method that returns a Mono<T>
+     */
     @Test
     public void testCacheAndEvictMono() {
         TestModel model = cacheTestService.getObjectFor("test1").block();
@@ -43,6 +46,9 @@ public class TestCachingMethods {
         assertNotEquals(model, model2);
     }
 
+    /**
+     * This Test is used to test the caching of a method that returns a Flux<T>
+     */
     @Test
     public void testCacheAndEvictFlux() {
         List<TestModel> model = cacheTestService.getListFor("test1").collectList().block();
@@ -58,6 +64,9 @@ public class TestCachingMethods {
         }
     }
 
+    /**
+     * This Test is used to test evict all
+     */
     @Test
     public void testEvictAll() {
         TestModel model1 = cacheTestService.getObjectFor("test1").block();
@@ -72,6 +81,9 @@ public class TestCachingMethods {
         assertNotEquals(model2, model2_2);
     }
 
+    /**
+     * This Test is used to test SPEL expression in key field.
+     */
     @Test
     public void testExpression() {
         TestModel model = cacheTestService.getObjectForWithKey(ArgumentModel.of("test1")).block();
@@ -85,6 +97,9 @@ public class TestCachingMethods {
         assertNotEquals(model, model2);
     }
 
+    /**
+     * Test to measure performance of caching
+     */
     @Test
     public void measurePerformance() {
         // Cache first
@@ -99,6 +114,9 @@ public class TestCachingMethods {
         log.info("Time taken for cache operation " + (timeTaken / count) + " nanos");
     }
 
+    /**
+     * Log stats in the end
+     */
     @AfterAll
     public void tearDown() {
         cacheManager.logStats();
