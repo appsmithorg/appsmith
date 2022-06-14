@@ -1,7 +1,7 @@
 const glob = require("glob");
 const path = require("path");
 const { summaries } = require("./summary");
-const { saveToSupabase } = require("./ci/supabase");
+// const { saveToSupabase } = require("./ci/supabase");
 var cp = require("child_process");
 var fs = require("fs");
 
@@ -19,5 +19,5 @@ glob("./tests/*.perf.js", {}, async function(er, files) {
     await cp.execSync(`node ${file}`, { stdio: "inherit" }); // Logging to terminal, log it to a file in future?
   });
   await summaries(`${APP_ROOT}/traces/reports`);
-  await saveToSupabase();
+//   await saveToSupabase();
 });
