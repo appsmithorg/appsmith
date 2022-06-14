@@ -213,40 +213,6 @@ export const updateColumnOrderHook = (
   }
 };
 
-const ACCESSOR_PATH_REGEX = /^primaryColumns\.(\w+)\.alias$/;
-/*
- * Hook that updates accesor map and computedValue when a alias
- * is updated.
- */
-export const updateColumnAccessorHook = (
-  props: TableWidgetProps,
-  propertyPath: string,
-  propertyValue: any,
-): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  if (props && propertyValue && ACCESSOR_PATH_REGEX.test(propertyPath)) {
-    const match = ACCESSOR_PATH_REGEX.exec(propertyPath) || [];
-    const columnIdHash = match[1];
-    const columnId =
-      props.primaryColumns &&
-      props.primaryColumns[columnIdHash] &&
-      props.primaryColumns[columnIdHash].originalId;
-
-    if (columnId) {
-      const propertiesToUpdate = [];
-      propertiesToUpdate.push({
-        propertyPath: "aliasMap",
-        propertyValue: { ...props.aliasMap, [columnId]: propertyValue },
-      });
-
-      return propertiesToUpdate;
-    } else {
-      return;
-    }
-  } else {
-    return;
-  }
-};
-
 const EDITABLITY_PATH_REGEX = /^primaryColumns\.(\w+)\.isCellEditable$/;
 /*
  * Hook that updates column level editability when cell level editability is
