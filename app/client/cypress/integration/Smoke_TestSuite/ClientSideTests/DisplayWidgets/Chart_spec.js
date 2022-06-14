@@ -27,6 +27,7 @@ describe("Chart Widget Functionality", function() {
       viewWidgetsPage.chartWidget,
       commonlocators.containerInnerText,
     );
+    cy.EnableAllCodeEditors();
     //changing the Chart Title
     /**
      * @param{Text} Random Input Value

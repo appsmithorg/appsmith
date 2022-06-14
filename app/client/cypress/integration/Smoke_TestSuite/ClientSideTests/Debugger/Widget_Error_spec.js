@@ -15,6 +15,8 @@ describe("Widget error state", function() {
     cy.get(".t--property-control-visible")
       .find(".t--js-toggle")
       .click();
+    cy.EnableAllCodeEditors();
+
     cy.testJsontext("visible", "Test");
 
     cy.contains(".t--widget-error-count", 1);
@@ -32,6 +34,7 @@ describe("Widget error state", function() {
     cy.get(".t--property-control-onclick")
       .find(".t--js-toggle")
       .click();
+    cy.EnableAllCodeEditors();
     cy.testJsontext("onclick", "{{testApi.run()}}");
     cy.get(widgetLocators.buttonWidget).click();
 

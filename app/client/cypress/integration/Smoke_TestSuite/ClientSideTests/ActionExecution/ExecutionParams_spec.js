@@ -50,6 +50,7 @@ describe("API Panel Test Functionality", function() {
     cy.get(".t--entity-name")
       .contains("Table1")
       .click({ force: true });
+    cy.EnableAllCodeEditors();
     cy.testJsontext("tabledata", "{{Query1.data}}");
     // Assert 'posts' data (default)
     cy.readTabledataPublish("0", "1").then((cellData) => {

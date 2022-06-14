@@ -71,6 +71,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.clearPropertyValue(0);
     //toggle js for visiblity
     cy.get(".t--property-control-visible .t--js-toggle").click({ force: true });
+    cy.EnableAllCodeEditors();
     cy.clearPropertyValue(1);
   });
 
