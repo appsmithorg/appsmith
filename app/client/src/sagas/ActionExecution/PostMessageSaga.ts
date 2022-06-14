@@ -24,8 +24,6 @@ export function* executePostMessage(
       throw new TriggerFailureError(
         "Please enter a valid url as targetOrigin. Failing to provide a specific target discloses the data you send to any interested malicious site.",
       );
-    } else if (isEmpty(message)) {
-      throw new TriggerFailureError("Please enter a message.");
     } else if (isEmpty(targetOrigin)) {
       throw new TriggerFailureError("Please enter a target origin URL.");
     } else {
