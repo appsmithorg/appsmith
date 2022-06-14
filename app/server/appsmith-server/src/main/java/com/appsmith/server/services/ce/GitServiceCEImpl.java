@@ -421,7 +421,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if(Boolean.TRUE.equals(isFileLock)) {
                         return addFileLock(gitData.getDefaultApplicationId())
                                 .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
-                                        .filter(throwable -> throwable instanceof JGitInternalException)
                                         .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                                             throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
                                         }))
@@ -1185,7 +1184,6 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     return addFileLock(srcBranchGitData.getDefaultApplicationId())
                             .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
-                                    .filter(throwable -> throwable instanceof JGitInternalException)
                                     .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                                         throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
                                     }))
@@ -1407,7 +1405,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     return addFileLock(gitData.getDefaultApplicationId())
                             .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
-                                    .filter(throwable -> throwable instanceof JGitInternalException)
                                     .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                                         throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
                                     }))
@@ -1576,7 +1573,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                         // Add file lock for the status API call to avoid sending wrong info on the status
                         return addFileLock(gitApplicationMetadata.getDefaultApplicationId())
                                 .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY).jitter(0.75)
-                                        .filter(throwable -> throwable instanceof JGitInternalException)
                                         .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                                             throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
                                         }))
@@ -1663,7 +1659,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     return addFileLock(gitData.getDefaultApplicationId())
                             .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
-                                    .filter(throwable -> throwable instanceof JGitInternalException)
                                     .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                                         throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
                                     }))
@@ -1812,7 +1807,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                     //1. Hydrate from db to file system for both branch Applications
                     return addFileLock(gitApplicationMetadata.getDefaultApplicationId())
                             .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY).jitter(0.75)
-                                    .filter(throwable -> throwable instanceof JGitInternalException)
                                     .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                                         throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
                                     }))
