@@ -11,11 +11,14 @@ class PrimaryColumnsColorPickerControl extends BaseControl<
   PrimaryColumnColorPickerControlProps
 > {
   handleChangeColor = (color: string) => {
-    const { jsSnippets, stringSegments } = getDynamicBindings(color);
+    let computedColor = color;
 
-    const js = combineDynamicBindings(jsSnippets, stringSegments);
-    const computedValue = `{{${this.props.widgetProperties.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`;
-    const computedColor = isDynamicValue(color) ? computedValue : color;
+    if (isDynamicValue(color)) {
+      const { jsSnippets, stringSegments } = getDynamicBindings(color);
+
+      const js = combineDynamicBindings(jsSnippets, stringSegments);
+      computedColor = `{{${this.props.widgetProperties.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`;
+    }
 
     this.updateProperty(this.props.propertyName, computedColor);
   };
