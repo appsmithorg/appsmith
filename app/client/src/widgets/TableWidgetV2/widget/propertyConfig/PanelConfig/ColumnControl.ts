@@ -114,7 +114,7 @@ export default {
           ])
         );
       },
-      dependencies: ["primaryColumns", "aliasMap"],
+      dependencies: ["primaryColumns"],
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {

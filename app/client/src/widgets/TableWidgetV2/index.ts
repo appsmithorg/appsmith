@@ -53,12 +53,6 @@ export const CONFIG = {
         key: "primaryColumns.action.boxShadow",
       },
     ],
-    aliasMap: {
-      step: "step",
-      task: "task",
-      status: "status",
-      action: "action",
-    },
     primaryColumns: {
       step: {
         index: 0,

@@ -437,14 +437,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           propertiesToAdd["columnOrder"] = Object.keys(tableColumns);
         }
 
-        const aliasMap: Record<string, string> = {};
-
-        Object.values(tableColumns).forEach((column) => {
-          aliasMap[column.originalId] = column.alias || column.originalId;
-        });
-
-        propertiesToAdd["aliasMap"] = aliasMap;
-
         const propertiesToUpdate: BatchPropertyUpdatePayload = {
           modify: propertiesToAdd,
         };
