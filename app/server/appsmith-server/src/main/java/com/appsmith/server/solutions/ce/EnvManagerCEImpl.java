@@ -231,7 +231,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         commonConfig.setAdminEmails(changesCopy.remove(APPSMITH_ADMIN_EMAILS.name()));
                         String oldAdminEmailsCsv = originalValues.get(APPSMITH_ADMIN_EMAILS.name());
                         dependentTasks = dependentTasks.then(
-                                updateAdminUserPolicies(oldAdminEmailsCsv).collectList().then()
+                                updateAdminUserPolicies(oldAdminEmailsCsv).then()
                         );
                     }
 
@@ -387,11 +387,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     return userRepository.save(user);
                 });
 
-        /*
-         * we need to run these two flux immediately because server will be restarted and these changes
-         * should be persisted to DB before that
-         */
-        return Flux.merge(removedUserFlux, newUsersFlux);
+        int prefetchSize = oldAdminEmails.size(); // prefetch total emails
+        return Flux.mergeDelayError(prefetchSize, removedUserFlux, newUsersFlux);
     }
 
     public Map<String, String> parseToMap(String content) {
