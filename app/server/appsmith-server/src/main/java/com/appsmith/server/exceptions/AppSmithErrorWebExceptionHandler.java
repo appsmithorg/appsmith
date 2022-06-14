@@ -2,7 +2,6 @@ package com.appsmith.server.exceptions;
 
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -22,6 +21,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.reactive.result.view.ViewResolver;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -47,7 +47,7 @@ public class AppSmithErrorWebExceptionHandler extends DefaultErrorWebExceptionHa
         return route(all(), this::render);
     }
 
-    @NotNull
+    @Nonnull
     private Mono<ServerResponse> render(ServerRequest request) {
         Map<String, Object> error = getErrorAttributes(request, ErrorAttributeOptions.of(ErrorAttributeOptions.Include.STACK_TRACE));
         int errorCode = getHttpStatus(error);
