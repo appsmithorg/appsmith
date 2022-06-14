@@ -23,9 +23,14 @@ public class Policy implements Serializable {
 
     String permission;
 
+    @Deprecated
     @Builder.Default
     Set<String> users = new HashSet<>();
 
+    @Deprecated
     @Builder.Default
     Set<String> groups = new HashSet<>();
+
+    @Builder.Default
+    Set<String> permissionGroups = new HashSet<>();
 }

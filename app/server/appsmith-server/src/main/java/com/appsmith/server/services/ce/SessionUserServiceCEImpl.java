@@ -21,6 +21,9 @@ import reactor.util.function.Tuple2;
 
 import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Slf4j
 @RequiredArgsConstructor
 public class SessionUserServiceCEImpl implements SessionUserServiceCE {
@@ -33,6 +36,12 @@ public class SessionUserServiceCEImpl implements SessionUserServiceCE {
         return ReactiveSecurityContextHolder.getContext()
                 .map(SecurityContext::getAuthentication)
                 .map(auth -> (User) auth.getPrincipal());
+    }
+
+    @Override
+    public Mono<Set<String>> getCurrentPermissionGroups() {
+        // TODO implement this method
+        return Mono.just(new HashSet<>());
     }
 
     @Override
