@@ -46,3 +46,8 @@ export const getTemplateInformation = (payload: string) => ({
   type: ReduxActionTypes.GET_TEMPLATE_INIT,
   payload,
 });
+
+export const showTemplatesModal = (payload: boolean) => ({
+  type: ReduxActionTypes.SHOW_TEMPLATES_MODAL,
+  payload,
+});

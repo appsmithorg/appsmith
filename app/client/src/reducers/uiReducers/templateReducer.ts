@@ -16,6 +16,7 @@ const initialState: TemplatesReduxState = {
   filters: {},
   templateSearchQuery: "",
   templateNotificationSeen: null,
+  showTemplatesModal: false,
 };
 
 const templateReducer = createReducer(initialState, {
@@ -120,6 +121,15 @@ const templateReducer = createReducer(initialState, {
       templateNotificationSeen: action.payload,
     };
   },
+  [ReduxActionTypes.SHOW_TEMPLATES_MODAL]: (
+    state: TemplatesReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      showTemplatesModal: action.payload,
+    };
+  },
 });
 
 export interface TemplatesReduxState {
@@ -132,6 +142,7 @@ export interface TemplatesReduxState {
   templateSearchQuery: string;
   isImportingTemplate: boolean;
   templateNotificationSeen: boolean | null;
+  showTemplatesModal: boolean;
 }
 
 export default templateReducer;

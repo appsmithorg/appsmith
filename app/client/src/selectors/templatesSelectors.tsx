@@ -180,3 +180,9 @@ export const getForkableOrganizations = createSelector(
     });
   },
 );
+
+export const templateModalOpenSelector = (state: AppState) =>
+  state.ui.templates.showTemplatesModal;
+
+export const templatesCountSelector = (state: AppState) =>
+  state.ui.templates.templates.length;

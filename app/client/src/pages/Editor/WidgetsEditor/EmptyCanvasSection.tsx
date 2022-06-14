@@ -5,7 +5,7 @@ import { ReactComponent as Database } from "assets/icons/ads/database-3.svg";
 import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { previewModeSelector, selectURLSlugs } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -13,6 +13,7 @@ import history from "utils/history";
 import { generateTemplateFormURL } from "RouteBuilder";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Explorer/helpers";
+import { showTemplatesModal as showTemplatesModalAction } from "actions/templateActions";
 
 const Wrapper = styled.div`
   margin: 16px 33px 0px 33px;
@@ -58,6 +59,7 @@ const goToGenPageForm = ({
 };
 
 function CanvasTopSection() {
+  const dispatch = useDispatch();
   const widgets = useSelector(getCanvasWidgets);
   const inPreviewMode = useSelector(previewModeSelector);
   const isCommentMode = useSelector(commentModeSelector);
@@ -67,9 +69,13 @@ function CanvasTopSection() {
   if (Object.keys(widgets).length > 1 || inPreviewMode || isCommentMode)
     return null;
 
+  const showTemplatesModal = () => {
+    dispatch(showTemplatesModalAction(true));
+  };
+
   return (
     <Wrapper>
-      <Card>
+      <Card onClick={showTemplatesModal}>
         <Layout />
         <Content>
           <Text color={Colors.COD_GRAY} type={TextType.P1}>

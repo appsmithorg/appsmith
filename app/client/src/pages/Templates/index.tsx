@@ -31,6 +31,7 @@ import { getAllApplications } from "actions/applicationActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
+import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const PageWrapper = styled.div`
@@ -38,6 +39,22 @@ const PageWrapper = styled.div`
   display: flex;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   padding-left: 8vw;
+`;
+
+const SidebarWrapper = styled.div`
+  width: ${(props) => props.theme.homePage.sidebar}px;
+  height: 100%;
+  display: flex;
+  padding-left: ${(props) => props.theme.spaces[7]}px;
+  padding-top: ${(props) => props.theme.spaces[11]}px;
+  flex-direction: column;
+`;
+
+const SecondaryWrapper = styled.div`
+  height: calc(
+    100vh - ${(props) => props.theme.homePage.header + props.theme.spaces[11]}px
+  );
+  position: relative;
 `;
 
 export const TemplateListWrapper = styled.div`
@@ -130,13 +147,19 @@ function TemplateListLoader() {
   );
 }
 
-function Templates() {
-  const templates = useSelector(getSearchedTemplateList);
+export function TemplatesContent() {
   const templateSearchQuery = useSelector(getTemplateSearchQuery);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
-  const filterCount = useSelector(getTemplateFiltersLength);
+  const isLoading = isFetchingApplications || isFetchingTemplates;
   const dispatch = useDispatch();
+  const onChange = (query: string) => {
+    dispatch(setTemplateSearchQuery(query));
+  };
+  const debouncedOnChange = debounce(onChange, 250, { maxWait: 1000 });
+  const templates = useSelector(getSearchedTemplateList);
+  const filterCount = useSelector(getTemplateFiltersLength);
+
   let resultsText =
     templates.length > 1
       ? `Showing all ${templates.length} templates`
@@ -153,37 +176,41 @@ function Templates() {
         : "";
   }
 
-  const isLoading = isFetchingApplications || isFetchingTemplates;
-
-  const onChange = (query: string) => {
-    dispatch(setTemplateSearchQuery(query));
-  };
-  const debouncedOnChange = debounce(onChange, 250, { maxWait: 1000 });
+  if (isLoading) {
+    return <TemplateListLoader />;
+  }
 
   return (
+    <>
+      <SearchWrapper>
+        <ControlGroup>
+          <SearchInput
+            cypressSelector={"t--application-search-input"}
+            defaultValue={templateSearchQuery}
+            disabled={isLoading}
+            onChange={debouncedOnChange || noop}
+            placeholder={createMessage(SEARCH_TEMPLATES)}
+            variant={SearchVariant.BACKGROUND}
+          />
+        </ControlGroup>
+      </SearchWrapper>
+      <ResultsCount>{resultsText}</ResultsCount>
+      <TemplateList templates={templates} />
+    </>
+  );
+}
+
+function Templates() {
+  return (
     <PageWrapper>
-      <Filters />
+      <SidebarWrapper>
+        <SecondaryWrapper>
+          <Filters />
+          <LeftPaneBottomSection />
+        </SecondaryWrapper>
+      </SidebarWrapper>
       <TemplateListWrapper>
-        {isLoading ? (
-          <TemplateListLoader />
-        ) : (
-          <>
-            <SearchWrapper>
-              <ControlGroup>
-                <SearchInput
-                  cypressSelector={"t--application-search-input"}
-                  defaultValue={templateSearchQuery}
-                  disabled={isLoading}
-                  onChange={debouncedOnChange || noop}
-                  placeholder={createMessage(SEARCH_TEMPLATES)}
-                  variant={SearchVariant.BACKGROUND}
-                />
-              </ControlGroup>
-            </SearchWrapper>
-            <ResultsCount>{resultsText}</ResultsCount>
-            <TemplateList templates={templates} />
-          </>
-        )}
+        <TemplatesContent />
       </TemplateListWrapper>
     </PageWrapper>
   );

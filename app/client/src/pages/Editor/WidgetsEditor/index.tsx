@@ -33,6 +33,7 @@ import EditorContextProvider from "components/editorComponents/EditorContextProv
 import Guide from "../GuidedTour/Guide";
 import PropertyPaneContainer from "./PropertyPaneContainer";
 import CanvasTopSection from "./EmptyCanvasSection";
+import TemplatesModal from "pages/Templates/TemplatesModal";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
@@ -134,6 +135,7 @@ function WidgetsEditor() {
                 <CanvasContainer />
                 <CrudInfoModal />
                 <Debugger />
+                <TemplatesModal />
               </div>
             </div>
             <PropertyPaneContainer />
