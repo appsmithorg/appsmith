@@ -46,4 +46,62 @@ describe("JSEditor Indendation - Visual tests", () => {
       .wait(3000); //allowing time to prettify!
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
   });
+
+  it("JSEditor validation for Prettify Code with no errors", () => {
+    jsEditor.CreateJSObject(
+      `console.log("hi");
+console.log("hidchjvxz sd,bcjmsd");
+let sum = 0;
+for (let i = 1; i<5; i++) {
+sum += i;
+}
+switch (sum) {
+case 1: console.log('hey ho');
+let sum1 = 2;
+break;
+case 2:
+console.log('hey ho');
+let sum2 = 2;
+break;
+case 3:
+ console.log('hey ho');
+ break;
+}
+function hi(a,b) {
+console.log(a,b);
+}
+hi(1,2);
+`,
+      {
+        paste: false,
+        completeReplace: false,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      },
+    );
+
+    cy.get("div.CodeMirror").matchImageSnapshot(
+      "jsObjWithValidCodeBeforePrettify1",
+    );
+    cy.get(".t--more-action-menu")
+      .first()
+      .click();
+    cy.contains("Prettify Code")
+      .trigger("click")
+      .wait(3000); //allowing time to prettify!
+
+    cy.get("div.CodeMirror").matchImageSnapshot(
+      "jsObjWithValidCodeAfterPrettify1",
+    );
+
+    cy.get(".t--more-action-menu")
+      .first()
+      .click();
+    cy.contains("Prettify Code")
+      .trigger("click")
+      .wait(3000); //allowing time to prettify!
+    cy.get("div.CodeMirror").matchImageSnapshot(
+      "jsObjWithValidCodeAfterPrettify2",
+    );
+  });
 });
