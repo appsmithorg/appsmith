@@ -123,10 +123,10 @@ describe("JSObjects OnLoad Actions tests", function() {
     );
     agHelper.ClickButton("Yes");
     agHelper.AssertElementAbsence(locator._toastMsg);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
+    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
     deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(

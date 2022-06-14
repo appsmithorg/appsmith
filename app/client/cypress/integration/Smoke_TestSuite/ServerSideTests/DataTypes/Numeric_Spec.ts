@@ -48,15 +48,13 @@ describe("Postgres - Datatype Numeric tests", function() {
     );
   });
 
-  it("3. Creating SELECT query - numerictypes", () => {
+  it("3. Creating SELECT query - numerictypes + Bug 14493", () => {
     ee.ActionTemplateMenuByEntityName("public.numerictypes", "SELECT");
     agHelper.RenameWithInPane("selectRecords");
-    //dataSources.RunQuery();
-    //No data records to show - validate this
-    // dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-    //   expect($cellData).to.eq("371681");
-    // });
-    // agHelper.ActionContextMenuWithInPane("Delete");
+    // dataSources.RunQuery();
+    // agHelper
+    //   .GetText(dataSources._noRecordFound)
+    //   .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
   });
 
   it("4. Creating INSERT query - numerictypes", () => {
