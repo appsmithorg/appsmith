@@ -102,11 +102,7 @@ import { GenerateTemplatePageRequest } from "api/PageApi";
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
-import {
-  getIsFirstTimeUserOnboardingEnabled,
-  getFirstTimeUserOnboardingApplicationId,
-  inGuidedTour,
-} from "selectors/onboardingSelectors";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   fetchJSCollectionsForPage,
   fetchJSCollectionsForPageSuccess,
@@ -115,7 +111,7 @@ import {
 
 import WidgetFactory from "utils/WidgetFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
-import { builderURL, generateTemplateURL } from "RouteBuilder";
+import { builderURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
