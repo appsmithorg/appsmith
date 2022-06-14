@@ -12,7 +12,7 @@ import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { SeverityIcon } from "./helpers";
 import Text, { TextType } from "components/ads/Text";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "@appsmithorg/design-system";
 import {
   createMessage,
   TROUBLESHOOT_ISSUE,

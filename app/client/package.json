@@ -8,6 +8,7 @@
   },
   "cracoConfig": "craco.dev.config.js",
   "dependencies": {
+    "@appsmithorg/design-system": "^1.0.1-beta.5",
     "@blueprintjs/core": "^3.36.0",
     "@blueprintjs/datetime": "^3.23.6",
     "@blueprintjs/icons": "^3.10.0",

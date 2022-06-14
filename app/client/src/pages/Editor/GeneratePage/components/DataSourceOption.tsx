@@ -11,7 +11,7 @@ import { Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import { FormIcons } from "icons/FormIcons";
 import _ from "lodash";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "@appsmithorg/design-system";
 
 // ---------- Helpers and constants ----------
 

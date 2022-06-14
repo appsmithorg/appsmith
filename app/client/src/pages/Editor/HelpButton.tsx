@@ -12,7 +12,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import bootIntercom from "utils/bootIntercom";
 import { Colors } from "constants/Colors";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "@appsmithorg/design-system";
 import {
   createMessage,
   HELP_RESOURCE_TOOLTIP,

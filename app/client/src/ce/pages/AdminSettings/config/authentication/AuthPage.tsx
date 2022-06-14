@@ -20,7 +20,7 @@ import { useSelector } from "react-redux";
 import bootIntercom from "utils/bootIntercom";
 import { Colors } from "constants/Colors";
 import Icon from "components/ads/Icon";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "@appsmithorg/design-system";
 import { Position } from "@blueprintjs/core";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";

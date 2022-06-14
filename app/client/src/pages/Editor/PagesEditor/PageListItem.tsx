@@ -18,7 +18,7 @@ import { Page } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { MenuIcons } from "icons/MenuIcons";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "@appsmithorg/design-system";
 import {
   CLONE_TOOLTIP,
   createMessage,

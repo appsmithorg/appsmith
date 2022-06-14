@@ -4,7 +4,7 @@ import { Alignment, Classes, Label, Position } from "@blueprintjs/core";
 
 import { LabelPosition } from "components/constants";
 import { FontStyleTypes } from "constants/WidgetConstants";
-import Tooltip from "./Tooltip";
+import { TooltipComponent as Tooltip } from "@appsmithorg/design-system";
 import { isEllipsisActive } from "utils/helpers";
 import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";

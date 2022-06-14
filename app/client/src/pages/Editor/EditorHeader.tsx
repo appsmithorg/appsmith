@@ -58,7 +58,7 @@ import { fetchUsersForOrg } from "actions/orgActions";
 import { OrgUser } from "constants/orgConstants";
 
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "@appsmithorg/design-system";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import {
   CLOSE_ENTITY_EXPLORER_MESSAGE,

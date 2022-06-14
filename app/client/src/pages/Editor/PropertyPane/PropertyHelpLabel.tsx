@@ -1,5 +1,5 @@
 import { Position } from "@blueprintjs/core";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "@appsmithorg/design-system";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Text, { TextType } from "components/ads/Text";
 import React from "react";

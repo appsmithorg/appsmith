@@ -1,5 +1,5 @@
 import React from "react";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "@appsmithorg/design-system";
 import { isEllipsisActive } from "utils/helpers";
 import { Position } from "@blueprintjs/core";
 import Text, { TextType } from "components/ads/Text";

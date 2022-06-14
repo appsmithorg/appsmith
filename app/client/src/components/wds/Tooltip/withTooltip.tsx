@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "@appsmithorg/design-system";
 import { Position } from "@blueprintjs/core";
 
 const ToolTipWrapper = styled.div`

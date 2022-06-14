@@ -12,7 +12,7 @@ import {
 import { modText } from "utils/helpers";
 import { Layers } from "constants/Layers";
 import { FormIcons } from "icons/FormIcons";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "@appsmithorg/design-system";
 import { ControlIcons } from "icons/ControlIcons";
 import { getSelectedWidgets } from "selectors/ui";
 import { generateClassName } from "utils/generators";

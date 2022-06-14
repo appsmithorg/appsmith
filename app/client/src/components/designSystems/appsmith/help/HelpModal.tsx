@@ -18,7 +18,7 @@ import ModalComponent from "../ModalComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import bootIntercom from "utils/bootIntercom";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "@appsmithorg/design-system";
 import { Position } from "@blueprintjs/core";
 import {
   createMessage,

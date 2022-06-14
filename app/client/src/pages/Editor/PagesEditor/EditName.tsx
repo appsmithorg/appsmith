@@ -11,7 +11,7 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import EditNameInput from "pages/Editor/Explorer/Entity/Name";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "@appsmithorg/design-system";
 import { createMessage, GO_TO_PAGE } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";

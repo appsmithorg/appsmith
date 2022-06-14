@@ -7,7 +7,7 @@ import copy from "copy-to-clipboard";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import TooltipComponent from "../Tooltip";
+import { TooltipComponent } from "@appsmithorg/design-system";
 import { Position } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 
