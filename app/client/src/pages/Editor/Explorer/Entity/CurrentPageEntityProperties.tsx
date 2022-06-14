@@ -1,7 +1,6 @@
 import React, { memo, useEffect } from "react";
 import EntityProperty, { EntityPropertyProps } from "./EntityProperty";
 import { isFunction } from "lodash";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { WidgetType } from "constants/WidgetConstants";
 import {
   ENTITY_TYPE,
@@ -14,6 +13,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
+import EntityDefinitions from "utils/autocomplete/EntityDefinitions";
 
 export const CurrentPageEntityProperties = memo(
   (props: {
@@ -40,7 +40,9 @@ export const CurrentPageEntityProperties = memo(
     let entityProperties: Array<EntityPropertyProps> = [];
     switch (props.entityType) {
       case ENTITY_TYPE.ACTION:
-        config = (entityDefinitions.ACTION as any)(entity as DataTreeAction);
+        config = (EntityDefinitions.get("ACTION") as any)(
+          entity as DataTreeAction,
+        );
         if (config) {
           entityProperties = Object.keys(config)
             .filter((k) => k.indexOf("!") === -1)
@@ -73,7 +75,7 @@ export const CurrentPageEntityProperties = memo(
           | "SKELETON_WIDGET"
           | "TABS_MIGRATOR_WIDGET"
         > = entity.type;
-        config = entityDefinitions[type];
+        config = EntityDefinitions.get(type);
         if (!config) {
           return null;
         }

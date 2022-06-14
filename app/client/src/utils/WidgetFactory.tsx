@@ -16,6 +16,7 @@ import {
   convertFunctionsToString,
   enhancePropertyPaneConfig,
 } from "./WidgetFactoryHelpers";
+import EntityDefinitions from "utils/autocomplete/EntityDefinitions";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -58,6 +59,7 @@ class WidgetFactory {
     metaPropertiesMap: Record<string, any>,
     propertyPaneConfig?: PropertyPaneConfig[],
     features?: WidgetFeatures,
+    autocompleteDefinitions?: Record<string, string>,
   ) {
     if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;
@@ -84,6 +86,10 @@ class WidgetFactory {
           widgetType,
           Object.freeze(finalPropertyPaneConfig),
         );
+      }
+
+      if (autocompleteDefinitions) {
+        EntityDefinitions.set(widgetType, autocompleteDefinitions);
       }
     }
   }

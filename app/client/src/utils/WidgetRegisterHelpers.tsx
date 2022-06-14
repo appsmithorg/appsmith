@@ -40,6 +40,7 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
     config.properties.meta,
     config.properties.config,
     config.features,
+    config.autocompleteDefinitions,
   );
   configureWidget(config);
 };

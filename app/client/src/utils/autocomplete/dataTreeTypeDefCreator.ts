@@ -4,7 +4,7 @@ import {
   MetaArgs,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import EntityDefinitions from "utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
 import { Def } from "tern";
 import {
@@ -35,8 +35,8 @@ export const dataTreeTypeDefCreator = (
   Object.entries(dataTree).forEach(([entityName, entity]) => {
     if (isWidget(entity)) {
       const widgetType = entity.type;
-      if (widgetType in entityDefinitions) {
-        const definition = _.get(entityDefinitions, widgetType);
+      if (EntityDefinitions.get(widgetType)) {
+        const definition = EntityDefinitions.get(widgetType);
         if (_.isFunction(definition)) {
           def[entityName] = definition(entity);
         } else {
@@ -49,14 +49,14 @@ export const dataTreeTypeDefCreator = (
         });
       }
     } else if (isAction(entity)) {
-      def[entityName] = (entityDefinitions.ACTION as any)(entity);
+      def[entityName] = (EntityDefinitions.get("ACTION") as any)(entity);
       flattenDef(def, entityName);
       entityMap.set(entityName, {
         type: ENTITY_TYPE.ACTION,
         subType: "ACTION",
       });
     } else if (isAppsmithEntity(entity)) {
-      def.appsmith = (entityDefinitions.APPSMITH as any)(entity);
+      def.appsmith = (EntityDefinitions.get("APPSMITH") as any)(entity);
       entityMap.set("appsmith", {
         type: ENTITY_TYPE.APPSMITH,
         subType: ENTITY_TYPE.APPSMITH,

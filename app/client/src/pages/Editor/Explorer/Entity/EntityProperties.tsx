@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import EntityProperty from "./EntityProperty";
 import { isFunction } from "lodash";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import EntityDefinitions from "utils/autocomplete/EntityDefinitions";
 import { WidgetType } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { useDispatch, useSelector } from "react-redux";
@@ -136,7 +136,7 @@ export function EntityProperties() {
       }
       break;
     case ENTITY_TYPE.ACTION:
-      config = (entityDefinitions.ACTION as any)(entity as any);
+      config = (EntityDefinitions.get("ACTION") as any)(entity as any);
       if (config) {
         entityProperties = Object.keys(config)
           .filter((k) => k.indexOf("!") === -1)
@@ -176,7 +176,7 @@ export function EntityProperties() {
         | "SKELETON_WIDGET"
         | "TABS_MIGRATOR_WIDGET"
       > = entity.type;
-      config = entityDefinitions[type];
+      config = EntityDefinitions.get(type);
       if (!config) {
         return null;
       }

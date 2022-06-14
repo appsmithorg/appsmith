@@ -8,7 +8,7 @@ import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import EntityDefinitions from "utils/autocomplete/EntityDefinitions";
 
 describe("dataTreeTypeDefCreator", () => {
   it("creates the right def for a widget", () => {
@@ -46,7 +46,7 @@ describe("dataTreeTypeDefCreator", () => {
     // TODO hetu: needs better general testing
     // instead of testing each widget maybe we can test to ensure
     // that defs are in a correct format
-    expect(def.Input1).toBe(entityDefinitions.INPUT_WIDGET_V2);
+    expect(def.Input1).toBe(EntityDefinitions.get("INPUT_WIDGET_V2"));
     expect(def).toHaveProperty("Input1.isDisabled");
     expect(entityInfo.get("Input1")).toStrictEqual({
       type: ENTITY_TYPE.WIDGET,

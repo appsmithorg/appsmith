@@ -20,6 +20,7 @@ export interface WidgetConfiguration {
     meta: Record<string, any>;
     derived: DerivedPropertiesMap;
   };
+  autocompleteDefinitions?: Record<string, string>;
 }
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;

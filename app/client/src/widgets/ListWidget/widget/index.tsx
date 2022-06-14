@@ -35,7 +35,7 @@ import { GridDefaults } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import EntityDefinitions from "utils/autocomplete/EntityDefinitions";
 import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 
@@ -105,13 +105,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
         if (widgetType) {
           childrenEntityDefinitions[widgetType] = Object.keys(
-            omit(
-              get(entityDefinitions, `${widgetType}`) as Record<
-                string,
-                unknown
-              >,
-              ["!doc", "!url"],
-            ),
+            omit(EntityDefinitions.get(widgetType) as Record<string, unknown>, [
+              "!doc",
+              "!url",
+            ]),
           );
         }
       });
