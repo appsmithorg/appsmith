@@ -8,10 +8,8 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.cache.interceptor.SimpleKey;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -27,7 +25,6 @@ import reactor.core.publisher.Mono;
 
 @Aspect
 @Configuration
-@ConditionalOnClass({ReactiveRedisTemplate.class})
 @Slf4j
 public class ReactiveCacheAspect {
 
