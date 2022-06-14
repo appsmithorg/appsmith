@@ -649,16 +649,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         if(importedApplication.getApplicationVersion() == null) {
             importedApplication.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
         }
-        // Create a deep clone of application pages to update independently
-        Gson gson = new Gson();
-        final List<ApplicationPage> publishedPages = new ArrayList<>(importedApplication.getPublishedPages().size());
-        importedApplication.getPages()
-                .forEach(applicationPage -> publishedPages.add(gson.fromJson(gson.toJson(applicationPage), ApplicationPage.class)));
-
+        
+        final List<ApplicationPage> publishedPages = importedApplication.getPublishedPages();
         importedApplication.setViewMode(false);
-        final List<ApplicationPage> unpublishedPages = new ArrayList<>(importedApplication.getPages().size());
-        importedApplication.getPages()
-                .forEach(applicationPage -> unpublishedPages.add(gson.fromJson(gson.toJson(applicationPage), ApplicationPage.class)));
+        final List<ApplicationPage> unpublishedPages = importedApplication.getPages();
 
         importedApplication.setPages(null);
         importedApplication.setPublishedPages(null);

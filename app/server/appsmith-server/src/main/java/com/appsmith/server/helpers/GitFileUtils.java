@@ -9,6 +9,7 @@ import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -341,6 +342,16 @@ public class GitFileUtils {
         // do deploy and push as a single operation
         applicationJson.setPublishedTheme(applicationJson.getEditModeTheme());
         Gson gson = new Gson();
+
+        // Remove null values
+        org.apache.commons.collections.CollectionUtils.filter(application.getPages(), PredicateUtils.notNullPredicate());
+        // Create a deep clone of application pages to update independently
+        application.setViewMode(false);
+        final List<ApplicationPage> applicationPages = new ArrayList<>(application.getPages().size());
+        application.getPages()
+                .forEach(applicationPage -> applicationPages.add(gson.fromJson(gson.toJson(applicationPage), ApplicationPage.class)));
+        application.setPublishedPages(applicationPages);
+
         // Extract pages
         List<NewPage> pages = getApplicationResource(applicationReference.getPages(), NewPage.class);
         // Remove null values
