@@ -117,6 +117,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     }
   }, [props.value]);
 
+  // This useEffect updates the value inside the editor whenever defaultText changes.
   useEffect(() => {
     if (valueRef.current !== props.defaultText) {
       valueRef.current = props.defaultText;
