@@ -8,7 +8,6 @@ import {
   uniqueColumnAliasValidation,
   updateColumnAccessorHook,
   updateColumnLevelEditability,
-  updateEditActionsColumnEventsHook,
   updateNumberColumnTypeTextAlignment,
   updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
@@ -67,7 +66,6 @@ export default {
         },
       ],
       updateHook: composePropertyUpdateHook([
-        updateEditActionsColumnEventsHook,
         updateNumberColumnTypeTextAlignment,
         updateThemeStylesheetsInColumns,
       ]),

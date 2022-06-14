@@ -25,6 +25,13 @@ export enum EditableCellActions {
   SAVE = "SAVE",
   DISCARD = "DISCARD",
 }
+
+export enum InlineEditingSaveOptions {
+  ROW_LEVEL = "ROW_LEVEL",
+  TABLE_LEVEL = "TABLE_LEVEL",
+  CUSTOM = "CUSTOM",
+}
+
 export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   nextPageKey?: string;
   prevPageKey?: string;

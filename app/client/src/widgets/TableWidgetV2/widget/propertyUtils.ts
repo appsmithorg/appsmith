@@ -1,12 +1,18 @@
 import { Alignment } from "@blueprintjs/core";
 import { CellAlignmentTypes, ColumnProperties } from "../component/Constants";
-import { ColumnTypes, TableWidgetProps } from "../constants";
+import {
+  ColumnTypes,
+  InlineEditingSaveOptions,
+  TableWidgetProps,
+} from "../constants";
 import _, { get } from "lodash";
 import { Colors } from "constants/Colors";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
+import { getNextEntityName } from "utils/AppsmithUtils";
+import { getDefaultColumnProperties, getTableStyles } from "./utilities";
 
 export function totalRecordsCountValidation(
   value: unknown,
@@ -243,7 +249,7 @@ export const updateColumnAccessorHook = (
 
 const EDITABLITY_PATH_REGEX = /^primaryColumns\.(\w+)\.isCellEditable$/;
 /*
- * Hook that updates column leve editability when cell level editability is
+ * Hook that updates column level editability when cell level editability is
  * updaed.
  */
 export const updateColumnLevelEditability = (
@@ -368,7 +374,7 @@ export const SelectColumnOptionsValidations = (
  * Hook that updates column isDiabled binding when columnType is
  * changed to ColumnTypes.EDIT_ACTIONS.
  */
-export const updateEditActionsColumnEventsHook = (
+export const updateEditActionsColumnHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
@@ -379,65 +385,103 @@ export const updateEditActionsColumnEventsHook = (
       isDynamicPropertyPath?: boolean;
     }>
   | undefined => {
-  if (propertyValue === ColumnTypes.EDIT_ACTIONS) {
-    const baseProperty = getBasePropertyPath(propertyPath);
-    const { widgetName } = props;
-    const propertiesToUpdate = [];
+  if (propertyValue === InlineEditingSaveOptions.ROW_LEVEL) {
+    const columns = props.primaryColumns;
+    const columnsArray = Object.values(columns);
+    const columnIds = columnsArray.map((column) => column.originalId);
+    const newColumnName = getNextEntityName("EditActions", columnIds);
+    const lastItemIndex = columnsArray
+      .map((column) => column.index)
+      .sort()
+      .pop();
+    const nextIndex = lastItemIndex ? lastItemIndex + 1 : columnsArray.length;
+    const columnProps: ColumnProperties = getDefaultColumnProperties(
+      newColumnName,
+      newColumnName,
+      nextIndex,
+      props.widgetName,
+      true,
+    );
+    const tableStyles = getTableStyles(props);
+    const column = {
+      ...columnProps,
+      columnType: ColumnTypes.EDIT_ACTIONS,
+      ...tableStyles,
+    };
+    const columnOrder = props.columnOrder || [];
 
-    propertiesToUpdate.push({
-      propertyPath: `${baseProperty}.isSaveVisible`,
-      propertyValue: true,
-    });
-
-    propertiesToUpdate.push({
-      propertyPath: `${baseProperty}.isDiscardVisible`,
-      propertyValue: true,
-    });
-
-    propertiesToUpdate.push({
-      propertyPath: `${baseProperty}.saveIconAlign`,
-      propertyValue: "left",
-    });
-
-    propertiesToUpdate.push({
-      propertyPath: `${baseProperty}.discardIconAlign`,
-      propertyValue: "left",
-    });
-
-    propertiesToUpdate.push({
-      propertyPath: `${baseProperty}.saveActionLabel`,
-      propertyValue: "Save",
-    });
-
-    propertiesToUpdate.push({
-      propertyPath: `${baseProperty}.discardActionLabel`,
-      propertyValue: "Discard",
-    });
-
-    propertiesToUpdate.push({
-      propertyPath: `${baseProperty}.saveButtonColor`,
-      propertyValue: Colors.GREEN,
-    });
-
-    propertiesToUpdate.push({
-      propertyPath: `${baseProperty}.discardButtonColor`,
-      propertyValue: Colors.GREEN,
-    });
-
-    propertiesToUpdate.push({
-      propertyPath: `${baseProperty}.isSaveDisabled`,
-      propertyValue: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
-      isDynamicPropertyPath: true,
-    });
-
-    propertiesToUpdate.push({
-      propertyPath: `${baseProperty}.isDiscardDisabled`,
-      propertyValue: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
-      isDynamicPropertyPath: true,
-    });
-
-    return propertiesToUpdate;
+    return [
+      {
+        propertyPath: `primaryColumns.${column.id}`,
+        propertyValue: column,
+      },
+      {
+        propertyPath: `columnOrder`,
+        propertyValue: [...columnOrder, column.id],
+      },
+    ];
+  } else {
   }
+
+  // if (propertyValue === ColumnTypes.EDIT_ACTIONS) {
+  //   const baseProperty = getBasePropertyPath(propertyPath);
+  //   const { widgetName } = props;
+  //   const propertiesToUpdate = [];
+
+  //   propertiesToUpdate.push({
+  //     propertyPath: `${baseProperty}.isSaveVisible`,
+  //     propertyValue: true,
+  //   });
+
+  //   propertiesToUpdate.push({
+  //     propertyPath: `${baseProperty}.isDiscardVisible`,
+  //     propertyValue: true,
+  //   });
+
+  //   propertiesToUpdate.push({
+  //     propertyPath: `${baseProperty}.saveIconAlign`,
+  //     propertyValue: "left",
+  //   });
+
+  //   propertiesToUpdate.push({
+  //     propertyPath: `${baseProperty}.discardIconAlign`,
+  //     propertyValue: "left",
+  //   });
+
+  //   propertiesToUpdate.push({
+  //     propertyPath: `${baseProperty}.saveActionLabel`,
+  //     propertyValue: "Save",
+  //   });
+
+  //   propertiesToUpdate.push({
+  //     propertyPath: `${baseProperty}.discardActionLabel`,
+  //     propertyValue: "Discard",
+  //   });
+
+  //   propertiesToUpdate.push({
+  //     propertyPath: `${baseProperty}.saveButtonColor`,
+  //     propertyValue: Colors.GREEN,
+  //   });
+
+  //   propertiesToUpdate.push({
+  //     propertyPath: `${baseProperty}.discardButtonColor`,
+  //     propertyValue: Colors.GREEN,
+  //   });
+
+  //   propertiesToUpdate.push({
+  //     propertyPath: `${baseProperty}.isSaveDisabled`,
+  //     propertyValue: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
+  //     isDynamicPropertyPath: true,
+  //   });
+
+  //   propertiesToUpdate.push({
+  //     propertyPath: `${baseProperty}.isDiscardDisabled`,
+  //     propertyValue: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
+  //     isDynamicPropertyPath: true,
+  //   });
+
+  //   return propertiesToUpdate;
+  // }
 
   return;
 };
