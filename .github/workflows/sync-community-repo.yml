@@ -25,7 +25,17 @@ jobs:
           git config user.email "automated@github.com"
           git config user.name "Automated Github Action"
           git config pull.rebase false
-          git pull community release --no-edit
+          if ! git pull community release --no-edit; then
+            conflict_files="$(git status --short | awk '$1 == "UU" {print $2}')"
+            if [[ "$conflict_files" == ".github/config.json" ]]; do
+              // The `:3:` gets the file from CE here. See <https://git-scm.com/docs/gitrevisions#Documentation/gitrevisions.txt-emltngtltpathgtemegem0READMEememREADMEem>.
+              git show :3:.github/config.json > .github/config.json
+              git add .github/config.json
+              git commit -m 'Merge CE, conflict in config.json'
+            else
+              exit 1
+            fi
+          fi
 
       - name: Push changes to the release branch
         uses: ad-m/github-push-action@master
