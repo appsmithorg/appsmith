@@ -37,7 +37,7 @@ public class WebClientUtils {
 
     public static WebClient.Builder builder(HttpClient httpClient) {
         return WebClient.builder()
-                .clientConnector(new ReactorClientHttpConnector(httpClient));
+                .clientConnector(new ReactorClientHttpConnector(applyProxyIfConfigured(httpClient)));
     }
 
     private static HttpClient applyProxyIfConfigured(HttpClient httpClient) {
