@@ -406,7 +406,7 @@ function Deploy() {
             <Statusbar
               completed={!commitButtonLoading}
               message={createMessage(COMMITTING_AND_PUSHING_CHANGES)}
-              period={2}
+              period={6}
             />
           </StatusbarWrapper>
         )}
@@ -415,7 +415,7 @@ function Deploy() {
             <Statusbar
               completed={!isDiscarding}
               message={createMessage(DISCARDING_AND_PULLING_CHANGES)}
-              period={5}
+              period={6}
             />
           </StatusbarWrapper>
         )}
