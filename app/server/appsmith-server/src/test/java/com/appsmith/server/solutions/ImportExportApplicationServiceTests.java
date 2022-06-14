@@ -13,28 +13,31 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ActionCollectionService;
@@ -46,9 +49,6 @@ import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.ThemeService;
-import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -82,6 +82,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple3;
 
 import java.lang.reflect.Type;
 import java.time.Duration;
@@ -121,9 +122,6 @@ public class ImportExportApplicationServiceTests {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    UserService userService;
-
-    @Autowired
     PluginRepository pluginRepository;
 
     @Autowired
@@ -142,13 +140,7 @@ public class ImportExportApplicationServiceTests {
     WorkspaceService workspaceService;
 
     @Autowired
-    SessionUserService sessionUserService;
-
-    @Autowired
     LayoutActionService layoutActionService;
-
-    @Autowired
-    NewPageRepository newPageRepository;
 
     @Autowired
     LayoutCollectionService layoutCollectionService;
@@ -161,9 +153,6 @@ public class ImportExportApplicationServiceTests {
 
     @Autowired
     ThemeRepository themeRepository;
-
-    @Autowired
-    ThemeService themeService;
 
     @Autowired
     ApplicationService applicationService;
@@ -2334,7 +2323,7 @@ public class ImportExportApplicationServiceTests {
                 })
                 .verifyComplete();
     }
-    
+
     @Test
     @WithUserDetails(value = "api_user")
     public void exportAndImportApplication_withMultiplePagesOrderSameInDeployAndEditMode_PagesOrderIsMaintainedInEditAndViewMode() {
@@ -2525,6 +2514,155 @@ public class ImportExportApplicationServiceTests {
 
     }
 
+    private ApplicationJson createApplicationJSON(List<String> pageNames) {
+        ApplicationJson applicationJson = new ApplicationJson();
+
+        // set the application data
+        Application application = new Application();
+        application.setName("Template Application");
+        application.setSlug("template-application");
+        application.setForkingEnabled(true);
+        application.setIsPublic(true);
+        application.setApplicationVersion(ApplicationVersion.LATEST_VERSION);
+        applicationJson.setExportedApplication(application);
+
+        Datasource sampleDatasource = new Datasource();
+        sampleDatasource.setName("SampleDS");
+        sampleDatasource.setPluginId("restapi-plugin");
+
+        applicationJson.setDatasourceList(List.of(sampleDatasource));
+
+        // add pages and actions
+        List<NewPage> newPageList = new ArrayList<>(pageNames.size());
+        List<NewAction> actionList = new ArrayList<>();
+        List<ActionCollection> actionCollectionList = new ArrayList<>();
+
+        for(String pageName : pageNames) {
+            NewPage newPage = new NewPage();
+            newPage.setUnpublishedPage(new PageDTO());
+            newPage.getUnpublishedPage().setName(pageName);
+            newPage.getUnpublishedPage().setLayouts(List.of());
+            newPageList.add(newPage);
+
+            NewAction action = new NewAction();
+            action.setId(pageName + "_SampleQuery");
+            action.setPluginType(PluginType.API);
+            action.setPluginId("restapi-plugin");
+            action.setUnpublishedAction(new ActionDTO());
+            action.getUnpublishedAction().setName("SampleQuery");
+            action.getUnpublishedAction().setPageId(pageName);
+            action.getUnpublishedAction().setDatasource(new Datasource());
+            action.getUnpublishedAction().getDatasource().setId("SampleDS");
+            action.getUnpublishedAction().getDatasource().setPluginId("restapi-plugin");
+            actionList.add(action);
+
+            ActionCollection actionCollection = new ActionCollection();
+            actionCollection.setId(pageName + "_SampleJS");
+            actionCollection.setUnpublishedCollection(new ActionCollectionDTO());
+            actionCollection.getUnpublishedCollection().setName("SampleJS");
+            actionCollection.getUnpublishedCollection().setPageId(pageName);
+            actionCollection.getUnpublishedCollection().setPluginId("js-plugin");
+            actionCollection.getUnpublishedCollection().setPluginType(PluginType.JS);
+            actionCollection.getUnpublishedCollection().setBody("export default {\\n\\t\\n}");
+            actionCollectionList.add(actionCollection);
+        }
+
+        applicationJson.setPageList(newPageList);
+        applicationJson.setActionList(actionList);
+        applicationJson.setActionCollectionList(actionCollectionList);
+        return applicationJson;
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void mergeApplicationJsonWithApplication_WhenPageNameConflicts_PageNamesRenamed() {
+        String uniqueString = UUID.randomUUID().toString();
+
+        Application destApplication = new Application();
+        destApplication.setName("App_" + uniqueString);
+        destApplication.setSlug("my-slug");
+        destApplication.setIsPublic(false);
+        destApplication.setForkingEnabled(false);
+        Mono<Application> createAppAndPageMono = applicationPageService.createApplication(destApplication, workspaceId)
+                .flatMap(application -> {
+                    PageDTO pageDTO = new PageDTO();
+                    pageDTO.setName("Home");
+                    pageDTO.setApplicationId(application.getId());
+                    return applicationPageService.createPage(pageDTO).thenReturn(application);
+                });
+
+        // let's create an ApplicationJSON which we'll merge with application created by createAppAndPageMono
+        ApplicationJson applicationJson = createApplicationJSON(List.of("Home", "About"));
+
+        Mono<Tuple3<ApplicationPagesDTO, List<NewAction>, List<ActionCollection>>> tuple2Mono = createAppAndPageMono.flatMap(application ->
+                // merge the application json with the application we've created
+                importExportApplicationService.mergeApplicationJsonWithApplication(application.getOrganizationId(), application.getId(), null, applicationJson, null)
+                        .thenReturn(application)
+        ).flatMap(application ->
+                // fetch the application pages, this should contain pages from application json
+                Mono.zip(
+                        newPageService.findApplicationPages(application.getId(), null, null, ApplicationMode.EDIT),
+                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList(),
+                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
+                )
+        );
+
+        StepVerifier.create(tuple2Mono).assertNext(objects -> {
+            ApplicationPagesDTO applicationPagesDTO = objects.getT1();
+            List<NewAction> newActionList = objects.getT2();
+            List<ActionCollection> actionCollectionList = objects.getT3();
+
+            assertThat(applicationPagesDTO.getApplication().getName()).isEqualTo(destApplication.getName());
+            assertThat(applicationPagesDTO.getApplication().getSlug()).isEqualTo(destApplication.getSlug());
+            assertThat(applicationPagesDTO.getApplication().getIsPublic()).isFalse();
+            assertThat(applicationPagesDTO.getApplication().getForkingEnabled()).isFalse();
+            assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
+            List<String> pageNames = applicationPagesDTO.getPages().stream()
+                    .map(PageNameIdDTO::getName)
+                    .collect(Collectors.toList());
+            assertThat(pageNames).contains("Home", "Home2", "About");
+            assertThat(newActionList.size()).isEqualTo(2); // we imported two pages and each page has one action
+            assertThat(actionCollectionList.size()).isEqualTo(2); // we imported two pages and each page has one Collection
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void mergeApplicationJsonWithApplication_WhenPageListIProvided_OnlyListedPagesAreMerged() {
+        String uniqueString = UUID.randomUUID().toString();
+
+        Application destApplication = new Application();
+        destApplication.setName("App_" + uniqueString);
+        Mono<Application> createAppAndPageMono = applicationPageService.createApplication(destApplication, workspaceId)
+                .flatMap(application -> {
+                    PageDTO pageDTO = new PageDTO();
+                    pageDTO.setName("Home");
+                    pageDTO.setApplicationId(application.getId());
+                    return applicationPageService.createPage(pageDTO).thenReturn(application);
+                });
+
+        // let's create an ApplicationJSON which we'll merge with application created by createAppAndPageMono
+        ApplicationJson applicationJson = createApplicationJSON(List.of("Profile", "About", "Contact US"));
+
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = createAppAndPageMono.flatMap(application ->
+                // merge the application json with the application we've created
+                importExportApplicationService.mergeApplicationJsonWithApplication(application.getOrganizationId(), application.getId(), null, applicationJson, List.of("About", "Contact US"))
+                        .thenReturn(application)
+        ).flatMap(application ->
+                // fetch the application pages, this should contain pages from application json
+                newPageService.findApplicationPages(application.getId(), null, null, ApplicationMode.EDIT)
+        );
+
+        StepVerifier.create(applicationPagesDTOMono).assertNext(applicationPagesDTO -> {
+            assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
+            List<String> pageNames = applicationPagesDTO.getPages().stream()
+                    .map(PageNameIdDTO::getName)
+                    .collect(Collectors.toList());
+            assertThat(pageNames).contains("Home", "About", "Contact US");
+            assertThat(pageNames).doesNotContain("Profile");
+        }).verifyComplete();
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void exportApplicationById_WhenThemeDoesNotExist_ExportedWithDefaultTheme() {
@@ -2569,5 +2707,37 @@ public class ImportExportApplicationServiceTests {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.UNKNOWN_PLUGIN_REFERENCE.getMessage(randomId)))
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_importSameApplicationTwice_applicationImportedLaterWithSuffixCount() {
+
+        Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application-without-action-collection.json");
+
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Organization");
+
+        Mono<Workspace> createWorkspaceMono = workspaceService.create(newWorkspace).cache();
+        final Mono<Application> importApplicationMono = createWorkspaceMono
+                .zipWith(applicationJsonMono)
+                .flatMap(tuple -> {
+                    Workspace workspace = tuple.getT1();
+                    ApplicationJson applicationJson = tuple.getT2();
+                    return importExportApplicationService
+                                    .importApplicationInWorkspace(workspace.getId(), applicationJson);
+                });
+
+        StepVerifier
+                .create(importApplicationMono.zipWhen(application -> importApplicationMono))
+                .assertNext(tuple -> {
+                    Application firstImportedApplication = tuple.getT1();
+                    Application secondImportedApplication = tuple.getT2();
+                    assertThat(firstImportedApplication.getName()).isEqualTo("valid_application");
+                    assertThat(secondImportedApplication.getName()).isEqualTo("valid_application (1)");
+                    assertThat(firstImportedApplication.getOrganizationId()).isEqualTo(secondImportedApplication.getOrganizationId());
+                    assertThat(firstImportedApplication.getOrganizationId()).isNotNull();
+                })
+                .verifyComplete();
     }
 }

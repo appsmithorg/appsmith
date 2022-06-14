@@ -5,7 +5,7 @@ import {
   getAllRoles,
   getCurrentOrg,
   getOrgLoadingStates,
-} from "selectors/organizationSelectors";
+} from "@appsmith/selectors/organizationSelectors";
 import PageSectionHeader from "pages/common/PageSectionHeader";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import { RouteComponentProps } from "react-router";
