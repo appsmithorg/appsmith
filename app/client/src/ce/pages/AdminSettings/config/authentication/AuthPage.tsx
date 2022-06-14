@@ -163,7 +163,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
       history.push(
         adminSettingsCategoryUrl({
           category: SettingCategories.AUTHENTICATION,
-          subCategory: method.category,
+          selected: method.category,
         }),
       );
     } else {

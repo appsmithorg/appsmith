@@ -50,7 +50,13 @@ export class DataSources {
     "//div[@data-guided-tour-id='query-table-response']//div[@class='tbody']//div[@class ='td']";
   _refreshIcon = "button .bp3-icon-refresh";
   _addIcon = "button .bp3-icon-add";
-  _queryError = "span.t--query-error"
+  _queryError = "span.t--query-error";
+  _queryResponse = (responseType: string) =>
+    "li[data-cy='t--tab-" + responseType + "']";
+  _queryRecordResult = (recordCount: number) =>
+    "//div/span[text()='Result:']/span[contains(text(),'" +
+    recordCount +
+    " Record')]";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -105,10 +111,37 @@ export class DataSources {
     }).as("replaceLayoutWithCRUDPage");
   }
 
+  public StartInterceptRoutesForMongo() {
+    //All stubbing
+    this.ReplaceApplicationIdForInterceptPages(
+      "cypress/fixtures/mongo_PUT_replaceLayoutWithCRUD.json",
+    );
+
+    cy.intercept("POST", "/api/v1/datasources/test", {
+      fixture: "testAction.json",
+    }).as("testDatasource");
+    cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*", {
+      fixture: "mongo_GET_selectTableDropdown.json",
+    }).as("getDatasourceStructure");
+    cy.intercept("PUT", "/api/v1/pages/crud-page/*", {
+      fixture: "mongo_PUT_replaceLayoutWithCRUD.json",
+    }).as("replaceLayoutWithCRUDPage");
+    cy.intercept("GET", "/api/v1/actions*", {
+      fixture: "mongo_GET_Actions.json",
+    }).as("getActions");
+    cy.intercept("POST", "/api/v1/actions/execute", {
+      fixture: "mongo_POST_Actions.json",
+    }).as("postExecute");
+    cy.intercept("POST", "/api/v1/pages/crud-page", {
+      fixture: "mongo_PUT_replaceLayoutWithCRUD.json",
+    }).as("post_replaceLayoutCRUDStub");
+  }
+
   public CreatePlugIn(pluginName: string) {
     cy.get(this._createNewPlgin(pluginName))
       .parent("div")
       .trigger("click", { force: true });
+    this.agHelper.WaitUntilToastDisappear("datasource created");
   }
 
   public NavigateToDSCreateNew() {
@@ -177,6 +210,7 @@ export class DataSources {
   public TestDatasource(expectedRes = true) {
     cy.get(this._testDs).click();
     this.agHelper.ValidateNetworkDataSuccess("@testDatasource", expectedRes);
+    this.agHelper.WaitUntilToastDisappear("datasource is valid");
   }
 
   public SaveDatasource() {
@@ -208,7 +242,10 @@ export class DataSources {
     this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
   }
 
-  public DeleteDatasouceFromWinthinDS(datasourceName: string, expectedStatus = 200) {
+  public DeleteDatasouceFromWinthinDS(
+    datasourceName: string,
+    expectedStatus = 200,
+  ) {
     this.NavigateToDSCreateNew();
     this.agHelper.GetNClick(this._activeTab);
     cy.get(this._datasourceCard)
@@ -280,7 +317,10 @@ export class DataSources {
 
   RunQuery(expectedStatus = true) {
     cy.get(this._runQueryBtn).click({ force: true });
-    this.agHelper.ValidateNetworkExecutionSuccess("@postExecute", expectedStatus);
+    this.agHelper.ValidateNetworkExecutionSuccess(
+      "@postExecute",
+      expectedStatus,
+    );
   }
 
   public ReadQueryTableResponse(index: number, timeout = 100) {
@@ -297,16 +337,19 @@ export class DataSources {
     colIndex: number,
     headerString: string,
     validateCellData: "" | string = "",
+    isMongo = false,
   ) {
+    let jsonHeaderString = "";
     this.table.ReadTableRowColumnData(rowindex, colIndex).then(($cellData) => {
       if (validateCellData) expect($cellData).to.eq(validateCellData);
+
+      jsonHeaderString =
+        isMongo == true
+          ? "Update Document " + headerString + ": " + $cellData
+          : "Update Row " + headerString + ": " + $cellData;
       this.agHelper
         .GetText(this.locator._jsonFormHeader)
-        .then(($header: any) =>
-          expect($header).to.eq(
-            "Update Row " + headerString + ": " + $cellData,
-          ),
-        );
+        .then(($header: any) => expect($header).to.eq(jsonHeaderString));
     });
   }
 }
