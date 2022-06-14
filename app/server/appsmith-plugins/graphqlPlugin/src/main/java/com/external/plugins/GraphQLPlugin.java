@@ -17,8 +17,6 @@ import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
 import com.external.utils.GraphQLHintMessageUtils;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.ParseException;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpMethod;
@@ -35,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
-import static com.appsmith.external.helpers.PluginUtils.parseStringIntoJSONObject;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInPropertyList;
 import static com.external.utils.GraphQLPaginationUtils.updateVariablesWithPaginationValues;
 import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
@@ -83,25 +80,12 @@ public class GraphQLPlugin extends BasePlugin {
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
-            // TODO: remove it.
-            // For test only
-            String paginationString = "{\"limit\": {\"name\": \"limit\", \"value\":2}, \"offset\": {\"name\": " +
-                    "\"offset\", \"value\":0}}";
-            JSONObject limitPagination = null;
-            try {
-                limitPagination = parseStringIntoJSONObject(paginationString);
-            } catch (ParseException e) {
-                throw new RuntimeException(e);
-            }
-            actionConfiguration.getPluginSpecifiedTemplates().get(2).setValue(limitPagination);
+            // TODO: handle smart substitution for query body
 
-            // TODO: handle smart substitution for query body and query variables
-
+            String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
             Boolean smartSubstitution = this.smartSubstitutionUtils.isSmartSubstitutionEnabled(properties);
             if (TRUE.equals(smartSubstitution)) {
-
                 /* Apply smart JSON substitution logic to mustache binding values in query variables */
-                String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
                 if (!isEmpty(variables)) {
                     List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(variables);
                     // Replace all the bindings with a ? as expected in a prepared statement.
@@ -120,11 +104,14 @@ public class GraphQLPlugin extends BasePlugin {
                         errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                         return Mono.just(errorResult);
                     }
-
                 }
             }
 
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+
+            if (isEmpty(variables)) {
+                setValueSafelyInPropertyList(properties, QUERY_VARIABLES_INDEX, "{}");
+            }
 
             /* Check if the query body and query variables have the correct GraphQL syntax. */
             try {
@@ -134,8 +121,7 @@ public class GraphQLPlugin extends BasePlugin {
             }
 
             Set<String> hintMessages = new HashSet<String>();
-            if (actionConfiguration.getPaginationType() != null
-                    && executeActionDTO.getPaginationField() != null) {
+            if (actionConfiguration.getPaginationType() != null) {
                 updateVariablesWithPaginationValues(actionConfiguration, executeActionDTO, hintMessages);
             }
 

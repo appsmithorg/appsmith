@@ -9,9 +9,10 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
+import org.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+import org.json.JSONException;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -312,9 +313,8 @@ public class PluginUtils {
         return getValueSafelyFromPropertyList(properties, index, Object.class);
     }
 
-    public static JSONObject parseStringIntoJSONObject(String body) throws ParseException {
-        JSONParser parser = new JSONParser(MODE_PERMISSIVE);
-        return parser.parse(body, JSONObject.class);
+    public static JSONObject parseStringIntoJSONObject(String body) throws JSONException {
+        return new JSONObject(body);
     }
 
     public static void setValueSafelyInPropertyList(List<Property> properties, int index, Object value) throws AppsmithPluginException {

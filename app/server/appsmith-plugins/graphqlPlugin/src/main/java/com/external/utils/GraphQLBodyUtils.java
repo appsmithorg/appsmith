@@ -6,8 +6,9 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
 import graphql.parser.InvalidSyntaxException;
 import graphql.parser.Parser;
-import net.minidev.json.JSONObject;
+import org.json.JSONObject;
 import net.minidev.json.parser.ParseException;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class GraphQLBodyUtils {
     public static final int QUERY_VARIABLES_INDEX = 1;
+    public static final int PAGINATION_DATA_INDEX = 2;
     public static final String QUERY_KEY = "query";
     public static final String VARIABLES_KEY = "variables";
 
@@ -32,7 +34,7 @@ public class GraphQLBodyUtils {
             try {
                 JSONObject json = parseStringIntoJSONObject(variables);
                 query.put(VARIABLES_KEY, json);
-            } catch (ParseException | ClassCastException e) {
+            } catch (JSONException | ClassCastException e) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "GraphQL query " +
                         "variables are not in proper JSON format: " + e.getMessage());
             }
@@ -56,7 +58,7 @@ public class GraphQLBodyUtils {
         if (!isEmpty(variables)) {
             try {
                 parseStringIntoJSONObject(variables);
-            } catch (ParseException e) {
+            } catch (JSONException e) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "GraphQL query variables are not in proper JSON format: " + e.getMessage()

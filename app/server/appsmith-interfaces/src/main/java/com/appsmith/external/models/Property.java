@@ -22,11 +22,12 @@ public class Property {
         this.value = value;
     }
 
-    @Transient
+    // TODO: remove it.
+    /*@Transient
     Object limit;
     public void setLimit(Object val) {
         this.value = val;
-    }
+    }*/
 
     String key;
 

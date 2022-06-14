@@ -8,8 +8,9 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
 import lombok.NoArgsConstructor;
-import net.minidev.json.JSONObject;
+import org.json.JSONObject;
 import net.minidev.json.parser.ParseException;
+import org.json.JSONException;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -52,29 +53,23 @@ public class GraphQLHintMessageUtils extends HintMessageUtils {
         JSONObject queryVariablesJson = new JSONObject();
         try {
             queryVariablesJson = parseStringIntoJSONObject(variables);
-        } catch (ParseException | ClassCastException e) {
+        } catch (JSONException | ClassCastException e) {
             /* Not returning an exception here since the user is still editing the query variables and hence it is
 -            expected that the query variables would not be parseable till the final edit. */
         }
 
-        if (!PaginationType.NONE.equals(actionConfiguration.getPaginationType())) {
-            Map<String, Object> paginationDataMap = null;
-            try {
-                paginationDataMap = getPaginationData(actionConfiguration);
-            } catch (AppsmithPluginException e) {
-                // TODO: add comment
-                return new HashSet<>();
-            }
+        Map<String, Object> paginationDataMap =  getPaginationData(actionConfiguration);
+        if (!PaginationType.NONE.equals(actionConfiguration.getPaginationType()) && !isEmpty(paginationDataMap)) {
             List<String> duplicateVariables = new ArrayList<String>();
-            if (PaginationType.LIMIT.equals(actionConfiguration.getPaginationType())) {
+            if (PaginationType.PAGE_NO.equals(actionConfiguration.getPaginationType())) {
                 String limitVarName = (String) paginationDataMap.get(LIMIT_VARIABLE_NAME);
                 String offsetVarName = (String) paginationDataMap.get(OFFSET_VARIABLE_NAME);
 
-                if (queryVariablesJson.containsKey(limitVarName)) {
+                if (queryVariablesJson.has(limitVarName)) {
                     duplicateVariables.add(limitVarName);
                 }
 
-                if (queryVariablesJson.containsKey(offsetVarName)) {
+                if (queryVariablesJson.has(offsetVarName)) {
                     duplicateVariables.add(offsetVarName);
                 }
             }
@@ -84,19 +79,19 @@ public class GraphQLHintMessageUtils extends HintMessageUtils {
                 String nextLimitVarName = (String) paginationDataMap.get(NEXT_LIMIT_VARIABLE_NAME);
                 String nextCursorVarName = (String) paginationDataMap.get(NEXT_CURSOR_VARIABLE_NAME);
 
-                if (queryVariablesJson.containsKey(prevLimitVarName)) {
+                if (queryVariablesJson.has(prevLimitVarName)) {
                     duplicateVariables.add(prevLimitVarName);
                 }
 
-                if (queryVariablesJson.containsKey(prevCursorVarName)) {
+                if (queryVariablesJson.has(prevCursorVarName)) {
                     duplicateVariables.add(prevCursorVarName);
                 }
 
-                if (queryVariablesJson.containsKey(nextLimitVarName)) {
+                if (queryVariablesJson.has(nextLimitVarName)) {
                     duplicateVariables.add(nextLimitVarName);
                 }
 
-                if (queryVariablesJson.containsKey(nextCursorVarName)) {
+                if (queryVariablesJson.has(nextCursorVarName)) {
                     duplicateVariables.add(nextCursorVarName);
                 }
             }
