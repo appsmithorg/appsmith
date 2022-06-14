@@ -164,15 +164,20 @@ class DatePickerComponent extends React.Component<
       isValid && this.state.selectedDate
         ? new Date(this.state.selectedDate)
         : null;
-    const initialMonth = this.props.minDate
-      ? this.state.selectedDate
-        ? new Date(this.props.minDate) > new Date(this.state.selectedDate)
-          ? new Date(this.props.minDate)
-          : new Date()
-        : new Date(this.props.minDate) > new Date()
-        ? new Date(this.props.minDate)
-        : new Date()
-      : new Date();
+    const getInitialMonth = () => {
+      if (!this.props.minDate) return new Date();
+
+      switch (true) {
+        case this.state.selectedDate &&
+          new Date(this.props.minDate) > new Date(this.state.selectedDate):
+        case new Date(this.props.minDate) > new Date():
+          return new Date(this.props.minDate);
+        default:
+          return new Date();
+      }
+    };
+    const initialMonth = getInitialMonth();
+
     return (
       <StyledControlGroup
         accentColor={this.props.accentColor}
