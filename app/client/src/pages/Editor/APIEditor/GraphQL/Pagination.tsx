@@ -15,7 +15,6 @@ import { AppState } from "reducers";
 import log from "loglevel";
 import Tooltip from "components/ads/Tooltip";
 import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
-import { FormIcons } from "icons/FormIcons";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 
 interface PaginationProps {
@@ -75,15 +74,15 @@ const PaginationFieldWrapper = styled.div`
   width: 48%;
 `;
 
-const Step = styled(FormLabel)`
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  margin-right: ${(props) => props.theme.spaces[6]}px;
-  color: ${(props) => props.theme.colors.apiPane.pagination.bindingBg};
-  width: 100%;
-  p {
+const Step = styled.div`
+  label {
+    width: fit-content;
+    min-width: unset;
+  }
+
+  & label .bp3-popover-target .label-icon-wrapper {
     text-decoration: underline;
+    cursor: help;
   }
 `;
 
@@ -173,14 +172,15 @@ function PaginationTypeBasedWrapper({
     <PaginationFieldContainer>
       <PaginationFieldWrapper data-replay-id={dataReplayId}>
         <Step>
-          <p className="label-icon-wrapper">
-            {variableText}
-            {variableTooltip && (
-              <Tooltip content={variableTooltip} hoverOpenDelay={1000}>
-                <FormIcons.HELP_ICON height={16} width={16} />
+          <FormLabel>
+            {variableTooltip ? (
+              <Tooltip content={variableTooltip} hoverOpenDelay={500}>
+                <span className="label-icon-wrapper">{variableText}</span>
               </Tooltip>
+            ) : (
+              <span className="label-icon-wrapper">{variableText}</span>
             )}
-          </p>
+          </FormLabel>
         </Step>
         <Dropdown
           boundary="viewport"
@@ -195,12 +195,15 @@ function PaginationTypeBasedWrapper({
       </PaginationFieldWrapper>
       <PaginationFieldWrapper data-replay-id={dataReplayId}>
         <Step>
-          <p className="label-icon-wrapper">{valueText}</p>
-          {valueTooltip && (
-            <Tooltip content={valueTooltip} hoverOpenDelay={1000}>
-              <FormIcons.HELP_ICON height={16} width={16} />
-            </Tooltip>
-          )}
+          <FormLabel>
+            {valueTooltip ? (
+              <Tooltip content={valueTooltip} hoverOpenDelay={500}>
+                <span className="label-icon-wrapper">{valueText}</span>
+              </Tooltip>
+            ) : (
+              <span className="label-icon-wrapper">{valueText}</span>
+            )}
+          </FormLabel>
         </Step>
         <DynamicTextFieldWrapper
           className={valueClassName}
@@ -327,7 +330,9 @@ function Pagination(props: PaginationProps) {
                   valueClassName="t--apiFormPaginationLimit"
                   valuePath="limit.value"
                   valueText="Limit Value"
+                  valueTooltip="Override the value of the limit variable selected i.e. the no of rows returned"
                   variableText="Limit Variable"
+                  variableTooltip="Select the limit variable from the query"
                   variablesOptions={variablesOptions}
                 />
                 {/* Offset */}
@@ -349,7 +354,9 @@ function Pagination(props: PaginationProps) {
                   valueClassName="t--apiFormPaginationOffset"
                   valuePath="offset.value"
                   valueText="Offset Value"
+                  valueTooltip="Override the value of the offset variable selected ie the no of rows omitted from the beginning"
                   variableText="Offset Variable"
+                  variableTooltip="Select the offset variable from the query"
                   variablesOptions={variablesOptions}
                 />
               </PaginationSection>
@@ -397,7 +404,9 @@ function Pagination(props: PaginationProps) {
                   valueClassName="t--apiFormPaginationCursorPrev"
                   valuePath="previous.limit.value"
                   valueText="Limit Variable Value"
+                  valueTooltip="Override the value for the previous no of rows to be fetched"
                   variableText="Limit Variable Name"
+                  variableTooltip="Select the variable from the query that holds the last/previous limit value"
                   variablesOptions={variablesOptions}
                 />
                 {/* Previous Cursor Values */}
@@ -420,7 +429,9 @@ function Pagination(props: PaginationProps) {
                   valuePath="previous.cursor.value"
                   valuePlaceholder="{{Table1.firstRow.cursor}}"
                   valueText="Start Cursor Value"
+                  valueTooltip="Binding the widget action to the previous page activity"
                   variableText="Start Cursor Variable"
+                  variableTooltip="Select the variable which holds the before cursor"
                   variablesOptions={variablesOptions}
                 />
               </PaginationSection>
@@ -452,7 +463,9 @@ function Pagination(props: PaginationProps) {
                   valueClassName="t--apiFormPaginationCursorNext"
                   valuePath="next.limit.value"
                   valueText="Limit Variable Value"
+                  valueTooltip="Override the value for the next no of rows to be fetched"
                   variableText="Limit Variable Name"
+                  variableTooltip="Select the variable from the query that holds the first/next limit value"
                   variablesOptions={variablesOptions}
                 />
                 {/* Next Cursor Values */}
@@ -475,7 +488,9 @@ function Pagination(props: PaginationProps) {
                   valuePath="next.cursor.value"
                   valuePlaceholder="{{Table1.lastRow.cursor}}"
                   valueText="End Cursor Value"
+                  valueTooltip="Binding the widget action to the next page activity"
                   variableText="End Cursor Variable"
+                  variableTooltip="Select the variable which holds the after cursor"
                   variablesOptions={variablesOptions}
                 />
               </PaginationSection>
