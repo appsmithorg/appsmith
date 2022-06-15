@@ -23,6 +23,18 @@ export interface KeyValuePair {
   value?: unknown;
 }
 
+export type LimitOffset = {
+  limit: Record<string, unknown>;
+  offset: Record<string, unknown>;
+};
+export interface SelfReferencingData {
+  limitBased?: LimitOffset;
+  curserBased?: {
+    previous?: LimitOffset;
+    next?: LimitOffset;
+  };
+}
+
 export interface ActionConfig {
   timeoutInMillisecond?: number;
   paginationType?: PaginationType;
@@ -30,6 +42,7 @@ export interface ActionConfig {
   pluginSpecifiedTemplates?: KeyValuePair[];
   path?: string;
   queryParameters?: KeyValuePair[];
+  selfReferencingData?: SelfReferencingData;
 }
 
 export interface ActionProvider {
