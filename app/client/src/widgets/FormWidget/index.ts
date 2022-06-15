@@ -9,6 +9,9 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  features: {
+    dynamicHeight: true,
+  },
   defaults: {
     rows: 40,
     columns: 24,
