@@ -280,7 +280,7 @@ Cypress.Commands.add("EvaluateDataType", (dataType) => {
 });
 
 Cypress.Commands.add("getCodeMirror", () => {
-  //cy.EnableAllCodeEditors();
+  cy.EnableAllCodeEditors();
   return cy
     .get(".CodeMirror textarea")
     .first()
@@ -289,7 +289,7 @@ Cypress.Commands.add("getCodeMirror", () => {
 });
 
 Cypress.Commands.add("testCodeMirror", (value) => {
-  //cy.EnableAllCodeEditors();
+  cy.EnableAllCodeEditors();
   cy.get(".CodeMirror textarea")
     .first()
     .focus()
@@ -318,7 +318,7 @@ Cypress.Commands.add("testCodeMirror", (value) => {
 });
 
 Cypress.Commands.add("updateComputedValue", (value) => {
-  //cy.EnableAllCodeEditors();
+  cy.EnableAllCodeEditors();
   cy.get(".CodeMirror textarea")
     .first()
     .focus({ force: true })
@@ -345,7 +345,7 @@ Cypress.Commands.add("updateComputedValue", (value) => {
 });
 
 Cypress.Commands.add("testCodeMirrorLast", (value) => {
-  //cy.EnableAllCodeEditors();
+  cy.EnableAllCodeEditors();
   cy.get(".CodeMirror textarea")
     .last()
     .focus()
@@ -376,7 +376,7 @@ Cypress.Commands.add("testCodeMirrorLast", (value) => {
 });
 
 Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
-  //cy.EnableAllCodeEditors();
+  cy.EnableAllCodeEditors();
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
@@ -421,7 +421,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
  *
  */
 Cypress.Commands.add("updateCodeInput", ($selector, value) => {
-  //cy.EnableAllCodeEditors();
+  cy.EnableAllCodeEditors();
   cy.get($selector)
     .first()
     .click()
@@ -453,7 +453,7 @@ Cypress.Commands.add("selectColor", (GivenProperty, colorOffset = -15) => {
 });
 
 Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
-  //cy.EnableAllCodeEditors();
+  cy.EnableAllCodeEditors();
   cy.get(".CodeMirror textarea")
     .last()
     .focus({ force: true })
@@ -650,7 +650,7 @@ Cypress.Commands.add("SetDateToToday", () => {
 });
 
 Cypress.Commands.add("enterActionValue", (value) => {
-  //cy.EnableAllCodeEditors();
+  cy.EnableAllCodeEditors();
   cy.get(".CodeMirror textarea")
     .last()
     .focus()
@@ -1108,7 +1108,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("clearPropertyValue", (value) => {
-  //cy.EnableAllCodeEditors();
+  cy.EnableAllCodeEditors();
   cy.get(".CodeMirror textarea")
     .eq(value)
     .focus({ force: true })
