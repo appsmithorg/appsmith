@@ -439,6 +439,7 @@ public class ActionCollectionServiceTest {
         action1.setName("testAction1");
         action1.setActionConfiguration(new ActionConfiguration());
         action1.getActionConfiguration().setBody("mockBody");
+        action1.getActionConfiguration().setIsValid(false);
         actionCollectionDTO.setActions(List.of(action1));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
