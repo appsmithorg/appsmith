@@ -50,7 +50,7 @@ public class ReactiveCacheAspect {
                 .zipWhen(value -> cacheManager.put(cacheName, key, Mono.just(value))) //Call CacheManager.put() to cache the object
                 .flatMap(value -> Mono.just(value.getT1())); //Maps to the original object
         } catch (Throwable e) {
-            log.error("Error while calling method {}", joinPoint.getSignature().getName(), e);
+            log.error("Error occurred in saving to cache when invoking function {}", joinPoint.getSignature().getName(), e);
             return Mono.error(e);
         }
     }
