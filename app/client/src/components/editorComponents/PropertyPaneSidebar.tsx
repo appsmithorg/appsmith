@@ -1,4 +1,3 @@
-import { get, compact } from "lodash";
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
@@ -16,7 +15,6 @@ import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
-import { getWidgets } from "sagas/selectors";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 import { getAppThemingStack } from "selectors/appThemingSelectors";
@@ -42,7 +40,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     props.onDragEnd,
     true,
   );
-  const canvasWidgets = useSelector(getWidgets);
+
   const isPreviewMode = useSelector(previewModeSelector);
   const isCommentMode = useSelector(commentModeSelector);
   const themingStack = useSelector(getAppThemingStack);
@@ -61,13 +59,6 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const keepThemeWhileDragging =
     prevSelectedWidgetId.current === undefined && shouldNotRenderPane;
 
-  const selectedWidgets = useMemo(
-    () =>
-      compact(
-        selectedWidgetIds.map((widgetId) => get(canvasWidgets, widgetId)),
-      ),
-    [canvasWidgets, selectedWidgetIds],
-  );
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
 
   prevSelectedWidgetId.current =
@@ -87,9 +78,9 @@ export const PropertyPaneSidebar = memo((props: Props) => {
    */
   const propertyPane = useMemo(() => {
     switch (true) {
-      case selectedWidgets.length > 1:
+      case selectedWidgetIds.length > 1:
         return <MultiSelectPropertyPane />;
-      case selectedWidgets.length === 1:
+      case selectedWidgetIds.length === 1:
         if (shouldNotRenderPane)
           return (
             <CanvasPropertyPane skipThemeEditor={!keepThemeWhileDragging} />
@@ -97,13 +88,13 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         else return <WidgetPropertyPane />;
       case themingStack.length > 0:
         return <ThemePropertyPane />;
-      case selectedWidgets.length === 0:
+      case selectedWidgetIds.length === 0:
         return <CanvasPropertyPane />;
       default:
         return <CanvasPropertyPane />;
     }
   }, [
-    selectedWidgets.length,
+    selectedWidgetIds.length,
     isDraggingForSelection,
     shouldNotRenderPane,
     themingStack.join(","),
