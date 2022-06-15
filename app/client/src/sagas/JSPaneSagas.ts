@@ -270,6 +270,10 @@ function* updateJSCollection(data: {
             jsCollection,
             createMessage(JS_FUNCTION_DELETE_SUCCESS),
           );
+          // delete all execution error logs for deletedActions if present
+          deletedActions.forEach((action) =>
+            AppsmithConsole.deleteError(`${jsCollection.id + action.id}`),
+          );
         }
 
         yield put(
