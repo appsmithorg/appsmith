@@ -17,7 +17,7 @@ describe("MultiSelect Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Selects value with invalid default value", () => {
+  it("1. Selects value with invalid default value", () => {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.testJsontext("options", JSON.stringify(data.input));
     cy.testJsontext("defaultvalue", "{{ undefined }}");
@@ -35,7 +35,7 @@ describe("MultiSelect Widget Functionality", function() {
       .first()
       .should("have.text", "Option 3");
   });
-  it("Selects value with enter in default value", () => {
+  it("2. Selects value with enter in default value", () => {
     cy.testJsontext(
       "defaultvalue",
       '[\n  {\n    "label": "Option 3",\n    "value": "3"\n  }\n]',
@@ -45,11 +45,11 @@ describe("MultiSelect Widget Functionality", function() {
       .first()
       .should("have.text", "Option 3");
   });
-  it("Dropdown Functionality To Validate Options", function() {
+  it("3. Dropdown Functionality To Validate Options", function() {
     cy.get(".rc-select-selector").click({ force: true });
     cy.dropdownMultiSelectDynamic("Option 2");
   });
-  it("Dropdown Functionality To Unchecked Visible Widget", function() {
+  it("4. Dropdown Functionality To Unchecked Visible Widget", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
@@ -57,7 +57,7 @@ describe("MultiSelect Widget Functionality", function() {
     );
     cy.get(publish.backToEditor).click();
   });
-  it("Dropdown Functionality To Check Visible Widget", function() {
+  it("5. Dropdown Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -66,7 +66,7 @@ describe("MultiSelect Widget Functionality", function() {
     );
     cy.get(publish.backToEditor).click();
   });
-  it("Dropdown Functionality To Check Allow select all option", function() {
+  it("6. Dropdown Functionality To Check Allow select all option", function() {
     // select all option is not enable
     cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-selection-item-content")
@@ -94,7 +94,7 @@ describe("MultiSelect Widget Functionality", function() {
       .eq(1)
       .should("have.text", "Option 2");
   });
-  it("Check isDirty meta property", function() {
+  it("7. Check isDirty meta property", function() {
     cy.openPropertyPane(WIDGET.TEXT);
     cy.updateCodeInput(PROPERTY_SELECTOR.text, `{{MultiSelect2.isDirty}}`);
     // Init isDirty by changing defaultOptionValue
@@ -124,37 +124,92 @@ describe("MultiSelect Widget Functionality", function() {
       .should("contain", "false");
   });
 
-  it("Verify MultiSelect resets to default value", function() {
+  it.only("8. Verify MultiSelect resets to default value", function() {
+    const resetTestCases = [
+      {
+        options: [
+          { label: "RED", value: "RED" },
+          { label: "GREEN", value: "GREEN" },
+          { label: "YELLOW", value: "YELLOW" },
+        ],
+        defaultValue: [{ label: "RED", value: "RED" }],
+        optionsToSelect: ["GREEN", "YELLOW"],
+        optionsToDeselect: ["RED"],
+      },
+      {
+        options: [
+          { label: "1", value: "1" },
+          { label: "2", value: "2" },
+          { label: "3", value: "3" },
+        ],
+        defaultValue: [
+          { label: "1", value: "1" },
+          { label: "2", value: "2" },
+          { label: "3", value: "3" },
+          { label: "4", value: "4" },
+        ],
+        optionsToSelect: [],
+        optionsToDeselect: ["1"],
+      },
+      {
+        options: [
+          { label: "1", value: "1" },
+          { label: "2", value: "2" },
+          { label: "3", value: "3" },
+        ],
+        defaultValue: [],
+        optionsToSelect: [],
+        optionsToDeselect: [],
+      },
+      {
+        options: [
+          { label: "1", value: "1" },
+          { label: "2", value: "2" },
+          { label: "3", value: "3" },
+        ],
+        defaultValue: [{ label: "4", value: "4" }],
+        optionsToSelect: [],
+        optionsToDeselect: [],
+      },
+    ];
+    resetTestCases.forEach((testCase) => {
+      const {
+        defaultValue,
+        options,
+        optionsToDeselect,
+        optionsToSelect,
+      } = testCase;
+
+      cy.openPropertyPane("multiselectwidgetv2");
+      // set options
+      cy.testJsontext("options", JSON.stringify(options));
+      // set default value
+      cy.testJsontext("defaultvalue", JSON.stringify(defaultValue, null, 2));
+      // select other options
+      agHelper.SelectFromMultiSelect(optionsToSelect);
+      agHelper.RemoveMultiSelectItems(optionsToDeselect);
+      // reset multiselect
+      cy.get(
+        `${getWidgetSelector("buttonwidget")}:contains('Reset MultiSelect')`,
+      ).click();
+
+      // verify value is equal to default value
+      const defaultValuesStringifiedArray = defaultValue
+        .map((opt) => opt.value)
+        .toString();
+      cy.get(getWidgetSelector("textwidget"))
+        .eq(1)
+        .should("have.text", defaultValuesStringifiedArray);
+    });
+  });
+
+  it("9. Verify MultiSelect deselection behavior", function() {
     cy.openPropertyPane("multiselectwidgetv2");
     // set options
     cy.testJsontext(
       "options",
-      JSON.stringify([
-        { label: "RED", value: "RED" },
-        { label: "GREEN", value: "GREEN" },
-        { label: "YELLOW", value: "YELLOW" },
-      ]),
+      JSON.stringify([{ label: "RED", value: "RED" }]),
     );
-    // set default value
-    cy.testJsontext(
-      "defaultvalue",
-      JSON.stringify([{ label: "RED", value: "RED" }], null, 2),
-    );
-    // select other options
-    agHelper.SelectFromMultiSelect(["GREEN", "YELLOW"]);
-    agHelper.RemoveMultiSelectItems(["RED"]);
-    // reset multiselect
-    cy.get(
-      `${getWidgetSelector("buttonwidget")}:contains('Reset MultiSelect')`,
-    ).click();
-
-    // verify value is equal to default value
-    cy.get(getWidgetSelector("textwidget"))
-      .eq(1)
-      .should("have.text", "RED");
-  });
-
-  it("Verify MultiSelect deselection behavior", function() {
     agHelper.RemoveMultiSelectItems(["RED"]);
 
     // verify value is equal to default value
