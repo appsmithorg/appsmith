@@ -149,7 +149,7 @@ public class ReactiveCacheAspect {
                 .map(value -> (List<?>) value)
                 .flatMapMany(Flux::fromIterable);
         } else { //If method does not returns Mono<T> or Flux<T> raise exception
-            throw new RuntimeException("non reactive object supported (Mono, Flux)");
+            throw new RuntimeException("Invalid usage of @Cache annotation. Only reactive objects Mono and Flux are supported for caching.");
         }
     }
 
