@@ -16,8 +16,7 @@ public class UserGroup extends BaseDomain {
 
     String description;
 
-    // Note : Only store the user's id and username here.
-    List<User> users;
+    List<UserInGroup> users;
 
     Boolean isDefault;
 
