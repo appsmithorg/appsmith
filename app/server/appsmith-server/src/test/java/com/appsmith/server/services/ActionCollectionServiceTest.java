@@ -439,6 +439,7 @@ public class ActionCollectionServiceTest {
         action1.setName("testAction1");
         action1.setActionConfiguration(new ActionConfiguration());
         action1.getActionConfiguration().setBody("mockBody");
+        action1.getActionConfiguration().setIsValid(false);
         actionCollectionDTO.setActions(List.of(action1));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
@@ -520,5 +521,43 @@ public class ActionCollectionServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+    /**
+     * For a given collection testActionCollection,
+     * When the collection is updated after creation,
+     * The updatedAt field should have a greater value than the updatedAt value when it was created.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateActionCollection_verifyUpdatedAtFieldUpdated() {
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testActionCollection");
+        actionCollectionDTO.setApplicationId(testApp.getId());
+        actionCollectionDTO.setOrganizationId(testApp.getOrganizationId());
+        actionCollectionDTO.setPageId(testPage.getId());
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        ActionCollection createdActionCollection = layoutCollectionService.createCollection(actionCollectionDTO)
+                .flatMap(createdCollection -> {
+                    // Delay after creating(before updating) record to get different updatedAt time
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return actionCollectionService.findById(createdCollection.getId(), READ_ACTIONS);
+                }).block();
+
+
+        Mono<ActionCollection> updatedActionCollectionMono = layoutCollectionService.updateUnpublishedActionCollection(createdActionCollection.getId(), actionCollectionDTO, null)
+                .flatMap(createdCollection -> actionCollectionService.findById(createdCollection.getId(), READ_ACTIONS));
+
+        StepVerifier.create(updatedActionCollectionMono)
+                .assertNext(updatedActionCollection -> {
+                    assertThat(updatedActionCollection.getUpdatedAt().isAfter(createdActionCollection.getUpdatedAt())).isTrue();
+                })
+                .verifyComplete();
     }
 }
