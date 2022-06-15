@@ -690,17 +690,3 @@ export default function* evaluationSagaListeners() {
     }
   }
 }
-function* collectionId(
-  handleJSFunctionExecutionErrorLog: (
-    collectionId: string,
-    collectionName: string,
-    action: JSAction,
-    errors: any[],
-  ) => Generator<never, void, unknown>,
-  collectionId: any,
-  collectionName: string,
-  action: JSAction,
-  errors: any[],
-) {
-  throw new Error("Function not implemented.");
-}
