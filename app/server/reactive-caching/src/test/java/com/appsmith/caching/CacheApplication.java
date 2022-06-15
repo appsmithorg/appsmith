@@ -4,8 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ReactiveCacheApplication {
+public class CacheApplication {
     public static void main(String[] args) {
-        SpringApplication.run(ReactiveCacheApplication.class, args);
+        SpringApplication.run(CacheApplication.class, args);
     }
 }

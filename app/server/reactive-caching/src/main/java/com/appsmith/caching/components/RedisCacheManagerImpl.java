@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 /**
- * ReactiveCacheManagerImpl is a class that implements the ReactiveCacheManager interface.
+ * RedisCacheManagerImpl is a class that implements the CacheManager interface.
  * Used Redis as the cache backend.
  */
 @Component
@@ -27,7 +27,6 @@ public class RedisCacheManagerImpl implements CacheManager {
 
     private final ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
     private final ReactiveRedisOperations<String, String> reactiveRedisOperations;
-    private final String applicationName;
 
     Map<String, CacheStats> statsMap = new ConcurrentHashMap<>();
 
@@ -57,17 +56,16 @@ public class RedisCacheManagerImpl implements CacheManager {
     }
 
     @Autowired
-    public RedisCacheManagerImpl(ReactiveRedisTemplate<String, Object> reactiveRedisTemplate, @Value("${spring.application.name}") String applicationName,
+    public RedisCacheManagerImpl(ReactiveRedisTemplate<String, Object> reactiveRedisTemplate,
             ReactiveRedisOperations<String, String> reactiveRedisOperations) {
         this.reactiveRedisTemplate = reactiveRedisTemplate;
-        this.applicationName = applicationName;
         this.reactiveRedisOperations = reactiveRedisOperations;
     }
 
     @Override
     public Mono<Object> get(String cacheName, String key) {
         ensureStats(cacheName);
-        String path = applicationName + ":" + cacheName + ":" + key;
+        String path = cacheName + ":" + key;
         return reactiveRedisTemplate.opsForValue().get(path)
             .map(value -> {
                 //This is a cache hit, update stats and return value
@@ -84,7 +82,7 @@ public class RedisCacheManagerImpl implements CacheManager {
     @Override
     public Mono<Boolean> put(String cacheName, String key, Mono<Object> valueMono) {
         ensureStats(cacheName);
-        String path = applicationName + ":" + cacheName + ":" + key;
+        String path = cacheName + ":" + key;
         return valueMono.flatMap(value -> reactiveRedisTemplate.opsForValue().set(path, value));
     }
 
@@ -92,7 +90,7 @@ public class RedisCacheManagerImpl implements CacheManager {
     public Mono<Void> evict(String cacheName, String key) {
         ensureStats(cacheName);
         statsMap.get(cacheName).getSingleEvictions().incrementAndGet();
-        String path = applicationName + ":" + cacheName + ":" + key;
+        String path = cacheName + ":" + key;
         return reactiveRedisTemplate.delete(path).then();
     }
 
@@ -100,7 +98,7 @@ public class RedisCacheManagerImpl implements CacheManager {
     public Mono<Void> evictAll(String cacheName) {
         ensureStats(cacheName);
         statsMap.get(cacheName).getCompleteEvictions().incrementAndGet();
-        String path = applicationName + ":" + cacheName;
+        String path = cacheName;
         //Remove all matching keys with wildcard
         final String script =
             "for _,k in ipairs(redis.call('keys','" + path + ":*'))" +

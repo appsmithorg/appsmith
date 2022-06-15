@@ -15,8 +15,8 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.appsmith.caching.annotations.ReactiveCacheEvict;
-import com.appsmith.caching.annotations.ReactiveCacheable;
+import com.appsmith.caching.annotations.CacheEvict;
+import com.appsmith.caching.annotations.Cache;
 import com.appsmith.caching.components.CacheManager;
 
 import lombok.extern.slf4j.Slf4j;
@@ -24,25 +24,29 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * ReactiveCacheAspect is an aspect that is used to cache the results of a method call annotated with ReactiveCacheable.
- * It is also possible to evict the cached result by annotating method with ReactiveCacheEvict.
+ * CacheAspect is an aspect that is used to cache the results of a method call annotated with Cache.
+ * It is also possible to evict the cached result by annotating method with CacheEvict.
  */
 @Aspect
 @Configuration
 @Slf4j
-public class ReactiveCacheAspect {
+public class CacheAspect {
 
     private final CacheManager cacheManager;
 
     public static final ExpressionParser EXPRESSION_PARSER = new SpelExpressionParser();
     
     @Autowired
-    public ReactiveCacheAspect(CacheManager cacheManager) {
+    public CacheAspect(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }
 
     /**
      * This method is used to call original Mono<T> returning method and return the the result after caching it with CacheManager
+     * @param joinPoint The join point of the method call
+     * @param cacheName The name of the cache
+     * @param key The key to be used for caching
+     * @return The result of the method call
      */
     private Mono<Object> callMonoMethodAndCache(ProceedingJoinPoint joinPoint, String cacheName, String key) {
         try {
@@ -55,8 +59,13 @@ public class ReactiveCacheAspect {
         }
     }
 
+
     /**
      * This method is used to call original Flux<T> returning method and return the the result after caching it with CacheManager
+     * @param joinPoint The join point
+     * @param cacheName The name of the cache
+     * @param key The key to be used for caching
+     * @return The result of the method call after caching
      */
     private Flux<?> callFluxMethodAndCache(ProceedingJoinPoint joinPoint, String cacheName, String key) {
         try {
@@ -80,12 +89,14 @@ public class ReactiveCacheAspect {
     private String deriveKeyWithArguments(Object[] args) {
         if(args.length == 0) { //If there are no arguments, return SimpleKey.EMPTY
             return SimpleKey.EMPTY.toString();
-        } else if(args.length == 1) { //If there is only one argument, return its toString() value
-            return args[0].toString();
-        } else {
-            SimpleKey simpleKey = new SimpleKey(args); //Create SimpleKey from arguments and return its toString() value
-            return simpleKey.toString();
         }
+        
+        if(args.length == 1) { //If there is only one argument, return its toString() value
+            return args[0].toString();
+        }
+
+        SimpleKey simpleKey = new SimpleKey(args); //Create SimpleKey from arguments and return its toString() value
+        return simpleKey.toString();
     }
 
     /**
@@ -116,22 +127,23 @@ public class ReactiveCacheAspect {
     private String deriveKey(String expression, String[] parameterNames, Object[] args) {
         if(expression.isEmpty()) { //If expression is empty, use default strategy
             return deriveKeyWithArguments(args);
-        } else { //If expression is not empty, use expression strategy
-            return deriveKeyWithExpression(expression, parameterNames, args);
         }
+        
+        //If expression is not empty, use expression strategy
+        return deriveKeyWithExpression(expression, parameterNames, args);
     }
 
     /**
-     * This method defines a Aspect to handle method calls annotated with ReactiveCacheable.
+     * This method defines a Aspect to handle method calls annotated with Cache.
      * @param joinPoint ProceedingJoinPoint of the method call
      * @return Result of the method call, either cached or after calling the original method
      * @throws Throwable
      */
-    @Around("execution(public * *(..)) && @annotation(com.appsmith.caching.annotations.ReactiveCacheable)")
-    public Object reactiveCacheable(ProceedingJoinPoint joinPoint) throws Throwable {
+    @Around("execution(public * *(..)) && @annotation(com.appsmith.caching.annotations.Cache)")
+    public Object cacheable(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
-        ReactiveCacheable annotation = method.getAnnotation(ReactiveCacheable.class);
+        Cache annotation = method.getAnnotation(Cache.class);
         String cacheName = annotation.cacheName();
 
         //derive key
@@ -143,14 +155,17 @@ public class ReactiveCacheAspect {
         if (returnType.isAssignableFrom(Mono.class)) { //If method returns Mono<T>
             return cacheManager.get(cacheName, key)
                 .switchIfEmpty(Mono.defer(() -> callMonoMethodAndCache(joinPoint, cacheName, key))); //defer the creation of Mono until subscription as it will call original function
-        } else if (returnType.isAssignableFrom(Flux.class)) { //If method returns Flux<T>
+        }
+        
+        if (returnType.isAssignableFrom(Flux.class)) { //If method returns Flux<T>
             return cacheManager.get(cacheName, key)
                 .switchIfEmpty(Mono.defer(() -> callFluxMethodAndCache(joinPoint, cacheName, key).collectList())) //defer the creation of Flux until subscription as it will call original function
                 .map(value -> (List<?>) value)
                 .flatMapMany(Flux::fromIterable);
-        } else { //If method does not returns Mono<T> or Flux<T> raise exception
-            throw new RuntimeException("non reactive object supported (Mono, Flux)");
         }
+        
+        //If method does not returns Mono<T> or Flux<T> raise exception
+        throw new RuntimeException("non reactive object supported (Mono, Flux)");
     }
 
     /**
@@ -160,28 +175,30 @@ public class ReactiveCacheAspect {
      * @return Mono<Void> that will complete after evicting the key from the cache
      * @throws Throwable
      */
-    @Around("execution(public * *(..)) && @annotation(com.appsmith.caching.annotations.ReactiveCacheEvict)")
-    public Object reactiveCacheEvict(ProceedingJoinPoint joinPoint) throws Throwable {
+    @Around("execution(public * *(..)) && @annotation(com.appsmith.caching.annotations.CacheEvict)")
+    public Object cacheEvict(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
-        ReactiveCacheEvict annotation = method.getAnnotation(ReactiveCacheEvict.class);
+        CacheEvict annotation = method.getAnnotation(CacheEvict.class);
         String cacheName = annotation.cacheName();
         boolean all = annotation.all();
         Class<?> returnType = method.getReturnType();
+        
         if (!returnType.isAssignableFrom(Mono.class)) {
             throw new RuntimeException("Just Mono<?> allowed for cacheEvict");
         }
+
         if(all) { //If all is true, evict all keys from the cache
             return cacheManager.evictAll(cacheName)
                 .then((Mono<?>) joinPoint.proceed());
-        } else {
-            //derive key
-            String[] parameterNames = signature.getParameterNames();
-            Object[] args = joinPoint.getArgs();
-            String key = deriveKey(annotation.key(), parameterNames, args);
-            //Evict key from the cache then call the original method
-            return cacheManager.evict(cacheName, key)
-                .then((Mono<?>) joinPoint.proceed());
         }
+
+        //derive key
+        String[] parameterNames = signature.getParameterNames();
+        Object[] args = joinPoint.getArgs();
+        String key = deriveKey(annotation.key(), parameterNames, args);
+        //Evict key from the cache then call the original method
+        return cacheManager.evict(cacheName, key)
+            .then((Mono<?>) joinPoint.proceed());
     }
 }

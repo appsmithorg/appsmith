@@ -18,13 +18,18 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>11</java.version>
+        <org.pf4j.version>3.4.1</org.pf4j.version>
+        <org.projectlombok.version>1.18.22</org.projectlombok.version>
+        <org.testcontainers.junit-jupiter.version>1.17.2</org.testcontainers.junit-jupiter.version>
+        <uk.co.jemos.podam.podam.version>7.2.5.RELEASE</uk.co.jemos.podam.podam.version>
+        <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j</artifactId>
-            <version>3.4.1</version>
+            <version>${org.pf4j.version}</version>
         </dependency>
 
         <dependency>
@@ -75,7 +80,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.22</version>
+            <version>${org.projectlombok.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -88,14 +93,14 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>1.17.2</version>
+            <version>${org.testcontainers.junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>uk.co.jemos.podam</groupId>
             <artifactId>podam</artifactId>
-            <version>7.2.5.RELEASE</version>
+            <version>${uk.co.jemos.podam.podam.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -112,7 +117,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.0</version>
+                <version>${maven-surefire-plugin.version}</version>
             </plugin>
 
         </plugins>

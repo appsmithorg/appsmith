@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.appsmith.caching.annotations.ReactiveCacheEvict;
-import com.appsmith.caching.annotations.ReactiveCacheable;
+import com.appsmith.caching.annotations.CacheEvict;
+import com.appsmith.caching.annotations.Cache;
 import com.appsmith.caching.model.ArgumentModel;
 import com.appsmith.caching.model.TestModel;
 
@@ -26,7 +26,7 @@ public class CacheTestService {
      * @param id The id
      * @return The Mono<TestModel> object, random every time
      */
-    @ReactiveCacheable(cacheName = "objectcache")
+    @Cache(cacheName = "objectcache")
     public Mono<TestModel> getObjectFor(String id) {
         TestModel model = factory.manufacturePojo(TestModel.class);
         model.setId(id);
@@ -38,7 +38,7 @@ public class CacheTestService {
      * @param id The id
      * @return Mono<Void> that completes after eviction
      */
-    @ReactiveCacheEvict(cacheName = "objectcache")
+    @CacheEvict(cacheName = "objectcache")
     public Mono<Void> evictObjectFor(String id) {
         return Mono.empty();
     }
@@ -47,7 +47,7 @@ public class CacheTestService {
      * This method is used to test eviction functionality for Mono<T>, complete cache.
      * @return Mono<Void> that completes after eviction
      */
-    @ReactiveCacheEvict(cacheName = "objectcache", all = true)
+    @CacheEvict(cacheName = "objectcache", all = true)
     public Mono<Void> evictAllObjects() {
         return Mono.empty();
     }
@@ -57,7 +57,7 @@ public class CacheTestService {
      * @param id The id
      * @return The Flux<TestModel>, random every time
      */
-    @ReactiveCacheable(cacheName = "listcache")
+    @Cache(cacheName = "listcache")
     public Flux<TestModel> getListFor(String id) {
         List<TestModel> testModels = new ArrayList<>();
         for(int i = 0;i < 5;i++) {
@@ -73,7 +73,7 @@ public class CacheTestService {
      * @param id The id
      * @return Mono<Void> that completes after eviction
      */
-    @ReactiveCacheEvict(cacheName = "listcache")
+    @CacheEvict(cacheName = "listcache")
     public Mono<Void> evictListFor(String id) {
         return Mono.empty();
     }
@@ -82,7 +82,7 @@ public class CacheTestService {
      * This method is used to test eviction functionality for Flux<T>, complete cache.
      * @return Mono<Void> that completes after eviction
      */
-    @ReactiveCacheEvict(cacheName = "listcache", all = true)
+    @CacheEvict(cacheName = "listcache", all = true)
     public Mono<Void> evictAllLists() {
         return Mono.empty();
     }
@@ -93,7 +93,7 @@ public class CacheTestService {
      * @param ArgumentModel The argument model
      * @return The Mono<TestModel> object, random every time
      */
-    @ReactiveCacheable(cacheName = "objectcache1", key = "#argumentModel.name")
+    @Cache(cacheName = "objectcache1", key = "#argumentModel.name")
     public Mono<TestModel> getObjectForWithKey(ArgumentModel argumentModel) {
         TestModel model = factory.manufacturePojo(TestModel.class);
         model.setId(argumentModel.getName());
@@ -106,7 +106,7 @@ public class CacheTestService {
      * @param id The id
      * @return The Mono<Boolean> that will complete after the item is removed.
      */
-    @ReactiveCacheEvict(cacheName = "objectcache1", key = "#id")
+    @CacheEvict(cacheName = "objectcache1", key = "#id")
     public Mono<Void> evictObjectForWithKey(String id) {
         return Mono.empty();
     }

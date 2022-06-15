@@ -6,11 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation is used to mark a method to cache the result of a method call.
+ * This annotation is used to mark a method as a reactive cache evictor.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface ReactiveCacheable {
+public @interface CacheEvict {
 
     /*
      * This is the name of the cache.
@@ -22,5 +22,10 @@ public @interface ReactiveCacheable {
      * All method arguments can be used in the expression
      */
     String key() default "";
+
+    /**
+     * Whether to evict all keys for a given cache name.
+     */
+    boolean all() default false;
     
 }
