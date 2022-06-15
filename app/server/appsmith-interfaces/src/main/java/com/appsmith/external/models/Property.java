@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.Transient;
 
 @Getter
 @Setter
@@ -21,13 +20,6 @@ public class Property {
         this.key = key;
         this.value = value;
     }
-
-    // TODO: remove it.
-    /*@Transient
-    Object limit;
-    public void setLimit(Object val) {
-        this.value = val;
-    }*/
 
     String key;
 

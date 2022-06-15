@@ -16,19 +16,10 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class HeaderUtils {
     public static final String IS_SEND_SESSION_ENABLED_KEY = "isSendSessionEnabled";
     public static final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
-
-    protected static HeaderUtils headerUtils;
-    public static HeaderUtils getInstance() {
-        if (headerUtils == null) {
-            headerUtils = new HeaderUtils();
-        }
-
-        return headerUtils;
-    }
 
     public boolean isEncodeParamsToggleEnabled(ActionConfiguration actionConfiguration) {
         /**

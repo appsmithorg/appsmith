@@ -7,19 +7,9 @@ import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class SmartSubstitutionUtils {
     public static final int SMART_SUBSTITUTION_INDEX = 0;
-
-    private static SmartSubstitutionUtils smartSubstitutionUtils;
-
-    public static SmartSubstitutionUtils getInstance() {
-        if (smartSubstitutionUtils == null) {
-            smartSubstitutionUtils = new SmartSubstitutionUtils();
-        }
-
-        return smartSubstitutionUtils;
-    }
 
     public boolean isSmartSubstitutionEnabled(List<Property> properties) {
         boolean smartSubstitution;

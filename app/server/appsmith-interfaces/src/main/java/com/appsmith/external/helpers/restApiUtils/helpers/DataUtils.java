@@ -46,7 +46,6 @@ public class DataUtils {
 
     public  static String FIELD_API_CONTENT_TYPE = "apiContentType";
 
-    private static DataUtils dataUtils;
     private final ObjectMapper objectMapper;
 
     public enum MultipartFormDataType {
@@ -55,16 +54,9 @@ public class DataUtils {
         ARRAY,
     }
 
-    private DataUtils() {
+    public DataUtils() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    }
-
-    public static DataUtils getInstance() {
-        if (dataUtils == null) {
-            dataUtils = new DataUtils();
-        }
-        return dataUtils;
     }
 
     public BodyInserter<?, ?> buildBodyInserter(Object body, String contentType, Boolean encodeParamsToggle) {

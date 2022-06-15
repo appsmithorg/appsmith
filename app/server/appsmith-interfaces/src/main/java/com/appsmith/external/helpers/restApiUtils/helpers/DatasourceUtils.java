@@ -11,19 +11,10 @@ import org.springframework.util.CollectionUtils;
 import java.util.HashSet;
 import java.util.Set;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class DatasourceUtils {
 
-    protected static HeaderUtils headerUtils = HeaderUtils.getInstance();
-
-    protected static DatasourceUtils datasourceUtils;
-    public static DatasourceUtils getInstance() {
-        if (datasourceUtils == null) {
-            datasourceUtils = new DatasourceUtils();
-        }
-
-        return datasourceUtils;
-    }
+    protected static HeaderUtils headerUtils = new HeaderUtils();
 
     public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
         /**

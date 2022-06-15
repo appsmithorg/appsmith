@@ -41,7 +41,10 @@ import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 @NoArgsConstructor
 public class GraphQLHintMessageUtils extends HintMessageUtils {
 
-    // TODO: add comments
+    /**
+     * This method checks if the user has defined a query variable in both the places - pagination tab and the query
+     * variables editor section. If so, then a warning message is returned informing user of the same.
+     */
     public static Set<String> getHintMessagesForDuplicatesInQueryVariables(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
         if (actionConfiguration == null) {
             return new HashSet<>();
@@ -119,7 +122,6 @@ public class GraphQLHintMessageUtils extends HintMessageUtils {
 
         Set<String> actionHintMessages = super.getActionHintMessages(actionConfiguration, datasourceConfiguration);
 
-        // TODO: add comments
         actionHintMessages.addAll(getHintMessagesForDuplicatesInQueryVariables(actionConfiguration));
 
         return actionHintMessages;

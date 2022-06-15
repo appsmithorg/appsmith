@@ -48,14 +48,14 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
 
     protected BaseRestApiPluginExecutor(SharedConfig sharedConfig) {
         this.sharedConfig = sharedConfig;
-        this.dataUtils = DataUtils.getInstance();
-        this.smartSubstitutionUtils = SmartSubstitutionUtils.getInstance();
-        this.uriUtils = URIUtils.getInstance();
-        this.triggerUtils = TriggerUtils.getInstance();
-        this.initUtils = InitUtils.getInstance();
-        this.headerUtils = HeaderUtils.getInstance();
-        this.datasourceUtils = DatasourceUtils.getInstance();
-        this.hintMessageUtils = new HintMessageUtils(); // TODO: do the same for all other classes
+        this.dataUtils = new DataUtils();
+        this.smartSubstitutionUtils = new SmartSubstitutionUtils();
+        this.uriUtils = new URIUtils();
+        this.triggerUtils = new TriggerUtils();
+        this.initUtils = new InitUtils();
+        this.headerUtils = new HeaderUtils();
+        this.datasourceUtils = new DatasourceUtils();
+        this.hintMessageUtils = new HintMessageUtils();
         this.EXCHANGE_STRATEGIES = ExchangeStrategies
                 .builder()
                 .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(sharedConfig.getCodecSize()))
