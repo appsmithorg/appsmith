@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import EmojiPicker from "./EmojiPicker";
 import { IconSize } from "./Icon";
-import { TooltipComponent } from "@appsmithorg/design-system";
+import { TooltipComponent } from "design-system";
 
 const Container = styled.div`
   display: flex;

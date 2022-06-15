@@ -17,7 +17,7 @@ import Spinner from "./Spinner";
 import { ReactComponent as Check } from "assets/icons/control/checkmark.svg";
 import { ReactComponent as Close } from "assets/icons/control/remove.svg";
 import { replayHighlightClass } from "globalStyles/portals";
-import { TooltipComponent as Tooltip } from "@appsmithorg/design-system";
+import { TooltipComponent as Tooltip } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
 import SegmentHeader from "components/ads/ListSegmentHeader";
 import { useTheme } from "styled-components";

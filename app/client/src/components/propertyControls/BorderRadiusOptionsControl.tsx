@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { TooltipComponent } from "@appsmithorg/design-system";
+import { TooltipComponent } from "design-system";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
 import { ButtonTabComponent } from "components/ads";

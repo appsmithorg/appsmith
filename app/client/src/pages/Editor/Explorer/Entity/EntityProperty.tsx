@@ -10,7 +10,7 @@ import useClipboard from "utils/hooks/useClipboard";
 import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
 import { EntityClassNames } from ".";
-import { TooltipComponent } from "@appsmithorg/design-system";
+import { TooltipComponent } from "design-system";
 import { COPY_ELEMENT, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import CollapseToggle from "./CollapseToggle";

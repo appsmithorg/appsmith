@@ -3,7 +3,7 @@ import { CommonComponentProps, Classes } from "./common";
 import styled from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
 import Text, { TextType, FontWeight } from "./Text";
-import { TooltipComponent } from "@appsmithorg/design-system";
+import { TooltipComponent } from "design-system";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 export type MenuItemProps = CommonComponentProps & {

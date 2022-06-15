@@ -8,7 +8,7 @@ import { Theme, Skin } from "constants/DefaultTheme";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Position } from "@blueprintjs/core";
-import { TooltipComponent as Tooltip } from "@appsmithorg/design-system";
+import { TooltipComponent as Tooltip } from "design-system";
 
 const LightningIconWrapper = styled.span<{
   background: string;

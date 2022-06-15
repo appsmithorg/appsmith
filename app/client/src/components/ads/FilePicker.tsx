@@ -14,7 +14,7 @@ import {
   ERROR_FILE_TOO_LARGE,
   REMOVE_FILE_TOOL_TIP,
 } from "@appsmith/constants/messages";
-import { TooltipComponent } from "@appsmithorg/design-system";
+import { TooltipComponent } from "design-system";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import Icon, { IconName, IconSize } from "./Icon";
 import { error as logError } from "loglevel";

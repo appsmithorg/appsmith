@@ -5,7 +5,7 @@ import { Theme } from "constants/DefaultTheme";
 import { EntityTogglesWrapper } from "./ExplorerStyledComponents";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { TooltipComponent } from "@appsmithorg/design-system";
+import { TooltipComponent } from "design-system";
 import {
   createMessage,
   ENTITY_MORE_ACTIONS_TOOLTIP,

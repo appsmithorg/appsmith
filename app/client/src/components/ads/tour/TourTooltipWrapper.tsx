@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { TooltipComponent } from "@appsmithorg/design-system";
+import { TooltipComponent } from "design-system";
 import { useSelector } from "react-redux";
 import Text, { TextType } from "../Text";
 import { Position } from "@blueprintjs/core";

@@ -5,7 +5,7 @@ import Dropdown, {
   DefaultDropDownValueNodeProps,
   DropdownOption,
 } from "components/ads/Dropdown";
-import { TooltipComponent as Tooltip } from "@appsmithorg/design-system";
+import { TooltipComponent as Tooltip } from "design-system";
 import { AppState } from "reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";

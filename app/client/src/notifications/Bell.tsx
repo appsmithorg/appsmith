@@ -20,7 +20,7 @@ import {
   unreadCountSelector,
   isNotificationsListVisibleSelector,
 } from "selectors/notificationSelectors";
-import { TooltipComponent } from "@appsmithorg/design-system";
+import { TooltipComponent } from "design-system";
 import {
   createMessage,
   NOTIFICATIONS_TOOLTIP,

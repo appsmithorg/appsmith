@@ -9,7 +9,7 @@ import { SelectWrapper, Label, Bold } from "./styles";
 import TextInput from "components/ads/TextInput";
 import { GeneratePagePayload } from "./types";
 import { getSheetUrl } from "./hooks";
-import { TooltipComponent as Tooltip } from "@appsmithorg/design-system";
+import { TooltipComponent as Tooltip } from "design-system";
 import styled from "styled-components";
 import {
   UseSheetListReturn,

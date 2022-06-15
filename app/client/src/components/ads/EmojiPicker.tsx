@@ -7,7 +7,7 @@ import styled, { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import "emoji-mart/css/emoji-mart.css";
-import { TooltipComponent as Tooltip } from "@appsmithorg/design-system";
+import { TooltipComponent as Tooltip } from "design-system";
 import {
   ADD_REACTION,
   createMessage,

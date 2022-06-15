@@ -6,7 +6,7 @@ import Rating from "react-rating";
 import _ from "lodash";
 
 import { RateSize, RATE_SIZES } from "../constants";
-import { TooltipComponent } from "@appsmithorg/design-system";
+import { TooltipComponent } from "design-system";
 import { disable } from "constants/DefaultTheme";
 import { ComponentProps } from "widgets/BaseComponent";
 import { Colors } from "constants/Colors";

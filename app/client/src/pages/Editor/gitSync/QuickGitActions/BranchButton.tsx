@@ -11,7 +11,7 @@ import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import BranchList from "../components/BranchList";
 import { fetchBranchesInit } from "actions/gitSyncActions";
 import Icon, { IconSize } from "components/ads/Icon";
-import { TooltipComponent as Tooltip } from "@appsmithorg/design-system";
+import { TooltipComponent as Tooltip } from "design-system";
 import { Position } from "@blueprintjs/core";
 import { isEllipsisActive } from "utils/helpers";
 import { getGitStatus } from "selectors/gitSyncSelectors";

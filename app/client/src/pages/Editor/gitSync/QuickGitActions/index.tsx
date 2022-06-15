@@ -20,7 +20,7 @@ import {
   PULL_CHANGES,
 } from "@appsmith/constants/messages";
 
-import { TooltipComponent as Tooltip } from "@appsmithorg/design-system";
+import { TooltipComponent as Tooltip } from "design-system";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";

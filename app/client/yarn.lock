@@ -92,11 +92,6 @@
     "@algolia/logger-common" "4.5.1"
     "@algolia/requester-common" "4.5.1"
 
-"@appsmithorg/design-system@^1.0.1-beta.5":
-  version "1.0.1-beta.5"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.1-beta.5.tgz#f1f70840f4cbbbfaf7a1866c22e25cb622d3b5da"
-  integrity sha512-gqSDCF1GJhzYkXePOKtlofPFc+uRo6s/vNa6sKhUbb8ZJ6askhxa9njh9XfLdJNmrvytljvXd8/J4Jks24bqbw==
-
 "@babel/code-frame@7.10.4":
   version "7.10.4"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.10.4.tgz#168da1a36e90da68ae8d49c0f1b48c7c6249213a"
@@ -6722,6 +6717,11 @@ des.js@^1.0.0:
   dependencies:
     inherits "^2.0.1"
     minimalistic-assert "^1.0.0"
+
+"design-system@npm:@appsmithorg/design-system@^1.0.1-beta.7":
+  version "1.0.1-beta.7"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.1-beta.7.tgz#7d9d8a5a717e6c6b9ad8760c5783380cf0ee4260"
+  integrity sha512-4VsX3z6v05DwXf5P4Ie67Kd8TIaHLjvRD5DDNY8eJ3W1C2v8/we9eBhdo7YkQVOE8fZ3KxAmLt0WkdXdIOWxcA==
 
 destroy@~1.0.4:
   version "1.0.4"

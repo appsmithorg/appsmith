@@ -26,7 +26,7 @@ import { Colors } from "constants/Colors";
 import { Position } from "@blueprintjs/core";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { EntityClassNames } from "../Entity";
-import { TooltipComponent } from "@appsmithorg/design-system";
+import { TooltipComponent } from "design-system";
 import { ADD_QUERY_JS_BUTTON, createMessage } from "ce/constants/messages";
 
 const SubMenuContainer = styled.div`

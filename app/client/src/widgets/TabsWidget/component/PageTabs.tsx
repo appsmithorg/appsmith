@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import { get } from "lodash";
 import { isEllipsisActive } from "utils/helpers";
-import { TooltipComponent } from "@appsmithorg/design-system";
+import { TooltipComponent } from "design-system";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Position } from "@blueprintjs/core";
 

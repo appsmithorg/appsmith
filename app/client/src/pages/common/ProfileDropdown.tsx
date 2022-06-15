@@ -18,7 +18,7 @@ import {
   ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
 } from "constants/routes";
 import { Colors } from "constants/Colors";
-import { TooltipComponent } from "@appsmithorg/design-system";
+import { TooltipComponent } from "design-system";
 import {
   ACCOUNT_TOOLTIP,
   createMessage,

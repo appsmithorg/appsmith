@@ -2,7 +2,7 @@ import classNames from "classnames";
 import React, { useCallback } from "react";
 
 import { AppTheme } from "entities/AppTheming";
-import { TooltipComponent } from "@appsmithorg/design-system";
+import { TooltipComponent } from "design-system";
 
 interface ThemeBorderRadiusControlProps {
   options: {

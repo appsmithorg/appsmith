@@ -1,4 +1,4 @@
-import { TooltipComponent as Tooltip } from "@appsmithorg/design-system";
+import { TooltipComponent as Tooltip } from "design-system";
 import { createMessage } from "@appsmith/constants/messages";
 import React from "react";
 import styled from "styled-components";

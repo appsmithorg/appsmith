@@ -32,7 +32,7 @@ import {
 import { Space } from "./StyledComponents";
 import Icon, { IconSize, IconWrapper } from "components/ads/Icon";
 import { get } from "lodash";
-import { TooltipComponent as Tooltip } from "@appsmithorg/design-system";
+import { TooltipComponent as Tooltip } from "design-system";
 import { Position } from "@blueprintjs/core";
 import Spinner from "components/ads/Spinner";
 import {

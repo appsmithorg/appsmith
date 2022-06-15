@@ -21,7 +21,7 @@ import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 
 import { WidgetType } from "constants/WidgetConstants";
 
-import { TooltipComponent } from "@appsmithorg/design-system";
+import { TooltipComponent } from "design-system";
 import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";

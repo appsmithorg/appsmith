@@ -46,7 +46,7 @@ import {
   getIsErroredSavingAppName,
 } from "selectors/applicationSelectors";
 import { Classes as CsClasses } from "components/ads/common";
-import { TooltipComponent } from "@appsmithorg/design-system";
+import { TooltipComponent } from "design-system";
 import {
   isVerticalEllipsisActive,
   truncateString,
