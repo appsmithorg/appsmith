@@ -413,17 +413,17 @@ describe("App Theming funtionality", function() {
       "exist",
     );
 
-    cy.xpath(applyTheme("Featured Themes", "Classic")).should("exist");
-    cy.xpath(themesDeletebtn("Featured Themes", "Classic")).should("not.exist");
+    cy.xpath(applyTheme("Featured Themes", "Earth")).should("exist");
+    cy.xpath(themesDeletebtn("Featured Themes", "Earth")).should("not.exist");
 
-    cy.xpath(applyTheme("Featured Themes", "Modern")).should("exist");
-    cy.xpath(themesDeletebtn("Featured Themes", "Modern")).should("not.exist");
+    cy.xpath(applyTheme("Featured Themes", "Sunrise")).should("exist");
+    cy.xpath(themesDeletebtn("Featured Themes", "Sunrise")).should("not.exist");
 
-    cy.xpath(applyTheme("Featured Themes", "Sharp")).should("exist");
-    cy.xpath(themesDeletebtn("Featured Themes", "Sharp")).should("not.exist");
+    cy.xpath(applyTheme("Featured Themes", "Pacific")).should("exist");
+    cy.xpath(themesDeletebtn("Featured Themes", "Pacific")).should("not.exist");
 
-    cy.xpath(applyTheme("Featured Themes", "Rounded")).should("exist");
-    cy.xpath(themesDeletebtn("Featured Themes", "Rounded")).should("not.exist");
+    cy.xpath(applyTheme("Featured Themes", "Pampas")).should("exist");
+    cy.xpath(themesDeletebtn("Featured Themes", "Pampas")).should("not.exist");
 
     // cy.contains("Featured Themes")
     //   .siblings()
