@@ -51,10 +51,10 @@ describe("Postgres - Datatype Numeric tests", function() {
   it("3. Creating SELECT query - numerictypes + Bug 14493", () => {
     ee.ActionTemplateMenuByEntityName("public.numerictypes", "SELECT");
     agHelper.RenameWithInPane("selectRecords");
-    // dataSources.RunQuery();
-    // agHelper
-    //   .GetText(dataSources._noRecordFound)
-    //   .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
+    dataSources.RunQuery();
+    agHelper
+      .GetText(dataSources._noRecordFound)
+      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
   });
 
   it("4. Creating INSERT query - numerictypes", () => {
@@ -304,6 +304,7 @@ describe("Postgres - Datatype Numeric tests", function() {
     agHelper.AssertElementAbsence(
       ee._entityNameInExplorer("public.numerictypes"),
     );
+    ee.expandCollapseEntity(dsName, false);
     ee.expandCollapseEntity("DATASOURCES", false);
   });
 

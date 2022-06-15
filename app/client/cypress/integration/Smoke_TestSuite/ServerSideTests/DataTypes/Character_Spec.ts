@@ -50,10 +50,10 @@ describe("Postgres - Datatype Character tests", function() {
     query = `SELECT *, char_length("AsMany") as "AsMany-Len", char_length("Unlimited") as "Unlimited-Len" FROM public."chartypes" as charT LIMIT 10;`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "SELECT");
     agHelper.RenameWithInPane("selectRecords");
-    // dataSources.RunQuery();
-    // agHelper
-    //   .GetText(dataSources._noRecordFound)
-    //   .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
+    dataSources.RunQuery();
+    agHelper
+      .GetText(dataSources._noRecordFound)
+      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
     agHelper.EnterValue(query);
   });
 
@@ -258,7 +258,7 @@ describe("Postgres - Datatype Character tests", function() {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
     table.ReadTableRowColumnData(1, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq(" ");//Not updating one column
+      expect($cellData).to.eq(" "); //Not updating one column
     });
     table.ReadTableRowColumnData(1, 3, 200).then(($cellData) => {
       expect($cellData).to.eq("Tram");
@@ -358,6 +358,7 @@ describe("Postgres - Datatype Character tests", function() {
     ee.expandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.chartypes"));
+    ee.expandCollapseEntity(dsName, false);
     ee.expandCollapseEntity("DATASOURCES", false);
   });
 
@@ -365,11 +366,19 @@ describe("Postgres - Datatype Character tests", function() {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.expandCollapseEntity("QUERIES/JS");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("deleteAllRecords", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName(
+      "deleteAllRecords",
+      "Delete",
+      "Are you sure?",
+    );
     ee.ActionContextMenuByEntityName("deleteRecord", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName("dropTable", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName("insertRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("selectRecords", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName(
+      "selectRecords",
+      "Delete",
+      "Are you sure?",
+    );
     ee.ActionContextMenuByEntityName("updateRecord", "Delete", "Are you sure?");
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
