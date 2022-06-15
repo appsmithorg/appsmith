@@ -288,8 +288,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.DeployApp();
     agHelper.Sleep(2000)
     table.SelectTableRow(0); //to make JSON form hidden
+    agHelper.Sleep(2000);//Sleep time for tab to disappear!
     agHelper.AssertElementAbsence(locator._jsonFormWidget);
-
     table.SelectTableRow(5);
     agHelper.AssertElementVisible(locator._jsonFormWidget);
     dataSources.AssertJSONFormHeader(5, 0, "ship_id");

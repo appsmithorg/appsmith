@@ -508,6 +508,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.Sleep(2000); //for Insert to reflect!
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.Sleep(3000); //for Insert to reflect!
     agHelper
       .GetElementLength(locator._jsonFormWidget)
       .then(($len) => expect($len).to.eq(1));
