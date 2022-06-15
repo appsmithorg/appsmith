@@ -17,9 +17,6 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
-  features: {
-    dynamicHeight: true,
-  },
   defaults: {
     backgroundColor: "transparent",
     itemBackgroundColor: "#FFFFFF",
