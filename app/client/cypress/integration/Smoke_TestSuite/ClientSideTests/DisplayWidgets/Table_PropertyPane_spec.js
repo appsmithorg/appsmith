@@ -360,7 +360,7 @@ describe("Table Widget property pane feature validation", function() {
   //     cy.get(selector + " button").should(
   //       "have.css",
   //       "background-color",
-  //       "rgb(22, 163, 74)",
+  //       "rgb(59, 130, 246)",
   //     );
   //     cy.get(selector + " button > span").should(
   //       "have.css",
@@ -382,12 +382,12 @@ describe("Table Widget property pane feature validation", function() {
   //     cy.get(selector + " button > span").should(
   //       "have.css",
   //       "color",
-  //       "rgb(22, 163, 74)",
+  //       "rgb(59, 130, 246)",
   //     );
   //     cy.get(selector + " button").should(
   //       "have.css",
   //       "border",
-  //       `1px solid rgb(22, 163, 74)`,
+  //       `1px solid rgb(59, 130, 246)`,
   //     );
   //   });
   //   cy.selectDropdownValue(commonlocators.tableButtonVariant, "Tertiary");
@@ -404,7 +404,7 @@ describe("Table Widget property pane feature validation", function() {
   //     cy.get(selector + " button > span").should(
   //       "have.css",
   //       "color",
-  //       "rgb(22, 163, 74)",
+  //       "rgb(59, 130, 246)",
   //     );
   //     cy.get(selector + " button").should(
   //       "have.css",

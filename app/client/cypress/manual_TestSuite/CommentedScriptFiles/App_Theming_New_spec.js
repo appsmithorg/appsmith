@@ -471,7 +471,7 @@
 //       .eq(0)
 //       .invoke("css", "background-color")
 //       .then((backgroudColor) => {
-//         expect(backgroudColor).to.eq("rgb(85, 61, 233)")
+//         expect(backgroudColor).to.eq("rgb(5, 150, 105)")
 //       });
 
 //     cy.contains("Current Theme").click()
@@ -519,7 +519,7 @@
 //       .eq(0)
 //       .invoke("css", "background-color")
 //       .then((backgroudColor) => {
-//         expect(backgroudColor).to.eq("rgb(59, 125, 221)")
+//         expect(backgroudColor).to.eq("rgb(8, 145, 178)")
 //       });
 
 //     cy.contains("Current Theme").click()
@@ -543,7 +543,7 @@
 //       .eq(0)
 //       .invoke("css", "background-color")
 //       .then((backgroudColor) => {
-//         expect(backgroudColor).to.eq("rgb(222, 21, 147)")
+//         expect(backgroudColor).to.eq("rgb(219, 39, 119)")
 //       });
 
 //     cy.contains("Current Theme").click()
@@ -837,12 +837,12 @@
 //         cy.get(widgetsPage.widgetBtn).eq(1).should(
 //           "have.css",
 //           "background-color",
-//           "rgb(222, 21, 147)",
+//           "rgb(219, 39, 119)",
 //         ); //old widgets still conforming to theme color
 //         cy.get(widgetsPage.iconWidgetBtn).should(
 //           "have.css",
 //           "background-color",
-//           "rgb(222, 21, 147)",
+//           "rgb(219, 39, 119)",
 //         );
 //       });
 

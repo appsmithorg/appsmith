@@ -474,8 +474,8 @@ describe("App Theming funtionality", function() {
   });
 
   it("7. Verify user able to change between saved theme & already existing Featured themes", () => {
-    //#region Modern
-    cy.xpath(applyTheme("Featured Themes", "Modern"))
+    //#region Pampas
+    cy.xpath(applyTheme("Featured Themes", "Pampas"))
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
@@ -486,7 +486,7 @@ describe("App Theming funtionality", function() {
       .eq(0)
       .invoke("css", "background-color")
       .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(85, 61, 233)");
+        expect(backgroudColor).to.eq("rgb(5, 150, 105)");
       });
 
     cy.contains("Applied Theme")
@@ -502,8 +502,8 @@ describe("App Theming funtionality", function() {
 
     //#endregion
 
-    //#region Classic
-    cy.xpath(applyTheme("Featured Themes", "Classic"))
+    //#region Earth
+    cy.xpath(applyTheme("Featured Themes", "Earth"))
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
@@ -514,7 +514,7 @@ describe("App Theming funtionality", function() {
       .eq(0)
       .invoke("css", "background-color")
       .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(22, 163, 74)");
+        expect(backgroudColor).to.eq("rgb(59, 130, 246)");
       });
 
     cy.contains("Applied Theme")
@@ -530,8 +530,8 @@ describe("App Theming funtionality", function() {
 
     //#endregion
 
-    //#region Sharp
-    cy.xpath(applyTheme("Featured Themes", "Sharp"))
+    //#region Pacific
+    cy.xpath(applyTheme("Featured Themes", "Pacific"))
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
@@ -542,7 +542,7 @@ describe("App Theming funtionality", function() {
       .eq(0)
       .invoke("css", "background-color")
       .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(59, 125, 221)");
+        expect(backgroudColor).to.eq("rgb(8, 145, 178)");
       });
 
     cy.contains("Applied Theme")
@@ -558,8 +558,8 @@ describe("App Theming funtionality", function() {
 
     //#endregion
 
-    //#region Rounded
-    cy.xpath(applyTheme("Featured Themes", "Rounded"))
+    //#region Water Lily
+    cy.xpath(applyTheme("Featured Themes", "Water Lily"))
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
@@ -570,7 +570,7 @@ describe("App Theming funtionality", function() {
       .eq(0)
       .invoke("css", "background-color")
       .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(222, 21, 147)");
+        expect(backgroudColor).to.eq("rgb(219, 39, 119)");
       });
 
     cy.contains("Applied Theme")
@@ -890,11 +890,11 @@ describe("App Theming funtionality", function() {
 
         cy.get(widgetsPage.widgetBtn)
           .eq(1)
-          .should("have.css", "background-color", "rgb(222, 21, 147)"); //old widgets still conforming to theme color
+          .should("have.css", "background-color", "rgb(219, 39, 119)"); //old widgets still conforming to theme color
         cy.get(widgetsPage.iconWidgetBtn).should(
           "have.css",
           "background-color",
-          "rgb(222, 21, 147)",
+          "rgb(219, 39, 119)",
         );
       });
 
