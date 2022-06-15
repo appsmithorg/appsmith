@@ -3,6 +3,8 @@ package com.appsmith.server.acl.ce;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.google.common.collect.Sets;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -158,7 +160,7 @@ public class PolicyGeneratorCE {
         lateralGraph.addEdge(MANAGE_THEMES, READ_THEMES);
     }
 
-    public Set<Policy> getLateralPolicies(AclPermission permission, Set<String> userNames, Class<? extends BaseDomain> destinationEntity) {
+    public Set<Policy> getLateralPolicies(AclPermission permission, Set<String> permissionGroups, Class<? extends BaseDomain> destinationEntity) {
         Set<DefaultEdge> lateralEdges = lateralGraph.outgoingEdgesOf(permission);
         return lateralEdges.stream()
                 .map(edge -> lateralGraph.getEdgeTarget(edge))
@@ -170,7 +172,7 @@ public class PolicyGeneratorCE {
                     return false;
                 })
                 .map(lateralPermission -> Policy.builder().permission(lateralPermission.getValue())
-                        .users(userNames).build())
+                        .permissionGroups(permissionGroups).build())
                 .collect(Collectors.toSet());
     }
 
@@ -194,11 +196,11 @@ public class PolicyGeneratorCE {
 
             if (childPermission.getEntity().equals(destinationEntity)) {
                 childPolicySet.add(Policy.builder().permission(childPermission.getValue())
-                        .users(policy.getUsers()).build());
+                        .permissionGroups(policy.getPermissionGroups()).build());
             }
 
             // Check the lateral graph to derive the child permissions that must be given to this document
-            childPolicySet.addAll(getLateralPolicies(childPermission, policy.getUsers(), destinationEntity));
+            childPolicySet.addAll(getLateralPolicies(childPermission, policy.getPermissionGroups(), destinationEntity));
         }
 
         return childPolicySet;
@@ -220,13 +222,7 @@ public class PolicyGeneratorCE {
             if (policyMap.containsKey(policy.getPermission())) {
                 Policy mergedPolicy = policyMap.get(policy.getPermission());
 
-                HashSet<String> users = new HashSet<>(mergedPolicy.getUsers());
-                users.addAll(policy.getUsers());
-                mergedPolicy.setUsers(users);
-
-                HashSet<String> groups = new HashSet<>(mergedPolicy.getGroups());
-                groups.addAll(policy.getGroups());
-                mergedPolicy.setGroups(groups);
+                mergedPolicy.setPermissionGroups(Sets.union(mergedPolicy.getPermissionGroups(), policy.getPermissionGroups()));
 
                 policyMap.put(policy.getPermission(), mergedPolicy);
             } else {
