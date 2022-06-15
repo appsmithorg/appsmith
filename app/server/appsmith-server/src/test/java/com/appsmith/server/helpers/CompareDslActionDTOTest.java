@@ -61,16 +61,16 @@ public class CompareDslActionDTOTest {
         DslActionDTO action4 = new DslActionDTO();
         DslActionDTO action5 = new DslActionDTO();
         DslActionDTO action6 = new DslActionDTO();
-        action1.setId("abc");
-        action2.setId("0abc");
-        action3.setId("1abc");
-        action4.setId("abc0");
-        action5.setId("abc1");
-        action6.setId("abcd");
+        action1.setName("abc");
+        action2.setName("0abc");
+        action3.setName("1abc");
+        action4.setName("abc0");
+        action5.setName("abc1");
+        action6.setName("abcd");
         Set<DslActionDTO> actionSet = Set.of(action1, action2, action3, action4, action5, action6);
         orderedActionSet.addAll(actionSet);
         for (DslActionDTO dslActionDTO : orderedActionSet) {
-            sortedActionIds.add(dslActionDTO.getId());
+            sortedActionIds.add(dslActionDTO.getName());
         }
         // Two lists are defined to be equal if they contain the same elements in the same order.
         assertThat(sortedActionIds).isEqualTo(List.of("0abc", "1abc", "abc", "abc0", "abc1", "abcd"));
