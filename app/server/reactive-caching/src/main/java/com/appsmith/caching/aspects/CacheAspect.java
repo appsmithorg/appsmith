@@ -54,7 +54,7 @@ public class CacheAspect {
                 .zipWhen(value -> cacheManager.put(cacheName, key, Mono.just(value))) //Call CacheManager.put() to cache the object
                 .flatMap(value -> Mono.just(value.getT1())); //Maps to the original object
         } catch (Throwable e) {
-            log.error("Error while calling method {}", joinPoint.getSignature().getName(), e);
+            log.error("Error occurred in saving to cache when invoking function {}", joinPoint.getSignature().getName(), e);
             return Mono.error(e);
         }
     }
@@ -165,7 +165,7 @@ public class CacheAspect {
         }
         
         //If method does not returns Mono<T> or Flux<T> raise exception
-        throw new RuntimeException("non reactive object supported (Mono, Flux)");
+        throw new RuntimeException("Invalid usage of @Cache annotation. Only reactive objects Mono and Flux are supported for caching.");
     }
 
     /**
@@ -185,7 +185,7 @@ public class CacheAspect {
         Class<?> returnType = method.getReturnType();
         
         if (!returnType.isAssignableFrom(Mono.class)) {
-            throw new RuntimeException("Just Mono<?> allowed for cacheEvict");
+            throw new RuntimeException("Invalid usage of @CacheEvict for {}. Only Mono<?> is allowed.", returnType.getName());
         }
 
         if(all) { //If all is true, evict all keys from the cache
