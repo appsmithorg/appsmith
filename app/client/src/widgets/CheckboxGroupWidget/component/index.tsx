@@ -144,6 +144,7 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
   labelWidth?: number;
   accentColor: string;
   borderRadius: string;
+  maxDynamicHeight?: number;
 }
 const CheckboxGroupComponent = React.forwardRef<
   HTMLDivElement,
@@ -165,6 +166,7 @@ const CheckboxGroupComponent = React.forwardRef<
     labelTextColor,
     labelTextSize,
     labelWidth,
+    maxDynamicHeight,
     onChange,
     onSelectAllChange,
     optionAlignment,
@@ -187,7 +189,19 @@ const CheckboxGroupComponent = React.forwardRef<
     optionCount += 1;
   }
 
-  return (
+  const clientHeight = (ref as React.RefObject<HTMLDivElement>)?.current
+    ?.clientHeight;
+  const maxHeight = (maxDynamicHeight || 1000) * 10;
+
+  let toOverflowOrNot = false;
+
+  if (clientHeight) {
+    toOverflowOrNot = maxHeight < clientHeight;
+  }
+
+  console.log(maxHeight, clientHeight, toOverflowOrNot, "maxDynamicHeight");
+
+  const finalComponent = (
     <CheckboxGroupContainer
       compactMode={compactMode}
       data-testid="checkboxgroup-container"
@@ -249,6 +263,16 @@ const CheckboxGroupComponent = React.forwardRef<
       </InputContainer>
     </CheckboxGroupContainer>
   );
+
+  if (isDynamicHeightEnabled) {
+    return (
+      <div style={toOverflowOrNot ? { overflow: "auto" } : undefined}>
+        {finalComponent}
+      </div>
+    );
+  } else {
+    return finalComponent;
+  }
 });
 
 CheckboxGroupComponent.displayName = "CheckboxGroupComponent";

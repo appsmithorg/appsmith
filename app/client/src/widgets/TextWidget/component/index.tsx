@@ -297,17 +297,15 @@ class TextComponent extends React.Component<TextComponentProps, State> {
               textAlign={textAlign}
               textColor={textColor}
             >
-              <div className="dynamic-height-wrapper" ref={this.props.innerRef}>
-                <Interweave
-                  content={text}
-                  matchers={
-                    disableLink
-                      ? []
-                      : [new EmailMatcher("email"), new UrlMatcher("url")]
-                  }
-                  newWindow
-                />
-              </div>
+              <Interweave
+                content={text}
+                matchers={
+                  disableLink
+                    ? []
+                    : [new EmailMatcher("email"), new UrlMatcher("url")]
+                }
+                newWindow
+              />
             </StyledText>
             {this.state.isTruncated && (
               <StyledIcon
