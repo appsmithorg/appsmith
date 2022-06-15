@@ -227,7 +227,11 @@ abstract class BaseWidget<
   componentDidUpdate(prevProps: T) {
     const expectedHeight = this.contentRef.current?.scrollHeight;
     if (expectedHeight !== undefined) {
-      this.updateDynamicHeight(expectedHeight);
+      if (prevProps.type === "TEXT_WIDGET") {
+        this.updateDynamicHeight(expectedHeight + 6);
+      } else {
+        this.updateDynamicHeight(expectedHeight);
+      }
     }
   }
 
