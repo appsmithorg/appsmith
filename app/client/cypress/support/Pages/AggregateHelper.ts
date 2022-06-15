@@ -288,9 +288,17 @@ export class AggregateHelper {
       .eq(index)
       .scrollIntoView()
       .then(($element) => {
-        cy.get($element).click(+$element.width - 10, +$element.height / 2, {
-          force: true,
-        });
+        // here, we try to click on downArrow in dropdown of multiSelect.
+        // the position is calculated from top left of the element
+        const dropdownCenterPosition = +$element.height / 2;
+        const dropdownArrowApproxPosition = +$element.width - 10;
+        cy.get($element).click(
+          dropdownArrowApproxPosition,
+          dropdownCenterPosition,
+          {
+            force: true,
+          },
+        );
       });
 
     if (check) {

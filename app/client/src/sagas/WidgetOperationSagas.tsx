@@ -711,7 +711,9 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
   );
 
   for (const childIndex in childrenList) {
-    const { id: childId, widget: childWidget } = childrenList[childIndex];
+    const { evaluatedWidget: childWidget, id: childId } = childrenList[
+      childIndex
+    ];
     yield put(resetWidgetMetaProperty(childId, childWidget));
   }
 }

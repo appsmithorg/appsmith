@@ -284,8 +284,11 @@ export function getWidgetChildrenIds(
   return childrenIds;
 }
 
-export type ChildrenWidgetMap = { id: string; widget: DataTreeWidget };
-
+export type ChildrenWidgetMap = { id: string; evaluatedWidget: DataTreeWidget };
+/**
+ * getWidgetChildren: It gets all the child widgets of given widget's id with evaluated values
+ *
+ */
 export function getWidgetChildren(
   canvasWidgets: CanvasWidgetsReduxState,
   widgetId: string,
@@ -312,7 +315,7 @@ export function getWidgetChildren(
         if (isWidget(childWidget)) {
           childrenList.push({
             id: childWidgetId,
-            widget: childWidget,
+            evaluatedWidget: childWidget,
           });
           const grandChildren = getWidgetChildren(
             canvasWidgets,
