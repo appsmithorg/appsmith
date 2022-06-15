@@ -287,7 +287,7 @@ export class AggregateHelper {
     cy.get(this.locator._widgetInDeployed(endp) + " div.rc-select-selector")
       .eq(index)
       .scrollIntoView()
-      .then(($element) => {
+      .then(($element: any) => {
         // here, we try to click on downArrow in dropdown of multiSelect.
         // the position is calculated from top left of the element
         const dropdownCenterPosition = +$element.height / 2;
@@ -360,7 +360,7 @@ export class AggregateHelper {
       this.Sleep();
       cy.xpath(this.locator._actionTextArea(actionName))
         .first()
-        .then((el) => {
+        .then((el: any) => {
           const input = cy.get(el);
           if (paste) {
             //input.invoke("val", value);
