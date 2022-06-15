@@ -124,54 +124,50 @@ describe("MultiSelect Widget Functionality", function() {
       .should("contain", "false");
   });
 
+  const resetTestCases = [
+    {
+      options: [
+        { label: "RED", value: "RED" },
+        { label: "GREEN", value: "GREEN" },
+        { label: "YELLOW", value: "YELLOW" },
+      ],
+      defaultValue: [{ label: "RED", value: "RED" }],
+      optionsToSelect: ["GREEN", "YELLOW"],
+      optionsToDeselect: ["RED"],
+    },
+    {
+      options: [
+        { label: "1", value: "1" },
+        { label: "2", value: "2" },
+        { label: "3", value: "3" },
+      ],
+      defaultValue: ["1", "2", "3", "4"],
+      optionsToSelect: [],
+      optionsToDeselect: ["1"],
+    },
+    {
+      options: [
+        { label: "1", value: "1" },
+        { label: "2", value: "2" },
+        { label: "3", value: "3" },
+      ],
+      defaultValue: [],
+      optionsToSelect: [],
+      optionsToDeselect: [],
+    },
+    {
+      options: [
+        { label: "1", value: "1" },
+        { label: "2", value: "2" },
+        { label: "3", value: "3" },
+      ],
+      defaultValue: [{ label: "4", value: "4" }],
+      optionsToSelect: [],
+      optionsToDeselect: [],
+    },
+  ];
+
   it("8. Verify MultiSelect resets to default value", function() {
-    const resetTestCases = [
-      {
-        options: [
-          { label: "RED", value: "RED" },
-          { label: "GREEN", value: "GREEN" },
-          { label: "YELLOW", value: "YELLOW" },
-        ],
-        defaultValue: [{ label: "RED", value: "RED" }],
-        optionsToSelect: ["GREEN", "YELLOW"],
-        optionsToDeselect: ["RED"],
-      },
-      {
-        options: [
-          { label: "1", value: "1" },
-          { label: "2", value: "2" },
-          { label: "3", value: "3" },
-        ],
-        defaultValue: [
-          { label: "1", value: "1" },
-          { label: "2", value: "2" },
-          { label: "3", value: "3" },
-          { label: "4", value: "4" },
-        ],
-        optionsToSelect: [],
-        optionsToDeselect: ["1"],
-      },
-      {
-        options: [
-          { label: "1", value: "1" },
-          { label: "2", value: "2" },
-          { label: "3", value: "3" },
-        ],
-        defaultValue: [],
-        optionsToSelect: [],
-        optionsToDeselect: [],
-      },
-      {
-        options: [
-          { label: "1", value: "1" },
-          { label: "2", value: "2" },
-          { label: "3", value: "3" },
-        ],
-        defaultValue: [{ label: "4", value: "4" }],
-        optionsToSelect: [],
-        optionsToDeselect: [],
-      },
-    ];
     resetTestCases.forEach((testCase) => {
       const {
         defaultValue,
@@ -195,7 +191,7 @@ describe("MultiSelect Widget Functionality", function() {
 
       // verify value is equal to default value
       const defaultValuesStringifiedArray = defaultValue
-        .map((opt) => opt.value)
+        .map((opt) => (opt?.value !== undefined ? opt.value : opt))
         .toString();
       cy.get(getWidgetSelector("textwidget"))
         .eq(1)
@@ -217,7 +213,4 @@ describe("MultiSelect Widget Functionality", function() {
       .eq(1)
       .should("have.text", "");
   });
-});
-afterEach(() => {
-  // put your clean up code if any
 });
