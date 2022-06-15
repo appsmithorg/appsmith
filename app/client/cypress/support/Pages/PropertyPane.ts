@@ -69,11 +69,11 @@ export class PropertyPane {
   public ChangeTheme(newTheme: string) {
     this.agHelper.GetNClick(this._changeThemeBtn, 0, true);
     this.agHelper.GetNClick(this._themeCard(newTheme));
-    this.agHelper.ValidateToastMessage("Theme " + (newTheme == "Modern" ? "Default" : newTheme) + " Applied");
+    this.agHelper.ValidateToastMessage("Theme " + newTheme + " Applied");
   }
 
   public GetJSONFormConfigurationFileds() {
-    let fieldNames: string[] = [];
+    const fieldNames: string[] = [];
     let fieldInvokeValue: string;
     cy.xpath(this._jsonFieldConfigList).each(function($item) {
       cy.wrap($item)
