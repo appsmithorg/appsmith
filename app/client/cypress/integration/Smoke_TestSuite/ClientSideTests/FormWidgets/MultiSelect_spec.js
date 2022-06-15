@@ -1,17 +1,21 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const widgetLocators = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/multiSelectDsl.json");
-const pages = require("../../../../locators/Pages.json");
-const data = require("../../../../fixtures/example.json");
+import data from "../../../../fixtures/example.json";
+import {
+  PROPERTY_SELECTOR,
+  WIDGET,
+  getWidgetSelector,
+} from "../../../../locators/WidgetLocators";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+/// <reference types="Cypress" />
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("MultiSelect Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
-  });
-  beforeEach(() => {
-    cy.wait(7000);
   });
   it("Selects value with invalid default value", () => {
     cy.openPropertyPane("multiselectwidgetv2");
@@ -90,29 +94,73 @@ describe("MultiSelect Widget Functionality", function() {
       .eq(1)
       .should("have.text", "Option 2");
   });
-
   it("Check isDirty meta property", function() {
-    cy.openPropertyPane("textwidget");
-    cy.updateCodeInput(".t--property-control-text", `{{MultiSelect2.isDirty}}`);
+    cy.openPropertyPane(WIDGET.TEXT);
+    cy.updateCodeInput(PROPERTY_SELECTOR.text, `{{MultiSelect2.isDirty}}`);
     // Init isDirty by changing defaultOptionValue
     cy.openPropertyPane("multiselectwidgetv2");
     cy.updateCodeInput(
-      ".t--property-control-defaultvalue",
+      PROPERTY_SELECTOR.defaultValue,
       '[\n  {\n    "label": "Option 1",\n    "value": "1"\n  }\n]',
     );
-    cy.get(".t--widget-textwidget").should("contain", "false");
+    cy.get(getWidgetSelector(WIDGET.TEXT))
+      .eq(0)
+      .should("contain", "false");
     // Interact with UI
     cy.get(".rc-select-selector").click({ force: true });
     cy.dropdownMultiSelectDynamic("Option 2");
     // Check if isDirty is set to true
-    cy.get(".t--widget-textwidget").should("contain", "true");
+    cy.get(getWidgetSelector(WIDGET.TEXT))
+      .eq(0)
+      .should("contain", "true");
     // Reset isDirty by changing defaultOptionValue
     cy.updateCodeInput(
-      ".t--property-control-defaultvalue",
+      PROPERTY_SELECTOR.defaultValue,
       '[\n  {\n    "label": "Option 2",\n    "value": "2"\n  }\n]',
     );
     // Check if isDirty is set to false
-    cy.get(".t--widget-textwidget").should("contain", "false");
+    cy.get(getWidgetSelector(WIDGET.TEXT))
+      .eq(0)
+      .should("contain", "false");
+  });
+
+  it("Verify MultiSelect resets to default value", function() {
+    cy.openPropertyPane("multiselectwidgetv2");
+    // set options
+    cy.testJsontext(
+      "options",
+      JSON.stringify([
+        { label: "RED", value: "RED" },
+        { label: "GREEN", value: "GREEN" },
+        { label: "YELLOW", value: "YELLOW" },
+      ]),
+    );
+    // set default value
+    cy.testJsontext(
+      "defaultvalue",
+      JSON.stringify([{ label: "RED", value: "RED" }], null, 2),
+    );
+    // select other options
+    agHelper.SelectFromMultiSelect(["GREEN", "YELLOW"]);
+    agHelper.RemoveMultiSelectItems(["RED"]);
+    // reset multiselect
+    cy.get(
+      `${getWidgetSelector("buttonwidget")}:contains('Reset MultiSelect')`,
+    ).click();
+
+    // verify value is equal to default value
+    cy.get(getWidgetSelector("textwidget"))
+      .eq(1)
+      .should("have.text", "RED");
+  });
+
+  it("Verify MultiSelect deselection behavior", function() {
+    agHelper.RemoveMultiSelectItems(["RED"]);
+
+    // verify value is equal to default value
+    cy.get(getWidgetSelector("textwidget"))
+      .eq(1)
+      .should("have.text", "");
   });
 });
 afterEach(() => {
