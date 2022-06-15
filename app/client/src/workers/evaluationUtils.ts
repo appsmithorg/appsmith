@@ -222,6 +222,19 @@ export const translateDiffEventToDataTreeDiffEvent = (
             },
           };
         });
+
+        // when an object is being replaced by an array
+        // list all new array accessors that are being added
+        // so dependencies will be created based on existing bindings
+        if (Array.isArray(difference.rhs)) {
+          result = result.concat(
+            translateDiffArrayIndexAccessors(
+              propertyPath,
+              difference.rhs,
+              DataTreeDiffEvent.NEW,
+            ),
+          );
+        }
       } else if (
         !isTrueObject(difference.lhs) &&
         isTrueObject(difference.rhs)
@@ -239,6 +252,19 @@ export const translateDiffEventToDataTreeDiffEvent = (
             },
           };
         });
+
+        // when an array is being replaced by an object
+        // remove all array accessors that are deleted
+        // so dependencies by existing bindings are removed
+        if (Array.isArray(difference.lhs)) {
+          result = result.concat(
+            translateDiffArrayIndexAccessors(
+              propertyPath,
+              difference.lhs,
+              DataTreeDiffEvent.DELETE,
+            ),
+          );
+        }
       }
       break;
     }
@@ -258,6 +284,23 @@ export const translateDiffEventToDataTreeDiffEvent = (
   return result;
 };
 
+export const translateDiffArrayIndexAccessors = (
+  propertyPath: string,
+  array: unknown[],
+  event: DataTreeDiffEvent,
+) => {
+  const result: DataTreeDiff[] = [];
+  array.forEach((data, index) => {
+    const path = `${propertyPath}[${index}]`;
+    result.push({
+      event,
+      payload: {
+        propertyPath: path,
+      },
+    });
+  });
+  return result;
+};
 /*
   Table1.selectedRow
   Table1.selectedRow.email: ["Input1.defaultText"]
