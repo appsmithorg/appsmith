@@ -605,6 +605,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
+    super.componentDidUpdate(prevProps);
     const { primaryColumns = {} } = this.props;
 
     // Bail out if santizedTableData is a string. This signifies an error in evaluations
@@ -854,6 +855,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
           }
           prevPageClick={this.handlePrevPageClick}
+          ref={this.contentRef}
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}
           selectAllRow={this.handleAllRowSelect}
