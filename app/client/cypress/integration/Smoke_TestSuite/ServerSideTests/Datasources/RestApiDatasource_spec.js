@@ -1,8 +1,7 @@
 const testdata = require("../../../../fixtures/testdata.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let agHelper = ObjectsRegistry.AggregateHelper,
-  locator = ObjectsRegistry.CommonLocators;
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Create a rest datasource", function() {
   beforeEach(() => {
@@ -17,7 +16,7 @@ describe("Create a rest datasource", function() {
     cy.get(".t--store-as-datasource")
       .trigger("click")
       .wait(1000);
-    agHelper.AssertElementAbsence(locator._toastMsg); //verifying there is no error toast, Bug 14566
+    agHelper.ValidateToastMessage("datasource created"); //verifying there is no error toast, Bug 14566
     cy.saveDatasource();
     cy.contains(".datasource-highlight", "https://mock-api.appsmith.com");
     cy.SaveAndRunAPI();
