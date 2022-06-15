@@ -11,6 +11,7 @@ describe("Trigger errors in the debugger", function() {
     cy.get(".t--property-control-onrowselected")
       .find(".t--js-toggle")
       .click();
+    cy.EnableAllCodeEditors();
     cy.testJsontext("onrowselected", "{{console.logs('test')}}");
     // Click on a row of the table widget
     cy.isSelectRow(1);

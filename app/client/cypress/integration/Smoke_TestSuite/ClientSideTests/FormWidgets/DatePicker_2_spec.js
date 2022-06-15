@@ -14,13 +14,16 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.openPropertyPane("datepickerwidget2");
     cy.get(".t--property-control-defaultdate .bp3-input").clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
+    cy.EnableAllCodeEditors();
     cy.testJsontext("defaultdate", "{{moment().toISOString()}}");
     cy.get(formWidgetsPage.toggleJsMinDate).click();
+    cy.EnableAllCodeEditors();
     cy.testJsontext(
       "mindate",
       "{{moment().subtract(10, 'days').toISOString()}}",
     );
     cy.get(formWidgetsPage.toggleJsMaxDate).click();
+    cy.EnableAllCodeEditors();
     cy.testJsontext("maxdate", "{{moment().add(10, 'days').toISOString()}}");
     /*
       cy.get(formWidgetsPage.datepickerWidget + " .bp3-input").should(
@@ -37,9 +40,11 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
 
   it("Text widgets binding with datepicker", function() {
     cy.SearchEntityandOpen("Text1");
+    cy.EnableAllCodeEditors();
     cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
     cy.closePropertyPane();
     cy.SearchEntityandOpen("Text2");
+    cy.EnableAllCodeEditors();
     cy.testJsontext("text", "{{DatePicker1.selectedDate}}");
     cy.closePropertyPane();
   });
@@ -61,7 +66,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
 
   it("Datepicker should not change the display data unless user selects the date", () => {
     cy.openPropertyPane("datepickerwidget2");
-
+    cy.EnableAllCodeEditors();
     cy.testJsontext(
       "defaultdate",
       '{{moment("04/05/2021 05:25", "DD/MM/YYYY HH:mm").toISOString()}}',
@@ -82,6 +87,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       "4 May, 2021",
     );
     cy.get(formWidgetsPage.toggleJsMinDate).click();
+    cy.EnableAllCodeEditors();
     cy.testJsontext(
       "mindate",
       "{{moment().subtract(10, 'days').toISOString()}}",
@@ -90,6 +96,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
 
   it("Datepicker default date validation message", function() {
     cy.openPropertyPane("datepickerwidget2");
+    cy.EnableAllCodeEditors();
     cy.testJsontext("defaultdate", "24-12-2021");
     cy.evaluateErrorMessage("Value does not match: ISO 8601 date string");
     cy.closePropertyPane();
@@ -124,6 +131,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.get(".t--property-control-defaultdate .bp3-input").clear();
     cy.selectDateFormat("DD/MM/YYYY HH:mm");
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
+    cy.EnableAllCodeEditors();
     cy.testJsontext(
       "defaultdate",
       '{{moment("04/05/2021 05:25", "DD/MM/YYYY HH:mm").toISOString()}}',
@@ -148,6 +156,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
     cy.get(".t--property-control-defaultdate .bp3-input").clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
+    cy.EnableAllCodeEditors();
     cy.testJsontext(
       "defaultdate",
       '{{moment("04/05/2021 05:25", "DD/MM/YYYY HH:mm").toISOString()}}',
@@ -173,6 +182,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
     cy.get(".t--property-control-defaultdate .bp3-input").clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
+    cy.EnableAllCodeEditors();
     cy.testJsontext(
       "defaultdate",
       '{{moment("07/05/2021 05:25", "DD/MM/YYYY HH:mm").toISOString()}}',

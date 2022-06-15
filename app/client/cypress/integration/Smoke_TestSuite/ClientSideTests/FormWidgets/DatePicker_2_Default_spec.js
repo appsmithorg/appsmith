@@ -10,6 +10,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.openPropertyPane("datepickerwidget2");
     cy.get(".t--property-control-defaultdate .bp3-input").clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
+    cy.EnableAllCodeEditors();
     cy.testJsontext(
       "defaultdate",
       "{{ moment().add(-1,'days').toISOString() }}",
@@ -39,7 +40,6 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
   it("3. Hide Time picker from Datepicker", function() {
     // default value in property pane
     cy.openPropertyPane("datepickerwidget2");
-
     cy.get(".t--property-control-timeprecision .bp3-popover-target")
       .last()
       .click();
@@ -88,9 +88,11 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
 
   it("5. Text widgets binding with datepicker", function() {
     cy.SearchEntityandOpen("Text1");
+    cy.EnableAllCodeEditors();
     cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
     cy.closePropertyPane();
     cy.SearchEntityandOpen("Text2");
+    cy.EnableAllCodeEditors();
     cy.testJsontext("text", "{{DatePicker1.selectedDate}}");
     cy.closePropertyPane();
   });
@@ -109,6 +111,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       .click()
       .wait(1000); //disable
     cy.get(formWidgetsPage.toggleJsDefaultDate).click(); //enable
+    cy.EnableAllCodeEditors();
     cy.testJsontext("defaultdate", `{{moment("1/1/2012")}}`);
     cy.get(".t--widget-datepickerwidget2 .bp3-input").should(
       "contain.value",
@@ -124,6 +127,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       "",
     );
     // add new date value and check datepicker textbox have value
+    cy.EnableAllCodeEditors();
     cy.testJsontext("defaultdate", `{{moment("1/1/2012")}}`);
     cy.get(".t--widget-datepickerwidget2 .bp3-input").should(
       "contain.value",
