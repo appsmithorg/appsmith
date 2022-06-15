@@ -5,7 +5,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 
-let previousState = initialState;
+let currentMetaState = initialState;
 
 const inputWidget = {
   widgetId: "incwlne",
@@ -20,61 +20,101 @@ const noAction = (): ReduxAction<unknown> => {
   };
 };
 
-describe("Meta Reducer action", () => {
-  test("should return the initial state", () => {
-    expect(metaReducer(undefined, noAction())).toEqual(previousState);
-  });
+test("should return the initial state", () => {
+  expect(metaReducer(undefined, noAction())).toEqual(currentMetaState);
+});
 
-  test("Add a widget meta values", () => {
-    previousState = initialState;
-    expect(
-      metaReducer(previousState, {
-        type: ReduxActionTypes.SET_META_PROP,
-        payload: {
-          widgetId: inputWidget.widgetId,
-          propertyName: inputWidget.propertyName,
-          propertyValue: inputWidget.propertyValue,
-        },
-      }),
-    ).toEqual({
-      incwlne: {
-        selectedValues: ["GREEN", "BLUE", "YELLOW"],
+test("Add a widget meta values", () => {
+  currentMetaState = initialState;
+  expect(
+    metaReducer(currentMetaState, {
+      type: ReduxActionTypes.SET_META_PROP,
+      payload: {
+        widgetId: inputWidget.widgetId,
+        propertyName: inputWidget.propertyName,
+        propertyValue: inputWidget.propertyValue,
       },
+    }),
+  ).toEqual({
+    incwlne: {
+      selectedValues: ["GREEN", "BLUE", "YELLOW"],
+    },
+  });
+});
+
+test("Update widget meta state using evalMetaUpdates", () => {
+  const evalMetaUpdates = [
+    { widgetId: "incwlne", metaPropertyPath: ["text"], value: "test123" },
+    {
+      widgetId: "incwlne",
+      metaPropertyPath: ["selectedValues"],
+      value: ["YELLOW"],
+    },
+  ];
+  currentMetaState = metaReducer(
+    currentMetaState,
+    updateMetaState(evalMetaUpdates),
+  );
+  expect(currentMetaState).toEqual({
+    incwlne: {
+      text: "test123",
+      selectedValues: ["YELLOW"],
+    },
+  });
+});
+
+describe("Reset widget meta action", () => {
+  test("Reset widget with only widgetId", () => {
+    currentMetaState = metaReducer(currentMetaState, {
+      type: ReduxActionTypes.RESET_WIDGET_META,
+      payload: {
+        widgetId: inputWidget.widgetId,
+      },
+    });
+    expect(currentMetaState).toEqual({
+      incwlne: {},
     });
   });
 
-  test("Update widget meta state using evalMetaUpdates", () => {
-    const evalMetaUpdates = [
-      { widgetId: "incwlne", metaPropertyPath: ["text"], value: "test123" },
-      {
-        widgetId: "incwlne",
-        metaPropertyPath: ["selectedValues"],
-        value: ["YELLOW"],
+  currentMetaState = initialState;
+  expect(
+    metaReducer(currentMetaState, {
+      type: ReduxActionTypes.SET_META_PROP,
+      payload: {
+        widgetId: inputWidget.widgetId,
+        propertyName: inputWidget.propertyName,
+        propertyValue: inputWidget.propertyValue,
       },
-    ];
-    const newMetaReducerState = metaReducer(
-      previousState,
-      updateMetaState(evalMetaUpdates),
-    );
-    expect(newMetaReducerState).toEqual({
-      incwlne: {
-        text: "test123",
-        selectedValues: ["YELLOW"],
-      },
-    });
-    previousState = newMetaReducerState;
+    }),
+  ).toEqual({
+    incwlne: {
+      selectedValues: ["GREEN", "BLUE", "YELLOW"],
+    },
   });
 
-  test("Reset widget", () => {
+  test("Reset widget with evaluated values", () => {
     expect(
-      metaReducer(previousState, {
+      metaReducer(currentMetaState, {
         type: ReduxActionTypes.RESET_WIDGET_META,
         payload: {
           widgetId: inputWidget.widgetId,
+          evaluatedWidget: {
+            defaultSelectedValues: ["GREEN"],
+            selectedValues: ["GREEN", "BLUE", "YELLOW"],
+            widgetId: inputWidget.widgetId,
+            propertyOverrideDependency: {
+              selectedValues: {
+                DEFAULT: "defaultSelectedValues",
+                META: "meta.selectedValues",
+              },
+            },
+          },
         },
       }),
     ).toEqual({
-      incwlne: {},
+      incwlne: {
+        selectedValues: ["GREEN"],
+      },
     });
   });
 });
