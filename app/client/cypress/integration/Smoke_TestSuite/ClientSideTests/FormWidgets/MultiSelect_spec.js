@@ -124,7 +124,7 @@ describe("MultiSelect Widget Functionality", function() {
       .should("contain", "false");
   });
 
-  it.only("8. Verify MultiSelect resets to default value", function() {
+  it("8. Verify MultiSelect resets to default value", function() {
     const resetTestCases = [
       {
         options: [
