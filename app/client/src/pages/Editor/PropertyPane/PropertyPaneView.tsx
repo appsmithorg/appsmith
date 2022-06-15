@@ -1,4 +1,5 @@
 import React, { ReactElement, useCallback, useMemo } from "react";
+import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { IPanelProps, Position } from "@blueprintjs/core";
@@ -21,6 +22,8 @@ import {
   WIDGET_DEPRECATION_WARNING,
   WIDGET_DEPRECATION_WARNING_HEADER,
 } from "@appsmith/constants/messages";
+import { createSelector } from "reselect";
+import { WidgetProps } from "widgets/BaseWidget";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -39,6 +42,28 @@ export const excludeList: WidgetType[] = [
   "FILE_PICKER_WIDGET_V2",
 ];
 
+type WidgetPropertiesForPropertyPaneView = {
+  type: string;
+  widgetId: string;
+  widgetName: string;
+  displayName: string;
+};
+
+const getWidgetPropsForPropertyPaneView = createSelector(
+  getWidgetPropsForPropertyPane,
+  (
+    widgetProps: WidgetProps | undefined,
+  ): WidgetPropertiesForPropertyPaneView | undefined => {
+    if (!widgetProps) return undefined;
+    return {
+      type: widgetProps.type,
+      widgetId: widgetProps.widgetId,
+      widgetName: widgetProps.widgetName,
+      displayName: widgetProps.displayName,
+    };
+  },
+);
+
 function PropertyPaneView(
   props: {
     theme: EditorTheme;
@@ -46,7 +71,9 @@ function PropertyPaneView(
 ) {
   const dispatch = useDispatch();
   const { ...panel } = props;
-  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
+  const widgetProperties:
+    | WidgetPropertiesForPropertyPaneView
+    | undefined = useSelector(getWidgetPropsForPropertyPaneView, equal);
   const doActionsExist = useSelector(actionsExist);
   const hideConnectDataCTA = useMemo(() => {
     if (widgetProperties) {
