@@ -8,7 +8,7 @@ describe("Create a rest datasource", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("Create a rest datasource", function() {
+  it("Create a rest datasource + Bug 14566", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("Testapi");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
