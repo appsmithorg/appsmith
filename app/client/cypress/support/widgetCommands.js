@@ -1167,5 +1167,5 @@ Cypress.Commands.add("EnableAllCodeEditors", () => {
       });
     }
   });
-  cy.wait(2000);
+  cy.wait(5000);
 });
