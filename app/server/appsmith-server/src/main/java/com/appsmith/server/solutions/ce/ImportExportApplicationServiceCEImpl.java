@@ -765,7 +765,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                                 applicationId))
                                                 )
                                                 .flatMap(existingApplication -> {
-                                                    if(StringUtils.isEmpty(branchName)) {
+                                                    if(appendToApp) {
+                                                        // When we are appending the pages to the existing application
+                                                        // e.g. import template we are only importing this in unpublished
+                                                        // version. At the same time we want to keep the existing page ref
+                                                        unpublishedPages.addAll(existingApplication.getPages());
                                                         return Mono.just(existingApplication);
                                                     }
                                                     importedApplication.setId(existingApplication.getId());
@@ -846,6 +850,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                     if(!newPageName.equals(oldPageName)) {
                                                         renamePageInActions(importedNewActionList, oldPageName, newPageName);
                                                         renamePageInActionCollections(importedActionCollectionList, oldPageName, newPageName);
+                                                        unpublishedPages.stream()
+                                                                .filter(applicationPage -> oldPageName.equals(applicationPage.getId()))
+                                                                .findAny()
+                                                                .ifPresent(applicationPage -> applicationPage.setId(newPageName));
                                                     }
                                                     return newPage;
                                                 })
@@ -875,11 +883,20 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 for(ApplicationPage applicationPage : unpublishedPages) {
                                     NewPage newPage = pageNameMap.get(applicationPage.getId());
                                     if (newPage == null) {
+                                        if (appendToApp) {
+                                            // Don't remove the page reference if doing the partial import and appending
+                                            // to the existing application
+                                            continue;
+                                        }
                                         log.debug("Unable to find the page during import for appId {}, with name {}", applicationId, applicationPage.getId());
                                         unpublishedPages.remove(applicationPage);
                                     } else {
                                         applicationPage.setId(newPage.getId());
                                         applicationPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
+                                        // Keep the existing page as the default one
+                                        if (appendToApp) {
+                                            applicationPage.setIsDefault(false);
+                                        }
                                     }
                                 }
 
@@ -887,16 +904,25 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     NewPage newPage = pageNameMap.get(applicationPage.getId());
                                     if (newPage == null) {
                                         log.debug("Unable to find the page during import for appId {}, with name {}", applicationId, applicationPage.getId());
-                                        publishedPages.remove(applicationPage);
+                                        if (!appendToApp) {
+                                            publishedPages.remove(applicationPage);
+                                        }
                                     } else {
                                         applicationPage.setId(newPage.getId());
                                         applicationPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
+                                        if (appendToApp) {
+                                            applicationPage.setIsDefault(false);
+                                        }
                                     }
                                 }
 
                                 return applicationPages;
                             })
                             .flatMap(applicationPages -> {
+                                // During partial import/appending to the existing application keep the resources
+                                // attached to the application:
+                                // Delete the invalid resources (which are not the part of applicationJsonDTO) in
+                                // the git flow only
                                 if (!StringUtils.isEmpty(applicationId) && !appendToApp) {
                                     Set<String> validPageIds = applicationPages.get(EDIT).stream()
                                             .map(ApplicationPage::getId)
@@ -935,20 +961,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .flatMap(applicationPageMap -> {
 
-                    if(appendToApp) {
-                        if(importedApplication.getPages() == null) {
-                            importedApplication.setPages(new ArrayList<>());
-                        }
-                        // new pages should not be a default one, existing default page should not change
-                        applicationPageMap.get(EDIT)
-                                .forEach(applicationPage -> applicationPage.setIsDefault(false));
-                        // append the new pages so that existing pages not lost when we update later
-                        importedApplication.getPages().addAll(applicationPageMap.get(EDIT));
-                    } else {
-                        // set it based on the order for published and unublished pages
-                        importedApplication.setPages(applicationPageMap.get(EDIT));
-                        importedApplication.setPublishedPages(applicationPageMap.get(VIEW));
-                    }
+                    // Set page sequence based on the order for published and unpublished pages
+                    importedApplication.setPages(applicationPageMap.get(EDIT));
+                    importedApplication.setPublishedPages(applicationPageMap.get(VIEW));
                     // This will be non-empty for GIT sync
                     return newActionRepository.findByApplicationId(importedApplication.getId())
                             .collectList();
@@ -970,6 +985,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 .collectList()
                                 .flatMap(savedActionIds -> {
                                     // Updating the existing application for git-sync
+                                    // During partial import/appending to the existing application keep the resources
+                                    // attached to the application:
+                                    // Delete the invalid resources (which are not the part of applicationJsonDTO) in
+                                    // the git flow only
                                     if (!StringUtils.isEmpty(applicationId) && !appendToApp) {
                                         // Remove unwanted actions
                                         Set<String> invalidActionIds = new HashSet<>();
@@ -1025,6 +1044,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .collectList()
                             .flatMap(ignore -> {
                                 // Updating the existing application for git-sync
+                                // During partial import/appending to the existing application keep the resources
+                                // attached to the application:
+                                // Delete the invalid resources (which are not the part of applicationJsonDTO) in
+                                // the git flow only
                                 if (!StringUtils.isEmpty(applicationId) && !appendToApp) {
                                     // Remove unwanted action collections
                                     Set<String> invalidCollectionIds = new HashSet<>();
@@ -1969,12 +1992,30 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         // need to remove git sync id. Also filter pages if pageToImport is not empty
         if(applicationJson.getPageList() != null) {
+            List<ApplicationPage> applicationPageList = new ArrayList<>(applicationJson.getPageList().size());
+            List<String> pageNames = new ArrayList<>(applicationJson.getPageList().size());
             List<NewPage> importedNewPageList = applicationJson.getPageList().stream()
                     .filter(newPage -> newPage.getUnpublishedPage() != null &&
                                     (CollectionUtils.isEmpty(pagesToImport) ||
                             pagesToImport.contains(newPage.getUnpublishedPage().getName()))
-                    ).collect(Collectors.toList());
+                    )
+                    .peek(newPage -> {
+                        ApplicationPage applicationPage = new ApplicationPage();
+                        applicationPage.setId(newPage.getUnpublishedPage().getName());
+                        applicationPage.setIsDefault(false);
+                        applicationPageList.add(applicationPage);
+                        pageNames.add(applicationPage.getId());
+                    })
+                    .peek(newPage -> newPage.setGitSyncId(null))
+                    .collect(Collectors.toList());
             applicationJson.setPageList(importedNewPageList);
+//            if (!CollectionUtils.isEmpty(applicationJson.getExportedApplication().getPages())) {
+//                applicationJson.getExportedApplication().getPages().addAll(applicationPageList);
+//            } else {
+//                // If the pages are not emebedded inside the application object we have to add these to pageOrder as
+//                // JSONSchema migration only works with pageOrder
+//                applicationJson.getPageOrder().addAll(pageNames);
+//            }
         }
         if(applicationJson.getActionList() != null) {
             List<NewAction> importedNewActionList = applicationJson.getActionList().stream()
@@ -2012,11 +2053,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             // modify each new page
             for (NewPage newPage : newPagesList) {
                 newPage.setPublishedPage(null); // we'll not merge published pages so removing this
-                /* Need to remove gitSyncId from imported new pages.
-                 * Same template or page can be merged with same application multiple times.
-                 * As gitSyncId will be same for each import, new page will not be created
-                 */
-                newPage.setGitSyncId(null);
 
                 // let's check if page name conflicts, rename in that case
                 String oldPageName = newPage.getUnpublishedPage().getName(),

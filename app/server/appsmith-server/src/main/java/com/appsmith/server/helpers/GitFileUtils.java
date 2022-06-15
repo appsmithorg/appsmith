@@ -343,14 +343,16 @@ public class GitFileUtils {
         applicationJson.setPublishedTheme(applicationJson.getEditModeTheme());
         Gson gson = new Gson();
 
-        // Remove null values
-        org.apache.commons.collections.CollectionUtils.filter(application.getPages(), PredicateUtils.notNullPredicate());
-        // Create a deep clone of application pages to update independently
-        application.setViewMode(false);
-        final List<ApplicationPage> applicationPages = new ArrayList<>(application.getPages().size());
-        application.getPages()
-                .forEach(applicationPage -> applicationPages.add(gson.fromJson(gson.toJson(applicationPage), ApplicationPage.class)));
-        application.setPublishedPages(applicationPages);
+        if (!CollectionUtils.isNullOrEmpty(application.getPages())) {
+            // Remove null values
+            org.apache.commons.collections.CollectionUtils.filter(application.getPages(), PredicateUtils.notNullPredicate());
+            // Create a deep clone of application pages to update independently
+            application.setViewMode(false);
+            final List<ApplicationPage> applicationPages = new ArrayList<>(application.getPages().size());
+            application.getPages()
+                    .forEach(applicationPage -> applicationPages.add(gson.fromJson(gson.toJson(applicationPage), ApplicationPage.class)));
+            application.setPublishedPages(applicationPages);
+        }
 
         // Extract pages
         List<NewPage> pages = getApplicationResource(applicationReference.getPages(), NewPage.class);
