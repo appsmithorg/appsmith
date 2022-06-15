@@ -169,7 +169,7 @@ public class ReactiveCacheAspect {
         boolean all = annotation.all();
         Class<?> returnType = method.getReturnType();
         if (!returnType.isAssignableFrom(Mono.class)) {
-            throw new RuntimeException("Just Mono<?> allowed for cacheEvict");
+            throw new RuntimeException("Invalid usage of @CacheEvict for {}. Only Mono<?> is allowed.", returnType.getName());
         }
         if(all) { //If all is true, evict all keys from the cache
             return cacheManager.evictAll(cacheName)
