@@ -191,8 +191,11 @@ const doConnectionsHaveErrors = (
 };
 
 const useDependencyList = (name: string) => {
-  const dataTree = useSelector(getDataTree);
-  const deps = useSelector((state: AppState) => state.evaluations.dependencies);
+  const dataTree = useSelector(getDataTree, () => true);
+  const deps = useSelector(
+    (state: AppState) => state.evaluations.dependencies,
+    () => true,
+  );
   const guidedTour = useSelector(inGuidedTour);
 
   const getEntityId = useCallback((name) => {

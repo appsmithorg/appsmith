@@ -10,12 +10,20 @@ import { navigateToCanvas } from "./utils";
 import { getCurrentPageWidgets } from "selectors/entitiesSelector";
 import WidgetFactory from "utils/WidgetFactory";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import equal from "fast-deep-equal/es6";
+import { mapValues } from "lodash";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const useNavigateToWidget = () => {
   const params = useParams<ExplorerURLParams>();
-  const allWidgets = useSelector(getCurrentPageWidgets);
+
+  const allWidgets = useSelector(getCurrentPageWidgets, (left, right) => {
+    return equal(
+      mapValues(left, () => true),
+      mapValues(right, () => true),
+    );
+  });
   const dispatch = useDispatch();
   const {
     selectWidget,

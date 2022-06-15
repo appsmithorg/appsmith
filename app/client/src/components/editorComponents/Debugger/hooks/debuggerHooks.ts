@@ -18,6 +18,8 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { isWidget, isAction, isJSAction } from "workers/evaluationUtils";
 import history from "utils/history";
 import { jsCollectionIdURL } from "RouteBuilder";
+import equal from "fast-deep-equal/es6";
+import { mapValues, pick } from "lodash";
 
 export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
@@ -102,7 +104,19 @@ export const useSelectedEntity = () => {
 };
 
 export const useEntityLink = () => {
-  const dataTree = useSelector(getDataTree);
+  const dataTree = useSelector(getDataTree, (left, right) => {
+    const requiredProps = [
+      "ENTITY_TYPE",
+      "type",
+      "widgetId",
+      "actionId",
+      "pluginType",
+    ];
+    return equal(
+      mapValues(left, (x) => pick(x, requiredProps)),
+      mapValues(right, (x) => pick(x, requiredProps)),
+    );
+  });
   const pageId = useSelector(getCurrentPageId);
   const applicationId = useSelector(getCurrentApplicationId);
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
