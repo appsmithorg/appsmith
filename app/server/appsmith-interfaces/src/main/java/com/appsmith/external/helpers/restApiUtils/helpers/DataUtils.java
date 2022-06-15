@@ -319,7 +319,7 @@ public class DataUtils {
             requestBodyObj = actionConfiguration.getBodyFormData();
         }
 
-        requestBodyObj = dataUtils.buildBodyInserter(requestBodyObj, reqContentType, encodeParamsToggle);
+        requestBodyObj = this.buildBodyInserter(requestBodyObj, reqContentType, encodeParamsToggle);
 
         return requestBodyObj;
     }
