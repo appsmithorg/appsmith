@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 
-import { getCurrentAppOrg } from "selectors/organizationSelectors";
+import { getCurrentAppOrg } from "@appsmith/selectors/organizationSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 
 const useOrg = (orgId: string) => {
