@@ -113,7 +113,7 @@ describe("Postgres - Datatype Character tests", function() {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
     table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq(" ");//white space for padding length!
+      expect($cellData).to.eq(" "); //white space for padding length!
     });
     table.ReadTableRowColumnData(0, 3, 200).then(($cellData) => {
       expect($cellData).to.eq("");
@@ -239,20 +239,26 @@ describe("Postgres - Datatype Character tests", function() {
   it("13. Updating record (null inserted record) - chartypes", () => {
     agHelper.ClickButton("Run UpdateQuery");
     agHelper.AssertElementVisible(locator._modal);
-    agHelper.EnterInputText("One_1_", "?");
+    //agHelper.EnterInputText("One_1_", "&");
     agHelper.EnterInputText(
       "AsMany",
-      "First electric tram in England was opened in 1885 in Blackpool!"
+      "First electric tram in England was opened in 1885 in Blackpool!",
     );
     agHelper.EnterInputText("Limited_4_", "Trams");
-    agHelper.EnterInputText("Unlimited", "The word tram is used mainly outside North America, while within North America these vehicles are called streetcars or trolleys as they run mainly on streets.The word tram is used mainly outside North America, while within North America these vehicles are called streetcars or trolleys as they run mainly on streets.", false, false);
+    agHelper.EnterInputText(
+      "Unlimited",
+      "The word tram is used mainly outside North America, while within North America these vehicles are called streetcars or trolleys as they run mainly on streets.The word tram is used mainly outside North America, while within North America these vehicles are called streetcars or trolleys as they run mainly on streets.",
+      false,
+      false,
+    );
     agHelper.ClickButton("Update");
     agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
-    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {//since record updated is moving to last row in table - BUg 14347!
+    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
+      //since record updated is moving to last row in table - BUg 14347!
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
     table.ReadTableRowColumnData(1, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("?");
+      expect($cellData).to.eq(" ");//Not updating one column
     });
     table.ReadTableRowColumnData(1, 3, 200).then(($cellData) => {
       expect($cellData).to.eq("Tram");
@@ -337,7 +343,6 @@ describe("Postgres - Datatype Character tests", function() {
     table.ReadTableRowColumnData(0, 6, 200).then(($cellData) => {
       expect(Number($cellData)).to.eq(0);
     });
-
   });
 
   it("18. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
@@ -353,5 +358,22 @@ describe("Postgres - Datatype Character tests", function() {
     ee.expandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.chartypes"));
+    ee.expandCollapseEntity("DATASOURCES", false);
+  });
+
+  it("19. Verify Deletion of the datasource after all created queries are Deleted", () => {
+    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+    ee.expandCollapseEntity("QUERIES/JS");
+    ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("deleteAllRecords", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("deleteRecord", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("dropTable", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("insertRecord", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("selectRecords", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("updateRecord", "Delete", "Are you sure?");
+    deployMode.DeployApp();
+    deployMode.NavigateBacktoEditor();
+    ee.expandCollapseEntity("QUERIES/JS");
+    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
   });
 });
