@@ -320,7 +320,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
       return Promise.any([this.func2(), this.func3(), this.func1()]).then((value) => showAlert("Resolved promise is:" + value))
     }
     }`,
-      { paste: true, completeReplace: true, toRun: true, shouldCreateNewJSObj: true },
+      { paste: true, completeReplace: true, toRun: false, shouldCreateNewJSObj: true },
     );
     ee.SelectEntityByName("Button1", "WIDGETS");
     cy.get("@jsObjName").then((jsObjName) => {
