@@ -21,7 +21,7 @@ public interface ApplicationPageServiceCE {
 
     Mono<Application> createApplication(Application application);
 
-    Mono<Application> createApplication(Application application, String orgId);
+    Mono<Application> createApplication(Application application, String workspaceId);
 
     Mono<PageDTO> getPageByName(String applicationName, String pageName, boolean viewMode);
 
@@ -31,7 +31,7 @@ public interface ApplicationPageServiceCE {
 
     Mono<Application> makePageDefault(String defaultApplicationId, String defaultPageId, String branchName);
 
-    Mono<Application> setApplicationPolicies(Mono<User> userMono, String orgId, Application application);
+    Mono<Application> setApplicationPolicies(Mono<User> userMono, String workspaceId, Application application);
 
     Mono<Application> deleteApplication(String id);
 

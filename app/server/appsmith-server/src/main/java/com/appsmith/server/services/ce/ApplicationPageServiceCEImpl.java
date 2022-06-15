@@ -67,7 +67,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
@@ -294,17 +294,17 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<Application> createApplication(Application application) {
-        return createApplication(application, application.getOrganizationId());
+        return createApplication(application, application.getWorkspaceId());
     }
 
     @Override
-    public Mono<Application> createApplication(Application application, String orgId) {
+    public Mono<Application> createApplication(Application application, String workspaceId) {
         if (application.getName() == null || application.getName().trim().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
-        if (orgId == null || orgId.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        if (workspaceId == null || workspaceId.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         application.setPublishedPages(new ArrayList<>());
@@ -314,7 +314,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         application.setApplicationVersion(ApplicationVersion.LATEST_VERSION);
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
-        Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
+        Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, workspaceId, application);
 
         return applicationWithPoliciesMono
                 .zipWith(userMono)
@@ -359,11 +359,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<Application> setApplicationPolicies(Mono<User> userMono, String workspaceId, Application application) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, ORGANIZATION_MANAGE_APPLICATIONS)
+                    Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, WORKSPACE_MANAGE_APPLICATIONS)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
                     return workspaceMono.map(org -> {
-                        application.setOrganizationId(org.getId());
+                        application.setWorkspaceId(org.getId());
                         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(org.getPolicies(), Workspace.class, Application.class);
                         application.setPolicies(documentPolicies);
                         return application;
@@ -701,7 +701,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         // Find the name for the cloned application which wouldn't lead to duplicate key exception
         Mono<String> newAppNameMono = applicationMono
-                .flatMap(application -> applicationService.findAllApplicationsByOrganizationId(application.getOrganizationId())
+                .flatMap(application -> applicationService.findAllApplicationsByWorkspaceId(application.getWorkspaceId())
                         .map(Application::getName)
                         .collect(Collectors.toSet())
                         .map(appNames -> {
@@ -738,7 +738,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
-                    return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
+                    return setApplicationPolicies(userMono, sourceApplication.getWorkspaceId(), newApplication)
                             // Create the cloned application with the new name and policies before proceeding further.
                             .zipWith(userMono)
                             .flatMap(applicationUserTuple2 -> {
@@ -1022,7 +1022,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     extraProperties.put("actionCollectionCount", objects.getT3().size());
                     extraProperties.put("appId", defaultIfNull(application.getId(), ""));
                     extraProperties.put("appName", defaultIfNull(application.getName(), ""));
-                    extraProperties.put("orgId", defaultIfNull(application.getOrganizationId(), ""));
+                    extraProperties.put("orgId", defaultIfNull(application.getWorkspaceId(), ""));
                     extraProperties.put("publishedAt", defaultIfNull(application.getLastDeployedAt(), ""));
 
                     return analyticsService.sendObjectEvent(AnalyticsEvents.PUBLISH_APPLICATION, application, extraProperties);
@@ -1086,7 +1086,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         application.setName(actualName);
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
-        Mono<Application> applicationWithPoliciesMono = this.setApplicationPolicies(userMono, application.getOrganizationId(), application);
+        Mono<Application> applicationWithPoliciesMono = this.setApplicationPolicies(userMono, application.getWorkspaceId(), application);
 
         return applicationWithPoliciesMono
                 .zipWith(userMono)
