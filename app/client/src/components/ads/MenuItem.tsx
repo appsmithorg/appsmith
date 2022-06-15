@@ -15,7 +15,7 @@ export type MenuItemProps = CommonComponentProps & {
   ellipsize?: number;
   selected?: boolean;
   containerClassName?: string;
-  onSelect?: (e: React.MouseEvent) => void;
+  onSelect?: (e: React.MouseEvent, ...rest: any) => void;
   tooltipPos?: Position; // tooltip position of menu item
 };
 

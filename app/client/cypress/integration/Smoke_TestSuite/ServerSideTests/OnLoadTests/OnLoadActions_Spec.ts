@@ -125,9 +125,7 @@ describe("Layout OnLoad Actions tests", function() {
     //   });
     // });
 
-    deployMode.DeployApp();
-    agHelper.Sleep(); //waiting for error toast - incase it wants to appear!
-    agHelper.AssertElementAbsence(locator._toastMsg);
+    deployMode.DeployApp(locator._widgetInDeployed("textwidget"), false);
     agHelper.Sleep(5000); //for all api's to ccomplete call!
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);
@@ -180,9 +178,7 @@ describe("Layout OnLoad Actions tests", function() {
       value: "{{RandomUser.data.results[0].name.first}}",
     }); // verifies Bug 10055
 
-    deployMode.DeployApp();
-    agHelper.Sleep(); //waiting for error toast - incase it wants to appear!
-    agHelper.AssertElementAbsence(locator._toastMsg);
+    deployMode.DeployApp(locator._widgetInDeployed("textwidget"), false);
     agHelper.Sleep(5000); //for all api's to ccomplete call!
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);

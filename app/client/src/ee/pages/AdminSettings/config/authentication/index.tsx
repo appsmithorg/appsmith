@@ -12,13 +12,13 @@ import {
   SettingTypes,
   SettingSubtype,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { Sso } from "@appsmith/pages/AdminSettings/saml";
+import { Saml } from "@appsmith/pages/AdminSettings/saml";
+import Oidc from "@appsmith/pages/AdminSettings/oidc";
 import { AuthMethodType, AuthPage } from "./AuthPage";
 import SamlSso from "assets/images/saml.svg";
 import OIDC from "assets/images/oidc.svg";
 import React from "react";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import Oidc from "@appsmith/pages/AdminSettings/oidc";
 import { OIDC_SIGNUP_SETUP_DOC } from "constants/ThirdPartyConstants";
 import { REDIRECT_URL_FORM } from "constants/forms";
 
@@ -28,7 +28,7 @@ const SsoAuth: AdminConfigType = {
   type: SettingCategories.SAML_AUTH,
   controlType: SettingTypes.PAGE,
   title: "SAML 2.0",
-  component: Sso,
+  component: Saml,
   subText:
     "Enable your organization to sign in with your preferred SAML2 compliant provider.",
   canSave: true,
