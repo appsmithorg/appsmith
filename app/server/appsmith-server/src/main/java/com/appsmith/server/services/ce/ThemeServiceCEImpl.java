@@ -129,7 +129,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                                 // we'll create a copy of newTheme
                                 newTheme.setId(null);
                                 newTheme.setApplicationId(null);
-                                newTheme.setOrganizationId(null);
+                                newTheme.setWorkspaceId(null);
                                 newTheme.setPolicies(policyGenerator.getAllChildPolicies(
                                         application.getPolicies(), Application.class, Theme.class
                                 ));
@@ -176,7 +176,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
             } else { // it's a customized theme, create a copy and return the copy
                 theme.setId(null); // setting id to null so that save method will create a new instance
                 theme.setApplicationId(null);
-                theme.setOrganizationId(null);
+                theme.setWorkspaceId(null);
                 theme.setPolicies(policyGenerator.getAllChildPolicies(
                         destApplication.getPolicies(), Application.class, Theme.class
                 ));
@@ -295,7 +295,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                     theme.setId(null); // we'll create a copy so setting id to null
                     theme.setSystemTheme(false);
                     theme.setApplicationId(application.getId());
-                    theme.setOrganizationId(application.getOrganizationId());
+                    theme.setWorkspaceId(application.getWorkspaceId());
                     theme.setPolicies(policyGenerator.getAllChildPolicies(
                             application.getPolicies(), Application.class, Theme.class
                     ));

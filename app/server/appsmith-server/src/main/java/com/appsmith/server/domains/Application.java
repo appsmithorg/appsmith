@@ -35,7 +35,11 @@ public class Application extends BaseDomain {
     @NotNull
     String name;
 
+    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    @Deprecated
     String organizationId;
+
+    String workspaceId;
 
     /*
     TODO: remove default values from application.
@@ -150,7 +154,7 @@ public class Application extends BaseDomain {
     // initialized newly or is left up to the calling function to set.
     public Application(Application application) {
         super();
-        this.organizationId = application.getOrganizationId();
+        this.workspaceId = application.getWorkspaceId();
         this.pages = new ArrayList<>();
         this.publishedPages = new ArrayList<>();
         this.clonedFromApplicationId = application.getId();

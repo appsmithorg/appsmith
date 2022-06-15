@@ -10,15 +10,15 @@ describe("Migration Validate", function() {
     cy.get(homePage.optionsIcon)
       .first()
       .click();
-    cy.get(homePage.orgImportAppOption).click({ force: true });
-    cy.get(homePage.orgImportAppModal).should("be.visible");
+    cy.get(homePage.workspaceImportAppOption).click({ force: true });
+    cy.get(homePage.workspaceImportAppModal).should("be.visible");
     cy.xpath(homePage.uploadLogo)
       .attachFile("TableMigrationAppExported.json")
       .wait(500);
-    // cy.get(homePage.orgImportAppButton)
+    // cy.get(homePage.workspaceImportAppButton)
     //   .trigger("click")
     //   .wait(500);
-    cy.get(homePage.orgImportAppModal).should("not.exist");
+    cy.get(homePage.workspaceImportAppModal).should("not.exist");
 
     cy.wait("@importNewApplication").then((interception) => {
       // let appId = interception.response.body.data.id;
@@ -510,13 +510,13 @@ describe("Migration Validate", function() {
   //   cy.get(homePage.optionsIcon)
   //     .first()
   //     .click();
-  //   cy.get(homePage.orgImportAppOption).click({ force: true });
-  //   cy.get(homePage.orgImportAppModal).should("be.visible");
+  //   cy.get(homePage.workspaceImportAppOption).click({ force: true });
+  //   cy.get(homePage.workspaceImportAppModal).should("be.visible");
   //   cy.xpath(homePage.uploadLogo).attachFile("TableMigrationAppExported.json").wait(500);
-  //   cy.get(homePage.orgImportAppButton)
+  //   cy.get(homePage.workspaceImportAppButton)
   //     .trigger("click")
   //     .wait(500);
-  //   cy.get(homePage.orgImportAppModal).should("not.exist");
+  //   cy.get(homePage.workspaceImportAppModal).should("not.exist");
 
   //   cy.wait("@importNewApplication").then((interception) => {
   //     let appId = interception.response.body.data.id;

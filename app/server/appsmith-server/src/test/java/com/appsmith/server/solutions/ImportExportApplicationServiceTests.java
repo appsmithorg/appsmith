@@ -178,13 +178,13 @@ public class ImportExportApplicationServiceTests {
         }
         installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
         Workspace workspace = new Workspace();
-        workspace.setName("Import-Export-Test-Organization");
+        workspace.setName("Import-Export-Test-Workspace");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
         workspaceId = savedWorkspace.getId();
 
         Application testApplication = new Application();
         testApplication.setName("Export-Application-Test-Application");
-        testApplication.setOrganizationId(workspaceId);
+        testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
@@ -195,7 +195,7 @@ public class ImportExportApplicationServiceTests {
 
         Datasource ds1 = new Datasource();
         ds1.setName("DS1");
-        ds1.setOrganizationId(workspaceId);
+        ds1.setWorkspaceId(workspaceId);
         ds1.setPluginId(installedPlugin.getId());
         final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://httpbin.org/get");
@@ -208,14 +208,14 @@ public class ImportExportApplicationServiceTests {
         ds2.setName("DS2");
         ds2.setPluginId(installedPlugin.getId());
         ds2.setDatasourceConfiguration(new DatasourceConfiguration());
-        ds2.setOrganizationId(workspaceId);
+        ds2.setWorkspaceId(workspaceId);
         DBAuth auth = new DBAuth();
         auth.setPassword("awesome-password");
         ds2.getDatasourceConfiguration().setAuthentication(auth);
 
         jsDatasource = new Datasource();
         jsDatasource.setName("Default JS datasource");
-        jsDatasource.setOrganizationId(workspaceId);
+        jsDatasource.setWorkspaceId(workspaceId);
         installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
         assert installedJsPlugin != null;
         jsDatasource.setPluginId(installedJsPlugin.getId());
@@ -273,7 +273,7 @@ public class ImportExportApplicationServiceTests {
 
     private Workspace createTemplateWorkspace() {
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
         return workspaceService.create(newWorkspace).block();
     }
 
@@ -332,10 +332,10 @@ public class ImportExportApplicationServiceTests {
                 .flatMap(workspace -> {
 
                     final Datasource ds1 = datasourceMap.get("DS1");
-                    ds1.setOrganizationId(workspace.getId());
+                    ds1.setWorkspaceId(workspace.getId());
 
                     final Datasource ds2 = datasourceMap.get("DS2");
-                    ds2.setOrganizationId(workspace.getId());
+                    ds2.setWorkspaceId(workspace.getId());
 
                     return  applicationPageService.createApplication(testApplication, workspaceId);
                 })
@@ -431,7 +431,7 @@ public class ImportExportApplicationServiceTests {
                     actionCollectionDTO1.setName("testCollection1");
                     actionCollectionDTO1.setPageId(testPage.getId());
                     actionCollectionDTO1.setApplicationId(testApp.getId());
-                    actionCollectionDTO1.setOrganizationId(testApp.getOrganizationId());
+                    actionCollectionDTO1.setWorkspaceId(testApp.getWorkspaceId());
                     actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
                     ActionDTO action1 = new ActionDTO();
                     action1.setName("testAction1");
@@ -516,7 +516,7 @@ public class ImportExportApplicationServiceTests {
 
 
                     assertThat(exportedApp.getName()).isEqualTo(appName);
-                    assertThat(exportedApp.getOrganizationId()).isNull();
+                    assertThat(exportedApp.getWorkspaceId()).isNull();
                     assertThat(exportedApp.getPages()).hasSize(1);
                     assertThat(exportedApp.getPages().get(0).getId()).isEqualTo(defaultPage.getUnpublishedPage().getName());
 
@@ -534,7 +534,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(validAction.getApplicationId()).isNull();
                     assertThat(validAction.getPluginId()).isEqualTo(installedPlugin.getPackageName());
                     assertThat(validAction.getPluginType()).isEqualTo(PluginType.API);
-                    assertThat(validAction.getOrganizationId()).isNull();
+                    assertThat(validAction.getWorkspaceId()).isNull();
                     assertThat(validAction.getPolicies()).isNull();
                     assertThat(validAction.getId()).isNotNull();
                     ActionDTO unpublishedAction = validAction.getUnpublishedAction();
@@ -548,7 +548,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(actionCollectionList).hasSize(1);
                     final ActionCollection actionCollection = actionCollectionList.get(0);
                     assertThat(actionCollection.getApplicationId()).isNull();
-                    assertThat(actionCollection.getOrganizationId()).isNull();
+                    assertThat(actionCollection.getWorkspaceId()).isNull();
                     assertThat(actionCollection.getPolicies()).isNull();
                     assertThat(actionCollection.getId()).isNotNull();
                     assertThat(actionCollection.getUnpublishedCollection().getPluginType()).isEqualTo(PluginType.JS);
@@ -558,7 +558,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(datasourceList).hasSize(1);
                     Datasource datasource = datasourceList.get(0);
-                    assertThat(datasource.getOrganizationId()).isNull();
+                    assertThat(datasource.getWorkspaceId()).isNull();
                     assertThat(datasource.getId()).isNull();
                     assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
                     assertThat(datasource.getDatasourceConfiguration()).isNull();
@@ -650,7 +650,7 @@ public class ImportExportApplicationServiceTests {
                 assertThat(applicationJson.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
 
                 assertThat(exportedApp.getName()).isNotNull();
-                assertThat(exportedApp.getOrganizationId()).isNull();
+                assertThat(exportedApp.getWorkspaceId()).isNull();
                 assertThat(exportedApp.getPages()).hasSize(1);
                 assertThat(exportedApp.getPages().get(0).getId()).isEqualTo(pageName.toString());
                 assertThat(exportedApp.getGitApplicationMetadata()).isNull();
@@ -669,7 +669,7 @@ public class ImportExportApplicationServiceTests {
                 assertThat(validAction.getApplicationId()).isNull();
                 assertThat(validAction.getPluginId()).isEqualTo(installedPlugin.getPackageName());
                 assertThat(validAction.getPluginType()).isEqualTo(PluginType.API);
-                assertThat(validAction.getOrganizationId()).isNull();
+                assertThat(validAction.getWorkspaceId()).isNull();
                 assertThat(validAction.getPolicies()).isNull();
                 assertThat(validAction.getId()).isNotNull();
                 assertThat(validAction.getUnpublishedAction().getPageId())
@@ -677,7 +677,7 @@ public class ImportExportApplicationServiceTests {
 
                 assertThat(datasourceList).hasSize(1);
                 Datasource datasource = datasourceList.get(0);
-                assertThat(datasource.getOrganizationId()).isNull();
+                assertThat(datasource.getWorkspaceId()).isNull();
                 assertThat(datasource.getId()).isNull();
                 assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
                 assertThat(datasource.getDatasourceConfiguration()).isNull();
@@ -693,7 +693,7 @@ public class ImportExportApplicationServiceTests {
     public void importApplicationFromInvalidFileTest() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096)
+                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo.png"), new DefaultDataBufferFactory(), 4096)
                 .cache();
 
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
@@ -709,7 +709,7 @@ public class ImportExportApplicationServiceTests {
     
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationWithNullOrganizationIdTest() {
+    public void importApplicationWithNullWorkspaceIdTest() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         
         Mono<ApplicationImportDTO> resultMono = importExportApplicationService
@@ -718,7 +718,7 @@ public class ImportExportApplicationServiceTests {
         StepVerifier
             .create(resultMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ORGANIZATION_ID)))
+                throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WORKSPACE_ID)))
             .verify();
     }
     
@@ -757,7 +757,7 @@ public class ImportExportApplicationServiceTests {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
     
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
     
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
             .users(Set.of("api_user"))
@@ -778,7 +778,7 @@ public class ImportExportApplicationServiceTests {
                     Application application = applicationImportDTO.getApplication();
                     return Mono.zip(
                             Mono.just(applicationImportDTO),
-                            datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                            datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
                             newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                             newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
                             actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
@@ -794,7 +794,7 @@ public class ImportExportApplicationServiceTests {
                 final List<ActionCollection> actionCollectionList = tuple.getT5();
 
                 assertThat(application.getName()).isEqualTo("valid_application");
-                assertThat(application.getOrganizationId()).isNotNull();
+                assertThat(application.getWorkspaceId()).isNotNull();
                 assertThat(application.getPages()).hasSize(2);
                 assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                 assertThat(application.getPublishedPages()).hasSize(1);
@@ -807,7 +807,7 @@ public class ImportExportApplicationServiceTests {
 
                 assertThat(datasourceList).isNotEmpty();
                 datasourceList.forEach(datasource -> {
-                    assertThat(datasource.getOrganizationId()).isEqualTo(application.getOrganizationId());
+                    assertThat(datasource.getWorkspaceId()).isEqualTo(application.getWorkspaceId());
                     assertThat(datasource.getDatasourceConfiguration()).isNotNull();
                 });
 
@@ -882,7 +882,7 @@ public class ImportExportApplicationServiceTests {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationRepository.findByOrganizationId(workspace.getId(), READ_APPLICATIONS)
+                    return applicationRepository.findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                             .next();
                 });
 
@@ -923,12 +923,12 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(editTheme.isSystemTheme()).isFalse();
                     assertThat(editTheme.getDisplayName()).isEqualTo("Custom edit theme");
-                    assertThat(editTheme.getOrganizationId()).isNull();
+                    assertThat(editTheme.getWorkspaceId()).isNull();
                     assertThat(editTheme.getApplicationId()).isNull();
 
                     assertThat(publishedTheme.isSystemTheme()).isFalse();
                     assertThat(publishedTheme.getDisplayName()).isEqualTo("Custom published theme");
-                    assertThat(publishedTheme.getOrganizationId()).isNullOrEmpty();
+                    assertThat(publishedTheme.getWorkspaceId()).isNullOrEmpty();
                     assertThat(publishedTheme.getApplicationId()).isNullOrEmpty();
                 })
                 .verifyComplete();
@@ -941,7 +941,7 @@ public class ImportExportApplicationServiceTests {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-without-action-collection.json");
 
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
@@ -960,7 +960,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(applicationImportDTO -> Mono.zip(
                                 Mono.just(applicationImportDTO),
-                                datasourceService.findAllByOrganizationId(applicationImportDTO.getApplication().getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                                datasourceService.findAllByWorkspaceId(applicationImportDTO.getApplication().getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
                                 getActionsInApplication(applicationImportDTO.getApplication()).collectList(),
                                 newPageService.findByApplicationId(applicationImportDTO.getApplication().getId(), MANAGE_PAGES, false).collectList(),
                                 actionCollectionService.findAllByApplicationIdAndViewMode(applicationImportDTO.getApplication().getId(), false
@@ -974,7 +974,7 @@ public class ImportExportApplicationServiceTests {
                     final List<ActionCollection> actionCollectionList = tuple.getT5();
 
                     assertThat(application.getName()).isEqualTo("valid_application");
-                    assertThat(application.getOrganizationId()).isNotNull();
+                    assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getPages()).hasSize(2);
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                     assertThat(application.getPublishedPages()).hasSize(1);
@@ -983,7 +983,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(datasourceList).isNotEmpty();
                     datasourceList.forEach(datasource -> {
-                        assertThat(datasource.getOrganizationId()).isEqualTo(application.getOrganizationId());
+                        assertThat(datasource.getWorkspaceId()).isEqualTo(application.getWorkspaceId());
                         assertThat(datasource.getDatasourceConfiguration()).isNotNull();
                     });
 
@@ -1019,7 +1019,7 @@ public class ImportExportApplicationServiceTests {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-without-theme.json");
 
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
 
         final Mono<ApplicationImportDTO> resultMono = workspaceService.create(newWorkspace)
                 .flatMap(workspace -> importExportApplicationService
@@ -1042,7 +1042,7 @@ public class ImportExportApplicationServiceTests {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-application-without-pageId-action-collection.json");
 
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
 
         final Mono<ApplicationImportDTO> resultMono = workspaceService
                 .create(newWorkspace)
@@ -1054,7 +1054,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(applicationImportDTO -> Mono.zip(
                                 Mono.just(applicationImportDTO),
-                                datasourceService.findAllByOrganizationId(applicationImportDTO.getApplication().getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                                datasourceService.findAllByWorkspaceId(applicationImportDTO.getApplication().getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
                                 getActionsInApplication(applicationImportDTO.getApplication()).collectList(),
                                 newPageService.findByApplicationId(applicationImportDTO.getApplication().getId(), MANAGE_PAGES, false).collectList(),
                                 actionCollectionService
@@ -1086,7 +1086,7 @@ public class ImportExportApplicationServiceTests {
     public void exportImportApplication_importWithBranchName_updateApplicationResourcesWithBranch() {
         Application testApplication = new Application();
         testApplication.setName("Export-Import-Update-Branch_Test-App");
-        testApplication.setOrganizationId(workspaceId);
+        testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
@@ -1164,7 +1164,7 @@ public class ImportExportApplicationServiceTests {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-with-un-configured-datasource.json");
 
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
@@ -1185,7 +1185,7 @@ public class ImportExportApplicationServiceTests {
                             Application application = applicationImportDTO.getApplication();
                             return Mono.zip(
                                     Mono.just(applicationImportDTO),
-                                    datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                                    datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
                                     newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                                     newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
                                     actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
@@ -1201,7 +1201,7 @@ public class ImportExportApplicationServiceTests {
                     final List<ActionCollection> actionCollectionList = tuple.getT5();
 
                     assertThat(application.getName()).isEqualTo("importExportTest");
-                    assertThat(application.getOrganizationId()).isNotNull();
+                    assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getPages()).hasSize(1);
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                     assertThat(application.getPublishedPages()).hasSize(1);
@@ -1247,8 +1247,8 @@ public class ImportExportApplicationServiceTests {
 
     public void importApplicationIntoWorkspace_pageRemovedAndUpdatedDefaultPageNameInBranchApplication_Success() {
         Application testApplication = new Application();
-        testApplication.setName("importApplicationIntoOrganization_pageRemovedInBranchApplication_Success");
-        testApplication.setOrganizationId(workspaceId);
+        testApplication.setName("importApplicationIntoWorkspace_pageRemovedInBranchApplication_Success");
+        testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
@@ -1311,8 +1311,8 @@ public class ImportExportApplicationServiceTests {
     @WithUserDetails(value = "api_user")
     public void importApplicationIntoWorkspace_pageAddedInBranchApplication_Success() {
         Application testApplication = new Application();
-        testApplication.setName("importApplicationIntoOrganization_pageAddedInBranchApplication_Success");
-        testApplication.setOrganizationId(workspaceId);
+        testApplication.setName("importApplicationIntoWorkspace_pageAddedInBranchApplication_Success");
+        testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
@@ -1378,8 +1378,8 @@ public class ImportExportApplicationServiceTests {
                 .build();
 
         Application testApplication = new Application();
-        testApplication.setName("importUpdatedApplicationIntoOrganizationFromFile_publicApplication_visibilityFlagNotReset");
-        testApplication.setOrganizationId(workspaceId);
+        testApplication.setName("importUpdatedApplicationIntoWorkspaceFromFile_publicApplication_visibilityFlagNotReset");
+        testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
@@ -1427,11 +1427,11 @@ public class ImportExportApplicationServiceTests {
         4. Added page should be deleted from DB
          */
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
-        String orgId = createTemplateWorkspace().getId();
+        String workspaceId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-page-added");
-                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson);
                 })
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
@@ -1453,7 +1453,7 @@ public class ImportExportApplicationServiceTests {
                     final List<PageDTO> pageList = tuple.getT2();
 
                     assertThat(application.getName()).isEqualTo("discard-change-page-added");
-                    assertThat(application.getOrganizationId()).isNotNull();
+                    assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getPages()).hasSize(3);
                     assertThat(application.getPublishedPages()).hasSize(1);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
@@ -1492,7 +1492,7 @@ public class ImportExportApplicationServiceTests {
                                             importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
                                             return applicationService.save(importedApplication)
                                                     .then(importExportApplicationService.importApplicationInWorkspace(
-                                                            importedApplication.getOrganizationId(),
+                                                            importedApplication.getWorkspaceId(),
                                                             applicationJson,
                                                             importedApplication.getId(),
                                                             "main")
@@ -1535,12 +1535,12 @@ public class ImportExportApplicationServiceTests {
     public void discardChange_addNewActionAfterImport_addedActionRemoved() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
-        String orgId = createTemplateWorkspace().getId();
+        String workspaceId = createTemplateWorkspace().getId();
 
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-action-added");
-                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson);
                 })
                 .flatMap(application -> {
                     ActionDTO action = new ActionDTO();
@@ -1567,7 +1567,7 @@ public class ImportExportApplicationServiceTests {
                     final List<ActionDTO> actionList = tuple.getT2();
 
                     assertThat(application.getName()).isEqualTo("discard-change-action-added");
-                    assertThat(application.getOrganizationId()).isNotNull();
+                    assertThat(application.getWorkspaceId()).isNotNull();
 
 
                     List<String> actionNames = new ArrayList<>();
@@ -1585,7 +1585,7 @@ public class ImportExportApplicationServiceTests {
                                     importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
                                     return applicationService.save(importedApplication)
                                             .then(importExportApplicationService.importApplicationInWorkspace(
-                                                    importedApplication.getOrganizationId(),
+                                                    importedApplication.getWorkspaceId(),
                                                     applicationJson,
                                                     importedApplication.getId(),
                                                     "main")
@@ -1604,7 +1604,7 @@ public class ImportExportApplicationServiceTests {
                     final Application application = tuple.getT1();
                     final List<ActionDTO> actionList = tuple.getT2();
 
-                    assertThat(application.getOrganizationId()).isNotNull();
+                    assertThat(application.getWorkspaceId()).isNotNull();
 
                     List<String> actionNames = new ArrayList<>();
                     actionList.forEach(actionDTO -> actionNames.add(actionDTO.getName()));
@@ -1625,18 +1625,18 @@ public class ImportExportApplicationServiceTests {
     public void discardChange_addNewActionCollectionAfterImport_addedActionCollectionRemoved() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application-without-action-collection.json");
-        String orgId = createTemplateWorkspace().getId();
+        String workspaceId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-collection-added");
-                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson);
                 })
                 .flatMap(application -> {
                     ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
                     actionCollectionDTO1.setName("discard-action-collection-test");
                     actionCollectionDTO1.setPageId(application.getPages().get(0).getId());
                     actionCollectionDTO1.setApplicationId(application.getId());
-                    actionCollectionDTO1.setOrganizationId(application.getOrganizationId());
+                    actionCollectionDTO1.setWorkspaceId(application.getWorkspaceId());
                     actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
                     ActionDTO action1 = new ActionDTO();
                     action1.setName("discard-action-collection-test-action");
@@ -1664,7 +1664,7 @@ public class ImportExportApplicationServiceTests {
                     final List<ActionDTO> actionList = tuple.getT3();
 
                     assertThat(application.getName()).isEqualTo("discard-change-collection-added");
-                    assertThat(application.getOrganizationId()).isNotNull();
+                    assertThat(application.getWorkspaceId()).isNotNull();
 
                     List<String> actionCollectionNames = new ArrayList<>();
                     actionCollectionList.forEach(actionCollection -> actionCollectionNames.add(actionCollection.getUnpublishedCollection().getName()));
@@ -1686,7 +1686,7 @@ public class ImportExportApplicationServiceTests {
                                             importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
                                             return applicationService.save(importedApplication)
                                                     .then(importExportApplicationService.importApplicationInWorkspace(
-                                                            importedApplication.getOrganizationId(),
+                                                            importedApplication.getWorkspaceId(),
                                                             applicationJson,
                                                             importedApplication.getId(),
                                                             "main")
@@ -1707,7 +1707,7 @@ public class ImportExportApplicationServiceTests {
                     final List<ActionCollection> actionCollectionList = tuple.getT2();
                     final List<ActionDTO> actionList = tuple.getT3();
 
-                    assertThat(application.getOrganizationId()).isNotNull();
+                    assertThat(application.getWorkspaceId()).isNotNull();
 
                     List<String> actionCollectionNames = new ArrayList<>();
                     actionCollectionList.forEach(actionCollection -> actionCollectionNames.add(actionCollection.getUnpublishedCollection().getName()));
@@ -1732,11 +1732,11 @@ public class ImportExportApplicationServiceTests {
     public void discardChange_removeNewPageAfterImport_removedPageRestored() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
-        String orgId = createTemplateWorkspace().getId();
+        String workspaceId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-page-removed");
-                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson);
                 })
                 .flatMap(application -> {
                     Optional<ApplicationPage> applicationPage = application
@@ -1760,7 +1760,7 @@ public class ImportExportApplicationServiceTests {
                     final List<PageDTO> pageList = tuple.getT2();
 
                     assertThat(application.getName()).isEqualTo("discard-change-page-removed");
-                    assertThat(application.getOrganizationId()).isNotNull();
+                    assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getPages()).hasSize(1);
 
                     assertThat(pageList).hasSize(1);
@@ -1777,7 +1777,7 @@ public class ImportExportApplicationServiceTests {
                                             importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
                                             return applicationService.save(importedApplication)
                                                     .then(importExportApplicationService.importApplicationInWorkspace(
-                                                            importedApplication.getOrganizationId(),
+                                                            importedApplication.getWorkspaceId(),
                                                             applicationJson,
                                                             importedApplication.getId(),
                                                             "main")
@@ -1816,12 +1816,12 @@ public class ImportExportApplicationServiceTests {
     public void discardChange_removeNewActionAfterImport_removedActionRestored() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
-        String orgId = createTemplateWorkspace().getId();
+        String workspaceId = createTemplateWorkspace().getId();
         final String[] deletedActionName = new String[1];
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-action-removed");
-                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson);
                 })
                 .flatMap(application -> {
                     return getActionsInApplication(application)
@@ -1845,7 +1845,7 @@ public class ImportExportApplicationServiceTests {
                     final List<ActionDTO> actionList = tuple.getT2();
 
                     assertThat(application.getName()).isEqualTo("discard-change-action-removed");
-                    assertThat(application.getOrganizationId()).isNotNull();
+                    assertThat(application.getWorkspaceId()).isNotNull();
 
                     List<String> actionNames = new ArrayList<>();
                     actionList.forEach(actionDTO -> actionNames.add(actionDTO.getName()));
@@ -1863,7 +1863,7 @@ public class ImportExportApplicationServiceTests {
                                             importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
                                             return applicationService.save(importedApplication)
                                                     .then(importExportApplicationService.importApplicationInWorkspace(
-                                                            importedApplication.getOrganizationId(),
+                                                            importedApplication.getWorkspaceId(),
                                                             applicationJson,
                                                             importedApplication.getId(),
                                                             "main")
@@ -1882,7 +1882,7 @@ public class ImportExportApplicationServiceTests {
                     final Application application = tuple.getT1();
                     final List<ActionDTO> actionList = tuple.getT2();
 
-                    assertThat(application.getOrganizationId()).isNotNull();
+                    assertThat(application.getWorkspaceId()).isNotNull();
 
                     List<String> actionNames = new ArrayList<>();
                     actionList.forEach(actionDTO -> actionNames.add(actionDTO.getName()));
@@ -1903,12 +1903,12 @@ public class ImportExportApplicationServiceTests {
     public void discardChange_removeNewActionCollection_removedActionCollectionRestored() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
-        String orgId = createTemplateWorkspace().getId();
+        String workspaceId = createTemplateWorkspace().getId();
         final String[] deletedActionCollectionNames = new String[1];
         final Mono<Application> resultMonoWithoutDiscardOperation = applicationJsonMono
                 .flatMap(applicationJson -> {
                     applicationJson.getExportedApplication().setName("discard-change-collection-removed");
-                    return importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson);
+                    return importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson);
                 })
                 .flatMap(application -> {
                     return actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
@@ -1932,7 +1932,7 @@ public class ImportExportApplicationServiceTests {
                     final List<ActionCollection> actionCollectionList = tuple.getT2();
 
                     assertThat(application.getName()).isEqualTo("discard-change-collection-removed");
-                    assertThat(application.getOrganizationId()).isNotNull();
+                    assertThat(application.getWorkspaceId()).isNotNull();
 
                     List<String> actionCollectionNames = new ArrayList<>();
                     actionCollectionList.forEach(actionCollection -> actionCollectionNames.add(actionCollection.getUnpublishedCollection().getName()));
@@ -1950,7 +1950,7 @@ public class ImportExportApplicationServiceTests {
                                             importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
                                             return applicationService.save(importedApplication)
                                                     .then(importExportApplicationService.importApplicationInWorkspace(
-                                                            importedApplication.getOrganizationId(),
+                                                            importedApplication.getWorkspaceId(),
                                                             applicationJson,
                                                             importedApplication.getId(),
                                                             "main")
@@ -1969,7 +1969,7 @@ public class ImportExportApplicationServiceTests {
                     final Application application = tuple.getT1();
                     final List<ActionCollection> actionCollectionList = tuple.getT2();
 
-                    assertThat(application.getOrganizationId()).isNotNull();
+                    assertThat(application.getWorkspaceId()).isNotNull();
 
                     List<String> actionCollectionNames = new ArrayList<>();
                     actionCollectionList.forEach(actionCollection -> actionCollectionNames.add(actionCollection.getUnpublishedCollection().getName()));
@@ -2078,7 +2078,7 @@ public class ImportExportApplicationServiceTests {
                     actionCollectionDTO1.setName("testCollection1");
                     actionCollectionDTO1.setPageId(testPage.getId());
                     actionCollectionDTO1.setApplicationId(testApp.getId());
-                    actionCollectionDTO1.setOrganizationId(testApp.getOrganizationId());
+                    actionCollectionDTO1.setWorkspaceId(testApp.getWorkspaceId());
                     actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
                     ActionDTO action1 = new ActionDTO();
                     action1.setName("testAction1");
@@ -2152,7 +2152,7 @@ public class ImportExportApplicationServiceTests {
                     NewPage defaultPage = pageList.get(0);
 
                     assertThat(exportedApp.getName()).isEqualTo(appName);
-                    assertThat(exportedApp.getOrganizationId()).isNull();
+                    assertThat(exportedApp.getWorkspaceId()).isNull();
                     assertThat(exportedApp.getPages()).hasSize(1);
                     ApplicationPage page = exportedApp.getPages().get(0);
 
@@ -2174,7 +2174,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(validAction.getApplicationId()).isNull();
                     assertThat(validAction.getPluginId()).isEqualTo(installedPlugin.getPackageName());
                     assertThat(validAction.getPluginType()).isEqualTo(PluginType.API);
-                    assertThat(validAction.getOrganizationId()).isNull();
+                    assertThat(validAction.getWorkspaceId()).isNull();
                     assertThat(validAction.getPolicies()).isNull();
                     assertThat(validAction.getId()).isNotNull();
                     ActionDTO unpublishedAction = validAction.getUnpublishedAction();
@@ -2188,7 +2188,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(actionCollectionList).hasSize(1);
                     final ActionCollection actionCollection = actionCollectionList.get(0);
                     assertThat(actionCollection.getApplicationId()).isNull();
-                    assertThat(actionCollection.getOrganizationId()).isNull();
+                    assertThat(actionCollection.getWorkspaceId()).isNull();
                     assertThat(actionCollection.getPolicies()).isNull();
                     assertThat(actionCollection.getId()).isNotNull();
                     assertThat(actionCollection.getUnpublishedCollection().getPluginType()).isEqualTo(PluginType.JS);
@@ -2198,7 +2198,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(datasourceList).hasSize(1);
                     Datasource datasource = datasourceList.get(0);
-                    assertThat(datasource.getOrganizationId()).isNull();
+                    assertThat(datasource.getWorkspaceId()).isNull();
                     assertThat(datasource.getId()).isNull();
                     assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
                     assertThat(datasource.getDatasourceConfiguration()).isNotNull();
@@ -2270,7 +2270,7 @@ public class ImportExportApplicationServiceTests {
         // Chose any plugin except for mongo, as json static file has mongo plugin for datasource
         Plugin postgreSQLPlugin = pluginRepository.findByName("PostgreSQL").block();
         testDatasource.setPluginId(postgreSQLPlugin.getId());
-        testDatasource.setOrganizationId(testWorkspace.getId());
+        testDatasource.setWorkspaceId(testWorkspace.getId());
         final String datasourceName = applicationJson.getDatasourceList().get(0).getName();
         testDatasource.setName(datasourceName);
         datasourceService.create(testDatasource).block();
@@ -2281,7 +2281,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                                datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
                                 newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
@@ -2294,7 +2294,7 @@ public class ImportExportApplicationServiceTests {
                     List<String> datasourceNameList = new ArrayList<>();
                     assertThat(datasourceList).isNotEmpty();
                     datasourceList.forEach(datasource -> {
-                        assertThat(datasource.getOrganizationId()).isEqualTo(application.getOrganizationId());
+                        assertThat(datasource.getWorkspaceId()).isEqualTo(application.getWorkspaceId());
                         datasourceNameList.add(datasource.getName());
                     });
                     // Check if both suffixed and newly imported datasource are present
@@ -2323,7 +2323,7 @@ public class ImportExportApplicationServiceTests {
         // Chose plugin same as mongo, as json static file has mongo plugin for datasource
         Plugin postgreSQLPlugin = pluginRepository.findByName("MongoDB").block();
         testDatasource.setPluginId(postgreSQLPlugin.getId());
-        testDatasource.setOrganizationId(testWorkspace.getId());
+        testDatasource.setWorkspaceId(testWorkspace.getId());
         final String datasourceName = applicationJson.getDatasourceList().get(0).getName();
         testDatasource.setName(datasourceName);
         datasourceService.create(testDatasource).block();
@@ -2334,7 +2334,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                                datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
                                 newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
@@ -2347,7 +2347,7 @@ public class ImportExportApplicationServiceTests {
                     List<String> datasourceNameList = new ArrayList<>();
                     assertThat(datasourceList).isNotEmpty();
                     datasourceList.forEach(datasource -> {
-                        assertThat(datasource.getOrganizationId()).isEqualTo(application.getOrganizationId());
+                        assertThat(datasource.getWorkspaceId()).isEqualTo(application.getWorkspaceId());
                         datasourceNameList.add(datasource.getName());
                     });
                     // Check that there are no datasources are created with suffix names as datasource's are of same plugin
@@ -2654,7 +2654,7 @@ public class ImportExportApplicationServiceTests {
 
         Mono<Tuple3<ApplicationPagesDTO, List<NewAction>, List<ActionCollection>>> tuple2Mono = createAppAndPageMono.flatMap(application ->
                 // merge the application json with the application we've created
-                importExportApplicationService.mergeApplicationJsonWithApplication(application.getOrganizationId(), application.getId(), null, applicationJson, null)
+                importExportApplicationService.mergeApplicationJsonWithApplication(application.getWorkspaceId(), application.getId(), null, applicationJson, null)
                         .thenReturn(application)
         ).flatMap(application ->
                 // fetch the application pages, this should contain pages from application json
@@ -2704,7 +2704,7 @@ public class ImportExportApplicationServiceTests {
 
         Mono<ApplicationPagesDTO> applicationPagesDTOMono = createAppAndPageMono.flatMap(application ->
                 // merge the application json with the application we've created
-                importExportApplicationService.mergeApplicationJsonWithApplication(application.getOrganizationId(), application.getId(), null, applicationJson, List.of("About", "Contact US"))
+                importExportApplicationService.mergeApplicationJsonWithApplication(application.getWorkspaceId(), application.getId(), null, applicationJson, List.of("About", "Contact US"))
                         .thenReturn(application)
         ).flatMap(application ->
                 // fetch the application pages, this should contain pages from application json
@@ -2750,7 +2750,7 @@ public class ImportExportApplicationServiceTests {
     public void importApplication_invalidPluginReferenceForDatasource_throwException() {
 
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
 
         ApplicationJson appJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
         assert appJson != null;
@@ -2793,8 +2793,8 @@ public class ImportExportApplicationServiceTests {
                     Application secondImportedApplication = tuple.getT2();
                     assertThat(firstImportedApplication.getName()).isEqualTo("valid_application");
                     assertThat(secondImportedApplication.getName()).isEqualTo("valid_application (1)");
-                    assertThat(firstImportedApplication.getOrganizationId()).isEqualTo(secondImportedApplication.getOrganizationId());
-                    assertThat(firstImportedApplication.getOrganizationId()).isNotNull();
+                    assertThat(firstImportedApplication.getWorkspaceId()).isEqualTo(secondImportedApplication.getWorkspaceId());
+                    assertThat(firstImportedApplication.getWorkspaceId()).isNotNull();
                 })
                 .verifyComplete();
     }
