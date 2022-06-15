@@ -43,6 +43,6 @@ describe("Duplicate an application must duplicate every API ,Query widget and Da
     // Ensure App is created with App name prefixed with Copy
     // Click on Delete option of Duplicate Application
     // Click on "Are You Sure?" option
-    // Ensure only Duplicate Application is deleted and not the Orginal application
+    // Ensure only Duplicate Application is deleted and not the Workspace application
   });
 });

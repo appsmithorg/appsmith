@@ -25,13 +25,13 @@ import TourApp from "pages/Editor/GuidedTour/app.json";
 import {
   getFirstTimeUserOnboardingApplicationId,
   getHadReachedStep,
-  getOnboardingOrganisations,
+  getOnboardingWorkspaces,
   getQueryAction,
   getTableWidget,
 } from "selectors/onboardingSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { Organization } from "constants/orgConstants";
+import { Workspaces } from "constants/workspaceConstants";
 import {
   enableGuidedTour,
   focusWidgetProperty,
@@ -74,38 +74,38 @@ import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 function* createApplication() {
   // If we are starting onboarding from the editor wait for the editor to reset.
   const isEditorInitialised = yield select(getIsEditorInitialized);
-  let userOrgs: Organization[] = yield select(getOnboardingOrganisations);
+  let userWorkspaces: Workspaces[] = yield select(getOnboardingWorkspaces);
   if (isEditorInitialised) {
     yield take(ReduxActionTypes.RESET_EDITOR_SUCCESS);
 
-    // If we haven't fetched the organisation list yet we wait for it to complete
-    // as we need an organisation where we create an application
-    if (!userOrgs.length) {
-      yield take(ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS);
+    // If we haven't fetched the workspace list yet we wait for it to complete
+    // as we need an workspace where we create an application
+    if (!userWorkspaces.length) {
+      yield take(ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS);
     }
   }
 
-  userOrgs = yield select(getOnboardingOrganisations);
+  userWorkspaces = yield select(getOnboardingWorkspaces);
   const currentUser = yield select(getCurrentUser);
-  const currentOrganizationId = currentUser.currentOrganizationId;
-  let organization;
-  if (!currentOrganizationId) {
-    organization = userOrgs[0];
+  const currentWorkspaceId = currentUser.currentWorkspaceId;
+  let workspace;
+  if (!currentWorkspaceId) {
+    workspace = userWorkspaces[0];
   } else {
-    const filteredOrganizations = userOrgs.filter(
-      (org: any) => org.organization.id === currentOrganizationId,
+    const filteredWorkspaces = userWorkspaces.filter(
+      (workspace: any) => workspace.workspace.id === currentWorkspaceId,
     );
-    organization = filteredOrganizations[0];
+    workspace = filteredWorkspaces[0];
   }
 
-  if (organization) {
+  if (workspace) {
     const appFileObject = new File([JSON.stringify(TourApp)], "app.json", {
       type: "application/json",
     });
     yield put(enableGuidedTour(true));
     yield put(
       importApplication({
-        orgId: organization.organization.id,
+        workspaceId: workspace.workspace.id,
         applicationFile: appFileObject,
       }),
     );
