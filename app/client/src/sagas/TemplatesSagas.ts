@@ -11,7 +11,10 @@ import TemplatesAPI, { ImportTemplateResponse } from "api/TemplatesApi";
 import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
-import { setTemplateNotificationSeenAction } from "actions/templateActions";
+import {
+  setTemplateNotificationSeenAction,
+  showTemplatesModal,
+} from "actions/templateActions";
 import {
   getTemplateNotificationSeen,
   setTemplateNotificationSeen,
@@ -211,6 +214,13 @@ function* forkTemplateToApplicationSaga(action: ReduxAction<string>) {
           yield call(postPageAdditionSaga, newPages[i].pageId);
         }
       }
+
+      history.push(
+        builderURL({
+          pageId: newPages[0].pageId,
+        }),
+      );
+      yield put(showTemplatesModal(false));
 
       yield put({
         type: ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_SUCCESS,
