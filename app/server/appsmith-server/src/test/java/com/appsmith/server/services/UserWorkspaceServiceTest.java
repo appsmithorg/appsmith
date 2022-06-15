@@ -18,15 +18,14 @@ import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -44,10 +43,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @DirtiesContext
-class UserWorkspaceServiceTest {
+public class UserWorkspaceServiceTest {
 
     @Autowired
     private UserWorkspaceService userWorkspaceService;
@@ -121,7 +119,7 @@ class UserWorkspaceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    void leaveWorkspace_WhenUserExistsInWorkspace_RemovesUser() {
+    public void leaveWorkspace_WhenUserExistsInWorkspace_RemovesUser() {
         User currentUser = userRepository.findByEmail("api_user").block();
         Set<String> workspaceIdsBefore = Set.copyOf(currentUser.getWorkspaceIds());
 
@@ -173,7 +171,7 @@ class UserWorkspaceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    void leaveWorkspace_WhenUserDoesNotExistInWorkspace_ThrowsException() {
+    public void leaveWorkspace_WhenUserDoesNotExistInWorkspace_ThrowsException() {
         Mono<User> userMono = userWorkspaceService.leaveWorkspace(this.workspace.getId());
         StepVerifier.create(userMono).expectErrorMessage(
                 AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.USER + " api_user in the organization", workspace.getName())
