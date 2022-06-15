@@ -112,8 +112,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       width: newDimensions.width - dimensions.width,
     };
     const newRowCols: WidgetRowCols = computeRowCols(delta, position, props);
-    let canResizeVertically =
-      props.dynamicHeight !== DynamicHeight.HUG_CONTENTS;
+    let canResizeVertically = true;
     let canResizeHorizontally = true;
 
     // this is required for list widget so that template have no collision
@@ -138,7 +137,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     ) {
       canResizeVertically = false;
     }
-
     const resizedPositions = {
       id: props.widgetId,
       left: newRowCols.leftColumn,
@@ -146,6 +144,12 @@ export const ResizableComponent = memo(function ResizableComponent(
       bottom: newRowCols.bottomRow,
       right: newRowCols.rightColumn,
     };
+
+    if (props.dynamicHeight === DynamicHeight.HUG_CONTENTS) {
+      canResizeVertically = false;
+      resizedPositions.top = props.topRow;
+      resizedPositions.bottom = props.bottomRow;
+    }
 
     // Check if new row cols are occupied by sibling widgets
     return {
