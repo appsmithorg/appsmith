@@ -1,10 +1,12 @@
 import {
   ApplicationPayload,
+  PageListPayload,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { all, put, takeEvery, call } from "redux-saga/effects";
+import { all, put, takeEvery, call, select } from "redux-saga/effects";
+import { differenceBy } from "lodash";
 import TemplatesAPI, { ImportTemplateResponse } from "api/TemplatesApi";
 import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import history from "utils/history";
@@ -16,6 +18,22 @@ import {
 } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
 import { builderURL } from "RouteBuilder";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { getCurrentOrgId } from "@appsmith/selectors/organizationSelectors";
+import { fetchApplication } from "actions/applicationActions";
+import { APP_MODE } from "entities/App";
+import { getPageList } from "selectors/entitiesSelector";
+import {
+  fetchActionsForPage,
+  fetchActionsForPageError,
+  fetchActionsForPageSuccess,
+} from "actions/pluginActionActions";
+import {
+  fetchJSCollectionsForPage,
+  fetchJSCollectionsForPageError,
+  fetchJSCollectionsForPageSuccess,
+} from "actions/jsActionActions";
+import { failFastApiCalls } from "./InitSagas";
 
 function* getAllTemplatesSaga() {
   try {
@@ -137,6 +155,78 @@ function* getTemplateSaga(action: ReduxAction<string>) {
   }
 }
 
+function* postPageAdditionSaga(pageId: string) {
+  const triggersAfterPageFetch = [
+    fetchActionsForPage(pageId),
+    fetchJSCollectionsForPage(pageId),
+  ];
+
+  const afterActionsFetch = yield failFastApiCalls(
+    triggersAfterPageFetch,
+    [
+      fetchActionsForPageSuccess([]).type,
+      fetchJSCollectionsForPageSuccess([]).type,
+    ],
+    [fetchActionsForPageError().type, fetchJSCollectionsForPageError().type],
+  );
+
+  if (!afterActionsFetch) {
+    throw new Error("Failed importing template");
+  }
+}
+
+function* forkTemplateToApplicationSaga(action: ReduxAction<string>) {
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const orgId: string = yield select(getCurrentOrgId);
+    const response: ImportTemplateResponse = yield call(
+      TemplatesAPI.importTemplateToApplication,
+      action.payload,
+      applicationId,
+      orgId,
+    );
+    const currentListOfPages: PageListPayload = yield select(getPageList);
+    // To fetch the new set of pages after merging the template into the existing application
+    yield put(
+      fetchApplication({
+        mode: APP_MODE.EDIT,
+        applicationId,
+      }),
+    );
+    const isValid: boolean = yield validateResponse(response);
+
+    if (isValid) {
+      const postImportPageList = response.data.pages.map((page) => {
+        return { pageId: page.id, ...page };
+      });
+      const newPages = differenceBy(
+        postImportPageList,
+        currentListOfPages,
+        "pageId",
+      );
+
+      // Fetch the actions/jsobjects of the new set of pages that have been added
+      for (const i in newPages) {
+        if (newPages.hasOwnProperty(i)) {
+          yield call(postPageAdditionSaga, newPages[i].pageId);
+        }
+      }
+
+      yield put({
+        type: ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_APPLICATION_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.GET_ALL_TEMPLATES_INIT, getAllTemplatesSaga),
@@ -156,6 +246,10 @@ export default function* watchActionSagas() {
     takeEvery(
       ReduxActionTypes.SET_TEMPLATE_NOTIFICATION_SEEN,
       setTemplateNotificationSeenSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_INIT,
+      forkTemplateToApplicationSaga,
     ),
   ]);
 }

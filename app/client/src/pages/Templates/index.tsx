@@ -147,7 +147,12 @@ function TemplateListLoader() {
   );
 }
 
-export function TemplatesContent() {
+type TemplatesContentProps = {
+  onTemplateClick: () => void;
+  onForkTemplateClick?: (id: string) => void;
+};
+
+export function TemplatesContent(props: TemplatesContentProps) {
   const templateSearchQuery = useSelector(getTemplateSearchQuery);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
@@ -195,7 +200,11 @@ export function TemplatesContent() {
         </ControlGroup>
       </SearchWrapper>
       <ResultsCount>{resultsText}</ResultsCount>
-      <TemplateList templates={templates} />
+      <TemplateList
+        onForkTemplateClick={props.onForkTemplateClick}
+        onTemplateClick={props.onTemplateClick}
+        templates={templates}
+      />
     </>
   );
 }
@@ -210,7 +219,7 @@ function Templates() {
         </SecondaryWrapper>
       </SidebarWrapper>
       <TemplateListWrapper>
-        <TemplatesContent />
+        <TemplatesContent onTemplateClick={() => null} />
       </TemplateListWrapper>
     </PageWrapper>
   );

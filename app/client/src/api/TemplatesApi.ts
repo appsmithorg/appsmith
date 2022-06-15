@@ -59,6 +59,16 @@ class TemplatesAPI extends Api {
         `/app-templates/${templateId}/import/${organizationId}`,
     );
   }
+  static importTemplateToApplication(
+    templateId: string,
+    applicationId: string,
+    organizationId: string,
+  ): AxiosPromise<ImportTemplateResponse> {
+    return Api.post(
+      TemplatesAPI.baseUrl +
+        `/app-templates/${templateId}/merge/${applicationId}/${organizationId}`,
+    );
+  }
 }
 
 export default TemplatesAPI;

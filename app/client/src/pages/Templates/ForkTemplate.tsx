@@ -64,46 +64,48 @@ function ForkTemplate({
   };
 
   return (
-    <StyledDialog
-      canOutsideClickClose={!isImportingTemplate}
-      headerIcon={{ name: "fork-2", bgColor: Colors.GEYSER_LIGHT }}
-      isOpen={showForkModal}
-      onClose={isImportingTemplate ? noop : onClose}
-      title={createMessage(CHOOSE_WHERE_TO_FORK)}
-      trigger={children}
-    >
-      <Dropdown
-        boundary="viewport"
-        dropdownMaxHeight={"200px"}
-        fillOptions
-        onSelect={(_value, dropdownOption) =>
-          setSelectedOrganization(dropdownOption)
-        }
-        options={organizationList}
-        placeholder={createMessage(SELECT_ORGANISATION)}
-        selected={selectedOrganization}
-        showLabelOnly
-        width={"100%"}
-      />
-      <ButtonsWrapper>
-        <Button
-          category={Category.tertiary}
-          disabled={isImportingTemplate}
-          onClick={onClose}
-          size={Size.large}
-          tag="button"
-          text={createMessage(CANCEL)}
+    <>
+      {children}
+      <StyledDialog
+        canOutsideClickClose={!isImportingTemplate}
+        headerIcon={{ name: "fork-2", bgColor: Colors.GEYSER_LIGHT }}
+        isOpen={showForkModal}
+        onClose={isImportingTemplate ? noop : onClose}
+        title={createMessage(CHOOSE_WHERE_TO_FORK)}
+      >
+        <Dropdown
+          boundary="viewport"
+          dropdownMaxHeight={"200px"}
+          fillOptions
+          onSelect={(_value, dropdownOption) =>
+            setSelectedOrganization(dropdownOption)
+          }
+          options={organizationList}
+          placeholder={createMessage(SELECT_ORGANISATION)}
+          selected={selectedOrganization}
+          showLabelOnly
+          width={"100%"}
         />
-        <Button
-          className="t--fork-template-button"
-          isLoading={isImportingTemplate}
-          onClick={onFork}
-          size={Size.large}
-          tag="button"
-          text={createMessage(FORK_TEMPLATE)}
-        />
-      </ButtonsWrapper>
-    </StyledDialog>
+        <ButtonsWrapper>
+          <Button
+            category={Category.tertiary}
+            disabled={isImportingTemplate}
+            onClick={onClose}
+            size={Size.large}
+            tag="button"
+            text={createMessage(CANCEL)}
+          />
+          <Button
+            className="t--fork-template-button"
+            isLoading={isImportingTemplate}
+            onClick={onFork}
+            size={Size.large}
+            tag="button"
+            text={createMessage(FORK_TEMPLATE)}
+          />
+        </ButtonsWrapper>
+      </StyledDialog>
+    </>
   );
 }
 

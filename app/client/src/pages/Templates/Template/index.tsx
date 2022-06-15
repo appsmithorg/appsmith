@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Template as TemplateInterface } from "api/TemplatesApi";
-import history from "utils/history";
 import Button, { Size } from "components/ads/Button";
 import Tooltip from "components/ads/Tooltip";
 import ForkTemplateDialog from "../ForkTemplate";
@@ -13,7 +12,6 @@ import {
   createMessage,
   FORK_THIS_TEMPLATE,
 } from "@appsmith/constants/messages";
-import { templateIdUrl } from "RouteBuilder";
 
 const TemplateWrapper = styled.div`
   border: 1px solid ${Colors.GEYSER_LIGHT};
@@ -97,6 +95,7 @@ export interface TemplateProps {
   template: TemplateInterface;
   size?: string;
   onClick?: () => void;
+  onForkTemplateClick?: (id: string) => void;
 }
 
 const Template = (props: TemplateProps) => {
@@ -111,6 +110,7 @@ export interface TemplateLayoutProps {
   template: TemplateInterface;
   className?: string;
   onClick?: () => void;
+  onForkTemplateClick?: (id: string) => void;
 }
 
 export function TemplateLayout(props: TemplateLayoutProps) {
@@ -124,13 +124,17 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   } = props.template;
   const [showForkModal, setShowForkModal] = useState(false);
   const onClick = () => {
-    history.push(templateIdUrl({ id }));
     props.onClick && props.onClick();
   };
 
   const onForkButtonTrigger = (e: React.MouseEvent<HTMLElement>) => {
-    e.stopPropagation();
-    setShowForkModal(true);
+    if (props.onForkTemplateClick) {
+      e.preventDefault();
+      props.onForkTemplateClick(id);
+    } else {
+      e.stopPropagation();
+      setShowForkModal(true);
+    }
   };
 
   const onForkModalClose = (e?: React.MouseEvent<HTMLElement>) => {

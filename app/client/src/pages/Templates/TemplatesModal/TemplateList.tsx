@@ -1,4 +1,6 @@
+import { importTemplateIntoApplication } from "actions/templateActions";
 import React from "react";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { TemplatesContent } from "..";
 import Filters from "../Filters";
@@ -19,13 +21,24 @@ const ListWrapper = styled.div`
 `;
 
 function TemplateList() {
+  const dispatch = useDispatch();
+  const onTemplateClick = () => {
+    // console.log("onTemplateClick");
+  };
+  const onForkTemplateClick = (id: string) => {
+    dispatch(importTemplateIntoApplication(id));
+  };
+
   return (
     <Wrapper>
       <FilterWrapper>
         <Filters />
       </FilterWrapper>
       <ListWrapper>
-        <TemplatesContent />
+        <TemplatesContent
+          onForkTemplateClick={onForkTemplateClick}
+          onTemplateClick={onTemplateClick}
+        />
       </ListWrapper>
     </Wrapper>
   );
