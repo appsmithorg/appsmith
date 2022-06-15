@@ -1160,6 +1160,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("EnableAllCodeEditors", () => {
+  cy.wait(2000);
   cy.get("body").then(($body) => {
     if ($body.find(commonlocators.codeEditorWrapper)?.length > 0) {
       $body.find(commonlocators.codeEditorWrapper)?.each((index, $el) => {
@@ -1167,5 +1168,5 @@ Cypress.Commands.add("EnableAllCodeEditors", () => {
       });
     }
   });
-  cy.wait(5000);
+  cy.wait(1000);
 });

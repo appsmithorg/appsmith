@@ -641,6 +641,7 @@ export class AggregateHelper {
   }
 
   public EnableAllEditors() {
+    cy.wait(2000);
     cy.get("body").then(($body: any) => {
       if ($body.find(this.locator._codeEditorWrapper)?.length > 0) {
         $body
@@ -650,7 +651,7 @@ export class AggregateHelper {
           });
       }
     });
-    cy.wait(2000);
+    cy.wait(1000);
   }
 
   //Not used:

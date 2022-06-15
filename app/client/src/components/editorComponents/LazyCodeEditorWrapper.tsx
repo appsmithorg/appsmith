@@ -127,7 +127,7 @@ const ContentWrapper = styled("div")<{ containsCode: boolean }>`
  * then render it immediately upon focus event.
  */
 function CodeEditor(props: any) {
-  const [isFocused, setFocus] = useState<boolean>(false);
+  const [showEditor, setEditorVisibility] = useState<boolean>(false);
   const [lintError, setLintError] = useState<string>("");
   const [showLintError, setShowLintError] = useState<boolean>(false);
   const [containsCode, setContainsCode] = useState<boolean>(false);
@@ -136,7 +136,7 @@ function CodeEditor(props: any) {
   let handle: number;
   const handleFocus = (): void => {
     (window as any).cancelIdleCallback(handle);
-    setFocus(true);
+    setEditorVisibility(true);
   };
 
   useEffect(() => {
@@ -195,7 +195,13 @@ function CodeEditor(props: any) {
 
   useEffect(() => {
     function lazyLoadEditor() {
-      handle = (window as any).requestIdleCallback(() => setFocus(true));
+      handle = (window as any).requestIdleCallback(
+        () => setEditorVisibility(true),
+        {
+          // if callback hasn't executed in 1500 ms, then trigger it urgently
+          timeout: 1500,
+        },
+      );
     }
     lazyLoadEditor();
   }, []);
@@ -203,7 +209,7 @@ function CodeEditor(props: any) {
   const toggleLintErrorVisibility = (flag: boolean) => () =>
     setShowLintError(flag);
 
-  return isFocused ? (
+  return showEditor ? (
     <Editor {...props} />
   ) : (
     <LazyEditorWrapper>
@@ -221,7 +227,7 @@ function CodeEditor(props: any) {
           hasError={false}
           height={props.height}
           hoverInteraction={props.hoverInteraction}
-          isFocused={isFocused}
+          isFocused={showEditor}
           isNotHover={false}
           isRawView={false}
           isReadOnly={false}
