@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { Checkbox, Button } from "components/wds";
 import { borderRadiusOptions } from "constants/ThemeConstants";
 
+import "components/wds/styles.css";
+
 function Showcase() {
   const [borderRadius, setBorderRadius] = useState("0px");
 

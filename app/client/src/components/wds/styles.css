@@ -1,0 +1,12 @@
+:root {
+  --wds-color-border: #e1e1e1;
+
+  --wds-color-bg-disabled: #d9d9d9;
+  --wds-color-bg-disabled-secondary: #b3b3b3;
+  --wds-color-text-disabled: rgba(0, 0, 0, .3);
+  --wds-color-text-ondisabled: rgba(255, 255, 255, 1);
+  --wds-color-border-disabled: #e6e6e6;
+  --wds-color-border-disabled-strong: rgba(0, 0, 0, .3);
+
+  --wds-radii: 3rem;
+}
