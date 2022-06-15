@@ -26,6 +26,7 @@ export interface LabelWithTooltipProps {
   position?: LabelPosition;
   text: string;
   width?: number;
+  isDynamicHeightEnabled?: boolean;
 }
 
 export interface LabelContainerProps {
@@ -45,6 +46,7 @@ export interface StyledLabelProps {
   fontStyle?: string;
   hasHelpText: boolean;
   position?: LabelPosition;
+  isDynamicHeightEnabled?: boolean;
 }
 
 interface TooltipIconProps {
@@ -183,6 +185,11 @@ export const StyledLabel = styled(Label)<StyledLabelProps>`
       };
     `}
   }
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled
+      ? "&& { text-overflow: initial; white-space: initial; }"
+      : ""};
 `;
 
 const ToolTipIcon = styled(IconWrapper)<TooltipIconProps>`
@@ -220,6 +227,7 @@ const LabelWithTooltip = React.forwardRef<
     fontStyle,
     helpText,
     inline,
+    isDynamicHeightEnabled,
     loading,
     optionCount,
     position,
@@ -270,6 +278,7 @@ const LabelWithTooltip = React.forwardRef<
           fontSize={fontSize}
           fontStyle={fontStyle}
           hasHelpText={!!helpText}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           position={position}

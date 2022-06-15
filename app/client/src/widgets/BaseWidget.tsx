@@ -403,6 +403,10 @@ abstract class BaseWidget<
     );
   }
 
+  // addDynamicHeightContainer(content: ReactNode) {
+  //   return <div className="dynamic-height-is-enabled">{content}</div>;
+  // }
+
   private getWidgetView(): ReactNode {
     let content: ReactNode;
     switch (this.props.renderMode) {
@@ -411,6 +415,11 @@ abstract class BaseWidget<
         content = this.addPreviewModeWidget(content);
         content = this.addPreventInteractionOverlay(content);
         content = this.addOverlayComments(content);
+
+        // if (this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS) {
+        //   content = this.addDynamicHeightContainer(content);
+        // }
+
         if (!this.props.detachFromLayout) {
           if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
