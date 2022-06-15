@@ -229,6 +229,8 @@ abstract class BaseWidget<
     if (expectedHeight !== undefined) {
       if (prevProps.type === "TEXT_WIDGET") {
         this.updateDynamicHeight(expectedHeight + 6);
+      } else if (prevProps.type === "TABLE_WIDGET") {
+        this.updateDynamicHeight(expectedHeight + 80);
       } else {
         this.updateDynamicHeight(expectedHeight);
       }
