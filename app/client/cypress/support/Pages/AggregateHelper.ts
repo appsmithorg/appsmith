@@ -511,15 +511,15 @@ export class AggregateHelper {
     this.AssertAutoSave();
   }
 
-  public EnterInputText(name: string, input: string, toClear = false) {
+  public EnterInputText(name: string, input: string, toClear = false, isInput = true) {
     toClear && this.ClearInputText(name)
-    cy.xpath(this.locator._inputWidgetValueField(name))
+    cy.xpath(this.locator._inputWidgetValueField(name, isInput))
       .click()
       .type(input);
   }
 
-  public ClearInputText(name: string) {
-    cy.xpath(this.locator._inputWidgetValueField(name))
+  public ClearInputText(name: string, isInput = true) {
+    cy.xpath(this.locator._inputWidgetValueField(name, isInput))
       .clear();
   }
 

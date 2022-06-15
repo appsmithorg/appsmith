@@ -71,7 +71,7 @@ describe("Postgres - Datatype Numeric tests", function() {
     "decimalid" = {{Updatedecimal.text}},
     "numericid" = {{Updatenumeric.text}}
   WHERE serialid = {{Table1.selectedRow.serialid}};`;
-    ee.ActionTemplateMenuByEntityName("public.numerictypes", "INSERT");
+    ee.ActionTemplateMenuByEntityName("public.numerictypes", "UPDATE");
     agHelper.RenameWithInPane("updateRecord");
     agHelper.EnterValue(query);
   });
@@ -198,7 +198,7 @@ describe("Postgres - Datatype Numeric tests", function() {
     table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
       expect($cellData).not.to.eq("2"); //asserting 2nd record is deleted
     });
-    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0, 200).then(($cellData) => {
       expect($cellData).to.eq("3");
     });
   });
