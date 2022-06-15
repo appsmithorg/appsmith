@@ -54,9 +54,10 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     private Mono<Boolean> archiveThemeByCriteria(Criteria criteria) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
-                .flatMap(auth -> {
-                    User user = (User) auth.getPrincipal();
-                    Criteria permissionCriteria = userAcl(user, AclPermission.MANAGE_THEMES);
+                .map(auth -> auth.getPrincipal())
+                .flatMap(principal -> getCurrentPermissionGroups((User) principal))
+                .flatMap(permissionGroups -> {
+                    Criteria permissionCriteria = userAcl(permissionGroups, AclPermission.MANAGE_THEMES);
 
                     Update update = new Update();
                     update.set(fieldName(QTheme.theme.deleted), true);

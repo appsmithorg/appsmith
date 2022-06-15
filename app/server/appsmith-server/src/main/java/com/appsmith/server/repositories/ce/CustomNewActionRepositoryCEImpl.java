@@ -61,20 +61,21 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
-                .flatMapMany(auth -> {
-                    User user = (User) auth.getPrincipal();
+                .map(auth -> auth.getPrincipal())
+                .flatMap(principal -> getCurrentPermissionGroups((User) principal))
+                .flatMapMany(permissionGroups -> {
                     Query query = new Query();
 
                     if (aclPermission == null) {
                         query.addCriteria(new Criteria().andOperator(notDeleted(), pageCriteria));
                     } else {
-                        query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission), pageCriteria));
+                        query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, aclPermission), pageCriteria));
                     }
 
                     return mongoOperations.query(NewAction.class)
                             .matching(query)
                             .all()
-                            .map(obj -> setUserPermissionsInObject(obj, user));
+                            .map(obj -> setUserPermissionsInObject(obj, permissionGroups));
                 });
     }
 
