@@ -9,6 +9,7 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.services.EncryptionService;
@@ -54,6 +55,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -1148,16 +1150,16 @@ public class DatasourceServiceTest {
     public void get_WhenDatasourcesPresent_SortedAndIsRecentlyCreatedFlagSet() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        String organizationId = UUID.randomUUID().toString();
+        String workspaceId = UUID.randomUUID().toString();
         List<Datasource> datasourceList = List.of(
-                createDatasource("D", organizationId), // should have isRecentlyCreated=false
-                createDatasource("C", organizationId), // should have isRecentlyCreated=true
-                createDatasource("B", organizationId), // should have isRecentlyCreated=true
-                createDatasource("A", organizationId)  // should have isRecentlyCreated=true
+                createDatasource("D", workspaceId), // should have isRecentlyCreated=false
+                createDatasource("C", workspaceId), // should have isRecentlyCreated=true
+                createDatasource("B", workspaceId), // should have isRecentlyCreated=true
+                createDatasource("A", workspaceId)  // should have isRecentlyCreated=true
         );
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add(FieldName.ORGANIZATION_ID, organizationId);
+        params.add(fieldName(QDatasource.datasource.workspaceId), workspaceId);
 
         Mono<List<Datasource>> listMono = datasourceService.saveAll(datasourceList)
                 .thenMany(datasourceService.get(params))
@@ -1181,10 +1183,10 @@ public class DatasourceServiceTest {
         }).verifyComplete();
     }
 
-    private Datasource createDatasource(String name, String organizationId) {
+    private Datasource createDatasource(String name, String workspaceId) {
         Datasource datasource = new Datasource();
         datasource.setPluginId("mongo-plugin");
-        datasource.setOrganizationId(organizationId);
+        datasource.setWorkspaceId(workspaceId);
         datasource.setName(name);
         Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(AclPermission.READ_DATASOURCES), "api_user");
         datasource.setPolicies(Set.copyOf(policyMap.values()));

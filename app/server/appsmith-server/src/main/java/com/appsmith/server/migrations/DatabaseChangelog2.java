@@ -1016,7 +1016,7 @@ public class DatabaseChangelog2 {
         ensureIndexes(mongockTemplate, Datasource.class,
                 makeIndex(fieldName(QDatasource.datasource.workspaceId),
                     fieldName(QDatasource.datasource.name),
-                    fieldName(QDatasource.datasource.createdAt))
+                    fieldName(QDatasource.datasource.deletedAt))
                         .unique().named("workspace_datasource_deleted_compound_index")
         );
     }
