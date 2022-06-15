@@ -174,7 +174,7 @@ abstract class BaseWidget<
     const { updateWidgetDynamicHeight } = this.context;
     if (updateWidgetDynamicHeight) {
       const { widgetId } = this.props;
-      console.log("updateDynamicHeight", shouldUpdate);
+      console.log("updateDynamicHeight", height, shouldUpdate);
       shouldUpdate && updateWidgetDynamicHeight(widgetId, height);
     }
   }

@@ -14,6 +14,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { OverflowTypes } from "../constants";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import { pick } from "lodash";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
@@ -330,37 +331,41 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     const disableLink: boolean = this.props.disableLink
       ? true
       : this.shouldDisableLink();
+    const isDynamicHeightEnabled =
+      this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS;
     return (
-      <WidgetStyleContainer
-        className="t--text-widget-container"
-        {...pick(this.props, [
-          "widgetId",
-          "containerStyle",
-          "borderColor",
-          "borderWidth",
-        ])}
-      >
-        <TextComponent
-          backgroundColor={this.props.backgroundColor}
-          bottomRow={this.props.bottomRow}
-          disableLink={disableLink}
-          fontFamily={this.props.fontFamily}
-          fontSize={this.props.fontSize}
-          fontStyle={this.props.fontStyle}
-          isLoading={this.props.isLoading}
-          key={this.props.widgetId}
-          leftColumn={this.props.leftColumn}
-          overflow={this.props.overflow}
-          ref={this.contentRef}
-          rightColumn={this.props.rightColumn}
-          text={this.props.text}
-          textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
-          textColor={this.props.textColor}
-          topRow={this.props.topRow}
-          truncateButtonColor={this.props.truncateButtonColor}
-          widgetId={this.props.widgetId}
-        />
-      </WidgetStyleContainer>
+      <div style={isDynamicHeightEnabled ? { height: "auto" } : undefined}>
+        <WidgetStyleContainer
+          className="t--text-widget-container"
+          {...pick(this.props, [
+            "widgetId",
+            "containerStyle",
+            "borderColor",
+            "borderWidth",
+          ])}
+        >
+          <TextComponent
+            backgroundColor={this.props.backgroundColor}
+            bottomRow={this.props.bottomRow}
+            disableLink={disableLink}
+            fontFamily={this.props.fontFamily}
+            fontSize={this.props.fontSize}
+            fontStyle={this.props.fontStyle}
+            isLoading={this.props.isLoading}
+            key={this.props.widgetId}
+            leftColumn={this.props.leftColumn}
+            overflow={this.props.overflow}
+            ref={this.contentRef}
+            rightColumn={this.props.rightColumn}
+            text={this.props.text}
+            textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
+            textColor={this.props.textColor}
+            topRow={this.props.topRow}
+            truncateButtonColor={this.props.truncateButtonColor}
+            widgetId={this.props.widgetId}
+          />
+        </WidgetStyleContainer>
+      </div>
     );
   }
 
