@@ -98,7 +98,7 @@ export const syntheticTestMouseEvent = (
 export function MockApplication({ children }: any) {
   editorInitializer();
   const dispatch = useDispatch();
-  dispatch(initEditor({ pageId: "page_id" }));
+  dispatch(initEditor({ pageId: "page_id", mode: APP_MODE.EDIT }));
   const mockResp: any = {
     workspaceId: "workspace_id",
     pages: [{ id: "page_id", name: "Page1", isDefault: true }],

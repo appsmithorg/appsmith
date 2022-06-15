@@ -348,7 +348,13 @@ export function EditorHeader(props: EditorHeaderProps) {
     <ThemeProvider theme={theme}>
       <HeaderWrapper className="pr-3" data-testid="t--appsmith-editor-header">
         <HeaderSection className="space-x-3">
-          <HamburgerContainer className="relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400">
+          <HamburgerContainer
+            className={classNames({
+              "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400": true,
+              "-translate-x-full opacity-0": isPreviewMode,
+              "translate-x-0 opacity-100": !isPreviewMode,
+            })}
+          >
             <TooltipComponent
               content={
                 <div className="flex items-center justify-between">

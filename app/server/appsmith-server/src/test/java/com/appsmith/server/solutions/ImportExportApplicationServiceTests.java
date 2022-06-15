@@ -2596,7 +2596,7 @@ public class ImportExportApplicationServiceTests {
 
         Mono<Tuple3<ApplicationPagesDTO, List<NewAction>, List<ActionCollection>>> tuple2Mono = createAppAndPageMono.flatMap(application ->
                 // merge the application json with the application we've created
-                importExportApplicationService.mergeApplicationJsonWithApplication(application.getOrganizationId(), application.getId(), null, applicationJson, null)
+                importExportApplicationService.mergeApplicationJsonWithApplication(application.getWorkspaceId(), application.getId(), null, applicationJson, null)
                         .thenReturn(application)
         ).flatMap(application ->
                 // fetch the application pages, this should contain pages from application json
@@ -2646,7 +2646,7 @@ public class ImportExportApplicationServiceTests {
 
         Mono<ApplicationPagesDTO> applicationPagesDTOMono = createAppAndPageMono.flatMap(application ->
                 // merge the application json with the application we've created
-                importExportApplicationService.mergeApplicationJsonWithApplication(application.getOrganizationId(), application.getId(), null, applicationJson, List.of("About", "Contact US"))
+                importExportApplicationService.mergeApplicationJsonWithApplication(application.getWorkspaceId(), application.getId(), null, applicationJson, List.of("About", "Contact US"))
                         .thenReturn(application)
         ).flatMap(application ->
                 // fetch the application pages, this should contain pages from application json
@@ -2735,8 +2735,8 @@ public class ImportExportApplicationServiceTests {
                     Application secondImportedApplication = tuple.getT2();
                     assertThat(firstImportedApplication.getName()).isEqualTo("valid_application");
                     assertThat(secondImportedApplication.getName()).isEqualTo("valid_application (1)");
-                    assertThat(firstImportedApplication.getOrganizationId()).isEqualTo(secondImportedApplication.getOrganizationId());
-                    assertThat(firstImportedApplication.getOrganizationId()).isNotNull();
+                    assertThat(firstImportedApplication.getWorkspaceId()).isEqualTo(secondImportedApplication.getWorkspaceId());
+                    assertThat(firstImportedApplication.getWorkspaceId()).isNotNull();
                 })
                 .verifyComplete();
     }

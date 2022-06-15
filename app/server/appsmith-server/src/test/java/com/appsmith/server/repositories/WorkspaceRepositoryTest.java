@@ -1,36 +1,36 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.UserRole;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.junit.Assert;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.domains.Workspace;
+
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-class WorkspaceRepositoryTest {
+public class WorkspaceRepositoryTest {
 
     @Autowired
     private WorkspaceRepository workspaceRepository;
 
     @Test
-    void updateUserRoleNames_WhenUserIdMatched_AllOrgsUpdated() {
+    public void updateUserRoleNames_WhenUserIdMatched_AllOrgsUpdated() {
         String oldUserName = "Old name",
                 newUserName = "New name",
                 userId = "user1";

@@ -7,6 +7,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -55,6 +56,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @Slf4j
 public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, Datasource, String> implements DatasourceServiceCE {
@@ -386,8 +388,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
          */
         // Remove branch name as datasources are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
-        if (params.getFirst(FieldName.WORKSPACE_ID) != null) {
-            return findAllByWorkspaceId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES)
+        if (params.getFirst(fieldName(QDatasource.datasource.workspaceId)) != null) {
+            return findAllByWorkspaceId(params.getFirst(fieldName(QDatasource.datasource.workspaceId)), AclPermission.READ_DATASOURCES)
                     .collectList()
                     .map(datasourceList -> {
                         markRecentlyUsed(datasourceList, 3);

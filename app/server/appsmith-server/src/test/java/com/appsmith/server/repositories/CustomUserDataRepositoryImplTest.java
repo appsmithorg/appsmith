@@ -4,7 +4,7 @@ import com.appsmith.server.domains.UserData;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
-class CustomUserDataRepositoryImplTest {
+public class CustomUserDataRepositoryImplTest {
 
     @Autowired
     private UserDataRepository userDataRepository;
@@ -37,7 +37,7 @@ class CustomUserDataRepositoryImplTest {
     }
 
     @Test
-    void removeIdFromRecentlyUsedList_WhenWorkspaceIdAlreadyExists_WorkspaceIdRemoved() {
+    public void removeIdFromRecentlyUsedList_WhenWorkspaceIdAlreadyExists_WorkspaceIdRemoved() {
         // create an user data with 3 org id in the recently used workspaceId list
         String sampleUserId = "abcd";
         Mono<UserData> createUserDataMono = createUser(sampleUserId, List.of("123", "234", "345"), null);
@@ -61,7 +61,7 @@ class CustomUserDataRepositoryImplTest {
     }
 
     @Test
-    void removeIdFromRecentlyUsedList_WhenWorkspaceIdDoesNotExist_NothingRemoved() {
+    public void removeIdFromRecentlyUsedList_WhenWorkspaceIdDoesNotExist_NothingRemoved() {
         // create an user data with 3 org id in the recently used workspaceId list
         String sampleUserId = "efgh";
         Mono<UserData> createUserDataMono = createUser(sampleUserId, List.of("123", "234", "345"), null);
@@ -86,7 +86,7 @@ class CustomUserDataRepositoryImplTest {
     }
 
     @Test
-    void removeIdFromRecentlyUsedList_WhenAppIdExists_AppIdRemoved() {
+    public void removeIdFromRecentlyUsedList_WhenAppIdExists_AppIdRemoved() {
         // create a user data with 3 app id in the recently used appId list
         String sampleUserId = "abcd";
         Mono<UserData> createUserDataMono = createUser(sampleUserId, null, List.of("123", "456", "789"));
@@ -112,7 +112,7 @@ class CustomUserDataRepositoryImplTest {
     }
 
     @Test
-    void removeIdFromRecentlyUsedList_WhenWorkspaceIdAndAppIdExists_BothAreRemoved() {
+    public void removeIdFromRecentlyUsedList_WhenWorkspaceIdAndAppIdExists_BothAreRemoved() {
         // create a user data with 3 app id in the recently used appId list
         String sampleUserId = "abcd";
         Mono<UserData> createUserDataMono = createUser(

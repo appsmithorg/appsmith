@@ -828,7 +828,7 @@ public class ApplicationForkingServiceTests {
         StepVerifier
                 .create(applicationMono)
                 .assertNext(forkedApplication -> {
-                    assertThat(forkedApplication.getPages().size()).isEqualTo(2);
+                    assertThat(forkedApplication.getPages().size()).isEqualTo(1);
         }).verifyComplete();
     }
 }
