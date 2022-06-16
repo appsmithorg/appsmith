@@ -227,8 +227,13 @@ abstract class BaseWidget<
   componentDidUpdate(prevProps: T) {
     const expectedHeight = this.contentRef.current?.scrollHeight;
     if (expectedHeight !== undefined) {
-      if (prevProps.type === "TEXT_WIDGET") {
-        this.updateDynamicHeight(expectedHeight + 6);
+      if (
+        prevProps.type === "TEXT_WIDGET" ||
+        prevProps.type === "RATE_WIDGET" ||
+        prevProps.type === "CHECKBOX_WIDGET" ||
+        prevProps.type === "SWITCH_WIDGET"
+      ) {
+        this.updateDynamicHeight(expectedHeight + 8);
       } else if (prevProps.type === "TABLE_WIDGET") {
         this.updateDynamicHeight(expectedHeight + 80);
       } else if (prevProps.type === "JSON_FORM_WIDGET") {
