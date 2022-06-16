@@ -333,9 +333,6 @@ public class GitFileUtils {
         ApplicationJson applicationJson = new ApplicationJson();
         // Extract application data from the json
         Application application = getApplicationResource(applicationReference.getApplication(), Application.class);
-        // As we are publishing the app and then committing to git we expect the published and unpublished versions to
-        // be identical
-        application.setPublishedPages(application.getPages());
         applicationJson.setExportedApplication(application);
         applicationJson.setEditModeTheme(getApplicationResource(applicationReference.getTheme(), Theme.class));
         // Clone the edit mode theme to published theme as both should be same for git connected application because we

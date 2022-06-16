@@ -53,7 +53,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -84,7 +83,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple3;
 
-import java.lang.reflect.Type;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -265,10 +263,9 @@ public class ImportExportApplicationServiceTests {
         return stringifiedFile
                 .map(data -> {
                     Gson gson = new Gson();
-                    Type fileType = new TypeToken<ApplicationJson>() {
-                    }.getType();
-                    return gson.fromJson(data, fileType);
-                });
+                    return gson.fromJson(data, ApplicationJson.class);
+                })
+                .map(JsonSchemaMigration::migrateApplicationToLatestSchema);
     }
 
     private Workspace createTemplateWorkspace() {
@@ -1973,7 +1970,21 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void applySchemaMigration_jsonFileWithFirstVersion_migratedToLatestVersionSuccess() {
-        Mono<ApplicationJson> v1ApplicationMono = createAppJson("test_assets/ImportExportServiceTest/file-with-v1.json").cache();
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/file-with-v1.json");
+
+        Mono<String> stringifiedFile = DataBufferUtils.join(filePart.content())
+                .map(dataBuffer -> {
+                    byte[] data = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(data);
+                    DataBufferUtils.release(dataBuffer);
+                    return new String(data);
+                });
+        Mono<ApplicationJson> v1ApplicationMono = stringifiedFile
+                .map(data -> {
+                    Gson gson = new Gson();
+                    return gson.fromJson(data, ApplicationJson.class);
+                }).cache();
+
         Mono<ApplicationJson> migratedApplicationMono = v1ApplicationMono
                 .map(applicationJson -> {
                     ApplicationJson applicationJson1 = new ApplicationJson();
