@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import BaseControl, { ControlProps } from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import { TooltipComponent } from "design-system";
 import { boxShadowOptions } from "constants/ThemeConstants";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
@@ -35,6 +35,8 @@ const options = Object.keys(boxShadowOptions).map((optionKey) => ({
   value: boxShadowOptions[optionKey],
 }));
 
+const optionsValues = new Set(Object.values(boxShadowOptions));
+
 class BoxShadowOptionsControl extends BaseControl<
   BoxShadowOptionsControlProps
 > {
@@ -52,6 +54,10 @@ class BoxShadowOptionsControl extends BaseControl<
         values={this.props.evaluatedValue ? [this.props.evaluatedValue] : []}
       />
     );
+  }
+
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    return optionsValues.has(value);
   }
 }
 
