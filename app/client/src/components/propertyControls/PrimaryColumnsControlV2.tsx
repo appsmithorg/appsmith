@@ -30,8 +30,9 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/ads/DraggableListCard";
-import { Checkbox } from "components/ads";
+import { Checkbox, CheckboxType } from "components/ads";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import { Colors } from "constants/Colors";
 
 const TabsWrapper = styled.div`
   width: 100%;
@@ -205,9 +206,11 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
             >
               <span className="mr-2">Editable</span>
               <Checkbox
+                backgroundColor={Colors.GREY_600}
                 isDefaultChecked={this.isAllColumnsEditable()}
                 label=""
                 onCheckChange={this.toggleAllColumnsEditability}
+                type={CheckboxType.SECONDARY}
               />
             </EdtiableCheckboxWrapper>
           )}

@@ -13,6 +13,7 @@ import {
   StyledActionContainer,
 } from "components/propertyControls/StyledControls";
 import { Colors } from "constants/Colors";
+import { CheckboxType } from "./Checkbox";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -192,12 +193,14 @@ export function DraggableListCard(props: RenderComponentProps) {
          */}
         {showCheckbox && (
           <StyledCheckbox
+            backgroundColor={Colors.GREY_600}
             disabled={item.isCheckboxDisabled}
             isDefaultChecked={item.isChecked}
             label=""
             onCheckChange={(checked: boolean) =>
               toggleCheckbox && toggleCheckbox(index, checked)
             }
+            type={CheckboxType.SECONDARY}
           />
         )}
       </StyledActionContainer>
