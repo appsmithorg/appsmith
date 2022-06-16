@@ -7,7 +7,8 @@ describe("Single Select Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Selects value with enter in default value", () => {
+
+  it("1. Selects value with enter in default value", () => {
     cy.openPropertyPane("singleselecttreewidget");
     cy.testJsontext("defaultvalue", "RED\n");
     cy.get(formWidgetsPage.singleselecttreeWidget)
@@ -15,7 +16,8 @@ describe("Single Select Widget Functionality", function() {
       .first()
       .should("have.text", "Red");
   });
-  it(" To Validate Options", function() {
+
+  it("2. To Validate Options", function() {
     cy.get(formWidgetsPage.treeSelectInput)
       .last()
       .click({ force: true });
@@ -24,7 +26,28 @@ describe("Single Select Widget Functionality", function() {
       .type("light");
     cy.treeSelectDropdown("Light Blue");
   });
-  it("To Unchecked Visible Widget", function() {
+
+  it("3. Clears the search field when widget is closed", () => {
+    cy.get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true });
+    cy.get(formWidgetsPage.treeSelectFilterInput)
+      .click()
+      .type("Green");
+    cy.treeSelectDropdown("Green");
+    cy.get(formWidgetsPage.singleselecttreeWidget)
+      .find(".rc-tree-select-selection-item")
+      .first()
+      .should("have.text", "Green");
+    cy.get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true });
+    cy.get(formWidgetsPage.treeSelectFilterInput)
+      .invoke("val")
+      .should("be.empty");
+  });
+
+  it("4. To Unchecked Visible Widget", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(
@@ -32,7 +55,8 @@ describe("Single Select Widget Functionality", function() {
     ).should("not.exist");
     cy.get(publish.backToEditor).click();
   });
-  it(" To Check Visible Widget", function() {
+
+  it("5. To Check Visible Widget", function() {
     cy.openPropertyPane("singleselecttreewidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -42,7 +66,7 @@ describe("Single Select Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("Check isDirty meta property", function() {
+  it("6. Check isDirty meta property", function() {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",

@@ -358,6 +358,7 @@ class SelectComponent extends React.Component<
               popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId}`,
             }}
             query={this.props.filterText}
+            resetOnClose
             scrollToActiveItem
             value={this.props.value as string}
           >

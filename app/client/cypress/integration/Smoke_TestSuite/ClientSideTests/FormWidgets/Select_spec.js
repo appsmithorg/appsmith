@@ -3,17 +3,15 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../locators/Widgets.json");
 
-const widgetName = "selectwidget";
-
 describe("Select widget", () => {
   it("1. Drag and drop Select/Text widgets", () => {
     cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
-    cy.get(`.t--widget-${widgetName}`).should("exist");
-    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
+    cy.dragAndDropToCanvas("selectwidget", { x: 300, y: 300 });
+    cy.get(formWidgetsPage.selectWidget).should("exist");
   });
+
   it("2. Check isDirty meta property", () => {
-    cy.openPropertyPane("textwidget");
+    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
     cy.updateCodeInput(".t--property-control-text", `{{Select1.isDirty}}`);
     // Check if initial value of isDirty is false
     cy.get(".t--widget-textwidget").should("contain", "false");
@@ -30,5 +28,29 @@ describe("Select widget", () => {
     cy.updateCodeInput(".t--property-control-defaultvalue", "RED");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
+  });
+
+  it("3. Clears the search field when widget is closed", () => {
+    // open the select widget
+    cy.get(formWidgetsPage.selectWidget)
+      .find(widgetLocators.dropdownSingleSelect)
+      .click({ force: true });
+    // search for option Red in the search input
+    cy.get(commonlocators.selectInputSearch).type("Red");
+    // Select the Red option from dropdown list
+    cy.get(commonlocators.singleSelectWidgetMenuItem)
+      .contains("Red")
+      .click({ force: true });
+    cy.wait(200);
+    // Assert if the select widget has Red as the selected value
+    cy.get(formWidgetsPage.selectWidget).contains("Red");
+    // Open the select widget again
+    cy.get(formWidgetsPage.selectWidget)
+      .find(widgetLocators.dropdownSingleSelect)
+      .click({ force: true });
+    // Assert if the search input is empty now
+    cy.get(commonlocators.selectInputSearch)
+      .invoke("val")
+      .should("be.empty");
   });
 });

@@ -198,6 +198,8 @@ function MultiSelectComponent({
   const onOpen = useCallback((open: boolean) => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
+    } else {
+      setFilter("");
     }
   }, []);
 

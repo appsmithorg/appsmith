@@ -13,7 +13,8 @@ describe("MultiSelect Widget Functionality", function() {
   beforeEach(() => {
     cy.wait(7000);
   });
-  it("Selects value with invalid default value", () => {
+
+  it("1. Selects value with invalid default value", () => {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.testJsontext("options", JSON.stringify(data.input));
     cy.testJsontext("defaultvalue", "{{ undefined }}");
@@ -31,7 +32,47 @@ describe("MultiSelect Widget Functionality", function() {
       .first()
       .should("have.text", "Option 3");
   });
-  it("Selects value with enter in default value", () => {
+
+  it("2. Clears the search field when widget is closed", () => {
+    // Turn on the filterable for the widget
+    cy.togglebar('.t--property-control-filterable input[type="checkbox"]');
+    // open the widget
+    cy.get(formWidgetsPage.multiselectwidgetv2)
+      .find(".rc-select-selection-search-input")
+      .first()
+      .focus({ force: true })
+      .type("{uparrow}", { force: true });
+    // Search for Option 2 in the search input
+    cy.get(".rc-select-dropdown input[type='text']")
+      .click()
+      .type("Option 2");
+    // Select Option 2
+    cy.get(".multi-select-dropdown")
+      .contains("Option 2")
+      .click({ force: true });
+    // Assert Option 2 is selected
+    cy.get(".rc-select-selection-item-content")
+      .eq(1)
+      .should("have.text", "Option 2");
+    // Close the widget
+    cy.openPropertyPane("multiselectwidgetv2");
+    // Reopen the widget
+    cy.get(formWidgetsPage.multiselectwidgetv2)
+      .find(".rc-select-selection-search-input")
+      .first()
+      .focus({ force: true })
+      .type("{uparrow}", { force: true });
+    // Assert if the search input is empty
+    cy.get(".rc-select-dropdown input[type='text']")
+      .invoke("val")
+      .should("be.empty");
+    // Turn off the filterable property for the widget
+    cy.togglebarDisable(
+      '.t--property-control-filterable input[type="checkbox"]',
+    );
+  });
+
+  it("3. Selects value with enter in default value", () => {
     cy.testJsontext(
       "defaultvalue",
       '[\n  {\n    "label": "Option 3",\n    "value": "3"\n  }\n]',
@@ -41,11 +82,13 @@ describe("MultiSelect Widget Functionality", function() {
       .first()
       .should("have.text", "Option 3");
   });
-  it("Dropdown Functionality To Validate Options", function() {
+
+  it("4. Dropdown Functionality To Validate Options", function() {
     cy.get(".rc-select-selector").click({ force: true });
     cy.dropdownMultiSelectDynamic("Option 2");
   });
-  it("Dropdown Functionality To Unchecked Visible Widget", function() {
+
+  it("5. Dropdown Functionality To Unchecked Visible Widget", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
@@ -53,7 +96,8 @@ describe("MultiSelect Widget Functionality", function() {
     );
     cy.get(publish.backToEditor).click();
   });
-  it("Dropdown Functionality To Check Visible Widget", function() {
+
+  it("6. Dropdown Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -62,7 +106,8 @@ describe("MultiSelect Widget Functionality", function() {
     );
     cy.get(publish.backToEditor).click();
   });
-  it("Dropdown Functionality To Check Allow select all option", function() {
+
+  it("7. Dropdown Functionality To Check Allow select all option", function() {
     // select all option is not enable
     cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-selection-item-content")
@@ -91,7 +136,7 @@ describe("MultiSelect Widget Functionality", function() {
       .should("have.text", "Option 2");
   });
 
-  it("Check isDirty meta property", function() {
+  it("8. Check isDirty meta property", function() {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{MultiSelect2.isDirty}}`);
     // Init isDirty by changing defaultOptionValue
