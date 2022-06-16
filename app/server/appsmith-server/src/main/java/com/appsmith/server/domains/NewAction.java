@@ -43,6 +43,7 @@ public class NewAction extends BaseDomain {
         this.setTemplateId(null);
         this.setApplicationId(null);
         this.setOrganizationId(null);
+        this.setWorkspaceId(null);
         this.setProviderId(null);
         this.setDocumentation(null);
         ActionDTO unpublishedAction = this.getUnpublishedAction();

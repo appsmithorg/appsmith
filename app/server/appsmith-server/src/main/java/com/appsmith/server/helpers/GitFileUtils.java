@@ -340,7 +340,7 @@ public class GitFileUtils {
         applicationJson.setPublishedTheme(applicationJson.getEditModeTheme());
         Gson gson = new Gson();
 
-        if (!CollectionUtils.isNullOrEmpty(application.getPages())) {
+        if (application != null && !CollectionUtils.isNullOrEmpty(application.getPages())) {
             // Remove null values
             org.apache.commons.collections.CollectionUtils.filter(application.getPages(), PredicateUtils.notNullPredicate());
             // Create a deep clone of application pages to update independently

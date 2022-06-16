@@ -86,5 +86,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain 
         this.setUpdatedAt(null);
         this.setUserPermissions(null);
         this.setPolicies(null);
+        this.setCreatedBy(null);
+        this.setModifiedBy(null);
     }
 }

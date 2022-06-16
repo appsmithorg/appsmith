@@ -207,8 +207,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 .switchIfEmpty(defaultThemeMono)// setting default theme if theme is missing
                         )
                         .map(themesTuple -> {
-                            Theme editModeTheme = exportTheme(themesTuple.getT1());
-                            Theme publishedModeTheme = exportTheme(themesTuple.getT2());
+                            Theme editModeTheme = themesTuple.getT1();
+                            Theme publishedModeTheme = themesTuple.getT2();
+                            editModeTheme.sanitiseToExportDBObject();
+                            publishedModeTheme.sanitiseToExportDBObject();
                             applicationJson.setEditModeTheme(editModeTheme);
                             applicationJson.setPublishedTheme(publishedModeTheme);
                             return themesTuple;
@@ -1880,28 +1882,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             datasource.getDatasourceConfiguration().setAuthentication(auth2);
         }
         return datasource;
-    }
-
-    /**
-     * Removes internal fields e.g. database ID from the provided Theme object.
-     * @param srcTheme Theme object from DB that'll be exported
-     * @return Theme DTO with null or empty value in internal fields
-     */
-    private Theme exportTheme(Theme srcTheme) {
-        srcTheme.setId(null);
-        if(srcTheme.isSystemTheme()) {
-            // for system theme, we only need theme name and isSystemTheme properties so set null to others
-            srcTheme.setProperties(null);
-            srcTheme.setConfig(null);
-            srcTheme.setStylesheet(null);
-        }
-        // set null to base domain properties also
-        srcTheme.setCreatedAt(null);
-        srcTheme.setCreatedBy(null);
-        srcTheme.setUpdatedAt(null);
-        srcTheme.setModifiedBy(null);
-        srcTheme.setUserPermissions(null);
-        return srcTheme;
     }
 
     private Mono<Application> importThemes(Application application, ApplicationJson importedApplicationJson, boolean appendToApp) {

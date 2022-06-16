@@ -44,5 +44,6 @@ public class ActionCollection extends BaseDomain {
             publishedCollection.sanitiseForExport();
         }
         this.sanitiseToExportBaseObject();
+        this.setOrganizationId(null);
     }
 }
