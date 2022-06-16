@@ -1,4 +1,4 @@
-import { Collapse, Position } from "@blueprintjs/core";
+import { Collapse } from "@blueprintjs/core";
 import { get } from "lodash";
 import { Classes as BPPopover2Classes } from "@blueprintjs/popover2";
 import { isString } from "lodash";
@@ -275,7 +275,7 @@ function LogItem(props: LogItemProps) {
                   </Text>
                 }
                 minimal
-                position={Position.BOTTOM_LEFT}
+                position="bottom-left"
               >
                 <StyledSearchIcon
                   className={`${Classes.ICON} search-menu`}

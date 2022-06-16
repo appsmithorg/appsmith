@@ -26,8 +26,8 @@ import { setCurrentTab, showDebugger } from "actions/debuggerActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
-import { Position } from "@blueprintjs/core";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
 
 const CONNECTION_HEIGHT = 28;
 
@@ -178,7 +178,7 @@ type TriggerNodeProps = DefaultDropDownValueNodeProps & {
   connectionType: "INCOMING" | "OUTGOING";
   hasError: boolean;
   justifyContent: string;
-  tooltipPosition?: Position;
+  tooltipPosition?: PopoverPosition;
 };
 
 const doConnectionsHaveErrors = (

@@ -54,7 +54,7 @@ const Trigger = withTheme(({ theme, tooltipsDisabled }: TriggerProps) => (
     content={createMessage(HELP_RESOURCE_TOOLTIP)}
     disabled={tooltipsDisabled}
     hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-    position={Position.BOTTOM}
+    position="bottom"
   >
     <StyledTrigger>
       <Icon

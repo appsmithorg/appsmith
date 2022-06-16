@@ -3,7 +3,7 @@ import styled from "styled-components";
 import HighlightedCode, {
   SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES,
 } from "components/editorComponents/HighlightedCode";
-import { Classes, Collapse, Position } from "@blueprintjs/core";
+import { Classes, Collapse } from "@blueprintjs/core";
 import { CurrentValueViewer } from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useClipboard from "utils/hooks/useClipboard";
@@ -174,7 +174,7 @@ export const EntityProperty = memo((props: any) => {
             boundary="viewport"
             content={createMessage(COPY_ELEMENT)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-            position={Position.RIGHT}
+            position="right"
           >
             <CopyIcon onClick={copyBindingToClipboard} />
           </TooltipComponent>

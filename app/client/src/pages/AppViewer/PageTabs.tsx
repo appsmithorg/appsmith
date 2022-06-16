@@ -10,7 +10,6 @@ import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { isEllipsisActive } from "utils/helpers";
 import { TooltipComponent } from "design-system";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { Position } from "@blueprintjs/core";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { useSelector } from "react-redux";
@@ -102,7 +101,7 @@ function PageTabName({
       content={name}
       disabled={!ellipsisActive}
       maxWidth="400px"
-      position={Position.BOTTOM}
+      position="bottom"
     >
       {tabNameText}
     </TooltipComponent>

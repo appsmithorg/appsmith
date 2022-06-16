@@ -581,7 +581,7 @@ function TooltipWrappedText(
       boundary="window"
       content={label}
       disabled={!isEllipsisActive(targetRef.current)}
-      position={Position.TOP}
+      position="top"
     >
       <StyledText ref={targetRef} {...textProps}>
         {label}

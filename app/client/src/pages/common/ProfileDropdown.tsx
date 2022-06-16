@@ -98,7 +98,7 @@ export default function ProfileDropdown(props: TagProps) {
     <TooltipComponent
       content={createMessage(ACCOUNT_TOOLTIP)}
       hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-      position={Position.BOTTOM_RIGHT}
+      position="bottom-right"
     >
       <ProfileImage
         className="t--profile-menu-icon"

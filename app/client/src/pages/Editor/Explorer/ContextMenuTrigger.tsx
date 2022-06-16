@@ -11,7 +11,6 @@ import {
   ENTITY_MORE_ACTIONS_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { Position } from "@blueprintjs/core";
 
 const ToggleIcon = styled(ControlIcons.MORE_VERTICAL_CONTROL)`
   &&& {
@@ -37,7 +36,7 @@ export function ContextMenuTrigger(props: {
         boundary="viewport"
         content={createMessage(ENTITY_MORE_ACTIONS_TOOLTIP)}
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position={Position.RIGHT}
+        position="right"
       >
         <ToggleIcon
           height={props.theme.fontSizes[3]}

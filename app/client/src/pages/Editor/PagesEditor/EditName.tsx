@@ -14,7 +14,6 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { TooltipComponent } from "design-system";
 import { createMessage, GO_TO_PAGE } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { Position } from "@blueprintjs/core";
 import { builderURL } from "RouteBuilder";
 
 const LinkIcon = MenuIcons.LINK_ICON;
@@ -111,7 +110,7 @@ function EditName(props: Props) {
           <TooltipComponent
             content={createMessage(GO_TO_PAGE)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-            position={Position.BOTTOM}
+            position="bottom"
           >
             <LinkIcon
               color={get(theme, "colors.pagesEditor.iconColor")}

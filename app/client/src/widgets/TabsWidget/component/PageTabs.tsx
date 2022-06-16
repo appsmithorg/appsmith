@@ -4,7 +4,6 @@ import { get } from "lodash";
 import { isEllipsisActive } from "utils/helpers";
 import { TooltipComponent } from "design-system";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { Position } from "@blueprintjs/core";
 
 import { useSelector } from "react-redux";
 
@@ -99,7 +98,7 @@ function PageTabName({
       content={name}
       disabled={!ellipsisActive}
       maxWidth="400px"
-      position={Position.BOTTOM}
+      position="bottom"
     >
       {tabNameText}
     </TooltipComponent>

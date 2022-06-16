@@ -15,7 +15,7 @@ import AddButton from "./AddButton";
 import Collapse from "./Collapse";
 import { useEntityUpdateState, useEntityEditState } from "../hooks";
 import Loader from "./Loader";
-import { Classes, Position } from "@blueprintjs/core";
+import { Classes } from "@blueprintjs/core";
 import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import useClick from "utils/hooks/useClick";
@@ -288,7 +288,7 @@ export const Entity = forwardRef(
         content={props.addButtonHelptext || ""}
         disabled={!props.addButtonHelptext}
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position={Position.RIGHT}
+        position="right"
       >
         <AddButton
           className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
