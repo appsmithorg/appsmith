@@ -62,6 +62,7 @@ export const configureWidget = (config: WidgetConfiguration) => {
     key: generateReactKey(),
     iconSVG: config.iconSVG,
     isCanvas: config.isCanvas,
+    canvasHeightOffset: config.canvasHeightOffset,
   };
 
   store.dispatch({

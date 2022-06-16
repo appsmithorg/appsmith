@@ -28,7 +28,11 @@ import {
   fork,
   delay,
 } from "redux-saga/effects";
-import { getOccupiedSpacesGroupedByParentCanvas } from "selectors/editorSelectors";
+import {
+  getCanvasHeightOffset,
+  getOccupiedSpacesGroupedByParentCanvas,
+  getWidgetConfigs,
+} from "selectors/editorSelectors";
 import {
   getCanvasLevelMap,
   getDynamicHeightLayoutTree,
@@ -60,6 +64,8 @@ export function* updateWidgetDynamicHeightSaga(
   log.debug("Dynamic height: Call for updates: ", { updates });
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
+  const widgetsToUpdate: UpdateWidgetsPayload = {};
+
   const expectedUpdates: Array<{
     widgetId: string;
     expectedHeightinPx: number;
@@ -87,6 +93,18 @@ export function* updateWidgetDynamicHeightSaga(
         parentId: widget.parentId,
       });
     }
+    // if (widget.type === "CANVAS_WIDGET") {
+    //   widgetsToUpdate[widgetId] = [
+    //     {
+    //       propertyValue: updates[widgetId],
+    //       propertyPath: "minHeight",
+    //     },
+    //     {
+    //       propertyValue: updates[widgetId],
+    //       propertyPath: "bottomRow",
+    //     },
+    //   ];
+    // }
   }
 
   if (expectedUpdates.length > 0) {
@@ -216,6 +234,27 @@ export function* updateWidgetDynamicHeightSaga(
               minHeightInRows,
             );
 
+            // if (widgetsToUpdate[parentCanvasWidgetId]) {
+            //   widgetsToUpdate[parentCanvasWidgetId] = [
+            //     {
+            //       propertyPath: "bottomRow",
+            //       propertyValue:
+            //         minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+            //     },
+            //     {
+            //       propertyPath: "minHeight",
+            //       propertyValue:
+            //         minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+            //     },
+            //   ];
+            // }
+
+            const canvasHeightOffset: number = yield select(
+              getCanvasHeightOffset,
+              parentContainerLikeWidget.type,
+            );
+
+            minHeightInRows += canvasHeightOffset;
             const expectedUpdate = {
               widgetId: parentContainerLikeWidget.widgetId,
               expectedHeightinPx:
@@ -277,7 +316,6 @@ export function* updateWidgetDynamicHeightSaga(
       }
     }
 
-    const widgetsToUpdate: UpdateWidgetsPayload = {};
     widgetsToUpdate[MAIN_CONTAINER_WIDGET_ID] = [
       {
         propertyPath: "bottomRow",
@@ -415,6 +453,15 @@ function* dynamicallyUpdateContainersSaga() {
                 updates[parentContainerWidget.widgetId] =
                   maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
               }
+              // if (updates.hasOwnProperty(canvasWidget.widgetId)) {
+              //   updates[canvasWidget.widgetId] = Math.max(
+              //     updates[canvasWidget.widgetId],
+              //     maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+              //   );
+              // } else {
+              //   updates[canvasWidget.widgetId] =
+              //     maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+              // }
             }
           }
         }

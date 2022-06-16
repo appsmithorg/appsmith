@@ -9,6 +9,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  canvasHeightOffset: 4,
   features: {
     dynamicHeight: true,
   },

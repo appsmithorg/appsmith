@@ -14,6 +14,7 @@ export interface WidgetConfiguration {
   isCanvas?: boolean;
   needsMeta?: boolean;
   features?: WidgetFeatures;
+  canvasHeightOffset?: number;
   properties: {
     config: PropertyPaneConfig[];
     default: Record<string, string>;

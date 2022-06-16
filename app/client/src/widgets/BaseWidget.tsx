@@ -14,6 +14,7 @@ import {
   RenderModes,
   WidgetHeightLimits,
   WidgetType,
+  WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import React, { Component, ReactNode } from "react";
 import { get, memoize } from "lodash";
@@ -177,7 +178,8 @@ abstract class BaseWidget<
     if (updateWidgetDynamicHeight) {
       const { widgetId } = this.props;
       console.log("updateDynamicHeight", height, shouldUpdate);
-      shouldUpdate && updateWidgetDynamicHeight(widgetId, height);
+      shouldUpdate &&
+        updateWidgetDynamicHeight(widgetId, height + WIDGET_PADDING * 2);
     }
   }
 

@@ -28,7 +28,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { find, pick, sortBy } from "lodash";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory, { WidgetType } from "utils/WidgetFactory";
 import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
@@ -198,6 +198,14 @@ export const getCurrentPageName = createSelector(
     pageList.pages.find((page) => page.pageId === pageList.currentPageId)
       ?.pageName,
 );
+
+export const getCanvasHeightOffset = (
+  state: AppState,
+  widgetType: WidgetType,
+) => {
+  const config = state.entities.widgetConfig.config[widgetType];
+  return config.canvasHeightOffset || 0;
+};
 
 export const getWidgetCards = createSelector(
   getWidgetConfigs,
