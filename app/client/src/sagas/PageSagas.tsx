@@ -24,6 +24,9 @@ import {
   setLastUpdatedTime,
   ClonePageActionPayload,
   CreatePageActionPayload,
+  generateTemplateError,
+  generateTemplateSuccess,
+  fetchAllPageEntityCompletion,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -76,6 +79,8 @@ import {
   fetchActionsForPage,
   setActionsToExecuteOnPageLoad,
   setJSActionsToExecuteOnPageLoad,
+  fetchActionsForPageSuccess,
+  fetchActionsForPageError,
 } from "actions/pluginActionActions";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
@@ -93,10 +98,7 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
 import { GenerateTemplatePageRequest } from "api/PageApi";
-import {
-  generateTemplateError,
-  generateTemplateSuccess,
-} from "actions/pageActions";
+
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
@@ -105,11 +107,16 @@ import {
   getFirstTimeUserOnboardingApplicationId,
   inGuidedTour,
 } from "selectors/onboardingSelectors";
-import { fetchJSCollectionsForPage } from "actions/jsActionActions";
+import {
+  fetchJSCollectionsForPage,
+  fetchJSCollectionsForPageSuccess,
+  fetchJSCollectionsForPageError,
+} from "actions/jsActionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { builderURL, generateTemplateURL } from "RouteBuilder";
+import { failFastApiCalls } from "./InitSagas";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -131,7 +138,7 @@ export function* fetchPageListSaga(
     const response: FetchPageListResponse = yield call(apiCall, applicationId);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const orgId = response.data.organizationId;
+      const workspaceId = response.data.workspaceId;
       const pages: PageListPayload = response.data.pages.map((page) => ({
         pageName: page.name,
         pageId: page.id,
@@ -140,9 +147,9 @@ export function* fetchPageListSaga(
         slug: page.slug,
       }));
       yield put({
-        type: ReduxActionTypes.SET_CURRENT_ORG_ID,
+        type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
         payload: {
-          orgId,
+          workspaceId,
         },
       });
       yield put({
@@ -223,12 +230,15 @@ export function* handleFetchedPage({
     // set current page
     yield put(updateCurrentPage(pageId, pageSlug));
     // dispatch fetch page success
-    yield put(
-      fetchPageSuccess(
-        // Execute page load actions post page load
-        isFirstLoad ? [] : [executePageLoadActions()],
-      ),
-    );
+    yield put(fetchPageSuccess());
+
+    /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page
+     */
+    // Hence, if is not isFirstLoad then trigger evaluation with execute pageLoad action
+    if (!isFirstLoad) {
+      yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+    }
+
     // Sets last updated time
     yield put(setLastUpdatedTime(lastUpdatedTime));
     const extractedDSL = extractCurrentDSL(fetchPageResponse);
@@ -321,15 +331,16 @@ export function* fetchPublishedPageSaga(
       // set current page
       yield put(updateCurrentPage(pageId, response.data.slug));
 
+      // dispatch fetch page success
+      yield put(fetchPublishedPageSuccess());
+
+      /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page
+       */
+      // Hence, if is not isFirstLoad then trigger evaluation with execute pageLoad action
       if (!firstLoad) {
-        // dispatch fetch page success
-        yield put(
-          fetchPublishedPageSuccess(
-            // Execute page load actions post published page eval
-            [executePageLoadActions()],
-          ),
-        );
+        yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
       }
+
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
       );
@@ -977,6 +988,15 @@ export function* generateTemplatePageSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const pageId = response.data.page.id;
+
+      yield put(
+        generateTemplateSuccess({
+          page: response.data.page,
+          isNewPage: !request.pageId,
+          // if pageId if not defined, that means a new page is generated.
+        }),
+      );
+
       yield handleFetchedPage({
         fetchPageResponse: {
           data: response.data.page,
@@ -986,16 +1006,30 @@ export function* generateTemplatePageSaga(
         isFirstLoad: true,
       });
 
-      // TODO : Add this to onSuccess (Redux Action)
-      yield put(
-        generateTemplateSuccess({
-          page: response.data.page,
-          isNewPage: !request.pageId, // if pageId if not defined, that means a new page is generated.
-        }),
+      // trigger evaluation after completion of page success & fetch actions for page + fetch jsobject for page
+
+      const triggersAfterPageFetch = [
+        fetchActionsForPage(pageId),
+        fetchJSCollectionsForPage(pageId),
+      ];
+
+      const afterActionsFetch = yield failFastApiCalls(
+        triggersAfterPageFetch,
+        [
+          fetchActionsForPageSuccess([]).type,
+          fetchJSCollectionsForPageSuccess([]).type,
+        ],
+        [
+          fetchActionsForPageError().type,
+          fetchJSCollectionsForPageError().type,
+        ],
       );
-      // TODO : Add this to onSuccess (Redux Action)
-      yield put(fetchActionsForPage(pageId, [executePageLoadActions()]));
-      // TODO : Add it to onSuccessCallback
+
+      if (!afterActionsFetch) {
+        throw new Error("Failed generating template");
+      }
+      yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+
       history.replace(
         builderURL({
           pageSlug: response.data.page.slug,

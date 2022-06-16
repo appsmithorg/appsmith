@@ -2,6 +2,7 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const dsl = require("../../../../fixtures/WidgetCopyPaste.json");
+const generatePage = require("../../../../locators/GeneratePage.json");
 
 describe("Widget Copy paste", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -151,5 +152,18 @@ describe("Widget Copy paste", function() {
       .eq(0)
       .find(widgetsPage.listWidget)
       .should("have.length", 0);
+  });
+
+  it("should be able to paste widget on the initial generate Page", function() {
+    cy.Createpage("NewPage", false);
+
+    //verify that it is in generate page
+    cy.get(generatePage.buildFromScratchActionCard).should("have.length", 1);
+
+    //paste
+    cy.get("body").type(`{${modifierKey}}{v}`);
+
+    //verify a pasted list widget
+    cy.get(widgetsPage.listWidget).should("have.length", 1);
   });
 });

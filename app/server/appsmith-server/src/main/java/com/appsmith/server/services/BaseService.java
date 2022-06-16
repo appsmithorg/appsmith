@@ -23,6 +23,7 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -81,6 +82,8 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
         if (resource.getPolicies().isEmpty()) {
             resource.setPolicies(null);
         }
+
+        resource.setUpdatedAt(Instant.now());
 
         DBObject update = getDbObject(resource);
 

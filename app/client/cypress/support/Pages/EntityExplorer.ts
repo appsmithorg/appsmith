@@ -1,5 +1,19 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 
+type templateActions =
+  | "SELECT"
+  | "INSERT"
+  | "UPDATE"
+  | "DELETE"
+  | "Find"
+  | "Find by ID"
+  | "Insert"
+  | "Update"
+  | "Delete"
+  | "Count"
+  | "Distinct"
+  | "Aggregate";
+
 export class EntityExplorer {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
@@ -26,6 +40,11 @@ export class EntityExplorer {
     "']/ancestor::div[contains(@class, 't--entity-item')]//div[contains(@class, 't--template-menu-trigger')]";
   private _templateMenuItem = (menuItem: string) =>
     "//div[contains(@class, 'bp3-popover-dismiss')][text()='" + menuItem + "']";
+  private _moreOptionsPopover =
+    "//*[local-name()='g' and @id='Icon/Outline/more-vertical']";
+  private _pageClone = ".single-select >div:contains('Clone')";
+  private getPageLocator = (pageName: string) =>
+    `.t--entity-name:contains(${pageName})`;
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
@@ -97,7 +116,7 @@ export class EntityExplorer {
 
   public ActionTemplateMenuByEntityName(
     entityNameinLeftSidebar: string,
-    action: "SELECT" | "INSERT" | "UPDATE" | "DELETE",
+    action: templateActions,
   ) {
     cy.xpath(this._templateMenuTrigger(entityNameinLeftSidebar))
       .last()
@@ -119,5 +138,19 @@ export class EntityExplorer {
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
     cy.get(this.locator._widgetInCanvas(widgetType)).should("exist");
+  }
+
+  public ClonePage(pageName = "Page1") {
+    this.expandCollapseEntity("PAGES")
+    cy.get(this.getPageLocator(pageName))
+      .trigger("mouseover")
+      .click({ force: true });
+    cy.xpath(this._moreOptionsPopover)
+      .first()
+      .should("be.hidden")
+      .invoke("show")
+      .click({ force: true });
+    cy.get(this._pageClone).click({ force: true });
+    this.agHelper.ValidateNetworkStatus("@clonePage", 201);
   }
 }
