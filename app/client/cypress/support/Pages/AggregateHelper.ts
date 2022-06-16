@@ -17,19 +17,19 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
 
-  public saveLocalStorageCache() {
+  public SaveLocalStorageCache() {
     Object.keys(localStorage).forEach((key) => {
       LOCAL_STORAGE_MEMORY[key] = localStorage[key];
     });
   }
 
-  public restoreLocalStorageCache() {
+  public RestoreLocalStorageCache() {
     Object.keys(LOCAL_STORAGE_MEMORY).forEach((key) => {
       localStorage.setItem(key, LOCAL_STORAGE_MEMORY[key]);
     });
   }
 
-  public clearLocalStorageCache() {
+  public ClearLocalStorageCache() {
     localStorage.clear();
     LOCAL_STORAGE_MEMORY = {};
   }

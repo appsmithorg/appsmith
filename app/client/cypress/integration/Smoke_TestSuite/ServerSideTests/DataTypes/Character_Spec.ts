@@ -41,7 +41,7 @@ describe("Postgres - Datatype Character tests", function() {
     agHelper.EnterValue(query);
     cy.get(".CodeMirror textarea").focus();
     dataSources.RunQuery();
-    ee.expandCollapseEntity(dsName);
+    ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("public.chartypes"));
   });
@@ -97,8 +97,8 @@ describe("Postgres - Datatype Character tests", function() {
     ee.ActionTemplateMenuByEntityName("public.chartypes", "DELETE");
     agHelper.RenameWithInPane("dropTable");
     agHelper.EnterValue(query);
-    ee.expandCollapseEntity("QUERIES/JS", false);
-    ee.expandCollapseEntity(dsName, false);
+    ee.ExpandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity(dsName, false);
   });
 
   it("8. Inserting record (null values) - chartypes", () => {
@@ -347,24 +347,24 @@ describe("Postgres - Datatype Character tests", function() {
 
   it("18. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
-    ee.expandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("dropTable");
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    ee.expandCollapseEntity("QUERIES/JS", false);
-    ee.expandCollapseEntity("DATASOURCES");
-    ee.expandCollapseEntity(dsName);
+    ee.ExpandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.chartypes"));
-    ee.expandCollapseEntity(dsName, false);
-    ee.expandCollapseEntity("DATASOURCES", false);
+    ee.ExpandCollapseEntity(dsName, false);
+    ee.ExpandCollapseEntity("DATASOURCES", false);
   });
 
   it("19. Verify Deletion of the datasource after all created queries are Deleted", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-    ee.expandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("QUERIES/JS");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName(
       "deleteAllRecords",
@@ -382,7 +382,7 @@ describe("Postgres - Datatype Character tests", function() {
     ee.ActionContextMenuByEntityName("updateRecord", "Delete", "Are you sure?");
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    ee.expandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("QUERIES/JS");
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
   });
 });
