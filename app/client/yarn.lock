@@ -6718,10 +6718,10 @@ des.js@^1.0.0:
     inherits "^2.0.1"
     minimalistic-assert "^1.0.0"
 
-"design-system@npm:@appsmithorg/design-system@^1.0.1-beta.7":
-  version "1.0.1-beta.7"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.1-beta.7.tgz#7d9d8a5a717e6c6b9ad8760c5783380cf0ee4260"
-  integrity sha512-4VsX3z6v05DwXf5P4Ie67Kd8TIaHLjvRD5DDNY8eJ3W1C2v8/we9eBhdo7YkQVOE8fZ3KxAmLt0WkdXdIOWxcA==
+"design-system@npm:@appsmithorg/design-system@^1.0.1-beta.8":
+  version "1.0.1-beta.8"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.1-beta.8.tgz#2a245d24909b12436637bc4539d77857e12cbd89"
+  integrity sha512-i2kSTJoxj5ttAt5Ji0bkIbfB7fF2o5PywhpQstIs1GEXBj053rE3A15JTmMlYsw1qedo+iHrNVxeYtWmHGMQQQ==
 
 destroy@~1.0.4:
   version "1.0.4"
