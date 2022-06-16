@@ -168,7 +168,7 @@ public class ActionCollectionServiceImplTest {
         actionCollectionDTO.setName("testCollection");
         actionCollectionDTO.setPageId("testPageId");
         actionCollectionDTO.setApplicationId("testApplicationId");
-        actionCollectionDTO.setOrganizationId("testOrganizationId");
+        actionCollectionDTO.setWorkspaceId("testWorkspaceId");
         actionCollectionDTO.setPluginId("testPluginId");
         actionCollectionDTO.setPluginType(PluginType.JS);
 
@@ -209,7 +209,7 @@ public class ActionCollectionServiceImplTest {
         actionCollectionDTO.setName("testCollection");
         actionCollectionDTO.setPageId("testPageId");
         actionCollectionDTO.setApplicationId("testApplicationId");
-        actionCollectionDTO.setOrganizationId("testOrganizationId");
+        actionCollectionDTO.setWorkspaceId("testWorkspaceId");
         actionCollectionDTO.setPluginId("testPluginId");
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setDefaultResources(setDefaultResources(actionCollectionDTO));
@@ -263,7 +263,7 @@ public class ActionCollectionServiceImplTest {
         actionCollectionDTO.setName("testCollection");
         actionCollectionDTO.setPageId("testPageId");
         actionCollectionDTO.setApplicationId("testApplicationId");
-        actionCollectionDTO.setOrganizationId("testOrganizationId");
+        actionCollectionDTO.setWorkspaceId("testWorkspaceId");
         actionCollectionDTO.setPluginId("testPluginId");
         ActionDTO action = new ActionDTO();
         action.setName("testAction");

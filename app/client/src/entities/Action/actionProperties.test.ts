@@ -15,7 +15,7 @@ const DEFAULT_ACTION: Action = {
   isValid: false,
   jsonPathKeys: [],
   name: "",
-  organizationId: "",
+  workspaceId: "",
   pageId: "",
   pluginId: "",
   messages: [],
