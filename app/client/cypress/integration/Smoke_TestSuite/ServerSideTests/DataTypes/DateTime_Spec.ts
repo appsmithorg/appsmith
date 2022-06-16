@@ -210,7 +210,7 @@ describe("Postgres - Datatype DateTime tests", function() {
       expect($cellData).to.eq("04:05:06.789");
     });
     table.ReadTableRowColumnData(1, 6, 200).then(($cellData) => {
-      expect($cellData).to.eq("1 year 3 months 2 days 6 hours 4 minutes 5 seconds");
+      expect($cellData).to.eq("1 years 3 mons 2 days 6 hours 4 mins 5.0 secs");
     });
     table.ReadTableRowColumnData(1, 7, 200).then(($cellData) => {
       expect($cellData).to.eq("17.03.2012");
