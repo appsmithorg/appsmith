@@ -38,8 +38,8 @@ public class WorkspaceControllerTest {
 
     @Test
     @WithMockUser
-    public void getOrganizationNoName() {
-        webTestClient.post().uri("/api/v1/organizations").
+    public void getWorkspaceNoName() {
+        webTestClient.post().uri("/api/v1/workspaces").
                 contentType(MediaType.APPLICATION_JSON).
                 body(BodyInserters.fromValue("{}")).
                 exchange().

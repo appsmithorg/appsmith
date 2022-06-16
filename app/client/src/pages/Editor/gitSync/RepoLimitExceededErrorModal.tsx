@@ -33,7 +33,7 @@ import { get } from "lodash";
 import { Theme } from "constants/DefaultTheme";
 import {
   getCurrentApplication,
-  getUserApplicationsOrgs,
+  getUserApplicationsWorkspaces,
 } from "selectors/applicationSelectors";
 import {
   ApplicationPayload,
@@ -101,18 +101,18 @@ function RepoLimitExceededErrorModal() {
   const isOpen = useSelector(getShowRepoLimitErrorModal);
   const dispatch = useDispatch();
   const application = useSelector(getCurrentApplication);
-  const userOrgs = useSelector(getUserApplicationsOrgs);
+  const userWorkspaces = useSelector(getUserApplicationsWorkspaces);
   const docURL = useSelector(getDisconnectDocUrl);
-  const [orgName, setOrgName] = useState("");
+  const [workspaceName, setWorkspaceName] = useState("");
   const applications = useMemo(() => {
-    if (userOrgs) {
-      const org: any = userOrgs.find((organizationObject: any) => {
-        const { organization } = organizationObject;
-        return organization.id === application?.organizationId;
+    if (userWorkspaces) {
+      const workspace: any = userWorkspaces.find((workspaceObject: any) => {
+        const { workspace } = workspaceObject;
+        return workspace.id === application?.workspaceId;
       });
-      setOrgName(org?.organization.name || "");
+      setWorkspaceName(workspace?.workspace.name || "");
       return (
-        org?.applications.filter((application: ApplicationPayload) => {
+        workspace?.applications.filter((application: ApplicationPayload) => {
           const data = application.gitApplicationMetadata;
           return (
             data &&
@@ -126,7 +126,7 @@ function RepoLimitExceededErrorModal() {
     } else {
       return [];
     }
-  }, [userOrgs]);
+  }, [userWorkspaces]);
   const onClose = () => dispatch(setShowRepoLimitErrorModal(false));
   const openDisconnectGitModal = useCallback(
     (applicationId: string, name: string) => {
@@ -156,7 +156,7 @@ function RepoLimitExceededErrorModal() {
     if (window.Intercom) {
       window.Intercom(
         "showNewMessage",
-        createMessage(CONTACT_SALES_MESSAGE_ON_INTERCOM, orgName),
+        createMessage(CONTACT_SALES_MESSAGE_ON_INTERCOM, workspaceName),
       );
     }
   };
