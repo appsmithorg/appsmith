@@ -255,7 +255,7 @@ export const unEvalTree = {
   appsmith: {
     user: {
       email: "rathod@appsmith.com",
-      organizationIds: [
+      workspaceIds: [
         "6218a61972ccd9145ec78c57",
         "621913df0276eb01d22fec44",
         "60caf8edb1e47a1315f0c48f",
@@ -517,7 +517,7 @@ export const asyncTagUnevalTree: DataTree = {
   appsmith: ({
     user: {
       email: "anand@appsmith.com",
-      organizationIds: [
+      workspaceIds: [
         "61431979a67ce2289d3c7c6d",
         "61431a95a67ce2289d3c7c74",
         "5f7add8687af934ed846dd6a",

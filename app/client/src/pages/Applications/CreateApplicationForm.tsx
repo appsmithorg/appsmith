@@ -22,12 +22,12 @@ type Props = InjectedFormProps<
   CreateApplicationFormValues,
   {
     onCancel: () => void;
-    orgId: string;
+    workspaceId: string;
     initialValues: Record<string, unknown>;
   }
 > & {
   onCancel: () => void;
-  orgId: string;
+  workspaceId: string;
   initialValues: Record<string, unknown>;
 };
 
@@ -58,7 +58,7 @@ function CreateApplicationForm(props: Props) {
           name={CREATE_APPLICATION_FORM_NAME_FIELD}
           placeholder="Name"
         />
-        <Field component="input" name="orgId" type="hidden" />
+        <Field component="input" name="workspaceId" type="hidden" />
       </FormGroup>
       <FormFooter
         canSubmit={!invalid}
@@ -76,9 +76,9 @@ function CreateApplicationForm(props: Props) {
 }
 
 const mapStateToProps = (state: AppState, props: Props): any => {
-  const orgId = props.orgId;
+  const workspaceId = props.workspaceId;
   return {
-    initialValues: { orgId },
+    initialValues: { workspaceId },
   };
 };
 
@@ -87,7 +87,7 @@ export default connect(mapStateToProps)(
     CreateApplicationFormValues,
     {
       onCancel: () => void;
-      orgId: string;
+      workspaceId: string;
       initialValues: Record<string, unknown>;
     }
   >({
