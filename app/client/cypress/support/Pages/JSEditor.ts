@@ -19,9 +19,9 @@ export class JSEditor {
   public ee = ObjectsRegistry.EntityExplorer;
 
   //#region Element locators
-  private _runButton = "button.run-js-action";
-  private _settingsTab = ".tab-title:contains('Settings')";
-  private _codeTab = ".tab-title:contains('Code')";
+  _runButton = "button.run-js-action";
+  _settingsTab = ".tab-title:contains('Settings')";
+  _codeTab = ".tab-title:contains('Code')";
   private _jsObjectParseErrorCallout =
     "div.t--js-response-parse-error-call-out";
   private _jsFunctionExecutionParseErrorCallout =
@@ -78,7 +78,9 @@ export class JSEditor {
     "')]";
   _funcDropdown = ".t--formActionButtons div[role='listbox']";
   _funcDropdownOptions = ".ads-dropdown-options-wrapper div > div";
-
+  _getJSFunctionSettingsId = (JSFunctionName: string) =>
+    `${JSFunctionName}-settings`;
+  _asyncJSFunctionSettings = `.t--async-js-function-settings`;
   //#endregion
 
   //#region constants
