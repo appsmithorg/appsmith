@@ -30,7 +30,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.ConnectionString;
-import com.mongodb.DBObjectCodecProvider;
 import com.mongodb.DBRefCodecProvider;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCommandException;
@@ -44,7 +43,6 @@ import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
-import org.bson.UuidRepresentation;
 import org.bson.codecs.BsonTypeClassMap;
 import org.bson.codecs.BsonValueCodecProvider;
 import org.bson.codecs.DocumentCodec;
@@ -192,7 +190,7 @@ public class MongoPlugin extends BasePlugin {
 
     private static final MongoErrorUtils mongoErrorUtils = MongoErrorUtils.getInstance();
 
-    private static final CodecRegistry DEFAULT_REGISTRY = CodecRegistries.withUuidRepresentation(CodecRegistries.fromProviders(Arrays.asList(
+    private static final CodecRegistry DEFAULT_REGISTRY = CodecRegistries.fromProviders(Arrays.asList(
             new ValueCodecProvider(),
             new IterableCodecProvider(),
             new BsonValueCodecProvider(),
@@ -201,7 +199,7 @@ public class MongoPlugin extends BasePlugin {
             new DBRefCodecProvider(),
             new GeoJsonCodecProvider(),
             new GridFSFileCodecProvider()
-    )), UuidRepresentation.STANDARD);
+    ));
 
     private static final BsonTypeClassMap DEFAULT_BSON_TYPE_CLASS_MAP = new org.bson.codecs.BsonTypeClassMap();
 
