@@ -11,13 +11,10 @@ import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { getNextEntityName } from "utils/AppsmithUtils";
 import {
   createColumn,
-  getDefaultColumnProperties,
   getEditActionColumnDynamicProperties,
   getEditActionColumnProperties,
-  getTableStyles,
 } from "./utilities";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
 

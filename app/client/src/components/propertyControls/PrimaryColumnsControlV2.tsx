@@ -17,8 +17,6 @@ import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import {
   createColumn,
-  getDefaultColumnProperties,
-  getTableStyles,
   isColumnTypeEditable,
   reorderColumns,
 } from "widgets/TableWidgetV2/widget/utilities";
@@ -31,13 +29,9 @@ import {
   isDynamicValue,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { getNextEntityName } from "utils/AppsmithUtils";
 import { DraggableListCard } from "components/ads/DraggableListCard";
 import { Checkbox } from "components/ads";
-import {
-  ColumnTypes,
-  DEFAULT_BUTTON_COLOR,
-} from "widgets/TableWidgetV2/constants";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 
 const TabsWrapper = styled.div`
   width: 100%;

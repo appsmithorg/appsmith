@@ -210,7 +210,7 @@ export function TextCell({
                     Save the unsaved row before editing this row
                   </TooltipContentWrapper>
                 }
-                hoverOpenDelay={1000}
+                hoverOpenDelay={200}
                 position="top"
               >
                 <EditIcon onClick={(e) => e.stopPropagation()} />
