@@ -46,6 +46,10 @@ public class WorkspaceServiceUnitTest {
     @MockBean AnalyticsService analyticsService;
     @MockBean ApplicationRepository applicationRepository;
 
+    @MockBean UserGroupService userGroupService;
+
+    @MockBean PermissionGroupService permissionGroupService;
+
     WorkspaceService workspaceService;
 
     @Before
@@ -53,7 +57,7 @@ public class WorkspaceServiceUnitTest {
         workspaceService = new WorkspaceServiceImpl(scheduler, validator, mongoConverter, reactiveMongoTemplate,
                 workspaceRepository, analyticsService, pluginRepository, sessionUserService, userWorkspaceService,
                 userRepository, roleGraph, assetRepository, assetService,
-                applicationRepository);
+                applicationRepository, userGroupService, permissionGroupService);
     }
 
     @Test

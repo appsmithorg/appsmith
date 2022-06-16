@@ -8,7 +8,7 @@ import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
+import java.util.Set;
 
 @Document
 @NoArgsConstructor
@@ -22,7 +22,7 @@ public class PermissionGroup extends BaseDomain {
 
     String description;
 
-    List<Permission> permissions;
+    Set<Permission> permissions;
 
     Boolean isDefault;
 

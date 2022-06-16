@@ -45,10 +45,10 @@ public class Workspace extends BaseDomain {
     private String tenantId;
 
     @JsonIgnore
-    private List<String> defaultPermissionGroups;
+    private Set<String> defaultPermissionGroups;
 
     @JsonIgnore
-    private List<String> defaultUserGroups;
+    private Set<String> defaultUserGroups;
 
     public String makeSlug() {
         return toSlug(name);

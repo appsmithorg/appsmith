@@ -1,5 +1,8 @@
 package com.appsmith.server.services.ce;
 
-public interface PermissionGroupServiceCE {
+import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.services.CrudService;
+
+public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, String> {
 
 }

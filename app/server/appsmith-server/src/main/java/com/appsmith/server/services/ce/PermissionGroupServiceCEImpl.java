@@ -1,13 +1,26 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.BaseService;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.convert.MongoConverter;
+import reactor.core.scheduler.Scheduler;
+
+import javax.validation.Validator;
 
 
-public class PermissionGroupServiceCEImpl implements PermissionGroupServiceCE {
+public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRepository, PermissionGroup, String>
+        implements PermissionGroupServiceCE {
 
-    private final PermissionGroupRepository repository;
+    public PermissionGroupServiceCEImpl(Scheduler scheduler,
+                                        Validator validator,
+                                        MongoConverter mongoConverter,
+                                        ReactiveMongoTemplate reactiveMongoTemplate,
+                                        PermissionGroupRepository repository,
+                                        AnalyticsService analyticsService) {
 
-    public PermissionGroupServiceCEImpl(PermissionGroupRepository repository) {
-        this.repository = repository;
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
     }
 }

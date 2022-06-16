@@ -15,20 +15,25 @@ import static com.appsmith.server.acl.AclPermission.ORGANIZATION_PUBLISH_APPLICA
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.VIEWER;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRIPTION;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
 
 @Getter
 public enum AppsmithRole {
     APPLICATION_ADMIN("Application Administrator", "", Set.of(MANAGE_APPLICATIONS)),
     APPLICATION_VIEWER("Application Viewer", "",  Set.of(READ_APPLICATIONS)),
-    ORGANIZATION_ADMIN("Administrator", "Can modify all organization settings including editing applications, " +
-        "inviting other users to the organization and exporting applications from the organization",
+    ORGANIZATION_ADMIN(ADMINISTRATOR, WORKSPACE_ADMINISTRATOR_DESCRIPTION,
         Set.of(MANAGE_ORGANIZATIONS, ORGANIZATION_INVITE_USERS, ORGANIZATION_EXPORT_APPLICATIONS)),
-    ORGANIZATION_DEVELOPER("Developer", "Can edit and view applications along with inviting other users to the organization",
+    ORGANIZATION_DEVELOPER(DEVELOPER, WORKSPACE_DEVELOPER_DESCRIPTION,
         Set.of(READ_ORGANIZATIONS, ORGANIZATION_MANAGE_APPLICATIONS, ORGANIZATION_READ_APPLICATIONS,
             ORGANIZATION_PUBLISH_APPLICATIONS, ORGANIZATION_INVITE_USERS)),
     ORGANIZATION_VIEWER(
-            "App Viewer",
-            "Can view applications and invite other users to view applications",
+            VIEWER,
+            WORKSPACE_VIEWER_DESCRIPTION,
             Set.of(READ_ORGANIZATIONS, ORGANIZATION_READ_APPLICATIONS, ORGANIZATION_INVITE_USERS)
     ),
     ;
