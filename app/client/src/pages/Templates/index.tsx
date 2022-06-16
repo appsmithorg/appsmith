@@ -25,7 +25,7 @@ import { editorInitializer } from "utils/EditorUtils";
 import { AppState } from "reducers";
 import {
   getIsFetchingApplications,
-  getUserApplicationsOrgsList,
+  getUserApplicationsWorkspacesList,
 } from "selectors/applicationSelectors";
 import { getAllApplications } from "actions/applicationActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -96,8 +96,8 @@ const SearchWrapper = styled.div`
 function TemplateRoutes() {
   const { path } = useRouteMatch();
   const dispatch = useDispatch();
-  const organizationListLength = useSelector(
-    (state: AppState) => getUserApplicationsOrgsList(state).length,
+  const workspaceListLength = useSelector(
+    (state: AppState) => getUserApplicationsWorkspacesList(state).length,
   );
   const pluginListLength = useSelector(
     (state: AppState) => state.entities.plugins.defaultPluginList.length,
@@ -119,10 +119,10 @@ function TemplateRoutes() {
   }, [templatesCount]);
 
   useEffect(() => {
-    if (!organizationListLength) {
+    if (!workspaceListLength) {
       dispatch(getAllApplications());
     }
-  }, [organizationListLength]);
+  }, [workspaceListLength]);
 
   useEffect(() => {
     if (!pluginListLength) {

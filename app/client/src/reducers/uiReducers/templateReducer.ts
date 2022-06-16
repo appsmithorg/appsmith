@@ -73,7 +73,7 @@ const templateReducer = createReducer(initialState, {
       templateSearchQuery: action.payload,
     };
   },
-  [ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_INIT]: (
+  [ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_INIT]: (
     state: TemplatesReduxState,
   ) => {
     return {
@@ -81,7 +81,7 @@ const templateReducer = createReducer(initialState, {
       isImportingTemplate: true,
     };
   },
-  [ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_SUCCESS]: (
+  [ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_SUCCESS]: (
     state: TemplatesReduxState,
   ) => {
     return {
@@ -89,7 +89,7 @@ const templateReducer = createReducer(initialState, {
       isImportingTemplate: false,
     };
   },
-  [ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_ORGANISATION_ERROR]: (
+  [ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_WORKSPACE_ERROR]: (
     state: TemplatesReduxState,
   ) => {
     return {
