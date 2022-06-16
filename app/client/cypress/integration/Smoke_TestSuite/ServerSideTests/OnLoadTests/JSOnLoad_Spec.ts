@@ -234,13 +234,13 @@ describe("JSObjects OnLoad Actions tests", function() {
       "https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json",
       "Quotes",
     );
-    apiPage.ConfirmBeforeRunningApi(true);
+    apiPage.ToggleConfirmBeforeRunningApi(true);
 
     apiPage.CreateAndFillApi(
       "https://api.whatdoestrumpthink.com/api/v1/quotes/random",
       "WhatTrumpThinks",
     );
-    apiPage.ConfirmBeforeRunningApi(true);
+    apiPage.ToggleConfirmBeforeRunningApi(true);
 
     jsEditor.CreateJSObject(
       `export default {
@@ -366,8 +366,8 @@ describe("JSObjects OnLoad Actions tests", function() {
 
     ee.ExpandCollapseEntity("QUERIES/JS");
     apiPage.CreateAndFillApi("https://catfact.ninja/fact", "CatFacts");
-    apiPage.OnPageLoadRun(true);
-    apiPage.ConfirmBeforeRunningApi(true);
+    apiPage.ToggleOnPageLoadRun(true);
+    apiPage.ToggleConfirmBeforeRunningApi(true);
 
     ee.SelectEntityByName("Image1", "WIDGETS");
     jsEditor.EnterJSContext(
@@ -378,9 +378,9 @@ describe("JSObjects OnLoad Actions tests", function() {
     );
 
     ee.SelectEntityByName("Quotes", "QUERIES/JS");
-    apiPage.OnPageLoadRun(false);
+    apiPage.ToggleOnPageLoadRun(false);
     ee.SelectEntityByName("WhatTrumpThinks");
-    apiPage.OnPageLoadRun(false);
+    apiPage.ToggleOnPageLoadRun(false);
 
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     jsEditor.EnableDisableAsyncFuncSettings("callQuotes", false, false); //OnPageLoad made true once mapped with widget
@@ -409,7 +409,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       "getBooks",
     );
     //apiPage.OnPageLoadRun(true); //OnPageLoad made true after mapping to JSONForm
-    apiPage.ConfirmBeforeRunningApi(true);
+    apiPage.ToggleConfirmBeforeRunningApi(true);
 
     dataSources.NavigateFromActiveDS(guid, true);
     agHelper.GetNClick(dataSources._templateMenu);

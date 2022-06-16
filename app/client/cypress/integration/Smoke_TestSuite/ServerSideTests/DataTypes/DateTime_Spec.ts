@@ -14,7 +14,8 @@ describe("Postgres - Datatype DateTime tests", function() {
     cy.fixture("DateTimeDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    propPane.ChangeTheme("Sharp");
+    propPane.ChangeColor(22, "Primary");
+    //propPane.ChangeColor(12, "Background");
   });
 
   it("1. Create Postgress DS", function() {
@@ -34,7 +35,9 @@ describe("Postgres - Datatype DateTime tests", function() {
   });
 
   it("2. Creating table - datetimetypes", () => {
-    query = `create table charTypes(serialid serial primary key, "One(1)" char, "AsMany" varchar, "Limited(4)" varchar(4), "Unlimited" text)`;
+    query = `CREATE TABLE datetimeTypes (serialId serial primary key, ts TIMESTAMP not null DEFAULT NOW(),
+    tstz TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, dater date NOT NULL, timer time NOT NULL,
+    timertz time with time zone not null default now(), intervaler interval not null);`;
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("createTable");
@@ -43,11 +46,18 @@ describe("Postgres - Datatype DateTime tests", function() {
     dataSources.RunQuery();
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementVisible(ee._entityNameInExplorer("public.datetimetypes"));
+    agHelper.AssertElementVisible(
+      ee._entityNameInExplorer("public.datetimetypes"),
+    );
   });
 
   it("3. Creating SELECT query - datetimetypes + Bug 14493", () => {
-    query = `SELECT *, char_length("AsMany") as "AsMany-Len", char_length("Unlimited") as "Unlimited-Len" FROM public."datetimetypes" as charT LIMIT 10;`;
+    query = `SELECT *, TO_CHAR(datetimeT.dater , 'dd.mm.yyyy') as "dd.mm.yyyy",
+    TO_CHAR (datetimeT.ts, 'MM/DD/YYYY HH12:MI:SS AM') as "MM/DD/YYYY",
+    TO_CHAR (datetimeT.ts, 'YYYY')||' / ' || TO_CHAR (datetimeT.dater, 'YYY') as "YYYY/YYY",
+    TO_CHAR (datetimeT.ts, 'MONTH') ||' / ' || TO_CHAR(datetimeT.dater, 'Month') as "MONTH/Month",
+    TO_CHAR (datetimeT.dater, 'D') ||' / ' || TO_CHAR(datetimeT.dater, 'day') as "Day of the week/Weekday",
+    TO_CHAR (datetimeT.dater, 'W') as "Week of Month" FROM public."datetimetypes" as datetimeT;`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "SELECT");
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
@@ -58,23 +68,22 @@ describe("Postgres - Datatype DateTime tests", function() {
   });
 
   it("4. Creating INSERT query - datetimetypes", () => {
-    query = `INSERT INTO public."datetimetypes" ("One(1)", "AsMany", "Limited(4)", "Unlimited")
-    VALUES ({{Insertone.text}}, {{Insertasmany.text}}, {{Insertlimited.text}}::varchar(4), {{Insertunlimited.text}});`;
+    query = `INSERT INTO public."datetimetypes" (ts, tstz, dater, timer, intervaler)
+    VALUES('{{Insertts.text}}', '{{Inserttstz.text}}', '{{Insertdater.text}}', '{{Inserttimer.text}}', '{{Insertintervaler.text}}');`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "INSERT");
     agHelper.RenameWithInPane("insertRecord");
     agHelper.EnterValue(query);
+    dataSources.ToggleUsePreparedStatement(false);
   });
 
   it("5. Creating UPDATE query - datetimetypes", () => {
     query = `UPDATE public."datetimetypes" SET
-    "One(1)" = {{Updateone.text}},
-    "AsMany" = {{Updateasmany.text}},
-    "Limited(4)" = {{Updatelimited.text}}::varchar(4),
-    "Unlimited" = {{Updateunlimited.text}}
-  WHERE serialid = {{Table1.selectedRow.serialid}};`;
+    "ts" = '{{Updatets.text}}', "tstz" = '{{Updatetstz.text}}', "dater" = '{{Updatedater.text}}', "timer" = '{{Updatetimer.text}}',
+    "intervaler" = '{{Updateintervaler.text}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "UPDATE");
     agHelper.RenameWithInPane("updateRecord");
     agHelper.EnterValue(query);
+    dataSources.ToggleUsePreparedStatement(false);
   });
 
   it("5. Creating DELETE query with condition - datetimetypes", () => {
@@ -101,251 +110,164 @@ describe("Postgres - Datatype DateTime tests", function() {
     ee.ExpandCollapseEntity(dsName, false);
   });
 
-  it("8. Inserting record (null values) - datetimetypes", () => {
+  it("8. Inserting record - datetimetypes", () => {
     ee.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
+
+    agHelper.EnterInputText("Ts", "2016-06-22 19:10:25-07");
+    agHelper.EnterInputText("Tstz", "2016-06-22 19:10:25-07");
+    agHelper.EnterInputText("Dater", "January 19, 1989");
+    agHelper.EnterInputText("Timer", "04:05 PM");
+    agHelper.EnterInputText("Intervaler", "P6Y5M4DT3H2M1S");
+
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq(" "); //white space for padding length!
+    table.ReadTableRowColumnData(0, 1, 200).then(($ts) => {
+      table.ReadTableRowColumnData(0, 2, 200).then(($tstz) => {
+        expect($ts).to.not.eq($tstz); //ts & tstz not equal since tstz is time zone applied
+      });
     });
     table.ReadTableRowColumnData(0, 3, 200).then(($cellData) => {
-      expect($cellData).to.eq("");
+      expect($cellData).to.eq("1989-01-19"); //date format!
     });
-    table.ReadTableRowColumnData(0, 5, 200).then(($cellData) => {
-      expect(Number($cellData)).to.eq(0);
+    table.ReadTableRowColumnData(0, 4, 200).then(($cellData) => {
+      expect($cellData).to.eq("16:05:00"); //time format
     });
     table.ReadTableRowColumnData(0, 6, 200).then(($cellData) => {
-      expect(Number($cellData)).to.eq(0);
+      expect($cellData).to.eq("6 years 5 mons 4 days 3 hours 2 mins 1.0 secs"); //Interval format!
+    });
+    table.ReadTableRowColumnData(0, 7, 200).then(($cellData) => {
+      expect($cellData).to.eq("19.01.1989");
     });
   });
 
-  it("9. Inserting record (not null values) - datetimetypes", () => {
+  it("9. Inserting another format of record - datetimetypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
-    agHelper.EnterInputText("One_1_", "a");
-    agHelper.EnterInputText(
-      "AsMany",
-      "Sailing ships were used for thousands of years!",
-    );
-    agHelper.EnterInputText("Limited_4_", "Ocean");
-    agHelper.EnterInputText(
-      "Unlimited",
-      "At one time, the steamships Titanic, Olympic, and Britannic were the largest ships in the world, Titanic sank on her maiden voyage after hitting an iceberg, becoming one of the most famous shipwrecks of all time",
-      false,
-      false,
-    );
+
+    agHelper.EnterInputText("Ts", "2020-10-05 14:01:10-08");
+    agHelper.EnterInputText("Tstz", "2020-10-05 14:01:10-08");
+    agHelper.EnterInputText("Dater", "20451229");
+    agHelper.EnterInputText("Timer", "04:05 AM");
+    agHelper.EnterInputText("Intervaler", "3 4:05:06");
+
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+
     table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(1, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("a");
+    table.ReadTableRowColumnData(1, 1, 200).then(($ts) => {
+      table.ReadTableRowColumnData(1, 2, 200).then(($tstz) => {
+        expect($ts).to.not.eq($tstz); //ts & tstz not equal since tstz is time zone applied
+      });
     });
     table.ReadTableRowColumnData(1, 3, 200).then(($cellData) => {
-      expect($cellData).to.eq("Ocea"); //asserting only 4 chars are inserted due to column dt constraint
+      expect($cellData).to.eq("2045-12-29");
     });
-    table.ReadTableRowColumnData(1, 5, 200).then(($cellData) => {
-      expect(Number($cellData)).to.be.greaterThan(0); //asserting length columns
+    table.ReadTableRowColumnData(1, 4, 200).then(($cellData) => {
+      expect($cellData).to.eq("04:05:00");
     });
     table.ReadTableRowColumnData(1, 6, 200).then(($cellData) => {
-      expect(Number($cellData)).to.be.greaterThan(0); //asserting length columns
+      expect($cellData).to.eq("0 years 0 mons 3 days 4 hours 5 mins 6.0 secs");
+    });
+    table.ReadTableRowColumnData(1, 7, 200).then(($cellData) => {
+      expect($cellData).to.eq("29.12.2045");
     });
   });
 
-  it("10. Inserting another record (not null values) - datetimetypes", () => {
-    agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locator._modal);
-    agHelper.EnterInputText("One_1_", "<");
-    agHelper.EnterInputText(
-      "AsMany",
-      "Some planes can fly for more than five hours after one of their engines goes out.!",
-    );
-    agHelper.EnterInputText("Limited_4_", "Planes");
-    agHelper.EnterInputText(
-      "Unlimited",
-      " In fact, according to the FAA, there are 5,000 planes in the air over the United States at any moment in time, and more than 8,000 flying across the globe.",
-      false,
-      false,
-    );
-    agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
-    table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
-      expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
-    });
-    table.ReadTableRowColumnData(2, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("<");
-    });
-    table.ReadTableRowColumnData(2, 3, 200).then(($cellData) => {
-      expect($cellData).to.eq("Plan");
-    });
-    table.ReadTableRowColumnData(2, 5, 200).then(($cellData) => {
-      expect(Number($cellData)).to.be.greaterThan(0);
-    });
-    table.ReadTableRowColumnData(2, 6, 200).then(($cellData) => {
-      expect(Number($cellData)).to.be.greaterThan(0);
-    });
-  });
-
-  it("11. Updating record (emtying some field) - datetimetypes", () => {
-    table.SelectTableRow(2);
-    agHelper.ClickButton("Run UpdateQuery");
-    agHelper.AssertElementVisible(locator._modal);
-    agHelper.EnterInputText("One_1_", ">", true);
-    agHelper.EnterInputText(
-      "AsMany",
-      "Dimming the aircraft's lights serves a purpose beyond sleep.!",
-      true,
-    );
-    agHelper.EnterInputText("Limited_4_", "Flights", true);
-    agHelper.ClearInputText("Unlimited", false);
-    agHelper.ClickButton("Update");
-    agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
-    table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
-      expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
-    });
-    table.ReadTableRowColumnData(2, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq(">");
-    });
-    table.ReadTableRowColumnData(2, 3, 200).then(($cellData) => {
-      expect($cellData).to.eq("Flig");
-    });
-    table.ReadTableRowColumnData(2, 5, 200).then(($cellData) => {
-      expect(Number($cellData)).to.be.greaterThan(0);
-    });
-    table.ReadTableRowColumnData(2, 6, 200).then(($cellData) => {
-      expect(Number($cellData)).to.eq(0);
-    });
-  });
-
-  it("12. Deleting records - datetimetypes", () => {
+  it("10. Updating record (emtying some field) - datetimetypes", () => {
     table.SelectTableRow(1);
-    agHelper.ClickButton("DeleteQuery", 1);
-    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
-      expect($cellData).not.to.eq("2"); //asserting 2nd record is deleted
-    });
-    table.ReadTableRowColumnData(1, 0, 200).then(($cellData) => {
-      expect($cellData).to.eq("3");
-    });
-  });
-
-  it("13. Updating record (null inserted record) - datetimetypes", () => {
     agHelper.ClickButton("Run UpdateQuery");
     agHelper.AssertElementVisible(locator._modal);
-    //agHelper.EnterInputText("One_1_", "&");
-    agHelper.EnterInputText(
-      "AsMany",
-      "First electric tram in England was opened in 1885 in Blackpool!",
-    );
-    agHelper.EnterInputText("Limited_4_", "Trams");
-    agHelper.EnterInputText(
-      "Unlimited",
-      "The word tram is used mainly outside North America, while within North America these vehicles are called streetcars or trolleys as they run mainly on streets.The word tram is used mainly outside North America, while within North America these vehicles are called streetcars or trolleys as they run mainly on streets.",
-      false,
-      false,
-    );
+
+    agHelper.EnterInputText("Ts", "2019-07-01", true);
+    agHelper.EnterInputText("Tstz", "2019-07-01 00:00:00+11", true);
+    agHelper.EnterInputText("Dater", "17-Mar-2014", true);
+    agHelper.EnterInputText("Timer", "04:05:06.789", true);
+    agHelper.EnterInputText("Intervaler", "P0001-03-02T06:04:05", true);
+
     agHelper.ClickButton("Update");
     agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
     table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
-      //since record updated is moving to last row in table - BUg 14347!
-      expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
+      expect($cellData).to.eq("2"); //asserting serial column is same
     });
-    table.ReadTableRowColumnData(1, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq(" "); //Not updating one column
+    table.ReadTableRowColumnData(1, 1, 200).then(($ts) => {
+      table.ReadTableRowColumnData(1, 2, 200).then(($tstz) => {
+        expect($ts).to.not.eq($tstz);
+      });
     });
     table.ReadTableRowColumnData(1, 3, 200).then(($cellData) => {
-      expect($cellData).to.eq("Tram");
+      expect($cellData).to.eq("2012-03-17");
     });
-    table.ReadTableRowColumnData(1, 5, 200).then(($cellData) => {
-      expect(Number($cellData)).to.be.greaterThan(0);
+    table.ReadTableRowColumnData(1, 4, 200).then(($cellData) => {
+      expect($cellData).to.eq("04:05:06.789");
     });
     table.ReadTableRowColumnData(1, 6, 200).then(($cellData) => {
-      expect(Number($cellData)).to.be.greaterThan(0);
+      expect($cellData).to.eq("1 year 3 months 2 days 6 hours 4 minutes 5 seconds");
+    });
+    table.ReadTableRowColumnData(1, 7, 200).then(($cellData) => {
+      expect($cellData).to.eq("17.03.2012");
     });
   });
 
-  it("14. Inserting another record (+ve record - to check serial column) - datetimetypes", () => {
+  it("11. Deleting records - datetimetypes", () => {
+    //table.SelectTableRow(1);
+    agHelper.ClickButton("DeleteQuery", 1);
+    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
+      expect($cellData).not.to.eq(""); //asserting 2nd record is deleted
+    });
+  });
+
+  it("12. Inserting another record (+ve record - to check serial column) - datetimetypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
-    agHelper.EnterInputText("One_1_", "e");
-    agHelper.EnterInputText(
-      "AsMany",
-      "Sailing ships were used for thousands of years!",
-    );
-    agHelper.EnterInputText(
-      "Unlimited",
-      "At one time, the steamships Titanic, Olympic, and Britannic were the largest ships in the world, Titanic sank on her maiden voyage after hitting an iceberg, becoming one of the most famous shipwrecks of all time",
-      false,
-      false,
-    );
+
+    agHelper.EnterInputText("Ts", "February 8 04:05:06 1999");
+    agHelper.EnterInputText("Tstz", "February 10 04:05:06 1999 PST");
+    agHelper.EnterInputText("Dater", "J2451187"); // 20451229
+    agHelper.EnterInputText("Timer", "181416");
+    agHelper.EnterInputText("Intervaler", "1-2");
+
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
-    table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
-      expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
+
+    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
+      expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(2, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("e");
+    table.ReadTableRowColumnData(1, 1, 200).then(($ts) => {
+      table.ReadTableRowColumnData(1, 2, 200).then(($tstz) => {
+        expect($ts).to.not.eq($tstz); //ts & tstz not equal since tstz is time zone applied
+      });
     });
-    table.ReadTableRowColumnData(2, 3, 200).then(($cellData) => {
-      expect($cellData).to.eq(""); //asserting empty field inserted
+    table.ReadTableRowColumnData(1, 3, 200).then(($cellData) => {
+      expect($cellData).to.eq("1999-01-08");
     });
-    table.ReadTableRowColumnData(2, 5, 200).then(($cellData) => {
-      expect(Number($cellData)).to.be.greaterThan(0); //asserting length columns
+    table.ReadTableRowColumnData(1, 4, 200).then(($cellData) => {
+      expect($cellData).to.eq("18:14:16");
     });
-    table.ReadTableRowColumnData(2, 6, 200).then(($cellData) => {
-      expect(Number($cellData)).to.be.greaterThan(0); //asserting length columns
+    table.ReadTableRowColumnData(1, 6, 200).then(($cellData) => {
+      expect($cellData).to.eq("1 years 2 mons 0 days 0 hours 0 mins 0.0 secs");
+    });
+    table.ReadTableRowColumnData(1, 7, 200).then(($cellData) => {
+      expect($cellData).to.eq("08.01.1999");
     });
   });
 
-  it("15. Deleting records - datetimetypes", () => {
-    table.SelectTableRow(1);
-    agHelper.ClickButton("DeleteQuery", 1);
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
-    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
-      expect($cellData).not.to.eq("3"); //asserting 3rd record is deleted
-    });
-    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
-      expect($cellData).to.eq("4");
-    });
-  });
-
-  it("16. Deleting all records from table - datetimetypes", () => {
+  it("13. Deleting all records from table - datetimetypes", () => {
     agHelper.GetNClick(locator._deleteIcon);
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
 
-  it("17. Inserting record (null record - to check serial column) - datetimetypes", () => {
-    agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locator._modal);
-    agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
-    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
-      expect($cellData).to.eq("5"); //asserting serial column is inserting fine in sequence
-    });
-    table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq(" ");
-    });
-    table.ReadTableRowColumnData(0, 3, 200).then(($cellData) => {
-      expect($cellData).to.eq("");
-    });
-    table.ReadTableRowColumnData(0, 5, 200).then(($cellData) => {
-      expect(Number($cellData)).to.eq(0);
-    });
-    table.ReadTableRowColumnData(0, 6, 200).then(($cellData) => {
-      expect(Number($cellData)).to.eq(0);
-    });
-  });
-
-  it("18. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
+  it("14. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("dropTable");
@@ -357,12 +279,14 @@ describe("Postgres - Datatype DateTime tests", function() {
     ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.datetimetypes"));
+    agHelper.AssertElementAbsence(
+      ee._entityNameInExplorer("public.datetimetypes"),
+    );
     ee.ExpandCollapseEntity(dsName, false);
     ee.ExpandCollapseEntity("DATASOURCES", false);
   });
 
-  it("19. Verify Deletion of the datasource after all created queries are Deleted", () => {
+  it("15. Verify Deletion of the datasource after all created queries are Deleted", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");

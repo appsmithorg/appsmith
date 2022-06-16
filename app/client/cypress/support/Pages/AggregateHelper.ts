@@ -514,7 +514,7 @@ export class AggregateHelper {
   public EnterInputText(name: string, input: string, toClear = false, isInput = true) {
     toClear && this.ClearInputText(name)
     cy.xpath(this.locator._inputWidgetValueField(name, isInput))
-      .click()
+      .trigger('click')
       .type(input);
   }
 
