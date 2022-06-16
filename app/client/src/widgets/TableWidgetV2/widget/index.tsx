@@ -1490,6 +1490,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             columnType={column.columnType}
             compactMode={compactMode}
             disabledEditIcon={
+              this.props.inlineEditingSaveOption ===
+                InlineEditingSaveOptions.ROW_LEVEL &&
               this.props.updatedRowIndices.length &&
               this.props.updatedRowIndices.indexOf(originalIndex) === -1
             }

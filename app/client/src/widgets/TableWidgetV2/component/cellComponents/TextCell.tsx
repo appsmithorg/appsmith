@@ -207,7 +207,7 @@ export function TextCell({
                 autoFocus={false}
                 content={
                   <TooltipContentWrapper>
-                    Save the unsaved row before editing this row
+                    Save or discard the unsaved row to start editing here
                   </TooltipContentWrapper>
                 }
                 hoverOpenDelay={200}
