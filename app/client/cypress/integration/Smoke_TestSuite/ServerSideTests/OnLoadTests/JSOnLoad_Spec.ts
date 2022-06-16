@@ -72,7 +72,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("3. Tc 54, 55 - Verify OnPage Load - auto enabled from above case for JSOBject", function() {
@@ -92,7 +92,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     jsEditor.EnableDisableAsyncFuncSettings("getId", false, true);
     deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
     agHelper.WaitUntilToastDisappear('The action "GetUser" has failed');
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     agHelper.WaitUntilToastDisappear('The action "GetUser" has failed');
   });
 
@@ -110,7 +110,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("6. Tc 55 - Verify OnPage Load - Enabling & Before Function calling Enabling for JSOBject", function() {
@@ -123,11 +123,11 @@ describe("JSObjects OnLoad Actions tests", function() {
     );
     agHelper.ClickButton("Yes");
     agHelper.AssertElementAbsence(locator._toastMsg);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
-    agHelper.NavigateBacktoEditor();
+    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getId"),
@@ -156,7 +156,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getId"),
@@ -348,7 +348,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   it("10. API with OnPageLoad & Confirmation both enabled & called directly & setting previous Api's confirmation to false", () => {
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "Quotes" has failed');
@@ -540,7 +540,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       .GetText(locator._jsonFormInputField("url"), "val")
       .then(($url) => expect($url).not.be.empty);
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "getBooks" has failed');
