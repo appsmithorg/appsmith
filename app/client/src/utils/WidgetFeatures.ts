@@ -1,4 +1,5 @@
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { WidgetHeightLimits } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { WidgetProps } from "widgets/BaseWidget";
 
@@ -10,8 +11,9 @@ export interface WidgetFeatures {
 }
 
 export enum DynamicHeight {
-  HUG_CONTENTS = "HUG_CONTENTS",
+  AUTO_HEIGHT = "AUTO_HEIGHT",
   FIXED = "FIXED",
+  AUTO_HEIGHT_WITH_LIMITS = "AUTO_HEIGHT_WITH_LIMITS"
 }
 
 /* This contains all properties which will be added 
@@ -36,7 +38,7 @@ export const WidgetFeatureProps = {
    and returns true if disabled, and false if enabled.
 */
 export function hideDynamicHeightPropertyControl(props: WidgetProps) {
-  return props.dynamicHeight !== DynamicHeight.HUG_CONTENTS;
+  return props.dynamicHeight !== DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
 }
 
 function validateMinHeight(value: unknown, props: WidgetProps) {
@@ -45,14 +47,14 @@ function validateMinHeight(value: unknown, props: WidgetProps) {
   if (isNaN(_value) || _value <= 2) {
     return {
       isValid: false,
-      messages: [`Value should be a positive integer greater than 2`],
-      parsed: 2,
+      messages: [`Value should be a positive integer greater than ${WidgetHeightLimits.MIN_HEIGHT_IN_ROWS}`],
+      parsed: WidgetHeightLimits.MIN_HEIGHT_IN_ROWS,
     };
   } else if (_value > _maxHeight) {
     return {
       isValid: false,
       messages: [`Value should be less than or equal Max. Height`],
-      parsed: _maxHeight || 2,
+      parsed: _maxHeight || WidgetHeightLimits.MIN_HEIGHT_IN_ROWS,
     };
   }
   return {
@@ -69,13 +71,13 @@ function validateMaxHeight(value: unknown, props:WidgetProps) {
     return {
       isValid: false,
       messages: [`Value should be a positive integer greater than 2`],
-      parsed: 1000,
+      parsed: WidgetHeightLimits.MAX_HEIGHT_IN_ROWS,
     }
   } else if (_value < _minHeight) {
     return {
       isValid: false,
       messages: [`Value should be greater than or equal Min. Height`],
-      parsed: _minHeight || 2
+      parsed: _minHeight || WidgetHeightLimits.MIN_HEIGHT_IN_ROWS
     }
   }
   return {
@@ -104,7 +106,7 @@ export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
           propertyValue: string,
         ) => {
           if (
-            propertyValue === DynamicHeight.HUG_CONTENTS &&
+            (propertyValue === DynamicHeight.AUTO_HEIGHT || propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) &&
             props.shouldScrollContents === false &&
             propertyName === "dynamicHeight"
           ) {
@@ -118,8 +120,12 @@ export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
         },
         options: [
           {
-            label: "Hug Contents",
-            value: DynamicHeight.HUG_CONTENTS,
+            label: "Auto Height",
+            value: DynamicHeight.AUTO_HEIGHT,
+          },
+          {
+            label: "Auto Height with limits",
+            value: DynamicHeight.AUTO_HEIGHT_WITH_LIMITS,
           },
           {
             label: "Fixed",

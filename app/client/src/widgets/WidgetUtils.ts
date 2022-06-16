@@ -550,5 +550,8 @@ export interface DynamicnHeightEnabledComponentProps {
  * @param props
  */
 export const isDynamicHeightEnabledForWidget = (props: WidgetProps) => {
-  return props.dynamicHeight === DynamicHeight.HUG_CONTENTS;
+  return (
+    props.dynamicHeight === DynamicHeight.AUTO_HEIGHT ||
+    props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
+  );
 };

@@ -16,7 +16,7 @@ import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import SingleSelectTreeComponent from "../component";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -483,9 +483,7 @@ class SingleSelectTreeWidget extends BaseWidget<
           zIndex: Layers.dropdownModalWidget,
         }}
         expandAll={this.props.expandAll}
-        isDynamicHeightEnabled={
-          this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS
-        }
+        isDynamicHeightEnabled={isDynamicHeightEnabledForWidget(this.props)}
         isFilterable
         isValid={!isInvalid}
         labelAlignment={this.props.labelAlignment}

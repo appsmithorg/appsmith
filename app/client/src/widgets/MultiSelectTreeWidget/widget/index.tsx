@@ -16,7 +16,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import MultiTreeSelectComponent from "../component";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -520,9 +520,7 @@ class MultiSelectTreeWidget extends BaseWidget<
           zIndex: Layers.dropdownModalWidget,
         }}
         expandAll={this.props.expandAll}
-        isDynamicHeightEnabled={
-          this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS
-        }
+        isDynamicHeightEnabled={isDynamicHeightEnabledForWidget(this.props)}
         isFilterable
         isValid={!isInvalid}
         labelAlignment={this.props.labelAlignment}

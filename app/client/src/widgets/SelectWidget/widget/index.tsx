@@ -21,7 +21,7 @@ import {
   isString,
   LoDashStatic,
 } from "lodash";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -498,9 +498,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         filterText={this.props.filterText}
         hasError={isInvalid}
         height={componentHeight}
-        isDynamicHeightEnabled={
-          this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS
-        }
+        isDynamicHeightEnabled={isDynamicHeightEnabledForWidget(this.props)}
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
         isValid={this.props.isValid}

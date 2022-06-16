@@ -26,7 +26,7 @@ import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -603,9 +603,7 @@ class MultiSelectWidget extends BaseWidget<
           zIndex: Layers.dropdownModalWidget,
         }}
         filterText={this.props.filterText}
-        isDynamicHeightEnabled={
-          this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS
-        }
+        isDynamicHeightEnabled={isDynamicHeightEnabledForWidget(this.props)}
         isFilterable={this.props.isFilterable}
         isValid={!isInvalid}
         labelAlignment={this.props.labelAlignment}

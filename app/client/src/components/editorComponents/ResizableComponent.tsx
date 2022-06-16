@@ -44,7 +44,7 @@ import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -145,7 +145,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       right: newRowCols.rightColumn,
     };
 
-    if (props.dynamicHeight === DynamicHeight.HUG_CONTENTS) {
+    if (isDynamicHeightEnabledForWidget(props)) {
       canResizeVertically = false;
       resizedPositions.top = props.topRow;
       resizedPositions.bottom = props.bottomRow;

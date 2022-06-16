@@ -40,7 +40,7 @@ describe("Widget Features tests", () => {
     });
   });
   it("Make sure hidden hook for dynamic Height enabled if dynamic height is enabled", () => {
-    const inputs = [DynamicHeight.HUG_CONTENTS, "HUG_CONTENTS"];
+    const inputs = [DynamicHeight.AUTO_HEIGHT, "AUTO_HEIGHT"];
 
     inputs.forEach((dynamicHeight) => {
       const result = hideDynamicHeightPropertyControl({

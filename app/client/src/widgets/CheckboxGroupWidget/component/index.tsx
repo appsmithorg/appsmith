@@ -199,8 +199,6 @@ const CheckboxGroupComponent = React.forwardRef<
     toOverflowOrNot = maxHeight < clientHeight;
   }
 
-  console.log(maxHeight, clientHeight, toOverflowOrNot, "maxDynamicHeight");
-
   const finalComponent = (
     <CheckboxGroupContainer
       compactMode={compactMode}

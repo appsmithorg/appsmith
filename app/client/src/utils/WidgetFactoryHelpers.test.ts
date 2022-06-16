@@ -84,8 +84,12 @@ const EXPECTED_PROPERTY_CONFIG = [
         isTriggerProperty: false,
         options: [
           {
-            label: "Hug Contents",
-            value: DynamicHeight.HUG_CONTENTS,
+            label: "Auto Height",
+            value: DynamicHeight.AUTO_HEIGHT,
+          },
+          {
+            label: "Auto Height with limits",
+            value: DynamicHeight.AUTO_HEIGHT_WITH_LIMITS,
           },
           {
             label: "Fixed",
@@ -99,7 +103,7 @@ const EXPECTED_PROPERTY_CONFIG = [
         helpText: "Minimum number of rows to occupy irrespective of contents",
         controlType: "INPUT_TEXT",
         hidden: (props: WidgetProps) => {
-          return props.dynamicHeight !== DynamicHeight.HUG_CONTENTS;
+          return props.dynamicHeight !== DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
         },
         dependencies: ["dynamicHeight"],
         isJSConvertible: false,
@@ -113,7 +117,7 @@ const EXPECTED_PROPERTY_CONFIG = [
         controlType: "INPUT_TEXT",
         dependencies: ["dynamicHeight"],
         hidden: (props: WidgetProps) => {
-          return props.dynamicHeight !== DynamicHeight.HUG_CONTENTS;
+          return props.dynamicHeight !== DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
         },
         isJSConvertible: false,
         isBindProperty: false,

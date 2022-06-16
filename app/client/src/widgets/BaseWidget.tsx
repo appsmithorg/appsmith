@@ -12,6 +12,7 @@ import {
   PositionTypes,
   RenderMode,
   RenderModes,
+  WidgetHeightLimits,
   WidgetType,
 } from "constants/WidgetConstants";
 import React, { Component, ReactNode } from "react";
@@ -41,6 +42,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import { isDynamicHeightEnabledForWidget } from "./WidgetUtils";
 
 /***
  * BaseWidget
@@ -188,19 +190,26 @@ abstract class BaseWidget<
     );
 
     // Does this widget have dynamic height enabled
-    const isDynamicHeightEnabled =
-      this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS;
+    const isDynamicHeightEnabled = isDynamicHeightEnabledForWidget(this.props);
 
     // Run the following pieces of code only if dynamic height is enabled
     if (!isDynamicHeightEnabled) return false;
 
+    const maxDynamicHeightInRows =
+      DynamicHeight.AUTO_HEIGHT_WITH_LIMITS && this.props.maxDynamicHeight
+        ? this.props.maxDynamicHeight
+        : WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
+
+    const minDynamicHeightInRows =
+      DynamicHeight.AUTO_HEIGHT_WITH_LIMITS && this.props.minDynamicHeight
+        ? this.props.minDynamicHeight
+        : WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+
     // If current height is less than the expected height
     // We're trying to see if we can increase the height
     if (currentHeightInRows < expectedHeightInRows) {
-      // Get the max possible height for the widget
-      const widgetMaxHeightInRows = this.props.maxDynamicHeight || 1000;
       // If we're not already at the max height, we can increase height
-      if (widgetMaxHeightInRows > currentHeightInRows) {
+      if (maxDynamicHeightInRows > currentHeightInRows) {
         return true;
       }
     }
@@ -208,11 +217,9 @@ abstract class BaseWidget<
     // If current height is greater than expected height
     // We're trying to see if we can reduce the height
     if (currentHeightInRows > expectedHeightInRows) {
-      // Get the minimum possible height for the widget
-      const widgetMinHeightInRows = this.props.minDynamicHeight || 2;
       // If our attempt to reduce does not go below the min possible height
       // We can safely reduce the height
-      if (widgetMinHeightInRows < expectedHeightInRows) {
+      if (minDynamicHeightInRows < expectedHeightInRows) {
         return true;
       }
     }
@@ -226,22 +233,22 @@ abstract class BaseWidget<
   /* eslint-disable @typescript-eslint/no-unused-vars */
   componentDidUpdate(prevProps: T) {
     const expectedHeight = this.contentRef.current?.scrollHeight;
-    if (expectedHeight !== undefined) {
-      if (
-        prevProps.type === "TEXT_WIDGET" ||
-        prevProps.type === "RATE_WIDGET" ||
-        prevProps.type === "CHECKBOX_WIDGET" ||
-        prevProps.type === "SWITCH_WIDGET"
-      ) {
-        this.updateDynamicHeight(expectedHeight + 8);
-      } else if (prevProps.type === "TABLE_WIDGET") {
-        this.updateDynamicHeight(expectedHeight + 80);
-      } else if (prevProps.type === "JSON_FORM_WIDGET") {
-        this.updateDynamicHeight(expectedHeight + 61);
-      } else {
-        this.updateDynamicHeight(expectedHeight);
-      }
-    }
+    // if (expectedHeight !== undefined) {
+    //   if (
+    //     prevProps.type === "TEXT_WIDGET" ||
+    //     prevProps.type === "RATE_WIDGET" ||
+    //     prevProps.type === "CHECKBOX_WIDGET" ||
+    //     prevProps.type === "SWITCH_WIDGET"
+    //   ) {
+    //     this.updateDynamicHeight(expectedHeight + 8);
+    //   } else if (prevProps.type === "TABLE_WIDGET") {
+    //     this.updateDynamicHeight(expectedHeight + 80);
+    //   } else if (prevProps.type === "JSON_FORM_WIDGET") {
+    //     this.updateDynamicHeight(expectedHeight + 61);
+    //   } else {
+    if (expectedHeight !== undefined) this.updateDynamicHeight(expectedHeight);
+    //   }
+    // }
   }
 
   componentDidMount(): void {}
@@ -424,10 +431,6 @@ abstract class BaseWidget<
         content = this.addPreviewModeWidget(content);
         content = this.addPreventInteractionOverlay(content);
         content = this.addOverlayComments(content);
-
-        // if (this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS) {
-        //   content = this.addDynamicHeightContainer(content);
-        // }
 
         if (!this.props.detachFromLayout) {
           if (!this.props.resizeDisabled) content = this.makeResizable(content);

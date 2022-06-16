@@ -33,7 +33,7 @@ import {
 } from "../component/utilities";
 import { mergeWidgetConfig } from "utils/helpers";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultValueValidation(
   value: any,
@@ -368,9 +368,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
-        isDynamicHeightEnabled={
-          this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS
-        }
+        isDynamicHeightEnabled={isDynamicHeightEnabledForWidget(this.props)}
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}

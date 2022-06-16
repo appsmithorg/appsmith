@@ -81,6 +81,11 @@ export const GridDefaults = {
   CANVAS_EXTENSION_OFFSET: 2,
 };
 
+export const WidgetHeightLimits = {
+  MAX_HEIGHT_IN_ROWS: 9000,
+  MIN_HEIGHT_IN_ROWS: 4,
+};
+
 // Note: Widget Padding + Container Padding === DEFAULT_GRID_ROW_HEIGHT to gracefully lose one row when a container is used,
 // which wud allow the user to place elements centered inside a container(columns are rendered proportionally so it take cares of itself).
 

@@ -46,7 +46,7 @@ export interface StyledLabelProps {
   fontStyle?: string;
   hasHelpText: boolean;
   position?: LabelPosition;
-  isDynamicHeightEnabled?: boolean;
+  $isDynamicHeightEnabled?: boolean;
 }
 
 interface TooltipIconProps {
@@ -186,8 +186,8 @@ export const StyledLabel = styled(Label)<StyledLabelProps>`
     `}
   }
 
-  ${({ isDynamicHeightEnabled }) =>
-    isDynamicHeightEnabled
+  ${({ $isDynamicHeightEnabled }) =>
+    $isDynamicHeightEnabled
       ? "&& { text-overflow: initial; white-space: initial; }"
       : ""};
 `;
@@ -268,6 +268,7 @@ const LabelWithTooltip = React.forwardRef<
         position={Position.TOP}
       >
         <StyledLabel
+          $isDynamicHeightEnabled={isDynamicHeightEnabled}
           className={`${
             loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
           } ${className}`}
@@ -278,7 +279,6 @@ const LabelWithTooltip = React.forwardRef<
           fontSize={fontSize}
           fontStyle={fontStyle}
           hasHelpText={!!helpText}
-          isDynamicHeightEnabled={isDynamicHeightEnabled}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           position={position}
