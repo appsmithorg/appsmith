@@ -156,7 +156,32 @@ export const translateDiffEventToDataTreeDiffEvent = (
           typeof difference.lhs === "string" && isDynamicValue(difference.lhs);
       }
 
-      if (rhsChange || lhsChange) {
+      // JsObject function renaming
+      // remove .data from a String instance manually
+      // since it won't be identified when calculating diffs
+      // source for .data in a String instance -> `updateLocalUnEvalTree`
+      if (
+        isJsAction &&
+        rhsChange &&
+        difference.lhs instanceof String &&
+        _.get(difference.lhs, "data")
+      ) {
+        result = [
+          {
+            event: DataTreeDiffEvent.DELETE,
+            payload: {
+              propertyPath: `${propertyPath}.data`,
+            },
+          },
+          {
+            event: DataTreeDiffEvent.EDIT,
+            payload: {
+              propertyPath,
+              value: difference.rhs,
+            },
+          },
+        ];
+      } else if (rhsChange || lhsChange) {
         result.event = DataTreeDiffEvent.EDIT;
         result.payload = {
           propertyPath,

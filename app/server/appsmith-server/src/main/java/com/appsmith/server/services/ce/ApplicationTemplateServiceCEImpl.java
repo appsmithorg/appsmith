@@ -1,10 +1,11 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -28,9 +29,10 @@ import reactor.core.publisher.Mono;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.List;
 
 @Service
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
@@ -72,20 +74,20 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @Override
-    public Flux<ApplicationTemplate> getActiveTemplates(List<String> templateIds) {
+    public Mono<List<ApplicationTemplate>> getActiveTemplates(List<String> templateIds) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
 
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.newInstance()
                 .queryParam("version", releaseNotesService.getReleasedVersion());
 
-        if(!CollectionUtils.isEmpty(templateIds)) {
+        if (!CollectionUtils.isEmpty(templateIds)) {
             uriComponentsBuilder.queryParam("id", templateIds);
         }
 
         // uriComponents will build url in format: version=version&id=id1&id=id2&id=id3
         UriComponents uriComponents = uriComponentsBuilder.build();
 
-        Flux<ApplicationTemplate> applicationTemplateFlux = WebClient
+        return WebClient
                 .create(baseUrl + "/api/v1/app-templates?" + uriComponents.getQuery())
                 .get()
                 .exchangeToFlux(clientResponse -> {
@@ -96,17 +98,26 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                     } else {
                         return clientResponse.createException().flatMapMany(Flux::error);
                     }
+                })
+                .collectList().zipWith(userDataService.getForCurrentUser())
+                .map(objects -> {
+                    List<ApplicationTemplate> applicationTemplateList = objects.getT1();
+                    UserData userData = objects.getT2();
+                    List<String> recentlyUsedTemplateIds = userData.getRecentlyUsedTemplateIds();
+                    if (!CollectionUtils.isEmpty(recentlyUsedTemplateIds)) {
+                        applicationTemplateList.sort(
+                                Comparator.comparingInt(o -> {
+                                    int index = recentlyUsedTemplateIds.indexOf(o.getId());
+                                    if (index < 0) {
+                                        // template not in recent list, return a large value so that it's sorted out to the end
+                                        index = Integer.MAX_VALUE;
+                                    }
+                                    return index;
+                                })
+                        );
+                    }
+                    return applicationTemplateList;
                 });
-
-        if(!CollectionUtils.isEmpty(templateIds)) {
-            // the items should be sorted based on the order of the templateIds when it's not empty
-            applicationTemplateFlux = applicationTemplateFlux.sort(
-                    // sort based on index of id in templateIds list.
-                    // index of first item will be less than index of next item
-                    Comparator.comparingInt(o -> templateIds.indexOf(o.getId()))
-            );
-        }
-        return applicationTemplateFlux;
     }
 
     @Override
@@ -172,12 +183,13 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @Override
-    public Flux<ApplicationTemplate> getRecentlyUsedTemplates() {
-        return userDataService.getForCurrentUser().flatMapMany(userData -> {
-            if(!CollectionUtils.isEmpty(userData.getRecentlyUsedTemplateIds())) {
-                return getActiveTemplates(userData.getRecentlyUsedTemplateIds());
+    public Mono<List<ApplicationTemplate>> getRecentlyUsedTemplates() {
+        return userDataService.getForCurrentUser().flatMap(userData -> {
+            List<String> templateIds = userData.getRecentlyUsedTemplateIds();
+            if(!CollectionUtils.isEmpty(templateIds)) {
+                return getActiveTemplates(templateIds);
             }
-            return Flux.just();
+            return Mono.empty();
         });
     }
 
@@ -204,5 +216,14 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             super(UriComponentsBuilder.fromHttpUrl(baseUriTemplate));
             super.setEncodingMode(EncodingMode.NONE);
         }
+    }
+
+    @Override
+    public Mono<Application> mergeTemplateWithApplication(String templateId, String applicationId, String organizationId, String branchName, List<String> pagesToImport) {
+        return getApplicationJsonFromTemplate(templateId).flatMap(applicationJson ->
+                importExportApplicationService.mergeApplicationJsonWithApplication(
+                        organizationId, applicationId, null, applicationJson, pagesToImport
+                )
+        );
     }
 }
