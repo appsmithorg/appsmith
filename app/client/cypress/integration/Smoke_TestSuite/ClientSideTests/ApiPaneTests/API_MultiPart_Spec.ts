@@ -4,19 +4,20 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
   apiPage = ObjectsRegistry.ApiPage,
-  locator = ObjectsRegistry.CommonLocators;
+  locator = ObjectsRegistry.CommonLocators,
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate API request body panel", () => {
   it("1. Check whether input and type dropdown selector exist when multi-part is selected", () => {
     apiPage.CreateApi("FirstAPI", "POST");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("FORM_URLENCODED");
-    agHelper.AssertElementPresence(apiPage._bodyKey(0));
-    agHelper.AssertElementPresence(apiPage._bodyValue(0));
+    agHelper.AssertElementVisible(apiPage._bodyKey(0));
+    agHelper.AssertElementVisible(apiPage._bodyValue(0));
     apiPage.SelectSubTab("MULTIPART_FORM_DATA");
-    agHelper.AssertElementPresence(apiPage._bodyKey(0));
-    agHelper.AssertElementPresence(apiPage._bodyTypeDropdown);
-    agHelper.AssertElementPresence(apiPage._bodyValue(0));
+    agHelper.AssertElementVisible(apiPage._bodyKey(0));
+    agHelper.AssertElementVisible(apiPage._bodyTypeDropdown);
+    agHelper.AssertElementVisible(apiPage._bodyValue(0));
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
@@ -132,7 +133,7 @@ describe("Validate API request body panel", () => {
 
     apiPage.OnPageLoadRun(false); //Bug 12476
     ee.SelectEntityByName("Page1");
-    agHelper.DeployApp(locator._spanButton("Select Files"));
+    deployMode.DeployApp(locator._spanButton("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
     agHelper.ValidateToastMessage("Image uploaded to Cloudinary successfully");
@@ -143,8 +144,8 @@ describe("Validate API request body panel", () => {
       .then(($src) => {
         expect($src).not.eq("https://assets.appsmith.com/widgets/default.png");
       });
-    agHelper.AssertElementPresence(locator._spanButton("Select Files")); //verifying if reset!
-    agHelper.NavigateBacktoEditor();
+    agHelper.AssertElementVisible(locator._spanButton("Select Files")); //verifying if reset!
+    deployMode.NavigateBacktoEditor();
   });
 
   it("8. Checks MultiPart form data for a Array Type upload results in API error", () => {
@@ -165,10 +166,10 @@ describe("Validate API request body panel", () => {
       '{"error":{"message":"Unsupported source URL: {\\"type\\":\\"image/jpeg\\"',
     );
 
-    agHelper.DeployApp(locator._spanButton("Select Files"));
+    deployMode.DeployApp(locator._spanButton("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload, false);
     agHelper.ValidateToastMessage("CloudinaryUploadApi failed to execute");
-    agHelper.AssertElementPresence(locator._spanButton("Select Files")); //verifying if reset in case of failure!
+    agHelper.AssertElementVisible(locator._spanButton("Select Files")); //verifying if reset in case of failure!
   });
 });

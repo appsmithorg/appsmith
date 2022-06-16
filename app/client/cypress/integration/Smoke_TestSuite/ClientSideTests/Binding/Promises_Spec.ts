@@ -4,7 +4,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
-  apiPage = ObjectsRegistry.ApiPage;
+  apiPage = ObjectsRegistry.ApiPage,
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate basic Promises", () => {
   it("1. Verify storeValue via .then via direct Promises", () => {
@@ -19,10 +20,10 @@ describe("Validate basic Promises", () => {
       true,
       true,
     );
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage(date);
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("2. Verify resolve & chaining via direct Promises", () => {
@@ -44,10 +45,10 @@ describe("Validate basic Promises", () => {
       true,
       true,
     );
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("We are on planet Earth");
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("3. Verify Async Await in direct Promises", () => {
@@ -76,7 +77,7 @@ describe("Validate basic Promises", () => {
       true,
       true,
     );
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     cy.get(locator._toastMsg).should("have.length", 2);
     cy.get(locator._toastMsg)
@@ -85,7 +86,7 @@ describe("Validate basic Promises", () => {
     cy.get(locator._toastMsg)
       .last()
       .contains(/male|female|null/g);
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("4. Verify .then & .catch via direct Promises", () => {
@@ -114,12 +115,12 @@ describe("Validate basic Promises", () => {
     agHelper.ValidateToastMessage(
       "will be executed automatically on page load",
     );
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     cy.get(locator._toastMsg)
       .should("have.length", 1)
       .contains(/You have a beautiful picture|Oops!/g);
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("5. Verify .then & .catch via JS Objects in Promises", () => {
@@ -138,13 +139,13 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
         true,
       );
     });
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     //agHelper.ValidateToastMessage("Today's quote for You")
     cy.get(locator._toastMsg)
       .should("have.length", 1)
       .contains(/Today's quote for You|Unable to fetch quote for/g);
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("6. Verify Promise.race via direct Promises", () => {
@@ -166,12 +167,12 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       true,
       true,
     );
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     cy.get(locator._toastMsg)
       .should("have.length", 1)
       .contains(/Melinda|Trump/g);
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("7. Verify maintaining context via direct Promises", () => {
@@ -218,13 +219,13 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       true,
       true,
     );
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.WaitUntilEleAppear(locator._toastMsg);
     cy.get(locator._toastMsg)
       //.should("have.length", 1)//covered in WaitUntilEleAppear()
       .should("have.text", "Showing results for : fruits basket : the final");
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("8: Verify Promise.all via direct Promises", () => {
@@ -248,10 +249,10 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       true,
       true,
     );
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("cat,dog,camel,rabbit,rat");
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("9. Bug 10150: Verify Promise.all via JSObjects", () => {
@@ -281,7 +282,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
         true,
       );
     });
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     //agHelper.WaitUntilEleAppear(locator._toastMsg)
     cy.get(locator._toastMsg).should("have.length", 3);
@@ -295,7 +296,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     cy.get(locator._toastMsg)
       .last()
       .contains(/Wonderful|Please check/g);
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("10. Verify Promises.any via direct JSObjects", () => {
@@ -319,7 +320,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
       return Promise.any([this.func2(), this.func3(), this.func1()]).then((value) => showAlert("Resolved promise is:" + value))
     }
     }`,
-      { paste: true, completeReplace: true, toRun: true, shouldCreateNewJSObj: true },
+      { paste: true, completeReplace: true, toRun: false, shouldCreateNewJSObj: true },
     );
     ee.SelectEntityByName("Button1", "WIDGETS");
     cy.get("@jsObjName").then((jsObjName) => {
@@ -330,7 +331,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
         true,
       );
     });
-    agHelper.DeployApp();
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     cy.get(locator._toastMsg).should("have.length", 4);
     cy.get(locator._toastMsg)
@@ -339,7 +340,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     cy.get(locator._toastMsg)
       .last()
       .contains("Resolved promise is:func3");
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("11. Bug : 11110 - Verify resetWidget via .then direct Promises", () => {
@@ -353,11 +354,11 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
       true,
       true,
     );
-    agHelper.DeployApp(locator._inputWidgetInDeployed);
+    deployMode.DeployApp(locator._inputWidgetInDeployed);
     cy.get(locator._inputWidgetInDeployed).type("Update value");
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("Test");
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   //Skipping until this bug this is addressed!

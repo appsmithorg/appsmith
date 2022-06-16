@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { Link, RouteComponentProps, withRouter } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
 import { AppViewerRouteParams } from "constants/routes";
@@ -15,7 +15,6 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "../Applications/permissionHelpers";
-import { fetchPublishedPage } from "actions/pageActions";
 import { builderURL } from "RouteBuilder";
 import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
 
@@ -33,19 +32,13 @@ const Section = styled.section<{
 type AppViewerPageContainerProps = RouteComponentProps<AppViewerRouteParams>;
 
 function AppViewerPageContainer(props: AppViewerPageContainerProps) {
-  const dispatch = useDispatch();
   const currentPageName = useSelector(getCurrentPageName);
   // const widgets = useSelector(getCanvasWidgetDsl);
   const widgetsStructure = useSelector(getCanvasWidgetsStructure);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const currentApplication = useSelector(getCurrentApplication);
   const { match } = props;
-  const { pageId } = match.params;
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
-
-  useEffect(() => {
-    pageId && dispatch(fetchPublishedPage(pageId, true));
-  }, [pageId, location.pathname]);
 
   // get appsmith editr link
   const appsmithEditorLink = useMemo(() => {

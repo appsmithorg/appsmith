@@ -2,6 +2,7 @@ import { DependencyMap } from "utils/DynamicBindingUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import {
+  DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
@@ -19,7 +20,7 @@ import {
 } from "./evaluationUtils";
 import { warn as logWarn } from "loglevel";
 import { Diff } from "deep-diff";
-import { flatten } from "lodash";
+import _, { flatten } from "lodash";
 import { overrideWidgetProperties } from "./evaluationUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
@@ -395,6 +396,112 @@ describe("translateDiffEvent", () => {
           value: "",
         },
         event: DataTreeDiffEvent.NOOP,
+      },
+    ];
+
+    const actualTranslations = flatten(
+      diffs.map((diff) => translateDiffEventToDataTreeDiffEvent(diff, {})),
+    );
+
+    expect(expectedTranslations).toStrictEqual(actualTranslations);
+  });
+
+  it("handles JsObject function renaming", () => {
+    // cyclic dependency case
+    const lhs = new String("() => {}");
+    _.set(lhs, "data", {});
+    const diffs: Diff<any, any>[] = [
+      {
+        kind: "E",
+        path: ["JsObject", "myFun1"],
+        rhs: "() => {}",
+        lhs,
+      },
+    ];
+
+    const expectedTranslations: DataTreeDiff[] = [
+      {
+        event: DataTreeDiffEvent.DELETE,
+        payload: {
+          propertyPath: "JsObject.myFun1.data",
+        },
+      },
+      {
+        event: DataTreeDiffEvent.EDIT,
+        payload: {
+          propertyPath: "JsObject.myFun1",
+          value: "() => {}",
+        },
+      },
+    ];
+
+    const actualTranslations = flatten(
+      diffs.map((diff) =>
+        translateDiffEventToDataTreeDiffEvent(diff, {
+          JsObject: ({
+            ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+          } as unknown) as DataTreeEntity,
+        }),
+      ),
+    );
+
+    expect(expectedTranslations).toStrictEqual(actualTranslations);
+  });
+
+  it("lists array accessors when object is replaced by an array", () => {
+    const diffs: Diff<any, any>[] = [
+      {
+        kind: "E",
+        path: ["Api1", "data"],
+        lhs: {},
+        rhs: [{ id: 1 }, { id: 2 }],
+      },
+    ];
+
+    const expectedTranslations: DataTreeDiff[] = [
+      {
+        payload: {
+          propertyPath: "Api1.data[0]",
+        },
+        event: DataTreeDiffEvent.NEW,
+      },
+      {
+        payload: {
+          propertyPath: "Api1.data[1]",
+        },
+        event: DataTreeDiffEvent.NEW,
+      },
+    ];
+
+    const actualTranslations = flatten(
+      diffs.map((diff) => translateDiffEventToDataTreeDiffEvent(diff, {})),
+    );
+
+    expect(expectedTranslations).toStrictEqual(actualTranslations);
+  });
+
+  it("lists array accessors when array is replaced by an object", () => {
+    const diffs: Diff<any, any>[] = [
+      {
+        kind: "E",
+        path: ["Api1", "data"],
+        lhs: [{ id: 1 }, { id: 2 }],
+        rhs: {},
+      },
+    ];
+
+    const expectedTranslations: DataTreeDiff[] = [
+      {
+        payload: {
+          propertyPath: "Api1.data[0]",
+        },
+        event: DataTreeDiffEvent.DELETE,
+      },
+      {
+        payload: {
+          propertyPath: "Api1.data[1]",
+        },
+        event: DataTreeDiffEvent.DELETE,
       },
     ];
 

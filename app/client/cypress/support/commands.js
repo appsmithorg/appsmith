@@ -161,7 +161,7 @@ Cypress.Commands.add("DeleteApp", (appName) => {
     "response.body.responseMeta.status",
     200,
   );
-  cy.wait("@organizations").should(
+  cy.wait("@workspaces").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -874,7 +874,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/plugins").as("getPlugins");
   cy.route("POST", "/api/v1/logout").as("postLogout");
 
-  cy.route("GET", "/api/v1/datasources?organizationId=*").as("getDataSources");
+  cy.route("GET", "/api/v1/datasources?workspaceId=*").as("getDataSources");
   cy.route("GET", "/api/v1/pages?*mode=EDIT").as("getPagesForCreateApp");
   cy.route("GET", "/api/v1/pages?*mode=PUBLISHED").as("getPagesForViewApp");
 
@@ -901,8 +901,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("PUT", "/api/v1/pages/crud-page/*").as("replaceLayoutWithCRUDPage");
   cy.route("POST", "/api/v1/pages/crud-page").as("generateCRUDPage");
 
-  cy.route("GET", "/api/v1/organizations").as("organizations");
-  cy.route("GET", "/api/v1/organizations/*").as("getOrganisation");
+  cy.route("GET", "/api/v1/workspaces").as("workspaces");
+  cy.route("GET", "/api/v1/workspaces/*").as("getWorkspace");
 
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
@@ -922,34 +922,32 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/items/addToPage").as("add3PApiToPage");
 
   cy.route("GET", "/api/v1/plugins/*/form").as("getPluginForm");
-  cy.route("POST", "/api/v1/datasources").as("createDatasource");
-  cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
-  cy.route("POST", "/api/v1/applications?orgId=*").as("createNewApplication");
+  cy.route("POST", "/api/v1/applications?workspaceId=*").as(
+    "createNewApplication",
+  );
   cy.route("PUT", "/api/v1/applications/*").as("updateApplication");
   cy.route("PUT", "/api/v1/actions/*").as("saveAction");
   cy.route("PUT", "/api/v1/actions/move").as("moveAction");
 
-  cy.route("POST", "/api/v1/organizations").as("createOrg");
+  cy.route("POST", "/api/v1/workspaces").as("createWorkspace");
   cy.route("POST", "api/v1/applications/import/*").as("importNewApplication");
   cy.route("GET", "api/v1/applications/export/*").as("exportApplication");
-  cy.route("GET", "/api/v1/organizations/roles?organizationId=*").as(
-    "getRoles",
-  );
+  cy.route("GET", "/api/v1/workspaces/roles?workspaceId=*").as("getRoles");
   cy.route("GET", "/api/v1/users/me").as("getMe");
   cy.route("POST", "/api/v1/pages").as("createPage");
   cy.route("POST", "/api/v1/pages/clone/*").as("clonePage");
   cy.route("POST", "/api/v1/applications/clone/*").as("cloneApp");
   cy.route("PUT", "/api/v1/applications/*/changeAccess").as("changeAccess");
 
-  cy.route("PUT", "/api/v1/organizations/*").as("updateOrganization");
+  cy.route("PUT", "/api/v1/workspaces/*").as("updateWorkspace");
   cy.route("GET", "/api/v1/pages/view/application/*").as("viewApp");
   cy.route("GET", "/api/v1/pages/*/view?*").as("viewPage");
-  cy.route("POST", "/api/v1/organizations/*/logo").as("updateLogo");
-  cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
-  cy.route("POST", "/api/v1/applications/*/fork/*").as("postForkAppOrg");
-  cy.route("PUT", "/api/v1/users/leaveOrganization/*").as("leaveOrgApiCall");
-  cy.route("DELETE", "api/v1/organizations/*").as("deleteOrgApiCall");
+  cy.route("POST", "/api/v1/workspaces/*/logo").as("updateLogo");
+  cy.route("DELETE", "/api/v1/workspaces/*/logo").as("deleteLogo");
+  cy.route("POST", "/api/v1/applications/*/fork/*").as("postForkAppWorkspace");
+  cy.route("PUT", "/api/v1/users/leaveWorkspace/*").as("leaveWorkspaceApiCall");
+  cy.route("DELETE", "api/v1/workspaces/*").as("deleteWorkspaceApiCall");
 
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
@@ -967,9 +965,10 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/users/super").as("createSuperUser");
   cy.intercept("POST", "/api/v1/actions/execute").as("postExecute");
   cy.intercept("GET", "/api/v1/admin/env").as("getEnvVariables");
-
+  cy.intercept("DELETE", "/api/v1/git/branch/*").as("deleteBranch");
+  cy.intercept("GET", "/api/v1/git/status/*").as("gitStatus");
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
-  cy.intercept("GET", "/api/v1/organizations/*/members").as("getMembers");
+  cy.intercept("GET", "/api/v1/workspaces/*/members").as("getMembers");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {

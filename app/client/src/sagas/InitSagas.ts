@@ -20,6 +20,7 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 
 import {
   fetchPage,
+  fetchPageSuccess,
   fetchPublishedPage,
   fetchPublishedPageSuccess,
   resetApplicationWidgets,
@@ -56,17 +57,14 @@ import {
   restoreRecentEntitiesRequest,
 } from "actions/globalSearchActions";
 import {
-  InitializeEditorPayload,
   resetEditorSuccess,
+  InitializeEditorPayload,
+  InitAppViewerPayload,
 } from "actions/initActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import {
-  getCurrentApplicationId,
-  getIsEditorInitialized,
-  getPageById,
-} from "selectors/editorSelectors";
+import { getIsEditorInitialized, getPageById } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
@@ -87,6 +85,7 @@ import { isURLDeprecated, getUpdatedRoute } from "utils/helpers";
 import { fillPathname, viewerURL, builderURL } from "RouteBuilder";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
+import { fetchAllPageEntityCompletion } from "actions/pageActions";
 import {
   fetchSelectedAppThemeAction,
   fetchAppThemesAction,
@@ -97,17 +96,9 @@ export function* failFastApiCalls(
   successActions: string[],
   failureActions: string[],
 ) {
-  const triggerEffects = [];
-  for (const triggerAction of triggerActions) {
-    triggerEffects.push(put(triggerAction));
-  }
-  const successEffects = [];
-  for (const successAction of successActions) {
-    successEffects.push(take(successAction));
-  }
-  yield all(triggerEffects);
+  yield all(triggerActions.map((triggerAction) => put(triggerAction)));
   const effectRaceResult = yield race({
-    success: all(successEffects),
+    success: all(successActions.map((successAction) => take(successAction))),
     failure: take(failureActions),
   });
   if (effectRaceResult.failure) {
@@ -133,11 +124,13 @@ export function* failFastApiCalls(
  * @param initializeEditorAction
  * @returns
  */
-function* bootstrapEditor(payload: InitializeEditorPayload) {
-  const { branch } = payload;
-  yield put(resetEditorSuccess());
+function* bootstrap(payload: InitializeEditorPayload) {
+  const { branch, mode } = payload;
+  if (mode === APP_MODE.EDIT) {
+    yield put(resetEditorSuccess());
+  }
   yield put(updateBranchLocally(branch || ""));
-  yield put(setAppMode(APP_MODE.EDIT));
+  yield put(setAppMode(mode));
   yield put({ type: ReduxActionTypes.START_EVALUATION });
 }
 
@@ -206,19 +199,18 @@ function* initiateURLUpdate(
   }
 }
 
-function* initiateEditorApplicationAndPages(payload: InitializeEditorPayload) {
-  const pageId = payload.pageId;
-  const applicationId = payload.applicationId;
+function* initiateApplication(payload: InitializeEditorPayload) {
+  const { applicationId, mode, pageId } = payload;
 
   const applicationCall: boolean = yield failFastApiCalls(
-    [fetchApplication({ pageId, applicationId, mode: APP_MODE.EDIT })],
+    [fetchApplication({ pageId, applicationId, mode })],
     [
       ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
       ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
     ],
     [
       ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
-      ReduxActionErrorTypes.FETCH_PAGE_ERROR,
+      ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
     ],
   );
 
@@ -228,39 +220,73 @@ function* initiateEditorApplicationAndPages(payload: InitializeEditorPayload) {
   const defaultPageId: string = yield select(getDefaultPageId);
   toLoadPageId = toLoadPageId || defaultPageId;
 
-  yield call(initiateURLUpdate, toLoadPageId, APP_MODE.EDIT, payload.pageId);
-
-  const fetchPageCallResult: boolean = yield failFastApiCalls(
-    [fetchPage(toLoadPageId, true)],
-    [ReduxActionTypes.FETCH_PAGE_SUCCESS],
-    [ReduxActionErrorTypes.FETCH_PAGE_ERROR],
-  );
-
-  if (!fetchPageCallResult) return;
+  yield call(initiateURLUpdate, toLoadPageId, mode, payload.pageId);
 
   return toLoadPageId;
 }
 
-function* initiateEditorActions(applicationId: string) {
-  const initActionsCalls = [
-    fetchActions({ applicationId }, []),
-    fetchJSCollections({ applicationId }),
-    fetchSelectedAppThemeAction(applicationId),
-    fetchAppThemesAction(applicationId),
-  ];
-
-  const successActionEffects = [
-    ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
-    ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
-    ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-    ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-  ];
-  const failureActionEffects = [
-    ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
-    ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
-    ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
-    ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
-  ];
+function* initiatePageAndAllActions(
+  toLoadPageId: string,
+  applicationId: string,
+  mode: APP_MODE,
+) {
+  let initActionsCalls = [];
+  let successActionEffects = [];
+  let failureActionEffects = [];
+  switch (mode) {
+    case APP_MODE.EDIT:
+      {
+        initActionsCalls = [
+          fetchPage(toLoadPageId, true),
+          fetchActions({ applicationId }, []),
+          fetchJSCollections({ applicationId }),
+          fetchSelectedAppThemeAction(applicationId),
+          fetchAppThemesAction(applicationId),
+        ];
+        successActionEffects = [
+          ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
+          ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
+          ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
+          fetchPageSuccess().type,
+          ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
+        ];
+        failureActionEffects = [
+          ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
+          ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
+          ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
+          ReduxActionErrorTypes.FETCH_PAGE_ERROR,
+          ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
+        ];
+      }
+      break;
+    case APP_MODE.PUBLISHED:
+      {
+        initActionsCalls = [
+          fetchPublishedPage(toLoadPageId, true, true),
+          fetchActionsForView({ applicationId }),
+          fetchJSCollectionsForView({ applicationId }),
+          fetchSelectedAppThemeAction(applicationId),
+          fetchAppThemesAction(applicationId),
+        ];
+        successActionEffects = [
+          fetchPublishedPageSuccess().type,
+          ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
+          ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
+          ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
+          ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
+        ];
+        failureActionEffects = [
+          ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
+          ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
+          ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
+          ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
+          ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
+        ];
+      }
+      break;
+    default:
+      return false;
+  }
   const allActionCalls: boolean = yield failFastApiCalls(
     initActionsCalls,
     successActionEffects,
@@ -268,15 +294,14 @@ function* initiateEditorActions(applicationId: string) {
   );
 
   if (!allActionCalls) {
-    return;
+    return false;
   } else {
-    yield put({
-      type: ReduxActionTypes.FETCH_PLUGIN_AND_JS_ACTIONS_SUCCESS,
-    });
-    yield put(executePageLoadActions());
+    yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+    return true;
   }
 }
 
+// Editor mode only
 function* initiatePluginsAndDatasources() {
   const pluginsAndDatasourcesCalls: boolean = yield failFastApiCalls(
     [fetchPlugins(), fetchDatasources(), fetchMockDatasources()],
@@ -300,7 +325,7 @@ function* initiatePluginsAndDatasources() {
   );
   if (!pluginFormCall) return;
 }
-
+// Editor mode only
 function* initiateGit(applicationId: string) {
   const branchInStore: string = yield select(getCurrentGitBranch);
 
@@ -327,17 +352,16 @@ function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
 ) {
   try {
-    const { payload } = initializeEditorAction;
-
-    const { branch } = payload;
-
-    yield call(bootstrapEditor, payload);
-
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.INIT_EDIT_APP,
     );
+    const { payload } = initializeEditorAction;
+    const { branch, mode } = initializeEditorAction.payload;
 
-    yield call(initiateEditorApplicationAndPages, payload);
+    yield call(bootstrap, payload);
+
+    const toLoadPageId = yield call(initiateApplication, payload);
+    if (!toLoadPageId) return;
 
     const { id: applicationId, name }: ApplicationPayload = yield select(
       getCurrentApplication,
@@ -348,8 +372,11 @@ function* initializeEditorSaga(
     );
 
     yield all([
-      call(initiateEditorActions, applicationId),
+      call(initiatePageAndAllActions, toLoadPageId, applicationId, mode),
+      // only in edit mode
       call(initiatePluginsAndDatasources),
+      // For omnibar to show all entities search
+      // only in edit mode
       call(populatePageDSLsSaga),
     ]);
 
@@ -358,6 +385,7 @@ function* initializeEditorSaga(
       appName: name,
     });
 
+    // only in edit mode
     yield call(initiateGit, applicationId);
 
     yield put(fetchCommentThreadsInit());
@@ -383,102 +411,34 @@ function* initializeEditorSaga(
 }
 
 export function* initializeAppViewerSaga(
-  action: ReduxAction<{
-    branch: string;
-    pageId: string;
-    applicationId: string;
-  }>,
+  action: ReduxAction<InitAppViewerPayload>,
 ) {
-  const { branch, pageId } = action.payload;
-
-  let { applicationId } = action.payload;
-
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.INIT_VIEW_APP,
   );
+  const { payload } = action;
+  const { branch, mode } = payload;
 
-  yield put(updateBranchLocally(branch || ""));
+  yield call(bootstrap, payload);
 
-  yield put(setAppMode(APP_MODE.PUBLISHED));
-
-  const applicationCall: boolean = yield failFastApiCalls(
-    [fetchApplication({ applicationId, pageId, mode: APP_MODE.PUBLISHED })],
-    [
-      ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
-      ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
-    ],
-    [
-      ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
-      ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-    ],
+  const toLoadPageId = yield call(initiateApplication, payload);
+  // only in edit mode
+  const { id: applicationId }: ApplicationPayload = yield select(
+    getCurrentApplication,
   );
 
-  if (!applicationCall) return;
-
-  applicationId = applicationId || (yield select(getCurrentApplicationId));
   yield put(
     updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),
   );
-  yield put({ type: ReduxActionTypes.START_EVALUATION });
 
-  const defaultPageId: string = yield select(getDefaultPageId);
-  const toLoadPageId: string = pageId || defaultPageId;
-
-  yield call(initiateURLUpdate, toLoadPageId, APP_MODE.PUBLISHED, pageId);
-
-  const resultOfPrimaryCalls: boolean = yield failFastApiCalls(
-    [
-      fetchActionsForView({ applicationId }),
-      fetchJSCollectionsForView({ applicationId }),
-      fetchPublishedPage(toLoadPageId, true, true),
-      fetchSelectedAppThemeAction(applicationId),
-      fetchAppThemesAction(applicationId),
-    ],
-    [
-      ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
-      ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
-      ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-      ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-    ],
-    [
-      ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
-      ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
-      ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
-      ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
-      ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
-    ],
+  const pageAndActionsFetch = yield call(
+    initiatePageAndAllActions,
+    toLoadPageId,
+    applicationId,
+    mode,
   );
 
-  if (!resultOfPrimaryCalls) return;
-
-  //Delay page load actions till all actions are retrieved.
-  yield put(fetchPublishedPageSuccess([executePageLoadActions()]));
-
-  if (toLoadPageId) {
-    yield put(fetchPublishedPage(toLoadPageId, true));
-
-    const resultOfFetchPage: {
-      success: boolean;
-      failure: boolean;
-    } = yield race({
-      success: take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS),
-      failure: take(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR),
-    });
-
-    if (resultOfFetchPage.failure) {
-      yield put({
-        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-        payload: {
-          code: get(
-            resultOfFetchPage,
-            "failure.payload.error.code",
-            ERROR_CODES.SERVER_ERROR,
-          ),
-        },
-      });
-      return;
-    }
-  }
+  if (!pageAndActionsFetch) return;
 
   yield put(fetchCommentThreadsInit());
 

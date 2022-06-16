@@ -39,7 +39,7 @@ import {
 } from "actions/pluginActionActions";
 import { Datasource } from "entities/Datasource";
 import { Action, ApiAction, PluginType } from "entities/Action";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import log from "loglevel";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -65,6 +65,7 @@ import {
   datasourcesEditorIdURL,
   integrationEditorURL,
 } from "RouteBuilder";
+import { isEmpty } from "lodash";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -258,6 +259,11 @@ function* updateExtraFormDataSaga() {
       ].includes(contentTypeValue)
     ) {
       rawApiContentType = contentTypeValue;
+    } else if (
+      contentTypeValue === "" ||
+      contentTypeValue === POST_BODY_FORMAT_OPTIONS.NONE
+    ) {
+      rawApiContentType = POST_BODY_FORMAT_OPTIONS.NONE;
     } else {
       rawApiContentType = POST_BODY_FORMAT_OPTIONS.RAW;
     }
@@ -270,6 +276,11 @@ function* updateExtraFormDataSaga() {
       ].includes(contentTypeValue)
     ) {
       rawApiContentType = contentTypeValue;
+    } else if (
+      contentTypeValue === "" ||
+      contentTypeValue === POST_BODY_FORMAT_OPTIONS.NONE
+    ) {
+      rawApiContentType = POST_BODY_FORMAT_OPTIONS.NONE;
     } else {
       rawApiContentType = POST_BODY_FORMAT_OPTIONS.RAW;
     }
@@ -383,6 +394,11 @@ export function* updateFormFields(
         header?.key?.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
     );
 
+    const indexToUpdate = getIndextoUpdate(
+      actionConfigurationHeaders,
+      contentTypeHeaderIndex,
+    );
+
     if (value !== HTTP_METHOD.GET) {
       // if user switches to other methods that is not GET and apiContentType is undefined set default apiContentType to JSON.
       if (apiContentType === POST_BODY_FORMAT_OPTIONS.NONE) {
@@ -391,20 +407,26 @@ export function* updateFormFields(
         extraFormDataToBeChanged = true;
       }
 
-      const indexToUpdate = getIndextoUpdate(
-        actionConfigurationHeaders,
-        contentTypeHeaderIndex,
-      );
       actionConfigurationHeaders[indexToUpdate] = {
         key: CONTENT_TYPE_HEADER_KEY,
         value: apiContentType,
       };
     } else {
       // when user switches to GET method, do not clear off content type headers, instead leave them.
+      if (isEmpty(values?.actionConfiguration?.body)) {
+        apiContentType = HTTP_METHODS_DEFAULT_FORMAT_TYPES.GET;
+        extraFormDataToBeChanged = true;
+      }
+
       if (contentTypeHeaderIndex > -1) {
         actionConfigurationHeaders[contentTypeHeaderIndex] = {
           key: CONTENT_TYPE_HEADER_KEY,
           value: apiContentType,
+        };
+      } else {
+        actionConfigurationHeaders[indexToUpdate] = {
+          key: CONTENT_TYPE_HEADER_KEY,
+          value: HTTP_METHODS_DEFAULT_FORMAT_TYPES.GET,
         };
       }
     }
@@ -532,7 +554,7 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
 function* handleCreateNewApiActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
 ) {
-  const organizationId: string = yield select(getCurrentOrgId);
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
   const pluginId: string = yield select(
     getPluginIdOfPackageName,
     REST_PLUGIN_PACKAGE_NAME,
@@ -553,7 +575,7 @@ function* handleCreateNewApiActionSaga(
         datasource: {
           name: "DEFAULT_REST_DATASOURCE",
           pluginId,
-          organizationId,
+          workspaceId,
         },
         eventData: {
           actionType: "API",

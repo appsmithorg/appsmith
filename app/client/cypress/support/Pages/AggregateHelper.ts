@@ -3,6 +3,17 @@ const uuid = require("uuid");
 import { ObjectsRegistry } from "../Objects/Registry";
 
 let LOCAL_STORAGE_MEMORY: any = {};
+export interface IEnterValue {
+  propFieldName: string;
+  directInput: boolean;
+  inputFieldName: string;
+}
+
+const DEFAULT_ENTERVALUE_OPTIONS = {
+  propFieldName: "",
+  directInput: false,
+  inputFieldName: "",
+};
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
 
@@ -68,7 +79,7 @@ export class AggregateHelper {
     cy.get(this.locator._loading).should("not.exist"); //Checks the spinner is gone & dsl loaded!
   }
 
-  public StartServerAndRoutes() {
+  public StartRoutes() {
     cy.intercept("POST", "/api/v1/actions").as("createNewApi");
     cy.intercept("PUT", "/api/v1/actions/*").as("saveAction");
     //cy.intercept("POST", "/api/v1/users/invite", (req) => { req.headers["origin"] = "Cypress";}).as("mockPostInvite");
@@ -99,53 +110,18 @@ export class AggregateHelper {
     });
   }
 
-  // Stubbing window.open to open in the same tab
-  public StubbingWindow() {
-    cy.window().then((window: any) => {
-      cy.stub(window, "open").callsFake((url) => {
-        window.location.href = url;
-        window.location.target = "_self";
-      });
-    });
-  }
-
-  //refering PublishtheApp from command.js
-  public DeployApp(
-    eleToCheckInDeployPage: string = this.locator._backToEditor,
-  ) {
-    //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
-    // Wait before publish
-    this.Sleep(2000); //wait for elements load!
-    this.AssertAutoSave();
-    // Stubbing window.open to open in the same tab
-    cy.window().then((window) => {
-      cy.stub(window, "open").callsFake((url) => {
-        window.location.href = Cypress.config().baseUrl + url.substring(1);
-      });
-    });
-    cy.get(this.locator._publishButton).click();
-    cy.log("Pagename: " + localStorage.getItem("PageName"));
-    // cy.wait("@publishApp")
-    //   .its("request.url")
-    //   .should("not.contain", "edit");
-    //cy.wait('@publishApp').wait('@publishApp') //waitng for 2 calls to complete
-
-    this.WaitUntilEleAppear(eleToCheckInDeployPage);
-    localStorage.setItem("inDeployedMode", "true");
-  }
-
   public ValidateToastMessage(text: string, length = 1) {
     cy.get(this.locator._toastMsg)
       .should("have.length", length)
       .should("contain.text", text);
   }
 
-  public ClickButton(btnVisibleText: string) {
+  public ClickButton(btnVisibleText: string, index = 0, shouldSleep = true) {
     cy.xpath(this.locator._spanButton(btnVisibleText))
-      .first()
+      .eq(index)
       .scrollIntoView()
       .click({ force: true });
-    this.Sleep();
+    shouldSleep && this.Sleep();
   }
 
   public Paste(selector: any, pastePayload: string) {
@@ -388,13 +364,13 @@ export class AggregateHelper {
     });
   }
 
-  public GetNClick(selector: string, index = 0) {
+  public GetNClick(selector: string, index = 0, force = false) {
     let locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator
       .eq(index)
-      .click()
+      .click({ force: force })
       .wait(500);
   }
 
@@ -406,20 +382,8 @@ export class AggregateHelper {
     cy.get(selector)
       .contains(containsText)
       .eq(index)
-      .click().wait(200);
-  }
-
-  public ToggleOnOrOff(propertyName: string, toggle: "On" | "Off") {
-    if (toggle == "On") {
-      cy.get(this.locator._propertyToggle(propertyName))
-        .check({ force: true })
-        .should("be.checked");
-    } else {
-      cy.get(this.locator._propertyToggle(propertyName))
-        .uncheck({ force: true })
-        .should("not.be.checked");
-    }
-    this.AssertAutoSave();
+      .click()
+      .wait(200);
   }
 
   public CheckUncheck(selector: string, check = true) {
@@ -453,11 +417,11 @@ export class AggregateHelper {
     }
   }
 
-  public NavigateBacktoEditor() {
-    cy.get(this.locator._backToEditor).click();
-    this.Sleep(2000);
-    localStorage.setItem("inDeployedMode", "false");
-  }
+  // public NavigateBacktoEditor() {
+  //   cy.get(this.locator._backToEditor).click();
+  //   this.Sleep(2000);
+  //   localStorage.setItem("inDeployedMode", "false");
+  // }
 
   public GenerateUUID() {
     let id = uuid.v4();
@@ -470,55 +434,93 @@ export class AggregateHelper {
     return cy.get(this.locator._queryName).invoke("text");
   }
 
+  public GetElementLength(selector: string) {
+    let locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    return locator.its("length");
+  }
+
   public Sleep(timeout = 1000) {
     cy.wait(timeout);
   }
 
   public RefreshPage() {
     cy.reload();
-    this.Sleep(2000)
+    this.Sleep(2000);
   }
 
   public ActionContextMenuWithInPane(
     action: "Copy to page" | "Move to page" | "Delete",
     subAction = "",
+    jsDelete = false,
   ) {
     cy.get(this.locator._contextMenuInPane).click();
     cy.xpath(this.locator._visibleTextDiv(action))
       .should("be.visible")
       .click();
     if (action == "Delete") {
-      cy.xpath(this.locator._visibleTextDiv("Are you sure?")).click();
-      this.ValidateNetworkStatus("@deleteAction");
+      subAction = "Are you sure?";
     }
     if (subAction) {
       cy.xpath(this.locator._visibleTextDiv(subAction)).click();
       this.Sleep(500);
     }
+    if (action == "Delete") {
+      !jsDelete && this.ValidateNetworkStatus("@deleteAction");
+      jsDelete && this.ValidateNetworkStatus("@deleteJSCollection");
+    }
   }
 
   public TypeValueNValidate(valueToType: string, fieldName = "") {
-    this.EnterValue(valueToType, fieldName);
+    this.EnterValue(valueToType, {
+      propFieldName: fieldName,
+      directInput: false,
+      inputFieldName: "",
+    });
     this.VerifyEvaluatedValue(valueToType);
   }
 
-  public EnterValue(valueToEnter: string, fieldName = "", notField = false) {
-    if (fieldName && !notField) {
-      cy.xpath(this.locator._existingFieldTextByName(fieldName)).then(
+  public EnterValue(
+    valueToEnter: string,
+    options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
+  ) {
+    const { propFieldName, directInput, inputFieldName } = options;
+
+    if (propFieldName && !directInput && !inputFieldName) {
+      cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
         ($field: any) => {
           this.UpdateCodeInput($field, valueToEnter);
         },
       );
-    } else if (fieldName && notField) {
-      cy.get(fieldName).then(($field: any) => {
+    } else if (propFieldName && directInput && !inputFieldName) {
+      cy.get(propFieldName).then(($field: any) => {
         this.UpdateCodeInput($field, valueToEnter);
       });
+    } else if (inputFieldName && !propFieldName && !directInput) {
+      cy.xpath(this.locator._inputFieldByName(inputFieldName)).then(
+        ($field: any) => {
+          this.UpdateCodeInput($field, valueToEnter);
+        },
+      );
     } else {
       cy.get(this.locator._codeEditorTarget).then(($field: any) => {
         this.UpdateCodeInput($field, valueToEnter);
       });
     }
     this.AssertAutoSave();
+  }
+
+  public EnterInputText(name: string, input: string, toClear = false, isInput = true) {
+    toClear && this.ClearInputText(name)
+    cy.xpath(this.locator._inputWidgetValueField(name, isInput))
+      .click()
+      .type(input);
+  }
+
+  public ClearInputText(name: string, isInput = true) {
+    cy.xpath(this.locator._inputWidgetValueField(name, isInput))
+      .clear();
   }
 
   public UpdateCodeInput(selector: string, value: string) {
@@ -600,9 +602,10 @@ export class AggregateHelper {
   }
 
   public AssertElementAbsence(selector: string) {
+    //Should not exists - cannot take indexes
     let locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
+      ? cy.xpath(selector, { timeout: 0 })
+      : cy.get(selector, { timeout: 0 });
     locator.should("not.exist");
   }
 
@@ -617,11 +620,21 @@ export class AggregateHelper {
     return locator.eq(index).invoke(textOrValue);
   }
 
-  public AssertElementPresence(selector: string, index = 0) {
+  public AssertElementVisible(selector: string, index = 0) {
     let locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    locator.eq(index).should("be.visible");
+    locator
+      .eq(index)
+      .scrollIntoView()
+      .should("be.visible");
+  }
+
+  public AssertElementExist(selector: string, index = 0) {
+    let locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    locator.eq(index).should("exist");
   }
 
   public AssertElementLength(

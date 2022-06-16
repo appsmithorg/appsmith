@@ -39,7 +39,6 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
-import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QActionCollection;
@@ -134,8 +133,8 @@ import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_RESOURCES;
@@ -365,9 +364,12 @@ public class DatabaseChangelog {
                 makeIndex("email").unique().expire(3600, TimeUnit.SECONDS)
         );
 
-        ensureIndexes(mongoTemplate, Permission.class,
-                createdAtIndex
-        );
+        /*
+        Removing the code for ensuring index for a class which has never been used and now being removed.
+         */
+//        ensureIndexes(mongoTemplate, Permission.class,
+//                createdAtIndex
+//        );
 
         ensureIndexes(mongoTemplate, Plugin.class,
                 createdAtIndex,
@@ -727,13 +729,13 @@ public class DatabaseChangelog {
                 policies = new HashSet<>();
             }
 
-            Optional<Policy> inviteUsersOptional = policies.stream().filter(policy -> policy.getPermission().equals(ORGANIZATION_INVITE_USERS.getValue())).findFirst();
+            Optional<Policy> inviteUsersOptional = policies.stream().filter(policy -> policy.getPermission().equals(WORKSPACE_INVITE_USERS.getValue())).findFirst();
             if (inviteUsersOptional.isPresent()) {
                 Policy inviteUserPolicy = inviteUsersOptional.get();
                 inviteUserPolicy.getUsers().addAll(invitePermissionUsernames);
             } else {
                 // this policy doesnt exist. create and add this to the policy set
-                Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_INVITE_USERS.getValue())
+                Policy inviteUserPolicy = Policy.builder().permission(WORKSPACE_INVITE_USERS.getValue())
                         .users(invitePermissionUsernames).build();
                 organization.getPolicies().add(inviteUserPolicy);
             }
@@ -1702,7 +1704,7 @@ public class DatabaseChangelog {
             mongoTemplate.updateFirst(
                     query(new Criteria().andOperator(
                             where(fieldName(QOrganization.organization.id)).is(org.getId()),
-                            where(fieldName(QOrganization.organization.policies) + ".permission").is(ORGANIZATION_INVITE_USERS.getValue())
+                            where(fieldName(QOrganization.organization.policies) + ".permission").is(WORKSPACE_INVITE_USERS.getValue())
                     )),
                     new Update().addToSet("policies.$.users").each(viewers.toArray()),
                     Organization.class
@@ -2466,14 +2468,14 @@ public class DatabaseChangelog {
             }
 
             Optional<Policy> exportAppOrgLevelOptional = policies.stream()
-                    .filter(policy -> policy.getPermission().equals(ORGANIZATION_EXPORT_APPLICATIONS.getValue())).findFirst();
+                    .filter(policy -> policy.getPermission().equals(WORKSPACE_EXPORT_APPLICATIONS.getValue())).findFirst();
 
             if (exportAppOrgLevelOptional.isPresent()) {
                 Policy exportApplicationPolicy = exportAppOrgLevelOptional.get();
                 exportApplicationPolicy.getUsers().addAll(exportApplicationPermissionUsernames);
             } else {
                 // this policy doesnt exist. create and add this to the policy set
-                Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_EXPORT_APPLICATIONS.getValue())
+                Policy inviteUserPolicy = Policy.builder().permission(WORKSPACE_EXPORT_APPLICATIONS.getValue())
                         .users(exportApplicationPermissionUsernames).build();
                 organization.getPolicies().add(inviteUserPolicy);
             }
