@@ -42,7 +42,7 @@ describe("Input widget test with default value from chart datapoint", () => {
 
     afterEach(() => {
         //this is to enable re-attempt passing!
-        agHelper.NavigateBacktoEditor()
+        deployMode.NavigateBacktoEditor()
     })
 
 });

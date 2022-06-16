@@ -162,7 +162,7 @@ describe("Layout OnLoad Actions tests", function() {
       );
     });
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function() {

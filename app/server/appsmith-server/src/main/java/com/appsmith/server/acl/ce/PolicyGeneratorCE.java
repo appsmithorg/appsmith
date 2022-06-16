@@ -30,26 +30,26 @@ import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_PUBLISH_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_COMMENTS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_THREADS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
-import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
-import static com.appsmith.server.acl.AclPermission.USER_READ_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.USER_READ_WORKSPACES;
 
 
 @Getter
@@ -79,7 +79,7 @@ public class PolicyGeneratorCE {
                 });
 
         createUserPolicyGraph();
-        createOrganizationPolicyGraph();
+        createWorkspacePolicyGraph();
         createDatasourcePolicyGraph();
         createApplicationPolicyGraph();
         createPagePolicyGraph();
@@ -89,27 +89,27 @@ public class PolicyGeneratorCE {
     }
 
     /**
-     * In this, we add permissions for a user to interact with organizations and other users inside the said organizations
+     * In this, we add permissions for a user to interact with workspaces and other users inside the said workspaces
      */
     private void createUserPolicyGraph() {
-        hierarchyGraph.addEdge(USER_MANAGE_ORGANIZATIONS, MANAGE_ORGANIZATIONS);
-        hierarchyGraph.addEdge(USER_READ_ORGANIZATIONS, READ_ORGANIZATIONS);
+        hierarchyGraph.addEdge(USER_MANAGE_WORKSPACES, MANAGE_WORKSPACES);
+        hierarchyGraph.addEdge(USER_READ_WORKSPACES, READ_WORKSPACES);
 
-        // If user is given manageOrg permission, they must also be able to read organizations
-        lateralGraph.addEdge(USER_MANAGE_ORGANIZATIONS, USER_READ_ORGANIZATIONS);
+        // If user is given manageOrg permission, they must also be able to read workspaces
+        lateralGraph.addEdge(USER_MANAGE_WORKSPACES, USER_READ_WORKSPACES);
         lateralGraph.addEdge(MANAGE_USERS, READ_USERS);
     }
 
-    private void createOrganizationPolicyGraph() {
-        lateralGraph.addEdge(MANAGE_ORGANIZATIONS, READ_ORGANIZATIONS);
-        lateralGraph.addEdge(MANAGE_ORGANIZATIONS, ORGANIZATION_MANAGE_APPLICATIONS);
-        lateralGraph.addEdge(MANAGE_ORGANIZATIONS, ORGANIZATION_READ_APPLICATIONS);
-        lateralGraph.addEdge(MANAGE_ORGANIZATIONS, ORGANIZATION_PUBLISH_APPLICATIONS);
+    private void createWorkspacePolicyGraph() {
+        lateralGraph.addEdge(MANAGE_WORKSPACES, READ_WORKSPACES);
+        lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_MANAGE_APPLICATIONS);
+        lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_READ_APPLICATIONS);
+        lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_PUBLISH_APPLICATIONS);
     }
 
     private void createDatasourcePolicyGraph() {
-        hierarchyGraph.addEdge(ORGANIZATION_MANAGE_APPLICATIONS, MANAGE_DATASOURCES);
-        hierarchyGraph.addEdge(ORGANIZATION_READ_APPLICATIONS, READ_DATASOURCES);
+        hierarchyGraph.addEdge(WORKSPACE_MANAGE_APPLICATIONS, MANAGE_DATASOURCES);
+        hierarchyGraph.addEdge(WORKSPACE_READ_APPLICATIONS, READ_DATASOURCES);
 
         lateralGraph.addEdge(MANAGE_DATASOURCES, READ_DATASOURCES);
         lateralGraph.addEdge(MANAGE_DATASOURCES, EXECUTE_DATASOURCES);
@@ -117,11 +117,11 @@ public class PolicyGeneratorCE {
     }
 
     private void createApplicationPolicyGraph() {
-        hierarchyGraph.addEdge(ORGANIZATION_MANAGE_APPLICATIONS, MANAGE_APPLICATIONS);
-        hierarchyGraph.addEdge(ORGANIZATION_READ_APPLICATIONS, READ_APPLICATIONS);
-        hierarchyGraph.addEdge(ORGANIZATION_PUBLISH_APPLICATIONS, PUBLISH_APPLICATIONS);
-        hierarchyGraph.addEdge(MANAGE_ORGANIZATIONS, MAKE_PUBLIC_APPLICATIONS);
-        hierarchyGraph.addEdge(ORGANIZATION_EXPORT_APPLICATIONS, EXPORT_APPLICATIONS);
+        hierarchyGraph.addEdge(WORKSPACE_MANAGE_APPLICATIONS, MANAGE_APPLICATIONS);
+        hierarchyGraph.addEdge(WORKSPACE_READ_APPLICATIONS, READ_APPLICATIONS);
+        hierarchyGraph.addEdge(WORKSPACE_PUBLISH_APPLICATIONS, PUBLISH_APPLICATIONS);
+        hierarchyGraph.addEdge(MANAGE_WORKSPACES, MAKE_PUBLIC_APPLICATIONS);
+        hierarchyGraph.addEdge(WORKSPACE_EXPORT_APPLICATIONS, EXPORT_APPLICATIONS);
 
         // If the user is being given MANAGE_APPLICATION permission, they must also be given READ_APPLICATION perm
         lateralGraph.addEdge(MANAGE_APPLICATIONS, READ_APPLICATIONS);
