@@ -194,7 +194,7 @@ const doConnectionsHaveErrors = (
 
 const useDependencyList = (name: string) => {
   const dataTree = useSelector(getDataTree, (prev, next) => {
-    const requiredProps = ["type", "widgetId", "widgetName", "displayName"];
+    const requiredProps = ["ENTITY_TYPE", "widgetId", "actionId"];
     return equal(
       mapValues(pick(prev, requiredProps)),
       mapValues(pick(next, requiredProps)),
