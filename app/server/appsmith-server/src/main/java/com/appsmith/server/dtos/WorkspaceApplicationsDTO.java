@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class WorkspaceApplicationsDTO {
-    Workspace organization;
+    Workspace workspace;
     List<Application> applications;
     List<UserRole> userRoles;
 }

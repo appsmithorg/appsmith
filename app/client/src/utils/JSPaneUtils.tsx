@@ -111,7 +111,7 @@ export const getDifferenceInJSCollection = (
         collectionId: jsAction.id,
         executeOnLoad: false,
         pageId: jsAction.pageId,
-        organizationId: jsAction.organizationId,
+        workspaceId: jsAction.workspaceId,
         actionConfiguration: {
           body: action.body,
           isAsync: action.isAsync,
@@ -184,7 +184,7 @@ export const pushLogsForObjectUpdate = (
 
 export const createDummyJSCollectionActions = (
   pageId: string,
-  organizationId: string,
+  workspaceId: string,
 ) => {
   const body =
     "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}";
@@ -193,7 +193,7 @@ export const createDummyJSCollectionActions = (
     {
       name: "myFun1",
       pageId,
-      organizationId,
+      workspaceId,
       executeOnLoad: false,
       actionConfiguration: {
         body: "() => {\n\t\t//write code here\n\t}",
@@ -206,7 +206,7 @@ export const createDummyJSCollectionActions = (
     {
       name: "myFun2",
       pageId,
-      organizationId,
+      workspaceId,
       executeOnLoad: false,
       actionConfiguration: {
         body: "async () => {\n\t\t//use async-await or promises\n\t}",
