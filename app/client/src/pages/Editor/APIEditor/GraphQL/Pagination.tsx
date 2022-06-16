@@ -144,11 +144,12 @@ type PaginationTypeBasedWrapperProps = {
   // This states that is separate value for any text is enabled or not
   separateValueFlag?: boolean;
   valueClassName: string;
+  valueEvaluated?: any;
   valuePath: string;
   valuePlaceholder?: string;
-  valueText: string;
-  variablesOptions: Array<any>;
-  variableText: string;
+  valueLabel: string;
+  variableOptions: Array<any>;
+  variableLabel: string;
   variableTooltip?: string;
   valueTooltip?: string;
 };
@@ -164,12 +165,13 @@ function PaginationTypeBasedWrapper({
   separateKeyPath,
   separateValueFlag,
   valueClassName,
+  valueEvaluated,
+  valueLabel,
   valuePath,
   valuePlaceholder,
-  valueText,
   valueTooltip,
-  variablesOptions,
-  variableText,
+  variableLabel,
+  variableOptions,
   variableTooltip,
 }: PaginationTypeBasedWrapperProps) {
   return (
@@ -179,10 +181,10 @@ function PaginationTypeBasedWrapper({
           <FormLabel>
             {variableTooltip ? (
               <Tooltip content={variableTooltip} hoverOpenDelay={500}>
-                <span className="label-icon-wrapper">{variableText}</span>
+                <span className="label-icon-wrapper">{variableLabel}</span>
               </Tooltip>
             ) : (
-              <span className="label-icon-wrapper">{variableText}</span>
+              <span className="label-icon-wrapper">{variableLabel}</span>
             )}
           </FormLabel>
         </Step>
@@ -191,7 +193,7 @@ function PaginationTypeBasedWrapper({
           dropdownMaxHeight={"200px"}
           fillOptions
           onSelect={onSelectVariable}
-          options={variablesOptions}
+          options={variableOptions}
           selected={selectedVariable}
           showLabelOnly
           width={"100%"}
@@ -202,16 +204,17 @@ function PaginationTypeBasedWrapper({
           <FormLabel>
             {valueTooltip ? (
               <Tooltip content={valueTooltip} hoverOpenDelay={500}>
-                <span className="label-icon-wrapper">{valueText}</span>
+                <span className="label-icon-wrapper">{valueLabel}</span>
               </Tooltip>
             ) : (
-              <span className="label-icon-wrapper">{valueText}</span>
+              <span className="label-icon-wrapper">{valueLabel}</span>
             )}
           </FormLabel>
         </Step>
         <DynamicTextFieldWrapper
           className={valueClassName}
           disabled={separateKeyFlag && !separateValueFlag}
+          evaluatedValue={valueEvaluated}
           fill={!!true}
           height="100%"
           name={valuePath}
@@ -246,7 +249,7 @@ function Pagination(props: PaginationProps) {
     setVariablesList(graphqlParseVariables(props.query));
   }, [props.query]);
 
-  const variablesOptions = Object.keys(variablesList).map((variable: any) => ({
+  const variableOptions = Object.keys(variablesList).map((variable: any) => ({
     label: variable,
     value: variable,
   }));
@@ -345,12 +348,14 @@ function Pagination(props: PaginationProps) {
                     value: props.limitBased?.limit?.name,
                   }}
                   valueClassName="t--apiFormPaginationLimit"
+                  valueEvaluated={props.limitBased?.limit?.value}
+                  valueLabel="Limit Value"
                   valuePath={`${PAGINATION_PREFIX}.${LIMITBASED_PREFIX}.limit.value`}
-                  valueText="Limit Value"
+                  valuePlaceholder="{{Table1.pageSize}}"
                   valueTooltip="Override the value of the limit variable selected i.e. the no of rows returned"
-                  variableText="Limit Variable"
+                  variableLabel="Limit Variable"
+                  variableOptions={variableOptions}
                   variableTooltip="Select the limit variable from the query"
-                  variablesOptions={variablesOptions}
                 />
                 {/* Offset */}
                 <PaginationTypeBasedWrapper
@@ -379,12 +384,14 @@ function Pagination(props: PaginationProps) {
                     value: props.limitBased?.offset?.name,
                   }}
                   valueClassName="t--apiFormPaginationOffset"
+                  valueEvaluated={props.limitBased?.offset?.value}
+                  valueLabel="Offset Value"
                   valuePath={`${PAGINATION_PREFIX}.${LIMITBASED_PREFIX}.offset.value`}
-                  valueText="Offset Value"
+                  valuePlaceholder="{{Table1.pageNo * Table1.pageSize}}"
                   valueTooltip="Override the value of the offset variable selected ie the no of rows omitted from the beginning"
-                  variableText="Offset Variable"
+                  variableLabel="Offset Variable"
+                  variableOptions={variableOptions}
                   variableTooltip="Select the offset variable from the query"
-                  variablesOptions={variablesOptions}
                 />
               </PaginationSection>
             </PaginationTypeView>,
@@ -434,12 +441,14 @@ function Pagination(props: PaginationProps) {
                     value: paginationPrev?.limit?.name,
                   }}
                   valueClassName="t--apiFormPaginationCursorPrev"
+                  valueEvaluated={paginationPrev?.limit?.value}
+                  valueLabel="Limit Variable Value"
                   valuePath={`${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.previous.limit.value`}
-                  valueText="Limit Variable Value"
+                  valuePlaceholder="{{Table1.pageSize}}"
                   valueTooltip="Override the value for the previous no of rows to be fetched"
-                  variableText="Limit Variable Name"
+                  variableLabel="Limit Variable Name"
+                  variableOptions={variableOptions}
                   variableTooltip="Select the variable from the query that holds the last/previous limit value"
-                  variablesOptions={variablesOptions}
                 />
                 {/* Previous Cursor Values */}
                 <PaginationTypeBasedWrapper
@@ -468,13 +477,14 @@ function Pagination(props: PaginationProps) {
                     value: paginationPrev?.cursor?.name,
                   }}
                   valueClassName="t--apiFormPaginationCursorPrev"
+                  valueEvaluated={paginationPrev?.cursor?.value}
+                  valueLabel="Start Cursor Value"
                   valuePath={`${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.previous.cursor.value`}
                   valuePlaceholder="{{Api1.data.previousCursor}}"
-                  valueText="Start Cursor Value"
                   valueTooltip="Binding the widget action to the previous page activity"
-                  variableText="Start Cursor Variable"
+                  variableLabel="Start Cursor Variable"
+                  variableOptions={variableOptions}
                   variableTooltip="Select the variable which holds the before cursor"
-                  variablesOptions={variablesOptions}
                 />
               </PaginationSection>
               <PaginationSection>
@@ -515,12 +525,14 @@ function Pagination(props: PaginationProps) {
                   separateKeyPath={`${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.next.limit.isSeparate`}
                   separateValueFlag={!!paginationNext?.limit?.isSeparate}
                   valueClassName="t--apiFormPaginationCursorNext"
+                  valueEvaluated={paginationNext?.limit?.value}
+                  valueLabel="Limit Variable Value"
                   valuePath={`${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.next.limit.value`}
-                  valueText="Limit Variable Value"
+                  valuePlaceholder="{{Table1.pageSize}}"
                   valueTooltip="Override the value for the next no of rows to be fetched"
-                  variableText="Limit Variable Name"
+                  variableLabel="Limit Variable Name"
+                  variableOptions={variableOptions}
                   variableTooltip="Select the variable from the query that holds the first/next limit value"
-                  variablesOptions={variablesOptions}
                 />
                 {/* Next Cursor Values */}
                 <PaginationTypeBasedWrapper
@@ -547,13 +559,14 @@ function Pagination(props: PaginationProps) {
                     value: paginationNext?.cursor?.name,
                   }}
                   valueClassName="t--apiFormPaginationCursorNext"
+                  valueEvaluated={paginationNext?.cursor?.value}
+                  valueLabel="End Cursor Value"
                   valuePath={`${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.next.cursor.value`}
                   valuePlaceholder="{{Api1.data.nextCursor}}"
-                  valueText="End Cursor Value"
                   valueTooltip="Binding the widget action to the next page activity"
-                  variableText="End Cursor Variable"
+                  variableLabel="End Cursor Variable"
+                  variableOptions={variableOptions}
                   variableTooltip="Select the variable which holds the after cursor"
-                  variablesOptions={variablesOptions}
                 />
               </PaginationSection>
             </PaginationTypeView>,
