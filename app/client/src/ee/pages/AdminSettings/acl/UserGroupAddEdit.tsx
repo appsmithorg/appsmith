@@ -16,7 +16,7 @@ import ProfileImage from "pages/common/ProfileImage";
 import { BackButton, HelpPopoverStyle, TabsWrapper } from "./components";
 import { debounce } from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
+import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { useHistory } from "react-router";
 import { HighlightText } from "./helpers/HighlightText";
 import { User } from "./UserListing";
@@ -355,7 +355,7 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
         />
       </TabsWrapper>
       <FormDialogComponent
-        Form={OrgInviteUsersForm}
+        Form={WorkspaceInviteUsersForm}
         canOutsideClickClose
         customProps={{
           isAclFlow: true,

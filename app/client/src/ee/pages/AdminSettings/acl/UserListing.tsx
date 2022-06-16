@@ -16,7 +16,7 @@ import { HighlightText } from "./helpers/HighlightText";
 import { UserEdit } from "./UserEdit";
 import { AclWrapper } from "./components";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
+import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 
@@ -311,7 +311,7 @@ export function UserListing() {
             listMenuItems={listMenuItems}
           />
           <FormDialogComponent
-            Form={OrgInviteUsersForm}
+            Form={WorkspaceInviteUsersForm}
             canOutsideClickClose
             customProps={{
               isAclFlow: true,
