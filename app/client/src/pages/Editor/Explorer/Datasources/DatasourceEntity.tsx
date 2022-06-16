@@ -5,6 +5,7 @@ import DataSourceContextMenu from "./DataSourceContextMenu";
 import { getPluginIcon } from "../ExplorerIcons";
 import { getQueryIdFromURL } from "../helpers";
 import Entity, { EntityClassNames } from "../Entity";
+import history from "utils/history";
 import {
   fetchDatasourceStructure,
   saveDatasourceName,
@@ -66,6 +67,7 @@ const ExplorerDatasourceEntity = React.memo(
         toUrl: url,
         name: props.datasource.name,
       });
+      history.push(url);
     }, [props.datasource.id, props.datasource.name, location.pathname]);
 
     const queryId = getQueryIdFromURL();

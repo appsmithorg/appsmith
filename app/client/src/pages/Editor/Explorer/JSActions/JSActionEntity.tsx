@@ -33,21 +33,20 @@ export const ExplorerJSCollectionEntity = memo(
       getJSCollection(state, props.id),
     ) as JSCollection;
     const location = useLocation();
+    const navigateToUrl = jsCollectionIdURL({
+      pageId,
+      collectionId: jsAction.id,
+      params: {},
+    });
     const navigateToJSCollection = useCallback(() => {
       if (jsAction.id) {
         AnalyticsUtil.logEvent("ENTITY_EXPLORER_CLICK", {
-          type: "QUERIES/JS",
+          type: "JSOBJECT",
           fromUrl: location.pathname,
-          toUrl: jsCollectionIdURL({
-            pageId,
-            collectionId: jsAction.id,
-            params: {},
-          }),
+          toUrl: navigateToUrl,
           name: jsAction.name,
         });
-        history.push(
-          jsCollectionIdURL({ pageId, collectionId: jsAction.id, params: {} }),
-        );
+        history.push(navigateToUrl);
       }
     }, [pageId, jsAction.id, jsAction.name, location.pathname]);
     const contextMenu = (

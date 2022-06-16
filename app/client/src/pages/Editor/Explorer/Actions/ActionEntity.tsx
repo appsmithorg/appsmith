@@ -52,7 +52,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
     });
     url && history.push(url);
     AnalyticsUtil.logEvent("ENTITY_EXPLORER_CLICK", {
-      type: "QUERIES/JS",
+      type: "QUERIES/APIs",
       fromUrl: location.pathname,
       toUrl: url,
       name: action.name,
