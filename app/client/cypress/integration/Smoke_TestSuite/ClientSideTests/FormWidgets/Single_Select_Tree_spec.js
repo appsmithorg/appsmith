@@ -28,20 +28,26 @@ describe("Single Select Widget Functionality", function() {
   });
 
   it("3. Clears the search field when widget is closed", () => {
+    // Open the widget
     cy.get(formWidgetsPage.treeSelectInput)
       .last()
       .click({ force: true });
+    // Search for Green option in the search input
     cy.get(formWidgetsPage.treeSelectFilterInput)
       .click()
       .type("Green");
+    // Select the Green Option
     cy.treeSelectDropdown("Green");
+    // Assert Green option is selected
     cy.get(formWidgetsPage.singleselecttreeWidget)
       .find(".rc-tree-select-selection-item")
       .first()
       .should("have.text", "Green");
+    // Reopen the widget
     cy.get(formWidgetsPage.treeSelectInput)
       .last()
       .click({ force: true });
+    // Assert the search input is cleared
     cy.get(formWidgetsPage.treeSelectFilterInput)
       .invoke("val")
       .should("be.empty");
