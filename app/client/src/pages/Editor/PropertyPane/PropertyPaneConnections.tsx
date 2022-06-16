@@ -28,6 +28,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { Position } from "@blueprintjs/core";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import equal from "fast-deep-equal";
+import { mapValues, pick } from "lodash";
 
 const CONNECTION_HEIGHT = 28;
 
@@ -191,10 +193,16 @@ const doConnectionsHaveErrors = (
 };
 
 const useDependencyList = (name: string) => {
-  const dataTree = useSelector(getDataTree, () => true);
-  const deps = useSelector(
-    (state: AppState) => state.evaluations.dependencies,
-    () => true,
+  const dataTree = useSelector(getDataTree, (prev, next) => {
+    const requiredProps = ["type", "widgetId", "widgetName", "displayName"];
+    return equal(
+      mapValues(pick(prev, requiredProps)),
+      mapValues(pick(next, requiredProps)),
+    );
+  });
+  const inverseDependencyMap = useSelector(
+    (state: AppState) => state.evaluations.dependencies.inverseDependencyMap,
+    equal,
   );
   const guidedTour = useSelector(inGuidedTour);
 
@@ -210,11 +218,8 @@ const useDependencyList = (name: string) => {
 
   const entityDependencies = useMemo(() => {
     if (guidedTour) return null;
-    return getDependenciesFromInverseDependencies(
-      deps.inverseDependencyMap,
-      name,
-    );
-  }, [name, deps.inverseDependencyMap, guidedTour]);
+    return getDependenciesFromInverseDependencies(inverseDependencyMap, name);
+  }, [name, inverseDependencyMap, guidedTour]);
 
   const dependencyOptions =
     entityDependencies?.directDependencies.map((e) => ({

@@ -50,9 +50,9 @@ function PropertyPaneView(
   const { ...panel } = props;
   const widgetProperties = useSelector(
     getWidgetPropsForPropertyPane,
-    (left, right) => {
+    (prev, next) => {
       const requiredProps = ["type", "widgetId", "widgetName", "displayName"];
-      return equal(pick(left, requiredProps), pick(right, requiredProps));
+      return equal(pick(prev, requiredProps), pick(next, requiredProps));
     },
   );
   const doActionsExist = useSelector(actionsExist);
