@@ -89,7 +89,7 @@ async function restoreDockerEnvFile(restoreContentsPath, backupName){
   }
   
   await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_ENCRYPTION_PASSWORD=' + encryptionPwd +
-                                             '\nAPPSMITH_ENCRYPTION_SALT=' + encryptionPwd);
+                                             '\nAPPSMITH_ENCRYPTION_SALT=' + encryptionSalt);
 
   console.log('Restoring docker environment file completed');
 }

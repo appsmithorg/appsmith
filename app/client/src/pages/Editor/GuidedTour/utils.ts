@@ -33,6 +33,12 @@ class IndicatorHelper {
     }
     const coordinates = getCoordinates(primaryReference);
 
+    if (coordinates.hidden) {
+      this.indicatorWrapper.style.display = "none";
+    } else {
+      this.indicatorWrapper.style.display = "initial";
+    }
+
     // Remove previous indicator if it is unable to find the
     // correct position
     if (coordinates.width === 0) {
@@ -117,8 +123,21 @@ class IndicatorHelper {
 }
 const indicatorHelperInstance = new IndicatorHelper();
 
-function getCoordinates(elem: Element) {
-  const box = elem.getBoundingClientRect();
+// To check if the element is behind another element for e.g when it is scrolled
+// out of view
+function isBehindOtherElement(element: Element, boundingRect: DOMRect) {
+  const { bottom, left, right, top } = boundingRect;
+
+  if (element.contains(document.elementFromPoint(left, top))) return false;
+  if (element.contains(document.elementFromPoint(right, top))) return false;
+  if (element.contains(document.elementFromPoint(left, bottom))) return false;
+  if (element.contains(document.elementFromPoint(right, bottom))) return false;
+
+  return true;
+}
+
+function getCoordinates(element: Element) {
+  const box = element.getBoundingClientRect();
 
   return {
     top: box.top + window.pageYOffset,
@@ -127,6 +146,9 @@ function getCoordinates(elem: Element) {
     left: box.left + window.pageXOffset,
     width: box.width,
     height: box.height,
+    // If the element present is not the same as the one we are interested in
+    // we set the hidden flag to true to hide it using `display: none`.
+    hidden: isBehindOtherElement(element, box),
   };
 }
 
