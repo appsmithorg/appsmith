@@ -11,6 +11,7 @@ import {
 } from "../component/Constants";
 import {
   ColumnTypes,
+  DEFAULT_BUTTON_COLOR,
   DEFAULT_COLUMN_WIDTH,
   ORIGINAL_INDEX_KEY,
 } from "../constants";
@@ -18,6 +19,7 @@ import { SelectColumnOptionsValidations } from "./propertyUtils";
 import { AppTheme } from "entities/AppTheming";
 import { TableWidgetProps } from "../constants";
 import { get } from "lodash";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -510,4 +512,45 @@ export const reorderColumns = (
     });
   }
   return newColumnsInOrder;
+};
+
+export const getEditActionColumnProperties = () => ({
+  isSaveVisible: true,
+  isDiscardVisible: true,
+  saveIconAlign: "left",
+  discardIconAlign: "left",
+  saveActionLabel: "Save",
+  discardActionLabel: "Discard",
+  saveButtonColor: Colors.GREEN,
+  discardButtonColor: Colors.GREEN,
+});
+
+export const getEditActionColumnDynamicProperties = (widgetName: string) => ({
+  isSaveDisabled: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
+  isDiscardDisabled: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
+});
+
+export const createColumn = (props: TableWidgetProps, baseName: string) => {
+  const columns = props.primaryColumns || {};
+  const columnsArray = Object.values(columns);
+  const columnIds = columnsArray.map((column) => column.originalId);
+  const newColumnName = getNextEntityName(baseName, columnIds);
+  const lastItemIndex = columnsArray
+    .map((column) => column.index)
+    .sort()
+    .pop();
+  const nextIndex = lastItemIndex ? lastItemIndex + 1 : columnIds.length;
+
+  return {
+    ...getDefaultColumnProperties(
+      newColumnName,
+      newColumnName,
+      nextIndex,
+      props.widgetName,
+      true,
+    ),
+    buttonStyle: DEFAULT_BUTTON_COLOR,
+    isDisabled: false,
+    ...getTableStyles(props),
+  };
 };

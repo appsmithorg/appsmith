@@ -16,6 +16,7 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import {
+  createColumn,
   getDefaultColumnProperties,
   getTableStyles,
   isColumnTypeEditable,
@@ -33,7 +34,10 @@ import {
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { DraggableListCard } from "components/ads/DraggableListCard";
 import { Checkbox } from "components/ads";
-import { DEFAULT_BUTTON_COLOR } from "widgets/TableWidgetV2/constants";
+import {
+  ColumnTypes,
+  DEFAULT_BUTTON_COLOR,
+} from "widgets/TableWidgetV2/constants";
 
 const TabsWrapper = styled.div`
   width: 100%;
@@ -173,7 +177,8 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
           label: column.label || "",
           id: column.id,
           isVisible: column.isVisible,
-          isDerived: column.isDerived,
+          isDerived:
+            column.isDerived && column.columnType !== ColumnTypes.EDIT_ACTIONS,
           index: column.index,
           isDuplicateLabel: _.includes(
             this.state.duplicateColumnIds,
@@ -226,7 +231,6 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
               renderComponent={(props) =>
                 DraggableListCard({
                   ...props,
-                  isDelete: false,
                   showCheckbox: true,
                   placeholder: "Column Title",
                 })
@@ -255,29 +259,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   }
 
   addNewColumn = () => {
-    const columns: ColumnsType = this.props.propertyValue || {};
-    const columnsArray = Object.values(columns);
-    const columnIds = columnsArray.map((column) => column.originalId);
-    const newColumnName = getNextEntityName("customColumn", columnIds);
-    const lastItemIndex = columnsArray
-      .map((column) => column.index)
-      .sort()
-      .pop();
-    const nextIndex = lastItemIndex ? lastItemIndex + 1 : columnIds.length;
-    const columnProps: ColumnProperties = getDefaultColumnProperties(
-      newColumnName,
-      newColumnName,
-      nextIndex,
-      this.props.widgetProperties.widgetName,
-      true,
-    );
-    const tableStyles = getTableStyles(this.props.widgetProperties);
-    const column = {
-      ...columnProps,
-      buttonStyle: DEFAULT_BUTTON_COLOR,
-      isDisabled: false,
-      ...tableStyles,
-    };
+    const column = createColumn(this.props.widgetProperties, "customColumn");
 
     this.updateProperty(`${this.props.propertyName}.${column.id}`, column);
   };
@@ -350,7 +332,6 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
 
   deleteOption = (index: number) => {
     const columns: ColumnsType = this.props.propertyValue || {};
-    const derivedColumns = this.props.widgetProperties.derivedColumns || {};
     const columnOrder = this.props.widgetProperties.columnOrder || [];
 
     const originalColumn = getOriginalColumn(columns, index, columnOrder);
@@ -359,8 +340,6 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
       const propertiesToDelete = [
         `${this.props.propertyName}.${originalColumn.id}`,
       ];
-      if (derivedColumns[originalColumn.id])
-        propertiesToDelete.push(`derivedColumns.${originalColumn.id}`);
 
       const columnOrderIndex = columnOrder.findIndex(
         (column: string) => column === originalColumn.id,

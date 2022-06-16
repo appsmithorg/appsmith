@@ -31,6 +31,7 @@ import { find, isEmpty } from "lodash";
 import { rgbaMigrationConstantV56 } from "./constants";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 import { isArray } from "lodash";
+import { PropertyHookUpdates } from "constants/PropertyControlConstants";
 
 const punycode = require("punycode/");
 
@@ -552,7 +553,7 @@ export const getMainCanvas = () =>
  * - Often times we would wanna call more than one hook when a property is
  *   changed. Use this hook instead of nested calls
  *
- * Eack hook should either return `undefined` or an array of {propertyPath, propertyValue}
+ * Eack hook should either return `undefined` or an array of PropertyHookUpdates
  * this function ignores the undefined and concats all the property update array.
  */
 export function composePropertyUpdateHook(
@@ -561,24 +562,16 @@ export function composePropertyUpdateHook(
       props: any,
       propertyPath: string,
       propertyValue: any,
-    ) =>
-      | Array<{
-          propertyPath: string;
-          propertyValue: any;
-        }>
-      | undefined
+    ) => Array<PropertyHookUpdates> | undefined
   >,
 ): (
   props: any,
   propertyPath: string,
   propertyValue: any,
-) => Array<{ propertyPath: string; propertyValue: any }> | undefined {
+) => Array<PropertyHookUpdates> | undefined {
   return (props: any, propertyPath: string, propertyValue: any) => {
     if (updateFunctions.length) {
-      let updates: {
-        propertyPath: string;
-        propertyValue: any;
-      }[] = [];
+      let updates: PropertyHookUpdates[] = [];
 
       updateFunctions.forEach((func) => {
         if (typeof func === "function") {
