@@ -57,6 +57,7 @@ export class DataSources {
     "//div/span[text()='Result:']/span[contains(text(),'" +
     recordCount +
     " Record')]";
+  _noRecordFound = "span[data-testid='no-data-table-message']";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
