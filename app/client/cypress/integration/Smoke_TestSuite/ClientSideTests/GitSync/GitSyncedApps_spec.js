@@ -318,7 +318,7 @@ describe("Git sync apps", function() {
     // bind input widgets to the jsObject and query response
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
-    //cy.EnableAllCodeEditors();
+    cy.EnableAllCodeEditors();
     cy.get(dynamicInputLocators.input)
       .eq(1)
       .click({ force: true })
