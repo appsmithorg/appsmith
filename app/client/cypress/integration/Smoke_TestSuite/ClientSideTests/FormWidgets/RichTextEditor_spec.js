@@ -118,7 +118,7 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.get(".t--property-control-onclick")
       .find(".t--js-toggle")
       .click({ force: true });
-    cy.testJsontext("onclick", '{{resetWidget("RichtextEditor")}}');
+    cy.testJsontext("onclick", '{{resetWidget("RichtextEditor", true)}}');
     cy.get(".t--widget-buttonwidget .bp3-button").click({ force: true });
     cy.wait(500);
     cy.validateHTMLText(
@@ -140,7 +140,13 @@ describe("RichTextEditor Widget Functionality", function() {
     // Check if isDirty has been changed into false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
-    cy.setTinyMceContent("rte-6h8j08u7ea", "abc");
+    // cy.setTinyMceContent("rte-6h8j08u7ea", "abc");
+    cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then(($iframe) => {
+      const $body = $iframe.contents().find("body");
+      cy.wrap($body)
+        // .find("p")
+        .type("abc", { force: true });
+    });
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultText
@@ -152,7 +158,7 @@ describe("RichTextEditor Widget Functionality", function() {
 
   it("Check if the binding is getting removed from the text and the RTE widget", function() {
     cy.openPropertyPane("textwidget");
-    cy.updateCodeInput(".t--property-control-text", `{{RichTextEditor1.text}}`);
+    cy.updateCodeInput(".t--property-control-text", `{{RichtextEditor.text}}`);
     // Change defaultText of the RTE
     cy.openPropertyPane("richtexteditorwidget");
     cy.testJsontext("defaulttext", "Test Content");
@@ -198,8 +204,8 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then(($iframe) => {
       const $body = $iframe.contents().find("body");
       cy.wrap($body)
-        .find("p")
-        .type(testString);
+        // .find("p")
+        .type(testString, { force: true });
     });
 
     cy.window().then((win) => {
@@ -221,8 +227,8 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then(($iframe) => {
       const $body = $iframe.contents().find("body");
       cy.wrap($body)
-        .find("p")
-        .type(`${testString} {enter} ${testString} 1`);
+        // .find("p")
+        .type(`${testString} {enter} ${testString} 1`, { force: true });
     });
 
     cy.get(".tox-tbtn--bespoke").click({ force: true });

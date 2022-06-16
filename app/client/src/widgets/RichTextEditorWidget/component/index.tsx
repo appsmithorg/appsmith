@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useEffect } from "react";
+import React, { useRef, useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
 import { LabelPosition } from "components/constants";
@@ -74,6 +74,7 @@ export interface RichtextEditorComponentProps {
   labelTextSize?: TextSize;
   labelStyle?: string;
   isValid?: boolean;
+  isDirty: boolean;
   onValueChange: (valueAsString: string) => void;
 }
 
@@ -90,39 +91,48 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     labelWidth,
   } = props;
 
-  const valueRef = useRef(props.value);
+  const [editorValue, setEditorValue] = useState<string>(props.value as string);
   const initialRender = useRef(true);
+  const isTyped = useRef(false);
 
   const toolbarConfig =
     "insertfile undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | forecolor backcolor emoticons' | help";
 
   const handleEditorChange = useCallback(
-    (newValue: string) => {
+    (newValue: string, editor: any) => {
       // avoid updating value, when there is no actual change.
-      if (newValue !== valueRef.current) {
-        valueRef.current = newValue;
-        props.onValueChange(newValue);
+      if (newValue !== editorValue) {
+        const isEditorDirty = editor.isDirty();
+        setEditorValue(newValue);
+        isTyped.current = true;
+
+        if (isTyped.current) {
+          if (newValue === "") {
+            props.onValueChange(newValue);
+            isTyped.current = false;
+          } else if (props.isDirty === false && isEditorDirty) {
+            setEditorValue(newValue);
+            editor.setDirty(false);
+          } else {
+            props.onValueChange(newValue);
+            isTyped.current = false;
+          }
+        }
       }
     },
-    [props.onValueChange],
+    [props.onValueChange, props.value, editorValue, props.isDirty],
   );
 
   // As this useEffect sets the initialRender.current value as false and order of hooks matter,
   // we should always keep this useEffect logic at last part of component before return to make sure, initialRender.current value is consumed as expected in the component.
   useEffect(() => {
-    if (!initialRender.current && valueRef.current !== props.value) {
-      valueRef.current = props.value;
+    if (!initialRender.current && editorValue !== props.value) {
+      setEditorValue(props.value as string);
     } else {
       initialRender.current = false;
     }
   }, [props.value]);
 
-  // This useEffect updates the value inside the editor whenever defaultText changes.
-  useEffect(() => {
-    if (valueRef.current !== props.defaultText) {
-      valueRef.current = props.defaultText;
-    }
-  }, [props.defaultText]);
   return (
     <StyledRTEditor
       borderRadius={props.borderRadius}
@@ -196,7 +206,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           onEditorChange={handleEditorChange}
           tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/tinymce.min.js"
           toolbar={props.isToolbarHidden ? false : toolbarConfig}
-          value={valueRef.current}
+          value={editorValue}
         />
       </RichTextEditorInputWrapper>
     </StyledRTEditor>
