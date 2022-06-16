@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -96,7 +96,7 @@ public class ApplicationFetcherUnitTest {
         for(int i = 1; i <= orgCount; i++) {
             for (int j = 1; j <= appCount; j++) {
                 Application application = new Application();
-                application.setOrganizationId("org-" + i);
+                application.setWorkspaceId("org-" + i);
                 application.setId("org-" + i + "-app-" + j); // e.g. org-1-app-3
                 application.setName(application.getId()); // e.g. org-1-app-3
                 // Set dummy applicationPages
@@ -169,12 +169,12 @@ public class ApplicationFetcherUnitTest {
         testUser = new User();
         testUser.setEmail("application-fetcher-test-user");
         testUser.setIsAnonymous(false);
-        testUser.setOrganizationIds(Set.of("org-1", "org-2", "org-3", "org-4"));
+        testUser.setWorkspaceIds(Set.of("org-1", "org-2", "org-3", "org-4"));
         testUser.setTenantId(defaultTenantId);
 
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(testUser));
         Mockito.when(userService.findByEmail(testUser.getEmail())).thenReturn(Mono.just(testUser));
-        Mockito.when(workspaceService.findByIdsIn(testUser.getOrganizationIds(), defaultTenantId, READ_ORGANIZATIONS))
+        Mockito.when(workspaceService.findByIdsIn(testUser.getWorkspaceIds(), defaultTenantId, READ_WORKSPACES))
                 .thenReturn(Flux.fromIterable(createDummyWorkspaces()));
         Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
         Mockito.when(releaseNotesService.computeNewFrom(any())).thenReturn("0");
@@ -192,8 +192,8 @@ public class ApplicationFetcherUnitTest {
         List<Application> applications = createDummyApplications(4,4);
         List<NewPage> pageList = createDummyPages(4, 4);
 
-        Mockito.when(applicationRepository.findByMultipleOrganizationIds(
-                testUser.getOrganizationIds(), READ_APPLICATIONS)
+        Mockito.when(applicationRepository.findByMultipleWorkspaceIds(
+                testUser.getWorkspaceIds(), READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
 
         Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
@@ -210,10 +210,10 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
-                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getWorkspaceApplications();
                     assertThat(dtos.size()).isEqualTo(4);
                     for (WorkspaceApplicationsDTO dto : dtos) {
-                        assertThat(dto.getOrganization().getTenantId()).isEqualTo(defaultTenantId);
+                        assertThat(dto.getWorkspace().getTenantId()).isEqualTo(defaultTenantId);
                         assertThat(dto.getApplications().size()).isEqualTo(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
@@ -239,8 +239,8 @@ public class ApplicationFetcherUnitTest {
         List<Application> applications = createDummyApplications(4,4);
         List<NewPage> pageList = createDummyPages(4, 4);
 
-        Mockito.when(applicationRepository.findByMultipleOrganizationIds(
-                testUser.getOrganizationIds(), READ_APPLICATIONS)
+        Mockito.when(applicationRepository.findByMultipleWorkspaceIds(
+                testUser.getWorkspaceIds(), READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
 
         Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
@@ -252,15 +252,16 @@ public class ApplicationFetcherUnitTest {
                     .thenReturn(updateDefaultPageIdsWithinApplication(application));
         }
 
-        Mockito.when(applicationService.createOrUpdateSshKeyPair(Mockito.anyString(), nullable(String.class)))
+
+        Mockito.when(applicationService.createOrUpdateSshKeyPair(Mockito.anyString(), Mockito.nullable(String.class)))
                 .thenReturn(Mono.just(new GitAuth()));
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
-                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getWorkspaceApplications();
                     assertThat(dtos.size()).isEqualTo(4);
                     for (WorkspaceApplicationsDTO dto : dtos) {
-                        assertThat(dto.getOrganization().getTenantId()).isEqualTo(defaultTenantId);
+                        assertThat(dto.getWorkspace().getTenantId()).isEqualTo(defaultTenantId);
                         assertThat(dto.getApplications().size()).isEqualTo(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
@@ -279,7 +280,7 @@ public class ApplicationFetcherUnitTest {
                 .thenReturn(Mono.just(new Application()));
         Mono<UserHomepageDTO> userHomepageDTOMono = applicationFetcher.getAllApplications()
                 .flatMap(userHomepageDTO -> {
-                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getWorkspaceApplications();
                     List<Application> applicationList = dtos.get(0).getApplications();
                     return Mono.just(applicationList.get(0));
                 })
@@ -289,7 +290,7 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(userHomepageDTOMono)
                 .assertNext(userHomepageDTO -> {
-                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getWorkspaceApplications();
                     assertThat(dtos.size()).isEqualTo(4);
                     for (WorkspaceApplicationsDTO dto : dtos) {
                         assertThat(dto.getApplications().size()).isEqualTo(4);
@@ -308,7 +309,7 @@ public class ApplicationFetcherUnitTest {
         // For connect and create branch flow scenarios where - defaultBranchName is somehow not saved in DB
         userHomepageDTOMono = applicationFetcher.getAllApplications()
                 .flatMap(userHomepageDTO -> {
-                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getWorkspaceApplications();
                     List<Application> applicationList = dtos.get(0).getApplications();
                     return Mono.just(applicationList.get(0));
                 })
@@ -316,7 +317,7 @@ public class ApplicationFetcherUnitTest {
                     // Create a new branched App resource in the same org and verify that branch App does not show up in the response.
                     Application branchApp = new Application();
                     branchApp.setName("branched App");
-                    branchApp.setOrganizationId(application.getOrganizationId());
+                    branchApp.setWorkspaceId(application.getWorkspaceId());
                     branchApp.setId("org-" + 5 + "-app-" + 5);
                     GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
                     gitApplicationMetadata.setDefaultApplicationId(application.getId());
@@ -345,7 +346,7 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(userHomepageDTOMono)
                 .assertNext(userHomepageDTO -> {
-                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getWorkspaceApplications();
                     assertThat(dtos.size()).isEqualTo(4);
                     for (WorkspaceApplicationsDTO dto : dtos) {
                         assertThat(dto.getApplications().size()).isEqualTo(4);
@@ -368,7 +369,7 @@ public class ApplicationFetcherUnitTest {
         initMocks();
         // mock the user data to return recently used orgs and apps
         UserData userData = new UserData();
-        userData.setRecentlyUsedOrgIds(List.of("org-2", "org-4"));
+        userData.setRecentlyUsedWorkspaceIds(List.of("org-2", "org-4"));
         userData.setRecentlyUsedAppIds(List.of("org-2-app-2", "org-2-app-1", "org-4-app-3"));
         Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(userData));
 
@@ -376,8 +377,8 @@ public class ApplicationFetcherUnitTest {
         List<Application> applications = createDummyApplications(4,4);
         List<NewPage> pageList = createDummyPages(4, 4);
 
-        Mockito.when(applicationRepository.findByMultipleOrganizationIds(
-                testUser.getOrganizationIds(), READ_APPLICATIONS)
+        Mockito.when(applicationRepository.findByMultipleWorkspaceIds(
+                testUser.getWorkspaceIds(), READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
 
         Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
@@ -391,7 +392,7 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
-                    List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getWorkspaceApplications();
                     assertThat(workspaceApplications).isNotNull();
                     assertThat(workspaceApplications.size()).isEqualTo(4);
 
@@ -406,11 +407,11 @@ public class ApplicationFetcherUnitTest {
                     );
 
                     // rest two orgs should have apps sorted in default order e.g. 1,2,3,4
-                    String org3AppPrefix = workspaceApplications.get(2).getOrganization().getId() + "-app-";
+                    String org3AppPrefix = workspaceApplications.get(2).getWorkspace().getId() + "-app-";
                     checkAppsAreSorted(workspaceApplications.get(2).getApplications(),
                             List.of(org3AppPrefix+"1", org3AppPrefix+"2", org3AppPrefix+"3", org3AppPrefix+"4")
                     );
-                    String org4AppPrefix = workspaceApplications.get(3).getOrganization().getId() + "-app-";
+                    String org4AppPrefix = workspaceApplications.get(3).getWorkspace().getId() + "-app-";
                     checkAppsAreSorted(workspaceApplications.get(3).getApplications(),
                             List.of(org4AppPrefix+"1", org4AppPrefix+"2", org4AppPrefix+"3", org4AppPrefix+"4")
                     );
@@ -422,15 +423,15 @@ public class ApplicationFetcherUnitTest {
         initMocks();
         // mock the user data to return recently used orgs and apps
         UserData userData = new UserData();
-        userData.setRecentlyUsedOrgIds(List.of("org-3", "org-1"));
+        userData.setRecentlyUsedWorkspaceIds(List.of("org-3", "org-1"));
         Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(userData));
 
         // mock the list of applications
         List<Application> applications = createDummyApplications(3,3);
         List<NewPage> pageList = createDummyPages(4, 4);
 
-        Mockito.when(applicationRepository.findByMultipleOrganizationIds(
-                testUser.getOrganizationIds(), READ_APPLICATIONS)
+        Mockito.when(applicationRepository.findByMultipleWorkspaceIds(
+                testUser.getWorkspaceIds(), READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
 
         Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
@@ -444,7 +445,7 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
-                    List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getWorkspaceApplications();
                     assertThat(workspaceApplications).isNotNull();
                     assertThat(workspaceApplications.size()).isEqualTo(4);
 

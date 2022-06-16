@@ -132,8 +132,8 @@ class GitSyncAPI extends Api {
     return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
   }
 
-  static importApp(payload: ConnectToGitPayload, orgId: string) {
-    return Api.post(`${GitSyncAPI.baseURL}/import/${orgId}`, payload);
+  static importApp(payload: ConnectToGitPayload, workspaceId: string) {
+    return Api.post(`${GitSyncAPI.baseURL}/import/${workspaceId}`, payload);
   }
 
   static getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
