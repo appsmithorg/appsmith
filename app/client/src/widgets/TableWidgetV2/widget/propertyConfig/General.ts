@@ -10,12 +10,14 @@ import {
   uniqueColumnNameValidation,
   updateColumnOrderHook,
   updateEditActionsColumnHook,
+  updateInlineEditingOptionDropdownVisibilityHook,
 } from "../propertyUtils";
 import {
   createMessage,
   TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
 } from "@appsmith/constants/messages";
 import panelConfig from "./PanelConfig";
+import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 
 export default {
   sectionName: "General",
@@ -43,7 +45,10 @@ export default {
       propertyName: "primaryColumns",
       controlType: "PRIMARY_COLUMNS_V2",
       label: "Columns",
-      updateHook: updateColumnOrderHook,
+      updateHook: composePropertyUpdateHook([
+        updateColumnOrderHook,
+        updateInlineEditingOptionDropdownVisibilityHook,
+      ]),
       dependencies: ["columnOrder", "childStylesheet"],
       isBindProperty: false,
       isTriggerProperty: false,
@@ -59,6 +64,39 @@ export default {
         },
       },
       panelConfig,
+    },
+    {
+      propertyName: "inlineEditingSaveOption",
+      helpText: "choose the save option to save edited the cell",
+      label: "Show save button on",
+      controlType: "DROP_DOWN",
+      isBindProperty: true,
+      isTriggerProperty: false,
+      hidden: (props: TableWidgetProps) => {
+        return (
+          !props.showInlineEditingOptionDropdown &&
+          !Object.values(props.primaryColumns).find(
+            (column) => column.isEditable,
+          )
+        );
+      },
+      dependencies: [
+        "primaryColumns",
+        "columnOrder",
+        "childStylesheet",
+        "showInlineEditingOptionDropdown",
+      ],
+      options: [
+        {
+          label: "Row level",
+          value: InlineEditingSaveOptions.ROW_LEVEL,
+        },
+        {
+          label: "Custom",
+          value: InlineEditingSaveOptions.CUSTOM,
+        },
+      ],
+      updateHook: updateEditActionsColumnHook,
     },
     {
       helpText:
@@ -230,31 +268,6 @@ export default {
       controlType: "SWITCH",
       isBindProperty: false,
       isTriggerProperty: false,
-    },
-    {
-      propertyName: "inlineEditingSaveOption",
-      helpText: "choose the save option to save edited the cell",
-      label: "Show save button on",
-      controlType: "DROP_DOWN",
-      isBindProperty: true,
-      isTriggerProperty: false,
-      hidden: (props: TableWidgetProps) => {
-        return !Object.values(props.primaryColumns).find(
-          (column) => column.isEditable,
-        );
-      },
-      dependencies: ["primaryColumns"],
-      options: [
-        {
-          label: "Row level",
-          value: InlineEditingSaveOptions.ROW_LEVEL,
-        },
-        {
-          label: "Custom",
-          value: InlineEditingSaveOptions.CUSTOM,
-        },
-      ],
-      updateHook: updateEditActionsColumnHook,
     },
   ],
 };

@@ -12,7 +12,14 @@ import {
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { getDefaultColumnProperties, getTableStyles } from "./utilities";
+import {
+  createColumn,
+  getDefaultColumnProperties,
+  getEditActionColumnDynamicProperties,
+  getEditActionColumnProperties,
+  getTableStyles,
+} from "./utilities";
+import { PropertyHookUpdates } from "constants/PropertyControlConstants";
 
 export function totalRecordsCountValidation(
   value: unknown,
@@ -213,7 +220,29 @@ export const updateColumnOrderHook = (
   }
 };
 
-const EDITABLITY_PATH_REGEX = /^primaryColumns\.(\w+)\.isCellEditable$/;
+const EDITABLITY_PATH_REGEX = /^primaryColumns\.(\w+)\.isEditable$/;
+
+export const updateInlineEditingOptionDropdownVisibilityHook = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: any,
+): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+  if (
+    props &&
+    !props.showInlineEditingOptionDropdown &&
+    propertyValue &&
+    EDITABLITY_PATH_REGEX.test(propertyPath)
+  ) {
+    return [
+      {
+        propertyPath: `showInlineEditingOptionDropdown`,
+        propertyValue: true,
+      },
+    ];
+  }
+};
+
+const CELL_EDITABLITY_PATH_REGEX = /^primaryColumns\.(\w+)\.isCellEditable$/;
 /*
  * Hook that updates column level editability when cell level editability is
  * updaed.
@@ -223,8 +252,8 @@ export const updateColumnLevelEditability = (
   propertyPath: string,
   propertyValue: any,
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  if (props && propertyValue && EDITABLITY_PATH_REGEX.test(propertyPath)) {
-    const match = EDITABLITY_PATH_REGEX.exec(propertyPath) || [];
+  if (props && propertyValue && CELL_EDITABLITY_PATH_REGEX.test(propertyPath)) {
+    const match = CELL_EDITABLITY_PATH_REGEX.exec(propertyPath) || [];
     const columnIdHash = match[1];
 
     if (columnIdHash) {
@@ -279,6 +308,28 @@ export const hideByColumnType = (
 
   const columnType = get(props, `${baseProperty}.columnType`, "");
   return !columnTypes.includes(columnType);
+};
+
+/*
+ * Function to check if column should be shown, based on
+ * the given columnTypes
+ */
+export const showByColumnType = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  columnTypes: ColumnTypes[],
+  shouldUsePropertyPath?: boolean,
+) => {
+  let baseProperty;
+
+  if (shouldUsePropertyPath) {
+    baseProperty = propertyPath;
+  } else {
+    baseProperty = getBasePropertyPath(propertyPath);
+  }
+
+  const columnType = get(props, `${baseProperty}.columnType`, "");
+  return columnTypes.includes(columnType);
 };
 
 export const SelectColumnOptionsValidations = (
@@ -344,37 +395,39 @@ export const updateEditActionsColumnHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
-):
-  | Array<{
-      propertyPath: string;
-      propertyValue: any;
-      isDynamicPropertyPath?: boolean;
-    }>
-  | undefined => {
+): Array<PropertyHookUpdates> | undefined => {
+  const columns = props.primaryColumns;
+  const columnsArray = Object.values(columns);
+
   if (propertyValue === InlineEditingSaveOptions.ROW_LEVEL) {
-    const columns = props.primaryColumns;
-    const columnsArray = Object.values(columns);
-    const columnIds = columnsArray.map((column) => column.originalId);
-    const newColumnName = getNextEntityName("EditActions", columnIds);
-    const lastItemIndex = columnsArray
-      .map((column) => column.index)
-      .sort()
-      .pop();
-    const nextIndex = lastItemIndex ? lastItemIndex + 1 : columnsArray.length;
-    const columnProps: ColumnProperties = getDefaultColumnProperties(
-      newColumnName,
-      newColumnName,
-      nextIndex,
-      props.widgetName,
-      true,
-    );
-    const tableStyles = getTableStyles(props);
+    const themeProps: Record<string, string> = {};
+
+    if (props.childStylesheet[ColumnTypes.EDIT_ACTIONS]) {
+      Object.entries(props.childStylesheet[ColumnTypes.EDIT_ACTIONS]).forEach(
+        ([key, value]) => {
+          const { jsSnippets, stringSegments } = getDynamicBindings(
+            value as string,
+          );
+
+          const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+          themeProps[
+            key
+          ] = `{{${props.widgetName}.processedTableData.map((currentRow, currentIndex) => ( ${js}))}}`;
+        },
+      );
+    }
+
     const column = {
-      ...columnProps,
+      ...createColumn(props, "EditActions"),
+      ...getEditActionColumnProperties(),
+      ...themeProps,
       columnType: ColumnTypes.EDIT_ACTIONS,
-      ...tableStyles,
     };
     const columnOrder = props.columnOrder || [];
+    const editActionDynamicProperties = getEditActionColumnDynamicProperties(
+      props.widgetName,
+    );
 
     return [
       {
@@ -385,69 +438,26 @@ export const updateEditActionsColumnHook = (
         propertyPath: `columnOrder`,
         propertyValue: [...columnOrder, column.id],
       },
+      ...Object.entries(editActionDynamicProperties).map(([key, value]) => ({
+        propertyPath: `primaryColumns.${column.id}.${key}`,
+        propertyValue: value,
+        isDynamicPropertyPath: true,
+      })),
     ];
   } else {
+    const edtiActionColumn = columnsArray.find(
+      (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
+    );
+
+    if (edtiActionColumn && edtiActionColumn.id) {
+      return [
+        {
+          propertyPath: `primaryColumns.${edtiActionColumn.id}`,
+          shouldDeleteProperty: true,
+        },
+      ];
+    }
   }
-
-  // if (propertyValue === ColumnTypes.EDIT_ACTIONS) {
-  //   const baseProperty = getBasePropertyPath(propertyPath);
-  //   const { widgetName } = props;
-  //   const propertiesToUpdate = [];
-
-  //   propertiesToUpdate.push({
-  //     propertyPath: `${baseProperty}.isSaveVisible`,
-  //     propertyValue: true,
-  //   });
-
-  //   propertiesToUpdate.push({
-  //     propertyPath: `${baseProperty}.isDiscardVisible`,
-  //     propertyValue: true,
-  //   });
-
-  //   propertiesToUpdate.push({
-  //     propertyPath: `${baseProperty}.saveIconAlign`,
-  //     propertyValue: "left",
-  //   });
-
-  //   propertiesToUpdate.push({
-  //     propertyPath: `${baseProperty}.discardIconAlign`,
-  //     propertyValue: "left",
-  //   });
-
-  //   propertiesToUpdate.push({
-  //     propertyPath: `${baseProperty}.saveActionLabel`,
-  //     propertyValue: "Save",
-  //   });
-
-  //   propertiesToUpdate.push({
-  //     propertyPath: `${baseProperty}.discardActionLabel`,
-  //     propertyValue: "Discard",
-  //   });
-
-  //   propertiesToUpdate.push({
-  //     propertyPath: `${baseProperty}.saveButtonColor`,
-  //     propertyValue: Colors.GREEN,
-  //   });
-
-  //   propertiesToUpdate.push({
-  //     propertyPath: `${baseProperty}.discardButtonColor`,
-  //     propertyValue: Colors.GREEN,
-  //   });
-
-  //   propertiesToUpdate.push({
-  //     propertyPath: `${baseProperty}.isSaveDisabled`,
-  //     propertyValue: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
-  //     isDynamicPropertyPath: true,
-  //   });
-
-  //   propertiesToUpdate.push({
-  //     propertyPath: `${baseProperty}.isDiscardDisabled`,
-  //     propertyValue: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
-  //     isDynamicPropertyPath: true,
-  //   });
-
-  //   return propertiesToUpdate;
-  // }
 
   return;
 };
@@ -489,17 +499,14 @@ export function updateThemeStylesheetsInColumns(
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
-): Array<{ propertyPath: string; propertyValue: any }> | undefined {
+): Array<PropertyHookUpdates> | undefined {
   const regex = /^primaryColumns\.(\w+)\.(.*)$/;
   const matches = propertyPath.match(regex);
   const columnId = matches?.[1];
   const columnProperty = matches?.[2];
 
   if (columnProperty === "columnType") {
-    const propertiesToUpdate: Array<{
-      propertyPath: string;
-      propertyValue: any;
-    }> = [];
+    const propertiesToUpdate: Array<PropertyHookUpdates> = [];
     const oldColumnType = get(props, `primaryColumns.${columnId}.columnType`);
     const newColumnType = propertyValue;
 
@@ -514,7 +521,7 @@ export function updateThemeStylesheetsInColumns(
     propertiesToRemove.forEach((propertyKey) => {
       propertiesToUpdate.push({
         propertyPath: `primaryColumns.${columnId}.${propertyKey}`,
-        propertyValue: undefined,
+        shouldDeleteProperty: true,
       });
     });
 

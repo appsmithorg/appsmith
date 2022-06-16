@@ -24,6 +24,7 @@ export const ColumnWrapper = styled.div<{
 export const Content = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
+  width: 100%;
 `;
 
 interface Props {
@@ -48,7 +49,7 @@ function LinkWrapper(props: Props) {
   const ref = createRef<HTMLDivElement>();
   const [useToolTip, updateToolTip] = useState(false);
   useEffect(() => {
-    const element = ref.current;
+    const element = ref.current?.querySelector("div") as HTMLDivElement;
     if (element && element.offsetWidth < element.scrollWidth) {
       updateToolTip(true);
     } else {
@@ -104,7 +105,7 @@ function AutoToolTipComponent(props: Props) {
   const ref = createRef<HTMLDivElement>();
   const [useToolTip, updateToolTip] = useState(false);
   useEffect(() => {
-    const element = ref.current;
+    const element = ref.current?.querySelector("div") as HTMLDivElement;
     if (element && element.offsetWidth < element.scrollWidth) {
       updateToolTip(true);
     } else {

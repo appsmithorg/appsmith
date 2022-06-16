@@ -5,8 +5,8 @@ import {
   getBasePropertyPath,
   hideByColumnType,
   SelectColumnOptionsValidations,
+  showByColumnType,
   uniqueColumnAliasValidation,
-  updateColumnAccessorHook,
   updateColumnLevelEditability,
   updateNumberColumnTypeTextAlignment,
   updateThemeStylesheetsInColumns,
@@ -60,10 +60,6 @@ export default {
           label: "Icon Button",
           value: "iconButton",
         },
-        {
-          label: "Edit Actions",
-          value: "editActions",
-        },
       ],
       updateHook: composePropertyUpdateHook([
         updateNumberColumnTypeTextAlignment,
@@ -72,6 +68,11 @@ export default {
       dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
       isBindProperty: false,
       isTriggerProperty: false,
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return showByColumnType(props, propertyPath, [
+          ColumnTypes.EDIT_ACTIONS,
+        ]);
+      },
     },
     {
       propertyName: "displayText",
@@ -93,7 +94,6 @@ export default {
       label: "Property name",
       controlType: "INPUT_TEXT",
       customJSControl: "COMPUTE_VALUE_V2",
-      updateHook: updateColumnAccessorHook,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const columnId = propertyPath.match(/primaryColumns\.(.*)\.alias/);
         let isDerivedProperty = false;

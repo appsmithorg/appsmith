@@ -31,6 +31,7 @@ import {
   DEFAULT_MENU_BUTTON_LABEL,
   DEFAULT_MENU_VARIANT,
   EditableCellActions,
+  InlineEditingSaveOptions,
   OnColumnEventArgs,
   ORIGINAL_INDEX_KEY,
   TableWidgetProps,
@@ -1153,16 +1154,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     );
   };
 
-  hasRowEditActionsColumn = () => {
-    if (this.props.primaryColumns) {
-      return !!Object.values(this.props.primaryColumns).find(
-        (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
-      );
-    } else {
-      return false;
-    }
-  };
-
   renderCell = (props: any, column: any, componentWidth: number) => {
     const isHidden = !column.isVisible;
     const {
@@ -1573,7 +1564,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           [alias]: value,
         });
 
-        if (onSubmit && !this.hasRowEditActionsColumn()) {
+        if (
+          onSubmit &&
+          this.props.inlineEditingSaveOption === InlineEditingSaveOptions.CUSTOM
+        ) {
           this.onColumnEvent({
             rowIndex: rowIndex,
             action: onSubmit,
