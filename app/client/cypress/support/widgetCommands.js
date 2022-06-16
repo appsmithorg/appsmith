@@ -380,7 +380,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
-    .type("{uparrow}", { force: true })
+    .type("{ctrl}{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
     if ($cm.contents !== "") {
@@ -413,6 +413,25 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.wait(2500); //Allowing time for Evaluate value to capture value
 });
 
+Cypress.Commands.add("testJsontextclear", (endp, value, paste = true) => {
+  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .type("{ctrl}{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(($cm) => {
+    if ($cm.contents !== "") {
+      cy.log("The field is not empty");
+      cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+        .first()
+        .click({ force: true })
+        .focused({ force: true })
+        .clear({
+          force: true,
+        });
+    }
+  });
+});
 /**
  * Usage:
  * Find the element which has a code editor input and then pass it in the function
@@ -470,6 +489,32 @@ Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
     }
     cy.get(".CodeMirror textarea")
       .last()
+      .type(value, {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
+  });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(200);
+});
+
+Cypress.Commands.add("toggleJsAndUpdateWithIndex", (endp, value, index) => {
+  cy.get(".CodeMirror textarea")
+    .eq(index)
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(($cm) => {
+    if ($cm.contents !== "") {
+      cy.log("The field is empty");
+      cy.get(".CodeMirror textarea")
+        .eq(index)
+        .clear({
+          force: true,
+        });
+    }
+    cy.get(".CodeMirror textarea")
+      .eq(index)
       .type(value, {
         force: true,
         parseSpecialCharSequences: false,

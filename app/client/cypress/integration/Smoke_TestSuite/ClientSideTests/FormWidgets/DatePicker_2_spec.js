@@ -3,6 +3,7 @@ const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/datePicker2dsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const pages = require("../../../../locators/Pages.json");
+const datedsl = require("../../../../fixtures/datePickerdsl.json");
 
 describe("DatePicker Widget Property pane tests with js bindings", function() {
   before(() => {
@@ -39,7 +40,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
   });
 
   it("Text widgets binding with datepicker", function() {
-    cy.SearchEntityandOpen("Text1");
+    cy.openPropertyPane("textwidget");
     cy.EnableAllCodeEditors();
     cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
     cy.closePropertyPane();
@@ -64,6 +65,20 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.assertDateFormat();
   });
 
+  it("Datepicker default date validation message", function() {
+    cy.openPropertyPane("datepickerwidget2");
+    cy.EnableAllCodeEditors();
+    cy.testJsontext("defaultdate", "24-12-2021");
+    cy.evaluateErrorMessage("Value does not match: ISO 8601 date string");
+    cy.closePropertyPane();
+  });
+});
+
+describe("DatePicker Widget Property pane tests with js bindings", function() {
+  before(() => {
+    cy.addDsl(datedsl);
+  });
+
   it("Datepicker should not change the display data unless user selects the date", () => {
     cy.openPropertyPane("datepickerwidget2");
     cy.EnableAllCodeEditors();
@@ -74,7 +89,6 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.get(formWidgetsPage.toggleJsMinDate).click();
     cy.get(".t--property-control-mindate .bp3-input").clear();
     cy.get(".t--property-control-mindate .bp3-input").type("2020-02-01");
-
     cy.selectDateFormat("D MMMM, YYYY");
     cy.get(".t--widget-datepickerwidget2 .bp3-input").should(
       "contain.value",
@@ -93,13 +107,11 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       "{{moment().subtract(10, 'days').toISOString()}}",
     );
   });
+});
 
-  it("Datepicker default date validation message", function() {
-    cy.openPropertyPane("datepickerwidget2");
-    cy.EnableAllCodeEditors();
-    cy.testJsontext("defaultdate", "24-12-2021");
-    cy.evaluateErrorMessage("Value does not match: ISO 8601 date string");
-    cy.closePropertyPane();
+describe("DatePicker Widget Property pane tests with js bindings", function() {
+  before(() => {
+    cy.addDsl(datedsl);
   });
 
   it("Datepicker default date validation with strings", function() {
@@ -147,12 +159,20 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       .first()
       .should("contain.text", "May 4, 2021 6:25 AM");
   });
+});
+
+describe("DatePicker Widget Property pane tests with js bindings", function() {
+  before(() => {
+    cy.addDsl(datedsl);
+  });
 
   it("Check isDirty meta property", function() {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{DatePicker1.isDirty}}`);
     // Init isDirty
     cy.openPropertyPane("datepickerwidget2");
+    cy.EnableAllCodeEditors();
+    cy.testJsontextclear("defaultdate");
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
     cy.get(".t--property-control-defaultdate .bp3-input").clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
@@ -179,6 +199,8 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       .should("contain", "true");
     // Change defaultDate
     cy.openPropertyPane("datepickerwidget2");
+    cy.EnableAllCodeEditors();
+    cy.testJsontext("defaultdate", "");
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
     cy.get(".t--property-control-defaultdate .bp3-input").clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
