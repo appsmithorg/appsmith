@@ -15,7 +15,7 @@ describe("Postgres - Datatype DateTime tests", function() {
       agHelper.AddDsl(val);
     });
     propPane.ChangeColor(22, "Primary");
-    //propPane.ChangeColor(12, "Background");
+    propPane.ChangeColor(34, "Background");
   });
 
   it("1. Create Postgress DS", function() {
