@@ -55,7 +55,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
       10,
     );
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
 
     //Delete the test data
@@ -79,14 +79,14 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "coffeeCafe");
     GenerateCRUDNValidateDeployPage("", "", "Washington, US", 11);
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(1, 0);
     //Delete the test data
     ee.expandCollapseEntity("PAGES");
     ee.ActionContextMenuByEntityName("CoffeeCafe", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
     deployMode.DeployApp();
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
   });
 
