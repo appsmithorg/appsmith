@@ -204,7 +204,7 @@ describe("Postgres - Datatype DateTime tests", function() {
       });
     });
     table.ReadTableRowColumnData(1, 3, 200).then(($cellData) => {
-      expect($cellData).to.eq("2012-03-17");
+      expect($cellData).to.eq("2014-03-17");
     });
     table.ReadTableRowColumnData(1, 4, 200).then(($cellData) => {
       expect($cellData).to.eq("04:05:06.789");
