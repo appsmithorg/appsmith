@@ -104,7 +104,7 @@ describe("AForce - Community Issues page validations", function() {
   });
 
   it("3. Validate table navigation with Server Side pagination disabled with Default selected row selection", () => {
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     ee.SelectEntityByName("Table1", "WIDGETS");
     propPane.ToggleOnOrOff("serversidepagination", "Off");
@@ -112,7 +112,7 @@ describe("AForce - Community Issues page validations", function() {
     table.WaitUntilTableLoad();
     table.AssertPageNumber(1, "Off");
     table.AssertSelectedRow(selectedRow);
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     ee.SelectEntityByName("Table1", "WIDGETS");
     propPane.ToggleOnOrOff("serversidepagination", "On");
@@ -127,7 +127,7 @@ describe("AForce - Community Issues page validations", function() {
     table.NavigateToNextPage(); //page 2
     table.AssertPageNumber(2);
     table.AssertSelectedRow(1);
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
   });
 
@@ -138,14 +138,14 @@ describe("AForce - Community Issues page validations", function() {
     table.AssertSearchText("Bug");
     table.WaitUntilTableLoad();
     table.WaitUntilTableLoad();
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
 
     ee.SelectEntityByName("Table1", "WIDGETS");
     jsEditor.EnterJSContext("Default Search Text", "Question", false);
     deployMode.DeployApp();
     table.AssertSearchText("Question");
     table.WaitUntilTableLoad();
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
 
     ee.SelectEntityByName("Table1", "WIDGETS");
@@ -153,7 +153,7 @@ describe("AForce - Community Issues page validations", function() {
     deployMode.DeployApp();
     table.AssertSearchText("Epic");
     table.WaitForTableEmpty();
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
 
     ee.SelectEntityByName("Table1", "WIDGETS");
@@ -176,7 +176,7 @@ describe("AForce - Community Issues page validations", function() {
     table.WaitUntilTableLoad();
     cy.xpath(table._searchBoxCross).click();
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
 
     ee.SelectEntityByName("Table1", "WIDGETS");
@@ -193,7 +193,7 @@ describe("AForce - Community Issues page validations", function() {
     table.WaitForTableEmpty();
     cy.xpath(table._searchBoxCross).click();
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     ee.SelectEntityByName("Table1", "WIDGETS");
     propPane.ToggleOnOrOff("enableclientsidesearch", "On");
