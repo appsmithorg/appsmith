@@ -214,7 +214,6 @@ public class GitExecutorImpl implements GitExecutor {
                 return result.substring(0, result.length() - 1);
             }
         })
-        .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 

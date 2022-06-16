@@ -239,7 +239,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
 
                     // Refactor application to remove the ids
-                    final String workspaceId = application.getOrganizationId();
+                    final String workspaceId = application.getWorkspaceId();
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     Instant applicationLastCommittedAt = gitApplicationMetadata != null ? gitApplicationMetadata.getLastCommittedAt() : null;
                     boolean isClientSchemaMigrated = !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());
@@ -344,8 +344,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 }
 
                                 Flux<Datasource> datasourceFlux = Boolean.TRUE.equals(application.getExportWithConfiguration())
-                                        ? datasourceRepository.findAllByOrganizationId(workspaceId, AclPermission.READ_DATASOURCES)
-                                        : datasourceRepository.findAllByOrganizationId(workspaceId, MANAGE_DATASOURCES);
+                                        ? datasourceRepository.findAllByWorkspaceId(workspaceId, AclPermission.READ_DATASOURCES)
+                                        : datasourceRepository.findAllByWorkspaceId(workspaceId, MANAGE_DATASOURCES);
 
                                 return datasourceFlux.collectList();
                             })
@@ -361,7 +361,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             })
                             .map(actionCollection -> {
                                 // Remove references to ids since the serialized version does not have this information
-                                actionCollection.setOrganizationId(null);
+                                actionCollection.setWorkspaceId(null);
                                 actionCollection.setPolicies(null);
                                 actionCollection.setApplicationId(null);
                                 // Set unique ids for actionCollection, also populate collectionIdToName map which will
@@ -419,7 +419,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             })
                             .map(newAction -> {
                                 newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
-                                newAction.setOrganizationId(null);
+                                newAction.setWorkspaceId(null);
                                 newAction.setPolicies(null);
                                 newAction.setApplicationId(null);
                                 dbNamesUsedInActions.add(
@@ -506,7 +506,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     applicationJson.getDatasourceList().forEach(datasource -> {
                                         decryptedFields.put(datasource.getName(), getDecryptedFields(datasource));
                                         datasource.setId(null);
-                                        datasource.setOrganizationId(null);
+                                        datasource.setWorkspaceId(null);
                                         datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
                                         datasource.setStructure(null);
                                     });
@@ -514,7 +514,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 } else {
                                     applicationJson.getDatasourceList().forEach(datasource -> {
                                         datasource.setId(null);
-                                        datasource.setOrganizationId(null);
+                                        datasource.setWorkspaceId(null);
                                         datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
                                         datasource.setStructure(null);
                                         // Remove the datasourceConfiguration object as user will configure it once imported to other instance
@@ -604,7 +604,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         final MediaType contentType = filePart.headers().getContentType();
 
         if (workspaceId == null || workspaceId.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
@@ -760,7 +760,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository
-                .findAllByOrganizationId(workspaceId, MANAGE_DATASOURCES)
+                .findAllByWorkspaceId(workspaceId, MANAGE_DATASOURCES)
                 .cache();
 
         assert importedApplication != null: "Received invalid application object!";
@@ -776,7 +776,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     pluginMap.put(pluginReference, plugin.getId());
                     return plugin;
                 })
-                .then(workspaceService.findById(workspaceId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS))
+                .then(workspaceService.findById(workspaceId, AclPermission.WORKSPACE_MANAGE_APPLICATIONS))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId))
                 )
@@ -834,7 +834,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                 // This is explicitly copied over from the map we created before
                                 datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
-                                datasource.setOrganizationId(workspaceId);
+                                datasource.setWorkspaceId(workspaceId);
 
                                 // Check if any decrypted fields are present for datasource
                                 if (importedDoc.getDecryptedFields()!= null
@@ -866,7 +866,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     return application;
                                 })
                                 .flatMap(application -> {
-                                    importedApplication.setOrganizationId(workspaceId);
+                                    importedApplication.setWorkspaceId(workspaceId);
                                     // Application Id will be present for GIT sync
                                     if (!StringUtils.isEmpty(applicationId)) {
                                         return applicationService.findById(applicationId, MANAGE_APPLICATIONS)
@@ -1160,7 +1160,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 stopwatch.stopAndLogTimeInMillis();
                                 final Map<String, Object> data = Map.of(
                                         FieldName.APPLICATION_ID, application.getId(),
-                                        FieldName.ORGANIZATION_ID, application.getOrganizationId(),
+                                        FieldName.ORGANIZATION_ID, application.getWorkspaceId(),
                                         "pageCount", applicationJson.getPageList().size(),
                                         "actionCount", applicationJson.getActionList().size(),
                                         "JSObjectCount", applicationJson.getActionCollectionList().size(),
@@ -1424,7 +1424,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 Map<String, InvisibleActionFields> invisibleActionFieldsMap) {
 
         Map<String, NewAction> savedActionsGitIdToActionsMap = new HashMap<>();
-        final String workspaceId = importedApplication.getOrganizationId();
+        final String workspaceId = importedApplication.getWorkspaceId();
         if (CollectionUtils.isEmpty(importedNewActionList)) {
             return Flux.fromIterable(new ArrayList<>());
         }
@@ -1471,7 +1471,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
 
                     examplesWorkspaceCloner.makePristine(newAction);
-                    newAction.setOrganizationId(workspaceId);
+                    newAction.setWorkspaceId(workspaceId);
                     newAction.setApplicationId(importedApplication.getId());
                     newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
                     newActionService.generateAndSetActionPolicies(parentPage, newAction);
@@ -1586,7 +1586,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             Map<String, Map<String, String>> unpublishedCollectionIdToActionIdsMap,
             Map<String, Map<String, String>> publishedCollectionIdToActionIdsMap) {
 
-        final String workspaceId = importedApplication.getOrganizationId();
+        final String workspaceId = importedApplication.getWorkspaceId();
         return Flux.fromIterable(importedActionCollectionList)
                 .filter(actionCollection -> actionCollection.getUnpublishedCollection() != null
                         && !StringUtils.isEmpty(actionCollection.getUnpublishedCollection().getPageId()))
@@ -1619,7 +1619,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
 
                     examplesWorkspaceCloner.makePristine(actionCollection);
-                    actionCollection.setOrganizationId(workspaceId);
+                    actionCollection.setWorkspaceId(workspaceId);
                     actionCollection.setApplicationId(importedApplication.getId());
                     actionCollectionService.generateAndSetPolicies(parentPage, actionCollection);
 
@@ -1846,7 +1846,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             if (ds.getId() != null) {
                 //Mapping ds name in id field
                 ds.setId(datasourceMap.get(ds.getId()));
-                ds.setOrganizationId(null);
+                ds.setWorkspaceId(null);
                 if (ds.getPluginId() != null) {
                     ds.setPluginId(pluginMap.get(ds.getPluginId()));
                 }
@@ -1854,7 +1854,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             } else {
                 // This means we don't have regular datasource it can be simple REST_API and will also be used when
                 // importing the action to populate the data
-                ds.setOrganizationId(workspaceId);
+                ds.setWorkspaceId(workspaceId);
                 ds.setPluginId(pluginMap.get(ds.getPluginId()));
                 return "";
             }
@@ -1985,7 +1985,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // No matching existing datasource found, so create a new one.
                     datasource.setIsConfigured(datasourceConfig != null && datasourceConfig.getAuthentication() != null);
                     return datasourceService
-                            .findByNameAndOrganizationId(datasource.getName(), workspaceId, AclPermission.MANAGE_DATASOURCES)
+                            .findByNameAndWorkspaceId(datasource.getName(), workspaceId, AclPermission.MANAGE_DATASOURCES)
                             .flatMap(duplicateNameDatasource ->
                                     getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, workspaceId)
                             )
@@ -2098,8 +2098,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         return null;
     }
 
-    public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String orgId) {
-        Mono<List<Datasource>> listMono = datasourceService.findAllByOrganizationId(orgId, MANAGE_DATASOURCES).collectList();
+    public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
+        Mono<List<Datasource>> listMono = datasourceService.findAllByWorkspaceId(workspaceId, MANAGE_DATASOURCES).collectList();
         return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
                 .collectList()
                 .zipWith(listMono)
@@ -2117,7 +2117,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     private void removeUnwantedFieldsFromApplicationDuringExport(Application application) {
-            application.setOrganizationId(null);
+            application.setWorkspaceId(null);
             application.setPages(null);
             application.setPublishedPages(null);
             application.setModifiedBy(null);

@@ -49,7 +49,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       "film_id",
     );
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
     ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
@@ -63,7 +63,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     });
 
     deployMode.DeployApp();
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
@@ -102,7 +102,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       "supplier_id",
     );
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -122,7 +122,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       "order_id",
     );
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
     ee.expandCollapseEntity("PAGES");
@@ -251,7 +251,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     dataSources.AssertJSONFormHeader(0, 0, "ship_id");
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     // //Delete the test data
     // ee.ActionContextMenuByEntityName("Productlines", "Delete", "Are you sure?");
@@ -288,8 +288,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.DeployApp();
     agHelper.Sleep(2000)
     table.SelectTableRow(0); //to make JSON form hidden
+    agHelper.Sleep(2000);//Sleep time for tab to disappear!
     agHelper.AssertElementAbsence(locator._jsonFormWidget);
-
     table.SelectTableRow(5);
     agHelper.AssertElementVisible(locator._jsonFormWidget);
     dataSources.AssertJSONFormHeader(5, 0, "ship_id");
@@ -480,7 +480,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("12. Update the InsertQuery to insert all columns from UI", () => {
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     let insertQuery = `INSERT INTO public."vessels" (
       "ship_id",
@@ -670,7 +670,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("15. Validate Deletion of the Newly Created Page - Vessels", () => {
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
     ee.ActionContextMenuByEntityName("Public.vessels", "Delete", "Are you sure?");

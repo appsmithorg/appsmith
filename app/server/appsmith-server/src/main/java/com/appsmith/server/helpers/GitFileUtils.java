@@ -72,7 +72,7 @@ public class GitFileUtils {
         = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST, DECRYPTED_FIELDS, EDIT_MODE_THEME);
     /**
      * This method will save the complete application in the local repo directory.
-     * Path to repo will be : ./container-volumes/git-repo/organizationId/defaultApplicationId/repoName/{application_data}
+     * Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
      * @param baseRepoSuffix path suffix used to create a local repo path
      * @param applicationJson application reference object from which entire application can be rehydrated
      * @param branchName name of the branch for the current application
@@ -96,7 +96,7 @@ public class GitFileUtils {
                     .map(tuple -> {
                         stopwatch.stopTimer();
                         Path repoPath = tuple.getT1();
-                        // Path to repo will be : ./container-volumes/git-repo/organizationId/defaultApplicationId/repoName/
+                        // Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/
                         final Map<String, Object> data = Map.of(
                                 FieldName.APPLICATION_ID, repoPath.getParent().getFileName().toString(),
                                 FieldName.ORGANIZATION_ID, repoPath.getParent().getParent().getFileName().toString(),
@@ -225,18 +225,18 @@ public class GitFileUtils {
     /**
      * Method to reconstruct the application from the local git repo
      *
-     * @param organizationId To which organisation application needs to be rehydrated
+     * @param workspaceId To which workspace application needs to be rehydrated
      * @param defaultApplicationId Root application for the current branched application
      * @param branchName for which branch the application needs to rehydrate
      * @return application reference from which entire application can be rehydrated
      */
-    public Mono<ApplicationJson> reconstructApplicationJsonFromGitRepo(String organizationId,
+    public Mono<ApplicationJson> reconstructApplicationJsonFromGitRepo(String workspaceId,
                                                                        String defaultApplicationId,
                                                                        String repoName,
                                                                        String branchName) {
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.GIT_DESERIALIZE_APP_RESOURCES_FROM_FILE.getEventName());
         Mono<ApplicationGitReference> appReferenceMono = fileUtils
-                .reconstructApplicationReferenceFromGitRepo(organizationId, defaultApplicationId, repoName, branchName);
+                .reconstructApplicationReferenceFromGitRepo(workspaceId, defaultApplicationId, repoName, branchName);
         return Mono.zip(appReferenceMono, sessionUserService.getCurrentUser())
                 .map(tuple -> {
                     ApplicationGitReference applicationReference = tuple.getT1();
@@ -247,7 +247,7 @@ public class GitFileUtils {
                     stopwatch.stopTimer();
                     final Map<String, Object> data = Map.of(
                             FieldName.APPLICATION_ID, defaultApplicationId,
-                            FieldName.ORGANIZATION_ID, organizationId,
+                            FieldName.ORGANIZATION_ID, workspaceId,
                             FieldName.FLOW_NAME, stopwatch.getFlow(),
                             "executionTime", stopwatch.getExecutionTime()
                     );
