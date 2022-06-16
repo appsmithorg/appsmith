@@ -145,7 +145,7 @@ describe("Validate API request body panel", () => {
         expect($src).not.eq("https://assets.appsmith.com/widgets/default.png");
       });
     agHelper.AssertElementVisible(locator._spanButton("Select Files")); //verifying if reset!
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("8. Checks MultiPart form data for a Array Type upload results in API error", () => {
