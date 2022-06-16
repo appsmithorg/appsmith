@@ -116,7 +116,7 @@ describe("Theme validation usecases", function() {
     cy.get(themelocator.inputColor).should("have.value", "#15803d");
     cy.get(themelocator.inputColor).clear({ force: true });
     cy.wait(2000);
-    cy.get(themelocator.inputColor).type("red", { delay: 300 });
+    cy.get(themelocator.inputColor).type("red");
     cy.get(themelocator.inputColor).should("have.value", "red");
     cy.wait(2000);
 
@@ -134,7 +134,7 @@ describe("Theme validation usecases", function() {
     cy.get(themelocator.inputColor).should("have.value", "#15803d");
     cy.get(themelocator.inputColor).clear({ force: true });
     cy.wait(2000);
-    cy.get(themelocator.inputColor).type("Black", { delay: 300 });
+    cy.get(themelocator.inputColor).type("Black");
     cy.get(themelocator.inputColor).should("have.value", "Black");
     cy.wait(2000);
     cy.contains("Color").click({ force: true });
@@ -310,6 +310,7 @@ describe("Theme validation usecases", function() {
 
   it("Publish the App and validate Theme across the app", function() {
     cy.PublishtheApp();
+    cy.wait(5000);
     //Bug Form backgroud colour reset in Publish mode
     /*
         cy.get(formWidgetsPage.formD)
