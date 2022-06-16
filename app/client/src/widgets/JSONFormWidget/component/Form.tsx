@@ -268,48 +268,47 @@ function Form<TValues = any>(
 
   return (
     <FormProvider {...methods}>
-      <div className="dynamic-height-container" ref={ref}>
-        <StyledForm
-          fixedFooter={fixedFooter}
-          ref={bodyRef}
-          scrollContents={scrollContents}
+      <StyledForm
+        fixedFooter={fixedFooter}
+        ref={bodyRef}
+        scrollContents={scrollContents}
+      >
+        <StyledFormBody
+          className="t--jsonform-body"
+          ref={ref}
+          stretchBodyVertically={stretchBodyVertically}
         >
-          <StyledFormBody
-            className="t--jsonform-body"
-            stretchBodyVertically={stretchBodyVertically}
+          <StyledTitle>{title}</StyledTitle>
+          {children}
+        </StyledFormBody>
+        {!hideFooter && (
+          <StyledFormFooter
+            backgroundColor={backgroundColor}
+            className="t--jsonform-footer"
+            fixedFooter={fixedFooter}
+            ref={footerRef}
           >
-            <StyledTitle>{title}</StyledTitle>
-            {children}
-          </StyledFormBody>
-          {!hideFooter && (
-            <StyledFormFooter
-              backgroundColor={backgroundColor}
-              className="t--jsonform-footer"
-              fixedFooter={fixedFooter}
-              ref={footerRef}
-            >
-              {showReset && (
-                <StyledResetButtonWrapper>
-                  <Button
-                    {...resetButtonStyles}
-                    onClick={(e) => onReset(schema, e)}
-                    text={resetButtonLabel}
-                    type="reset"
-                  />
-                </StyledResetButtonWrapper>
-              )}
-              <Button
-                {...submitButtonStyles}
-                disabled={disabledWhenInvalid && isFormInValid}
-                loading={isSubmitting}
-                onClick={onSubmit}
-                text={submitButtonLabel}
-                type="submit"
-              />
-            </StyledFormFooter>
-          )}
-        </StyledForm>
-      </div>
+            {showReset && (
+              <StyledResetButtonWrapper>
+                <Button
+                  {...resetButtonStyles}
+                  onClick={(e) => onReset(schema, e)}
+                  text={resetButtonLabel}
+                  type="reset"
+                />
+              </StyledResetButtonWrapper>
+            )}
+            <Button
+              {...submitButtonStyles}
+              disabled={disabledWhenInvalid && isFormInValid}
+              loading={isSubmitting}
+              onClick={onSubmit}
+              text={submitButtonLabel}
+              type="submit"
+            />
+          </StyledFormFooter>
+        )}
+      </StyledForm>
     </FormProvider>
   );
 }

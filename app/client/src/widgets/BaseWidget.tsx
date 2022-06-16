@@ -231,6 +231,8 @@ abstract class BaseWidget<
         this.updateDynamicHeight(expectedHeight + 6);
       } else if (prevProps.type === "TABLE_WIDGET") {
         this.updateDynamicHeight(expectedHeight + 80);
+      } else if (prevProps.type === "JSON_FORM_WIDGET") {
+        this.updateDynamicHeight(expectedHeight + 61);
       } else {
         this.updateDynamicHeight(expectedHeight);
       }
