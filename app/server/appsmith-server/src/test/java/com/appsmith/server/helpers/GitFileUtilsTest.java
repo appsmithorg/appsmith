@@ -2,15 +2,17 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.models.ApplicationGitReference;
+import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,7 +23,8 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -37,8 +40,8 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
+@DirtiesContext
 public class GitFileUtilsTest {
 
     @MockBean
@@ -46,6 +49,12 @@ public class GitFileUtilsTest {
 
     @Autowired
     GitFileUtils gitFileUtils;
+
+    @Autowired
+    AnalyticsService analyticsService;
+
+    @Autowired
+    SessionUserService userService;
 
     private static String filePath = "test_assets/ImportExportServiceTest/valid-application.json";
     private static final Path localRepoPath = Path.of("localRepoPath");
@@ -77,35 +86,6 @@ public class GitFileUtilsTest {
                     }.getType();
                     return gson.fromJson(data, fileType);
                 });
-    }
-
-    @SneakyThrows
-    @Test
-    public void saveApplicationToLocalRepo_allResourcesArePresent_removePublishedResources() {
-        ApplicationJson validAppJson = createAppJson(filePath).block();
-
-        Mockito.when(fileInterface.saveApplicationToGitRepo(Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(localRepoPath));
-
-        Mono<Path> resultMono = gitFileUtils.saveApplicationToLocalRepo(Path.of(""), validAppJson, "gitFileTest");
-
-        StepVerifier
-                .create(resultMono)
-                .assertNext(path -> {
-                    validAppJson.getPageList().forEach(newPage -> {
-                        assertThat(newPage.getUnpublishedPage()).isNotNull();
-                        assertThat(newPage.getPublishedPage()).isNull();
-                    });
-                    validAppJson.getActionList().forEach(newAction -> {
-                        assertThat(newAction.getUnpublishedAction()).isNotNull();
-                        assertThat(newAction.getPublishedAction()).isNull();
-                    });
-                    validAppJson.getActionCollectionList().forEach(actionCollection -> {
-                        assertThat(actionCollection.getUnpublishedCollection()).isNotNull();
-                        assertThat(actionCollection.getPublishedCollection()).isNull();
-                    });
-                })
-                .verifyComplete();
     }
 
     @Test
@@ -202,6 +182,37 @@ public class GitFileUtilsTest {
 
     @SneakyThrows
     @Test
+    @WithUserDetails(value = "api_user")
+    public void saveApplicationToLocalRepo_allResourcesArePresent_removePublishedResources() {
+        ApplicationJson validAppJson = createAppJson(filePath).block();
+
+        Mockito.when(fileInterface.saveApplicationToGitRepo(Mockito.any(Path.class), Mockito.any(ApplicationGitReference.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Path.of("orgId","appId", "repoName")));
+
+        Mono<Path> resultMono = gitFileUtils.saveApplicationToLocalRepo(Path.of("orgId/appId/repoName"), validAppJson, "gitFileTest");
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(path -> {
+                    validAppJson.getPageList().forEach(newPage -> {
+                        assertThat(newPage.getUnpublishedPage()).isNotNull();
+                        assertThat(newPage.getPublishedPage()).isNull();
+                    });
+                    validAppJson.getActionList().forEach(newAction -> {
+                        assertThat(newAction.getUnpublishedAction()).isNotNull();
+                        assertThat(newAction.getPublishedAction()).isNull();
+                    });
+                    validAppJson.getActionCollectionList().forEach(actionCollection -> {
+                        assertThat(actionCollection.getUnpublishedCollection()).isNotNull();
+                        assertThat(actionCollection.getPublishedCollection()).isNull();
+                    });
+                })
+                .verifyComplete();
+    }
+
+    @SneakyThrows
+    @Test
+    @WithUserDetails(value = "api_user")
     public void reconstructApplicationFromLocalRepo_allResourcesArePresent_getClonedPublishedResources() {
         ApplicationJson applicationJson = createAppJson(filePath).block();
         // Prepare the JSON without published resources
@@ -226,7 +237,7 @@ public class GitFileUtilsTest {
         applicationReference.setActions(actionRef);
         applicationReference.setActionsCollections(actionCollectionRef);
 
-        Mockito.when(fileInterface.reconstructApplicationReferenceFromGitRepo(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(fileInterface.reconstructApplicationReferenceFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationReference));
 
         Mono<ApplicationJson> resultMono = gitFileUtils.reconstructApplicationJsonFromGitRepo(
