@@ -790,7 +790,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 final String fieldPath = String.valueOf(x.getKey());
 
                 // Ignore pagination configuration since pagination technically does not belong to dynamic binding list.
-                if (fieldPath.equals("prev") || fieldPath.equals("next")) {
+                if (fieldPath.equals("prev") || fieldPath.equals("next") || fieldPath.matches("selfReferencingData\\." +
+                        ".*")) {
                     continue;
                 }
 

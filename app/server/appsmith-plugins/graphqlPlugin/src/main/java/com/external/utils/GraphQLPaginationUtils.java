@@ -48,9 +48,16 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class GraphQLPaginationUtils {
     public static Map getPaginationData(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
-        final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-        Map<String, Object> paginationData =
-                getValueSafelyFromPropertyList(properties, PAGINATION_DATA_INDEX, Map.class);
+        Map<String, Object> paginationData = null;
+        if (PaginationType.PAGE_NO.equals(actionConfiguration.getPaginationType())) {
+            paginationData = getValueSafelyFromFormData((Map) actionConfiguration.getSelfReferencingData(),
+                    "paginationData.limitBased", Map.class, null);
+        }
+        else if (PaginationType.CURSOR.equals(actionConfiguration.getPaginationType())) {
+            paginationData = getValueSafelyFromFormData((Map) actionConfiguration.getSelfReferencingData(),
+                    "paginationData.cursorBased", Map.class, null);
+        }
+
         if (isEmpty(paginationData)) {
             return paginationData;
         }

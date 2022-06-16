@@ -54,6 +54,14 @@ public class ActionConfiguration implements AppsmithDomain {
     String next;
     String prev;
 
+    /**
+     * This field is supposed to contain all action config data that may contain valid references to itself. This
+     * field has been excluded from dynamic binding path map computation in PageLoadActionUtilCEImpl.java so that any
+     * self referencing binding in this data path will not cause a cyclic dependency error. This field should ideally
+     * replace the usage of `next` and `prev` fields defined above. 
+     */
+    Object selfReferencingData;
+
     // DB action fields
 
     // JS action fields
