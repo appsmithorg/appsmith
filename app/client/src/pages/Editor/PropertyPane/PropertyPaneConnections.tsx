@@ -30,6 +30,7 @@ import { Position } from "@blueprintjs/core";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import equal from "fast-deep-equal";
 import { mapValues, pick } from "lodash";
+import { createSelector } from "reselect";
 
 const CONNECTION_HEIGHT = 28;
 
@@ -192,14 +193,12 @@ const doConnectionsHaveErrors = (
   );
 };
 
+const getDataTreeWithOnlyId = createSelector(getDataTree, (tree) =>
+  mapValues(pick(tree, ["ENTITY_TYPE", "widgetId", "actionId"])),
+);
+
 const useDependencyList = (name: string) => {
-  const dataTree = useSelector(getDataTree, (prev, next) => {
-    const requiredProps = ["ENTITY_TYPE", "widgetId", "actionId"];
-    return equal(
-      mapValues(pick(prev, requiredProps)),
-      mapValues(pick(next, requiredProps)),
-    );
-  });
+  const dataTree = useSelector(getDataTreeWithOnlyId, equal);
   const inverseDependencyMap = useSelector(
     (state: AppState) => state.evaluations.dependencies.inverseDependencyMap,
     equal,

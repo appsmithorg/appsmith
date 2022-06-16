@@ -23,6 +23,7 @@ import {
   WIDGET_DEPRECATION_WARNING_HEADER,
 } from "@appsmith/constants/messages";
 import { pick } from "lodash";
+import { createSelector } from "reselect";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -41,6 +42,24 @@ export const excludeList: WidgetType[] = [
   "FILE_PICKER_WIDGET_V2",
 ];
 
+type WidgetPropertiesForPropertyPaneView = {
+  type: string;
+  widgetId: string;
+  widgetName: string;
+  displayName: string;
+};
+
+const getWidgetPropsForPropertyPaneView = createSelector(
+  getWidgetPropsForPropertyPane,
+  (props) =>
+    pick(props, [
+      "type",
+      "widgetId",
+      "widgetName",
+      "displayName",
+    ]) as WidgetPropertiesForPropertyPaneView,
+);
+
 function PropertyPaneView(
   props: {
     theme: EditorTheme;
@@ -49,11 +68,8 @@ function PropertyPaneView(
   const dispatch = useDispatch();
   const { ...panel } = props;
   const widgetProperties = useSelector(
-    getWidgetPropsForPropertyPane,
-    (prev, next) => {
-      const requiredProps = ["type", "widgetId", "widgetName", "displayName"];
-      return equal(pick(prev, requiredProps), pick(next, requiredProps));
-    },
+    getWidgetPropsForPropertyPaneView,
+    equal,
   );
   const doActionsExist = useSelector(actionsExist);
   const hideConnectDataCTA = useMemo(() => {
