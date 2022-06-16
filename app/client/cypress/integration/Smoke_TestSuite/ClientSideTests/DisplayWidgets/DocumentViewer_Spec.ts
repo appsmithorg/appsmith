@@ -1,7 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 
-let agHelper = ObjectsRegistry.AggregateHelper,
-    ee = ObjectsRegistry.EntityExplorer,
+let ee = ObjectsRegistry.EntityExplorer,
     locator = ObjectsRegistry.CommonLocators,
     deployMode = ObjectsRegistry.DeployMode,
     propPane = ObjectsRegistry.PropertyPane;
@@ -19,7 +18,7 @@ describe("DocumentViewer Widget Functionality", () => {
     cy.get(locator._widgetInDeployed("documentviewerwidget")).should(
       "not.exist",
     );
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("3. Change visibility & Publish app & verify again", () => {
