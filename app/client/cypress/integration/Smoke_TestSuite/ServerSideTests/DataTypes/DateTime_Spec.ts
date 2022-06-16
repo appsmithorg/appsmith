@@ -86,7 +86,7 @@ describe("Postgres - Datatype DateTime tests", function() {
     dataSources.ToggleUsePreparedStatement(false);
   });
 
-  it("5. Creating DELETE query with condition - datetimetypes", () => {
+  it("6. Creating DELETE query with condition - datetimetypes", () => {
     query = `DELETE FROM public."datetimetypes"
     WHERE serialId = {{Table1.selectedRow.serialid}};`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "DELETE");
@@ -94,14 +94,14 @@ describe("Postgres - Datatype DateTime tests", function() {
     agHelper.EnterValue(query);
   });
 
-  it("6. Creating DELETE query for complete table empty - datetimetypes", () => {
+  it("7. Creating DELETE query for complete table empty - datetimetypes", () => {
     query = `DELETE FROM public."datetimetypes"`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "DELETE");
     agHelper.RenameWithInPane("deleteAllRecords");
     agHelper.EnterValue(query);
   });
 
-  it("7. Creating DROP table query - datetimetypes", () => {
+  it("8. Creating DROP table query - datetimetypes", () => {
     query = `drop table public."datetimetypes"`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "DELETE");
     agHelper.RenameWithInPane("dropTable");
@@ -110,7 +110,7 @@ describe("Postgres - Datatype DateTime tests", function() {
     ee.ExpandCollapseEntity(dsName, false);
   });
 
-  it("8. Inserting record - datetimetypes", () => {
+  it("9. Inserting record - datetimetypes", () => {
     ee.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
@@ -147,7 +147,7 @@ describe("Postgres - Datatype DateTime tests", function() {
     });
   });
 
-  it("9. Inserting another format of record - datetimetypes", () => {
+  it("10. Inserting another format of record - datetimetypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
@@ -182,7 +182,7 @@ describe("Postgres - Datatype DateTime tests", function() {
     });
   });
 
-  it("10. Updating record (emtying some field) - datetimetypes", () => {
+  it("11. Updating record (emtying some field) - datetimetypes", () => {
     table.SelectTableRow(1);
     agHelper.ClickButton("Run UpdateQuery");
     agHelper.AssertElementVisible(locator._modal);
@@ -217,15 +217,14 @@ describe("Postgres - Datatype DateTime tests", function() {
     });
   });
 
-  it("11. Deleting records - datetimetypes", () => {
-    //table.SelectTableRow(1);
+  it("12. Deleting records - datetimetypes", () => {
     agHelper.ClickButton("DeleteQuery", 1);
     table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
       expect($cellData).not.to.eq(""); //asserting 2nd record is deleted
     });
   });
 
-  it("12. Inserting another record (+ve record - to check serial column) - datetimetypes", () => {
+  it("13. Inserting another record (+ve record - to check serial column) - datetimetypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
@@ -260,14 +259,14 @@ describe("Postgres - Datatype DateTime tests", function() {
     });
   });
 
-  it("13. Deleting all records from table - datetimetypes", () => {
+  it("14. Deleting all records from table - datetimetypes", () => {
     agHelper.GetNClick(locator._deleteIcon);
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
 
-  it("14. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
+  it("15. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("dropTable");
@@ -286,7 +285,7 @@ describe("Postgres - Datatype DateTime tests", function() {
     ee.ExpandCollapseEntity("DATASOURCES", false);
   });
 
-  it("15. Verify Deletion of the datasource after all created queries are Deleted", () => {
+  it("16. Verify Deletion of the datasource after all created queries are Deleted", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
