@@ -61,7 +61,7 @@ import {
 import { datasourcesEditorIdURL } from "RouteBuilder";
 
 type ReduxStateProps = {
-  orgId: string;
+  workspaceId: string;
   datasource: Datasource | EmbeddedRestDatasource;
   datasourceList: Datasource[];
   currentPageId?: string;
@@ -199,14 +199,14 @@ class EmbeddedDatasourcePathComponent extends React.Component<
   }
 
   handleDatasourceUrlUpdate = (datasourceUrl: string) => {
-    const { datasource, orgId, pluginId } = this.props;
+    const { datasource, pluginId, workspaceId } = this.props;
     const urlHasUpdated =
       datasourceUrl !== datasource.datasourceConfiguration?.url;
     if (urlHasUpdated) {
       const isDatasourceRemoved =
         datasourceUrl.indexOf(datasource.datasourceConfiguration?.url) === -1;
       let newDatasource = isDatasourceRemoved
-        ? { ...DEFAULT_DATASOURCE(pluginId, orgId) }
+        ? { ...DEFAULT_DATASOURCE(pluginId, workspaceId) }
         : { ...datasource };
       newDatasource = {
         ...newDatasource,
@@ -551,7 +551,7 @@ const mapStateToProps = (
   }
 
   return {
-    orgId: state.ui.orgs.currentOrg.id,
+    workspaceId: state.ui.workspaces.currentWorkspace.id,
     datasource: datasourceMerged,
     datasourceList: getDatasourcesByPluginId(state, ownProps.pluginId),
     currentPageId: state.entities.pageList.currentPageId,
