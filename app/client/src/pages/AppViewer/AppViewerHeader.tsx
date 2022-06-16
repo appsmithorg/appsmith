@@ -93,8 +93,8 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
           ref={headerRef}
         >
           <HtmlTitle name={currentApplicationDetails?.name} />
-          <HeaderRow className="h-12 px-3 py-3 md:px-6">
-            <section className="relative flex items-center gap-3 z-1">
+          <HeaderRow className="relative h-12 px-3 py-3 md:px-6">
+            <section className="flex items-center gap-3 z-1">
               <div
                 className="block w-5 h-5 cursor-pointer md:hidden"
                 onClick={() => setMenuOpen((prevState) => !prevState)}
