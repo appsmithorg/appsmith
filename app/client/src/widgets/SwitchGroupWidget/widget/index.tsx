@@ -415,6 +415,7 @@ class SwitchGroupWidget extends BaseWidget<
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize}
         labelWidth={this.getLabelWidth()}
+        maxDynamicHeight={this.props.maxDynamicHeight}
         onChange={this.handleSwitchStateChange}
         options={options}
         ref={this.contentRef}
