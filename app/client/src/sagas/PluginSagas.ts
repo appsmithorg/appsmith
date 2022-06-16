@@ -6,7 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import PluginsApi, { DefaultPlugin, PluginFormPayload } from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
-import { getCurrentOrgId } from "@appsmith/selectors/organizationSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import {
   getDatasources,
   getPlugin,
@@ -38,18 +38,18 @@ import {
 } from "utils/DynamicBindingUtils";
 
 function* fetchPluginsSaga(
-  action: ReduxAction<{ orgId?: string } | undefined>,
+  action: ReduxAction<{ workspaceId?: string } | undefined>,
 ) {
   try {
-    let orgId: string = yield select(getCurrentOrgId);
-    if (action.payload?.orgId) orgId = action.payload?.orgId;
+    let workspaceId: string = yield select(getCurrentWorkspaceId);
+    if (action.payload?.workspaceId) workspaceId = action.payload?.workspaceId;
 
-    if (!orgId) {
+    if (!workspaceId) {
       throw Error("Org id does not exist");
     }
     const pluginsResponse: ApiResponse<Plugin[]> = yield call(
       PluginsApi.fetchPlugins,
-      orgId,
+      workspaceId,
     );
     const isValid: boolean = yield validateResponse(pluginsResponse);
     if (isValid) {
@@ -70,7 +70,7 @@ function* fetchPluginFormConfigsSaga() {
   try {
     const datasources: Datasource[] = yield select(getDatasources);
     const plugins: Plugin[] = yield select(getPlugins);
-    // Add plugins of all the datasources of their org
+    // Add plugins of all the datasources of their workspace
     const pluginIdFormsToFetch = new Set(
       datasources.map((datasource) => datasource.pluginId),
     );

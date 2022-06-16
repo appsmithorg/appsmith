@@ -943,12 +943,12 @@ type ColorType = {
   applications: {
     bg: ShadeColor;
     textColor: ShadeColor;
-    orgColor: ShadeColor;
+    workspaceColor: ShadeColor;
     iconColor: ShadeColor;
     hover: {
       bg: ShadeColor;
       textColor: ShadeColor;
-      orgColor: ShadeColor;
+      workspaceColor: ShadeColor;
     };
     cardMenuIcon: ShadeColor;
   };
@@ -1956,12 +1956,12 @@ export const dark: ColorType = {
   applications: {
     bg: darkShades[4],
     textColor: darkShades[7],
-    orgColor: darkShades[7],
+    workspaceColor: darkShades[7],
     iconColor: darkShades[7],
     hover: {
       bg: darkShades[5],
       textColor: darkShades[8],
-      orgColor: darkShades[9],
+      workspaceColor: darkShades[9],
     },
     cardMenuIcon: darkShades[7],
   },
@@ -2596,12 +2596,12 @@ export const light: ColorType = {
   applications: {
     bg: lightShades[3],
     textColor: lightShades[7],
-    orgColor: lightShades[7],
+    workspaceColor: lightShades[7],
     iconColor: lightShades[7],
     hover: {
       bg: lightShades[5],
       textColor: lightShades[8],
-      orgColor: lightShades[9],
+      workspaceColor: lightShades[9],
     },
     cardMenuIcon: lightShades[17],
   },

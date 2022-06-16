@@ -66,7 +66,7 @@ describe("DynamicBindingPathlist", () => {
     const action: Action = {
       cacheResponse: "",
       id: "61810f59a0f5113e30ba72ac",
-      organizationId: "61800c6bd504bf710747bf9a",
+      workspaceId: "61800c6bd504bf710747bf9a",
       pluginType: PluginType.API,
       pluginId: "5ca385dc81b37f0004b4db85",
       name: "Api1",
@@ -74,7 +74,7 @@ describe("DynamicBindingPathlist", () => {
         // userPermissions: [],
         name: "DEFAULT_REST_DATASOURCE",
         pluginId: "5ca385dc81b37f0004b4db85",
-        organizationId: "61800c6bd504bf710747bf9a",
+        workspaceId: "61800c6bd504bf710747bf9a",
         datasourceConfiguration: {
           url: "https://thatcopy.pw",
         },

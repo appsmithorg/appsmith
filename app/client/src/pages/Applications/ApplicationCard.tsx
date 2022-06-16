@@ -550,7 +550,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   };
   const forkApplicationInitiate = () => {
     // open fork application modal
-    // on click on an organisation, create app and take to app
+    // on click on an workspace, create app and take to app
     setForkApplicationModalOpen(true);
   };
   const deleteApp = () => {

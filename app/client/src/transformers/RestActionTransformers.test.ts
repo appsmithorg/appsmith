@@ -14,7 +14,7 @@ const BASE_ACTION: ApiAction = {
   executeOnLoad: false,
   invalids: [],
   isValid: false,
-  organizationId: "",
+  workspaceId: "",
   pageId: "",
   pluginId: "",
   id: "testId",

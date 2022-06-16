@@ -61,7 +61,7 @@ import { Variant } from "components/ads/common";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
-  getOrganizationIdForImport,
+  getWorkspaceIdForImport,
 } from "selectors/applicationSelectors";
 import {
   createMessage,
@@ -81,8 +81,8 @@ import {
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 import { getLogToSentryFromResponse } from "utils/helpers";
-import { getCurrentOrg } from "@appsmith/selectors/organizationSelectors";
-import { Org } from "constants/orgConstants";
+import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { Workspace } from "constants/workspaceConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import { builderURL } from "RouteBuilder";
@@ -659,26 +659,21 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
       }>
     | undefined;
   try {
-    const organizationIdForImport: string = yield select(
-      getOrganizationIdForImport,
-    );
+    const workspaceIdForImport: string = yield select(getWorkspaceIdForImport);
 
-    response = yield GitSyncAPI.importApp(
-      action.payload,
-      organizationIdForImport,
-    );
+    response = yield GitSyncAPI.importApp(action.payload, workspaceIdForImport);
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
       getLogToSentryFromResponse(response),
     );
     if (isValidResponse) {
-      const allOrgs: Org[] = yield select(getCurrentOrg);
-      const currentOrg = allOrgs.filter(
-        (el: Org) => el.id === organizationIdForImport,
+      const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
+      const currentWorkspace = allWorkspaces.filter(
+        (el: Workspace) => el.id === workspaceIdForImport,
       );
-      if (currentOrg.length > 0) {
-        // @ts-expect-error: response.data, data can be undefined
+      if (currentWorkspace.length > 0) {
+        // @ts-expect-error: response can be undefined
         const { application: app, isPartialImport } = response?.data;
         yield put(importAppViaGitSuccess()); // reset flag for loader
         yield put(setIsGitSyncModalOpen({ isOpen: false }));
@@ -691,7 +686,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
               unConfiguredDatasourceList:
                 // @ts-expect-error: Type mismatch
                 response?.data.unConfiguredDatasourceList,
-              orgId: organizationIdForImport,
+              workspaceId: workspaceIdForImport,
             }),
           );
         } else {
@@ -777,7 +772,7 @@ export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    const isImporting: string = yield select(getOrganizationIdForImport);
+    const isImporting: string = yield select(getWorkspaceIdForImport);
 
     response = yield call(
       GitSyncAPI.generateSSHKeyPair,

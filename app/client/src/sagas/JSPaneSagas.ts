@@ -48,7 +48,7 @@ import {
   updateJSFunction,
   executeJSFunctionInit,
 } from "actions/jsPaneActions";
-import { getCurrentOrgId } from "@appsmith/selectors/organizationSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { PluginType } from "entities/Action";
 import { Toaster } from "components/ads/Toast";
@@ -83,7 +83,7 @@ import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
-  const organizationId: string = yield select(getCurrentOrgId);
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
   const applicationId: string = yield select(getCurrentApplicationId);
   const { pageId } = action.payload;
   const pluginId: string = yield select(
@@ -98,13 +98,13 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
     const newJSCollectionName = createNewJSFunctionName(pageJSActions, pageId);
     const { actions, body } = createDummyJSCollectionActions(
       pageId,
-      organizationId,
+      workspaceId,
     );
     yield put(
       createJSCollectionRequest({
         name: newJSCollectionName,
         pageId,
-        organizationId,
+        workspaceId,
         pluginId,
         body: body,
         variables: [
@@ -141,7 +141,7 @@ function* handleJSCollectionCreatedSaga(
 
 function* handleEachUpdateJSCollection(update: JSUpdate) {
   const jsActionId = update.id;
-  const organizationId: string = yield select(getCurrentOrgId);
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
   if (jsActionId) {
     const jsAction: JSCollection = yield select(getJSCollection, jsActionId);
     const parsedBody = update.parsedBody;
@@ -179,7 +179,7 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
           for (let i = 0; i < data.newActions.length; i++) {
             jsActionTobeUpdated.actions.push({
               ...data.newActions[i],
-              organizationId: organizationId,
+              workspaceId: workspaceId,
             });
           }
           updateCollection = true;

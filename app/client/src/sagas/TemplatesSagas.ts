@@ -42,14 +42,14 @@ function* getAllTemplatesSaga() {
   }
 }
 
-function* importTemplateToOrganisationSaga(
-  action: ReduxAction<{ templateId: string; organizationId: string }>,
+function* importTemplateToWorkspaceSaga(
+  action: ReduxAction<{ templateId: string; workspaceId: string }>,
 ) {
   try {
     const response: ImportTemplateResponse = yield call(
       TemplatesAPI.importTemplate,
       action.payload.templateId,
-      action.payload.organizationId,
+      action.payload.workspaceId,
     );
     const isValid: boolean = yield validateResponse(response);
     if (isValid) {
@@ -67,14 +67,14 @@ function* importTemplateToOrganisationSaga(
         pageId: application.defaultPageId,
       });
       yield put({
-        type: ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_SUCCESS,
+        type: ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_SUCCESS,
         payload: response.data,
       });
       history.push(pageURL);
     }
   } catch (error) {
     yield put({
-      type: ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_ORGANISATION_ERROR,
+      type: ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_WORKSPACE_ERROR,
       payload: {
         error,
       },
@@ -151,8 +151,8 @@ export default function* watchActionSagas() {
       getSimilarTemplatesSaga,
     ),
     takeEvery(
-      ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_INIT,
-      importTemplateToOrganisationSaga,
+      ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_INIT,
+      importTemplateToWorkspaceSaga,
     ),
     takeEvery(
       ReduxActionTypes.GET_TEMPLATE_NOTIFICATION_SEEN,
