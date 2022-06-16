@@ -166,8 +166,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     application.setGitApplicationMetadata(gitApplicationMetadata);
                     return applicationService.save(application);
                 })
-                .flatMap(applicationService::setTransientFields)
-                .map(responseUtils::updateApplicationWithDefaultResources);
+                .flatMap(applicationService::setTransientFields);
     }
 
     @Override
