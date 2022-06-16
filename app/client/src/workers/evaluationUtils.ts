@@ -309,7 +309,6 @@ export const removeFunctions = (value: any) => {
   if (_.isFunction(value)) {
     return "Function call";
   } else if (_.isObject(value)) {
-    console.log("********", { value });
     return JSON.parse(
       JSON.stringify(value, (_, v) =>
         typeof v === "bigint" ? v.toString() : v,
