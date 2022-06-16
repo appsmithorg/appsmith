@@ -116,7 +116,7 @@ public class CommentServiceTest {
                 .create(workspace).flatMap(workspace1 -> {
                     Application application = new Application();
                     application.setName(randomId + "-test-app");
-                    application.setOrganizationId(workspace1.getId());
+                    application.setWorkspaceId(workspace1.getId());
                     return applicationPageService.createApplication(application);
                 })
                 .flatMap(application -> {
@@ -635,8 +635,8 @@ public class CommentServiceTest {
             userRole.setRole(AppsmithRole.ORGANIZATION_ADMIN);
 
             return userService.create(user)
-                    .then(userWorkspaceService.addUserRoleToWorkspace(application.getOrganizationId(), userRole))
-                    .then(userWorkspaceService.leaveWorkspace(application.getOrganizationId()))
+                    .then(userWorkspaceService.addUserRoleToWorkspace(application.getWorkspaceId(), userRole))
+                    .then(userWorkspaceService.leaveWorkspace(application.getWorkspaceId()))
                     .thenReturn(application);
         }).flatMap(application -> {
             String pageId = application.getPublishedPages().get(0).getId();
