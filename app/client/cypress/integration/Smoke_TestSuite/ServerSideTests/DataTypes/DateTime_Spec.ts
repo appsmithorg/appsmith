@@ -15,7 +15,7 @@ describe("Postgres - Datatype DateTime tests", function() {
       agHelper.AddDsl(val);
     });
     propPane.ChangeColor(22, "Primary");
-    propPane.ChangeColor(34, "Background");
+    propPane.ChangeColor(32, "Background");
   });
 
   it("1. Create Postgress DS", function() {
@@ -145,6 +145,9 @@ describe("Postgres - Datatype DateTime tests", function() {
     table.ReadTableRowColumnData(0, 7, 200).then(($cellData) => {
       expect($cellData).to.eq("19.01.1989");
     });
+    agHelper
+      .GetText(table._showPageItemsCount)
+      .then(($count) => expect($count).contain("1"));
   });
 
   it("10. Inserting another format of record - datetimetypes", () => {
@@ -180,6 +183,9 @@ describe("Postgres - Datatype DateTime tests", function() {
     table.ReadTableRowColumnData(1, 7, 200).then(($cellData) => {
       expect($cellData).to.eq("29.12.2045");
     });
+    agHelper
+      .GetText(table._showPageItemsCount)
+      .then(($count) => expect($count).contain("2"));
   });
 
   it("11. Updating record (emtying some field) - datetimetypes", () => {
@@ -213,15 +219,21 @@ describe("Postgres - Datatype DateTime tests", function() {
       expect($cellData).to.eq("1 years 3 mons 2 days 6 hours 4 mins 5.0 secs");
     });
     table.ReadTableRowColumnData(1, 7, 200).then(($cellData) => {
-      expect($cellData).to.eq("17.03.2012");
+      expect($cellData).to.eq("17.03.2014");
     });
+    agHelper
+      .GetText(table._showPageItemsCount)
+      .then(($count) => expect($count).contain("2"));
   });
 
   it("12. Deleting records - datetimetypes", () => {
     agHelper.ClickButton("DeleteQuery", 1);
-    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
-      expect($cellData).not.to.eq(""); //asserting 2nd record is deleted
-    });
+    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.Sleep(2500);//Allwowing time for delete to be success
+    agHelper
+      .GetText(table._showPageItemsCount)
+      .then(($count) => expect($count).contain("1")); //asserting 2nd record is deleted
   });
 
   it("13. Inserting another record (+ve record - to check serial column) - datetimetypes", () => {
@@ -257,6 +269,9 @@ describe("Postgres - Datatype DateTime tests", function() {
     table.ReadTableRowColumnData(1, 7, 200).then(($cellData) => {
       expect($cellData).to.eq("08.01.1999");
     });
+    agHelper
+      .GetText(table._showPageItemsCount)
+      .then(($count) => expect($count).contain("2"));
   });
 
   it("14. Deleting all records from table - datetimetypes", () => {
