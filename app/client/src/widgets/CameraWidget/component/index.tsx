@@ -144,6 +144,11 @@ const MediaInputsContainer = styled.div`
   display: flex;
   flex: 1;
   justify-content: flex-start;
+
+  & .bp3-minimal {
+    height: 30px;
+    width: 40px;
+  }
 `;
 
 const MainControlContainer = styled.div`
@@ -727,7 +732,7 @@ function ControlPanel(props: ControlPanelProps) {
       <TooltipComponent
         content="Exit full screen"
         donotUsePortal
-        position={Position.TOP_RIGHT}
+        position={Position.LEFT}
       >
         <StyledButton
           borderRadius={ButtonBorderRadiusTypes.SHARP}
@@ -742,7 +747,7 @@ function ControlPanel(props: ControlPanelProps) {
       <TooltipComponent
         content="Full screen"
         donotUsePortal
-        position={Position.TOP_RIGHT}
+        position={Position.LEFT}
       >
         <StyledButton
           borderRadius={ButtonBorderRadiusTypes.SHARP}
@@ -1166,6 +1171,7 @@ function CameraComponent(props: CameraComponentProps) {
           onUserMedia={handleUserMedia}
           onUserMediaError={handleUserMediaErrors}
           ref={webcamRef}
+          screenshotQuality={1}
           videoConstraints={videoConstraints}
         />
 
