@@ -26,7 +26,13 @@ public class Theme extends BaseDomain {
     private String displayName;
 
     private String applicationId;
+
+    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    @Deprecated
     private String organizationId;
+
+    String workspaceId;
+
     private Object config;
     private Object properties;
     private Map<String, Object> stylesheet;
