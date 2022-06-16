@@ -16,6 +16,9 @@ import { getCanvasWidgets } from "selectors/entitiesSelector";
 
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { DSLWidget } from "widgets/constants";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { AppState } from "reducers";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 
 export const useMockDsl = (dsl: any) => {
   const dispatch = useDispatch();
@@ -83,6 +86,39 @@ export const mockGetCanvasWidgetDsl = createSelector(
     });
   },
 );
+
+const getChildWidgets = (
+  canvasWidgets: CanvasWidgetsReduxState,
+  widgetId: string,
+) => {
+  const parentWidget = canvasWidgets[widgetId];
+
+  if (parentWidget.children) {
+    return parentWidget.children.map((childWidgetId) => {
+      const childWidget = { ...canvasWidgets[childWidgetId] } as DataTreeWidget;
+
+      if (childWidget?.children?.length > 0) {
+        childWidget.children = getChildWidgets(canvasWidgets, childWidgetId);
+      }
+
+      return childWidget;
+    });
+  }
+
+  return [];
+};
+
+export const mockGetChildWidgets = (state: AppState, widgetId: string) => {
+  return getChildWidgets(state.entities.canvasWidgets, widgetId);
+};
+
+export const mockCreateCanvasWidget = (
+  canvasWidget: FlattenedWidgetProps,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  evaluatedWidget: DataTreeWidget,
+): any => {
+  return { ...canvasWidget };
+};
 
 export const syntheticTestMouseEvent = (
   event: MouseEvent,

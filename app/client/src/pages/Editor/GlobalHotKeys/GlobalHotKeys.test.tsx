@@ -16,7 +16,9 @@ import { all } from "@redux-saga/core/effects";
 import {
   dispatchTestKeyboardEventWithCode,
   MockApplication,
+  mockCreateCanvasWidget,
   mockGetCanvasWidgetDsl,
+  mockGetChildWidgets,
   MockPageDSL,
   useMockDsl,
 } from "test/testCommon";
@@ -40,6 +42,8 @@ jest.mock("constants/routes", () => {
 describe("Canvas Hot Keys", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
+  const spyGetChildWidgets = jest.spyOn(utilities, "getChildWidgets");
+  const spyCreateCanvasWidget = jest.spyOn(utilities, "createCanvasWidget");
 
   function UpdatedMainContainer({ dsl }: any) {
     useMockDsl(dsl);
@@ -337,6 +341,8 @@ describe("Canvas Hot Keys", () => {
       });
       spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
       mockGetIsFetchingPage.mockImplementation(() => false);
+      spyGetChildWidgets.mockImplementation(mockGetChildWidgets);
+      spyCreateCanvasWidget.mockImplementation(mockCreateCanvasWidget);
 
       const component = render(
         <MemoryRouter

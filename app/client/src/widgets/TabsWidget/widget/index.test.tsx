@@ -15,7 +15,11 @@ describe("Tabs widget functional cases", () => {
     });
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <Canvas dsl={dsl} />
+        <Canvas
+          canvasWidth={dsl.rightColumn}
+          pageId="page_id"
+          widgetsStructure={dsl}
+        />
       </MockPageDSL>,
     );
     const tab1 = component.queryByText("Tab 1");
@@ -41,7 +45,11 @@ describe("Tabs widget functional cases", () => {
     });
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <Canvas dsl={dsl} />
+        <Canvas
+          canvasWidth={dsl.rightColumn}
+          pageId="page_id"
+          widgetsStructure={dsl}
+        />
       </MockPageDSL>,
     );
     const tab1 = component.queryByText("Tab 1");
