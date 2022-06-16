@@ -95,6 +95,9 @@ function Showcase() {
                 <Button isDisabled {...theme}>
                   Disalbed
                 </Button>
+                <Button isDisabled variant="outline" {...theme}>
+                  Disalbed
+                </Button>
                 <Button isLoading {...theme}>
                   Loading
                 </Button>

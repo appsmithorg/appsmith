@@ -10,7 +10,8 @@ enum ColorSchemeTypes {
 
 export const getBaseStyles = (props: ButtonProps) => {
   return cx({
-    "flex items-center justify-center text-center gap-1 border cursor-pointer ring-2 ring-transparent outline-none overflow-hidden w-full h-full rounded-[var(--wds-radii)]": true,
+    "flex min-h-8 items-center justify-center text-center gap-1 border cursor-pointer ring-2 ring-transparent outline-none overflow-hidden w-full h-full rounded-[var(--wds-radii)]": true,
+    "cursor-not-allowed": props.isDisabled,
   });
 };
 
@@ -29,9 +30,12 @@ export const getCSSVariables = (
       "--wds-btn-color-border-accent": accentColor,
     },
     disabled: {
+      "--wds-color-bg-hover": "initial",
+      "--wds-color-border": "var(--wds-color-border-disabled)",
       "--wds-btn-color-bg-accent": "var(--wds-color-bg-disabled)",
       "--wds-btn-color-bg-accent-hover": "var(--wds-color-bg-disabled)",
-      "--wds-btn-color-text-accent": "var(--wds-color-text)",
+      "--wds-btn-color-text-accent": "var(--wds-color-text-disabled)",
+      "--wds-btn-color-border-accent": "var(--wds-color-bg-disabled)",
       "--wds-btn-color-text-onaccent": "var(--wds-color-text)",
       "--wds-btn-color-border-accent-strong":
         "var(--wds-color-border-disabled-strong)",
@@ -61,8 +65,8 @@ export const getVariantStyles = (
   variant: keyof typeof VariantTypes = "solid",
 ): string => {
   const styles = {
-    solid: `bg-[color:var(--wds-btn-color-bg-accent)] text-[color:var(--wds-btn-color-text-onaccent)] hover:bg-[color:var(--wds-btn-color-bg-accent-hover)]`,
-    outline: `border-[color:var(--wds-color-border)] text-[color:var(--color-text)] hover:bg-[color:var(--color-bg-hover)] ring-offset-2`,
+    solid: `bg-[color:var(--wds-btn-color-bg-accent)] text-[color:var(--wds-btn-color-text-onaccent)] border-[color:var(--wds-btn-color-border-accent)] hover:bg-[color:var(--wds-btn-color-bg-accent-hover)]`,
+    outline: `border-[color:var(--wds-color-border)] text-[color:var(--wds-btn-color-text-accent)] hover:bg-[color:var(--wds-color-bg-hover)]`,
     ghost: `border-transparent text-[color:var(--color-text-accent)] hover:bg-[color:var(--color-bg-light)] bg-opacity-40 focus-visible:ring-[color:var(--color-border)]`,
     link: `border-transparent text-[color:var(--color-text-accent)] hover:bg-[color:var(--color-bg-light)] bg-opacity-40 focus-visible:ring-[color:var(--color-border)]`,
   };
