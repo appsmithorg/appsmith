@@ -37,7 +37,7 @@ const ApiHomePage = styled.div`
   display: flex;
   flex-direction: column;
 
-  font-size: 24px;
+  font-size: 20px;
   padding: 20px 20px 0 20px;
   /* margin-left: 10px; */
   flex: 1;
@@ -532,6 +532,7 @@ class IntegrationsHomeScreen extends React.Component<
             <MainTabsContainer>
               {showTabs && (
                 <TabComponent
+                  cypressSelector="t--datasource-tab"
                   onSelect={this.onSelectPrimaryMenu}
                   selectedIndex={this.state.activePrimaryMenuId}
                   tabs={PRIMARY_MENU}

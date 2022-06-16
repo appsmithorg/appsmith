@@ -8,7 +8,6 @@ import { useEffect } from "react";
 import { Indices } from "constants/Layers";
 import { theme } from "constants/DefaultTheme";
 import useResizeObserver from "utils/hooks/useResizeObserver";
-import { Colors } from "constants/Colors";
 
 export const TAB_MIN_HEIGHT = `36px`;
 
@@ -216,11 +215,11 @@ const TabTitleWrapper = styled.div<{
     props.selected
       ? `
   background-color: transparent;
-  color: ${Colors.GREY_900};
+  color: var(--appsmith-color-black-900);
   .${Classes.ICON} {
     svg {
       path {
-        fill:  ${Colors.GREY_900};
+        fill:  var(--appsmith-color-black-900)
       }
     }
   }

@@ -47,10 +47,10 @@ const Wrapper = styled.div`
   cursor: pointer;
 
   &:hover {
-    background: ${Colors.GREY_1};
+    background-color: ${Colors.GREY_1};
 
     .bp3-collapse-body {
-      background: ${Colors.GREY_1};
+      background-color: ${Colors.GREY_1};
     }
   }
 `;
@@ -100,8 +100,11 @@ const GenerateTemplateButton = styled(Button)`
 `;
 
 const DatasourceName = styled.span`
+  color: ${Colors.BLACK};
   font-size: 16px;
   font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.24px;
 `;
 
 const DatasourceCardHeader = styled.div`
@@ -263,16 +266,21 @@ function DatasourceCard(props: DatasourceCardProps) {
         <DatasourceCardHeader className="t--datasource-name">
           <div style={{ flex: 1 }}>
             <DatasourceNameWrapper>
-              <DatasourceIconWrapper>
+              <DatasourceIconWrapper data-testid="active-datasource-icon-wrapper">
                 <DatasourceImage
                   alt="Datasource"
-                  className="dataSourceImage"
+                  data-testid="active-datasource-image"
                   src={pluginImages[datasource.pluginId]}
                 />
               </DatasourceIconWrapper>
-              <DatasourceName>{datasource.name}</DatasourceName>
+              <DatasourceName data-testid="active-datasource-name">
+                {datasource.name}
+              </DatasourceName>
             </DatasourceNameWrapper>
-            <Queries className={`t--queries-for-${plugin.type}`}>
+            <Queries
+              className={`t--queries-for-${plugin.type}`}
+              data-testid="active-datasource-queries"
+            >
               {queriesWithThisDatasource
                 ? `${queriesWithThisDatasource} ${QUERY} on this page`
                 : "No query in this application is using this datasource"}

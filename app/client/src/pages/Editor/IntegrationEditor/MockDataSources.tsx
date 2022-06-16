@@ -11,6 +11,7 @@ import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const MockDataSourceWrapper = styled.div`
+  overflow: auto;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
@@ -23,6 +24,7 @@ const MockDataSourceWrapper = styled.div`
 const Description = styled.div`
   color: ${Colors.GREY_8};
   font-size: 13px;
+  font-weight: 400;
   line-height: 17px;
   letter-spacing: -0.24px;
 `;
@@ -52,7 +54,7 @@ const CardWrapper = styled.div`
   justify-content: space-between;
   height: 64px;
   &:hover {
-    background: ${Colors.GREY_1};
+    background-color: ${Colors.GREY_1};
     cursor: pointer;
   }
   }
@@ -140,15 +142,20 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
   return (
     <CardWrapper className="t--mock-datasource" onClick={addMockDataSource}>
       <DatasourceCardHeader className="t--datasource-name">
-        <DatasourceIconWrapper>
+        <DatasourceIconWrapper data-testid="mock-datasource-icon-wrapper">
           <DatasourceImage
             alt="Datasource"
+            data-testid="mock-datasource-image"
             src={pluginImages[currentPlugin.id]}
           />
         </DatasourceIconWrapper>
-        <DatasourceNameWrapper>
-          <DatasourceName>{datasource.name}</DatasourceName>
-          <Description>{datasource.description}</Description>
+        <DatasourceNameWrapper data-testid="mock-datasource-name-wrapper">
+          <DatasourceName data-testid="mockdatasource-name">
+            {datasource.name}
+          </DatasourceName>
+          <Description data-testid="mockdatasource-description">
+            {datasource.description}
+          </Description>
         </DatasourceNameWrapper>
       </DatasourceCardHeader>
     </CardWrapper>

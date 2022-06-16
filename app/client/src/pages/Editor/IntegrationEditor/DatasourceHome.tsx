@@ -186,11 +186,11 @@ class DatasourceHomeScreen extends React.Component<Props> {
 
     return (
       <DatasourceHomePage>
-        <DatasourceCardsContainer>
+        <DatasourceCardsContainer data-testid="database-datasource-card-container">
           {plugins.map((plugin, idx) => {
             return (
               <DatasourceCard
-                className="eachDatasourceCard"
+                data-testid="database-datasource-card"
                 key={`${plugin.id}_${idx}`}
                 onClick={() => {
                   AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
@@ -203,11 +203,12 @@ class DatasourceHomeScreen extends React.Component<Props> {
                   });
                 }}
               >
-                <DatasourceContentWrapper>
+                <DatasourceContentWrapper data-testid="database-datasource-content-wrapper">
                   <div className="dataSourceImageWrapper">
                     <img
                       alt="Datasource"
                       className="dataSourceImage"
+                      data-testid="database-datasource-image"
                       src={pluginImages[plugin.id]}
                     />
                   </div>

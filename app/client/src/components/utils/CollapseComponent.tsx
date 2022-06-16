@@ -50,6 +50,7 @@ function CollapseComponent(props: {
     <CollapseWrapper>
       <div
         className="collapse-title"
+        data-testid="datasource-collapse-wrapper"
         onClick={handleIsOpen}
         style={props.titleStyle}
       >
@@ -57,6 +58,7 @@ function CollapseComponent(props: {
         <Icon
           className={`icon ${open ? "collapse" : ""}`}
           color="#4B4848"
+          data-testid="datasource-collapse-icon"
           icon="arrow-right"
           iconSize={12}
         />

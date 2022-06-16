@@ -30,7 +30,7 @@ const StyledContainer = styled.div`
     justify-content: center;
     text-align: center;
     letter-spacing: -0.24px;
-    color: ${Colors.OXFORD_BLUE};
+    color: ${Colors.BLACK};
     font-weight: 400;
     text-decoration: none !important;
     flex-wrap: wrap;
@@ -84,7 +84,7 @@ const ApiCard = styled.div`
   justify-content: space-between;
   height: 64px;
   &:hover {
-    background: ${Colors.GREY_1};
+    background-color: ${Colors.GREY_1};
     cursor: pointer;
   }
 
@@ -245,12 +245,12 @@ function NewApiScreen(props: Props) {
 
   return (
     <StyledContainer>
-      <ApiCardsContainer>
+      <ApiCardsContainer data-testid="newapi-datasource-card-container">
         <ApiCard
           className="t--createBlankApiCard create-new-api"
           onClick={() => handleOnClick(API_ACTION.CREATE_NEW_API)}
         >
-          <CardContentWrapper>
+          <CardContentWrapper data-testid="newapi-datasource-content-wrapper">
             <div className="content-icon-wrapper">
               <img
                 alt="New"
