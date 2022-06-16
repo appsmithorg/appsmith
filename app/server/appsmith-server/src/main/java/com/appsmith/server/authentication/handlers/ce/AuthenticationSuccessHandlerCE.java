@@ -154,10 +154,10 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
     private Mono<Application> createDefaultApplication(User user) {
         // need to create default application
-        String workspaceId = user.getOrganizationIds().iterator().next();
+        String workspaceId = user.getWorkspaceIds().iterator().next();
 
         Application application = new Application();
-        application.setOrganizationId(workspaceId);
+        application.setWorkspaceId(workspaceId);
         application.setName("My first application");
         return applicationPageService.createApplication(application);
     }

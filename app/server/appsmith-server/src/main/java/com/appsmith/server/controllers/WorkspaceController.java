@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(Url.ORGANIZATION_URL)
+@RequestMapping(Url.WORKSPACE_URL)
 public class WorkspaceController extends WorkspaceControllerCE {
 
     public WorkspaceController(WorkspaceService workspaceService,
