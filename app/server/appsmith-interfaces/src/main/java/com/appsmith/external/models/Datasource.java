@@ -117,7 +117,7 @@ public class Datasource extends BaseDomain {
         this.setIsConfigured(null);
         this.setInvalids(null);
         this.setId(null);
-        this.setOrganizationId(null);
+        this.setWorkspaceId(null);
         this.setPluginId(pluginMap.get(this.getPluginId()));
     }
 

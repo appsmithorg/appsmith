@@ -176,7 +176,7 @@ public class Application extends BaseDomain {
     }
 
     public void sanitiseToExportDBObject() {
-        this.setOrganizationId(null);
+        this.setWorkspaceId(null);
         this.setModifiedBy(null);
         this.setCreatedBy(null);
         this.setLastDeployedAt(null);

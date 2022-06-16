@@ -217,8 +217,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     // Refactor application to remove the ids
                     final String workspaceId = application.getWorkspaceId();
-                    application.sanitiseToExportDBObject();
                     examplesWorkspaceCloner.makePristine(application);
+                    application.sanitiseToExportDBObject();
                     applicationJson.setExportedApplication(application);
                     Set<String> dbNamesUsedInActions = new HashSet<>();
 

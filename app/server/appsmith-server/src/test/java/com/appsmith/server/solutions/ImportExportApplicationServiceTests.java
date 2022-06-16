@@ -594,46 +594,38 @@ public class ImportExportApplicationServiceTests {
     public void createExportAppJsonForGitTest() {
 
         StringBuilder pageName = new StringBuilder();
-        final Mono<ApplicationJson> resultMono = Mono.zip(
-                workspaceService.getById(workspaceId),
-                applicationRepository.findById(testAppId)
-            )
-            .flatMap(tuple -> {
+        final Mono<ApplicationJson> resultMono = applicationRepository.findById(testAppId)
+                .flatMap(testApp -> {
+                    final String pageId = testApp.getPages().get(0).getId();
+                    return Mono.zip(
+                        Mono.just(testApp),
+                        newPageService.findPageById(pageId, READ_PAGES, false)
+                    );
+                })
+                .flatMap(tuple -> {
+                    Datasource ds1 = datasourceMap.get("DS1");
+                    Application testApp = tuple.getT1();
+                    PageDTO testPage = tuple.getT2();
+                    pageName.append(testPage.getName());
 
-                Workspace workspace = tuple.getT1();
-                Application testApp = tuple.getT2();
+                    Layout layout = testPage.getLayouts().get(0);
+                    JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
 
-                final String pageId = testApp.getPages().get(0).getId();
+                    layout.setDsl(dsl);
+                    layout.setPublishedDsl(dsl);
 
-                return Mono.zip(
-                    Mono.just(testApp),
-                    newPageService.findPageById(pageId, READ_PAGES, false)
-                );
-            })
-            .flatMap(tuple -> {
-                Datasource ds1 = datasourceMap.get("DS1");
-                Application testApp = tuple.getT1();
-                PageDTO testPage = tuple.getT2();
-                pageName.append(testPage.getName());
+                    ActionDTO action = new ActionDTO();
+                    action.setName("validAction");
+                    action.setPageId(testPage.getId());
+                    action.setExecuteOnLoad(true);
+                    ActionConfiguration actionConfiguration = new ActionConfiguration();
+                    actionConfiguration.setHttpMethod(HttpMethod.GET);
+                    action.setActionConfiguration(actionConfiguration);
+                    action.setDatasource(ds1);
 
-                Layout layout = testPage.getLayouts().get(0);
-                JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
-
-                layout.setDsl(dsl);
-                layout.setPublishedDsl(dsl);
-
-                ActionDTO action = new ActionDTO();
-                action.setName("validAction");
-                action.setPageId(testPage.getId());
-                action.setExecuteOnLoad(true);
-                ActionConfiguration actionConfiguration = new ActionConfiguration();
-                actionConfiguration.setHttpMethod(HttpMethod.GET);
-                action.setActionConfiguration(actionConfiguration);
-                action.setDatasource(ds1);
-
-                return layoutActionService.createAction(action)
-                    .then(importExportApplicationService.exportApplicationById(testApp.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
-            });
+                    return layoutActionService.createAction(action)
+                        .then(importExportApplicationService.exportApplicationById(testApp.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
+                });
 
         StepVerifier
             .create(resultMono)
