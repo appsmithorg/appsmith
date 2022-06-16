@@ -20,8 +20,8 @@ function BackToHomeButton() {
         history.push("/applications");
       }}
     >
-      <AppsIcon className="w-5 h-5 text-gray-500 group-hover:text-gray-700" />
-      <span className="text-base">Apps</span>
+      <AppsIcon className="w-5 h-5" />
+      <span className="hidden md:block">Apps</span>
     </button>
   );
 }

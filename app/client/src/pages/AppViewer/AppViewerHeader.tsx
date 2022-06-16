@@ -105,10 +105,12 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                   <MenuIcon className="w-5 h-5" />
                 )}
               </div>
-              <BackToHomeButton />
+              <div className="">
+                <BackToHomeButton />
+              </div>
             </section>
             <div className="absolute top-0 bottom-0 flex items-center justify-center w-full mt-auto text-center">
-              <div className="text-base font-medium text-gray-600">
+              <div className="w-7/12 overflow-hidden text-base font-medium text-gray-600 overflow-ellipsis whitespace-nowrap">
                 {currentApplicationDetails?.name}
               </div>
             </div>
