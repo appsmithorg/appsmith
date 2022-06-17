@@ -11,6 +11,12 @@ const {
   login,
   sortObjectKeys,
 } = require("./utils/utils");
+
+const {
+  cleanTheHost,
+  setChromeProcessPriority,
+} = require("./utils/system-cleanup");
+
 const selectors = {
   appMoreIcon: "span.t--options-icon",
   workspaceImportAppOption: '[data-cy*="t--workspace-import-app"]',
@@ -19,60 +25,11 @@ const selectors = {
   createNewApp: ".createnew",
 };
 
-const cleanTheHost = async () => {
-  await cp.exec("pidof chrome", (error, stdout, stderr) => {
-    if (error) {
-      console.log(`error: ${error.message}`);
-      return;
-    }
-    if (stderr) {
-      console.log(`stderr: ${stderr}`);
-      return;
-    }
-    console.log(`stdout: chrome process ids before: ${stdout}`);
-    stdout.split(" ").forEach((PID) => {
-      cp.execSync(`kill -9 ${PID}`);
-    });
-  });
-
-  // await cp.exec("sync; echo 3 | sudo tee /proc/sys/vm/drop_caches");
-  // await delay(5000);
-
-  await cp.exec("pidof chrome", (error, stdout, stderr) => {
-    if (error) {
-      console.log(`error: ${error.message}`);
-      return;
-    }
-    if (stderr) {
-      console.log(`stderr: ${stderr}`);
-      return;
-    }
-    console.log(`stdout: chrome process ids after: ${stdout}`);
-  });
-};
-
-const setProcessPriority = async () => {
-  await cp.exec("pidof chrome", (error, stdout, stderr) => {
-    if (error) {
-      console.log(`error: ${error.message}`);
-      return;
-    }
-    if (stderr) {
-      console.log(`stderr: ${stderr}`);
-      return;
-    }
-    console.log(`stdout: setting priority: ${stdout}`);
-
-    stdout.split(" ").forEach((PID) => {
-      cp.execSync(`renice -20 ${PID}`);
-    });
-  });
-};
 module.exports = class Perf {
   constructor(launchOptions = {}) {
     this.launchOptions = {
       defaultViewport: null,
-      args: ["--window-size=1920,1080", "--no-sandbox"],
+      args: ["--window-size=1920,1080"],
       ignoreHTTPSErrors: true, // @todo Remove it after initial testing
       ...launchOptions,
     };
@@ -117,7 +74,8 @@ module.exports = class Perf {
     this.browser = await puppeteer.launch(this.launchOptions);
     const pages_ = await this.browser.pages();
     this.page = pages_[0];
-    await setProcessPriority();
+
+    await setChromeProcessPriority();
     await this._login();
   };
 
@@ -128,12 +86,14 @@ module.exports = class Perf {
 
   startTrace = async (action = "foo") => {
     if (this.currentTrace) {
-      console.warn("Trace progress. You can run only one trace at a time");
+      console.warn(
+        "Trace already in progress. You can run only one trace at a time",
+      );
       return;
     }
 
     this.currentTrace = action;
-    await delay(3000, `before starting trace ${action}`);
+    await delay(5000, `before starting trace ${action}`);
     const path = `${APP_ROOT}/traces/${action}-${getFormattedTime()}-chrome-profile.json`;
     await this.page.tracing.start({
       path: path,
