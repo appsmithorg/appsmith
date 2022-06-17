@@ -1,5 +1,8 @@
 package com.appsmith.server.domains;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
 public class UserInGroup {
 
     String id;

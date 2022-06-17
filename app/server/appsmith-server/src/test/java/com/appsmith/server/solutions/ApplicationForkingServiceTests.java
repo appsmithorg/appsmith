@@ -19,6 +19,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
@@ -39,6 +40,7 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
+import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -149,6 +151,9 @@ public class ApplicationForkingServiceTests {
     @Autowired
     private ThemeService themeService;
 
+    @Autowired
+    private UserGroupService userGroupService;
+
     private static String sourceAppId;
 
     private static String testUserWorkspaceId;
@@ -255,12 +260,16 @@ public class ApplicationForkingServiceTests {
         // Running TC in a sequence is a bad practice for unit TCs but here we are testing the invite user and then fork
         // application as a part of this flow.
         // We need to test with VIEW user access so that any user should be able to fork template applications
+        UserGroup userGroup = userGroupService.getDefaultUserGroups(sourceWorkspace.getId())
+                .collectList().block()
+                .stream()
+                .filter(userGroup1 -> userGroup1.getName().startsWith(FieldName.VIEWER))
+                .findFirst().get();
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
         ArrayList<String> users = new ArrayList<>();
         users.add("usertest@usertest.com");
         inviteUsersDTO.setUsernames(users);
-        inviteUsersDTO.setWorkspaceId(sourceWorkspace.getId());
-        inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+        inviteUsersDTO.setUserGroupId(userGroup.getId());
         userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         isSetupDone = true;

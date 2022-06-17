@@ -12,6 +12,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
@@ -97,6 +98,9 @@ public class UserServiceTest {
 
     @Autowired
     UserSignup userSignup;
+    
+    @Autowired
+    UserGroupService userGroupService;
 
     @Before
     public void setup() {
@@ -433,17 +437,21 @@ public class UserServiceTest {
                 .create(workspace)
                 .cache();
 
+        Mono<UserGroup> viewerGroupMono = workspaceMono.flatMapMany(workspace1 -> userGroupService.getDefaultUserGroups(workspace1.getId()))
+                .filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER))
+                .single()
+                .cache();
+
         String newUserEmail = "inviteUserToApplicationWithoutExisting@test.com";
 
-        workspaceMono
-                .flatMap(workspace1 -> {
+        viewerGroupMono
+                .flatMap(userGroup -> {
                     // Add user to workspace
                     InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
                     ArrayList<String> users = new ArrayList<>();
                     users.add(newUserEmail);
                     inviteUsersDTO.setUsernames(users);
-                    inviteUsersDTO.setWorkspaceId(workspace1.getId());
-                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+                    inviteUsersDTO.setUserGroupId(userGroup.getId());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 }).block();

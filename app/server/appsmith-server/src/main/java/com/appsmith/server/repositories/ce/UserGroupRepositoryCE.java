@@ -7,8 +7,12 @@ import reactor.core.publisher.Flux;
 
 import java.util.Set;
 
+import reactor.core.publisher.Flux;
+
 public interface UserGroupRepositoryCE extends BaseRepository<UserGroup, String>, CustomUserGroupRepository {
 
     Flux<UserGroup> findAllById(Set<String> ids);
 
+    Flux<UserGroup> findByDefaultWorkspaceId(String defaultWorkspaceId);
+    
 }

@@ -262,20 +262,21 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
         // Administrator user group
         UserGroup adminUserGroup = new UserGroup();
+
         adminUserGroup.setName(getDefaultNameForGroupInWorkspace(ADMINISTRATOR, workspaceName));
-        adminUserGroup.setIsDefault(TRUE);
+        adminUserGroup.setDefaultWorkspaceId(workspace.getId());
         adminUserGroup.setTenantId(workspace.getTenantId());
         adminUserGroup.setDescription(WORKSPACE_ADMINISTRATOR_DESCRIPTION);
 
         UserGroup developerUserGroup = new UserGroup();
         developerUserGroup.setName(getDefaultNameForGroupInWorkspace(DEVELOPER, workspaceName));
-        developerUserGroup.setIsDefault(TRUE);
+        developerUserGroup.setDefaultWorkspaceId(workspace.getId());
         developerUserGroup.setTenantId(workspace.getTenantId());
         developerUserGroup.setDescription(WORKSPACE_DEVELOPER_DESCRIPTION);
 
         UserGroup viewerUserGroup = new UserGroup();
         viewerUserGroup.setName(getDefaultNameForGroupInWorkspace(VIEWER, workspaceName));
-        viewerUserGroup.setIsDefault(TRUE);
+        viewerUserGroup.setDefaultWorkspaceId(workspace.getId());
         viewerUserGroup.setTenantId(workspace.getTenantId());
         viewerUserGroup.setDescription(WORKSPACE_VIEWER_DESCRIPTION);
 
