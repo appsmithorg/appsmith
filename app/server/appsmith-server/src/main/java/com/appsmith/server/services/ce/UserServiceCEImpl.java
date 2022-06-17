@@ -80,8 +80,8 @@ import java.util.UUID;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
-import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
+import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -166,39 +166,39 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      * This function switches the user's currentWorkspace in the User collection in the DB. This means that on subsequent
      * logins, the user will see applications for their last used workspace.
      *
-     * @param orgId
+     * @param workspaceId
      * @return
      */
     @Override
-    public Mono<User> switchCurrentWorkspace(String orgId) {
-        if (orgId == null || orgId.isEmpty()) {
+    public Mono<User> switchCurrentWorkspace(String workspaceId) {
+        if (workspaceId == null || workspaceId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "organizationId"));
         }
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> repository.findByEmail(user.getUsername()))
                 .flatMap(user -> {
-                    log.debug("Going to set workspaceId: {} for user: {}", orgId, user.getId());
+                    log.debug("Going to set workspaceId: {} for user: {}", workspaceId, user.getId());
 
-                    if (user.getCurrentOrganizationId().equals(orgId)) {
+                    if (user.getCurrentWorkspaceId().equals(workspaceId)) {
                         return Mono.just(user);
                     }
 
-                    Set<String> workspaceIds = user.getOrganizationIds();
+                    Set<String> workspaceIds = user.getWorkspaceIds();
                     if (workspaceIds == null || workspaceIds.isEmpty()) {
                         return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_ANY_WORKSPACE, user.getId()));
                     }
 
-                    Optional<String> maybeOrgId = workspaceIds.stream()
-                            .filter(organizationId -> organizationId.equals(orgId))
+                    Optional<String> maybeWorkspaceId = workspaceIds.stream()
+                            .filter(workspaceId1 -> workspaceId1.equals(workspaceId))
                             .findFirst();
 
-                    if (maybeOrgId.isPresent()) {
-                        user.setCurrentOrganizationId(maybeOrgId.get());
+                    if (maybeWorkspaceId.isPresent()) {
+                        user.setCurrentWorkspaceId(maybeWorkspaceId.get());
                         return repository.save(user);
                     }
 
-                    // Throw an exception if the orgId is not part of the user's workspaces
-                    return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_TO_WORKSPACE, user.getId(), orgId));
+                    // Throw an exception if the workspaceId is not part of the user's workspaces
+                    return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_TO_WORKSPACE, user.getId(), workspaceId));
                 });
     }
 
@@ -457,7 +457,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     private Set<Policy> crudUserPolicy(User user) {
 
-        Set<AclPermission> aclPermissions = Set.of(MANAGE_USERS, USER_MANAGE_ORGANIZATIONS);
+        Set<AclPermission> aclPermissions = Set.of(MANAGE_USERS, USER_MANAGE_WORKSPACES);
 
         Map<String, Policy> userPolicies = policyUtils.generatePolicyFromPermission(aclPermissions, user);
 
@@ -563,8 +563,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
                                 log.debug("Creating blank default workspace for user '{}'.", savedUser.getEmail());
                                 return workspaceService.createDefault(new Workspace(), savedUser)
-                                        .map(org -> {
-                                            userSignupDTO.setDefaultOrganizationId(org.getId());
+                                        .map(workspace -> {
+                                            userSignupDTO.setDefaultWorkspaceId(workspace.getId());
                                             return userSignupDTO;
                                         });
                             })
@@ -689,8 +689,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
         // Check if the current user has invite permissions
-        Mono<Workspace> workspaceMono = workspaceRepository.findById(inviteUsersDTO.getOrgId(), ORGANIZATION_INVITE_USERS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, inviteUsersDTO.getOrgId())))
+        Mono<Workspace> workspaceMono = workspaceRepository.findById(inviteUsersDTO.getWorkspaceId(), WORKSPACE_INVITE_USERS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, inviteUsersDTO.getWorkspaceId())))
                 .zipWith(currentUserMono)
                 .flatMap(tuple -> {
                     Workspace workspace = tuple.getT1();
@@ -744,20 +744,20 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 });
 
         // Add workspace id to each invited user
-        Mono<List<User>> usersUpdatedWithOrgMono = inviteUsersFlux
+        Mono<List<User>> usersUpdatedWithWorkspaceMono = inviteUsersFlux
                 .flatMap(user -> Mono.zip(Mono.just(user), workspaceMono))
-                // zipping with workspaceMono to ensure that the orgId is checked before updating the user object.
+                // zipping with workspaceMono to ensure that the workspaceId is checked before updating the user object.
                 .flatMap(tuple -> {
                     User invitedUser = tuple.getT1();
                     Workspace workspace = tuple.getT2();
 
-                    Set<String> organizationIds = invitedUser.getOrganizationIds();
-                    if (organizationIds == null) {
-                        organizationIds = new HashSet<>();
+                    Set<String> workspaceIds = invitedUser.getWorkspaceIds();
+                    if (workspaceIds == null) {
+                        workspaceIds = new HashSet<>();
                     }
 
-                    organizationIds.add(workspace.getId());
-                    invitedUser.setOrganizationIds(organizationIds);
+                    workspaceIds.add(workspace.getId());
+                    invitedUser.setWorkspaceIds(workspaceIds);
 
                     //Lets save the updated user object
                     return repository.save(invitedUser);
@@ -783,7 +783,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         // Trigger the flow to first add the users to the workspace and then update each user with the workspaceId
         // added to the user's list of workspaces.
         Mono<List<User>> triggerAddUserWorkspaceFinalFlowMono = workspaceWithUsersAddedMono
-                .then(usersUpdatedWithOrgMono);
+                .then(usersUpdatedWithWorkspaceMono);
 
         //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
         //  subscriber has cancelled its subscription, the create method will still generates its event.
@@ -951,7 +951,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     final UserProfileDTO profile = new UserProfileDTO();
 
                     profile.setEmail(userFromDb.getEmail());
-                    profile.setOrganizationIds(userFromDb.getOrganizationIds());
+                    profile.setWorkspaceIds(userFromDb.getWorkspaceIds());
                     profile.setUsername(userFromDb.getUsername());
                     profile.setName(userFromDb.getName());
                     profile.setGender(userFromDb.getGender());

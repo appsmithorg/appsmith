@@ -36,7 +36,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 
@@ -72,10 +72,10 @@ export function* fetchProviderTemplatesSaga(
 export function* addApiToPageSaga(
   action: ReduxActionWithPromise<AddApiToPageRequest>,
 ) {
-  const organizationId = yield select(getCurrentOrgId);
+  const workspaceId = yield select(getCurrentWorkspaceId);
   const request: AddApiToPageRequest = {
     ...action.payload,
-    organizationId,
+    workspaceId,
   };
   try {
     const response: FetchProviderTemplateResponse = yield ProvidersApi.addApiToPage(

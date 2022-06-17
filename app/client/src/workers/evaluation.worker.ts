@@ -149,7 +149,6 @@ ctx.addEventListener(
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
             dataTree = dataTreeResponse.evalTree;
             jsUpdates = dataTreeResponse.jsUpdates;
-            evalMetaUpdates = dataTreeResponse.evalMetaUpdates;
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
             if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
@@ -166,7 +165,11 @@ ctx.addEventListener(
             unEvalUpdates = updateResponse.unEvalUpdates;
             dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
             jsUpdates = updateResponse.jsUpdates;
-            evalMetaUpdates = updateResponse.evalMetaUpdates;
+            // evalMetaUpdates can have moment object as value which will cause DataCloneError
+            // hence, stringify and parse to avoid such errors
+            evalMetaUpdates = JSON.parse(
+              JSON.stringify(updateResponse.evalMetaUpdates),
+            );
           }
           dependencies = dataTreeEvaluator.inverseDependencyMap;
           errors = dataTreeEvaluator.errors;

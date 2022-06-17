@@ -162,7 +162,7 @@ public class PolicyUtils {
 
         return datasourceRepository
                 // fetch datasources with execute permissions so that app viewers can invite other app viewers
-                .findAllByOrganizationId(workspaceId, AclPermission.EXECUTE_DATASOURCES)
+                .findAllByWorkspaceId(workspaceId, AclPermission.EXECUTE_DATASOURCES)
                 // In case we have come across a datasource for this workspace that the current user is not allowed to manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .map(datasource -> {
@@ -200,7 +200,7 @@ public class PolicyUtils {
 
         return applicationRepository
                 // fetch applications with read permissions so that app viewers can invite other app viewers
-                .findByOrganizationId(workspaceId, AclPermission.READ_APPLICATIONS)
+                .findByWorkspaceId(workspaceId, AclPermission.READ_APPLICATIONS)
                 // In case we have come across an application for this workspace that the current user is not allowed to manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .map(application -> {

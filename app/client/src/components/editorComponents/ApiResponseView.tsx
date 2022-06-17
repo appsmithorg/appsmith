@@ -341,7 +341,7 @@ function ApiResponseView(props: Props) {
         title: dataType.title,
         panelComponent: responseTabComponent(
           dataType.key,
-          response.body,
+          response?.body,
           tableBodyHeight,
         ),
       };
@@ -408,12 +408,12 @@ function ApiResponseView(props: Props) {
               </NoResponseContainer>
             ) : (
               <ResponseBodyContainer>
-                {isString(response.body) && isHtml(response.body) ? (
+                {isString(response?.body) && isHtml(response?.body) ? (
                   <ReadOnlyEditor
                     folding
                     height={"100%"}
                     input={{
-                      value: response.body,
+                      value: response?.body,
                     }}
                     isReadOnly
                   />
@@ -476,7 +476,7 @@ function ApiResponseView(props: Props) {
                 folding
                 height={"100%"}
                 input={{
-                  value: response.body
+                  value: response?.body
                     ? JSON.stringify(responseHeaders, null, 2)
                     : "",
                 }}
@@ -553,12 +553,12 @@ function ApiResponseView(props: Props) {
                   </Text>
                 </Flex>
               )}
-              {!isEmpty(response.body) && Array.isArray(response.body) && (
+              {!isEmpty(response?.body) && Array.isArray(response?.body) && (
                 <Flex>
                   <Text type={TextType.P3}>Result: </Text>
                   <Text type={TextType.H5}>
-                    {`${response.body.length} Record${
-                      response.body.length > 1 ? "s" : ""
+                    {`${response?.body.length} Record${
+                      response?.body.length > 1 ? "s" : ""
                     }`}
                   </Text>
                 </Flex>
