@@ -116,12 +116,12 @@ export class AggregateHelper {
       .should("contain.text", text);
   }
 
-  public ClickButton(btnVisibleText: string, index = 0) {
+  public ClickButton(btnVisibleText: string, index = 0, shouldSleep = true) {
     cy.xpath(this.locator._spanButton(btnVisibleText))
       .eq(index)
       .scrollIntoView()
       .click({ force: true });
-    this.Sleep();
+    shouldSleep && this.Sleep();
   }
 
   public Paste(selector: any, pastePayload: string) {
@@ -364,13 +364,13 @@ export class AggregateHelper {
     });
   }
 
-  public GetNClick(selector: string, index = 0) {
+  public GetNClick(selector: string, index = 0, force = false) {
     let locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator
       .eq(index)
-      .click()
+      .click({ force: force })
       .wait(500);
   }
 
@@ -384,19 +384,6 @@ export class AggregateHelper {
       .eq(index)
       .click()
       .wait(200);
-  }
-
-  public ToggleOnOrOff(propertyName: string, toggle: "On" | "Off") {
-    if (toggle == "On") {
-      cy.get(this.locator._propertyToggle(propertyName))
-        .check({ force: true })
-        .should("be.checked");
-    } else {
-      cy.get(this.locator._propertyToggle(propertyName))
-        .uncheck({ force: true })
-        .should("not.be.checked");
-    }
-    this.AssertAutoSave();
   }
 
   public CheckUncheck(selector: string, check = true) {
@@ -430,11 +417,11 @@ export class AggregateHelper {
     }
   }
 
-  public NavigateBacktoEditor() {
-    cy.get(this.locator._backToEditor).click();
-    this.Sleep(2000);
-    localStorage.setItem("inDeployedMode", "false");
-  }
+  // public NavigateBacktoEditor() {
+  //   cy.get(this.locator._backToEditor).click();
+  //   this.Sleep(2000);
+  //   localStorage.setItem("inDeployedMode", "false");
+  // }
 
   public GenerateUUID() {
     let id = uuid.v4();
@@ -466,18 +453,22 @@ export class AggregateHelper {
   public ActionContextMenuWithInPane(
     action: "Copy to page" | "Move to page" | "Delete",
     subAction = "",
+    jsDelete = false,
   ) {
     cy.get(this.locator._contextMenuInPane).click();
     cy.xpath(this.locator._visibleTextDiv(action))
       .should("be.visible")
       .click();
     if (action == "Delete") {
-      cy.xpath(this.locator._visibleTextDiv("Are you sure?")).click();
-      this.ValidateNetworkStatus("@deleteAction");
+      subAction = "Are you sure?";
     }
     if (subAction) {
       cy.xpath(this.locator._visibleTextDiv(subAction)).click();
       this.Sleep(500);
+    }
+    if (action == "Delete") {
+      !jsDelete && this.ValidateNetworkStatus("@deleteAction");
+      jsDelete && this.ValidateNetworkStatus("@deleteJSCollection");
     }
   }
 
@@ -518,6 +509,18 @@ export class AggregateHelper {
       });
     }
     this.AssertAutoSave();
+  }
+
+  public EnterInputText(name: string, input: string, toClear = false, isInput = true) {
+    toClear && this.ClearInputText(name)
+    cy.xpath(this.locator._inputWidgetValueField(name, isInput))
+      .click()
+      .type(input);
+  }
+
+  public ClearInputText(name: string, isInput = true) {
+    cy.xpath(this.locator._inputWidgetValueField(name, isInput))
+      .clear();
   }
 
   public UpdateCodeInput(selector: string, value: string) {
@@ -621,7 +624,10 @@ export class AggregateHelper {
     let locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    locator.eq(index).should("be.visible");
+    locator
+      .eq(index)
+      .scrollIntoView()
+      .should("be.visible");
   }
 
   public AssertElementExist(selector: string, index = 0) {
