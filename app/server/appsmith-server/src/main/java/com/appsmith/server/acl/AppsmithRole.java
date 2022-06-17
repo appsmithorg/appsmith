@@ -14,7 +14,7 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATION
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;

@@ -4,7 +4,6 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
@@ -17,7 +16,7 @@ import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
@@ -41,10 +40,13 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserChangedHandler;
+import com.google.common.base.Strings;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -69,6 +71,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -76,11 +79,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -96,15 +99,13 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final EmailSender emailSender;
     private final ApplicationRepository applicationRepository;
     private final PolicyUtils policyUtils;
-    private final WorkspaceRepository workspaceRepository;
-    private final UserWorkspaceService userWorkspaceService;
-    private final RoleGraph roleGraph;
     private final CommonConfig commonConfig;
     private final EmailConfig emailConfig;
     private final UserChangedHandler userChangedHandler;
     private final EncryptionService encryptionService;
     private final UserDataService userDataService;
     private final TenantService tenantService;
+    private final UserGroupService userGroupService;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -127,9 +128,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              EmailSender emailSender,
                              ApplicationRepository applicationRepository,
                              PolicyUtils policyUtils,
-                             WorkspaceRepository workspaceRepository,
-                             UserWorkspaceService userWorkspaceService,
-                             RoleGraph roleGraph,
                              ConfigService configService,
                              CommonConfig commonConfig,
                              EmailConfig emailConfig,
@@ -137,7 +135,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              EncryptionService encryptionService,
                              ApplicationPageService applicationPageService,
                              UserDataService userDataService,
-                             TenantService tenantService) {
+                             TenantService tenantService,
+                             UserGroupService userGroupService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -146,15 +145,13 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.emailSender = emailSender;
         this.applicationRepository = applicationRepository;
         this.policyUtils = policyUtils;
-        this.workspaceRepository = workspaceRepository;
-        this.userWorkspaceService = userWorkspaceService;
-        this.roleGraph = roleGraph;
         this.commonConfig = commonConfig;
         this.emailConfig = emailConfig;
         this.userChangedHandler = userChangedHandler;
         this.encryptionService = encryptionService;
         this.userDataService = userDataService;
         this.tenantService = tenantService;
+        this.userGroupService = userGroupService;
     }
 
     @Override
@@ -673,14 +670,14 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         List<String> originalUsernames = inviteUsersDTO.getUsernames();
 
-        if (originalUsernames == null || originalUsernames.isEmpty()) {
+        if (CollectionUtils.isEmpty(originalUsernames)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAMES));
         }
 
-        if (inviteUsersDTO.getRoleName() == null || inviteUsersDTO.getRoleName().isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ROLE));
+        if (!StringUtils.hasText(inviteUsersDTO.getUserGroupId())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.GROUP_ID));
         }
-
+        
         List<String> usernames = new ArrayList<>();
         for (String username : originalUsernames) {
             usernames.add(username.toLowerCase());
@@ -688,31 +685,24 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
-        // Check if the current user has invite permissions
-        Mono<Workspace> workspaceMono = workspaceRepository.findById(inviteUsersDTO.getWorkspaceId(), WORKSPACE_INVITE_USERS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, inviteUsersDTO.getWorkspaceId())))
-                .zipWith(currentUserMono)
-                .flatMap(tuple -> {
-                    Workspace workspace = tuple.getT1();
-                    User currentUser = tuple.getT2();
-
-                    // This code segment checks if the current user can invite for the invited role.
-
-                    return isUserPermittedToInviteForGivenRole(workspace, currentUser.getUsername(), inviteUsersDTO.getRoleName())
-                            .thenReturn(workspace);
-                })
+        // Check if the current user has invite permissions to the group and group is workspace's default group.
+        Mono<UserGroup> userGroupMono = userGroupService.getById(inviteUsersDTO.getUserGroupId(), AclPermission.INVITE_USER_GROUPS)
+                .filter(userGroup -> !Strings.isNullOrEmpty(userGroup.getDefaultWorkspaceId()))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER_GROUP)))
                 .cache();
 
+        // Get workspace from the default group.
+        Mono<Workspace> workspaceMono = userGroupMono.flatMap(userGroup -> workspaceService.getById(userGroup.getDefaultWorkspaceId())).cache();
 
         // Check if the invited user exists. If yes, return the user, else create a new user by triggering
         // createNewUserAndSendInviteEmail. In both the cases, send the appropriate emails
-
         Flux<User> inviteUsersFlux = Flux.fromIterable(usernames)
-                .flatMap(username -> Mono.zip(Mono.just(username), workspaceMono, currentUserMono))
+                .flatMap(username -> Mono.zip(Mono.just(username), workspaceMono, currentUserMono, userGroupMono))
                 .flatMap(tuple -> {
                     String username = tuple.getT1();
                     Workspace workspace = tuple.getT2();
                     User currentUser = tuple.getT3();
+                    UserGroup userGroup = tuple.getT4();
 
                     return repository.findByEmail(username)
                             .flatMap(existingUser -> {
@@ -731,63 +721,35 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 return emailMono
                                         .thenReturn(existingUser);
                             })
-                            .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, inviteUsersDTO.getRoleName()));
+                            .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, userGroup.getName()));
                 })
                 .cache();
 
-        // Add User to the invited Workspace
-        Mono<Workspace> workspaceWithUsersAddedMono = Mono.zip(inviteUsersFlux.collectList(), workspaceMono)
+        // Add user to user group
+        Mono<UserGroup> bulkAddUserResultMono = Mono.zip(userGroupMono, inviteUsersFlux.collectList())
                 .flatMap(tuple -> {
-                    List<User> invitedUsers = tuple.getT1();
-                    Workspace workspace = tuple.getT2();
-                    return userWorkspaceService.bulkAddUsersToWorkspace(workspace, invitedUsers, inviteUsersDTO.getRoleName());
-                });
+                    UserGroup userGroup = tuple.getT1();
+                    List<User> users = tuple.getT2();
+                    return userGroupService.bulkAddUsers(userGroup, users);
+                }).cache();
 
-        // Add workspace id to each invited user
-        Mono<List<User>> usersUpdatedWithWorkspaceMono = inviteUsersFlux
-                .flatMap(user -> Mono.zip(Mono.just(user), workspaceMono))
-                // zipping with workspaceMono to ensure that the workspaceId is checked before updating the user object.
+        // Send analytics event and don't wait for the result
+        Mono.zip(currentUserMono, inviteUsersFlux.collectList())
                 .flatMap(tuple -> {
-                    User invitedUser = tuple.getT1();
-                    Workspace workspace = tuple.getT2();
-
-                    Set<String> workspaceIds = invitedUser.getWorkspaceIds();
-                    if (workspaceIds == null) {
-                        workspaceIds = new HashSet<>();
-                    }
-
-                    workspaceIds.add(workspace.getId());
-                    invitedUser.setWorkspaceIds(workspaceIds);
-
-                    //Lets save the updated user object
-                    return repository.save(invitedUser);
-                })
-                .collectList()
-                .flatMap(users -> Mono.zip(Mono.just(users), currentUserMono))
-                .flatMap(tuple -> {
-                    List<User> users = tuple.getT1();
-                    User currentUser = tuple.getT2();
-
-                    HashMap<String, Object> analyticsProperties = new HashMap<>();
+                    User currentUser = tuple.getT1();
+                    List<User> users = tuple.getT2();
+                    Map<String, Object> analyticsProperties = new HashMap<>();
                     long numberOfUsers = users.size();
-                    List<String> invitedUsers = new ArrayList<>();
-                    for (User user: users) {
-                        invitedUsers.add(user.getEmail());
-                    }
+                    List<String> invitedUsers = users.stream().map(User::getEmail).collect(Collectors.toList());
                     analyticsProperties.put("numberOfUsersInvited", numberOfUsers);
                     analyticsProperties.put("userEmails", invitedUsers);
                     analyticsService.sendEvent("execute_INVITE_USERS", currentUser.getEmail(), analyticsProperties);
-                    return Mono.just(users);
+                    return Mono.empty();
                 });
-
-        // Trigger the flow to first add the users to the workspace and then update each user with the workspaceId
-        // added to the user's list of workspaces.
-        Mono<List<User>> triggerAddUserWorkspaceFinalFlowMono = workspaceWithUsersAddedMono
-                .then(usersUpdatedWithWorkspaceMono);
 
         //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
         //  subscriber has cancelled its subscription, the create method will still generates its event.
-        return Mono.create(sink -> triggerAddUserWorkspaceFinalFlowMono
+        return Mono.create(sink -> bulkAddUserResultMono.then(inviteUsersFlux.collectList())
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
         );
     }
@@ -824,40 +786,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     return emailMono
                             .thenReturn(createdUser);
                 });
-    }
-
-    private Mono<Boolean> isUserPermittedToInviteForGivenRole(Workspace workspace, String username, String invitedRoleName) {
-        List<UserRole> userRoles = workspace.getUserRoles();
-
-        // The current workspace has no members. Clearly the current user is also not present
-        if (userRoles == null || userRoles.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED,
-                    "Invite a user for the role " + invitedRoleName));
-        }
-
-        Optional<UserRole> optionalUserRole = userRoles.stream().filter(role -> role.getUsername().equals(username)).findFirst();
-        // If the current user is not present in the workspace, the user would also not be permitted to invite
-        if (!optionalUserRole.isPresent()) {
-            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED,
-                    "Invite a user for the role " + invitedRoleName));
-        }
-
-        UserRole currentUserRole = optionalUserRole.get();
-        String currentUserRoleName = currentUserRole.getRoleName();
-
-        AppsmithRole invitedRole = AppsmithRole.generateAppsmithRoleFromName(invitedRoleName);
-
-        // Generate all the roles for which the current user can invite other users
-        Set<AppsmithRole> appsmithRoles = roleGraph.generateHierarchicalRoles(currentUserRoleName);
-
-        // If the role for which users are being invited is not in the list of permissible roles that the
-        // current user can invite for, throw an error
-        if (!appsmithRoles.contains(invitedRole)) {
-            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED,
-                    "Invite a user for the role " + invitedRoleName));
-        }
-
-        return Mono.just(Boolean.TRUE);
     }
 
     @Override

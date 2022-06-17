@@ -247,21 +247,21 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         String name = ADMINISTRATOR + " - " + workspaceName;
         UserGroup adminUserGroup = new UserGroup();
         adminUserGroup.setName(name);
-        adminUserGroup.setIsDefault(TRUE);
+        adminUserGroup.setDefaultWorkspaceId(workspace.getId());
         adminUserGroup.setTenantId(workspace.getTenantId());
         adminUserGroup.setDescription(WORKSPACE_ADMINISTRATOR_DESCRIPTION);
 
         name = DEVELOPER + " - " + workspaceName;
         UserGroup developerUserGroup = new UserGroup();
         developerUserGroup.setName(name);
-        developerUserGroup.setIsDefault(TRUE);
+        developerUserGroup.setDefaultWorkspaceId(workspace.getId());
         developerUserGroup.setTenantId(workspace.getTenantId());
         developerUserGroup.setDescription(WORKSPACE_DEVELOPER_DESCRIPTION);
 
         name = VIEWER + " - " + workspaceName;
         UserGroup viewerUserGroup = new UserGroup();
         viewerUserGroup.setName(name);
-        viewerUserGroup.setIsDefault(TRUE);
+        viewerUserGroup.setDefaultWorkspaceId(workspace.getId());
         viewerUserGroup.setTenantId(workspace.getTenantId());
         viewerUserGroup.setDescription(WORKSPACE_VIEWER_DESCRIPTION);
 
