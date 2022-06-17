@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { Classes, ControlGroup } from "@blueprintjs/core";
-import { debounce, noop } from "lodash";
+import { debounce, noop, isEmpty } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
 import SearchInput, { SearchVariant } from "components/ads/SearchInput";
 import TemplateList from "./TemplateList";
@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setHeaderMeta } from "actions/themeActions";
 import {
   getAllTemplates,
+  getTemplateFilters,
   setTemplateSearchQuery,
 } from "actions/templateActions";
 import {
@@ -106,6 +107,9 @@ function TemplateRoutes() {
   const templatesCount = useSelector(
     (state: AppState) => state.ui.templates.templates.length,
   );
+  const filters = useSelector(
+    (state: AppState) => state.ui.templates.allFilters,
+  );
 
   useEffect(() => {
     dispatch(setHeaderMeta(true, true));
@@ -130,6 +134,12 @@ function TemplateRoutes() {
       dispatch(fetchDefaultPlugins());
     }
   }, [pluginListLength]);
+
+  useEffect(() => {
+    if (isEmpty(filters.functions)) {
+      dispatch(getTemplateFilters());
+    }
+  }, [filters]);
 
   return (
     <Switch>

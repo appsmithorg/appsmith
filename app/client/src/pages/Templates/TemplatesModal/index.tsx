@@ -6,12 +6,17 @@ import {
   templateModalOpenSelector,
   templatesCountSelector,
 } from "selectors/templatesSelectors";
-import { getAllTemplates, showTemplatesModal } from "actions/templateActions";
+import {
+  getAllTemplates,
+  getTemplateFilters,
+  showTemplatesModal,
+} from "actions/templateActions";
 import TemplatesList from "./TemplateList";
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import { AppState } from "reducers";
 import TemplateDetailedView from "./TemplateDetailedView";
 import { Classes } from "@blueprintjs/core";
+import { isEmpty } from "lodash";
 
 const StyledDialog = styled(DialogComponent)`
   overflow: hidden;
@@ -30,6 +35,9 @@ function TemplatesModal() {
   const pluginListLength = useSelector(
     (state: AppState) => state.entities.plugins.defaultPluginList.length,
   );
+  const filters = useSelector(
+    (state: AppState) => state.ui.templates.allFilters,
+  );
   const [showTemplateDetails, setShowTemplateDetails] = useState("");
 
   useEffect(() => {
@@ -43,6 +51,12 @@ function TemplatesModal() {
       dispatch(fetchDefaultPlugins());
     }
   }, [pluginListLength]);
+
+  useEffect(() => {
+    if (isEmpty(filters.functions)) {
+      dispatch(getTemplateFilters());
+    }
+  }, [filters]);
 
   const onClose = () => {
     dispatch(showTemplatesModal(false));

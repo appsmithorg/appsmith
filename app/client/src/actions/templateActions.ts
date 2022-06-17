@@ -64,3 +64,7 @@ export const importTemplateIntoApplication = (
     pageNames,
   },
 });
+
+export const getTemplateFilters = () => ({
+  type: ReduxActionTypes.GET_TEMPLATE_FILTERS_INIT,
+});

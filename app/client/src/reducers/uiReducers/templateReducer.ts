@@ -4,17 +4,21 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { Template } from "api/TemplatesApi";
+import { Template, TemplateFiltersResponse } from "api/TemplatesApi";
 
 const initialState: TemplatesReduxState = {
   isImportingTemplate: false,
   isImportingTemplateToApp: false,
+  loadingFilters: false,
   gettingAllTemplates: false,
   gettingTemplate: false,
   activeTemplate: null,
   templates: [],
   similarTemplates: [],
   filters: {},
+  allFilters: {
+    functions: [],
+  },
   templateSearchQuery: "",
   templateNotificationSeen: null,
   showTemplatesModal: false,
@@ -155,9 +159,36 @@ const templateReducer = createReducer(initialState, {
       showTemplatesModal: action.payload,
     };
   },
+  [ReduxActionTypes.GET_TEMPLATE_FILTERS_INIT]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      loadingFilters: true,
+    };
+  },
+  [ReduxActionTypes.GET_TEMPLATE_FILTERS_SUCCESS]: (
+    state: TemplatesReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      loadingFilters: false,
+      allFilters: action.payload,
+    };
+  },
+  [ReduxActionErrorTypes.GET_TEMPLATE_FILTERS_ERROR]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      loadingFilters: false,
+    };
+  },
 });
 
 export interface TemplatesReduxState {
+  allFilters: TemplateFiltersResponse["data"] | Record<string, never>;
   gettingAllTemplates: boolean;
   gettingTemplate: boolean;
   templates: Template[];
@@ -169,6 +200,7 @@ export interface TemplatesReduxState {
   isImportingTemplateToApp: boolean;
   templateNotificationSeen: boolean | null;
   showTemplatesModal: boolean;
+  loadingFilters: boolean;
 }
 
 export default templateReducer;

@@ -118,22 +118,33 @@ export const templatesDatasourceFiltersSelector = createSelector(
   },
 );
 
+export const templatesFiltersSelector = (state: AppState) =>
+  state.ui.templates.allFilters;
+
 // Get all filters which is associated with atleast one template
 // If no template is associated with a filter, then the filter shouldn't be in the filter list
 export const getFilterListSelector = createSelector(
   getWidgetCards,
   templatesDatasourceFiltersSelector,
   getTemplatesSelector,
-  (widgetConfigs, allDatasources, templates) => {
+  templatesFiltersSelector,
+  (widgetConfigs, allDatasources, templates, allTemplateFilters) => {
     const filters: Record<string, Filter[]> = {
       datasources: [],
       widgets: [],
+      functions: [],
     };
 
     const allWidgets = widgetConfigs.map((widget) => {
       return {
         label: widget.displayName,
         value: widget.type,
+      };
+    });
+    const allFunctions = allTemplateFilters.functions.map((item) => {
+      return {
+        label: item,
+        value: item,
       };
     });
 
@@ -165,6 +176,7 @@ export const getFilterListSelector = createSelector(
     templates.map((template) => {
       filterFilters("datasources", allDatasources, template);
       filterFilters("widgets", allWidgets, template);
+      filterFilters("functions", allFunctions, template);
     });
 
     return filters;

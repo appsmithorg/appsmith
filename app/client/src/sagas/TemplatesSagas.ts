@@ -254,6 +254,26 @@ function* forkTemplateToApplicationSaga(
   }
 }
 
+function* getTemplateFiltersSaga() {
+  try {
+    const response = yield call(TemplatesAPI.getTemplateFilters);
+    const isValid = yield validateResponse(response);
+    if (isValid) {
+      yield put({
+        type: ReduxActionTypes.GET_TEMPLATE_FILTERS_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionErrorTypes.GET_TEMPLATE_FILTERS_ERROR,
+      payload: {
+        e,
+      },
+    });
+  }
+}
+
 export default function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.GET_ALL_TEMPLATES_INIT, getAllTemplatesSaga),
@@ -277,6 +297,10 @@ export default function* watchActionSagas() {
     takeEvery(
       ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_INIT,
       forkTemplateToApplicationSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.GET_TEMPLATE_FILTERS_INIT,
+      getTemplateFiltersSaga,
     ),
   ]);
 }

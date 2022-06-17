@@ -33,6 +33,12 @@ export interface ImportTemplateResponse extends ApiResponse {
   data: ApplicationResponsePayload;
 }
 
+export interface TemplateFiltersResponse extends ApiResponse {
+  data: {
+    functions: string[];
+  };
+}
+
 class TemplatesAPI extends Api {
   static baseUrl = "v1";
 
@@ -71,6 +77,9 @@ class TemplatesAPI extends Api {
         `/app-templates/${templateId}/merge/${applicationId}/${organizationId}`,
       body,
     );
+  }
+  static getTemplateFilters(): AxiosPromise<TemplateFiltersResponse> {
+    return Api.get(TemplatesAPI.baseUrl + `/app-templates/filters`);
   }
 }
 
