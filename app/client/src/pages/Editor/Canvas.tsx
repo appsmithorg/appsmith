@@ -130,6 +130,7 @@ const Canvas = memo((props: CanvasProps) => {
     );
   } catch (error) {
     log.error("Error rendering DSL", error);
+    // we should disable this log?
     Sentry.captureException(error);
     return null;
   }

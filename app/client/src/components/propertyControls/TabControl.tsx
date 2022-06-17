@@ -12,7 +12,7 @@ import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
 import includes from "lodash/includes";
 import map from "lodash/map";
-import * as Sentry from "@sentry/react";
+// import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -143,10 +143,11 @@ class TabControl extends BaseControl<ControlProps, State> {
         this.updateProperty(this.props.propertyName, parsedData);
         return parsedData;
       } catch (error) {
-        Sentry.captureException({
-          message: "Tab Migration Failed",
-          oldData: this.props.propertyValue,
-        });
+        // we don't need log custom error in sentry
+        // Sentry.captureException({
+        //   message: "Tab Migration Failed",
+        //   oldData: this.props.propertyValue,
+        // });
       }
     } else {
       return this.props.propertyValue;

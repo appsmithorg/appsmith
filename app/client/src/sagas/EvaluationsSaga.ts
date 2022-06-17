@@ -34,7 +34,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import * as Sentry from "@sentry/react";
+// import * as Sentry from "@sentry/react";
 import { Action } from "redux";
 import {
   EVALUATE_REDUX_ACTIONS,
@@ -545,7 +545,8 @@ export function* evaluateSnippetSaga(action: any) {
       variant: Variant.danger,
     });
     log.error(e);
-    Sentry.captureException(e);
+    // we don't need to log custom error in sentry
+    // Sentry.captureException(e);
   }
 }
 
@@ -588,7 +589,8 @@ export function* evaluateArgumentSaga(action: any) {
     );
   } catch (e) {
     log.error(e);
-    Sentry.captureException(e);
+    // we don't need to log custom error in sentry
+    // Sentry.captureException(e);
   }
 }
 
@@ -647,7 +649,8 @@ export default function* evaluationSagaListeners() {
       yield call(evaluationChangeListenerSaga);
     } catch (e) {
       log.error(e);
-      Sentry.captureException(e);
+      // we don't need to log custom error in sentry
+      // Sentry.captureException(e);
     }
   }
 }

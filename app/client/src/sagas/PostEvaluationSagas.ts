@@ -214,6 +214,7 @@ export function* evalErrorHandler(
     );
   }
 
+  // we need to log eval error in sentry?
   errors.forEach((error) => {
     switch (error.type) {
       case EvalErrorTypes.CYCLICAL_DEPENDENCY_ERROR: {

@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
-import * as Sentry from "@sentry/react";
+// import * as Sentry from "@sentry/react";
 import { getFormEvaluationState } from "selectors/formSelectors";
 import { evalFormConfig } from "./EvaluationsSaga";
 import {
@@ -190,7 +190,8 @@ export default function* formEvaluationChangeListener() {
       yield call(formEvaluationChangeListenerSaga);
     } catch (e) {
       log.error(e);
-      Sentry.captureException(e);
+      // we don't need to log form evaluation custom error in sentry
+      // Sentry.captureException(e);
     }
   }
 }

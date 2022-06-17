@@ -27,7 +27,7 @@ import {
   CountryCode,
   parseIncompletePhoneNumber,
 } from "libphonenumber-js";
-import * as Sentry from "@sentry/react";
+// import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
@@ -182,7 +182,8 @@ class PhoneInputWidget extends BaseInputWidget<
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
         log.error(e);
-        Sentry.captureException(e);
+        // we don't need to log custom input in sentry
+        // Sentry.captureException(e);
       }
     }
   }
