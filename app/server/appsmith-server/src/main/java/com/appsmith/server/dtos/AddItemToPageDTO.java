@@ -10,6 +10,6 @@ import lombok.Setter;
 public class AddItemToPageDTO {
     String name;
     String pageId;
-    String organizationId;
+    String workspaceId;
     ItemDTO marketplaceElement;
 }

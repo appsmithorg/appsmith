@@ -4,7 +4,7 @@ import {
 } from "pages/Applications/permissionHelpers";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
-import { getUserApplicationsOrgs } from "./applicationSelectors";
+import { getUserApplicationsWorkspaces } from "./applicationSelectors";
 import { getWidgets } from "sagas/selectors";
 import { getActionResponses, getActions } from "./entitiesSelector";
 import { getSelectedWidget } from "./ui";
@@ -310,14 +310,14 @@ export const showInfoMessageSelector = (state: AppState) =>
 
 export const loading = (state: AppState) => state.ui.onBoarding.loading;
 
-// To find an organisation where the user has permission to create an
+// To find an workspace where the user has permission to create an
 // application
-export const getOnboardingOrganisations = createSelector(
-  getUserApplicationsOrgs,
-  (userOrgs) => {
-    return userOrgs.filter((userOrg) =>
+export const getOnboardingWorkspaces = createSelector(
+  getUserApplicationsWorkspaces,
+  (userWorkspaces) => {
+    return userWorkspaces.filter((userWorkspace) =>
       isPermitted(
-        userOrg.organization.userPermissions || [],
+        userWorkspace.workspace.userPermissions || [],
         PERMISSION_TYPE.CREATE_APPLICATION,
       ),
     );

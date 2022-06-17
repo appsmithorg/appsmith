@@ -39,7 +39,7 @@ import {
 } from "actions/pluginActionActions";
 import { Datasource } from "entities/Datasource";
 import { Action, ApiAction, PluginType } from "entities/Action";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import log from "loglevel";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -554,7 +554,7 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
 function* handleCreateNewApiActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
 ) {
-  const organizationId: string = yield select(getCurrentOrgId);
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
   const pluginId: string = yield select(
     getPluginIdOfPackageName,
     REST_PLUGIN_PACKAGE_NAME,
@@ -575,7 +575,7 @@ function* handleCreateNewApiActionSaga(
         datasource: {
           name: "DEFAULT_REST_DATASOURCE",
           pluginId,
-          organizationId,
+          workspaceId,
         },
         eventData: {
           actionType: "API",

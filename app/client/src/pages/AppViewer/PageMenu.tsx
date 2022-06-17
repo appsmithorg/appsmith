@@ -13,13 +13,14 @@ import { useSelector } from "react-redux";
 import classNames from "classnames";
 import PrimaryCTA from "./PrimaryCTA";
 import Button from "./AppViewerButton";
-import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
+import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import BrandingBadge from "./BrandingBadgeMobile";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
+import { getShowBrandingBadge } from "@appsmith/selectors/workspaceSelectors";
 
 type AppViewerHeaderProps = {
   isOpen?: boolean;
@@ -35,12 +36,13 @@ export function PageMenu(props: AppViewerHeaderProps) {
   const appMode = useSelector(getAppMode);
   const menuRef = useRef<any>();
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const organisationID = useSelector(getCurrentOrgId);
+  const workspaceID = useSelector(getCurrentWorkspaceId);
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
   );
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const [query, setQuery] = useState("");
+  const showBrandingBadge = useSelector(getShowBrandingBadge);
 
   // hide menu on click outside
   useOnClickOutside(
@@ -120,7 +122,6 @@ export function PageMenu(props: AppViewerHeaderProps) {
                 bgColor: "transparent",
               }}
               isOpen={showAppInviteUsersDialog}
-              orgId={organisationID}
               title={application.name}
               trigger={
                 <Button
@@ -134,10 +135,11 @@ export function PageMenu(props: AppViewerHeaderProps) {
                   text="Share"
                 />
               }
+              workspaceId={workspaceID}
             />
           )}
           <PrimaryCTA className="t--back-to-editor--mobile" url={props.url} />
-          <BrandingBadge />
+          {showBrandingBadge && <BrandingBadge />}
         </div>
       </div>
     </>

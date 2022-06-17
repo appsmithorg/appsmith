@@ -19,9 +19,9 @@ export class JSEditor {
   public ee = ObjectsRegistry.EntityExplorer;
 
   //#region Element locators
-  private _runButton = "button.run-js-action";
-  private _settingsTab = ".tab-title:contains('Settings')";
-  private _codeTab = ".tab-title:contains('Code')";
+  _runButton = "button.run-js-action";
+  _settingsTab = ".tab-title:contains('Settings')";
+  _codeTab = ".tab-title:contains('Code')";
   private _jsObjectParseErrorCallout =
     "div.t--js-response-parse-error-call-out";
   private _jsFunctionExecutionParseErrorCallout =
@@ -78,7 +78,16 @@ export class JSEditor {
     "')]";
   _funcDropdown = ".t--formActionButtons div[role='listbox']";
   _funcDropdownOptions = ".ads-dropdown-options-wrapper div > div";
+  _getJSFunctionSettingsId = (JSFunctionName: string) =>
+    `${JSFunctionName}-settings`;
+  _asyncJSFunctionSettings = `.t--async-js-function-settings`;
+  //#endregion
 
+  //#region constants
+  private isMac = Cypress.platform === "darwin";
+  private selectAllJSObjectContentShortcut = `${
+    this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
+  }`;
   //#endregion
 
   //#region Page functions
@@ -119,13 +128,7 @@ export class JSEditor {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
         .focus()
-        .type(
-          "{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}",
-        )
-        .type(
-          "{shift}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}",
-          { force: true },
-        )
+        .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
 
       // .type("{uparrow}", { force: true })
@@ -171,15 +174,15 @@ export class JSEditor {
     this.GetJSObjectName();
   }
 
-  //Not working - To improve!
-  public EditJSObj(existingTxt: string, newTxt: string) {
-    cy.get(this.locator._codeEditorTarget)
-      .contains(existingTxt)
-      .dblclick(); //.type("{backspace}").type(newTxt)
-    cy.get("body")
-      .type("{backspace}")
-      .type(newTxt);
-    this.agHelper.AssertAutoSave(); //Ample wait due to open bug # 10284
+  //Edit the name of a JSObject's property (variable or function)
+  public EditJSObj(newContent: string) {
+    cy.get(this.locator._codeMirrorTextArea)
+      .first()
+      .focus()
+      .type(this.selectAllJSObjectContentShortcut, { force: true })
+      .then((el: JQuery<HTMLElement>) => {
+        this.agHelper.Paste(el, newContent);
+      });
   }
 
   public EnterJSContext(
@@ -281,7 +284,7 @@ export class JSEditor {
     this.agHelper.AssertAutoSave();
   }
 
-  public RenameJSObjFromForm(renameVal: string) {
+  public RenameJSObjFromPane(renameVal: string) {
     cy.get(this._jsObjName).click({ force: true });
     cy.get(this._jsObjTxt)
       .clear()
@@ -380,8 +383,8 @@ export class JSEditor {
     // Return to code tab
     this.agHelper.GetNClick(this._codeTab);
   }
+
   /**
- *
   There are two types of parse errors in the JS Editor
   1. Parse errors that render the JS Object invalid and all functions unrunnable
   2. Parse errors within functions that throw errors when executing those functions
@@ -400,6 +403,13 @@ export class JSEditor {
         ? _jsFunctionExecutionParseErrorCallout
         : _jsObjectParseErrorCallout,
     ).should(exists ? "exist" : "not.exist");
+  }
+
+  public SelectFunctionDropdown(funName: string) {
+    cy.get(this._funcDropdown).click();
+    cy.get(this.locator._dropdownText)
+      .contains(funName)
+      .click();
   }
 
   //#endregion

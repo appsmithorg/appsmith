@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.services.CrudService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -38,4 +39,5 @@ public interface ThemeServiceCE extends CrudService<Theme, String> {
     Mono<Theme> updateName(String id, Theme theme);
     Mono<Theme> getOrSaveTheme(Theme theme, Application destApplication);
     Mono<Application> archiveApplicationThemes(Application application);
+    Mono<Application> importThemesToApplication(Application destinationApp, ApplicationJson sourceJson);
 }
