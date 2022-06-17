@@ -38,6 +38,6 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 pluginRepository, sessionUserService, userWorkspaceService, userRepository, roleGraph,
-                assetRepository, assetService, applicationRepository, userGroupService, permissionGroupService);
+                assetRepository, assetService, applicationRepository, userGroupService, permissionGroupService, rbacPolicyService);
     }
 }
