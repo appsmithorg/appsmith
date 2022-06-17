@@ -6,11 +6,19 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.services.CrudService;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.Set;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface UserGroupServiceCE extends CrudService<UserGroup, String> {
+
+    Flux<UserGroup> findAllByIds(Set<String> ids);
+
+    Mono<UserGroup> save(UserGroup userGroup);
 
     Mono<UserGroup> getById(String id, AclPermission permission);
 

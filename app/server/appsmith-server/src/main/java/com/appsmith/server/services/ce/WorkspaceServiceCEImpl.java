@@ -240,27 +240,42 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                         .thenReturn(savedWorkspace));
     }
 
+    private String generateNewDefaultName(String oldName, String workspaceName) {
+        if (oldName.startsWith(ADMINISTRATOR)) {
+            return getDefaultNameForGroupInWorkspace(ADMINISTRATOR, workspaceName);
+        } else if (oldName.startsWith(DEVELOPER)) {
+            return getDefaultNameForGroupInWorkspace(DEVELOPER, workspaceName);
+        } else if (oldName.startsWith(VIEWER)) {
+            return getDefaultNameForGroupInWorkspace(VIEWER, workspaceName);
+        }
+
+        // If this is not a default group aka does not start with the expected prefix, don't update it.
+        return oldName;
+    }
+
+    @Override
+    public String getDefaultNameForGroupInWorkspace(String prefix, String workspaceName) {
+        return prefix + " - " + workspaceName;
+    }
     private Mono<Set<UserGroup>> generateDefaultUserGroups(Workspace workspace) {
         String workspaceName = workspace.getName();
 
         // Administrator user group
-        String name = ADMINISTRATOR + " - " + workspaceName;
         UserGroup adminUserGroup = new UserGroup();
-        adminUserGroup.setName(name);
+
+        adminUserGroup.setName(getDefaultNameForGroupInWorkspace(ADMINISTRATOR, workspaceName));
         adminUserGroup.setDefaultWorkspaceId(workspace.getId());
         adminUserGroup.setTenantId(workspace.getTenantId());
         adminUserGroup.setDescription(WORKSPACE_ADMINISTRATOR_DESCRIPTION);
 
-        name = DEVELOPER + " - " + workspaceName;
         UserGroup developerUserGroup = new UserGroup();
-        developerUserGroup.setName(name);
+        developerUserGroup.setName(getDefaultNameForGroupInWorkspace(DEVELOPER, workspaceName));
         developerUserGroup.setDefaultWorkspaceId(workspace.getId());
         developerUserGroup.setTenantId(workspace.getTenantId());
         developerUserGroup.setDescription(WORKSPACE_DEVELOPER_DESCRIPTION);
 
-        name = VIEWER + " - " + workspaceName;
         UserGroup viewerUserGroup = new UserGroup();
-        viewerUserGroup.setName(name);
+        viewerUserGroup.setName(getDefaultNameForGroupInWorkspace(VIEWER, workspaceName));
         viewerUserGroup.setDefaultWorkspaceId(workspace.getId());
         viewerUserGroup.setTenantId(workspace.getTenantId());
         viewerUserGroup.setDescription(WORKSPACE_VIEWER_DESCRIPTION);
@@ -274,9 +289,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         String workspaceName = workspace.getName();
 
         // Administrator permission group
-        String name = ADMINISTRATOR + " - " + workspaceName;
         PermissionGroup adminPermissionGroup = new PermissionGroup();
-        adminPermissionGroup.setName(name);
+        adminPermissionGroup.setName(getDefaultNameForGroupInWorkspace(ADMINISTRATOR, workspaceName));
         adminPermissionGroup.setIsDefault(TRUE);
         adminPermissionGroup.setTenantId(workspace.getTenantId());
         adminPermissionGroup.setDescription(WORKSPACE_ADMINISTRATOR_DESCRIPTION);
@@ -289,9 +303,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         );
 
         // Developer permission group
-        name = DEVELOPER + " - " + workspaceName;
         PermissionGroup developerPermissionGroup = new PermissionGroup();
-        developerPermissionGroup.setName(name);
+        developerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(DEVELOPER, workspaceName));
         developerPermissionGroup.setIsDefault(TRUE);
         developerPermissionGroup.setTenantId(workspace.getTenantId());
         developerPermissionGroup.setDescription(WORKSPACE_DEVELOPER_DESCRIPTION);
@@ -304,9 +317,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         );
 
         // App viewer permission group
-        name = VIEWER + " - " + workspaceName;
         PermissionGroup viewerPermissionGroup = new PermissionGroup();
-        viewerPermissionGroup.setName(name);
+        viewerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(VIEWER, workspaceName));
         viewerPermissionGroup.setIsDefault(TRUE);
         viewerPermissionGroup.setTenantId(workspace.getTenantId());
         viewerPermissionGroup.setDescription(WORKSPACE_VIEWER_DESCRIPTION);
@@ -339,7 +351,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     @Override
     public Mono<Workspace> update(String id, Workspace resource) {
         Mono<Workspace> findWorkspaceMono = repository.findById(id, MANAGE_WORKSPACES)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id)))
+                .cache();
 
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
@@ -347,14 +360,41 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             resource.setPolicies(null);
         }
 
-        if(StringUtils.hasLength(resource.getName())) {
-            resource.setSlug(TextUtils.makeSlug(resource.getName()));
+        Mono<Workspace> updateDefaultGroups_thenReturnWorkspaceMono = findWorkspaceMono;
+
+        String newWorkspaceName = resource.getName();
+        if(StringUtils.hasLength(newWorkspaceName)) {
+            // There's a change in the workspace name.
+            resource.setSlug(TextUtils.makeSlug(newWorkspaceName));
+            updateDefaultGroups_thenReturnWorkspaceMono = findWorkspaceMono
+                    .flatMap(workspace -> {
+                        Set<String> defaultUserGroupsIds = workspace.getDefaultUserGroups();
+                        Set<String> defaultPermissionGroupsIds = workspace.getDefaultPermissionGroups();
+
+                        Flux<UserGroup> defaultUserGroupsFlux = userGroupService.findAllByIds(defaultUserGroupsIds);
+                        Flux<PermissionGroup> defaultPermissionGroupsFlux = permissionGroupService.findAllByIds(defaultPermissionGroupsIds);
+
+                        Flux<UserGroup> updatedUserGroupFlux = defaultUserGroupsFlux
+                                .flatMap(userGroup -> {
+                                    userGroup.setName(generateNewDefaultName(userGroup.getName(), newWorkspaceName));
+                                    return userGroupService.save(userGroup);
+                                });
+
+                        Flux<PermissionGroup> updatedPermissionGroupFlux = defaultPermissionGroupsFlux
+                                .flatMap(permissionGroup -> {
+                                    permissionGroup.setName(generateNewDefaultName(permissionGroup.getName(), newWorkspaceName));
+                                    return permissionGroupService.save(permissionGroup);
+                                });
+
+                        return Flux.zip(updatedUserGroupFlux, updatedPermissionGroupFlux)
+                                .then(Mono.just(workspace));
+                    });
         }
 
-        return findWorkspaceMono
-                .map(existingWorkspace -> {
-                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, existingWorkspace);
-                    return existingWorkspace;
+        return updateDefaultGroups_thenReturnWorkspaceMono
+                .map(workspaceFromDb -> {
+                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, workspaceFromDb);
+                    return workspaceFromDb;
                 })
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)

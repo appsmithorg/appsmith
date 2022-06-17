@@ -6,9 +6,12 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.Set;
 
 
 public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRepository, PermissionGroup, String>
@@ -22,5 +25,15 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                                         AnalyticsService analyticsService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+    }
+
+    @Override
+    public Flux<PermissionGroup> findAllByIds(Set<String> ids) {
+        return repository.findAllById(ids);
+    }
+
+    @Override
+    public Mono<PermissionGroup> save(PermissionGroup permissionGroup) {
+        return repository.save(permissionGroup);
     }
 }
