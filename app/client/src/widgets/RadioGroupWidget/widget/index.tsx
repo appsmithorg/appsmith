@@ -516,6 +516,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         labelTextSize={labelTextSize}
         labelWidth={this.getLabelWidth()}
         loading={isLoading}
+        maxDynamicHeight={this.props.maxDynamicHeight}
         onRadioSelectionChange={this.onRadioSelectionChange}
         options={isArray(options) ? compact(options) : []}
         ref={this.contentRef}

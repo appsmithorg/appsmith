@@ -76,6 +76,7 @@ const RadioGroupComponent = React.forwardRef<
     labelTextSize,
     labelWidth,
     loading,
+    maxDynamicHeight,
     onRadioSelectionChange,
     options,
     selectedOptionValue,
@@ -90,7 +91,17 @@ const RadioGroupComponent = React.forwardRef<
     [onRadioSelectionChange],
   );
 
-  return (
+  const clientHeight = (ref as React.RefObject<HTMLDivElement>)?.current
+    ?.clientHeight;
+  const maxHeight = (maxDynamicHeight || 1000) * 10;
+
+  let toOverflowOrNot = false;
+
+  if (clientHeight) {
+    toOverflowOrNot = maxHeight < clientHeight;
+  }
+
+  const finalComponent = (
     <RadioGroupContainer
       compactMode={compactMode}
       data-testid="radiogroup-container"
@@ -142,6 +153,16 @@ const RadioGroupComponent = React.forwardRef<
       </StyledRadioGroup>
     </RadioGroupContainer>
   );
+
+  if (isDynamicHeightEnabled) {
+    return (
+      <div style={toOverflowOrNot ? { overflow: "auto" } : undefined}>
+        {finalComponent}
+      </div>
+    );
+  } else {
+    return finalComponent;
+  }
 });
 
 RadioGroupComponent.displayName = "RadioGroupComponent";
@@ -166,6 +187,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   widgetId: string;
   height?: number;
   accentColor: string;
+  maxDynamicHeight?: number;
 }
 
 RadioGroupComponent.displayName = "RadioGroupComponent";
