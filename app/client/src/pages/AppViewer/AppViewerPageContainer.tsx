@@ -8,7 +8,11 @@ import { theme } from "constants/DefaultTheme";
 import { Icon, NonIdealState, Spinner } from "@blueprintjs/core";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import AppPage from "./AppPage";
-import { getCurrentPageName, selectURLSlugs } from "selectors/editorSelectors";
+import {
+  getCanvasWidth,
+  getCurrentPageName,
+  selectURLSlugs,
+} from "selectors/editorSelectors";
 import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import {
@@ -35,6 +39,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
   const currentPageName = useSelector(getCurrentPageName);
   // const widgets = useSelector(getCanvasWidgetDsl);
   const widgetsStructure = useSelector(getCanvasWidgetsStructure);
+  const canvasWidth = useSelector(getCanvasWidth);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const currentApplication = useSelector(getCurrentApplication);
   const { match } = props;
@@ -97,6 +102,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
     <Section height={widgetsStructure.bottomRow}>
       <AppPage
         appName={currentApplication?.name}
+        canvasWidth={canvasWidth}
         pageId={match.params.pageId}
         pageName={currentPageName}
         widgetsStructure={widgetsStructure}

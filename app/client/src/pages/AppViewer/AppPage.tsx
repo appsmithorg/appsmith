@@ -15,10 +15,11 @@ const PageView = styled.div<{ width: number }>`
 
 type AppPageProps = {
   // dsl: DSLWidget;
-  widgetsStructure: CanvasWidgetStructure;
-  pageName?: string;
-  pageId?: string;
   appName?: string;
+  canvasWidth: number;
+  pageId?: string;
+  pageName?: string;
+  widgetsStructure: CanvasWidgetStructure;
 };
 
 export function AppPage(props: AppPageProps) {
@@ -34,10 +35,7 @@ export function AppPage(props: AppPageProps) {
   }, [props.pageId, props.pageName]);
 
   return (
-    <PageView
-      className="t--app-viewer-page"
-      width={props.widgetsStructure.rightColumn}
-    >
+    <PageView className="t--app-viewer-page" width={props.canvasWidth}>
       {props.widgetsStructure.widgetId &&
         WidgetFactory.createWidget(props.widgetsStructure, RenderModes.PAGE)}
     </PageView>
