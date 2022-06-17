@@ -88,7 +88,7 @@ import {
 import { failFastApiCalls } from "./InitSagas";
 import { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
-import { builderURL, generateTemplateURL, viewerURL } from "RouteBuilder";
+import { builderURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "./selectors";
 import PageApi from "api/PageApi";
 import { identity, merge, pickBy } from "lodash";
