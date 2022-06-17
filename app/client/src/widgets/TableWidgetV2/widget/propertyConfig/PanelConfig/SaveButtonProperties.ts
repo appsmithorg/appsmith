@@ -8,7 +8,7 @@ import { ButtonVariantTypes } from "components/constants";
 import { hideByColumnType } from "../../propertyUtils";
 
 export default {
-  sectionName: "Save Button Properties",
+  sectionName: "Save Button",
   hidden: (props: TableWidgetProps, propertyPath: string) => {
     return hideByColumnType(
       props,
@@ -18,6 +18,69 @@ export default {
     );
   },
   children: [
+    {
+      propertyName: "isSaveVisible",
+      dependencies: ["primaryColumns"],
+      label: "Visible",
+      helpText: "Controls the visibility of the save button",
+      defaultValue: true,
+      controlType: "SWITCH",
+      customJSControl: "COMPUTE_VALUE_V2",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+    },
+    {
+      propertyName: "isSaveDisabled",
+      label: "Disabled",
+      defaultValue: false,
+      controlType: "SWITCH",
+      customJSControl: "COMPUTE_VALUE_V2",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      dependencies: ["primaryColumns"],
+    },
+    {
+      propertyName: "saveActionLabel",
+      label: "Action label",
+      controlType: "COMPUTE_VALUE_V2",
+      dependencies: ["primaryColumns"],
+      isBindProperty: true,
+      isTriggerProperty: false,
+    },
+    {
+      propertyName: "saveButtonColor",
+      label: "Button Color",
+      controlType: "COLOR_PICKER",
+      helpText: "Changes the color of the button",
+      isJSConvertible: true,
+      customJSControl: "COMPUTE_VALUE_V2",
+      dependencies: ["primaryColumns"],
+      isBindProperty: true,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.TEXT,
+          params: {
+            regex: /^(?![<|{{]).+/,
+          },
+        },
+      },
+      isTriggerProperty: false,
+    },
     {
       propertyName: "saveButtonVariant",
       label: "Button Variant",
@@ -59,26 +122,6 @@ export default {
       },
     },
     {
-      propertyName: "saveButtonColor",
-      label: "Button Color",
-      controlType: "COLOR_PICKER",
-      helpText: "Changes the color of the button",
-      isJSConvertible: true,
-      customJSControl: "COMPUTE_VALUE_V2",
-      dependencies: ["primaryColumns"],
-      isBindProperty: true,
-      validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            regex: /^(?![<|{{]).+/,
-          },
-        },
-      },
-      isTriggerProperty: false,
-    },
-    {
       propertyName: "saveBorderRadius",
       label: "Border Radius",
       customJSControl: "COMPUTE_VALUE_V2",
@@ -94,14 +137,6 @@ export default {
           type: ValidationTypes.TEXT,
         },
       },
-    },
-    {
-      propertyName: "saveActionLabel",
-      label: "Action label",
-      controlType: "COMPUTE_VALUE_V2",
-      dependencies: ["primaryColumns"],
-      isBindProperty: true,
-      isTriggerProperty: false,
     },
     {
       propertyName: "saveActionIconName",
@@ -148,41 +183,6 @@ export default {
           allowedValues: ["center", "left", "right"],
         },
       },
-    },
-    {
-      propertyName: "isSaveVisible",
-      dependencies: ["primaryColumns"],
-      label: "Visible",
-      helpText: "Controls the visibility of the save button",
-      defaultValue: true,
-      controlType: "SWITCH",
-      customJSControl: "COMPUTE_VALUE_V2",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
-        params: {
-          type: ValidationTypes.BOOLEAN,
-        },
-      },
-    },
-    {
-      propertyName: "isSaveDisabled",
-      label: "Disabled",
-      defaultValue: false,
-      controlType: "SWITCH",
-      customJSControl: "COMPUTE_VALUE_V2",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
-        params: {
-          type: ValidationTypes.BOOLEAN,
-        },
-      },
-      dependencies: ["primaryColumns"],
     },
   ],
 };

@@ -11,11 +11,7 @@ import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import {
-  createColumn,
-  getEditActionColumnDynamicProperties,
-  getEditActionColumnProperties,
-} from "./utilities";
+import { createEditActionColumn } from "./utilities";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
 
 export function totalRecordsCountValidation(
@@ -223,20 +219,67 @@ export const updateInlineEditingOptionDropdownVisibilityHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
-): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+): Array<PropertyHookUpdates> | undefined => {
+  let propertiesToUpdate = [];
+
   if (
     props &&
     !props.showInlineEditingOptionDropdown &&
     propertyValue &&
     EDITABLITY_PATH_REGEX.test(propertyPath)
   ) {
-    return [
-      {
-        propertyPath: `showInlineEditingOptionDropdown`,
-        propertyValue: true,
-      },
-    ];
+    propertiesToUpdate.push({
+      propertyPath: `showInlineEditingOptionDropdown`,
+      propertyValue: true,
+    });
   }
+
+  if (
+    props &&
+    EDITABLITY_PATH_REGEX.test(propertyPath) &&
+    props.inlineEditingSaveOption === InlineEditingSaveOptions.ROW_LEVEL
+  ) {
+    if (propertyValue) {
+      const editActionsColumn = Object.values(props.primaryColumns).find(
+        (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
+      );
+
+      if (!editActionsColumn) {
+        propertiesToUpdate = [
+          ...propertiesToUpdate,
+          ...createEditActionColumn(props),
+        ];
+      }
+    } else {
+      const columnIdMatcher = propertyPath.match(EDITABLITY_PATH_REGEX);
+      const columnId = columnIdMatcher && columnIdMatcher[1];
+      const isAtleastOneColumnEditablePresent = Object.values(
+        props.primaryColumns,
+      ).some((column) => column.id !== columnId && column.isEditable);
+
+      if (!isAtleastOneColumnEditablePresent) {
+        const columnsArray = Object.values(props.primaryColumns);
+        const edtiActionColumn = columnsArray.find(
+          (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
+        );
+
+        if (edtiActionColumn && edtiActionColumn.id) {
+          propertiesToUpdate = [
+            ...propertiesToUpdate,
+            {
+              propertyPath: `primaryColumns.${edtiActionColumn.id}`,
+              shouldDeleteProperty: true,
+            },
+          ];
+        }
+      }
+    }
+  }
+
+  if (propertiesToUpdate.length) {
+    return propertiesToUpdate;
+  }
+  return;
 };
 
 const CELL_EDITABLITY_PATH_REGEX = /^primaryColumns\.(\w+)\.isCellEditable$/;
@@ -388,60 +431,13 @@ export const SelectColumnOptionsValidations = (
  * Hook that updates column isDiabled binding when columnType is
  * changed to ColumnTypes.EDIT_ACTIONS.
  */
-export const updateEditActionsColumnHook = (
+export const updateInlineEditingSaveOptionHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
 ): Array<PropertyHookUpdates> | undefined => {
-  const columns = props.primaryColumns;
-  const columnsArray = Object.values(columns);
-
-  if (propertyValue === InlineEditingSaveOptions.ROW_LEVEL) {
-    const themeProps: Record<string, string> = {};
-
-    if (props.childStylesheet[ColumnTypes.EDIT_ACTIONS]) {
-      Object.entries(props.childStylesheet[ColumnTypes.EDIT_ACTIONS]).forEach(
-        ([key, value]) => {
-          const { jsSnippets, stringSegments } = getDynamicBindings(
-            value as string,
-          );
-
-          const js = combineDynamicBindings(jsSnippets, stringSegments);
-
-          themeProps[
-            key
-          ] = `{{${props.widgetName}.processedTableData.map((currentRow, currentIndex) => ( ${js}))}}`;
-        },
-      );
-    }
-
-    const column = {
-      ...createColumn(props, "EditActions"),
-      ...getEditActionColumnProperties(),
-      ...themeProps,
-      columnType: ColumnTypes.EDIT_ACTIONS,
-    };
-    const columnOrder = props.columnOrder || [];
-    const editActionDynamicProperties = getEditActionColumnDynamicProperties(
-      props.widgetName,
-    );
-
-    return [
-      {
-        propertyPath: `primaryColumns.${column.id}`,
-        propertyValue: column,
-      },
-      {
-        propertyPath: `columnOrder`,
-        propertyValue: [...columnOrder, column.id],
-      },
-      ...Object.entries(editActionDynamicProperties).map(([key, value]) => ({
-        propertyPath: `primaryColumns.${column.id}.${key}`,
-        propertyValue: value,
-        isDynamicPropertyPath: true,
-      })),
-    ];
-  } else {
+  if (propertyValue !== InlineEditingSaveOptions.ROW_LEVEL) {
+    const columnsArray = Object.values(props.primaryColumns);
     const edtiActionColumn = columnsArray.find(
       (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
     );
@@ -454,9 +450,17 @@ export const updateEditActionsColumnHook = (
         },
       ];
     }
-  }
+  } else {
+    const columnIdMatcher = propertyPath.match(EDITABLITY_PATH_REGEX);
+    const columnId = columnIdMatcher && columnIdMatcher[1];
+    const isAtleastOneEditableColumnPresent = Object.values(
+      props.primaryColumns,
+    ).some((column) => column.id !== columnId && column.isEditable);
 
-  return;
+    if (isAtleastOneEditableColumnPresent) {
+      return createEditActionColumn(props);
+    }
+  }
 };
 
 export const updateNumberColumnTypeTextAlignment = (

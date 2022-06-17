@@ -1,8 +1,4 @@
-import {
-  ColumnTypes,
-  InlineEditingSaveOptions,
-  TableWidgetProps,
-} from "widgets/TableWidgetV2/constants";
+import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
 import { getBasePropertyPath, hideByColumnType } from "../../propertyUtils";
 
@@ -29,9 +25,7 @@ export default {
       return (
         !(
           columnType === ColumnTypes.TEXT || columnType === ColumnTypes.NUMBER
-        ) ||
-        !isEditable ||
-        props.inlineEditingSaveOption !== InlineEditingSaveOptions.CUSTOM
+        ) || !isEditable
       );
     }
   },
@@ -87,9 +81,7 @@ export default {
         return (
           !(
             columnType === ColumnTypes.TEXT || columnType === ColumnTypes.NUMBER
-          ) ||
-          !isEditable ||
-          props.inlineEditingSaveOption !== InlineEditingSaveOptions.CUSTOM
+          ) || !isEditable
         );
       },
       dependencies: ["primaryColumns", "inlineEditingSaveOption"],

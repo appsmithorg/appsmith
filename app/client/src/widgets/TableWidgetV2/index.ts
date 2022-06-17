@@ -219,7 +219,7 @@ export const CONFIG = {
     isSortable: true,
     delimiter: ",",
     version: 3,
-    inlineEditingSaveOption: InlineEditingSaveOptions.CUSTOM,
+    inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
