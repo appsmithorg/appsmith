@@ -747,11 +747,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     return Mono.empty();
                 });
 
-        //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
-        //  subscriber has cancelled its subscription, the create method will still generates its event.
-        return Mono.create(sink -> bulkAddUserResultMono.then(inviteUsersFlux.collectList())
-                .subscribe(sink::success, sink::error, null, sink.currentContext())
-        );
+        return bulkAddUserResultMono.then(inviteUsersFlux.collectList());
     }
 
     private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Workspace workspace, User inviter, String role) {
