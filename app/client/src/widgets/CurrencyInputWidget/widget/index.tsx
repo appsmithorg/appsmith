@@ -23,7 +23,7 @@ import _ from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
-// import * as Sentry from "@sentry/react";
+import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import {
   formatCurrencyNumber,
@@ -238,8 +238,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
         log.error(e);
-        // we don't need to log custom input in sentry
-        // Sentry.captureException(e);
+        Sentry.captureException(e);
       }
     }
   }
@@ -256,8 +255,7 @@ class CurrencyInputWidget extends BaseInputWidget<
     } catch (e) {
       formattedValue = value;
       log.error(e);
-      // we don't need to log custom input in sentry
-      // Sentry.captureException(e);
+      Sentry.captureException(e);
     }
 
     // text is stored as what user has typed
@@ -294,8 +292,7 @@ class CurrencyInputWidget extends BaseInputWidget<
       }
     } catch (e) {
       log.error(e);
-      // we don't need to log custom input in sentry
-      // Sentry.captureException(e);
+      Sentry.captureException(e);
       this.props.updateWidgetMetaProperty("text", this.props.text);
     }
 

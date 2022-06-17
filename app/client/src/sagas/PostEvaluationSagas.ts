@@ -214,7 +214,6 @@ export function* evalErrorHandler(
     );
   }
 
-  // we need to log eval error in sentry?
   errors.forEach((error) => {
     switch (error.type) {
       case EvalErrorTypes.CYCLICAL_DEPENDENCY_ERROR: {
@@ -292,6 +291,8 @@ export function* evalErrorHandler(
         break;
       }
       default: {
+        // it's catching almost "() is not defined" issue.
+        // we need to disable log here?
         Sentry.captureException(error);
         log.debug(error);
       }

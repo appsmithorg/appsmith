@@ -5,7 +5,7 @@ import {
 import { applyChange, Diff } from "deep-diff";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { createImmerReducer } from "utils/AppsmithUtils";
-// import * as Sentry from "@sentry/react";
+import * as Sentry from "@sentry/react";
 
 export type EvaluatedTreeState = DataTree;
 
@@ -32,13 +32,12 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
       try {
         applyChange(state, undefined, update);
       } catch (e) {
-        // we don't need to log custom error any more
-        // Sentry.captureException(e, {
-        //   extra: {
-        //     update,
-        //     updateLength: updates.length,
-        //   },
-        // });
+        Sentry.captureException(e, {
+          extra: {
+            update,
+            updateLength: updates.length,
+          },
+        });
       }
     }
   },

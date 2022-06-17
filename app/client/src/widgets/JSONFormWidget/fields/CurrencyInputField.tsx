@@ -1,4 +1,4 @@
-// import * as Sentry from "@sentry/react";
+import * as Sentry from "@sentry/react";
 import _ from "lodash";
 import moment from "moment";
 import React, { useCallback, useContext, useMemo, useState } from "react";
@@ -138,8 +138,7 @@ function CurrencyInputField({
         }
       } catch (e) {
         text = inputValue;
-        // we don't need to log custom input in sentry
-        // Sentry.captureException(e);
+        Sentry.captureException(e);
       }
 
       const value = derived.value({ text }, moment, _);
