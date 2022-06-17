@@ -44,6 +44,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { isDynamicHeightEnabledForWidget } from "./WidgetUtils";
+import log from "loglevel";
 
 /***
  * BaseWidget
@@ -177,7 +178,7 @@ abstract class BaseWidget<
     const { updateWidgetDynamicHeight } = this.context;
     if (updateWidgetDynamicHeight) {
       const { widgetId } = this.props;
-      console.log("updateDynamicHeight", height, shouldUpdate);
+      log.debug("updateDynamicHeight", height, shouldUpdate);
       shouldUpdate &&
         updateWidgetDynamicHeight(widgetId, height + WIDGET_PADDING * 2);
     }

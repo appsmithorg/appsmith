@@ -31,7 +31,6 @@ import {
 import {
   getCanvasHeightOffset,
   getOccupiedSpacesGroupedByParentCanvas,
-  getWidgetConfigs,
 } from "selectors/editorSelectors";
 import {
   getCanvasLevelMap,
@@ -77,7 +76,7 @@ export function* updateWidgetDynamicHeightSaga(
   }> = [];
   for (const widgetId in updates) {
     const widget: FlattenedWidgetProps = stateWidgets[widgetId];
-    console.log("Dynamic height: Call for updates: 2", widgetId, widget);
+    log.debug("Dynamic height: Call for updates: 2", widgetId, widget);
     if (widget) {
       expectedUpdates.push({
         widgetId,
@@ -142,7 +141,7 @@ export function* updateWidgetDynamicHeightSaga(
       getDynamicHeightLayoutTree,
     );
 
-    console.log("Dynamic height: Working with tree:", {
+    log.debug("Dynamic height: Working with tree:", {
       dynamicHeightLayoutTree,
     });
 
@@ -157,7 +156,7 @@ export function* updateWidgetDynamicHeightSaga(
         parentCanvasWidgetsGroupedByLevel[level];
       const delta: Record<string, number> = {};
 
-      console.log(
+      log.debug(
         "Dynamic height considering: ",
         { level },
         { parentCanvasWidgetsToConsider },
@@ -187,7 +186,7 @@ export function* updateWidgetDynamicHeightSaga(
         dynamicHeightLayoutTree,
         delta,
       );
-      console.log("Dynamic height: Computing sibling updates:", {
+      log.debug("Dynamic height: Computing sibling updates:", {
         siblingWidgetsToUpdate,
         dynamicHeightLayoutTree,
         delta,
@@ -270,7 +269,34 @@ export function* updateWidgetDynamicHeightSaga(
               parentId: parentContainerLikeWidget.parentId,
             };
 
-            if (parentContainerLikeWidget.parentId) {
+            log.debug("Dynamic height parent container like widget:", {
+              parentContainerLikeWidget,
+              type: parentContainerLikeWidget.type,
+            });
+            if (parentContainerLikeWidget.detachFromLayout) {
+              widgetsToUpdate[parentContainerLikeWidget.widgetId] = [
+                {
+                  propertyPath: "bottomRow",
+                  propertyValue:
+                    minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                },
+                {
+                  propertyPath: "height",
+                  propertyValue:
+                    minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                },
+                {
+                  propertyPath: "minHeight",
+                  propertyValue:
+                    minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                },
+              ];
+            }
+
+            if (
+              !parentContainerLikeWidget.detachFromLayout &&
+              parentContainerLikeWidget.parentId
+            ) {
               if (
                 expectedUpdatesGroupedByParentCanvasWidget.hasOwnProperty(
                   parentContainerLikeWidget.parentId,
@@ -338,7 +364,7 @@ export function* updateWidgetDynamicHeightSaga(
       ];
     }
 
-    console.log("Dynamic height: Widgets to update:", { widgetsToUpdate });
+    log.debug("Dynamic height: Widgets to update:", { widgetsToUpdate });
 
     yield put({
       type: ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
