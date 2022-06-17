@@ -166,7 +166,7 @@ public class UserDataServiceTest {
     public void testUploadProfilePhoto_invalidImageFormat() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096)
+                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo.png"), new DefaultDataBufferFactory(), 4096)
                 .cache();
 
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
@@ -184,7 +184,7 @@ public class UserDataServiceTest {
     public void testUploadProfilePhoto_invalidImageSize() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo_large.png"), new DefaultDataBufferFactory(), 4096)
+                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo_large.png"), new DefaultDataBufferFactory(), 4096)
                 .repeat(100)  // So the file size looks like it's much larger than what it actually is.
                 .cache();
 
@@ -200,54 +200,54 @@ public class UserDataServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateLastUsedAppAndOrgList_WhenListIsEmpty_orgIdPrepended() {
-        String sampleOrgId = UUID.randomUUID().toString();
+    public void updateLastUsedAppAndWorkspaceList_WhenListIsEmpty_workspaceIdPrepended() {
+        String sampleWorkspaceId = UUID.randomUUID().toString();
         Application application = new Application();
-        application.setOrganizationId(sampleOrgId);
+        application.setWorkspaceId(sampleWorkspaceId);
 
         final Mono<UserData> saveMono = userDataService.getForCurrentUser().flatMap(userData -> {
             // set recently used org ids to null
-            userData.setRecentlyUsedOrgIds(null);
+            userData.setRecentlyUsedWorkspaceIds(null);
             return userDataRepository.save(userData);
-        }).then(userDataService.updateLastUsedAppAndOrgList(application));
+        }).then(userDataService.updateLastUsedAppAndWorkspaceList(application));
 
         StepVerifier.create(saveMono).assertNext(userData -> {
-            Assert.assertEquals(1, userData.getRecentlyUsedOrgIds().size());
-            Assert.assertEquals(sampleOrgId, userData.getRecentlyUsedOrgIds().get(0));
+            Assert.assertEquals(1, userData.getRecentlyUsedWorkspaceIds().size());
+            Assert.assertEquals(sampleWorkspaceId, userData.getRecentlyUsedWorkspaceIds().get(0));
         }).verifyComplete();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateLastUsedAppAndOrgList_WhenListIsNotEmpty_orgIdPrepended() {
+    public void updateLastUsedAppAndWorkspaceList_WhenListIsNotEmpty_workspaceIdPrepended() {
         final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
             // Set an initial list of org ids to the current user.
-            userData.setRecentlyUsedOrgIds(Arrays.asList("123", "456"));
+            userData.setRecentlyUsedWorkspaceIds(Arrays.asList("123", "456"));
             return userDataRepository.save(userData);
         }).flatMap(userData -> {
             // Now check whether a new org id is put at first.
-            String sampleOrgId = "sample-org-id";
+            String sampleWorkspaceId = "sample-org-id";
             Application application = new Application();
-            application.setOrganizationId(sampleOrgId);
-            return userDataService.updateLastUsedAppAndOrgList(application);
+            application.setWorkspaceId(sampleWorkspaceId);
+            return userDataService.updateLastUsedAppAndWorkspaceList(application);
         });
 
         StepVerifier.create(resultMono).assertNext(userData -> {
-            Assert.assertEquals(3, userData.getRecentlyUsedOrgIds().size());
-            Assert.assertEquals("sample-org-id", userData.getRecentlyUsedOrgIds().get(0));
+            Assert.assertEquals(3, userData.getRecentlyUsedWorkspaceIds().size());
+            Assert.assertEquals("sample-org-id", userData.getRecentlyUsedWorkspaceIds().get(0));
         }).verifyComplete();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void updateLastUsedAppAndOrgList_TooManyRecentIds_ListsAreTruncated() {
-        String sampleOrgId = "sample-org-id", sampleAppId = "sample-app-id";
+        String sampleWorkspaceId = "sample-org-id", sampleAppId = "sample-app-id";
 
         final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
             // Set an initial list of 12 org ids to the current user
-            userData.setRecentlyUsedOrgIds(new ArrayList<>());
+            userData.setRecentlyUsedWorkspaceIds(new ArrayList<>());
             for(int i = 1; i <= 12; i++) {
-                userData.getRecentlyUsedOrgIds().add("org-" + i);
+                userData.getRecentlyUsedWorkspaceIds().add("org-" + i);
             }
 
             // Set an initial list of 22 app ids to the current user.
@@ -260,15 +260,15 @@ public class UserDataServiceTest {
             // Now check whether a new org id is put at first.
             Application application = new Application();
             application.setId(sampleAppId);
-            application.setOrganizationId(sampleOrgId);
-            return userDataService.updateLastUsedAppAndOrgList(application);
+            application.setWorkspaceId(sampleWorkspaceId);
+            return userDataService.updateLastUsedAppAndWorkspaceList(application);
         });
 
         StepVerifier.create(resultMono).assertNext(userData -> {
             // org id list should be truncated to 10
-            assertThat(userData.getRecentlyUsedOrgIds().size()).isEqualTo(10);
-            assertThat(userData.getRecentlyUsedOrgIds().get(0)).isEqualTo(sampleOrgId);
-            assertThat(userData.getRecentlyUsedOrgIds().get(9)).isEqualTo("org-9");
+            assertThat(userData.getRecentlyUsedWorkspaceIds().size()).isEqualTo(10);
+            assertThat(userData.getRecentlyUsedWorkspaceIds().get(0)).isEqualTo(sampleWorkspaceId);
+            assertThat(userData.getRecentlyUsedWorkspaceIds().get(9)).isEqualTo("org-9");
 
             // app id list should be truncated to 20
             assertThat(userData.getRecentlyUsedAppIds().size()).isEqualTo(20);
@@ -370,7 +370,7 @@ public class UserDataServiceTest {
     private FilePart createMockFilePart() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096).cache();
+                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo.png"), new DefaultDataBufferFactory(), 4096).cache();
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
         Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
         return filepart;

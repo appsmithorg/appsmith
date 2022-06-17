@@ -8,7 +8,44 @@ const jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode;
 
+let onPageLoadAndConfirmExecuteFunctionsLength: number,
+  getJSObject: any,
+  functionsLength: number, jsObj: any;
+
 describe("JS Function Execution", function() {
+  interface IFunctionSettingData {
+    name: string;
+    onPageLoad: boolean;
+    confirmBeforeExecute: boolean;
+  }
+  const FUNCTIONS_SETTINGS_DEFAULT_DATA: IFunctionSettingData[] = [
+    {
+      name: "getId",
+      onPageLoad: true,
+      confirmBeforeExecute: false,
+    },
+    {
+      name: "zip",
+      onPageLoad: true,
+      confirmBeforeExecute: true,
+    },
+    {
+      name: "base",
+      onPageLoad: false,
+      confirmBeforeExecute: false,
+    },
+    {
+      name: "assert",
+      onPageLoad: false,
+      confirmBeforeExecute: false,
+    },
+    {
+      name: "test",
+      onPageLoad: true,
+      confirmBeforeExecute: true,
+    },
+  ];
+
   before(() => {
     ee.DragDropWidgetNVerify("tablewidget", 300, 300);
     ee.NavigateToSwitcher("explorer");
@@ -170,7 +207,7 @@ describe("JS Function Execution", function() {
     table.WaitUntilTableLoad();
     table.ReadTableRowColumnData(0, 1, 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //validating id column value - row 0
-      agHelper.NavigateBacktoEditor();
+      deployMode.NavigateBacktoEditor();
     });
   });
 
@@ -238,4 +275,137 @@ describe("JS Function Execution", function() {
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2);
     agHelper.AssertElementAbsence(locator._toastMsg);
   });
+
+  it("7. Maintains order of async functions in settings tab alphabetically at all times", function() {
+    functionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.length;
+    // Number of functions set to run on page load and should also confirm before execute
+    onPageLoadAndConfirmExecuteFunctionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.filter(
+      (func) => func.onPageLoad && func.confirmBeforeExecute,
+    ).length;
+
+    getJSObject = (data: IFunctionSettingData[]) => {
+      let JS_OBJECT_BODY = `export default`;
+      for (let i = 0; i < functionsLength; i++) {
+        const functionName = data[i].name;
+        JS_OBJECT_BODY +=
+          i === 0
+            ? `{
+              ${functionName}: async ()=>"${functionName}",`
+            : i === functionsLength - 1
+            ? `
+            ${functionName}: async ()=>"${functionName}",
+          }`
+            : `
+            ${functionName}: async ()=> "${functionName}",`;
+      }
+      return JS_OBJECT_BODY;
+    };
+
+    // Create js object
+    jsEditor.CreateJSObject(getJSObject(FUNCTIONS_SETTINGS_DEFAULT_DATA), {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+
+    cy.get("@jsObjName").then((jsObjName: any) => {
+      jsObj = jsObjName;
+    });
+    // Switch to settings tab
+    agHelper.GetNClick(jsEditor._settingsTab);
+    // Add settings for each function (according to data)
+    Object.values(FUNCTIONS_SETTINGS_DEFAULT_DATA).forEach(
+      (functionSetting) => {
+        jsEditor.EnableDisableAsyncFuncSettings(
+          functionSetting.name,
+          functionSetting.onPageLoad,
+          functionSetting.confirmBeforeExecute,
+        );
+      },
+    );
+    // Switch to settings tab
+    agHelper.GetNClick(jsEditor._settingsTab);
+    //After JSObj is created - check methods are in alphabetical order
+    assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
+
+    agHelper.RefreshPage();
+    // click "Yes" button for all onPageload && ConfirmExecute functions
+    for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
+      //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
+      agHelper.ClickButton("Yes");
+      agHelper.Sleep();
+    }
+    // Switch to settings tab and assert order
+    agHelper.GetNClick(jsEditor._settingsTab);
+    assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
+  });
+
+  it("8. Verify Asyn methods alphabetical order after clone page and after rename", () => {
+    const FUNCTIONS_SETTINGS_RENAMED_DATA: IFunctionSettingData[] = [
+      {
+        name: "newGetId",
+        onPageLoad: true,
+        confirmBeforeExecute: false,
+      },
+      {
+        name: "zip1",
+        onPageLoad: true,
+        confirmBeforeExecute: true,
+      },
+      {
+        name: "base",
+        onPageLoad: false,
+        confirmBeforeExecute: false,
+      },
+      {
+        name: "newAssert",
+        onPageLoad: true,
+        confirmBeforeExecute: false,
+      },
+      {
+        name: "test",
+        onPageLoad: true,
+        confirmBeforeExecute: true,
+      },
+    ];
+
+    // clone page and assert order of functions
+    ee.ClonePage();
+    // click "Yes" button for all onPageload && ConfirmExecute functions
+    for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
+      //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
+      agHelper.ClickButton("Yes");
+      agHelper.Sleep();
+    }
+
+    ee.SelectEntityByName(jsObj as string, "QUERIES/JS");
+
+    agHelper.GetNClick(jsEditor._settingsTab);
+    assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
+
+    // rename functions and assert order
+    agHelper.GetNClick(jsEditor._codeTab);
+    jsEditor.EditJSObj(getJSObject(FUNCTIONS_SETTINGS_RENAMED_DATA));
+    cy.wait(3000);
+    agHelper.GetNClick(jsEditor._settingsTab);
+    assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
+  });
+
+  function assertAsyncFunctionsOrder(data: IFunctionSettingData[]) {
+    // sorts functions alphabetically
+    const sortFunctions = (data: IFunctionSettingData[]) =>
+      data.sort((a, b) => a.name.localeCompare(b.name));
+    cy.get(jsEditor._asyncJSFunctionSettings).then(function($lis) {
+      const asyncFunctionLength = $lis.length;
+      // Assert number of async functions
+      expect(asyncFunctionLength).to.equal(functionsLength);
+      Object.values(sortFunctions(data)).forEach((functionSetting, idx) => {
+        // Assert alphabetical order
+        expect($lis.eq(idx)).to.have.id(
+          jsEditor._getJSFunctionSettingsId(functionSetting.name),
+        );
+      });
+    });
+  }
 });
