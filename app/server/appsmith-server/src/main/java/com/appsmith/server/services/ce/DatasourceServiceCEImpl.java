@@ -291,16 +291,16 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
 
-        Mono<User> currentUserMono = sessionUserService.getCurrentUser();
+        Mono<Set<String>> currentUserPermissionGroupsMono = sessionUserService.getCurrentPermissionGroups();
 
         return Mono.just(datasource)
                 .map(this::sanitizeDatasource)
                 .flatMap(this::validateDatasource)
-                .zipWith(currentUserMono)
+                .zipWith(currentUserPermissionGroupsMono)
                 .flatMap(tuple -> {
                     Datasource unsavedDatasource = tuple.getT1();
-                    User user = tuple.getT2();
-                    Datasource userPermissionsInDatasource = repository.setUserPermissionsInObject(unsavedDatasource, user);
+                    Set<String> permissionGroups = tuple.getT2();
+                    Datasource userPermissionsInDatasource = repository.setUserPermissionsInObject(unsavedDatasource, permissionGroups);
                     return repository.save(userPermissionsInDatasource).map(savedDatasource -> {
                         // datasource.pluginName is a transient field. It was set by validateDatasource method
                         // object from db will have pluginName=null so set it manually from the unsaved datasource obj
