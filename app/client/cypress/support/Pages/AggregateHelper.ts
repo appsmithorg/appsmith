@@ -656,11 +656,21 @@ export class AggregateHelper {
     cy.wait(2000);
     cy.get("body").then(($body: any) => {
       if ($body.find(this.locator._codeEditorWrapper)?.length > 0) {
-        $body
-          .find(this.locator._codeEditorWrapper)
-          ?.each((index: number, $el: any) => {
-            cy.wrap($el).click({ force: true });
-          });
+        let count = $body.find(this.locator._codeEditorWrapper)?.length || 0;
+        while (count) {
+          cy.log(`found wrappers: ${count}`);
+          $body
+            .find(this.locator._codeEditorWrapper)
+            ?.eq(0)
+            .trigger("click", { force: true })
+            .wait(100);
+          count = $body.find(this.locator._codeEditorWrapper)?.length || 0;
+        }
+        // $body
+        //   .find(this.locator._codeEditorWrapper)
+        //   ?.each((index: number, $el: any) => {
+        //     cy.wrap($el).click({ force: true });
+        //   });
       }
     });
     cy.wait(1000);

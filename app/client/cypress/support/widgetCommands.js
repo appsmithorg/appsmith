@@ -1208,9 +1208,19 @@ Cypress.Commands.add("EnableAllCodeEditors", () => {
   cy.wait(2000);
   cy.get("body").then(($body) => {
     if ($body.find(commonlocators.codeEditorWrapper)?.length > 0) {
-      $body.find(commonlocators.codeEditorWrapper)?.each((index, $el) => {
-        cy.wrap($el).click({ force: true });
-      });
+      let count = $body.find(commonlocators.codeEditorWrapper)?.length || 0;
+      while (count) {
+        cy.log(`found wrappers: ${count}`);
+        $body
+          .find(commonlocators.codeEditorWrapper)
+          ?.eq(0)
+          .trigger("click", { force: true })
+          .wait(100);
+        count = $body.find(commonlocators.codeEditorWrapper)?.length || 0;
+      }
+      // $body.find(commonlocators.codeEditorWrapper)?.each((index, $el) => {
+      //   cy.wrap($el).click({ force: true });
+      // });
     }
   });
   cy.wait(1000);
