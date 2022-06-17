@@ -56,6 +56,7 @@ import ImportedApplicationSuccessModal from "./gitSync/ImportedAppSuccessModal";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
+import TemplatesModal from "pages/Templates/TemplatesModal";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -241,6 +242,7 @@ class Editor extends Component<Props> {
               <ConcurrentPageEditorToast />
               <GuidedTourModal />
               <RepoLimitExceededErrorModal />
+              <TemplatesModal />
               <ImportedApplicationSuccessModal />
             </GlobalHotKeys>
           </div>

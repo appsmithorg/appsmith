@@ -46,6 +46,7 @@ function TemplatesModal() {
 
   const onClose = () => {
     dispatch(showTemplatesModal(false));
+    setShowTemplateDetails("");
   };
 
   const onTemplateClick = (id: string) => {
@@ -63,10 +64,11 @@ function TemplatesModal() {
       {!!showTemplateDetails ? (
         <TemplateDetailedView
           onBackPress={() => setShowTemplateDetails("")}
+          onClose={onClose}
           templateId={showTemplateDetails}
         />
       ) : (
-        <TemplatesList onTemplateClick={onTemplateClick} />
+        <TemplatesList onClose={onClose} onTemplateClick={onTemplateClick} />
       )}
     </StyledDialog>
   );

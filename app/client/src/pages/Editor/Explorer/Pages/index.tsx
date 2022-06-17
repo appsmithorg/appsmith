@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useEffect, useRef } from "react";
+import React, {
+  useCallback,
+  useMemo,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
@@ -38,6 +44,7 @@ import useResize, {
   DIRECTION,
   CallbackResponseType,
 } from "utils/hooks/useResize";
+import AddPageContextMenu from "./AddPageContextMenu";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -110,6 +117,11 @@ function Pages() {
     );
   }, []);
 
+  const [isMenuOpen, openMenu] = useState(false);
+  // const onCreate = useCallback(() => {
+  //   openMenu(true);
+  // }, [dispatch, openMenu]);
+
   const createPageCallback = useCallback(() => {
     const name = getNextEntityName(
       "Page",
@@ -121,6 +133,8 @@ function Pages() {
     ];
     dispatch(createPage(applicationId, name, defaultPageLayouts));
   }, [dispatch, pages, applicationId]);
+
+  const onMenuClose = useCallback(() => openMenu(false), [openMenu]);
 
   const settingsIconWithTooltip = React.useMemo(
     () => (
@@ -209,13 +223,20 @@ function Pages() {
         alwaysShowRightIcon
         className="group pages"
         collapseRef={pageResizeRef}
+        customAddButton={
+          <AddPageContextMenu
+            className={`${EntityClassNames.ADD_BUTTON} group pages`}
+            createPageCallback={createPageCallback}
+            onMenuClose={onMenuClose}
+            openMenu={isMenuOpen}
+          />
+        }
         entityId="Pages"
         icon={""}
         isDefaultExpanded={isPagesOpen === null ? true : isPagesOpen}
         name="PAGES"
         onClickPreRightIcon={onPin}
         onClickRightIcon={onClickRightIcon}
-        onCreate={createPageCallback}
         onToggle={onPageToggle}
         pagesSize={ENTITY_HEIGHT * pages.length}
         rightIcon={settingsIconWithTooltip}

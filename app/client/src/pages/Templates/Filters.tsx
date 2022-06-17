@@ -12,6 +12,7 @@ import {
 } from "selectors/templatesSelectors";
 import { thinScrollbar } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Colors } from "constants/Colors";
 
 const FilterWrapper = styled.div`
   overflow: auto;
@@ -84,7 +85,11 @@ function FilterItem({ item, onSelect, selected }: FilterItemProps) {
 
   return (
     <FilterItemWrapper>
-      <Checkbox label={item.label} onCheckChange={onClick} />
+      <Checkbox
+        backgroundColor={Colors.GREY_900}
+        label={item.label}
+        onCheckChange={onClick}
+      />
     </FilterItemWrapper>
   );
 }

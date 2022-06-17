@@ -144,7 +144,13 @@ function Checkbox(props: CheckboxProps) {
         }
         type="checkbox"
       />
-      <Checkmark />
+      <Checkmark
+        backgroundColor={props.backgroundColor}
+        className={replayHighlightClass}
+        disabled={props.disabled}
+        info={props.info}
+        isChecked={checked}
+      />
     </StyledCheckbox>
   );
 }

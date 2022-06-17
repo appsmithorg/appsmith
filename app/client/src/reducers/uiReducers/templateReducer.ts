@@ -8,6 +8,7 @@ import { Template } from "api/TemplatesApi";
 
 const initialState: TemplatesReduxState = {
   isImportingTemplate: false,
+  isImportingTemplateToApp: false,
   gettingAllTemplates: false,
   gettingTemplate: false,
   activeTemplate: null,
@@ -97,6 +98,30 @@ const templateReducer = createReducer(initialState, {
       isImportingTemplate: false,
     };
   },
+  [ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_INIT]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isImportingTemplateToApp: true,
+    };
+  },
+  [ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_SUCCESS]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isImportingTemplateToApp: true,
+    };
+  },
+  [ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_APPLICATION_ERROR]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isImportingTemplateToApp: false,
+    };
+  },
   [ReduxActionErrorTypes.GET_TEMPLATE_ERROR]: (state: TemplatesReduxState) => {
     return {
       ...state,
@@ -141,6 +166,7 @@ export interface TemplatesReduxState {
   filters: Record<string, string[]>;
   templateSearchQuery: string;
   isImportingTemplate: boolean;
+  isImportingTemplateToApp: boolean;
   templateNotificationSeen: boolean | null;
   showTemplatesModal: boolean;
 }

@@ -153,7 +153,7 @@ function PageSelection(props: PageSelectionProps) {
       <Card>
         <CardHeader>
           <Text type={TextType.H1}>
-            {selectedPages.length} {pagesText}
+            {props.pageNames.length} {pagesText}
           </Text>
           <div className="flex">
             <Text type={TextType.P4}>Select all</Text>
@@ -179,6 +179,7 @@ function PageSelection(props: PageSelectionProps) {
           );
         })}
         <StyledButton
+          disabled={!selectedPages.length}
           onClick={importPagesToApp}
           size={Size.large}
           text="ADD SELECTED PAGES"

@@ -23,9 +23,10 @@ import { AppState } from "reducers";
 import {
   getActiveTemplateSelector,
   isFetchingTemplateSelector,
+  isImportingTemplateToAppSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import TemplateView, {
+import {
   DescriptionColumn,
   DescriptionWrapper,
   IframeTopBar,
@@ -40,6 +41,7 @@ import TemplateView, {
 import WidgetInfo from "../WidgetInfo";
 import PageSelection from "./PageSelection";
 import TemplateComponent from "../Template";
+import LoadingScreen from "./LoadingScreen";
 
 const breakpointColumnsObject = {
   default: 4,
@@ -81,6 +83,7 @@ const StyledSimilarTemplatesWrapper = styled(SimilarTemplatesWrapper)`
 type TemplateDetailedViewProps = {
   templateId: string;
   onBackPress: () => void;
+  onClose: () => void;
 };
 
 function TemplateDetailedView(props: TemplateDetailedViewProps) {
@@ -90,8 +93,14 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
     (state: AppState) => state.ui.templates.similarTemplates,
   );
   const isFetchingTemplate = useSelector(isFetchingTemplateSelector);
+  const isImportingTemplateToApp = useSelector(
+    isImportingTemplateToAppSelector,
+  );
   const currentTemplate = useSelector(getActiveTemplateSelector);
   const containerRef = useRef<HTMLDivElement>(null);
+  const LoadingText = isImportingTemplateToApp
+    ? "Setting up the template"
+    : "Loading template details";
 
   useEffect(() => {
     dispatch(getTemplateInformation(currentTemplateId));
@@ -105,6 +114,10 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
     }
   };
 
+  if (isFetchingTemplate || isImportingTemplateToApp) {
+    return <LoadingScreen text={LoadingText} />;
+  }
+
   if (!currentTemplate) {
     return null;
   }
@@ -116,7 +129,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
           <Icon name="view-less" size={IconSize.XL} />
           <Text type={TextType.P4}>BACK TO TEMPLATES</Text>
         </BackButtonWrapper>
-        <CloseIcon name="close-x" />
+        <CloseIcon name="close-x" onClick={props.onClose} />
       </div>
       <Body className="flex flex-row">
         <div className="flex flex-1 flex-col">
