@@ -761,7 +761,7 @@ jobs:
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
-    runs-on: ubuntu-latest
+    runs-on: buildjet-8vcpu-ubuntu-2004
     defaults:
       run:
         working-directory: app/client
@@ -778,23 +778,6 @@ jobs:
             4,
             5,
             6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            22,
-            23,
           ]
 
     # Service containers to run with this job. Required for running tests
