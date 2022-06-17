@@ -12,7 +12,7 @@ exports.cleanTheHost = async () => {
     }
     console.log(`Killing chrome processes: ${stdout}`);
     stdout.split(" ").forEach((PID) => {
-      cp.exec(`kill -9 ${PID}`, (error, stdout, stder) => {
+      cp.exec(`sudo kill -9 ${PID}`, (error, stdout, stder) => {
         if (error) {
           console.log(`Kill error: ${error.message}`);
           return;
@@ -47,7 +47,7 @@ exports.setChromeProcessPriority = async () => {
 
     // Set priority of chrome processes to maximum
     stdout.split(" ").forEach((PID) => {
-      cp.execSync(`renice -20 ${PID}`);
+      cp.execSync(`sudo renice -20 ${PID}`);
     });
   });
 };
