@@ -184,8 +184,15 @@ public class FileUtilsImpl implements FileInterface {
 
                     scanAndDeleteDirectoryForDeletedResources(validPages, baseRepo.resolve(PAGE_DIRECTORY));
 
+                    // Create HashMap for valid actions and actionCollections
+                    HashMap<String, Set<String>> validActionsMap = new HashMap<>();
+                    HashMap<String, Set<String>> validActionCollectionsMap = new HashMap<>();
+                    validPages.forEach(validPage -> {
+                        validActionsMap.put(validPage, new HashSet<>());
+                        validActionCollectionsMap.put(validPage, new HashSet<>());
+                    });
+
                     // Save actions
-                    HashMap<String, Set> validActionsMap = new HashMap<>();
                     for (Map.Entry<String, Object> resource : applicationGitReference.getActions().entrySet()) {
                         // queryName_pageName => nomenclature for the keys
                         // TODO
@@ -220,7 +227,6 @@ public class FileUtilsImpl implements FileInterface {
                     });
 
                     // Save JSObjects
-                    HashMap<String, Set> validActionCollectionsMap = new HashMap<>();
                     for (Map.Entry<String, Object> resource : applicationGitReference.getActionsCollections().entrySet()) {
                         // JSObjectName_pageName => nomenclature for the keys
                         // TODO
@@ -295,12 +301,14 @@ public class FileUtilsImpl implements FileInterface {
     public void scanAndDeleteFileForDeletedResources(Set<String> validResources, Path resourceDirectory) {
         // Scan resource directory and delete any unwanted file if present
         // unwanted file : corresponding resource from DB has been deleted
-        try (Stream<Path> paths = Files.walk(resourceDirectory)) {
-            paths
-                .filter(path -> Files.isRegularFile(path) && !validResources.contains(path.getFileName().toString()))
-                .forEach(this::deleteFile);
-        } catch (IOException e) {
-            log.debug("Error while scanning directory: {}, with error {}", resourceDirectory, e);
+        if(resourceDirectory.toFile().exists()) {
+            try (Stream<Path> paths = Files.walk(resourceDirectory)) {
+                paths
+                        .filter(path -> Files.isRegularFile(path) && !validResources.contains(path.getFileName().toString()))
+                        .forEach(this::deleteFile);
+            } catch (IOException e) {
+                log.debug("Error while scanning directory: {}, with error {}", resourceDirectory, e);
+            }
         }
     }
 
@@ -313,12 +321,14 @@ public class FileUtilsImpl implements FileInterface {
     public void scanAndDeleteDirectoryForDeletedResources(Set<String> validResources, Path resourceDirectory) {
         // Scan resource directory and delete any unwanted directory if present
         // unwanted directory : corresponding resource from DB has been deleted
-        try (Stream<Path> paths = Files.walk(resourceDirectory, 1)) {
-            paths
-                    .filter(path -> Files.isDirectory(path) && !path.equals(resourceDirectory) && !validResources.contains(path.getFileName().toString()))
-                    .forEach(this::deleteDirectory);
-        } catch (IOException e) {
-            log.debug("Error while scanning directory: {}, with error {}", resourceDirectory, e);
+        if(resourceDirectory.toFile().exists()) {
+            try (Stream<Path> paths = Files.walk(resourceDirectory, 1)) {
+                paths
+                        .filter(path -> Files.isDirectory(path) && !path.equals(resourceDirectory) && !validResources.contains(path.getFileName().toString()))
+                        .forEach(this::deleteDirectory);
+            } catch (IOException e) {
+                log.debug("Error while scanning directory: {}, with error {}", resourceDirectory, e);
+            }
         }
     }
 
