@@ -25,7 +25,7 @@ describe("Debugger logs", function() {
     cy.testJsontext("visible", "Test");
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.generateUUID().then((id) => {
-      cy.CreateAppInFirstListedOrg(id);
+      cy.CreateAppInFirstListedWorkspace(id);
       cy.get(debuggerLocators.errorCount).should("not.exist");
     });
   });

@@ -131,7 +131,7 @@ describe("Validate API request body panel", () => {
 
     ee.SelectEntityByName("CloudinaryUploadApi", "QUERIES/JS");
 
-    apiPage.OnPageLoadRun(false); //Bug 12476
+    apiPage.ToggleOnPageLoadRun(false); //Bug 12476
     ee.SelectEntityByName("Page1");
     deployMode.DeployApp(locator._spanButton("Select Files"));
     agHelper.ClickButton("Select Files");
@@ -145,7 +145,7 @@ describe("Validate API request body panel", () => {
         expect($src).not.eq("https://assets.appsmith.com/widgets/default.png");
       });
     agHelper.AssertElementVisible(locator._spanButton("Select Files")); //verifying if reset!
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("8. Checks MultiPart form data for a Array Type upload results in API error", () => {

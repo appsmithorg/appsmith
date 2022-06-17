@@ -23,7 +23,7 @@ export interface UpdateJSObjectNameRequest {
 export interface CreateJSCollectionRequest {
   name: string;
   pageId: string;
-  organizationId: string;
+  workspaceId: string;
   pluginId: string;
   body: string;
   variables: Array<Variable>;

@@ -64,7 +64,7 @@ public class CurlImporterServiceTest {
     @Autowired
     UserService userService;
 
-    String orgId;
+    String workspaceId;
 
     @Before
     @WithUserDetails(value = "api_user")
@@ -73,7 +73,7 @@ public class CurlImporterServiceTest {
                 .thenReturn(List.of(this.pluginExecutor));
 
         User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
+        workspaceId = apiUser.getWorkspaceIds().iterator().next();
     }
 
     @Test
@@ -154,12 +154,12 @@ public class CurlImporterServiceTest {
         Application app = new Application();
         app.setName("curlTest Incorrect Command");
 
-        Application application = applicationPageService.createApplication(app, orgId).block();
+        Application application = applicationPageService.createApplication(app, workspaceId).block();
         assert application != null;
         PageDTO page = newPageService.findPageById(application.getPages().get(0).getId(), AclPermission.MANAGE_PAGES, false).block();
 
         assert page != null;
-        Mono<ActionDTO> action = curlImporterService.importAction("'", page.getId(), "actionName", orgId, null);
+        Mono<ActionDTO> action = curlImporterService.importAction("'", page.getId(), "actionName", workspaceId, null);
 
         StepVerifier
                 .create(action)
@@ -179,7 +179,7 @@ public class CurlImporterServiceTest {
         Application app = new Application();
         app.setName("curlTest App");
 
-        Mono<Application> applicationMono = applicationPageService.createApplication(app, orgId)
+        Mono<Application> applicationMono = applicationPageService.createApplication(app, workspaceId)
                 .flatMap(application1 -> {
                     String pageId = application1.getPages().get(0).getId();
                     return newPageService.findById(pageId, AclPermission.MANAGE_PAGES)
@@ -197,7 +197,7 @@ public class CurlImporterServiceTest {
         String command = "curl -X GET http://localhost:8080/api/v1/actions?name=something -H 'Accept: */*' -H 'Accept-Encoding: gzip, deflate' -H 'Authorization: Basic YXBpX3VzZXI6OHVBQDsmbUI6Y252Tn57Iw==' -H 'Cache-Control: no-cache' -H 'Connection: keep-alive' -H 'Content-Type: application/json' -H 'Cookie: SESSION=97c5def4-4f72-45aa-96fe-e8a9f5ade0b5,SESSION=97c5def4-4f72-45aa-96fe-e8a9f5ade0b5; SESSION=' -H 'Host: localhost:8080' -H 'Postman-Token: 16e4b6bc-2c7a-4ab1-a127-bca382dfc0f0,a6655daa-db07-4c5e-aca3-3fd505bd230d' -H 'User-Agent: PostmanRuntime/7.20.1' -H 'cache-control: no-cache' -d '{someJson}'";
 
         Mono<ActionDTO> resultMono = defaultPageMono
-                .flatMap(page -> curlImporterService.importAction(command, page.getId(), "actionName", orgId, "main"))
+                .flatMap(page -> curlImporterService.importAction(command, page.getId(), "actionName", workspaceId, "main"))
                 .cache();
 
         Mono<NewAction> savedActionMono = resultMono.flatMap(actionDTO -> newActionService.getById(actionDTO.getId()));
@@ -230,7 +230,7 @@ public class CurlImporterServiceTest {
 
         Application branchedApplication = new Application();
         branchedApplication.setName("branched curl test app");
-        branchedApplication.setOrganizationId(orgId);
+        branchedApplication.setWorkspaceId(workspaceId);
         branchedApplication = applicationPageService.createApplication(branchedApplication).block();
         String branchedPageId = branchedApplication.getPages().get(0).getId();
 
@@ -246,7 +246,7 @@ public class CurlImporterServiceTest {
                 .cache();
 
         Mono<ActionDTO> branchedResultMono = branchedPageMono
-                .flatMap(page -> curlImporterService.importAction(command, page.getDefaultResources().getPageId(), "actionName", orgId, "testBranch"))
+                .flatMap(page -> curlImporterService.importAction(command, page.getDefaultResources().getPageId(), "actionName", workspaceId, "testBranch"))
                 .cache();
 
         // As importAction updates the ids with the defaultIds before sending the response to client we have to again
@@ -460,7 +460,7 @@ public class CurlImporterServiceTest {
                         "--header 'Authorization: Basic abcdefghijklmnop==' \\\n" +
                         "--header 'Content-Type: text/plain' \\\n" +
                         "--data-raw '{\n" +
-                        "\t\"organizationId\" : \"5d8c9e946599b93bd51a3400\"\n" +
+                        "\t\"workspaceId\" : \"5d8c9e946599b93bd51a3400\"\n" +
                         "}'"
         );
         assertMethod(action, HttpMethod.PUT);
@@ -472,7 +472,7 @@ public class CurlImporterServiceTest {
                 new Property("Content-Type", "text/plain")
         );
         assertBody(action, "{\n" +
-                "\t\"organizationId\" : \"5d8c9e946599b93bd51a3400\"\n" +
+                "\t\"workspaceId\" : \"5d8c9e946599b93bd51a3400\"\n" +
                 "}");
     }
 
@@ -830,7 +830,7 @@ public class CurlImporterServiceTest {
     public void importInvalidCurlCommand() {
         String command = "invalid curl command here";
 
-        Mono<ActionDTO> actionMono = curlImporterService.importAction(command, "pageId", "actionName", orgId, null);
+        Mono<ActionDTO> actionMono = curlImporterService.importAction(command, "pageId", "actionName", workspaceId, null);
 
         StepVerifier
                 .create(actionMono)
