@@ -662,8 +662,7 @@ export class AggregateHelper {
           $body
             .find(this.locator._codeEditorWrapper)
             ?.eq(0)
-            .trigger("click", { force: true })
-            .wait(100);
+            .then(($el: any) => $el.click({ force: true }).wait(100));
           count = $body.find(this.locator._codeEditorWrapper)?.length || 0;
         }
         // $body

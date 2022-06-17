@@ -1214,8 +1214,7 @@ Cypress.Commands.add("EnableAllCodeEditors", () => {
         $body
           .find(commonlocators.codeEditorWrapper)
           ?.eq(0)
-          .trigger("click", { force: true })
-          .wait(100);
+          .then(($el) => $el.click({ force: true }).wait(100));
         count = $body.find(commonlocators.codeEditorWrapper)?.length || 0;
       }
       // $body.find(commonlocators.codeEditorWrapper)?.each((index, $el) => {
