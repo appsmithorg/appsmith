@@ -22,8 +22,8 @@ import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
 import { EvaluationError } from "utils/DynamicBindingUtils";
-// import * as Sentry from "@sentry/react";
-// import { Severity } from "@sentry/react";
+import * as Sentry from "@sentry/react";
+import { Severity } from "@sentry/react";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
 import { Indices, Layers } from "constants/Layers";
 import { Variant } from "components/ads/common";
@@ -231,11 +231,10 @@ export function PreparedStatementViewer(props: {
 }) {
   const { parameters, value } = props.evaluatedValue;
   if (!value) {
-    // we don't needt log custom errors on sentry
-    // Sentry.captureException("Prepared Statement got no value", {
-    //   level: Severity.Debug,
-    //   extra: { props },
-    // });
+    Sentry.captureException("Prepared Statement got no value", {
+      level: Severity.Debug,
+      extra: { props },
+    });
     return <div />;
   }
   const stringSegments = value.split(/\$\d+/);
