@@ -21,6 +21,7 @@ describe("Autocomplete using slash command and mustache tests", function() {
         .last()
         .should("have.text", "New Datasource");
     });
+    cy.EnableAllCodeEditors();
     cy.get(dynamicInputLocators.input)
       .first()
       .click({ force: true })
@@ -40,6 +41,7 @@ describe("Autocomplete using slash command and mustache tests", function() {
     cy.get(".t--property-control-onclick")
       .find(".t--js-toggle")
       .click({ force: true });
+    cy.EnableAllCodeEditors();
     cy.get(".CodeMirror textarea")
       .last()
       .focus()
@@ -57,6 +59,7 @@ describe("Autocomplete using slash command and mustache tests", function() {
           .last()
           .should("have.text", "New Datasource");
       });
+    cy.EnableAllCodeEditors();
     cy.get(".CodeMirror textarea")
       .last()
       .focus()
@@ -80,6 +83,7 @@ describe("Autocomplete using slash command and mustache tests", function() {
 
   it("Slash command and mustache autocomplete validation for textbox widget", function() {
     cy.openPropertyPane("textwidget");
+    cy.EnableAllCodeEditors();
     cy.testCodeMirror("/").then(() => {
       cy.get(dynamicInputLocators.hints).should("exist");
       // validates all autocomplete commands on entering / in text field
@@ -118,6 +122,7 @@ describe("Autocomplete using slash command and mustache tests", function() {
     cy.get(".t--property-control-onclick")
       .find(".t--js-toggle")
       .click({ force: true });
+    cy.EnableAllCodeEditors();
     cy.get(".CodeMirror textarea")
       .last()
       .focus()
@@ -130,6 +135,7 @@ describe("Autocomplete using slash command and mustache tests", function() {
           .eq(0)
           .should("have.text", "resetWidget()");
       });
+    cy.EnableAllCodeEditors();
     cy.get(".CodeMirror textarea")
       .last()
       .focus()
@@ -149,6 +155,7 @@ describe("Autocomplete using slash command and mustache tests", function() {
           .and("contain.text", "setInterval()")
           .and("contain.text", "showAlert()");
       });
+    cy.EnableAllCodeEditors();
     cy.get(".CodeMirror textarea")
       .last()
       .focus()
@@ -167,6 +174,7 @@ describe("Autocomplete using slash command and mustache tests", function() {
           .and("contain.text", "copyToClipboard()")
           .and("contain.text", "clearInterval()");
       });
+    cy.EnableAllCodeEditors();
     cy.get(".CodeMirror textarea")
       .last()
       .focus()
