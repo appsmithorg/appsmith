@@ -1207,12 +1207,12 @@ Cypress.Commands.add(
 Cypress.Commands.add("EnableAllCodeEditors", () => {
   cy.wait(2000);
   cy.get("body").then(($body) => {
-    if ($body.find(commonlocators.codeEditorWrapper)?.length > 0) {
-      let count = $body.find(commonlocators.codeEditorWrapper)?.length || 0;
+    if ($body.get(commonlocators.codeEditorWrapper)?.length > 0) {
+      let count = $body.get(commonlocators.codeEditorWrapper)?.length || 0;
       while (count) {
         cy.log(`found wrappers: ${count}`);
         $body
-          .find(commonlocators.codeEditorWrapper)
+          .get(commonlocators.codeEditorWrapper)
           ?.eq(0)
           .then(($el) => $el.click({ force: true }).wait(100));
         count = $body.find(commonlocators.codeEditorWrapper)?.length || 0;

@@ -655,12 +655,12 @@ export class AggregateHelper {
   public EnableAllEditors() {
     cy.wait(2000);
     cy.get("body").then(($body: any) => {
-      if ($body.find(this.locator._codeEditorWrapper)?.length > 0) {
-        let count = $body.find(this.locator._codeEditorWrapper)?.length || 0;
+      if ($body.get(this.locator._codeEditorWrapper)?.length > 0) {
+        let count = $body.get(this.locator._codeEditorWrapper)?.length || 0;
         while (count) {
           cy.log(`found wrappers: ${count}`);
           $body
-            .find(this.locator._codeEditorWrapper)
+            .get(this.locator._codeEditorWrapper)
             ?.eq(0)
             .then(($el: any) => $el.click({ force: true }).wait(100));
           count = $body.find(this.locator._codeEditorWrapper)?.length || 0;
