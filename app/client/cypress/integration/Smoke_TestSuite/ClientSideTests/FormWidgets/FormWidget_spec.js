@@ -30,6 +30,7 @@ describe("Form Widget Functionality", function() {
     });
     cy.wait(500);
     cy.dragAndDropToWidget("inputwidgetv2", "formwidget", { x: 50, y: 200 });
+    cy.wait(500);
     cy.get(formWidgetsPage.multiselectwidgetv2).should("be.visible");
     cy.get(widgetsPage.inputWidget).should("be.visible");
     cy.PublishtheApp();
