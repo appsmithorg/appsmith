@@ -2892,8 +2892,8 @@ public class ApplicationServiceTest {
     public void getSshKey_notConnectedToGit_SuccessResponseWithoutSshKey() {
         Application app = new Application();
         app.setName("getSshKey_notConnectedToGit_SuccessResponseWithoutSshKey");
+        app.setWorkspaceId(workspaceId);
         Application application = applicationPageService.createApplication(app).block();
-
         StepVerifier
                 .create(applicationService.getSshKey(application.getId()))
                 .assertNext(gitAuthDTO -> {
