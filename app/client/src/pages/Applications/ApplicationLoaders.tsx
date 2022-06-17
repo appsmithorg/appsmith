@@ -23,13 +23,13 @@ export const LoadingAnimation = createGlobalStyle<{ theme: Theme }>`
 	}
 `;
 
-export const loadingUserWorkspaces = [
+export const loadingUserOrgs = [
   {
-    workspace: {
-      id: "loadingWorkspaceId1",
-      userPermissions: ["read:workspaces", "read:workspaceApplications"],
-      name: "loadingWorkspaceName1",
-      workspaceSettings: [],
+    organization: {
+      id: "loadingOrgId1",
+      userPermissions: ["read:organizations", "read:orgApplications"],
+      name: "loadingOrgName1",
+      organizationSettings: [],
       plugins: [
         {
           userPermissions: [],
@@ -71,7 +71,7 @@ export const loadingUserWorkspaces = [
         id: "loadingAppId1",
         userPermissions: ["read:applications"],
         name: "loadingAppName1",
-        workspaceId: "loadingWorkspaceId1",
+        organizationId: "loadingOrgId1",
         isPublic: false,
         pages: [
           {
@@ -88,7 +88,7 @@ export const loadingUserWorkspaces = [
         id: "loadingAppId2",
         userPermissions: ["read:applications"],
         name: "loadingAppName2",
-        workspaceId: "loadingWorkspaceId1",
+        organizationId: "loadingOrgId1",
         isPublic: false,
         pages: [
           {
@@ -105,18 +105,18 @@ export const loadingUserWorkspaces = [
     ],
   },
   {
-    workspace: {
-      id: "loadingWorkspaceId2",
+    organization: {
+      id: "loadingOrgId2",
       userPermissions: [
-        "read:workspaces",
-        "manage:workspaceApplications",
-        "inviteUsers:workspace",
-        "manage:workspaces",
-        "publish:workspaceApplications",
-        "read:workspaceApplications",
+        "read:organizations",
+        "manage:orgApplications",
+        "inviteUsers:organization",
+        "manage:organizations",
+        "publish:orgApplications",
+        "read:orgApplications",
       ],
-      name: "loadingWorkspaceName2",
-      workspaceSettings: [],
+      name: "loadingOrgName2",
+      organizationSettings: [],
       plugins: [
         {
           userPermissions: [],
@@ -158,7 +158,7 @@ export const loadingUserWorkspaces = [
         id: "loadingAppId3",
         userPermissions: ["read:applications"],
         name: "loadingAppName3",
-        workspaceId: "loadingWorkspaceId2",
+        organizationId: "loadingOrgId2",
         isPublic: false,
         pages: [
           {
@@ -175,7 +175,7 @@ export const loadingUserWorkspaces = [
         id: "loadingAppId4",
         userPermissions: ["read:applications"],
         name: "loadingAppName4",
-        workspaceId: "loadingWorkspaceId2",
+        organizationId: "loadingOrgId2",
         isPublic: false,
         pages: [
           {
@@ -192,7 +192,7 @@ export const loadingUserWorkspaces = [
         id: "loadingAppId5",
         userPermissions: ["read:applications"],
         name: "loadingAppName5",
-        workspaceId: "loadingWorkspaceId2",
+        organizationId: "loadingOrgId2",
         isPublic: false,
         pages: [
           {

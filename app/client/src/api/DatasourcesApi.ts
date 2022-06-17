@@ -21,7 +21,7 @@ export interface EmbeddedRestDatasourceRequest {
   invalids: Array<string>;
   isValid: boolean;
   name: string;
-  workspaceId: string;
+  organizationId: string;
   pluginId: string;
 }
 
@@ -36,9 +36,9 @@ class DatasourcesApi extends API {
   static url = "v1/datasources";
 
   static fetchDatasources(
-    workspaceId: string,
+    orgId: string,
   ): AxiosPromise<GenericApiResponse<Datasource[]>> {
-    return API.get(DatasourcesApi.url + `?workspaceId=${workspaceId}`);
+    return API.get(DatasourcesApi.url + `?organizationId=${orgId}`);
   }
 
   static createDatasource(datasourceConfig: Partial<Datasource>): Promise<any> {
@@ -79,13 +79,13 @@ class DatasourcesApi extends API {
 
   static addMockDbToDatasources(
     name: string,
-    workspaceId: string,
+    organizationId: string,
     pluginId: string,
     packageName: string,
   ): Promise<any> {
     return API.post(DatasourcesApi.url + `/mocks`, {
       name,
-      workspaceId,
+      organizationId,
       pluginId,
       packageName,
     });

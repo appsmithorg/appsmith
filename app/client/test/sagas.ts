@@ -3,7 +3,7 @@ import apiPaneSagas from "../src/sagas/ApiPaneSagas";
 import jsPaneSagas from "../src/sagas/JSPaneSagas";
 import userSagas from "../src/sagas/userSagas";
 import pluginSagas from "../src/sagas/PluginSagas";
-import workspaceSagas from "../src/sagas/WorkspaceSagas";
+import orgSagas from "../src/sagas/OrgSagas";
 import importedCollectionsSagas from "../src/sagas/CollectionSagas";
 import providersSagas from "../src/sagas/ProvidersSaga";
 import curlImportSagas from "../src/sagas/CurlImportSagas";
@@ -43,7 +43,7 @@ export const sagasToRunForTests = [
   jsPaneSagas,
   userSagas,
   pluginSagas,
-  workspaceSagas,
+  orgSagas,
   importedCollectionsSagas,
   providersSagas,
   curlImportSagas,

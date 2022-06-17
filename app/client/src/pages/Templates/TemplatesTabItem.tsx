@@ -15,7 +15,7 @@ import {
 } from "@appsmith/constants/messages";
 import {
   getIsFetchingApplications,
-  getUserApplicationsWorkspacesList,
+  getUserApplicationsOrgsList,
 } from "selectors/applicationSelectors";
 import { showTemplateNotificationSelector } from "selectors/templatesSelectors";
 import styled from "styled-components";
@@ -79,8 +79,8 @@ interface TemplatesTabItemProps {
 export function TemplatesTabItem(props: TemplatesTabItemProps) {
   const hasSeenNotification = useSelector(showTemplateNotificationSelector);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const workspaceListLength = useSelector(
-    (state: AppState) => getUserApplicationsWorkspacesList(state).length,
+  const organizationListLength = useSelector(
+    (state: AppState) => getUserApplicationsOrgsList(state).length,
   );
   const location = useLocation();
   const dispatch = useDispatch();
@@ -89,7 +89,7 @@ export function TemplatesTabItem(props: TemplatesTabItemProps) {
     !hasSeenNotification &&
     !isFetchingApplications &&
     !isNull(hasSeenNotification) &&
-    workspaceListLength;
+    organizationListLength;
 
   const setNotificationSeenFlag = () => {
     dispatch(setTemplateNotificationSeenAction(true));

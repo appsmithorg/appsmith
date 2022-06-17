@@ -14,7 +14,7 @@ import apiPaneSagas from "./ApiPaneSagas";
 import jsPaneSagas from "./JSPaneSagas";
 import userSagas from "./userSagas";
 import pluginSagas from "./PluginSagas";
-import workspaceSagas from "./WorkspaceSagas";
+import orgSagas from "./OrgSagas";
 import importedCollectionsSagas from "./CollectionSagas";
 import providersSagas from "./ProvidersSaga";
 import curlImportSagas from "./CurlImportSagas";
@@ -62,7 +62,7 @@ const sagas = [
   userSagas,
   templateSagas,
   pluginSagas,
-  workspaceSagas,
+  orgSagas,
   importedCollectionsSagas,
   providersSagas,
   curlImportSagas,

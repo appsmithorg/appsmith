@@ -7,7 +7,7 @@ import applicationsReducer from "./applicationsReducer";
 import apiPaneReducer from "./apiPaneReducer";
 import datasourcePaneReducer from "./datasourcePaneReducer";
 import authReducer from "./authReducer";
-import workspaceReducer from "./workspaceReducer";
+import orgReducer from "./orgReducer";
 import templateReducer from "./templateReducer";
 import usersReducer from "./usersReducer";
 import { widgetDraggingReducer } from "./dragResizeReducer";
@@ -52,7 +52,7 @@ const uiReducer = combineReducers({
   apiPane: apiPaneReducer,
   auth: authReducer,
   templates: templateReducer,
-  workspaces: workspaceReducer,
+  orgs: orgReducer,
   users: usersReducer,
   widgetDragResize: widgetDraggingReducer,
   importedCollections: importedCollectionsReducer,

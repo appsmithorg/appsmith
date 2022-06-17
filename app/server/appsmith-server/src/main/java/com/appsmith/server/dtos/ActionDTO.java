@@ -35,7 +35,7 @@ public class ActionDTO {
     String applicationId;
 
     @Transient
-    String workspaceId;
+    String organizationId;
 
     @Transient
     PluginType pluginType;

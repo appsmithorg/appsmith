@@ -65,7 +65,7 @@ public class Plugin extends BaseDomain {
     String generateCRUDPageComponent;
 
     // Marking it as JsonIgnore because we don't want other users to be able to set this property. Only admins
-    // must be able to mark a plugin for defaultInstall on all workspace creations
+    // must be able to mark a plugin for defaultInstall on all organization creations
     @JsonIgnore
     Boolean defaultInstall;
 

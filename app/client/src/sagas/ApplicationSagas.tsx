@@ -16,10 +16,10 @@ import ApplicationApi, {
   FetchApplicationPayload,
   FetchApplicationResponse,
   FetchUnconfiguredDatasourceListResponse,
-  FetchUsersApplicationsWorkspacesResponse,
+  FetchUsersApplicationsOrgsResponse,
   ForkApplicationRequest,
   ImportApplicationRequest,
-  WorkspaceApplicationObject,
+  OrganizationApplicationObject,
   PublishApplicationRequest,
   PublishApplicationResponse,
   SetDefaultPageRequest,
@@ -28,7 +28,7 @@ import ApplicationApi, {
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
 import { validateResponse } from "./ErrorSagas";
-import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
+import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
@@ -42,7 +42,7 @@ import {
   resetCurrentApplication,
   setDefaultApplicationPageSuccess,
   setIsReconnectingDatasourcesModalOpen,
-  setWorkspaceIdForImport,
+  setOrgIdForImport,
   showReconnectDatasourceModal,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -54,7 +54,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Toaster } from "components/ads/Toast";
 import { APP_MODE } from "entities/App";
-import { Workspace, Workspaces } from "constants/workspaceConstants";
+import { Org, Organization } from "constants/orgConstants";
 import { Variant } from "components/ads/common";
 import { AppIconName } from "components/ads/AppIcon";
 import { AppColorCode } from "constants/DefaultTheme";
@@ -72,7 +72,7 @@ import {
   reconnectAppLevelWebsocket,
   reconnectPageLevelWebsocket,
 } from "actions/websocketActions";
-import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentOrg } from "@appsmith/selectors/organizationSelectors";
 
 import {
   getCurrentStep,
@@ -172,31 +172,29 @@ export function* publishApplicationSaga(
 
 export function* getAllApplicationSaga() {
   try {
-    const response: FetchUsersApplicationsWorkspacesResponse = yield call(
+    const response: FetchUsersApplicationsOrgsResponse = yield call(
       ApplicationApi.getAllApplication,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const workspaceApplication: WorkspaceApplicationObject[] = response.data.workspaceApplications.map(
-        (userWorkspaces: WorkspaceApplicationObject) => ({
-          workspace: userWorkspaces.workspace,
-          userRoles: userWorkspaces.userRoles,
-          applications: !userWorkspaces.applications
+      const organizationApplication: OrganizationApplicationObject[] = response.data.organizationApplications.map(
+        (userOrgs: OrganizationApplicationObject) => ({
+          organization: userOrgs.organization,
+          userRoles: userOrgs.userRoles,
+          applications: !userOrgs.applications
             ? []
-            : userWorkspaces.applications.map(
-                (application: ApplicationObject) => {
-                  return {
-                    ...application,
-                    defaultPageId: getDefaultPageId(application.pages),
-                  };
-                },
-              ),
+            : userOrgs.applications.map((application: ApplicationObject) => {
+                return {
+                  ...application,
+                  defaultPageId: getDefaultPageId(application.pages),
+                };
+              }),
         }),
       );
 
       yield put({
-        type: ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS,
-        payload: workspaceApplication,
+        type: ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS,
+        payload: organizationApplication,
       });
       const { newReleasesCount, releaseItems } = response.data || {};
       yield put({
@@ -206,7 +204,7 @@ export function* getAllApplicationSaga() {
     }
   } catch (error) {
     yield put({
-      type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_WORKSPACES_ERROR,
+      type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_ORGS_ERROR,
       payload: {
         error,
       },
@@ -249,9 +247,9 @@ export function* fetchAppAndPagesSaga(
       });
 
       yield put({
-        type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
+        type: ReduxActionTypes.SET_CURRENT_ORG_ID,
         payload: {
-          workspaceId: response.data.workspaceId,
+          orgId: response.data.organizationId,
         },
       });
 
@@ -486,19 +484,19 @@ export function* createApplicationSaga(
     applicationName: string;
     icon: AppIconName;
     color: AppColorCode;
-    workspaceId: string;
+    orgId: string;
     resolve: any;
     reject: any;
   }>,
 ) {
-  const { applicationName, color, icon, reject, workspaceId } = action.payload;
+  const { applicationName, color, icon, orgId, reject } = action.payload;
   try {
-    const userWorkspaces = yield select(getUserApplicationsWorkspacesList);
-    const existingWorkspaces = userWorkspaces.filter(
-      (workspace: Workspaces) => workspace.workspace.id === workspaceId,
+    const userOrgs = yield select(getUserApplicationsOrgsList);
+    const existingOrgs = userOrgs.filter(
+      (org: Organization) => org.organization.id === orgId,
     )[0];
-    const existingApplication = existingWorkspaces
-      ? existingWorkspaces.applications.find(
+    const existingApplication = existingOrgs
+      ? existingOrgs.applications.find(
           (application: ApplicationPayload) =>
             application.name === applicationName,
         )
@@ -521,7 +519,7 @@ export function* createApplicationSaga(
         name: applicationName,
         icon: icon,
         color: color,
-        workspaceId,
+        orgId,
       };
       const response: CreateApplicationResponse = yield call(
         ApplicationApi.createApplication,
@@ -545,7 +543,7 @@ export function* createApplicationSaga(
         yield put({
           type: ReduxActionTypes.CREATE_APPLICATION_SUCCESS,
           payload: {
-            workspaceId,
+            orgId,
             application,
           },
         });
@@ -597,7 +595,7 @@ export function* createApplicationSaga(
       payload: {
         error,
         show: false,
-        workspaceId,
+        orgId,
       },
     });
   }
@@ -621,7 +619,7 @@ export function* forkApplicationSaga(
       yield put({
         type: ReduxActionTypes.FORK_APPLICATION_SUCCESS,
         payload: {
-          workspaceId: action.payload.workspaceId,
+          orgId: action.payload.organizationId,
           application,
         },
       });
@@ -651,23 +649,19 @@ function* showReconnectDatasourcesModalSaga(
   action: ReduxAction<{
     application: ApplicationResponsePayload;
     unConfiguredDatasourceList: Array<Datasource>;
-    workspaceId: string;
+    orgId: string;
   }>,
 ) {
-  const {
-    application,
-    unConfiguredDatasourceList,
-    workspaceId,
-  } = action.payload;
+  const { application, orgId, unConfiguredDatasourceList } = action.payload;
   yield put(getAllApplications());
   yield put(importApplicationSuccess(application));
-  yield put(fetchPlugins({ workspaceId }));
+  yield put(fetchPlugins({ orgId }));
 
   yield put(
     setUnconfiguredDatasourcesDuringImport(unConfiguredDatasourceList || []),
   );
 
-  yield put(setWorkspaceIdForImport(workspaceId));
+  yield put(setOrgIdForImport(orgId));
   yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
 }
 
@@ -676,16 +670,16 @@ export function* importApplicationSaga(
 ) {
   try {
     const response: ApiResponse = yield call(
-      ApplicationApi.importApplicationToWorkspace,
+      ApplicationApi.importApplicationToOrg,
       action.payload,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
-      const currentWorkspace = allWorkspaces.filter(
-        (el: Workspace) => el.id === action.payload.workspaceId,
+      const allOrgs: Org[] = yield select(getCurrentOrg);
+      const currentOrg = allOrgs.filter(
+        (el: Org) => el.id === action.payload.orgId,
       );
-      if (currentWorkspace.length > 0) {
+      if (currentOrg.length > 0) {
         const {
           application: { applicationVersion, id, pages, slug: applicationSlug },
           isPartialImport,
@@ -712,7 +706,7 @@ export function* importApplicationSaga(
               application: response.data?.application,
               unConfiguredDatasourceList:
                 response?.data.unConfiguredDatasourceList,
-              workspaceId: action.payload.workspaceId,
+              orgId: action.payload.orgId,
             }),
           );
         } else {
@@ -749,7 +743,7 @@ export function* importApplicationSaga(
 
 function* fetchReleases() {
   try {
-    const response: FetchUsersApplicationsWorkspacesResponse = yield call(
+    const response: FetchUsersApplicationsOrgsResponse = yield call(
       ApplicationApi.getAllApplication,
     );
     const isValidResponse = yield validateResponse(response);
@@ -773,7 +767,7 @@ function* fetchReleases() {
 export function* fetchUnconfiguredDatasourceList(
   action: ReduxAction<{
     applicationId: string;
-    workspaceId: string;
+    orgId: string;
   }>,
 ) {
   try {
@@ -817,10 +811,10 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
 }
 
 function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
-  const workspaceId = action.payload;
+  const orgId = action.payload;
 
   const pluginsAndDatasourcesCalls: boolean = yield failFastApiCalls(
-    [fetchPlugins({ workspaceId }), fetchDatasources({ workspaceId })],
+    [fetchPlugins({ orgId }), fetchDatasources({ orgId })],
     [
       ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
       ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,

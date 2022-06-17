@@ -10,7 +10,7 @@ public interface GroupServiceCE extends CrudService<Group, String> {
 
     Flux<Group> getAllById(Set<String> ids);
 
-    Flux<Group> createDefaultGroupsForWorkspace(String workspaceId);
+    Flux<Group> createDefaultGroupsForOrg(String organizationId);
 
-    Flux<Group> getByWorkspaceId(String workspaceId);
+    Flux<Group> getByOrganizationId(String organizationId);
 }

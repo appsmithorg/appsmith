@@ -173,7 +173,7 @@ public class ApplicationServiceTest {
     @Autowired
     ReactiveMongoOperations mongoOperations;
 
-    String workspaceId;
+    String orgId;
 
     static Plugin testPlugin = new Plugin();
 
@@ -186,9 +186,9 @@ public class ApplicationServiceTest {
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
         User apiUser = userService.findByEmail("api_user").block();
-        workspaceId = apiUser.getWorkspaceIds().iterator().next();
+        orgId = apiUser.getOrganizationIds().iterator().next();
         if (StringUtils.isEmpty(gitConnectedApp.getId())) {
-            gitConnectedApp.setWorkspaceId(workspaceId);
+            gitConnectedApp.setOrganizationId(orgId);
             GitApplicationMetadata gitData = new GitApplicationMetadata();
             gitData.setBranchName("testBranch");
             gitData.setDefaultBranchName("testBranch");
@@ -205,7 +205,7 @@ public class ApplicationServiceTest {
                     })
                     // Assign the branchName to all the resources connected to the application
                     .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId(), gitData.getBranchName()))
-                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
+                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
                     .block();
 
             testPlugin = pluginService.findByName("Installed Plugin Name").block();
@@ -216,7 +216,7 @@ public class ApplicationServiceTest {
             DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
             datasourceConfiguration.setUrl("http://test.com");
             datasource.setDatasourceConfiguration(datasourceConfiguration);
-            datasource.setWorkspaceId(workspaceId);
+            datasource.setOrganizationId(orgId);
             testDatasource = datasourceService.create(datasource).block();
         }
     }
@@ -235,7 +235,7 @@ public class ApplicationServiceTest {
     public void createApplicationWithNullName() {
         Application application = new Application();
         Mono<Application> applicationMono = Mono.just(application)
-                .flatMap(app -> applicationPageService.createApplication(app, workspaceId));
+                .flatMap(app -> applicationPageService.createApplication(app, orgId));
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -248,7 +248,7 @@ public class ApplicationServiceTest {
     public void createValidApplication() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest TestApp");
-        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId);
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId);
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
@@ -269,7 +269,7 @@ public class ApplicationServiceTest {
                     assertThat(application.getName()).isEqualTo("ApplicationServiceTest TestApp");
                     assertThat(application.getPolicies()).isNotEmpty();
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getWorkspaceId()).isEqualTo(workspaceId);
+                    assertThat(application.getOrganizationId()).isEqualTo(orgId);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEvaluationVersion()).isEqualTo(EVALUATION_VERSION);
@@ -287,7 +287,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest TestAppForTestingPage");
         Flux<PageDTO> pagesFlux = applicationPageService
-                .createApplication(testApplication, workspaceId)
+                .createApplication(testApplication, orgId)
                 // Fetch the unpublished pages by applicationId
                 .flatMapMany(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false));
 
@@ -337,7 +337,7 @@ public class ApplicationServiceTest {
     public void validGetApplicationById() {
         Application application = new Application();
         application.setName("validGetApplicationById-Test");
-        Mono<Application> createApplication = applicationPageService.createApplication(application, workspaceId);
+        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
         Mono<Application> getApplication = createApplication.flatMap(t -> applicationService.getById(t.getId()));
         StepVerifier.create(getApplication)
                 .assertNext(t -> {
@@ -357,7 +357,7 @@ public class ApplicationServiceTest {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.set(FieldName.NAME, application.getName());
 
-        Mono<Application> createApplication = applicationPageService.createApplication(application, workspaceId);
+        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
 
         Flux<Application> getApplication = createApplication.flatMapMany(t -> applicationService.get(params));
         StepVerifier.create(getApplication)
@@ -427,7 +427,7 @@ public class ApplicationServiceTest {
         Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
                 .build();
-        Mono<Application> createApplication = applicationPageService.createApplication(application, workspaceId);
+        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
         List<Application> applicationList = createApplication
                 .flatMapMany(t -> applicationService.get(new LinkedMultiValueMap<>()))
                 .collectList()
@@ -454,7 +454,7 @@ public class ApplicationServiceTest {
 
         Mono<Application> createApplication =
                 applicationPageService
-                        .createApplication(application, workspaceId);
+                        .createApplication(application, orgId);
         Mono<Application> updateApplication = createApplication
                 .map(t -> {
                     t.setName("NewValidUpdateApplication-Test");
@@ -483,8 +483,8 @@ public class ApplicationServiceTest {
         testApp2.setName("validApplication2");
 
         Mono<List<Application>> createMultipleApplications = Mono.zip(
-            applicationPageService.createApplication(testApp1, workspaceId),
-            applicationPageService.createApplication(testApp2, workspaceId))
+            applicationPageService.createApplication(testApp1, orgId),
+            applicationPageService.createApplication(testApp2, orgId))
             .map(tuple -> List.of(tuple.getT1(), tuple.getT2()));
 
             Mono<Application> updateInvalidApplication = createMultipleApplications
@@ -533,12 +533,12 @@ public class ApplicationServiceTest {
         secondApp.setName("Ghost app");
 
         Mono<Application> firstAppDeletion = applicationPageService
-                .createApplication(firstApp, workspaceId)
+                .createApplication(firstApp, orgId)
                 .flatMap(app -> applicationService.archive(app))
                 .cache();
 
         Mono<Application> secondAppCreation = firstAppDeletion.then(
-                applicationPageService.createApplication(secondApp, workspaceId));
+                applicationPageService.createApplication(secondApp, orgId));
 
         StepVerifier
                 .create(Mono.zip(firstAppDeletion, secondAppCreation))
@@ -566,12 +566,12 @@ public class ApplicationServiceTest {
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
-                    List<WorkspaceApplicationsDTO> workspaceApplicationsDTOs = userHomepageDTO.getWorkspaceApplications();
+                    List<WorkspaceApplicationsDTO> workspaceApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
                     assertThat(workspaceApplicationsDTOs.size()).isPositive();
 
                     for (WorkspaceApplicationsDTO workspaceApplicationDTO : workspaceApplicationsDTOs) {
-                        if (workspaceApplicationDTO.getWorkspace().getName().equals("Spring Test Workspace")) {
-                            assertThat(workspaceApplicationDTO.getWorkspace().getUserPermissions()).contains("read:workspaces");
+                        if (workspaceApplicationDTO.getOrganization().getName().equals("Spring Test Workspace")) {
+                            assertThat(workspaceApplicationDTO.getOrganization().getUserPermissions()).contains("read:organizations");
 
                             Application application = workspaceApplicationDTO.getApplications().get(0);
                             assertThat(application.getUserPermissions()).contains("read:applications");
@@ -600,12 +600,12 @@ public class ApplicationServiceTest {
         AppsmithBeanUtils.copyNestedNonNullProperties(gitConnectedApp.getGitApplicationMetadata(), childBranchGitData);
         childBranchGitData.setBranchName("childBranch");
         branchedApplication.setGitApplicationMetadata(childBranchGitData);
-        branchedApplication.setWorkspaceId(workspaceId);
+        branchedApplication.setOrganizationId(orgId);
         branchedApplication.setName(gitConnectedApp.getName());
 
         Mono<Application> branchedApplicationMono = applicationPageService.createApplication(branchedApplication);
 
-        Mono<List<Application>> gitConnectedAppsMono = applicationService.findByWorkspaceId(workspaceId, READ_APPLICATIONS)
+        Mono<List<Application>> gitConnectedAppsMono = applicationService.findByOrganizationId(orgId, READ_APPLICATIONS)
                 .filter(application -> application.getGitApplicationMetadata() != null)
                 .collectList();
 
@@ -619,11 +619,11 @@ public class ApplicationServiceTest {
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
-                    List<WorkspaceApplicationsDTO> workspaceApplicationsDTOs = userHomepageDTO.getWorkspaceApplications();
+                    List<WorkspaceApplicationsDTO> workspaceApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
                     assertThat(workspaceApplicationsDTOs.size()).isPositive();
 
                     for (WorkspaceApplicationsDTO workspaceApplicationDTO : workspaceApplicationsDTOs) {
-                        if (workspaceApplicationDTO.getWorkspace().getId().equals(workspaceId)) {
+                        if (workspaceApplicationDTO.getOrganization().getId().equals(orgId)) {
                             List<Application> applications = workspaceApplicationDTO
                                     .getApplications()
                                     .stream()
@@ -646,7 +646,7 @@ public class ApplicationServiceTest {
 
         // Create an workspace for this user first.
         Workspace workspace = new Workspace();
-        workspace.setName("usertest's workspace");
+        workspace.setName("usertest's organization");
         Mono<Workspace> workspaceMono = workspaceService.create(workspace);
 
         Mono<UserHomepageDTO> allApplications = workspaceMono
@@ -659,11 +659,11 @@ public class ApplicationServiceTest {
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
-                    List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getWorkspaceApplications();
+                    List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getOrganizationApplications();
 
                     // There should be atleast one workspace present in the output.
                     WorkspaceApplicationsDTO orgAppDto = workspaceApplications.get(0);
-                    assertThat(orgAppDto.getWorkspace().getUserPermissions().contains("read:workspaces"));
+                    assertThat(orgAppDto.getOrganization().getUserPermissions().contains("read:organizations"));
                 })
                 .verifyComplete();
 
@@ -689,7 +689,7 @@ public class ApplicationServiceTest {
                 .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
                 .build();
 
-        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+        Application createdApplication = applicationPageService.createApplication(application, orgId).block();
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
@@ -739,7 +739,7 @@ public class ApplicationServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Mono<Application> createApplication = applicationPageService.createApplication(application, workspaceId);
+        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         Mono<Application> privateAppMono = createApplication
@@ -798,7 +798,7 @@ public class ApplicationServiceTest {
         // Create a branch
         Application testApplication = new Application();
         testApplication.setName("branch1");
-        testApplication.setWorkspaceId(workspaceId);
+        testApplication.setOrganizationId(orgId);
         GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
         gitApplicationMetadata.setDefaultApplicationId(gitConnectedApp.getId());
         gitApplicationMetadata.setBranchName("test");
@@ -859,7 +859,7 @@ public class ApplicationServiceTest {
         // Create a branch
         Application testApplication = new Application();
         testApplication.setName("branch2");
-        testApplication.setWorkspaceId(workspaceId);
+        testApplication.setOrganizationId(orgId);
         GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
         gitApplicationMetadata.setDefaultApplicationId(gitConnectedApp.getId());
         gitApplicationMetadata.setBranchName("test2");
@@ -934,7 +934,7 @@ public class ApplicationServiceTest {
                 .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
                 .build();
 
-        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+        Application createdApplication = applicationPageService.createApplication(application, orgId).block();
 
         String pageId = createdApplication.getPages().get(0).getId();
 
@@ -945,7 +945,7 @@ public class ApplicationServiceTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setWorkspaceId(workspaceId);
+        datasource.setOrganizationId(orgId);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
 
@@ -968,7 +968,7 @@ public class ApplicationServiceTest {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testActionCollection");
         actionCollectionDTO.setApplicationId(createdApplication.getId());
-        actionCollectionDTO.setWorkspaceId(workspaceId);
+        actionCollectionDTO.setOrganizationId(orgId);
         actionCollectionDTO.setPageId(pageId);
         actionCollectionDTO.setPluginId(installedJsPlugin.getId());
         actionCollectionDTO.setPluginType(PluginType.JS);
@@ -1051,7 +1051,7 @@ public class ApplicationServiceTest {
                     assertThat(clonedApplication.getId()).isNotNull();
                     assertThat(clonedApplication.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
                     assertThat(clonedApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(clonedApplication.getWorkspaceId().equals(workspaceId));
+                    assertThat(clonedApplication.getOrganizationId().equals(orgId));
                     assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
                     assertThat(clonedApplication.getEvaluationVersion()).isNotNull();
@@ -1195,7 +1195,7 @@ public class ApplicationServiceTest {
                     List<NewAction> srcActionList = tuple.getT3();
 
                     assertThat(clonedApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(clonedApplication.getWorkspaceId().equals(workspaceId));
+                    assertThat(clonedApplication.getOrganizationId().equals(orgId));
                     assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
 
@@ -1234,7 +1234,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest Clone Source TestApp");
 
-        Mono<Application> originalApplicationMono = applicationPageService.createApplication(testApplication, workspaceId)
+        Mono<Application> originalApplicationMono = applicationPageService.createApplication(testApplication, orgId)
                 .cache();
 
         Map<String, List<String>> originalResourceIds = new HashMap<>();
@@ -1287,7 +1287,7 @@ public class ApplicationServiceTest {
                     actionCollectionDTO.setName("testCollection1");
                     actionCollectionDTO.setPageId(application.getPages().get(0).getId());
                     actionCollectionDTO.setApplicationId(application.getId());
-                    actionCollectionDTO.setWorkspaceId(application.getWorkspaceId());
+                    actionCollectionDTO.setOrganizationId(application.getOrganizationId());
                     actionCollectionDTO.setPluginId(testPlugin.getId());
                     actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
                     actionCollectionDTO.setBody("export default {\n" +
@@ -1375,7 +1375,7 @@ public class ApplicationServiceTest {
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getWorkspaceId().equals(workspaceId));
+                    assertThat(application.getOrganizationId().equals(orgId));
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     List<ApplicationPage> pages = application.getPages();
@@ -1531,7 +1531,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest-clone-application-deleted-action-within-collection");
 
-        Mono<Application> originalApplicationMono = applicationPageService.createApplication(testApplication, workspaceId)
+        Mono<Application> originalApplicationMono = applicationPageService.createApplication(testApplication, orgId)
                 .cache();
 
         Map<String, List<String>> originalResourceIds = new HashMap<>();
@@ -1556,7 +1556,7 @@ public class ApplicationServiceTest {
                     actionCollectionDTO.setName("testCollection1");
                     actionCollectionDTO.setPageId(application.getPages().get(0).getId());
                     actionCollectionDTO.setApplicationId(application.getId());
-                    actionCollectionDTO.setWorkspaceId(application.getWorkspaceId());
+                    actionCollectionDTO.setOrganizationId(application.getOrganizationId());
                     actionCollectionDTO.setPluginId(testPlugin.getId());
                     actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
                     actionCollectionDTO.setBody("export default {\n" +
@@ -1686,7 +1686,7 @@ public class ApplicationServiceTest {
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getWorkspaceId().equals(workspaceId));
+                    assertThat(application.getOrganizationId().equals(orgId));
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     List<ApplicationPage> pages = application.getPages();
@@ -1765,7 +1765,7 @@ public class ApplicationServiceTest {
     public void cloneGitConnectedApplication_withUpdatedDefaultBranch_sucess() {
         Application application = new Application();
         application.setName("cloneGitConnectedApplication_withUpdatedDefaultBranch_sucess");
-        application.setWorkspaceId(workspaceId);
+        application.setOrganizationId(orgId);
         Application defaultApp = applicationPageService.createApplication(application)
                 .flatMap(application1 -> {
                     GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
@@ -1785,7 +1785,7 @@ public class ApplicationServiceTest {
         // Add a branch to the git connected app
         application = new Application();
         application.setName("cloneGitConnectedApplication_withUpdatedDefaultBranch_sucess");
-        application.setWorkspaceId(workspaceId);
+        application.setOrganizationId(orgId);
         Mono<Application> forkedApp = applicationPageService.createApplication(application)
                 .flatMap(application1 -> {
                     GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
@@ -1825,7 +1825,7 @@ public class ApplicationServiceTest {
         String appName = "ApplicationServiceTest Publish Application";
         testApplication.setName(appName);
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
-        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application -> applicationPageService.publish(application.getId(), true))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
@@ -1879,7 +1879,7 @@ public class ApplicationServiceTest {
         String appName = "Publish Application With Archived Page";
         testApplication.setName(appName);
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
-        Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService.createApplication(testApplication, workspaceId)
+        Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
                     page.setName("New Page");
@@ -1898,7 +1898,7 @@ public class ApplicationServiceTest {
                     final Plugin installedPlugin = tuple.getT2();
                     final Datasource datasource = new Datasource();
                     datasource.setName("Default Database");
-                    datasource.setWorkspaceId(workspaceId);
+                    datasource.setOrganizationId(orgId);
                     datasource.setPluginId(installedPlugin.getId());
                     datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
@@ -1917,7 +1917,7 @@ public class ApplicationServiceTest {
                     actionCollectionDTO.setPageId(page.getId());
                     actionCollectionDTO.setPluginId(datasource.getPluginId());
                     actionCollectionDTO.setApplicationId(testApplication.getId());
-                    actionCollectionDTO.setWorkspaceId(testApplication.getWorkspaceId());
+                    actionCollectionDTO.setOrganizationId(testApplication.getOrganizationId());
                     actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
                     ActionDTO action1 = new ActionDTO();
                     action1.setName("publishApplicationTest");
@@ -2019,7 +2019,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Publish Application Delete Page";
         testApplication.setName(appName);
-        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
                     page.setName("New Page");
@@ -2109,7 +2109,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Publish Application Change Default Page";
         testApplication.setName(appName);
-        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
                     page.setName("New Page");
@@ -2173,7 +2173,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Get Application In View Mode";
         testApplication.setName(appName);
-        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
                     page.setName("New Page");
@@ -2227,7 +2227,7 @@ public class ApplicationServiceTest {
         String appName = "ApplicationServiceTest Clone Application Midway Cancellation";
         testApplication.setName(appName);
 
-        Application originalApplication = applicationPageService.createApplication(testApplication, workspaceId)
+        Application originalApplication = applicationPageService.createApplication(testApplication, orgId)
                 .block();
 
         String pageId = originalApplication.getPages().get(0).getId();
@@ -2239,7 +2239,7 @@ public class ApplicationServiceTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setWorkspaceId(workspaceId);
+        datasource.setOrganizationId(orgId);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
 
@@ -2274,7 +2274,7 @@ public class ApplicationServiceTest {
         actionCollectionDTO1.setName("testCollection1");
         actionCollectionDTO1.setPageId(pageId);
         actionCollectionDTO1.setApplicationId(originalApplication.getId());
-        actionCollectionDTO1.setWorkspaceId(workspaceId);
+        actionCollectionDTO1.setOrganizationId(orgId);
         actionCollectionDTO1.setPluginId(datasource.getPluginId());
         ActionDTO jsAction = new ActionDTO();
         jsAction.setName("jsFunc");
@@ -2349,7 +2349,7 @@ public class ApplicationServiceTest {
     public void newApplicationShouldHavePublishedState() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest NewApp PublishedState");
-        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId).cache();
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId).cache();
 
         Mono<PageDTO> publishedPageMono = applicationMono
                 .flatMap(application -> {
@@ -2381,7 +2381,7 @@ public class ApplicationServiceTest {
         Application app = new Application();
         app.setName("validGetApplicationPagesMultiPageApp-Test");
 
-        Mono<Application> createApplicationMono = applicationPageService.createApplication(app, workspaceId)
+        Mono<Application> createApplicationMono = applicationPageService.createApplication(app, orgId)
                 .cache();
 
         // Create all the pages for this application in a blocking manner.
@@ -2432,7 +2432,7 @@ public class ApplicationServiceTest {
         String appName = "ApplicationServiceTest Public View Application Midway Cancellation";
         testApplication.setName(appName);
 
-        Application originalApplication = applicationPageService.createApplication(testApplication, workspaceId)
+        Application originalApplication = applicationPageService.createApplication(testApplication, orgId)
                 .block();
 
         String pageId = originalApplication.getPages().get(0).getId();
@@ -2444,7 +2444,7 @@ public class ApplicationServiceTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setWorkspaceId(workspaceId);
+        datasource.setOrganizationId(orgId);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
 
@@ -2573,7 +2573,7 @@ public class ApplicationServiceTest {
         testApplication.setModifiedBy("test-user");
         testApplication.setIsPublic(true);
 
-        Mono<Application> updatedApplication = applicationPageService.createApplication(testApplication, workspaceId)
+        Mono<Application> updatedApplication = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application ->
                     applicationService.saveLastEditInformation(application.getId())
                 );
@@ -2590,7 +2590,7 @@ public class ApplicationServiceTest {
     @Test
     public void generateSshKeyPair_WhenDefaultApplicationIdNotSet_CurrentAppUpdated() {
         Application unsavedApplication = new Application();
-        unsavedApplication.setWorkspaceId(workspaceId);
+        unsavedApplication.setOrganizationId(orgId);
         Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(MANAGE_APPLICATIONS), "api_user");
         unsavedApplication.setPolicies(Set.copyOf(policyMap.values()));
         unsavedApplication.setName("ssh-test-app");
@@ -2621,7 +2621,7 @@ public class ApplicationServiceTest {
         Application unsavedMainApp = new Application();
         unsavedMainApp.setPolicies(policies);
         unsavedMainApp.setName("ssh-key-master-app");
-        unsavedMainApp.setWorkspaceId(workspaceId);
+        unsavedMainApp.setOrganizationId(orgId);
 
         Mono<Tuple2<Application, Application>> tuple2Mono = applicationRepository.save(unsavedMainApp)
                 .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId(), null).thenReturn(savedApplication))
@@ -2631,7 +2631,7 @@ public class ApplicationServiceTest {
                     unsavedChildApp.getGitApplicationMetadata().setDefaultApplicationId(savedMainApp.getId());
                     unsavedChildApp.setPolicies(policies);
                     unsavedChildApp.setName("ssh-key-child-app");
-                    unsavedChildApp.setWorkspaceId(workspaceId);
+                    unsavedChildApp.setOrganizationId(orgId);
                     return applicationRepository.save(unsavedChildApp);
                 })
                 .flatMap(savedChildApp ->
@@ -2678,7 +2678,7 @@ public class ApplicationServiceTest {
         String appName = "deleteApplicationWithPagesAndActions";
         testApplication.setName(appName);
 
-        Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService.createApplication(testApplication, workspaceId)
+        Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
                     page.setName("New Page");
@@ -2698,7 +2698,7 @@ public class ApplicationServiceTest {
 
                     final Datasource datasource = new Datasource();
                     datasource.setName("Default Database");
-                    datasource.setWorkspaceId(workspaceId);
+                    datasource.setOrganizationId(orgId);
                     datasource.setPluginId(installedPlugin.getId());
                     datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
@@ -2717,7 +2717,7 @@ public class ApplicationServiceTest {
                     actionCollectionDTO.setPageId(page.getId());
                     actionCollectionDTO.setPluginId(datasource.getPluginId());
                     actionCollectionDTO.setApplicationId(testApplication.getId());
-                    actionCollectionDTO.setWorkspaceId(testApplication.getWorkspaceId());
+                    actionCollectionDTO.setOrganizationId(testApplication.getOrganizationId());
                     actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
                     ActionDTO action1 = new ActionDTO();
                     action1.setName("archivePageTest");
@@ -2779,7 +2779,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         String appName = "deleteApplication_withNullGitData_Success";
         testApplication.setName(appName);
-        Application application = applicationPageService.createApplication(testApplication, workspaceId).block();
+        Application application = applicationPageService.createApplication(testApplication, orgId).block();
 
         Mono<Application> applicationMono = applicationPageService.deleteApplication(application.getId());
 
@@ -2803,7 +2803,7 @@ public class ApplicationServiceTest {
         gitAuth.setPublicKey("publicKey");
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
-        Application application = applicationPageService.createApplication(testApplication, workspaceId).block();
+        Application application = applicationPageService.createApplication(testApplication, orgId).block();
 
         Mono<Application> applicationMono = applicationPageService.deleteApplication(application.getId());
 
@@ -2828,7 +2828,7 @@ public class ApplicationServiceTest {
         Mono<Theme> createTheme = themeService.create(theme);
 
         Mono<Tuple2<Theme, Tuple2<Application, Application>>> tuple2Application = createTheme
-                .then(applicationPageService.createApplication(testApplication, workspaceId))
+                .then(applicationPageService.createApplication(testApplication, orgId))
                 .flatMap(application ->
                         themeService.updateTheme(application.getId(), null, theme).then(
                                 themeService.persistCurrentTheme(application.getId(), null, new Theme())
@@ -2849,7 +2849,7 @@ public class ApplicationServiceTest {
                     Application srcApp = objects.getT2().getT2();
                     assertThat(clonedApp.getEditModeThemeId()).isNotEqualTo(srcApp.getEditModeThemeId());
                     assertThat(clonedTheme.getApplicationId()).isNull();
-                    assertThat(clonedTheme.getWorkspaceId()).isNull();
+                    assertThat(clonedTheme.getOrganizationId()).isNull();
                 })
                 .verifyComplete();
     }
@@ -2863,14 +2863,14 @@ public class ApplicationServiceTest {
 
         Application testApplication = new Application();
         testApplication.setName("getApplicationConnectedToGit_defaultBranchUpdated_returnBranchSpecificApplication");
-        testApplication.setWorkspaceId(workspaceId);
+        testApplication.setOrganizationId(orgId);
         GitApplicationMetadata gitData = new GitApplicationMetadata();
         gitData.setBranchName("release");
         gitData.setDefaultApplicationId(gitConnectedApp.getId());
         testApplication.setGitApplicationMetadata(gitData);
         Application application = applicationPageService.createApplication(testApplication)
                 .flatMap(application1 -> importExportApplicationService.exportApplicationById(gitConnectedApp.getId(), gitData.getBranchName())
-                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson, application1.getId(), gitData.getBranchName())))
+                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson, application1.getId(), gitData.getBranchName())))
                 .block();
 
 

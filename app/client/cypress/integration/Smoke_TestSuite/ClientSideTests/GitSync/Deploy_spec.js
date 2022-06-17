@@ -6,10 +6,10 @@ let repoName;
 describe("Git sync modal: deploy tab", function() {
   before(() => {
     cy.NavigateToHome();
-    cy.createWorkspace();
-    cy.wait("@createWorkspace").then((interception) => {
-      const newWorkspaceName = interception.response.body.data.name;
-      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
+    cy.createOrg();
+    cy.wait("@createOrg").then((interception) => {
+      const newOrganizationName = interception.response.body.data.name;
+      cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
     });
     cy.generateUUID().then((uid) => {
       repoName = uid;

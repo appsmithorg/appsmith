@@ -8,7 +8,7 @@ export const fetchPagesMockResponse = {
     success: true,
   },
   data: {
-    workspaceId: "605c433c91dea93f0eaf91b5",
+    organizationId: "605c433c91dea93f0eaf91b5",
     pages: [
       {
         pageId: "605c435a91dea93f0eaf91ba",
@@ -30,7 +30,7 @@ export const fetchApplicationMockResponse: FetchApplicationResponse = {
       id: "605c435a91dea93f0eaf91b8",
       name: "My Application",
       slug: "my-application",
-      workspaceId: "",
+      organizationId: "",
       evaluationVersion: 1,
       appIsExample: false,
       gitApplicationMetadata: undefined,
@@ -50,7 +50,7 @@ export const fetchApplicationMockResponse: FetchApplicationResponse = {
         slug: "page-2",
       },
     ],
-    workspaceId: "",
+    organizationId: "",
   },
 };
 
@@ -78,7 +78,7 @@ export const updatedApplicationPayload = {
   id: "605c435a91dea93f0eaf91b8",
   name: "Renamed application",
   slug: "renamed-application",
-  workspaceId: "",
+  organizationId: "",
   evaluationVersion: 1,
   appIsExample: false,
   gitApplicationMetadata: undefined,

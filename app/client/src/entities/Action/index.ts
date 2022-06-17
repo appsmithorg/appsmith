@@ -79,7 +79,7 @@ export interface StoredDatasource {
 export interface BaseAction {
   id: string;
   name: string;
-  workspaceId: string;
+  organizationId: string;
   pageId: string;
   collectionId?: string;
   pluginId: string;

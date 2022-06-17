@@ -53,7 +53,7 @@ describe("Validate JSObjects binding to Input widget", () => {
     cy.get(locator._inputWidgetInDeployed)
       .last()
       .should("have.value", "Success");
-    deployMode.NavigateBacktoEditor();
+    agHelper.NavigateBacktoEditor();
 
     // cy.get(locator._inputWidget)
     //   .last()

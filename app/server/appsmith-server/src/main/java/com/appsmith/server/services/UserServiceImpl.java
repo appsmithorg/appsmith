@@ -38,8 +38,8 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                            EmailSender emailSender,
                            ApplicationRepository applicationRepository,
                            PolicyUtils policyUtils,
-                           WorkspaceRepository workspaceRepository,
-                           UserWorkspaceService userWorkspaceService,
+                           WorkspaceRepository organizationRepository,
+                           UserWorkspaceService userOrganizationService,
                            RoleGraph roleGraph,
                            ConfigService configService,
                            CommonConfig commonConfig,
@@ -52,7 +52,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService,
                 analyticsService, sessionUserService, passwordResetTokenRepository, passwordEncoder, emailSender,
-                applicationRepository, policyUtils, workspaceRepository, userWorkspaceService, roleGraph,
+                applicationRepository, policyUtils, organizationRepository, userOrganizationService, roleGraph,
                 configService, commonConfig, emailConfig, userChangedHandler, encryptionService, applicationPageService,
                 userDataService, tenantService);
     }

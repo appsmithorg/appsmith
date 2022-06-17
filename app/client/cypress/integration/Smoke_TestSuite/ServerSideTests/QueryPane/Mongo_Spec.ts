@@ -55,7 +55,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       11,
     );
 
-    deployMode.NavigateBacktoEditor();
+    agHelper.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -626,7 +626,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("16. Validate Deletion of the Newly Created Page - AuthorNAwards", () => {
-    deployMode.NavigateBacktoEditor();
+    agHelper.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
     ee.expandCollapseEntity("PAGES");
@@ -680,7 +680,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     // ee.ActionContextMenuByEntityName("Page1", "Delete", "Are you sure?"); //Cant be deleted since this is the Home page!
     // agHelper.ValidateNetworkStatus("@deletePage", 200);
     deployMode.DeployApp();
-    deployMode.NavigateBacktoEditor();
+    agHelper.NavigateBacktoEditor();
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Friends pages are still using this ds
   });
 

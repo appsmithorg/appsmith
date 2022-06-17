@@ -13,7 +13,7 @@ public interface CustomWorkspaceRepositoryCE extends AppsmithRepository<Workspac
 
     Mono<Workspace> findByName(String name, AclPermission aclPermission);
 
-    Flux<Workspace> findByIdsIn(Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort);
+    Flux<Workspace> findByIdsIn(Set<String> orgIds, String tenantId, AclPermission aclPermission, Sort sort);
 
     Mono<Void> updateUserRoleNames(String userId, String userName);
 

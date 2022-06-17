@@ -4,7 +4,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
 export type CreateApplicationFormValues = {
   applicationName: string;
-  workspaceId: string;
+  orgId: string;
   colorCode?: AppColorCode;
   appName?: AppIconName;
 };
@@ -15,7 +15,7 @@ export const createApplicationFormSubmitHandler = (
   values: CreateApplicationFormValues,
   dispatch: any,
 ): Promise<any> => {
-  const { applicationName, workspaceId } = values;
+  const { applicationName, orgId } = values;
   return new Promise((resolve, reject) => {
     dispatch({
       type: ReduxActionTypes.CREATE_APPLICATION_INIT,
@@ -23,7 +23,7 @@ export const createApplicationFormSubmitHandler = (
         resolve,
         reject,
         applicationName,
-        workspaceId,
+        orgId,
       },
     });
   }).catch((error) => {

@@ -5,7 +5,7 @@ import {
   ReduxActionErrorTypes,
   ApplicationPayload,
 } from "@appsmith/constants/ReduxActionConstants";
-import { Workspaces, WorkspaceUser } from "constants/workspaceConstants";
+import { Organization, OrgUser } from "constants/orgConstants";
 import {
   createMessage,
   ERROR_MESSAGE_CREATE_APPLICATION,
@@ -26,13 +26,13 @@ const initialState: ApplicationsReduxState = {
   deletingApplication: false,
   forkingApplication: false,
   duplicatingApplication: false,
-  userWorkspaces: [],
-  isSavingWorkspaceInfo: false,
+  userOrgs: [],
+  isSavingOrgInfo: false,
   importingApplication: false,
   importedApplication: null,
   showAppInviteUsersDialog: false,
   isImportAppModalOpen: false,
-  workspaceIdForImport: null,
+  organizationIdForImport: null,
 };
 
 const applicationsReducer = createReducer(initialState, {
@@ -45,9 +45,9 @@ const applicationsReducer = createReducer(initialState, {
     state: ApplicationsReduxState,
     action: ReduxAction<ApplicationPayload>,
   ) => {
-    const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
-      if (workspace.workspace.id === action.payload.workspaceId) {
-        let applications = workspace.applications;
+    const _organizations = state.userOrgs.map((org: Organization) => {
+      if (org.organization.id === action.payload.organizationId) {
+        let applications = org.applications;
 
         applications = applications.filter(
           (application: ApplicationPayload) => {
@@ -56,17 +56,17 @@ const applicationsReducer = createReducer(initialState, {
         );
 
         return {
-          ...workspace,
+          ...org,
           applications,
         };
       }
 
-      return workspace;
+      return org;
     });
 
     return {
       ...state,
-      userWorkspaces: _workspaces,
+      userOrgs: _organizations,
       deletingApplication: false,
     };
   },
@@ -94,24 +94,24 @@ const applicationsReducer = createReducer(initialState, {
   [ReduxActionTypes.GET_ALL_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
   ) => ({ ...state, isFetchingApplications: true }),
-  [ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS]: (
+  [ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{ applicationList: any }>,
   ) => {
     return {
       ...state,
       isFetchingApplications: false,
-      userWorkspaces: action.payload,
+      userOrgs: action.payload,
     };
   },
-  [ReduxActionTypes.DELETE_WORKSPACE_SUCCESS]: (
+  [ReduxActionTypes.DELETE_ORG_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<string>,
   ) => {
     return {
       ...state,
-      userWorkspaces: state.userWorkspaces.filter(
-        (workspace: Workspaces) => workspace.workspace.id !== action.payload,
+      userOrgs: state.userOrgs.filter(
+        (org: Organization) => org.organization.id !== action.payload,
       ),
     };
   },
@@ -152,7 +152,7 @@ const applicationsReducer = createReducer(initialState, {
     action: ReduxAction<CreateApplicationFormValues>,
   ) => {
     const updatedCreatingApplication = { ...state.creatingApplication };
-    updatedCreatingApplication[action.payload.workspaceId] = true;
+    updatedCreatingApplication[action.payload.orgId] = true;
 
     return {
       ...state,
@@ -161,59 +161,56 @@ const applicationsReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.CREATE_APPLICATION_SUCCESS]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<{
-      workspaceId: string;
-      application: ApplicationPayload;
-    }>,
+    action: ReduxAction<{ orgId: string; application: ApplicationPayload }>,
   ) => {
-    const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
-      if (workspace.workspace.id === action.payload.workspaceId) {
-        const applications = workspace.applications;
+    const _organizations = state.userOrgs.map((org: Organization) => {
+      if (org.organization.id === action.payload.orgId) {
+        const applications = org.applications;
         applications.push(action.payload.application);
-        workspace.applications = [...applications];
+        org.applications = [...applications];
         return {
-          ...workspace,
+          ...org,
         };
       }
-      return workspace;
+      return org;
     });
 
     const updatedCreatingApplication = { ...state.creatingApplication };
-    updatedCreatingApplication[action.payload.workspaceId] = false;
+    updatedCreatingApplication[action.payload.orgId] = false;
 
     return {
       ...state,
       creatingApplication: updatedCreatingApplication,
       applicationList: [...state.applicationList, action.payload.application],
-      userWorkspaces: _workspaces,
+      userOrgs: _organizations,
     };
   },
-  [ReduxActionTypes.INVITED_USERS_TO_WORKSPACE]: (
+  [ReduxActionTypes.INVITED_USERS_TO_ORGANIZATION]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<{ workspaceId: string; users: WorkspaceUser[] }>,
+    action: ReduxAction<{ orgId: string; users: OrgUser[] }>,
   ) => {
-    const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
-      if (workspace.workspace.id === action.payload.workspaceId) {
-        const userRoles = workspace.userRoles;
-        workspace.userRoles = [...userRoles, ...action.payload.users];
+    const _organizations = state.userOrgs.map((org: Organization) => {
+      if (org.organization.id === action.payload.orgId) {
+        const userRoles = org.userRoles;
+        org.userRoles = [...userRoles, ...action.payload.users];
         return {
-          ...workspace,
+          ...org,
         };
       }
-      return workspace;
+      return org;
     });
 
     return {
       ...state,
-      userWorkspaces: _workspaces,
+      userOrgs: _organizations,
     };
   },
   [ReduxActionErrorTypes.CREATE_APPLICATION_ERROR]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<{ workspaceId: string }>,
+    action: ReduxAction<{ orgId: string }>,
   ) => {
     const updatedCreatingApplication = { ...state.creatingApplication };
-    updatedCreatingApplication[action.payload.workspaceId] = false;
+    updatedCreatingApplication[action.payload.orgId] = false;
 
     return {
       ...state,
@@ -226,27 +223,24 @@ const applicationsReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FORK_APPLICATION_SUCCESS]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<{
-      workspaceId: string;
-      application: ApplicationPayload;
-    }>,
+    action: ReduxAction<{ orgId: string; application: ApplicationPayload }>,
   ) => {
-    const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
-      if (workspace.workspace.id === action.payload.workspaceId) {
-        const applications = workspace.applications;
-        workspace.applications = [...applications, action.payload.application];
+    const _organizations = state.userOrgs.map((org: Organization) => {
+      if (org.organization.id === action.payload.orgId) {
+        const applications = org.applications;
+        org.applications = [...applications, action.payload.application];
         return {
-          ...workspace,
+          ...org,
         };
       }
-      return workspace;
+      return org;
     });
 
     return {
       ...state,
       forkingApplication: false,
       applicationList: [...state.applicationList, action.payload.application],
-      userWorkspaces: _workspaces,
+      userOrgs: _organizations,
     };
   },
   [ReduxActionErrorTypes.FORK_APPLICATION_ERROR]: (
@@ -282,13 +276,13 @@ const applicationsReducer = createReducer(initialState, {
       importingApplication: false,
     };
   },
-  [ReduxActionTypes.SAVING_WORKSPACE_INFO]: (state: ApplicationsReduxState) => {
+  [ReduxActionTypes.SAVING_ORG_INFO]: (state: ApplicationsReduxState) => {
     return {
       ...state,
-      isSavingWorkspaceInfo: true,
+      isSavingOrgInfo: true,
     };
   },
-  [ReduxActionTypes.SAVE_WORKSPACE_SUCCESS]: (
+  [ReduxActionTypes.SAVE_ORG_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{
       id: string;
@@ -298,29 +292,27 @@ const applicationsReducer = createReducer(initialState, {
       logoUrl?: string;
     }>,
   ) => {
-    const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
-      if (workspace.workspace.id === action.payload.id) {
-        workspace.workspace = { ...workspace.workspace, ...action.payload };
+    const _organizations = state.userOrgs.map((org: Organization) => {
+      if (org.organization.id === action.payload.id) {
+        org.organization = { ...org.organization, ...action.payload };
 
         return {
-          ...workspace,
+          ...org,
         };
       }
-      return workspace;
+      return org;
     });
 
     return {
       ...state,
-      userWorkspaces: _workspaces,
-      isSavingWorkspaceInfo: false,
+      userOrgs: _organizations,
+      isSavingOrgInfo: false,
     };
   },
-  [ReduxActionErrorTypes.SAVE_WORKSPACE_ERROR]: (
-    state: ApplicationsReduxState,
-  ) => {
+  [ReduxActionErrorTypes.SAVE_ORG_ERROR]: (state: ApplicationsReduxState) => {
     return {
       ...state,
-      isSavingWorkspaceInfo: false,
+      isSavingOrgInfo: false,
     };
   },
   [ReduxActionTypes.SEARCH_APPLICATIONS]: (
@@ -370,24 +362,24 @@ const applicationsReducer = createReducer(initialState, {
     state: ApplicationsReduxState,
     action: ReduxAction<UpdateApplicationRequest>,
   ) => {
-    // userWorkspaces data has to be saved to localStorage only if the action is successful
+    // userOrgs data has to be saved to localStorage only if the action is successful
     // It introduces bug if we prematurely save it during init action.
     const { id, ...rest } = action.payload;
-    const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
-      const appIndex = workspace.applications.findIndex((app) => app.id === id);
+    const _organizations = state.userOrgs.map((org: Organization) => {
+      const appIndex = org.applications.findIndex((app) => app.id === id);
 
       if (appIndex !== -1) {
-        workspace.applications[appIndex] = {
-          ...workspace.applications[appIndex],
+        org.applications[appIndex] = {
+          ...org.applications[appIndex],
           ...rest,
         };
       }
 
-      return workspace;
+      return org;
     });
     return {
       ...state,
-      userWorkspaces: _workspaces,
+      userOrgs: _organizations,
       isSavingAppName: false,
       isErrorSavingAppName: false,
     };
@@ -463,7 +455,7 @@ const applicationsReducer = createReducer(initialState, {
     ...state,
     isDatasourceConfigForImportFetched: false,
   }),
-  [ReduxActionTypes.SET_WORKSPACE_ID_FOR_IMPORT]: (
+  [ReduxActionTypes.SET_ORG_ID_FOR_IMPORT]: (
     state: ApplicationsReduxState,
     action: ReduxAction<string>,
   ) => {
@@ -475,10 +467,10 @@ const applicationsReducer = createReducer(initialState, {
     return {
       ...state,
       currentApplication,
-      workspaceIdForImport: action.payload,
+      organizationIdForImport: action.payload,
     };
   },
-  [ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_SUCCESS]: (
+  [ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<ApplicationPayload>,
   ) => {
@@ -505,20 +497,20 @@ export interface ApplicationsReduxState {
   forkingApplication: boolean;
   duplicatingApplication: boolean;
   currentApplication?: ApplicationPayload;
-  userWorkspaces: Workspaces[];
-  isSavingWorkspaceInfo: boolean;
+  userOrgs: Organization[];
+  isSavingOrgInfo: boolean;
   importingApplication: boolean;
   showAppInviteUsersDialog: boolean;
   importedApplication: any;
   isImportAppModalOpen: boolean;
-  workspaceIdForImport: any;
+  organizationIdForImport: any;
   isDatasourceConfigForImportFetched?: boolean;
 }
 
 export interface Application {
   id: string;
   name: string;
-  workspaceId: string;
+  organizationId: string;
   isPublic: boolean;
   appIsExample: boolean;
   new: boolean;

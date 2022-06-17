@@ -8,7 +8,7 @@ import { IconName } from "components/ads/Icon";
 type FormDialogComponentProps = {
   isOpen?: boolean;
   canOutsideClickClose?: boolean;
-  workspaceId?: string;
+  orgId?: string;
   title: string;
   Form: any;
   trigger: ReactNode;
@@ -69,7 +69,7 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
         {...props.customProps}
         applicationId={props.applicationId}
         onCancel={() => setIsOpen(false)}
-        workspaceId={props.workspaceId}
+        orgId={props.orgId}
       />
     </Dialog>
   );

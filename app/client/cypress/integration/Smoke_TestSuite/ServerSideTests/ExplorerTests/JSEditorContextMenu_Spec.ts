@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 
-let ee = ObjectsRegistry.EntityExplorer,
+let agHelper = ObjectsRegistry.AggregateHelper,
+    ee = ObjectsRegistry.EntityExplorer,
     jsEditor = ObjectsRegistry.JSEditor;
 
 describe("Validate basic operations on Entity explorer JSEditor structure", () => {
@@ -14,7 +15,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
   });
 
   it("2. Validate Rename JSObject from Form Header", function() {
-    jsEditor.RenameJSObjFromPane("RenamedJSObject");
+    jsEditor.RenameJSObjFromForm("RenamedJSObject");
     ee.AssertEntityPresenceInExplorer("RenamedJSObject");
     jsEditor.validateDefaultJSObjProperties("RenamedJSObject");
   });

@@ -392,7 +392,7 @@ export const Steps: StepsType = {
       {
         text: (
           <>
-            In the property pane of {GuidedTourEntityNames.NAME_INPUT}, add the{" "}
+            In the property pane of Name input, add the{" "}
             <b>
               <code>
                 &#123;&#123;CustomersTable.selectedRow.name&#125;&#125;

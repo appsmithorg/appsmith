@@ -188,7 +188,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private void setCommonFieldsFromNewActionIntoAction(NewAction newAction, ActionDTO action) {
 
         // Set the fields from NewAction into Action
-        action.setWorkspaceId(newAction.getWorkspaceId());
+        action.setOrganizationId(newAction.getOrganizationId());
         action.setPluginType(newAction.getPluginType());
         action.setPluginId(newAction.getPluginId());
         action.setTemplateId(newAction.getTemplateId());
@@ -203,7 +203,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction) {
         // Set the fields from NewAction into Action
-        newAction.setWorkspaceId(action.getWorkspaceId());
+        newAction.setOrganizationId(action.getOrganizationId());
         newAction.setPluginType(action.getPluginType());
         newAction.setPluginId(action.getPluginId());
         newAction.setTemplateId(action.getTemplateId());
@@ -348,7 +348,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         }))
                         .map(datasource -> {
                             // datasource is found. Update the action.
-                            newAction.setWorkspaceId(datasource.getWorkspaceId());
+                            newAction.setOrganizationId(datasource.getOrganizationId());
                             return datasource;
                         })
                         // If the action is publicly executable, update the datasource policy
@@ -404,7 +404,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     analyticsProperties.put("pluginType", ObjectUtils.defaultIfNull(savedAction.getPluginType(), ""));
                     analyticsProperties.put("pluginName", ObjectUtils.defaultIfNull(unpublishedAction.getPluginName(), ""));
                     analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedAction.getApplicationId(), ""));
-                    analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedAction.getWorkspaceId(), ""));
+                    analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedAction.getOrganizationId(), ""));
                     analyticsProperties.put("actionName", ObjectUtils.defaultIfNull(unpublishedAction.getValidName(), ""));
                     if (unpublishedAction.getDatasource() != null) {
                         analyticsProperties.put("dsName", ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getName(), ""));
@@ -1037,7 +1037,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             "datasource", Map.of(
                                     "name", datasource.getName()
                             ),
-                            "orgId", application.getWorkspaceId(),
+                            "orgId", application.getOrganizationId(),
                             "appId", action.getApplicationId(),
                             "appMode", TRUE.equals(viewMode) ? "view" : "edit",
                             "appName", application.getName(),

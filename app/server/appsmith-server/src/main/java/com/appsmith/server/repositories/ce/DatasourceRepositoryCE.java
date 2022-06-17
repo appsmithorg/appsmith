@@ -12,7 +12,7 @@ public interface DatasourceRepositoryCE extends BaseRepository<Datasource, Strin
 
     Flux<Datasource> findByIdIn(List<String> ids);
 
-    Flux<Datasource> findAllByWorkspaceId(String workspaceId);
+    Flux<Datasource> findAllByOrganizationId(String organizationId);
 
     Mono<Long> countByDeletedAtNull();
 

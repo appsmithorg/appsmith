@@ -218,7 +218,7 @@ describe("gitSync utils", () => {
         isAutoUpdate: false,
         isManualUpdate: false,
         name: "",
-        workspaceId: "",
+        organizationId: "",
         pages: [],
       };
       const actual = changeInfoSinceLastCommit(applicationData);
@@ -238,7 +238,7 @@ describe("gitSync utils", () => {
         isAutoUpdate: true,
         isManualUpdate: false,
         name: "",
-        workspaceId: "",
+        organizationId: "",
         pages: [],
       };
       const actual = changeInfoSinceLastCommit(applicationData);
@@ -258,7 +258,7 @@ describe("gitSync utils", () => {
         isAutoUpdate: true,
         isManualUpdate: true,
         name: "",
-        workspaceId: "",
+        organizationId: "",
         pages: [],
       };
       const actual = changeInfoSinceLastCommit(applicationData);
@@ -278,7 +278,7 @@ describe("gitSync utils", () => {
         isAutoUpdate: false,
         isManualUpdate: true,
         name: "",
-        workspaceId: "",
+        organizationId: "",
         pages: [],
       };
       const actual = changeInfoSinceLastCommit(applicationData);

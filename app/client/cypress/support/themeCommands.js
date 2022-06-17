@@ -1,6 +1,6 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
-/* Contains all methods related to Workspace features*/
+/* Contains all methods related to Organisation features*/
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");

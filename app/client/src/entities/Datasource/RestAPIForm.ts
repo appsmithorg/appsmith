@@ -47,7 +47,7 @@ export interface Certificate {
 export interface ApiDatasourceForm {
   datasourceId: string;
   pluginId: string;
-  workspaceId: string;
+  organizationId: string;
   isValid: boolean;
   url: string;
   headers?: Property[];

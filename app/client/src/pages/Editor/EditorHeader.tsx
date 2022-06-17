@@ -7,7 +7,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
-import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
+import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
@@ -22,8 +22,8 @@ import {
 } from "selectors/editorSelectors";
 import {
   getAllUsers,
-  getCurrentWorkspaceId,
-} from "@appsmith/selectors/workspaceSelectors";
+  getCurrentOrgId,
+} from "@appsmith/selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import { EditInteractionKind, SavingState } from "components/ads/EditableText";
@@ -57,8 +57,8 @@ import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 
 import { retryPromise } from "utils/AppsmithUtils";
-import { fetchUsersForWorkspace } from "actions/workspaceActions";
-import { WorkspaceUser } from "constants/workspaceConstants";
+import { fetchUsersForOrg } from "actions/orgActions";
+import { OrgUser } from "constants/orgConstants";
 
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import TooltipComponent from "components/ads/Tooltip";
@@ -221,14 +221,14 @@ type EditorHeaderProps = {
   pageId: string;
   isPublishing: boolean;
   publishedTime?: string;
-  workspaceId: string;
+  orgId: string;
   applicationId?: string;
   currentApplication?: ApplicationPayload;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
   lastUpdatedTime?: number;
   inOnboarding: boolean;
-  sharedUserList: WorkspaceUser[];
+  sharedUserList: OrgUser[];
   currentUser?: User;
 };
 
@@ -250,9 +250,9 @@ export function EditorHeader(props: EditorHeaderProps) {
     applicationId,
     currentApplication,
     isPublishing,
+    orgId,
     pageId,
     publishApplication,
-    workspaceId,
   } = props;
   const location = useLocation();
   const dispatch = useDispatch();
@@ -334,10 +334,10 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   //Fetch all users for the application to show the share button tooltip
   useEffect(() => {
-    if (workspaceId) {
-      dispatch(fetchUsersForWorkspace(workspaceId));
+    if (orgId) {
+      dispatch(fetchUsersForOrg(orgId));
     }
-  }, [workspaceId]);
+  }, [orgId]);
   const filteredSharedUserList = props.sharedUserList.filter(
     (user) => user.username !== props.currentUser?.username,
   );
@@ -470,6 +470,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 bgColor: Colors.GEYSER_LIGHT,
               }}
               isOpen={showAppInviteUsersDialog}
+              orgId={orgId}
               title={
                 currentApplication
                   ? currentApplication.name
@@ -492,7 +493,6 @@ export function EditorHeader(props: EditorHeaderProps) {
                   <ShareButtonComponent />
                 </TooltipComponent>
               }
-              workspaceId={workspaceId}
             />
             <DeploySection>
               <TooltipComponent
@@ -553,7 +553,7 @@ const theme = getTheme(ThemeMode.LIGHT);
 
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,
-  workspaceId: getCurrentWorkspaceId(state),
+  orgId: getCurrentOrgId(state),
   applicationId: getCurrentApplicationId(state),
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),

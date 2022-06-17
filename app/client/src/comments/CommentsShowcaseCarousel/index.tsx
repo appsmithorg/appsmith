@@ -26,8 +26,8 @@ import {
 
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import useWorkspace from "utils/hooks/useWorkspace";
+import { getCurrentAppOrg } from "@appsmith/selectors/organizationSelectors";
+import useOrg from "utils/hooks/useOrg";
 import { getCanCreateApplications } from "utils/helpers";
 
 import stepOneThumbnail from "assets/images/comments-onboarding/thumbnails/step-1.jpg";
@@ -232,9 +232,9 @@ export default function CommentsShowcaseCarousel() {
     dispatch(updateUserDetails({ name, email }));
   };
 
-  const { id } = useSelector(getCurrentAppWorkspace) || {};
-  const currentWorkspace = useWorkspace(id);
-  const canManage = getCanCreateApplications(currentWorkspace);
+  const { id } = useSelector(getCurrentAppOrg) || {};
+  const currentOrg = useOrg(id);
+  const canManage = getCanCreateApplications(currentOrg);
 
   const [initialStep, finalStep] = getInitialAndFinalSteps(canManage);
 

@@ -138,7 +138,7 @@ export function* fetchPageListSaga(
     const response: FetchPageListResponse = yield call(apiCall, applicationId);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const workspaceId = response.data.workspaceId;
+      const orgId = response.data.organizationId;
       const pages: PageListPayload = response.data.pages.map((page) => ({
         pageName: page.name,
         pageId: page.id,
@@ -147,9 +147,9 @@ export function* fetchPageListSaga(
         slug: page.slug,
       }));
       yield put({
-        type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
+        type: ReduxActionTypes.SET_CURRENT_ORG_ID,
         payload: {
-          workspaceId,
+          orgId,
         },
       });
       yield put({

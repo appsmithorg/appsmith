@@ -12,8 +12,8 @@
         "email":"b1@appsmith.com",
         "source":"FORM",
         "isEnabled":true,
-        "currentWorkspaceId":"6065e4b7034ece74b1481819",
-        "workspaceIds":[
+        "currentOrganizationId":"6065e4b7034ece74b1481819",
+        "organizationIds":[
           "6065e4a8034ece74b1481818",
           "6065e4b7034ece74b1481819"
         ],
@@ -37,17 +37,17 @@
         },
         "new":false
       },
-      "workspaceApplications":[
+      "organizationApplications":[
         {
-          "workspace":{
+          "organization":{
             "id":"6065e4a8034ece74b1481818",
             "userPermissions":[
-              "read:workspaces",
-              "manage:workspaceApplications",
-              "manage:workspaces",
-              "inviteUsers:workspaces",
-              "publish:workspaceApplications",
-              "read:workspaceApplications"
+              "read:organizations",
+              "manage:orgApplications",
+              "manage:organizations",
+              "inviteUsers:organization",
+              "publish:orgApplications",
+              "read:orgApplications"
             ],
             "name":"b1's apps",
             "email":"b1@appsmith.com",
@@ -164,15 +164,15 @@
           ]
         },
         {
-          "workspace":{
+          "organization":{
             "id":"6065e4b7034ece74b1481819",
             "userPermissions":[
-              "read:workspaces",
-              "manage:workspaceApplications",
-              "manage:workspaces",
-              "inviteUsers:workspaces",
-              "publish:workspaceApplications",
-              "read:workspaceApplications"
+              "read:organizations",
+              "manage:orgApplications",
+              "manage:organizations",
+              "inviteUsers:organization",
+              "publish:orgApplications",
+              "read:orgApplications"
             ],
             "name":"new org",
             "email":"b1@appsmith.com",

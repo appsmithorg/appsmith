@@ -18,11 +18,7 @@ public class NewAction extends BaseDomain {
     // Fields in action that are not allowed to change between published and unpublished versions
     String applicationId;
 
-    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
     String organizationId;
-
-    String workspaceId;
 
     PluginType pluginType;
 

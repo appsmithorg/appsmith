@@ -28,11 +28,11 @@ let repoName;
 describe("Git sync:", function() {
   before(() => {
     cy.NavigateToHome();
-    cy.createWorkspace();
-    cy.wait("@createWorkspace").then((interception) => {
-      const newWorkspaceName = interception.response.body.data.name;
+    cy.createOrg();
+    cy.wait("@createOrg").then((interception) => {
+      const newOrganizationName = interception.response.body.data.name;
       cy.generateUUID().then((uid) => {
-        cy.CreateAppForWorkspace(newWorkspaceName, uid);
+        cy.CreateAppForOrg(newOrganizationName, uid);
         applicationName = uid;
         cy.get("@currentApplicationId").then(
           (currentAppId) => (applicationId = currentAppId),

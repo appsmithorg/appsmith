@@ -53,10 +53,10 @@ public class ApplicationFetcherTest {
         }).then(applicationFetcher.getAllApplications());
 
         StepVerifier.create(homepageDTOMono).assertNext(userHomepageDTO -> {
-            assertThat(userHomepageDTO.getWorkspaceApplications()).isNotNull();
+            assertThat(userHomepageDTO.getOrganizationApplications()).isNotNull();
 
-            WorkspaceApplicationsDTO orgApps = userHomepageDTO.getWorkspaceApplications().stream().filter(
-                    x -> x.getWorkspace().getName().equals(newWorkspace.getName())
+            WorkspaceApplicationsDTO orgApps = userHomepageDTO.getOrganizationApplications().stream().filter(
+                    x -> x.getOrganization().getName().equals(newWorkspace.getName())
             ).findFirst().orElse(new WorkspaceApplicationsDTO());
 
             assertThat(orgApps.getApplications().size()).isEqualTo(1);

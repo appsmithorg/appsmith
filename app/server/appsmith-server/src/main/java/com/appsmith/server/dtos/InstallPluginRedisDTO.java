@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class InstallPluginRedisDTO {
-    String workspaceId;
-    PluginWorkspaceDTO pluginWorkspaceDTO;
+    String organizationId;
+    PluginWorkspaceDTO pluginOrgDTO;
 }

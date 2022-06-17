@@ -5,7 +5,7 @@
           "isLoading": false,
           "config": {
             "id": "6194d8e1abb49e2fd00812b2",
-            "workspaceId": "5e1c5b2014edee5e49efc06c",
+            "organizationId": "5e1c5b2014edee5e49efc06c",
             "pluginType": "SAAS",
             "pluginId": "6080f9266b8cfd602957ba72",
             "name": "Api1",

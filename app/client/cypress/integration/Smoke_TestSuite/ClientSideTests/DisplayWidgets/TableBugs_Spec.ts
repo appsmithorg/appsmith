@@ -50,7 +50,7 @@ describe("Verify various Table property bugs", function () {
     table.AssertURLColumnNavigation(0, 0, 'https://wallpaperaccess.com/full/1376499.jpg')
     table.AssertURLColumnNavigation(3, 0, 'https://wallpaperaccess.com/full/812632.jpg')
 
-    deployMode.NavigateBacktoEditor()
+    agHelper.NavigateBacktoEditor()
 
   });
 
@@ -83,7 +83,7 @@ describe("Verify various Table property bugs", function () {
     table.AssertURLColumnNavigation(1, 0, 'https://wallpaperaccess.com/full/1688623.jpg')
     table.AssertURLColumnNavigation(2, 0, 'https://wallpaperaccess.com/full/2117775.jpg')
 
-    deployMode.NavigateBacktoEditor()
+    agHelper.NavigateBacktoEditor()
 
   });
 
@@ -116,7 +116,7 @@ describe("Verify various Table property bugs", function () {
     table.AssertURLColumnNavigation(0, 0, 'https://wallpaperaccess.com/full/1376499.jpg')
     table.AssertURLColumnNavigation(3, 0, 'https://wallpaperaccess.com/full/812632.jpg')
 
-    deployMode.NavigateBacktoEditor()
+    agHelper.NavigateBacktoEditor()
 
   });
 

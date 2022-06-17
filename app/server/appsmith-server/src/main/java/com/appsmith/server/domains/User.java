@@ -47,23 +47,11 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
 
     private Boolean isEnabled = true;
 
-    //Organizations migrated to workspaces, kept the field as depricated to support the old migration
-    @Deprecated
     private String currentOrganizationId;
-    
-    private String currentWorkspaceId;
 
-    //Organizations migrated to workspaces, kept the field as depricated to support the old migration
-    @Deprecated
     private Set<String> organizationIds;
-    
-    private Set<String> workspaceIds;
 
-    //Organizations migrated to workspaces, kept the field as depricated to support the old migration
-    @Deprecated
     private String examplesOrganizationId;
-    
-    private String examplesWorkspaceId;
 
     // There is a many-to-many relationship with groups. If this value is modified, please also modify the list of
     // users in that particular group document as well.

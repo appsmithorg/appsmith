@@ -6,7 +6,7 @@ public interface Url {
     String LOGIN_URL = BASE_URL + VERSION + "/login";
     String LOGOUT_URL = BASE_URL + VERSION + "/logout";
     String WIDGET_URL = BASE_URL + VERSION + "/widgets";
-    String WORKSPACE_URL = BASE_URL + VERSION + "/workspaces";
+    String ORGANIZATION_URL = BASE_URL + VERSION + "/organizations";
     String LAYOUT_URL = BASE_URL + VERSION + "/layouts";
     String PLUGIN_URL = BASE_URL + VERSION + "/plugins";
     String SETTING_URL = BASE_URL + VERSION + "/settings";

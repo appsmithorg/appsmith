@@ -41,8 +41,8 @@ export interface FetchUserRequest {
   id: string;
 }
 
-export interface LeaveWorkspaceRequest {
-  workspaceId: string;
+export interface LeaveOrgRequest {
+  orgId: string;
 }
 
 export interface InviteUserRequest {
@@ -91,8 +91,8 @@ export class UserApi extends Api {
   static inviteUserURL = "v1/users/invite";
   static verifyInviteTokenURL = `${UserApi.inviteUserURL}/verify`;
   static confirmUserInviteURL = `${UserApi.inviteUserURL}/confirm`;
-  static addWorkspaceURL = `${UserApi.usersURL}/addWorkspace`;
-  static leaveWorkspaceURL = `${UserApi.usersURL}/leaveWorkspace`;
+  static addOrgURL = `${UserApi.usersURL}/addOrganization`;
+  static leaveOrgURL = `${UserApi.usersURL}/leaveOrganization`;
   static logoutURL = "v1/logout";
   static currentUserURL = "v1/users/me";
   static photoURL = "v1/users/photo";
@@ -166,7 +166,7 @@ export class UserApi extends Api {
     id: string;
     new: boolean;
     profilePhotoAssetId: string;
-    recentlyUsedWorkspaceIds: string[];
+    recentlyUsedOrgIds: string[];
   }> {
     const formData = new FormData();
     if (request.file) {
@@ -184,10 +184,8 @@ export class UserApi extends Api {
     return Api.delete(UserApi.photoURL);
   }
 
-  static leaveWorkspace(
-    request: LeaveWorkspaceRequest,
-  ): AxiosPromise<LeaveWorkspaceRequest> {
-    return Api.put(UserApi.leaveWorkspaceURL + "/" + request.workspaceId);
+  static leaveOrg(request: LeaveOrgRequest): AxiosPromise<LeaveOrgRequest> {
+    return Api.put(UserApi.leaveOrgURL + "/" + request.orgId);
   }
 
   static fetchFeatureFlags(): AxiosPromise<ApiResponse> {

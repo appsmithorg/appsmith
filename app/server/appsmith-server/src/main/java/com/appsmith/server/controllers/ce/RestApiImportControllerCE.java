@@ -44,7 +44,7 @@ public class RestApiImportControllerCE {
                                                @RequestParam RestApiImporterType type,
                                                @RequestParam String pageId,
                                                @RequestParam String name,
-                                               @RequestParam String workspaceId,
+                                               @RequestParam String organizationId,
                                                @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
                                                @RequestHeader(name = "Origin", required = false) String originHeader
     ) {
@@ -59,7 +59,7 @@ public class RestApiImportControllerCE {
                 throw new IllegalStateException("Unexpected value: " + type);
         }
 
-        return service.importAction(input, pageId, name, workspaceId, branchName)
+        return service.importAction(input, pageId, name, organizationId, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 

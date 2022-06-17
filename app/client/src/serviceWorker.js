@@ -22,7 +22,7 @@ const regexMap = {
     /(tiny.cloud|googleapis|gstatic|cloudfront).*.(js|css|woff2)/,
   ),
   shims: new RegExp(/shims\/.*.js/),
-  profile: new RegExp(/v1\/(users\/profile|workspaces)/),
+  profile: new RegExp(/v1\/(users\/profile|organizations)/),
   providers: new RegExp(/v1\/marketplace\/(providers|templates)/),
 };
 

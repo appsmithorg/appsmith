@@ -8,7 +8,7 @@ export type Variable = {
 export interface JSCollection {
   id: string;
   applicationId: string;
-  workspaceId: string;
+  organizationId: string;
   name: string;
   pageId: string;
   pluginId: string;

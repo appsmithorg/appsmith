@@ -33,13 +33,13 @@ const FilePickerWrapper = styled.div`
 
 type ImportApplicationModalProps = {
   // import?: (file: any) => void;
-  workspaceId?: string;
+  organizationId?: string;
   isModalOpen?: boolean;
   onClose?: () => void;
 };
 
 function ImportApplicationModal(props: ImportApplicationModalProps) {
-  const { isModalOpen, onClose, workspaceId } = props;
+  const { isModalOpen, onClose, organizationId } = props;
   const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
     file: File;
     setProgress: SetProgress;
@@ -74,11 +74,11 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
 
     dispatch(
       importApplication({
-        workspaceId: workspaceId as string,
+        orgId: organizationId as string,
         applicationFile: file,
       }),
     );
-  }, [appFileToBeUploaded, workspaceId]);
+  }, [appFileToBeUploaded, organizationId]);
 
   const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
 
@@ -102,7 +102,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       <ButtonWrapper>
         <ImportButton
           // category={ButtonCategory.tertiary}
-          cypressSelector={"t--workspace-import-app-button"}
+          cypressSelector={"t--org-import-app-button"}
           disabled={!appFileToBeUploaded}
           isLoading={importingApplication}
           onClick={onImportApplication}

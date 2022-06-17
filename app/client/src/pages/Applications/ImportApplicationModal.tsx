@@ -5,7 +5,7 @@ import { FileType, SetProgress } from "components/ads/FilePicker";
 import { useDispatch } from "react-redux";
 import {
   importApplication,
-  setWorkspaceIdForImport,
+  setOrgIdForImport,
 } from "actions/applicationActions";
 import {
   createMessage,
@@ -228,13 +228,13 @@ function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
 
 type ImportApplicationModalProps = {
   // import?: (file: any) => void;
-  workspaceId?: string;
+  organizationId?: string;
   isModalOpen?: boolean;
   onClose?: () => void;
 };
 
 function ImportApplicationModal(props: ImportApplicationModalProps) {
-  const { isModalOpen, onClose, workspaceId } = props;
+  const { isModalOpen, onClose, organizationId } = props;
   const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
     file: File;
     setProgress: SetProgress;
@@ -246,7 +246,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
     dispatch({
       type: ReduxActionTypes.GIT_INFO_INIT,
     });
-    dispatch(setWorkspaceIdForImport(workspaceId));
+    dispatch(setOrgIdForImport(organizationId));
 
     dispatch(
       setIsGitSyncModalOpen({
@@ -269,7 +269,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
         });
         dispatch(
           importApplication({
-            workspaceId: workspaceId as string,
+            orgId: organizationId as string,
             applicationFile: file,
           }),
         );

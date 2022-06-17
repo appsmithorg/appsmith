@@ -35,7 +35,7 @@ public class ActionCollectionDTO {
     String applicationId;
 
     @Transient
-    String workspaceId;
+    String organizationId;
 
     String name;
 
@@ -91,8 +91,8 @@ public class ActionCollectionDTO {
 
     public Set<String> validate() {
         Set<String> validationErrors = new HashSet<>();
-        if (this.workspaceId == null) {
-            validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WORKSPACE_ID));
+        if (this.organizationId == null) {
+            validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ORGANIZATION_ID));
         }
         if (this.applicationId == null) {
             validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATION_ID));
@@ -112,7 +112,7 @@ public class ActionCollectionDTO {
     public void populateTransientFields(ActionCollection actionCollection) {
         this.setId(actionCollection.getId());
         this.setApplicationId(actionCollection.getApplicationId());
-        this.setWorkspaceId(actionCollection.getWorkspaceId());
+        this.setOrganizationId(actionCollection.getOrganizationId());
         copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), this.getDefaultResources());
     }
 }

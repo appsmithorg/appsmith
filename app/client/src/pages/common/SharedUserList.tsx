@@ -6,15 +6,15 @@ import { useSelector } from "store";
 import styled from "styled-components";
 import ProfileImage from "./ProfileImage";
 import ScrollIndicator from "components/ads/ScrollIndicator";
-import { WorkspaceUser } from "constants/workspaceConstants";
-import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
+import { OrgUser } from "constants/orgConstants";
+import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 const UserImageContainer = styled.div<{ isMobile?: boolean }>`
   display: flex;
   margin-right: ${({ isMobile }) => (isMobile ? 0 : 24)}px;
 
-  .workspace-share-user-icons {
+  .org-share-user-icons {
     cursor: default;
     margin-right: -6px;
     width: 24px;
@@ -59,7 +59,7 @@ const ProfileImageListName = styled.span`
 `;
 
 const ProfileImageMore = styled(ProfileImage)`
-  &.workspace-share-user-icons {
+  &.org-share-user-icons {
     cursor: pointer;
   }
 `;
@@ -67,20 +67,20 @@ const ProfileImageMore = styled(ProfileImage)`
 export default function SharedUserList(props: any) {
   const currentUser = useSelector(getCurrentUser);
   const scrollWrapperRef = React.createRef<HTMLUListElement>();
-  const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);
+  const userOrgs = useSelector(getUserApplicationsOrgsList);
   const isMobile = useIsMobileDevice();
   const allUsers = useMemo(() => {
-    const workspace: any = userWorkspaces.find((workspaceObject: any) => {
-      const { workspace } = workspaceObject;
-      return workspace.id === props.workspaceId;
+    const org: any = userOrgs.find((organizationObject: any) => {
+      const { organization } = organizationObject;
+      return organization.id === props.orgId;
     });
 
-    const { userRoles } = workspace;
+    const { userRoles } = org;
     return userRoles || [];
-  }, [userWorkspaces]);
+  }, [userOrgs]);
   return (
     <UserImageContainer isMobile={isMobile}>
-      {allUsers.slice(0, 5).map((el: WorkspaceUser) => (
+      {allUsers.slice(0, 5).map((el: OrgUser) => (
         <Popover
           boundary="viewport"
           hoverCloseDelay={100}
@@ -91,7 +91,7 @@ export default function SharedUserList(props: any) {
           usePortal={false}
         >
           <ProfileImage
-            className="workspace-share-user-icons"
+            className="org-share-user-icons"
             source={`/api/${UserApi.photoURL}/${el.username}`}
             userName={el.name ? el.name : el.username}
           />
@@ -110,14 +110,14 @@ export default function SharedUserList(props: any) {
           usePortal={false}
         >
           <ProfileImageMore
-            className="workspace-share-user-icons"
+            className="org-share-user-icons"
             commonName={`+${allUsers.length - 5}`}
           />
           <ProfileImageListPopover ref={scrollWrapperRef}>
-            {allUsers.slice(5).map((el: WorkspaceUser) => (
+            {allUsers.slice(5).map((el: OrgUser) => (
               <ProfileImageListItem key={el.username}>
                 <ProfileImage
-                  className="workspace-share-user-icons"
+                  className="org-share-user-icons"
                   source={`/api/${UserApi.photoURL}/${el.username}`}
                   userName={el.name ? el.name : el.username}
                 />

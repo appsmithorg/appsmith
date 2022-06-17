@@ -59,7 +59,7 @@ export interface DatasourceTable {
 interface BaseDatasource {
   pluginId: string;
   name: string;
-  workspaceId: string;
+  organizationId: string;
   isValid: boolean;
   isConfigured?: boolean;
 }
@@ -111,7 +111,7 @@ export interface MockDatasource {
 
 export const DEFAULT_DATASOURCE = (
   pluginId: string,
-  workspaceId: string,
+  organizationId: string,
 ): EmbeddedRestDatasource => ({
   name: "DEFAULT_REST_DATASOURCE",
   datasourceConfiguration: {
@@ -120,6 +120,6 @@ export const DEFAULT_DATASOURCE = (
   invalids: [],
   isValid: true,
   pluginId,
-  workspaceId,
+  organizationId,
   messages: [],
 });

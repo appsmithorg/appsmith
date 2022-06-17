@@ -5,17 +5,17 @@ import Button, { Category, Size } from "components/ads/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { noop } from "lodash";
 import {
-  getForkableWorkspaces,
+  getForkableOrganizations,
   isImportingTemplateSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import { importTemplateToWorkspace } from "actions/templateActions";
+import { importTemplateToOrganisation } from "actions/templateActions";
 import {
   CANCEL,
   CHOOSE_WHERE_TO_FORK,
   createMessage,
   FORK_TEMPLATE,
-  SELECT_WORKSPACE,
+  SELECT_ORGANISATION,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import { Classes } from "@blueprintjs/core";
@@ -51,12 +51,16 @@ function ForkTemplate({
   showForkModal,
   templateId,
 }: ForkTemplateProps) {
-  const workspaceList = useSelector(getForkableWorkspaces);
-  const [selectedWorkspace, setSelectedWorkspace] = useState(workspaceList[0]);
+  const organizationList = useSelector(getForkableOrganizations);
+  const [selectedOrganization, setSelectedOrganization] = useState(
+    organizationList[0],
+  );
   const isImportingTemplate = useSelector(isImportingTemplateSelector);
   const dispatch = useDispatch();
   const onFork = () => {
-    dispatch(importTemplateToWorkspace(templateId, selectedWorkspace.value));
+    dispatch(
+      importTemplateToOrganisation(templateId, selectedOrganization.value),
+    );
   };
 
   return (
@@ -73,11 +77,11 @@ function ForkTemplate({
         dropdownMaxHeight={"200px"}
         fillOptions
         onSelect={(_value, dropdownOption) =>
-          setSelectedWorkspace(dropdownOption)
+          setSelectedOrganization(dropdownOption)
         }
-        options={workspaceList}
-        placeholder={createMessage(SELECT_WORKSPACE)}
-        selected={selectedWorkspace}
+        options={organizationList}
+        placeholder={createMessage(SELECT_ORGANISATION)}
+        selected={selectedOrganization}
         showLabelOnly
         width={"100%"}
       />

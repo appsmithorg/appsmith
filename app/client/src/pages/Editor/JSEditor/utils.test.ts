@@ -40,7 +40,7 @@ const BASE_JS_OBJECT_BODY_WITH_LITERALS = `export default {
 
 const BASE_JS_ACTION = (useLiterals = false) => {
   return {
-    workspaceId: "workspace-id",
+    organizationId: "organization-id",
     pageId: "page-id",
     collectionId: "collection-id",
     pluginId: "plugin-id",

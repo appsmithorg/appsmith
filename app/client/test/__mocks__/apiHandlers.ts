@@ -4,7 +4,7 @@ import {
   fetchApplicationThreadsMockResponse,
   createNewThreadMockResponse,
 } from "mockResponses/CommentApiMockResponse";
-import CreateWorkspaceMockResponse from "mockResponses/CreateWorkspaceMockResponse.json";
+import CreateOrganisationMockResponse from "mockResponses/CreateOrganisationMockResponse.json";
 import ApplicationsNewMockResponse from "mockResponses/ApplicationsNewMockResponse.json";
 
 const mockSuccessRes = {
@@ -14,8 +14,8 @@ const mockSuccessRes = {
 
 export const handlers = [
   // mock apis here
-  rest.post("/api/v1/workspaces", (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(CreateWorkspaceMockResponse));
+  rest.post("/api/v1/organizations", (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(CreateOrganisationMockResponse));
   }),
   rest.get("/api/v1/applications/new", (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(ApplicationsNewMockResponse));

@@ -28,11 +28,7 @@ public class Action extends BaseDomain {
 
     Datasource datasource;
 
-    //Organizations migrated to workspaces, kept the field as depricated to support the old migration
-    @Deprecated
     String organizationId;
-
-    String workspaceId;
 
     String pageId;
 

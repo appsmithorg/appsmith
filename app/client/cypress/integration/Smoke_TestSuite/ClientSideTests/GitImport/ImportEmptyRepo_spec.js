@@ -12,7 +12,7 @@ describe("Git import empty repository", function() {
     cy.get(homePage.optionsIcon)
       .first()
       .click();
-    cy.get(homePage.workspaceImportAppOption).click({ force: true });
+    cy.get(homePage.orgImportAppOption).click({ force: true });
     cy.get(".t--import-json-card")
       .next()
       .click();

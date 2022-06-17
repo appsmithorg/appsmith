@@ -3,9 +3,9 @@ import homePage from "../../../../locators/HomePage";
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Export application as a JSON file", function() {
-  let workspaceId;
+  let orgid;
   let appid;
-  let newWorkspaceName;
+  let newOrganizationName;
   let appname;
 
   before(() => {
@@ -45,15 +45,15 @@ describe("Export application as a JSON file", function() {
   it("User with admin access,should be able to export the app", function() {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.generateUUID().then((uid) => {
-      workspaceId = uid;
+      orgid = uid;
       appid = uid;
-      localStorage.setItem("OrgName", workspaceId);
-      cy.createWorkspace();
-      cy.wait("@createWorkspace").then((interception) => {
-        newWorkspaceName = interception.response.body.data.name;
-        cy.renameWorkspace(newWorkspaceName, workspaceId);
+      localStorage.setItem("OrgName", orgid);
+      cy.createOrg();
+      cy.wait("@createOrg").then((interception) => {
+        newOrganizationName = interception.response.body.data.name;
+        cy.renameOrg(newOrganizationName, orgid);
       });
-      cy.CreateAppForWorkspace(workspaceId, appid);
+      cy.CreateAppForOrg(orgid, appid);
       cy.wait("@getPagesForCreateApp").should(
         "have.nested.property",
         "response.body.responseMeta.status",
@@ -95,15 +95,15 @@ describe("Export application as a JSON file", function() {
   it("User with developer access,should not be able to export the app", function() {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.generateUUID().then((uid) => {
-      workspaceId = uid;
+      orgid = uid;
       appid = uid;
-      localStorage.setItem("OrgName", workspaceId);
-      cy.createWorkspace();
-      cy.wait("@createWorkspace").then((interception) => {
-        newWorkspaceName = interception.response.body.data.name;
-        cy.renameWorkspace(newWorkspaceName, workspaceId);
+      localStorage.setItem("OrgName", orgid);
+      cy.createOrg();
+      cy.wait("@createOrg").then((interception) => {
+        newOrganizationName = interception.response.body.data.name;
+        cy.renameOrg(newOrganizationName, orgid);
       });
-      cy.CreateAppForWorkspace(workspaceId, appid);
+      cy.CreateAppForOrg(orgid, appid);
       cy.wait("@getPagesForCreateApp").should(
         "have.nested.property",
         "response.body.responseMeta.status",
@@ -145,15 +145,15 @@ describe("Export application as a JSON file", function() {
   it("User with viewer access,should not be able to export the app", function() {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.generateUUID().then((uid) => {
-      workspaceId = uid;
+      orgid = uid;
       appid = uid;
-      localStorage.setItem("OrgName", workspaceId);
-      cy.createWorkspace();
-      cy.wait("@createWorkspace").then((interception) => {
-        newWorkspaceName = interception.response.body.data.name;
-        cy.renameWorkspace(newWorkspaceName, workspaceId);
+      localStorage.setItem("OrgName", orgid);
+      cy.createOrg();
+      cy.wait("@createOrg").then((interception) => {
+        newOrganizationName = interception.response.body.data.name;
+        cy.renameOrg(newOrganizationName, orgid);
       });
-      cy.CreateAppForWorkspace(workspaceId, appid);
+      cy.CreateAppForOrg(orgid, appid);
       cy.wait("@getPagesForCreateApp").should(
         "have.nested.property",
         "response.body.responseMeta.status",

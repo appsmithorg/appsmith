@@ -1,8 +1,8 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const templateLocators = require("../../../../locators/TemplatesLocators.json");
 
-describe("Fork a template to an workspace", () => {
-  it("Fork a template to an workspace", () => {
+describe("Fork a template to an organisation", () => {
+  it("Fork a template to an organisation", () => {
     cy.NavigateToHome();
     cy.get(templateLocators.templatesTab).click();
     cy.get(templateLocators.templateForkButton)

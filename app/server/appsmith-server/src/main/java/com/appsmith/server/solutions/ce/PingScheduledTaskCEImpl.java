@@ -39,7 +39,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
     private final CommonConfig commonConfig;
 
-    private final WorkspaceRepository workspaceRepository;
+    private final WorkspaceRepository organizationRepository;
     private final ApplicationRepository applicationRepository;
     private final NewPageRepository newPageRepository;
     private final NewActionRepository newActionRepository;
@@ -114,7 +114,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
         Mono.zip(
                         configService.getInstanceId().defaultIfEmpty("null"),
                         NetworkUtils.getExternalAddress(),
-                        workspaceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
+                        organizationRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                         applicationRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                         newPageRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                         newActionRepository.countByDeletedAtNull().defaultIfEmpty(0L),

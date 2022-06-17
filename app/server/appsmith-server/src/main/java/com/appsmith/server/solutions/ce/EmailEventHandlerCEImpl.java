@@ -61,7 +61,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
                         newPage -> newPage.getUnpublishedPage().getName())
                 )
                 .flatMap(objects -> workspaceRepository
-                        .findById(objects.getT1().getWorkspaceId())
+                        .findById(objects.getT1().getOrganizationId())
                         .map(workspace -> {
                             String pagename = objects.getT2();
                             applicationEventPublisher.publishEvent(
@@ -83,7 +83,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
                 .zipWith(newPageRepository.findById(thread.getPageId())
                         .map(newPage -> newPage.getUnpublishedPage().getName())
                 )
-                .flatMap(objects -> workspaceRepository.findById(objects.getT1().getWorkspaceId())
+                .flatMap(objects -> workspaceRepository.findById(objects.getT1().getOrganizationId())
                         .map(workspace -> {
                             applicationEventPublisher.publishEvent(
                                     new CommentThreadClosedEvent(
@@ -98,7 +98,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
     @EventListener
     public void handle(CommentAddedEvent event) {
         this.sendEmailForCommentAdded(
-                        event.getWorkspace(),
+                        event.getOrganization(),
                         event.getApplication(),
                         event.getComment(),
                         event.getOriginHeader(),
@@ -113,7 +113,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
     public void handle(CommentThreadClosedEvent event) {
         this.sendEmailForCommentThreadResolved(
                         event.getAuthorUserName(),
-                        event.getWorkspace(),
+                        event.getOrganization(),
                         event.getApplication(),
                         event.getCommentThread(),
                         event.getOriginHeader(),

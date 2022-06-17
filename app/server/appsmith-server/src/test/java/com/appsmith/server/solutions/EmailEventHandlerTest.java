@@ -65,7 +65,7 @@ public class EmailEventHandlerTest {
     String authorUserName = "abc";
     String originHeader = "efg";
     String applicationId = "application-id";
-    String workspaceId = "workspace-id";
+    String organizationId = "organization-id";
     String emailReceiverUsername = "email-receiver";
 
     @Before
@@ -76,7 +76,7 @@ public class EmailEventHandlerTest {
 
         application = new Application();
         application.setName("Test application for comment");
-        application.setWorkspaceId(workspaceId);
+        application.setOrganizationId(organizationId);
         workspace = new Workspace();
 
         // add a role with email receiver username
@@ -86,7 +86,7 @@ public class EmailEventHandlerTest {
         workspace.setUserRoles(List.of(userRole));
 
         Mockito.when(applicationRepository.findById(applicationId)).thenReturn(Mono.just(application));
-        Mockito.when(workspaceRepository.findById(workspaceId)).thenReturn(Mono.just(workspace));
+        Mockito.when(workspaceRepository.findById(organizationId)).thenReturn(Mono.just(workspace));
 
         NewPage newPage = new NewPage();
         newPage.setUnpublishedPage(new PageDTO());

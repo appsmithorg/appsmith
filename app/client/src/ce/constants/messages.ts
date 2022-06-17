@@ -184,7 +184,7 @@ export const SIGN_IN = () => `Sign in`;
 export const CREATE_NEW_APPLICATION = () => `Create new`;
 export const SEARCH_APPS = () => `Search for apps...`;
 export const GETTING_STARTED = () => `GETTING STARTED`;
-export const WORKSPACES_HEADING = () => `ORGANIZATIONS`;
+export const ORGANIZATIONS_HEADING = () => `ORGANIZATIONS`;
 export const WELCOME_TOUR = () => `Welcome Tour`;
 export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
@@ -704,8 +704,8 @@ export const DISCONNECT_EXISTING_REPOSITORIES = () =>
 export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>
   "To make space for newer repositories you can remove existing repositories.";
 export const CONTACT_SUPPORT = () => "Contact Support";
-export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (workspaceName: string) =>
-  `Hey there, Thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${workspaceName}. Could you tell us how many private repos you’d require and why? We'll get back to you in a short while.`;
+export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (orgName: string) =>
+  `Hey there, Thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${orgName}. Could you tell us how many private repos you’d require and why? We'll get back to you in a short while.`;
 export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories kindly upgrade.";
@@ -1061,8 +1061,7 @@ export const ADD_QUERY_JS_TOOLTIP = () => "Create New";
 export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
 export const GENERATE_APPLICATION_DESCRIPTION = () =>
   "Quickly generate a page to perform CRUD operations on your database tables";
-export const DELETE_WORKSPACE_SUCCESSFUL = () =>
-  "Organization deleted successfully";
+export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";
 // theming
 export const CHANGE_APP_THEME = (name: string) => `Theme ${name} Applied`;
 export const SAVE_APP_THEME = (name: string) => `Theme ${name} Saved`;
@@ -1135,7 +1134,7 @@ export const END_TUTORIAL = () => "END TUTORIAL";
 export const TITLE = () =>
   "In this tutorial we’ll build a tool to display customer information";
 export const DESCRIPTION = () =>
-  "This tool has a table that displays customer data and a form to update a particular customer record. Try out the tool below before you start building.";
+  "This tool has a table that displays customer data and a form to update a particular customer record. Try out the tool below before you start building this.";
 export const BUTTON_TEXT = () => "Start Building";
 // -- Rating --
 export const RATING_TITLE = () =>
@@ -1175,7 +1174,7 @@ export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "NEW DATASOURCE";
 export const MORE = () => "MORE";
 export const SHOW_LESS = () => "SHOW LESS";
 export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
-export const SELECT_WORKSPACE = () => "Select Organization";
+export const SELECT_ORGANISATION = () => "Select Organization";
 export const FORK_TEMPLATE = () => "FORK TEMPLATE";
 export const TEMPLATES = () => "TEMPLATES";
 export const FORK_THIS_TEMPLATE = () => "Fork this template";

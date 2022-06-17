@@ -116,15 +116,15 @@ public class PageServiceTest {
 
     static String applicationId = null;
 
-    static String workspaceId;
+    static String orgId;
 
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
         purgeAllPages();
-        if (StringUtils.isEmpty(workspaceId)) {
+        if (StringUtils.isEmpty(orgId)) {
             User apiUser = userService.findByEmail("api_user").block();
-            workspaceId = apiUser.getWorkspaceIds().iterator().next();
+            orgId = apiUser.getOrganizationIds().iterator().next();
         }
     }
 
@@ -132,7 +132,7 @@ public class PageServiceTest {
         if (application == null) {
             Application newApp = new Application();
             newApp.setName(UUID.randomUUID().toString());
-            application = applicationPageService.createApplication(newApp, workspaceId).block();
+            application = applicationPageService.createApplication(newApp, orgId).block();
             applicationId = application.getId();
         }
     }
@@ -143,14 +143,14 @@ public class PageServiceTest {
         GitApplicationMetadata gitData = new GitApplicationMetadata();
         gitData.setBranchName(uniquePrefix + "_pageServiceTest");
         newApp.setGitApplicationMetadata(gitData);
-        return applicationPageService.createApplication(newApp, workspaceId)
+        return applicationPageService.createApplication(newApp, orgId)
                 .flatMap(application -> {
                     application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                     return applicationService.save(application)
                             .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                 .block();
     }
 
@@ -368,7 +368,7 @@ public class PageServiceTest {
         action.setName("PageAction");
         action.setActionConfiguration(new ActionConfiguration());
         Datasource datasource = new Datasource();
-        datasource.setWorkspaceId(workspaceId);
+        datasource.setOrganizationId(orgId);
         datasource.setName("datasource test name for page test");
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
@@ -409,7 +409,7 @@ public class PageServiceTest {
         actionCollectionDTO.setName("testCollection1");
         actionCollectionDTO.setPageId(page.getId());
         actionCollectionDTO.setApplicationId(applicationId);
-        actionCollectionDTO.setWorkspaceId(workspaceId);
+        actionCollectionDTO.setOrganizationId(orgId);
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
         actionCollectionDTO.setBody("collectionBody");
@@ -515,7 +515,7 @@ public class PageServiceTest {
         action.setName("PageAction");
         action.setActionConfiguration(new ActionConfiguration());
         Datasource datasource = new Datasource();
-        datasource.setWorkspaceId(workspaceId);
+        datasource.setOrganizationId(orgId);
         datasource.setName("datasource test for clone page");
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
@@ -556,7 +556,7 @@ public class PageServiceTest {
         actionCollectionDTO.setName("testCollection1");
         actionCollectionDTO.setPageId(page.getId());
         actionCollectionDTO.setApplicationId(gitConnectedApplication.getId());
-        actionCollectionDTO.setWorkspaceId(workspaceId);
+        actionCollectionDTO.setOrganizationId(orgId);
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
         actionCollectionDTO.setBody("collectionBody");
@@ -707,11 +707,11 @@ public class PageServiceTest {
     public void reOrderPageFromHighOrderToLowOrder() {
 
         User apiUser = userService.findByEmail("api_user").block();
-        workspaceId = apiUser.getWorkspaceIds().iterator().next();
+        orgId = apiUser.getOrganizationIds().iterator().next();
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
 
-        application = applicationPageService.createApplication(newApp, workspaceId).block();
+        application = applicationPageService.createApplication(newApp, orgId).block();
         applicationId = application.getId();
         final String[] pageIds = new String[4];
 
@@ -758,11 +758,11 @@ public class PageServiceTest {
     public void reOrderPageFromLowOrderToHighOrder() {
 
         User apiUser = userService.findByEmail("api_user").block();
-        workspaceId = apiUser.getWorkspaceIds().iterator().next();
+        orgId = apiUser.getOrganizationIds().iterator().next();
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
 
-        application = applicationPageService.createApplication(newApp, workspaceId).block();
+        application = applicationPageService.createApplication(newApp, orgId).block();
         applicationId = application.getId();
         final String[] pageIds = new String[4];
 

@@ -11,7 +11,7 @@ public interface UserWorkspaceServiceCE {
 
     Mono<User> addUserToWorkspace(String workspaceId, User user);
 
-    Mono<Workspace> addUserRoleToWorkspace(String workspaceId, UserRole userRole);
+    Mono<Workspace> addUserRoleToWorkspace(String orgId, UserRole userRole);
 
     Mono<Workspace> addUserToWorkspaceGivenUserObject(Workspace workspace, User user, UserRole userRole);
 

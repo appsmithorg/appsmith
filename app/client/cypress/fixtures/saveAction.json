@@ -12,7 +12,7 @@
     ],
     "name": "Untitled Datasource 5213",
     "pluginId": "5e687c18fb01e64e6a3f873f",
-    "workspaceId": "5fd639aceb554e031ee61fef",
+    "organizationId": "5fd639aceb554e031ee61fef",
     "datasourceConfiguration": {
       "connection": {
         "mode": "READ_WRITE",

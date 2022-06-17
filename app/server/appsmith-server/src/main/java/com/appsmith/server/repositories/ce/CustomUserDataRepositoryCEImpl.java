@@ -34,8 +34,8 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     }
 
     @Override
-    public Mono<UpdateResult> removeIdFromRecentlyUsedList(String userId, String workspaceId, List<String> applicationIds) {
-        Update update = new Update().pull(fieldName(QUserData.userData.recentlyUsedWorkspaceIds), workspaceId);
+    public Mono<UpdateResult> removeIdFromRecentlyUsedList(String userId, String organizationId, List<String> applicationIds) {
+        Update update = new Update().pull(fieldName(QUserData.userData.recentlyUsedOrgIds), organizationId);
         if(!CollectionUtils.isEmpty(applicationIds)) {
             update = update.pullAll(fieldName(QUserData.userData.recentlyUsedAppIds), applicationIds.toArray());
         }

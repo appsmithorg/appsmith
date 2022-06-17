@@ -25,7 +25,7 @@ import { initLocalstorage } from "./commands";
 import "./dataSourceCommands";
 import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
-import "./WorkspaceCommands";
+import "./OrgCommands";
 import "./queryCommands";
 import "./widgetCommands";
 import "./themeCommands";
@@ -86,7 +86,7 @@ before(function() {
   cy.get(".t--applications-container .createnew").should("be.visible");
   cy.get(".t--applications-container .createnew").should("be.enabled");
   cy.generateUUID().then((id) => {
-    cy.CreateAppInFirstListedWorkspace(id);
+    cy.CreateAppInFirstListedOrg(id);
     localStorage.setItem("AppName", id);
   });
 

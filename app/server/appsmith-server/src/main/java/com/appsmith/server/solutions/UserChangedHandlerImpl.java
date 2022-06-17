@@ -15,8 +15,8 @@ public class UserChangedHandlerImpl extends UserChangedHandlerCEImpl implements 
     public UserChangedHandlerImpl(ApplicationEventPublisher applicationEventPublisher,
                                   CommentRepository commentRepository,
                                   NotificationRepository notificationRepository,
-                                  WorkspaceRepository workspaceRepository) {
+                                  WorkspaceRepository organizationRepository) {
 
-        super(applicationEventPublisher, commentRepository, notificationRepository, workspaceRepository);
+        super(applicationEventPublisher, commentRepository, notificationRepository, organizationRepository);
     }
 }

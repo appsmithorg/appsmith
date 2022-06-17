@@ -4,8 +4,8 @@ import Dialog from "components/ads/DialogComponent";
 import {
   getImportedApplication,
   getIsDatasourceConfigForImportFetched,
-  getWorkspaceIdForImport,
-  getUserApplicationsWorkspacesList,
+  getOrganizationIdForImport,
+  getUserApplicationsOrgsList,
 } from "selectors/applicationSelectors";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -45,7 +45,7 @@ import {
   initDatasourceConnectionDuringImportRequest,
   resetDatasourceConfigForImportFetchedFlag,
   setIsReconnectingDatasourcesModalOpen,
-  setWorkspaceIdForImport,
+  setOrgIdForImport,
 } from "actions/applicationActions";
 import { AuthType, Datasource } from "entities/Datasource";
 import TooltipComponent from "components/ads/Tooltip";
@@ -269,7 +269,7 @@ function ReconnectDatasourceModal() {
   const theme = useTheme();
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
-  const workspaceId = useSelector(getWorkspaceIdForImport);
+  const organizationId = useSelector(getOrganizationIdForImport);
   const datasources = useSelector(getUnconfiguredDatasources);
   const pluginImages = useSelector(getPluginImages);
   const pluginNames = useSelector(getPluginNames);
@@ -282,7 +282,7 @@ function ReconnectDatasourceModal() {
     localStorage.getItem("importedAppPendingInfo") || "null",
   );
   // getting query from redirection url
-  const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);
+  const userOrgs = useSelector(getUserApplicationsOrgsList);
   const queryParams = useQuery();
   const queryAppId =
     queryParams.get("appId") || (pendingApp ? pendingApp.appId : null);
@@ -329,15 +329,15 @@ function ReconnectDatasourceModal() {
 
   // should open reconnect datasource modal
   useEffect(() => {
-    if (userWorkspaces && queryIsImport && queryDatasourceId) {
+    if (userOrgs && queryIsImport && queryDatasourceId) {
       if (queryAppId) {
-        for (const ws of userWorkspaces) {
-          const { applications, workspace } = ws;
+        for (const org of userOrgs) {
+          const { applications, organization } = org;
           const application = applications.find(
             (app: any) => app.id === queryAppId,
           );
           if (application) {
-            dispatch(setWorkspaceIdForImport(workspace.id));
+            dispatch(setOrgIdForImport(organization.id));
             dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
             const defaultPageId = getDefaultPageId(application.pages);
             if (defaultPageId) {
@@ -348,7 +348,7 @@ function ReconnectDatasourceModal() {
                 type: ReduxActionTypes.FETCH_UNCONFIGURED_DATASOURCE_LIST,
                 payload: {
                   applicationId: appId,
-                  workspaceId: workspace.id,
+                  orgId: organization.id,
                 },
               });
             }
@@ -357,18 +357,18 @@ function ReconnectDatasourceModal() {
         }
       }
     }
-  }, [userWorkspaces, queryIsImport]);
+  }, [userOrgs, queryIsImport]);
 
   const isConfigFetched = useSelector(getIsDatasourceConfigForImportFetched);
 
   // todo uncomment this to fetch datasource config
   useEffect(() => {
-    if (isModalOpen && workspaceId) {
+    if (isModalOpen && organizationId) {
       dispatch(
-        initDatasourceConnectionDuringImportRequest(workspaceId as string),
+        initDatasourceConnectionDuringImportRequest(organizationId as string),
       );
     }
-  }, [workspaceId, isModalOpen]);
+  }, [organizationId, isModalOpen]);
 
   useEffect(() => {
     if (isModalOpen) {
@@ -386,7 +386,7 @@ function ReconnectDatasourceModal() {
   const handleClose = useCallback(() => {
     localStorage.setItem("importedAppPendingInfo", "null");
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
-    dispatch(setWorkspaceIdForImport(""));
+    dispatch(setOrgIdForImport(""));
     dispatch(resetDatasourceConfigForImportFetchedFlag());
     setSelectedDatasourceId("");
   }, [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen]);

@@ -6,7 +6,7 @@ const dsl = require("../../../../fixtures/basicDsl.json");
 const newCommentText1 = "new comment text 1";
 let commentThreadId;
 let appName;
-let workspaceName;
+let orgName;
 
 describe("Comments", function() {
   before(() => {
@@ -15,13 +15,13 @@ describe("Comments", function() {
 
       cy.generateUUID().then((uid) => {
         appName = uid;
-        workspaceName = uid;
-        cy.createWorkspace();
-        cy.wait("@createWorkspace").then((interception) => {
-          const newWorkspaceName = interception.response.body.data.name;
-          cy.renameWorkspace(newWorkspaceName, workspaceName);
+        orgName = uid;
+        cy.createOrg();
+        cy.wait("@createOrg").then((interception) => {
+          const newOrganizationName = interception.response.body.data.name;
+          cy.renameOrg(newOrganizationName, orgName);
         });
-        cy.CreateAppForWorkspace(workspaceName, appName);
+        cy.CreateAppForOrg(orgName, appName);
         cy.addDsl(dsl);
       });
     });
@@ -43,13 +43,13 @@ describe("Comments", function() {
 
     cy.generateUUID().then((uid) => {
       appName = uid;
-      workspaceName = uid;
-      cy.createWorkspace();
-      cy.wait("@createWorkspace").then((interception) => {
-        const newWorkspaceName = interception.response.body.data.name;
-        cy.renameWorkspace(newWorkspaceName, workspaceName);
+      orgName = uid;
+      cy.createOrg();
+      cy.wait("@createOrg").then((interception) => {
+        const newOrganizationName = interception.response.body.data.name;
+        cy.renameOrg(newOrganizationName, orgName);
       });
-      cy.CreateAppForWorkspace(workspaceName, appName);
+      cy.CreateAppForOrg(orgName, appName);
       cy.addDsl(dsl);
     });
     cy.skipCommentsOnboarding();
@@ -75,13 +75,13 @@ describe("Comments", function() {
 
     cy.generateUUID().then((uid) => {
       appName = uid;
-      workspaceName = uid;
-      cy.createWorkspace();
-      cy.wait("@createWorkspace").then((interception) => {
-        const newWorkspaceName = interception.response.body.data.name;
-        cy.renameWorkspace(newWorkspaceName, workspaceName);
+      orgName = uid;
+      cy.createOrg();
+      cy.wait("@createOrg").then((interception) => {
+        const newOrganizationName = interception.response.body.data.name;
+        cy.renameOrg(newOrganizationName, orgName);
       });
-      cy.CreateAppForWorkspace(workspaceName, appName);
+      cy.CreateAppForOrg(orgName, appName);
       cy.addDsl(dsl);
     });
     cy.get(commonLocators.canvas);

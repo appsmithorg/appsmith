@@ -6,8 +6,8 @@ const widgetsPage = require("../../../locators/Widgets.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
 
 describe("PgAdmin Clone App", function() {
-  let workspaceId;
-  let newWorkspaceName;
+  let orgid;
+  let newOrganizationName;
   let appname;
   let datasourceName;
 

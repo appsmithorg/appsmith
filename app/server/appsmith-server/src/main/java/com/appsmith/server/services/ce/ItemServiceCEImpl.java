@@ -74,8 +74,8 @@ public class ItemServiceCEImpl implements ItemServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
         }
 
-        if (addItemToPageDTO.getWorkspaceId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        if (addItemToPageDTO.getOrganizationId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
 
         ApiTemplate apiTemplate = addItemToPageDTO.getMarketplaceElement().getItem();
@@ -111,7 +111,7 @@ public class ItemServiceCEImpl implements ItemServiceCE {
                     datasource.setDatasourceConfiguration(apiTemplate.getDatasourceConfiguration());
                     datasource.setName(apiTemplate.getDatasourceConfiguration().getUrl());
                     datasource.setPluginId(plugin.getId());
-                    datasource.setWorkspaceId(addItemToPageDTO.getWorkspaceId());
+                    datasource.setOrganizationId(addItemToPageDTO.getOrganizationId());
                     action.setDatasource(datasource);
                     action.setPluginType(plugin.getType());
                     return action;

@@ -19,7 +19,7 @@ import { ApiPaneReduxState } from "./uiReducers/apiPaneReducer";
 import { QueryPaneReduxState } from "./uiReducers/queryPaneReducer";
 import { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import { AuthState } from "reducers/uiReducers/authReducer";
-import { WorkspaceReduxState } from "reducers/uiReducers/workspaceReducer";
+import { OrgReduxState } from "reducers/uiReducers/orgReducer";
 import { UsersReduxState } from "reducers/uiReducers/usersReducer";
 import { ThemeState } from "reducers/uiReducers/themeReducer";
 import { WidgetDragResizeState } from "reducers/uiReducers/dragResizeReducer";
@@ -83,7 +83,7 @@ export interface AppState {
     apiPane: ApiPaneReduxState;
     auth: AuthState;
     templates: TemplatesReduxState;
-    workspaces: WorkspaceReduxState;
+    orgs: OrgReduxState;
     users: UsersReduxState;
     widgetDragResize: WidgetDragResizeState;
     importedCollections: ImportedCollectionsReduxState;

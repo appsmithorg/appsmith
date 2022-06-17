@@ -21,13 +21,8 @@ public class Group extends BaseDomain {
 
     private String displayName;
 
-    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
     @NotNull
     private String organizationId;
-
-    @NotNull
-    String workspaceId;
 
     /**
      * This is a list of name of permissions. We will query with permission collection by name

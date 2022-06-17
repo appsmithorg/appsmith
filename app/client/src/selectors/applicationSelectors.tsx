@@ -6,10 +6,10 @@ import {
 } from "reducers/uiReducers/applicationsReducer";
 import {
   ApplicationPayload,
-  WorkspaceDetails,
+  OrganizationDetails,
 } from "@appsmith/constants/ReduxActionConstants";
 import Fuse from "fuse.js";
-import { Workspaces } from "constants/workspaceConstants";
+import { Organization } from "constants/orgConstants";
 import { GitApplicationMetadata } from "api/ApplicationApi";
 import {
   isPermitted,
@@ -17,7 +17,7 @@ import {
 } from "pages/Applications/permissionHelpers";
 
 const fuzzySearchOptions = {
-  keys: ["applications.name", "workspace.name"],
+  keys: ["applications.name", "organization.name"],
   shouldSort: true,
   threshold: 0.5,
   location: 0,
@@ -43,8 +43,8 @@ export const getIsSavingAppName = (state: AppState) =>
   state.ui.applications.isSavingAppName;
 export const getIsErroredSavingAppName = (state: AppState) =>
   state.ui.applications.isErrorSavingAppName;
-export const getUserApplicationsWorkspaces = (state: AppState) => {
-  return state.ui.applications.userWorkspaces;
+export const getUserApplicationsOrgs = (state: AppState) => {
+  return state.ui.applications.userOrgs;
 };
 
 export const getImportedCollections = (state: AppState) =>
@@ -83,40 +83,40 @@ export const getApplicationList = createSelector(
   },
 );
 
-export const getUserApplicationsWorkspacesList = createSelector(
-  getUserApplicationsWorkspaces,
+export const getUserApplicationsOrgsList = createSelector(
+  getUserApplicationsOrgs,
   getApplicationSearchKeyword,
   (
-    applicationsWorkspaces?: Workspaces[],
+    applicationsOrgs?: Organization[],
     keyword?: string,
-  ): WorkspaceDetails[] => {
+  ): OrganizationDetails[] => {
     if (
-      applicationsWorkspaces &&
-      applicationsWorkspaces.length > 0 &&
+      applicationsOrgs &&
+      applicationsOrgs.length > 0 &&
       keyword &&
       keyword.trim().length > 0
     ) {
-      const fuzzy = new Fuse(applicationsWorkspaces, fuzzySearchOptions);
-      let workspaceList = fuzzy.search(keyword) as WorkspaceDetails[];
-      workspaceList = workspaceList.map((workspace) => {
-        const applicationFuzzy = new Fuse(workspace.applications, {
+      const fuzzy = new Fuse(applicationsOrgs, fuzzySearchOptions);
+      let organizationList = fuzzy.search(keyword) as OrganizationDetails[];
+      organizationList = organizationList.map((org) => {
+        const applicationFuzzy = new Fuse(org.applications, {
           ...fuzzySearchOptions,
           keys: ["name"],
         });
         const applications = applicationFuzzy.search(keyword) as any[];
 
         return {
-          ...workspace,
+          ...org,
           applications,
         };
       });
 
-      return workspaceList;
+      return organizationList;
     } else if (
-      applicationsWorkspaces &&
+      applicationsOrgs &&
       (keyword === undefined || keyword.trim().length === 0)
     ) {
-      return applicationsWorkspaces;
+      return applicationsOrgs;
     }
     return [];
   },
@@ -152,8 +152,8 @@ export const getCurrentAppGitMetaData = createSelector(
     currentApplication?.gitApplicationMetadata,
 );
 
-export const getIsSavingWorkspaceInfo = (state: AppState) =>
-  state.ui.applications.isSavingWorkspaceInfo;
+export const getIsSavingOrgInfo = (state: AppState) =>
+  state.ui.applications.isSavingOrgInfo;
 
 export const showAppInviteUsersDialogSelector = (state: AppState) =>
   state.ui.applications.showAppInviteUsersDialog;
@@ -164,19 +164,19 @@ export const getIsDatasourceConfigForImportFetched = (state: AppState) =>
 export const getIsImportingApplication = (state: AppState) =>
   state.ui.applications.importingApplication;
 
-export const getWorkspaceIdForImport = (state: AppState) =>
-  state.ui.applications.workspaceIdForImport;
+export const getOrganizationIdForImport = (state: AppState) =>
+  state.ui.applications.organizationIdForImport;
 
 export const getImportedApplication = (state: AppState) =>
   state.ui.applications.importedApplication;
 
-// Get workspace list where user can create applications
-export const getWorkspaceCreateApplication = createSelector(
-  getUserApplicationsWorkspaces,
-  (userWorkspaces) => {
-    return userWorkspaces.filter((userWorkspace) =>
+// Get organization list where user can create applications
+export const getOrganizationCreateApplication = createSelector(
+  getUserApplicationsOrgs,
+  (userOrgs) => {
+    return userOrgs.filter((userOrg) =>
       isPermitted(
-        userWorkspace.workspace.userPermissions || [],
+        userOrg.organization.userPermissions || [],
         PERMISSION_TYPE.CREATE_APPLICATION,
       ),
     );

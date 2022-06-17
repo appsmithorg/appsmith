@@ -7,7 +7,6 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -54,9 +53,8 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
 
 @Slf4j
 public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, Datasource, String> implements DatasourceServiceCE {
@@ -97,15 +95,15 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Mono<Datasource> create(@NotNull Datasource datasource) {
-        String workspaceId = datasource.getWorkspaceId();
+        String workspaceId = datasource.getOrganizationId();
         if (workspaceId == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
         if (datasource.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
         if (!StringUtils.hasLength(datasource.getGitSyncId())) {
-            datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + new ObjectId());
+            datasource.setGitSyncId(datasource.getOrganizationId() + "_" + new ObjectId());
         }
 
         Mono<Datasource> datasourceMono = Mono.just(datasource);
@@ -135,14 +133,14 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Workspace> orgMono = workspaceService.findById(datasource.getWorkspaceId(), WORKSPACE_MANAGE_APPLICATIONS)
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, datasource.getWorkspaceId())));
+                    Mono<Workspace> orgMono = workspaceService.findById(datasource.getOrganizationId(), ORGANIZATION_MANAGE_APPLICATIONS)
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, datasource.getOrganizationId())));
 
                     return orgMono.map(org -> {
                         Set<Policy> policySet = org.getPolicies().stream()
                                 .filter(policy ->
-                                        policy.getPermission().equals(WORKSPACE_MANAGE_APPLICATIONS.getValue()) ||
-                                                policy.getPermission().equals(WORKSPACE_READ_APPLICATIONS.getValue())
+                                        policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
+                                                policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
                                 ).collect(Collectors.toSet());
 
                         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Workspace.class, Datasource.class);
@@ -231,13 +229,13 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
             return Mono.just(datasource);
         }
 
-        if (datasource.getWorkspaceId() == null) {
+        if (datasource.getOrganizationId() == null) {
             invalids.add(AppsmithError.WORKSPACE_ID_NOT_GIVEN.getMessage());
             return Mono.just(datasource);
         }
 
         Mono<Workspace> checkPluginInstallationAndThenReturnWorkspaceMono = workspaceService
-                .findByIdAndPluginsPluginId(datasource.getWorkspaceId(), datasource.getPluginId())
+                .findByIdAndPluginsPluginId(datasource.getOrganizationId(), datasource.getPluginId())
                 .switchIfEmpty(Mono.defer(() -> {
                     invalids.add(AppsmithError.PLUGIN_NOT_INSTALLED.getMessage(datasource.getPluginId()));
                     return Mono.just(new Workspace());
@@ -271,7 +269,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     @Override
     public Mono<Datasource> save(Datasource datasource) {
         if (datasource.getGitSyncId() == null) {
-            datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + Instant.now().toString());
+            datasource.setGitSyncId(datasource.getOrganizationId() + "_" + Instant.now().toString());
         }
         return repository.save(datasource);
     }
@@ -358,8 +356,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission) {
-        return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
+    public Mono<Datasource> findByNameAndOrganizationId(String name, String organizationId, AclPermission permission) {
+        return repository.findByNameAndOrganizationId(name, organizationId, permission);
     }
 
     @Override
@@ -388,8 +386,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
          */
         // Remove branch name as datasources are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
-        if (params.getFirst(fieldName(QDatasource.datasource.workspaceId)) != null) {
-            return findAllByWorkspaceId(params.getFirst(fieldName(QDatasource.datasource.workspaceId)), AclPermission.READ_DATASOURCES)
+        if (params.getFirst(FieldName.ORGANIZATION_ID) != null) {
+            return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES)
                     .collectList()
                     .map(datasourceList -> {
                         markRecentlyUsed(datasourceList, 3);
@@ -398,12 +396,12 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     .flatMapMany(Flux::fromIterable);
         }
 
-        return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
     }
 
     @Override
-    public Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
-        return repository.findAllByWorkspaceId(workspaceId, permission)
+    public Flux<Datasource> findAllByOrganizationId(String organizationId, AclPermission permission) {
+        return repository.findAllByOrganizationId(organizationId, permission)
                 .flatMap(this::populateHintMessages);
     }
 
@@ -412,7 +410,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         datasourceList
                 .stream()
                 .filter(datasource -> datasource.getGitSyncId() == null)
-                .forEach(datasource -> datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + Instant.now().toString()));
+                .forEach(datasource -> datasource.setGitSyncId(datasource.getOrganizationId() + "_" + Instant.now().toString()));
         return repository.saveAll(datasourceList);
     }
 
@@ -441,7 +439,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     private Map<String, Object> getAnalyticsProperties(Datasource datasource) {
         Map<String, Object> analyticsProperties = new HashMap<>();
-        analyticsProperties.put("orgId", datasource.getWorkspaceId());
+        analyticsProperties.put("orgId", datasource.getOrganizationId());
         analyticsProperties.put("pluginName", datasource.getPluginName());
         analyticsProperties.put("dsName", datasource.getName());
         return analyticsProperties;

@@ -45,7 +45,7 @@ export type GitApplicationMetadata =
 export interface ApplicationResponsePayload {
   id: string;
   name: string;
-  workspaceId: string;
+  organizationId: string;
   evaluationVersion?: EvaluationVersion;
   pages: ApplicationPagePayload[];
   appIsExample: boolean;
@@ -65,7 +65,7 @@ export interface FetchApplicationPayload {
 export interface FetchApplicationResponseData {
   application: Omit<ApplicationResponsePayload, "pages">;
   pages: ApplicationPagePayload[];
-  workspaceId: string;
+  organizationId: string;
 }
 
 export type FetchApplicationResponse = ApiResponse<
@@ -79,7 +79,7 @@ export type FetchApplicationsResponse = ApiResponse<
 export type CreateApplicationResponse = ApiResponse<ApplicationResponsePayload>;
 export interface CreateApplicationRequest {
   name: string;
-  workspaceId: string;
+  orgId: string;
   color?: AppColorCode;
   icon?: AppIconName;
 }
@@ -98,7 +98,7 @@ export interface DuplicateApplicationRequest {
 }
 export interface ForkApplicationRequest {
   applicationId: string;
-  workspaceId: string;
+  organizationId: string;
 }
 
 export type GetAllApplicationResponse = ApiResponse<ApplicationPagePayload[]>;
@@ -122,7 +122,7 @@ export interface ApplicationObject {
   name: string;
   icon?: string;
   color?: string;
-  workspaceId: string;
+  organizationId: string;
   pages: ApplicationPagePayload[];
   userPermissions: string[];
 }
@@ -133,17 +133,17 @@ export interface UserRoles {
   username: string;
 }
 
-export interface WorkspaceApplicationObject {
+export interface OrganizationApplicationObject {
   applications: Array<ApplicationObject>;
-  workspace: {
+  organization: {
     id: string;
     name: string;
   };
   userRoles: Array<UserRoles>;
 }
-export interface FetchUsersApplicationsWorkspacesResponse extends ApiResponse {
+export interface FetchUsersApplicationsOrgsResponse extends ApiResponse {
   data: {
-    workspaceApplications: Array<WorkspaceApplicationObject>;
+    organizationApplications: Array<OrganizationApplicationObject>;
     user: string;
     newReleasesCount: string;
     releaseItems: Array<Record<string, any>>;
@@ -155,7 +155,7 @@ export interface FetchUnconfiguredDatasourceListResponse extends ApiResponse {
 }
 
 export interface ImportApplicationRequest {
-  workspaceId: string;
+  orgId: string;
   applicationFile?: File;
   progress?: (progressEvent: ProgressEvent) => void;
   onSuccessCallback?: () => void;
@@ -165,8 +165,7 @@ class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
     `/publish/${applicationId}`;
-  static createApplicationPath = (workspaceId: string) =>
-    `?workspaceId=${workspaceId}`;
+  static createApplicationPath = (orgId: string) => `?orgId=${orgId}`;
   static changeAppViewAccessPath = (applicationId: string) =>
     `/${applicationId}/changeAccess`;
   static setDefaultPagePath = (request: SetDefaultPageRequest) =>
@@ -197,10 +196,10 @@ class ApplicationApi extends Api {
 
   static fetchUnconfiguredDatasourceList(payload: {
     applicationId: string;
-    workspaceId: string;
+    orgId: string;
   }): AxiosPromise<FetchUnconfiguredDatasourceListResponse> {
     return Api.get(
-      `${ApplicationApi.baseURL}/import/${payload.workspaceId}/datasources?defaultApplicationId=${payload.applicationId}`,
+      `${ApplicationApi.baseURL}/import/${payload.orgId}/datasources?defaultApplicationId=${payload.applicationId}`,
     );
   }
 
@@ -215,7 +214,7 @@ class ApplicationApi extends Api {
   ): AxiosPromise<PublishApplicationResponse> {
     return Api.post(
       ApplicationApi.baseURL +
-        ApplicationApi.createApplicationPath(request.workspaceId),
+        ApplicationApi.createApplicationPath(request.orgId),
       { name: request.name, color: request.color, icon: request.icon },
     );
   }
@@ -263,11 +262,11 @@ class ApplicationApi extends Api {
         "/" +
         request.applicationId +
         "/fork/" +
-        request.workspaceId,
+        request.organizationId,
     );
   }
 
-  static importApplicationToWorkspace(
+  static importApplicationToOrg(
     request: ImportApplicationRequest,
   ): AxiosPromise<ApiResponse> {
     const formData = new FormData();
@@ -275,7 +274,7 @@ class ApplicationApi extends Api {
       formData.append("file", request.applicationFile);
     }
     return Api.post(
-      ApplicationApi.baseURL + "/import/" + request.workspaceId,
+      ApplicationApi.baseURL + "/import/" + request.orgId,
       formData,
       null,
       {

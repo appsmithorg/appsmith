@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 
-@RequestMapping(Url.WORKSPACE_URL)
+@RequestMapping(Url.ORGANIZATION_URL)
 public class WorkspaceControllerCE extends BaseController<WorkspaceService, Workspace, String> {
     private final UserWorkspaceService userWorkspaceService;
 
@@ -41,8 +41,8 @@ public class WorkspaceControllerCE extends BaseController<WorkspaceService, Work
      * @return
      */
     @GetMapping("/roles")
-    public Mono<ResponseDTO<Map<String, String>>> getUserRolesForWorkspace(@RequestParam String workspaceId) {
-        return service.getUserRolesForWorkspace(workspaceId)
+    public Mono<ResponseDTO<Map<String, String>>> getUserRolesForWorkspace(@RequestParam String organizationId) {
+        return service.getUserRolesForWorkspace(organizationId)
                 .map(permissions -> new ResponseDTO<>(HttpStatus.OK.value(), permissions, null));
     }
 

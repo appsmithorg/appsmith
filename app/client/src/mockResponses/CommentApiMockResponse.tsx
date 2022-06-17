@@ -370,7 +370,7 @@ export const fetchPagesMockResponse = {
     success: true,
   },
   data: {
-    workspaceId: "605c433c91dea93f0eaf91b5",
+    organizationId: "605c433c91dea93f0eaf91b5",
     pages: [
       {
         id: "605c435a91dea93f0eaf91ba",

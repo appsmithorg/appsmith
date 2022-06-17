@@ -72,7 +72,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
     }
 
     @Override
-    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String workspaceId, String branchName) {
+    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String orgId, String branchName) {
         ActionDTO action;
 
         try {
@@ -102,7 +102,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                     final DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
-                    datasource.setWorkspaceId(workspaceId);
+                    datasource.setOrganizationId(orgId);
                     // Set git related resource IDs
                     action1.setDefaultResources(newPage.getDefaultResources());
                     action1.setPageId(newPage.getId());

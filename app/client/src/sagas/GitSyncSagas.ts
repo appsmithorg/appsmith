@@ -59,7 +59,7 @@ import { Variant } from "components/ads/common";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
-  getWorkspaceIdForImport,
+  getOrganizationIdForImport,
 } from "selectors/applicationSelectors";
 import {
   createMessage,
@@ -79,8 +79,8 @@ import {
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 import { getLogToSentryFromResponse } from "utils/helpers";
-import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { Workspace } from "constants/workspaceConstants";
+import { getCurrentOrg } from "@appsmith/selectors/organizationSelectors";
+import { Org } from "constants/orgConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import { builderURL } from "RouteBuilder";
@@ -639,20 +639,25 @@ function* disconnectGitSaga() {
 function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
   let response: ApiResponse | undefined;
   try {
-    const workspaceIdForImport: string = yield select(getWorkspaceIdForImport);
+    const organizationIdForImport: string = yield select(
+      getOrganizationIdForImport,
+    );
 
-    response = yield GitSyncAPI.importApp(action.payload, workspaceIdForImport);
+    response = yield GitSyncAPI.importApp(
+      action.payload,
+      organizationIdForImport,
+    );
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
       getLogToSentryFromResponse(response),
     );
     if (isValidResponse) {
-      const allWorkspaces = yield select(getCurrentWorkspace);
-      const currentWorkspace = allWorkspaces.filter(
-        (el: Workspace) => el.id === workspaceIdForImport,
+      const allOrgs = yield select(getCurrentOrg);
+      const currentOrg = allOrgs.filter(
+        (el: Org) => el.id === organizationIdForImport,
       );
-      if (currentWorkspace.length > 0) {
+      if (currentOrg.length > 0) {
         const {
           application: app,
           isPartialImport,
@@ -674,7 +679,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
               application: response?.data?.application,
               unConfiguredDatasourceList:
                 response?.data.unConfiguredDatasourceList,
-              workspaceId: workspaceIdForImport,
+              orgId: organizationIdForImport,
             }),
           );
         } else {
@@ -755,7 +760,7 @@ export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    const isImporting: string = yield select(getWorkspaceIdForImport);
+    const isImporting: string = yield select(getOrganizationIdForImport);
 
     response = yield call(
       GitSyncAPI.generateSSHKeyPair,

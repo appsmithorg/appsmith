@@ -22,5 +22,5 @@ public interface ActionRepositoryCE extends BaseRepository<Action, String>, Cust
 
     Flux<Action> findByPageId(String pageId);
 
-    Flux<Action> findByWorkspaceId(String workspaceId);
+    Flux<Action> findByOrganizationId(String organizationId);
 }

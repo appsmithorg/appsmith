@@ -124,7 +124,7 @@ public class FileUtilsImpl implements FileInterface {
 
     /**
      * This method will save the complete application in the local repo directory.
-     * Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
+     * Path to repo will be : ./container-volumes/git-repo/organizationId/defaultApplicationId/repoName/{application_data}
      * @param baseRepoSuffix path suffix used to create a repo path
      * @param applicationGitReference application reference object from which entire application can be rehydrated
      * @param branchName name of the branch for the current application
@@ -430,7 +430,7 @@ public class FileUtilsImpl implements FileInterface {
 
     @Override
     public Mono<Boolean> deleteLocalRepo(Path baseRepoSuffix) {
-        // Remove the complete directory from path: baseRepo/workspaceId/defaultApplicationId
+        // Remove the complete directory from path: baseRepo/organizationId/defaultApplicationId
         File file = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).getParent().toFile();
         while (file.exists()) {
             FileSystemUtils.deleteRecursively(file);

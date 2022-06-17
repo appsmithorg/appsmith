@@ -2,7 +2,7 @@ import { FilterKeys, Template } from "api/TemplatesApi";
 import Fuse from "fuse.js";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
-import { getWorkspaceCreateApplication } from "./applicationSelectors";
+import { getOrganizationCreateApplication } from "./applicationSelectors";
 import { getWidgetCards } from "./editorSelectors";
 import { getDefaultPlugins } from "./entitiesSelector";
 import { Filter } from "pages/Templates/Filters";
@@ -22,11 +22,11 @@ export const isImportingTemplateSelector = (state: AppState) =>
 export const showTemplateNotificationSelector = (state: AppState) =>
   state.ui.templates.templateNotificationSeen;
 
-export const getWorkspaceForTemplates = createSelector(
-  getWorkspaceCreateApplication,
-  (workspaceList) => {
-    if (workspaceList.length) {
-      return workspaceList[0];
+export const getOrganizationForTemplates = createSelector(
+  getOrganizationCreateApplication,
+  (organizationList) => {
+    if (organizationList.length) {
+      return organizationList[0];
     }
 
     return null;
@@ -169,13 +169,13 @@ export const getFilterListSelector = createSelector(
   },
 );
 
-export const getForkableWorkspaces = createSelector(
-  getWorkspaceCreateApplication,
-  (workspaces) => {
-    return workspaces.map((workspace) => {
+export const getForkableOrganizations = createSelector(
+  getOrganizationCreateApplication,
+  (organisations) => {
+    return organisations.map((organization) => {
       return {
-        label: workspace.workspace.name,
-        value: workspace.workspace.id,
+        label: organization.organization.name,
+        value: organization.organization.id,
       };
     });
   },

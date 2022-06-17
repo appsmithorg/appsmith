@@ -7,8 +7,8 @@ describe("Execute Action Functionality", function() {
       .first()
       .click();
     // Importing the App from the sample application
-    cy.get(homePage.workspaceImportAppOption).click({ force: true });
-    cy.get(homePage.workspaceImportAppModal).should("be.visible");
+    cy.get(homePage.orgImportAppOption).click({ force: true });
+    cy.get(homePage.orgImportAppModal).should("be.visible");
     cy.xpath(homePage.uploadLogo).attachFile("executeAction.json");
     cy.get(homePage.importAppProgressWrapper).should("be.visible");
     cy.wait(3000);

@@ -35,11 +35,11 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Flux<Workspace> findByIdsIn(Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
-        Criteria workspaceIdCriteria = where(fieldName(QWorkspace.workspace.id)).in(workspaceIds);
+    public Flux<Workspace> findByIdsIn(Set<String> orgIds, String tenantId, AclPermission aclPermission, Sort sort) {
+        Criteria orgIdsCriteria = where(fieldName(QWorkspace.workspace.id)).in(orgIds);
         Criteria tenantIdCriteria = where(fieldName(QWorkspace.workspace.tenantId)).is(tenantId);
 
-        return queryAll(List.of(workspaceIdCriteria, tenantIdCriteria), aclPermission, sort);
+        return queryAll(List.of(orgIdsCriteria, tenantIdCriteria), aclPermission, sort);
     }
 
     @Override

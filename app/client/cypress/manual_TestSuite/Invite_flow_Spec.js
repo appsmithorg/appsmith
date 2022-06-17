@@ -14,20 +14,20 @@ describe("adding role without Email Id", function() {
     // Select the "Role"
     // Ensure the "Invite" option is "Inactive" and error message is displayed to user
   });
-  it("Clicking on the workspace list the user must be lead to workspace Station ", function() {
+  it("Clicking on the organisation list the user must be lead to organisation Station ", function() {
     // Navigate to Home Page
-    // Navigate to Workspace list
-    // Click on one of the workspace name
-    // Ensure user is directed to the workspace
+    // Navigate to Organisation list
+    // Click on one of the organisation name
+    // Ensure user is directed to the organisation
   });
   it("Admin can only assign another Admin ", function() {
-    // Navigate to Workspace Setting
+    // Navigate to Organisation Setting
     // Navigate to Members
     // Navigate to roles
     // Ensure your also an "Admin"
     // Change the role "Admin"
   });
-  it("Ensure the user can not delete or create an application in the workspace", function() {
+  it("Ensure the user can not delete or create an application in the organisation", function() {
     // Navigate to Home page
     // Navigate to Members
     // Navigate to roles

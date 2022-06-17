@@ -76,13 +76,13 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Application>> create(@Valid @RequestBody Application resource,
-                                                 @RequestParam String workspaceId,
+                                                 @RequestParam String orgId,
                                                  ServerWebExchange exchange) {
-        if (workspaceId == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "workspace id"));
+        if (orgId == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "organization id"));
         }
-        log.debug("Going to create application in workspace {}", workspaceId);
-        return applicationPageService.createApplication(resource, workspaceId)
+        log.debug("Going to create application in org {}", orgId);
+        return applicationPageService.createApplication(resource, orgId)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
@@ -217,9 +217,9 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
     }
 
-    @GetMapping("/import/{workspaceId}/datasources")
-    public Mono<ResponseDTO<List<Datasource>>> getUnConfiguredDatasource(@PathVariable String workspaceId, @RequestParam String defaultApplicationId) {
-        return importExportApplicationService.findDatasourceByApplicationId(defaultApplicationId, workspaceId)
+    @GetMapping("/import/{orgId}/datasources")
+    public Mono<ResponseDTO<List<Datasource>>> getUnConfiguredDatasource(@PathVariable String orgId, @RequestParam String defaultApplicationId) {
+        return importExportApplicationService.findDatasourceByApplicationId(defaultApplicationId, orgId)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 }

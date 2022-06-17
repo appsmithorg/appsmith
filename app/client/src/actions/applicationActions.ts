@@ -133,15 +133,15 @@ export const setIsReconnectingDatasourcesModalOpen = (payload: {
   payload,
 });
 
-export const setWorkspaceIdForImport = (workspaceId?: string) => ({
-  type: ReduxActionTypes.SET_WORKSPACE_ID_FOR_IMPORT,
-  payload: workspaceId,
+export const setOrgIdForImport = (orgId?: string) => ({
+  type: ReduxActionTypes.SET_ORG_ID_FOR_IMPORT,
+  payload: orgId,
 });
 
 export const showReconnectDatasourceModal = (payload: {
   application: ApplicationResponsePayload;
   unConfiguredDatasourceList: Array<Datasource>;
-  workspaceId: string;
+  orgId: string;
 }) => ({
   type: ReduxActionTypes.SHOW_RECONNECT_DATASOURCE_MODAL,
   payload,

@@ -6,7 +6,7 @@
 	"data": [
 		{
 			"id": "616d7e429594b25adfa3e57e",
-			"workspaceId": "6156b8c6c7e12534da9c5a1d",
+			"organizationId": "6156b8c6c7e12534da9c5a1d",
 			"pluginType": "DB",
 			"pluginId": "6156b848c7e12534da9c5985",
 			"name": "InsertQuery",
@@ -87,7 +87,7 @@
 		},
 		{
 			"id": "616d7e429594b25adfa3e57d",
-			"workspaceId": "6156b8c6c7e12534da9c5a1d",
+			"organizationId": "6156b8c6c7e12534da9c5a1d",
 			"pluginType": "DB",
 			"pluginId": "6156b848c7e12534da9c5985",
 			"name": "DeleteQuery",
@@ -169,7 +169,7 @@
 		},
 		{
 			"id": "616d7e429594b25adfa3e580",
-			"workspaceId": "6156b8c6c7e12534da9c5a1d",
+			"organizationId": "6156b8c6c7e12534da9c5a1d",
 			"pluginType": "DB",
 			"pluginId": "6156b848c7e12534da9c5985",
 			"name": "FindQuery",
@@ -266,7 +266,7 @@
 		},
 		{
 			"id": "616d7e429594b25adfa3e57f",
-			"workspaceId": "6156b8c6c7e12534da9c5a1d",
+			"organizationId": "6156b8c6c7e12534da9c5a1d",
 			"pluginType": "DB",
 			"pluginId": "6156b848c7e12534da9c5985",
 			"name": "UpdateQuery",

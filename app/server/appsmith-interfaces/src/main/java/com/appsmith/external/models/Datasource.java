@@ -32,12 +32,8 @@ public class Datasource extends BaseDomain {
     // It'll be null if not set
     @Transient
     String pluginName;
-    
-    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
-    String organizationId;
 
-    String workspaceId;
+    String organizationId;
 
     String templateName;
 

@@ -67,7 +67,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
       expect(cellData).to.be.equal("7");
     });
 
-    deployMode.NavigateBacktoEditor();
+    agHelper.NavigateBacktoEditor();
   });
 
   it("2. With Optional chaining : {{ (function() { return this?.params?.condition })() }}", function() {
@@ -82,7 +82,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
-    deployMode.NavigateBacktoEditor();
+    agHelper.NavigateBacktoEditor();
   });
 
   it("3. With Optional chaining : {{ (() => { return this?.params?.condition })() }}", function() {
@@ -97,7 +97,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
-    deployMode.NavigateBacktoEditor();
+    agHelper.NavigateBacktoEditor();
   });
 
   it("4. With Optional chaining : {{ this?.params.condition }}", function() {
@@ -112,7 +112,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
-    deployMode.NavigateBacktoEditor();
+    agHelper.NavigateBacktoEditor();
   });
 
   it("5. With Optional chaining : {{ (function() { return this?.params.condition })() }}", function() {
@@ -127,7 +127,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
-    deployMode.NavigateBacktoEditor();
+    agHelper.NavigateBacktoEditor();
   });
 
   it("6. With Optional chaining : {{ (() => { return this?.params.condition })() }}", function() {
@@ -142,7 +142,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
-    deployMode.NavigateBacktoEditor();
+    agHelper.NavigateBacktoEditor();
   });
 
   it("7. With No Optional chaining : {{ this.params.condition }}", function() {
@@ -157,7 +157,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
-    deployMode.NavigateBacktoEditor();
+    agHelper.NavigateBacktoEditor();
   });
 
   it("8. With No Optional chaining : {{ (function() { return this.params.condition })() }}", function() {
@@ -172,7 +172,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
-    deployMode.NavigateBacktoEditor();
+    agHelper.NavigateBacktoEditor();
   });
 
   it("9. With No Optional chaining : {{ (() => { return this.params.condition })() }}", function() {
@@ -187,7 +187,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
-    deployMode.NavigateBacktoEditor();
+    agHelper.NavigateBacktoEditor();
   });
 
   it("10. With Optional chaining : {{ this.params.condition }} && direct paramter passed", function() {
@@ -206,7 +206,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
-    deployMode.NavigateBacktoEditor();
+    agHelper.NavigateBacktoEditor();
   });
 
   it("11. With Optional chaining : {{ this.params.condition }} && no optional paramter passed", function() {
@@ -220,7 +220,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
-    deployMode.NavigateBacktoEditor();
+    agHelper.NavigateBacktoEditor();
   });
 
   it("12. Delete all entities - Query, JSObjects, Datasource + Bug 12532", () => {

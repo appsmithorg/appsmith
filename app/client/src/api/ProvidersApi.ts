@@ -51,7 +51,7 @@ export interface AddApiToPageRequest {
   name: string;
   pageId: string;
   marketplaceElement: any;
-  workspaceId?: string;
+  organizationId?: string;
   // Added for analytics
   source?: string;
 }

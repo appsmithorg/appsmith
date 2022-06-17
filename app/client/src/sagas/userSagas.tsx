@@ -13,7 +13,7 @@ import UserApi, {
   VerifyTokenRequest,
   TokenPasswordUpdateRequest,
   UpdateUserRequest,
-  LeaveWorkspaceRequest,
+  LeaveOrgRequest,
 } from "@appsmith/api/UserApi";
 import { AUTH_LOGIN_URL, SETUP } from "constants/routes";
 import history from "utils/history";
@@ -34,7 +34,7 @@ import {
   fetchFeatureFlagsError,
 } from "actions/userActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { INVITE_USERS_TO_WORKSPACE_FORM } from "constants/forms";
+import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -242,7 +242,7 @@ export function* invitedUserSignupSaga(
 
 type InviteUserPayload = {
   email: string;
-  workspaceId: string;
+  orgId: string;
   roleName: string;
 };
 
@@ -259,14 +259,14 @@ export function* inviteUser(payload: InviteUserPayload, reject: any) {
 
 export function* inviteUsers(
   action: ReduxActionWithPromise<{
-    data: { usernames: string[]; workspaceId: string; roleName: string };
+    data: { usernames: string[]; orgId: string; roleName: string };
   }>,
 ) {
   const { data, reject, resolve } = action.payload;
   try {
     const response: ApiResponse = yield callAPI(UserApi.inviteUser, {
       usernames: data.usernames,
-      workspaceId: data.workspaceId,
+      orgId: data.orgId,
       roleName: data.roleName,
     });
     const isValidResponse = yield validateResponse(response);
@@ -278,13 +278,13 @@ export function* inviteUsers(
     yield put({
       type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
       payload: {
-        workspaceId: data.workspaceId,
+        orgId: data.orgId,
       },
     });
     yield put({
-      type: ReduxActionTypes.INVITED_USERS_TO_WORKSPACE,
+      type: ReduxActionTypes.INVITED_USERS_TO_ORGANIZATION,
       payload: {
-        workspaceId: data.workspaceId,
+        orgId: data.orgId,
         users: data.usernames.map((name: string) => ({
           username: name,
           roleName: data.roleName,
@@ -292,11 +292,11 @@ export function* inviteUsers(
       },
     });
     yield call(resolve);
-    yield put(reset(INVITE_USERS_TO_WORKSPACE_FORM));
+    yield put(reset(INVITE_USERS_TO_ORG_FORM));
   } catch (error) {
     yield call(reject, { _error: error.message });
     yield put({
-      type: ReduxActionErrorTypes.INVITE_USERS_TO_WORKSPACE_ERROR,
+      type: ReduxActionErrorTypes.INVITE_USERS_TO_ORG_ERROR,
       payload: {
         error,
       },
@@ -475,7 +475,7 @@ export default function* userSagas() {
       ReduxActionTypes.RESET_PASSWORD_VERIFY_TOKEN_INIT,
       verifyResetPasswordTokenSaga,
     ),
-    takeLatest(ReduxActionTypes.INVITE_USERS_TO_WORKSPACE_INIT, inviteUsers),
+    takeLatest(ReduxActionTypes.INVITE_USERS_TO_ORG_INIT, inviteUsers),
     takeLatest(ReduxActionTypes.LOGOUT_USER_INIT, logoutSaga),
     takeLatest(ReduxActionTypes.VERIFY_INVITE_INIT, verifyUserInviteSaga),
     takeLatest(
@@ -488,7 +488,7 @@ export default function* userSagas() {
     ),
     takeLatest(ReduxActionTypes.REMOVE_PROFILE_PHOTO, removePhoto),
     takeLatest(ReduxActionTypes.UPLOAD_PROFILE_PHOTO, updatePhoto),
-    takeLatest(ReduxActionTypes.LEAVE_WORKSPACE_INIT, leaveWorkspaceSaga),
+    takeLatest(ReduxActionTypes.LEAVE_ORG_INIT, leaveOrgSaga),
     takeLatest(ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT, fetchFeatureFlags),
     takeLatest(
       ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
@@ -501,12 +501,10 @@ export default function* userSagas() {
   ]);
 }
 
-export function* leaveWorkspaceSaga(
-  action: ReduxAction<LeaveWorkspaceRequest>,
-) {
+export function* leaveOrgSaga(action: ReduxAction<LeaveOrgRequest>) {
   try {
-    const request: LeaveWorkspaceRequest = action.payload;
-    const response: ApiResponse = yield call(UserApi.leaveWorkspace, request);
+    const request: LeaveOrgRequest = action.payload;
+    const response: ApiResponse = yield call(UserApi.leaveOrg, request);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put({

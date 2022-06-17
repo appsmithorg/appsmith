@@ -18,7 +18,7 @@ import moment from "moment";
 import styled from "styled-components";
 
 import { APP_MODE } from "entities/App";
-import WorkspaceApi from "api/WorkspaceApi";
+import OrgApi from "api/OrgApi";
 
 import {
   isPermitted,
@@ -79,14 +79,12 @@ const UnreadIndicator = styled.div`
     props.theme.colors.notifications.unreadIndicator};
 `;
 
-const getModeFromUserRole = async (workspaceId: string) => {
+const getModeFromUserRole = async (orgId: string) => {
   try {
-    const response = (await WorkspaceApi.fetchWorkspace({
-      workspaceId,
-    })) as any;
-    const userWorkspacePermissions = response?.data?.userPermissions || [];
+    const response = (await OrgApi.fetchOrg({ orgId })) as any;
+    const userOrgPermissions = response?.data?.userPermissions || [];
     const canPublish = isPermitted(
-      userWorkspacePermissions,
+      userOrgPermissions,
       PERMISSION_TYPE.PUBLISH_APPLICATION,
     );
 
@@ -121,10 +119,10 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     authorUsername,
     branchName,
     mode: modeFromComment,
+    orgId,
     pageId,
-    threadId,
     // resolvedState, TODO get from comment thread
-    workspaceId,
+    threadId,
   } = comment;
 
   const _createdAt = createdAt || creationTime;
@@ -137,7 +135,7 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
   }
 
   const handleClick = async () => {
-    const modeFromRole = await getModeFromUserRole(workspaceId);
+    const modeFromRole = await getModeFromUserRole(orgId);
     const mode = getModeFromRoleAndDomain(modeFromRole, modeFromComment);
 
     const commentThreadUrl = getCommentThreadURL({
@@ -198,15 +196,15 @@ function CommentThreadNotification(props: {
     branchName,
     id,
     mode: modeFromThread,
+    orgId,
     pageId,
     resolvedState,
-    workspaceId,
   } = commentThread;
 
   const commentThreadId = _id || id;
 
   const handleClick = async () => {
-    const modeFromRole = await getModeFromUserRole(workspaceId);
+    const modeFromRole = await getModeFromUserRole(orgId);
     const mode = getModeFromRoleAndDomain(modeFromRole, modeFromThread);
 
     const commentThreadUrl = getCommentThreadURL({

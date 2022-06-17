@@ -25,24 +25,24 @@ public class CustomUserDataRepositoryImplTest {
     @Autowired
     private UserDataRepository userDataRepository;
 
-    private Mono<UserData> createUser(String userId, List<String> workspaceIds, List<String> appIds) {
+    private Mono<UserData> createUser(String userId, List<String> orgIds, List<String> appIds) {
         return userDataRepository
                 .findByUserId(userId)
                 .defaultIfEmpty(new UserData()).flatMap(userData -> {
                     userData.setUserId(userId);
-                    userData.setRecentlyUsedWorkspaceIds(workspaceIds);
+                    userData.setRecentlyUsedOrgIds(orgIds);
                     userData.setRecentlyUsedAppIds(appIds);
                     return userDataRepository.save(userData);
                 });
     }
 
     @Test
-    public void removeIdFromRecentlyUsedList_WhenWorkspaceIdAlreadyExists_WorkspaceIdRemoved() {
-        // create an user data with 3 org id in the recently used workspaceId list
+    public void removeIdFromRecentlyUsedList_WhenOrgIdAlreadyExists_OrgIdRemoved() {
+        // create an user data with 3 org id in the recently used orgid list
         String sampleUserId = "abcd";
         Mono<UserData> createUserDataMono = createUser(sampleUserId, List.of("123", "234", "345"), null);
 
-        // remove the 345 org id from the recently used workspaceId list
+        // remove the 345 org id from the recently used orgid list
         Mono<UpdateResult> updateResultMono = createUserDataMono.flatMap(
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(
                         userData.getUserId(), "345", List.of())
@@ -55,18 +55,18 @@ public class CustomUserDataRepositoryImplTest {
         Mono<UserData> userDataAfterUpdateMono = updateResultMono.then(readUserDataMono);
 
         StepVerifier.create(userDataAfterUpdateMono).assertNext(userData -> {
-            Assert.assertEquals(2, userData.getRecentlyUsedWorkspaceIds().size());
-            Assert.assertArrayEquals(List.of("123", "234").toArray(), userData.getRecentlyUsedWorkspaceIds().toArray());
+            Assert.assertEquals(2, userData.getRecentlyUsedOrgIds().size());
+            Assert.assertArrayEquals(List.of("123", "234").toArray(), userData.getRecentlyUsedOrgIds().toArray());
         }).verifyComplete();
     }
 
     @Test
-    public void removeIdFromRecentlyUsedList_WhenWorkspaceIdDoesNotExist_NothingRemoved() {
-        // create an user data with 3 org id in the recently used workspaceId list
+    public void removeIdFromRecentlyUsedList_WhenOrgIdDoesNotExist_NothingRemoved() {
+        // create an user data with 3 org id in the recently used orgid list
         String sampleUserId = "efgh";
         Mono<UserData> createUserDataMono = createUser(sampleUserId, List.of("123", "234", "345"), null);
 
-        // remove the 345 org id from the recently used workspaceId list
+        // remove the 345 org id from the recently used orgid list
         Mono<UpdateResult> updateResultMono = createUserDataMono.flatMap(
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(
                         userData.getUserId(), "678", List.of()
@@ -80,8 +80,8 @@ public class CustomUserDataRepositoryImplTest {
         Mono<UserData> userDataAfterUpdateMono = updateResultMono.then(readUserDataMono);
 
         StepVerifier.create(userDataAfterUpdateMono).assertNext(userData -> {
-            Assert.assertEquals(3, userData.getRecentlyUsedWorkspaceIds().size());
-            Assert.assertArrayEquals(List.of("123", "234", "345").toArray(), userData.getRecentlyUsedWorkspaceIds().toArray());
+            Assert.assertEquals(3, userData.getRecentlyUsedOrgIds().size());
+            Assert.assertArrayEquals(List.of("123", "234", "345").toArray(), userData.getRecentlyUsedOrgIds().toArray());
         }).verifyComplete();
     }
 
@@ -91,9 +91,9 @@ public class CustomUserDataRepositoryImplTest {
         String sampleUserId = "abcd";
         Mono<UserData> createUserDataMono = createUser(sampleUserId, null, List.of("123", "456", "789"));
 
-        // remove the 345 org id from the recently used workspaceId list
+        // remove the 345 org id from the recently used orgid list
         Mono<UpdateResult> updateResultMono = createUserDataMono.flatMap(
-                // workspaceId does not matter
+                // orgId does not matter
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(
                         userData.getUserId(), "345", List.of("123", "789")) // remove 123 and 789
         );
@@ -112,16 +112,16 @@ public class CustomUserDataRepositoryImplTest {
     }
 
     @Test
-    public void removeIdFromRecentlyUsedList_WhenWorkspaceIdAndAppIdExists_BothAreRemoved() {
+    public void removeIdFromRecentlyUsedList_WhenOrgIdAndAppIdExists_BothAreRemoved() {
         // create a user data with 3 app id in the recently used appId list
         String sampleUserId = "abcd";
         Mono<UserData> createUserDataMono = createUser(
                 sampleUserId, List.of("abc", "efg", "hij"), List.of("123", "456", "789")
         );
 
-        // remove the 345 org id from the recently used workspaceId list
+        // remove the 345 org id from the recently used orgid list
         Mono<UpdateResult> updateResultMono = createUserDataMono.flatMap(
-                // workspaceId does not matter
+                // orgId does not matter
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(
                         userData.getUserId(), "efg", List.of("123", "789")) // remove 123 and 789
         );
@@ -134,12 +134,12 @@ public class CustomUserDataRepositoryImplTest {
 
         StepVerifier.create(userDataAfterUpdateMono).assertNext(userData -> {
             List<String> recentlyUsedAppIds = userData.getRecentlyUsedAppIds();
-            List<String> recentlyUsedWorkspaceIds = userData.getRecentlyUsedWorkspaceIds();
+            List<String> recentlyUsedOrgIds = userData.getRecentlyUsedOrgIds();
             assertThat(recentlyUsedAppIds.size()).isEqualTo(1);
             assertThat(recentlyUsedAppIds.get(0)).isEqualTo("456");
 
-            assertThat(recentlyUsedWorkspaceIds.size()).isEqualTo(2);
-            assertThat(recentlyUsedWorkspaceIds).contains("abc", "hij");
+            assertThat(recentlyUsedOrgIds.size()).isEqualTo(2);
+            assertThat(recentlyUsedOrgIds).contains("abc", "hij");
         }).verifyComplete();
     }
 }

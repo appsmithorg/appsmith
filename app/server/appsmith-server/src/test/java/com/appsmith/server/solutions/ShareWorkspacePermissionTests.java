@@ -51,13 +51,13 @@ import java.util.Set;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -104,23 +104,23 @@ public class ShareWorkspacePermissionTests {
 
     Application savedApplication;
 
-    String workspaceId;
+    String organizationId;
 
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
         Workspace workspace = new Workspace();
-        workspace.setName("Share Test Workspace");
+        workspace.setName("Share Test Organization");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
-        workspaceId = savedWorkspace.getId();
+        organizationId = savedWorkspace.getId();
 
         Application application = new Application();
         application.setName("Share Test Application");
-        application.setWorkspaceId(workspaceId);
-        savedApplication = applicationPageService.createApplication(application, workspaceId).block();
+        application.setOrganizationId(organizationId);
+        savedApplication = applicationPageService.createApplication(application, organizationId).block();
 
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-        inviteUsersDTO.setWorkspaceId(workspaceId);
+        inviteUsersDTO.setOrgId(organizationId);
         ArrayList<String> emails = new ArrayList<>();
 
         // Invite Admin
@@ -141,7 +141,7 @@ public class ShareWorkspacePermissionTests {
     @Test
     @WithUserDetails(value = "admin@solutiontest.com")
     public void testAdminPermissionsForInviteAndMakePublic() {
-        Policy inviteUserPolicy = Policy.builder().permission(WORKSPACE_INVITE_USERS.getValue())
+        Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_INVITE_USERS.getValue())
                 .users(Set.of("admin@solutiontest.com", "developer@solutiontest.com"))
                 .build();
 
@@ -150,7 +150,7 @@ public class ShareWorkspacePermissionTests {
                 .build();
 
         Mono<Application> applicationMono = applicationService.findById(savedApplication.getId());
-        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceMono = workspaceService.findById(organizationId, READ_ORGANIZATIONS);
 
         StepVerifier.create(Mono.zip(applicationMono, workspaceMono))
                 .assertNext(tuple -> {
@@ -169,7 +169,7 @@ public class ShareWorkspacePermissionTests {
     public void testAdminInviteRoles() {
 
         Set<String> roles = Set.of("Administrator", "Developer", "App Viewer");
-        Mono<Map<String, String>> userRolesForWorkspace = workspaceService.getUserRolesForWorkspace(workspaceId);
+        Mono<Map<String, String>> userRolesForWorkspace = workspaceService.getUserRolesForWorkspace(organizationId);
 
         StepVerifier.create(userRolesForWorkspace)
                 .assertNext(rolesMap -> {
@@ -182,11 +182,11 @@ public class ShareWorkspacePermissionTests {
     @Test
     @WithUserDetails(value = "developer@solutiontest.com")
     public void testDevPermissionsForInvite() {
-        Policy inviteUserPolicy = Policy.builder().permission(WORKSPACE_INVITE_USERS.getValue())
+        Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_INVITE_USERS.getValue())
                 .users(Set.of("admin@solutiontest.com", "developer@solutiontest.com"))
                 .build();
 
-        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceMono = workspaceService.findById(organizationId, READ_ORGANIZATIONS);
 
         StepVerifier.create(workspaceMono)
                 .assertNext(workspace -> {
@@ -201,7 +201,7 @@ public class ShareWorkspacePermissionTests {
     public void testDeveloperInviteRoles() {
 
         Set<String> roles = Set.of("Developer", "App Viewer");
-        Mono<Map<String, String>> userRolesForWorkspace = workspaceService.getUserRolesForWorkspace(workspaceId);
+        Mono<Map<String, String>> userRolesForWorkspace = workspaceService.getUserRolesForWorkspace(organizationId);
 
         StepVerifier.create(userRolesForWorkspace)
                 .assertNext(rolesMap -> {
@@ -218,12 +218,12 @@ public class ShareWorkspacePermissionTests {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Workspace workspace = new Workspace();
-        workspace.setName("Workspace for Invite Cancellation Test");
+        workspace.setName("Organization for Invite Cancellation Test");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
 
         Application application = new Application();
         application.setName("Application for Invite Cancellation Test");
-        application.setWorkspaceId(savedWorkspace.getId());
+        application.setOrganizationId(savedWorkspace.getId());
         savedApplication = applicationPageService.createApplication(application, savedWorkspace.getId()).block();
 
         String pageId = savedApplication.getPages().get(0).getId();
@@ -235,7 +235,7 @@ public class ShareWorkspacePermissionTests {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setWorkspaceId(savedWorkspace.getId());
+        datasource.setOrganizationId(savedWorkspace.getId());
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
 
@@ -266,7 +266,7 @@ public class ShareWorkspacePermissionTests {
         ActionDTO savedAction3 = layoutActionService.createSingleAction(action3).block();
 
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-        inviteUsersDTO.setWorkspaceId(savedWorkspace.getId());
+        inviteUsersDTO.setOrgId(savedWorkspace.getId());
         ArrayList<String> emails = new ArrayList<>();
 
         // Test invite
@@ -286,14 +286,14 @@ public class ShareWorkspacePermissionTests {
         // ensures that we are guaranteed that the invite flow (which was cancelled in 5 ms) has run to completion
         // before we fetch the org, app, pages and actions
         Mono<Workspace> workspaceMono = Mono.just(savedWorkspace.getId())
-                .flatMap(workspaceId -> {
+                .flatMap(orgId -> {
                     try {
                         // Before fetching the updated organzation, sleep for 10 seconds to ensure that the invite finishes
                         Thread.sleep(10000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return workspaceService.findById(workspaceId, READ_WORKSPACES);
+                    return workspaceService.findById(orgId, READ_ORGANIZATIONS);
                 })
                 .cache();
 
@@ -324,15 +324,15 @@ public class ShareWorkspacePermissionTests {
                     Set<String> userSet = Set.of("api_user", "invitecancellationtestemail@solutiontext.com");
 
                     // Assert the policy for the invited user in workspace
-                    Policy manageOrgAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+                    Policy manageOrgAppPolicy = Policy.builder().permission(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
                             .users(userSet)
                             .build();
 
-                    Policy manageOrgPolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+                    Policy manageOrgPolicy = Policy.builder().permission(MANAGE_ORGANIZATIONS.getValue())
                             .users(userSet)
                             .build();
 
-                    Policy readOrgPolicy = Policy.builder().permission(READ_WORKSPACES.getValue())
+                    Policy readOrgPolicy = Policy.builder().permission(READ_ORGANIZATIONS.getValue())
                             .users(userSet)
                             .build();
 

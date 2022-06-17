@@ -225,7 +225,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 }).flatMap(application -> {
                     if(markApplicationAsRecentlyAccessed) {
                         // add this application and workspace id to the recently used list in UserData
-                        return userDataService.updateLastUsedAppAndWorkspaceList(application)
+                        return userDataService.updateLastUsedAppAndOrgList(application)
                                 .thenReturn(application);
                     } else {
                         return Mono.just(application);
@@ -339,7 +339,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     application.setPublishedPages(null);
                     List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
                     ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();
-                    applicationPagesDTO.setWorkspaceId(application.getWorkspaceId());
+                    applicationPagesDTO.setOrganizationId(application.getOrganizationId());
                     applicationPagesDTO.setPages(nameIdDTOList);
                     applicationPagesDTO.setApplication(application);
                     return applicationPagesDTO;
@@ -371,7 +371,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     Application application = tuple.getT1();
                     List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
                     ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();
-                    applicationPagesDTO.setWorkspaceId(application.getWorkspaceId());
+                    applicationPagesDTO.setOrganizationId(application.getOrganizationId());
                     applicationPagesDTO.setPages(nameIdDTOList);
                     return applicationPagesDTO;
                 });

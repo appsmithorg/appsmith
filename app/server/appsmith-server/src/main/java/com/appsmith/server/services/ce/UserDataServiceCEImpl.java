@@ -244,17 +244,17 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     }
 
     /**
-     * The application.workspaceId is prepended to the list {@link UserData#getRecentlyUsedWorkspaceIds}.
+     * The application.organizationId is prepended to the list {@link UserData#getRecentlyUsedOrgIds}.
      * The application.id is prepended to the list {@link UserData#getRecentlyUsedAppIds()}.
      *
      * @param application@return Updated {@link UserData}
      */
     @Override
-    public Mono<UserData> updateLastUsedAppAndWorkspaceList(Application application) {
+    public Mono<UserData> updateLastUsedAppAndOrgList(Application application) {
         return this.getForCurrentUser().flatMap(userData -> {
             // set recently used workspace ids
-            userData.setRecentlyUsedWorkspaceIds(
-                    addIdToRecentList(userData.getRecentlyUsedWorkspaceIds(), application.getWorkspaceId(), 10)
+            userData.setRecentlyUsedOrgIds(
+                    addIdToRecentList(userData.getRecentlyUsedOrgIds(), application.getOrganizationId(), 10)
             );
             // set recently used application ids
             userData.setRecentlyUsedAppIds(
@@ -314,7 +314,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
      * @return update result obtained from DB
      */
     @Override
-    public Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId) {
+    public Mono<UpdateResult> removeRecentOrgAndApps(String userId, String workspaceId) {
         return applicationRepository.getAllApplicationId(workspaceId).flatMap(appIdsList ->
             repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList)
         );

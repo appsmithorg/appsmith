@@ -1087,7 +1087,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 "pageName", page.getName(),
                                 "pluginName", pluginName,
                                 "datasourceId", datasource.getId(),
-                                "organizationId", datasource.getWorkspaceId()
+                                "organizationId", datasource.getOrganizationId()
                         );
                         analyticsService.sendEvent(AnalyticsEvents.GENERATE_CRUD_PAGE.getEventName(), currentUser.getUsername(), data);
                     } catch (Exception e) {

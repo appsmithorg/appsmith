@@ -9,7 +9,7 @@ public class PluginWorkspaceDTO {
 
     String pluginId;
 
-    String workspaceId;
+    String organizationId;
 
     WorkspacePluginStatus status;
 }

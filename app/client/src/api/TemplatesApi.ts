@@ -52,11 +52,11 @@ class TemplatesAPI extends Api {
   }
   static importTemplate(
     templateId: string,
-    workspaceId: string,
+    organizationId: string,
   ): AxiosPromise<ImportTemplateResponse> {
     return Api.post(
       TemplatesAPI.baseUrl +
-        `/app-templates/${templateId}/import/${workspaceId}`,
+        `/app-templates/${templateId}/import/${organizationId}`,
     );
   }
 }

@@ -12,9 +12,9 @@ import java.util.Set;
 
 public interface CustomDatasourceRepositoryCE extends AppsmithRepository<Datasource> {
 
-    Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission);
+    Flux<Datasource> findAllByOrganizationId(String organizationId, AclPermission permission);
 
-    Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission);
+    Mono<Datasource> findByNameAndOrganizationId(String name, String organizationId, AclPermission aclPermission);
 
     Mono<Datasource> findById(String id, AclPermission aclPermission);
 

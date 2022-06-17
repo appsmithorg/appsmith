@@ -85,7 +85,7 @@ export type FetchPageListResponseData = {
     layouts: Array<PageLayout>;
     slug?: string;
   }>;
-  workspaceId: string;
+  organizationId: string;
 };
 
 export interface DeletePageRequest {

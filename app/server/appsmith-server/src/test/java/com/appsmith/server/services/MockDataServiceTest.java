@@ -79,7 +79,7 @@ public class MockDataServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    String workspaceId = "";
+    String orgId = "";
 
     Application testApp = null;
 
@@ -88,11 +88,11 @@ public class MockDataServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_WORKSPACES).block();
-        workspaceId = testWorkspace == null ? "" : testWorkspace.getId();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
+        orgId = testWorkspace == null ? "" : testWorkspace.getId();
         User apiUser = userService.findByEmail("api_user").block();
-        workspaceId = apiUser.getWorkspaceIds().iterator().next();
-        Workspace workspace = workspaceService.getById(workspaceId).block();
+        orgId = apiUser.getOrganizationIds().iterator().next();
+        Workspace workspace = workspaceService.getById(orgId).block();
 
         if (testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
@@ -131,7 +131,7 @@ public class MockDataServiceTest {
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("Movies");
-        mockDataSource.setWorkspaceId(workspaceId);
+        mockDataSource.setOrganizationId(orgId);
         mockDataSource.setPackageName("mongo-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
@@ -170,7 +170,7 @@ public class MockDataServiceTest {
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("Users");
-        mockDataSource.setWorkspaceId(workspaceId);
+        mockDataSource.setOrganizationId(orgId);
         mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
@@ -208,7 +208,7 @@ public class MockDataServiceTest {
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("Movies");
-        mockDataSource.setWorkspaceId(workspaceId);
+        mockDataSource.setOrganizationId(orgId);
         mockDataSource.setPackageName("mongo-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
@@ -251,7 +251,7 @@ public class MockDataServiceTest {
         Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("Users");
-        mockDataSource.setWorkspaceId(workspaceId);
+        mockDataSource.setOrganizationId(orgId);
         mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(plugin.getId());
         Datasource datasourceMono = mockDataService.createMockDataSet(mockDataSource).block();
@@ -262,7 +262,7 @@ public class MockDataServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
 
         action.setActionConfiguration(actionConfiguration);
-        action.setWorkspaceId(workspaceId);
+        action.setOrganizationId(orgId);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteDbQuery");
         action.setDatasource(datasourceMono);

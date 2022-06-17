@@ -48,9 +48,9 @@ public class BaseServiceTest {
         testApplication.setName("BaseServiceTest TestApp");
 
         User apiUser = userService.findByEmail("api_user").block();
-        String workspaceId = apiUser.getWorkspaceIds().iterator().next();
+        String orgId = apiUser.getOrganizationIds().iterator().next();
 
-        applicationPageService.createApplication(testApplication, workspaceId).subscribe();
+        applicationPageService.createApplication(testApplication, orgId).subscribe();
     }
 
     @Test
