@@ -12,7 +12,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -27,6 +26,7 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
@@ -53,7 +53,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -84,7 +83,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple3;
 
-import java.lang.reflect.Type;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -265,10 +263,9 @@ public class ImportExportApplicationServiceTests {
         return stringifiedFile
                 .map(data -> {
                     Gson gson = new Gson();
-                    Type fileType = new TypeToken<ApplicationJson>() {
-                    }.getType();
-                    return gson.fromJson(data, fileType);
-                });
+                    return gson.fromJson(data, ApplicationJson.class);
+                })
+                .map(JsonSchemaMigration::migrateApplicationToLatestSchema);
     }
 
     private Workspace createTemplateWorkspace() {
@@ -391,6 +388,20 @@ public class ImportExportApplicationServiceTests {
                     testWidget.put("testField", "{{ validAction.data }}");
                     children.add(testWidget);
 
+                    JSONObject tableWidget = new JSONObject();
+                    tableWidget.put("widgetName", "Table1");
+                    tableWidget.put("type", "TABLE_WIDGET");
+                    Map<String, Object> primaryColumns = new HashMap<>();
+                    JSONObject jsonObject = new JSONObject(Map.of("key", "value"));
+                    primaryColumns.put("_id", "{{ PageAction.data }}");
+                    primaryColumns.put("_class", jsonObject);
+                    tableWidget.put("primaryColumns", primaryColumns);
+                    final ArrayList<Object> objects = new ArrayList<>();
+                    JSONArray temp2 = new JSONArray();
+                    temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+                    tableWidget.put("dynamicBindingPathList", temp2);
+                    children.add(tableWidget);
+
                     layout.setDsl(dsl);
                     layout.setPublishedDsl(dsl);
 
@@ -468,6 +479,7 @@ public class ImportExportApplicationServiceTests {
                     List<String> DBOnLayoutLoadActionIds = new ArrayList<>();
                     List<String> exportedOnLayoutLoadActionIds = new ArrayList<>();
 
+                    assertThat(DBPages).hasSize(1);
                     DBPages.forEach(newPage ->
                         newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
                             if (layout.getLayoutOnLoadActions() != null) {
@@ -477,7 +489,6 @@ public class ImportExportApplicationServiceTests {
                             }
                         })
                     );
-
                     pageList.forEach(newPage ->
                             newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
                                 if (layout.getLayoutOnLoadActions() != null) {
@@ -490,9 +501,21 @@ public class ImportExportApplicationServiceTests {
 
                     NewPage defaultPage = pageList.get(0);
 
+                    // Check if the mongo escaped widget names are carried to exported file from DB
+                    Layout pageLayout = DBPages.get(0).getUnpublishedPage().getLayouts().get(0);
+                    Set<String> mongoEscapedWidgets = pageLayout.getMongoEscapedWidgetNames();
+                    Set<String> expectedMongoEscapedWidgets = Set.of("Table1");
+                    assertThat(mongoEscapedWidgets).isEqualTo(expectedMongoEscapedWidgets);
+
+                    pageLayout = pageList.get(0).getUnpublishedPage().getLayouts().get(0);
+                    Set<String> exportedMongoEscapedWidgets = pageLayout.getMongoEscapedWidgetNames();
+                    assertThat(exportedMongoEscapedWidgets).isEqualTo(expectedMongoEscapedWidgets);
+
+
                     assertThat(exportedApp.getName()).isEqualTo(appName);
                     assertThat(exportedApp.getWorkspaceId()).isNull();
-                    assertThat(exportedApp.getPages()).isNull();
+                    assertThat(exportedApp.getPages()).hasSize(1);
+                    assertThat(exportedApp.getPages().get(0).getId()).isEqualTo(defaultPage.getUnpublishedPage().getName());
 
                     assertThat(exportedApp.getPolicies()).isNull();
 
@@ -500,7 +523,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(defaultPage.getApplicationId()).isNull();
                     assertThat(defaultPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isNotNull();
                     assertThat(defaultPage.getId()).isNull();
-                    assertThat(defaultPage.getPolicies()).isEmpty();
+                    assertThat(defaultPage.getPolicies()).isNull();
 
                     assertThat(actionList.isEmpty()).isFalse();
                     assertThat(actionList).hasSize(3);
@@ -537,14 +560,12 @@ public class ImportExportApplicationServiceTests {
                     assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
                     assertThat(datasource.getDatasourceConfiguration()).isNull();
 
-                    final Map<String, InvisibleActionFields> invisibleActionFields = applicationJson.getInvisibleActionFields();
-
-                    Assert.assertEquals(3, invisibleActionFields.size());
+                    assertThat(applicationJson.getInvisibleActionFields()).isNull();
                     NewAction validAction2 = actionList.stream().filter(action -> action.getId().equals("Page1_validAction2")).findFirst().get();
-                    Assert.assertEquals(true, invisibleActionFields.get(validAction2.getId()).getUnpublishedUserSetOnLoad());
+                    Assert.assertEquals(true, validAction2.getUnpublishedAction().getUserSetOnLoad());
 
-                    assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNotEmpty();
-                    assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNotEmpty();
+                    assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNull();
+                    assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNull();
                     assertThat(applicationJson.getEditModeTheme()).isNotNull();
                     assertThat(applicationJson.getEditModeTheme().isSystemTheme()).isTrue();
                     assertThat(applicationJson.getEditModeTheme().getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
@@ -569,45 +590,39 @@ public class ImportExportApplicationServiceTests {
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonForGitTest() {
 
-        final Mono<ApplicationJson> resultMono = Mono.zip(
-                workspaceService.getById(workspaceId),
-                applicationRepository.findById(testAppId)
-            )
-            .flatMap(tuple -> {
+        StringBuilder pageName = new StringBuilder();
+        final Mono<ApplicationJson> resultMono = applicationRepository.findById(testAppId)
+                .flatMap(testApp -> {
+                    final String pageId = testApp.getPages().get(0).getId();
+                    return Mono.zip(
+                        Mono.just(testApp),
+                        newPageService.findPageById(pageId, READ_PAGES, false)
+                    );
+                })
+                .flatMap(tuple -> {
+                    Datasource ds1 = datasourceMap.get("DS1");
+                    Application testApp = tuple.getT1();
+                    PageDTO testPage = tuple.getT2();
+                    pageName.append(testPage.getName());
 
-                Workspace workspace = tuple.getT1();
-                Application testApp = tuple.getT2();
+                    Layout layout = testPage.getLayouts().get(0);
+                    JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
 
-                final String pageId = testApp.getPages().get(0).getId();
+                    layout.setDsl(dsl);
+                    layout.setPublishedDsl(dsl);
 
-                return Mono.zip(
-                    Mono.just(testApp),
-                    newPageService.findPageById(pageId, READ_PAGES, false)
-                );
-            })
-            .flatMap(tuple -> {
-                Datasource ds1 = datasourceMap.get("DS1");
-                Application testApp = tuple.getT1();
-                PageDTO testPage = tuple.getT2();
+                    ActionDTO action = new ActionDTO();
+                    action.setName("validAction");
+                    action.setPageId(testPage.getId());
+                    action.setExecuteOnLoad(true);
+                    ActionConfiguration actionConfiguration = new ActionConfiguration();
+                    actionConfiguration.setHttpMethod(HttpMethod.GET);
+                    action.setActionConfiguration(actionConfiguration);
+                    action.setDatasource(ds1);
 
-                Layout layout = testPage.getLayouts().get(0);
-                JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
-
-                layout.setDsl(dsl);
-                layout.setPublishedDsl(dsl);
-
-                ActionDTO action = new ActionDTO();
-                action.setName("validAction");
-                action.setPageId(testPage.getId());
-                action.setExecuteOnLoad(true);
-                ActionConfiguration actionConfiguration = new ActionConfiguration();
-                actionConfiguration.setHttpMethod(HttpMethod.GET);
-                action.setActionConfiguration(actionConfiguration);
-                action.setDatasource(ds1);
-
-                return layoutActionService.createAction(action)
-                    .then(importExportApplicationService.exportApplicationById(testApp.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
-            });
+                    return layoutActionService.createAction(action)
+                        .then(importExportApplicationService.exportApplicationById(testApp.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
+                });
 
         StepVerifier
             .create(resultMono)
@@ -625,16 +640,18 @@ public class ImportExportApplicationServiceTests {
 
                 assertThat(exportedApp.getName()).isNotNull();
                 assertThat(exportedApp.getWorkspaceId()).isNull();
-                assertThat(exportedApp.getPages()).isNull();
+                assertThat(exportedApp.getPages()).hasSize(1);
+                assertThat(exportedApp.getPages().get(0).getId()).isEqualTo(pageName.toString());
                 assertThat(exportedApp.getGitApplicationMetadata()).isNull();
 
                 assertThat(exportedApp.getPolicies()).isNull();
+                assertThat(exportedApp.getUserPermissions()).isNull();
 
                 assertThat(pageList).hasSize(1);
                 assertThat(newPage.getApplicationId()).isNull();
                 assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isNotNull();
                 assertThat(newPage.getId()).isNull();
-                assertThat(newPage.getPolicies()).isEmpty();
+                assertThat(newPage.getPolicies()).isNull();
 
                 assertThat(actionList.isEmpty()).isFalse();
                 NewAction validAction = actionList.get(0);
@@ -654,8 +671,8 @@ public class ImportExportApplicationServiceTests {
                 assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
                 assertThat(datasource.getDatasourceConfiguration()).isNull();
 
-                assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNotEmpty();
-                assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNotEmpty();
+                assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNull();
+                assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNull();
             })
             .verifyComplete();
     }
@@ -1953,7 +1970,21 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void applySchemaMigration_jsonFileWithFirstVersion_migratedToLatestVersionSuccess() {
-        Mono<ApplicationJson> v1ApplicationMono = createAppJson("test_assets/ImportExportServiceTest/file-with-v1.json").cache();
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/file-with-v1.json");
+
+        Mono<String> stringifiedFile = DataBufferUtils.join(filePart.content())
+                .map(dataBuffer -> {
+                    byte[] data = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(data);
+                    DataBufferUtils.release(dataBuffer);
+                    return new String(data);
+                });
+        Mono<ApplicationJson> v1ApplicationMono = stringifiedFile
+                .map(data -> {
+                    Gson gson = new Gson();
+                    return gson.fromJson(data, ApplicationJson.class);
+                }).cache();
+
         Mono<ApplicationJson> migratedApplicationMono = v1ApplicationMono
                 .map(applicationJson -> {
                     ApplicationJson applicationJson1 = new ApplicationJson();
@@ -2125,7 +2156,12 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(exportedApp.getName()).isEqualTo(appName);
                     assertThat(exportedApp.getWorkspaceId()).isNull();
-                    assertThat(exportedApp.getPages()).isNull();
+                    assertThat(exportedApp.getPages()).hasSize(1);
+                    ApplicationPage page = exportedApp.getPages().get(0);
+
+                    assertThat(page.getId()).isEqualTo(defaultPage.getUnpublishedPage().getName());
+                    assertThat(page.getIsDefault()).isTrue();
+                    assertThat(page.getDefaultPageId()).isNull();
 
                     assertThat(exportedApp.getPolicies()).isNull();
 
@@ -2133,7 +2169,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(defaultPage.getApplicationId()).isNull();
                     assertThat(defaultPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isNotNull();
                     assertThat(defaultPage.getId()).isNull();
-                    assertThat(defaultPage.getPolicies()).isEmpty();
+                    assertThat(defaultPage.getPolicies()).isNull();
 
                     assertThat(actionList.isEmpty()).isFalse();
                     assertThat(actionList).hasSize(3);
@@ -2172,12 +2208,17 @@ public class ImportExportApplicationServiceTests {
 
                     final Map<String, InvisibleActionFields> invisibleActionFields = applicationJson.getInvisibleActionFields();
 
-                    Assert.assertEquals(3, invisibleActionFields.size());
-                    NewAction validAction2 = actionList.stream().filter(action -> action.getId().equals("Page1_validAction2")).findFirst().get();
-                    Assert.assertEquals(true, invisibleActionFields.get(validAction2.getId()).getUnpublishedUserSetOnLoad());
+                    assertThat(invisibleActionFields).isNull();
+                    for (NewAction newAction : actionList) {
+                        if (newAction.getId().equals("Page1_validAction2")) {
+                            Assert.assertEquals(true, newAction.getUnpublishedAction().getUserSetOnLoad());
+                        } else {
+                            Assert.assertEquals(false, newAction.getUnpublishedAction().getUserSetOnLoad());
+                        }
+                    }
 
-                    assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNotEmpty();
-                    assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNotEmpty();
+                    assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNull();
+                    assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNull();
                     assertThat(applicationJson.getEditModeTheme()).isNotNull();
                     assertThat(applicationJson.getEditModeTheme().isSystemTheme()).isTrue();
                     assertThat(applicationJson.getEditModeTheme().getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
@@ -2336,40 +2377,50 @@ public class ImportExportApplicationServiceTests {
         testApplication = applicationPageService.createApplication(testApplication, workspaceId).block();
         assert testApplication != null;
 
-        PageDTO testPage = new PageDTO();
-        testPage.setName("123");
-        testPage.setApplicationId(testApplication.getId());
-        PageDTO page1 = applicationPageService.createPage(testPage).block();
+        PageDTO testPage1 = new PageDTO();
+        testPage1.setName("testPage1");
+        testPage1.setApplicationId(testApplication.getId());
+        testPage1 = applicationPageService.createPage(testPage1).block();
 
-        testPage = new PageDTO();
-        testPage.setName("abc");
-        testPage.setApplicationId(testApplication.getId());
-        PageDTO page2 = applicationPageService.createPage(testPage).block();
+        PageDTO testPage2 = new PageDTO();
+        testPage2.setName("testPage2");
+        testPage2.setApplicationId(testApplication.getId());
+        testPage2 = applicationPageService.createPage(testPage2).block();
 
         // Set order for the newly created pages
-        applicationPageService.reorderPage(testApplication.getId(), page1.getId(), 0, null).block();
-        applicationPageService.reorderPage(testApplication.getId(), page2.getId(), 1, null).block();
+        applicationPageService.reorderPage(testApplication.getId(), testPage1.getId(), 0, null).block();
+        applicationPageService.reorderPage(testApplication.getId(), testPage2.getId(), 1, null).block();
         // Deploy the current application
         applicationPageService.publish(testApplication.getId(), true).block();
 
-        Mono<ApplicationJson> applicationJsonMono = importExportApplicationService.exportApplicationById(testApplication.getId(), "");
+        Mono<ApplicationJson> applicationJsonMono = importExportApplicationService.exportApplicationById(testApplication.getId(), "").cache();
 
         StepVerifier
                 .create(applicationJsonMono)
                 .assertNext(applicationJson -> {
-                    List<String> pageList = applicationJson.getPageOrder();
-                    assertThat(pageList.get(0)).isEqualTo("123");
-                    assertThat(pageList.get(1)).isEqualTo("abc");
+                    assertThat(applicationJson.getPageOrder()).isNull();
+                    assertThat(applicationJson.getPublishedPageOrder()).isNull();
+                    List<String> pageList = applicationJson.getExportedApplication().getPages()
+                            .stream()
+                            .map(ApplicationPage::getId)
+                            .collect(Collectors.toList());
+
+                    assertThat(pageList.get(0)).isEqualTo("testPage1");
+                    assertThat(pageList.get(1)).isEqualTo("testPage2");
                     assertThat(pageList.get(2)).isEqualTo("Page1");
 
-                    List<String> publishedPageList = applicationJson.getPublishedPageOrder();
-                    assertThat(publishedPageList.get(0)).isEqualTo("123");
-                    assertThat(publishedPageList.get(1)).isEqualTo("abc");
+                    List<String> publishedPageList = applicationJson.getExportedApplication().getPublishedPages()
+                            .stream()
+                            .map(ApplicationPage::getId)
+                            .collect(Collectors.toList());
+
+                    assertThat(publishedPageList.get(0)).isEqualTo("testPage1");
+                    assertThat(publishedPageList.get(1)).isEqualTo("testPage2");
                     assertThat(publishedPageList.get(2)).isEqualTo("Page1");
                 })
                 .verifyComplete();
 
-        ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(testApplication.getId(), "").block();
+        ApplicationJson applicationJson = applicationJsonMono.block();
         Application application = importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson).block();
 
         // Get the unpublished pages and verify the order
@@ -2384,8 +2435,8 @@ public class ImportExportApplicationServiceTests {
                     NewPage newPage1 = objects.getT1();
                     NewPage newPage2 = objects.getT2();
                     NewPage newPage3 = objects.getT3();
-                    assertThat(newPage1.getUnpublishedPage().getName()).isEqualTo("123");
-                    assertThat(newPage2.getUnpublishedPage().getName()).isEqualTo("abc");
+                    assertThat(newPage1.getUnpublishedPage().getName()).isEqualTo("testPage1");
+                    assertThat(newPage2.getUnpublishedPage().getName()).isEqualTo("testPage2");
                     assertThat(newPage3.getUnpublishedPage().getName()).isEqualTo("Page1");
 
                     assertThat(newPage1.getId()).isEqualTo(pageDTOS.get(0).getId());
@@ -2406,8 +2457,8 @@ public class ImportExportApplicationServiceTests {
                     NewPage newPage1 = objects.getT1();
                     NewPage newPage2 = objects.getT2();
                     NewPage newPage3 = objects.getT3();
-                    assertThat(newPage1.getPublishedPage().getName()).isEqualTo("123");
-                    assertThat(newPage2.getPublishedPage().getName()).isEqualTo("abc");
+                    assertThat(newPage1.getPublishedPage().getName()).isEqualTo("testPage1");
+                    assertThat(newPage2.getPublishedPage().getName()).isEqualTo("testPage2");
                     assertThat(newPage3.getPublishedPage().getName()).isEqualTo("Page1");
 
                     assertThat(newPage1.getId()).isEqualTo(publishedPageDTOs.get(0).getId());
@@ -2431,44 +2482,54 @@ public class ImportExportApplicationServiceTests {
         testApplication = applicationPageService.createApplication(testApplication, workspaceId).block();
         assert testApplication != null;
 
-        PageDTO testPage = new PageDTO();
-        testPage.setName("123");
-        testPage.setApplicationId(testApplication.getId());
-        PageDTO page1 = applicationPageService.createPage(testPage).block();
+        PageDTO testPage1 = new PageDTO();
+        testPage1.setName("testPage1");
+        testPage1.setApplicationId(testApplication.getId());
+        testPage1 = applicationPageService.createPage(testPage1).block();
 
-        testPage = new PageDTO();
-        testPage.setName("abc");
-        testPage.setApplicationId(testApplication.getId());
-        PageDTO page2 = applicationPageService.createPage(testPage).block();
+        PageDTO testPage2 = new PageDTO();
+        testPage2.setName("testPage2");
+        testPage2.setApplicationId(testApplication.getId());
+        testPage2 = applicationPageService.createPage(testPage2).block();
 
         // Deploy the current application so that edit and view mode will have different page order
         applicationPageService.publish(testApplication.getId(), true).block();
 
         // Set order for the newly created pages
-        applicationPageService.reorderPage(testApplication.getId(), page1.getId(), 0, null).block();
-        applicationPageService.reorderPage(testApplication.getId(), page2.getId(), 1, null).block();
+        applicationPageService.reorderPage(testApplication.getId(), testPage1.getId(), 0, null).block();
+        applicationPageService.reorderPage(testApplication.getId(), testPage2.getId(), 1, null).block();
 
-        Mono<ApplicationJson> applicationJsonMono = importExportApplicationService.exportApplicationById(testApplication.getId(), "");
+        Mono<ApplicationJson> applicationJsonMono = importExportApplicationService.exportApplicationById(testApplication.getId(), "").cache();
 
         StepVerifier
                 .create(applicationJsonMono)
                 .assertNext(applicationJson -> {
-                    List<String> pageList = applicationJson.getPageOrder();
-                    assertThat(pageList.get(0)).isEqualTo("123");
-                    assertThat(pageList.get(1)).isEqualTo("abc");
-                    assertThat(pageList.get(2)).isEqualTo("Page1");
+                    Application exportedApplication = applicationJson.getExportedApplication();
+                    exportedApplication.setViewMode(false);
+                    List<String> pageOrder = exportedApplication.getPages()
+                            .stream()
+                            .map(ApplicationPage::getId)
+                            .collect(Collectors.toList());
+                    assertThat(pageOrder.get(0)).isEqualTo("testPage1");
+                    assertThat(pageOrder.get(1)).isEqualTo("testPage2");
+                    assertThat(pageOrder.get(2)).isEqualTo("Page1");
 
-                    List<String> publishedPageOrder = applicationJson.getPageOrder();
-                    assertThat(publishedPageOrder.get(0)).isEqualTo("123");
-                    assertThat(publishedPageOrder.get(1)).isEqualTo("abc");
-                    assertThat(publishedPageOrder.get(2)).isEqualTo("Page1");
+                    pageOrder.clear();
+                    pageOrder = exportedApplication.getPublishedPages()
+                            .stream()
+                            .map(ApplicationPage::getId)
+                            .collect(Collectors.toList());
+                    assertThat(pageOrder.get(0)).isEqualTo("Page1");
+                    assertThat(pageOrder.get(1)).isEqualTo("testPage1");
+                    assertThat(pageOrder.get(2)).isEqualTo("testPage2");
                 })
                 .verifyComplete();
 
-        ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(testApplication.getId(), "").block();
+        ApplicationJson applicationJson = applicationJsonMono.block();
         Application application = importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson).block();
 
         // Get the unpublished pages and verify the order
+        application.setViewMode(false);
         List<ApplicationPage> pageDTOS = application.getPages();
         Mono<NewPage> newPageMono1 = newPageService.findById(pageDTOS.get(0).getId(), MANAGE_PAGES);
         Mono<NewPage> newPageMono2 = newPageService.findById(pageDTOS.get(1).getId(), MANAGE_PAGES);
@@ -2480,8 +2541,8 @@ public class ImportExportApplicationServiceTests {
                     NewPage newPage1 = objects.getT1();
                     NewPage newPage2 = objects.getT2();
                     NewPage newPage3 = objects.getT3();
-                    assertThat(newPage1.getUnpublishedPage().getName()).isEqualTo("123");
-                    assertThat(newPage2.getUnpublishedPage().getName()).isEqualTo("abc");
+                    assertThat(newPage1.getUnpublishedPage().getName()).isEqualTo("testPage1");
+                    assertThat(newPage2.getUnpublishedPage().getName()).isEqualTo("testPage2");
                     assertThat(newPage3.getUnpublishedPage().getName()).isEqualTo("Page1");
 
                     assertThat(newPage1.getId()).isEqualTo(pageDTOS.get(0).getId());
@@ -2503,8 +2564,8 @@ public class ImportExportApplicationServiceTests {
                     NewPage newPage2 = objects.getT2();
                     NewPage newPage3 = objects.getT3();
                     assertThat(newPage1.getPublishedPage().getName()).isEqualTo("Page1");
-                    assertThat(newPage2.getPublishedPage().getName()).isEqualTo("123");
-                    assertThat(newPage3.getPublishedPage().getName()).isEqualTo("abc");
+                    assertThat(newPage2.getPublishedPage().getName()).isEqualTo("testPage1");
+                    assertThat(newPage3.getPublishedPage().getName()).isEqualTo("testPage2");
 
                     assertThat(newPage1.getId()).isEqualTo(publishedPageDTOs.get(0).getId());
                     assertThat(newPage2.getId()).isEqualTo(publishedPageDTOs.get(1).getId());
