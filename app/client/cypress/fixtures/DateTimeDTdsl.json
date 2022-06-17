@@ -46,13 +46,13 @@
             "widgetName": "Canvas1Copy",
             "displayName": "Canvas",
             "topRow": 0,
-            "bottomRow": 420,
+            "bottomRow": 540,
             "parentRowSpace": 1,
             "type": "CANVAS_WIDGET",
             "canExtend": true,
             "hideCard": true,
             "shouldScrollContents": false,
-            "minHeight": 428,
+            "minHeight": 548,
             "parentColumnSpace": 1,
             "leftColumn": 0,
             "dynamicBindingPathList": [
@@ -66,11 +66,11 @@
             "children": [
               {
                 "boxShadow": "none",
-                "widgetName": "Updatenumeric",
+                "widgetName": "Updatedater",
                 "displayName": "Input",
                 "iconSVG": "/static/media/icon.9f505595.svg",
-                "topRow": 25,
-                "bottomRow": 32,
+                "topRow": 23,
+                "bottomRow": 30,
                 "parentRowSpace": 10,
                 "labelWidth": 5,
                 "autoFocus": false,
@@ -97,7 +97,7 @@
                 ],
                 "labelPosition": "Top",
                 "labelStyle": "",
-                "inputType": "NUMBER",
+                "inputType": "TEXT",
                 "isDisabled": false,
                 "key": "x49qcvsllj",
                 "labelTextSize": "0.875rem",
@@ -115,15 +115,15 @@
                 "isLoading": false,
                 "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                 "iconAlign": "left",
-                "defaultText": "{{Table1.selectedRow.numericid}}"
+                "defaultText": "{{Table1.selectedRow.dater}}"
               },
               {
                 "boxShadow": "none",
-                "widgetName": "Updatedecimal",
+                "widgetName": "Updatetstz",
                 "displayName": "Input",
                 "iconSVG": "/static/media/icon.9f505595.svg",
-                "topRow": 16,
-                "bottomRow": 23,
+                "topRow": 15,
+                "bottomRow": 22,
                 "parentRowSpace": 10,
                 "labelWidth": 5,
                 "autoFocus": false,
@@ -150,7 +150,7 @@
                 ],
                 "labelPosition": "Top",
                 "labelStyle": "",
-                "inputType": "NUMBER",
+                "inputType": "TEXT",
                 "isDisabled": false,
                 "key": "x49qcvsllj",
                 "labelTextSize": "0.875rem",
@@ -168,7 +168,7 @@
                 "isLoading": false,
                 "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                 "iconAlign": "left",
-                "defaultText": "{{Table1.selectedRow.decimalid}}"
+                "defaultText": "{{Table1.selectedRow.tstz}}"
               },
               {
                 "boxShadow": "none",
@@ -211,7 +211,7 @@
                 "displayName": "Text",
                 "iconSVG": "/static/media/icon.97c59b52.svg",
                 "topRow": 1,
-                "bottomRow": 5,
+                "bottomRow": 7,
                 "type": "TEXT_WIDGET",
                 "hideCard": false,
                 "animateLoading": true,
@@ -255,12 +255,12 @@
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca02633.svg",
-                "topRow": 35,
-                "bottomRow": 39,
+                "topRow": 48,
+                "bottomRow": 52,
                 "type": "BUTTON_WIDGET",
                 "hideCard": false,
                 "animateLoading": true,
-                "leftColumn": 14,
+                "leftColumn": 13,
                 "dynamicBindingPathList": [
                   {
                     "key": "buttonColor"
@@ -273,7 +273,7 @@
                 "isDisabled": false,
                 "key": "b7wg448vx0",
                 "isDeprecated": false,
-                "rightColumn": 30,
+                "rightColumn": 29,
                 "isDefaultClickDisabled": true,
                 "widgetId": "kf5ait9qmq",
                 "buttonStyle": "PRIMARY",
@@ -299,8 +299,8 @@
                 ],
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca02633.svg",
-                "topRow": 35,
-                "bottomRow": 39,
+                "topRow": 48,
+                "bottomRow": 52,
                 "type": "BUTTON_WIDGET",
                 "hideCard": false,
                 "animateLoading": true,
@@ -309,7 +309,7 @@
                     "key": "onClick"
                   }
                 ],
-                "leftColumn": 34,
+                "leftColumn": 33,
                 "dynamicBindingPathList": [
                   {
                     "key": "buttonColor"
@@ -322,7 +322,7 @@
                 "isDisabled": false,
                 "key": "b7wg448vx0",
                 "isDeprecated": false,
-                "rightColumn": 50,
+                "rightColumn": 49,
                 "isDefaultClickDisabled": true,
                 "widgetId": "pb2y77v7wa",
                 "buttonStyle": "PRIMARY_BUTTON",
@@ -338,7 +338,7 @@
               },
               {
                 "boxShadow": "none",
-                "widgetName": "Updatebigint",
+                "widgetName": "Updatets",
                 "displayName": "Input",
                 "iconSVG": "/static/media/icon.9f505595.svg",
                 "topRow": 7,
@@ -361,15 +361,16 @@
                     "key": "borderRadius"
                   },
                   {
-                    "key": "defaultText"
+                    "key": "label"
                   },
                   {
-                    "key": "label"
+                    "key": "defaultText"
                   }
                 ],
                 "labelPosition": "Top",
                 "labelStyle": "",
-                "inputType": "NUMBER",
+                "inputType": "TEXT",
+                "maxChars": "",
                 "isDisabled": false,
                 "key": "x49qcvsllj",
                 "labelTextSize": "0.875rem",
@@ -387,7 +388,113 @@
                 "isLoading": false,
                 "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                 "iconAlign": "left",
-                "defaultText": "{{Table1.selectedRow.bigintid}}"
+                "defaultText": "{{Table1.selectedRow.ts}}"
+              },
+              {
+                "boxShadow": "none",
+                "widgetName": "Updatetimer",
+                "displayName": "Input",
+                "iconSVG": "/static/media/icon.9f505595.svg",
+                "topRow": 31,
+                "bottomRow": 38,
+                "parentRowSpace": 10,
+                "labelWidth": 5,
+                "autoFocus": false,
+                "type": "INPUT_WIDGET_V2",
+                "hideCard": false,
+                "animateLoading": true,
+                "parentColumnSpace": 6.9375,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 2,
+                "dynamicBindingPathList": [
+                  {
+                    "key": "accentColor"
+                  },
+                  {
+                    "key": "borderRadius"
+                  },
+                  {
+                    "key": "label"
+                  },
+                  {
+                    "key": "defaultText"
+                  }
+                ],
+                "labelPosition": "Top",
+                "labelStyle": "",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "223t1cmc0w",
+                "labelTextSize": "0.875rem",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 62,
+                "widgetId": "w5xz68ssw4",
+                "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                "isVisible": true,
+                "label": "{{Table1.columnOrder[4].toString().replace(/(?:^|\\s|[\"'([{])+\\S/g, match => match.toUpperCase());\n}}",
+                "version": 2,
+                "parentId": "sdc2iv8uiq",
+                "labelAlignment": "left",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "iconAlign": "left",
+                "defaultText": "{{Table1.selectedRow.timer}}"
+              },
+              {
+                "boxShadow": "none",
+                "widgetName": "Updateintervaler",
+                "displayName": "Input",
+                "iconSVG": "/static/media/icon.9f505595.svg",
+                "topRow": 39,
+                "bottomRow": 46,
+                "parentRowSpace": 10,
+                "labelWidth": 5,
+                "autoFocus": false,
+                "type": "INPUT_WIDGET_V2",
+                "hideCard": false,
+                "animateLoading": true,
+                "parentColumnSpace": 6.9375,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 2,
+                "dynamicBindingPathList": [
+                  {
+                    "key": "accentColor"
+                  },
+                  {
+                    "key": "borderRadius"
+                  },
+                  {
+                    "key": "label"
+                  },
+                  {
+                    "key": "defaultText"
+                  }
+                ],
+                "labelPosition": "Top",
+                "labelStyle": "",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "yaancbar1j",
+                "labelTextSize": "0.875rem",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 63,
+                "widgetId": "ea2wq5diya",
+                "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                "isVisible": true,
+                "label": "{{Table1.columnOrder[6].toString().replace(/(?:^|\\s|[\"'([{])+\\S/g, match => match.toUpperCase());\n}}",
+                "version": 2,
+                "parentId": "sdc2iv8uiq",
+                "labelAlignment": "left",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "iconAlign": "left",
+                "defaultText": "{{Table1.selectedRow.intervaler}}"
               }
             ],
             "isDisabled": false,
@@ -406,7 +513,7 @@
           }
         ],
         "key": "n6csxgy8za",
-        "height": 428,
+        "height": 548,
         "isDeprecated": false,
         "rightColumn": 44,
         "detachFromLayout": true,
@@ -460,18 +567,6 @@
             "key": "tableData"
           },
           {
-            "key": "primaryColumns.serialid.computedValue"
-          },
-          {
-            "key": "primaryColumns.bigintid.computedValue"
-          },
-          {
-            "key": "primaryColumns.numericid.computedValue"
-          },
-          {
-            "key": "primaryColumns.decimalid.computedValue"
-          },
-          {
             "key": "derivedColumns.customColumn1.buttonColor"
           },
           {
@@ -494,6 +589,27 @@
           },
           {
             "key": "primaryColumns.customColumn1.buttonLabel"
+          },
+          {
+            "key": "primaryColumns.serialid.computedValue"
+          },
+          {
+            "key": "primaryColumns.ts.computedValue"
+          },
+          {
+            "key": "primaryColumns.tstz.computedValue"
+          },
+          {
+            "key": "primaryColumns.dater.computedValue"
+          },
+          {
+            "key": "primaryColumns.timer.computedValue"
+          },
+          {
+            "key": "primaryColumns.timertz.computedValue"
+          },
+          {
+            "key": "primaryColumns.intervaler.computedValue"
           }
         ],
         "leftColumn": 4,
@@ -538,9 +654,12 @@
         "defaultPageSize": 0,
         "columnOrder": [
           "serialid",
-          "bigintid",
-          "decimalid",
-          "numericid",
+          "ts",
+          "tstz",
+          "dater",
+          "timer",
+          "timertz",
+          "intervaler",
           "customColumn1"
         ],
         "dynamicPropertyPathList": [],
@@ -556,76 +675,6 @@
           }
         ],
         "primaryColumns": {
-          "serialid": {
-            "index": 0,
-            "width": 150,
-            "id": "serialid",
-            "horizontalAlignment": "LEFT",
-            "verticalAlignment": "CENTER",
-            "columnType": "text",
-            "textSize": "0.875rem",
-            "enableFilter": true,
-            "enableSort": true,
-            "isVisible": true,
-            "isDisabled": false,
-            "isCellVisible": true,
-            "isDerived": false,
-            "label": "serialid",
-            "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.serialid))}}"
-          },
-          "bigintid": {
-            "index": 1,
-            "width": 150,
-            "id": "bigintid",
-            "horizontalAlignment": "LEFT",
-            "verticalAlignment": "CENTER",
-            "columnType": "text",
-            "textSize": "0.875rem",
-            "enableFilter": true,
-            "enableSort": true,
-            "isVisible": true,
-            "isDisabled": false,
-            "isCellVisible": true,
-            "isDerived": false,
-            "label": "bigintid",
-            "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.bigintid))}}"
-          },
-          "numericid": {
-            "index": 3,
-            "width": 150,
-            "id": "numericid",
-            "horizontalAlignment": "LEFT",
-            "verticalAlignment": "CENTER",
-            "columnType": "text",
-            "textSize": "0.875rem",
-            "enableFilter": true,
-            "enableSort": true,
-            "isVisible": true,
-            "isDisabled": false,
-            "isCellVisible": true,
-            "isDerived": false,
-            "label": "numericid",
-            "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.numericid))}}"
-          },
-          "decimalid": {
-            "index": 2,
-            "width": 150,
-            "id": "decimalid",
-            "horizontalAlignment": "LEFT",
-            "verticalAlignment": "CENTER",
-            "columnType": "text",
-            "textColor": "",
-            "textSize": "0.875rem",
-            "enableFilter": true,
-            "enableSort": true,
-            "isVisible": true,
-            "isDisabled": false,
-            "isCellVisible": true,
-            "isDerived": false,
-            "label": "decimalid",
-            "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.decimalid))}}",
-            "cellBackground": ""
-          },
           "customColumn1": {
             "index": 4,
             "width": 150,
@@ -647,6 +696,139 @@
             "iconName": "",
             "buttonLabel": "{{Table1.sanitizedTableData.map((currentRow) => ( 'DeleteQuery'))}}",
             "onClick": "{{deleteRecord.run(() => selectRecords.run(), () => {})}}"
+          },
+          "serialid": {
+            "index": 4,
+            "width": 150,
+            "id": "serialid",
+            "horizontalAlignment": "LEFT",
+            "verticalAlignment": "CENTER",
+            "columnType": "text",
+            "textColor": "",
+            "textSize": "0.875rem",
+            "enableFilter": true,
+            "enableSort": true,
+            "isVisible": true,
+            "isDisabled": false,
+            "isCellVisible": true,
+            "isDerived": false,
+            "label": "serialid",
+            "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.serialid))}}",
+            "cellBackground": ""
+          },
+          "ts": {
+            "index": 1,
+            "width": 150,
+            "id": "ts",
+            "horizontalAlignment": "LEFT",
+            "verticalAlignment": "CENTER",
+            "columnType": "text",
+            "textColor": "",
+            "textSize": "0.875rem",
+            "enableFilter": true,
+            "enableSort": true,
+            "isVisible": true,
+            "isDisabled": false,
+            "isCellVisible": true,
+            "isDerived": false,
+            "label": "ts",
+            "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.ts))}}",
+            "cellBackground": ""
+          },
+          "tstz": {
+            "index": 2,
+            "width": 150,
+            "id": "tstz",
+            "horizontalAlignment": "LEFT",
+            "verticalAlignment": "CENTER",
+            "columnType": "text",
+            "textColor": "",
+            "textSize": "0.875rem",
+            "enableFilter": true,
+            "enableSort": true,
+            "isVisible": true,
+            "isDisabled": false,
+            "isCellVisible": true,
+            "isDerived": false,
+            "label": "tstz",
+            "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.tstz))}}",
+            "cellBackground": ""
+          },
+          "dater": {
+            "index": 3,
+            "width": 150,
+            "id": "dater",
+            "horizontalAlignment": "LEFT",
+            "verticalAlignment": "CENTER",
+            "columnType": "text",
+            "textColor": "",
+            "textSize": "0.875rem",
+            "enableFilter": true,
+            "enableSort": true,
+            "isVisible": true,
+            "isDisabled": false,
+            "isCellVisible": true,
+            "isDerived": false,
+            "label": "dater",
+            "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.dater))}}",
+            "cellBackground": ""
+          },
+          "timer": {
+            "index": 4,
+            "width": 150,
+            "id": "timer",
+            "horizontalAlignment": "LEFT",
+            "verticalAlignment": "CENTER",
+            "columnType": "text",
+            "textColor": "",
+            "textSize": "0.875rem",
+            "enableFilter": true,
+            "enableSort": true,
+            "isVisible": true,
+            "isDisabled": false,
+            "isCellVisible": true,
+            "isDerived": false,
+            "label": "timer",
+            "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.timer))}}",
+            "cellBackground": ""
+          },
+          "timertz": {
+            "index": 5,
+            "width": 150,
+            "id": "timertz",
+            "horizontalAlignment": "LEFT",
+            "verticalAlignment": "CENTER",
+            "columnType": "text",
+            "textColor": "",
+            "textSize": "0.875rem",
+            "enableFilter": true,
+            "enableSort": true,
+            "isVisible": true,
+            "isDisabled": false,
+            "isCellVisible": true,
+            "isDerived": false,
+            "label": "timertz",
+            "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.timertz))}}",
+            "cellBackground": ""
+          },
+          "intervaler": {
+            "index": 6,
+            "width": 150,
+            "id": "intervaler",
+            "horizontalAlignment": "LEFT",
+            "verticalAlignment": "CENTER",
+            "columnType": "text",
+            "textColor": "",
+            "textSize": "0.875rem",
+            "enableFilter": true,
+            "enableSort": true,
+            "isVisible": true,
+            "isDisabled": false,
+            "isCellVisible": true,
+            "isDerived": false,
+            "label": "intervaler",
+            "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.intervaler))}}",
+            "cellBackground": ""
           }
         },
         "key": "8l8hit8gra",
@@ -809,14 +991,15 @@
             "widgetName": "Canvas1",
             "displayName": "Canvas",
             "topRow": 0,
-            "bottomRow": 420,
+            "bottomRow": 540,
             "parentRowSpace": 1,
             "type": "CANVAS_WIDGET",
             "canExtend": true,
             "hideCard": true,
             "shouldScrollContents": false,
-            "minHeight": 428,
+            "minHeight": 548,
             "parentColumnSpace": 1,
+            "dynamicTriggerPathList": [],
             "leftColumn": 0,
             "dynamicBindingPathList": [
               {
@@ -829,11 +1012,11 @@
             "children": [
               {
                 "boxShadow": "none",
-                "widgetName": "Insertnumeric",
+                "widgetName": "Insertdater",
                 "displayName": "Input",
                 "iconSVG": "/static/media/icon.9f505595.svg",
-                "topRow": 25,
-                "bottomRow": 32,
+                "topRow": 23,
+                "bottomRow": 30,
                 "parentRowSpace": 10,
                 "labelWidth": 5,
                 "autoFocus": false,
@@ -857,7 +1040,7 @@
                 ],
                 "labelPosition": "Top",
                 "labelStyle": "",
-                "inputType": "NUMBER",
+                "inputType": "TEXT",
                 "isDisabled": false,
                 "key": "x49qcvsllj",
                 "labelTextSize": "0.875rem",
@@ -879,11 +1062,11 @@
               },
               {
                 "boxShadow": "none",
-                "widgetName": "Insertdecimal",
+                "widgetName": "Inserttstz",
                 "displayName": "Input",
                 "iconSVG": "/static/media/icon.9f505595.svg",
-                "topRow": 16,
-                "bottomRow": 23,
+                "topRow": 15,
+                "bottomRow": 22,
                 "parentRowSpace": 10,
                 "labelWidth": 5,
                 "autoFocus": false,
@@ -907,7 +1090,7 @@
                 ],
                 "labelPosition": "Top",
                 "labelStyle": "",
-                "inputType": "NUMBER",
+                "inputType": "TEXT",
                 "isDisabled": false,
                 "key": "x49qcvsllj",
                 "labelTextSize": "0.875rem",
@@ -1009,12 +1192,12 @@
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca02633.svg",
-                "topRow": 35,
-                "bottomRow": 39,
+                "topRow": 48,
+                "bottomRow": 52,
                 "type": "BUTTON_WIDGET",
                 "hideCard": false,
                 "animateLoading": true,
-                "leftColumn": 14,
+                "leftColumn": 12,
                 "dynamicBindingPathList": [
                   {
                     "key": "buttonColor"
@@ -1027,7 +1210,7 @@
                 "isDisabled": false,
                 "key": "b7wg448vx0",
                 "isDeprecated": false,
-                "rightColumn": 30,
+                "rightColumn": 28,
                 "isDefaultClickDisabled": true,
                 "widgetId": "0ym0mah4go",
                 "buttonStyle": "PRIMARY",
@@ -1053,8 +1236,8 @@
                 ],
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca02633.svg",
-                "topRow": 35,
-                "bottomRow": 39,
+                "topRow": 48,
+                "bottomRow": 52,
                 "type": "BUTTON_WIDGET",
                 "hideCard": false,
                 "animateLoading": true,
@@ -1063,7 +1246,7 @@
                     "key": "onClick"
                   }
                 ],
-                "leftColumn": 34,
+                "leftColumn": 33,
                 "dynamicBindingPathList": [
                   {
                     "key": "buttonColor"
@@ -1076,7 +1259,7 @@
                 "isDisabled": false,
                 "key": "b7wg448vx0",
                 "isDeprecated": false,
-                "rightColumn": 50,
+                "rightColumn": 49,
                 "isDefaultClickDisabled": true,
                 "widgetId": "0trrzqxtbk",
                 "buttonStyle": "PRIMARY_BUTTON",
@@ -1092,7 +1275,7 @@
               },
               {
                 "boxShadow": "none",
-                "widgetName": "Insertbigint",
+                "widgetName": "Insertts",
                 "displayName": "Input",
                 "iconSVG": "/static/media/icon.9f505595.svg",
                 "topRow": 7,
@@ -1120,7 +1303,7 @@
                 ],
                 "labelPosition": "Top",
                 "labelStyle": "",
-                "inputType": "NUMBER",
+                "inputType": "TEXT",
                 "isDisabled": false,
                 "key": "x49qcvsllj",
                 "labelTextSize": "0.875rem",
@@ -1131,6 +1314,106 @@
                 "accentColor": "{{appsmith.theme.colors.primaryColor}}",
                 "isVisible": true,
                 "label": "{{Table1.columnOrder[1].toString().replace(/(?:^|\\s|[\"'([{])+\\S/g, match => match.toUpperCase());\n}}",
+                "version": 2,
+                "parentId": "6otxv391ns",
+                "labelAlignment": "left",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "iconAlign": "left",
+                "defaultText": ""
+              },
+              {
+                "boxShadow": "none",
+                "widgetName": "Inserttimer",
+                "displayName": "Input",
+                "iconSVG": "/static/media/icon.9f505595.svg",
+                "topRow": 31,
+                "bottomRow": 38,
+                "parentRowSpace": 10,
+                "labelWidth": 5,
+                "autoFocus": false,
+                "type": "INPUT_WIDGET_V2",
+                "hideCard": false,
+                "animateLoading": true,
+                "parentColumnSpace": 6.9375,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 2,
+                "dynamicBindingPathList": [
+                  {
+                    "key": "accentColor"
+                  },
+                  {
+                    "key": "borderRadius"
+                  },
+                  {
+                    "key": "label"
+                  }
+                ],
+                "labelPosition": "Top",
+                "labelStyle": "",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "223t1cmc0w",
+                "labelTextSize": "0.875rem",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 62,
+                "widgetId": "e78wpqgwlc",
+                "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                "isVisible": true,
+                "label": "{{Table1.columnOrder[4].toString().replace(/(?:^|\\s|[\"'([{])+\\S/g, match => match.toUpperCase());\n}}",
+                "version": 2,
+                "parentId": "6otxv391ns",
+                "labelAlignment": "left",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "iconAlign": "left",
+                "defaultText": ""
+              },
+              {
+                "boxShadow": "none",
+                "widgetName": "Insertintervaler",
+                "displayName": "Input",
+                "iconSVG": "/static/media/icon.9f505595.svg",
+                "topRow": 39,
+                "bottomRow": 46,
+                "parentRowSpace": 10,
+                "labelWidth": 5,
+                "autoFocus": false,
+                "type": "INPUT_WIDGET_V2",
+                "hideCard": false,
+                "animateLoading": true,
+                "parentColumnSpace": 6.9375,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 2,
+                "dynamicBindingPathList": [
+                  {
+                    "key": "accentColor"
+                  },
+                  {
+                    "key": "borderRadius"
+                  },
+                  {
+                    "key": "label"
+                  }
+                ],
+                "labelPosition": "Top",
+                "labelStyle": "",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "yaancbar1j",
+                "labelTextSize": "0.875rem",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 62,
+                "widgetId": "5isyqlm4q6",
+                "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                "isVisible": true,
+                "label": "{{Table1.columnOrder[6].toString().replace(/(?:^|\\s|[\"'([{])+\\S/g, match => match.toUpperCase());\n}}",
                 "version": 2,
                 "parentId": "6otxv391ns",
                 "labelAlignment": "left",
@@ -1157,7 +1440,7 @@
           }
         ],
         "key": "n6csxgy8za",
-        "height": 428,
+        "height": 548,
         "isDeprecated": false,
         "rightColumn": 44,
         "detachFromLayout": true,
@@ -1172,32 +1455,25 @@
         "width": 456
       },
       {
-        "isVisible": true,
-        "iconName": "delete",
-        "buttonVariant": "PRIMARY",
-        "isDisabled": false,
-        "widgetName": "IconButton2",
-        "version": 1,
-        "animateLoading": true,
-        "type": "ICON_BUTTON_WIDGET",
-        "hideCard": false,
-        "isDeprecated": false,
-        "displayName": "Icon Button",
-        "key": "8he4nv2fbs",
-        "iconSVG": "/static/media/icon.1a0c634a.svg",
-        "widgetId": "30jhk2thdb",
-        "renderMode": "CANVAS",
-        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "boxShadow": "none",
-        "isLoading": false,
-        "parentColumnSpace": 16.71875,
-        "parentRowSpace": 10,
-        "leftColumn": 30,
-        "rightColumn": 34,
+        "widgetName": "IconButton2",
+        "onClick": "{{deleteAllRecords.run(() => selectRecords.run(), () => {})}}",
+        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+        "displayName": "Icon Button",
+        "iconSVG": "/static/media/icon.1a0c634a.svg",
         "topRow": 2,
         "bottomRow": 6,
-        "parentId": "0",
+        "parentRowSpace": 10,
+        "type": "ICON_BUTTON_WIDGET",
+        "hideCard": false,
+        "animateLoading": true,
+        "parentColumnSpace": 16.71875,
+        "dynamicTriggerPathList": [
+          {
+            "key": "onClick"
+          }
+        ],
+        "leftColumn": 30,
         "dynamicBindingPathList": [
           {
             "key": "buttonColor"
@@ -1206,12 +1482,19 @@
             "key": "borderRadius"
           }
         ],
-        "dynamicTriggerPathList": [
-          {
-            "key": "onClick"
-          }
-        ],
-        "onClick": "{{deleteAllRecords.run(() => selectRecords.run(), () => {})}}"
+        "isDisabled": false,
+        "key": "8he4nv2fbs",
+        "isDeprecated": false,
+        "rightColumn": 34,
+        "iconName": "delete",
+        "widgetId": "30jhk2thdb",
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "buttonVariant": "PRIMARY"
       }
     ]
   }
