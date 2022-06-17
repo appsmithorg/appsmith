@@ -113,6 +113,9 @@ public class WorkspaceServiceTest {
     @Autowired
     private PermissionGroupRepository permissionGroupRepository;
 
+    @Autowired
+    private UserGroupService userGroupService;
+
     Workspace workspace;
 
     @Before
@@ -430,15 +433,19 @@ public class WorkspaceServiceTest {
         Mono<Workspace> seedWorkspace = workspaceRepository.findByName("Spring Test Workspace", AclPermission.READ_WORKSPACES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
 
-        Mono<List<User>> usersAddedToWorkspaceMono = seedWorkspace
-                .flatMap(workspace1 -> {
+        Mono<UserGroup> adminGroupMono = seedWorkspace.flatMapMany(workspace1 -> userGroupService.getDefaultUserGroups(workspace1.getId()))
+                .filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR))
+                .single()
+                .cache();
+
+        Mono<List<User>> usersAddedToWorkspaceMono = adminGroupMono
+                .flatMap(userGroup -> {
                     // Add user to workspace
                     InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
                     ArrayList<String> users = new ArrayList<>();
                     users.add("usertest@usertest.com");
                     inviteUsersDTO.setUsernames(users);
-                    inviteUsersDTO.setWorkspaceId(workspace1.getId());
-                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    inviteUsersDTO.setUserGroupId(userGroup.getId());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 })
@@ -489,15 +496,19 @@ public class WorkspaceServiceTest {
         Mono<Workspace> seedWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_WORKSPACES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
 
-        Mono<List<User>> userAddedToWorkspaceMono = seedWorkspace
-                .flatMap(workspace1 -> {
+        Mono<UserGroup> adminGroupMono = seedWorkspace.flatMapMany(workspace1 -> userGroupService.getDefaultUserGroups(workspace1.getId()))
+                .filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR))
+                .single()
+                .cache();
+
+        Mono<List<User>> userAddedToWorkspaceMono = adminGroupMono
+                .flatMap(userGroup -> {
                     // Add user to workspace
                     InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
                     ArrayList<String> users = new ArrayList<>();
                     users.add("newEmailWhichShouldntExist@usertest.com");
                     inviteUsersDTO.setUsernames(users);
-                    inviteUsersDTO.setWorkspaceId(workspace1.getId());
-                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    inviteUsersDTO.setUserGroupId(userGroup.getId());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 })
@@ -561,15 +572,19 @@ public class WorkspaceServiceTest {
                 .create(workspace)
                 .cache();
 
-        Mono<List<User>> userAddedToWorkspaceMono = workspaceMono
-                .flatMap(workspace1 -> {
+        Mono<UserGroup> viewerGroupMono = workspaceMono.flatMapMany(workspace1 -> userGroupService.getDefaultUserGroups(workspace1.getId()))
+                .filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER))
+                .single()
+                .cache();
+
+        Mono<List<User>> userAddedToWorkspaceMono = viewerGroupMono
+                .flatMap(userGroup -> {
                     // Add user to workspace
                     InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
                     ArrayList<String> users = new ArrayList<>();
                     users.add("newEmailWhichShouldntExistAsViewer@usertest.com");
                     inviteUsersDTO.setUsernames(users);
-                    inviteUsersDTO.setWorkspaceId(workspace1.getId());
-                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+                    inviteUsersDTO.setUserGroupId(userGroup.getId());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 })
@@ -949,8 +964,13 @@ public class WorkspaceServiceTest {
                 .create(workspace)
                 .cache();
 
-        Mono<List<User>> userAddedToWorkspaceMono = workspaceMono
-                .flatMap(workspace1 -> {
+        Mono<UserGroup> viewerGroupMono = workspaceMono.flatMapMany(workspace1 -> userGroupService.getDefaultUserGroups(workspace1.getId()))
+                .filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER))
+                .single()
+                .cache();
+
+        Mono<List<User>> userAddedToWorkspaceMono = viewerGroupMono
+                .flatMap(userGroup -> {
                     // Add user to workspace
                     InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
                     ArrayList<String> users = new ArrayList<>();
@@ -958,8 +978,7 @@ public class WorkspaceServiceTest {
                     users.add("newEmailWhichShouldntExistAsViewer2@usertest.com");
                     users.add("newEmailWhichShouldntExistAsViewer3@usertest.com");
                     inviteUsersDTO.setUsernames(users);
-                    inviteUsersDTO.setWorkspaceId(workspace1.getId());
-                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+                    inviteUsersDTO.setUserGroupId(userGroup.getId());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 })

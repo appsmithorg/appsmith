@@ -124,5 +124,7 @@ public class FieldName {
     public static final String VIEWER = "App Viewer";
     public static final String WORKSPACE_VIEWER_DESCRIPTION = "Can view applications and invite other users to view " +
             "applications";
+    public static final Object USER_GROUP = "userGroup";
+    public static final Object GROUP_ID = "groupId";
 
 }

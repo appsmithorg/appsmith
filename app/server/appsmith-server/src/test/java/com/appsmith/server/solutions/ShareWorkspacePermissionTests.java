@@ -4,11 +4,13 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
@@ -24,6 +26,7 @@ import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -102,6 +105,9 @@ public class ShareWorkspacePermissionTests {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
+    @Autowired
+    private UserGroupService userGroupService;
+
     Application savedApplication;
 
     String workspaceId;
@@ -120,13 +126,24 @@ public class ShareWorkspacePermissionTests {
         savedApplication = applicationPageService.createApplication(application, workspaceId).block();
 
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-        inviteUsersDTO.setWorkspaceId(workspaceId);
         ArrayList<String> emails = new ArrayList<>();
+
+        UserGroup adminUserGroup = userGroupService.getDefaultUserGroups(savedWorkspace.getId())
+                .collectList().block()
+                .stream()
+                .filter(userGroup1 -> userGroup1.getName().startsWith(FieldName.ADMINISTRATOR))
+                .findFirst().get();
+
+        UserGroup developerUserGroup = userGroupService.getDefaultUserGroups(savedWorkspace.getId())
+                .collectList().block()
+                .stream()
+                .filter(userGroup1 -> userGroup1.getName().startsWith(FieldName.DEVELOPER))
+                .findFirst().get();
 
         // Invite Admin
         emails.add("admin@solutiontest.com");
         inviteUsersDTO.setUsernames(emails);
-        inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+        inviteUsersDTO.setUserGroupId(adminUserGroup.getId());
         userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         emails.clear();
@@ -134,7 +151,7 @@ public class ShareWorkspacePermissionTests {
         // Invite Developer
         emails.add("developer@solutiontest.com");
         inviteUsersDTO.setUsernames(emails);
-        inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_DEVELOPER.getName());
+        inviteUsersDTO.setUserGroupId(developerUserGroup.getId());
         userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
     }
 
@@ -265,15 +282,20 @@ public class ShareWorkspacePermissionTests {
 
         ActionDTO savedAction3 = layoutActionService.createSingleAction(action3).block();
 
+        UserGroup adminUserGroup = userGroupService.getDefaultUserGroups(savedWorkspace.getId())
+                .collectList().block()
+                .stream()
+                .filter(userGroup1 -> userGroup1.getName().startsWith(FieldName.ADMINISTRATOR))
+                .findFirst().get();
+
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-        inviteUsersDTO.setWorkspaceId(savedWorkspace.getId());
         ArrayList<String> emails = new ArrayList<>();
 
         // Test invite
         String email = "inviteCancellationTestEmail@solutionText.com";
         emails.add(email);
         inviteUsersDTO.setUsernames(emails);
-        inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+        inviteUsersDTO.setUserGroupId(adminUserGroup.getId());
 
         // Now trigger the invite flow and cancel it almost immediately!
         // NOTE : This is the main test flow. Invite would be triggered and is expected now to run
