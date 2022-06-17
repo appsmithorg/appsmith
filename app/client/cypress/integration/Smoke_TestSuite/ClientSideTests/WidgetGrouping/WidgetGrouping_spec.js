@@ -23,7 +23,7 @@ describe("Widget Grouping", function() {
     } else {
       cy.get("body").type("{ctrl}{g}");
     }
-
+    cy.wait(2000);
     cy.get(`div[data-testid='t--selected']`)
       .should("have.length", 1)
       .as("group");

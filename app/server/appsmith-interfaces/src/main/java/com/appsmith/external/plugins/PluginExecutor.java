@@ -219,7 +219,6 @@ public interface PluginExecutor<C> extends ExtensionPoint {
      * @param actionConfiguration
      * @return modified actionConfiguration object after setting the two keys mentioned above in `formData`.
      */
-    default ActionConfiguration extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
-        return actionConfiguration;
+    default void extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
     }
 }

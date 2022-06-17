@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { MockDatasource } from "entities/Datasource";
 import { getPluginImages } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
-import { addMockDatasourceToOrg } from "actions/datasourceActions";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { addMockDatasourceToWorkspace } from "actions/datasourceActions";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -31,7 +31,7 @@ const Description = styled.div`
   margin-top: 11px;
 `;
 function MockDataSources(props: { mockDatasources: MockDatasource[] }) {
-  const orgId = useSelector(getCurrentOrgId);
+  const workspaceId = useSelector(getCurrentWorkspaceId);
   return (
     <MockDataSourceWrapper className="t--mock-datasource-list">
       {props.mockDatasources.map((datasource: MockDatasource, idx) => {
@@ -39,7 +39,7 @@ function MockDataSources(props: { mockDatasources: MockDatasource[] }) {
           <MockDatasourceCard
             datasource={datasource}
             key={`${datasource.name}_${datasource.packageName}_${idx}`}
-            orgId={orgId}
+            workspaceId={workspaceId}
           />
         );
       })}
@@ -86,11 +86,11 @@ const DatasourceNameWrapper = styled.div`
 
 type MockDatasourceCardProps = {
   datasource: MockDatasource;
-  orgId: string;
+  workspaceId: string;
 };
 
 function MockDatasourceCard(props: MockDatasourceCardProps) {
-  const { datasource, orgId } = props;
+  const { datasource, workspaceId } = props;
   const dispatch = useDispatch();
   const pluginImages = useSelector(getPluginImages);
   const plugins = useSelector((state: AppState) => {
@@ -106,7 +106,7 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
   const addMockDataSource = () => {
     AnalyticsUtil.logEvent("ADD_MOCK_DATASOURCE_CLICK", {
       datasourceName: datasource.name,
-      orgId,
+      workspaceId,
       packageName: currentPlugin.packageName,
       pluginName: currentPlugin.name,
     });
@@ -117,9 +117,9 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
     });
     const queryParams = getQueryParams();
     dispatch(
-      addMockDatasourceToOrg(
+      addMockDatasourceToWorkspace(
         datasource.name,
-        orgId,
+        workspaceId,
         currentPlugin.id,
         currentPlugin.packageName,
         queryParams.isGeneratePageMode,

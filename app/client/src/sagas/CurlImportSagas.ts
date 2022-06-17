@@ -12,7 +12,7 @@ import {
   createMessage,
   CURL_IMPORT_SUCCESS,
 } from "@appsmith/constants/messages";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import transformCurlImport from "transformers/CurlImportTransformer";
 import history from "utils/history";
 import { Toaster } from "components/ads/Toast";
@@ -25,13 +25,13 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   let { curl } = action.payload;
   try {
     curl = transformCurlImport(curl);
-    const organizationId: string = yield select(getCurrentOrgId);
+    const workspaceId: string = yield select(getCurrentWorkspaceId);
     const request: CurlImportRequest = {
       type,
       pageId,
       name,
       curl,
-      organizationId,
+      workspaceId,
     };
 
     const response: ApiResponse = yield CurlImportApi.curlImport(request);

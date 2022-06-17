@@ -12,8 +12,8 @@ import { AppState } from "reducers";
 import { getEditorURL } from "selectors/appViewSelectors";
 import { getViewModePageList } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
-import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
@@ -119,7 +119,7 @@ type AppViewerHeaderProps = {
   url?: string;
   currentApplicationDetails?: ApplicationPayload;
   pages: PageListPayload;
-  currentOrgId: string;
+  currentWorkspaceId: string;
   currentUser?: User;
   lightTheme: Theme;
 };
@@ -128,7 +128,12 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const selectedTheme = useSelector(getSelectedAppTheme);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
-  const { currentApplicationDetails, currentOrgId, currentUser, pages } = props;
+  const {
+    currentApplicationDetails,
+    currentUser,
+    currentWorkspaceId,
+    pages,
+  } = props;
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
@@ -181,7 +186,6 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                       bgColor: "transparent",
                     }}
                     isOpen={showAppInviteUsersDialog}
-                    orgId={currentOrgId}
                     title={currentApplicationDetails.name}
                     trigger={
                       <Button
@@ -197,6 +201,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                         text="Share"
                       />
                     }
+                    workspaceId={currentWorkspaceId}
                   />
 
                   <HeaderRightItemContainer>
@@ -244,7 +249,7 @@ const mapStateToProps = (state: AppState): AppViewerHeaderProps => ({
   pages: getViewModePageList(state),
   url: getEditorURL(state),
   currentApplicationDetails: state.ui.applications.currentApplication,
-  currentOrgId: getCurrentOrgId(state),
+  currentWorkspaceId: getCurrentWorkspaceId(state),
   currentUser: getCurrentUser(state),
   lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
 });

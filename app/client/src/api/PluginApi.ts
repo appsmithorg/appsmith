@@ -55,9 +55,9 @@ export interface DefaultPlugin {
 class PluginsApi extends Api {
   static url = "v1/plugins";
   static fetchPlugins(
-    orgId: string,
+    workspaceId: string,
   ): AxiosPromise<GenericApiResponse<Plugin[]>> {
-    return Api.get(PluginsApi.url, { organizationId: orgId });
+    return Api.get(PluginsApi.url, { workspaceId: workspaceId });
   }
 
   static fetchFormConfig(

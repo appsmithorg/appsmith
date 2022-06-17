@@ -51,7 +51,6 @@ export class CommonLocators {
     _actionTextArea = (actionName: string) => "//label[text()='" + actionName + "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea"
     _existingDefaultTextInput = ".t--property-control-defaulttext .CodeMirror-code"
     _widgetPageIcon = (widgetType: string) => `.t--widget-card-draggable-${widgetType}`
-    _propertyToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " input[type='checkbox']"
     _propertyToggleValue = (controlToToggle: string) => "//div[contains(@class, 't--property-control-" + controlToToggle + "')]//input[@type='checkbox']/parent::label"
     _openNavigationTab = (tabToOpen: string) => `#switcher--${tabToOpen}`
     _selectWidgetDropdown = (widgetType: string) => `//div[contains(@class, 't--draggable-${widgetType}')]//button`
@@ -60,6 +59,7 @@ export class CommonLocators {
     _existingFieldTextByName = (fieldName: string) => "//label[text()='" + fieldName + "']/ancestor::div[contains(@class, 't--property-control-" + fieldName.replace(/ +/g, "").toLowerCase() + "')]"
     _existingFieldValueByName = (fieldName: string) => this._existingFieldTextByName(fieldName) + "//div[contains(@class,'CodeMirror-code')]"
     _existingActualValueByName = (fieldName: string) => this._existingFieldValueByName(fieldName) + "//span/span"
+    _codeMirrorValue = "//div[contains(@class,'CodeMirror-code')]//span/span"
     _evaluatedCurrentValue = "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre"
     _multiSelectOptions = (option: string) => "div[title='" + option + "'] input[type='checkbox']"
     _divWithClass = (className: string) => "//div[contains(@class, '" + className + "')]"
@@ -70,4 +70,8 @@ export class CommonLocators {
     _jsonFormHeader = ".t--jsonform-body > div:first-child"
     _jsonFormWidget = ".t--widget-jsonformwidget"
     _lintErrorElement = `span.CodeMirror-lint-mark-error`
+    _datePicker = (date: number) => "//div[@class ='bp3-datepicker']//div[@class = 'DayPicker-Day']//div[text()='" + date + "']";
+    _inputWidgetValueField= (fieldName: string, input : boolean = true) => `//label[contains(@class, 't--input-widget-label')][text()='${fieldName}']/ancestor::div[@data-testid='input-container']//${input ? "input" : "textarea"}`
+    _deleteIcon = "button .bp3-icon-delete";
+
 }

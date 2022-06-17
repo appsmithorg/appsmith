@@ -9,7 +9,7 @@ let forkedApplicationDsl;
 let parentApplicationDsl;
 let forkableAppUrl;
 
-describe("Fork application across orgs", function() {
+describe("Fork application across workspaces", function() {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -35,10 +35,10 @@ describe("Fork application across orgs", function() {
       .first()
       .click({ force: true });
     cy.get(homePage.forkAppFromMenu).click({ force: true });
-    cy.get(homePage.forkAppOrgButton).click({ force: true });
+    cy.get(homePage.forkAppWorkspaceButton).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(4000);
-    cy.wait("@postForkAppOrg").then((httpResponse) => {
+    cy.wait("@postForkAppWorkspace").then((httpResponse) => {
       expect(httpResponse.status).to.equal(200);
     });
     // check that forked application has same dsl
@@ -59,8 +59,8 @@ describe("Fork application across orgs", function() {
     cy.get(homePage.optionsIcon)
       .first()
       .click();
-    cy.get(homePage.orgImportAppOption).click({ force: true });
-    cy.get(homePage.orgImportAppModal).should("be.visible");
+    cy.get(homePage.workspaceImportAppOption).click({ force: true });
+    cy.get(homePage.workspaceImportAppModal).should("be.visible");
     cy.xpath(homePage.uploadLogo).attachFile("forkNonSignedInUser.json");
     cy.wait("@importNewApplication").then((interception) => {
       const { isPartialImport } = interception.response.body.data;
@@ -96,7 +96,7 @@ describe("Fork application across orgs", function() {
           cy.get(applicationLocators.forkButton)
             .first()
             .click({ force: true });
-          cy.get(homePage.forkAppOrgButton).should("be.visible");
+          cy.get(homePage.forkAppWorkspaceButton).should("be.visible");
         });
       });
     });
