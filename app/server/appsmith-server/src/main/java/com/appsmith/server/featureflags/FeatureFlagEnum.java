@@ -31,4 +31,5 @@ public enum FeatureFlagEnum {
     GIT_IMPORT,
     APP_TEMPLATE,
     PROPERTY_PANE_GROUPING,
+    RBAC,
 }

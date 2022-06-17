@@ -49,7 +49,7 @@
   "actionCollectionWithAction": {
     "id": "testCollectionId",
     "applicationId": "testApplicationId",
-    "organizationId": "testOrganizationId",
+    "workspaceId": "testOrganizationId",
     "unpublishedCollection": {
       "name": "testCollection",
       "pageId": "testPageId",
@@ -85,7 +85,7 @@
   "actionCollectionDTOWithModifiedActions": {
     "id": "testCollectionId",
     "applicationId": "testApplicationId",
-    "organizationId": "testOrganizationId",
+    "workspaceId": "testOrganizationId",
     "name": "testCollection",
     "pageId": "testPageId",
     "pluginId": "testPluginId",
@@ -119,10 +119,10 @@
   "actionCollectionAfterModifiedActions": {
     "id": "testCollectionId",
     "applicationId": "testApplicationId",
-    "organizationId": "testOrganizationId",
+    "workspaceId": "testOrganizationId",
     "unpublishedCollection": {
       "id": "testCollectionId",
-      "organizationId": "testOrganizationId",
+      "workspaceId": "testOrganizationId",
       "name": "testCollection",
       "pageId": "testPageId",
       "pluginId": "testPluginId",

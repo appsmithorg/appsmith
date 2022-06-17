@@ -195,8 +195,8 @@ chmod-mongodb-key() {
 }
 
 init_keycloak() {
-  
-  /opt/keycloak/bin/add-user-keycloak.sh --user "$KEYCLOAK_ADMIN_USERNAME" --password "$KEYCLOAK_ADMIN_PASSWORD"
+
+  /opt/keycloak/bin/add-user-keycloak.sh --user "${KEYCLOAK_ADMIN_USERNAME-admin}" --password "$KEYCLOAK_ADMIN_PASSWORD"
 
   # Make keycloak persistent across reboots
   ln --verbose --force --symbolic --no-target-directory /appsmith-stacks/data/keycloak /opt/keycloak/standalone/data

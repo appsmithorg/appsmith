@@ -40,6 +40,9 @@ export class PropertyPane {
     ".t--property-control-" +
     controlToToggle.replace(/ +/g, "").toLowerCase() +
     " input[type='checkbox']";
+  _colorPickerV2Popover = ".t--colorpicker-v2-popover";
+  _colorPickerV2Color = ".t--colorpicker-v2-color";
+  _colorRing = ".border-2";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._fieldConfig(fieldName));
@@ -69,11 +72,21 @@ export class PropertyPane {
   public ChangeTheme(newTheme: string) {
     this.agHelper.GetNClick(this._changeThemeBtn, 0, true);
     this.agHelper.GetNClick(this._themeCard(newTheme));
-    this.agHelper.ValidateToastMessage("Theme " + (newTheme == "Modern" ? "Default" : newTheme) + " Applied");
+    this.agHelper.ValidateToastMessage("Theme " + newTheme + " Applied");
+  }
+
+  public ChangeColor(
+    colorIndex: number,
+    type: "Primary" | "Background" = "Primary",
+  ) {
+    const typeIndex = type == "Primary" ? 0 : 1;
+    this.agHelper.GetNClick(this._colorRing, typeIndex);
+    this.agHelper.GetNClick(this._colorPickerV2Popover);
+    this.agHelper.GetNClick(this._colorPickerV2Color, colorIndex);
   }
 
   public GetJSONFormConfigurationFileds() {
-    let fieldNames: string[] = [];
+    const fieldNames: string[] = [];
     let fieldInvokeValue: string;
     cy.xpath(this._jsonFieldConfigList).each(function($item) {
       cy.wrap($item)

@@ -1,16 +1,16 @@
 package com.appsmith.server.helpers;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-class ValidationUtilsTest {
+public class ValidationUtilsTest {
 
     @Test
-    void validateEmailCsv() {
+    public void validateEmailCsv() {
         assertThat(ValidationUtils.validateEmailCsv("")).isFalse();
         assertThat(ValidationUtils.validateEmailCsv(null)).isFalse();
         assertThat(ValidationUtils.validateEmailCsv(" ")).isFalse();

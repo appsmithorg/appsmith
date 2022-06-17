@@ -12,6 +12,9 @@ import {
 const EE_SettingCategories = {
   SAML_AUTH: "saml-auth",
   OIDC_AUTH: "oidc-auth",
+  USER_LISTING: "users",
+  USER_GROUP_LISTING: "user-groups",
+  PERMISSION_GROUP_LISTING: "permission-groups",
 };
 const EE_SettingSubCategories = {
   SAML: "saml signup",
