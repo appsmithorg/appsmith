@@ -1,9 +1,7 @@
 import homePage from "../../../../locators/HomePage";
-const HelpLocators = require("../../../../locators/HelpLocators.json");
 const pages = require("../../../../locators/Pages.json");
 
 let pageid;
-let appId;
 
 describe("Login from UI and check the functionality", function() {
   it("Login/create page/delete page/delete app from UI", function() {
