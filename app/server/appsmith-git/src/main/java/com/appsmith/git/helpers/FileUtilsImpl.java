@@ -1,5 +1,6 @@
 package com.appsmith.git.helpers;
 
+import com.appsmith.external.converters.GsonISOStringToInstantConverter;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.git.FileInterface;
@@ -41,6 +42,7 @@ import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -124,7 +126,7 @@ public class FileUtilsImpl implements FileInterface {
 
     /**
      * This method will save the complete application in the local repo directory.
-     * Path to repo will be : ./container-volumes/git-repo/organizationId/defaultApplicationId/repoName/{application_data}
+     * Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
      * @param baseRepoSuffix path suffix used to create a repo path
      * @param applicationGitReference application reference object from which entire application can be rehydrated
      * @param branchName name of the branch for the current application
@@ -150,6 +152,7 @@ public class FileUtilsImpl implements FileInterface {
                             .registerTypeAdapter(Double.class,  new GsonDoubleToLongConverter())
                             .registerTypeAdapter(Set.class, new GsonUnorderedToOrderedConverter())
                             .registerTypeAdapter(Map.class, new GsonUnorderedToOrderedConverter())
+                            .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
                             .disableHtmlEscaping()
                             .setPrettyPrinting()
                             .create();
@@ -227,7 +230,7 @@ public class FileUtilsImpl implements FileInterface {
                     });
 
                     // Save JSObjects
-                    for (Map.Entry<String, Object> resource : applicationGitReference.getActionsCollections().entrySet()) {
+                    for (Map.Entry<String, Object> resource : applicationGitReference.getActionCollections().entrySet()) {
                         // JSObjectName_pageName => nomenclature for the keys
                         // TODO
                         //  JSObjectName => for app level JSObjects, this is not implemented yet
@@ -430,7 +433,7 @@ public class FileUtilsImpl implements FileInterface {
 
     @Override
     public Mono<Boolean> deleteLocalRepo(Path baseRepoSuffix) {
-        // Remove the complete directory from path: baseRepo/organizationId/defaultApplicationId
+        // Remove the complete directory from path: baseRepo/workspaceId/defaultApplicationId
         File file = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).getParent().toFile();
         while (file.exists()) {
             FileSystemUtils.deleteRecursively(file);
@@ -513,7 +516,7 @@ public class FileUtilsImpl implements FileInterface {
                 // Extract actions
                 applicationGitReference.setActions(readFiles(baseRepoPath.resolve(ACTION_DIRECTORY), gson, ""));
                 // Extract actionCollections
-                applicationGitReference.setActionsCollections(readFiles(baseRepoPath.resolve(ACTION_COLLECTION_DIRECTORY), gson, ""));
+                applicationGitReference.setActionCollections(readFiles(baseRepoPath.resolve(ACTION_COLLECTION_DIRECTORY), gson, ""));
                 // Extract pages
                 applicationGitReference.setPages(readFiles(pageDirectory, gson, ""));
                 // Extract datasources
@@ -537,7 +540,7 @@ public class FileUtilsImpl implements FileInterface {
                     }
                 }
                 applicationGitReference.setActions(actionMap);
-                applicationGitReference.setActionsCollections(actionCollectionMap);
+                applicationGitReference.setActionCollections(actionCollectionMap);
                 applicationGitReference.setPages(pageMap);
                 // Extract datasources
                 applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, ""));
