@@ -13,6 +13,7 @@ import {
 import {
   getSimilarTemplatesInit,
   getTemplateInformation,
+  importTemplateIntoApplication,
 } from "actions/templateActions";
 import Icon, { IconSize } from "components/ads/Icon";
 import Text, { FontWeight, TextType } from "components/ads/Text";
@@ -112,6 +113,10 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
     if (containerRef.current) {
       containerRef.current.scrollTo({ top: 0 });
     }
+  };
+
+  const onForkTemplateClick = (id: string) => {
+    dispatch(importTemplateIntoApplication(id));
   };
 
   if (isFetchingTemplate || isImportingTemplateToApp) {
@@ -233,6 +238,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
                       onClick={() => {
                         onSimilarTemplateClick(template.id);
                       }}
+                      onForkTemplateClick={onForkTemplateClick}
                       template={template}
                     />
                   ))}
