@@ -6,9 +6,12 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.Set;
 
 public class UserGroupServiceCEImpl extends BaseService<UserGroupRepository, UserGroup, String> implements UserGroupServiceCE{
 
@@ -20,5 +23,15 @@ public class UserGroupServiceCEImpl extends BaseService<UserGroupRepository, Use
                                   AnalyticsService analyticsService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+    }
+
+    @Override
+    public Flux<UserGroup> findAllByIds(Set<String> ids) {
+        return repository.findAllById(ids);
+    }
+
+    @Override
+    public Mono<UserGroup> save(UserGroup userGroup) {
+        return repository.save(userGroup);
     }
 }

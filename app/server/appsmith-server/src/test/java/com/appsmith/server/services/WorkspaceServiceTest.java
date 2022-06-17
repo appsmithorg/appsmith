@@ -66,6 +66,9 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -1252,6 +1255,62 @@ public class WorkspaceServiceTest {
                 .assertNext(savedWorkspace -> {
                     // slug should be unchanged
                     assertThat(savedWorkspace.getSlug()).isEqualTo(TextUtils.makeSlug(initialName));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void update_NewName_GroupNamesUpdated() {
+        String uniqueString = UUID.randomUUID().toString();  // to make sure name is not conflicted with other tests
+        String initialName = "My Workspace " + uniqueString;
+        String newName = "New Name " + uniqueString;
+        Workspace workspace = new Workspace();
+        workspace.setName(initialName);
+
+        Mono<Workspace> workspaceNameUpdateMono = workspaceService.create(workspace)
+                .flatMap(savedWorkspace -> {
+                    Workspace workspaceDto = new Workspace();
+                    workspaceDto.setName(newName);
+                    return workspaceService.update(savedWorkspace.getId(), workspaceDto);
+                })
+                .cache();
+
+        Mono<List<UserGroup>> userGroupsMono = workspaceNameUpdateMono
+                .flatMap(savedWorkspace -> userGroupRepository.findAllById(savedWorkspace.getDefaultUserGroups()).collectList());
+
+        Mono<List<PermissionGroup>> permissionGroupsMono = workspaceNameUpdateMono
+                .flatMap(savedWorkspace -> permissionGroupRepository.findAllById(savedWorkspace.getDefaultPermissionGroups()).collectList());
+
+        StepVerifier.create(Mono.zip(workspaceNameUpdateMono, userGroupsMono, permissionGroupsMono))
+                .assertNext(tuple -> {
+                    Workspace savedWorkspace = tuple.getT1();
+                    List<UserGroup> userGroups = tuple.getT2();
+                    List<PermissionGroup> permissionGroups = tuple.getT3();
+                    assertThat(savedWorkspace.getSlug()).isEqualTo(TextUtils.makeSlug(newName));
+
+                    for (UserGroup userGroup : userGroups) {
+                        String name = userGroup.getName();
+                        if (name.startsWith(ADMINISTRATOR)) {
+                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(ADMINISTRATOR, newName));
+                        } else if (name.startsWith(DEVELOPER)) {
+                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(DEVELOPER, newName));
+                        } else if (name.startsWith(VIEWER)) {
+                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(VIEWER, newName));
+                        }
+                    }
+
+                    for (PermissionGroup permissionGroup : permissionGroups) {
+                        String name = permissionGroup.getName();
+                        if (name.startsWith(ADMINISTRATOR)) {
+                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(ADMINISTRATOR, newName));
+                        } else if (name.startsWith(DEVELOPER)) {
+                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(DEVELOPER, newName));
+                        } else if (name.startsWith(VIEWER)) {
+                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(VIEWER, newName));
+                        }
+                    }
+
                 })
                 .verifyComplete();
     }
