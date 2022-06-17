@@ -50,7 +50,7 @@ export class EntityExplorer {
     entityNameinLeftSidebar: string,
     section: "WIDGETS" | "QUERIES/JS" | "DATASOURCES" | "" = "",
   ) {
-    if (section) this.expandCollapseEntity(section); //to expand respective section
+    if (section) this.ExpandCollapseEntity(section); //to expand respective section
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
       .last()
       .click({ multiple: true });
@@ -81,7 +81,7 @@ export class EntityExplorer {
     );
   }
 
-  public expandCollapseEntity(entityName: string, expand = true) {
+  public ExpandCollapseEntity(entityName: string, expand = true) {
     cy.xpath(this._expandCollapseArrow(entityName))
       .invoke("attr", "name")
       .then((arrow) => {
@@ -141,7 +141,7 @@ export class EntityExplorer {
   }
 
   public ClonePage(pageName = "Page1") {
-    this.expandCollapseEntity("PAGES")
+    this.ExpandCollapseEntity("PAGES")
     cy.get(this.getPageLocator(pageName))
       .trigger("mouseover")
       .click({ force: true });

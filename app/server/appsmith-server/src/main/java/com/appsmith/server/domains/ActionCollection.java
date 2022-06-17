@@ -32,4 +32,18 @@ public class ActionCollection extends BaseDomain {
     ActionCollectionDTO unpublishedCollection;
 
     ActionCollectionDTO publishedCollection;
+
+    public void sanitiseToExportDBObject() {
+        this.setDefaultResources(null);
+        ActionCollectionDTO unpublishedCollection = this.getUnpublishedCollection();
+        if (unpublishedCollection != null) {
+            unpublishedCollection.sanitiseForExport();
+        }
+        ActionCollectionDTO publishedCollection = this.getPublishedCollection();
+        if (publishedCollection != null) {
+            publishedCollection.sanitiseForExport();
+        }
+        this.sanitiseToExportBaseObject();
+        this.setOrganizationId(null);
+    }
 }
