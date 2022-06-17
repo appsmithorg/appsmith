@@ -73,5 +73,5 @@ export class CommonLocators {
     _datePicker = (date: number) => "//div[@class ='bp3-datepicker']//div[@class = 'DayPicker-Day']//div[text()='" + date + "']";
     _inputWidgetValueField= (fieldName: string, input : boolean = true) => `//label[contains(@class, 't--input-widget-label')][text()='${fieldName}']/ancestor::div[@data-testid='input-container']//${input ? "input" : "textarea"}`
     _deleteIcon = "button .bp3-icon-delete";
-
+    _datePickerValue = "div[data-testid='datepicker-container'] input"
 }

@@ -564,8 +564,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Confirm");
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.Sleep(3000); //for Delete to reflect!
     table.AssertSelectedRow(0); //Control going back to 1st row in table
-
     table.ReadTableRowColumnData(0, 0, 200).then(($cellData) => {
       expect($cellData).not.eq("2105"); //Deleted record Store_ID
     });
