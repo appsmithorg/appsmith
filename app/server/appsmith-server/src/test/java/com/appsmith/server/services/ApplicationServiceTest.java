@@ -2891,7 +2891,6 @@ public class ApplicationServiceTest {
     @WithUserDetails(value = "api_user")
     public void getSshKey_notConnectedToGit_SuccessResponseWithoutSshKey() {
         Application app = new Application();
-        app.setOrganizationId(orgId);
         app.setName("getSshKey_notConnectedToGit_SuccessResponseWithoutSshKey");
         Application application = applicationPageService.createApplication(app).block();
 
