@@ -14,22 +14,28 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATION
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.VIEWER;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRIPTION;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
 
 @Getter
 public enum AppsmithRole {
     APPLICATION_ADMIN("Application Administrator", "", Set.of(MANAGE_APPLICATIONS)),
     APPLICATION_VIEWER("Application Viewer", "",  Set.of(READ_APPLICATIONS)),
-    ORGANIZATION_ADMIN("Administrator", "Can modify all organization settings including editing applications, " +
-        "inviting other users to the organization and exporting applications from the organization",
+    ORGANIZATION_ADMIN(ADMINISTRATOR, WORKSPACE_ADMINISTRATOR_DESCRIPTION,
         Set.of(MANAGE_WORKSPACES, WORKSPACE_INVITE_USERS, WORKSPACE_EXPORT_APPLICATIONS)),
-    ORGANIZATION_DEVELOPER("Developer", "Can edit and view applications along with inviting other users to the organization",
+    ORGANIZATION_DEVELOPER(DEVELOPER, WORKSPACE_DEVELOPER_DESCRIPTION,
         Set.of(READ_WORKSPACES, WORKSPACE_MANAGE_APPLICATIONS, WORKSPACE_READ_APPLICATIONS,
-            WORKSPACE_PUBLISH_APPLICATIONS, WORKSPACE_INVITE_USERS)),
+        WORKSPACE_PUBLISH_APPLICATIONS, WORKSPACE_INVITE_USERS)),
     ORGANIZATION_VIEWER(
-        "App Viewer",
-        "Can view applications and invite other users to view applications",
-        Set.of(READ_WORKSPACES, WORKSPACE_READ_APPLICATIONS, WORKSPACE_INVITE_USERS)),
+            VIEWER,
+            WORKSPACE_VIEWER_DESCRIPTION,
+            Set.of(READ_WORKSPACES, WORKSPACE_READ_APPLICATIONS, WORKSPACE_INVITE_USERS)
+    ),
     ;
 
     private Set<AclPermission> permissions;

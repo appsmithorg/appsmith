@@ -1,22 +1,29 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.dtos.UserProfileDTO;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Document
+@Getter
+@Setter
+@NoArgsConstructor
 public class UserGroup extends BaseDomain {
 
     @NotNull
     String name;
 
+    String tenantId;
+
     String description;
 
-    // Note : While storing the users' information, ensure all the sensitive and unnecessary data is cleared out before
-    // storing inside the user group
-    List<UserProfileDTO> users;
+    List<UserInGroup> users;
+
+    Boolean isDefault;
 
 }

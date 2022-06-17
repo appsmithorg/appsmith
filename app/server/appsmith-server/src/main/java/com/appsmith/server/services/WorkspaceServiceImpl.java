@@ -20,22 +20,24 @@ import javax.validation.Validator;
 public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements WorkspaceService {
 
     public WorkspaceServiceImpl(Scheduler scheduler,
-                                   Validator validator,
-                                   MongoConverter mongoConverter,
-                                   ReactiveMongoTemplate reactiveMongoTemplate,
-                                   WorkspaceRepository repository,
-                                   AnalyticsService analyticsService,
-                                   PluginRepository pluginRepository,
-                                   SessionUserService sessionUserService,
-                                   UserWorkspaceService userWorkspaceService,
-                                   UserRepository userRepository,
-                                   RoleGraph roleGraph,
-                                   AssetRepository assetRepository,
-                                   AssetService assetService,
-                                   ApplicationRepository applicationRepository) {
+                                Validator validator,
+                                MongoConverter mongoConverter,
+                                ReactiveMongoTemplate reactiveMongoTemplate,
+                                WorkspaceRepository repository,
+                                AnalyticsService analyticsService,
+                                PluginRepository pluginRepository,
+                                SessionUserService sessionUserService,
+                                UserWorkspaceService userWorkspaceService,
+                                UserRepository userRepository,
+                                RoleGraph roleGraph,
+                                AssetRepository assetRepository,
+                                AssetService assetService,
+                                ApplicationRepository applicationRepository,
+                                UserGroupService userGroupService,
+                                PermissionGroupService permissionGroupService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 pluginRepository, sessionUserService, userWorkspaceService, userRepository, roleGraph,
-                assetRepository, assetService, applicationRepository);
+                assetRepository, assetService, applicationRepository, userGroupService, permissionGroupService);
     }
 }
