@@ -555,7 +555,6 @@ export function* createApplicationSaga(
         const FirstTimeUserOnboardingApplicationId = yield select(
           getFirstTimeUserOnboardingApplicationId,
         );
-        let pageURL;
 
         if (
           isFirstTimeUserOnboardingEnabled &&
@@ -566,23 +565,16 @@ export function* createApplicationSaga(
               ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
             payload: application.id,
           });
-          pageURL = builderURL({
-            applicationId: application.id,
-            applicationVersion: application.applicationVersion,
-            applicationSlug: application.slug as string,
-            pageSlug: defaultPageSlug,
-            pageId: application.defaultPageId as string,
-          });
-        } else {
-          pageURL = generateTemplateURL({
-            applicationId: application.id,
-            applicationVersion: application.applicationVersion,
-            applicationSlug: application.slug as string,
-            pageSlug: defaultPageSlug,
-            pageId: application.defaultPageId as string,
-          });
         }
-        history.push(pageURL);
+        history.push(
+          builderURL({
+            applicationId: application.id,
+            applicationVersion: application.applicationVersion,
+            applicationSlug: application.slug as string,
+            pageSlug: defaultPageSlug,
+            pageId: application.defaultPageId as string,
+          }),
+        );
 
         // subscribe to newly created application
         // users join rooms on connection, so reconnecting

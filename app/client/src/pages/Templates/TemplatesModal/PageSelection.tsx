@@ -116,9 +116,10 @@ function CustomCheckbox(props: CustomCheckboxProps) {
 function PageSelection(props: PageSelectionProps) {
   const dispatch = useDispatch();
   const [selectedPages, setSelectedPages] = useState(props.pageNames);
-  const selectedPagesLength = selectedPages.length;
   const pagesText =
-    selectedPagesLength > 1 || selectedPagesLength === 0 ? "Pages" : "Page";
+    props.pageNames.length > 1 || props.pageNames.length === 0
+      ? "Pages"
+      : "Page";
 
   useEffect(() => {
     setSelectedPages(props.pageNames);
