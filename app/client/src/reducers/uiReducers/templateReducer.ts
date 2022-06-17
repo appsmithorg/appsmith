@@ -111,7 +111,7 @@ const templateReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      isImportingTemplateToApp: true,
+      isImportingTemplateToApp: false,
     };
   },
   [ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_APPLICATION_ERROR]: (
