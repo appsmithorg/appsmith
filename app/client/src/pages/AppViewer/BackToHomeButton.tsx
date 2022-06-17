@@ -15,7 +15,7 @@ function BackToHomeButton() {
 
   return (
     <button
-      className="flex items-center gap-2 group"
+      className="flex items-center gap-2 group t--back-to-home"
       onClick={() => {
         history.push("/applications");
       }}

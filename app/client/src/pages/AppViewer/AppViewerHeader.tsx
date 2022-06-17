@@ -116,7 +116,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             </div>
             <section className="relative flex items-center ml-auto space-x-2 z-1">
               {currentApplicationDetails && (
-                <div className="hidden space-x-2 md:flex">
+                <>
                   {!shouldHideComments && <ToggleCommentModeButton />}
                   <FormDialogComponent
                     Form={AppInviteUsersForm}
@@ -148,7 +148,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                   <HeaderRightItemContainer>
                     <PrimaryCTA className="t--back-to-editor" url={props.url} />
                   </HeaderRightItemContainer>
-                </div>
+                </>
               )}
               {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
                 <HeaderRightItemContainer>
