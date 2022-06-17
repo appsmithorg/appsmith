@@ -29,7 +29,7 @@ const Wrapper = styled.div`
 interface TemplateListProps {
   templates: TemplateInterface[];
   onTemplateClick?: (id: string) => void;
-  onForkTemplateClick?: (id: string) => void;
+  onForkTemplateClick?: (template: TemplateInterface) => void;
 }
 
 function TemplateList(props: TemplateListProps) {
@@ -44,7 +44,9 @@ function TemplateList(props: TemplateListProps) {
           <Template
             key={template.id}
             onClick={props.onTemplateClick}
-            onForkTemplateClick={props.onForkTemplateClick}
+            onForkTemplateClick={() =>
+              props.onForkTemplateClick && props.onForkTemplateClick(template)
+            }
             size="large"
             template={template}
           />

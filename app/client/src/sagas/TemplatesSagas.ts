@@ -37,6 +37,8 @@ import {
   fetchJSCollectionsForPageSuccess,
 } from "actions/jsActionActions";
 import { failFastApiCalls } from "./InitSagas";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 function* getAllTemplatesSaga() {
   try {
@@ -179,7 +181,11 @@ function* postPageAdditionSaga(pageId: string) {
 }
 
 function* forkTemplateToApplicationSaga(
-  action: ReduxAction<{ templateId: string; pageNames?: string[] }>,
+  action: ReduxAction<{
+    templateId: string;
+    templateName: string;
+    pageNames?: string[];
+  }>,
 ) {
   try {
     const pagesToImport = action.payload.pageNames
@@ -231,6 +237,11 @@ function* forkTemplateToApplicationSaga(
       yield put({
         type: ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_SUCCESS,
         payload: response.data,
+      });
+
+      Toaster.show({
+        text: `Pages from '${action.payload.templateName}' template added successfully`,
+        variant: Variant.success,
       });
     }
   } catch (error) {

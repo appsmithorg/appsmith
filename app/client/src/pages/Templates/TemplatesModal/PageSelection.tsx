@@ -8,6 +8,7 @@ import { Colors } from "constants/Colors";
 import { Button } from "components/ads";
 import { useDispatch } from "react-redux";
 import { importTemplateIntoApplication } from "actions/templateActions";
+import { Template } from "api/TemplatesApi";
 
 const Wrapper = styled.div`
   width: max(300px, 25%);
@@ -87,7 +88,7 @@ const StyledButton = styled(Button)`
 
 type PageSelectionProps = {
   pageNames: string[];
-  templateId: string;
+  template: Template;
 };
 
 type CustomCheckboxProps = {
@@ -146,7 +147,13 @@ function PageSelection(props: PageSelectionProps) {
   };
 
   const importPagesToApp = () => {
-    dispatch(importTemplateIntoApplication(props.templateId, selectedPages));
+    dispatch(
+      importTemplateIntoApplication(
+        props.template.id,
+        props.template.title,
+        selectedPages,
+      ),
+    );
   };
 
   return (

@@ -32,6 +32,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
+import { Template } from "api/TemplatesApi";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const PageWrapper = styled.div`
@@ -149,7 +150,7 @@ function TemplateListLoader() {
 
 type TemplatesContentProps = {
   onTemplateClick?: (id: string) => void;
-  onForkTemplateClick?: (id: string) => void;
+  onForkTemplateClick?: (template: Template) => void;
 };
 
 export function TemplatesContent(props: TemplatesContentProps) {

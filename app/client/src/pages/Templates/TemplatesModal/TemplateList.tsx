@@ -7,6 +7,7 @@ import Icon from "components/ads/Icon";
 import { TemplatesContent } from "..";
 import Filters from "../Filters";
 import LoadingScreen from "./LoadingScreen";
+import { Template } from "api/TemplatesApi";
 
 const Wrapper = styled.div`
   display: flex;
@@ -39,8 +40,8 @@ type TemplateListProps = {
 
 function TemplateList(props: TemplateListProps) {
   const dispatch = useDispatch();
-  const onForkTemplateClick = (id: string) => {
-    dispatch(importTemplateIntoApplication(id));
+  const onForkTemplateClick = (template: Template) => {
+    dispatch(importTemplateIntoApplication(template.id, template.title));
   };
   const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
 

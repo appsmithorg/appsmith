@@ -43,6 +43,7 @@ import WidgetInfo from "../WidgetInfo";
 import PageSelection from "./PageSelection";
 import TemplateComponent from "../Template";
 import LoadingScreen from "./LoadingScreen";
+import { Template } from "api/TemplatesApi";
 
 const breakpointColumnsObject = {
   default: 4,
@@ -115,8 +116,8 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
     }
   };
 
-  const onForkTemplateClick = (id: string) => {
-    dispatch(importTemplateIntoApplication(id));
+  const onForkTemplateClick = (template: Template) => {
+    dispatch(importTemplateIntoApplication(template.id, template.title));
   };
 
   if (isFetchingTemplate || isImportingTemplateToApp) {
@@ -238,7 +239,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
                       onClick={() => {
                         onSimilarTemplateClick(template.id);
                       }}
-                      onForkTemplateClick={onForkTemplateClick}
+                      onForkTemplateClick={() => onForkTemplateClick(template)}
                       template={template}
                     />
                   ))}
@@ -249,7 +250,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
         </div>
         <PageSelection
           pageNames={currentTemplate.pageNames || []}
-          templateId={props.templateId}
+          template={currentTemplate}
         />
       </Body>
     </Wrapper>
