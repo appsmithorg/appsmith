@@ -4,10 +4,10 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -170,7 +170,7 @@ public class ThemeServiceTest {
         Mono<String> defaultThemeIdMono = themeService.getDefaultThemeId().cache();
 
         Application application = createApplication("api_user", Set.of(MANAGE_APPLICATIONS));
-        application.setOrganizationId("theme-test-org-id");
+        application.setWorkspaceId("theme-test-org-id");
         Mono<Theme> applicationThemeMono = defaultThemeIdMono
                 .flatMap(defaultThemeId -> {
                     application.setEditModeThemeId(defaultThemeId);
@@ -186,7 +186,7 @@ public class ThemeServiceTest {
         StepVerifier.create(applicationThemeMono).assertNext(theme -> {
             assertThat(theme.isSystemTheme()).isTrue();
             assertThat(theme.getApplicationId()).isNull();
-            assertThat(theme.getOrganizationId()).isNull();
+            assertThat(theme.getWorkspaceId()).isNull();
         }).verifyComplete();
     }
 
@@ -202,7 +202,7 @@ public class ThemeServiceTest {
         customTheme.setPolicies(Set.copyOf(themePolicies));
 
         Application application = createApplication("api_user", Set.of(MANAGE_APPLICATIONS));
-        application.setOrganizationId("theme-test-org-id");
+        application.setWorkspaceId("theme-test-org-id");
 
         Mono<Tuple2<Theme, Theme>> tuple2Mono = themeService.save(customTheme)
                 .flatMap(savedTheme -> {
@@ -227,7 +227,7 @@ public class ThemeServiceTest {
             Theme oldTheme = themeTuple2.getT2();
             assertThat(currentTheme.isSystemTheme()).isTrue();
             assertThat(currentTheme.getApplicationId()).isNull();
-            assertThat(currentTheme.getOrganizationId()).isNull();
+            assertThat(currentTheme.getWorkspaceId()).isNull();
             assertThat(oldTheme.getId()).isNull();
         }).verifyComplete();
     }
@@ -310,7 +310,7 @@ public class ThemeServiceTest {
                     assertThat(clonnedTheme.getId()).isNotEqualTo(srcTheme.getId());
                     assertThat(clonnedTheme.getDisplayName()).isEqualTo(srcTheme.getDisplayName());
                     assertThat(clonnedTheme.getApplicationId()).isNull();
-                    assertThat(clonnedTheme.getOrganizationId()).isNull();
+                    assertThat(clonnedTheme.getWorkspaceId()).isNull();
                 })
                 .verifyComplete();
     }
@@ -590,7 +590,7 @@ public class ThemeServiceTest {
         Mono<Tuple3<List<Theme>, Theme, Application>> tuple3Mono = themeService.save(customTheme).flatMap(theme -> {
             Application application = createApplication("api_user", Set.of(MANAGE_APPLICATIONS));
             application.setEditModeThemeId(theme.getId());
-            application.setOrganizationId("theme-test-org-id");
+            application.setWorkspaceId("theme-test-org-id");
             return applicationRepository.save(application);
         }).flatMap(application -> {
             Theme theme = new Theme();
@@ -608,7 +608,7 @@ public class ThemeServiceTest {
             Application application = tuple3.getT3();
             assertThat(availableThemes.size()).isEqualTo(5); // one custom theme + 4 system themes
             assertThat(persistedTheme.getApplicationId()).isNotEmpty(); // theme should have application id set
-            assertThat(persistedTheme.getOrganizationId()).isEqualTo("theme-test-org-id"); // theme should have org id set
+            assertThat(persistedTheme.getWorkspaceId()).isEqualTo("theme-test-org-id"); // theme should have org id set
             assertThat(policyUtils.isPermissionPresentForUser(
                     persistedTheme.getPolicies(), READ_THEMES.getValue(), "api_user")
             ).isTrue();
@@ -623,7 +623,7 @@ public class ThemeServiceTest {
     @Test
     public void persistCurrentTheme_WhenSystemThemeIsSet_NewApplicationThemeCreated() {
         Application application = createApplication("api_user", Set.of(MANAGE_APPLICATIONS));
-        application.setOrganizationId("theme-test-org-id");
+        application.setWorkspaceId("theme-test-org-id");
         Mono<Tuple2<List<Theme>, Theme>> tuple2Mono = themeService.getDefaultThemeId()
                 .flatMap(defaultThemeId -> {
                     application.setEditModeThemeId(defaultThemeId);
@@ -645,7 +645,7 @@ public class ThemeServiceTest {
             assertThat(availableThemes.size()).isEqualTo(5); // one custom theme + 4 system themes
             assertThat(currentTheme.isSystemTheme()).isFalse();
             assertThat(currentTheme.getApplicationId()).isNotEmpty(); // theme should have application id set
-            assertThat(currentTheme.getOrganizationId()).isEqualTo("theme-test-org-id"); // theme should have org id set
+            assertThat(currentTheme.getWorkspaceId()).isEqualTo("theme-test-org-id"); // theme should have org id set
             assertThat(policyUtils.isPermissionPresentForUser(currentTheme.getPolicies(), READ_THEMES.getValue(), "api_user")).isTrue();
             assertThat(policyUtils.isPermissionPresentForUser(currentTheme.getPolicies(), MANAGE_THEMES.getValue(), "api_user")).isTrue();
         }).verifyComplete();
@@ -717,7 +717,7 @@ public class ThemeServiceTest {
     @Test
     public void updateName_WhenCustomTheme_NameUpdated() {
         Application application = createApplication("api_user", Set.of(MANAGE_APPLICATIONS));
-        application.setOrganizationId("test-org");
+        application.setWorkspaceId("test-org");
 
         Mono<Theme> updateThemeNameMono = themeService.getDefaultThemeId()
                 .flatMap(s -> {
@@ -742,7 +742,7 @@ public class ThemeServiceTest {
             assertThat(theme.getDisplayName()).isEqualTo("new display name");
             assertThat(theme.isSystemTheme()).isFalse();
             assertThat(theme.getApplicationId()).isNotNull();
-            assertThat(theme.getOrganizationId()).isEqualTo("test-org");
+            assertThat(theme.getWorkspaceId()).isEqualTo("test-org");
             assertThat(theme.getConfig()).isNotNull();
         }).verifyComplete();
     }
