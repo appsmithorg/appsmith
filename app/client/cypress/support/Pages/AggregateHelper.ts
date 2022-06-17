@@ -658,18 +658,12 @@ export class AggregateHelper {
       if ($body.get(this.locator._codeEditorWrapper)?.length > 0) {
         let count = $body.get(this.locator._codeEditorWrapper)?.length || 0;
         while (count) {
-          cy.log(`found wrappers: ${count}`);
           $body
             .get(this.locator._codeEditorWrapper)
             ?.eq(0)
             .then(($el: any) => $el.click({ force: true }).wait(100));
           count = $body.find(this.locator._codeEditorWrapper)?.length || 0;
         }
-        // $body
-        //   .find(this.locator._codeEditorWrapper)
-        //   ?.each((index: number, $el: any) => {
-        //     cy.wrap($el).click({ force: true });
-        //   });
       }
     });
     cy.wait(1000);
