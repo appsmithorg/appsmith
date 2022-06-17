@@ -54,7 +54,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     GenerateCRUDNValidateDeployPage("ABW", "Aruba", "North America", "Code");
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
     ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
@@ -68,7 +68,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     });
 
     deployMode.DeployApp();
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
@@ -107,7 +107,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       "customerNumber",
     );
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -126,10 +126,10 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       "employeeNumber",
     );
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    ee.expandCollapseEntity("PAGES");
+    ee.ExpandCollapseEntity("PAGES");
     ee.ActionContextMenuByEntityName("Employees", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
   });
@@ -170,7 +170,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
 
-    ee.expandCollapseEntity(dsName);
+    ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("productlines"));
   });
@@ -225,7 +225,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     dataSources.AssertJSONFormHeader(0, 0, "productLine");
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     // //Delete the test data
     // ee.ActionContextMenuByEntityName("Productlines", "Delete", "Are you sure?");
@@ -311,7 +311,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
 
-    ee.expandCollapseEntity(dsName);
+    ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("Stores"));
   });
@@ -340,7 +340,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       "store_id",
     );
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
   });
 
@@ -421,6 +421,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Confirm");
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.Sleep(2500);// for delete to take effect!
     table.AssertSelectedRow(0); //Control going back to 1st row in table
     dataSources.AssertJSONFormHeader(0, 0, "store_id");
   });
@@ -453,10 +454,10 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("15. Verify Add/Insert from Deploy page - on Stores - new record", () => {
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    ee.expandCollapseEntity("WIDGETS");
-    ee.expandCollapseEntity("Insert_Modal");
+    ee.ExpandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("Insert_Modal");
     ee.SelectEntityByName("insert_form");
     agHelper.Sleep(2000);
 
@@ -508,6 +509,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.Sleep(2000); //for Insert to reflect!
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.Sleep(3000); //for Insert to reflect!
     agHelper
       .GetElementLength(locator._jsonFormWidget)
       .then(($len) => expect($len).to.eq(1));
@@ -570,7 +572,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("17. Validate Deletion of the Newly Created Page - Stores", () => {
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
     ee.ActionContextMenuByEntityName("Stores", "Delete", "Are you sure?");
@@ -588,7 +590,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
-    ee.expandCollapseEntity(dsName);
+    ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("Stores"));
   });
