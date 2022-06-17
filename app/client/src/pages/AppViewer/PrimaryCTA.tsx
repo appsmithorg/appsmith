@@ -151,7 +151,12 @@ function PrimaryCTA(props: Props) {
         />
       );
     }
-  }, [url, canEdit]);
+  }, [
+    url,
+    canEdit,
+    selectedTheme.properties.colors.primaryColor,
+    selectedTheme.properties.borderRadius.appBorderRadius,
+  ]);
 
   return <div>{PrimaryCTA}</div>;
 }
