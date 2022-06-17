@@ -761,7 +761,7 @@ jobs:
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
-    runs-on: buildjet-8vcpu-ubuntu-2004
+    runs-on: buildjet-4vcpu-ubuntu-2004
     defaults:
       run:
         working-directory: app/client
