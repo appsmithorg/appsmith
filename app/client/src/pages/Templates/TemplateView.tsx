@@ -41,6 +41,7 @@ import {
   VIEW_ALL_TEMPLATES,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { templateIdUrl } from "RouteBuilder";
 
 const breakpointColumnsObject = {
   default: 4,
@@ -76,7 +77,7 @@ const Title = styled(Text)`
   display: inline-block;
 `;
 
-const IframeWrapper = styled.div`
+export const IframeWrapper = styled.div`
   height: 734px;
   width: 100%;
   border-radius: 16px;
@@ -90,17 +91,17 @@ const IframeWrapper = styled.div`
   }
 `;
 
-const DescriptionWrapper = styled.div`
+export const DescriptionWrapper = styled.div`
   display: flex;
   gap: ${(props) => props.theme.spaces[17]}px;
   margin-top: ${(props) => props.theme.spaces[15]}px;
 `;
 
-const DescriptionColumn = styled.div`
+export const DescriptionColumn = styled.div`
   flex: 1;
 `;
 
-const Section = styled.div`
+export const Section = styled.div`
   padding-top: ${(props) => props.theme.spaces[12]}px;
 
   .section-content {
@@ -116,7 +117,7 @@ const Section = styled.div`
   }
 `;
 
-const StyledDatasourceChip = styled(DatasourceChip)`
+export const StyledDatasourceChip = styled(DatasourceChip)`
   padding: ${(props) =>
     `${props.theme.spaces[4]}px ${props.theme.spaces[10]}px`};
   .image {
@@ -129,19 +130,19 @@ const StyledDatasourceChip = styled(DatasourceChip)`
   }
 `;
 
-const TemplatesWidgetList = styled.div`
+export const TemplatesWidgetList = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: ${(props) => props.theme.spaces[12]}px;
 `;
 
-const TemplateDatasources = styled.div`
+export const TemplateDatasources = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: ${(props) => props.theme.spaces[4]}px;
 `;
 
-const SimilarTemplatesWrapper = styled.div`
+export const SimilarTemplatesWrapper = styled.div`
   padding-right: 132px;
   padding-left: 132px;
   background-color: rgba(248, 248, 248, 0.5);
@@ -157,7 +158,7 @@ const SimilarTemplatesWrapper = styled.div`
   }
 `;
 
-const IframeTopBar = styled.div`
+export const IframeTopBar = styled.div`
   width: 100%;
   background-color: ${Colors.GEYSER_LIGHT};
   border-radius: 8px 8px 0px 0px;
@@ -212,7 +213,7 @@ const LoadingWrapper = styled.div`
   }
 `;
 
-const SimilarTemplatesTitleWrapper = styled.div`
+export const SimilarTemplatesTitleWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -419,7 +420,10 @@ function TemplateView() {
                   {similarTemplates.map((template) => (
                     <Template
                       key={template.id}
-                      onClick={() => onSimilarTemplateClick(template)}
+                      onClick={() => {
+                        onSimilarTemplateClick(template);
+                        history.push(templateIdUrl({ id: template.id }));
+                      }}
                       template={template}
                     />
                   ))}

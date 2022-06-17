@@ -148,7 +148,7 @@ function TemplateListLoader() {
 }
 
 type TemplatesContentProps = {
-  onTemplateClick: () => void;
+  onTemplateClick?: (id: string) => void;
   onForkTemplateClick?: (id: string) => void;
 };
 
@@ -219,7 +219,7 @@ function Templates() {
         </SecondaryWrapper>
       </SidebarWrapper>
       <TemplateListWrapper>
-        <TemplatesContent onTemplateClick={() => null} />
+        <TemplatesContent />
       </TemplateListWrapper>
     </PageWrapper>
   );

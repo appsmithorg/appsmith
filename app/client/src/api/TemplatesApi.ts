@@ -16,6 +16,7 @@ export interface Template {
   functions: string[];
   useCases: string[];
   datasources: string[];
+  pageNames: string[];
 }
 
 export type FilterKeys = "widgets" | "datasources";
@@ -63,10 +64,12 @@ class TemplatesAPI extends Api {
     templateId: string,
     applicationId: string,
     organizationId: string,
+    body?: string[],
   ): AxiosPromise<ImportTemplateResponse> {
     return Api.post(
       TemplatesAPI.baseUrl +
         `/app-templates/${templateId}/merge/${applicationId}/${organizationId}`,
+      body,
     );
   }
 }

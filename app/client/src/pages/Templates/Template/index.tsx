@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import history from "utils/history";
 import { Template as TemplateInterface } from "api/TemplatesApi";
 import Button, { Size } from "components/ads/Button";
 import Tooltip from "components/ads/Tooltip";
@@ -12,6 +13,7 @@ import {
   createMessage,
   FORK_THIS_TEMPLATE,
 } from "@appsmith/constants/messages";
+import { templateIdUrl } from "RouteBuilder";
 
 const TemplateWrapper = styled.div`
   border: 1px solid ${Colors.GEYSER_LIGHT};
@@ -94,7 +96,7 @@ const StyledButton = styled(Button)`
 export interface TemplateProps {
   template: TemplateInterface;
   size?: string;
-  onClick?: () => void;
+  onClick?: (id: string) => void;
   onForkTemplateClick?: (id: string) => void;
 }
 
@@ -109,7 +111,7 @@ const Template = (props: TemplateProps) => {
 export interface TemplateLayoutProps {
   template: TemplateInterface;
   className?: string;
-  onClick?: () => void;
+  onClick?: (id: string) => void;
   onForkTemplateClick?: (id: string) => void;
 }
 
@@ -124,7 +126,11 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   } = props.template;
   const [showForkModal, setShowForkModal] = useState(false);
   const onClick = () => {
-    props.onClick && props.onClick();
+    if (props.onClick) {
+      props.onClick(id);
+    } else {
+      history.push(templateIdUrl({ id }));
+    }
   };
 
   const onForkButtonTrigger = (e: React.MouseEvent<HTMLElement>) => {
@@ -171,7 +177,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               <Tooltip content={createMessage(FORK_THIS_TEMPLATE)}>
                 <StyledButton
                   className="t--fork-template fork-button"
-                  icon="fork-2"
+                  icon="plus"
                   size={Size.medium}
                   tag="button"
                 />

@@ -7,6 +7,8 @@ import Filters from "../Filters";
 
 const Wrapper = styled.div`
   display: flex;
+  height: 85vh;
+  overflow: auto;
 `;
 
 const FilterWrapper = styled.div`
@@ -20,7 +22,11 @@ const ListWrapper = styled.div`
   overflow: auto;
 `;
 
-function TemplateList() {
+type TemplateListProps = {
+  onTemplateClick: (id: string) => void;
+};
+
+function TemplateList(props: TemplateListProps) {
   const dispatch = useDispatch();
   const onTemplateClick = () => {
     // console.log("onTemplateClick");
@@ -37,7 +43,7 @@ function TemplateList() {
       <ListWrapper>
         <TemplatesContent
           onForkTemplateClick={onForkTemplateClick}
-          onTemplateClick={onTemplateClick}
+          onTemplateClick={props.onTemplateClick}
         />
       </ListWrapper>
     </Wrapper>

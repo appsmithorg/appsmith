@@ -22,7 +22,7 @@ import {
 import { validateResponse } from "./ErrorSagas";
 import { builderURL } from "RouteBuilder";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { getCurrentOrgId } from "@appsmith/selectors/organizationSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { fetchApplication } from "actions/applicationActions";
 import { APP_MODE } from "entities/App";
 import { getPageList } from "selectors/entitiesSelector";
@@ -178,15 +178,21 @@ function* postPageAdditionSaga(pageId: string) {
   }
 }
 
-function* forkTemplateToApplicationSaga(action: ReduxAction<string>) {
+function* forkTemplateToApplicationSaga(
+  action: ReduxAction<{ templateId: string; pageNames?: string[] }>,
+) {
   try {
+    const pagesToImport = action.payload.pageNames
+      ? action.payload.pageNames
+      : undefined;
     const applicationId: string = yield select(getCurrentApplicationId);
-    const orgId: string = yield select(getCurrentOrgId);
+    const orgId: string = yield select(getCurrentWorkspaceId);
     const response: ImportTemplateResponse = yield call(
       TemplatesAPI.importTemplateToApplication,
-      action.payload,
+      action.payload.templateId,
       applicationId,
       orgId,
+      pagesToImport,
     );
     const currentListOfPages: PageListPayload = yield select(getPageList);
     // To fetch the new set of pages after merging the template into the existing application

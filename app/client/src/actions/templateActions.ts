@@ -52,7 +52,13 @@ export const showTemplatesModal = (payload: boolean) => ({
   payload,
 });
 
-export const importTemplateIntoApplication = (templateId: string) => ({
+export const importTemplateIntoApplication = (
+  templateId: string,
+  pageNames?: string[],
+) => ({
   type: ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_INIT,
-  payload: templateId,
+  payload: {
+    templateId,
+    pageNames,
+  },
 });

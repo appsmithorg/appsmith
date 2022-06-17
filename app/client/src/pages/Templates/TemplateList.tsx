@@ -28,7 +28,7 @@ const Wrapper = styled.div`
 
 interface TemplateListProps {
   templates: TemplateInterface[];
-  onTemplateClick?: () => void;
+  onTemplateClick?: (id: string) => void;
   onForkTemplateClick?: (id: string) => void;
 }
 
