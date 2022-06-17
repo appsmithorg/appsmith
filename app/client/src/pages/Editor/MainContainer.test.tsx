@@ -12,6 +12,7 @@ import { sagasToRunForTests } from "test/sagas";
 import { all } from "@redux-saga/core/effects";
 import {
   MockApplication,
+  mockCreateCanvasWidget,
   mockGetCanvasWidgetDsl,
   syntheticTestMouseEvent,
 } from "test/testCommon";
@@ -89,6 +90,13 @@ const renderNestedComponent = () => {
 describe("Drag and Drop widgets into Main container", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
+
+  jest
+    .spyOn(utilities, "createCanvasWidget")
+    .mockImplementation(mockCreateCanvasWidget);
+  jest
+    .spyOn(utilities, "computeMainContainerWidget")
+    .mockImplementation((widget) => widget as any);
   jest
     .spyOn(useDynamicAppLayoutHook, "useDynamicAppLayout")
     .mockImplementation(() => [true, jest.fn()]);
@@ -451,6 +459,7 @@ describe("Drag and Drop widgets into Main container", () => {
       children,
     });
     dsl.bottomRow = 250;
+
     spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
     mockGetIsFetchingPage.mockImplementation(() => false);
 

@@ -24,6 +24,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   ) {
     const {
       children,
+      renderMode,
       skipWidgetPropsHydration,
       type,
       widgetId,
@@ -82,6 +83,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
       widgetProps.isLoading = isLoading;
       widgetProps.childWidgets = childWidgets;
+    }
+
+    if (widgetProps) {
+      widgetProps.renderMode = renderMode;
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
