@@ -20,6 +20,11 @@ import { AppTheme } from "entities/AppTheming";
 import { TableWidgetProps } from "../constants";
 import { get } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
+import { ButtonVariantTypes } from "components/constants";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -553,4 +558,54 @@ export const createColumn = (props: TableWidgetProps, baseName: string) => {
     isDisabled: false,
     ...getTableStyles(props),
   };
+};
+
+export const createEditActionColumn = (props: TableWidgetProps) => {
+  const themeProps: Record<string, string> = {};
+
+  if (props.childStylesheet[ColumnTypes.EDIT_ACTIONS]) {
+    Object.entries(props.childStylesheet[ColumnTypes.EDIT_ACTIONS]).forEach(
+      ([key, value]) => {
+        const { jsSnippets, stringSegments } = getDynamicBindings(
+          value as string,
+        );
+
+        const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+        themeProps[
+          key
+        ] = `{{${props.widgetName}.processedTableData.map((currentRow, currentIndex) => ( ${js}))}}`;
+      },
+    );
+  }
+
+  const column = {
+    ...createColumn(props, "EditActions"),
+    ...getEditActionColumnProperties(),
+    ...themeProps,
+    columnType: ColumnTypes.EDIT_ACTIONS,
+    label: "Save / Discard",
+    discardButtonVariant: ButtonVariantTypes.TERTIARY,
+    discardButtonColor: Colors.DANGER_SOLID,
+  };
+  const columnOrder = props.columnOrder || [];
+  const editActionDynamicProperties = getEditActionColumnDynamicProperties(
+    props.widgetName,
+  );
+
+  return [
+    {
+      propertyPath: `primaryColumns.${column.id}`,
+      propertyValue: column,
+    },
+    {
+      propertyPath: `columnOrder`,
+      propertyValue: [...columnOrder, column.id],
+    },
+    ...Object.entries(editActionDynamicProperties).map(([key, value]) => ({
+      propertyPath: `primaryColumns.${column.id}.${key}`,
+      propertyValue: value,
+      isDynamicPropertyPath: true,
+    })),
+  ];
 };

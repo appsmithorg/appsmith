@@ -8,7 +8,7 @@ import { ButtonVariantTypes } from "components/constants";
 import { hideByColumnType } from "../../propertyUtils";
 
 export default {
-  sectionName: "Discard Button Properties",
+  sectionName: "Discard Button",
   hidden: (props: TableWidgetProps, propertyPath: string) => {
     return hideByColumnType(
       props,
@@ -18,6 +18,69 @@ export default {
     );
   },
   children: [
+    {
+      propertyName: "isDiscardVisible",
+      dependencies: ["primaryColumns"],
+      label: "Visible",
+      helpText: "Controls the visibility of the discard button",
+      defaultValue: true,
+      controlType: "SWITCH",
+      customJSControl: "COMPUTE_VALUE_V2",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+    },
+    {
+      propertyName: "isDiscardDisabled",
+      label: "Disabled",
+      defaultValue: false,
+      controlType: "SWITCH",
+      customJSControl: "COMPUTE_VALUE_V2",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      dependencies: ["primaryColumns"],
+    },
+    {
+      propertyName: "discardActionLabel",
+      label: "Action label",
+      controlType: "COMPUTE_VALUE_V2",
+      dependencies: ["primaryColumns"],
+      isBindProperty: true,
+      isTriggerProperty: false,
+    },
+    {
+      propertyName: "discardButtonColor",
+      label: "Button Color",
+      controlType: "COLOR_PICKER",
+      helpText: "Changes the color of the button",
+      isJSConvertible: true,
+      customJSControl: "COMPUTE_VALUE_V2",
+      dependencies: ["primaryColumns"],
+      isBindProperty: true,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.TEXT,
+          params: {
+            regex: /^(?![<|{{]).+/,
+          },
+        },
+      },
+      isTriggerProperty: false,
+    },
     {
       propertyName: "discardButtonVariant",
       label: "Button Variant",
@@ -59,26 +122,6 @@ export default {
       },
     },
     {
-      propertyName: "discardButtonColor",
-      label: "Button Color",
-      controlType: "COLOR_PICKER",
-      helpText: "Changes the color of the button",
-      isJSConvertible: true,
-      customJSControl: "COMPUTE_VALUE_V2",
-      dependencies: ["primaryColumns"],
-      isBindProperty: true,
-      validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            regex: /^(?![<|{{]).+/,
-          },
-        },
-      },
-      isTriggerProperty: false,
-    },
-    {
       propertyName: "discardBorderRadius",
       label: "Border Radius",
       customJSControl: "COMPUTE_VALUE_V2",
@@ -94,14 +137,6 @@ export default {
           type: ValidationTypes.TEXT,
         },
       },
-    },
-    {
-      propertyName: "discardActionLabel",
-      label: "Action label",
-      controlType: "COMPUTE_VALUE_V2",
-      dependencies: ["primaryColumns"],
-      isBindProperty: true,
-      isTriggerProperty: false,
     },
     {
       propertyName: "discardActionIconName",
@@ -148,41 +183,6 @@ export default {
           allowedValues: ["center", "left", "right"],
         },
       },
-    },
-    {
-      propertyName: "isDiscardVisible",
-      dependencies: ["primaryColumns"],
-      label: "Visible",
-      helpText: "Controls the visibility of the discard button",
-      defaultValue: true,
-      controlType: "SWITCH",
-      customJSControl: "COMPUTE_VALUE_V2",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
-        params: {
-          type: ValidationTypes.BOOLEAN,
-        },
-      },
-    },
-    {
-      propertyName: "isDiscardDisabled",
-      label: "Disabled",
-      defaultValue: false,
-      controlType: "SWITCH",
-      customJSControl: "COMPUTE_VALUE_V2",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
-        params: {
-          type: ValidationTypes.BOOLEAN,
-        },
-      },
-      dependencies: ["primaryColumns"],
     },
   ],
 };

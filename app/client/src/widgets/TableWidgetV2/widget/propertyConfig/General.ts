@@ -9,7 +9,7 @@ import {
   totalRecordsCountValidation,
   uniqueColumnNameValidation,
   updateColumnOrderHook,
-  updateEditActionsColumnHook,
+  updateInlineEditingSaveOptionHook,
   updateInlineEditingOptionDropdownVisibilityHook,
 } from "../propertyUtils";
 import {
@@ -49,7 +49,11 @@ export default {
         updateColumnOrderHook,
         updateInlineEditingOptionDropdownVisibilityHook,
       ]),
-      dependencies: ["columnOrder", "childStylesheet"],
+      dependencies: [
+        "columnOrder",
+        "childStylesheet",
+        "inlineEditingSaveOption",
+      ],
       isBindProperty: false,
       isTriggerProperty: false,
       validation: {
@@ -96,7 +100,7 @@ export default {
           value: InlineEditingSaveOptions.CUSTOM,
         },
       ],
-      updateHook: updateEditActionsColumnHook,
+      updateHook: updateInlineEditingSaveOptionHook,
     },
     {
       helpText:

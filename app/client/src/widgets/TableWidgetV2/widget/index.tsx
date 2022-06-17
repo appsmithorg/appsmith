@@ -1570,10 +1570,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           [alias]: value,
         });
 
-        if (
-          onSubmit &&
-          this.props.inlineEditingSaveOption === InlineEditingSaveOptions.CUSTOM
-        ) {
+        if (onSubmit) {
           this.onColumnEvent({
             rowIndex: rowIndex,
             action: onSubmit,
