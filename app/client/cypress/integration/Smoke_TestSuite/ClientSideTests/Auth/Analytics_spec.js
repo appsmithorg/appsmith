@@ -24,7 +24,7 @@ describe("Checks for analytics initialization", function() {
     });
     cy.generateUUID().then((id) => {
       appId = id;
-      cy.CreateAppInFirstListedOrg(id);
+      cy.CreateAppInFirstListedWorkspace(id);
       localStorage.setItem("AppName", appId);
     });
     cy.wait(3000);
@@ -48,7 +48,7 @@ describe("Checks for analytics initialization", function() {
     });
     cy.generateUUID().then((id) => {
       appId = id;
-      cy.CreateAppInFirstListedOrg(id);
+      cy.CreateAppInFirstListedWorkspace(id);
       localStorage.setItem("AppName", appId);
     });
     cy.wait(3000);
@@ -72,7 +72,7 @@ describe("Checks for analytics initialization", function() {
     });
     cy.generateUUID().then((id) => {
       appId = id;
-      cy.CreateAppInFirstListedOrg(id);
+      cy.CreateAppInFirstListedWorkspace(id);
       localStorage.setItem("AppName", appId);
     });
     cy.wait(3000);

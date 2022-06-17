@@ -146,14 +146,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Application> findByIdAndOrganizationId(String id, String organizationId, AclPermission permission) {
-        return repository.findByIdAndOrganizationId(id, organizationId, permission)
+    public Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {
+        return repository.findByIdAndWorkspaceId(id, workspaceId, permission)
                 .flatMap(this::setTransientFields);
     }
 
     @Override
-    public Flux<Application> findByOrganizationId(String organizationId, AclPermission permission) {
-        return setTransientFields(repository.findByOrganizationId(organizationId, permission));
+    public Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
+        return setTransientFields(repository.findByWorkspaceId(workspaceId, permission));
     }
 
     @Override
@@ -232,9 +232,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         .onErrorResume(error -> {
                             if (error instanceof DuplicateKeyException) {
                                 // Error message : E11000 duplicate key error collection: appsmith.application index:
-                                // organization_application_deleted_gitApplicationMetadata_compound_index dup key:
+                                // workspace_application_deleted_gitApplicationMetadata_compound_index dup key:
                                 // { organizationId: "******", name: "AppName", deletedAt: null }
-                                if (error.getCause().getMessage().contains("organization_application_deleted_gitApplicationMetadata_compound_index")) {
+                                if (error.getCause().getMessage().contains("workspace_application_deleted_gitApplicationMetadata_compound_index")) {
                                     return Mono.error(
                                             new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME)
                                     );
@@ -301,8 +301,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Flux<Application> findAllApplicationsByOrganizationId(String organizationId) {
-        return repository.findByOrganizationId(organizationId);
+    public Flux<Application> findAllApplicationsByWorkspaceId(String workspaceId) {
+        return repository.findByWorkspaceId(workspaceId);
     }
 
     @Override
@@ -472,7 +472,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     assert application.getId() != null;
                     final Map<String, Object> data = Map.of(
                             "applicationId", application.getId(),
-                            "organizationId", application.getOrganizationId(),
+                            "organizationId", application.getWorkspaceId(),
                             "isRegeneratedKey", gitAuth.isRegeneratedKey()
                     );
 
@@ -600,13 +600,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByOrgId(String organizationId) {
-        return repository.getGitConnectedApplicationWithPrivateRepoCount(organizationId);
+    public Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByWorkspaceId(String workspaceId) {
+        return repository.getGitConnectedApplicationWithPrivateRepoCount(workspaceId);
     }
 
     @Override
-    public Flux<Application> getGitConnectedApplicationsByOrganizationId(String organizationId) {
-        return repository.getGitConnectedApplicationByOrganizationId(organizationId);
+    public Flux<Application> getGitConnectedApplicationsByWorkspaceId(String workspaceId) {
+        return repository.getGitConnectedApplicationByWorkspaceId(workspaceId);
     }
 
     public String getRandomAppCardColor() {
