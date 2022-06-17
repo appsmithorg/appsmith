@@ -344,7 +344,8 @@ class RichTextEditorWidget extends BaseWidget<
   onValueChange = (text: string) => {
     if (this.props.shouldReset) {
       this.props.updateWidgetMetaProperty("shouldReset", false);
-    } else if (!this.props.isDirty) {
+    }
+    if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
 

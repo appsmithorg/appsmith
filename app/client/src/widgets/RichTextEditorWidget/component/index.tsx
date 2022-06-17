@@ -93,7 +93,8 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
 
   const [editorValue, setEditorValue] = useState<string>(props.value as string);
   const initialRender = useRef(true);
-  const isTyped = useRef(false);
+  const editorRef = useRef<any>(null);
+  const isTyped = useRef<boolean>(false);
 
   const toolbarConfig =
     "insertfile undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | forecolor backcolor emoticons' | help";
@@ -103,24 +104,13 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
       // avoid updating value, when there is no actual change.
       if (newValue !== editorValue) {
         const isEditorDirty = editor.isDirty();
-        setEditorValue(newValue);
-        isTyped.current = true;
-
-        if (isTyped.current) {
-          if (newValue === "") {
-            props.onValueChange(newValue);
-            isTyped.current = false;
-          } else if (props.isDirty === false && isEditorDirty) {
-            setEditorValue(newValue);
-            editor.setDirty(false);
-          } else {
-            props.onValueChange(newValue);
-            isTyped.current = false;
-          }
+        if (isEditorDirty || isTyped.current) {
+          setEditorValue(newValue);
+          props.onValueChange(newValue);
         }
       }
     },
-    [props.onValueChange, props.value, editorValue, props.isDirty],
+    [props.onValueChange, props.value, editorValue],
   );
 
   // As this useEffect sets the initialRender.current value as false and order of hooks matter,
@@ -132,6 +122,10 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
       initialRender.current = false;
     }
   }, [props.value]);
+
+  useEffect(() => {
+    editorRef.current?.setDirty(props.isDirty);
+  }, [props.isDirty]);
 
   return (
     <StyledRTEditor
@@ -178,6 +172,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             ],
             contextmenu: "link useBrowserSpellcheck image table",
             setup: function(editor) {
+              editorRef.current = editor;
               editor.ui.registry.addMenuItem("useBrowserSpellcheck", {
                 text: `Use "${
                   isMacOs() ? "Control" : "Ctrl"
@@ -204,6 +199,12 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           }}
           key={`editor_${props.isToolbarHidden}`}
           onEditorChange={handleEditorChange}
+          onKeyDown={() => {
+            isTyped.current = true;
+          }}
+          onKeyUp={() => {
+            isTyped.current = false;
+          }}
           tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/tinymce.min.js"
           toolbar={props.isToolbarHidden ? false : toolbarConfig}
           value={editorValue}
