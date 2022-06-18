@@ -365,6 +365,7 @@ export function* executeFunction(collectionName: string, action: JSAction) {
   const { errors, result } = response;
   const isDirty = !!errors.length;
 
+  // "not defined" sentry error log, is catched here.
   yield call(evalErrorHandler, errors);
   return { result, isDirty };
 }

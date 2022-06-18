@@ -291,9 +291,8 @@ export function* evalErrorHandler(
         break;
       }
       default: {
-        // it's catching almost "() is not defined" issue.
-        // we need to disable log here?
-        Sentry.captureException(error);
+        // it's catching almost "() is not defined" issue. we don't need to log on sentry
+        // Sentry.captureException(error);
         log.debug(error);
       }
     }
