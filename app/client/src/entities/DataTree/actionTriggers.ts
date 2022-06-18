@@ -89,7 +89,7 @@ export type StoreValueActionDescription = {
     key: string;
     value: string;
     persist: boolean;
-    uniqueRequestId: string;
+    uniqueActionRequestId: string;
   };
 };
 
@@ -115,6 +115,7 @@ export type ResetWidgetDescription = {
   payload: {
     widgetName: string;
     resetChildren: boolean;
+    uniqueActionRequestId: string;
   };
 };
 

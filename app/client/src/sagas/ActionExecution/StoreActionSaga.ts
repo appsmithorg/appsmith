@@ -40,15 +40,15 @@ export default function* storeValueLocally(
     });
   }
   /* It is possible that user calls multiple storeValue function together, in such case we need to track completion of each action separately
-  We use uniqueRequestId to differentiate each storeValueAction here.
+  We use uniqueActionRequestId to differentiate each storeValueAction here.
   */
   while (true) {
     const returnedAction: StoreValueActionDescription = yield take(
       updateAppStoreEvaluated().type,
     );
-    const { uniqueRequestId } = returnedAction.payload;
+    const { uniqueActionRequestId } = returnedAction.payload;
 
-    if (uniqueRequestId === action.uniqueRequestId) {
+    if (uniqueActionRequestId === action.uniqueActionRequestId) {
       break;
     }
   }

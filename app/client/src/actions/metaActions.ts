@@ -4,6 +4,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
 import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
+import { ResetWidgetDescription } from "entities/DataTree/actionTriggers";
 
 export interface UpdateWidgetMetaPropertyPayload {
   widgetId: string;
@@ -26,21 +27,31 @@ export const updateWidgetMetaPropAndEval = (
   });
 };
 
+export const resetWidgetMetaEvaluated = (
+  payload?: ResetWidgetDescription["payload"],
+) => ({
+  type: ReduxActionTypes.RESET_WIDGET_META_EVALUATED,
+  payload,
+});
+
 export const resetWidgetMetaProperty = (
   widgetId: string,
+  payload?: ResetWidgetDescription["payload"],
 ): BatchAction<{ widgetId: string }> => {
   return batchAction({
     type: ReduxActionTypes.RESET_WIDGET_META,
     payload: {
       widgetId,
     },
-    postEvalActions: [{ type: ReduxActionTypes.RESET_WIDGET_META_EVALUATED }],
+    postEvalActions: [resetWidgetMetaEvaluated(payload)],
   });
 };
 
 export const resetChildrenMetaProperty = (
   widgetId: string,
-): ReduxAction<{ widgetId: string }> => {
+): ReduxAction<{
+  widgetId: string;
+}> => {
   return {
     type: ReduxActionTypes.RESET_CHILDREN_WIDGET_META,
     payload: {
