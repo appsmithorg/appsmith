@@ -300,9 +300,9 @@ describe("Add functions", () => {
     const key = "some";
     const value = "thing";
     const persist = false;
-    const uniqueRequestId = "kjebd";
+    const uniqueActionRequestId = "kjebd";
 
-    uniqueId.mockReturnValueOnce(uniqueRequestId);
+    uniqueId.mockReturnValueOnce(uniqueActionRequestId);
 
     expect(dataTreeWithFunctions.storeValue(key, value, persist)).resolves.toBe(
       {},
@@ -319,7 +319,7 @@ describe("Add functions", () => {
             key,
             value,
             persist,
-            uniqueRequestId,
+            uniqueActionRequestId,
           },
         },
       },

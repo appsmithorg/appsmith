@@ -10,7 +10,7 @@ import { getAppStoreData } from "selectors/entitiesSelector";
 import { StoreValueActionDescription } from "entities/DataTree/actionTriggers";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { updateAppStoreEvaluated } from "actions/pageActions";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export default function* storeValueLocally(
   action: StoreValueActionDescription["payload"],
@@ -40,15 +40,18 @@ export default function* storeValueLocally(
     });
   }
   /* It is possible that user calls multiple storeValue function together, in such case we need to track completion of each action separately
-  We use uniqueRequestId to differentiate each storeValueAction here.
+  We use uniqueActionRequestId to differentiate each storeValueAction here.
   */
   while (true) {
     const returnedAction: StoreValueActionDescription = yield take(
-      updateAppStoreEvaluated().type,
+      ReduxActionTypes.UPDATE_APP_STORE_EVALUATED,
     );
-    const { uniqueRequestId } = returnedAction.payload;
+    if (!returnedAction?.payload?.uniqueActionRequestId) {
+      break;
+    }
 
-    if (uniqueRequestId === action.uniqueRequestId) {
+    const { uniqueActionRequestId } = returnedAction.payload;
+    if (uniqueActionRequestId === action.uniqueActionRequestId) {
       break;
     }
   }
