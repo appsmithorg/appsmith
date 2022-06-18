@@ -61,7 +61,7 @@ describe("Layout OnLoad Actions tests", function() {
     //apiPage.RunAPI();
 
     //Adding dependency in right order matters!
-    ee.expandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("WIDGETS");
     ee.SelectEntityByName("Image1");
     jsEditor.EnterJSContext("Image", `{{RandomFlora.data}}`, true);
 
@@ -162,7 +162,7 @@ describe("Layout OnLoad Actions tests", function() {
       );
     });
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function() {

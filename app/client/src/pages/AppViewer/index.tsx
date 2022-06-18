@@ -40,12 +40,12 @@ import {
 } from "actions/controlActions";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
+import { getShowBrandingBadge } from "@appsmith/selectors/workspaceSelectors";
 import { fetchPublishedPage } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { initAppViewer } from "actions/initActions";
-import { getShowBrandingBadge } from "@appsmith/selectors/organizationSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -184,6 +184,10 @@ function AppViewer(props: Props) {
     }
 
     document.body.style.fontFamily = appFontFamily;
+
+    return function reset() {
+      document.body.style.fontFamily = "inherit";
+    };
   }, [selectedTheme.properties.fontFamily.appFont]);
 
   /**
