@@ -123,7 +123,7 @@ export class HomePage {
     role: string,
   ) {
     const successMessage = "The user has been invited successfully";
-    this.stubPostHeaderReq();
+    this.StubPostHeaderReq();
     cy.get(this._workspaceList(workspaceName))
       .scrollIntoView()
       .should("be.visible");
@@ -147,7 +147,7 @@ export class HomePage {
     cy.contains(successMessage);
   }
 
-  public stubPostHeaderReq() {
+  public StubPostHeaderReq() {
     cy.intercept("POST", "/api/v1/users/invite", (req) => {
       req.headers["origin"] = "Cypress";
     }).as("mockPostInvite");
