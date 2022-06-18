@@ -302,10 +302,18 @@ export function* logSuccessfulBindings(
   unEvalTree: DataTree,
   dataTree: DataTree,
   evaluationOrder: string[],
+  isCreateFirstTree: boolean,
 ) {
   const appMode: APP_MODE = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
   if (!evaluationOrder) return;
+
+  if (isCreateFirstTree) {
+    AnalyticsUtil.logEvent("INITIAL_EVALUATION_ORDER", {
+      evaluationOrder,
+    });
+    return;
+  }
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
       evaluatedPath,

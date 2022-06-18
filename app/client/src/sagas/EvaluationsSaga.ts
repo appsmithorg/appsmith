@@ -97,6 +97,18 @@ let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 const worker = new GracefulWorkerService(Worker);
 
+export type EvalTreePayload = {
+  dataTree: DataTree;
+  dependencies: Record<string, string[]>;
+  errors: EvalError[];
+  evalMetaUpdates: EvalMetaUpdates;
+  evaluationOrder: string[];
+  jsUpdates: Record<string, JSUpdate>;
+  logs: any[];
+  unEvalUpdates: DataTreeDiff[];
+  isCreateFirstTree: boolean;
+};
+
 function* evaluateTreeSaga(
   postEvalActions?: Array<AnyReduxAction>,
   shouldReplay?: boolean,
@@ -132,16 +144,8 @@ function* evaluateTreeSaga(
     jsUpdates,
     logs,
     unEvalUpdates,
-  }: {
-    dataTree: DataTree;
-    dependencies: Record<string, string[]>;
-    errors: EvalError[];
-    evalMetaUpdates: EvalMetaUpdates;
-    evaluationOrder: string[];
-    jsUpdates: Record<string, JSUpdate>;
-    logs: any[];
-    unEvalUpdates: DataTreeDiff[];
-  } = workerResponse;
+    isCreateFirstTree = false,
+  }: EvalTreePayload = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
@@ -177,6 +181,7 @@ function* evaluateTreeSaga(
       unevalTree,
       updatedDataTree,
       evaluationOrder,
+      isCreateFirstTree,
     );
 
     yield fork(updateTernDefinitions, updatedDataTree, unEvalUpdates);
