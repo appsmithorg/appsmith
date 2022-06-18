@@ -123,7 +123,9 @@ describe("Klona clone test", () => {
     // mutate
     input.meta.nestedArray[0] = "abc";
     input.meta.nestedArray[1] = { a: "bc" };
-    input.meta.nestedObject.Input = "hello";
+    input.meta.nestedObject.Input = {
+      text: "hello",
+    };
 
     expect(
       isEqual(expected.meta.nestedArray[0], result.meta.nestedArray[0]),
