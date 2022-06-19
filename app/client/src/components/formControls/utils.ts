@@ -149,6 +149,7 @@ export const switchViewType = (
   const jsonData = get(values, pathForJsonData);
   const componentData = get(values, pathForComponentData);
   const currentData = get(values, configProperty);
+  const stringifiedCurrentData = JSON.stringify(currentData, null, "\t");
 
   if (newViewType === ViewTypes.JSON) {
     changeFormValue(formName, pathForComponentData, currentData);
@@ -160,7 +161,7 @@ export const switchViewType = (
         configProperty,
         isString(currentData)
           ? currentData
-          : JSON.stringify(currentData, null, "\t"),
+          : stringifiedCurrentData.replace(/\\/g, ""),
       );
     }
   } else {
