@@ -36,7 +36,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getCurrentOrgId } from "@appsmith/selectors/organizationSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 

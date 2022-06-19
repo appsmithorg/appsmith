@@ -11,14 +11,12 @@ import { QueryActionConfig } from "entities/Action";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages
-  // ReduxActionTypes.FETCH_PAGE_SUCCESS,
-  // ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
   ReduxActionTypes.FETCH_ALL_PAGE_ENTITY_COMPLETION,
 ];
+
 export const EVALUATE_REDUX_ACTIONS = [
   ...FIRST_EVAL_REDUX_ACTIONS,
   // Actions
-  ReduxActionTypes.FETCH_PLUGIN_AND_JS_ACTIONS_SUCCESS,
   ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS,
   ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
   ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,

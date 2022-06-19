@@ -79,11 +79,12 @@ import {
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 import { getLogToSentryFromResponse } from "utils/helpers";
-import { getCurrentOrg } from "selectors/organizationSelectors";
+import { getCurrentOrg } from "@appsmith/selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import { builderURL } from "RouteBuilder";
+import { APP_MODE } from "../entities/App";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -547,6 +548,7 @@ function* gitPullSaga(
         initEditor({
           pageId: currentPageId,
           branch: currentBranch,
+          mode: APP_MODE.EDIT,
         }),
       );
     }
