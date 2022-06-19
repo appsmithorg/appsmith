@@ -182,11 +182,41 @@ export const translateDiffEventToDataTreeDiffEvent = (
           },
         ];
       } else if (rhsChange || lhsChange) {
-        result.event = DataTreeDiffEvent.EDIT;
-        result.payload = {
-          propertyPath,
-          value: difference.rhs,
-        };
+        result = [
+          {
+            event: DataTreeDiffEvent.EDIT,
+            payload: {
+              propertyPath,
+              value: difference.rhs,
+            },
+          },
+        ];
+        /**
+         * If lhs is an array/object
+         * Add delete events for all memberExpressions
+         */
+        if (Array.isArray(difference.lhs)) {
+          difference.lhs.forEach((diff, idx) => {
+            (result as DataTreeDiff[]).push({
+              event: DataTreeDiffEvent.DELETE,
+              payload: {
+                propertyPath: `${propertyPath}[${idx}]`,
+              },
+            });
+          });
+        }
+
+        if (isTrueObject(difference.lhs)) {
+          Object.keys(difference.lhs).forEach((diffKey) => {
+            const path = `${propertyPath}.${diffKey}`;
+            return {
+              event: DataTreeDiffEvent.DELETE,
+              payload: {
+                propertyPath: path,
+              },
+            };
+          });
+        }
       } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to
         // old bindings being eligible
