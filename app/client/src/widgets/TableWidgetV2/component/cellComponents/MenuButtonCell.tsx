@@ -2,7 +2,7 @@ import React from "react";
 import { IconName } from "@blueprintjs/icons";
 import { Alignment } from "@blueprintjs/core";
 
-import { CellAlignment, MenuItems, VerticalAlignment } from "../Constants";
+import { BaseCellComponentProps, MenuItems } from "../Constants";
 import { ButtonVariant } from "components/constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
@@ -58,12 +58,10 @@ function MenuButton({
   );
 }
 
-export interface RenderMenuButtonProps {
-  compactMode: string;
+export interface RenderMenuButtonProps extends BaseCellComponentProps {
   isSelected: boolean;
   label: string;
   isDisabled: boolean;
-  isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete?: () => void) => void;
   isCompact?: boolean;
   menuItems: MenuItems;
@@ -73,14 +71,6 @@ export interface RenderMenuButtonProps {
   boxShadow?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
-  isHidden: boolean;
-  allowCellWrapping?: boolean;
-  horizontalAlignment?: CellAlignment;
-  verticalAlignment?: VerticalAlignment;
-  fontStyle?: string;
-  textColor?: string;
-  cellBackground?: string;
-  textSize?: string;
 }
 
 export function MenuButtonCell(props: RenderMenuButtonProps) {
@@ -110,7 +100,7 @@ export function MenuButtonCell(props: RenderMenuButtonProps) {
       textSize={textSize}
       verticalAlignment={verticalAlignment}
     >
-      <MenuButton {...props} iconName={props.iconName || undefined} />
+      <MenuButton {...props} iconName={props.iconName} />
     </CellWrapper>
   );
 }

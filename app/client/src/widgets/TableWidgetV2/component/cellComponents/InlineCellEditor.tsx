@@ -121,23 +121,25 @@ export function InlineCellEditor({
     [onDiscard, onSave],
   );
 
-  const onTextChange = useCallback((data: string) => {
-    setCursorPos(inputRef.current?.selectionStart);
-    onChange(data);
-  }, []);
+  const onTextChange = useCallback(
+    (data: string) => {
+      setCursorPos(inputRef.current?.selectionStart);
+      onChange(data);
+    },
+    [setCursorPos, onChange],
+  );
 
   useEffect(() => {
     setTimeout(() => {
       if (inputRef.current) {
+        inputRef.current.selectionStart = cursorPos;
+
         if (cursorPos < value.length) {
-          inputRef.current.selectionStart = cursorPos;
           inputRef.current.selectionEnd = cursorPos;
-        } else {
-          inputRef.current.selectionStart = cursorPos;
         }
       }
     }, 0);
-  }, [cursorPos, inputRef.current]);
+  }, [cursorPos, inputRef.current, value]);
 
   return (
     <Wrapper

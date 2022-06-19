@@ -10,6 +10,7 @@ import { Row } from "react-table";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isEqual } from "lodash";
 import { ColumnTypes, EditableCell } from "../constants";
+import { useCallback } from "react";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -253,6 +254,13 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     }
   };
 
+  const memoziedDisableDrag = useCallback(() => disableDrag(true), [
+    disableDrag,
+  ]);
+  const memoziedEnableDrag = useCallback(() => disableDrag(false), [
+    disableDrag,
+  ]);
+
   return (
     <Table
       accentColor={props.accentColor}
@@ -264,14 +272,10 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       compactMode={compactMode}
       data={tableData}
       delimiter={delimiter}
-      disableDrag={() => {
-        disableDrag(true);
-      }}
+      disableDrag={memoziedDisableDrag}
       editMode={editMode}
       editableCell={editableCell}
-      enableDrag={() => {
-        disableDrag(false);
-      }}
+      enableDrag={memoziedEnableDrag}
       filters={filters}
       handleResizeColumn={handleResizeColumn}
       height={height}

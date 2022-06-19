@@ -72,7 +72,7 @@ export default {
     {
       propertyName: "inlineEditingSaveOption",
       helpText: "choose the save option to save edited the cell",
-      label: "Show save button on",
+      label: "Update Mode",
       controlType: "DROP_DOWN",
       isBindProperty: true,
       isTriggerProperty: false,

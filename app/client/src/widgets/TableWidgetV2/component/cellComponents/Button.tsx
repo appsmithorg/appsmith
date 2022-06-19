@@ -9,13 +9,15 @@ const StyledButton = styled(BaseButton)`
   min-width: 40px;
 `;
 
-export function Button(props: {
+type ButtonProps = {
   isCellVisible: boolean;
   isSelected: boolean;
   isDisabled?: boolean;
   action: ButtonColumnActions;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
-}) {
+};
+
+export function Button(props: ButtonProps) {
   const [loading, setLoading] = useState(false);
   const onComplete = () => {
     setLoading(false);

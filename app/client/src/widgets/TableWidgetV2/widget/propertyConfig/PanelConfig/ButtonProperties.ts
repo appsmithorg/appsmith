@@ -33,7 +33,7 @@ export default {
       updateHook: updateIconAlignment,
       dependencies: ["primaryColumns", "columnOrder"],
       controlType: "ICON_SELECT",
-      customJSControl: "COMPUTE_VALUE_V2",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       defaultIconName: "add",
       isJSConvertible: true,
       isBindProperty: true,
@@ -59,7 +59,7 @@ export default {
       updateHook: updateIconAlignment,
       dependencies: ["primaryColumns", "columnOrder"],
       controlType: "ICON_SELECT",
-      customJSControl: "COMPUTE_VALUE_V2",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -104,7 +104,7 @@ export default {
     {
       propertyName: "buttonLabel",
       label: "Label",
-      controlType: "COMPUTE_VALUE_V2",
+      controlType: "TABLE_COMPUTE_VALUE",
       defaultValue: "Action",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.BUTTON]);
@@ -116,7 +116,7 @@ export default {
     {
       propertyName: "menuButtonLabel",
       label: "Label",
-      controlType: "COMPUTE_VALUE_V2",
+      controlType: "TABLE_COMPUTE_VALUE",
       defaultValue: "Open Menu",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
@@ -131,7 +131,7 @@ export default {
       controlType: "COLOR_PICKER",
       helpText: "Changes the color of the button",
       isJSConvertible: true,
-      customJSControl: "COMPUTE_VALUE_V2",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [
           ColumnTypes.BUTTON,
@@ -155,7 +155,7 @@ export default {
       propertyName: "buttonVariant",
       label: "Button Variant",
       controlType: "DROP_DOWN",
-      customJSControl: "COMPUTE_VALUE_V2",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       helpText: "Sets the variant",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -200,7 +200,7 @@ export default {
     {
       propertyName: "borderRadius",
       label: "Border Radius",
-      customJSControl: "COMPUTE_VALUE_V2",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       helpText: "Rounds the corners of the icon button's outer border edge",
       controlType: "BORDER_RADIUS_OPTIONS",
@@ -227,7 +227,7 @@ export default {
       helpText:
         "Enables you to cast a drop shadow from the frame of the widget",
       controlType: "BOX_SHADOW_OPTIONS",
-      customJSControl: "COMPUTE_VALUE_V2",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       updateHook: removeBoxShadowColorProp,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -252,7 +252,7 @@ export default {
       helpText: "Sets the custom color preset based on the menu button variant",
       label: "Menu Color",
       controlType: "COLOR_PICKER",
-      customJSControl: "COMPUTE_VALUE_V2",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,

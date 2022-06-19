@@ -1,19 +1,24 @@
 import React from "react";
+import { Cell, Row } from "react-table";
+import { ReactTableColumnProps } from "../Constants";
+import { EmptyCell, EmptyRow } from "../TableStyledWrappers";
 import { renderBodyCheckBoxCell } from "./CheckboxCell";
 
 export const renderEmptyRows = (
   rowCount: number,
-  columns: any,
+  columns: ReactTableColumnProps[],
   tableWidth: number,
-  page: any,
-  prepareRow: any,
+  page: Row<Record<string, unknown>>[],
+  prepareRow: (row: Row<Record<string, unknown>>) => void,
   multiRowSelection = false,
   accentColor: string,
   borderRadius: string,
 ) => {
   const rows: string[] = new Array(rowCount).fill("");
+
   if (page.length) {
     const row = page[0];
+
     return rows.map((item: string, index: number) => {
       prepareRow(row);
       const rowProps = {
@@ -24,13 +29,16 @@ export const renderEmptyRows = (
         <div {...rowProps} className="tr" key={index}>
           {multiRowSelection &&
             renderBodyCheckBoxCell(false, accentColor, borderRadius)}
-          {row.cells.map((cell: any, cellIndex: number) => {
+          {row.cells.map((cell: Cell<Record<string, unknown>>) => {
             const cellProps = cell.getCellProps();
-            if (columns[0]?.columnProperties?.cellBackground) {
+            if (
+              columns[0]?.columnProperties?.cellBackground &&
+              cellProps.style
+            ) {
               cellProps.style.background =
                 columns[0].columnProperties.cellBackground;
             }
-            return <div {...cellProps} className="td" key={cellIndex} />;
+            return <div {...cellProps} className="td" key={cellProps.key} />;
           })}
         </div>
       );
@@ -39,34 +47,24 @@ export const renderEmptyRows = (
     const tableColumns = columns.length
       ? columns
       : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
+
     return (
       <>
         {rows.map((row: string, index: number) => {
           return (
-            <div
-              className="tr"
-              key={index}
-              style={{
-                display: "flex",
-                flex: "1 0 auto",
-              }}
-            >
+            <EmptyRow className="tr" key={index}>
               {multiRowSelection &&
                 renderBodyCheckBoxCell(false, accentColor, borderRadius)}
               {tableColumns.map((column: any, colIndex: number) => {
                 return (
-                  <div
+                  <EmptyCell
                     className="td"
                     key={colIndex}
-                    style={{
-                      width: column.width + "px",
-                      boxSizing: "border-box",
-                      flex: `${column.width} 0 auto`,
-                    }}
+                    width={column.width}
                   />
                 );
               })}
-            </div>
+            </EmptyRow>
           );
         })}
       </>

@@ -1,5 +1,9 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import {
+  ColumnTypes,
+  DateInputFormat,
+  TableWidgetProps,
+} from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
 import {
   getBasePropertyPath,
@@ -22,7 +26,6 @@ export default {
       propertyName: "columnType",
       label: "Column Type",
       controlType: "DROP_DOWN",
-      customJSControl: "COMPUTE_VALUE_V2",
       options: [
         {
           label: "Plain Text",
@@ -77,8 +80,7 @@ export default {
     {
       propertyName: "displayText",
       label: "Display Text",
-      controlType: "COMPUTE_VALUE_V2",
-      customJSControl: "COMPUTE_VALUE_V2",
+      controlType: "TABLE_COMPUTE_VALUE",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
@@ -93,7 +95,7 @@ export default {
       propertyName: "alias",
       label: "Property name",
       controlType: "INPUT_TEXT",
-      customJSControl: "COMPUTE_VALUE_V2",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const columnId = propertyPath.match(/primaryColumns\.(.*)\.alias/);
         let isDerivedProperty = false;
@@ -134,7 +136,7 @@ export default {
         "The value computed & shown in each cell. Use {{currentRow}} to reference each row in the table. This property is not accessible outside the column settings.",
       propertyName: "computedValue",
       label: "Computed Value",
-      controlType: "COMPUTE_VALUE_V2",
+      controlType: "TABLE_COMPUTE_VALUE",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [
           ColumnTypes.DATE,
@@ -156,7 +158,7 @@ export default {
       helpText: "Controls the visibility of the cell in the column",
       defaultValue: true,
       controlType: "SWITCH",
-      customJSControl: "COMPUTE_VALUE_V2",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -174,7 +176,7 @@ export default {
       helpText: "Allows content of the cell to be wrapped",
       defaultValue: true,
       controlType: "SWITCH",
-      customJSControl: "COMPUTE_VALUE_V2",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -200,7 +202,7 @@ export default {
       helpText: "Controls the inline editablity of the cell in the column",
       defaultValue: false,
       controlType: "SWITCH",
-      customJSControl: "COMPUTE_VALUE_V2",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -222,7 +224,7 @@ export default {
       label: "Disabled",
       defaultValue: false,
       controlType: "SWITCH",
-      customJSControl: "COMPUTE_VALUE_V2",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -246,7 +248,7 @@ export default {
       helpText: "Decides if menu items will consume lesser space",
       label: "Compact",
       controlType: "SWITCH",
-      customJSControl: "COMPUTE_VALUE_V2",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
       validation: {
@@ -287,11 +289,11 @@ export default {
       options: [
         {
           label: "UNIX timestamp (s)",
-          value: "Epoch",
+          value: DateInputFormat.EPOCH,
         },
         {
           label: "UNIX timestamp (ms)",
-          value: "Milliseconds",
+          value: DateInputFormat.MILLISECONDS,
         },
         {
           label: "YYYY-MM-DD",
@@ -367,7 +369,7 @@ export default {
         },
       ],
       defaultValue: "YYYY-MM-DD HH:mm",
-      customJSControl: "COMPUTE_VALUE_V2",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
@@ -382,8 +384,8 @@ export default {
           type: ValidationTypes.TEXT,
           params: {
             allowedValues: [
-              "Epoch",
-              "Milliseconds",
+              DateInputFormat.EPOCH,
+              DateInputFormat.MILLISECONDS,
               "YYYY-MM-DD",
               "YYYY-MM-DD HH:mm",
               "YYYY-MM-DDTHH:mm:ss.sssZ",
@@ -412,16 +414,16 @@ export default {
       propertyName: "outputFormat",
       label: "Display Date Format",
       controlType: "DROP_DOWN",
-      customJSControl: "COMPUTE_VALUE_V2",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       options: [
         {
           label: "UNIX timestamp (s)",
-          value: "Epoch",
+          value: DateInputFormat.EPOCH,
         },
         {
           label: "UNIX timestamp (ms)",
-          value: "Milliseconds",
+          value: DateInputFormat.MILLISECONDS,
         },
         {
           label: "YYYY-MM-DD",

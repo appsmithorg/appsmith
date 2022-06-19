@@ -30,6 +30,7 @@ export const CONFIG = {
     verticalAlignment: "CENTER",
     totalRecordsCount: 0,
     defaultPageSize: 0,
+    dynamicPropertyPathList: [],
     dynamicBindingPathList: [
       {
         key: "primaryColumns.step.computedValue",
@@ -218,7 +219,7 @@ export const CONFIG = {
     isVisiblePagination: true,
     isSortable: true,
     delimiter: ",",
-    version: 3,
+    version: 1,
     inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
   },
   properties: {

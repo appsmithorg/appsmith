@@ -353,3 +353,16 @@ export enum IMAGE_VERTICAL_ALIGN {
   CENTER = "center",
   BOTTOM = "bottom",
 }
+
+export type BaseCellComponentProps = {
+  compactMode: string;
+  isHidden: boolean;
+  allowCellWrapping?: boolean;
+  horizontalAlignment?: CellAlignment;
+  verticalAlignment?: VerticalAlignment;
+  cellBackground?: string;
+  isCellVisible: boolean;
+  fontStyle?: string;
+  textColor?: string;
+  textSize?: string;
+};
