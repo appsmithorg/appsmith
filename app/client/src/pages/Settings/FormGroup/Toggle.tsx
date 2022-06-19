@@ -46,7 +46,7 @@ function FieldToggleWithToggleText(
         <ToggleStatus>
           {typeof toggleText == "function"
             ? createMessage(() => toggleText(!componentProps.input.value))
-            : !componentProps.input.value
+            : componentProps.input.value
             ? createMessage(() => "Enabled")
             : createMessage(() => "Disabled")}
         </ToggleStatus>
