@@ -10,8 +10,10 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
@@ -140,6 +142,24 @@ public class PolicyUtils {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
+
+    public Map<String, Policy> generatePolicyFromPermission(PermissionGroup permissionGroup) {
+        Set<Permission> permissions = permissionGroup.getPermissions();
+        return permissions.stream()
+                .map(perm -> {
+
+                    Policy policyWithCurrentPermission = Policy.builder().permission(perm.getAclPermission().getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId()))
+                            .build();
+                    // Generate any and all lateral policies that might come with the current permission
+                    Set<Policy> policiesForPermissionGroup = policyGenerator.getLateralPolicies(perm.getAclPermission(), Set.of(permissionGroup.getId()), null);
+                    policiesForPermissionGroup.add(policyWithCurrentPermission);
+                    return policiesForPermissionGroup;
+                })
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+    }
+
 
     public Map<String, Policy> generatePolicyFromPermissionForMultipleUsers(Set<AclPermission> permissions, List<User> users) {
         Set<String> usernames = users.stream().map(user -> user.getUsername()).collect(Collectors.toSet());

@@ -5,6 +5,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -50,14 +51,18 @@ public class WorkspaceServiceUnitTest {
 
     @MockBean PermissionGroupService permissionGroupService;
 
+    @MockBean RbacPolicyService rbacPolicyService;
+
+    @MockBean PolicyUtils policyUtils;
+
     WorkspaceService workspaceService;
 
     @Before
     public void setUp() {
         workspaceService = new WorkspaceServiceImpl(scheduler, validator, mongoConverter, reactiveMongoTemplate,
                 workspaceRepository, analyticsService, pluginRepository, sessionUserService, userWorkspaceService,
-                userRepository, roleGraph, assetRepository, assetService,
-                applicationRepository, userGroupService, permissionGroupService);
+                userRepository, roleGraph, assetRepository, assetService, applicationRepository, userGroupService,
+                permissionGroupService, rbacPolicyService, policyUtils);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
@@ -19,6 +20,7 @@ import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
@@ -85,6 +87,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final UserGroupService userGroupService;
     private final PermissionGroupService permissionGroupService;
     private final RbacPolicyService rbacPolicyService;
+    private final PolicyUtils policyUtils;
 
 
     @Autowired
@@ -104,7 +107,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                   ApplicationRepository applicationRepository,
                                   UserGroupService userGroupService,
                                   PermissionGroupService permissionGroupService,
-                                  RbacPolicyService rbacPolicyService) {
+                                  RbacPolicyService rbacPolicyService,
+                                  PolicyUtils policyUtils) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pluginRepository = pluginRepository;
@@ -118,6 +122,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         this.userGroupService = userGroupService;
         this.permissionGroupService = permissionGroupService;
         this.rbacPolicyService = rbacPolicyService;
+        this.policyUtils = policyUtils;
     }
 
     @Override
@@ -231,25 +236,39 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                 // Save the user group and the updated workspace
                                 return Mono.zip(
                                         userGroupService.update(admin.getId(), admin),
-                                        repository.save(createdWorkspace)
+                                        Mono.just(createdWorkspace),
+                                        Mono.just(permissionGroups)
                                         );
-                            })
+                            });
                             // Now return the updated workspace with all the default groups created.
-                            .map(tuple -> tuple.getT2());
+//                            .map(tuple -> tuple.getT2());
                 })
                 // Set the current user as admin for the workspace
-                .flatMap(createdWorkspace -> {
-                    UserRole userRole = new UserRole();
-                    userRole.setUsername(user.getUsername());
-                    userRole.setUserId(user.getId());
-                    userRole.setName(user.getName());
-                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-                    return userWorkspaceService.addUserToWorkspaceGivenUserObject(createdWorkspace, user, userRole);
-                })
+                .flatMap(tuple -> {
+                    Workspace createdWorkspace = tuple.getT2();
+                    Set<PermissionGroup> permissionGroups = tuple.getT3();
+
+                    for (PermissionGroup permissionGroup : permissionGroups) {
+                        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(permissionGroup);
+
+                        createdWorkspace = policyUtils.addPoliciesToExistingObject(policyMap, createdWorkspace);
+                    }
+
+                    return repository.save(createdWorkspace);
+
+                });
+//                .flatMap(createdWorkspace -> {
+//                    UserRole userRole = new UserRole();
+//                    userRole.setUsername(user.getUsername());
+//                    userRole.setUserId(user.getId());
+//                    userRole.setName(user.getName());
+//                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+//                    return userWorkspaceService.addUserToWorkspaceGivenUserObject(createdWorkspace, user, userRole);
+//                })
                 // Now add the org id to the user object and then return the saved org
-                .flatMap(savedWorkspace -> userWorkspaceService
-                        .addUserToWorkspace(savedWorkspace.getId(), user)
-                        .thenReturn(savedWorkspace));
+//                .flatMap(savedWorkspace -> userWorkspaceService
+//                        .addUserToWorkspace(savedWorkspace.getId(), user)
+//                        .thenReturn(savedWorkspace));
     }
 
     private String generateNewDefaultName(String oldName, String workspaceName) {
