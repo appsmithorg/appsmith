@@ -1,4 +1,4 @@
-import gitSyncLocators from "../../../../locators/gitSyncLocators";
+import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 
 let repoName1, repoName2, repoName3, repoName4, windowOpenSpy;
 describe("Repo Limit Exceeded Error Modal", function() {
