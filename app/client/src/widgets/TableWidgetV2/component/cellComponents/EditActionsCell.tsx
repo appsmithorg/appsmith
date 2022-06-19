@@ -6,14 +6,11 @@ import {
   EditableCellActions,
 } from "widgets/TableWidgetV2/constants";
 import { Button } from "./Button";
-import { CellAlignment, VerticalAlignment } from "../Constants";
+import { BaseCellComponentProps } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 
-type RenderEditActionsProps = {
-  compactMode: string;
+type RenderEditActionsProps = BaseCellComponentProps & {
   isSelected: boolean;
-  isCellVisible: boolean;
-  isHidden: boolean;
   columnActions: ButtonColumnActions[];
   onCommandClick: (
     dynamicTrigger: string,
@@ -21,13 +18,6 @@ type RenderEditActionsProps = {
     eventType: EventType,
   ) => void;
   onDiscard: () => void;
-  allowCellWrapping?: boolean;
-  horizontalAlignment?: CellAlignment;
-  verticalAlignment?: VerticalAlignment;
-  fontStyle?: string;
-  textColor?: string;
-  cellBackground?: string;
-  textSize?: string;
 };
 
 export function EditActionCell(props: RenderEditActionsProps) {
@@ -74,14 +64,14 @@ export function EditActionCell(props: RenderEditActionsProps) {
       isHidden={isHidden}
       verticalAlignment={verticalAlignment}
     >
-      {columnActions.map((action: ButtonColumnActions, index: number) => {
+      {columnActions.map((action: ButtonColumnActions) => {
         return (
           <Button
             action={action}
             isCellVisible={isCellVisible}
             isDisabled={action.isDisabled}
             isSelected={isSelected}
-            key={index}
+            key={action.id}
             onCommandClick={(
               dynamicTrigger: string,
               onComplete: () => void,

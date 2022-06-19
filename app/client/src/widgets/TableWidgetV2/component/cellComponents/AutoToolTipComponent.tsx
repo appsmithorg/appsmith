@@ -27,6 +27,46 @@ export const Content = styled.span`
   width: 100%;
 `;
 
+const WIDTH_OFFSET = 32;
+const MAX_WIDTH = 300;
+
+function useToolTip(
+  children: React.ReactNode,
+  tableWidth?: number,
+  title?: string,
+) {
+  const ref = createRef<HTMLDivElement>();
+  const [showTooltip, updateToolTip] = useState(false);
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      const element = ref.current?.querySelector("div") as HTMLDivElement;
+      if (element && element.offsetWidth < element.scrollWidth) {
+        updateToolTip(true);
+      } else {
+        updateToolTip(false);
+      }
+    });
+  }, [children, ref.current]);
+
+  return showTooltip && children ? (
+    <Tooltip
+      autoFocus={false}
+      content={
+        <TooltipContentWrapper width={(tableWidth || MAX_WIDTH) - WIDTH_OFFSET}>
+          {title}
+        </TooltipContentWrapper>
+      }
+      hoverOpenDelay={1000}
+      position="top"
+    >
+      {<Content ref={ref}>{children}</Content>}
+    </Tooltip>
+  ) : (
+    <Content ref={ref}>{children}</Content>
+  );
+}
+
 interface Props {
   isHidden?: boolean;
   isCellVisible?: boolean;
@@ -46,16 +86,8 @@ interface Props {
 }
 
 function LinkWrapper(props: Props) {
-  const ref = createRef<HTMLDivElement>();
-  const [useToolTip, updateToolTip] = useState(false);
-  useEffect(() => {
-    const element = ref.current?.querySelector("div") as HTMLDivElement;
-    if (element && element.offsetWidth < element.scrollWidth) {
-      updateToolTip(true);
-    } else {
-      updateToolTip(false);
-    }
-  }, [props.children, ref.current]);
+  const content = useToolTip(props.children, props.tableWidth, props.title);
+
   return (
     <CellWrapper
       allowCellWrapping={props.allowCellWrapping}
@@ -73,27 +105,9 @@ function LinkWrapper(props: Props) {
       }}
       textColor={props.textColor}
       textSize={props.textSize}
-      useLinkToolTip={useToolTip}
       verticalAlignment={props.verticalAlignment}
     >
-      <div className="link-text">
-        {useToolTip && props.children ? (
-          <Tooltip
-            autoFocus={false}
-            content={
-              <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
-                {props.title}
-              </TooltipContentWrapper>
-            }
-            hoverOpenDelay={1000}
-            position="top"
-          >
-            {<Content ref={ref}>{props.children}</Content>}
-          </Tooltip>
-        ) : (
-          <Content ref={ref}>{props.children}</Content>
-        )}
-      </div>
+      <div className="link-text">{content}</div>
       <OpenNewTabIconWrapper className="hidden-icon">
         <OpenNewTabIcon />
       </OpenNewTabIconWrapper>
@@ -102,19 +116,12 @@ function LinkWrapper(props: Props) {
 }
 
 function AutoToolTipComponent(props: Props) {
-  const ref = createRef<HTMLDivElement>();
-  const [useToolTip, updateToolTip] = useState(false);
-  useEffect(() => {
-    const element = ref.current?.querySelector("div") as HTMLDivElement;
-    if (element && element.offsetWidth < element.scrollWidth) {
-      updateToolTip(true);
-    } else {
-      updateToolTip(false);
-    }
-  }, [props.children, ref.current]);
+  const content = useToolTip(props.children, props.tableWidth, props.title);
+
   if (props.columnType === ColumnTypes.URL && props.title) {
     return <LinkWrapper {...props} />;
   }
+
   return (
     <ColumnWrapper className={props.className} textColor={props.textColor}>
       <CellWrapper
@@ -130,22 +137,7 @@ function AutoToolTipComponent(props: Props) {
         textSize={props.textSize}
         verticalAlignment={props.verticalAlignment}
       >
-        {useToolTip && props.children ? (
-          <Tooltip
-            autoFocus={false}
-            content={
-              <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
-                {props.title}
-              </TooltipContentWrapper>
-            }
-            hoverOpenDelay={1000}
-            position="top"
-          >
-            {<Content ref={ref}>{props.children}</Content>}
-          </Tooltip>
-        ) : (
-          <Content ref={ref}>{props.children}</Content>
-        )}
+        {content}
       </CellWrapper>
     </ColumnWrapper>
   );

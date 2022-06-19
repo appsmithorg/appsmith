@@ -169,7 +169,7 @@ class ComputeTablePropertyControlV2 extends BaseControl<
   };
 
   static getControlType() {
-    return "COMPUTE_VALUE_V2";
+    return "TABLE_COMPUTE_VALUE";
   }
 }
 

@@ -99,6 +99,8 @@ function Title(props: TitleProps) {
   );
 }
 
+const ICON_SIZE = 16;
+
 export function HeaderCell(props: {
   columnName: string;
   columnIndex: number;
@@ -146,9 +148,9 @@ export function HeaderCell(props: {
       {props.isAscOrder !== undefined ? (
         <div>
           {props.isAscOrder ? (
-            <AscendingIcon height={16} width={16} />
+            <AscendingIcon height={ICON_SIZE} width={ICON_SIZE} />
           ) : (
-            <DescendingIcon height={16} width={16} />
+            <DescendingIcon height={ICON_SIZE} width={ICON_SIZE} />
           )}
         </div>
       ) : null}

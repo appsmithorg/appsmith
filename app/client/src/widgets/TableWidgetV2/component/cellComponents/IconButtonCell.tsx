@@ -3,12 +3,11 @@ import React, { useState } from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { IconName } from "@blueprintjs/icons";
 import { ButtonVariant } from "components/constants";
-import { CellAlignment, VerticalAlignment } from "../Constants";
+import { BaseCellComponentProps } from "../Constants";
 import { CellWrapper, IconButtonWrapper } from "../TableStyledWrappers";
 import { StyledButton } from "widgets/IconButtonWidget/component";
 
-interface RenderIconButtonProps {
-  compactMode: string;
+interface RenderIconButtonProps extends BaseCellComponentProps {
   isSelected: boolean;
   columnActions?: ColumnAction[];
   iconName?: IconName;
@@ -17,16 +16,7 @@ interface RenderIconButtonProps {
   borderRadius: string;
   boxShadow: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
-  isCellVisible: boolean;
   disabled: boolean;
-  isHidden: boolean;
-  allowCellWrapping?: boolean;
-  horizontalAlignment?: CellAlignment;
-  verticalAlignment?: VerticalAlignment;
-  fontStyle?: string;
-  textColor?: string;
-  cellBackground?: string;
-  textSize?: string;
 }
 
 function IconButton(props: {
@@ -51,7 +41,8 @@ function IconButton(props: {
       e.stopPropagation();
     }
   };
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
     if (props.action.dynamicTrigger) {
       setLoading(true);
       props.onCommandClick(props.action.dynamicTrigger, onComplete);
@@ -67,10 +58,7 @@ function IconButton(props: {
         disabled={props.disabled}
         icon={props.iconName}
         loading={loading}
-        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-          e.stopPropagation();
-          handleClick();
-        }}
+        onClick={handleClick}
       />
     </IconButtonWrapper>
   );

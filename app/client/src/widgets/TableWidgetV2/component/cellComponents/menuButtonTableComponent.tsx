@@ -205,7 +205,7 @@ function PopoverContent(props: PopoverContentProps) {
   if (!itemsObj) return <StyledMenu />;
   const visibleItems = Object.keys(itemsObj)
     .map((itemKey) => itemsObj[itemKey])
-    .filter((item) => item.isVisible === true);
+    .filter((item) => item.isVisible);
 
   const items = orderBy(visibleItems, ["index"], ["asc"]);
 
@@ -228,7 +228,7 @@ function PopoverContent(props: PopoverContentProps) {
         disabled={isDisabled}
         icon={
           iconAlign !== Alignment.RIGHT ? (
-            <Icon color={iconColor} icon={iconName} />
+            <Icon color={iconColor} icon={iconName || undefined} />
           ) : (
             undefined
           )
@@ -237,7 +237,7 @@ function PopoverContent(props: PopoverContentProps) {
         key={id}
         labelElement={
           iconAlign === Alignment.RIGHT ? (
-            <Icon color={iconColor} icon={iconName} />
+            <Icon color={iconColor} icon={iconName || undefined} />
           ) : (
             undefined
           )

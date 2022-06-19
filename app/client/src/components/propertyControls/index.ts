@@ -61,7 +61,7 @@ import NumericInputControl, {
 import PrimaryColumnsControlV2 from "components/propertyControls/PrimaryColumnsControlV2";
 import ComputeTablePropertyControlV2, {
   ComputeTablePropertyControlPropsV2,
-} from "components/propertyControls/ComputeTablePropertyControlV2";
+} from "components/propertyControls/TableComputeValue";
 
 export const PropertyControls = {
   InputTextControl,

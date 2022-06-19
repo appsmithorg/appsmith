@@ -1,7 +1,7 @@
 import React from "react";
 
 import { CellWrapper } from "../TableStyledWrappers";
-import { CellAlignment, TABLE_SIZES, VerticalAlignment } from "../Constants";
+import { BaseCellComponentProps, TABLE_SIZES } from "../Constants";
 import { Button } from "./Button";
 import { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
 import styled from "styled-components";
@@ -10,21 +10,11 @@ const StyledButton = styled(Button)<{ compactMode: string }>`
   max-height: ${(props) => TABLE_SIZES[props.compactMode].ROW_HEIGHT}px;
 `;
 
-export interface RenderActionProps {
-  compactMode: string;
+export interface RenderActionProps extends BaseCellComponentProps {
   isSelected: boolean;
   columnActions?: ButtonColumnActions[];
   isDisabled: boolean;
-  isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
-  isHidden: boolean;
-  allowCellWrapping?: boolean;
-  horizontalAlignment?: CellAlignment;
-  verticalAlignment?: VerticalAlignment;
-  fontStyle?: string;
-  textColor?: string;
-  cellBackground?: string;
-  textSize?: string;
 }
 
 export function ButtonCell(props: RenderActionProps) {
@@ -74,7 +64,7 @@ export function ButtonCell(props: RenderActionProps) {
       textSize={textSize}
       verticalAlignment={verticalAlignment}
     >
-      {columnActions.map((action: ButtonColumnActions, index: number) => {
+      {columnActions.map((action: ButtonColumnActions) => {
         return (
           <StyledButton
             action={action}
@@ -82,7 +72,7 @@ export function ButtonCell(props: RenderActionProps) {
             isCellVisible={isCellVisible}
             isDisabled={isDisabled}
             isSelected={isSelected}
-            key={index}
+            key={action.id}
             onCommandClick={onCommandClick}
           />
         );

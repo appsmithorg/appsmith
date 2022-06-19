@@ -19,6 +19,9 @@ import { Classes } from "@blueprintjs/core";
 
 const OFFSET_WITHOUT_HEADER = 40;
 const OFFSET_WITH_HEADER = 80;
+const BORDER_RADIUS = "border-radius: 4px;";
+const HEADER_CONTROL_FONT_SIZE = "12px";
+
 export const TableWrapper = styled.div<{
   width: number;
   height: number;
@@ -165,7 +168,7 @@ export const TableWrapper = styled.div<{
     }
   }
   .hidden-header {
-    opacity: 0.6;
+    ${invisible};
   }
   .column-menu {
     cursor: pointer;
@@ -195,7 +198,7 @@ export const DropDownWrapper = styled.div`
   background: white;
   z-index: 1;
   padding: 10px;
-  border-radius: 4px;
+  ${BORDER_RADIUS}
   border: 1px solid ${Colors.ATHENS_GRAY};
   box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
 `;
@@ -214,7 +217,7 @@ export const OptionWrapper = styled.div<{
   font-size: 14px;
   min-width: 200px;
   cursor: ${(props) => (!props.isHeader ? "pointer" : "default")};
-  border-radius: 4px;
+  ${BORDER_RADIUS}
   margin: 3px 0;
   background: ${(props) => (props.selected ? Colors.GREEN : Colors.WHITE)};
   &:hover {
@@ -318,7 +321,6 @@ export const CELL_WRAPPER_LINE_HEIGHT = 28;
 export const CellWrapper = styled.div<{
   isHidden?: boolean;
   isHyperLink?: boolean;
-  useLinkToolTip?: boolean;
   isCellVisible?: boolean;
   isTextType?: boolean;
   compactMode?: string;
@@ -355,11 +357,10 @@ export const CellWrapper = styled.div<{
   font-size: ${(props) => props.textSize};
 
   padding: ${(props) =>
-      props.compactMode ? TABLE_SIZES[props.compactMode].VERTICAL_PADDING : 0}px
+    props.compactMode ? TABLE_SIZES[props.compactMode].VERTICAL_PADDING : 0}px
     10px;
   line-height: ${CELL_WRAPPER_LINE_HEIGHT}px;
-  .${Classes.POPOVER_WRAPPER}, > span > span > span,
-  > div > span > span > span {
+  .${Classes.POPOVER_WRAPPER} {
     width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -382,7 +383,7 @@ export const CellWrapper = styled.div<{
     width: 100%;
     height: 100%;
     margin: 0 5px 0 0;
-    border-radius: 4px;
+    ${BORDER_RADIUS}
     background-position-x: ${(props) =>
       props.horizontalAlignment &&
       IMAGE_HORIZONTAL_ALIGN[props.horizontalAlignment]};
@@ -392,7 +393,7 @@ export const CellWrapper = styled.div<{
     background-size: contain;
   }
   video {
-    border-radius: 4px;
+    ${BORDER_RADIUS}
   }
   ${(props) =>
     props.isHyperLink &&
@@ -406,7 +407,7 @@ export const CellWrapper = styled.div<{
     height: 100%;
     iframe {
       border: none;
-      border-radius: 4px;
+      ${BORDER_RADIUS}
     }
   }
   .link-text {
@@ -469,6 +470,8 @@ export const CellCheckbox = styled.div`
   }
 `;
 
+const MIN_WIDTH_TO_SHOW_PAGE_ITEMS = 700;
+
 export const TableHeaderWrapper = styled.div<{
   serverSidePaginationEnabled: boolean;
   width: number;
@@ -479,7 +482,8 @@ export const TableHeaderWrapper = styled.div<{
   display: flex;
   width: ${(props) => props.width - 8}px;
   .show-page-items {
-    display: ${(props) => (props.width < 700 ? "none" : "flex")};
+    display: ${(props) =>
+      props.width < MIN_WIDTH_TO_SHOW_PAGE_ITEMS ? "none" : "flex"};
   }
   height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   min-height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
@@ -520,7 +524,7 @@ export const TableHeaderContentWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: ${HEADER_CONTROL_FONT_SIZE};
   line-height: 20px;
   color: ${Colors.GRAY};
   margin: 0 4px;
@@ -540,7 +544,7 @@ export const TableIconWrapper = styled.div<{
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
+  ${(props) => (props.disabled ? invisible : "")};
   cursor: ${(props) => !props.disabled && "pointer"};
   position: relative;
   &:hover {
@@ -564,7 +568,7 @@ export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
   .type {
     position: absolute;
     left: 135px;
-    font-size: 12px !important;
+    font-size: ${HEADER_CONTROL_FONT_SIZE} !important;
     color: ${Colors.GREY_10};
   }
 `;
@@ -584,4 +588,15 @@ export const MenuStyledOptionHeader = styled.div`
 export const TooltipContentWrapper = styled.div<{ width?: number }>`
   word-break: break-all;
   max-width: ${(props) => props.width}px;
+`;
+
+export const EmptyRow = styled.div`
+  display: flex;
+  flex: 1 0 auto;
+`;
+
+export const EmptyCell = styled.div<{ width: number }>`
+  width: ${(props) => props.width}px;
+  boxsizing: border-box;
+  flex: ${(props) => props.width} 0 auto;
 `;

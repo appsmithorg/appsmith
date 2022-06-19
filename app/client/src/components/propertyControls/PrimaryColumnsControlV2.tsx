@@ -137,14 +137,17 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     }
 
     const listElement = document.querySelector(`.${LIST_CLASSNAME}`);
-    const hasScrollableList =
-      listElement && listElement?.scrollHeight > listElement?.clientHeight;
 
-    if (hasScrollableList !== this.state.hasScrollableList) {
-      this.setState({
-        hasScrollableList: !!hasScrollableList,
-      });
-    }
+    requestAnimationFrame(() => {
+      const hasScrollableList =
+        listElement && listElement?.scrollHeight > listElement?.clientHeight;
+
+      if (hasScrollableList !== this.state.hasScrollableList) {
+        this.setState({
+          hasScrollableList: !!hasScrollableList,
+        });
+      }
+    });
   }
 
   render() {

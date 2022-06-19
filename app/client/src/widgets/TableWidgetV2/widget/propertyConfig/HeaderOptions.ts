@@ -5,8 +5,8 @@ export default {
   sectionName: "Header options",
   children: [
     {
-      helpText: "Toggle visibility of the search box",
       propertyName: "isVisibleSearch",
+      helpText: "Toggle visibility of the search box",
       label: "Search",
       controlType: "SWITCH",
       isJSConvertible: true,
@@ -15,8 +15,8 @@ export default {
       validation: { type: ValidationTypes.BOOLEAN },
     },
     {
-      helpText: "Toggle visibility of the filters",
       propertyName: "isVisibleFilters",
+      helpText: "Toggle visibility of the filters",
       label: "Filters",
       controlType: "SWITCH",
       isJSConvertible: true,
@@ -25,8 +25,8 @@ export default {
       validation: { type: ValidationTypes.BOOLEAN },
     },
     {
-      helpText: "Toggle visibility of the data download",
       propertyName: "isVisibleDownload",
+      helpText: "Toggle visibility of the data download",
       label: "Download",
       controlType: "SWITCH",
       isJSConvertible: true,
@@ -35,8 +35,8 @@ export default {
       validation: { type: ValidationTypes.BOOLEAN },
     },
     {
-      helpText: "Toggle visibility of the pagination",
       propertyName: "isVisiblePagination",
+      helpText: "Toggle visibility of the pagination",
       label: "Pagination",
       controlType: "SWITCH",
       isJSConvertible: true,

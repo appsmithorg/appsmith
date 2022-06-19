@@ -22,6 +22,8 @@ export const renderBodyCheckBoxCell = (
   </CellCheckboxWrapper>
 );
 
+const STYLE = { padding: "0px", justifyContent: "center" };
+
 export const renderHeaderCheckBoxCell = (
   onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void,
   checkState: number | null,
@@ -35,9 +37,10 @@ export const renderHeaderCheckBoxCell = (
     isChecked={!!checkState}
     onClick={onClick}
     role="columnheader"
-    style={{ padding: "0px", justifyContent: "center" }}
+    style={STYLE}
   >
     <CellCheckbox>
+      {/*1 - all row selected | 2 - some rows selected */}
       {checkState === 1 && <CheckBoxCheckIcon className="th-svg" />}
       {checkState === 2 && (
         <CheckBoxLineIcon className="th-svg t--table-multiselect-header-half-check-svg" />

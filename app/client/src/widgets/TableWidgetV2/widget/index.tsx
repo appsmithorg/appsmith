@@ -26,6 +26,7 @@ import { ReactTableFilter, OperatorTypes } from "../component/Constants";
 import {
   ColumnTypes,
   COLUMN_MIN_WIDTH,
+  DateInputFormat,
   DEFAULT_BUTTON_LABEL,
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_MENU_BUTTON_LABEL,
@@ -227,7 +228,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             switch (column.metaProperties.type) {
               case ColumnTypes.DATE:
                 let isValidDate = true;
-                let outputFormat = _.isArray(column.metaProperties.format)
+                const outputFormat = _.isArray(column.metaProperties.format)
                   ? column.metaProperties.format[rowIndex]
                   : column.metaProperties.format;
                 let inputFormat;
@@ -237,7 +238,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                     ? column.metaProperties.inputFormat[rowIndex]
                     : column.metaProperties.inputFormat;
 
-                  if (type !== "Epoch" && type !== "Milliseconds") {
+                  if (
+                    type !== DateInputFormat.EPOCH &&
+                    type !== DateInputFormat.MILLISECONDS
+                  ) {
                     inputFormat = type;
                     moment(value as MomentInput, inputFormat);
                   } else if (!isNumber(value)) {
@@ -249,13 +253,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
                 if (isValidDate && value) {
                   try {
-                    if (outputFormat === "SAME_AS_INPUT") {
-                      outputFormat = inputFormat;
-                    }
-
-                    if (column.metaProperties.inputFormat === "Milliseconds") {
+                    if (
+                      column.metaProperties.inputFormat ===
+                      DateInputFormat.MILLISECONDS
+                    ) {
                       value = Number(value);
-                    } else if (column.metaProperties.inputFormat === "Epoch") {
+                    } else if (
+                      column.metaProperties.inputFormat ===
+                      DateInputFormat.EPOCH
+                    ) {
                       value = 1000 * Number(value);
                     }
 
@@ -476,13 +482,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const {
       defaultSelectedRowIndex,
       defaultSelectedRowIndices,
-      onPageSizeChange,
       pageNo,
       pageSize,
       primaryColumns = {},
       serverSidePaginationEnabled,
       totalRecordsCount,
-      multiRowSelection,
     } = this.props;
 
     // Bail out if tableData is a string. This signifies an error in evaluations
@@ -559,20 +563,37 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       this.updateSelectedRowIndex();
     }
 
-    if (pageSize !== prevProps.pageSize) {
-      this.props.updateWidgetMetaProperty("pageNo", 1);
+    this.resetPageNo(prevProps);
 
+    this.resetRowSelectionProperties(prevProps);
+  }
+
+  resetPageNo = (prevProps: TableWidgetProps) => {
+    const { onPageSizeChange, pageSize } = this.props;
+
+    if (pageSize !== prevProps.pageSize) {
       if (onPageSizeChange) {
-        super.executeAction({
+        this.props.updateWidgetMetaProperty("pageNo", 1, {
           triggerPropertyName: "onPageSizeChange",
           dynamicString: onPageSizeChange,
           event: {
             type: EventType.ON_PAGE_SIZE_CHANGE,
           },
         });
+      } else {
+        this.props.updateWidgetMetaProperty("pageNo", 1);
       }
     }
+  };
 
+  resetRowSelectionProperties = (prevProps: TableWidgetProps) => {
+    const {
+      defaultSelectedRowIndex,
+      defaultSelectedRowIndices,
+      multiRowSelection,
+    } = this.props;
+
+    // reset selectedRowIndices and selectedRowIndex to defaults
     if (multiRowSelection !== prevProps.multiRowSelection) {
       if (multiRowSelection) {
         if (
@@ -598,7 +619,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         this.props.updateWidgetMetaProperty("selectedRowIndices", []);
       }
     }
-  }
+  };
 
   /*
    *  Function to reset filter and triggeredRowIndex when
@@ -615,7 +636,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     ];
 
     this.props.updateWidgetMetaProperty("filters", defaultFilter);
-    this.props.updateWidgetMetaProperty("triggeredRowIndex", undefined);
+    this.props.updateWidgetMetaProperty("triggeredRowIndex", -1);
   };
 
   /*

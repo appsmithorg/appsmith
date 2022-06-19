@@ -158,3 +158,8 @@ export type ButtonColumnActions = ColumnAction & {
   isDisabled?: boolean;
   boxShadow?: string;
 };
+
+export enum DateInputFormat {
+  EPOCH = "Epoch",
+  MILLISECONDS = "Milliseconds",
+}

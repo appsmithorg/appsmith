@@ -1,22 +1,19 @@
 import React, { memo, useMemo } from "react";
 import { isNumber, isNil } from "lodash";
 
-import { CellAlignment, VerticalAlignment } from "../Constants";
+import { BaseCellComponentProps } from "../Constants";
 import {
   ColumnTypes,
   EditableCellActions,
 } from "widgets/TableWidgetV2/constants";
 import { TextCell } from "./TextCell";
 
-export type RenderDefaultPropsType = {
+export type RenderDefaultPropsType = BaseCellComponentProps & {
   accentColor: string;
-  compactMode: string;
   value: any;
   columnType: string;
-  isHidden: boolean;
   tableWidth: number;
   isCellEditable: boolean;
-  isCellVisible: boolean;
   isCellEditMode?: boolean;
   onCellTextChange: (data: string) => void;
   toggleCellEditMode: (
@@ -27,15 +24,8 @@ export type RenderDefaultPropsType = {
     onSubmit: string,
     action: EditableCellActions,
   ) => void;
-  allowCellWrapping?: boolean;
-  verticalAlignment?: VerticalAlignment;
-  cellBackground?: string;
   hasUnsavedChanged?: boolean;
-  horizontalAlignment?: CellAlignment;
-  textColor?: string;
   displayText?: string;
-  fontStyle?: string;
-  textSize?: string;
   disabledEditIcon: boolean;
 };
 
@@ -47,7 +37,7 @@ type editPropertyType = {
 };
 
 export function getCellText(
-  value: any,
+  value: unknown,
   columnType: string,
   displayText?: string,
 ) {
@@ -56,7 +46,7 @@ export function getCellText(
   if (value && columnType === ColumnTypes.URL && displayText) {
     text = displayText;
   } else if (!isNil(value) && (!isNumber(value) || !isNaN(value))) {
-    text = value.toString();
+    text = (value as string).toString();
   } else {
     text = "";
   }

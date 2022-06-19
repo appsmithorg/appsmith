@@ -1,31 +1,13 @@
 import React from "react";
 
-import { CellAlignment, VerticalAlignment } from "../Constants";
+import { BaseCellComponentProps } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import { isString } from "lodash";
-import styled from "constants/DefaultTheme";
+import { YOUTUBE_URL_REGEX } from "widgets/constants";
 
-const StyledCellWrapper = styled(CellWrapper)`
-  & {
-    .play-icon {
-      position: static;
-    }
-  }
-`;
-
-type renderCellType = {
-  compactMode: string;
-  value: any;
-  isHidden: boolean;
-  isCellVisible: boolean;
-  allowCellWrapping?: boolean;
-  horizontalAlignment?: CellAlignment;
-  verticalAlignment?: VerticalAlignment;
-  fontStyle?: string;
-  textColor?: string;
-  cellBackground?: string;
-  textSize?: string;
+type renderCellType = BaseCellComponentProps & {
+  value: unknown;
 };
 
 export const VideoCell = (props: renderCellType) => {
@@ -43,7 +25,6 @@ export const VideoCell = (props: renderCellType) => {
     verticalAlignment,
   } = props;
 
-  const youtubeRegex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
   if (!value) {
     return (
       <CellWrapper
@@ -59,9 +40,9 @@ export const VideoCell = (props: renderCellType) => {
         verticalAlignment={verticalAlignment}
       />
     );
-  } else if (isString(value) && youtubeRegex.test(value)) {
+  } else if (isString(value) && YOUTUBE_URL_REGEX.test(value)) {
     return (
-      <StyledCellWrapper
+      <CellWrapper
         allowCellWrapping={allowCellWrapping}
         cellBackground={cellBackground}
         className="video-cell"
@@ -75,7 +56,7 @@ export const VideoCell = (props: renderCellType) => {
         verticalAlignment={verticalAlignment}
       >
         <PopoverVideo url={value} />
-      </StyledCellWrapper>
+      </CellWrapper>
     );
   } else {
     return (

@@ -43,6 +43,9 @@ type SelectProps = {
   textSize?: string;
 };
 
+/*
+ * TODO: Need a widgetId for each select cell.
+ */
 export const SelectCell = (props: SelectProps) => {
   const {
     allowCellWrapping,
