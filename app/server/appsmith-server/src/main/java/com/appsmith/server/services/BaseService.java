@@ -93,7 +93,7 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
 
         return mongoTemplate.updateFirst(query, updateObj, resource.getClass())
                 .flatMap(obj -> repository.findById(id))
-                .flatMap(analyticsService::sendUpdateEvent);
+                .flatMap(obj -> analyticsService.sendUpdateEvent(obj));
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {

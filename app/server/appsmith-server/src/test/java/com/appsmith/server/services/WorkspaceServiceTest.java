@@ -154,6 +154,7 @@ public class WorkspaceServiceTest {
                     return permissionGroupRepository.findAllById(defaultPermissionGroups).collect(Collectors.toSet());
                 });
 
+
         StepVerifier.create(Mono.zip(workspaceMono, userMono, defaultUserGroupMono, defaultPermissionGroupMono))
                 .assertNext(tuple -> {
                     Workspace workspace1 = tuple.getT1();

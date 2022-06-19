@@ -22,6 +22,7 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -44,6 +45,7 @@ import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
 @Component
 @AllArgsConstructor
+@Slf4j
 public class PolicyUtils {
 
     private final PolicyGenerator policyGenerator;
@@ -124,11 +126,11 @@ public class PolicyUtils {
      * @param user
      * @return
      */
-    public Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, User user) {
-        return generatePolicyFromPermission(permissions, user.getUsername());
+    public Map<String, Policy> generatePolicyFromPermissionForObject(Set<AclPermission> permissions, User user) {
+        return generatePolicyFromPermissionForObject(permissions, user.getUsername());
     }
 
-    public Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, String username) {
+    public Map<String, Policy> generatePolicyFromPermissionForObject(Set<AclPermission> permissions, String username) {
         return permissions.stream()
                 .map(perm -> {
                     // Create a policy for the invited user using the permission as per the role
@@ -143,9 +145,10 @@ public class PolicyUtils {
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
-    public Map<String, Policy> generatePolicyFromPermission(PermissionGroup permissionGroup) {
+    public Map<String, Policy> generatePolicyFromPermissionForObject(PermissionGroup permissionGroup, String objectId) {
         Set<Permission> permissions = permissionGroup.getPermissions();
         return permissions.stream()
+                .filter(perm -> perm.getDocumentId().equals(objectId))
                 .map(perm -> {
 
                     Policy policyWithCurrentPermission = Policy.builder().permission(perm.getAclPermission().getValue())
@@ -157,6 +160,10 @@ public class PolicyUtils {
                     return policiesForPermissionGroup;
                 })
                 .flatMap(Collection::stream)
+                .map(obj -> {
+                    log.debug("{}", obj);
+                    return obj;
+                })
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
