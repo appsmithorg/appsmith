@@ -336,6 +336,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Mono<Datasource> datasourceMono = Mono.just(action.getDatasource());
         if (action.getPluginType() != PluginType.JS) {
             if (action.getDatasource().getId() == null) {
+
+                // This is a nested datasource. If the action is in bad state (aka without workspace id, add the same)
+                if (action.getDatasource().getWorkspaceId() == null && action.getDatasource().getOrganizationId() != null) {
+                    action.getDatasource().setWorkspaceId(action.getDatasource().getOrganizationId());
+                }
+
                 datasourceMono = Mono.just(action.getDatasource())
                         .flatMap(datasourceService::validateDatasource);
             } else {

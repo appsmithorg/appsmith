@@ -61,7 +61,7 @@ describe("Layout OnLoad Actions tests", function() {
     //apiPage.RunAPI();
 
     //Adding dependency in right order matters!
-    ee.expandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("WIDGETS");
     ee.SelectEntityByName("Image1");
     jsEditor.EnterJSContext("Image", `{{RandomFlora.data}}`, true);
 

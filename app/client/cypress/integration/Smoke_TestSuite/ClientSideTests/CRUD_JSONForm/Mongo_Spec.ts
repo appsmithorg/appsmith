@@ -82,7 +82,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(1, 0);
     //Delete the test data
-    ee.expandCollapseEntity("PAGES");
+    ee.ExpandCollapseEntity("PAGES");
     ee.ActionContextMenuByEntityName("CoffeeCafe", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
     deployMode.DeployApp();
