@@ -2,8 +2,8 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.UserAndGroupDTO;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.services.CrudService;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Flux;
@@ -33,7 +33,7 @@ public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
 
     Mono<Map<String, String>> getUserRolesForWorkspace(String workspaceId);
 
-    Mono<List<UserRole>> getWorkspaceMembers(String workspaceId);
+    Mono<List<UserAndGroupDTO>> getWorkspaceMembers(String workspaceId);
 
     Mono<Workspace> uploadLogo(String workspaceId, Part filePart);
 

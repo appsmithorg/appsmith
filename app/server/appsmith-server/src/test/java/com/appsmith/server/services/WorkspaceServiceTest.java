@@ -16,6 +16,7 @@ import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
+import com.appsmith.server.dtos.UserAndGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
@@ -411,17 +412,25 @@ public class WorkspaceServiceTest {
         testWorkspace.setWebsite("https://test.com");
 
         Mono<Workspace> createWorkspaceMono = workspaceService.create(testWorkspace);
-        Mono<List<UserRole>> usersMono = createWorkspaceMono
+        Mono<List<UserAndGroupDTO>> usersMono = createWorkspaceMono
                 .flatMap(workspace -> workspaceService.getWorkspaceMembers(workspace.getId()));
 
+        Mono<UserGroup> adminUserGroup = createWorkspaceMono
+                .flatMapMany(workspace -> userGroupService.getDefaultUserGroups(workspace.getId()))
+                .filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR))
+                .single();
+
         StepVerifier
-                .create(usersMono)
-                .assertNext(users -> {
+                .create(Mono.zip(usersMono, adminUserGroup))
+                .assertNext(tuple -> {
+                    List<UserAndGroupDTO> users = tuple.getT1();
+                    UserGroup userGroup = tuple.getT2();
+
                     assertThat(users).isNotNull();
-                    UserRole userRole = users.get(0);
-                    assertThat(userRole.getName()).isEqualTo("api_user");
-                    assertThat(userRole.getRole()).isEqualByComparingTo(AppsmithRole.ORGANIZATION_ADMIN);
-                    assertThat(userRole.getRoleName()).isEqualTo(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    UserAndGroupDTO userAndGroupDTO = users.get(0);
+                    assertThat(userAndGroupDTO.getName()).isEqualTo("api_user");
+                    assertThat(userAndGroupDTO.getGroupName()).isEqualTo(userGroup.getName());
+                    assertThat(userAndGroupDTO.getGroupId()).isEqualTo(userGroup.getId());
                 })
                 .verifyComplete();
     }

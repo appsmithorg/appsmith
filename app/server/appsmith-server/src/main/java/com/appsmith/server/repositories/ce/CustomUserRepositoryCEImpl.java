@@ -9,9 +9,12 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -28,6 +31,12 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     public Mono<User> findByEmail(String email, AclPermission aclPermission) {
         Criteria emailCriteria = where(fieldName(QUser.user.email)).is(email);
         return queryOne(List.of(emailCriteria), aclPermission);
+    }
+
+    @Override
+    public Flux<User> findAllByEmails(Set<String> emails, AclPermission aclPermission) {
+        Criteria emailCriteria = where(fieldName(QUser.user.email)).in(emails);
+        return queryAll(List.of(emailCriteria), aclPermission);
     }
 
     @Override
