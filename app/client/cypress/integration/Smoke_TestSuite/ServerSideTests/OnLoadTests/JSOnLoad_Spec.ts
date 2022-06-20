@@ -126,7 +126,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    //agHelper.ValidateNetworkExecutionSuccess("@postExecute");
     deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
