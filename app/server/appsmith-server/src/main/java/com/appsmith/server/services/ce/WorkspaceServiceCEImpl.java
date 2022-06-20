@@ -260,58 +260,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                             return userGroupService.update(userGroup.getId(), userGroup);
                                         })
                                         .then(repository.save(createdWorkspace));
-
-//                                // Save the user group and the updated workspace
-//                                return Mono.zip(
-//                                        userGroupService.update(admin.getId(), admin),
-//                                        Mono.just(createdWorkspace),
-//                                        Mono.just(permissionGroups),
-//                                        Mono.just(userGroups)
-//                                        );
                             });
-                            // Now return the updated workspace with all the default groups created.
-//                            .map(tuple -> tuple.getT2());
                 });
-                // Set the current user as admin for the workspace
-//                .flatMap(tuple -> {
-//                    Workspace createdWorkspace = tuple.getT2();
-//                    Set<PermissionGroup> permissionGroups = tuple.getT3();
-//                    Set<UserGroup> userGroups = tuple.getT4();
-//
-//                    // Apply the permissions to the workspace
-//                    for (PermissionGroup permissionGroup : permissionGroups) {
-//                        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionForObject(permissionGroup, createdWorkspace.getId());
-//
-//                        createdWorkspace = policyUtils.addPoliciesToExistingObject(policyMap, createdWorkspace);
-//                    }
-//
-//                    return Flux.fromIterable(userGroups)
-//                            .flatMap(userGroup -> {
-//                                // Apply the permissions to the user group
-//                                for (PermissionGroup permissionGroup : permissionGroups) {
-//                                    Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionForObject(permissionGroup, userGroup.getId());
-//
-//                                    userGroup = policyUtils.addPoliciesToExistingObject(policyMap, userGroup);
-//                                }
-//
-//                                UserGroup update = new UserGroup();
-//                                update.setPolicies(userGroup.getPolicies());
-//                                return userGroupService.update(userGroup.getId(), update);
-//                            })
-//                            .then(repository.save(createdWorkspace));
-//                });
-//                .flatMap(createdWorkspace -> {
-//                    UserRole userRole = new UserRole();
-//                    userRole.setUsername(user.getUsername());
-//                    userRole.setUserId(user.getId());
-//                    userRole.setName(user.getName());
-//                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-//                    return userWorkspaceService.addUserToWorkspaceGivenUserObject(createdWorkspace, user, userRole);
-//                })
-                // Now add the org id to the user object and then return the saved org
-//                .flatMap(savedWorkspace -> userWorkspaceService
-//                        .addUserToWorkspace(savedWorkspace.getId(), user)
-//                        .thenReturn(savedWorkspace));
     }
 
     private String generateNewDefaultName(String oldName, String workspaceName) {
