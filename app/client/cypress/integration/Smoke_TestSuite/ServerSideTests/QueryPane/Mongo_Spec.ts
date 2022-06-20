@@ -315,8 +315,8 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     agHelper.ActionContextMenuWithInPane("Delete");
 
-    ee.expandCollapseEntity("DATASOURCES");
-    ee.expandCollapseEntity(dsName);
+    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("AuthorNAwards"));
   });
@@ -629,7 +629,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    ee.expandCollapseEntity("PAGES");
+    ee.ExpandCollapseEntity("PAGES");
     ee.ActionContextMenuByEntityName(
       "AuthorNAwards",
       "Delete",
@@ -652,7 +652,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
-    ee.expandCollapseEntity(dsName);
+    ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("AuthorNAwards"));
   });
