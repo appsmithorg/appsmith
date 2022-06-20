@@ -17,7 +17,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariPool;
 import com.zaxxer.hikari.pool.HikariProxyConnection;
-//import oracle.sql.Datum;
+import oracle.sql.Datum;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
@@ -374,9 +374,9 @@ public class OraclePlugin extends BasePlugin {
                                              * the value as a string.
                                              * Reference: https://jdbc.postgresql.org/documentation/publicapi/org/oracleql/util/PGobject.html
                                              */
-                                            /*if (value instanceof Datum) {
+                                            if (value instanceof Datum) {
                                                 value = new String(((Datum) value).getBytes());
-                                            }*/
+                                            }
                                         }
 
                                         row.put(metaData.getColumnName(i), value);
