@@ -10,7 +10,6 @@ import { getAppStoreData } from "selectors/entitiesSelector";
 import { StoreValueActionDescription } from "entities/DataTree/actionTriggers";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { updateAppStoreEvaluated } from "actions/pageActions";
 import { ReduxActionTypes } from "../../ce/constants/ReduxActionConstants";
 
 export default function* storeValueLocally(
