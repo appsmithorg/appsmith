@@ -219,15 +219,15 @@ export class AggregateHelper {
     );
   }
 
-  public SelectPropertiesDropDown(endp: string, ddOption: string) {
+  public SelectPropertiesDropDown(endp: string, dropdownOption: string) {
     cy.xpath(this.locator._selectPropDropdown(endp))
       .first()
       .scrollIntoView()
       .click();
-    cy.get(this.locator._dropDownValue(ddOption)).click();
+    cy.get(this.locator._dropDownValue(dropdownOption)).click();
   }
 
-  public SelectDropDown(ddOption: string, endp = "selectwidget") {
+  public SelectDropDown(dropdownOption: string, endp = "selectwidget") {
     const mode = window.localStorage.getItem("inDeployedMode");
     if (mode == "false") {
       cy.xpath(this.locator._selectWidgetDropdown(endp))
@@ -241,14 +241,14 @@ export class AggregateHelper {
         .click();
     }
     if (endp == "selectwidget")
-      cy.get(this.locator._selectOptionValue(ddOption)).click({ force: true });
-    else cy.get(this.locator._dropDownValue(ddOption)).click({ force: true });
+      cy.get(this.locator._selectOptionValue(dropdownOption)).click({ force: true });
+    else cy.get(this.locator._dropDownValue(dropdownOption)).click({ force: true });
 
     this.Sleep(); //for selected value to reflect!
   }
 
   public SelectFromDropDown(
-    ddOption: string,
+    dropdownOption: string,
     insideParent = "",
     index = 0,
     endp = "dropdownwidget",
@@ -267,14 +267,14 @@ export class AggregateHelper {
       .eq(index)
       .scrollIntoView()
       .click();
-    cy.get(this.locator._dropDownValue(ddOption)).click({ force: true });
+    cy.get(this.locator._dropDownValue(dropdownOption)).click({ force: true });
     this.Sleep(); //for selected value to reflect!
   }
 
-  public SelectDropdownList(ddName: string, ddOption: string) {
+  public SelectDropdownList(ddName: string, dropdownOption: string) {
     this.GetNClick(this.locator._existingFieldTextByName(ddName));
     cy.get(this.locator._dropdownText)
-      .contains(ddOption)
+      .contains(dropdownOption)
       .click();
   }
 
