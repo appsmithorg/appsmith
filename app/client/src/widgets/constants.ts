@@ -15,6 +15,7 @@ export interface WidgetConfiguration {
   isCanvas?: boolean;
   needsMeta?: boolean;
   features?: WidgetFeatures;
+  searchTags?: string[];
   properties: {
     config: PropertyPaneConfig[];
     default: Record<string, string>;

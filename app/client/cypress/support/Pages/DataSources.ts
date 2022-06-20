@@ -57,6 +57,9 @@ export class DataSources {
     "//div/span[text()='Result:']/span[contains(text(),'" +
     recordCount +
     " Record')]";
+  _noRecordFound = "span[data-testid='no-data-table-message']";
+  _usePreparedStatement =
+    "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -351,5 +354,18 @@ export class DataSources {
         .GetText(this.locator._jsonFormHeader)
         .then(($header: any) => expect($header).to.eq(jsonHeaderString));
     });
+  }
+
+  public ToggleUsePreparedStatement(enable = true || false) {
+    if (enable)
+      cy.get(this._usePreparedStatement).check({
+        force: true,
+      });
+    else
+      cy.get(this._usePreparedStatement).uncheck({
+        force: true,
+      });
+
+    this.agHelper.AssertAutoSave();
   }
 }

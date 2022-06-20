@@ -3,8 +3,9 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ExportFileDTO;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Mono;
 
@@ -23,14 +24,16 @@ public interface ImportExportApplicationServiceCE {
 
     Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName);
 
+    Mono<ExportFileDTO> getApplicationFile(String applicationId, String branchName);
+
     /**
      * This function will take the Json filepart and saves the application in workspace
      *
-     * @param orgId    workspace to which the application needs to be hydrated
+     * @param workspaceId    workspace to which the application needs to be hydrated
      * @param filePart Json file which contains the entire application object
      * @return saved application in DB
      */
-    Mono<ApplicationImportDTO> extractFileAndSaveApplication(String orgId, Part filePart);
+    Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart);
 
     Mono<Application> mergeApplicationJsonWithApplication(String organizationId, String applicationId, String branchName, ApplicationJson applicationJson, List<String> pagesToImport);
 

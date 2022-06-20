@@ -54,6 +54,12 @@ export class DeployMode {
     });
   }
 
+   public NavigateBacktoEditor() {
+    cy.get(this.locator._backToEditor).click();
+    this.agHelper.Sleep(2000);
+    localStorage.setItem("inDeployedMode", "false");
+  }
+
   public EnterJSONInputValue(fieldName: string, value: string, index = 0) {
     cy.xpath(this._jsonFormFieldByName(fieldName))
       .eq(index)
