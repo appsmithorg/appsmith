@@ -129,8 +129,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         hidden: (
           props: ButtonWidgetProps,
           propertyPath: string,
-          parentWidgetId?: string,
-        ) => !!(parentWidgetId && parentWidgetId === "0"),
+          shouldShowFormControl?: boolean,
+        ) => !shouldShowFormControl,
         dependencies: ["parentId"],
         children: [
           {

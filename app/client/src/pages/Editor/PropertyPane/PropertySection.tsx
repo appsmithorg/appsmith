@@ -53,7 +53,7 @@ type PropertySectionProps = {
   hidden?: (
     props: any,
     propertyPath: string,
-    parentWidgetId?: string,
+    shouldShowFormControl?: boolean,
   ) => boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
@@ -71,25 +71,24 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const [isOpen, open] = useState(!!isDefaultOpen);
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
   /**
-   * get parent widget id from current widget and pass to hidden function of propertyPane config
    * used to show hide property based on parent widget if required #3631
    */
-  const parentWidgetId = useSelector((state: AppState) => {
+  const shouldShowFormControl = useSelector((state: AppState) => {
     const canvasWidgets = state.entities.canvasWidgets;
-    const widgetId = widgetProps.parentId as string;
-    if (canvasWidgets.hasOwnProperty(widgetId)) {
-      const widget = canvasWidgets[widgetId];
+    const widgetParentId = widgetProps.parentId as string;
+    if (canvasWidgets.hasOwnProperty(widgetParentId)) {
+      const widget = canvasWidgets[widgetParentId];
       if (widget.parentId && canvasWidgets.hasOwnProperty(widget.parentId)) {
         const parent = canvasWidgets[widget.parentId];
-        return parent.widgetId;
-      } else {
-        return widget.widgetId;
+        return parent.type === "FORM_WIDGET" && parent.parentId === "0";
       }
     }
-    return;
+    return false;
   });
   if (props.hidden) {
-    if (props.hidden(widgetProps, props.propertyPath || "", parentWidgetId)) {
+    if (
+      props.hidden(widgetProps, props.propertyPath || "", shouldShowFormControl)
+    ) {
       return null;
     }
   }
