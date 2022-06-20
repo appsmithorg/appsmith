@@ -54,7 +54,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     GenerateCRUDNValidateDeployPage("ABW", "Aruba", "North America", "Code");
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
     ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
@@ -68,7 +68,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     });
 
     deployMode.DeployApp();
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
@@ -107,7 +107,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       "customerNumber",
     );
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -126,10 +126,10 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       "employeeNumber",
     );
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    ee.expandCollapseEntity("PAGES")
+    ee.ExpandCollapseEntity("PAGES");
     ee.ActionContextMenuByEntityName("Employees", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
   });
@@ -170,7 +170,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
 
-    ee.expandCollapseEntity(dsName);
+    ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("productlines"));
   });
@@ -225,7 +225,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     dataSources.AssertJSONFormHeader(0, 0, "productLine");
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     // //Delete the test data
     // ee.ActionContextMenuByEntityName("Productlines", "Delete", "Are you sure?");
@@ -252,8 +252,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     dataSources.AssertJSONFormHeader(3, 0, "productLine");
 
-    deployMode.EnterJSONFieldValue(
-      deployMode._jsonFormFieldByName("Html Description", false),
+    deployMode.EnterJSONTextAreaValue("Html Description",
       "The largest cruise ship is twice the length of the Washington Monument. Some cruise ships have virtual balconies.",
     );
     agHelper.ClickButton("Update"); //Update does not work, Bug 14063
@@ -312,7 +311,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
 
-    ee.expandCollapseEntity(dsName);
+    ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("Stores"));
   });
@@ -341,7 +340,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       "store_id",
     );
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
   });
 
@@ -422,6 +421,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Confirm");
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.Sleep(2500);// for delete to take effect!
     table.AssertSelectedRow(0); //Control going back to 1st row in table
     dataSources.AssertJSONFormHeader(0, 0, "store_id");
   });
@@ -430,7 +430,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._refreshIcon);
 
     //Store Address deletion remains
-    table.ReadTableRowColumnData(4, 3, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(4, 3, 2000).then(($cellData) => {
       expect($cellData).to.eq("");
     });
     table.ReadTableRowColumnData(7, 3, 200).then(($cellData) => {
@@ -454,10 +454,10 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("15. Verify Add/Insert from Deploy page - on Stores - new record", () => {
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    ee.expandCollapseEntity("WIDGETS");
-    ee.expandCollapseEntity("Insert_Modal");
+    ee.ExpandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("Insert_Modal");
     ee.SelectEntityByName("insert_form");
     agHelper.Sleep(2000);
 
@@ -471,32 +471,25 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     table.AssertSelectedRow(0);
 
     agHelper.GetNClick(dataSources._addIcon);
-    agHelper.AssertElementVisible(locator._jsonFormWidget, 1); //Insert Modal
+    agHelper.Sleep(1000); //time for new Modal to settle
+    //agHelper.AssertElementVisible(locator._jsonFormWidget, 1); //Insert Modal at index 1
     agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("Column 'store_id' cannot be null");
 
-    deployMode.EnterJSONFieldValue(
-      deployMode._jsonFormFieldByName("Store Id", true),
-      "2106",
+    deployMode.EnterJSONInputValue("Store Id", "2106",
     );
-    deployMode.EnterJSONFieldValue(
-      deployMode._jsonFormFieldByName("Name", true),
-      "Keokuk Spirits",
+    deployMode.EnterJSONInputValue("Name", "Keokuk Spirits",
       1,
     );
     cy.xpath(deployMode._jsonFormRadioFieldByName("Store Status"))
       .eq(3)
       .check({ force: true });
-    deployMode.EnterJSONFieldValue(
-      deployMode._jsonFormFieldByName("Store Address", false),
-      "1013 Main Keokuk, IA 526320000 (40.40003235900008, -91.38771983999999)",
-      1,
+    deployMode.EnterJSONTextAreaValue("Store Address",
+      "1013 Main Keokuk, IA 526320000 (40.40003235900008, -91.38771983999999)", 1
     );
-    deployMode.EnterJSONFieldValue(
-      deployMode._jsonFormFieldByName("Store Secret Code", true),
-      "1013 M K IA 5",
-      1,
+    deployMode.EnterJSONInputValue("Store Secret Code",
+      "1013 M K IA 5", 1,
     );
     cy.xpath(deployMode._jsonFormFieldByName("Store Secret Code", true))
       .invoke("attr", "type")
@@ -509,16 +502,14 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       .clear()
       .wait(500);
 
-    deployMode.EnterJSONFieldValue(
-      deployMode._jsonFormFieldByName("Store Id", true),
-      "2105",
-    );
+    deployMode.EnterJSONInputValue("Store Id", "2105");
     agHelper.ClickButton("Submit");
 
     //asserting only Update JSON form is present, &  Insert Modal is closed
     agHelper.Sleep(2000); //for Insert to reflect!
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.Sleep(3000); //for Insert to reflect!
     agHelper
       .GetElementLength(locator._jsonFormWidget)
       .then(($len) => expect($len).to.eq(1));
@@ -536,19 +527,16 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     cy.xpath(deployMode._jsonFormFieldByName("Store Address", false))
       .clear()
       .wait(500);
-    deployMode.EnterJSONFieldValue(
-      deployMode._jsonFormFieldByName("Store Address", false),
-      "116 Main Pocahontas, IA 505740000 (42.73259393100005, -94.67824592399995)",
-    );
+    deployMode.EnterJSONTextAreaValue("Store Address",
+      "116 Main Pocahontas, IA 505740000 (42.73259393100005, -94.67824592399995)");
     updateNVerify(
       0,
       3,
       "116 Main Pocahontas, IA 505740000 (42.73259393100005, -94.67824592399995)",
     );
 
-    cy.xpath(deployMode._jsonFormFieldByName("Store Secret Code", true))
-      .clear()
-      .wait(500);
+    deployMode.ClearJSONFieldValue("Store Secret Code")
+
     // generateStoresSecretInfo(0); //verifying the secret code is password field //Password type check failing due to bug STRING TO NULL
     // cy.get("@secretInfo").then(($secretInfo) => {
     //   newStoreSecret = $secretInfo;
@@ -584,7 +572,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("17. Validate Deletion of the Newly Created Page - Stores", () => {
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
     ee.ActionContextMenuByEntityName("Stores", "Delete", "Are you sure?");
@@ -602,7 +590,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
-    ee.expandCollapseEntity(dsName);
+    ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("Stores"));
   });
@@ -677,10 +665,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       secretCode[0] = secretCode[0].slice(0, 5);
       secretCode[1] = secretCode[1].slice(0, 5);
       secretInfo = secretCode[0] + secretCode[1];
-      deployMode.EnterJSONFieldValue(
-        deployMode._jsonFormFieldByName("Store Secret Code", true),
-        secretInfo,
-      );
+      deployMode.EnterJSONInputValue("Store Secret Code", secretInfo);
       cy.xpath(deployMode._jsonFormFieldByName("Store Secret Code", true))
         .invoke("attr", "type")
         .should("eq", "password");

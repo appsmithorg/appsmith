@@ -62,4 +62,28 @@ describe("Modal Widget Functionality", function() {
       .children()
       .should("have.length", 2);
   });
+
+  it("5. should select modal when clicked on modal label", () => {
+    //open modal
+    cy.SearchEntityandOpen("Modal1");
+    cy.get(".t--modal-widget").should("exist");
+
+    //select text widget inside the modal
+    cy.get(".t--modal-widget")
+      .find(".t--widget-textwidget")
+      .click();
+    cy.get(".t--modal-widget")
+      .find(".t--widget-textwidget div[data-testid='t--selected']")
+      .should("have.length", 1);
+
+    //click on modal's widgetName Label
+    cy.get(
+      "div[data-testid='t--settings-controls-positioned-wrapper']:contains(Modal1)",
+    ).click({
+      ctrlKey: true,
+    });
+
+    //verify the modal1 is selected
+    cy.get(".t--property-pane-title").should("contain", "Modal1");
+  });
 });

@@ -1,11 +1,12 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import moment from "moment-timezone";
 import styled from "styled-components";
 import { TimePrecision } from "@blueprintjs/datetime";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import DatePickerComponent from "components/ads/DatePickerComponent";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 const DatePickerControlWrapper = styled.div<{ isValid: boolean }>`
   display: flex;
@@ -176,6 +177,10 @@ class DatePickerControl extends BaseControl<
       else return moment().toDate();
     }
   };
+
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    return !isDynamicValue(value);
+  }
 
   static getControlType() {
     return "DATE_PICKER";

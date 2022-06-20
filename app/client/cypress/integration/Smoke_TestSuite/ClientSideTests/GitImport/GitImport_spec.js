@@ -14,10 +14,10 @@ let repoName;
 describe("Git import flow", function() {
   before(() => {
     cy.NavigateToHome();
-    cy.createOrg();
-    cy.wait("@createOrg").then((interception) => {
-      const newOrganizationName = interception.response.body.data.name;
-      cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
+    cy.createWorkspace();
+    cy.wait("@createWorkspace").then((interception) => {
+      const newWorkspaceName = interception.response.body.data.name;
+      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
   });
   it("Import an app from JSON with Postgres, MySQL, Mongo db", () => {
@@ -25,10 +25,11 @@ describe("Git import flow", function() {
     cy.get(homePage.optionsIcon)
       .first()
       .click();
-    cy.get(homePage.orgImportAppOption).click({ force: true });
-    cy.get(homePage.orgImportAppModal).should("be.visible");
+    cy.get(homePage.workspaceImportAppOption).click({ force: true });
+    cy.get(homePage.workspaceImportAppModal).should("be.visible");
     cy.xpath(homePage.uploadLogo).attachFile("gitImport.json");
     cy.wait("@importNewApplication").then((interception) => {
+      cy.log(interception.response.body.data);
       cy.wait(100);
       // should check reconnect modal opening
       cy.get(reconnectDatasourceModal.Modal).should("be.visible");
@@ -68,16 +69,16 @@ describe("Git import flow", function() {
   });
   it("Import an app from Git and reconnect Postgres, MySQL and Mongo db ", () => {
     cy.NavigateToHome();
-    cy.createOrg();
-    cy.wait("@createOrg").then((interception) => {
-      const newOrganizationName = interception.response.body.data.name;
-      cy.CreateAppForOrg(newOrganizationName, "gitImport");
+    cy.createWorkspace();
+    cy.wait("@createWorkspace").then((interception) => {
+      const newWorkspaceName = interception.response.body.data.name;
+      cy.CreateAppForWorkspace(newWorkspaceName, "gitImport");
     });
     cy.get(homePage.homeIcon).click();
     cy.get(homePage.optionsIcon)
       .first()
       .click();
-    cy.get(homePage.orgImportAppOption).click({ force: true });
+    cy.get(homePage.workspaceImportAppOption).click({ force: true });
     cy.get(".t--import-json-card")
       .next()
       .click();
