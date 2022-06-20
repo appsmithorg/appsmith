@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import _ from "lodash";
+import { isEmpty, get } from "lodash";
 import { useSelector } from "react-redux";
 import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import js from "react-syntax-highlighter/dist/cjs/languages/prism/javascript";
@@ -148,7 +148,7 @@ function CodeEditor(props: any) {
         return;
       }
 
-      const errors = _.get(
+      const errors = get(
         dynamicData,
         getEvalErrorPath(dataTreePath),
         [],
@@ -158,7 +158,7 @@ function CodeEditor(props: any) {
         (error) => error.errorType === PropertyEvaluationErrorType.LINT,
       );
 
-      if (!_.isEmpty(lintErrors)) {
+      if (!isEmpty(lintErrors)) {
         !lintError && setLintError(lintErrors[0].errorMessage);
       } else {
         lintError && setLintError("");
