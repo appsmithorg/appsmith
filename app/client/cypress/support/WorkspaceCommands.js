@@ -294,13 +294,13 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
-  cy.AppSetupForRename();
-  cy.get(homePage.applicationName).type(appname + "{enter}");
-  cy.wait("@updateApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  //cy.AppSetupForRename();
+  //cy.get(homePage.applicationName).type(appname + "{enter}");
+  // cy.wait("@updateApplication").should(
+  //   "have.nested.property",
+  //   "response.body.responseMeta.status",
+  //   200,
+  // );
 
   cy.waitUntil(() => cy.get(generatePage.buildFromScratchActionCard), {
     errorMsg: "Build app from scratch not visible even aft 80 secs",
