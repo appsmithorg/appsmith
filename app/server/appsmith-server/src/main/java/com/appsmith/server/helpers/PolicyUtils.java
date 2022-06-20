@@ -67,7 +67,7 @@ public class PolicyUtils {
             Policy policy = Policy.builder()
                     .users(new HashSet<>(entryValue.getUsers()))
                     .permission(entryValue.getPermission())
-                    .groups(new HashSet<>(entryValue.getGroups()))
+                    .permissionGroups(new HashSet<>(entryValue.getPermissionGroups()))
                     .build();
             policyMap1.put(entry.getKey(), policy);
         }
@@ -77,11 +77,11 @@ public class PolicyUtils {
             String permission = policy.getPermission();
             if (policyMap1.containsKey(permission)) {
                 policy.getUsers().addAll(policyMap1.get(permission).getUsers());
-                if (policy.getGroups() == null) {
-                    policy.setGroups(new HashSet<>());
+                if (policy.getPermissionGroups() == null) {
+                    policy.setPermissionGroups(new HashSet<>());
                 }
-                if (policyMap1.get(permission).getGroups() != null) {
-                    policy.getGroups().addAll(policyMap1.get(permission).getGroups());
+                if (policyMap1.get(permission).getPermissionGroups() != null) {
+                    policy.getPermissionGroups().addAll(policyMap1.get(permission).getPermissionGroups());
                 }
                 // Remove this permission from the policyMap as this has been accounted for in the above code
                 policyMap1.remove(permission);
@@ -126,11 +126,11 @@ public class PolicyUtils {
      * @param user
      * @return
      */
-    public Map<String, Policy> generatePolicyFromPermissionForObject(Set<AclPermission> permissions, User user) {
-        return generatePolicyFromPermissionForObject(permissions, user.getUsername());
+    public Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, User user) {
+        return generatePolicyFromPermission(permissions, user.getUsername());
     }
 
-    public Map<String, Policy> generatePolicyFromPermissionForObject(Set<AclPermission> permissions, String username) {
+    public Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, String username) {
         return permissions.stream()
                 .map(perm -> {
                     // Create a policy for the invited user using the permission as per the role
