@@ -11,6 +11,7 @@ import { StoreValueActionDescription } from "entities/DataTree/actionTriggers";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateAppStoreEvaluated } from "actions/pageActions";
+import { ReduxActionTypes } from "../../ce/constants/ReduxActionConstants";
 
 export default function* storeValueLocally(
   action: StoreValueActionDescription["payload"],
@@ -44,10 +45,13 @@ export default function* storeValueLocally(
   */
   while (true) {
     const returnedAction: StoreValueActionDescription = yield take(
-      updateAppStoreEvaluated().type,
+      ReduxActionTypes.UPDATE_APP_STORE_EVALUATED,
     );
-    const { uniqueActionRequestId } = returnedAction.payload;
+    if (!returnedAction?.payload?.uniqueActionRequestId) {
+      break;
+    }
 
+    const { uniqueActionRequestId } = returnedAction.payload;
     if (uniqueActionRequestId === action.uniqueActionRequestId) {
       break;
     }
