@@ -44,7 +44,7 @@
             <version>1.18.8</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
+        <!--<dependency>
 		  <groupId>com.oracle.database.r2dbc</groupId>
 		  <artifactId>oracle-r2dbc</artifactId>
 		  <version>0.1.0</version>
@@ -62,28 +62,43 @@
                     <artifactId>reactive-streams</artifactId>
                 </exclusion>
             </exclusions>
-		</dependency>
+		</dependency>-->
         <!-- Test Dependencies -->
         <dependency>
             <groupId>com.oracle.ojdbc</groupId>
             <artifactId>ojdbc8</artifactId>
             <version>19.3.0.0</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
-            <version>1.15.0-rc2</version>
+            <version>1.17.2</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>oracle-xe</artifactId>
-            <version>1.15.0-rc2</version>
+            <version>1.17.2</version>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+      <dependency>
+          <groupId>org.testcontainers</groupId>
+          <artifactId>jdbc-test</artifactId>
+          <version>1.11.4</version>
+      </dependency>
+      <dependency>
+          <groupId>com.zaxxer</groupId>
+          <artifactId>HikariCP</artifactId>
+          <version>3.4.5</version>
+          <exclusions>
+              <exclusion>
+                  <groupId>org.slf4j</groupId>
+                  <artifactId>slf4j-api</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+  </dependencies>
     <build>
         <plugins>
             <plugin>
