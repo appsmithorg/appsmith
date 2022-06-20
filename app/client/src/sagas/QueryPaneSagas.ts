@@ -304,6 +304,10 @@ function* handleNameChangeSuccessSaga(
   }
 }
 
+/**
+ * Creates an action with specific datasource created by a user
+ * @param action
+ */
 function* createNewQueryForDatasourceSaga(
   action: ReduxAction<{
     pageId: string;
