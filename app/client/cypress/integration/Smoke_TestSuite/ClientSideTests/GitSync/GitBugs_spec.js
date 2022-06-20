@@ -76,7 +76,7 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
       cy.createTestGithubRepo(repoName);
       cy.connectToGitRepo(repoName);
     });
-    ee.expandCollapseEntity("QUERIES/JS", true);
+    ee.ExpandCollapseEntity("QUERIES/JS", true);
     // create JS object and validate its data on Page1
     cy.createJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
@@ -174,7 +174,7 @@ describe("Git synced app with JSObject", function() {
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
       cy.addDsl(dsl);
     });
-    ee.expandCollapseEntity("QUERIES/JS", true);
+    ee.ExpandCollapseEntity("QUERIES/JS", true);
     // create JS object and validate its data on Page1
     cy.createJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
