@@ -65,6 +65,7 @@ export const getFilteredTemplateList = createSelector(
   getTemplateFiltersLength,
   (templates, templatesFilters, numberOfFiltersApplied) => {
     const result: Template[] = [];
+    const activeTemplateIds: string[] = [];
 
     if (!numberOfFiltersApplied) {
       return templates;
@@ -76,12 +77,17 @@ export const getFilteredTemplateList = createSelector(
 
     Object.keys(templatesFilters).map((filter) => {
       templates.map((template) => {
+        if (activeTemplateIds.includes(template.id)) {
+          return;
+        }
+
         if (
           template[filter as FilterKeys].some((templateFilter) => {
             return templatesFilters[filter].includes(templateFilter);
           })
         ) {
           result.push(template);
+          activeTemplateIds.push(template.id);
         }
       });
     });
