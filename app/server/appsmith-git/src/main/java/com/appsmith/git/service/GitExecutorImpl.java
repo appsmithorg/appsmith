@@ -514,9 +514,13 @@ public class GitExecutorImpl implements GitExecutor {
                     return checkAndCommitMigrationChanges(repoPath, branchName, response, isChangeOnlyDueToMigration)
                             .map(isMigrationCommit -> {
                                 try {
-                                    getBranchTrackingStatus(response, git, branchName);
+                                    getBranchTrackingStatus(response, git, branchName)
+                                    return resetToLastCommit(git)
+                                            .thenReturn(response);
                                 } catch (IOException e) {
-                                    log.error("Error while tracking branch status {0}", e);
+                                    log.error("Error while tracking branch status", e);
+                                } catch (GitAPIException e) {
+                                    log.error("Error while resetting to last commit", e);
                                 }
                                 return response;
                             });
