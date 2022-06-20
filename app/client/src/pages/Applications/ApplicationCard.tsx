@@ -655,8 +655,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
         target={
           <MoreOptionsContainer>
             <Icon
-              fillColor={isMenuOpen ? "#8a8a8a" : "#000"}
-              hoverFillColor="#8a8a8a"
+              fillColor={isMenuOpen ? Colors.GREY_7 : Colors.GREY_900}
+              hoverFillColor={Colors.GREY_7}
               name="context-menu"
               size={IconSize.XXXL}
             />
