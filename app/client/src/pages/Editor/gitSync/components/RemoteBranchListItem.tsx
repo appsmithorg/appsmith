@@ -11,6 +11,7 @@ export function RemoteBranchListItem({ branch, className, onClick }: any) {
     <BranchListItemContainer
       active={false}
       className={className}
+      data-testid={`t--git-${className}`}
       isDefault={false}
       onClick={onClick}
       ref={null}

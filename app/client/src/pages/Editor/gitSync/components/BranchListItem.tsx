@@ -36,6 +36,7 @@ export function BranchListItem({
     <BranchListItemContainer
       active={active}
       className={className}
+      data-cy={className}
       isDefault={isDefault}
       ref={itemRef}
       selected={selected}

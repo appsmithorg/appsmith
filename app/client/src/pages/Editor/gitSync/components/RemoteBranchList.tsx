@@ -20,7 +20,7 @@ export function RemoteBranchList(
       {remoteBranches.map((branch: string) => (
         <RemoteBranchListItem
           branch={branch}
-          className="t--branch-item"
+          className="remote-branch-item"
           key={branch}
           onClick={() => switchBranch(branch)}
         />
