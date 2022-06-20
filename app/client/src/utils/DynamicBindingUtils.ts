@@ -13,6 +13,7 @@ import {
 import forge from "node-forge";
 import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
+import { ViewTypes } from "components/formControls/utils";
 
 export type DependencyMap = Record<string, Array<string>>;
 export type FormEditorConfigs = Record<string, any[]>;
@@ -568,13 +569,13 @@ export function getDynamicBindingsChangesSaga(
     );
 
     // if the value of the viewType is of json and, we push in the field
-    if (value === "json") {
+    if (value === ViewTypes.JSON) {
       const jsonFieldPath = field.replace(".viewType", ".jsonData");
       const jsonFieldValue = get(action, jsonFieldPath);
       if (isDynamicValue(jsonFieldValue)) {
         dynamicBindings.push({ key: dataBindingField });
       }
-    } else if (value === "component") {
+    } else if (value === ViewTypes.COMPONENT) {
       const componentFieldPath = field.replace(".viewType", ".componentData");
       const componentFieldValue = get(action, componentFieldPath);
       temporaryDynamicPathStore = [];

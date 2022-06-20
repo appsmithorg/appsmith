@@ -3,7 +3,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { ControlType } from "constants/PropertyControlConstants";
-import { get, isArray, isNil } from "lodash";
+import { get, isNil } from "lodash";
 import {
   Field,
   WrappedFieldInputProps,
@@ -13,8 +13,11 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { getDynamicFetchedValues } from "selectors/formSelectors";
 import { change, getFormValues } from "redux-form";
-import { diff } from "deep-diff";
-import { FormDataPaths } from "workers/formEval";
+import {
+  FormDataPaths,
+  matchExact,
+  MATCH_ACTION_CONFIG_PROPERTY,
+} from "workers/formEval";
 import { Action } from "entities/Action";
 
 const DropdownSelect = styled.div<{
@@ -27,20 +30,33 @@ const DropdownSelect = styled.div<{
 class DropDownControl extends BaseControl<Props> {
   componentDidUpdate(prevProps: Props) {
     // if options received by the fetchDynamicValues for the multi select changes, update the config property path's values.
-    // we do this to make sure, the data does not contain values from the previous option.
-    // we use the query editor form name because this is the only type of formName
-    if (
-      this.props.fetchOptionsConditionally &&
-      this.props.isMultiSelect &&
-      isArray(prevProps.options) &&
-      prevProps.options.length > 1 &&
-      !!diff(prevProps.options, this.props.options)
-    ) {
-      this.props.updateConfigPropertyValue(
-        this.props.formName,
-        this.props.configProperty,
-        [],
+    // we do this to make sure, the data does not contain values from the previous options.
+    // we check if the fetchDynamicValue dependencies of the multiselect dropdown has changed values
+    // if it has, we reset the values multiselect of the dropdown.
+    if (this.props.fetchOptionsConditionally && this.props.isMultiSelect) {
+      const dependencies = matchExact(
+        MATCH_ACTION_CONFIG_PROPERTY,
+        this?.props?.conditionals?.fetchDynamicValues?.condition,
       );
+
+      let hasDependenciesChanged = false;
+
+      if (!!dependencies && dependencies.length > 0) {
+        dependencies.forEach((dependencyPath) => {
+          const prevValue = get(prevProps?.formValues, dependencyPath);
+          const currentValue = get(this.props?.formValues, dependencyPath);
+          if (prevValue !== currentValue) {
+            hasDependenciesChanged = true;
+          }
+        });
+      }
+      if (hasDependenciesChanged) {
+        this.props.updateConfigPropertyValue(
+          this.props.formName,
+          this.props.configProperty,
+          [],
+        );
+      }
     }
 
     // For entity types to query on the datasource
