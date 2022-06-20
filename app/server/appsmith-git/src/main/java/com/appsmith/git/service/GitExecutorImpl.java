@@ -77,6 +77,8 @@ public class GitExecutorImpl implements GitExecutor {
 
     private static final String SUCCESS_MERGE_STATUS = "This branch has no conflict with the base branch.";
 
+    private static final String MIGRATION_COMMIT_MSG = "System generated migration commit";
+
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
      * initialised and will be initialised if git repo is not present
@@ -457,12 +459,13 @@ public class GitExecutorImpl implements GitExecutor {
      * This method will handle the git-status functionality. Depending upon the client side migrations present in
      * canvas.jason file we make a auto-commit in such situations
      *
-     * @param repoPath Path to actual repo
-     * @param branchName branch name for which the status is required
+     * @param repoPath                      Path to actual repo
+     * @param branchName                    Branch name for which the status is required
+     * @param isChangeOnlyDueToMigration   No user update since last commit but only migration changes are present
      * @return Map of file names those are modified, conflicted etc.
      */
     @Override
-    public Mono<GitStatusDTO> getStatus(Path repoPath, String branchName) {
+    public Mono<GitStatusDTO> getStatus(Path repoPath, String branchName, boolean isChangeOnlyDueToMigration) {
         Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(repoPath, AnalyticsEvents.GIT_STATUS.getEventName());
         return Mono.fromCallable(() -> {
             try (Git git = Git.open(repoPath.toFile())) {
@@ -501,31 +504,24 @@ public class GitExecutorImpl implements GitExecutor {
                 response.setModifiedJSObjects(modifiedJSObjects);
                 response.setModifiedDatasources(modifiedDatasources);
 
+                processStopwatch.stopAndLogTimeInMillis();
                 // Remove modified changes from current branch so that checkout to other branches will be possible
-                if (!status.isClean()) {
-                    // Check the diff and make a migration commit
-                    // Check if the changes are only in canvas.json => Get diff => If diff includes "version" change do the commit
-                    return checkAndCommitClientMigrationChanges(repoPath, branchName, response)
-                            .flatMap(isMigrationCommit -> {
+                if (!Boolean.TRUE.equals(status.isClean())) {
+                    // Check if we have only migration changes or if the changes are only in canvas.json find out client
+                    // side migration
+                    // => Get diff
+                    // => If diff includes "version" change do the commit
+                    return checkAndCommitMigrationChanges(repoPath, branchName, response, isChangeOnlyDueToMigration)
+                            .map(isMigrationCommit -> {
                                 try {
                                     getBranchTrackingStatus(response, git, branchName);
-                                    return resetToLastCommit(git)
-                                            .thenReturn(isMigrationCommit);
-                                } catch (GitAPIException e) {
-                                    log.error("Error while hard resetting to latest commit {0}", e);
-                                    return Mono.just(isMigrationCommit);
                                 } catch (IOException e) {
                                     log.error("Error while tracking branch status {0}", e);
-                                    return Mono.just(isMigrationCommit);
                                 }
-                            })
-                            .map(ref -> {
-                                processStopwatch.stopAndLogTimeInMillis();
                                 return response;
                             });
                 }
                 getBranchTrackingStatus(response, git, branchName);
-                processStopwatch.stopAndLogTimeInMillis();
 
                 return Mono.just(response);
             }
@@ -549,37 +545,39 @@ public class GitExecutorImpl implements GitExecutor {
         }
     }
 
-    private Mono<GitStatusDTO> checkAndCommitClientMigrationChanges(Path repoPath, String branchName, GitStatusDTO status) {
+    private Mono<GitStatusDTO> checkAndCommitMigrationChanges(Path repoPath, String branchName, GitStatusDTO status, boolean isChangesOnlyDueToMigration) {
         log.debug(Thread.currentThread().getName() + ": Check and commit client migration if any for repo  " + repoPath + ", branch " + branchName);
         try (Git git = Git.open(repoPath.toFile())) {
-            if (Boolean.TRUE.equals(status.getIsClean())) {
-                return Mono.just(status);
-            }
 
-            for (String modifiedFilePath : status.getModified()) {
-                // Check if we only have client side migration which will be present in canvas.json which includes the
-                // page DSL
-                if (!modifiedFilePath.contains(CANVAS + JSON_EXTENSION)) {
+            // Check if only migration changes are present
+            // true => Commit migration changes
+            // false => Check diff to find out client side migration
+            if (Boolean.FALSE.equals(isChangesOnlyDueToMigration)) {
+                for (String modifiedFilePath : status.getModified()) {
+                    // Check if only client side migration changes are present by examining canvas.json which includes the
+                    // page DSL migrations
+                    if (!modifiedFilePath.contains(CANVAS + JSON_EXTENSION)) {
+                        return Mono.just(status);
+                    }
+                }
+                StringOutputStream stream = new StringOutputStream();
+                git.diff().setOutputStream(stream).call();
+                // Check if the diff is due to client migration
+                // Sample diff for ref when we run client side migration:
+                //        "           \"canExtend\": true,"
+                //        "-          \"version\": 58,"
+                //        "+          \"version\": 59,"
+                //        "           \"minHeight\": 1292,"
+                final String regex = "version.+\\n.+version";
+                final Pattern pattern = Pattern.compile(regex);
+                final Matcher matcher = pattern.matcher(stream.toString());
+                if (!matcher.find()) {
+                    // If diff does not contain the version change means user has updated the page manually
                     return Mono.just(status);
                 }
             }
-            StringOutputStream stream = new StringOutputStream();
-            git.diff().setOutputStream(stream).call();
-            // Check if the diff is due to client migration
-            // Sample diff for ref when we run client side migration:
-            //        "           \"canExtend\": true,"
-            //        "-          \"version\": 58,"
-            //        "+          \"version\": 59,"
-            //        "           \"minHeight\": 1292,"
-            final String regex = "version.+\\n.+version";
-            final Pattern pattern = Pattern.compile(regex);
-            final Matcher matcher = pattern.matcher(stream.toString());
-            if (!matcher.find()) {
-                // If diff does not contain the version change means user has updated the page manually
-                return Mono.just(status);
-            }
 
-            return this.commitApplication(repoPath, "Migration commit", null, null, false, false)
+            return this.commitApplication(repoPath, MIGRATION_COMMIT_MSG, null, null, false, false)
                     .map(commitMessage -> {
                         // Update the status to reflect migration commit
                         status.setIsClean(true);

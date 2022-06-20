@@ -37,6 +37,7 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
+import com.appsmith.server.migrations.MigrationHelperMethods;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
@@ -1508,47 +1509,90 @@ public class GitServiceCEImpl implements GitServiceCE {
             2. Fetch the current status from local repo
          */
 
+        Mono<Application> branchedApplicationMono = applicationService
+                .findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                .cache();
 
         Mono<GitStatusDTO> statusMono = Mono.zip(
-                getGitApplicationMetadata(defaultApplicationId),
-                applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, MANAGE_APPLICATIONS)
-                        .onErrorResume(error -> {
-                            //if the branch does not exist in local, checkout remote branch
-                            return checkoutBranch(defaultApplicationId, finalBranchName);
-                        })
-                        .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)))
+                        getGitApplicationMetadata(defaultApplicationId),
+                        branchedApplicationMono
+                                .onErrorResume(error -> {
+                                    //if the branch does not exist in local, checkout remote branch
+                                    return checkoutBranch(defaultApplicationId, finalBranchName);
+                                })
+                                .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL))
+                )
                 .flatMap(tuple -> {
                     GitApplicationMetadata defaultApplicationMetadata = tuple.getT1();
-                    Application application = tuple.getT2().getT1();
+                    Application branchedApplication = tuple.getT2().getT1();
                     ApplicationJson applicationJson = tuple.getT2().getT2();
-                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    GitApplicationMetadata gitData = branchedApplication.getGitApplicationMetadata();
                     gitData.setGitAuth(defaultApplicationMetadata.getGitAuth());
+
+                    // No user update since last commit but only migration changes are present
+                    boolean isChangeOnlyDueToMigration = MigrationHelperMethods.isAutoUpdate(branchedApplication)
+                            && Boolean.FALSE.equals(branchedApplication.getIsManualUpdate());
+
                     Path repoSuffix =
-                            Paths.get(application.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+                            Paths.get(branchedApplication.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
 
                     try {
                         return Mono.zip(
                                 fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, finalBranchName),
-                                Mono.just(gitData.getGitAuth()),
-                                Mono.just(repoSuffix)
+                                Mono.just(gitData),
+                                Mono.just(repoSuffix),
+                                Mono.just(isChangeOnlyDueToMigration)
                         );
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", e.getMessage()));
                     }
                 })
                 .flatMap(tuple -> {
-                    Mono<GitStatusDTO> branchedStatusMono = gitExecutor.getStatus(tuple.getT1(), finalBranchName);
-                    return gitExecutor.fetchRemote(tuple.getT1(), tuple.getT2().getPublicKey(), tuple.getT2().getPrivateKey(), true)
+                    GitApplicationMetadata gitData = tuple.getT2();
+                    GitAuth gitAuth = gitData.getGitAuth();
+                    boolean isChangeOnlyDueToMigration = tuple.getT4();
+                    Path repoSuffix = tuple.getT3();
+                    Mono<GitStatusDTO> branchedStatusMono = gitExecutor.getStatus(tuple.getT1(), finalBranchName, isChangeOnlyDueToMigration);
+
+                    return gitExecutor.fetchRemote(tuple.getT1(), gitAuth.getPublicKey(), gitAuth.getPrivateKey(), true)
                             .then(branchedStatusMono)
                             // Remove any files which are copied by hard resetting the repo
                             .flatMap(status -> {
                                 try {
-                                    return gitExecutor.resetToLastCommit(tuple.getT3(), branchName)
+                                    return gitExecutor.resetToLastCommit(tuple.getT3(), finalBranchName)
                                         .thenReturn(status);
                                 } catch (GitAPIException | IOException e) {
                                     log.error("Error while resetting to last commit for appId {}, exception {}", defaultApplicationId, e);
                                 }
                                 return Mono.just(status);
+                            })
+                            .flatMap(statusDTO -> {
+                                // Push local commits if there are no upstream changes
+                                if (statusDTO.getBehindCount() == 0 && statusDTO.getAheadCount() > 0) {
+                                    return gitExecutor.pushApplication(repoSuffix, gitData.getRemoteUrl(), gitAuth.getPublicKey(), gitAuth.getPrivateKey(), finalBranchName)
+                                            .map(pushStatus -> {
+                                                statusDTO.setAheadCount(0);
+                                                return statusDTO;
+                                            })
+                                            .onErrorResume(error -> {
+                                                log.error("Exception during git push after migration changes for repo {}, exception {}", repoSuffix, error);
+                                                return Mono.just(statusDTO);
+                                            })
+                                            .zipWith(branchedApplicationMono)
+                                            .flatMap(objects -> {
+                                                Application childApplication = objects.getT2();
+                                                // Update json schema versions so that we can detect if the next update was made by DB migration or
+                                                // by the user
+                                                Application update = new Application();
+                                                // Reset migration related fields before commit to detect the updates correctly between the commits
+                                                update.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
+                                                update.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+                                                update.setIsManualUpdate(false);
+                                                return applicationService.update(childApplication.getId(), update)
+                                                        .thenReturn(statusDTO);
+                                            });
+                                }
+                                return Mono.just(statusDTO);
                             })
                             .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
                 });

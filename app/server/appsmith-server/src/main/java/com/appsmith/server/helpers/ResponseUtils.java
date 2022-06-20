@@ -17,7 +17,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.migrations.JsonSchemaVersions;
+import com.appsmith.server.migrations.MigrationHelperMethods;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -342,13 +342,7 @@ public class ResponseUtils {
                     });
         }
 
-        if (application.getClientSchemaVersion() == null || application.getServerSchemaVersion() == null
-                || (JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion())
-                && JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion()))) {
-            application.setIsAutoUpdate(false);
-        } else {
-            application.setIsAutoUpdate(true);
-        }
+        application.setIsAutoUpdate(MigrationHelperMethods.isAutoUpdate(application));
         return application;
     }
 

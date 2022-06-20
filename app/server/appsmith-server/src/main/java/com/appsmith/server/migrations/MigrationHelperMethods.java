@@ -2,6 +2,7 @@ package com.appsmith.server.migrations;
 
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.server.constants.ResourceModes;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionDTO;
@@ -149,5 +150,14 @@ public class MigrationHelperMethods {
                 }
             });
         }
+    }
+
+    public static boolean isAutoUpdate(Application application) {
+        if (application.getClientSchemaVersion() == null || application.getServerSchemaVersion() == null
+                || (JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion())
+                && JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion()))) {
+            return false;
+        }
+        return true;
     }
 }

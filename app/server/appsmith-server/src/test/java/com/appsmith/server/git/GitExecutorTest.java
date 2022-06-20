@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -509,7 +511,7 @@ public class GitExecutorTest {
     public void getStatus_noChangesInBranch_Success() throws IOException {
         createFileInThePath("testFile");
         commitToRepo();
-        Mono<GitStatusDTO> gitStatusDTOMono = gitExecutor.getStatus(path, "master");
+        Mono<GitStatusDTO> gitStatusDTOMono = gitExecutor.getStatus(path, "master", false);
 
         StepVerifier
                 .create(gitStatusDTOMono)
@@ -527,7 +529,7 @@ public class GitExecutorTest {
         createFileInThePath("testFile");
         commitToRepo();
         createFileInThePath("testFile2");
-        Mono<GitStatusDTO> gitStatusDTOMono = gitExecutor.getStatus(path, "master");
+        Mono<GitStatusDTO> gitStatusDTOMono = gitExecutor.getStatus(path, "master", false);
 
         StepVerifier
                 .create(gitStatusDTOMono)
@@ -541,7 +543,7 @@ public class GitExecutorTest {
     }
 
     @Test
-    public void resetToLastCommit_WithOutStaged_CleanStateForRepo() throws IOException, GitAPIException {
+    public void resetToLastCommit_withoutStaged_CleanStateForRepo() throws IOException, GitAPIException {
         createFileInThePath("testFile");
         commitToRepo();
         Mono<Boolean> resetStatus = gitExecutor.resetToLastCommit(path, "master");
@@ -557,7 +559,7 @@ public class GitExecutorTest {
     @Test
     public void getStatus_cleanRepo_success() {
         commitToRepo();
-        Mono<GitStatusDTO> statusMono = gitExecutor.getStatus(path, defaultBranch);
+        Mono<GitStatusDTO> statusMono = gitExecutor.getStatus(path, defaultBranch, false);
 
         StepVerifier
                 .create(statusMono)
@@ -572,7 +574,7 @@ public class GitExecutorTest {
     public void getStatus_uncleanRepo_success() throws IOException {
 
         createFileInThePath("random_file.txt");
-        Mono<GitStatusDTO> statusMono = gitExecutor.getStatus(path, defaultBranch);
+        Mono<GitStatusDTO> statusMono = gitExecutor.getStatus(path, defaultBranch, false);
 
         StepVerifier
                 .create(statusMono)
@@ -592,13 +594,80 @@ public class GitExecutorTest {
                 "           \"key2\": value2";
         File file = new File(path.resolve("canvas.json").toString());
         FileUtils.writeStringToFile(file, diff, "UTF-8", false);
-        Mono<GitStatusDTO> statusMono = gitExecutor.getStatus(path, defaultBranch);
+        Mono<GitStatusDTO> statusMono = gitExecutor.getStatus(path, defaultBranch, false);
 
         StepVerifier
                 .create(statusMono)
                 .assertNext(status -> {
                     assertThat(status).isNotNull();
                     assertThat(status.getIsClean()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getStatus_serverMigrationChanges_migrationChangesCommitted() throws IOException {
+
+        String randomFileName = UUID.randomUUID().toString();
+        createFileInThePath(randomFileName + ".txt");
+        Mono<GitStatusDTO> statusMono = gitExecutor.getStatus(path, defaultBranch, true);
+
+        StepVerifier
+                .create(statusMono)
+                .assertNext(status -> {
+                    assertThat(status).isNotNull();
+                    assertThat(status.getIsClean()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getStatus_serverAndClientMigrationChanges_migrationChangesCommitted() throws IOException {
+
+        String randomFileName = UUID.randomUUID().toString();
+        createFileInThePath(randomFileName + ".txt");
+
+        final String diff = "\"key1\": true,\n" +
+                "-          \"version\": 58,\n" +
+                "+          \"version\": 59,\n" +
+                "           \"key2\": value2";
+        File file = new File(path.resolve(randomFileName).resolve("canvas.json").toString());
+        FileUtils.writeStringToFile(file, diff, "UTF-8", false);
+
+        Mono<GitStatusDTO> statusMono = gitExecutor.getStatus(path, defaultBranch, true);
+
+        StepVerifier
+                .create(statusMono)
+                .assertNext(status -> {
+                    assertThat(status).isNotNull();
+                    assertThat(status.getIsClean()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getStatus_clientMigrationWithUserChangesChanges_migrationChangesNotCommitted() throws IOException {
+
+        String randomFileName = UUID.randomUUID().toString();
+        createFileInThePath(randomFileName + ".txt");
+
+        final String diff = "\"key1\": true,\n" +
+                "-          \"version\": 58,\n" +
+                "+          \"version\": 59,\n" +
+                "           \"key2\": value2";
+        Path canvasFileName = path.resolve(randomFileName).resolve("canvas.json");
+        File file = new File(canvasFileName.toString());
+        FileUtils.writeStringToFile(file, diff, "UTF-8", false);
+
+        Mono<GitStatusDTO> statusMono = gitExecutor.getStatus(path, defaultBranch, false);
+
+        StepVerifier
+                .create(statusMono)
+                .assertNext(status -> {
+                    assertThat(status).isNotNull();
+                    String canvasFile = Paths.get(canvasFileName.getParent().getFileName().toString(), canvasFileName.getFileName().toString()).toString();
+                    assertThat(status.getModified()).containsAll(Set.of(canvasFile, randomFileName + ".txt"));
+                    assertThat(status.getIsClean()).isFalse();
                 })
                 .verifyComplete();
     }
