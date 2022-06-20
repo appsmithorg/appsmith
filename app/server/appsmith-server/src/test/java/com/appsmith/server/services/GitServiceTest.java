@@ -1381,6 +1381,11 @@ public class GitServiceTest {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
 
+        GitStatusDTO gitStatusDTO = new GitStatusDTO();
+        gitStatusDTO.setAheadCount(0);
+        gitStatusDTO.setBehindCount(0);
+        gitStatusDTO.setIsClean(true);
+
         MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
         mergeStatusDTO.setStatus("Nothing to fetch from remote. All changes are upto date.");
         mergeStatusDTO.setMergeAble(true);
@@ -1390,7 +1395,7 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.justOrEmpty(applicationJson));
         Mockito.when(gitExecutor.getStatus(Mockito.any(), Mockito.any(), Mockito.anyBoolean()))
-                .thenReturn(Mono.just(new GitStatusDTO()));
+                .thenReturn(Mono.just(gitStatusDTO));
         Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.pullApplication(
@@ -1506,7 +1511,9 @@ public class GitServiceTest {
         gitMergeDTO.setDestinationBranch(DEFAULT_BRANCH);
 
         GitStatusDTO gitStatusDTO = new GitStatusDTO();
-        gitStatusDTO.setAheadCount(2);
+        gitStatusDTO.setAheadCount(0);
+        gitStatusDTO.setBehindCount(2);
+        gitStatusDTO.setIsClean(true);
 
         MergeStatusDTO mergeStatus = new MergeStatusDTO();
         mergeStatus.setMergeAble(false);
