@@ -31,8 +31,8 @@ describe("Validate JSObjects binding to Input widget", () => {
       toRun: true,
       shouldCreateNewJSObj: true,
     });
-    ee.expandCollapseEntity("WIDGETS"); //to expand widgets
-    ee.expandCollapseEntity("Form1");
+    ee.ExpandCollapseEntity("WIDGETS"); //to expand widgets
+    ee.ExpandCollapseEntity("Form1");
     ee.SelectEntityByName("Input2");
     cy.get(locator._inputWidget)
       .last()
@@ -53,7 +53,7 @@ describe("Validate JSObjects binding to Input widget", () => {
     cy.get(locator._inputWidgetInDeployed)
       .last()
       .should("have.value", "Success");
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
 
     // cy.get(locator._inputWidget)
     //   .last()
@@ -78,8 +78,8 @@ describe("Validate JSObjects binding to Input widget", () => {
     ee.SelectEntityByName(jsOjbNameReceived as string, "QUERIES/JS");
     jsEditor.EditJSObj(jsBody);
     agHelper.AssertAutoSave();
-    ee.expandCollapseEntity("WIDGETS");
-    ee.expandCollapseEntity("Form1");
+    ee.ExpandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("Form1");
     ee.SelectEntityByName("Input2");
     cy.get(locator._inputWidget).last().invoke("attr", "value").should("equal", 'Success'); //Function is renamed & reference is checked if updated properly!
     deployMode.DeployApp(locator._inputWidgetInDeployed)
