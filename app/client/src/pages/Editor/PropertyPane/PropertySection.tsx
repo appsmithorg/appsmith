@@ -11,6 +11,7 @@ import { Collapse } from "@blueprintjs/core";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import styled from "constants/DefaultTheme";
+import { AppState } from "reducers";
 
 const SectionWrapper = styled.div`
   position: relative;
@@ -49,7 +50,11 @@ type PropertySectionProps = {
   id: string;
   name: string;
   children?: ReactNode;
-  hidden?: (props: any, propertyPath: string) => boolean;
+  hidden?: (
+    props: any,
+    propertyPath: string,
+    parentWidgetId?: string,
+  ) => boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
 };
@@ -65,8 +70,26 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const { isDefaultOpen = true } = props;
   const [isOpen, open] = useState(!!isDefaultOpen);
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
+  /**
+   * get parent widget id from current widget and pass to hidden function of propertyPane config
+   * used to show hide property based on parent widget if required #3631
+   */
+  const parentWidgetId = useSelector((state: AppState) => {
+    const canvasWidgets = state.entities.canvasWidgets;
+    const widgetId = widgetProps.parentId as string;
+    if (canvasWidgets.hasOwnProperty(widgetId)) {
+      const widget = canvasWidgets[widgetId];
+      if (widget.parentId && canvasWidgets.hasOwnProperty(widget.parentId)) {
+        const parent = canvasWidgets[widget.parentId];
+        return parent.widgetId;
+      } else {
+        return widget.widgetId;
+      }
+    }
+    return;
+  });
   if (props.hidden) {
-    if (props.hidden(widgetProps, props.propertyPath || "")) {
+    if (props.hidden(widgetProps, props.propertyPath || "", parentWidgetId)) {
       return null;
     }
   }

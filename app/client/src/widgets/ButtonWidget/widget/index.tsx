@@ -126,6 +126,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       },
       {
         sectionName: "Form options",
+        hidden: (
+          props: ButtonWidgetProps,
+          propertyPath: string,
+          parentWidgetId?: string,
+        ) => !!(parentWidgetId && parentWidgetId === "0"),
+        dependencies: ["parentId"],
         children: [
           {
             helpText:
