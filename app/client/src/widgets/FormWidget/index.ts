@@ -9,6 +9,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  searchTags: ["group"],
   defaults: {
     rows: 40,
     columns: 24,

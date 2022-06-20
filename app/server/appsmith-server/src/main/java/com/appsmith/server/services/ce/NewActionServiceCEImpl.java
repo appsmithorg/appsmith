@@ -188,7 +188,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private void setCommonFieldsFromNewActionIntoAction(NewAction newAction, ActionDTO action) {
 
         // Set the fields from NewAction into Action
-        action.setOrganizationId(newAction.getOrganizationId());
+        action.setWorkspaceId(newAction.getWorkspaceId());
         action.setPluginType(newAction.getPluginType());
         action.setPluginId(newAction.getPluginId());
         action.setTemplateId(newAction.getTemplateId());
@@ -203,7 +203,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction) {
         // Set the fields from NewAction into Action
-        newAction.setOrganizationId(action.getOrganizationId());
+        newAction.setWorkspaceId(action.getWorkspaceId());
         newAction.setPluginType(action.getPluginType());
         newAction.setPluginId(action.getPluginId());
         newAction.setTemplateId(action.getTemplateId());
@@ -336,6 +336,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Mono<Datasource> datasourceMono = Mono.just(action.getDatasource());
         if (action.getPluginType() != PluginType.JS) {
             if (action.getDatasource().getId() == null) {
+
+                // This is a nested datasource. If the action is in bad state (aka without workspace id, add the same)
+                if (action.getDatasource().getWorkspaceId() == null && action.getDatasource().getOrganizationId() != null) {
+                    action.getDatasource().setWorkspaceId(action.getDatasource().getOrganizationId());
+                }
+
                 datasourceMono = Mono.just(action.getDatasource())
                         .flatMap(datasourceService::validateDatasource);
             } else {
@@ -348,7 +354,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         }))
                         .map(datasource -> {
                             // datasource is found. Update the action.
-                            newAction.setOrganizationId(datasource.getOrganizationId());
+                            newAction.setWorkspaceId(datasource.getWorkspaceId());
                             return datasource;
                         })
                         // If the action is publicly executable, update the datasource policy
@@ -404,7 +410,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     analyticsProperties.put("pluginType", ObjectUtils.defaultIfNull(savedAction.getPluginType(), ""));
                     analyticsProperties.put("pluginName", ObjectUtils.defaultIfNull(unpublishedAction.getPluginName(), ""));
                     analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedAction.getApplicationId(), ""));
-                    analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedAction.getOrganizationId(), ""));
+                    analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedAction.getWorkspaceId(), ""));
                     analyticsProperties.put("actionName", ObjectUtils.defaultIfNull(unpublishedAction.getValidName(), ""));
                     if (unpublishedAction.getDatasource() != null) {
                         analyticsProperties.put("dsName", ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getName(), ""));
@@ -1037,7 +1043,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             "datasource", Map.of(
                                     "name", datasource.getName()
                             ),
-                            "orgId", application.getOrganizationId(),
+                            "orgId", application.getWorkspaceId(),
                             "appId", action.getApplicationId(),
                             "appMode", TRUE.equals(viewMode) ? "view" : "edit",
                             "appName", application.getName(),
