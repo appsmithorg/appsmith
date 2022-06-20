@@ -41,6 +41,10 @@ function TemplatesModal() {
   const [showTemplateDetails, setShowTemplateDetails] = useState("");
 
   useEffect(() => {
+    setShowTemplateDetails("");
+  }, [templatesModalOpen]);
+
+  useEffect(() => {
     if (!templatesCount) {
       dispatch(getAllTemplates());
     }
