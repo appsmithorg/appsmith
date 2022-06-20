@@ -30,9 +30,7 @@ class FormWidget extends ContainerWidget {
     this.updateFormData();
 
     // Check if the form is dirty
-    const hasChanges = this.checkFormValueChanges(
-      get(this.props, "children[0]"),
-    );
+    const hasChanges = this.checkFormValueChanges(this.getChildContainer());
 
     if (hasChanges !== this.props.hasChanges) {
       this.props.updateWidgetMetaProperty("hasChanges", hasChanges);
@@ -43,9 +41,7 @@ class FormWidget extends ContainerWidget {
     super.componentDidUpdate(prevProps);
     this.updateFormData();
     // Check if the form is dirty
-    const hasChanges = this.checkFormValueChanges(
-      get(this.props, "children[0]"),
-    );
+    const hasChanges = this.checkFormValueChanges(this.getChildContainer());
 
     if (hasChanges !== this.props.hasChanges) {
       this.props.updateWidgetMetaProperty("hasChanges", hasChanges);
@@ -69,8 +65,13 @@ class FormWidget extends ContainerWidget {
     return hasChanges;
   }
 
+  getChildContainer = () => {
+    const { childWidgets = [] } = this.props;
+    return childWidgets[0];
+  };
+
   updateFormData() {
-    const firstChild = get(this.props, "children[0]");
+    const firstChild = this.getChildContainer();
     if (firstChild) {
       const formData = this.getFormData(firstChild);
       if (!isEqual(formData, this.props.data)) {

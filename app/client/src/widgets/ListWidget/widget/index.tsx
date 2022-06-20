@@ -906,7 +906,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
 export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   children?: T[];
-  childWidgets?: T[];
   shouldScrollContents?: boolean;
   onListItemClick?: string;
   listData?: Array<Record<string, unknown>>;

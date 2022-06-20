@@ -18,6 +18,8 @@ import { CanvasWidgetStructure } from "./constants";
 import { getCanvasWidget } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 
+const WIDGETS_WITH_CHILD_WIDGETS = ["CANVAS_WIDGET", "FORM_WIDGET"];
+
 function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   function WrappedComponent(
     props: CanvasWidgetStructure & { skipWidgetPropsHydration?: boolean },
@@ -45,7 +47,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     );
 
     const childWidgets = useSelector((state: AppState) => {
-      if (type !== "LIST_WIDGET") return null;
+      if (!WIDGETS_WITH_CHILD_WIDGETS.includes(type)) return undefined;
 
       return getChildWidgets(state, widgetId);
     }, equal);

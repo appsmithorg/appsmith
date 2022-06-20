@@ -40,6 +40,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 import { CanvasWidgetStructure } from "./constants";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 
 /***
  * BaseWidget
@@ -454,6 +455,7 @@ export interface WidgetBaseProps {
   parentId?: string;
   renderMode: RenderMode;
   version: number;
+  childWidgets?: DataTreeWidget[];
 }
 
 export type WidgetRowCols = {
