@@ -134,7 +134,9 @@ describe("Theme validation usecases", function() {
     cy.get(themelocator.inputColor).should("have.value", "#15803d");
     cy.get(themelocator.inputColor).clear({ force: true });
     cy.wait(2000);
-    cy.get(themelocator.inputColor).type("Black");
+    cy.get(themelocator.inputColor)
+      .click()
+      .type("Black");
     cy.get(themelocator.inputColor).should("have.value", "Black");
     cy.wait(2000);
     cy.contains("Color").click({ force: true });
