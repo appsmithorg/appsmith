@@ -10,7 +10,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode,
   jsEditor = ObjectsRegistry.JSEditor;
 
-describe("Postgres - Datatype Character tests", function() {
+describe("[Bug]: The data from the query does not show up on the widget #14299", function() {
   before(() => {
     cy.fixture("/Bugs/14299dsl").then((val: any) => {
       agHelper.AddDsl(val);
