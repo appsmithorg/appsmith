@@ -36,12 +36,6 @@ describe("Validate Datasource Panel Styles", function() {
       "color",
       backgroundColorGray900,
     );
-    //Check selected tab item icon style
-    cy.get(".react-tabs__tab--selected path").should(
-      "have.css",
-      "fill",
-      backgroundColorGray900,
-    );
   });
 
   it("Mock datasource card design", () => {
