@@ -373,7 +373,9 @@ describe("Add functions", () => {
   it("resetWidget works", () => {
     const widgetName = "widget1";
     const resetChildren = true;
+    const uniqueActionRequestId = "kjebd";
 
+    uniqueId.mockReturnValueOnce(uniqueActionRequestId);
     expect(
       dataTreeWithFunctions.resetWidget(widgetName, resetChildren),
     ).resolves.toBe({});
@@ -388,6 +390,7 @@ describe("Add functions", () => {
           payload: {
             widgetName,
             resetChildren,
+            uniqueActionRequestId,
           },
         },
       },

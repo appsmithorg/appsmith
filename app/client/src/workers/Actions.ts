@@ -112,7 +112,11 @@ const DATA_TREE_FUNCTIONS: Record<
   resetWidget: function(widgetName: string, resetChildren = true) {
     return {
       type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME,
-      payload: { widgetName, resetChildren },
+      payload: {
+        widgetName,
+        resetChildren,
+        uniqueActionRequestId: uniqueId("reset_widget_request_id_"),
+      },
       executionType: ExecutionType.PROMISE,
     };
   },

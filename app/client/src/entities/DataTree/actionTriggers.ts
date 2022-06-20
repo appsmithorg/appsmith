@@ -115,6 +115,7 @@ export type ResetWidgetDescription = {
   payload: {
     widgetName: string;
     resetChildren: boolean;
+    uniqueActionRequestId: string;
   };
 };
 

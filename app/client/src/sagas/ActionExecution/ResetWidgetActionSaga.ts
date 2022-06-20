@@ -35,12 +35,31 @@ export default function* resetWidgetActionSaga(
     throw new TriggerFailureError(`Widget ${payload.widgetName} not found`);
   }
   const evaluatedWidget = dataTree[widget.widgetName];
-  yield put(resetWidgetMetaProperty(widget.widgetId, evaluatedWidget));
+  yield put(resetWidgetMetaProperty(widget.widgetId, evaluatedWidget, payload));
+
   if (payload.resetChildren) {
     yield put(resetChildrenMetaProperty(widget.widgetId));
   }
 
-  yield take(ReduxActionTypes.RESET_WIDGET_META_EVALUATED);
+  /* It is possible that user calls multiple storeValue function together, in such case we need to track completion of each action separately
+  We use uniqueActionRequestId to differentiate each storeValueAction here.
+  */
+  while (true) {
+    const returnedAction: ResetWidgetDescription | undefined = yield take(
+      ReduxActionTypes.RESET_WIDGET_META_EVALUATED,
+    );
+    if (
+      !returnedAction?.payload ||
+      !returnedAction?.payload?.uniqueActionRequestId
+    ) {
+      break;
+    }
+
+    const { uniqueActionRequestId } = returnedAction.payload;
+    if (uniqueActionRequestId === payload.uniqueActionRequestId) {
+      break;
+    }
+  }
 
   AppsmithConsole.info({
     text: `resetWidget('${payload.widgetName}', ${payload.resetChildren}) was triggered`,

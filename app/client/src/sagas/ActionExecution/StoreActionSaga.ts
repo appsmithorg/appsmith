@@ -10,7 +10,7 @@ import { getAppStoreData } from "selectors/entitiesSelector";
 import { StoreValueActionDescription } from "entities/DataTree/actionTriggers";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "../../ce/constants/ReduxActionConstants";
 
 export default function* storeValueLocally(
   action: StoreValueActionDescription["payload"],

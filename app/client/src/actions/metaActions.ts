@@ -5,6 +5,7 @@ import {
 import { BatchAction, batchAction } from "actions/batchActions";
 import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
 import { DataTreeWidget } from "../entities/DataTree/dataTreeFactory";
+import { ResetWidgetDescription } from "entities/DataTree/actionTriggers";
 
 export interface UpdateWidgetMetaPropertyPayload {
   widgetId: string;
@@ -32,9 +33,17 @@ export type ResetWidgetMetaPayload = {
   evaluatedWidget: DataTreeWidget;
 };
 
+export const resetWidgetMetaEvaluated = (
+  payload?: ResetWidgetDescription["payload"],
+) => ({
+  type: ReduxActionTypes.RESET_WIDGET_META_EVALUATED,
+  payload,
+});
+
 export const resetWidgetMetaProperty = (
   widgetId: string,
   evaluatedWidget: DataTreeWidget,
+  payload?: ResetWidgetDescription["payload"],
 ): BatchAction<ResetWidgetMetaPayload> => {
   return batchAction({
     type: ReduxActionTypes.RESET_WIDGET_META,
@@ -42,13 +51,15 @@ export const resetWidgetMetaProperty = (
       widgetId,
       evaluatedWidget,
     },
-    postEvalActions: [{ type: ReduxActionTypes.RESET_WIDGET_META_EVALUATED }],
+    postEvalActions: [resetWidgetMetaEvaluated(payload)],
   });
 };
 
 export const resetChildrenMetaProperty = (
   widgetId: string,
-): ReduxAction<{ widgetId: string }> => {
+): ReduxAction<{
+  widgetId: string;
+}> => {
   return {
     type: ReduxActionTypes.RESET_CHILDREN_WIDGET_META,
     payload: {
