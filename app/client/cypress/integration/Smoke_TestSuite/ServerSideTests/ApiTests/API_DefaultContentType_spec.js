@@ -51,7 +51,7 @@ describe("API Panel request body", function() {
     cy.DeleteAPI();
   });
 
-  it("Check whether the content-type none is not added ", function() {
+  it("Bug 14624 - Verifying the content-type none is not added", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("FirstAPI");
 
