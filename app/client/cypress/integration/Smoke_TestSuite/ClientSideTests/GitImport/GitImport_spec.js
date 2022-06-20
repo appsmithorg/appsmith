@@ -1,5 +1,5 @@
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
-const homePage = require("../../../../locators/HomePage.json");
+const homePage = require("../../../../locators/HomePage");
 const explorer = require("../../../../locators/explorerlocators.json");
 const reconnectDatasourceModal = require("../../../../locators/ReconnectLocators");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
