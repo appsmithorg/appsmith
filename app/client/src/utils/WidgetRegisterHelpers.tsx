@@ -51,6 +51,7 @@ export const configureWidget = (config: WidgetConfiguration) => {
   const _config = {
     ...features,
     ...config.defaults,
+    searchTags: config.searchTags,
     type: config.type,
     hideCard: !!config.hideCard || !config.iconSVG,
     isDeprecated: !!config.isDeprecated,

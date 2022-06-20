@@ -1,6 +1,8 @@
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
 import { createGlobalData } from "workers/evaluate";
+import uniqueId from "lodash/uniqueId";
+jest.mock("lodash/uniqueId");
 
 describe("Add functions", () => {
   const workerEventMock = jest.fn();
@@ -299,6 +301,10 @@ describe("Add functions", () => {
     const key = "some";
     const value = "thing";
     const persist = false;
+    const uniqueActionRequestId = "kjebd";
+
+    // @ts-expect-error: mockReturnValueOnce is not available on uniqueId
+    uniqueId.mockReturnValueOnce(uniqueActionRequestId);
 
     expect(dataTreeWithFunctions.storeValue(key, value, persist)).resolves.toBe(
       {},
@@ -315,6 +321,7 @@ describe("Add functions", () => {
             key,
             value,
             persist,
+            uniqueActionRequestId,
           },
         },
       },
