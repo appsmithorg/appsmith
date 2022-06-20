@@ -882,7 +882,7 @@ describe("App Theming funtionality", function() {
 
     cy.get(publish.backToEditor)
       .click({ force: true })
-      .wait(1000);
+      .wait(2000);
   });
 
   it("10. Verify Chainging theme should not affect Individual widgets with changed Color, Border radius, Shadow & can revert to newly selected theme", () => {
@@ -895,9 +895,10 @@ describe("App Theming funtionality", function() {
     //Changing to one of featured themes & then changing individual widget properties
     cy.xpath(applyTheme("Featured Themes", "Rounded"))
       .click({ force: true })
-      .wait(1000);
+      .wait(2000);
 
     //Change individual widget properties for Button1
+    ee.ExpandCollapseEntity("WIDGETS"); //to expand widgets
     ee.SelectEntityByName("Button1");
 
     //Change Color & verify
