@@ -154,6 +154,16 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.testJsontext("defaulttext", "b");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
+
+    /**
+     * Check the following scenario
+     * After reset, post entering default text, isDirty should remain false;
+     */
+    cy.get(".t--widget-buttonwidget .bp3-button").click({ force: true });
+    cy.wait(500);
+    cy.openPropertyPane("richtexteditorwidget");
+    cy.testJsontext("defaulttext", "c");
+    cy.get(".t--widget-textwidget").should("contain", "false");
   });
 
   it("Check if the binding is getting removed from the text and the RTE widget", function() {
