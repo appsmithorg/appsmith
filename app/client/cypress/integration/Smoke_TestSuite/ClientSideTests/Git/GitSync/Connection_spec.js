@@ -1,5 +1,5 @@
-import gitSyncLocators from "../../../../locators/gitSyncLocators";
-import homePage from "../../../../locators/HomePage";
+import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import homePage from "../../../../../locators/HomePage";
 
 const httpsRepoURL = "https://github.com/test/test.git";
 const invalidURL = "test";
