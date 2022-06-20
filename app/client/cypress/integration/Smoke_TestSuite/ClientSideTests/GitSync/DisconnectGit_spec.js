@@ -1,4 +1,4 @@
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import gitSyncLocators from "../../../../locators/gitSyncLocators";
 
 let repoName;
 let windowOpenSpy;

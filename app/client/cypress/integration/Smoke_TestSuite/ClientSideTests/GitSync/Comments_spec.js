@@ -1,5 +1,5 @@
-const commonLocators = require("../../../../../locators/commonlocators.json");
-import commentsLocators from "../../../../../locators/CommentsLocators";
+const commonLocators = require("../../../../locators/commonlocators.json");
+import commentsLocators from "../../../../locators/CommentsLocators";
 
 const newCommentText1 = "new comment text 1";
 

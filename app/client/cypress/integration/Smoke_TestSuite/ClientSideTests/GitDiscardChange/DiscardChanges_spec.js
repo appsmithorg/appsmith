@@ -1,7 +1,7 @@
-const datasource = require("../../../../../locators/DatasourcesEditor.json");
-const queryLocators = require("../../../../../locators/QueryEditor.json");
-const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
+const datasource = require("../../../../locators/DatasourcesEditor.json");
+const queryLocators = require("../../../../locators/QueryEditor.json");
+const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
+const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("Git discard changes:", function() {
   let datasourceName;

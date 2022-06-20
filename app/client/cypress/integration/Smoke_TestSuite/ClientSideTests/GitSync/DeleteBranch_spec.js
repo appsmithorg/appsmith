@@ -1,5 +1,5 @@
-import homePage from "../../../../../locators/HomePage";
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import homePage from "../../../../locators/HomePage.json";
+import gitSyncLocators from "../../../../locators/gitSyncLocators.json";
 let repoName;
 let branchName;
 describe("Delete branch flow", () => {

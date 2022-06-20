@@ -1,10 +1,10 @@
-/*import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-const dsl = require("../../../../../fixtures/JsObjecWithGitdsl.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
-const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
-const pages = require("../../../../../locators/Pages.json");
-import homePage from "../../../../../locators/HomePage";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import gitSyncLocators from "../../../../locators/gitSyncLocators";
+const dsl = require("../../../../fixtures/JsObjecWithGitdsl.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+const pages = require("../../../../locators/Pages.json");
+import homePage from "../../../../locators/HomePage";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
 const pagename = "ChildPage";
 const tempBranch = "feat/tempBranch";
@@ -13,7 +13,7 @@ const mainBranch = "master";
 const jsObject = "JSObject1";
 let repoName;
 
-/*describe("Git sync Bug #10773", function() {
+describe("Git sync Bug #10773", function() {
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -76,7 +76,7 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
       cy.createTestGithubRepo(repoName);
       cy.connectToGitRepo(repoName);
     });
-    ee.ExpandCollapseEntity("QUERIES/JS", true);
+    ee.expandCollapseEntity("QUERIES/JS", true);
     // create JS object and validate its data on Page1
     cy.createJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
@@ -174,7 +174,7 @@ describe("Git synced app with JSObject", function() {
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
       cy.addDsl(dsl);
     });
-    ee.ExpandCollapseEntity("QUERIES/JS", true);
+    ee.expandCollapseEntity("QUERIES/JS", true);
     // create JS object and validate its data on Page1
     cy.createJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
@@ -309,4 +309,4 @@ describe("Git sync Bug #13385", function() {
       cy.SearchApp(`${newWorkspaceName}app`);
     });
   });
-}); */
+});

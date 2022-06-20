@@ -1,4 +1,4 @@
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import gitSyncLocators from "../../../../locators/gitSyncLocators";
 describe("Git regenerate SSH key flow", function() {
   let repoName;
 

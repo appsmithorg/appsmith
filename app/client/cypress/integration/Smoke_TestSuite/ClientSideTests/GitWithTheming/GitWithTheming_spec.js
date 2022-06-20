@@ -1,5 +1,5 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+const commonlocators = require("../../../../locators/commonlocators.json");
+import gitSyncLocators from "../../../../locators/gitSyncLocators";
 describe("Git with Theming:", function() {
   const backgroudColorMaster = "rgb(85, 61, 233)";
   const backgroudColorChildBranch = "rgb(222, 21, 147)";

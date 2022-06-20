@@ -1,5 +1,5 @@
-import homePage from "../../../../../locators/HomePage";
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import homePage from "../../../../locators/HomePage";
+import gitSyncLocators from "../../../../locators/gitSyncLocators";
 
 describe("Git import empty repository", function() {
   let repoName;

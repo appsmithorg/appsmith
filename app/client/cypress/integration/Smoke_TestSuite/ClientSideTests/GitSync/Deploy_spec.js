@@ -1,6 +1,6 @@
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-import homePage from "../../../../../locators/HomePage";
-const commonLocators = require("../../../../../locators/commonlocators.json");
+import gitSyncLocators from "../../../../locators/gitSyncLocators";
+import homePage from "../../../../locators/HomePage";
+const commonLocators = require("../../../../locators/commonlocators.json");
 
 let repoName;
 describe("Git sync modal: deploy tab", function() {
