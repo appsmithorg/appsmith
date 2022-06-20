@@ -512,9 +512,9 @@ public class GitExecutorImpl implements GitExecutor {
                     // => Get diff
                     // => If diff includes "version" change do the commit
                     return checkAndCommitMigrationChanges(repoPath, branchName, response, isChangeOnlyDueToMigration)
-                            .map(isMigrationCommit -> {
+                            .flatMap(isMigrationCommit -> {
                                 try {
-                                    getBranchTrackingStatus(response, git, branchName)
+                                    getBranchTrackingStatus(response, git, branchName);
                                     return resetToLastCommit(git)
                                             .thenReturn(response);
                                 } catch (IOException e) {
@@ -522,7 +522,7 @@ public class GitExecutorImpl implements GitExecutor {
                                 } catch (GitAPIException e) {
                                     log.error("Error while resetting to last commit", e);
                                 }
-                                return response;
+                                return Mono.just(response);
                             });
                 }
                 getBranchTrackingStatus(response, git, branchName);
