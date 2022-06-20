@@ -18,7 +18,7 @@ import { CanvasWidgetStructure } from "./constants";
 import { getCanvasWidget } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 
-const WIDGETS_WITH_CHILD_WIDGETS = ["CANVAS_WIDGET", "FORM_WIDGET"];
+const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
 function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   function WrappedComponent(
