@@ -19,19 +19,12 @@ export interface Template {
   pageNames: string[];
 }
 
+export type FetchTemplatesResponse = ApiResponse<Template[]>;
 export type FilterKeys = "widgets" | "datasources";
 
-export interface FetchTemplatesResponse extends ApiResponse {
-  data: Template[];
-}
+export type FetchTemplateResponse = ApiResponse<Template>;
 
-export interface FetchTemplateResponse extends ApiResponse {
-  data: Template;
-}
-
-export interface ImportTemplateResponse extends ApiResponse {
-  data: ApplicationResponsePayload;
-}
+export type ImportTemplateResponse = ApiResponse<ApplicationResponsePayload>;
 
 export interface TemplateFiltersResponse extends ApiResponse {
   data: {

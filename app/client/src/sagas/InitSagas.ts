@@ -97,7 +97,7 @@ export function* failFastApiCalls(
   failureActions: string[],
 ) {
   yield all(triggerActions.map((triggerAction) => put(triggerAction)));
-  const effectRaceResult = yield race({
+  const effectRaceResult: { success: boolean; failure: boolean } = yield race({
     success: all(successActions.map((successAction) => take(successAction))),
     failure: take(failureActions),
   });
@@ -360,7 +360,7 @@ function* initializeEditorSaga(
 
     yield call(bootstrap, payload);
 
-    const toLoadPageId = yield call(initiateApplication, payload);
+    const toLoadPageId: unknown = yield call(initiateApplication, payload);
     if (!toLoadPageId) return;
 
     const { id: applicationId, name }: ApplicationPayload = yield select(
@@ -372,6 +372,7 @@ function* initializeEditorSaga(
     );
 
     yield all([
+      // @ts-expect-error: Type mismatch
       call(initiatePageAndAllActions, toLoadPageId, applicationId, mode),
       // only in edit mode
       call(initiatePluginsAndDatasources),
@@ -421,7 +422,7 @@ export function* initializeAppViewerSaga(
 
   yield call(bootstrap, payload);
 
-  const toLoadPageId = yield call(initiateApplication, payload);
+  const toLoadPageId: unknown = yield call(initiateApplication, payload);
   // only in edit mode
   const { id: applicationId }: ApplicationPayload = yield select(
     getCurrentApplication,
@@ -431,7 +432,8 @@ export function* initializeAppViewerSaga(
     updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),
   );
 
-  const pageAndActionsFetch = yield call(
+  const pageAndActionsFetch: unknown = yield call(
+    // @ts-expect-error: type mismatch
     initiatePageAndAllActions,
     toLoadPageId,
     applicationId,

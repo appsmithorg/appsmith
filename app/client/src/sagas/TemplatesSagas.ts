@@ -1,13 +1,17 @@
 import {
   ApplicationPayload,
-  PageListPayload,
+  Page,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { all, put, takeEvery, call, select } from "redux-saga/effects";
 import { differenceBy } from "lodash";
-import TemplatesAPI, { ImportTemplateResponse } from "api/TemplatesApi";
+import TemplatesAPI, {
+  ImportTemplateResponse,
+  FetchTemplateResponse,
+  TemplateFiltersResponse,
+} from "api/TemplatesApi";
 import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
@@ -46,8 +50,10 @@ import { fetchAllPageEntityCompletion } from "actions/pageActions";
 
 function* getAllTemplatesSaga() {
   try {
-    const response = yield call(TemplatesAPI.getAllTemplates);
-    const isValid = yield validateResponse(response);
+    const response: FetchTemplateResponse = yield call(
+      TemplatesAPI.getAllTemplates,
+    );
+    const isValid: boolean = yield validateResponse(response);
     if (isValid) {
       yield put({
         type: ReduxActionTypes.GET_ALL_TEMPLATES_SUCCESS,
@@ -106,11 +112,11 @@ function* importTemplateToWorkspaceSaga(
 
 function* getSimilarTemplatesSaga(action: ReduxAction<string>) {
   try {
-    const response = yield call(
+    const response: FetchTemplateResponse = yield call(
       TemplatesAPI.getSimilarTemplates,
       action.payload,
     );
-    const isValid = yield validateResponse(response);
+    const isValid: boolean = yield validateResponse(response);
     if (isValid) {
       yield put({
         type: ReduxActionTypes.GET_SIMILAR_TEMPLATES_SUCCESS,
@@ -132,7 +138,7 @@ function* setTemplateNotificationSeenSaga(action: ReduxAction<boolean>) {
 }
 
 function* getTemplateNotificationSeenSaga() {
-  const showTemplateNotification = yield getTemplateNotificationSeen();
+  const showTemplateNotification: unknown = yield getTemplateNotificationSeen();
 
   if (showTemplateNotification) {
     yield put(setTemplateNotificationSeenAction(true));
@@ -143,11 +149,11 @@ function* getTemplateNotificationSeenSaga() {
 
 function* getTemplateSaga(action: ReduxAction<string>) {
   try {
-    const response = yield call(
+    const response: FetchTemplateResponse = yield call(
       TemplatesAPI.getTemplateInformation,
       action.payload,
     );
-    const isValid = yield validateResponse(response);
+    const isValid: boolean = yield validateResponse(response);
     if (isValid) {
       yield put({
         type: ReduxActionTypes.GET_TEMPLATE_SUCCESS,
@@ -220,7 +226,7 @@ function* forkTemplateToApplicationSaga(
       orgId,
       pagesToImport,
     );
-    const currentListOfPages: PageListPayload = yield select(getPageList);
+    const currentListOfPages: Page[] = yield select(getPageList);
     // To fetch the new set of pages after merging the template into the existing application
     yield put(
       fetchApplication({
@@ -276,8 +282,10 @@ function* forkTemplateToApplicationSaga(
 
 function* getTemplateFiltersSaga() {
   try {
-    const response = yield call(TemplatesAPI.getTemplateFilters);
-    const isValid = yield validateResponse(response);
+    const response: TemplateFiltersResponse = yield call(
+      TemplatesAPI.getTemplateFilters,
+    );
+    const isValid: boolean = yield validateResponse(response);
     if (isValid) {
       yield put({
         type: ReduxActionTypes.GET_TEMPLATE_FILTERS_SUCCESS,
