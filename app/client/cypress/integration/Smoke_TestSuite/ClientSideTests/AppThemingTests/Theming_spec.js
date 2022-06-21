@@ -808,7 +808,7 @@ describe("App Theming funtionality", function() {
 
     //Resetting back to theme
     ee.NavigateToSwitcher("explorer");
-    ee.expandCollapseEntity("WIDGETS"); //to expand widgets
+    ee.ExpandCollapseEntity("WIDGETS"); //to expand widgets
     ee.SelectEntityByName("Button2");
     cy.get(".t--property-control-buttoncolor .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");

@@ -65,7 +65,6 @@ import {
   datasourcesEditorIdURL,
   integrationEditorURL,
 } from "RouteBuilder";
-import { isEmpty } from "lodash";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -189,18 +188,21 @@ function* handleUpdateBodyContentType(
   );
   const indexToUpdate = getIndextoUpdate(headers, contentTypeHeaderIndex);
 
-  // If the user has selected "None" or "Raw" as the body type & there was a content-type
+  // If the user has selected "None" as the body type & there was a content-type
   // header present in the API configuration, keep the previous content type header
-  // this is done to ensure user input isn't cleared off if they switch to raw or none mode.
+  // this is done to ensure user input isn't cleared off if they switch to none mode.
   // however if the user types in a new value, we use the updated value (formValueChangeSaga - line 426).
   if (
     displayFormatValue === POST_BODY_FORMAT_OPTIONS.NONE &&
     indexToUpdate !== -1
   ) {
-    headers[indexToUpdate] = {
-      key: previousContentType ? CONTENT_TYPE_HEADER_KEY : "",
-      value: previousContentType ? previousContentType : "",
-    };
+    //Checking if any type was seleccted before
+    if (contentTypeHeaderIndex !== -1) {
+      headers[indexToUpdate] = {
+        key: previousContentType ? CONTENT_TYPE_HEADER_KEY : "",
+        value: previousContentType ? previousContentType : "",
+      };
+    }
   } else {
     headers[indexToUpdate] = {
       key: CONTENT_TYPE_HEADER_KEY,
@@ -399,6 +401,8 @@ export function* updateFormFields(
       contentTypeHeaderIndex,
     );
 
+    //When user switches to GET method, content type remains same (empty or any type)
+    //This condition handles other HTTP methods
     if (value !== HTTP_METHOD.GET) {
       // if user switches to other methods that is not GET and apiContentType is undefined set default apiContentType to JSON.
       if (apiContentType === POST_BODY_FORMAT_OPTIONS.NONE) {
@@ -411,24 +415,6 @@ export function* updateFormFields(
         key: CONTENT_TYPE_HEADER_KEY,
         value: apiContentType,
       };
-    } else {
-      // when user switches to GET method, do not clear off content type headers, instead leave them.
-      if (isEmpty(values?.actionConfiguration?.body)) {
-        apiContentType = HTTP_METHODS_DEFAULT_FORMAT_TYPES.GET;
-        extraFormDataToBeChanged = true;
-      }
-
-      if (contentTypeHeaderIndex > -1) {
-        actionConfigurationHeaders[contentTypeHeaderIndex] = {
-          key: CONTENT_TYPE_HEADER_KEY,
-          value: apiContentType,
-        };
-      } else {
-        actionConfigurationHeaders[indexToUpdate] = {
-          key: CONTENT_TYPE_HEADER_KEY,
-          value: HTTP_METHODS_DEFAULT_FORMAT_TYPES.GET,
-        };
-      }
     }
 
     yield put(
