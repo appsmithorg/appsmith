@@ -10,12 +10,18 @@ import {
   HookResponse,
   FieldThemeStylesheet,
   ROOT_SCHEMA_KEY,
+  getBindingTemplate,
 } from "../../constants";
 import { getGrandParentPropertyPath, getParentPropertyPath } from "../helper";
 import { JSONFormWidgetProps } from "..";
 import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
 import { AppTheme } from "entities/AppTheming";
 import { processSchemaItemAutocomplete } from "components/propertyControls/JSONFormComputeControl";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+  isDynamicValue,
+} from "utils/DynamicBindingUtils";
 
 export type HiddenFnParams = [JSONFormWidgetProps, string];
 
@@ -112,7 +118,19 @@ export const getStylesheetValue = (
         widgetStylesheet?.childStylesheet as FieldThemeStylesheet,
       );
 
-      return fieldStylesheet[propertyName] || "";
+      if (isDynamicValue(fieldStylesheet[propertyName])) {
+        const { jsSnippets, stringSegments } = getDynamicBindings(
+          fieldStylesheet[propertyName],
+        );
+        const js = combineDynamicBindings(jsSnippets, stringSegments);
+        const { prefixTemplate, suffixTemplate } = getBindingTemplate(
+          props.widgetName,
+        );
+
+        return `${prefixTemplate}${js}${suffixTemplate}`;
+      }
+
+      return fieldStylesheet || "";
     },
   );
 };
