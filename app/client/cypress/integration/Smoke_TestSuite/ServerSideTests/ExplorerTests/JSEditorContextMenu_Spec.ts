@@ -8,15 +8,15 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
 
   it("1. Validate JSObject creation & Run", () => {
     jsEditor.CreateJSObject('return "Hello World";');
-    ee.expandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("QUERIES/JS");
     ee.AssertEntityPresenceInExplorer("JSObject1");
-    jsEditor.validateDefaultJSObjProperties("JSObject1");
+    jsEditor.ValidateDefaultJSObjProperties("JSObject1");
   });
 
   it("2. Validate Rename JSObject from Form Header", function() {
     jsEditor.RenameJSObjFromPane("RenamedJSObject");
     ee.AssertEntityPresenceInExplorer("RenamedJSObject");
-    jsEditor.validateDefaultJSObjProperties("RenamedJSObject");
+    jsEditor.ValidateDefaultJSObjProperties("RenamedJSObject");
   });
 
   it("3. Validate Copy JSObject", function() {
@@ -31,13 +31,13 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       201,
     );
     ee.AssertEntityPresenceInExplorer("RenamedJSObjectCopy");
-    jsEditor.validateDefaultJSObjProperties("RenamedJSObjectCopy");
+    jsEditor.ValidateDefaultJSObjProperties("RenamedJSObjectCopy");
   });
 
   it("4. Validate Rename JSObject from Entity Explorer", function() {
     jsEditor.RenameJSObjFromExplorer("RenamedJSObject", "ExplorerRenamed");
     ee.AssertEntityPresenceInExplorer("ExplorerRenamed");
-    jsEditor.validateDefaultJSObjProperties("ExplorerRenamed");
+    jsEditor.ValidateDefaultJSObjProperties("ExplorerRenamed");
   });
 
   it("5. Validate Move JSObject", function() {
@@ -45,7 +45,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     ee.AddNewPage();
     ee.AssertEntityPresenceInExplorer(newPageId);
     ee.SelectEntityByName(pageId);
-    ee.expandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("QUERIES/JS");
     ee.ActionContextMenuByEntityName(
       "RenamedJSObjectCopy",
       "Move to page",
@@ -53,12 +53,12 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     );
     ee.SelectEntityByName(newPageId);
     ee.AssertEntityPresenceInExplorer("RenamedJSObjectCopy");
-    jsEditor.validateDefaultJSObjProperties("RenamedJSObjectCopy");
+    jsEditor.ValidateDefaultJSObjProperties("RenamedJSObjectCopy");
   });
 
   it("6. Validate Deletion of JSObject", function() {
     ee.SelectEntityByName(pageId);
-    ee.expandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("QUERIES/JS");
     ee.ActionContextMenuByEntityName(
       "ExplorerRenamed",
       "Delete",
