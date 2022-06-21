@@ -1,3 +1,6 @@
+const dispatch = jest.fn();
+const history = jest.fn();
+
 import { integrationEditorURL } from "RouteBuilder";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { INTEGRATION_TABS } from "constants/routes";
@@ -7,7 +10,6 @@ import { fireEvent, render, screen } from "test/testUtils";
 import OnboardingTasks from "./Tasks";
 import { getStore, initialState } from "./testUtils";
 
-const dispatch = jest.fn();
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
   return {
@@ -16,9 +18,7 @@ jest.mock("react-redux", () => {
   };
 });
 
-let history: any;
 jest.mock("utils/history", () => {
-  history = jest.fn();
   return {
     push: history,
   };
