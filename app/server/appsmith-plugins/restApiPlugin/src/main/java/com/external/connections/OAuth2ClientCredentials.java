@@ -2,8 +2,10 @@ package com.external.connections;
 
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
 import lombok.AccessLevel;
@@ -13,6 +15,7 @@ import lombok.Setter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyExtractors;
@@ -24,6 +27,7 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
 import java.net.URI;
 import java.time.Clock;
@@ -44,8 +48,9 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
     private Object tokenResponse;
     private static final int MAX_IN_MEMORY_SIZE = 10 * 1024 * 1024; // 10 MB
 
-    public static Mono<OAuth2ClientCredentials> create(OAuth2 oAuth2) {
-        if (oAuth2 == null) {
+    public static Mono<OAuth2ClientCredentials> create(DatasourceConfiguration datasourceConfiguration) {
+        final OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
+        if (datasourceConfiguration == null) {
             return Mono.empty();
         }
         // Create OAuth2Connection
@@ -64,7 +69,7 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
                     return now.isBefore(expiresAt.minus(Duration.ofMinutes(1)));
                 })
                 // If invalid, regenerate token
-                .switchIfEmpty(connection.generateOAuth2Token(oAuth2))
+                .switchIfEmpty(connection.generateOAuth2Token(datasourceConfiguration))
                 // Store valid token
                 .flatMap(token -> {
                     connection.setToken(token.getAuthenticationResponse().getToken());
@@ -76,9 +81,16 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
                 });
     }
 
-    private Mono<OAuth2> generateOAuth2Token(OAuth2 oAuth2) {
+    private Mono<OAuth2> generateOAuth2Token(DatasourceConfiguration datasourceConfiguration) {
+        final OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
+        final HttpClient httpClient = HttpClient.create();
+
+        if (oAuth2.isUseSelfSignedCert()) {
+            httpClient.secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration));
+        }
         // Webclient
         WebClient webClient = WebClient.builder()
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .exchangeStrategies(ExchangeStrategies
                         .builder()

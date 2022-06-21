@@ -33,8 +33,6 @@ public class OAuth2 extends AuthenticationDTO {
         BODY
     }
 
-    RefreshTokenClientCredentialsLocation refreshTokenClientCredentialsLocation;
-
     public enum Type {
         @JsonProperty(Authentication.CLIENT_CREDENTIALS)
         CLIENT_CREDENTIALS,
@@ -74,6 +72,10 @@ public class OAuth2 extends AuthenticationDTO {
     String audience;
 
     String resource;
+
+    RefreshTokenClientCredentialsLocation refreshTokenClientCredentialsLocation;
+
+    boolean useSelfSignedCert = false;
 
     public String getScopeString() {
         if (scopeString != null && !scopeString.isBlank()) {
