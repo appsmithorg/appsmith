@@ -2,19 +2,19 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.OrganizationPlugin;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
-import com.appsmith.server.dtos.OrganizationPluginStatus;
-import com.appsmith.server.dtos.PluginOrgDTO;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
+import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, String> implements PluginServiceCE {
 
     public static final String UQI_DB_EDITOR_FORM = "UQIDbEditorForm";
-    private final OrganizationService organizationService;
+    protected final WorkspaceService workspaceService;
     private final PluginManager pluginManager;
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
     private final ChannelTopic topic;
@@ -96,13 +96,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              PluginRepository repository,
                              AnalyticsService analyticsService,
-                             OrganizationService organizationService,
+                             WorkspaceService workspaceService,
                              PluginManager pluginManager,
                              ReactiveRedisTemplate<String, String> reactiveTemplate,
                              ChannelTopic topic,
                              ObjectMapper objectMapper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.organizationService = organizationService;
+        this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;
         this.topic = topic;
@@ -114,15 +114,15 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
         // Remove branch name as plugins are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
-        String organizationId = params.getFirst(FieldName.ORGANIZATION_ID);
-        if (organizationId == null) {
-            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        String workspaceId = params.getFirst(FieldName.WORKSPACE_ID);
+        if (workspaceId == null) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
-        Mono<Organization> organizationMono = organizationService.getById(organizationId);
+        Mono<Workspace> workspaceMono = workspaceService.getById(workspaceId);
 
-        return organizationMono
+        return workspaceMono
                 .flatMapMany(org -> {
                     log.debug("Fetching plugins by params: {} for org: {}", params, org.getName());
                     if (org.getPlugins() == null) {
@@ -132,7 +132,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
                     List<String> pluginIds = org.getPlugins()
                             .stream()
-                            .map(OrganizationPlugin::getPluginId)
+                            .map(WorkspacePlugin::getPluginId)
                             .collect(Collectors.toList());
                     Query query = new Query();
                     query.addCriteria(Criteria.where(FieldName.ID).in(pluginIds));
@@ -177,76 +177,76 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     @Override
-    public Mono<Organization> installPlugin(PluginOrgDTO pluginOrgDTO) {
+    public Mono<Workspace> installPlugin(PluginWorkspaceDTO pluginOrgDTO) {
         if (pluginOrgDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
-        if (pluginOrgDTO.getOrganizationId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        if (pluginOrgDTO.getWorkspaceId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        return storeOrganizationPlugin(pluginOrgDTO, pluginOrgDTO.getStatus())
+        return storeWorkspacePlugin(pluginOrgDTO, pluginOrgDTO.getStatus())
                 .switchIfEmpty(Mono.empty());
     }
 
     @Override
-    public Flux<Organization> installDefaultPlugins(List<Plugin> plugins) {
-        final List<OrganizationPlugin> newOrganizationPlugins = plugins
+    public Flux<Workspace> installDefaultPlugins(List<Plugin> plugins) {
+        final List<WorkspacePlugin> newWorkspacePlugins = plugins
                 .stream()
                 .filter(plugin -> Boolean.TRUE.equals(plugin.getDefaultInstall()))
                 .map(plugin -> {
-                    return new OrganizationPlugin(plugin.getId(), OrganizationPluginStatus.ACTIVATED);
+                    return new WorkspacePlugin(plugin.getId(), WorkspacePluginStatus.ACTIVATED);
                 })
                 .collect(Collectors.toList());
-        return organizationService.getAll()
-                .flatMap(organization -> {
+        return workspaceService.getAll()
+                .flatMap(workspace -> {
                     // Only perform a DB op if plugins associated to this org have changed
-                    if (organization.getPlugins().containsAll(newOrganizationPlugins)) {
-                        return Mono.just(organization);
+                    if (workspace.getPlugins().containsAll(newWorkspacePlugins)) {
+                        return Mono.just(workspace);
                     } else {
-                        organization.getPlugins().addAll(newOrganizationPlugins);
-                        return organizationService.save(organization);
+                        workspace.getPlugins().addAll(newWorkspacePlugins);
+                        return workspaceService.save(workspace);
                     }
                 });
     }
 
     @Override
-    public Mono<Organization> uninstallPlugin(PluginOrgDTO pluginDTO) {
+    public Mono<Workspace> uninstallPlugin(PluginWorkspaceDTO pluginDTO) {
         if (pluginDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
-        if (pluginDTO.getOrganizationId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        if (pluginDTO.getWorkspaceId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        //Find the organization using id and plugin id -> This is to find if the organization has the plugin installed
-        Mono<Organization> organizationMono = organizationService.findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(),
+        //Find the workspace using id and plugin id -> This is to find if the workspace has the plugin installed
+        Mono<Workspace> workspaceMono = workspaceService.findByIdAndPluginsPluginId(pluginDTO.getWorkspaceId(),
                 pluginDTO.getPluginId());
 
-        return organizationMono
+        return workspaceMono
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, pluginDTO.getPluginId())))
-                //In case the plugin is not found for the organization, the organizationMono would not emit and the rest of the flow would stop
-                //i.e. the rest of the code flow would only happen when there is a plugin found for the organization that can
+                //In case the plugin is not found for the workspace, the workspaceMono would not emit and the rest of the flow would stop
+                //i.e. the rest of the code flow would only happen when there is a plugin found for the workspace that can
                 //be uninstalled.
-                .flatMap(organization -> {
-                    Set<OrganizationPlugin> organizationPluginList = organization.getPlugins();
-                    organizationPluginList.removeIf(listPlugin -> listPlugin.getPluginId().equals(pluginDTO.getPluginId()));
-                    organization.setPlugins(organizationPluginList);
-                    return organizationService.save(organization);
+                .flatMap(workspace -> {
+                    Set<WorkspacePlugin> workspacePluginList = workspace.getPlugins();
+                    workspacePluginList.removeIf(listPlugin -> listPlugin.getPluginId().equals(pluginDTO.getPluginId()));
+                    workspace.setPlugins(workspacePluginList);
+                    return workspaceService.save(workspace);
                 });
     }
 
-    private Mono<Organization> storeOrganizationPlugin(PluginOrgDTO pluginDTO, OrganizationPluginStatus status) {
+    private Mono<Workspace> storeWorkspacePlugin(PluginWorkspaceDTO pluginDTO, WorkspacePluginStatus status) {
 
-        Mono<Organization> pluginInOrganizationMono = organizationService
-                .findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(), pluginDTO.getPluginId());
+        Mono<Workspace> pluginInWorkspaceMono = workspaceService
+                .findByIdAndPluginsPluginId(pluginDTO.getWorkspaceId(), pluginDTO.getPluginId());
 
 
-        //If plugin is already present for the organization, just return the organization, else install and return organization
-        return pluginInOrganizationMono
+        //If plugin is already present for the workspace, just return the workspace, else install and return workspace
+        return pluginInWorkspaceMono
                 .switchIfEmpty(Mono.defer(() -> {
                     log.debug("Plugin {} not already installed. Installing now", pluginDTO.getPluginId());
-                    //If the plugin is not found in the organization, its not installed already. Install now.
+                    //If the plugin is not found in the workspace, its not installed already. Install now.
                     return repository
                             .findById(pluginDTO.getPluginId())
                             .map(plugin -> {
@@ -254,8 +254,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                                 log.debug("Before publishing to the redis queue");
                                 //Publish the event to the pub/sub queue
                                 InstallPluginRedisDTO installPluginRedisDTO = new InstallPluginRedisDTO();
-                                installPluginRedisDTO.setOrganizationId(pluginDTO.getOrganizationId());
-                                installPluginRedisDTO.setPluginOrgDTO(pluginDTO);
+                                installPluginRedisDTO.setWorkspaceId(pluginDTO.getWorkspaceId());
+                                installPluginRedisDTO.setPluginWorkspaceDTO(pluginDTO);
                                 String jsonString;
                                 try {
                                     jsonString = objectMapper.writeValueAsString(installPluginRedisDTO);
@@ -267,24 +267,24 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                                         .convertAndSend(topic.getTopic(), jsonString)
                                         .subscribe();
                             })
-                            //Now that the plugin jar has been successfully downloaded, go on and add the plugin to the organization
-                            .then(organizationService.getById(pluginDTO.getOrganizationId()))
-                            .flatMap(organization -> {
+                            //Now that the plugin jar has been successfully downloaded, go on and add the plugin to the workspace
+                            .then(workspaceService.getById(pluginDTO.getWorkspaceId()))
+                            .flatMap(workspace -> {
 
-                                Set<OrganizationPlugin> organizationPluginList = organization.getPlugins();
-                                if (organizationPluginList == null) {
-                                    organizationPluginList = new HashSet<>();
+                                Set<WorkspacePlugin> workspacePluginList = workspace.getPlugins();
+                                if (workspacePluginList == null) {
+                                    workspacePluginList = new HashSet<>();
                                 }
 
-                                OrganizationPlugin organizationPlugin = new OrganizationPlugin();
-                                organizationPlugin.setPluginId(pluginDTO.getPluginId());
-                                organizationPlugin.setStatus(status);
-                                organizationPluginList.add(organizationPlugin);
-                                organization.setPlugins(organizationPluginList);
+                                WorkspacePlugin workspacePlugin = new WorkspacePlugin();
+                                workspacePlugin.setPluginId(pluginDTO.getPluginId());
+                                workspacePlugin.setStatus(status);
+                                workspacePluginList.add(workspacePlugin);
+                                workspace.setPlugins(workspacePluginList);
 
-                                log.debug("Going to save the organization with install plugin. This means that installation has been successful");
+                                log.debug("Going to save the workspace with install plugin. This means that installation has been successful");
 
-                                return organizationService.save(organization);
+                                return workspaceService.save(workspace);
                             });
                 }));
     }
@@ -312,16 +312,16 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO) {
-        Mono<Plugin> pluginMono = repository.findById(installPluginRedisDTO.getPluginOrgDTO().getPluginId());
+        Mono<Plugin> pluginMono = repository.findById(installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
         return pluginMono
-                .flatMap(plugin -> downloadAndStartPlugin(installPluginRedisDTO.getOrganizationId(), plugin))
+                .flatMap(plugin -> downloadAndStartPlugin(installPluginRedisDTO.getWorkspaceId(), plugin))
                 .switchIfEmpty(Mono.defer(() -> {
-                    log.debug("During redisInstallPlugin, no plugin with plugin id {} found. Returning without download and install", installPluginRedisDTO.getPluginOrgDTO().getPluginId());
+                    log.debug("During redisInstallPlugin, no plugin with plugin id {} found. Returning without download and install", installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
                     return Mono.just(new Plugin());
                 })).block();
     }
 
-    private Mono<Plugin> downloadAndStartPlugin(String organizationId, Plugin plugin) {
+    private Mono<Plugin> downloadAndStartPlugin(String workspaceId, Plugin plugin) {
         if (plugin.getJarLocation() == null) {
             // Plugin jar location not set. Must be local
             /** TODO
@@ -332,7 +332,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         }
 
         String baseUrl = "../dist/plugins/";
-        String pluginJar = plugin.getName() + "-" + organizationId + ".jar";
+        String pluginJar = plugin.getName() + "-" + workspaceId + ".jar";
         log.debug("Going to download plugin jar with name : {}", baseUrl + pluginJar);
 
         try {

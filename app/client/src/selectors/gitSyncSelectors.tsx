@@ -24,6 +24,9 @@ export const getIsGitRepoSetup = (state: AppState) => {
 export const getIsCommittingInProgress = (state: AppState) =>
   state.ui.gitSync.isCommitting;
 
+export const getIsDiscardInProgress = (state: AppState) =>
+  state.ui.gitSync.isDiscarding;
+
 export const getIsCommitSuccessful = (state: AppState) =>
   state.ui.gitSync.isCommitSuccessful;
 
@@ -141,7 +144,10 @@ export const getUseGlobalProfile = (state: AppState) =>
   state.ui.gitSync.useGlobalProfile;
 
 const FALLBACK_GIT_SYNC_DOCS_URL =
-  "https://docs.appsmith.com/core-concepts/git-sync";
+  "https://docs.appsmith.com/core-concepts/version-control-with-git";
+
+export const getDiscardDocUrl = (state: AppState) =>
+  state.ui.gitSync.gitStatus?.discardDocUrl || FALLBACK_GIT_SYNC_DOCS_URL;
 
 // git connect ssh key deploy url
 export const getSSHKeyDeployDocUrl = (state: AppState) =>

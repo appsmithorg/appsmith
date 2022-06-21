@@ -81,11 +81,11 @@ jobs:
       # Set status = success
       - run: echo "::set-output name=run_result::success" > ~/run_result
 
-      - name: Use Node.js 14.15.4
+      - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v1
         with:
-          node-version: "14.15.4"
+          node-version: "16.14.0"
 
       - name: Get yarn cache directory path
         if: steps.run_result.outputs.run_result != 'success'
@@ -341,11 +341,11 @@ jobs:
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
-      - name: Use Node.js 14.15.4
+      - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v1
         with:
-          node-version: "14.15.4"
+          node-version: "16.14.0"
 
       # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
       # first 11 characters. This can be used to build images for several branches
@@ -455,7 +455,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: martijnhols/actions-cache@v3
+        uses: martijnhols/actions-cache@v3.0.2
         with:
           path: |
             ~/run_result
@@ -547,11 +547,11 @@ jobs:
             -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
             fatcontainer
 
-      - name: Use Node.js 14.15.4
+      - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v1
         with:
-          node-version: "14.15.4"
+          node-version: "16.14.0"
 
       # Install all the dependencies
       - name: Install dependencies
@@ -660,7 +660,7 @@ jobs:
           parallel: true
           config-file: cypress_fat.json
           group: "Electrons on Github Action"
-          spec: ${{ env.failed_spec_env }}
+          spec: "cypress/integration/Smoke_TestSuite_Fat/**/*"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
@@ -761,7 +761,7 @@ jobs:
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
-    runs-on: ubuntu-latest
+    runs-on: buildjet-4vcpu-ubuntu-2004
     defaults:
       run:
         working-directory: app/client
@@ -778,23 +778,6 @@ jobs:
             4,
             5,
             6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            22,
-            23,
           ]
 
     # Service containers to run with this job. Required for running tests
@@ -829,7 +812,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: martijnhols/actions-cache@v3
+        uses: martijnhols/actions-cache@v3.0.2
         with:
           path: |
             ~/run_result
@@ -948,11 +931,11 @@ jobs:
             exit 1
           fi
 
-      - name: Use Node.js 14.15.4
+      - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v1
         with:
-          node-version: "14.15.4"
+          node-version: "16.14.0"
 
       - name: Get yarn cache directory path
         if: steps.run_result.outputs.run_result != 'success'

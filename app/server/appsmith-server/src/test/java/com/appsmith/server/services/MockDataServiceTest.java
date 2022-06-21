@@ -8,7 +8,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
@@ -16,7 +16,7 @@ import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class MockDataServiceTest {
     PluginService pluginService;
 
     @Autowired
-    OrganizationRepository organizationRepository;
+    WorkspaceRepository workspaceRepository;
 
     @Autowired
     LayoutActionService layoutActionService;
@@ -71,7 +71,7 @@ public class MockDataServiceTest {
     UserService userService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     NewActionService newActionService;
@@ -79,7 +79,7 @@ public class MockDataServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    String orgId = "";
+    String workspaceId = "";
 
     Application testApp = null;
 
@@ -88,17 +88,17 @@ public class MockDataServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        orgId = testOrg == null ? "" : testOrg.getId();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_WORKSPACES).block();
+        workspaceId = testWorkspace == null ? "" : testWorkspace.getId();
         User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
-        Organization organization = organizationService.getById(orgId).block();
+        workspaceId = apiUser.getWorkspaceIds().iterator().next();
+        Workspace workspace = workspaceService.getById(workspaceId).block();
 
         if (testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
-            testApp = applicationPageService.createApplication(application, organization.getId()).block();
+            testApp = applicationPageService.createApplication(application, workspace.getId()).block();
             final String pageId = testApp.getPages().get(0).getId();
             testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
         }
@@ -131,7 +131,7 @@ public class MockDataServiceTest {
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("Movies");
-        mockDataSource.setOrganizationId(orgId);
+        mockDataSource.setWorkspaceId(workspaceId);
         mockDataSource.setPackageName("mongo-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
@@ -170,7 +170,7 @@ public class MockDataServiceTest {
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("Users");
-        mockDataSource.setOrganizationId(orgId);
+        mockDataSource.setWorkspaceId(workspaceId);
         mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
@@ -208,7 +208,7 @@ public class MockDataServiceTest {
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("Movies");
-        mockDataSource.setOrganizationId(orgId);
+        mockDataSource.setWorkspaceId(workspaceId);
         mockDataSource.setPackageName("mongo-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
@@ -251,7 +251,7 @@ public class MockDataServiceTest {
         Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("Users");
-        mockDataSource.setOrganizationId(orgId);
+        mockDataSource.setWorkspaceId(workspaceId);
         mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(plugin.getId());
         Datasource datasourceMono = mockDataService.createMockDataSet(mockDataSource).block();
@@ -262,7 +262,7 @@ public class MockDataServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
 
         action.setActionConfiguration(actionConfiguration);
-        action.setOrganizationId(orgId);
+        action.setWorkspaceId(workspaceId);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteDbQuery");
         action.setDatasource(datasourceMono);

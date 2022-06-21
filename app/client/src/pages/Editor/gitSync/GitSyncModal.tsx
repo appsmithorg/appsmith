@@ -7,7 +7,7 @@ import {
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { setOrgIdForImport } from "actions/applicationActions";
+import { setWorkspaceIdForImport } from "actions/applicationActions";
 import Menu from "./Menu";
 import { Classes, MENU_HEIGHT, MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
@@ -22,20 +22,13 @@ import { GitSyncModalTab } from "entities/GitSync";
 import { createMessage, GIT_IMPORT } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
-const StyledDialog = styled(Dialog)`
-  .bp3-dialog-body {
-    margin-top: 0px !important;
-  }
-`;
-
 const Container = styled.div`
   height: 600px;
   width: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow-y: hidden;
-  padding: 0px 8px 0px 8px;
+  overflow: hidden;
 `;
 
 const BodyContainer = styled.div`
@@ -49,10 +42,17 @@ const MenuContainer = styled.div`
 
 const CloseBtnContainer = styled.div`
   position: absolute;
-  right: 0;
+  right: -5px;
   top: 0;
-  padding: ${(props) => props.theme.spaces[1]}px;
+  padding: ${(props) => props.theme.spaces[1]}px 0;
   border-radius: ${(props) => props.theme.radii[1]}px;
+
+  &:hover {
+    svg,
+    svg path {
+      fill: ${({ theme }) => get(theme, "colors.gitSyncModal.closeIconHover")};
+    }
+  }
 `;
 
 const ComponentsByTab = {
@@ -75,7 +75,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
 
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
-    dispatch(setOrgIdForImport(""));
+    dispatch(setWorkspaceIdForImport(""));
   }, [dispatch, setIsGitSyncModalOpen]);
 
   const setActiveTabIndex = useCallback(
@@ -128,12 +128,13 @@ function GitSyncModal(props: { isImport?: boolean }) {
 
   return (
     <>
-      <StyledDialog
+      <Dialog
         canEscapeKeyClose
         canOutsideClickClose
         className={Classes.GIT_SYNC_MODAL}
         isOpen={isModalOpen}
         maxWidth={"900px"}
+        noModalBodyMarginTop
         onClose={handleClose}
         width={"535px"}
       >
@@ -175,7 +176,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
             />
           </CloseBtnContainer>
         </Container>
-      </StyledDialog>
+      </Dialog>
       <GitErrorPopup />
     </>
   );

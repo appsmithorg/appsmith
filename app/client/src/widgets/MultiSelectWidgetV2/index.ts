@@ -8,6 +8,7 @@ export const CONFIG = {
   name: "MultiSelect",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["dropdown", "tags"],
   defaults: {
     rows: 4,
     columns: 20,
@@ -16,6 +17,7 @@ export const CONFIG = {
     labelPosition: LabelPosition.Left,
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
+    labelTextSize: "0.875rem",
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },

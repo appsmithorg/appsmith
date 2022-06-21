@@ -1,6 +1,6 @@
 import React from "react";
 import { CommonComponentProps } from "./common";
-import { Position, Tooltip, PopperBoundary } from "@blueprintjs/core";
+import { Tooltip, PopperBoundary, PopoverPosition } from "@blueprintjs/core";
 import { GLOBAL_STYLE_TOOLTIP_CLASSNAME } from "globalStyles/tooltip";
 import { Modifiers } from "popper.js";
 import { noop } from "lodash";
@@ -10,7 +10,7 @@ type Variant = "dark" | "light";
 export type TooltipProps = CommonComponentProps & {
   content: JSX.Element | string;
   disabled?: boolean;
-  position?: Position;
+  position?: PopoverPosition;
   children: JSX.Element | React.ReactNode;
   variant?: Variant;
   maxWidth?: string;
@@ -23,7 +23,9 @@ export type TooltipProps = CommonComponentProps & {
   modifiers?: Modifiers;
   isOpen?: boolean;
   onOpening?: typeof noop;
+  popoverClassName?: string;
   donotUsePortal?: boolean;
+  transitionDuration?: number;
 };
 
 const portalContainer = document.getElementById("tooltip-root");
@@ -45,9 +47,11 @@ function TooltipComponent(props: TooltipProps) {
       }}
       onOpening={props.onOpening}
       openOnTargetFocus={props.openOnTargetFocus}
-      popoverClassName={GLOBAL_STYLE_TOOLTIP_CLASSNAME}
+      popoverClassName={`${GLOBAL_STYLE_TOOLTIP_CLASSNAME} ${props.popoverClassName ??
+        ""}`}
       portalContainer={portalContainer as HTMLDivElement}
       position={props.position}
+      transitionDuration={props.transitionDuration || 0}
       usePortal={!props.donotUsePortal}
     >
       {props.children}
@@ -56,7 +60,7 @@ function TooltipComponent(props: TooltipProps) {
 }
 
 TooltipComponent.defaultProps = {
-  position: Position.TOP,
+  position: PopoverPosition.TOP,
   variant: "dark",
 };
 

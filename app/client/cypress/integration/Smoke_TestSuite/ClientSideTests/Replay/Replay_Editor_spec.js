@@ -58,10 +58,11 @@ describe("Undo/Redo functionality", function() {
     cy.get(`${apiwidget.headerKey}`).type("Authorization");
     cy.get("body").click(0, 0);
     cy.get(apiwidget.settings).click({ force: true });
-    cy.get(apiwidget.onPageLoad).click({ force: true });
+    //cy.get(apiwidget.onPageLoad).click({ force: true });
     cy.get("body").click(0, 0);
     cy.get("body").type(`{${modifierKey}}z`);
-    cy.get("body").type(`{${modifierKey}}z`);
+    // cy.wait(2000);
+    // cy.get("body").type(`{${modifierKey}}z`);
     cy.wait(2000);
     cy.get(apiwidget.headers).should("have.class", "react-tabs__tab--selected");
     cy.get("body").type(`{${modifierKey}}z`);
@@ -131,15 +132,15 @@ describe("Undo/Redo functionality", function() {
       .first()
       .focus()
       .type("{downarrow}{downarrow}{downarrow}  ")
-      .type("test:()=>{},");
+      .type("testJSFunction:()=>{},");
     cy.get("body").type(`{${modifierKey}}z{${modifierKey}}z{${modifierKey}}z`);
-    // verifying test function is not visible in response tab after undo
-    cy.get(".function-name").should("not.contain.text", "test");
+    // verifying testJSFunction is not visible on page after undo
+    cy.contains("testJSFunction").should("not.exist");
     cy.get("body").type(
       `{${modifierKey}}{shift}z{${modifierKey}}{shift}z{${modifierKey}}{shift}z`,
     );
-    // verifying test function is visible in response tab after redo
-    cy.get(".function-name").should("contain.text", "test");
+    // verifying testJSFunction is visible on page after redo
+    cy.contains("testJSFunction").should("exist");
     // performing undo from app menu
     cy.get(".t--application-name").click({ force: true });
     cy.get("li:contains(Edit)")

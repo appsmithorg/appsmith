@@ -91,7 +91,7 @@ import { replayHighlightClass } from "globalStyles/portals";
 import {
   LintTooltipDirection,
   LINT_TOOLTIP_CLASS,
-  LINT_TOOLTIP_JUSTIFIFIED_LEFT_CLASS,
+  LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
 } from "./constants";
 
 interface ReduxStateProps {
@@ -135,6 +135,31 @@ export type EditorStyleProps = {
   popperPlacement?: Placement;
   popperZIndex?: Indices;
 };
+/**
+ *  line => Line to which the gutter is added
+ *
+ * element => HTML Element that gets added to line
+ *
+ * isFocusedAction => function called when focused
+ */
+export type GutterConfig = {
+  line: number;
+  element: HTMLElement;
+  isFocusedAction: () => void;
+};
+
+export type CodeEditorGutter = {
+  getGutterConfig:
+    | ((editorValue: string, cursorLineNumber: number) => GutterConfig | null)
+    | null;
+  gutterId: string;
+};
+
+export type CustomKeyMap = {
+  // combination of keys
+  combination: string;
+  onKeyDown: (cm: CodeMirror.Editor) => void;
+};
 
 export type EditorProps = EditorStyleProps &
   EditorConfig & {
@@ -153,6 +178,9 @@ export type EditorProps = EditorStyleProps &
     handleMouseLeave?: () => void;
     isReadOnly?: boolean;
     isRawView?: boolean;
+    isJSObject?: boolean;
+    // Custom gutter
+    customGutter?: CodeEditorGutter;
   };
 
 type Props = ReduxStateProps &
@@ -198,6 +226,7 @@ class CodeEditor extends Component<Props, State> {
   componentDidMount(): void {
     if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
+        autoRefresh: true,
         mode: this.props.mode,
         theme: EditorThemes[this.props.theme],
         viewportMargin: 10,
@@ -221,6 +250,8 @@ class CodeEditor extends Component<Props, State> {
         tabindex: -1,
       };
 
+      const gutters = new Set<string>();
+
       if (!this.props.input.onChange || this.props.disabled) {
         options.readOnly = true;
         options.scrollbarStyle = "null";
@@ -230,9 +261,13 @@ class CodeEditor extends Component<Props, State> {
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {
         options.extraKeys["Tab"] = false;
       }
+      if (this.props.customGutter) {
+        gutters.add(this.props.customGutter.gutterId);
+      }
       if (this.props.folding) {
         options.foldGutter = true;
-        options.gutters = ["CodeMirror-linenumbers", "CodeMirror-foldgutter"];
+        gutters.add("CodeMirror-linenumbers");
+        gutters.add("CodeMirror-foldgutter");
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         options.foldOptions = {
@@ -241,6 +276,7 @@ class CodeEditor extends Component<Props, State> {
           },
         };
       }
+      options.gutters = Array.from(gutters);
 
       // Set value of the editor
       const inputValue = getInputValue(this.props.input.value) || "";
@@ -262,7 +298,6 @@ class CodeEditor extends Component<Props, State> {
         // which means CodeMirror recalculates itself only one time, once all CodeMirror
         // changes here are completed
         //
-
         editor.on("beforeChange", this.handleBeforeChange);
         editor.on("change", this.startChange);
         editor.on("keyup", this.handleAutocompleteKeyup);
@@ -270,6 +305,7 @@ class CodeEditor extends Component<Props, State> {
         editor.on("cursorActivity", this.handleCursorMovement);
         editor.on("blur", this.handleEditorBlur);
         editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
+
         if (this.props.height) {
           editor.setSize("100%", this.props.height);
         } else {
@@ -330,7 +366,8 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
-  handleMouseMove = () => {
+  handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    this.handleCustomGutter(this.editor.lineAtHeight(e.clientY, "window"));
     // this code only runs when we want custom tool tip for any highlighted text inside codemirror instance
     if (
       this.props.showCustomToolTipForHighlightedText &&
@@ -413,7 +450,29 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
+  handleCustomGutter = (lineNumber: number | null, isFocused = false) => {
+    const { customGutter } = this.props;
+    const editor = this.editor;
+    if (!customGutter || !editor) return;
+    editor.clearGutter(customGutter.gutterId);
+
+    if (lineNumber && customGutter.getGutterConfig) {
+      const gutterConfig = customGutter.getGutterConfig(
+        editor.getValue(),
+        lineNumber,
+      );
+      if (!gutterConfig) return;
+      editor.setGutterMarker(
+        gutterConfig.line,
+        customGutter.gutterId,
+        gutterConfig.element,
+      );
+      isFocused && gutterConfig.isFocusedAction();
+    }
+  };
+
   handleCursorMovement = (cm: CodeMirror.Editor) => {
+    this.handleCustomGutter(cm.getCursor().line, true);
     // ignore if disabled
     if (!this.props.input.onChange || this.props.disabled) {
       return;
@@ -445,6 +504,7 @@ class CodeEditor extends Component<Props, State> {
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
+    this.handleCustomGutter(null);
   };
 
   handleBeforeChange = (
@@ -474,7 +534,7 @@ class CodeEditor extends Component<Props, State> {
         tooltip &&
         getLintTooltipDirection(tooltip) === LintTooltipDirection.left
       ) {
-        tooltip.classList.add(LINT_TOOLTIP_JUSTIFIFIED_LEFT_CLASS);
+        tooltip.classList.add(LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS);
       }
     }
   };
@@ -623,7 +683,11 @@ class CodeEditor extends Component<Props, State> {
       [],
     ) as EvaluationError[];
 
-    const annotations = getLintAnnotations(editor.getValue(), errors);
+    const annotations = getLintAnnotations(
+      editor.getValue(),
+      errors,
+      this.props.isJSObject,
+    );
 
     this.updateLintingCallback(editor, annotations);
   }

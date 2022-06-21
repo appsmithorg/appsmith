@@ -401,7 +401,9 @@ const gitSyncReducer = createReducer(initialState, {
       deployKeyDocUrl: action.payload.docUrl,
     };
   },
-  [ReduxActionTypes.SET_ORG_ID_FOR_IMPORT]: (state: GitSyncReducerState) => {
+  [ReduxActionTypes.SET_WORKSPACE_ID_FOR_IMPORT]: (
+    state: GitSyncReducerState,
+  ) => {
     return {
       ...state,
       SSHKeyPair: "",
@@ -478,6 +480,8 @@ export type GitStatusData = {
   modifiedQueries: number;
   remoteBranch: string;
   modifiedJSObjects: number;
+  modifiedDatasources: number;
+  discardDocUrl?: string;
 };
 
 type GitErrorPayloadType = {
@@ -546,6 +550,8 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   isImportingApplicationViaGit?: boolean;
 
   gitImportError?: any;
+
+  isDiscarding?: boolean;
 };
 
 export default gitSyncReducer;

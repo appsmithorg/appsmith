@@ -14,17 +14,22 @@ import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 import _ from "lodash";
+import { generateReactKey } from "utils/generators";
 
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;
+  id: string;
 }>`
-  .bp3-select-popover {
-    width: ${({ targetWidth }) => targetWidth}px;
+  ${({ id, targetWidth }) => `
+    .icon-select-popover-${id} {
+      width: ${targetWidth}px;
+      background: white;
 
-    .bp3-input-group {
-      margin: 5px !important;
+      .bp3-input-group {
+        margin: 5px !important;
+      }
     }
-  }
+  `}
 `;
 
 const StyledButton = styled(Button)`
@@ -101,6 +106,7 @@ const ICON_NAMES = Object.keys(IconNames).map<IconType>(
   (name: string) => IconNames[name as keyof typeof IconNames],
 );
 ICON_NAMES.unshift(NONE);
+const icons = new Set(ICON_NAMES);
 
 const TypedSelect = Select.ofType<IconType>();
 
@@ -113,6 +119,7 @@ class IconSelectControl extends BaseControl<
   private initialItemIndex: number;
   private filteredItems: Array<IconType>;
   private searchInput: React.RefObject<HTMLInputElement>;
+  id: string = generateReactKey();
 
   constructor(props: IconSelectControlProps) {
     super(props);
@@ -167,7 +174,7 @@ class IconSelectControl extends BaseControl<
 
     return (
       <>
-        <IconSelectContainerStyles targetWidth={containerWidth} />
+        <IconSelectContainerStyles id={this.id} targetWidth={containerWidth} />
         <TypedSelect
           activeItem={activeIcon || defaultIconName || NONE}
           className="icon-select-container"
@@ -184,6 +191,7 @@ class IconSelectControl extends BaseControl<
             enforceFocus: false,
             minimal: true,
             isOpen: this.state.isOpen,
+            popoverClassName: `icon-select-popover-${this.id}`,
             onInteraction: (state) => {
               if (this.state.isOpen !== state)
                 this.debouncedSetState({ isOpen: state });
@@ -200,6 +208,7 @@ class IconSelectControl extends BaseControl<
             icon={iconName || defaultIconName}
             onClick={this.handleButtonClick}
             rightIcon="caret-down"
+            tabIndex={0}
             text={iconName || defaultIconName || NONE}
           />
         </TypedSelect>
@@ -386,6 +395,14 @@ class IconSelectControl extends BaseControl<
 
   static getControlType() {
     return "ICON_SELECT";
+  }
+
+  static canDisplayValueInUI(
+    config: IconSelectControlProps,
+    value: any,
+  ): boolean {
+    if (icons.has(value)) return true;
+    return false;
   }
 }
 

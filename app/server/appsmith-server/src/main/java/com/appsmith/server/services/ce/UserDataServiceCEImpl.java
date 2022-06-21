@@ -244,21 +244,32 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     }
 
     /**
-     * The application.organizationId is prepended to the list {@link UserData#getRecentlyUsedOrgIds}.
+     * The application.workspaceId is prepended to the list {@link UserData#getRecentlyUsedWorkspaceIds}.
      * The application.id is prepended to the list {@link UserData#getRecentlyUsedAppIds()}.
      *
      * @param application@return Updated {@link UserData}
      */
     @Override
-    public Mono<UserData> updateLastUsedAppAndOrgList(Application application) {
+    public Mono<UserData> updateLastUsedAppAndWorkspaceList(Application application) {
         return this.getForCurrentUser().flatMap(userData -> {
-            // set recently used organization ids
-            userData.setRecentlyUsedOrgIds(
-                    addIdToRecentList(userData.getRecentlyUsedOrgIds(), application.getOrganizationId(), 10)
+            // set recently used workspace ids
+            userData.setRecentlyUsedWorkspaceIds(
+                    addIdToRecentList(userData.getRecentlyUsedWorkspaceIds(), application.getWorkspaceId(), 10)
             );
             // set recently used application ids
             userData.setRecentlyUsedAppIds(
                     addIdToRecentList(userData.getRecentlyUsedAppIds(), application.getId(), 20)
+            );
+            return repository.save(userData);
+        });
+    }
+
+    @Override
+    public Mono<UserData> addTemplateIdToLastUsedList(String templateId) {
+        return this.getForCurrentUser().flatMap(userData -> {
+            // set recently used template ids
+            userData.setRecentlyUsedTemplateIds(
+                    addIdToRecentList(userData.getRecentlyUsedTemplateIds(), templateId, 5)
             );
             return repository.save(userData);
         });
@@ -274,7 +285,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         if(srcIdList.size() > 1) {
             CollectionUtils.removeDuplicates(srcIdList);
         }
-        // keeping the last 10 org ids, there may be a lot of deleted organization ids which are not used anymore
+        // keeping the last maxSize ids, there may be a lot of ids which are not used anymore
         if(srcIdList.size() > maxSize) {
             srcIdList = srcIdList.subList(0, maxSize);
         }
@@ -298,14 +309,14 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     }
 
     /**
-     * Removes provided organization id and all other application id under that organization from the user data
-     * @param organizationId organization id
+     * Removes provided workspace id and all other application id under that workspace from the user data
+     * @param workspaceId workspace id
      * @return update result obtained from DB
      */
     @Override
-    public Mono<UpdateResult> removeRecentOrgAndApps(String userId, String organizationId) {
-        return applicationRepository.getAllApplicationId(organizationId).flatMap(appIdsList ->
-            repository.removeIdFromRecentlyUsedList(userId, organizationId, appIdsList)
+    public Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId) {
+        return applicationRepository.getAllApplicationId(workspaceId).flatMap(appIdsList ->
+            repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList)
         );
     }
 }

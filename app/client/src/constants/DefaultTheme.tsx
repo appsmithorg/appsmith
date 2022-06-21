@@ -7,6 +7,7 @@ import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
 import { typography, Typography, TypographyKeys } from "./typography";
+
 import { LabelPosition } from "components/constants";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
@@ -652,6 +653,7 @@ const lightShades = [
   "#F86A2B",
   "#FFDEDE",
   "#575757",
+  "#191919",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -932,12 +934,12 @@ type ColorType = {
   applications: {
     bg: ShadeColor;
     textColor: ShadeColor;
-    orgColor: ShadeColor;
+    workspaceColor: ShadeColor;
     iconColor: ShadeColor;
     hover: {
       bg: ShadeColor;
       textColor: ShadeColor;
-      orgColor: ShadeColor;
+      workspaceColor: ShadeColor;
     };
     cardMenuIcon: ShadeColor;
   };
@@ -1373,13 +1375,14 @@ const editorBottomBar = {
 const gitSyncModal = {
   menuBackgroundColor: Colors.ALABASTER_ALT,
   separator: Colors.ALTO2,
-  closeIcon: "rgba(29, 28, 29, 0.7);",
+  closeIcon: Colors.SCORPION,
+  closeIconHover: Colors.GREY_900,
 };
 type GitSyncModalColors = typeof gitSyncModal;
 
 const tabItemBackgroundFill = {
   highlightBackground: Colors.Gallery,
-  highlightTextColor: Colors.CODE_GRAY,
+  highlightTextColor: Colors.COD_GRAY,
   textColor: Colors.CHARCOAL,
 };
 
@@ -1944,12 +1947,12 @@ export const dark: ColorType = {
   applications: {
     bg: darkShades[4],
     textColor: darkShades[7],
-    orgColor: darkShades[7],
+    workspaceColor: darkShades[7],
     iconColor: darkShades[7],
     hover: {
       bg: darkShades[5],
       textColor: darkShades[8],
-      orgColor: darkShades[9],
+      workspaceColor: darkShades[9],
     },
     cardMenuIcon: darkShades[7],
   },
@@ -2470,7 +2473,7 @@ export const light: ColorType = {
     },
     menu: {
       border: lightShades[13],
-      bg: lightShades[0],
+      bg: lightShades[11],
       text: lightShades[8],
       hover: lightShades[2],
       hoverText: lightShades[10],
@@ -2584,12 +2587,12 @@ export const light: ColorType = {
   applications: {
     bg: lightShades[3],
     textColor: lightShades[7],
-    orgColor: lightShades[7],
+    workspaceColor: lightShades[7],
     iconColor: lightShades[7],
     hover: {
       bg: lightShades[5],
       textColor: lightShades[8],
-      orgColor: lightShades[9],
+      workspaceColor: lightShades[9],
     },
     cardMenuIcon: lightShades[17],
   },
@@ -2612,7 +2615,7 @@ export const light: ColorType = {
   },
   modal: {
     bg: lightShades[11],
-    headerText: lightShades[10],
+    headerText: lightShades[20],
     iconColor: lightShades[5],
     iconBg: lightShades[18],
     user: {

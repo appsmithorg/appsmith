@@ -42,10 +42,10 @@ describe("Omnibar functionality test cases", () => {
       .should("have.text", "Search Documentation")
       .next()
       .should("have.text", "Find answers through Appsmith documentation.");
+    cy.get("body").type("{esc}");
   });
 
   it("Verify when user clicks on a debugging error, related documentation should open in omnibar", function() {
-    cy.get(omnibar.globalSearch).click({ force: true });
     // click on debugger icon
     cy.get(commonlocators.debugger)
       .should("be.visible")

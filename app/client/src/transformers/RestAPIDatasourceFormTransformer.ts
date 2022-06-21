@@ -37,7 +37,7 @@ export const datasourceToFormValues = (
     : "";
   return {
     datasourceId: datasource.id,
-    organizationId: datasource.organizationId,
+    workspaceId: datasource.workspaceId,
     pluginId: datasource.pluginId,
     isValid: datasource.isValid,
     url: datasource.datasourceConfiguration?.url,
@@ -189,7 +189,7 @@ const datasourceToFormAuthentication = (
       resource: authentication.resource || "",
       sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken || "",
       refreshTokenClientCredentialsLocation:
-        authentication.refreshTokenClientCredentialsLocation || "",
+        authentication.refreshTokenClientCredentialsLocation || "BODY",
     };
     if (isClientCredentials(authType, authentication)) {
       return {

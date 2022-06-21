@@ -9,19 +9,24 @@ import { Colors } from "constants/Colors";
 import LabelWithTooltip, {
   labelLayoutStyles,
 } from "components/ads/LabelWithTooltip";
+import { isMacOs } from "utils/AppsmithUtils";
 
 const StyledRTEditor = styled.div<{
+  borderRadius: string;
+  boxShadow?: string;
   compactMode: boolean;
   labelPosition?: LabelPosition;
-  isValid?: boolean;
 }>`
   && {
     width: 100%;
     height: 100%;
-    border: 1px solid
-      ${(props) => (props.isValid ? "none" : Colors.DANGER_SOLID)};
     .tox .tox-editor-header {
       z-index: 0;
+    }
+
+    .tox-tinymce {
+      border-radius: ${({ borderRadius }) => borderRadius};
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     }
   }
   .tox {
@@ -37,11 +42,16 @@ const StyledRTEditor = styled.div<{
   ${labelLayoutStyles}
 `;
 
-export const RichTextEditorInputWrapper = styled.div`
+export const RichTextEditorInputWrapper = styled.div<{
+  isValid?: boolean;
+  borderRadius: string;
+}>`
   display: flex;
   width: 100%;
   min-width: 0;
   height: 100%;
+  border: 1px solid ${(props) => (props.isValid ? "none" : Colors.DANGER_SOLID)};
+  border-radius: ${({ borderRadius }) => borderRadius};
 `;
 
 export interface RichtextEditorComponentProps {
@@ -53,6 +63,8 @@ export interface RichtextEditorComponentProps {
   isVisible?: boolean;
   compactMode: boolean;
   isToolbarHidden: boolean;
+  borderRadius: string;
+  boxShadow?: string;
   labelText: string;
   labelPosition?: LabelPosition;
   labelAlignment?: Alignment;
@@ -119,10 +131,11 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
 
   return (
     <StyledRTEditor
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
       className={`container-${props.widgetId}`}
       compactMode={compactMode}
       data-testid="rte-container"
-      isValid={props.isValid}
       labelPosition={labelPosition}
     >
       {labelText && (
@@ -139,7 +152,10 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           width={labelWidth}
         />
       )}
-      <RichTextEditorInputWrapper>
+      <RichTextEditorInputWrapper
+        borderRadius={props.borderRadius}
+        isValid={props.isValid}
+      >
         <Editor
           disabled={props.isDisabled}
           id={`rte-${props.widgetId}`}
@@ -150,11 +166,37 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             forced_root_block: false,
             branding: false,
             resize: false,
+            browser_spellcheck: true,
             plugins: [
               "advlist autolink lists link image charmap print preview anchor",
               "searchreplace visualblocks code fullscreen",
               "insertdatetime media table paste code help",
             ],
+            contextmenu: "link useBrowserSpellcheck image table",
+            setup: function(editor) {
+              editor.ui.registry.addMenuItem("useBrowserSpellcheck", {
+                text: `Use "${
+                  isMacOs() ? "Control" : "Ctrl"
+                } + Right click" to access spellchecker`,
+                onAction: function() {
+                  editor.notificationManager.open({
+                    text: `To access the spellchecker, hold the ${
+                      isMacOs() ? "Control" : "Ctrl"
+                    } key and right-click on the misspelt word.`,
+                    type: "info",
+                    timeout: 5000,
+                    closeButton: true,
+                  });
+                },
+              });
+              editor.ui.registry.addContextMenu("useBrowserSpellcheck", {
+                update: function() {
+                  return editor.selection.isCollapsed()
+                    ? ["useBrowserSpellcheck"]
+                    : [];
+                },
+              });
+            },
           }}
           key={`editor_${props.isToolbarHidden}`}
           onEditorChange={onEditorChange}

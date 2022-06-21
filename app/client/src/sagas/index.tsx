@@ -14,7 +14,7 @@ import apiPaneSagas from "./ApiPaneSagas";
 import jsPaneSagas from "./JSPaneSagas";
 import userSagas from "./userSagas";
 import pluginSagas from "./PluginSagas";
-import orgSagas from "./OrgSagas";
+import workspaceSagas from "./WorkspaceSagas";
 import importedCollectionsSagas from "./CollectionSagas";
 import providersSagas from "./ProvidersSaga";
 import curlImportSagas from "./CurlImportSagas";
@@ -39,7 +39,7 @@ import replaySaga from "./ReplaySaga";
 import selectionCanvasSagas from "./CanvasSagas/SelectionCanvasSagas";
 import draggingCanvasSagas from "./CanvasSagas/DraggingCanvasSagas";
 import gitSyncSagas from "./GitSyncSagas";
-
+import appThemingSaga from "./AppThemingSaga";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
 import formEvaluationChangeListener from "./FormEvaluationSaga";
@@ -62,7 +62,7 @@ const sagas = [
   userSagas,
   templateSagas,
   pluginSagas,
-  orgSagas,
+  workspaceSagas,
   importedCollectionsSagas,
   providersSagas,
   curlImportSagas,
@@ -89,6 +89,7 @@ const sagas = [
   draggingCanvasSagas,
   gitSyncSagas,
   SuperUserSagas,
+  appThemingSaga,
 ];
 
 export function* rootSaga(sagasToRun = sagas): any {

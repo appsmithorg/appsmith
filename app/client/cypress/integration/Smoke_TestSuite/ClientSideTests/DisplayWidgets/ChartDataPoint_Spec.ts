@@ -4,7 +4,8 @@ let dataSet: any, dsl: any;
 let agHelper = ObjectsRegistry.AggregateHelper,
     ee = ObjectsRegistry.EntityExplorer,
     jsEditor = ObjectsRegistry.JSEditor,
-    locator = ObjectsRegistry.CommonLocators;
+    locator = ObjectsRegistry.CommonLocators,
+    deployMode = ObjectsRegistry.DeployMode;
 
 describe("Input widget test with default value from chart datapoint", () => {
 
@@ -28,7 +29,7 @@ describe("Input widget test with default value from chart datapoint", () => {
         agHelper.EnterActionValue("Message", dataSet.bindingDataPoint)
         ee.SelectEntityByName("Input2")
         jsEditor.EnterJSContext("Default Text", dataSet.bindingSeriesTitle + "}}");
-        agHelper.DeployApp()
+        deployMode.DeployApp()
         agHelper.Sleep(1500)//waiting for chart to load!
         agHelper.GetNClick("//*[local-name()='rect']", 13)
         cy.get(locator._inputWidgetInDeployed).first().invoke('val').then($value => {
@@ -41,7 +42,7 @@ describe("Input widget test with default value from chart datapoint", () => {
 
     afterEach(() => {
         //this is to enable re-attempt passing!
-        agHelper.NavigateBacktoEditor()
+        deployMode.NavigateBacktoEditor()
     })
 
 });

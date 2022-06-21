@@ -7,7 +7,7 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
-import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
 import com.appsmith.server.domains.Layout;
@@ -1126,14 +1126,14 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     // Set the application id in the main domain
                     newAction.setApplicationId(page.getApplicationId());
 
-                    // If the datasource is embedded, check for organizationId and set it in action
+                    // If the datasource is embedded, check for workspaceId and set it in action
                     if (action.getDatasource() != null &&
                             action.getDatasource().getId() == null) {
                         Datasource datasource = action.getDatasource();
-                        if (datasource.getOrganizationId() == null) {
-                            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+                        if (datasource.getWorkspaceId() == null) {
+                            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
                         }
-                        newAction.setOrganizationId(datasource.getOrganizationId());
+                        newAction.setWorkspaceId(datasource.getWorkspaceId());
                     }
 
                     // New actions will never be set to auto-magical execution, unless it is triggered via a

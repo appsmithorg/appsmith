@@ -6,6 +6,7 @@ import Widget from "./widget";
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "TreeSelect",
+  searchTags: ["dropdown"],
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
@@ -43,6 +44,7 @@ export const CONFIG = {
     labelPosition: LabelPosition.Left,
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
+    labelTextSize: "0.875rem",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

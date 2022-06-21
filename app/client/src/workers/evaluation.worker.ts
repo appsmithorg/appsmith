@@ -24,6 +24,7 @@ import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
 import { setFormEvaluationSaga } from "./formEval";
 import { isEmpty } from "lodash";
+import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 
 const CANVAS = "canvas";
 
@@ -90,6 +91,7 @@ ctx.addEventListener(
         const {
           allActionValidationConfig,
           shouldReplay = true,
+          theme,
           unevalTree,
           widgets,
           widgetTypeConfigMap,
@@ -102,10 +104,12 @@ ctx.addEventListener(
         let evaluationOrder: string[] = [];
         let unEvalUpdates: DataTreeDiff[] = [];
         let jsUpdates: Record<string, any> = {};
+        let evalMetaUpdates: EvalMetaUpdates = [];
+
         try {
           if (!dataTreeEvaluator) {
             replayMap = replayMap || {};
-            replayMap[CANVAS] = new ReplayCanvas(widgets);
+            replayMap[CANVAS] = new ReplayCanvas({ widgets, theme });
             //allActionValidationConfigs maybe empty
             dataTreeEvaluator = new DataTreeEvaluator(
               widgetTypeConfigMap,
@@ -128,7 +132,7 @@ ctx.addEventListener(
               );
             }
             if (shouldReplay) {
-              replayMap[CANVAS]?.update(widgets);
+              replayMap[CANVAS]?.update({ widgets, theme });
             }
             dataTreeEvaluator = new DataTreeEvaluator(
               widgetTypeConfigMap,
@@ -154,13 +158,18 @@ ctx.addEventListener(
             }
             dataTree = {};
             if (shouldReplay) {
-              replayMap[CANVAS]?.update(widgets);
+              replayMap[CANVAS]?.update({ widgets, theme });
             }
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             evaluationOrder = updateResponse.evaluationOrder;
             unEvalUpdates = updateResponse.unEvalUpdates;
             dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
             jsUpdates = updateResponse.jsUpdates;
+            // evalMetaUpdates can have moment object as value which will cause DataCloneError
+            // hence, stringify and parse to avoid such errors
+            evalMetaUpdates = JSON.parse(
+              JSON.stringify(updateResponse.evalMetaUpdates),
+            );
           }
           dependencies = dataTreeEvaluator.inverseDependencyMap;
           errors = dataTreeEvaluator.errors;
@@ -192,6 +201,7 @@ ctx.addEventListener(
           logs,
           unEvalUpdates,
           jsUpdates,
+          evalMetaUpdates,
         };
       }
       case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {

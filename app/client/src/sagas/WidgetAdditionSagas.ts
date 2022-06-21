@@ -1,8 +1,4 @@
-import {
-  updateAndSaveLayout,
-  WidgetAddChild,
-  WidgetAddChildren,
-} from "actions/pageActions";
+import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import { Toaster } from "components/ads/Toast";
 import {
   ReduxAction,
@@ -36,7 +32,17 @@ import WidgetFactory from "utils/WidgetFactory";
 import omit from "lodash/omit";
 import produce from "immer";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
+import { getPropertiesToUpdate } from "./WidgetOperationSagas";
+import { klona as clone } from "klona/full";
+
 const WidgetTypes = WidgetFactory.widgetTypes;
+
+const themePropertiesDefaults = {
+  boxShadow: "none",
+  borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+};
 
 type GeneratedWidgetPayload = {
   widgetId: string;
@@ -51,6 +57,20 @@ type WidgetAddTabChild = {
 function* getEntityNames() {
   const evalTree = yield select(getDataTree);
   return Object.keys(evalTree);
+}
+
+/**
+ * return stylesheet of widget
+ * NOTE: a stylesheet is an object that contains
+ * which property of widget will use which property of the theme
+ *
+ * @param type
+ * @returns
+ */
+function* getThemeDefaultConfig(type: string) {
+  const stylesheet = yield select(getSelectedAppThemeStylesheet);
+
+  return stylesheet[type] || themePropertiesDefaults;
 }
 
 function* getChildWidgetProps(
@@ -71,6 +91,7 @@ function* getChildWidgetProps(
   const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
     "blueprint",
   ]);
+  const themeDefaultConfig = yield call(getThemeDefaultConfig, type);
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
     const entityNames: string[] = yield call(getEntityNames);
@@ -106,6 +127,7 @@ function* getChildWidgetProps(
     minHeight,
     widgetId: newWidgetId,
     renderMode: RenderModes.CANVAS,
+    ...themeDefaultConfig,
   };
   const widget = generateWidgetProps(
     parent,
@@ -120,8 +142,15 @@ function* getChildWidgetProps(
   );
 
   widget.widgetId = newWidgetId;
+  const { dynamicBindingPathList } = yield call(
+    getPropertiesToUpdate,
+    widget,
+    themeDefaultConfig,
+  );
+  widget.dynamicBindingPathList = clone(dynamicBindingPathList);
   return widget;
 }
+
 function* generateChildWidgets(
   parent: FlattenedWidgetProps,
   params: WidgetAddChild,
@@ -289,6 +318,10 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);
     yield put(updateAndSaveLayout(updatedWidgets));
+    yield put({
+      type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
+      payload: [addChildAction.payload.newWidgetId],
+    });
     log.debug("add child computations took", performance.now() - start, "ms");
     // go up till MAIN_CONTAINER, if there is a operation CHILD_OPERATIONS IN ANY PARENT,
     // call execute
@@ -297,59 +330,6 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {
         action: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
-        error,
-      },
-    });
-  }
-}
-
-// This is different from addChildSaga
-// It does not go through the blueprint based creation
-// It simply uses the provided widget props to create widgets
-// Use this only when we're 100% sure of all the props the children will need
-export function* addChildrenSaga(
-  addChildrenAction: ReduxAction<WidgetAddChildren>,
-) {
-  try {
-    const { children, widgetId } = addChildrenAction.payload;
-    const stateWidgets = yield select(getWidgets);
-    const widgets = { ...stateWidgets };
-    const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-    const entityNames = yield call(getEntityNames);
-
-    children.forEach((child) => {
-      // Create only if it doesn't already exist
-      if (!widgets[child.widgetId]) {
-        const defaultConfig: any = WidgetFactory.widgetConfigMap.get(
-          child.type,
-        );
-        const newWidgetName = getNextEntityName(defaultConfig.widgetName, [
-          ...widgetNames,
-          ...entityNames,
-        ]);
-        // update the list of widget names for the next iteration
-        widgetNames.push(newWidgetName);
-        widgets[child.widgetId] = {
-          ...child,
-          widgetName: newWidgetName,
-          renderMode: RenderModes.CANVAS,
-        };
-
-        const existingChildren = widgets[widgetId].children || [];
-
-        widgets[widgetId] = {
-          ...widgets[widgetId],
-          children: [...existingChildren, child.widgetId],
-        };
-      }
-    });
-
-    yield put(updateAndSaveLayout(widgets));
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
-      payload: {
-        action: WidgetReduxActionTypes.WIDGET_ADD_CHILDREN,
         error,
       },
     });
@@ -432,7 +412,6 @@ function* addNewTabChildSaga(
 export default function* widgetAdditionSagas() {
   yield all([
     takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
-    takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_NEW_TAB_CHILD, addNewTabChildSaga),
   ]);
 }

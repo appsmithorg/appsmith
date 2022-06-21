@@ -32,6 +32,8 @@ export default {
   learnMoreDeployKey: "//a[text()='Learn More']",
   learnMoreSshUrl: ".t--learn-more-ssh-url",
   readDocument: ".t--read-document",
+  gitConnectErrorLearnMore:
+    ".t--git-connection-error .t--notification-banner-learn-more",
   deployPreview: ".t--git-deploy-preview",
   mergeButton: ".t--git-merge-button",
   disconnectIcon: ".t--git-disconnect-icon",
@@ -49,4 +51,10 @@ export default {
   gitPullCount: ".t--bottom-bar-pull .count",
   gitConnectionContainer: "[data-test=t--git-connection-container]",
   gitRemoteURLContainer: "[data-test=t--remote-url-container]",
+  discardChanges: ".t--discard-button",
+  gitBranchContextMenu: ".git-branch-more-menu",
+  gitBranchDelete: ".t--branch-more-menu-delete",
+  SSHKeycontextmenu: ".bp3-popover-wrapper.more",
+  regenerateSSHKey: "[data-cy='t--regenerate-sshkey']",
+  confirmButton: "//span[text()='Yes']",
 };

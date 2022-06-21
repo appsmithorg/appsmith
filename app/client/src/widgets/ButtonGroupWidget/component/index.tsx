@@ -12,10 +12,6 @@ import { IconName } from "@blueprintjs/icons";
 import tinycolor from "tinycolor2";
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
 import {
-  ButtonBoxShadow,
-  ButtonBoxShadowTypes,
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
   ButtonStyleType,
   ButtonVariant,
   ButtonVariantTypes,
@@ -27,12 +23,13 @@ import { Colors } from "constants/Colors";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
-  getCustomTextColor,
   getCustomJustifyContent,
+  getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { buttonHoverActiveStyles } from "../../ButtonWidget/component/utils";
+import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 
 // Utility functions
 interface ButtonData {
@@ -65,9 +62,9 @@ const getButtonData = (
 
 interface WrapperStyleProps {
   isHorizontal: boolean;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius?: string;
+  boxShadow?: string;
+  buttonVariant: ButtonVariant;
 }
 
 const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
@@ -78,38 +75,36 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
   justify-content: stretch;
   align-items: stretch;
   overflow: hidden;
+  cursor: not-allowed;
+  gap: ${({ buttonVariant }) =>
+    `${buttonVariant === ButtonVariantTypes.PRIMARY ? "1px" : "0px"}`};
 
   ${(props) =>
     props.isHorizontal ? "flex-direction: row" : "flex-direction: column"};
+  box-shadow: ${({ boxShadow }) => boxShadow};
+  border-radius: ${({ borderRadius }) => borderRadius};
 
-  border-radius: ${({ borderRadius }) =>
-    borderRadius === ButtonBorderRadiusTypes.ROUNDED
-      ? "8px"
-      : borderRadius === ButtonBorderRadiusTypes.CIRCLE
-      ? "32px"
-      : "0px"};
+  & > *:first-child,
+  & > *:first-child button {
+    border-radius: ${({ borderRadius, isHorizontal }) =>
+      isHorizontal
+        ? `${borderRadius} 0px 0px ${borderRadius}`
+        : `${borderRadius} ${borderRadius} 0px 0px`};
+  }
 
-  box-shadow: ${({ boxShadow, boxShadowColor, theme }) =>
-    boxShadow === ButtonBoxShadowTypes.VARIANT1
-      ? `0px 0px 4px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant1}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT2
-      ? `3px 3px 4px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant2}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT3
-      ? `0px 1px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant3}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT4
-      ? `2px 2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant4}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT5
-      ? `-2px -2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant5}`
-      : "none"} !important;
+  & > *:last-child,
+  & > *:last-child button {
+    border-radius: ${({ borderRadius, isHorizontal }) =>
+      isHorizontal
+        ? `0px ${borderRadius} ${borderRadius} 0`
+        : `0px 0px ${borderRadius} ${borderRadius}`};
+  }
 `;
 
 const MenuButtonWrapper = styled.div<{ renderMode: RenderMode }>`
   flex: 1 1 auto;
+  cursor: pointer;
+  position: relative;
 
   ${({ renderMode }) => renderMode === RenderModes.CANVAS && `height: 100%`};
 
@@ -127,23 +122,32 @@ const PopoverStyles = createGlobalStyle<{
   minPopoverWidth: number;
   popoverTargetWidth?: number;
   id: string;
+  borderRadius?: string;
 }>`
-  .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
-    background: none;
-  }
-  ${({ id, minPopoverWidth, popoverTargetWidth }) => `
-    .menu-button-width-${id} {
+  ${({ borderRadius, id, minPopoverWidth, popoverTargetWidth }) => `
+    .${id}.${Classes.POPOVER2} {
+      background: none;
+      box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+      margin-top: 8px !important;
+      margin-bottom: 8px !important;
+      border-radius: ${
+        borderRadius === THEMEING_TEXT_SIZES.lg ? `0.375rem` : borderRadius
+      };
+      box-shadow: none;
+      overflow: hidden;
       ${popoverTargetWidth && `width: ${popoverTargetWidth}px`};
       min-width: ${minPopoverWidth}px;
+    }
+
+    .button-group-menu-popover > .${Classes.POPOVER2_CONTENT} {
+      background: none;
     }
   `}
 `;
 
 interface ButtonStyleProps {
   isHorizontal: boolean;
-  borderRadius?: ButtonBorderRadius;
-  borderRadOnStart: boolean;
-  borderRadOnEnd: boolean;
+  borderRadius?: string;
   buttonVariant?: ButtonVariant; // solid | outline | ghost
   buttonColor?: string;
   iconAlign?: string;
@@ -152,7 +156,7 @@ interface ButtonStyleProps {
 }
 
 /*
-  Don't use buttonHoverActiveStyles in a nested function it won't work - 
+  Don't use buttonHoverActiveStyles in a nested function it won't work -
 
   const buttonHoverActiveStyles = css ``
 
@@ -182,17 +186,7 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
     ${buttonHoverActiveStyles}
   }
 
-  ${({
-    borderRadius,
-    borderRadOnEnd,
-    borderRadOnStart,
-    buttonColor,
-    buttonVariant,
-    iconAlign,
-    isHorizontal,
-    isLabel,
-    theme,
-  }) => `
+  ${({ buttonColor, buttonVariant, iconAlign, isLabel, theme }) => `
     & {
       background: ${
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
@@ -222,57 +216,16 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
         : "none"
     } ${buttonVariant === ButtonVariantTypes.PRIMARY ? "" : "!important"};
 
-    ${
-      isHorizontal
-        ? buttonVariant === ButtonVariantTypes.PRIMARY
-          ? borderRadOnEnd
-            ? ""
-            : `
-            border-right: 1px solid ${getCustomTextColor(theme, buttonColor)};
-          `
-          : ""
-        : buttonVariant === ButtonVariantTypes.PRIMARY
-        ? borderRadOnEnd
-          ? ""
-          : `
-          border-bottom: 1px solid ${getCustomTextColor(theme, buttonColor)};
-        `
-        : ""
-    }
-
-    border-radius: ${
-      borderRadius === ButtonBorderRadiusTypes.ROUNDED
-        ? borderRadOnStart // first button
-          ? isHorizontal
-            ? "8px 0px 0px 8px"
-            : "8px 8px 0px 0px"
-          : borderRadOnEnd // last button
-          ? isHorizontal
-            ? "0px 8px 8px 0px"
-            : "0px 0px 8px 8px"
-          : "0px"
-        : borderRadius === ButtonBorderRadiusTypes.CIRCLE
-        ? borderRadOnStart // first button
-          ? isHorizontal
-            ? "32px 0px 0px 32px"
-            : "32px 32px 0px 0px"
-          : borderRadOnEnd // last button
-          ? isHorizontal
-            ? "0px 32px 32px 0px"
-            : "0px 0px 32px 32px"
-          : "0px"
-        : "0px"
-    };
-
     & span {
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY
-          ? getCustomTextColor(theme, buttonColor)
+          ? getComplementaryGrayscaleColor(buttonColor)
           : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
       } !important;
     }
 
-    &:disabled { 
+
+    &:disabled {
       cursor: not-allowed;
       border: 1px solid ${Colors.ALTO2} !important;
       background: ${theme.colors.button.disabled.bgColor} !important;
@@ -280,6 +233,7 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
         color: ${theme.colors.button.disabled.textColor} !important;
       }
     }
+
   `}
 `;
 
@@ -297,9 +251,8 @@ const StyledButtonContent = styled.div<{
 
 export interface BaseStyleProps {
   backgroundColor?: string;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius?: string;
+  boxShadow?: string;
   buttonColor?: string;
   buttonStyle?: ButtonStyleType;
   buttonVariant?: ButtonVariant;
@@ -308,6 +261,7 @@ export interface BaseStyleProps {
 
 const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
   padding: 8px 10px !important;
+  border-radius: 0px;
   ${({ backgroundColor, theme }) =>
     backgroundColor
       ? `
@@ -560,29 +514,29 @@ class ButtonGroupComponent extends React.Component<
       .filter((item) => item.isVisible === true);
     // sort btns by index
     items = sortBy(items, ["index"]);
+    const popoverId = `button-group-${widgetId}`;
 
     return (
       <ButtonGroupWrapper
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        boxShadowColor={this.props.boxShadowColor}
+        buttonVariant={this.props.buttonVariant}
         className="t--buttongroup-widget"
         isHorizontal={isHorizontal}
       >
         {items.map((button) => {
-          const borderRadOnStart = button.index === 0;
-          const borderRadOnEnd = button.index === items.length - 1;
           const isButtonDisabled = button.isDisabled || isDisabled;
 
           if (button.buttonType === "MENU" && !isButtonDisabled) {
             const { menuItems } = button;
-            const popoverId = `${widgetId}-${button.id}`;
+
             return (
               <MenuButtonWrapper
                 key={button.id}
                 renderMode={this.props.renderMode}
               >
                 <PopoverStyles
+                  borderRadius={this.props.borderRadius}
                   id={popoverId}
                   minPopoverWidth={minPopoverWidth}
                   popoverTargetWidth={this.state.itemWidths[button.id]}
@@ -598,7 +552,7 @@ class ButtonGroupComponent extends React.Component<
                   fill
                   minimal
                   placement="bottom-end"
-                  popoverClassName={`menu-button-popover menu-button-width-${popoverId}`}
+                  popoverClassName={popoverId}
                 >
                   <DragContainer
                     buttonColor={button.buttonColor}
@@ -607,8 +561,6 @@ class ButtonGroupComponent extends React.Component<
                     renderMode={this.props.renderMode}
                   >
                     <StyledButton
-                      borderRadOnEnd={borderRadOnEnd}
-                      borderRadOnStart={borderRadOnStart}
                       borderRadius={this.props.borderRadius}
                       buttonColor={button.buttonColor}
                       buttonVariant={buttonVariant}
@@ -649,8 +601,6 @@ class ButtonGroupComponent extends React.Component<
               style={{ flex: "1 1 auto" }}
             >
               <StyledButton
-                borderRadOnEnd={borderRadOnEnd}
-                borderRadOnStart={borderRadOnStart}
                 borderRadius={this.props.borderRadius}
                 buttonColor={button.buttonColor}
                 buttonVariant={buttonVariant}
@@ -713,9 +663,8 @@ interface GroupButtonProps {
 }
 
 export interface ButtonGroupComponentProps {
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius?: string;
+  boxShadow?: string;
   buttonVariant: ButtonVariant;
   buttonClickHandler: (onClick: string | undefined) => void;
   groupButtons: Record<string, GroupButtonProps>;

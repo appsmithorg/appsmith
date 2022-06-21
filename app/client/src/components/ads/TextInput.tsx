@@ -78,6 +78,7 @@ export type TextInputProps = CommonComponentProps & {
   isCopy?: boolean;
   border?: boolean;
   style?: any;
+  tabIndex?: number;
 };
 
 type boxReturnType = {
@@ -208,7 +209,7 @@ const StyledInput = styled((props) => {
   }
 `;
 
-const InputWrapper = styled.div<{
+export const InputWrapper = styled.div<{
   value?: string;
   isFocused: boolean;
   fill?: number;
@@ -337,16 +338,11 @@ const TextInput = forwardRef(
         setInputValue(inputValue);
         const inputValueValidation =
           props.validator && props.validator(inputValue);
-        if (inputValueValidation && inputValueValidation.isValid) {
+        if (inputValueValidation) {
           props.validator && setValidation(inputValueValidation);
-          return (
-            inputValueValidation.isValid &&
-            props.onChange &&
-            props.onChange(inputValue)
-          );
-        } else {
-          return props.onChange && props.onChange(inputValue);
         }
+
+        return props.onChange && props.onChange(inputValue);
       },
       [props.onChange, setValidation, trimValue],
     );
@@ -438,6 +434,7 @@ const TextInput = forwardRef(
           placeholder={props.placeholder}
           readOnly={props.readOnly}
           rightSideComponentWidth={rightSideComponentWidth}
+          tabIndex={props.tabIndex ?? 0}
         />
         {validation?.isValid &&
           props.helperText &&

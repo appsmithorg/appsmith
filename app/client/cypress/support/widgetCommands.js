@@ -3,10 +3,6 @@
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
-
-const {
-  addMatchImageSnapshotCommand,
-} = require("cypress-image-snapshot/command");
 const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
 const modalWidgetPage = require("../locators/ModalWidget.json");
@@ -86,7 +82,7 @@ Cypress.Commands.add("selectDateFormat", (value) => {
   cy.get(".t--dropdown-option")
     .children()
     .contains(value)
-    .click();
+    .click({ force: true });
 });
 
 Cypress.Commands.add("selectDropdownValue", (element, value) => {
@@ -244,6 +240,14 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.contains(innercss, text);
 });
 
+Cypress.Commands.add("verifyUpdatedWidgetName", (text) => {
+  cy.get(commonlocators.editWidgetName)
+    .click({ force: true })
+    .type(text, { delay: 300 })
+    .type("{enter}");
+  cy.get(".t--widget-name").contains(text);
+});
+
 Cypress.Commands.add("verifyWidgetText", (text, inputcss, innercss) => {
   cy.get(inputcss)
     .first()
@@ -370,7 +374,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
-    .type("{uparrow}", { force: true })
+    .type("{ctrl}{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
     if ($cm.contents !== "") {
@@ -403,6 +407,25 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.wait(2500); //Allowing time for Evaluate value to capture value
 });
 
+Cypress.Commands.add("testJsontextclear", (endp, value, paste = true) => {
+  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .type("{ctrl}{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(($cm) => {
+    if ($cm.contents !== "") {
+      cy.log("The field is not empty");
+      cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+        .first()
+        .click({ force: true })
+        .focused({ force: true })
+        .clear({
+          force: true,
+        });
+    }
+  });
+});
 /**
  * Usage:
  * Find the element which has a code editor input and then pass it in the function
@@ -424,16 +447,19 @@ Cypress.Commands.add("updateCodeInput", ($selector, value) => {
     });
 });
 
-Cypress.Commands.add("selectColor", (GivenProperty) => {
+Cypress.Commands.add("selectColor", (GivenProperty, colorOffset = -15) => {
   // Property pane of the widget is opened, and click given property.
   cy.get(
     ".t--property-control-" + GivenProperty + " .bp3-input-group input",
   ).click({
     force: true,
   });
-  cy.get(widgetsPage.colorsAvailable)
-    .first()
-    .click({ force: true });
+
+  cy.get(widgetsPage.colorPickerV2Color)
+    .eq(colorOffset)
+    .then(($elem) => {
+      cy.get($elem).click({ force: true });
+    });
 });
 
 Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
@@ -453,6 +479,32 @@ Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
     }
     cy.get(".CodeMirror textarea")
       .last()
+      .type(value, {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
+  });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(200);
+});
+
+Cypress.Commands.add("toggleJsAndUpdateWithIndex", (endp, value, index) => {
+  cy.get(".CodeMirror textarea")
+    .eq(index)
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(($cm) => {
+    if ($cm.contents !== "") {
+      cy.log("The field is empty");
+      cy.get(".CodeMirror textarea")
+        .eq(index)
+        .clear({
+          force: true,
+        });
+    }
+    cy.get(".CodeMirror textarea")
+      .eq(index)
       .type(value, {
         force: true,
         parseSpecialCharSequences: false,
@@ -523,6 +575,16 @@ Cypress.Commands.add("deleteColumn", (colId) => {
 Cypress.Commands.add("openFieldConfiguration", (fieldIdentifier) => {
   cy.get(
     "[data-rbd-draggable-id='" + fieldIdentifier + "'] .t--edit-column-btn",
+  ).click({
+    force: true,
+  });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
+});
+
+Cypress.Commands.add("deleteJSONFormField", (fieldIdentifier) => {
+  cy.get(
+    "[data-rbd-draggable-id='" + fieldIdentifier + "'] .t--delete-column-btn",
   ).click({
     force: true,
   });
@@ -699,7 +761,7 @@ Cypress.Commands.add("DeleteModal", () => {
     .click({ force: true });
 });
 
-Cypress.Commands.add("Createpage", (pageName) => {
+Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
   let pageId;
   cy.get(pages.AddPage)
     .first()
@@ -717,7 +779,9 @@ Cypress.Commands.add("Createpage", (pageName) => {
       pageidcopy = pageName;
       cy.wrap(pageId).as("currentPageId");
     }
-    cy.get(generatePage.buildFromScratchActionCard).click();
+    if (navigateToCanvasPage) {
+      cy.get(generatePage.buildFromScratchActionCard).click();
+    }
     cy.get("#loading").should("not.exist");
   });
 });
@@ -781,6 +845,12 @@ Cypress.Commands.add("dropdownDynamicUpdated", (text) => {
 Cypress.Commands.add("selectTextSize", (text) => {
   cy.get(".t--dropdown-option")
     .first()
+    .contains(text)
+    .click({ force: true });
+});
+
+Cypress.Commands.add("selectTxtSize", (text) => {
+  cy.get(".t--dropdown-option")
     .contains(text)
     .click({ force: true });
 });
@@ -1090,7 +1160,16 @@ Cypress.Commands.add("clearPropertyValue", (value) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
 });
-
+Cypress.Commands.add("deleteQueryOrJS", (Action) => {
+  cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+  cy.get(`.t--entity-item:contains(${Action})`).within(() => {
+    cy.get(".t--context-menu").click({ force: true });
+  });
+  cy.selectAction("Delete");
+  cy.selectAction("Are you sure?");
+  cy.wait("@deleteAction");
+  cy.get("@deleteAction").should("have.property", "status", 200);
+});
 Cypress.Commands.add(
   "validateNSelectDropdown",
   (ddTitle, currentValue, newValue) => {

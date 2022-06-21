@@ -7,7 +7,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
-import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
+import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
@@ -20,7 +20,10 @@ import {
   previewModeSelector,
   selectURLSlugs,
 } from "selectors/editorSelectors";
-import { getAllUsers, getCurrentOrgId } from "selectors/organizationSelectors";
+import {
+  getAllUsers,
+  getCurrentWorkspaceId,
+} from "@appsmith/selectors/workspaceSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import { EditInteractionKind, SavingState } from "components/ads/EditableText";
@@ -54,8 +57,8 @@ import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 
 import { retryPromise } from "utils/AppsmithUtils";
-import { fetchUsersForOrg } from "actions/orgActions";
-import { OrgUser } from "constants/orgConstants";
+import { fetchUsersForWorkspace } from "actions/workspaceActions";
+import { WorkspaceUser } from "constants/workspaceConstants";
 
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import TooltipComponent from "components/ads/Tooltip";
@@ -218,14 +221,14 @@ type EditorHeaderProps = {
   pageId: string;
   isPublishing: boolean;
   publishedTime?: string;
-  orgId: string;
+  workspaceId: string;
   applicationId?: string;
   currentApplication?: ApplicationPayload;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
   lastUpdatedTime?: number;
   inOnboarding: boolean;
-  sharedUserList: OrgUser[];
+  sharedUserList: WorkspaceUser[];
   currentUser?: User;
 };
 
@@ -247,9 +250,9 @@ export function EditorHeader(props: EditorHeaderProps) {
     applicationId,
     currentApplication,
     isPublishing,
-    orgId,
     pageId,
     publishApplication,
+    workspaceId,
   } = props;
   const location = useLocation();
   const dispatch = useDispatch();
@@ -331,23 +334,30 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   //Fetch all users for the application to show the share button tooltip
   useEffect(() => {
-    if (orgId) {
-      dispatch(fetchUsersForOrg(orgId));
+    if (workspaceId) {
+      dispatch(fetchUsersForWorkspace(workspaceId));
     }
-  }, [orgId]);
+  }, [workspaceId]);
   const filteredSharedUserList = props.sharedUserList.filter(
     (user) => user.username !== props.currentUser?.username,
   );
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
+  const showModes = !shouldHideComments;
 
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper className="pr-3" data-testid="t--appsmith-editor-header">
         <HeaderSection className="space-x-3">
-          <HamburgerContainer className="text-gray-800 transform transition-all duration-400 relative p-0 flex items-center justify-center">
+          <HamburgerContainer
+            className={classNames({
+              "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400": true,
+              "-translate-x-full opacity-0": isPreviewMode,
+              "translate-x-0 opacity-100": !isPreviewMode,
+            })}
+          >
             <TooltipComponent
               content={
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <span>
                     {!pinned
                       ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
@@ -364,7 +374,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 className="relative w-4 h-4 text-trueGray-600 group t--pin-entity-explorer"
                 onMouseEnter={onMenuHover}
               >
-                <MenuIcon className="absolute w-4 h-4 transition-opacity fill-current cursor-pointer group-hover:opacity-0" />
+                <MenuIcon className="absolute w-4 h-4 transition-opacity cursor-pointer fill-current group-hover:opacity-0" />
                 {!pinned && (
                   <UnpinIcon
                     className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
@@ -432,9 +442,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               setIsPopoverOpen={setIsPopoverOpen}
             />
           </TooltipComponent>
-          {!shouldHideComments && (
-            <ToggleModeButton showSelectedMode={!isPopoverOpen} />
-          )}
+          {showModes && <ToggleModeButton showSelectedMode={!isPopoverOpen} />}
         </HeaderSection>
         <HeaderSection
           className={classNames({
@@ -462,7 +470,6 @@ export function EditorHeader(props: EditorHeaderProps) {
                 bgColor: Colors.GEYSER_LIGHT,
               }}
               isOpen={showAppInviteUsersDialog}
-              orgId={orgId}
               title={
                 currentApplication
                   ? currentApplication.name
@@ -485,6 +492,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   <ShareButtonComponent />
                 </TooltipComponent>
               }
+              workspaceId={workspaceId}
             />
             <DeploySection>
               <TooltipComponent
@@ -545,7 +553,7 @@ const theme = getTheme(ThemeMode.LIGHT);
 
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,
-  orgId: getCurrentOrgId(state),
+  workspaceId: getCurrentWorkspaceId(state),
   applicationId: getCurrentApplicationId(state),
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),

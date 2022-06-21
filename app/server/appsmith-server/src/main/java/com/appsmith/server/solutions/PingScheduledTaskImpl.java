@@ -6,7 +6,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.solutions.ce.PingScheduledTaskCEImpl;
@@ -28,7 +28,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             ConfigService configService,
             SegmentConfig segmentConfig,
             CommonConfig commonConfig,
-            OrganizationRepository organizationRepository,
+            WorkspaceRepository workspaceRepository,
             ApplicationRepository applicationRepository,
             NewPageRepository newPageRepository,
             NewActionRepository newActionRepository,
@@ -40,7 +40,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
                 configService,
                 segmentConfig,
                 commonConfig,
-                organizationRepository,
+                workspaceRepository,
                 applicationRepository,
                 newPageRepository,
                 newActionRepository,

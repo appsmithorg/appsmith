@@ -16,7 +16,6 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -73,7 +72,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
     }
 
     @Override
-    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String orgId, String branchName) {
+    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String workspaceId, String branchName) {
         ActionDTO action;
 
         try {
@@ -103,7 +102,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                     final DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
-                    datasource.setOrganizationId(orgId);
+                    datasource.setWorkspaceId(workspaceId);
                     // Set git related resource IDs
                     action1.setDefaultResources(newPage.getDefaultResources());
                     action1.setPageId(newPage.getId());
@@ -151,9 +150,16 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         final StringBuilder currentToken = new StringBuilder();
         Character quote = null;
         boolean isEscaped = false;
+        boolean isDollarSubshellPossible = false;
 
         for (int i = 0; i < textLength; ++i) {
             char currentChar = trimmedText.charAt(i);
+
+            if (isDollarSubshellPossible) {
+                if (currentChar == '(') {
+                    throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Please do not try to invoke a subshell in the cURL");
+                }
+            }
 
             if (quote != null) {
                 // We are inside quotes.
@@ -161,6 +167,12 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                 if (isEscaped) {
                     currentToken.append(currentChar);
                     isEscaped = false;
+
+                } else if (currentChar == '$' && quote != '\'') {
+                    isDollarSubshellPossible = true;
+
+                } else if (currentChar == '`' && quote != '\'') {
+                    throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Please do not try to invoke a subshell in the cURL");
 
                 } else if (currentChar == '\\' && quote != '\'') {
                     isEscaped = true;
@@ -182,6 +194,12 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                         currentToken.append(currentChar);
                     }
                     isEscaped = false;
+
+                } else if (currentChar == '$') {
+                    isDollarSubshellPossible = true;
+
+                } else if (currentChar == '`') {
+                    throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Please do not try to invoke a subshell in the cURL");
 
                 } else if (currentChar == '\\') {
                     // This is a backslash that will escape the next character.
@@ -376,7 +394,6 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                 } catch (MalformedURLException | URISyntaxException e) {
                     // Ignore this argument. May be there's a valid URL later down the arguments list.
                 }
-
             }
 
             if (isStateProcessed) {

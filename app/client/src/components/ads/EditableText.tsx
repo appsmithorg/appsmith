@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 
 import styled from "styled-components";
 import { noop } from "lodash";
@@ -28,6 +28,7 @@ export type EditableTextProps = CommonComponentProps & {
   fill?: boolean;
   underline?: boolean;
   isError?: boolean;
+  wrapperRef?: React.RefObject<HTMLDivElement>;
 };
 
 // Width of the component when the `filled` prop is false
@@ -48,6 +49,10 @@ export const EditableTextWrapper = styled.div<{
   .error-message {
     margin-left: ${(props) => props.theme.spaces[5]}px;
     color: ${(props) => props.theme.colors.danger.main};
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--appsmith-input-focus-border-color) !important;
   }
 `;
 
@@ -82,6 +87,33 @@ export function EditableText(props: EditableTextProps) {
     }
   };
 
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, []);
+
+  const handleKeydown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "Enter":
+      case " ":
+        if (document.activeElement === props.wrapperRef?.current) {
+          setIsEditing(true);
+          e.preventDefault();
+        }
+        break;
+      case "Escape":
+        if (
+          (e.target as HTMLInputElement).classList.contains(
+            "bp3-editable-text-input",
+          )
+        )
+          props.wrapperRef?.current?.focus();
+        break;
+    }
+  };
+
   return (
     <EditableTextWrapper
       filled={!!props.fill}
@@ -96,6 +128,8 @@ export function EditableText(props: EditableTextProps) {
           : noop
       }
       onMouseEnter={nonEditMode}
+      ref={props.wrapperRef}
+      tabIndex={0}
     >
       <EditableTextSubComponent
         defaultSavingState={defaultSavingState}

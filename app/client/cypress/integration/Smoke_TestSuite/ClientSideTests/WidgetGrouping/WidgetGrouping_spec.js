@@ -23,7 +23,7 @@ describe("Widget Grouping", function() {
     } else {
       cy.get("body").type("{ctrl}{g}");
     }
-
+    cy.wait(2000);
     cy.get(`div[data-testid='t--selected']`)
       .should("have.length", 1)
       .as("group");
@@ -33,5 +33,17 @@ describe("Widget Grouping", function() {
       .should("have.length", 2);
     cy.get(`@group`).find(`.t--draggable-buttonwidget`);
     cy.get(`@group`).find(`.t--draggable-imagewidget`);
+
+    // verify the position so that the camera widget is still below the newly grouped container
+    cy.get(`.t--widget-containerwidget`)
+      .eq(1)
+      .then((element) => {
+        const elementTop = parseFloat(element.css("top"));
+        const elementHeight = parseFloat(element.css("height"));
+        const containerBottom = (elementTop + elementHeight).toString() + "px";
+        cy.get(`.t--widget-camerawidget`)
+          .invoke("attr", "style")
+          .should("contain", `top: ${containerBottom}`);
+      });
   });
 });

@@ -9,12 +9,13 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  searchTags: ["group"],
   defaults: {
     rows: 40,
     columns: 24,
     animateLoading: true,
     widgetName: "Form",
-    backgroundColor: "white",
+    backgroundColor: Colors.WHITE,
     children: [],
     blueprint: {
       view: [
@@ -38,7 +39,7 @@ export const CONFIG = {
                   position: { top: 1, left: 1.5 },
                   props: {
                     text: "Form",
-                    fontSize: "HEADING1",
+                    fontSize: "1.25rem",
                     version: 1,
                   },
                 },
@@ -55,7 +56,6 @@ export const CONFIG = {
                   props: {
                     text: "Submit",
                     buttonVariant: ButtonVariantTypes.PRIMARY,
-                    buttonColor: Colors.GREEN,
                     disabledWhenInvalid: true,
                     resetFormOnClick: true,
                     recaptchaType: RecaptchaTypes.V3,
@@ -75,7 +75,6 @@ export const CONFIG = {
                   props: {
                     text: "Reset",
                     buttonVariant: ButtonVariantTypes.SECONDARY,
-                    buttonColor: Colors.GREEN,
                     disabledWhenInvalid: false,
                     resetFormOnClick: true,
                     recaptchaType: RecaptchaTypes.V3,

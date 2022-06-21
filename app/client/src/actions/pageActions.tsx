@@ -5,9 +5,9 @@ import {
   ReduxActionTypes,
   UpdateCanvasPayload,
   ReduxActionErrorTypes,
-  AnyReduxAction,
   WidgetReduxActionTypes,
   ReplayReduxActionTypes,
+  AnyReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperation } from "widgets/BaseWidget";
@@ -18,6 +18,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { GenerateTemplatePageRequest } from "api/PageApi";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
+import { StoreValueActionDescription } from "entities/DataTree/actionTriggers";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -49,28 +50,42 @@ export const fetchPage = (
   };
 };
 
-export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
+export const fetchPublishedPage = (
+  pageId: string,
+  bustCache = false,
+  firstLoad = false,
+) => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
   payload: {
     pageId,
     bustCache,
+    firstLoad,
   },
 });
 
-export const fetchPageSuccess = (
-  postEvalActions: Array<AnyReduxAction>,
-): EvaluationReduxAction<undefined> => {
+export const fetchPageSuccess = (): EvaluationReduxAction<undefined> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_SUCCESS,
-    postEvalActions,
     payload: undefined,
   };
 };
 
-export const fetchPublishedPageSuccess = (
-  postEvalActions: Array<AnyReduxAction>,
-): EvaluationReduxAction<undefined> => ({
+export const fetchPublishedPageSuccess = (): EvaluationReduxAction<undefined> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
+  payload: undefined,
+});
+
+/**
+ * After all page entities are fetched like DSL, actions and JsObjects,
+ * we trigger evaluation using this redux action, here we supply postEvalActions
+ * to trigger action after evaluation has been completed like executeOnPageLoadAction
+ *
+ * @param {Array<AnyReduxAction>} postEvalActions
+ */
+export const fetchAllPageEntityCompletion = (
+  postEvalActions: Array<AnyReduxAction>,
+) => ({
+  type: ReduxActionTypes.FETCH_ALL_PAGE_ENTITY_COMPLETION,
   postEvalActions,
   payload: undefined,
 });
@@ -300,29 +315,30 @@ export const setAppMode = (payload: APP_MODE): ReduxAction<APP_MODE> => {
   };
 };
 
+export const updateAppStoreEvaluated = (
+  storeValueAction?: StoreValueActionDescription["payload"],
+) => ({
+  type: ReduxActionTypes.UPDATE_APP_STORE_EVALUATED,
+  payload: storeValueAction,
+});
+
 export const updateAppTransientStore = (
   payload: Record<string, unknown>,
+  storeValueAction?: StoreValueActionDescription["payload"],
 ): EvaluationReduxAction<Record<string, unknown>> => ({
   type: ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
   payload,
-  postEvalActions: [
-    {
-      type: ReduxActionTypes.UPDATE_APP_STORE_EVALUATED,
-    },
-  ],
+  postEvalActions: [updateAppStoreEvaluated(storeValueAction)],
 });
 
 export const updateAppPersistentStore = (
   payload: Record<string, unknown>,
+  storeValueAction?: StoreValueActionDescription["payload"],
 ): EvaluationReduxAction<Record<string, unknown>> => {
   return {
     type: ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
     payload,
-    postEvalActions: [
-      {
-        type: ReduxActionTypes.UPDATE_APP_STORE_EVALUATED,
-      },
-    ],
+    postEvalActions: [updateAppStoreEvaluated(storeValueAction)],
   };
 };
 

@@ -3,10 +3,6 @@
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
-
-const {
-  addMatchImageSnapshotCommand,
-} = require("cypress-image-snapshot/command");
 import gitSyncLocators from "../locators/gitSyncLocators";
 import homePage from "../locators/HomePage";
 const commonLocators = require("../locators/commonlocators.json");
@@ -99,9 +95,10 @@ Cypress.Commands.add(
           "response.body.responseMeta.status",
           200,
         );
+      }
 
-        // click commit button
-        if (shouldCommit) {
+      // click commit button
+      /* if (shouldCommit) {
           cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
           cy.get(gitSyncLocators.commitButton).click();
           // check for commit success
@@ -118,7 +115,8 @@ Cypress.Commands.add(
           const status = interception.response.body.responseMeta.status;
           expect(status).to.be.gte(400);
         });
-      }
+      } */
+      cy.get(gitSyncLocators.closeGitSyncModal).click();
     });
   },
 );
@@ -294,7 +292,7 @@ Cypress.Commands.add("merge", (destinationBranch) => {
 
 Cypress.Commands.add(
   "importAppFromGit",
-  (repo, shouldCommit = true, assertConnectFailure) => {
+  (repo, assertConnectFailure, failureMessage) => {
     const testEmail = "test@test.com";
     const testUsername = "testusername";
     const owner = Cypress.env("TEST_GITHUB_USER_NAME");
@@ -353,9 +351,81 @@ Cypress.Commands.add(
       } else {
         cy.wait("@importFromGit").then((interception) => {
           const status = interception.response.body.responseMeta.status;
+          const message = interception.response.body.responseMeta.error.message;
           expect(status).to.be.gte(400);
+          expect(message).to.contain(failureMessage);
         });
       }
     });
   },
 );
+
+Cypress.Commands.add("gitDiscardChanges", (assertResourceFound = true) => {
+  cy.get(gitSyncLocators.bottomBarCommitButton).click();
+  //cy.intercept("GET", "/api/v1/git/status/*").as("gitStatus");
+  //  cy.wait("@gitStatus").should(
+  //    "have.nested.property",
+  //    "response.body.responseMeta.status",
+  //   200,
+  // );
+  cy.get(gitSyncLocators.discardChanges)
+    .children()
+    .should("have.text", "Discard changes");
+
+  cy.get(gitSyncLocators.discardChanges).click();
+  cy.contains(Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING());
+
+  cy.get(gitSyncLocators.discardChanges)
+    .children()
+    .should("have.text", "Are you sure?");
+  cy.get(gitSyncLocators.discardChanges).click();
+  cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
+  if (assertResourceFound) {
+    cy.wait("@applications").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.validateToastMessage("Discarded changes successfully.");
+  } else {
+    cy.get(".bold-text").should(($x) => {
+      expect($x).contain("Page not found");
+    });
+  }
+});
+
+Cypress.Commands.add("regenerateSSHKey", (repo, generateKey = true) => {
+  let generatedKey;
+  cy.get(gitSyncLocators.bottomBarCommitButton).click();
+  cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
+  cy.wait(2000);
+  cy.get(gitSyncLocators.SSHKeycontextmenu).click();
+  cy.get(gitSyncLocators.regenerateSSHKey).click();
+  cy.contains(Cypress.env("MESSAGES").REGENERATE_KEY_CONFIRM_MESSAGE());
+  cy.xpath(gitSyncLocators.confirmButton).click();
+  cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
+    `generateKey-${repo}`,
+  );
+  if (generateKey) {
+    cy.wait(`@generateKey-${repo}`).then((result) => {
+      generatedKey = result.response.body.data.publicKey;
+      generatedKey = generatedKey.slice(0, generatedKey.length - 1);
+      // fetch the generated key and post to the github repo
+      cy.request({
+        method: "POST",
+        url: `${GITHUB_API_BASE}/repos/${Cypress.env(
+          "TEST_GITHUB_USER_NAME",
+        )}/${repo}/keys`,
+        headers: {
+          Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+        },
+        body: {
+          title: "key0",
+          key: generatedKey,
+        },
+      });
+
+      cy.get(gitSyncLocators.closeGitSyncModal);
+    });
+  }
+});

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { CommonComponentProps } from "./common";
 import Text, { Case, TextType } from "./Text";
@@ -66,6 +66,10 @@ export default function MultiSwitch<T>(props: MultiSwitchProps<T>) {
     (tab) => tab.key === props.selected.value,
   );
 
+  useEffect(() => {
+    props.onSelect(props.selected.value);
+  }, []);
+
   return (
     <div data-cy={props.cypressSelector}>
       <TabHeader
@@ -75,6 +79,9 @@ export default function MultiSwitch<T>(props: MultiSwitchProps<T>) {
         <TabList>
           {props.tabs.map((tab) => (
             <Tab
+              className={`${
+                props.selected.value === tab.key ? "t--tab-selected" : ""
+              }`}
               data-cy={`tab--${tab.title}`}
               key={tab.key}
               onClick={() => props.onSelect(tab.key)}

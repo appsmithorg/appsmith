@@ -52,6 +52,9 @@ export interface MultiSelectProps
   widgetId: string;
   onFocus?: (e: React.FocusEvent) => void;
   onBlur?: (e: React.FocusEvent) => void;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -161,7 +164,6 @@ function MultiSelectComponent({
   }, []);
 
   const id = _.uniqueId();
-  console.log("dropDownWidth", dropDownWidth);
   return (
     <MultiSelectContainer
       className={loading ? Classes.SKELETON : ""}

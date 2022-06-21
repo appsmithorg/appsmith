@@ -7,7 +7,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ConfigService;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
     private final CommonConfig commonConfig;
 
-    private final OrganizationRepository organizationRepository;
+    private final WorkspaceRepository workspaceRepository;
     private final ApplicationRepository applicationRepository;
     private final NewPageRepository newPageRepository;
     private final NewActionRepository newActionRepository;
@@ -114,7 +114,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
         Mono.zip(
                         configService.getInstanceId().defaultIfEmpty("null"),
                         NetworkUtils.getExternalAddress(),
-                        organizationRepository.countByDeletedAtNull().defaultIfEmpty(0L),
+                        workspaceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                         applicationRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                         newPageRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                         newActionRepository.countByDeletedAtNull().defaultIfEmpty(0L),

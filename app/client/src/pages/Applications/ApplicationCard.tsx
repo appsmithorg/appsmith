@@ -552,7 +552,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   };
   const forkApplicationInitiate = () => {
     // open fork application modal
-    // on click on an organisation, create app and take to app
+    // on click on an workspace, create app and take to app
     setForkApplicationModalOpen(true);
   };
   const deleteApp = () => {
@@ -623,6 +623,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const ContextMenu = (
     <ContextDropdownWrapper>
       <Menu
+        autoFocus={false}
         className="more"
         onClosing={() => {
           setIsMenuOpen(false);
@@ -801,14 +802,15 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     <EditButton
                       className="t--application-edit-link"
                       fill
+                      href={editApplicationURL}
                       icon={"edit"}
                       iconPosition={IconPositions.left}
                       onClick={(e) => {
+                        e.preventDefault();
                         e.stopPropagation();
                         history.push(editApplicationURL);
                       }}
                       size={Size.medium}
-                      tag="button"
                       text="Edit"
                     />
                   )}
@@ -817,14 +819,15 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       category={Category.tertiary}
                       className="t--application-view-link"
                       fill
+                      href={viewApplicationURL}
                       icon={"rocket"}
                       iconPosition={IconPositions.left}
                       onClick={(e) => {
+                        e.preventDefault();
                         e.stopPropagation();
                         history.push(viewApplicationURL);
                       }}
                       size={Size.medium}
-                      tag="button"
                       text="Launch"
                     />
                   )}

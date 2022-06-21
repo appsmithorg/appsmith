@@ -5,7 +5,6 @@ import {
   executePluginActionSuccess,
   runAction,
   updateAction,
-  setActionResponseDisplayFormat,
 } from "actions/pluginActionActions";
 import {
   ApplicationPayload,
@@ -105,6 +104,9 @@ import { submitCurlImportForm } from "actions/importActions";
 import { getBasePath } from "pages/Editor/Explorer/helpers";
 import { isTrueObject } from "workers/evaluationUtils";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
+import { Plugin } from "api/PluginApi";
+import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
+
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
 }
@@ -835,17 +837,14 @@ function* executePluginActionSaga(
         response: payload,
       }),
     );
-    let plugin;
+    let plugin: Plugin | undefined;
     if (!!pluginAction.pluginId) {
       plugin = yield select(getPlugin, pluginAction.pluginId);
     }
-    yield put(
-      setActionResponseDisplayFormat({
-        id: actionId,
-        field: "responseDisplayFormat",
-        value: plugin && plugin.responseType ? plugin.responseType : "JSON",
-      }),
-    );
+
+    // sets the default display format for action response e.g Raw, Json or Table
+    yield setDefaultActionDisplayFormat(actionId, plugin, payload);
+
     return {
       payload,
       isError: isErrorResponse(response),

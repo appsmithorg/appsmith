@@ -143,6 +143,7 @@ export const Colors = {
 
   INPUT_TEXT_DISABLED: "rgba(92, 112, 128, 0.6)",
   INPUT_DISABLED: "rgba(206, 217, 224, 0.5)",
+
   //  Following Design System colors
   GREY_1: "#FAFAFA",
   GREY_2: "#F0F0F0",
@@ -157,6 +158,7 @@ export const Colors = {
   GREY_11: "#9F9F9F",
   GREY_200: "#E7E7E7",
   GREY_800: "#393939",
+  GREY_900: "#191919",
 
   PRIMARY_ORANGE: "#F86A2B",
 
@@ -170,18 +172,52 @@ export const Colors = {
   GREEN_2: "#D5EFE3",
   GREEN_3: "#ECF9F3",
   MASALA: "#43403D",
+
   // error warning
   CRIMSON: "#D71010",
   ALTO_3: "#D6D6D6",
   YELLOW_LIGHT: "#F4AF0A",
   BROWN: "#864C17",
 
+  GRAY_50: "#F8F8F8",
+  GRAY_200: "#E7E7E7",
+  GRAY_400: "#B3B3B3",
   GRAY_700: "#575757",
   GRAY_800: "#393939",
   GRAY_900: "#101828",
   SCORPION: "#575757",
 
   COD_GRAY: "#191919",
+
   MINE_SHAFT_2: "#333333",
+
+  /* Primary Error */
+  ERROR_600: "#E32525",
+
+  /* Secondary Error */
+  ERROR_50: "#FFE9E9",
+
+  /* RED colors */
+  RED_50: "#FFEAEC",
+  RED_100: "#FFCACE",
+  RED_200: "#F09493",
+  RED_300: "#E56A69",
+  RED_400: "#EE4643",
+  RED_500: "#F13125",
+  RED_600: "#E32525",
+  RED_700: "#D11820",
+  RED_800: "#C50B18",
+  RED_900: "#B60009",
+
+  WARNING_600: "#DFA211",
+
+  TRANSPARENT: "transparent",
+  FOCUS: "#6EB9F0",
+
+  ENTERPRISE_DARK: "#00407D",
+  ENTERPRISE_LIGHT: "#E8F5FA",
+
+  NOTIFICATION_BANNER_ERROR_TEXT: "#C91818",
 };
+
 export type Color = typeof Colors[keyof typeof Colors];

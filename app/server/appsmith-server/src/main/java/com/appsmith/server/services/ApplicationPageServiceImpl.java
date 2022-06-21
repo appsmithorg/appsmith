@@ -5,7 +5,7 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.ApplicationPageServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
 
     public ApplicationPageServiceImpl(ApplicationService applicationService,
                                       SessionUserService sessionUserService,
-                                      OrganizationRepository organizationRepository,
+                                      WorkspaceRepository workspaceRepository,
                                       LayoutActionService layoutActionService,
                                       AnalyticsService analyticsService,
                                       PolicyGenerator policyGenerator,
@@ -29,7 +29,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                                       ThemeService themeService,
                                       ResponseUtils responseUtils) {
 
-        super(applicationService, sessionUserService, organizationRepository, layoutActionService, analyticsService,
+        super(applicationService, sessionUserService, workspaceRepository, layoutActionService, analyticsService,
                 policyGenerator, applicationRepository, newPageService, newActionService, actionCollectionService,
                 gitFileUtils, commentThreadRepository, themeService, responseUtils);
     }

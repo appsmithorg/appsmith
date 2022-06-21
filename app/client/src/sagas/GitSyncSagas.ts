@@ -6,7 +6,6 @@ import {
   ReduxActionWithCallbacks,
 } from "@appsmith/constants/ReduxActionConstants";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-
 import GitSyncAPI, {
   MergeBranchPayload,
   MergeStatusPayload,
@@ -17,14 +16,14 @@ import {
 } from "selectors/editorSelectors";
 import { validateResponse } from "./ErrorSagas";
 import {
-  ConnectToGitReduxAction,
-  GenerateSSHKeyPairReduxAction,
-  GetSSHKeyPairReduxAction,
   commitToRepoSuccess,
+  ConnectToGitReduxAction,
   connectToGitSuccess,
   deleteBranchError,
   deleteBranchSuccess,
   deletingBranch,
+  discardChangesFailure,
+  discardChangesSuccess,
   fetchBranchesInit,
   fetchBranchesSuccess,
   fetchGitStatusInit,
@@ -35,8 +34,10 @@ import {
   fetchLocalGitConfigSuccess,
   fetchMergeStatusFailure,
   fetchMergeStatusSuccess,
+  GenerateSSHKeyPairReduxAction,
   generateSSHKeyPairSuccess,
   getSSHKeyPairError,
+  GetSSHKeyPairReduxAction,
   getSSHKeyPairSuccess,
   gitPullSuccess,
   importAppViaGitSuccess,
@@ -58,7 +59,7 @@ import { Variant } from "components/ads/common";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
-  getOrganizationIdForImport,
+  getWorkspaceIdForImport,
 } from "selectors/applicationSelectors";
 import {
   createMessage,
@@ -78,11 +79,12 @@ import {
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 import { getLogToSentryFromResponse } from "utils/helpers";
-import { getCurrentOrg } from "selectors/organizationSelectors";
-import { Org } from "constants/orgConstants";
+import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { Workspace } from "constants/workspaceConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import { builderURL } from "RouteBuilder";
+import { APP_MODE } from "../entities/App";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -546,6 +548,7 @@ function* gitPullSaga(
         initEditor({
           pageId: currentPageId,
           branch: currentBranch,
+          mode: APP_MODE.EDIT,
         }),
       );
     }
@@ -636,27 +639,20 @@ function* disconnectGitSaga() {
 function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
   let response: ApiResponse | undefined;
   try {
-    const organizationIdForImport: string = yield select(
-      getOrganizationIdForImport,
-    );
+    const workspaceIdForImport: string = yield select(getWorkspaceIdForImport);
 
-    response = yield GitSyncAPI.importApp(
-      action.payload,
-      organizationIdForImport,
-    );
-
+    response = yield GitSyncAPI.importApp(action.payload, workspaceIdForImport);
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
       getLogToSentryFromResponse(response),
     );
-
     if (isValidResponse) {
-      const allOrgs = yield select(getCurrentOrg);
-      const currentOrg = allOrgs.filter(
-        (el: Org) => el.id === organizationIdForImport,
+      const allWorkspaces = yield select(getCurrentWorkspace);
+      const currentWorkspace = allWorkspaces.filter(
+        (el: Workspace) => el.id === workspaceIdForImport,
       );
-      if (currentOrg.length > 0) {
+      if (currentWorkspace.length > 0) {
         const {
           application: app,
           isPartialImport,
@@ -678,7 +674,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
               application: response?.data?.application,
               unConfiguredDatasourceList:
                 response?.data.unConfiguredDatasourceList,
-              orgId: organizationIdForImport,
+              workspaceId: workspaceIdForImport,
             }),
           );
         } else {
@@ -759,7 +755,7 @@ export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    const isImporting: string = yield select(getOrganizationIdForImport);
+    const isImporting: string = yield select(getWorkspaceIdForImport);
 
     response = yield call(
       GitSyncAPI.generateSSHKeyPair,
@@ -811,6 +807,34 @@ export function* deleteBranch({ payload }: ReduxAction<any>) {
   }
 }
 
+function* discardChanges() {
+  let response: ApiResponse | undefined;
+  try {
+    const appId: string = yield select(getCurrentApplicationId);
+    const doPull = true;
+    response = yield GitSyncAPI.discardChanges(appId, doPull);
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      yield put(discardChangesSuccess(response?.data));
+      // yield fetchGitStatusSaga();
+      const applicationId: string = yield select(getCurrentApplicationId);
+      const pageId = yield select(getCurrentPageId);
+      localStorage.setItem("GIT_DISCARD_CHANGES", "success");
+      window.open(
+        builderURL({ applicationId: applicationId, pageId: pageId }),
+        "_self",
+      );
+    }
+  } catch (error) {
+    yield put(discardChangesFailure({ error }));
+    localStorage.setItem("GIT_DISCARD_CHANGES", "failure");
+  }
+}
+
 export default function* gitSyncSagas() {
   yield all([
     takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
@@ -850,5 +874,6 @@ export default function* gitSyncSagas() {
     ),
     takeLatest(ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT, getSSHKeyPairSaga),
     takeLatest(ReduxActionTypes.DELETE_BRANCH_INIT, deleteBranch),
+    takeLatest(ReduxActionTypes.GIT_DISCARD_CHANGES, discardChanges),
   ]);
 }

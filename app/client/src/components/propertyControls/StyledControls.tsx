@@ -1,3 +1,4 @@
+import React, { RefObject, useEffect, useRef } from "react";
 import { Classes, MenuItem, Menu } from "@blueprintjs/core";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateRangeInput } from "@blueprintjs/datetime";
@@ -7,9 +8,10 @@ import { AnyStyledComponent } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import Button from "components/ads/Button";
-import TextInput from "components/ads/TextInput";
+import TextInput, { TextInputProps } from "components/ads/TextInput";
 import Dropdown from "components/ads/Dropdown";
-import MultiSelectDropdown from "components/ads/MultiselectDropdown";
+import { IconWrapper } from "constants/IconConstants";
+import { InputWrapper } from "components/ads/TextInput";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -35,6 +37,9 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   &&& > label {
     display: inline-block;
   }
+  &:focus-within .reset-button {
+    display: block;
+  }
 `;
 
 export const ControlPropertyLabelContainer = styled.div`
@@ -53,23 +58,34 @@ export const ControlPropertyLabelContainer = styled.div`
 export const JSToggleButton = styled.button<{ active: boolean }>`
   margin: 4px;
   margin-top: 0px;
-  cursor: pointer;
+
+  & ${IconWrapper} {
+    cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  }
+
   height: auto;
   width: 28px;
   height: 16px;
-  border: 0.5px solid ${Colors.BLACK};
+  border: 0.5px solid
+    ${(props) => (props.disabled ? Colors.GRAY_400 : Colors.GRAY_700)};
   background-color: ${(props) =>
-    props.active ? Colors.GREY_10 : Colors.GREY_2};
+    props.active
+      ? props.disabled
+        ? Colors.GRAY_400
+        : Colors.GRAY_800
+      : props.disabled
+      ? Colors.GRAY_200
+      : Colors.WHITE};
 
   &:hover {
     background-color: ${(props) =>
-      props.active ? Colors.GREY_9 : Colors.GREY_3};
-
-    &&& svg {
-      path {
-        fill: ${(props) => (props.active ? Colors.GREY_2 : Colors.GREY_9)};
-      }
-    }
+      props.disabled
+        ? props.active
+          ? Colors.GRAY_400
+          : Colors.GRAY_200
+        : props.active
+        ? Colors.GRAY_900
+        : Colors.GRAY_200};
   }
 
   & > div {
@@ -89,8 +105,7 @@ export const JSToggleButton = styled.button<{ active: boolean }>`
     }
 
     path {
-      fill: ${(props) =>
-        props.active ? props.theme.colors.GREY_2 : Colors.GREY_9};
+      fill: ${(props) => (props.active ? Colors.WHITE : Colors.GRAY_700)};
     }
   }
 `;
@@ -103,11 +118,6 @@ export const StyledDropDownContainer = styled.div`
 export const StyledDropDown = styled(Dropdown)`
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
   box-shadow: none;
-  height: 36px;
-`;
-
-export const StyledMultiSelectDropDown = styled(MultiSelectDropdown)`
-  background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
 `;
 
 export const StyledMenu = styled(Menu)`
@@ -171,7 +181,7 @@ export const StyledDynamicInput = styled.div`
   }
 `;
 
-export const StyledInputGroup = styled(TextInput)`
+const InputGroup = styled(TextInput)`
   width: 100%;
   border-radius: 0;
   background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
@@ -180,6 +190,56 @@ export const StyledInputGroup = styled(TextInput)`
     box-shadow: none;
   }
 `;
+
+const StyledInputWrapper = styled.div`
+  width: 100%;
+
+  &:focus ${InputWrapper} {
+    border: 1px solid var(--appsmith-input-focus-border-color);
+  }
+`;
+
+export const StyledInputGroup = React.forwardRef(
+  (props: TextInputProps, ref) => {
+    let inputRef = useRef<HTMLInputElement>(null);
+    const wrapperRef = useRef<HTMLInputElement>(null);
+
+    if (ref) inputRef = ref as RefObject<HTMLInputElement>;
+
+    useEffect(() => {
+      window.addEventListener("keydown", handleKeydown);
+      return () => {
+        window.removeEventListener("keydown", handleKeydown);
+      };
+    }, []);
+
+    const handleKeydown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case "Enter":
+        case " ":
+          if (document.activeElement === wrapperRef?.current) {
+            inputRef?.current?.focus();
+            e.preventDefault();
+          }
+          break;
+        case "Escape":
+          if (document.activeElement === inputRef?.current) {
+            wrapperRef?.current?.focus();
+            e.preventDefault();
+          }
+          break;
+      }
+    };
+
+    return (
+      <StyledInputWrapper ref={wrapperRef} tabIndex={0}>
+        <InputGroup ref={inputRef} {...props} tabIndex={-1} width="auto" />
+      </StyledInputWrapper>
+    );
+  },
+);
+
+StyledInputGroup.displayName = "StyledInputGroup";
 
 export const StyledDateRangePicker = styled(DateRangeInput)`
   > input {

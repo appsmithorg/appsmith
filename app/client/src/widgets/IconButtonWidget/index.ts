@@ -1,10 +1,5 @@
 import { IconNames } from "@blueprintjs/icons";
-import {
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadowTypes,
-  ButtonVariantTypes,
-} from "components/constants";
-import { Colors } from "constants/Colors";
+import { ButtonVariantTypes } from "components/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -12,11 +7,9 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Icon Button",
   iconSVG: IconSVG,
+  searchTags: ["click", "submit"],
   defaults: {
     iconName: IconNames.PLUS,
-    borderRadius: ButtonBorderRadiusTypes.CIRCLE,
-    boxShadow: ButtonBoxShadowTypes.NONE,
-    buttonColor: Colors.GREEN,
     buttonVariant: ButtonVariantTypes.PRIMARY,
     isDisabled: false,
     isVisible: true,

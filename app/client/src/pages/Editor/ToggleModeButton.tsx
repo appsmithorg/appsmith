@@ -5,8 +5,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import Pen from "remixicon-react/PencilFillIcon";
 import Eye from "remixicon-react/EyeLineIcon";
-import { ReactComponent as CommentModeUnread } from "assets/icons/comments/comment-mode-unread-indicator.svg";
-import { ReactComponent as CommentMode } from "assets/icons/comments/chat.svg";
+import CommentIcon from "remixicon-react/MessageLineIcon";
 import { Indices } from "constants/Layers";
 
 import {
@@ -46,11 +45,13 @@ import { getAppMode } from "../../selectors/applicationSelectors";
 import { setPreviewModeAction } from "actions/editorActions";
 import {
   getCurrentApplicationId,
+  getIsEditorInitialized,
   previewModeSelector,
 } from "selectors/editorSelectors";
 
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { isExploringSelector } from "selectors/onboardingSelectors";
+import { getIsInitialized } from "selectors/appViewSelectors";
 
 const ModeButton = styled.div<{
   active: boolean;
@@ -260,7 +261,6 @@ function CommentModeBtn({
   showUnreadIndicator: boolean;
   showSelectedMode: boolean;
 }) {
-  const CommentModeIcon = showUnreadIndicator ? CommentModeUnread : CommentMode;
   const commentModeClassName = showUnreadIndicator
     ? `t--toggle-comment-mode-on--unread`
     : `t--toggle-comment-mode-on`;
@@ -271,7 +271,7 @@ function CommentModeBtn({
       className={`t--switch-comment-mode-on ${commentModeClassName}`}
       onClick={handleSetCommentModeButton}
       showSelectedMode={showSelectedMode}
-      type="stroke"
+      type="fill"
     >
       <TooltipComponent
         content={
@@ -283,7 +283,12 @@ function CommentModeBtn({
         hoverOpenDelay={1000}
         position={Position.BOTTOM}
       >
-        <CommentModeIcon />
+        <div className="relative">
+          <CommentIcon className="w-5 h-5 text-gray-900" />
+          {showUnreadIndicator && (
+            <div className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full" />
+          )}
+        </div>
       </TooltipComponent>
     </ModeButton>
   );
@@ -293,16 +298,16 @@ export const useHideComments = () => {
   const [shouldHide, setShouldHide] = useState(true);
   const location = useLocation();
   const currentUser = useSelector(getCurrentUser);
+  const isEditorInitialized = useSelector(getIsEditorInitialized);
+  const isViewerInitialized = useSelector(getIsInitialized);
   useEffect(() => {
     const pathName = window.location.pathname;
-    const shouldShow = matchBuilderPath(pathName) || matchViewerPath(pathName);
+    const shouldShow =
+      (matchBuilderPath(pathName) && isEditorInitialized) ||
+      (matchViewerPath(pathName) && isViewerInitialized);
     // Disable comment mode toggle for anonymous users
-    setShouldHide(
-      !shouldShow ||
-        !currentUser ||
-        currentUser.username === ANONYMOUS_USERNAME,
-    );
-  }, [location, currentUser]);
+    setShouldHide(!shouldShow || currentUser?.username === ANONYMOUS_USERNAME);
+  }, [location, currentUser, isEditorInitialized, isViewerInitialized]);
 
   return shouldHide;
 };
@@ -353,8 +358,8 @@ function ToggleCommentModeButton({
   const proceedToNextTourStep = useProceedToNextTourStep(activeStepConfig);
 
   const isTourStepActive = useIsTourStepActive(activeStepConfig);
-
   const mode = useSelector((state: AppState) => state.entities.app.mode);
+  const isViewMode = mode === APP_MODE.PUBLISHED;
 
   const handleSetCommentModeButton = useCallback(() => {
     AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
@@ -380,7 +385,7 @@ function ToggleCommentModeButton({
     <Container className="t--comment-mode-switch-toggle">
       <TourTooltipWrapper {...tourToolTipProps}>
         <div style={{ display: "flex" }}>
-          {!isExploring && (
+          {!isExploring && !isViewMode && (
             <ModeButton
               active={!isCommentMode && !isPreviewMode}
               className="t--switch-comment-mode-off"

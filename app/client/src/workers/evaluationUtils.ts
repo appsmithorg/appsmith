@@ -30,6 +30,7 @@ import { Variable } from "entities/JSCollection";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
+import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -155,7 +156,32 @@ export const translateDiffEventToDataTreeDiffEvent = (
           typeof difference.lhs === "string" && isDynamicValue(difference.lhs);
       }
 
-      if (rhsChange || lhsChange) {
+      // JsObject function renaming
+      // remove .data from a String instance manually
+      // since it won't be identified when calculating diffs
+      // source for .data in a String instance -> `updateLocalUnEvalTree`
+      if (
+        isJsAction &&
+        rhsChange &&
+        difference.lhs instanceof String &&
+        _.get(difference.lhs, "data")
+      ) {
+        result = [
+          {
+            event: DataTreeDiffEvent.DELETE,
+            payload: {
+              propertyPath: `${propertyPath}.data`,
+            },
+          },
+          {
+            event: DataTreeDiffEvent.EDIT,
+            payload: {
+              propertyPath,
+              value: difference.rhs,
+            },
+          },
+        ];
+      } else if (rhsChange || lhsChange) {
         result.event = DataTreeDiffEvent.EDIT;
         result.payload = {
           propertyPath,
@@ -196,6 +222,19 @@ export const translateDiffEventToDataTreeDiffEvent = (
             },
           };
         });
+
+        // when an object is being replaced by an array
+        // list all new array accessors that are being added
+        // so dependencies will be created based on existing bindings
+        if (Array.isArray(difference.rhs)) {
+          result = result.concat(
+            translateDiffArrayIndexAccessors(
+              propertyPath,
+              difference.rhs,
+              DataTreeDiffEvent.NEW,
+            ),
+          );
+        }
       } else if (
         !isTrueObject(difference.lhs) &&
         isTrueObject(difference.rhs)
@@ -213,6 +252,19 @@ export const translateDiffEventToDataTreeDiffEvent = (
             },
           };
         });
+
+        // when an array is being replaced by an object
+        // remove all array accessors that are deleted
+        // so dependencies by existing bindings are removed
+        if (Array.isArray(difference.lhs)) {
+          result = result.concat(
+            translateDiffArrayIndexAccessors(
+              propertyPath,
+              difference.lhs,
+              DataTreeDiffEvent.DELETE,
+            ),
+          );
+        }
       }
       break;
     }
@@ -232,6 +284,23 @@ export const translateDiffEventToDataTreeDiffEvent = (
   return result;
 };
 
+export const translateDiffArrayIndexAccessors = (
+  propertyPath: string,
+  array: unknown[],
+  event: DataTreeDiffEvent,
+) => {
+  const result: DataTreeDiff[] = [];
+  array.forEach((data, index) => {
+    const path = `${propertyPath}[${index}]`;
+    result.push({
+      event,
+      payload: {
+        propertyPath: path,
+      },
+    });
+  });
+  return result;
+};
 /*
   Table1.selectedRow
   Table1.selectedRow.email: ["Input1.defaultText"]
@@ -888,13 +957,29 @@ export const getDataTreeWithoutPrivateWidgets = (
   const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
   return treeWithoutPrivateWidgets;
 };
-
-export const overrideWidgetProperties = (
-  entity: DataTreeWidget,
-  propertyPath: string,
-  value: unknown,
-  currentTree: DataTree,
-) => {
+/**
+ *  overrideWidgetProperties method has logic to update overriddenPropertyPaths when overridingPropertyPaths are evaluated.
+ *
+ *  when we evaluate widget's overridingPropertyPaths for example defaultText of input widget,
+ *  we override the values like text and meta.text in dataTree, these values are called as overriddenPropertyPaths
+ *
+ * @param {{
+ *   entity: DataTreeWidget;
+ *   propertyPath: string;
+ *   value: unknown;
+ *   currentTree: DataTree;
+ *   evalMetaUpdates: EvalMetaUpdates;
+ * }} params
+ * @return {*}
+ */
+export const overrideWidgetProperties = (params: {
+  entity: DataTreeWidget;
+  propertyPath: string;
+  value: unknown;
+  currentTree: DataTree;
+  evalMetaUpdates: EvalMetaUpdates;
+}) => {
+  const { currentTree, entity, evalMetaUpdates, propertyPath, value } = params;
   const clonedValue = klona(value);
   if (propertyPath in entity.overridingPropertyPaths) {
     const overridingPropertyPaths =
@@ -907,13 +992,25 @@ export const overrideWidgetProperties = (
         [entity.widgetName, ...overriddenPropertyPathArray],
         clonedValue,
       );
+      // evalMetaUpdates has all updates from property which overrides meta values.
+      if (
+        propertyPath.split(".")[0] !== "meta" &&
+        overriddenPropertyPathArray[0] === "meta"
+      ) {
+        const metaPropertyPath = overriddenPropertyPathArray.slice(1);
+        evalMetaUpdates.push({
+          widgetId: entity.widgetId,
+          metaPropertyPath,
+          value: clonedValue,
+        });
+      }
     });
   } else if (
     propertyPath in entity.propertyOverrideDependency &&
     clonedValue === undefined
   ) {
-    // when value is undefined and has default value then set value to default value.
-    // this is for resetForm
+    // When a reset a widget its meta value becomes undefined, ideally they should reset to default value.
+    // below we handle logic to reset meta values to default values.
     const propertyOverridingKeyMap =
       entity.propertyOverrideDependency[propertyPath];
     if (propertyOverridingKeyMap.DEFAULT) {
@@ -926,6 +1023,7 @@ export const overrideWidgetProperties = (
           [entity.widgetName, ...propertyPathArray],
           clonedDefaultValue,
         );
+
         return {
           overwriteParsedValue: true,
           newValue: clonedDefaultValue,

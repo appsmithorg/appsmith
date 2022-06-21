@@ -9,7 +9,7 @@ import {
   BASE_SIGNUP_URL,
   BASE_URL,
   BUILDER_PATH,
-  ORG_URL,
+  WORKSPACE_URL,
   SIGN_UP_URL,
   SIGNUP_SUCCESS_URL,
   USER_AUTH_URL,
@@ -27,7 +27,7 @@ import {
   VIEWER_PATCH_PATH,
   BUILDER_PATCH_PATH,
 } from "constants/routes";
-import OrganizationLoader from "pages/organization/loader";
+import WorkspaceLoader from "pages/workspace/loader";
 import ApplicationListLoader from "pages/Applications/loader";
 import EditorLoader from "pages/Editor/loader";
 import AppViewerLoader from "pages/AppViewer/loader";
@@ -52,13 +52,14 @@ import UserProfile from "pages/UserProfile";
 import { getCurrentUser } from "actions/authActions";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import Setup from "pages/setup";
-import Settings from "pages/Settings";
+import Settings from "@appsmith/pages/AdminSettings";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import { Theme } from "constants/DefaultTheme";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { fetchFeatureFlagsInit } from "actions/userActions";
 import FeatureFlags from "entities/FeatureFlags";
+import WDSPage from "components/wds/Showcase";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -118,9 +119,10 @@ function AppRouter(props: {
               <SentryRoute component={LandingScreen} exact path={BASE_URL} />
               <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
               <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
-              <SentryRoute component={OrganizationLoader} path={ORG_URL} />
+              <SentryRoute component={WorkspaceLoader} path={WORKSPACE_URL} />
               <SentryRoute component={Users} exact path={USERS_URL} />
               <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
+              <SentryRoute component={WDSPage} path="/wds" />
               <SentryRoute
                 component={ApplicationListLoader}
                 exact

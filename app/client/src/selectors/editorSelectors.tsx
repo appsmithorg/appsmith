@@ -2,7 +2,7 @@ import { createSelector } from "reselect";
 
 import { AppState } from "reducers";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -65,6 +65,7 @@ export const getIsPageSaving = (state: AppState) => {
 
   const savingApis = state.ui.apiPane.isSaving;
   const savingJSObjects = state.ui.jsPane.isSaving;
+  const isSavingAppTheme = state.ui.appTheming.isSaving;
 
   Object.keys(savingApis).forEach((apiId) => {
     areApisSaving = savingApis[apiId] || areApisSaving;
@@ -78,6 +79,7 @@ export const getIsPageSaving = (state: AppState) => {
     state.ui.editor.loadingStates.saving ||
     areApisSaving ||
     areJsObjectsSaving ||
+    isSavingAppTheme ||
     state.ui.editor.loadingStates.savingEntity
   );
 };
@@ -204,7 +206,7 @@ export const getWidgetCards = createSelector(
       (config) => !config.hideCard,
     );
 
-    const _cards = cards.map((config) => {
+    const _cards: WidgetCardProps[] = cards.map((config) => {
       const {
         columns,
         detachFromLayout = false,
@@ -212,6 +214,7 @@ export const getWidgetCards = createSelector(
         iconSVG,
         key,
         rows,
+        searchTags,
         type,
       } = config;
       return {
@@ -222,6 +225,7 @@ export const getWidgetCards = createSelector(
         detachFromLayout,
         displayName,
         icon: iconSVG,
+        searchTags,
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
@@ -467,6 +471,7 @@ const createLoadingWidget = (
     propertyOverrideDependency: {},
     overridingPropertyPaths: {},
     privateWidgets: {},
+    meta: {},
   };
 };
 

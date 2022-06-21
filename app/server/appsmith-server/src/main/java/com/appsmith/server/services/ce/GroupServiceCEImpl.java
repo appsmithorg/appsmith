@@ -55,9 +55,9 @@ public class GroupServiceCEImpl extends BaseService<GroupRepository, Group, Stri
 
         return sessionUserService.getCurrentUser()
                 .map(user -> {
-                    // Filtering the groups by the user's current organization
-                    String organizationId = user.getCurrentOrganizationId();
-                    query.addCriteria(Criteria.where(FieldName.ORGANIZATION_ID).is(organizationId));
+                    // Filtering the groups by the user's current workspace
+                    String workspaceId = user.getCurrentWorkspaceId();
+                    query.addCriteria(Criteria.where(FieldName.WORKSPACE_ID).is(workspaceId));
                     return query;
                 })
                 .flatMapMany(query1 -> {
@@ -78,33 +78,33 @@ public class GroupServiceCEImpl extends BaseService<GroupRepository, Group, Stri
     }
 
     /**
-     * This function fetches the default groups belonging to the organization {@link AclConstants#DEFAULT_ORG_ID}
-     * and then copies them over to the current organization. This is to ensure that each organization has groups & permissions
+     * This function fetches the default groups belonging to the workspace {@link AclConstants#DEFAULT_ORG_ID}
+     * and then copies them over to the current workspace. This is to ensure that each workspace has groups & permissions
      * specific to them.
      *
-     * @param organizationId The organizationId for which we are creating default groups
+     * @param workspaceId The workspaceId for which we are creating default groups
      * @return Flux<Group>
      */
     @Override
-    public Flux<Group> createDefaultGroupsForOrg(String organizationId) {
-        log.debug("Going to create default groups for organization: {}", organizationId);
+    public Flux<Group> createDefaultGroupsForWorkspace(String workspaceId) {
+        log.debug("Going to create default groups for workspace: {}", workspaceId);
 
-        return this.repository.getAllByOrganizationId(AclConstants.DEFAULT_ORG_ID)
+        return this.repository.getAllByWorkspaceId(AclConstants.DEFAULT_ORG_ID)
                 .flatMap(group -> {
                     Group newGroup = new Group();
                     newGroup.setName(group.getName());
                     newGroup.setDisplayName(group.getDisplayName());
-                    newGroup.setOrganizationId(organizationId);
+                    newGroup.setWorkspaceId(workspaceId);
                     newGroup.setPermissions(group.getPermissions());
                     newGroup.setIsDefault(group.getIsDefault());
-                    log.debug("Creating group {} for org: {}", group.getName(), organizationId);
+                    log.debug("Creating group {} for org: {}", group.getName(), workspaceId);
                     return create(newGroup);
                 });
     }
 
     @Override
-    public Flux<Group> getByOrganizationId(String organizationId) {
-        return this.repository.getAllByOrganizationId(organizationId);
+    public Flux<Group> getByWorkspaceId(String workspaceId) {
+        return this.repository.getAllByWorkspaceId(workspaceId);
     }
 
 }

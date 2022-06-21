@@ -12,18 +12,23 @@ import {
   isEmbeddedRestDatasource,
 } from "entities/Datasource";
 import { Action, PluginType } from "entities/Action";
-import { find, sortBy } from "lodash";
+import { find, get, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
-import { JSCollection } from "entities/JSCollection";
 import { DefaultPlugin, GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
 import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { selectFeatureFlags } from "./usersSelectors";
+import {
+  EvaluationError,
+  EVAL_ERROR_PATH,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -782,3 +787,54 @@ function getActionValidationConfigFromPlugin(
   }
   return newValidationConfig;
 }
+export const getJSActions = (
+  state: AppState,
+  JSCollectionId: string,
+): JSAction[] => {
+  const jsCollection = state.entities.jsActions.find(
+    (jsCollectionData) => jsCollectionData.config.id === JSCollectionId,
+  );
+
+  return jsCollection?.config.actions
+    ? sortBy(jsCollection?.config.actions, ["name"])
+    : [];
+};
+
+export const getActiveJSActionId = (
+  state: AppState,
+  jsCollectionId: string,
+): string | null => {
+  const jsCollection = state.entities.jsActions.find(
+    (jsCollectionData) => jsCollectionData.config.id === jsCollectionId,
+  );
+  return jsCollection?.activeJSActionId ?? null;
+};
+
+export const getIsExecutingJSAction = (
+  state: AppState,
+  jsCollectionId: string,
+  actionId: string,
+): boolean => {
+  const jsCollection = state.entities.jsActions.find(
+    (jsCollectionData) => jsCollectionData.config.id === jsCollectionId,
+  );
+  if (jsCollection?.isExecuting && jsCollection.isExecuting[actionId]) {
+    return jsCollection.isExecuting[actionId];
+  }
+  return false;
+};
+
+export const getJSCollectionParseErrors = (
+  state: AppState,
+  jsCollectionName: string,
+) => {
+  const dataTree = state.evaluations.tree;
+  const allErrors = get(
+    dataTree,
+    `${jsCollectionName}.${EVAL_ERROR_PATH}.body`,
+    [],
+  ) as EvaluationError[];
+  return allErrors.filter((error) => {
+    return error.errorType === PropertyEvaluationErrorType.PARSE;
+  });
+};

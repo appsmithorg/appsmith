@@ -4,10 +4,11 @@ import {
 } from "pages/Applications/permissionHelpers";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
-import { getUserApplicationsOrgs } from "./applicationSelectors";
+import { getUserApplicationsWorkspaces } from "./applicationSelectors";
 import { getWidgets } from "sagas/selectors";
 import { getActionResponses, getActions } from "./entitiesSelector";
 import { getSelectedWidget } from "./ui";
+import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 
 // Signposting selectors
 export const getEnableFirstTimeUserOnboarding = (state: AppState) => {
@@ -183,7 +184,7 @@ export const imageWidgetSelector = createSelector(
   (widgets, selectedWidgetId) => {
     const widgetValues = Object.values(widgets);
     const imageWidget = widgetValues.find((widget) => {
-      return widget.widgetName === "ImageWidget";
+      return widget.widgetName === GuidedTourEntityNames.DISPLAY_IMAGE;
     });
 
     return imageWidget ? imageWidget.widgetId === selectedWidgetId : false;
@@ -197,7 +198,7 @@ export const isCountryInputBound = createSelector(
     if (tableWidget) {
       const widgetValues = Object.values(widgets);
       const countryInput = widgetValues.find((widget) => {
-        if (widget.widgetName === "CountryInput") {
+        if (widget.widgetName === GuidedTourEntityNames.COUNTRY_INPUT) {
           return (
             widget.defaultText ===
             `{{${tableWidget.widgetName}.selectedRow.country}}`
@@ -220,7 +221,7 @@ export const isEmailInputBound = createSelector(
     if (tableWidget) {
       const widgetValues = Object.values(widgets);
       const countryInput = widgetValues.find((widget) => {
-        if (widget.widgetName === "EmailInput") {
+        if (widget.widgetName === GuidedTourEntityNames.EMAIL_INPUT) {
           return (
             widget.defaultText ===
             `{{${tableWidget.widgetName}.selectedRow.email}}`
@@ -244,7 +245,7 @@ export const isImageWidgetBound = createSelector(
     if (tableWidget) {
       const widgetValues = Object.values(widgets);
       const imageWidget = widgetValues.find((widget) => {
-        if (widget.widgetName === "ImageWidget") {
+        if (widget.widgetName === GuidedTourEntityNames.DISPLAY_IMAGE) {
           return (
             widget.image === `{{${tableWidget.widgetName}.selectedRow.image}}`
           );
@@ -309,14 +310,14 @@ export const showInfoMessageSelector = (state: AppState) =>
 
 export const loading = (state: AppState) => state.ui.onBoarding.loading;
 
-// To find an organisation where the user has permission to create an
+// To find an workspace where the user has permission to create an
 // application
-export const getOnboardingOrganisations = createSelector(
-  getUserApplicationsOrgs,
-  (userOrgs) => {
-    return userOrgs.filter((userOrg) =>
+export const getOnboardingWorkspaces = createSelector(
+  getUserApplicationsWorkspaces,
+  (userWorkspaces) => {
+    return userWorkspaces.filter((userWorkspace) =>
       isPermitted(
-        userOrg.organization.userPermissions || [],
+        userWorkspace.workspace.userPermissions || [],
         PERMISSION_TYPE.CREATE_APPLICATION,
       ),
     );

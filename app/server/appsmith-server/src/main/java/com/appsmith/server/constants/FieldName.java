@@ -3,7 +3,9 @@ package com.appsmith.server.constants;
 public class FieldName {
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
+    @Deprecated
     public static final String ORGANIZATION_ID = "organizationId";
+    public static final String WORKSPACE_ID = "workspaceId";
     public static final String DELETED = "deleted";
     public static final String CREATED_AT = "createdAt";
     public static final String DELETED_AT = "deletedAt";
@@ -12,7 +14,7 @@ public class FieldName {
     public static final String PLUGIN_TYPE = "pluginType";
     public static final String COLLECTION_ID = "collectionId";
     public static final String ACTION_ID = "actionId";
-    public static String ORGANIZATION = "organization";
+    public static String WORKSPACE = "organization";
     public static String ID = "id";
     public static final String NAME = "name";
     public static String PAGE_ID = "pageId";
@@ -48,13 +50,14 @@ public class FieldName {
             "        \"detachFromLayout\": true,\n" +
             "        \"widgetId\": \"0\",\n" +
             "        \"topRow\": 0,\n" +
-            "        \"bottomRow\": 1254,\n" +
+            "        \"bottomRow\": 1250,\n" +
             "        \"containerStyle\": \"none\",\n" +
             "        \"snapRows\": 33,\n" +
             "        \"parentRowSpace\": 1,\n" +
             "        \"type\": \"CANVAS_WIDGET\",\n" +
             "        \"canExtend\": true,\n" +
             "        \"dynamicBindingPathList\": [],\n" +
+            "        \"dynamicTriggerPathList\": [],\n" +
             "        \"version\": 4,\n" +
             "        \"minHeight\": 1292,\n" +
             "        \"parentColumnSpace\": 1,\n" +
@@ -77,6 +80,7 @@ public class FieldName {
     public static String CONTAINER_WIDGET = "CONTAINER_WIDGET";
     public static String CANVAS_WIDGET = "CANVAS_WIDGET";
     public static String FORM_WIDGET = "FORM_WIDGET";
+    public static String JSON_FORM_WIDGET = "JSON_FORM_WIDGET";
     public static String DROP_DOWN_WIDGET = "DROP_DOWN_WIDGET";
     public static String OPTIONS = "options";
     public static String DEFAULT_OPTION = "defaultOptionValue";
@@ -108,5 +112,5 @@ public class FieldName {
     public static final String DECRYPTED_FIELDS = "decryptedFields";
     public static final String THEME = "theme";
     public static final String EDIT_MODE_THEME = "editModeTheme";
-
+    public static final String FLOW_NAME = "flowName";
 }

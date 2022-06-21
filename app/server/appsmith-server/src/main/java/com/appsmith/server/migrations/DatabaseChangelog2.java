@@ -8,24 +8,51 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.Comment;
+import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PricingPlan;
+import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QComment;
+import com.appsmith.server.domains.QCommentThread;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
+import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
+import com.appsmith.server.domains.QTenant;
+import com.appsmith.server.domains.QTheme;
+import com.appsmith.server.domains.QUser;
+import com.appsmith.server.domains.QUserData;
+import com.appsmith.server.domains.QWorkspace;
+import com.appsmith.server.domains.Sequence;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.TextUtils;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
+import org.springframework.data.mongodb.core.aggregation.Fields;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.redis.core.ReactiveRedisOperations;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -37,6 +64,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
@@ -746,4 +774,268 @@ public class DatabaseChangelog2 {
         );
     }
 
+
+    /**
+     * We'll remove the uniqe index on organization slugs. We'll also regenerate the slugs for all organizations as
+     * most of them are outdated
+     * @param mongockTemplate MongockTemplate instance
+     */
+    @ChangeSet(order = "008", id = "update-organization-slugs", author = "")
+    public void updateOrganizationSlugs(MongockTemplate mongockTemplate) {
+        dropIndexIfExists(mongockTemplate, Organization.class, "slug");
+
+        // update organizations
+        final Query getAllOrganizationsQuery = query(where("deletedAt").is(null));
+        getAllOrganizationsQuery.fields()
+                .include(fieldName(QOrganization.organization.name));
+
+        List<Organization> organizations = mongockTemplate.find(getAllOrganizationsQuery, Organization.class);
+
+        for (Organization organization : organizations) {
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QOrganization.organization.id)).is(organization.getId())),
+                    new Update().set(fieldName(QOrganization.organization.slug), TextUtils.makeSlug(organization.getName())),
+                    Organization.class
+            );
+        }
+    }
+
+    @ChangeSet(order = "009", id = "copy-organization-to-workspaces", author = "")
+    public void copyOrganizationToWorkspaces(MongockTemplate mongockTemplate) {
+        // Drop the workspace collection in case it has been partially run, otherwise it has no effect
+        mongockTemplate.dropCollection(Workspace.class);
+        Gson gson = new Gson();
+        //Memory optimization note:
+        //Call stream instead of findAll to avoid out of memory if the collection is big
+        //stream implementation lazy loads the data using underlying cursor open on the collection
+        //the data is loaded as as and when needed by the pipeline
+        try(Stream<Organization> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Organization.class)
+            .stream()) { 
+            stream.forEach((organization) -> {
+                Workspace workspace = gson.fromJson(gson.toJson(organization), Workspace.class);
+                mongockTemplate.insert(workspace);
+            });
+        }
+    }
+
+    /**
+     * We are creating indexes manually because Spring's index resolver creates indexes on fields as well.
+     * See https://stackoverflow.com/questions/60867491/ for an explanation of the problem. We have that problem with
+     * the `Action.datasource` field.
+     */
+    @ChangeSet(order = "010", id = "add-workspace-indexes", author = "")
+    public void addWorkspaceIndexes(MongockTemplate mongockTemplate) {
+        ensureIndexes(mongockTemplate, Workspace.class,
+            makeIndex("createdAt")
+        );
+    }
+
+    @ChangeSet(order = "011", id = "update-sequence-names-from-organization-to-workspace", author = "")
+    public void updateSequenceNamesFromOrganizationToWorkspace(MongockTemplate mongockTemplate) {
+        for (Sequence sequence : mongockTemplate.findAll(Sequence.class)) {
+            String oldName = sequence.getName();
+            String newName = oldName.replaceAll("(.*) for organization with _id : (.*)", "$1 for workspace with _id : $2");
+            if(!newName.equals(oldName)) {
+                //Using strings in the field names instead of QSequence becauce Sequence is not a AppsmithDomain
+                mongockTemplate.updateFirst(query(where("name").is(oldName)),
+                        Update.update("name", newName),
+                        Sequence.class
+                );
+            }
+        }
+    }
+
+    @ChangeSet(order = "012", id = "add-default-tenant", author = "")
+    public void addDefaultTenant(MongockTemplate mongockTemplate) {
+
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant tenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+
+        // if tenant already exists, don't create a new one.
+        if (tenant != null) {
+            return;
+        }
+
+        Tenant defaultTenant = new Tenant();
+        defaultTenant.setDisplayName("Default");
+        defaultTenant.setSlug("default");
+        defaultTenant.setPricingPlan(PricingPlan.FREE);
+
+        mongockTemplate.save(defaultTenant);
+
+    }
+
+    @ChangeSet(order = "013", id = "add-tenant-to-all-workspaces", author = "")
+    public void addTenantToWorkspaces(MongockTemplate mongockTemplate) {
+
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+        assert(defaultTenant != null);
+
+        // Set all the workspaces to be under the default tenant
+        mongockTemplate.updateMulti(
+                new Query(),
+                new Update().set("tenantId", defaultTenant.getId()),
+                Workspace.class
+        );
+
+    }
+
+    @ChangeSet(order = "014", id = "add-tenant-to-all-users-and-flush-redis", author = "")
+    public void addTenantToUsersAndFlushRedis(MongockTemplate mongockTemplate, ReactiveRedisOperations<String, String>reactiveRedisOperations) {
+
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+        assert(defaultTenant != null);
+
+        // Set all the users to be under the default tenant
+        mongockTemplate.updateMulti(
+                new Query(),
+                new Update().set("tenantId", defaultTenant.getId()),
+                User.class
+        );
+
+        // Now sign out all the existing users since this change impacts the user object.
+        final String script =
+                "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))" +
+                        " do redis.call('del',k) " +
+                        "end";
+        final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
+
+        flushdb.subscribe();
+    }
+
+    @ChangeSet(order = "015", id = "migrate-organizationId-to-workspaceId-in-domain-objects", author = "")
+    public void migrateOrganizationIdToWorkspaceIdInDomainObjects(MongockTemplate mongockTemplate, ReactiveRedisOperations<String, String>reactiveRedisOperations) {
+        mongockTemplate.updateMulti(new Query(),
+            AggregationUpdate.update().set(fieldName(QDatasource.datasource.workspaceId)).toValueOf(Fields.field(fieldName(QDatasource.datasource.organizationId))),
+            Datasource.class);
+        mongockTemplate.updateMulti(new Query(),
+            AggregationUpdate.update().set(fieldName(QActionCollection.actionCollection.workspaceId)).toValueOf(Fields.field(fieldName(QActionCollection.actionCollection.organizationId))),
+            ActionCollection.class);
+        mongockTemplate.updateMulti(new Query(),
+            AggregationUpdate.update().set(fieldName(QApplication.application.workspaceId)).toValueOf(Fields.field(fieldName(QApplication.application.organizationId))),
+            Application.class);
+        mongockTemplate.updateMulti(new Query(),
+            AggregationUpdate.update().set(fieldName(QNewAction.newAction.workspaceId)).toValueOf(Fields.field(fieldName(QNewAction.newAction.organizationId))),
+            NewAction.class);
+        mongockTemplate.updateMulti(new Query(),
+            AggregationUpdate.update().set(fieldName(QTheme.theme.workspaceId)).toValueOf(Fields.field(fieldName(QTheme.theme.organizationId))),
+            Theme.class);
+        mongockTemplate.updateMulti(new Query(),
+            AggregationUpdate.update().set(fieldName(QUserData.userData.recentlyUsedWorkspaceIds)).toValueOf(Fields.field(fieldName(QUserData.userData.recentlyUsedOrgIds))),
+            UserData.class);
+        mongockTemplate.updateMulti(new Query(),
+            AggregationUpdate.update().set(fieldName(QWorkspace.workspace.isAutoGeneratedWorkspace)).toValueOf(Fields.field(fieldName(QWorkspace.workspace.isAutoGeneratedOrganization))),
+            Workspace.class);
+        mongockTemplate.updateMulti(new Query(),
+            AggregationUpdate.update()
+                .set(fieldName(QUser.user.workspaceIds)).toValueOf(Fields.field(fieldName(QUser.user.organizationIds)))
+                .set(fieldName(QUser.user.currentWorkspaceId)).toValueOf(Fields.field(fieldName(QUser.user.currentOrganizationId)))
+                .set(fieldName(QUser.user.examplesWorkspaceId)).toValueOf(Fields.field(fieldName(QUser.user.examplesOrganizationId))),
+            User.class);
+
+        // Now sign out all the existing users since this change impacts the user object.
+        final String script =
+                "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))" +
+                        " do redis.call('del',k) " +
+                        "end";
+        final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
+
+        flushdb.subscribe();
+
+        mongockTemplate.updateMulti(new Query(),
+            AggregationUpdate.update().set(fieldName(QComment.comment.workspaceId)).toValueOf(Fields.field(fieldName(QComment.comment.workspaceId))),
+            Comment.class);
+        mongockTemplate.updateMulti(new Query(),
+            AggregationUpdate.update().set(fieldName(QCommentThread.commentThread.workspaceId)).toValueOf(Fields.field(fieldName(QCommentThread.commentThread.workspaceId))),
+            CommentThread.class);
+    }
+
+    @ChangeSet(order = "016", id = "organization-to-workspace-indexes-recreate", author = "")
+    public void organizationToWorkspaceIndexesRecreate(MongockTemplate mongockTemplate) {
+        dropIndexIfExists(mongockTemplate, Application.class, "organization_application_deleted_gitApplicationMetadata_compound_index");
+        dropIndexIfExists(mongockTemplate, Datasource.class, "organization_datasource_deleted_compound_index");
+
+        //If this migration is re-run
+        dropIndexIfExists(mongockTemplate, Application.class, "workspace_application_deleted_gitApplicationMetadata_compound_index");
+        dropIndexIfExists(mongockTemplate, Datasource.class, "workspace_datasource_deleted_compound_index");
+
+        ensureIndexes(mongockTemplate, Application.class,
+                makeIndex(
+                    fieldName(QApplication.application.workspaceId),
+                    fieldName(QApplication.application.name),
+                    fieldName(QApplication.application.deletedAt),
+                    "gitApplicationMetadata.remoteUrl",
+                    "gitApplicationMetadata.branchName")
+                        .unique().named("workspace_application_deleted_gitApplicationMetadata_compound_index")
+        );
+        ensureIndexes(mongockTemplate, Datasource.class,
+                makeIndex(fieldName(QDatasource.datasource.workspaceId),
+                    fieldName(QDatasource.datasource.name),
+                    fieldName(QDatasource.datasource.deletedAt))
+                        .unique().named("workspace_datasource_deleted_compound_index")
+        );
+    }
+
+    @ChangeSet(order = "017", id = "migrate-permission-in-user", author = "")
+    public void migratePermissionsInUser(MongockTemplate mongockTemplate) {
+        mongockTemplate.updateMulti(
+            new Query().addCriteria(where("policies.permission").is("manage:userOrganization")),
+            new Update().set("policies.$.permission", "manage:userWorkspace"),
+            User.class);
+        mongockTemplate.updateMulti(
+            new Query().addCriteria(where("policies.permission").is("read:userOrganization")),
+            new Update().set("policies.$.permission", "read:userWorkspace"),
+            User.class);
+        mongockTemplate.updateMulti(
+            new Query().addCriteria(where("policies.permission").is("read:userOrganization")),
+            new Update().set("policies.$.permission", "read:userWorkspace"),
+            User.class);
+    }
+
+    @ChangeSet(order = "018", id = "migrate-permission-in-workspace", author = "")
+    public void migratePermissionsInWorkspace(MongockTemplate mongockTemplate) {
+        mongockTemplate.updateMulti(
+            new Query().addCriteria(where("policies.permission").is("manage:organizations")),
+            new Update().set("policies.$.permission", "manage:workspaces"),
+            Workspace.class);
+        mongockTemplate.updateMulti(
+            new Query().addCriteria(where("policies.permission").is("read:organizations")),
+            new Update().set("policies.$.permission", "read:workspaces"),
+            Workspace.class);
+        mongockTemplate.updateMulti(
+            new Query().addCriteria(where("policies.permission").is("manage:orgApplications")),
+            new Update().set("policies.$.permission", "manage:workspaceApplications"),
+            Workspace.class);
+        mongockTemplate.updateMulti(
+            new Query().addCriteria(where("policies.permission").is("read:orgApplications")),
+            new Update().set("policies.$.permission", "read:workspaceApplications"),
+            Workspace.class);
+        mongockTemplate.updateMulti(
+            new Query().addCriteria(where("policies.permission").is("publish:orgApplications")),
+            new Update().set("policies.$.permission", "publish:workspaceApplications"),
+            Workspace.class);
+        mongockTemplate.updateMulti(
+            new Query().addCriteria(where("policies.permission").is("export:orgApplications")),
+            new Update().set("policies.$.permission", "export:workspaceApplications"),
+            Workspace.class);
+        mongockTemplate.updateMulti(
+            new Query().addCriteria(where("policies.permission").is("inviteUsers:organization")),
+            new Update().set("policies.$.permission", "inviteUsers:workspace"),
+            Workspace.class);
+    }
+
+    @ChangeSet(order = "019", id = "migrate-organizationId-to-workspaceId-in-newaction-datasource", author = "")
+    public void migrateOrganizationIdToWorkspaceIdInNewActionDatasource(MongockTemplate mongockTemplate, ReactiveRedisOperations<String, String>reactiveRedisOperations) {
+        mongockTemplate.updateMulti(new Query(Criteria.where("unpublishedAction.datasource.organizationId").exists(true)),
+            AggregationUpdate.update().set("unpublishedAction.datasource.workspaceId").toValueOf(Fields.field("unpublishedAction.datasource.organizationId")),
+            NewAction.class);
+        mongockTemplate.updateMulti(new Query(Criteria.where("publishedAction.datasource.organizationId").exists(true)),
+            AggregationUpdate.update().set("publishedAction.datasource.workspaceId").toValueOf(Fields.field("publishedAction.datasource.organizationId")),
+            NewAction.class);
+    }
 }

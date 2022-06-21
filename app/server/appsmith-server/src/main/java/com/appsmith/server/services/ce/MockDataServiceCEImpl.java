@@ -8,7 +8,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.MockDataCredentials;
 import com.appsmith.server.dtos.MockDataDTO;
@@ -115,12 +115,12 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
                         " Couldn't find any mock datasource with the given name - " + mockDataSource.getName()));
             }
             Datasource datasource = new Datasource();
-            datasource.setOrganizationId(mockDataSource.getOrganizationId());
+            datasource.setWorkspaceId(mockDataSource.getWorkspaceId());
             datasource.setPluginId(mockDataSource.getPluginId());
             datasource.setName(mockDataSource.getName());
             datasource.setDatasourceConfiguration(datasourceConfiguration);
             datasource.setIsConfigured(true);
-            return addAnalyticsForMockDataCreation(name, mockDataSource.getOrganizationId())
+            return addAnalyticsForMockDataCreation(name, mockDataSource.getWorkspaceId())
                     .then(createSuffixedDatasource(datasource));
         });
 
@@ -220,7 +220,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
         return datasourceService.create(datasource)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null
-                            && error.getMessage().contains("organization_datasource_deleted_compound_index")
+                            && error.getMessage().contains("workspace_datasource_deleted_compound_index")
                             && datasource.getDatasourceConfiguration().getAuthentication() instanceof DBAuth) {
                         ((DBAuth) datasource.getDatasourceConfiguration().getAuthentication()).setPassword(finalPassword);
                         return createSuffixedDatasource(datasource, name, 1 + suffix);
@@ -229,7 +229,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
                 });
     }
 
-    private Mono<User> addAnalyticsForMockDataCreation(String name, String orgId) {
+    private Mono<User> addAnalyticsForMockDataCreation(String name, String workspaceId) {
         if (!analyticsService.isActive()) {
             return Mono.empty();
         }
@@ -241,7 +241,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
                             user.getUsername(),
                             Map.of(
                                     "MockDataSource", defaultIfNull(name, ""),
-                                    "orgId", defaultIfNull(orgId, "")
+                                    "orgId", defaultIfNull(workspaceId, "")
                             )
                     );
                     return user;

@@ -23,6 +23,7 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -81,6 +82,8 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
         if (resource.getPolicies().isEmpty()) {
             resource.setPolicies(null);
         }
+
+        resource.setUpdatedAt(Instant.now());
 
         DBObject update = getDbObject(resource);
 
@@ -165,7 +168,7 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
 
     /**
      * This function appends new policies to an object.
-     * This should be used in updating organization/application permissions to cascade the same permissions across all
+     * This should be used in updating workspace/application permissions to cascade the same permissions across all
      * the objects lying below in the hierarchy
      * @param id : Object Id
      * @param policies : Policies that have to be appended to the object
@@ -212,7 +215,7 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
 
     /**
      * This function removes existing policies from an object.
-     * This should be used in updating organization/application permissions to cascade the same permissions across all
+     * This should be used in updating workspace/application permissions to cascade the same permissions across all
      * the objects lying below in the hierarchy
      * @param id : Object Id
      * @param policies : Policies that have to be removed from the object

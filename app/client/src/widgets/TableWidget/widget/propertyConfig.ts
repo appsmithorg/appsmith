@@ -4,10 +4,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import {
-  ButtonBorderRadiusTypes,
-  ButtonVariantTypes,
-} from "components/constants";
+import { ButtonVariantTypes } from "components/constants";
 import {
   updateDerivedColumnsHook,
   ColumnTypes,
@@ -18,6 +15,7 @@ import {
   getBasePropertyPath,
   hideByColumnType,
   uniqueColumnNameValidation,
+  removeBoxShadowColorProp,
   updateIconNameHook,
 } from "./propertyUtils";
 import {
@@ -25,6 +23,7 @@ import {
   TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { IconNames } from "@blueprintjs/icons";
+import { getStylesheetValue } from "./helpers";
 
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
@@ -58,7 +57,7 @@ export default [
         controlType: "PRIMARY_COLUMNS",
         label: "Columns",
         updateHook: updateDerivedColumnsHook,
-        dependencies: ["derivedColumns", "columnOrder"],
+        dependencies: ["derivedColumns", "columnOrder", "childStylesheet"],
         isBindProperty: false,
         isTriggerProperty: false,
         validation: {
@@ -130,6 +129,7 @@ export default [
                     "primaryColumns",
                     "derivedColumns",
                     "columnOrder",
+                    "childStylesheet",
                   ],
                   isBindProperty: false,
                   isTriggerProperty: false,
@@ -624,36 +624,32 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   options: [
                     {
-                      label: "Heading 1",
-                      value: "HEADING1",
-                      subText: "24px",
-                      icon: "HEADING_ONE",
+                      label: "S",
+                      value: "0.875rem",
+                      subText: "0.875rem",
                     },
                     {
-                      label: "Heading 2",
-                      value: "HEADING2",
-                      subText: "18px",
-                      icon: "HEADING_TWO",
+                      label: "M",
+                      value: "1rem",
+                      subText: "1rem",
                     },
                     {
-                      label: "Heading 3",
-                      value: "HEADING3",
-                      subText: "16px",
-                      icon: "HEADING_THREE",
+                      label: "L",
+                      value: "1.25rem",
+                      subText: "1.25rem",
                     },
                     {
-                      label: "Paragraph",
-                      value: "PARAGRAPH",
-                      subText: "14px",
-                      icon: "PARAGRAPH",
-                    },
-                    {
-                      label: "Paragraph 2",
-                      value: "PARAGRAPH2",
-                      subText: "12px",
-                      icon: "PARAGRAPH_TWO",
+                      label: "XL",
+                      value: "1.875rem",
+                      subText: "1.875rem",
                     },
                   ],
+                  validation: {
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                    },
+                  },
                   updateHook: updateDerivedColumnsHook,
                   dependencies: [
                     "primaryColumns",
@@ -662,21 +658,6 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
-                    params: {
-                      type: ValidationTypes.TEXT,
-                      params: {
-                        allowedValues: [
-                          "HEADING1",
-                          "HEADING2",
-                          "HEADING3",
-                          "PARAGRAPH",
-                          "PARAGRAPH2",
-                        ],
-                      },
-                    },
-                  },
                 },
                 {
                   propertyName: "fontStyle",
@@ -755,7 +736,7 @@ export default [
                 {
                   propertyName: "textColor",
                   label: "Text Color",
-                  controlType: "COLOR_PICKER",
+                  controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
@@ -779,7 +760,7 @@ export default [
                 {
                   propertyName: "cellBackground",
                   label: "Cell Background",
-                  controlType: "COLOR_PICKER",
+                  controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
@@ -923,8 +904,9 @@ export default [
                 },
                 {
                   propertyName: "buttonColor",
+                  getStylesheetValue,
                   label: "Button Color",
-                  controlType: "COLOR_PICKER",
+                  controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                   helpText: "Changes the color of the button",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
@@ -1013,13 +995,10 @@ export default [
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.ICON_BUTTON,
+                      ColumnTypes.MENU_BUTTON,
+                      ColumnTypes.BUTTON,
                     ]);
                   },
-                  options: [
-                    ButtonBorderRadiusTypes.SHARP,
-                    ButtonBorderRadiusTypes.ROUNDED,
-                    ButtonBorderRadiusTypes.CIRCLE,
-                  ],
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -1031,9 +1010,6 @@ export default [
                     type: ValidationTypes.TABLE_PROPERTY,
                     params: {
                       type: ValidationTypes.TEXT,
-                      params: {
-                        allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
-                      },
                     },
                   },
                 },
@@ -1045,9 +1021,12 @@ export default [
                   controlType: "BOX_SHADOW_OPTIONS",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
+                  updateHook: removeBoxShadowColorProp,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.ICON_BUTTON,
+                      ColumnTypes.MENU_BUTTON,
+                      ColumnTypes.BUTTON,
                     ]);
                   },
                   dependencies: [
@@ -1061,57 +1040,19 @@ export default [
                     type: ValidationTypes.TABLE_PROPERTY,
                     params: {
                       type: ValidationTypes.TEXT,
-                      params: {
-                        allowedValues: [
-                          "NONE",
-                          "VARIANT1",
-                          "VARIANT2",
-                          "VARIANT3",
-                          "VARIANT4",
-                          "VARIANT5",
-                        ],
-                      },
                     },
                   },
-                },
-                {
-                  propertyName: "boxShadowColor",
-                  helpText: "Sets the shadow color of the widget",
-                  label: "Shadow Color",
-                  controlType: "COLOR_PICKER",
-                  customJSControl: "COMPUTE_VALUE",
-                  isJSConvertible: true,
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.ICON_BUTTON,
-                    ]);
-                  },
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  isBindProperty: true,
-                  validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
-                    params: {
-                      type: ValidationTypes.TEXT,
-                      params: {
-                        regex: /^(?![<|{{]).+/,
-                      },
-                    },
-                  },
-                  isTriggerProperty: false,
                 },
                 {
                   propertyName: "menuColor",
                   helpText:
                     "Sets the custom color preset based on the menu button variant",
                   label: "Menu Color",
-                  controlType: "COLOR_PICKER",
+                  controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  isJSConvertible: true,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
                   validation: {
                     type: ValidationTypes.TABLE_PROPERTY,
@@ -1180,91 +1121,6 @@ export default [
                     },
                   },
                 },
-                {
-                  propertyName: "borderRadius",
-                  label: "Border Radius",
-                  helpText:
-                    "Rounds the corners of the icon button's outer border edge",
-                  controlType: "BUTTON_BORDER_RADIUS_OPTIONS",
-                  isBindProperty: false,
-                  isTriggerProperty: false,
-                  updateHook: updateDerivedColumnsHook,
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.MENU_BUTTON,
-                    ]);
-                  },
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
-                    },
-                  },
-                },
-                {
-                  propertyName: "boxShadow",
-                  label: "Box Shadow",
-                  helpText:
-                    "Enables you to cast a drop shadow from the frame of the widget",
-                  controlType: "BOX_SHADOW_OPTIONS",
-                  isBindProperty: false,
-                  isTriggerProperty: false,
-                  updateHook: updateDerivedColumnsHook,
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.MENU_BUTTON,
-                    ]);
-                  },
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      allowedValues: [
-                        "NONE",
-                        "VARIANT1",
-                        "VARIANT2",
-                        "VARIANT3",
-                        "VARIANT4",
-                        "VARIANT5",
-                      ],
-                    },
-                  },
-                },
-                {
-                  propertyName: "boxShadowColor",
-                  helpText: "Sets the shadow color of the widget",
-                  label: "Shadow Color",
-                  controlType: "COLOR_PICKER",
-                  isBindProperty: false,
-                  isTriggerProperty: false,
-                  updateHook: updateDerivedColumnsHook,
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.MENU_BUTTON,
-                    ]);
-                  },
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      regex: /^(?![<|{{]).+/,
-                    },
-                  },
-                },
-
                 {
                   helpText: "Triggers an action when the button is clicked",
                   propertyName: "onClick",
@@ -1351,8 +1207,9 @@ export default [
                             helpText:
                               "Sets the background color of a menu item",
                             label: "Background color",
-                            controlType: "COLOR_PICKER",
-                            isBindProperty: false,
+                            controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
+                            isJSConvertible: true,
+                            isBindProperty: true,
                             isTriggerProperty: false,
                             updateHook: updateDerivedColumnsHook,
 
@@ -1361,12 +1218,13 @@ export default [
                               "derivedColumns",
                               "columnOrder",
                             ],
+                            validation: { type: ValidationTypes.TEXT },
                           },
                           {
                             propertyName: "textColor",
                             helpText: "Sets the text color of a menu item",
                             label: "Text color",
-                            controlType: "COLOR_PICKER",
+                            controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                             isBindProperty: false,
                             isTriggerProperty: false,
                             updateHook: updateDerivedColumnsHook,
@@ -1436,7 +1294,7 @@ export default [
                             propertyName: "iconColor",
                             helpText: "Sets the icon color of a menu item",
                             label: "Icon color",
-                            controlType: "COLOR_PICKER",
+                            controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                             isBindProperty: false,
                             isTriggerProperty: false,
                             updateHook: updateDerivedColumnsHook,
@@ -1771,8 +1629,20 @@ export default [
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns", "derivedColumns"],
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "accentColor",
+        label: "Accent Color",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        invisible: true,
       },
       {
         propertyName: "textColor",
@@ -1780,8 +1650,10 @@ export default [
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns", "derivedColumns"],
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         propertyName: "textSize",
@@ -1791,38 +1663,30 @@ export default [
         dependencies: ["primaryColumns", "derivedColumns"],
         options: [
           {
-            label: "Heading 1",
-            value: "HEADING1",
-            subText: "24px",
-            icon: "HEADING_ONE",
+            label: "S",
+            value: "0.875rem",
+            subText: "0.875rem",
           },
           {
-            label: "Heading 2",
-            value: "HEADING2",
-            subText: "18px",
-            icon: "HEADING_TWO",
+            label: "M",
+            value: "1rem",
+            subText: "1rem",
           },
           {
-            label: "Heading 3",
-            value: "HEADING3",
-            subText: "16px",
-            icon: "HEADING_THREE",
+            label: "L",
+            value: "1.25rem",
+            subText: "1.25rem",
           },
           {
-            label: "Paragraph",
-            value: "PARAGRAPH",
-            subText: "14px",
-            icon: "PARAGRAPH",
-          },
-          {
-            label: "Paragraph 2",
-            value: "PARAGRAPH2",
-            subText: "12px",
-            icon: "PARAGRAPH_TWO",
+            label: "XL",
+            value: "1.875rem",
+            subText: "1.875rem",
           },
         ],
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         propertyName: "fontStyle",
@@ -1890,6 +1754,27 @@ export default [
         defaultValue: "LEFT",
         isBindProperty: false,
         isTriggerProperty: false,
+      },
+      {
+        propertyName: "borderRadius",
+        label: "Border Radius",
+        helpText: "Rounds the corners of the icon button's outer border edge",
+        controlType: "BORDER_RADIUS_OPTIONS",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "boxShadow",
+        label: "Box Shadow",
+        helpText:
+          "Enables you to cast a drop shadow from the frame of the widget",
+        controlType: "BOX_SHADOW_OPTIONS",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
     ],
   },

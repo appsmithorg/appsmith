@@ -66,7 +66,7 @@ import { ReactComponent as GearIcon } from "assets/icons/ads/gear.svg";
 import { ReactComponent as UserV2Icon } from "assets/icons/ads/user-v2.svg";
 import { ReactComponent as SupportIcon } from "assets/icons/ads/support.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
-import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIcon.svg";
+import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/workspaceIcon.svg";
 import { ReactComponent as SettingIcon } from "assets/icons/control/settings.svg";
 import { ReactComponent as DropdownIcon } from "assets/icons/ads/dropdown.svg";
 import { ReactComponent as ChatIcon } from "assets/icons/ads/app-icons/chat.svg";
@@ -131,6 +131,7 @@ import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
 import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
 import Pin3 from "remixicon-react/Pushpin2FillIcon";
 import QueryIcon from "remixicon-react/CodeSSlashLineIcon";
+import RemoveIcon from "remixicon-react/SubtractLineIcon";
 import RightArrowIcon from "remixicon-react/ArrowRightLineIcon";
 import RightArrowIcon2 from "remixicon-react/ArrowRightSLineIcon";
 import RocketIcon from "remixicon-react/RocketLineIcon";
@@ -150,6 +151,7 @@ import EditBoxLineIcon from "remixicon-react/EditBoxLineIcon";
 import StarLineIcon from "remixicon-react/StarLineIcon";
 import StarFillIcon from "remixicon-react/StarFillIcon";
 import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
+import DownloadIcon from "remixicon-react/DownloadLineIcon";
 import UploadCloud2LineIcon from "remixicon-react/UploadCloud2LineIcon";
 import DownloadLineIcon from "remixicon-react/DownloadLineIcon";
 import FileListLineIcon from "remixicon-react/FileListLineIcon";
@@ -157,6 +159,7 @@ import HamburgerIcon from "remixicon-react/MenuLineIcon";
 import MagicLineIcon from "remixicon-react/MagicLineIcon";
 import UserHeartLineIcon from "remixicon-react/UserHeartLineIcon";
 import DvdLineIcon from "remixicon-react/DvdLineIcon";
+import Group2LineIcon from "remixicon-react/Group2LineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -197,7 +200,8 @@ export const IconWrapper = styled.span<IconProps>`
 
   display: flex;
   align-items: center;
-
+  cursor: ${(props) =>
+    props.disabled ? "not-allowed" : props.clickable ? "pointer" : "default"};
   svg {
     width: ${(props) => sizeHandler(props.size)}px;
     height: ${(props) => sizeHandler(props.size)}px;
@@ -216,7 +220,6 @@ export const IconWrapper = styled.span<IconProps>`
     ${(props) => (props.invisible ? `visibility: hidden;` : null)};
 
     &:hover {
-      cursor: ${(props) => (props.clickable ? "pointer" : "default")};
       ${(props) =>
         !props.keepColors
           ? `
@@ -315,6 +318,7 @@ const ICON_LOOKUP = {
   "warning-line": <WarningLineIcon />,
   "warning-triangle": <WarningTriangleIcon />,
   "chat-help": <ChatIcon />,
+  "group-2-line": <Group2LineIcon />,
   billing: <BillingIcon />,
   book: <BookIcon />,
   bug: <BugIcon />,
@@ -353,6 +357,7 @@ const ICON_LOOKUP = {
   logout: <LogoutIcon />,
   manage: <ManageIcon />,
   member: <UserHeartLineIcon />,
+  minus: <RemoveIcon />,
   mobile: <MobileIcon />,
   open: <OpenIcon />,
   pin: <Pin />,
@@ -380,6 +385,7 @@ const ICON_LOOKUP = {
   warning: <WarningIcon />,
   widget: <WidgetIcon />,
   workspace: <WorkspaceIcon />,
+  download2: <DownloadIcon />,
   upgrade: <DvdLineIcon />,
 };
 
@@ -398,10 +404,14 @@ export type IconProps = {
   keepColors?: boolean;
   loaderWithIconWrapper?: boolean;
   clickable?: boolean;
+  disabled?: boolean;
 };
 
 const Icon = forwardRef(
-  (props: IconProps & CommonComponentProps, ref: Ref<HTMLSpanElement>) => {
+  (
+    { onClick, ...props }: IconProps & CommonComponentProps,
+    ref: Ref<HTMLSpanElement>,
+  ) => {
     const iconName = props.name;
     const returnIcon =
       ICON_LOOKUP[iconName as keyof typeof ICON_LOOKUP] || null;
@@ -422,9 +432,9 @@ const Icon = forwardRef(
         className={`${Classes.ICON} ${props.className}`}
         clickable={clickable}
         data-cy={props.cypressSelector}
+        onClick={props.disabled ? noop : onClick}
         ref={ref}
         {...props}
-        onClick={props.onClick || noop}
       >
         {returnIcon}
       </IconWrapper>

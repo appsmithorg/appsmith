@@ -420,6 +420,25 @@
         "code",
         "bug"
       ]
+    },
+    {
+      "login": "ganganimaulik",
+      "name": "Maulik",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10296400?v=4",
+      "profile": "https://github.com/ganganimaulik",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "AnaghHegde",
+      "name": "Anagh Hegde",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12005551?v=4",
+      "profile": "https://loopbackweb.wordpress.com/",
+      "contributions": [
+        "code",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,

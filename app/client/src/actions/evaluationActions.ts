@@ -11,13 +11,12 @@ import { QueryActionConfig } from "entities/Action";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages
-  ReduxActionTypes.FETCH_PAGE_SUCCESS,
-  ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
+  ReduxActionTypes.FETCH_ALL_PAGE_ENTITY_COMPLETION,
 ];
+
 export const EVALUATE_REDUX_ACTIONS = [
   ...FIRST_EVAL_REDUX_ACTIONS,
   // Actions
-  ReduxActionTypes.FETCH_PLUGIN_AND_JS_ACTIONS_SUCCESS,
   ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS,
   ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
   ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
@@ -57,12 +56,17 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
   ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS,
   // Widget Meta
-  ReduxActionTypes.SET_META_PROP,
+  ReduxActionTypes.SET_META_PROP_AND_EVAL,
+  ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL,
   ReduxActionTypes.RESET_WIDGET_META,
   // Batches
   ReduxActionTypes.BATCH_UPDATES_SUCCESS,
+  // App Theme
+  ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
+  ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS,
+  ReduxActionTypes.SET_PREVIEW_APP_THEME,
 ];
-// Topics used for datsource and query form evaluations
+// Topics used for datasource and query form evaluations
 export const FORM_EVALUATION_REDUX_ACTIONS = [
   ReduxActionTypes.INIT_FORM_EVALUATION,
   ReduxActionTypes.RUN_FORM_EVALUATION,
@@ -83,12 +87,11 @@ export const shouldProcessBatchedAction = (action: ReduxAction<unknown>) => {
 };
 
 export const setEvaluatedTree = (
-  dataTree: DataTree,
   updates: Diff<DataTree, DataTree>[],
-): ReduxAction<{ dataTree: DataTree; updates: Diff<DataTree, DataTree>[] }> => {
+): ReduxAction<{ updates: Diff<DataTree, DataTree>[] }> => {
   return {
     type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: { dataTree, updates },
+    payload: { updates },
   };
 };
 

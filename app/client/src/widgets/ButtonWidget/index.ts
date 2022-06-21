@@ -3,7 +3,6 @@ import {
   ButtonVariantTypes,
   RecaptchaTypes,
 } from "components/constants";
-import { Colors } from "constants/Colors";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -12,10 +11,10 @@ export const CONFIG = {
   name: "Button",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["click", "submit"],
   defaults: {
     animateLoading: true,
     text: "Submit",
-    buttonColor: Colors.GREEN,
     buttonVariant: ButtonVariantTypes.PRIMARY,
     placement: ButtonPlacementTypes.CENTER,
     rows: 4,

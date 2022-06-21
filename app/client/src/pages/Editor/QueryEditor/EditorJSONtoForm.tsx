@@ -79,7 +79,11 @@ import {
   ConditionalOutput,
   FormEvalOutput,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { responseTabComponent } from "components/editorComponents/ApiResponseView";
+import {
+  responseTabComponent,
+  InlineButton,
+  TableCellHeight,
+} from "components/editorComponents/ApiResponseView";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -123,6 +127,7 @@ export const TabbedViewContainer = styled.div`
   }
   .react-tabs__tab-list {
     margin: 0px;
+   
   }
   &&& {
     ul.react-tabs__tab-list {
@@ -186,6 +191,7 @@ const ResponseContentWrapper = styled.div`
   padding: 10px 0px;
   overflow-y: auto;
   height: 100%;
+  display: grid;
 
   ${HelpSection} {
     margin-bottom: 10px;
@@ -360,11 +366,6 @@ const TabContainerView = styled.div`
     }
   }
   position: relative;
-`;
-
-const InlineButton = styled(Button)`
-  display: inline-flex;
-  margin: 0 4px;
 `;
 
 const Wrapper = styled.div`
@@ -895,6 +896,11 @@ export function EditorJSONtoForm(props: Props) {
               name={currentActionConfig ? currentActionConfig.name : ""}
               pageId={pageId}
             />
+            <SearchSnippets
+              className="search-snippets"
+              entityId={currentActionConfig?.id}
+              entityType={ENTITY_TYPE.ACTION}
+            />
             <DropdownSelect>
               <DropdownField
                 className={"t--switch-datasource"}
@@ -906,11 +912,6 @@ export function EditorJSONtoForm(props: Props) {
                 width={232}
               />
             </DropdownSelect>
-            <SearchSnippets
-              className="search-snippets"
-              entityId={currentActionConfig?.id}
-              entityType={ENTITY_TYPE.ACTION}
-            />
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"
@@ -1014,7 +1015,8 @@ export function EditorJSONtoForm(props: Props) {
               <Resizable
                 panelRef={panelRef}
                 setContainerDimensions={(height: number) =>
-                  setTableBodyHeightHeight(height)
+                  // TableCellHeight in this case is the height of one table cell in pixels.
+                  setTableBodyHeightHeight(height - TableCellHeight)
                 }
               />
               {output && !!output.length && (

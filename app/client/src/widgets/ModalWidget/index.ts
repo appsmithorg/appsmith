@@ -12,6 +12,7 @@ import {
 } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -19,6 +20,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  searchTags: ["dialog", "popup", "notification"],
   defaults: {
     rows: 24,
     columns: 24,
@@ -74,19 +76,19 @@ export const CONFIG = {
                   },
                   props: {
                     text: "Modal Title",
-                    fontSize: "HEADING1",
+                    fontSize: THEMEING_TEXT_SIZES.lg,
                     version: 1,
                   },
                 },
                 {
                   type: "BUTTON_WIDGET",
                   position: {
-                    left: 36,
+                    left: 32,
                     top: 16,
                   },
                   size: {
                     rows: 4,
-                    cols: 12,
+                    cols: 16,
                   },
                   props: {
                     text: "Close",
@@ -103,7 +105,7 @@ export const CONFIG = {
                   },
                   size: {
                     rows: 4,
-                    cols: 12,
+                    cols: 16,
                   },
                   props: {
                     text: "Confirm",

@@ -7,6 +7,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -25,6 +26,7 @@ import reactor.util.function.Tuples;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -72,8 +74,8 @@ public class ThemeServiceTest {
                 })
                 .flatMap(application ->
                         Mono.zip(
-                                themeService.getApplicationTheme(application.getId(), ApplicationMode.EDIT),
-                                themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED)
+                                themeService.getApplicationTheme(application.getId(), ApplicationMode.EDIT, null),
+                                themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED, null)
                         )
                 );
 
@@ -98,8 +100,8 @@ public class ThemeServiceTest {
                     return applicationRepository.save(application);
                 })
                 .flatMap(application -> Mono.zip(
-                        themeService.getApplicationTheme(application.getId(), ApplicationMode.EDIT),
-                        themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED)
+                        themeService.getApplicationTheme(application.getId(), ApplicationMode.EDIT, null),
+                        themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED, null)
                 ));
 
         StepVerifier.create(applicationThemesMono)
@@ -123,7 +125,7 @@ public class ThemeServiceTest {
                     Application application = tuple.getT1();
                     Theme theme = tuple.getT2();
                     // now set rounded theme to edit mode
-                    return themeService.changeCurrentTheme(theme.getId(), application.getId())
+                    return themeService.changeCurrentTheme(theme.getId(), application.getId(), null)
                             .then(applicationRepository.findById(application.getId())
                                     .zipWith(Mono.just(application)) // return updated and old application objects
                             );
@@ -156,7 +158,7 @@ public class ThemeServiceTest {
                 })
                 .flatMap(application -> {
                     // now try to set the theme again
-                    return themeService.changeCurrentTheme(application.getEditModeThemeId(), application.getId());
+                    return themeService.changeCurrentTheme(application.getEditModeThemeId(), application.getId(), null);
                 });
 
         StepVerifier.create(themeMono).expectError(AppsmithException.class).verify();
@@ -168,7 +170,7 @@ public class ThemeServiceTest {
         Mono<String> defaultThemeIdMono = themeService.getDefaultThemeId().cache();
 
         Application application = createApplication("api_user", Set.of(MANAGE_APPLICATIONS));
-        application.setOrganizationId("theme-test-org-id");
+        application.setWorkspaceId("theme-test-org-id");
         Mono<Theme> applicationThemeMono = defaultThemeIdMono
                 .flatMap(defaultThemeId -> {
                     application.setEditModeThemeId(defaultThemeId);
@@ -176,15 +178,15 @@ public class ThemeServiceTest {
                 })
                 .flatMap(savedApplication ->
                     defaultThemeIdMono.flatMap(themeId ->
-                        themeService.changeCurrentTheme(themeId, savedApplication.getId())
-                                .then(themeService.getApplicationTheme(savedApplication.getId(), ApplicationMode.EDIT))
+                        themeService.changeCurrentTheme(themeId, savedApplication.getId(), null)
+                                .then(themeService.getApplicationTheme(savedApplication.getId(), ApplicationMode.EDIT, null))
                     )
                 );
 
         StepVerifier.create(applicationThemeMono).assertNext(theme -> {
             assertThat(theme.isSystemTheme()).isTrue();
             assertThat(theme.getApplicationId()).isNull();
-            assertThat(theme.getOrganizationId()).isNull();
+            assertThat(theme.getWorkspaceId()).isNull();
         }).verifyComplete();
     }
 
@@ -200,7 +202,7 @@ public class ThemeServiceTest {
         customTheme.setPolicies(Set.copyOf(themePolicies));
 
         Application application = createApplication("api_user", Set.of(MANAGE_APPLICATIONS));
-        application.setOrganizationId("theme-test-org-id");
+        application.setWorkspaceId("theme-test-org-id");
 
         Mono<Tuple2<Theme, Theme>> tuple2Mono = themeService.save(customTheme)
                 .flatMap(savedTheme -> {
@@ -209,12 +211,12 @@ public class ThemeServiceTest {
                 })
                 .flatMap(savedApplication ->
                         themeService.getDefaultThemeId()
-                                .flatMap(themeId -> themeService.changeCurrentTheme(themeId, savedApplication.getId()))
+                                .flatMap(themeId -> themeService.changeCurrentTheme(themeId, savedApplication.getId(), null))
                                 .thenReturn(savedApplication)
                 ).flatMap(application1 ->
                         // get old theme and new
                         Mono.zip(
-                                themeService.getApplicationTheme(application1.getId(), ApplicationMode.EDIT),
+                                themeService.getApplicationTheme(application1.getId(), ApplicationMode.EDIT, null),
                                 themeService.getThemeById(application1.getEditModeThemeId(), READ_THEMES)
                                         .defaultIfEmpty(new Theme()) // this should be deleted, return empty theme
                         )
@@ -225,7 +227,7 @@ public class ThemeServiceTest {
             Theme oldTheme = themeTuple2.getT2();
             assertThat(currentTheme.isSystemTheme()).isTrue();
             assertThat(currentTheme.getApplicationId()).isNull();
-            assertThat(currentTheme.getOrganizationId()).isNull();
+            assertThat(currentTheme.getWorkspaceId()).isNull();
             assertThat(oldTheme.getId()).isNull();
         }).verifyComplete();
     }
@@ -308,7 +310,7 @@ public class ThemeServiceTest {
                     assertThat(clonnedTheme.getId()).isNotEqualTo(srcTheme.getId());
                     assertThat(clonnedTheme.getDisplayName()).isEqualTo(srcTheme.getDisplayName());
                     assertThat(clonnedTheme.getApplicationId()).isNull();
-                    assertThat(clonnedTheme.getOrganizationId()).isNull();
+                    assertThat(clonnedTheme.getWorkspaceId()).isNull();
                 })
                 .verifyComplete();
     }
@@ -333,8 +335,8 @@ public class ThemeServiceTest {
                     return applicationRepository.save(application);
                 })
                 .flatMap(application ->
-                    themeService.getApplicationTheme(application.getId(), ApplicationMode.EDIT)
-                            .zipWith(themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED))
+                    themeService.getApplicationTheme(application.getId(), ApplicationMode.EDIT, null)
+                            .zipWith(themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED, null))
                 );
 
         StepVerifier.create(applicationThemesMono)
@@ -419,8 +421,8 @@ public class ThemeServiceTest {
                     return applicationRepository.save(application);
                 }).flatMap(application ->
                         themeService.publishTheme(application.getId()).then(Mono.zip(
-                                themeService.getApplicationTheme(application.getId(), ApplicationMode.EDIT),
-                                themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED)
+                                themeService.getApplicationTheme(application.getId(), ApplicationMode.EDIT, null),
+                                themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED, null)
                         ))
                 );
 
@@ -446,9 +448,9 @@ public class ThemeServiceTest {
                     application.setPublishedModeThemeId(theme.getId()); // system theme
                     return applicationRepository.save(application);
                 }).flatMap(application ->
-                        themeService.updateTheme(application.getId(), customTheme).then(Mono.zip(
-                                themeService.getApplicationTheme(application.getId(), ApplicationMode.EDIT),
-                                themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED)
+                        themeService.updateTheme(application.getId(), null, customTheme).then(Mono.zip(
+                                themeService.getApplicationTheme(application.getId(), ApplicationMode.EDIT, null),
+                                themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED, null)
                         ))
                 );
 
@@ -486,9 +488,9 @@ public class ThemeServiceTest {
                 }).flatMap(application -> {
                     Theme themeCustomization = new Theme();
                     themeCustomization.setDisplayName("Updated name");
-                    return themeService.updateTheme(application.getId(), themeCustomization).then(Mono.zip(
-                            themeService.getApplicationTheme(application.getId(), ApplicationMode.EDIT),
-                            themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED),
+                    return themeService.updateTheme(application.getId(), null, themeCustomization).then(Mono.zip(
+                            themeService.getApplicationTheme(application.getId(), ApplicationMode.EDIT, null),
+                            themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED, null),
                             Mono.just(application)
                     ));
                 });
@@ -561,7 +563,7 @@ public class ThemeServiceTest {
                 })
                 .flatMap(application ->
                         themeService.publishTheme(application.getId()).then(
-                                themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED)
+                                themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED, null)
                         )
                 );
 
@@ -588,15 +590,15 @@ public class ThemeServiceTest {
         Mono<Tuple3<List<Theme>, Theme, Application>> tuple3Mono = themeService.save(customTheme).flatMap(theme -> {
             Application application = createApplication("api_user", Set.of(MANAGE_APPLICATIONS));
             application.setEditModeThemeId(theme.getId());
-            application.setOrganizationId("theme-test-org-id");
+            application.setWorkspaceId("theme-test-org-id");
             return applicationRepository.save(application);
         }).flatMap(application -> {
             Theme theme = new Theme();
             theme.setDisplayName("My custom theme");
-            return themeService.persistCurrentTheme(application.getId(), theme)
+            return themeService.persistCurrentTheme(application.getId(), null, theme)
                     .map(theme1 -> Tuples.of(theme1, application));
         }).flatMap(persistedThemeAndApp ->
-            themeService.getApplicationThemes(persistedThemeAndApp.getT2().getId()).collectList()
+            themeService.getApplicationThemes(persistedThemeAndApp.getT2().getId(), null).collectList()
                     .map(themes -> Tuples.of(themes, persistedThemeAndApp.getT1(), persistedThemeAndApp.getT2()))
         );
 
@@ -606,7 +608,7 @@ public class ThemeServiceTest {
             Application application = tuple3.getT3();
             assertThat(availableThemes.size()).isEqualTo(5); // one custom theme + 4 system themes
             assertThat(persistedTheme.getApplicationId()).isNotEmpty(); // theme should have application id set
-            assertThat(persistedTheme.getOrganizationId()).isEqualTo("theme-test-org-id"); // theme should have org id set
+            assertThat(persistedTheme.getWorkspaceId()).isEqualTo("theme-test-org-id"); // theme should have org id set
             assertThat(policyUtils.isPermissionPresentForUser(
                     persistedTheme.getPolicies(), READ_THEMES.getValue(), "api_user")
             ).isTrue();
@@ -621,7 +623,7 @@ public class ThemeServiceTest {
     @Test
     public void persistCurrentTheme_WhenSystemThemeIsSet_NewApplicationThemeCreated() {
         Application application = createApplication("api_user", Set.of(MANAGE_APPLICATIONS));
-        application.setOrganizationId("theme-test-org-id");
+        application.setWorkspaceId("theme-test-org-id");
         Mono<Tuple2<List<Theme>, Theme>> tuple2Mono = themeService.getDefaultThemeId()
                 .flatMap(defaultThemeId -> {
                     application.setEditModeThemeId(defaultThemeId);
@@ -630,10 +632,10 @@ public class ThemeServiceTest {
                 .flatMap(savedApplication -> {
                     Theme theme = new Theme();
                     theme.setDisplayName("My custom theme");
-                    return themeService.persistCurrentTheme(savedApplication.getId(), theme)
+                    return themeService.persistCurrentTheme(savedApplication.getId(), null, theme)
                             .map(theme1 -> Tuples.of(theme1, savedApplication.getId()));
                 }).flatMap(persistedThemeAndAppId ->
-                        themeService.getApplicationThemes(persistedThemeAndAppId.getT2()).collectList()
+                        themeService.getApplicationThemes(persistedThemeAndAppId.getT2(), null).collectList()
                                 .map(themes -> Tuples.of(themes, persistedThemeAndAppId.getT1()))
                 );
 
@@ -643,7 +645,7 @@ public class ThemeServiceTest {
             assertThat(availableThemes.size()).isEqualTo(5); // one custom theme + 4 system themes
             assertThat(currentTheme.isSystemTheme()).isFalse();
             assertThat(currentTheme.getApplicationId()).isNotEmpty(); // theme should have application id set
-            assertThat(currentTheme.getOrganizationId()).isEqualTo("theme-test-org-id"); // theme should have org id set
+            assertThat(currentTheme.getWorkspaceId()).isEqualTo("theme-test-org-id"); // theme should have org id set
             assertThat(policyUtils.isPermissionPresentForUser(currentTheme.getPolicies(), READ_THEMES.getValue(), "api_user")).isTrue();
             assertThat(policyUtils.isPermissionPresentForUser(currentTheme.getPolicies(), MANAGE_THEMES.getValue(), "api_user")).isTrue();
         }).verifyComplete();
@@ -670,7 +672,7 @@ public class ThemeServiceTest {
                 .flatMap(savedApplication -> {
                     Theme themeCustomization = new Theme();
                     themeCustomization.setDisplayName("Updated name");
-                    return themeService.updateTheme(savedApplication.getId(), themeCustomization);
+                    return themeService.updateTheme(savedApplication.getId(), null, themeCustomization);
                 }).flatMap(customizedTheme -> themeService.archiveById(customizedTheme.getId()));
 
         StepVerifier.create(deleteThemeMono)
@@ -691,7 +693,7 @@ public class ThemeServiceTest {
                 .flatMap(savedApplication -> {
                     Theme themeCustomization = new Theme();
                     themeCustomization.setDisplayName("Updated name");
-                    return themeService.persistCurrentTheme(savedApplication.getId(), themeCustomization);
+                    return themeService.persistCurrentTheme(savedApplication.getId(), null, themeCustomization);
                 })
                 .flatMap(customizedTheme -> themeService.archiveById(customizedTheme.getId())
                         .then(themeService.getThemeById(customizedTheme.getId(), READ_THEMES)));
@@ -715,7 +717,7 @@ public class ThemeServiceTest {
     @Test
     public void updateName_WhenCustomTheme_NameUpdated() {
         Application application = createApplication("api_user", Set.of(MANAGE_APPLICATIONS));
-        application.setOrganizationId("test-org");
+        application.setWorkspaceId("test-org");
 
         Mono<Theme> updateThemeNameMono = themeService.getDefaultThemeId()
                 .flatMap(s -> {
@@ -725,7 +727,7 @@ public class ThemeServiceTest {
                 .flatMap(savedApplication -> {
                     Theme themeCustomization = new Theme();
                     themeCustomization.setDisplayName("old name");
-                    return themeService.persistCurrentTheme(savedApplication.getId(), themeCustomization);
+                    return themeService.persistCurrentTheme(savedApplication.getId(), null, themeCustomization);
                 })
                 .flatMap(customizedTheme -> {
                     Theme theme = new Theme();
@@ -740,8 +742,41 @@ public class ThemeServiceTest {
             assertThat(theme.getDisplayName()).isEqualTo("new display name");
             assertThat(theme.isSystemTheme()).isFalse();
             assertThat(theme.getApplicationId()).isNotNull();
-            assertThat(theme.getOrganizationId()).isEqualTo("test-org");
+            assertThat(theme.getWorkspaceId()).isEqualTo("test-org");
             assertThat(theme.getConfig()).isNotNull();
+        }).verifyComplete();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void importThemesToApplication_WhenBothImportedThemesAreCustom_NewThemesCreated() {
+        Application application = createApplication("api_user", Set.of(MANAGE_APPLICATIONS));
+        application.setOrganizationId("test-org");
+
+        // create a application json with a custom theme set as both edit mode and published mode
+        ApplicationJson applicationJson = new ApplicationJson();
+        Theme customTheme = new Theme();
+        customTheme.setName("Custom theme name");
+        customTheme.setDisplayName("Custom theme display name");
+        applicationJson.setEditModeTheme(customTheme);
+        applicationJson.setPublishedTheme(customTheme);
+
+        Mono<Application> applicationMono = themeService.getDefaultThemeId()
+                .flatMap(defaultThemeId -> {
+                    application.setEditModeThemeId(defaultThemeId);
+                    application.setPublishedModeThemeId(defaultThemeId);
+                    return applicationRepository.save(application);
+                })
+                .flatMap(savedApplication ->
+                        themeService.importThemesToApplication(savedApplication, applicationJson)
+                                .thenReturn(Objects.requireNonNull(savedApplication.getId()))
+                )
+                .flatMap(applicationId ->
+                    applicationRepository.findById(applicationId, MANAGE_APPLICATIONS)
+                );
+
+        StepVerifier.create(applicationMono).assertNext(app -> {
+            assertThat(app.getEditModeThemeId().equals(app.getPublishedModeThemeId())).isFalse();
         }).verifyComplete();
     }
 

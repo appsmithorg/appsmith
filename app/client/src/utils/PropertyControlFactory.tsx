@@ -1,5 +1,5 @@
 import { ControlType } from "constants/PropertyControlConstants";
-import {
+import BaseControl, {
   ControlBuilder,
   ControlProps,
   ControlFunctions,
@@ -8,12 +8,18 @@ import {
 
 class PropertyControlFactory {
   static controlMap: Map<ControlType, ControlBuilder<ControlProps>> = new Map();
+  static controlUIToggleValidation: Map<
+    ControlType,
+    typeof BaseControl.canDisplayValueInUI
+  > = new Map();
 
   static registerControlBuilder(
     controlType: ControlType,
     controlBuilder: ControlBuilder<ControlProps>,
+    validationFn: typeof BaseControl.canDisplayValueInUI,
   ) {
     this.controlMap.set(controlType, controlBuilder);
+    this.controlUIToggleValidation.set(controlType, validationFn);
   }
 
   static createControl(
@@ -24,10 +30,14 @@ class PropertyControlFactory {
     additionalAutoComplete?: Record<string, Record<string, unknown>>,
     hideEvaluatedValue?: boolean,
   ): JSX.Element {
-    let controlBuilder = this.controlMap.get(controlData.controlType);
+    let controlBuilder;
+
     if (preferEditor) {
-      if (customEditor) controlBuilder = this.controlMap.get(customEditor);
-      else controlBuilder = this.controlMap.get("CODE_EDITOR");
+      controlBuilder = customEditor
+        ? this.controlMap.get(customEditor)
+        : this.controlMap.get("CODE_EDITOR");
+    } else {
+      controlBuilder = this.controlMap.get(controlData.controlType);
     }
 
     if (controlBuilder) {

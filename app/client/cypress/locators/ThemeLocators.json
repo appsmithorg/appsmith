@@ -1,0 +1,13 @@
+{
+    "canvas": "#canvas-selection-0",
+    "border": ".t--theme-appBorderRadius",
+    "popover": ".bp3-popover-content",
+    "shadow": "//h3[contains(text(),'Shadow')]/following-sibling::div//button",
+    "color": ".t--property-pane-sidebar .bp3-popover-target .cursor-pointer",
+    "inputColor": ".t--colorpicker-v2-popover input",
+    "colorPicker": "[data-testid='color-picker']",
+    "greenColor": "[style='background-color: rgb(21, 128, 61);']",
+    "fontsSelected": ".leading-normal",
+    "currentTheme": ".cursor-pointer:contains('Applied Theme')",
+    "purpleColor": "[style='background-color: rgb(107,114,128);']"
+}

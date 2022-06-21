@@ -10,10 +10,12 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Theme;
@@ -34,7 +36,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
@@ -106,7 +108,7 @@ public class ApplicationForkingServiceTests {
     private DatasourceService datasourceService;
 
     @Autowired
-    private OrganizationService organizationService;
+    private WorkspaceService workspaceService;
 
     @Autowired
     private ApplicationPageService applicationPageService;
@@ -149,7 +151,7 @@ public class ApplicationForkingServiceTests {
 
     private static String sourceAppId;
 
-    private static String testUserOrgId;
+    private static String testUserWorkspaceId;
 
     private static boolean isSetupDone = false;
 
@@ -164,13 +166,13 @@ public class ApplicationForkingServiceTests {
         }
 
 
-        Organization sourceOrganization = new Organization();
-        sourceOrganization.setName("Source Organization");
-        organizationService.create(sourceOrganization).map(Organization::getId).block();
+        Workspace sourceWorkspace = new Workspace();
+        sourceWorkspace.setName("Source Workspace");
+        workspaceService.create(sourceWorkspace).map(Workspace::getId).block();
 
         Application app1 = new Application();
         app1.setName("1 - public app");
-        app1.setOrganizationId(sourceOrganization.getId());
+        app1.setWorkspaceId(sourceWorkspace.getId());
         app1.setForkingEnabled(true);
         app1 = applicationPageService.createApplication(app1).block();
         sourceAppId = app1.getId();
@@ -180,7 +182,7 @@ public class ApplicationForkingServiceTests {
         // Save action
         Datasource datasource = new Datasource();
         datasource.setName("Default Database");
-        datasource.setOrganizationId(app1.getOrganizationId());
+        datasource.setWorkspaceId(app1.getWorkspaceId());
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
@@ -202,7 +204,7 @@ public class ApplicationForkingServiceTests {
         actionCollectionDTO.setName("testCollection1");
         actionCollectionDTO.setPageId(app1.getPages().get(0).getId());
         actionCollectionDTO.setApplicationId(sourceAppId);
-        actionCollectionDTO.setOrganizationId(sourceOrganization.getId());
+        actionCollectionDTO.setWorkspaceId(sourceWorkspace.getId());
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
         actionCollectionDTO.setBody("export default {\n" +
@@ -248,7 +250,7 @@ public class ApplicationForkingServiceTests {
         layout.setDsl(parentDsl);
 
         layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
-        // Invite "usertest@usertest.com" with VIEW access, api_user will be the admin of sourceOrganization and we are
+        // Invite "usertest@usertest.com" with VIEW access, api_user will be the admin of sourceWorkspace and we are
         // controlling this with @FixMethodOrder(MethodSorters.NAME_ASCENDING) to run the TCs in a sequence.
         // Running TC in a sequence is a bad practice for unit TCs but here we are testing the invite user and then fork
         // application as a part of this flow.
@@ -257,33 +259,33 @@ public class ApplicationForkingServiceTests {
         ArrayList<String> users = new ArrayList<>();
         users.add("usertest@usertest.com");
         inviteUsersDTO.setUsernames(users);
-        inviteUsersDTO.setOrgId(sourceOrganization.getId());
+        inviteUsersDTO.setWorkspaceId(sourceWorkspace.getId());
         inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
         userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         isSetupDone = true;
     }
 
-    private static class OrganizationData {
-        Organization organization;
+    private static class WorkspaceData {
+        Workspace workspace;
         List<Application> applications = new ArrayList<>();
         List<Datasource> datasources = new ArrayList<>();
         List<ActionDTO> actions = new ArrayList<>();
     }
 
-    public Mono<OrganizationData> loadOrganizationData(Organization organization) {
-        final OrganizationData data = new OrganizationData();
-        data.organization = organization;
+    public Mono<WorkspaceData> loadWorkspaceData(Workspace workspace) {
+        final WorkspaceData data = new WorkspaceData();
+        data.workspace = workspace;
 
         return Mono
                 .when(
                         applicationService
-                                .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
+                                .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                                 .map(data.applications::add),
                         datasourceService
-                                .findAllByOrganizationId(organization.getId(), READ_DATASOURCES)
+                                .findAllByWorkspaceId(workspace.getId(), READ_DATASOURCES)
                                 .map(data.datasources::add),
-                        getActionsInOrganization(organization)
+                        getActionsInWorkspace(workspace)
                                 .map(data.actions::add)
                 )
                 .thenReturn(data);
@@ -291,15 +293,15 @@ public class ApplicationForkingServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void test1_cloneOrganizationWithItsContents() {
+    public void test1_cloneWorkspaceWithItsContents() {
 
-        Organization targetOrganization = new Organization();
-        targetOrganization.setName("Target Organization");
+        Workspace targetWorkspace = new Workspace();
+        targetWorkspace.setName("Target Workspace");
 
-        final Mono<Application> resultMono = organizationService.create(targetOrganization)
-                .map(Organization::getId)
-                .flatMap(targetOrganizationId ->
-                        applicationForkingService.forkApplicationToOrganization(sourceAppId, targetOrganizationId)
+        final Mono<Application> resultMono = workspaceService.create(targetWorkspace)
+                .map(Workspace::getId)
+                .flatMap(targetWorkspaceId ->
+                        applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspaceId)
                 );
 
         StepVerifier.create(resultMono
@@ -386,13 +388,13 @@ public class ApplicationForkingServiceTests {
     @WithUserDetails(value = "usertest@usertest.com")
     public void test2_forkApplicationWithReadApplicationUserAccess() {
 
-        Organization targetOrganization = new Organization();
-        targetOrganization.setName("test-user-organization");
+        Workspace targetWorkspace = new Workspace();
+        targetWorkspace.setName("test-user-workspace");
 
-        final Mono<Application> resultMono = organizationService.create(targetOrganization)
-                .flatMap(organization -> {
-                    testUserOrgId = organization.getId();
-                    return applicationForkingService.forkApplicationToOrganization(sourceAppId, organization.getId());
+        final Mono<Application> resultMono = workspaceService.create(targetWorkspace)
+                .flatMap(workspace -> {
+                    testUserWorkspaceId = workspace.getId();
+                    return applicationForkingService.forkApplicationToWorkspace(sourceAppId, workspace.getId());
                 });
 
         StepVerifier.create(resultMono)
@@ -407,11 +409,11 @@ public class ApplicationForkingServiceTests {
     @WithUserDetails(value = "api_user")
     public void test3_failForkApplicationWithInvalidPermission() {
 
-        final Mono<Application> resultMono = applicationForkingService.forkApplicationToOrganization(sourceAppId, testUserOrgId);
+        final Mono<Application> resultMono = applicationForkingService.forkApplicationToWorkspace(sourceAppId, testUserWorkspaceId);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.ORGANIZATION, testUserOrgId)))
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, testUserWorkspaceId)))
                 .verify();
     }
 
@@ -419,25 +421,25 @@ public class ApplicationForkingServiceTests {
     @WithUserDetails(value = "api_user")
     public void test4_validForkApplication_cancelledMidWay_createValidApplication() {
 
-        Organization targetOrganization = new Organization();
-        targetOrganization.setName("Target Organization");
-        targetOrganization = organizationService.create(targetOrganization).block();
+        Workspace targetWorkspace = new Workspace();
+        targetWorkspace.setName("Target Workspace");
+        targetWorkspace = workspaceService.create(targetWorkspace).block();
 
         // Trigger the fork application flow
-        applicationForkingService.forkApplicationToOrganization(sourceAppId, targetOrganization.getId())
+        applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId())
                 .timeout(Duration.ofMillis(10))
                 .subscribe();
 
         // Wait for fork to complete
-        Mono<Application> forkedAppFromDbMono = Mono.just(targetOrganization)
-                .flatMap(organization -> {
+        Mono<Application> forkedAppFromDbMono = Mono.just(targetWorkspace)
+                .flatMap(workspace -> {
                     try {
                         // Before fetching the forked application, sleep for 5 seconds to ensure that the forking finishes
                         Thread.sleep(5000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationService.findByOrganizationId(organization.getId(), READ_APPLICATIONS).next();
+                    return applicationService.findByWorkspaceId(workspace.getId(), READ_APPLICATIONS).next();
                 })
                 .cache();
 
@@ -518,12 +520,12 @@ public class ApplicationForkingServiceTests {
 
     @Test
     @WithUserDetails("api_user")
-    public void forkApplicationToOrganization_WhenAppHasUnsavedThemeCustomization_ForkedWithCustomizations() {
+    public void forkApplicationToWorkspace_WhenAppHasUnsavedThemeCustomization_ForkedWithCustomizations() {
         String uniqueString = UUID.randomUUID().toString();
-        Organization organization = new Organization();
-        organization.setName("org_" + uniqueString);
+        Workspace workspace = new Workspace();
+        workspace.setName("org_" + uniqueString);
 
-        Mono<Tuple4<Theme, Theme, Application, Application>> tuple4Mono = organizationService.create(organization)
+        Mono<Tuple4<Theme, Theme, Application, Application>> tuple4Mono = workspaceService.create(workspace)
                 .flatMap(createdOrg -> {
                     Application application = new Application();
                     application.setName("app_" + uniqueString);
@@ -531,20 +533,20 @@ public class ApplicationForkingServiceTests {
                 }).flatMap(srcApplication -> {
                     Theme theme = new Theme();
                     theme.setDisplayName("theme_" + uniqueString);
-                    return themeService.updateTheme(srcApplication.getId(), theme)
+                    return themeService.updateTheme(srcApplication.getId(), null, theme)
                             .then(applicationService.findById(srcApplication.getId()));
                 }).flatMap(srcApplication -> {
-                    Organization desOrg = new Organization();
+                    Workspace desOrg = new Workspace();
                     desOrg.setName("org_dest_" + uniqueString);
-                    return organizationService.create(desOrg).flatMap(createdOrg ->
-                            applicationForkingService.forkApplicationToOrganization(srcApplication.getId(), createdOrg.getId())
+                    return workspaceService.create(desOrg).flatMap(createdOrg ->
+                            applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId())
                     ).zipWith(Mono.just(srcApplication));
                 }).flatMap(applicationTuple2 -> {
                     Application forkedApp = applicationTuple2.getT1();
                     Application srcApp = applicationTuple2.getT2();
                     return Mono.zip(
-                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT),
-                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.PUBLISHED),
+                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT, null),
+                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.PUBLISHED, null),
                             Mono.just(forkedApp),
                             Mono.just(srcApp)
                     );
@@ -563,13 +565,13 @@ public class ApplicationForkingServiceTests {
             // published mode should have the custom theme as we publish after forking the app
             assertThat(publishedModeTheme.isSystemTheme()).isFalse();
             // published mode theme will have no application id and org id set as the customizations were not saved
-            assertThat(publishedModeTheme.getOrganizationId()).isNullOrEmpty();
+            assertThat(publishedModeTheme.getWorkspaceId()).isNullOrEmpty();
             assertThat(publishedModeTheme.getApplicationId()).isNullOrEmpty();
 
             // edit mode theme should be a custom one
             assertThat(editModeTheme.isSystemTheme()).isFalse();
             // edit mode theme will have no application id and org id set as the customizations were not saved
-            assertThat(editModeTheme.getOrganizationId()).isNullOrEmpty();
+            assertThat(editModeTheme.getWorkspaceId()).isNullOrEmpty();
             assertThat(editModeTheme.getApplicationId()).isNullOrEmpty();
 
             // forked theme should have the same name as src theme
@@ -584,27 +586,27 @@ public class ApplicationForkingServiceTests {
 
     @Test
     @WithUserDetails("api_user")
-    public void forkApplicationToOrganization_WhenAppHasSystemTheme_SystemThemeSet() {
+    public void forkApplicationToWorkspace_WhenAppHasSystemTheme_SystemThemeSet() {
         String uniqueString = UUID.randomUUID().toString();
-        Organization organization = new Organization();
-        organization.setName("org_" + uniqueString);
+        Workspace workspace = new Workspace();
+        workspace.setName("org_" + uniqueString);
 
-        Mono<Tuple3<Theme, Application, Application>> tuple3Mono = organizationService.create(organization)
+        Mono<Tuple3<Theme, Application, Application>> tuple3Mono = workspaceService.create(workspace)
                 .flatMap(createdOrg -> {
                     Application application = new Application();
                     application.setName("app_" + uniqueString);
                     return applicationPageService.createApplication(application, createdOrg.getId());
                 }).flatMap(srcApplication -> {
-                    Organization desOrg = new Organization();
+                    Workspace desOrg = new Workspace();
                     desOrg.setName("org_dest_" + uniqueString);
-                    return organizationService.create(desOrg).flatMap(createdOrg ->
-                            applicationForkingService.forkApplicationToOrganization(srcApplication.getId(), createdOrg.getId())
+                    return workspaceService.create(desOrg).flatMap(createdOrg ->
+                            applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId())
                     ).zipWith(Mono.just(srcApplication));
                 }).flatMap(applicationTuple2 -> {
                     Application forkedApp = applicationTuple2.getT1();
                     Application srcApp = applicationTuple2.getT2();
                     return Mono.zip(
-                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT),
+                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT, null),
                             Mono.just(forkedApp),
                             Mono.just(srcApp)
                     );
@@ -622,7 +624,7 @@ public class ApplicationForkingServiceTests {
             // edit mode theme should be system theme
             assertThat(editModeTheme.isSystemTheme()).isTrue();
             // edit mode theme will have no application id and org id set as it's system theme
-            assertThat(editModeTheme.getOrganizationId()).isNullOrEmpty();
+            assertThat(editModeTheme.getWorkspaceId()).isNullOrEmpty();
             assertThat(editModeTheme.getApplicationId()).isNullOrEmpty();
 
             // forked theme should be default theme
@@ -635,12 +637,12 @@ public class ApplicationForkingServiceTests {
 
     @Test
     @WithUserDetails("api_user")
-    public void forkApplicationToOrganization_WhenAppHasCustomSavedTheme_NewCustomThemeCreated() {
+    public void forkApplicationToWorkspace_WhenAppHasCustomSavedTheme_NewCustomThemeCreated() {
         String uniqueString = UUID.randomUUID().toString();
-        Organization organization = new Organization();
-        organization.setName("org_" + uniqueString);
+        Workspace workspace = new Workspace();
+        workspace.setName("org_" + uniqueString);
 
-        Mono<Tuple4<Theme, Theme, Application, Application>> tuple4Mono = organizationService.create(organization)
+        Mono<Tuple4<Theme, Theme, Application, Application>> tuple4Mono = workspaceService.create(workspace)
                 .flatMap(createdOrg -> {
                     Application application = new Application();
                     application.setName("app_" + uniqueString);
@@ -648,21 +650,21 @@ public class ApplicationForkingServiceTests {
                 }).flatMap(srcApplication -> {
                     Theme theme = new Theme();
                     theme.setDisplayName("theme_" + uniqueString);
-                    return themeService.updateTheme(srcApplication.getId(), theme)
-                            .then(themeService.persistCurrentTheme(srcApplication.getId(), theme))
+                    return themeService.updateTheme(srcApplication.getId(), null, theme)
+                            .then(themeService.persistCurrentTheme(srcApplication.getId(), null, theme))
                             .then(applicationService.findById(srcApplication.getId()));
                 }).flatMap(srcApplication -> {
-                    Organization desOrg = new Organization();
+                    Workspace desOrg = new Workspace();
                     desOrg.setName("org_dest_" + uniqueString);
-                    return organizationService.create(desOrg).flatMap(createdOrg ->
-                            applicationForkingService.forkApplicationToOrganization(srcApplication.getId(), createdOrg.getId())
+                    return workspaceService.create(desOrg).flatMap(createdOrg ->
+                            applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId())
                     ).zipWith(Mono.just(srcApplication));
                 }).flatMap(applicationTuple2 -> {
                     Application forkedApp = applicationTuple2.getT1();
                     Application srcApp = applicationTuple2.getT2();
                     return Mono.zip(
-                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT),
-                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.PUBLISHED),
+                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT, null),
+                            themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.PUBLISHED, null),
                             Mono.just(forkedApp),
                             Mono.just(srcApp)
                     );
@@ -682,14 +684,14 @@ public class ApplicationForkingServiceTests {
             assertThat(publishedModeTheme.isSystemTheme()).isFalse();
 
             // published mode theme will have no application id and org id set as it's a copy
-            assertThat(publishedModeTheme.getOrganizationId()).isNullOrEmpty();
+            assertThat(publishedModeTheme.getWorkspaceId()).isNullOrEmpty();
             assertThat(publishedModeTheme.getApplicationId()).isNullOrEmpty();
 
             // edit mode theme should be a custom one
             assertThat(editModeTheme.isSystemTheme()).isFalse();
 
             // edit mode theme will have application id and org id set as the customizations were saved
-            assertThat(editModeTheme.getOrganizationId()).isNullOrEmpty();
+            assertThat(editModeTheme.getWorkspaceId()).isNullOrEmpty();
             assertThat(editModeTheme.getApplicationId()).isNullOrEmpty();
 
             // forked theme should have the same name as src theme
@@ -706,27 +708,27 @@ public class ApplicationForkingServiceTests {
     @WithUserDetails(value = "api_user")
     public void forkApplication_deletePageAfterBeingPublished_deletedPageIsNotCloned() {
 
-        Organization targetOrganization = new Organization();
-        targetOrganization.setName("delete-edit-mode-page-target-org");
-        targetOrganization = organizationService.create(targetOrganization).block();
-        assert targetOrganization != null;
-        final String targetOrgId = targetOrganization.getId();
+        Workspace targetWorkspace = new Workspace();
+        targetWorkspace.setName("delete-edit-mode-page-target-org");
+        targetWorkspace = workspaceService.create(targetWorkspace).block();
+        assert targetWorkspace != null;
+        final String targetWorkspaceId = targetWorkspace.getId();
 
-        Organization srcOrganization = new Organization();
-        srcOrganization.setName("delete-edit-mode-page-src-org");
-        srcOrganization = organizationService.create(srcOrganization).block();
+        Workspace srcWorkspace = new Workspace();
+        srcWorkspace.setName("delete-edit-mode-page-src-org");
+        srcWorkspace = workspaceService.create(srcWorkspace).block();
 
         Application application = new Application();
         application.setName("delete-edit-mode-page-app");
-        assert srcOrganization != null;
-        final String originalAppId = Objects.requireNonNull(applicationPageService.createApplication(application, srcOrganization.getId()).block()).getId();
+        assert srcWorkspace != null;
+        final String originalAppId = Objects.requireNonNull(applicationPageService.createApplication(application, srcWorkspace.getId()).block()).getId();
         PageDTO pageDTO = new PageDTO();
         pageDTO.setName("delete-edit-mode-page");
         pageDTO.setApplicationId(originalAppId);
         final String pageId = Objects.requireNonNull(applicationPageService.createPage(pageDTO).block()).getId();
         final Mono<Application> resultMono = applicationPageService.publish(originalAppId, true)
                 .flatMap(ignored -> applicationPageService.deleteUnpublishedPage(pageId))
-                .flatMap(page -> applicationForkingService.forkApplicationToOrganization(pageDTO.getApplicationId(), targetOrgId));
+                .flatMap(page -> applicationForkingService.forkApplicationToWorkspace(pageDTO.getApplicationId(), targetWorkspaceId));
 
         StepVerifier.create(resultMono
                         .zipWhen(application1 -> newPageService.findNewPagesByApplicationId(application1.getId(), READ_PAGES).collectList()
@@ -750,12 +752,83 @@ public class ApplicationForkingServiceTests {
                 .verifyComplete();
     }
 
-    private Flux<ActionDTO> getActionsInOrganization(Organization organization) {
+    private Flux<ActionDTO> getActionsInWorkspace(Workspace workspace) {
         return applicationService
-                .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
+                .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                 // fetch the unpublished pages
                 .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
                 .flatMap(page -> newActionService.getUnpublishedActionsExceptJs(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void forkGitConnectedApplication_defaultBranchUpdated_forkDefaultBranchApplication() {
+        String uniqueString = UUID.randomUUID().toString();
+        Workspace workspace = new Workspace();
+        workspace.setName("org_" + uniqueString);
+
+        Mono<Application> applicationMono = workspaceService.create(workspace)
+                .flatMap(createdOrg -> {
+                    Application application = new Application();
+                    application.setName("app_" + uniqueString);
+                    return applicationPageService.createApplication(application, createdOrg.getId());
+                }).flatMap(srcApplication -> {
+                    Theme theme = new Theme();
+                    theme.setDisplayName("theme_" + uniqueString);
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    gitApplicationMetadata.setDefaultApplicationId(srcApplication.getId());
+                    gitApplicationMetadata.setBranchName("master");
+                    gitApplicationMetadata.setDefaultBranchName("feature1");
+                    gitApplicationMetadata.setIsRepoPrivate(false);
+                    gitApplicationMetadata.setRepoName("testRepo");
+                    GitAuth gitAuth = new GitAuth();
+                    gitAuth.setPublicKey("testkey");
+                    gitAuth.setPrivateKey("privatekey");
+                    gitApplicationMetadata.setGitAuth(gitAuth);
+                    srcApplication.setGitApplicationMetadata(gitApplicationMetadata);
+                    return themeService.updateTheme(srcApplication.getId(), null, theme)
+                            .then(applicationService.save(srcApplication))
+                            .flatMap(application -> {
+                                // Create a branch application
+                                Application branchApp = new Application();
+                                branchApp.setName("app_" + uniqueString);
+                                return applicationPageService.createApplication(branchApp, srcApplication.getWorkspaceId())
+                                        .zipWith(Mono.just(srcApplication));
+                            });
+                })
+                .flatMap(tuple -> {
+                    Application branchApp = tuple.getT1();
+                    Application srcApplication = tuple.getT2();
+                    GitApplicationMetadata gitApplicationMetadata1 = new GitApplicationMetadata();
+                    gitApplicationMetadata1.setDefaultApplicationId(srcApplication.getId());
+                    gitApplicationMetadata1.setBranchName("feature1");
+                    gitApplicationMetadata1.setDefaultBranchName("feature1");
+                    gitApplicationMetadata1.setIsRepoPrivate(false);
+                    gitApplicationMetadata1.setRepoName("testRepo");
+                    branchApp.setGitApplicationMetadata(gitApplicationMetadata1);
+                    return applicationService.save(branchApp)
+                            .flatMap(application -> {
+                                PageDTO page = new PageDTO();
+                                page.setName("discard-page-test");
+                                page.setApplicationId(branchApp.getId());
+                                return applicationPageService.createPage(page)
+                                        .then(Mono.just(srcApplication));
+                            });
+                })
+                .flatMap(srcApplication -> {
+                    Workspace desOrg = new Workspace();
+                    desOrg.setName("org_dest_" + uniqueString);
+
+                    return workspaceService.create(desOrg).flatMap(createdOrg ->
+                            applicationForkingService.forkApplicationToWorkspace(srcApplication.getGitApplicationMetadata().getDefaultApplicationId(), createdOrg.getId())
+                    );
+                });
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(forkedApplication -> {
+                    assertThat(forkedApplication.getPages().size()).isEqualTo(1);
+        }).verifyComplete();
     }
 }

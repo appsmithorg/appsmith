@@ -18,7 +18,7 @@ import moment from "moment";
 import styled from "styled-components";
 
 import { APP_MODE } from "entities/App";
-import OrgApi from "api/OrgApi";
+import WorkspaceApi from "api/WorkspaceApi";
 
 import {
   isPermitted,
@@ -79,12 +79,14 @@ const UnreadIndicator = styled.div`
     props.theme.colors.notifications.unreadIndicator};
 `;
 
-const getModeFromUserRole = async (orgId: string) => {
+const getModeFromUserRole = async (workspaceId: string) => {
   try {
-    const response = (await OrgApi.fetchOrg({ orgId })) as any;
-    const userOrgPermissions = response?.data?.userPermissions || [];
+    const response = (await WorkspaceApi.fetchWorkspace({
+      workspaceId,
+    })) as any;
+    const userWorkspacePermissions = response?.data?.userPermissions || [];
     const canPublish = isPermitted(
-      userOrgPermissions,
+      userWorkspacePermissions,
       PERMISSION_TYPE.PUBLISH_APPLICATION,
     );
 
@@ -119,10 +121,10 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     authorUsername,
     branchName,
     mode: modeFromComment,
-    orgId,
     pageId,
-    // resolvedState, TODO get from comment thread
     threadId,
+    // resolvedState, TODO get from comment thread
+    workspaceId,
   } = comment;
 
   const _createdAt = createdAt || creationTime;
@@ -135,7 +137,7 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
   }
 
   const handleClick = async () => {
-    const modeFromRole = await getModeFromUserRole(orgId);
+    const modeFromRole = await getModeFromUserRole(workspaceId);
     const mode = getModeFromRoleAndDomain(modeFromRole, modeFromComment);
 
     const commentThreadUrl = getCommentThreadURL({
@@ -157,7 +159,7 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     <FlexContainer onClick={handleClick}>
       <ProfileImageContainer>
         <ProfileImage
-          side={25}
+          size={25}
           source={`/api/${UserApi.photoURL}/${authorUsername}`}
           userName={displayName}
         />
@@ -196,15 +198,15 @@ function CommentThreadNotification(props: {
     branchName,
     id,
     mode: modeFromThread,
-    orgId,
     pageId,
     resolvedState,
+    workspaceId,
   } = commentThread;
 
   const commentThreadId = _id || id;
 
   const handleClick = async () => {
-    const modeFromRole = await getModeFromUserRole(orgId);
+    const modeFromRole = await getModeFromUserRole(workspaceId);
     const mode = getModeFromRoleAndDomain(modeFromRole, modeFromThread);
 
     const commentThreadUrl = getCommentThreadURL({
@@ -236,7 +238,7 @@ function CommentThreadNotification(props: {
     <FlexContainer onClick={handleClick}>
       <ProfileImageContainer>
         <ProfileImage
-          side={25}
+          size={25}
           source={`/api/${UserApi.photoURL}/${authorUsername}`}
           userName={displayName}
         />

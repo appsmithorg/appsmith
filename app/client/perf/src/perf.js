@@ -6,15 +6,15 @@ const path = require("path");
 
 const {
   delay,
-  login,
   getFormattedTime,
+  login,
   sortObjectKeys,
 } = require("./utils/utils");
 const selectors = {
   appMoreIcon: "span.t--options-icon",
-  orgImportAppOption: '[data-cy*="t--org-import-app"]',
+  workspaceImportAppOption: '[data-cy*="t--workspace-import-app"]',
   fileInput: "#fileInput",
-  importButton: '[data-cy*="t--org-import-app-button"]',
+  importButton: '[data-cy*="t--workspace-import-app-button"]',
   createNewApp: ".createnew",
 };
 module.exports = class Perf {
@@ -115,7 +115,7 @@ module.exports = class Perf {
       .pop();
 
     await this.page.evaluate(
-      async ({ pageId, dsl }) => {
+      async ({ dsl, pageId }) => {
         const layoutId = await fetch(`/api/v1/pages/${pageId}`)
           .then((response) => response.json())
           .then((data) => data.data.layouts[0].id);
@@ -151,8 +151,8 @@ module.exports = class Perf {
   importApplication = async (jsonPath) => {
     await this.page.waitForSelector(selectors.appMoreIcon);
     await this.page.click(selectors.appMoreIcon);
-    await this.page.waitForSelector(selectors.orgImportAppOption);
-    await this.page.click(selectors.orgImportAppOption);
+    await this.page.waitForSelector(selectors.workspaceImportAppOption);
+    await this.page.click(selectors.workspaceImportAppOption);
 
     const elementHandle = await this.page.$(selectors.fileInput);
     await elementHandle.uploadFile(jsonPath);
@@ -163,7 +163,7 @@ module.exports = class Perf {
 
   generateReport = async () => {
     const report = {};
-    this.traces.forEach(({ path, action }) => {
+    this.traces.forEach(({ action, path }) => {
       report[action] = {};
       const trace = require(path);
       const tasks = new Tracelib.default(trace.traceEvents);
