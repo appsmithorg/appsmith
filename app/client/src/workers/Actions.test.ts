@@ -377,6 +377,7 @@ describe("Add functions", () => {
     const resetChildren = true;
     const uniqueActionRequestId = "kjebd";
 
+    // @ts-expect-error: mockReturnValueOnce is not available on uniqueId
     uniqueId.mockReturnValueOnce(uniqueActionRequestId);
     expect(
       dataTreeWithFunctions.resetWidget(widgetName, resetChildren),
