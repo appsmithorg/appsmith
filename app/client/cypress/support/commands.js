@@ -123,12 +123,12 @@ Cypress.Commands.add("stubPostHeaderReq", () => {
 });
 
 Cypress.Commands.add(
-  "addOauthAuthDetails",
+  "addOAuth2AuthorizationCodeDetails",
   (accessTokenUrl, clientId, clientSecret, authURL) => {
     cy.get(datasource.authType).click();
     cy.get(datasource.OAuth2).click();
     cy.get(datasource.grantType).click();
-    cy.get(datasource.authorisecode).click();
+    cy.get(datasource.authorizationCode).click();
     cy.get(datasource.accessTokenUrl).type(accessTokenUrl);
     cy.get(datasource.clienID).type(clientId);
     cy.get(datasource.clientSecret).type(clientSecret);
@@ -144,6 +144,23 @@ Cypress.Commands.add(
         );
         expect(firstTxt).to.equal(expectedvalue);
       });
+  },
+);
+
+Cypress.Commands.add(
+  "addOAuth2ClientCredentialsDetails",
+  (accessTokenUrl, clientId, clientSecret, scope) => {
+    cy.get(datasource.authType).click();
+    cy.get(datasource.OAuth2).click();
+    cy.xpath("//span[text()='Client Credentials']").should("be.visible");
+    cy.get(datasource.accessTokenUrl).type(accessTokenUrl);
+    cy.get(datasource.clienID).type(clientId);
+    cy.get(datasource.clientSecret).type(clientSecret);
+    cy.get(datasource.scope).type(scope);
+    cy.get(datasource.clientAuthentication).should("be.visible");
+    cy.xpath("//span[text()='Send client credentials in body']").should(
+      "be.visible",
+    );
   },
 );
 
