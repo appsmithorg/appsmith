@@ -24,7 +24,7 @@ import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
-import AppEngine, { AppEnginePayload, IAppEngine } from "entities/Engine";
+import AppEngine, { AppEnginePayload } from "entities/Engine";
 import AppEngineFactory from "entities/Engine/factory";
 
 export function* failFastApiCalls(
