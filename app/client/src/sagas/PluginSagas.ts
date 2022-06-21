@@ -4,7 +4,7 @@ import {
   ReduxActionErrorTypes,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import PluginsApi, { PluginFormPayload } from "api/PluginApi";
+import PluginsApi, { DefaultPlugin, PluginFormPayload } from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import {
@@ -26,7 +26,7 @@ import {
   defaultActionSettings,
   defaultDatasourceFormButtonConfig,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { GenericApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
 import log from "loglevel";
 import { PluginType } from "entities/Action";
@@ -41,14 +41,17 @@ function* fetchPluginsSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
 ) {
   try {
-    let workspaceId = yield select(getCurrentWorkspaceId);
+    let workspaceId: string = yield select(getCurrentWorkspaceId);
     if (action.payload?.workspaceId) workspaceId = action.payload?.workspaceId;
 
     if (!workspaceId) {
       throw Error("Org id does not exist");
     }
-    const pluginsResponse = yield call(PluginsApi.fetchPlugins, workspaceId);
-    const isValid = yield validateResponse(pluginsResponse);
+    const pluginsResponse: ApiResponse<Plugin[]> = yield call(
+      PluginsApi.fetchPlugins,
+      workspaceId,
+    );
+    const isValid: boolean = yield validateResponse(pluginsResponse);
     if (isValid) {
       yield put({
         type: ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
@@ -79,9 +82,7 @@ function* fetchPluginFormConfigsSaga() {
       pluginIdFormsToFetch.add(apiPlugin.id);
     }
     const pluginFormData: PluginFormPayload[] = [];
-    const pluginFormResponses: GenericApiResponse<
-      PluginFormPayload
-    >[] = yield all(
+    const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield all(
       [...pluginIdFormsToFetch].map((id) =>
         call(PluginsApi.fetchFormConfig, id),
       ),
@@ -159,9 +160,12 @@ function* fetchPluginFormConfigsSaga() {
 export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
   try {
     const plugin: Plugin = yield select(getPlugin, pluginId);
-    const formConfig = yield select(getPluginForm, pluginId);
+    const formConfig: Record<string, unknown> = yield select(
+      getPluginForm,
+      pluginId,
+    );
     if (!formConfig) {
-      const formConfigResponse: GenericApiResponse<PluginFormPayload> = yield PluginApi.fetchFormConfig(
+      const formConfigResponse: ApiResponse<PluginFormPayload> = yield PluginApi.fetchFormConfig(
         pluginId,
       );
       yield validateResponse(formConfigResponse);
@@ -205,8 +209,10 @@ function* getPluginFormConfig({ id }: GetPluginFormConfigParams) {
 
 function* getDefaultPluginsSaga() {
   try {
-    const response = yield call(PluginsApi.fetchDefaultPlugins);
-    const isValid = yield validateResponse(response);
+    const response: ApiResponse<DefaultPlugin> = yield call(
+      PluginsApi.fetchDefaultPlugins,
+    );
+    const isValid: boolean = yield validateResponse(response);
     if (isValid) {
       yield put({
         type: ReduxActionTypes.GET_DEFAULT_PLUGINS_SUCCESS,
