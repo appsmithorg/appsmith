@@ -19,11 +19,3 @@
     owner: root
     group: root
   become: yes
-
-- name: create group {{ default_user }}
-  group: name={{ default_user }} state=present
-  become: yes
-
-- name: create user {{ default_group }}
-  user: name={{ default_user }} groups={{ default_group }}
-  become: yes
