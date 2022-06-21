@@ -309,7 +309,7 @@ export function* logSuccessfulBindings(
   if (!evaluationOrder) return;
 
   if (isCreateFirstTree) {
-    // we only aim to log binding success which were adding by user
+    // we only aim to log binding success which were added by user
     // for first evaluation, bindings are not added by user hence skipping it.
     return;
   }
@@ -324,6 +324,7 @@ export function* logSuccessfulBindings(
       const isABinding = find(entity.dynamicBindingPathList, {
         key: propertyPath,
       });
+
       const logBlackList = entity.logBlackList;
       const errors: EvaluationError[] = get(
         dataTree,
