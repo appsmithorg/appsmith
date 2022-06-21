@@ -83,6 +83,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         widgetProps.parentColumnSpace = props.parentColumnSpace;
         widgetProps.parentRowSpace = props.parentRowSpace;
         widgetProps.parentId = props.parentId;
+
+        // Form Widget Props
+        widgetProps.onReset = props.onReset;
+        widgetProps.isFormValid = props.isFormValid;
       }
 
       widgetProps.children = children;

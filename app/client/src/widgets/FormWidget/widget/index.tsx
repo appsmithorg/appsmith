@@ -91,16 +91,23 @@ class FormWidget extends ContainerWidget {
     return formData;
   }
 
-  renderChildWidget(childWidgetData: CanvasWidgetStructure): React.ReactNode {
-    if (childWidgetData.children) {
-      const isInvalid = this.checkInvalidChildren(childWidgetData.children);
-      childWidgetData.children.forEach((grandChild: CanvasWidgetStructure) => {
+  renderChildWidget(): React.ReactNode {
+    const childContainer = this.getChildContainer();
+
+    if (childContainer.children) {
+      const isInvalid = this.checkInvalidChildren(childContainer.children);
+      childContainer.children.forEach((grandChild: WidgetProps) => {
         if (isInvalid) grandChild.isFormValid = false;
         // Add submit and reset handlers
         grandChild.onReset = this.handleResetInputs;
+        grandChild.skipWidgetPropsHydration = true;
       });
     }
-    return super.renderChildWidget(childWidgetData);
+
+    // TODO(Ashit): Fix this
+    // eslint-disable-next-line
+    // @ts-ignore
+    return super.renderChildWidget(childContainer);
   }
 
   static getWidgetType(): WidgetType {
