@@ -1,6 +1,6 @@
 import Api from "./Api";
 import { AxiosPromise } from "axios";
-import { GenericApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import { Datasource } from "entities/Datasource";
 
 class OAuthApi extends Api {
@@ -11,7 +11,7 @@ class OAuthApi extends Api {
     datasourceId: string,
     pageId: string,
     isImport?: boolean,
-  ): AxiosPromise<GenericApiResponse<string>> {
+  ): AxiosPromise<ApiResponse<string>> {
     const isImportQuery = isImport ? "?importForGit=true" : "";
     return Api.post(
       `${OAuthApi.url}/${datasourceId}/pages/${pageId}/oauth${isImportQuery}`,
@@ -22,7 +22,7 @@ class OAuthApi extends Api {
   static getAccessToken(
     datasourceId: string,
     token: string,
-  ): AxiosPromise<GenericApiResponse<Datasource>> {
+  ): AxiosPromise<ApiResponse<Datasource>> {
     return Api.post(
       `${OAuthApi.url}/${datasourceId}/token?appsmithToken=${token}`,
     );

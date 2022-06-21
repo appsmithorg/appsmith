@@ -687,6 +687,22 @@ export const captureInvalidDynamicBindingPath = (
   return currentDSL;
 };
 
+/**
+ * Function to handle undefined returned in case of using [].find()
+ * @param result
+ * @param errorMessage
+ * @returns the result if not undefined or throws an Error
+ */
+export function shouldBeDefined<T>(
+  result: T | undefined | null,
+  errorMessage: string,
+): T {
+  if (result === undefined || result === null) {
+    throw new TypeError(errorMessage);
+  }
+
+  return result;
+}
 /*
  * Check if a value is null / undefined / empty string
  *
