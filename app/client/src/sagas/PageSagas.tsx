@@ -2,7 +2,6 @@ import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { AppState } from "reducers";
 import {
   Page,
-  PageListPayload,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -36,7 +35,6 @@ import PageApi, {
   FetchPageRequest,
   FetchPageResponse,
   FetchPublishedPageRequest,
-  FetchPublishedPageResponse,
   PageLayout,
   SavePageResponse,
   SetPageOrderRequest,
@@ -44,7 +42,10 @@ import PageApi, {
   UpdateWidgetNameRequest,
   UpdateWidgetNameResponse,
 } from "api/PageApi";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   all,
   call,
@@ -66,7 +67,7 @@ import {
 } from "./selectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { IncorrectBindingError, validateResponse } from "./ErrorSagas";
-import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import {
   getCurrentApplicationId,
   getCurrentLayoutId,
@@ -115,6 +116,7 @@ import {
 
 import WidgetFactory from "utils/WidgetFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { builderURL, generateTemplateURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 
@@ -139,7 +141,7 @@ export function* fetchPageListSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const workspaceId = response.data.workspaceId;
-      const pages: PageListPayload = response.data.pages.map((page) => ({
+      const pages: Page[] = response.data.pages.map((page) => ({
         pageName: page.name,
         pageId: page.id,
         isDefault: page.isDefault,
@@ -213,7 +215,7 @@ export function* handleFetchedPage({
   pageId: string;
   isFirstLoad?: boolean;
 }) {
-  const isValidResponse = yield validateResponse(fetchPageResponse);
+  const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
   const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
   const lastUpdatedTime = getLastUpdateTime(fetchPageResponse);
   const pageSlug = fetchPageResponse.data.slug;
@@ -314,7 +316,7 @@ export function* fetchPublishedPageSaga(
       pageId,
       bustCache,
     };
-    const response: FetchPublishedPageResponse = yield call(
+    const response: FetchPageResponse = yield call(
       PageApi.fetchPublishedPage,
       request,
     );
@@ -363,7 +365,7 @@ export function* fetchPublishedPageSaga(
 
 export function* fetchAllPublishedPagesSaga() {
   try {
-    const pageIds = yield select(getAllPageIds);
+    const pageIds: string[] = yield select(getAllPageIds);
     yield all(
       pageIds.map((pageId: string) => {
         return call(PageApi.fetchPublishedPage, { pageId, bustCache: true });
@@ -375,9 +377,14 @@ export function* fetchAllPublishedPagesSaga() {
 }
 
 function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
-  const widgets = yield select(getWidgets);
-  const editorConfigs = yield select(getEditorConfigs) as any;
-  const guidedTourEnabled = yield select(inGuidedTour);
+  const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const editorConfigs:
+    | {
+        pageId: string;
+        layoutId: string;
+      }
+    | undefined = yield select(getEditorConfigs) as any;
+  const guidedTourEnabled: boolean = yield select(inGuidedTour);
   const savePageRequest = getLayoutSavePayload(widgets, editorConfigs);
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SAVE_PAGE_API,
@@ -536,7 +543,7 @@ export function* createPageSaga(
   createPageAction: ReduxAction<CreatePageActionPayload>,
 ) {
   try {
-    const guidedTourEnabled = yield select(inGuidedTour);
+    const guidedTourEnabled: boolean = yield select(inGuidedTour);
     // Prevent user from creating a new page during the guided tour
     if (guidedTourEnabled) {
       yield put(toggleShowDeviationDialog(true));
@@ -661,7 +668,7 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_PAGE_ERROR,
       payload: {
-        error: { message: error.message, show: true },
+        error: { message: (error as Error).message, show: true },
         show: true,
       },
     });
@@ -728,10 +735,12 @@ export function* updateWidgetNameSaga(
 ) {
   try {
     const { widgetName } = yield select(getWidgetName, action.payload.id);
-    const layoutId = yield select(getCurrentLayoutId);
-    const evalTree = yield select(getDataTree);
-    const pageId = yield select(getCurrentPageId);
-    const existingPageNames = yield select(getExistingPageNames);
+    const layoutId: string | undefined = yield select(getCurrentLayoutId);
+    const evalTree: DataTree = yield select(getDataTree);
+    const pageId: string | undefined = yield select(getCurrentPageId);
+    const existingPageNames: Record<string, unknown> = yield select(
+      getExistingPageNames,
+    );
 
     // TODO(abhinav): Why do we need to jump through these hoops just to
     // change the tab name? Figure out a better design to make this moot.
@@ -769,7 +778,7 @@ export function* updateWidgetNameSaga(
     if (tabsObj !== undefined) {
       const tabs: any = Object.values(tabsObj);
       // Get all canvas widgets
-      const stateWidgets = yield select(getWidgets);
+      const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
       // Shallow copy canvas widgets as they're immutable
       const widgets = { ...stateWidgets };
       // Get the parent Id of the tab (canvas widget) whose name we're updating
@@ -780,6 +789,7 @@ export function* updateWidgetNameSaga(
         tabName: action.payload.newName,
       };
       // Shallow copy the parent widget so that we can update the properties
+      // @ts-expect-error parentId can be undefined
       const parent = { ...widgets[parentId] };
       // Update the tabs property of the parent tabs widget
       const tabToChange = tabs.find(
@@ -796,6 +806,7 @@ export function* updateWidgetNameSaga(
         },
       };
       // replace the parent widget in the canvas widgets
+      // @ts-expect-error parentId can be undefined
       widgets[parentId] = parent;
       // Update and save the new widgets
       yield put(updateAndSaveLayout(widgets));
@@ -813,7 +824,9 @@ export function* updateWidgetNameSaga(
         const request: UpdateWidgetNameRequest = {
           newName: action.payload.newName,
           oldName: widgetName,
+          // @ts-expect-error: pageId can be undefined
           pageId,
+          // @ts-expect-error: layoutId can be undefined
           layoutId,
         };
         const response: UpdateWidgetNameResponse = yield call(
@@ -822,6 +835,7 @@ export function* updateWidgetNameSaga(
         );
         const isValidResponse: boolean = yield validateResponse(response);
         if (isValidResponse) {
+          // @ts-expect-error: pageId can be undefined
           yield updateCanvasWithDSL(response.data, pageId, layoutId);
           yield put(updateWidgetNameSuccess());
           // Add this to the page DSLs for entity explorer
@@ -860,8 +874,9 @@ export function* updateCanvasWithDSL(
   layoutId: string,
 ) {
   const normalizedWidgets = CanvasWidgetsNormalizer.normalize(data.dsl);
-  const currentPageName = yield select(getCurrentPageName);
-  const applicationId = yield select(getCurrentApplicationId);
+  const currentPageName: string = yield select(getCurrentPageName);
+
+  const applicationId: string = yield select(getCurrentApplicationId);
   const canvasWidgetsPayload: UpdateCanvasPayload = {
     pageWidgetId: normalizedWidgets.result,
     currentPageName,
@@ -926,7 +941,7 @@ export function* populatePageDSLsSaga() {
     const pageIds: string[] = yield select((state: AppState) =>
       state.entities.pageList.pages.map((page: Page) => page.pageId),
     );
-    const pageDSLs = yield all(
+    const pageDSLs: unknown = yield all(
       pageIds.map((pageId: string) => {
         return call(fetchPageDSLSaga, pageId);
       }),
@@ -954,11 +969,12 @@ export function* setPageOrderSaga(action: ReduxAction<SetPageOrderRequest>) {
   try {
     const request: SetPageOrderRequest = action.payload;
     const response: ApiResponse = yield call(PageApi.setPageOrder, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.SET_PAGE_ORDER_SUCCESS,
         payload: {
+          // @ts-expect-error: response.data is of type unknown
           pages: response.data.pages,
         },
       });
@@ -979,7 +995,7 @@ export function* generateTemplatePageSaga(
   try {
     const request: GenerateTemplatePageRequest = action.payload;
     // if pageId is available in request, it will just update that page else it will generate new page.
-    const response: GenericApiResponse<{
+    const response: ApiResponse<{
       page: any;
       successImageUrl: string;
       successMessage: string;
@@ -1013,7 +1029,7 @@ export function* generateTemplatePageSaga(
         fetchJSCollectionsForPage(pageId),
       ];
 
-      const afterActionsFetch = yield failFastApiCalls(
+      const afterActionsFetch: unknown = yield failFastApiCalls(
         triggersAfterPageFetch,
         [
           fetchActionsForPageSuccess([]).type,

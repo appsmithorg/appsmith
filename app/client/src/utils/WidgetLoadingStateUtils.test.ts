@@ -24,6 +24,7 @@ const JS_object_tree: DataTreeJSAction = {
   dependencyMap: {},
 };
 
+// @ts-expect-error: meta property not provided
 const Select_tree: DataTreeWidget = {
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   bindingPaths: {},
