@@ -1,4 +1,4 @@
-import { find, get, pick, set } from "lodash";
+import { find, get, pick, set, compact } from "lodash";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
 
@@ -12,6 +12,7 @@ import { getSelectedWidget, getSelectedWidgets } from "./ui";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { generateClassName } from "utils/generators";
+import { getWidgets } from "sagas/selectors";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -72,6 +73,17 @@ export const getWidgetPropsForPropertyPaneView = createSelector(
       "widgetName",
       "displayName",
     ]) as WidgetPropertiesForPropertyPaneView,
+);
+
+export const selectedWidgetsPresentInCanvas = createSelector(
+  getWidgets,
+  getSelectedWidgets,
+  // Make sure the widgets in selectedWidgets still exists in the canvasWidgets
+  (canvasWidgets, selectedWidgets) => {
+    return compact(
+      selectedWidgets.map((widgetId) => get(canvasWidgets, widgetId)?.widgetId),
+    );
+  },
 );
 
 const populateWidgetProperties = (
