@@ -303,7 +303,7 @@ export function* logSuccessfulBindings(
   dataTree: DataTree,
   evaluationOrder: string[],
 ) {
-  const appMode: APP_MODE = yield select(getAppMode);
+  const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
   if (!evaluationOrder) return;
   evaluationOrder.forEach((evaluatedPath) => {

@@ -380,6 +380,7 @@ describe(".getStylesheetValue", () => {
     ];
 
     inputAndExpectedOutput.forEach(([input, expectedOutput]) => {
+      //@ts-expect-error: type mismatch
       const result = getStylesheetValue(props, input, {
         childStylesheet: schemaTestData.fieldThemeStylesheets,
       });
