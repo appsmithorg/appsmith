@@ -309,9 +309,8 @@ export function* logSuccessfulBindings(
   if (!evaluationOrder) return;
 
   if (isCreateFirstTree) {
-    AnalyticsUtil.logEvent("INITIAL_EVALUATION_ORDER", {
-      evaluationOrder,
-    });
+    // we only aim to log binding success which were adding by user
+    // for first evaluation, bindings are not added by user hence skipping it.
     return;
   }
   evaluationOrder.forEach((evaluatedPath) => {
