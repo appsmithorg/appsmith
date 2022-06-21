@@ -5,9 +5,9 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
@@ -27,9 +27,9 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
@@ -42,8 +42,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.WidgetSuggestionHelper;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -52,9 +52,9 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -79,6 +79,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -772,6 +773,8 @@ public class ActionServiceCE_Test {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
                     assertThat(result.getStatusCode()).isEqualTo(pluginException.getAppErrorCode().toString());
                     assertThat(result.getTitle()).isEqualTo(pluginException.getTitle());
+                    assertThat(result.getRequest().getActionId()).isEqualTo(createdAction.getId());
+                    assertThat(result.getRequest().getRequestedAt()).isBefore(Instant.now());
                 })
                 .verifyComplete();
     }
@@ -1027,6 +1030,8 @@ public class ActionServiceCE_Test {
                     assertThat(result.getSuggestedWidgets().size()).isEqualTo(expectedWidgets.size());
                     assertThat(result.getSuggestedWidgets().containsAll(expectedWidgets));
                     assertThat(expectedWidgets.containsAll(result.getSuggestedWidgets()));
+                    assertThat(result.getRequest().getActionId()).isEqualTo(executeActionDTO.getActionId());
+                    assertThat(result.getRequest().getRequestedAt()).isBefore(Instant.now());
                 })
                 .verifyComplete();
     }
