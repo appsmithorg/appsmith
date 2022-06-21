@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @EqualsAndHashCode
-@Getter
-@Setter
 @NoArgsConstructor
 @Data
 public class UserInGroup {
