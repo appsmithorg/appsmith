@@ -51,6 +51,7 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
         payload: response.data,
       });
 
+      // @ts-expect-error: response.data is of type unknown
       history.push(apiEditorIdURL({ pageId, apiId: response.data.id }));
     }
   } catch (error) {

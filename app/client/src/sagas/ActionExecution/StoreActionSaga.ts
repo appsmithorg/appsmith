@@ -10,14 +10,15 @@ import { getAppStoreData } from "selectors/entitiesSelector";
 import { StoreValueActionDescription } from "entities/DataTree/actionTriggers";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { ReduxActionTypes } from "../../ce/constants/ReduxActionConstants";
+import { AppStoreState } from "reducers/entityReducers/appReducer";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export default function* storeValueLocally(
   action: StoreValueActionDescription["payload"],
 ) {
   if (action.persist) {
-    const applicationId = yield select(getCurrentApplicationId);
-    const branch = yield select(getCurrentGitBranch);
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const branch: string | undefined = yield select(getCurrentGitBranch);
     const appStoreName = getAppStoreName(applicationId, branch);
     const existingStore = localStorage.getItem(appStoreName) || "{}";
     const parsedStore = JSON.parse(existingStore);
@@ -29,7 +30,7 @@ export default function* storeValueLocally(
       text: `store('${action.key}', '${action.value}', true)`,
     });
   } else {
-    const existingStore = yield select(getAppStoreData);
+    const existingStore: AppStoreState = yield select(getAppStoreData);
     const newTransientStore = {
       ...existingStore.transient,
       [action.key]: action.value,
