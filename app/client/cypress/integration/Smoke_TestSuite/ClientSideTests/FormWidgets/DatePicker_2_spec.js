@@ -94,7 +94,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       "contain.value",
       "4 May, 2021",
     );
-    cy.get(".t--widget-datepickerwidget2 .bp3-input").trigger("focus");
+    cy.get(".t--widget-datepickerwidget2 .bp3-input").click({ force: true });
     cy.get(".DayPicker-NavButton--next").click({ force: true });
     cy.get(".t--widget-datepickerwidget2 .bp3-input").should(
       "contain.value",
