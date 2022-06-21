@@ -11,6 +11,12 @@
   user: name={{ cloud_user }} groups={{ cloud_group }}
   become: yes
 
+
+- name: create user {{ default_user }}
+  user: name={{ default_user }} groups={{ cloud_group }}
+  become: yes
+
+
 - name: add sudoers group for user {{ cloud_user }}
   copy:
     content: 'appsmith ALL=(ALL) NOPASSWD: ALL'
