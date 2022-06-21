@@ -142,8 +142,7 @@ describe("getReactivePathsOfAction", () => {
       },
     };
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     const response = getBindingAndReactivePathsOfAction(basicAction, config)
       .reactivePaths;
     expect(response).toStrictEqual({
@@ -199,8 +198,7 @@ describe("getReactivePathsOfAction", () => {
       },
     };
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     const response = getBindingAndReactivePathsOfAction(basicAction, config)
       .reactivePaths;
     expect(response).toStrictEqual({

@@ -14,6 +14,7 @@ import {
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
+import { FlattenedWidgetProps } from "widgets/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getDataTree } from "../../selectors/dataTreeSelectors";
 
@@ -30,7 +31,11 @@ export default function* resetWidgetActionSaga(
     );
   }
   const dataTree = yield select(getDataTree);
-  const widget = yield select(getWidgetByName, widgetName);
+
+  const widget: FlattenedWidgetProps | undefined = yield select(
+    getWidgetByName,
+    widgetName,
+  );
   if (!widget) {
     throw new TriggerFailureError(`Widget ${payload.widgetName} not found`);
   }

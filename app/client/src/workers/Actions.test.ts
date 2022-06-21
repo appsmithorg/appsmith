@@ -11,6 +11,7 @@ describe("Add functions", () => {
   const dataTree: DataTree = {
     action1: {
       actionId: "123",
+      pluginId: "",
       data: {},
       config: {},
       datasourceUrl: "",
@@ -52,8 +53,8 @@ describe("Add functions", () => {
     expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
       payload: {
         actionId: "123",
-        onError: 'function () { return "failure"; }',
-        onSuccess: 'function () { return "success"; }',
+        onError: '() => "failure"',
+        onSuccess: '() => "success"',
         params: {
           param1: "value1",
         },
@@ -72,7 +73,7 @@ describe("Add functions", () => {
       payload: {
         actionId: "123",
         onError: undefined,
-        onSuccess: 'function () { return "success"; }',
+        onSuccess: '() => "success"',
         params: {
           param1: "value1",
         },
@@ -89,7 +90,7 @@ describe("Add functions", () => {
     expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
       payload: {
         actionId: "123",
-        onError: 'function () { return "failure"; }',
+        onError: '() => "failure"',
         onSuccess: undefined,
         params: {
           param1: "value1",
@@ -302,6 +303,7 @@ describe("Add functions", () => {
     const persist = false;
     const uniqueActionRequestId = "kjebd";
 
+    // @ts-expect-error: mockReturnValueOnce is not available on uniqueId
     uniqueId.mockReturnValueOnce(uniqueActionRequestId);
 
     expect(dataTreeWithFunctions.storeValue(key, value, persist)).resolves.toBe(
@@ -406,7 +408,7 @@ describe("Add functions", () => {
       expect.arrayContaining([
         expect.objectContaining({
           payload: {
-            callback: 'function () { return "test"; }',
+            callback: '() => "test"',
             id: "myInterval",
             interval: 5000,
           },

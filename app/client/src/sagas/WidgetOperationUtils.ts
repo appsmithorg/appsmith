@@ -1432,6 +1432,10 @@ export function* createWidgetCopy(widget: FlattenedWidgetProps) {
   };
 }
 
+export type WidgetsInTree = (WidgetProps & {
+  children?: string[] | undefined;
+})[];
+
 /**
  * get all widgets in tree
  *
@@ -1442,7 +1446,7 @@ export function* createWidgetCopy(widget: FlattenedWidgetProps) {
 export const getAllWidgetsInTree = (
   widgetId: string,
   canvasWidgets: CanvasWidgetsReduxState,
-) => {
+): WidgetsInTree => {
   const widget = canvasWidgets[widgetId];
   const widgetList = [widget];
   if (widget && widget.children) {
