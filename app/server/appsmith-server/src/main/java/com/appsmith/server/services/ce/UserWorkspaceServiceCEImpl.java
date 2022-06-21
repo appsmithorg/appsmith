@@ -11,20 +11,24 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.domains.UserInGroup;
 import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.UserAndGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.UserGroupService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -37,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 
@@ -50,17 +55,19 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final PolicyUtils policyUtils;
     private final EmailSender emailSender;
     private final UserDataService userDataService;
+    private final UserGroupService userGroupService;
 
     private static final String UPDATE_ROLE_EXISTING_USER_TEMPLATE = "email/updateRoleExistingUserTemplate.html";
 
     @Autowired
     public UserWorkspaceServiceCEImpl(SessionUserService sessionUserService,
-                                         WorkspaceRepository workspaceRepository,
-                                         UserRepository userRepository,
-                                         UserDataRepository userDataRepository,
-                                         PolicyUtils policyUtils,
-                                         EmailSender emailSender,
-                                         UserDataService userDataService) {
+                                      WorkspaceRepository workspaceRepository,
+                                      UserRepository userRepository,
+                                      UserDataRepository userDataRepository,
+                                      PolicyUtils policyUtils,
+                                      EmailSender emailSender,
+                                      UserDataService userDataService,
+                                      UserGroupService userGroupService) {
         this.sessionUserService = sessionUserService;
         this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
@@ -68,6 +75,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         this.policyUtils = policyUtils;
         this.emailSender = emailSender;
         this.userDataService = userDataService;
+        this.userGroupService = userGroupService;
     }
 
     /**
@@ -490,5 +498,62 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 // data sources/applications/pages/actions/action collections/comment threads
                 // have been updated. Just save the workspace now
                 .then(workspaceRepository.save(updatedWorkspace));
+    }
+
+    @Override
+    public Mono<List<UserAndGroupDTO>> getWorkspaceMembers(String workspaceId) {
+
+        // Read the workspace
+        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, AclPermission.READ_WORKSPACES);
+
+        // Get default user group ids
+        Mono<Set<String>> defaultUserGroups = workspaceMono
+                .flatMap(workspace -> Mono.just(workspace.getDefaultUserGroups()));
+
+        // Get default user groups
+        Flux<UserGroup> userGroupFlux = defaultUserGroups
+                .flatMapMany(userGroupIds -> userGroupService.getAllByIds(userGroupIds, AclPermission.READ_USER_GROUPS));
+
+        // Create a list of UserAndGroupDTO from UserGroup list
+        Mono<List<UserAndGroupDTO>> userAndGroupDTOsMono = userGroupFlux
+                .collectList()
+                .map(this::mapUserGroupListToUserAndGroupDTOList).cache();
+
+        // Create a map of User.username to User
+        Mono<Map<String, User>> userMapMono = userAndGroupDTOsMono
+                .flatMapMany(Flux::fromIterable)
+                .map(UserAndGroupDTO::getUsername)
+                .collect(Collectors.toSet())
+                .flatMapMany(usernames -> userRepository.findAllByEmails(usernames, AclPermission.READ_USERS))
+                .collectMap(User::getUsername).cache();
+
+        // Update name in the list of UserAndGroupDTO
+        userAndGroupDTOsMono = userAndGroupDTOsMono
+                .flatMapMany(Flux::fromIterable)
+                .zipWith(userMapMono)
+                .map(tuple -> {
+                    UserAndGroupDTO userAndGroupDTO = tuple.getT1();
+                    Map<String, User> userMap = tuple.getT2();
+                    userAndGroupDTO.setName(userMap.get(userAndGroupDTO.getUsername()).getName()); // update name
+                    return userAndGroupDTO;
+                }).collectList().cache();
+
+        return userAndGroupDTOsMono;
+    }
+
+    private List<UserAndGroupDTO> mapUserGroupListToUserAndGroupDTOList(List<UserGroup> userGroupList) {
+        Set<UserInGroup> userInGroups = new HashSet<>(); // Set of already collected users
+        List<UserAndGroupDTO> userAndGroupDTOList = new ArrayList<>();
+        userGroupList.forEach(userGroup -> {
+            userGroup.getUsers().stream().filter(userInGroup -> !userInGroups.contains(userInGroup)).forEach(userInGroup -> {
+                userAndGroupDTOList.add(UserAndGroupDTO.builder()
+                        .username(userInGroup.getUsername())
+                        .groupName(userGroup.getName())
+                        .groupId(userGroup.getId())
+                        .build()); // collect user
+                userInGroups.add(userInGroup); // update set of already collected users
+            });
+        });
+        return userAndGroupDTOList;
     }
 }

@@ -17,7 +17,6 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.Permission;
-import com.appsmith.server.dtos.UserAndGroupDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -35,7 +34,6 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.RbacPolicyService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserGroupService;
-import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,10 +46,8 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-import retrofit.http.HEAD;
 
 import javax.validation.Validator;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -89,7 +85,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final PermissionGroupService permissionGroupService;
     private final RbacPolicyService rbacPolicyService;
     private final PolicyUtils policyUtils;
-    private final UserService userService;
 
 
     @Autowired
@@ -110,8 +105,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                   UserGroupService userGroupService,
                                   PermissionGroupService permissionGroupService,
                                   RbacPolicyService rbacPolicyService,
-                                  PolicyUtils policyUtils,
-                                  UserService userService) {
+                                  PolicyUtils policyUtils) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pluginRepository = pluginRepository;
@@ -126,7 +120,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         this.permissionGroupService = permissionGroupService;
         this.rbacPolicyService = rbacPolicyService;
         this.policyUtils = policyUtils;
-        this.userService = userService;
     }
 
     @Override
@@ -571,63 +564,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
                     return Mono.just(appsmithRolesMap);
                 });
-    }
-
-    private List<UserAndGroupDTO> mapUserGroupListToUserAndGroupDTOList(List<UserGroup> userGroupList) {
-        Set<UserInGroup> userInGroups = new HashSet<>(); // Set of already collected users
-        List<UserAndGroupDTO> userAndGroupDTOList = new ArrayList<>();
-        userGroupList.forEach(userGroup -> {
-            userGroup.getUsers().stream().filter(userInGroup -> !userInGroups.contains(userInGroup)).forEach(userInGroup -> {
-                userAndGroupDTOList.add(UserAndGroupDTO.builder()
-                        .username(userInGroup.getUsername())
-                        .groupName(userGroup.getName())
-                        .groupId(userGroup.getId())
-                        .build()); // collect user
-                userInGroups.add(userInGroup); // update set of already collected users
-            });
-        });
-        return userAndGroupDTOList;
-    }
-
-    @Override
-    public Mono<List<UserAndGroupDTO>> getWorkspaceMembers(String workspaceId) {
-
-        // Read the workspace
-        Mono<Workspace> workspaceMono = repository.findById(workspaceId, AclPermission.READ_WORKSPACES);
-
-        // Get default user group ids
-        Mono<Set<String>> defaultUserGroups = workspaceMono
-                .flatMap(workspace -> Mono.just(workspace.getDefaultUserGroups()));
-
-        // Get default user groups
-        Flux<UserGroup> userGroupFlux = defaultUserGroups
-                .flatMapMany(userGroupIds -> userGroupService.getAllByIds(userGroupIds, AclPermission.READ_USER_GROUPS));
-
-        // Create a list of UserAndGroupDTO from UserGroup list
-        Mono<List<UserAndGroupDTO>> userAndGroupDTOsMono = userGroupFlux
-                .collectList()
-                .map(this::mapUserGroupListToUserAndGroupDTOList).cache();
-
-        // Create a map of User.username to User
-        Mono<Map<String, User>> userMapMono = userAndGroupDTOsMono
-                .flatMapMany(Flux::fromIterable)
-                .map(UserAndGroupDTO::getUsername)
-                .collect(Collectors.toSet())
-                .flatMapMany(usernames -> userService.getAllByEmails(usernames, AclPermission.READ_USERS))
-                .collectMap(User::getUsername).cache();
-
-        // Update name in the list of UserAndGroupDTO
-        userAndGroupDTOsMono = userAndGroupDTOsMono
-                .flatMapMany(Flux::fromIterable)
-                .zipWith(userMapMono)
-                .map(tuple -> {
-                    UserAndGroupDTO userAndGroupDTO = tuple.getT1();
-                    Map<String, User> userMap = tuple.getT2();
-                    userAndGroupDTO.setName(userMap.get(userAndGroupDTO.getUsername()).getName()); // update name
-                    return userAndGroupDTO;
-                }).collectList().cache();
-
-        return userAndGroupDTOsMono;
     }
 
     @Override
