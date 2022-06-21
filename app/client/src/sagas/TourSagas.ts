@@ -6,9 +6,11 @@ import TourSteps from "constants/TourSteps";
 import { TourType } from "entities/Tour";
 
 function* proceedToNextTourStep() {
-  const currentStep = yield select(getActiveTourIndex);
-  const activeTourType = yield select(getActiveTourType);
-  const activeTourSteps = TourSteps[activeTourType as TourType];
+  const currentStep: number = yield select(getActiveTourIndex);
+  const activeTourType: TourType | undefined = yield select(getActiveTourType);
+  if (!activeTourType) return;
+
+  const activeTourSteps = TourSteps[activeTourType];
 
   if (!activeTourSteps) return;
 

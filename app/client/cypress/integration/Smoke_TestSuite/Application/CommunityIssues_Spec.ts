@@ -13,15 +13,15 @@ let homePage = ObjectsRegistry.HomePage,
 
 describe("AForce - Community Issues page validations", function() {
   before(function() {
-    agHelper.clearLocalStorageCache();
+    agHelper.ClearLocalStorageCache();
   });
 
   beforeEach(() => {
-    agHelper.restoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.saveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
   let selectedRow: number;

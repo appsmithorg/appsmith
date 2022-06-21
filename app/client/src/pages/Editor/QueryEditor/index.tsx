@@ -316,9 +316,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   // initialValues contains merge of action, editorConfig, settingsConfig and will be passed to redux form
   merge(initialValues, action);
 
-  // getting diff between action and initialValues
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+  // @ts-expect-error: Types are not available
   const actionObjectDiff: undefined | Diff<Action | undefined, Action>[] = diff(
     action,
     initialValues,
