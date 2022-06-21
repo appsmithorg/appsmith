@@ -2,7 +2,7 @@ import { getCanvasWidgetsPayload } from "sagas/PageSagas";
 import { updateCurrentPage } from "actions/pageActions";
 import { editorInitializer } from "utils/EditorUtils";
 import {
-  PageListPayload,
+  Page,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { initEditor } from "actions/initActions";
@@ -47,7 +47,7 @@ export const useMockDsl = (dsl: any) => {
       },
     ],
   });
-  const pages: PageListPayload = [
+  const pages: Page[] = [
     {
       pageName: mockResp.data.name,
       pageId: mockResp.data.id,
