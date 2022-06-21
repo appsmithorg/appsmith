@@ -30,4 +30,10 @@ export default {
   rawResponseTab: "[data-cy=t--tab-RAW]",
   datasourcesRightPane: "[data-cy=t--tab-datasources]",
   connectionsRightPane: "[data-cy=t--tab-Connections]",
+  airtableImage: "[alt='Airtable']",
+  twilioImage: "[alt='Twilio']",
+  dropdownTypeAuth: ".t--form-control-DROP_DOWN .bp3-popover-wrapper",
+  dropdownOption: ".t--dropdown-option",
+  labelAuth: ".label-icon-wrapper",
+  backBtn: ".t--close-editor"
 };
