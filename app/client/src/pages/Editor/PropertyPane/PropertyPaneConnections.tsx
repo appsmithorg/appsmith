@@ -193,12 +193,12 @@ const doConnectionsHaveErrors = (
   );
 };
 
-const getDataTreeWithOnlyId = createSelector(getDataTree, (tree) =>
+const getDataTreeWithOnlyIds = createSelector(getDataTree, (tree) =>
   mapValues(pick(tree, ["ENTITY_TYPE", "widgetId", "actionId"])),
 );
 
 const useDependencyList = (name: string) => {
-  const dataTree = useSelector(getDataTreeWithOnlyId, equal);
+  const dataTree = useSelector(getDataTreeWithOnlyIds, equal);
   const inverseDependencyMap = useSelector(
     (state: AppState) => state.evaluations.dependencies.inverseDependencyMap,
     equal,
