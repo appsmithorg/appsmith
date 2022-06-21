@@ -185,17 +185,17 @@ ctx.addEventListener(
             logs = logs.concat(replayMap[CANVAS]?.logs);
           replayMap[CANVAS]?.clearLogs();
           dataTreeEvaluator.clearLogs();
-        } catch (e) {
+        } catch (error) {
           if (dataTreeEvaluator !== undefined) {
             errors = dataTreeEvaluator.errors;
             logs = dataTreeEvaluator.logs;
           }
-          if (!(e instanceof CrashingError)) {
+          if (!(error instanceof CrashingError)) {
             errors.push({
               type: EvalErrorTypes.UNKNOWN_ERROR,
-              message: e.message,
+              message: (error as Error).message,
             });
-            console.error(e);
+            console.error(error);
           }
           dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
         }
