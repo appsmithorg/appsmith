@@ -27,6 +27,7 @@ import { fetchApplication } from "actions/applicationActions";
 import { APP_MODE } from "entities/App";
 import { getPageList } from "selectors/entitiesSelector";
 import {
+  executePageLoadActions,
   fetchActionsForPage,
   fetchActionsForPageError,
   fetchActionsForPageSuccess,
@@ -39,6 +40,9 @@ import {
 import { failFastApiCalls } from "./InitSagas";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { fetchDatasources } from "actions/datasourceActions";
+import { fetchPluginFormConfigs } from "actions/pluginActions";
+import { fetchAllPageEntityCompletion } from "actions/pageActions";
 
 function* getAllTemplatesSaga() {
   try {
@@ -161,23 +165,39 @@ function* getTemplateSaga(action: ReduxAction<string>) {
 }
 
 function* postPageAdditionSaga(pageId: string) {
-  const triggersAfterPageFetch = [
-    fetchActionsForPage(pageId),
-    fetchJSCollectionsForPage(pageId),
-  ];
-
-  const afterActionsFetch = yield failFastApiCalls(
-    triggersAfterPageFetch,
+  const afterActionsFetch: boolean = yield failFastApiCalls(
+    [
+      fetchActionsForPage(pageId),
+      fetchJSCollectionsForPage(pageId),
+      fetchDatasources(),
+    ],
     [
       fetchActionsForPageSuccess([]).type,
       fetchJSCollectionsForPageSuccess([]).type,
+      ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
     ],
-    [fetchActionsForPageError().type, fetchJSCollectionsForPageError().type],
+    [
+      fetchActionsForPageError().type,
+      fetchJSCollectionsForPageError().type,
+      ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
+    ],
   );
 
   if (!afterActionsFetch) {
     throw new Error("Failed importing template");
   }
+
+  const afterPluginFormsFetch: boolean = yield failFastApiCalls(
+    [fetchPluginFormConfigs()],
+    [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
+    [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
+  );
+
+  if (!afterPluginFormsFetch) {
+    throw new Error("Failed importing template");
+  }
+
+  yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
 }
 
 function* forkTemplateToApplicationSaga(

@@ -44,9 +44,7 @@ function TemplateList(props: TemplateListProps) {
           <Template
             key={template.id}
             onClick={props.onTemplateClick}
-            onForkTemplateClick={() =>
-              props.onForkTemplateClick && props.onForkTemplateClick(template)
-            }
+            onForkTemplateClick={props.onForkTemplateClick}
             size="large"
             template={template}
           />

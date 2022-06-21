@@ -97,7 +97,7 @@ export interface TemplateProps {
   template: TemplateInterface;
   size?: string;
   onClick?: (id: string) => void;
-  onForkTemplateClick?: (id: string) => void;
+  onForkTemplateClick?: (template: TemplateInterface) => void;
 }
 
 const Template = (props: TemplateProps) => {
@@ -112,7 +112,7 @@ export interface TemplateLayoutProps {
   template: TemplateInterface;
   className?: string;
   onClick?: (id: string) => void;
-  onForkTemplateClick?: (id: string) => void;
+  onForkTemplateClick?: (template: TemplateInterface) => void;
 }
 
 export function TemplateLayout(props: TemplateLayoutProps) {
@@ -136,7 +136,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   const onForkButtonTrigger = (e: React.MouseEvent<HTMLElement>) => {
     if (props.onForkTemplateClick) {
       e.preventDefault();
-      props.onForkTemplateClick(id);
+      props.onForkTemplateClick(props.template);
     } else {
       e.stopPropagation();
       setShowForkModal(true);
