@@ -145,7 +145,7 @@ export const setDatsourceEditorMode = (payload: {
   };
 };
 
-export const fetchDatasources = (payload?: { orgId?: string }) => {
+export const fetchDatasources = (payload?: { workspaceId?: string }) => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCES_INIT,
     payload,
@@ -161,7 +161,7 @@ export const fetchMockDatasources = () => {
 export interface addMockRequest
   extends ReduxAction<{
     name: string;
-    organizationId: string;
+    workspaceId: string;
     pluginId: string;
     packageName: string;
     isGeneratePageMode?: string;
@@ -169,16 +169,16 @@ export interface addMockRequest
   extraParams?: any;
 }
 
-export const addMockDatasourceToOrg = (
+export const addMockDatasourceToWorkspace = (
   name: string,
-  organizationId: string,
+  workspaceId: string,
   pluginId: string,
   packageName: string,
   isGeneratePageMode?: string,
 ): addMockRequest => {
   return {
     type: ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT,
-    payload: { name, packageName, pluginId, organizationId },
+    payload: { name, packageName, pluginId, workspaceId },
     extraParams: { isGeneratePageMode },
   };
 };

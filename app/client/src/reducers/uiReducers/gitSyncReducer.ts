@@ -401,7 +401,9 @@ const gitSyncReducer = createReducer(initialState, {
       deployKeyDocUrl: action.payload.docUrl,
     };
   },
-  [ReduxActionTypes.SET_ORG_ID_FOR_IMPORT]: (state: GitSyncReducerState) => {
+  [ReduxActionTypes.SET_WORKSPACE_ID_FOR_IMPORT]: (
+    state: GitSyncReducerState,
+  ) => {
     return {
       ...state,
       SSHKeyPair: "",

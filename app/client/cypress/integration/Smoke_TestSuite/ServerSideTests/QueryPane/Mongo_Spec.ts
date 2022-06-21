@@ -55,7 +55,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       11,
     );
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -315,8 +315,8 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     agHelper.ActionContextMenuWithInPane("Delete");
 
-    ee.expandCollapseEntity("DATASOURCES");
-    ee.expandCollapseEntity(dsName);
+    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("AuthorNAwards"));
   });
@@ -626,10 +626,10 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("16. Validate Deletion of the Newly Created Page - AuthorNAwards", () => {
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    ee.expandCollapseEntity("PAGES");
+    ee.ExpandCollapseEntity("PAGES");
     ee.ActionContextMenuByEntityName(
       "AuthorNAwards",
       "Delete",
@@ -652,7 +652,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
-    ee.expandCollapseEntity(dsName);
+    ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("AuthorNAwards"));
   });
@@ -680,7 +680,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     // ee.ActionContextMenuByEntityName("Page1", "Delete", "Are you sure?"); //Cant be deleted since this is the Home page!
     // agHelper.ValidateNetworkStatus("@deletePage", 200);
     deployMode.DeployApp();
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Friends pages are still using this ds
   });
 

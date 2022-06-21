@@ -57,9 +57,9 @@ class PluginsApi extends Api {
     return `/v1/datasources/${datasourceId}/trigger`;
   }
   static fetchPlugins(
-    orgId: string,
+    workspaceId: string,
   ): AxiosPromise<GenericApiResponse<Plugin[]>> {
-    return Api.get(PluginsApi.url, { organizationId: orgId });
+    return Api.get(PluginsApi.url, { workspaceId: workspaceId });
   }
 
   static fetchFormConfig(
