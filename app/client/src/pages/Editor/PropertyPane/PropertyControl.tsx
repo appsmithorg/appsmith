@@ -117,8 +117,6 @@ const PropertyControl = memo((props: Props) => {
     THEME_BINDING_REGEX.test(propertyStylesheetValue) &&
     propertyStylesheetValue !== propertyValue;
 
-  console.log({ propertyName: props.propertyName, propertyStylesheetValue });
-
   /**
    * resets the value of property to theme stylesheet value
    * which is a binding to theme object defined in the stylesheet
