@@ -2,22 +2,22 @@
 
 1. Create a super user (with email <superuser_acl@appsmith.com>), using the sign-up API.
 
-2. Add `manage` and `read` permissions for `organizations`, `applications`, `pages` and `actions` for this super user,
-    on ALL existing documents (in corresponding collections). Once this is done, the policies field of organizations,
+2. Add `manage` and `read` permissions for `workspaces`, `applications`, `pages` and `actions` for this super user,
+    on ALL existing documents (in corresponding collections). Once this is done, the policies field of workspaces,
     for example, should look something like:
 
 ```json
 {
     "policies": [         
         {
-            "permission" : "manage:organizations",
+            "permission" : "manage:workspaces",
             "users" : [ 
                 "superuser_acl@appsmith.com"
             ],
             "groups" : []
         }, 
         {
-            "permission" : "read:organizations",
+            "permission" : "read:workspaces",
             "users" : [ 
                 "superuser_acl@appsmith.com"
             ],
@@ -29,10 +29,10 @@
 
 3. Disable emails for invite API actions.
 
-4. For each user, for each organization in the user's `organizationIds` list, hit the invite user API for that
-    organization, using session of the super user.
+4. For each user, for each workspace in the user's `workspaceIds` list, hit the invite user API for that
+    workspace, using session of the super user.
 
-5. Remove super user from the organization policies, without disturbing other permission values.
+5. Remove super user from the workspace policies, without disturbing other permission values.
 
 6. Remove super user from users collection.
 
