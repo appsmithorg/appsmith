@@ -160,10 +160,6 @@ public class PolicyUtils {
                     return policiesForPermissionGroup;
                 })
                 .flatMap(Collection::stream)
-                .map(obj -> {
-                    log.debug("{}", obj);
-                    return obj;
-                })
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
