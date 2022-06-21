@@ -5,7 +5,10 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { all, put, takeEvery, call } from "redux-saga/effects";
-import TemplatesAPI, { ImportTemplateResponse } from "api/TemplatesApi";
+import TemplatesAPI, {
+  FetchTemplateResponse,
+  ImportTemplateResponse,
+} from "api/TemplatesApi";
 import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
@@ -19,8 +22,10 @@ import { builderURL } from "RouteBuilder";
 
 function* getAllTemplatesSaga() {
   try {
-    const response = yield call(TemplatesAPI.getAllTemplates);
-    const isValid = yield validateResponse(response);
+    const response: FetchTemplateResponse = yield call(
+      TemplatesAPI.getAllTemplates,
+    );
+    const isValid: boolean = yield validateResponse(response);
     if (isValid) {
       yield put({
         type: ReduxActionTypes.GET_ALL_TEMPLATES_SUCCESS,
@@ -79,11 +84,11 @@ function* importTemplateToWorkspaceSaga(
 
 function* getSimilarTemplatesSaga(action: ReduxAction<string>) {
   try {
-    const response = yield call(
+    const response: FetchTemplateResponse = yield call(
       TemplatesAPI.getSimilarTemplates,
       action.payload,
     );
-    const isValid = yield validateResponse(response);
+    const isValid: boolean = yield validateResponse(response);
     if (isValid) {
       yield put({
         type: ReduxActionTypes.GET_SIMILAR_TEMPLATES_SUCCESS,
@@ -105,7 +110,7 @@ function* setTemplateNotificationSeenSaga(action: ReduxAction<boolean>) {
 }
 
 function* getTemplateNotificationSeenSaga() {
-  const showTemplateNotification = yield getTemplateNotificationSeen();
+  const showTemplateNotification: unknown = yield getTemplateNotificationSeen();
 
   if (showTemplateNotification) {
     yield put(setTemplateNotificationSeenAction(true));
@@ -116,11 +121,11 @@ function* getTemplateNotificationSeenSaga() {
 
 function* getTemplateSaga(action: ReduxAction<string>) {
   try {
-    const response = yield call(
+    const response: FetchTemplateResponse = yield call(
       TemplatesAPI.getTemplateInformation,
       action.payload,
     );
-    const isValid = yield validateResponse(response);
+    const isValid: boolean = yield validateResponse(response);
     if (isValid) {
       yield put({
         type: ReduxActionTypes.GET_TEMPLATE_SUCCESS,
