@@ -105,6 +105,8 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
 
   it("7. Datepicker default date validation with js binding and default date with moment object", function() {
     cy.openPropertyPane("datepickerwidget2");
+    //cy.testJsontext("defaultdate", "");
+    cy.clearPropertyValue(0);
     cy.get(formWidgetsPage.toggleJsDefaultDate)
       .click()
       .wait(1000); //disable

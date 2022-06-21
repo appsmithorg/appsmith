@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import TooltipComponent from "components/ads/Tooltip";
-import BaseControl, { ControlProps } from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
 import { ButtonTabComponent } from "components/ads";
 
@@ -36,6 +36,8 @@ const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
   value: borderRadiusOptions[optionKey],
 }));
 
+const optionsValues = new Set(Object.values(borderRadiusOptions));
+
 /**
  * ----------------------------------------------------------------------------
  * COMPONENT
@@ -62,6 +64,10 @@ class BorderRadiusOptionsControl extends BaseControl<
         values={this.props.evaluatedValue ? [this.props.evaluatedValue] : []}
       />
     );
+  }
+
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    return optionsValues.has(value);
   }
 }
 
