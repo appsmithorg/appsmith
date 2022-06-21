@@ -23,7 +23,7 @@ import SortRules from "./dataTypeSortRules";
 import _ from "lodash";
 
 const DEFS: Def[] = [
-  // @ts-ignore
+  // @ts-expect-error: Types are not available
   ecma,
   GLOBAL_FUNCTIONS,
   GLOBAL_DEFS,
@@ -149,7 +149,7 @@ class TernServer {
     entityInfo?: Map<string, DataTreeDefEntityInformation>,
   ) {
     this.server.deleteDefs(name);
-    // @ts-ignore: No types available
+    // @ts-expect-error: Types are not available
     this.server.addDefs(def);
     if (entityInfo) this.defEntityInformation = entityInfo;
   }
@@ -476,10 +476,10 @@ class TernServer {
       if (data.url) {
         tip.appendChild(document.createTextNode(" "));
         const child = tip.appendChild(this.elt("a", null, "[docs]"));
-        // @ts-ignore: No types available
+        // @ts-expect-error: Types are not available
         child.href = data.url;
 
-        // @ts-ignore: No types available
+        // @ts-expect-error: Types are not available
         child.target = "_blank";
       }
       this.tempTooltip(cm, tip);
@@ -506,7 +506,7 @@ class TernServer {
   ) {
     const doc = this.findDoc(cm.getDoc());
     const request = this.buildRequest(doc, query, pos);
-    // @ts-ignore: No types available
+    // @ts-expect-error: Types are not available
     this.server.request(request, callbackFn);
   }
 
@@ -657,9 +657,8 @@ class TernServer {
   sendDoc(doc: TernDoc) {
     this.server.request(
       {
-        // @ts-ignore: No types available
         files: [
-          // @ts-ignore: No types available
+          // @ts-expect-error: Types are not available
           {
             type: "full",
             name: doc.name,
@@ -759,12 +758,12 @@ class TernServer {
   tempTooltip(cm: CodeMirror.Editor, content: HTMLElement | string) {
     if (cm.state.ternTooltip) this.remove(cm.state.ternTooltip);
     if (cm.state.completionActive) {
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       cm.closeHint();
     }
     const where = cm.cursorCoords();
     const tip = (cm.state.ternTooltip = this.makeTooltip(
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       where.right + 1,
       where.bottom,
       content,
@@ -785,7 +784,7 @@ class TernServer {
     });
     CodeMirror.on(tip, "mouseout", function(e: MouseEvent) {
       const related = e.relatedTarget;
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       if (!related || !CodeMirror.contains(tip, related)) {
         if (old) clear();
         else mouseOnTip = false;

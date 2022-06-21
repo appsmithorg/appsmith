@@ -61,9 +61,9 @@ function* executeInIntervals(
         triggerPropertyName: triggerMeta.triggerPropertyName,
         source: triggerMeta.source,
       });
-    } catch (e) {
+    } catch (error) {
       logActionExecutionError(
-        e.message,
+        (error as Error).message,
         triggerMeta.source,
         triggerMeta.triggerPropertyName,
       );
