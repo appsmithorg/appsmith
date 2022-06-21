@@ -302,14 +302,6 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
     200,
   );
 
-  cy.waitUntil(() => cy.get(generatePage.buildFromScratchActionCard), {
-    errorMsg: "Build app from scratch not visible even aft 80 secs",
-    timeout: 20000,
-    interval: 1000,
-  }).then(($ele) => cy.wrap($ele).should("be.visible"));
-
-  cy.get(generatePage.buildFromScratchActionCard).click();
-
   /* The server created app always has an old dsl so the layout will migrate
    * To avoid race conditions between that update layout and this one
    * we wait for that to finish before updating layout here

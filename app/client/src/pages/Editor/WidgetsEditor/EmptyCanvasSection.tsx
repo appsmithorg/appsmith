@@ -75,7 +75,7 @@ function CanvasTopSection() {
 
   return (
     <Wrapper>
-      <Card onClick={showTemplatesModal}>
+      <Card data-cy="start-from-template" onClick={showTemplatesModal}>
         <Layout />
         <Content>
           <Text color={Colors.COD_GRAY} type={TextType.P1}>
@@ -87,6 +87,7 @@ function CanvasTopSection() {
         </Content>
       </Card>
       <Card
+        data-cy="generate-app"
         onClick={() => goToGenPageForm({ applicationSlug, pageSlug, pageId })}
       >
         <Database />
