@@ -5,6 +5,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserAndGroupDTO;
+import com.appsmith.server.dtos.UserGroupInfoDTO;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.UserWorkspaceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +19,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Map;
 
 
 @RequestMapping(Url.WORKSPACE_URL)
@@ -37,14 +36,14 @@ public class WorkspaceControllerCE extends BaseController<WorkspaceService, Work
     }
 
     /**
-     * This function would be used to fetch all possible user roles at workspace level.
+     * This function would be used to fetch default user groups of workspace, for which user has access to invite users.
      *
      * @return
      */
-    @GetMapping("/roles")
-    public Mono<ResponseDTO<Map<String, String>>> getUserRolesForWorkspace(@RequestParam String workspaceId) {
-        return service.getUserRolesForWorkspace(workspaceId)
-                .map(permissions -> new ResponseDTO<>(HttpStatus.OK.value(), permissions, null));
+    @GetMapping("/{workspaceId}/userGroups")
+    public Mono<ResponseDTO<List<UserGroupInfoDTO>>> getUserGroupsForWorkspace(@PathVariable String workspaceId) {
+        return service.getUserGroupsForWorkspace(workspaceId)
+                .map(groupInfoList -> new ResponseDTO<>(HttpStatus.OK.value(), groupInfoList, null));
     }
 
     @GetMapping("/{workspaceId}/members")

@@ -17,6 +17,7 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.UserAndGroupDTO;
+import com.appsmith.server.dtos.UserGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
@@ -412,13 +413,15 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getAllUserRolesForWorkspaceDomainAsAdministrator() {
-        Mono<Map<String, String>> userRolesForWorkspace = workspaceService.create(workspace)
-                .flatMap(createdWorkspace -> workspaceService.getUserRolesForWorkspace(createdWorkspace.getId()));
+        Mono<List<UserGroupInfoDTO>> userRolesForWorkspace = workspaceService.create(workspace)
+                .flatMap(createdWorkspace -> workspaceService.getUserGroupsForWorkspace(createdWorkspace.getId()));
 
         StepVerifier.create(userRolesForWorkspace)
-                .assertNext(roles -> {
-                    assertThat(roles).isNotEmpty();
-                    assertThat(roles).containsKeys("Administrator", "App Viewer", "Developer");
+                .assertNext(userGroupInfos -> {
+                    assertThat(userGroupInfos).isNotEmpty();
+                    assertThat(userGroupInfos).anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.ADMINISTRATOR));
+                    assertThat(userGroupInfos).anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.VIEWER));
+                    assertThat(userGroupInfos).anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.DEVELOPER));
                 })
                 .verifyComplete();
     }
