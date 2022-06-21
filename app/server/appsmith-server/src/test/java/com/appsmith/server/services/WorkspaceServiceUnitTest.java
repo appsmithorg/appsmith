@@ -4,13 +4,13 @@ import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.UserAndGroupDTO;
-import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +23,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
+import retrofit.http.HEAD;
 
 import javax.validation.Validator;
 import java.util.List;
@@ -51,6 +52,10 @@ public class WorkspaceServiceUnitTest {
 
     @MockBean PermissionGroupService permissionGroupService;
 
+    @MockBean RbacPolicyService rbacPolicyService;
+
+    @MockBean PolicyUtils policyUtils;
+
     @MockBean UserService userService;
 
     WorkspaceService workspaceService;
@@ -59,8 +64,8 @@ public class WorkspaceServiceUnitTest {
     public void setUp() {
         workspaceService = new WorkspaceServiceImpl(scheduler, validator, mongoConverter, reactiveMongoTemplate,
                 workspaceRepository, analyticsService, pluginRepository, sessionUserService, userWorkspaceService,
-                userRepository, roleGraph, assetRepository, assetService,
-                applicationRepository, userGroupService, permissionGroupService, userService);
+                userRepository, roleGraph, assetRepository, assetService, applicationRepository, userGroupService,
+                permissionGroupService, rbacPolicyService, policyUtils, userService);
     }
 
     @Test

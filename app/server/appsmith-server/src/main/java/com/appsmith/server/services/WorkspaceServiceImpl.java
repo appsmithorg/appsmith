@@ -1,11 +1,12 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.RoleGraph;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.WorkspaceServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -35,11 +36,13 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                 ApplicationRepository applicationRepository,
                                 UserGroupService userGroupService,
                                 PermissionGroupService permissionGroupService,
+                                RbacPolicyService rbacPolicyService,
+                                PolicyUtils policyUtils,
                                 UserService userService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 pluginRepository, sessionUserService, userWorkspaceService, userRepository, roleGraph,
                 assetRepository, assetService, applicationRepository, userGroupService, permissionGroupService,
-                userService);
+                rbacPolicyService, policyUtils, userService);
     }
 }

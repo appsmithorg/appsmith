@@ -155,6 +155,7 @@ public class WorkspaceServiceTest {
                     return permissionGroupRepository.findAllById(defaultPermissionGroups).collect(Collectors.toSet());
                 });
 
+
         StepVerifier.create(Mono.zip(workspaceMono, userMono, defaultUserGroupMono, defaultPermissionGroupMono))
                 .assertNext(tuple -> {
                     Workspace workspace1 = tuple.getT1();
@@ -224,24 +225,43 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validCreateWorkspaceTest() {
-        Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-
-        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
-                .users(Set.of("api_user"))
-                .build();
 
         Mono<Workspace> workspaceResponse = workspaceService.create(workspace)
-                .switchIfEmpty(Mono.error(new Exception("create is returning empty!!")));
+                .switchIfEmpty(Mono.error(new Exception("create is returning empty!!")))
+                .cache();
+
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         Mono<User> userMono = userRepository.findByEmail("api_user");
 
-        StepVerifier.create(Mono.zip(workspaceResponse, userMono))
+        StepVerifier.create(Mono.zip(workspaceResponse, userMono, defaultPermissionGroupsMono))
                 .assertNext(tuple -> {
                     Workspace workspace1 = tuple.getT1();
                     User user = tuple.getT2();
+                    List<PermissionGroup> permissionGroups = tuple.getT3();
                     assertThat(workspace1.getName()).isEqualTo("Test Name");
+
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                            .findFirst().get();
+
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                            .findFirst().get();
+
+                    Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId()))
+                            .build();
+
                     assertThat(workspace1.getPolicies()).isNotEmpty();
                     assertThat(workspace1.getPolicies()).containsAll(Set.of(manageWorkspaceAppPolicy, manageWorkspacePolicy));
                     assertThat(workspace1.getSlug()).isEqualTo(TextUtils.makeSlug(workspace.getName()));
