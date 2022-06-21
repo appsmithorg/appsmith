@@ -1174,6 +1174,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 srcApplication.setId(null);
                                 srcApplication.setPages(null);
                                 srcApplication.setPublishedPages(null);
+                                srcApplication.setEditModeThemeId(null);
+                                srcApplication.setPublishedModeThemeId(null);
                                 srcApplication.setGitApplicationMetadata(srcBranchGitData);
                                 return Mono.zip(
                                         applicationService.save(srcApplication),
