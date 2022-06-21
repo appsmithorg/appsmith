@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Classes, INumericInputProps, NumericInput } from "@blueprintjs/core";
 
-import BaseControl, { ControlProps } from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import { ThemeProp } from "components/ads/common";
 
 const StyledNumericInput = styled(NumericInput)<ThemeProp & INumericInputProps>`
@@ -62,6 +62,10 @@ class NumericInputControl extends BaseControl<NumericInputControlProps> {
         value={propertyValue}
       />
     );
+  }
+
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    return !isNaN(Number(value));
   }
 
   private handleValueChange = (_v: number, value: string) => {
