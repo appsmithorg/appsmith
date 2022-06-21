@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
@@ -80,10 +79,10 @@ public class RedisCacheManagerImpl implements CacheManager {
     }
 
     @Override
-    public Mono<Boolean> put(String cacheName, String key, Mono<Object> valueMono) {
+    public Mono<Boolean> put(String cacheName, String key, Object value) {
         ensureStats(cacheName);
         String path = cacheName + ":" + key;
-        return valueMono.flatMap(value -> reactiveRedisTemplate.opsForValue().set(path, value));
+        return reactiveRedisTemplate.opsForValue().set(path, value);
     }
 
     @Override

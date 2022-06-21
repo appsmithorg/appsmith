@@ -51,7 +51,7 @@ public class CacheAspect {
     private Mono<Object> callMonoMethodAndCache(ProceedingJoinPoint joinPoint, String cacheName, String key) {
         try {
             return ((Mono<?>) joinPoint.proceed())
-                .zipWhen(value -> cacheManager.put(cacheName, key, Mono.just(value))) //Call CacheManager.put() to cache the object
+                .zipWhen(value -> cacheManager.put(cacheName, key, value)) //Call CacheManager.put() to cache the object
                 .flatMap(value -> Mono.just(value.getT1())); //Maps to the original object
         } catch (Throwable e) {
             log.error("Error occurred in saving to cache when invoking function {}", joinPoint.getSignature().getName(), e);
@@ -71,11 +71,11 @@ public class CacheAspect {
         try {
             return ((Flux<?>) joinPoint.proceed())
                 .collectList() // Collect Flux<T> into Mono<List<T>>
-                .zipWhen(value -> cacheManager.put(cacheName, key, Mono.just(value))) //Call CacheManager.put() to cache the list
+                .zipWhen(value -> cacheManager.put(cacheName, key, value)) //Call CacheManager.put() to cache the list
                 .flatMap(value -> Mono.just(value.getT1())) //Maps to the original list
                 .flatMapMany(Flux::fromIterable); //Convert it back to Flux<T>
         } catch (Throwable e) {
-            log.error("Error while calling method {}", joinPoint.getSignature().getName(), e);
+            log.error("Error occurred in saving to cache when invoking function {}", joinPoint.getSignature().getName(), e);
             return Flux.error(e);
         }
     }
@@ -185,7 +185,7 @@ public class CacheAspect {
         Class<?> returnType = method.getReturnType();
         
         if (!returnType.isAssignableFrom(Mono.class)) {
-            throw new RuntimeException("Invalid usage of @CacheEvict for {}. Only Mono<?> is allowed.", returnType.getName());
+            throw new RuntimeException("Invalid usage of @CacheEvict for " + method.getName() + ". Only Mono<?> is allowed.");
         }
 
         if(all) { //If all is true, evict all keys from the cache

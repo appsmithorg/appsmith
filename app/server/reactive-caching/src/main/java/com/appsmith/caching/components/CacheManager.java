@@ -23,7 +23,7 @@ public interface CacheManager {
      * @param value The value of the item.
      * @return Mono<Boolean> true if put was successful, false otherwise.
      */
-    Mono<Boolean> put(String cacheName, String key, Mono<Object> value);
+    Mono<Boolean> put(String cacheName, String key, Object value);
 
     /**
      * This will remove item from the cache.
