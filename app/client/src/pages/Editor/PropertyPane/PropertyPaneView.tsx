@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback, useMemo } from "react";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
 import { IPanelProps, Position } from "@blueprintjs/core";
 
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
@@ -22,8 +22,6 @@ import {
   WIDGET_DEPRECATION_WARNING,
   WIDGET_DEPRECATION_WARNING_HEADER,
 } from "@appsmith/constants/messages";
-import { pick } from "lodash";
-import { createSelector } from "reselect";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -41,24 +39,6 @@ export const excludeList: WidgetType[] = [
   "FILE_PICKER_WIDGET",
   "FILE_PICKER_WIDGET_V2",
 ];
-
-type WidgetPropertiesForPropertyPaneView = {
-  type: string;
-  widgetId: string;
-  widgetName: string;
-  displayName: string;
-};
-
-const getWidgetPropsForPropertyPaneView = createSelector(
-  getWidgetPropsForPropertyPane,
-  (props) =>
-    pick(props, [
-      "type",
-      "widgetId",
-      "widgetName",
-      "displayName",
-    ]) as WidgetPropertiesForPropertyPaneView,
-);
 
 function PropertyPaneView(
   props: {

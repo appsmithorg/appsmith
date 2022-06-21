@@ -1,4 +1,4 @@
-import { find, get, set } from "lodash";
+import { find, get, pick, set } from "lodash";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
 
@@ -54,6 +54,24 @@ export const getWidgetPropsForPropertyPane = createSelector(
     }
     return widgetProperties;
   },
+);
+
+type WidgetPropertiesForPropertyPaneView = {
+  type: string;
+  widgetId: string;
+  widgetName: string;
+  displayName: string;
+};
+
+export const getWidgetPropsForPropertyPaneView = createSelector(
+  getWidgetPropsForPropertyPane,
+  (props) =>
+    pick(props, [
+      "type",
+      "widgetId",
+      "widgetName",
+      "displayName",
+    ]) as WidgetPropertiesForPropertyPaneView,
 );
 
 const populateWidgetProperties = (
