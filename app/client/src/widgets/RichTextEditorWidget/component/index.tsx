@@ -55,7 +55,6 @@ export const RichTextEditorInputWrapper = styled.div<{
 `;
 
 export interface RichtextEditorComponentProps {
-  defaultText: string;
   value?: string;
   isMarkdown: boolean;
   placeholder?: string;
@@ -74,7 +73,6 @@ export interface RichtextEditorComponentProps {
   labelTextSize?: TextSize;
   labelStyle?: string;
   isValid?: boolean;
-  isDirty: boolean;
   onValueChange: (valueAsString: string) => void;
 }
 
