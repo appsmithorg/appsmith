@@ -66,7 +66,7 @@ export class IncorrectBindingError extends Error {}
 
 /**
  * validates if response does have any errors
- *
+ * @throws {Error}
  * @param response
  * @param show
  */

@@ -717,16 +717,12 @@ export const getUpdatedRoute = (
     strict: false,
     exact: false,
   });
-  if (match?.params) {
-    const { applicationSlug, pageSlug } = match?.params;
-    if (params.applicationSlug)
-      updatedPath = updatedPath.replace(
-        applicationSlug,
-        params.applicationSlug,
-      );
-    if (params.pageSlug)
-      updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
-  }
+  if (!match || !match.params) return updatedPath;
+  const { applicationSlug, pageSlug } = match?.params;
+  if (params.applicationSlug)
+    updatedPath = updatedPath.replace(applicationSlug, params.applicationSlug);
+  if (params.pageSlug)
+    updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
   return updatedPath;
 };
 
@@ -737,3 +733,13 @@ export const updateSlugNamesInURL = (params: Record<string, string>) => {
   const newURL = getUpdatedRoute(pathname, params);
   history.replace(newURL + search);
 };
+
+export function AutoBind(this: any) {
+  const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(this));
+  methods
+    .filter(
+      (method) =>
+        method !== "constructor" && typeof this[method] === "function",
+    )
+    .forEach((method) => (this[method] = this[method].bind(this)));
+}
