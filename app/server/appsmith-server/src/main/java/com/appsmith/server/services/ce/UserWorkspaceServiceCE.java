@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.dtos.UserAndGroupDTO;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -21,4 +22,5 @@ public interface UserWorkspaceServiceCE {
 
     Mono<Workspace> bulkAddUsersToWorkspace(Workspace workspace, List<User> users, String roleName);
 
+    Mono<List<UserAndGroupDTO>> getWorkspaceMembers(String workspaceId);
 }

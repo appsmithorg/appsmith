@@ -49,7 +49,7 @@ public class WorkspaceControllerCE extends BaseController<WorkspaceService, Work
 
     @GetMapping("/{workspaceId}/members")
     public Mono<ResponseDTO<List<UserAndGroupDTO>>> getUserMembersOfWorkspace(@PathVariable String workspaceId) {
-        return service.getWorkspaceMembers(workspaceId)
+        return userWorkspaceService.getWorkspaceMembers(workspaceId)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 
