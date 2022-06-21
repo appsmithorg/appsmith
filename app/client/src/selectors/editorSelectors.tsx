@@ -490,7 +490,7 @@ export const createCanvasWidget = (
 };
 
 const WidgetTypes = WidgetFactory.widgetTypes;
-const createLoadingWidget = (
+export const createLoadingWidget = (
   canvasWidget: FlattenedWidgetProps,
 ): DataTreeWidget => {
   const widgetStaticProps = pick(

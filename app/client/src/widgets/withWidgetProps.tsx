@@ -12,6 +12,7 @@ import {
   computeMainContainerWidget,
   createCanvasWidget,
   getChildWidgets,
+  createLoadingWidget,
 } from "selectors/editorSelectors";
 import { AppState } from "reducers";
 import { CanvasWidgetStructure } from "./constants";
@@ -60,9 +61,12 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           ? computeMainContainerWidget(canvasWidget, mainCanvasProps)
           : canvasWidget;
 
-      widgetProps = createCanvasWidget(canvasWidgetProps, evaluatedWidget);
+      widgetProps = evaluatedWidget
+        ? createCanvasWidget(canvasWidgetProps, evaluatedWidget)
+        : createLoadingWidget(canvasWidgetProps);
 
-      widgetProps.isVisible = widgetProps.type !== "MODAL_WIDGET";
+      widgetProps.isVisible =
+        widgetProps.isVisible ?? widgetProps.type !== "MODAL_WIDGET";
 
       if (
         widgetId !== MAIN_CONTAINER_WIDGET_ID &&
