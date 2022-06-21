@@ -3,27 +3,27 @@
   template: src=templates/cloud-config.cfg dest=/etc/cloud/cloud.cfg.d/defaults.cfg
   become: yes
 
-- name: create group ubuntu
+- name: create group appsmith
   group: name={{ cloud_user }} state=present
   become: yes
 
-- name: create user ubuntu
+- name: create user appsmith
   user: name={{ cloud_user }} groups={{ cloud_group }}
   become: yes
 
 - name: add sudoers group for user {{ cloud_user }}
   copy:
-    content: 'ubuntu ALL=(ALL) NOPASSWD: ALL'
-    dest: /etc/sudoers.d/ubuntu
+    content: 'appsmith ALL=(ALL) NOPASSWD: ALL'
+    dest: /etc/sudoers.d/appsmith
     mode: 0440
     owner: root
     group: root
   become: yes
 
-# - name: create group {{ default_user }}
-#   group: name={{ default_user }} state=present
-#   become: yes
+- name: create group {{ default_user }}
+  group: name={{ default_user }} state=present
+  become: yes
 
-# - name: create user {{ default_group }}
-#   user: name={{ default_user }} groups={{ default_group }}
-#   become: yes
+- name: create user {{ default_group }}
+  user: name={{ default_user }} groups={{ default_group }}
+  become: yes
