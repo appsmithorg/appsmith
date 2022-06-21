@@ -115,13 +115,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
         // Remove branch name as plugins are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
-        String organizationId = params.getFirst(FieldName.ORGANIZATION_ID);
-        if (organizationId == null) {
-            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        String workspaceId = params.getFirst(FieldName.WORKSPACE_ID);
+        if (workspaceId == null) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
-        Mono<Workspace> workspaceMono = workspaceService.getById(organizationId);
+        Mono<Workspace> workspaceMono = workspaceService.getById(workspaceId);
 
         return workspaceMono
                 .flatMapMany(org -> {
@@ -182,8 +182,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         if (pluginOrgDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
-        if (pluginOrgDTO.getOrganizationId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        if (pluginOrgDTO.getWorkspaceId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         return storeWorkspacePlugin(pluginOrgDTO, pluginOrgDTO.getStatus())
@@ -216,12 +216,12 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         if (pluginDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
-        if (pluginDTO.getOrganizationId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        if (pluginDTO.getWorkspaceId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         //Find the workspace using id and plugin id -> This is to find if the workspace has the plugin installed
-        Mono<Workspace> workspaceMono = workspaceService.findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(),
+        Mono<Workspace> workspaceMono = workspaceService.findByIdAndPluginsPluginId(pluginDTO.getWorkspaceId(),
                 pluginDTO.getPluginId());
 
         return workspaceMono
@@ -240,7 +240,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     private Mono<Workspace> storeWorkspacePlugin(PluginWorkspaceDTO pluginDTO, WorkspacePluginStatus status) {
 
         Mono<Workspace> pluginInWorkspaceMono = workspaceService
-                .findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(), pluginDTO.getPluginId());
+                .findByIdAndPluginsPluginId(pluginDTO.getWorkspaceId(), pluginDTO.getPluginId());
 
 
         //If plugin is already present for the workspace, just return the workspace, else install and return workspace
@@ -255,8 +255,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                                 log.debug("Before publishing to the redis queue");
                                 //Publish the event to the pub/sub queue
                                 InstallPluginRedisDTO installPluginRedisDTO = new InstallPluginRedisDTO();
-                                installPluginRedisDTO.setOrganizationId(pluginDTO.getOrganizationId());
-                                installPluginRedisDTO.setPluginOrgDTO(pluginDTO);
+                                installPluginRedisDTO.setWorkspaceId(pluginDTO.getWorkspaceId());
+                                installPluginRedisDTO.setPluginWorkspaceDTO(pluginDTO);
                                 String jsonString;
                                 try {
                                     jsonString = objectMapper.writeValueAsString(installPluginRedisDTO);
@@ -269,7 +269,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                                         .subscribe();
                             })
                             //Now that the plugin jar has been successfully downloaded, go on and add the plugin to the workspace
-                            .then(workspaceService.getById(pluginDTO.getOrganizationId()))
+                            .then(workspaceService.getById(pluginDTO.getWorkspaceId()))
                             .flatMap(workspace -> {
 
                                 Set<WorkspacePlugin> workspacePluginList = workspace.getPlugins();
@@ -313,16 +313,16 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO) {
-        Mono<Plugin> pluginMono = repository.findById(installPluginRedisDTO.getPluginOrgDTO().getPluginId());
+        Mono<Plugin> pluginMono = repository.findById(installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
         return pluginMono
-                .flatMap(plugin -> downloadAndStartPlugin(installPluginRedisDTO.getOrganizationId(), plugin))
+                .flatMap(plugin -> downloadAndStartPlugin(installPluginRedisDTO.getWorkspaceId(), plugin))
                 .switchIfEmpty(Mono.defer(() -> {
-                    log.debug("During redisInstallPlugin, no plugin with plugin id {} found. Returning without download and install", installPluginRedisDTO.getPluginOrgDTO().getPluginId());
+                    log.debug("During redisInstallPlugin, no plugin with plugin id {} found. Returning without download and install", installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
                     return Mono.just(new Plugin());
                 })).block();
     }
 
-    private Mono<Plugin> downloadAndStartPlugin(String organizationId, Plugin plugin) {
+    private Mono<Plugin> downloadAndStartPlugin(String workspaceId, Plugin plugin) {
         if (plugin.getJarLocation() == null) {
             // Plugin jar location not set. Must be local
             /** TODO
@@ -333,7 +333,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         }
 
         String baseUrl = "../dist/plugins/";
-        String pluginJar = plugin.getName() + "-" + organizationId + ".jar";
+        String pluginJar = plugin.getName() + "-" + workspaceId + ".jar";
         log.debug("Going to download plugin jar with name : {}", baseUrl + pluginJar);
 
         try {

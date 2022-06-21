@@ -49,7 +49,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       "film_id",
     );
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
     ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
@@ -63,7 +63,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     });
 
     deployMode.DeployApp();
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
@@ -102,7 +102,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       "supplier_id",
     );
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -122,10 +122,10 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       "order_id",
     );
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    ee.expandCollapseEntity("PAGES");
+    ee.ExpandCollapseEntity("PAGES");
     ee.ActionContextMenuByEntityName(
       "Public.orders",
       "Delete",
@@ -174,7 +174,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
 
-    ee.expandCollapseEntity(dsName);
+    ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("public.vessels"));
   });
@@ -251,7 +251,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     dataSources.AssertJSONFormHeader(0, 0, "ship_id");
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     // //Delete the test data
     // ee.ActionContextMenuByEntityName("Productlines", "Delete", "Are you sure?");
@@ -279,7 +279,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     ee.SelectEntityByName("UpdateQuery", "QUERIES/JS");
     agHelper.EnterValue(updateQuery);
     agHelper.AssertAutoSave();
-    ee.expandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity("QUERIES/JS", false);
   });
 
   it("8. Verify Update data from Deploy page - on Vessels - existing record", () => {
@@ -288,8 +288,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.DeployApp();
     agHelper.Sleep(2000)
     table.SelectTableRow(0); //to make JSON form hidden
+    agHelper.Sleep(2000);//Sleep time for tab to disappear!
     agHelper.AssertElementAbsence(locator._jsonFormWidget);
-
     table.SelectTableRow(5);
     agHelper.AssertElementVisible(locator._jsonFormWidget);
     dataSources.AssertJSONFormHeader(5, 0, "ship_id");
@@ -448,6 +448,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Confirm");
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.Sleep(2500);// for delete to take effect!
     table.AssertSelectedRow(0); //Control going back to 1st row in table
     dataSources.AssertJSONFormHeader(0, 0, "ship_id");
   });
@@ -456,7 +457,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._refreshIcon);
 
     //Store Address deletion remains
-    table.ReadTableRowColumnData(7, 3, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(7, 3, 2000).then(($cellData) => {
       expect($cellData).to.eq("");
     });
     table.ReadTableRowColumnData(7, 4, 200).then(($cellData) => {
@@ -480,7 +481,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("12. Update the InsertQuery to insert all columns from UI", () => {
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     let insertQuery = `INSERT INTO public."vessels" (
       "ship_id",
@@ -520,12 +521,12 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     ee.SelectEntityByName("InsertQuery", "QUERIES/JS");
     agHelper.EnterValue(insertQuery);
     agHelper.AssertAutoSave();
-    ee.expandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity("QUERIES/JS", false);
   });
 
   it("13. Verify Add/Insert from Deploy page - on Vessels - new record", () => {
-    ee.expandCollapseEntity("WIDGETS");
-    ee.expandCollapseEntity("Insert_Modal");
+    ee.ExpandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("Insert_Modal");
     //ee.ActionContextMenuByEntityName("JSONForm1Copy", "Delete")
     ee.SelectEntityByName("insert_form");
     agHelper.Sleep(2000);
@@ -670,7 +671,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("15. Validate Deletion of the Newly Created Page - Vessels", () => {
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
     ee.ActionContextMenuByEntityName("Public.vessels", "Delete", "Are you sure?");
@@ -688,7 +689,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
-    ee.expandCollapseEntity(dsName);
+    ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.vessels"));
   });

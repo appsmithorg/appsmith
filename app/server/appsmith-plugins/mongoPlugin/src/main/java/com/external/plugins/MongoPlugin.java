@@ -880,7 +880,7 @@ public class MongoPlugin extends BasePlugin {
          * @return Mongo's native/raw query set at path `formData.formToNativeQuery.data`
          */
         @Override
-        public ActionConfiguration extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
+        public void extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
             Map<String, Object> formData = actionConfiguration.getFormData();
             if (formData != null && !formData.isEmpty()) {
                 /* If it is not raw command, then it must be one of the mongo form commands */
@@ -906,8 +906,6 @@ public class MongoPlugin extends BasePlugin {
                     }
                 }
             }
-
-            return actionConfiguration;
         }
     }
 

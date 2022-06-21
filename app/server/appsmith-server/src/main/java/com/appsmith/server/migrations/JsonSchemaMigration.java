@@ -1,6 +1,6 @@
 package com.appsmith.server.migrations;
 
-import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -40,19 +40,28 @@ public class JsonSchemaMigration {
             case 1:
                 // Migration for deprecating archivedAt field in ActionDTO
                 if (!CollectionUtils.isNullOrEmpty(applicationJson.getActionList())) {
-                    HelperMethods.updateArchivedAtByDeletedATForActions(applicationJson.getActionList());
+                    MigrationHelperMethods.updateArchivedAtByDeletedATForActions(applicationJson.getActionList());
                 }
                 applicationJson.setServerSchemaVersion(2);
             case 2:
                 // Migration for converting formData elements to one that supports viewType
-                HelperMethods.migrateActionFormDataToObject(applicationJson);
+                MigrationHelperMethods.migrateActionFormDataToObject(applicationJson);
                 applicationJson.setServerSchemaVersion(3);
             case 3:
                 // File structure migration to update git directory structure
                 applicationJson.setServerSchemaVersion(4);
             case 4:
-                HelperMethods.migrateGoogleSheetsActionsToUqi(applicationJson);
+                // Remove unwanted fields from DTO and allow serialization for JsonIgnore fields
+                if (!CollectionUtils.isNullOrEmpty(applicationJson.getPageList()) && applicationJson.getExportedApplication() != null) {
+                    MigrationHelperMethods.arrangeApplicationPagesAsPerImportedPageOrder(applicationJson);
+                    MigrationHelperMethods.updateMongoEscapedWidget(applicationJson);
+                }
+                if (!CollectionUtils.isNullOrEmpty(applicationJson.getActionList())) {
+                    MigrationHelperMethods.updateUserSetOnLoadAction(applicationJson);
+                }
                 applicationJson.setServerSchemaVersion(5);
+            case 5:
+                MigrationHelperMethods.migrateGoogleSheetsActionsToUqi(applicationJson);
             default:
                 // Unable to detect the serverSchema
         }
