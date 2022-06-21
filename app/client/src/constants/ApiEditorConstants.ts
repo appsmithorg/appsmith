@@ -112,8 +112,7 @@ export const DEFAULT_GRAPHQL_ACTION_CONFIG: ApiActionConfig = {
     { key: "", value: "" },
   ],
   queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
-  query: "",
-  variable: "",
+  body: "",
   formData: {
     apiContentType: POST_BODY_FORMAT_OPTIONS.JSON,
   },

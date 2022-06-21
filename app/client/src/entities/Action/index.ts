@@ -15,11 +15,24 @@ export enum PaginationType {
   NONE = "NONE",
   PAGE_NO = "PAGE_NO",
   URL = "URL",
+  CURSOR = "CURSOR",
 }
 
 export interface KeyValuePair {
   key?: string;
   value?: unknown;
+}
+
+export type LimitOffset = {
+  limit: Record<string, unknown>;
+  offset: Record<string, unknown>;
+};
+export interface SelfReferencingData {
+  limitBased?: LimitOffset;
+  curserBased?: {
+    previous?: LimitOffset;
+    next?: LimitOffset;
+  };
 }
 
 export interface ActionConfig {
@@ -29,6 +42,7 @@ export interface ActionConfig {
   pluginSpecifiedTemplates?: KeyValuePair[];
   path?: string;
   queryParameters?: KeyValuePair[];
+  selfReferencingData?: SelfReferencingData;
 }
 
 export interface ActionProvider {

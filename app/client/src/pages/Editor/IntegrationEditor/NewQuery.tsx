@@ -1,8 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { connect } from "react-redux";
-import { createActionRequest } from "actions/pluginActionActions";
-import { QueryAction } from "entities/Action";
 import DataSourceHome from "./DatasourceHome";
 
 const QueryHomePage = styled.div`
@@ -18,7 +15,6 @@ const QueryHomePage = styled.div`
 
 type QueryHomeScreenProps = {
   pageId: string;
-  createAction: (data: Partial<QueryAction> & { eventData: any }) => void;
   isCreating: boolean;
   location: {
     search: string;
@@ -52,10 +48,4 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => ({
-  createAction: (data: Partial<QueryAction> & { eventData: any }) => {
-    dispatch(createActionRequest(data));
-  },
-});
-
-export default connect(null, mapDispatchToProps)(QueryHomeScreen);
+export default QueryHomeScreen;
