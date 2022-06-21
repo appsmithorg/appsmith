@@ -56,4 +56,9 @@ public class UserGroupServiceCEImpl extends BaseService<UserGroupRepository, Use
     public Flux<UserGroup> getDefaultUserGroups(String workspaceId) {
         return repository.findByDefaultWorkspaceId(workspaceId);
     }
+
+    @Override
+    public Flux<UserGroup> getAllByIds(Set<String> ids, AclPermission permission) {
+        return repository.findAllByIds(ids, permission);
+    }
 }

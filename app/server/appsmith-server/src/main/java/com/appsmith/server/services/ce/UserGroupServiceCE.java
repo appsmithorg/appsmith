@@ -18,6 +18,8 @@ public interface UserGroupServiceCE extends CrudService<UserGroup, String> {
 
     Flux<UserGroup> findAllByIds(Set<String> ids);
 
+    Flux<UserGroup> getAllByIds(Set<String> ids, AclPermission permission);
+
     Mono<UserGroup> save(UserGroup userGroup);
 
     Mono<UserGroup> getById(String id, AclPermission permission);

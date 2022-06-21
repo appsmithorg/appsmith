@@ -4,6 +4,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.UserAndGroupDTO;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.UserWorkspaceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class WorkspaceControllerCE extends BaseController<WorkspaceService, Work
     }
 
     @GetMapping("/{workspaceId}/members")
-    public Mono<ResponseDTO<List<UserRole>>> getUserMembersOfWorkspace(@PathVariable String workspaceId) {
+    public Mono<ResponseDTO<List<UserAndGroupDTO>>> getUserMembersOfWorkspace(@PathVariable String workspaceId) {
         return service.getWorkspaceMembers(workspaceId)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
