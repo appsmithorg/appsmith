@@ -105,15 +105,17 @@ export const getStylesheetValue = (
   propertyPath: string,
   widgetStylesheet?: AppTheme["stylesheet"][string],
 ) => {
-  return getSchemaItem(props, propertyPath).compute((schemaItem) => {
-    const fieldStylesheet = getFieldStylesheet(
-      props.widgetName,
-      schemaItem.fieldType,
-      widgetStylesheet?.childStylesheet as FieldThemeStylesheet,
-    );
+  return getSchemaItem(props, propertyPath).compute(
+    (schemaItem, propertyName) => {
+      const fieldStylesheet = getFieldStylesheet(
+        props.widgetName,
+        schemaItem.fieldType,
+        widgetStylesheet?.childStylesheet as FieldThemeStylesheet,
+      );
 
-    return fieldStylesheet || "";
-  });
+      return fieldStylesheet[propertyName] || "";
+    },
+  );
 };
 
 export const getAutocompleteProperties = (props: JSONFormWidgetProps) => {
