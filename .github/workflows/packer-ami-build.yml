@@ -5,7 +5,7 @@ name: Ami Packer Build
 
 on:
   # This line enables manual triggering of this workflow.
-- workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
   packer:
