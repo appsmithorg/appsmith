@@ -115,7 +115,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                   PermissionGroupService permissionGroupService,
                                   RbacPolicyService rbacPolicyService,
                                   PolicyUtils policyUtils,
-                                  UserService userService) {
+                                  UserService userService,
+                                  ModelMapper modelMapper) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pluginRepository = pluginRepository;
@@ -131,7 +132,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         this.rbacPolicyService = rbacPolicyService;
         this.policyUtils = policyUtils;
         this.userService = userService;
-        this.modelMapper = new ModelMapper();
+        this.modelMapper = modelMapper;
     }
 
     @Override

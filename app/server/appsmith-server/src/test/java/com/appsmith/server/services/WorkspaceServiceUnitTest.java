@@ -67,11 +67,11 @@ public class WorkspaceServiceUnitTest {
 
     @Before
     public void setUp() {
+        modelMapper = new ModelMapper();
         workspaceService = new WorkspaceServiceImpl(scheduler, validator, mongoConverter, reactiveMongoTemplate,
                 workspaceRepository, analyticsService, pluginRepository, sessionUserService, userWorkspaceService,
                 userRepository, roleGraph, assetRepository, assetService, applicationRepository, userGroupService,
-                permissionGroupService, rbacPolicyService, policyUtils, userService);
-        modelMapper = new ModelMapper();
+                permissionGroupService, rbacPolicyService, policyUtils, userService, modelMapper);
     }
 
     @Test
