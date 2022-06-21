@@ -52,7 +52,7 @@ export const sourceDataValidationFn = (
     return {
       isValid: false,
       parsed: {},
-      messages: [e.message],
+      messages: [(e as Error).message],
     };
   }
 };
