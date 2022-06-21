@@ -18,10 +18,20 @@
       - virtualenv
       - python3-setuptools
       - gnupg2
+      - libnss3-tools
     state: latest
   become: true
   tags:
     - always
+
+- name: Change permissions to pkexec
+  file:
+    path: "/usr/bin/pkexec"
+    state: file
+    owner: root
+    group: root
+    mode: 0755
+  become: true
 
 - name: Ensure old versions of Docker are not installed
   package:
