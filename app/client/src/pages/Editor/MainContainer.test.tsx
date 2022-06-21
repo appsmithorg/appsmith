@@ -7,6 +7,7 @@ import { act, render, fireEvent } from "test/testUtils";
 import GlobalHotKeys from "./GlobalHotKeys";
 import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";
+import * as dataTreeSelectors from "selectors/dataTreeSelectors";
 import store from "store";
 import { sagasToRunForTests } from "test/sagas";
 import { all } from "@redux-saga/core/effects";
@@ -14,6 +15,7 @@ import {
   MockApplication,
   mockCreateCanvasWidget,
   mockGetCanvasWidgetDsl,
+  mockGetWidgetEvalValues,
   syntheticTestMouseEvent,
 } from "test/testCommon";
 import lodash from "lodash";
@@ -94,6 +96,9 @@ describe("Drag and Drop widgets into Main container", () => {
   jest
     .spyOn(utilities, "createCanvasWidget")
     .mockImplementation(mockCreateCanvasWidget);
+  jest
+    .spyOn(dataTreeSelectors, "getWidgetEvalValues")
+    .mockImplementation(mockGetWidgetEvalValues);
   jest
     .spyOn(utilities, "computeMainContainerWidget")
     .mockImplementation((widget) => widget as any);

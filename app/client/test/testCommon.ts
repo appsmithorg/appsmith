@@ -120,6 +120,15 @@ export const mockCreateCanvasWidget = (
   return { ...canvasWidget };
 };
 
+export const mockGetWidgetEvalValues = (
+  state: AppState,
+  widgetName: string,
+) => {
+  return Object.values(state.entities.canvasWidgets).find(
+    (widget) => widget.widgetName === widgetName,
+  ) as DataTreeWidget;
+};
+
 export const syntheticTestMouseEvent = (
   event: MouseEvent,
   optionsToAdd = {},
