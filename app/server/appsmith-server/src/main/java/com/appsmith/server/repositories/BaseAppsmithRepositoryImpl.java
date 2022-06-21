@@ -5,7 +5,12 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.QRbacPolicy;
+import com.appsmith.server.domains.QUserGroup;
+import com.appsmith.server.domains.QUserInGroup;
+import com.appsmith.server.domains.RbacPolicy;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.mongodb.BasicDBObject;
@@ -32,6 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -52,13 +58,43 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         this.genericDomain = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryImpl.class);
     }
 
-    //TODO move and implement, maybe do not take user as argument
-    // this will include user's and anonymous
-    // Used mono istead of flux because operation to convert flux into a set is synchronized and this function takes care if that
-    // and hence calling function doesn't need to do extra operations for converting multiple fluxes into a set
+    /**
+     * 1. Get all the user groups associated with the user
+     * 2. Get all the permission groups associated with all the user groups from step 1
+     * 3. Return the set of all the permission groups.
+     * @param user
+     * @return
+     */
     protected Mono<Set<String>> getCurrentPermissionGroups(User user) {
-        Set<String> permissions = new HashSet<>();
-        return Mono.just(permissions);
+
+        return findAllUserGroupsByUserId(user.getId())
+                .map(UserGroup::getId)
+                .collect(Collectors.toSet())
+                .flatMap(userGroupIds -> findAllPermissionGroups(user.getId(), userGroupIds));
+    }
+
+    private Flux<UserGroup> findAllUserGroupsByUserId(String userId) {
+        Criteria userIdCriteria = Criteria.where(fieldName(QUserGroup.userGroup.users))
+                .elemMatch(Criteria.where(fieldName(QUserInGroup.userInGroup.id)).is(userId));
+
+        Query query = new Query();
+        query.addCriteria(userIdCriteria);
+        return mongoOperations.find(query, UserGroup.class);
+    }
+
+    private Mono<Set<String>> findAllPermissionGroups(String userId, Set<String> userGroupIds) {
+        Criteria userGroupIdsCriteria = Criteria.where(fieldName(QRbacPolicy.rbacPolicy.userGroupId))
+                .in(userGroupIds);
+        Criteria userIdCriteria = Criteria.where(fieldName(QRbacPolicy.rbacPolicy.userId)).is(userId);
+
+        Criteria userOrUserGroupCriteria = new Criteria().orOperator(userGroupIdsCriteria, userIdCriteria);
+
+        Query query = new Query();
+        query.addCriteria(userOrUserGroupCriteria);
+        return mongoOperations.find(query, RbacPolicy.class)
+                .flatMap(policy -> Flux.fromIterable(policy.getPermissionGroupIds()))
+                .collect(Collectors.toSet());
+
     }
 
     public static final String fieldName(Path path) {
@@ -301,4 +337,5 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
         return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
     }
+
 }
