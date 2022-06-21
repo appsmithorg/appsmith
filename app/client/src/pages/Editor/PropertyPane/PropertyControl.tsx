@@ -518,14 +518,6 @@ const PropertyControl = memo((props: Props) => {
               tooltip={props.helpText}
             />
             {isConvertible && (
-              // heree
-              <JSToggleButton
-                handleClick={() =>
-                  toggleDynamicProperty(propertyName, isDynamic)
-                }
-                isActive={isDynamic}
-              />
-              // middle
               <Tooltip
                 content={JS_TOGGLE_DISABLED_MESSAGE}
                 disabled={!isToggleDisabled}
@@ -534,17 +526,13 @@ const PropertyControl = memo((props: Props) => {
                 position="auto"
               >
                 <JSToggleButton
-                  active={isDynamic}
-                  className={`focus:ring-2 t--js-toggle ${
-                    isDynamic ? "is-active" : ""
-                  }`}
-                  disabled={isToggleDisabled}
-                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
-                >
-                  <ControlIcons.JS_TOGGLE />
-                </JSToggleButton>
+                  handleClick={() =>
+                    toggleDynamicProperty(propertyName, isDynamic)
+                  }
+                  isActive={isDynamic}
+                  isToggleDisabled={isToggleDisabled}
+                />
               </Tooltip>
-// endddd
             )}
             {isPropertyDeviatedFromTheme && (
               <>

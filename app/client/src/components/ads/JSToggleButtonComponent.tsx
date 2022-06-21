@@ -50,6 +50,7 @@ const JSToggleButtonWrapper = styled.button<{ active: boolean }>`
 
 type JSToggleButtonProps = {
   isActive: boolean;
+  isToggleDisabled?: boolean;
   handleClick: (_: any) => void;
 };
 
@@ -60,6 +61,7 @@ function JSToggleButton(props: JSToggleButtonProps) {
       className={`focus:ring-2 t--js-toggle ${
         props.isActive ? "is-active" : ""
       }`}
+      disabled={props.isToggleDisabled}
       onClick={props.handleClick}
     >
       <ControlIcons.JS_TOGGLE />
