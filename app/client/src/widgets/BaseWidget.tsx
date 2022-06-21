@@ -44,6 +44,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { isDynamicHeightEnabledForWidget } from "./WidgetUtils";
+import DynamicHeightOverlay from "components/editorComponents/DynamicHeightOverlay";
 
 /***
  * BaseWidget
@@ -421,9 +422,16 @@ abstract class BaseWidget<
     );
   }
 
-  // addDynamicHeightContainer(content: ReactNode) {
-  //   return <div className="dynamic-height-is-enabled">{content}</div>;
-  // }
+  addDynamicHeightOverlay(content: ReactNode) {
+    return (
+      <DynamicHeightOverlay
+        maxDynamicHeight={this.props.maxDynamicHeight}
+        minDynamicHeight={this.props.minDynamicHeight}
+      >
+        {content}
+      </DynamicHeightOverlay>
+    );
+  }
 
   private getWidgetView(): ReactNode {
     let content: ReactNode;
@@ -431,6 +439,18 @@ abstract class BaseWidget<
       case RenderModes.CANVAS:
         content = this.getCanvasView();
         content = this.addPreviewModeWidget(content);
+
+        if (
+          this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
+        ) {
+          console.log(
+            "AUTO_HEIGHT_WITH_LIMITS",
+            this.props.maxDynamicHeight,
+            this.props.minDynamicHeight,
+          );
+          content = this.addDynamicHeightOverlay(content);
+        }
+
         content = this.addPreventInteractionOverlay(content);
         content = this.addOverlayComments(content);
 
@@ -442,6 +462,7 @@ abstract class BaseWidget<
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
         }
+
         return content;
 
       // return this.getCanvasView();
