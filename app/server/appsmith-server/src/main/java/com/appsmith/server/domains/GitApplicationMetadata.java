@@ -29,7 +29,7 @@ public class GitApplicationMetadata implements AppsmithDomain {
     String repoName;
 
     // Default application id used for storing the application files in local volume :
-    // container-volumes/git_repo/organizationId/defaultApplicationId/branchName/applicationDirectoryStructure...
+    // container-volumes/git_repo/workspaceId/defaultApplicationId/branchName/applicationDirectoryStructure...
     String defaultApplicationId;
 
     // Git credentials used to push changes to remote repo and will be stored with default application only to optimise

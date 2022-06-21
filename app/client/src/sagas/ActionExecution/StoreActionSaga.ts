@@ -24,7 +24,7 @@ export default function* storeValueLocally(
     parsedStore[action.key] = action.value;
     const storeString = JSON.stringify(parsedStore);
     localStorage.setItem(appStoreName, storeString);
-    yield put(updateAppPersistentStore(parsedStore));
+    yield put(updateAppPersistentStore(parsedStore, action));
     AppsmithConsole.info({
       text: `store('${action.key}', '${action.value}', true)`,
     });
@@ -34,10 +34,25 @@ export default function* storeValueLocally(
       ...existingStore.transient,
       [action.key]: action.value,
     };
-    yield put(updateAppTransientStore(newTransientStore));
+    yield put(updateAppTransientStore(newTransientStore, action));
     AppsmithConsole.info({
       text: `store('${action.key}', '${action.value}', false)`,
     });
   }
-  yield take(ReduxActionTypes.UPDATE_APP_STORE_EVALUATED);
+  /* It is possible that user calls multiple storeValue function together, in such case we need to track completion of each action separately
+  We use uniqueActionRequestId to differentiate each storeValueAction here.
+  */
+  while (true) {
+    const returnedAction: StoreValueActionDescription = yield take(
+      ReduxActionTypes.UPDATE_APP_STORE_EVALUATED,
+    );
+    if (!returnedAction?.payload?.uniqueActionRequestId) {
+      break;
+    }
+
+    const { uniqueActionRequestId } = returnedAction.payload;
+    if (uniqueActionRequestId === action.uniqueActionRequestId) {
+      break;
+    }
+  }
 }

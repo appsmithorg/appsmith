@@ -1,29 +1,30 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
-import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.dtos.UserHomepageDTO;
-import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.WorkspaceService;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.UUID;
+
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.UserHomepageDTO;
+import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
+import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.WorkspaceService;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
 @RunWith(SpringRunner.class)
-class ApplicationFetcherTest {
+public class ApplicationFetcherTest {
 
     @Autowired
     private ApplicationPageService applicationPageService;
@@ -36,7 +37,7 @@ class ApplicationFetcherTest {
 
     @Test
     @WithUserDetails("api_user")
-    void getAllApplications_WhenUnpublishedPageExists_ReturnsApplications() {
+    public void getAllApplications_WhenUnpublishedPageExists_ReturnsApplications() {
         String randomUUID = UUID.randomUUID().toString();
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("org_" + randomUUID);
@@ -52,10 +53,10 @@ class ApplicationFetcherTest {
         }).then(applicationFetcher.getAllApplications());
 
         StepVerifier.create(homepageDTOMono).assertNext(userHomepageDTO -> {
-            assertThat(userHomepageDTO.getOrganizationApplications()).isNotNull();
+            assertThat(userHomepageDTO.getWorkspaceApplications()).isNotNull();
 
-            WorkspaceApplicationsDTO orgApps = userHomepageDTO.getOrganizationApplications().stream().filter(
-                    x -> x.getOrganization().getName().equals(newWorkspace.getName())
+            WorkspaceApplicationsDTO orgApps = userHomepageDTO.getWorkspaceApplications().stream().filter(
+                    x -> x.getWorkspace().getName().equals(newWorkspace.getName())
             ).findFirst().orElse(new WorkspaceApplicationsDTO());
 
             assertThat(orgApps.getApplications().size()).isEqualTo(1);

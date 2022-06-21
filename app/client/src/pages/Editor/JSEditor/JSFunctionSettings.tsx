@@ -143,7 +143,10 @@ function SettingsItem({ action }: SettingsItemProps) {
   };
 
   return (
-    <SettingRow>
+    <SettingRow
+      className="t--async-js-function-settings"
+      id={`${action.name}-settings`}
+    >
       <SettingColumn grow>
         <span>{action.name}</span>
       </SettingColumn>
