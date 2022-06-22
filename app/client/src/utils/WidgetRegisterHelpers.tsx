@@ -24,8 +24,7 @@ const generateWidget = memoize(function getWidgetComponent(
   // @ts-ignore
   widget = withWidgetProps(widget);
   return Sentry.withProfiler(
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     widget,
   );
 });

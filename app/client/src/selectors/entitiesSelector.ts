@@ -545,10 +545,10 @@ export const getAllWidgetsMap = createSelector(
 export const getAllPageWidgets = createSelector(
   getAllWidgetsMap,
   (widgetsMap) => {
-    return Object.entries(widgetsMap).reduce(
-      (res: any[], [, widget]: any) => [...res, widget],
-      [],
-    );
+    return Object.entries(widgetsMap).reduce((res: any[], [, widget]: any) => {
+      res.push(widget);
+      return res;
+    }, []);
   },
 );
 
