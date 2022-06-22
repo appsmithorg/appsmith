@@ -34,7 +34,7 @@ export class AggregateHelper {
     LOCAL_STORAGE_MEMORY = {};
   }
 
-  public TypeTab(shiftKey: boolean = false, ctrlKey: boolean = false) {
+  public TypeTab(shiftKey = false, ctrlKey = false) {
     cy.focused().trigger("keydown", {
       keyCode: 9,
       which: 9,
@@ -86,8 +86,8 @@ export class AggregateHelper {
   }
 
   public RenameWithInPane(renameVal: string, query = true) {
-    let name = query ? this.locator._queryName : this.locator._dsName;
-    let text = query ? this.locator._queryNameTxt : this.locator._dsNameTxt;
+    const name = query ? this.locator._queryName : this.locator._dsName;
+    const text = query ? this.locator._queryNameTxt : this.locator._dsNameTxt;
     cy.get(name).click({ force: true });
     cy.get(text)
       .clear({ force: true })
@@ -228,8 +228,8 @@ export class AggregateHelper {
     cy.get(this.locator._dropDownValue(ddOption)).click();
   }
 
-  public SelectDropDown(ddOption: string, endp: string = "selectwidget") {
-    let mode = window.localStorage.getItem("inDeployedMode");
+  public SelectDropDown(ddOption: string, endp = "selectwidget") {
+    const mode = window.localStorage.getItem("inDeployedMode");
     if (mode == "false") {
       cy.xpath(this.locator._selectWidgetDropdown(endp))
         .first()
@@ -250,17 +250,17 @@ export class AggregateHelper {
 
   public SelectFromDropDown(
     ddOption: string,
-    insideParent: string = "",
+    insideParent = "",
     index = 0,
-    endp: string = "dropdownwidget",
+    endp = "dropdownwidget",
   ) {
-    let mode = window.localStorage.getItem("inDeployedMode");
+    const mode = window.localStorage.getItem("inDeployedMode");
     //cy.log("mode frm deployed is:" + mode)
-    let modeSelector =
+    const modeSelector =
       mode == "true"
         ? this.locator._selectWidgetDropdownInDeployed(endp)
         : this.locator._selectWidgetDropdown(endp);
-    let finalSelector = insideParent
+    const finalSelector = insideParent
       ? this.locator._divWithClass(insideParent) + modeSelector
       : modeSelector;
     cy.log(finalSelector);
@@ -283,7 +283,7 @@ export class AggregateHelper {
     options: string[],
     index = 0,
     check = true,
-    endp: string = "multiselectwidgetv2",
+    endp = "multiselectwidgetv2",
   ) {
     cy.get(this.locator._widgetInDeployed(endp) + " div.rc-select-selector")
       .eq(index)
@@ -365,7 +365,7 @@ export class AggregateHelper {
   }
 
   public GetNClick(selector: string, index = 0, force = false) {
-    let locator = selector.startsWith("//")
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator
@@ -387,7 +387,7 @@ export class AggregateHelper {
   }
 
   public CheckUncheck(selector: string, check = true) {
-    let locator = selector.startsWith("//")
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     if (check) {
@@ -435,7 +435,7 @@ export class AggregateHelper {
   }
 
   public GetElementLength(selector: string) {
-    let locator = selector.startsWith("//")
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator.its("length");
@@ -485,7 +485,7 @@ export class AggregateHelper {
     valueToEnter: string,
     options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
   ) {
-    const { propFieldName, directInput, inputFieldName } = options;
+    const { directInput, inputFieldName, propFieldName } = options;
 
     if (propFieldName && !directInput && !inputFieldName) {
       cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
@@ -511,16 +511,20 @@ export class AggregateHelper {
     this.AssertAutoSave();
   }
 
-  public EnterInputText(name: string, input: string, toClear = false, isInput = true) {
-    toClear && this.ClearInputText(name)
+  public EnterInputText(
+    name: string,
+    input: string,
+    toClear = false,
+    isInput = true,
+  ) {
+    toClear && this.ClearInputText(name);
     cy.xpath(this.locator._inputWidgetValueField(name, isInput))
-      .trigger('click')
+      .trigger("click")
       .type(input);
   }
 
   public ClearInputText(name: string, isInput = true) {
-    cy.xpath(this.locator._inputWidgetValueField(name, isInput))
-      .clear();
+    cy.xpath(this.locator._inputWidgetValueField(name, isInput)).clear();
   }
 
   public UpdateCodeInput(selector: string, value: string) {
@@ -603,7 +607,7 @@ export class AggregateHelper {
 
   public AssertElementAbsence(selector: string) {
     //Should not exists - cannot take indexes
-    let locator = selector.startsWith("//")
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector, { timeout: 0 })
       : cy.get(selector, { timeout: 0 });
     locator.should("not.exist");
@@ -614,14 +618,14 @@ export class AggregateHelper {
     textOrValue: "text" | "val" = "text",
     index = 0,
   ) {
-    let locator = selector.startsWith("//")
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator.eq(index).invoke(textOrValue);
   }
 
   public AssertElementVisible(selector: string, index = 0) {
-    let locator = selector.startsWith("//")
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     locator
@@ -631,7 +635,7 @@ export class AggregateHelper {
   }
 
   public AssertElementExist(selector: string, index = 0) {
-    let locator = selector.startsWith("//")
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     locator.eq(index).should("exist");
@@ -642,7 +646,7 @@ export class AggregateHelper {
     length: number,
     index: number | null = null,
   ) {
-    let locator = selector.startsWith("//")
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     if (index) locator.eq(index).should("have.length", length);

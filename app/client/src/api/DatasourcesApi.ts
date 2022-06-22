@@ -1,6 +1,6 @@
 import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import API from "api/Api";
-import { GenericApiResponse } from "./ApiResponses";
+import { ApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
 
 import { DatasourceAuthentication, Datasource } from "entities/Datasource";
@@ -38,7 +38,7 @@ class DatasourcesApi extends API {
 
   static fetchDatasources(
     workspaceId: string,
-  ): AxiosPromise<GenericApiResponse<Datasource[]>> {
+  ): AxiosPromise<ApiResponse<Datasource[]>> {
     return API.get(DatasourcesApi.url + `?workspaceId=${workspaceId}`);
   }
 
@@ -72,9 +72,7 @@ class DatasourcesApi extends API {
     );
   }
 
-  static fetchMockDatasources(): AxiosPromise<
-    GenericApiResponse<Datasource[]>
-  > {
+  static fetchMockDatasources(): AxiosPromise<ApiResponse<Datasource[]>> {
     return API.get(DatasourcesApi.url + "/mocks");
   }
 

@@ -18,7 +18,6 @@ import { ActionConfig } from "entities/Action";
 import { FormConfigType } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";
 import { ApiResponse } from "api/ApiResponses";
-
 import { getAction } from "selectors/entitiesSelector";
 import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -325,7 +324,9 @@ function* fetchDynamicValueSaga(
 
 function* formEvaluationChangeListenerSaga() {
   while (true) {
-    const action = yield take(FORM_EVALUATION_REDUX_ACTIONS);
+    const action: ReduxAction<FormEvalActionPayload> = yield take(
+      FORM_EVALUATION_REDUX_ACTIONS,
+    );
     yield fork(setFormEvaluationSagaAsync, action);
   }
 }
