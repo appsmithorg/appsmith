@@ -319,11 +319,11 @@ public class ActionServiceCE_Test {
                 .create(Mono.zip(actionMono, defaultPermissionGroupsMono))
                 .assertNext(tuple -> {
                     ActionDTO createdAction = tuple.getT1();
-                    List<PermissionGroup> permissionGroups = tuple.getT2();
                     assertThat(createdAction.getId()).isNotEmpty();
                     assertThat(createdAction.getName()).isEqualTo(action.getName());
                     assertThat(createdAction.getExecuteOnLoad()).isFalse();
 
+                    List<PermissionGroup> permissionGroups = tuple.getT2();
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                             .findFirst().get();
@@ -356,12 +356,14 @@ public class ActionServiceCE_Test {
     public void createValidAction_forGitConnectedApp_getValidPermissionAndDefaultIds() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
@@ -377,15 +379,40 @@ public class ActionServiceCE_Test {
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
         StepVerifier
-                .create(actionMono)
-                .assertNext(createdAction -> {
-                    assertThat(createdAction.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy));
+                .create(Mono.zip(actionMono, defaultPermissionGroupsMono))
+                .assertNext(tuple -> {
+                    ActionDTO createdAction = tuple.getT1();
                     assertThat(createdAction.getExecuteOnLoad()).isFalse();
 
                     assertThat(createdAction.getDefaultResources()).isNotNull();
                     assertThat(createdAction.getDefaultResources().getActionId()).isEqualTo(createdAction.getId());
                     assertThat(createdAction.getDefaultResources().getPageId()).isEqualTo(gitConnectedPage.getId());
                     assertThat(createdAction.getDefaultResources().getApplicationId()).isEqualTo(gitConnectedPage.getApplicationId());
+
+                    List<PermissionGroup> permissionGroups = tuple.getT2();
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                            .findFirst().get();
+
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                            .findFirst().get();
+
+                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                            .findFirst().get();
+
+                    Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
+
+                    assertThat(createdAction.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
                 })
                 .verifyComplete();
     }
@@ -1122,8 +1149,8 @@ public class ActionServiceCE_Test {
         Datasource externalDatasource = new Datasource();
         externalDatasource.setName("Default Database");
         externalDatasource.setWorkspaceId(workspaceId);
-        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
-        externalDatasource.setPluginId(installed_plugin.getId());
+        Plugin restApiPlugin = pluginRepository.findByPackageName("restapi-plugin").block();
+        externalDatasource.setPluginId(restApiPlugin.getId());
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("some url here");
         externalDatasource.setDatasourceConfiguration(datasourceConfiguration);
