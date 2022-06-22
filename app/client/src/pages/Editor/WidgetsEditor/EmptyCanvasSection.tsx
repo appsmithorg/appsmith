@@ -4,7 +4,7 @@ import { ReactComponent as Layout } from "assets/icons/ads/layout-7.svg";
 import { ReactComponent as Database } from "assets/icons/ads/database-3.svg";
 import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { getCanvasWidgets, getPageList } from "selectors/entitiesSelector";
 import { useDispatch, useSelector } from "react-redux";
 import { previewModeSelector, selectURLSlugs } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
@@ -14,6 +14,7 @@ import { generateTemplateFormURL } from "RouteBuilder";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import { showTemplatesModal as showTemplatesModalAction } from "actions/templateActions";
+import { AppState } from "reducers";
 
 const Wrapper = styled.div`
   margin: 16px 33px 0px 33px;
@@ -63,10 +64,18 @@ function CanvasTopSection() {
   const widgets = useSelector(getCanvasWidgets);
   const inPreviewMode = useSelector(previewModeSelector);
   const isCommentMode = useSelector(commentModeSelector);
+  const pageLength = useSelector(
+    (state: AppState) => getPageList(state).length,
+  );
   const { pageId } = useParams<ExplorerURLParams>();
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
-  if (Object.keys(widgets).length > 1 || inPreviewMode || isCommentMode)
+  if (
+    Object.keys(widgets).length > 1 ||
+    pageLength > 1 ||
+    inPreviewMode ||
+    isCommentMode
+  )
     return null;
 
   const showTemplatesModal = () => {
