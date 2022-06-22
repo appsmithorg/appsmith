@@ -23,12 +23,12 @@ function BackToHomeButton() {
       }}
     >
       <AppsIcon
-        className="p-1 w-7 h-7 group-hover:bg-gray-100"
+        className="p-1 text-[#858282] w-7 h-7 group-hover:bg-gray-100"
         style={{
           borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
         }}
       />
-      <span className="hidden md:block">Apps</span>
+      <span className="hidden md:block text-[#4B4848]">Apps</span>
     </button>
   );
 }

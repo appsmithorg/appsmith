@@ -114,7 +114,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                 {currentApplicationDetails?.name}
               </div>
             </div>
-            <section className="relative flex items-center ml-auto space-x-2 z-1">
+            <section className="relative flex items-center ml-auto space-x-3 z-1">
               {currentApplicationDetails && (
                 <>
                   {!shouldHideComments && <ToggleCommentModeButton />}
