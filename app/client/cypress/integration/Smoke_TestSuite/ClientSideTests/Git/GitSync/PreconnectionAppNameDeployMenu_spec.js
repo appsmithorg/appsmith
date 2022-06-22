@@ -1,7 +1,6 @@
 import homePage from "../../../../../locators/HomePage";
 const commonLocators = require("../../../../../locators/commonlocators.json");
-
-import gitSyncLocators from "../../../../locators/gitSyncLocators";
+import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 
 describe("Pre git connection spec:", function() {
   it("deploy menu at the application dropdown menu", () => {
