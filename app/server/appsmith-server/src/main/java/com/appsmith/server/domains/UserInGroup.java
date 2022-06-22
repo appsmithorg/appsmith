@@ -2,9 +2,7 @@ package com.appsmith.server.domains;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @EqualsAndHashCode
 @NoArgsConstructor

@@ -436,7 +436,7 @@ public class WorkspaceServiceTest {
 
         Mono<Workspace> createWorkspaceMono = workspaceService.create(testWorkspace);
         Mono<List<UserAndGroupDTO>> usersMono = createWorkspaceMono
-                .flatMap(workspace -> workspaceService.getWorkspaceMembers(workspace.getId()));
+                .flatMap(workspace -> userWorkspaceService.getWorkspaceMembers(workspace.getId()));
 
         Mono<UserGroup> adminUserGroup = createWorkspaceMono
                 .flatMapMany(workspace -> userGroupService.getDefaultUserGroups(workspace.getId()))

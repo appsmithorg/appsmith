@@ -13,7 +13,6 @@ import com.appsmith.server.domains.RbacPolicy;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.UserInGroup;
-import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.Permission;
@@ -36,9 +35,9 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.RbacPolicyService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserGroupService;
-import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -49,17 +48,12 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-import retrofit.http.HEAD;
-
-import org.modelmapper.ModelMapper;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -67,7 +61,6 @@ import static com.appsmith.server.acl.AclPermission.INVITE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
@@ -92,7 +85,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final PermissionGroupService permissionGroupService;
     private final RbacPolicyService rbacPolicyService;
     private final PolicyUtils policyUtils;
-    private final UserService userService;
     private final ModelMapper modelMapper;
 
 
@@ -115,7 +107,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                   PermissionGroupService permissionGroupService,
                                   RbacPolicyService rbacPolicyService,
                                   PolicyUtils policyUtils,
-                                  UserService userService,
                                   ModelMapper modelMapper) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
@@ -131,7 +122,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         this.permissionGroupService = permissionGroupService;
         this.rbacPolicyService = rbacPolicyService;
         this.policyUtils = policyUtils;
-        this.userService = userService;
         this.modelMapper = modelMapper;
     }
 
@@ -154,7 +144,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
      * is discarded.
      *
      * @param workspace workspace object to be created.
-     * @param user         User to whom this workspace will belong to, as a default workspace.
+     * @param user      User to whom this workspace will belong to, as a default workspace.
      * @return Publishes the saved workspace.
      */
     @Override
@@ -173,7 +163,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
      * 5. Assigns the default groups to the user creating the workspace
      *
      * @param workspace Workspace object to be created.
-     * @param user         User to whom this workspace will belong to.
+     * @param user      User to whom this workspace will belong to.
      * @return Publishes the saved workspace.
      */
     @Override
@@ -291,6 +281,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     public String getDefaultNameForGroupInWorkspace(String prefix, String workspaceName) {
         return prefix + " - " + workspaceName;
     }
+
     private Mono<Set<UserGroup>> generateDefaultUserGroups(Workspace workspace) {
         String workspaceName = workspace.getName();
 
@@ -469,7 +460,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         Mono<Workspace> updateDefaultGroups_thenReturnWorkspaceMono = findWorkspaceMono;
 
         String newWorkspaceName = resource.getName();
-        if(StringUtils.hasLength(newWorkspaceName)) {
+        if (StringUtils.hasLength(newWorkspaceName)) {
             // There's a change in the workspace name.
             resource.setSlug(TextUtils.makeSlug(newWorkspaceName));
             updateDefaultGroups_thenReturnWorkspaceMono = findWorkspaceMono
@@ -519,7 +510,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> save(Workspace workspace) {
-        if(StringUtils.hasLength(workspace.getName())) {
+        if (StringUtils.hasLength(workspace.getName())) {
             workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
         }
         return repository.save(workspace);
@@ -562,66 +553,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         return userGroupInfoFlux.collectList();
     }
 
-    private List<UserAndGroupDTO> mapUserGroupListToUserAndGroupDTOList(List<UserGroup> userGroupList) {
-        Set<UserInGroup> userInGroups = new HashSet<>(); // Set of already collected users
-        List<UserAndGroupDTO> userAndGroupDTOList = new ArrayList<>();
-        userGroupList.forEach(userGroup -> {
-            userGroup.getUsers().stream().filter(userInGroup -> !userInGroups.contains(userInGroup)).forEach(userInGroup -> {
-                userAndGroupDTOList.add(UserAndGroupDTO.builder()
-                        .username(userInGroup.getUsername())
-                        .groupName(userGroup.getName())
-                        .groupId(userGroup.getId())
-                        .build()); // collect user
-                userInGroups.add(userInGroup); // update set of already collected users
-            });
-        });
-        return userAndGroupDTOList;
-    }
-
-    @Override
-    public Mono<List<UserAndGroupDTO>> getWorkspaceMembers(String workspaceId) {
-        if (!StringUtils.hasLength(workspaceId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
-        }
-
-        // Read the workspace
-        Mono<Workspace> workspaceMono = repository.findById(workspaceId, AclPermission.READ_WORKSPACES);
-
-        // Get default user group ids
-        Mono<Set<String>> defaultUserGroups = workspaceMono
-                .flatMap(workspace -> Mono.just(workspace.getDefaultUserGroups()));
-
-        // Get default user groups
-        Flux<UserGroup> userGroupFlux = defaultUserGroups
-                .flatMapMany(userGroupIds -> userGroupService.getAllByIds(userGroupIds, AclPermission.READ_USER_GROUPS));
-
-        // Create a list of UserAndGroupDTO from UserGroup list
-        Mono<List<UserAndGroupDTO>> userAndGroupDTOsMono = userGroupFlux
-                .collectList()
-                .map(this::mapUserGroupListToUserAndGroupDTOList).cache();
-
-        // Create a map of User.username to User
-        Mono<Map<String, User>> userMapMono = userAndGroupDTOsMono
-                .flatMapMany(Flux::fromIterable)
-                .map(UserAndGroupDTO::getUsername)
-                .collect(Collectors.toSet())
-                .flatMapMany(usernames -> userService.getAllByEmails(usernames, AclPermission.READ_USERS))
-                .collectMap(User::getUsername).cache();
-
-        // Update name in the list of UserAndGroupDTO
-        userAndGroupDTOsMono = userAndGroupDTOsMono
-                .flatMapMany(Flux::fromIterable)
-                .zipWith(userMapMono)
-                .map(tuple -> {
-                    UserAndGroupDTO userAndGroupDTO = tuple.getT1();
-                    Map<String, User> userMap = tuple.getT2();
-                    userAndGroupDTO.setName(userMap.get(userAndGroupDTO.getUsername()).getName()); // update name
-                    return userAndGroupDTO;
-                }).collectList().cache();
-
-        return userAndGroupDTOsMono;
-    }
-
     @Override
     public Mono<Workspace> uploadLogo(String workspaceId, Part filePart) {
         final Mono<Workspace> findWorkspaceMono = repository.findById(workspaceId, MANAGE_WORKSPACES)
@@ -656,7 +587,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
                 .flatMap(workspace -> {
                     final String prevAssetId = workspace.getLogoAssetId();
-                    if(prevAssetId == null) {
+                    if (prevAssetId == null) {
                         return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ASSET, prevAssetId));
                     }
                     workspace.setLogoAssetId(null);
@@ -676,7 +607,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     @Override
     public Mono<Workspace> archiveById(String workspaceId) {
         return applicationRepository.countByWorkspaceId(workspaceId).flatMap(appCount -> {
-            if(appCount == 0) { // no application found under this workspace
+            if (appCount == 0) { // no application found under this workspace
                 // fetching the workspace first to make sure user has permission to archive
                 return repository.findById(workspaceId, MANAGE_WORKSPACES)
                         .switchIfEmpty(Mono.error(new AppsmithException(

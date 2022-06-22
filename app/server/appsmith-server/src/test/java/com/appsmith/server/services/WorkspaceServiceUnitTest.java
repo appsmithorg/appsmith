@@ -26,7 +26,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
-import retrofit.http.HEAD;
 
 import javax.validation.Validator;
 import java.util.List;
@@ -71,7 +70,7 @@ public class WorkspaceServiceUnitTest {
         workspaceService = new WorkspaceServiceImpl(scheduler, validator, mongoConverter, reactiveMongoTemplate,
                 workspaceRepository, analyticsService, pluginRepository, sessionUserService, userWorkspaceService,
                 userRepository, roleGraph, assetRepository, assetService, applicationRepository, userGroupService,
-                permissionGroupService, rbacPolicyService, policyUtils, userService, modelMapper);
+                permissionGroupService, rbacPolicyService, policyUtils, modelMapper);
     }
 
     @Test
@@ -99,7 +98,7 @@ public class WorkspaceServiceUnitTest {
         Mockito.when(workspaceRepository.findById("test-org-id", WORKSPACE_INVITE_USERS))
                 .thenReturn(Mono.just(testWorkspace));
 
-        Mono<List<UserAndGroupDTO>> workspaceMembers = workspaceService.getWorkspaceMembers(testWorkspace.getId());
+        Mono<List<UserAndGroupDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(testWorkspace.getId());
         StepVerifier
                 .create(workspaceMembers)
                 .assertNext(userAndGroupDTOs -> {
@@ -115,7 +114,7 @@ public class WorkspaceServiceUnitTest {
         Mockito.when(workspaceRepository.findById(sampleWorkspaceId, WORKSPACE_INVITE_USERS))
                 .thenReturn(Mono.empty());
 
-        Mono<List<UserAndGroupDTO>> workspaceMembers = workspaceService.getWorkspaceMembers(sampleWorkspaceId);
+        Mono<List<UserAndGroupDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(sampleWorkspaceId);
         StepVerifier
                 .create(workspaceMembers)
                 .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, sampleWorkspaceId))
