@@ -497,92 +497,9 @@ describe("App Theming funtionality", function() {
       .eq(1)
       .invoke("css", "background-color")
       .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(246, 246, 246)");
+        expect(backgroudColor).to.eq("rgb(236, 253, 245)");
       });
 
-    //#endregion
-
-    //#region Earth
-    cy.xpath(applyTheme("Featured Themes", "Earth"))
-      .click({ force: true })
-      .wait(1000); //Changing to one of featured themes
-    cy.contains("Applied Theme")
-      .click()
-      .parent()
-      .siblings()
-      .find(".t--theme-card > main > section > div > main")
-      .eq(0)
-      .invoke("css", "background-color")
-      .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(59, 130, 246)");
-      });
-
-    cy.contains("Applied Theme")
-      .click()
-      .parent()
-      .siblings()
-      .find(".t--theme-card > main > section > div > main")
-      .eq(1)
-      .invoke("css", "background-color")
-      .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(246, 246, 246)");
-      });
-
-    //#endregion
-
-    //#region Pacific
-    cy.xpath(applyTheme("Featured Themes", "Pacific"))
-      .click({ force: true })
-      .wait(1000); //Changing to one of featured themes
-    cy.contains("Applied Theme")
-      .click()
-      .parent()
-      .siblings()
-      .find(".t--theme-card > main > section > div > main")
-      .eq(0)
-      .invoke("css", "background-color")
-      .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(8, 145, 178)");
-      });
-
-    cy.contains("Applied Theme")
-      .click()
-      .parent()
-      .siblings()
-      .find(".t--theme-card > main > section > div > main")
-      .eq(1)
-      .invoke("css", "background-color")
-      .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(255, 255, 255)");
-      });
-
-    //#endregion
-
-    //#region Water Lily
-    cy.xpath(applyTheme("Featured Themes", "Water Lily"))
-      .click({ force: true })
-      .wait(1000); //Changing to one of featured themes
-    cy.contains("Applied Theme")
-      .click()
-      .parent()
-      .siblings()
-      .find(".t--theme-card > main > section > div > main")
-      .eq(0)
-      .invoke("css", "background-color")
-      .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(219, 39, 119)");
-      });
-
-    cy.contains("Applied Theme")
-      .click()
-      .parent()
-      .siblings()
-      .find(".t--theme-card > main > section > div > main")
-      .eq(1)
-      .invoke("css", "background-color")
-      .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(246, 246, 246)");
-      });
     //#endregion
 
     //#region VioletYellowTheme
@@ -865,7 +782,7 @@ describe("App Theming funtionality", function() {
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
     //Changing to one of featured themes & then changing individual widget properties
-    cy.xpath(applyTheme("Featured Themes", "Rounded"))
+    cy.xpath(applyTheme("Featured Themes", "Sunrise"))
       .click({ force: true })
       .wait(1000);
 
@@ -885,16 +802,16 @@ describe("App Theming funtionality", function() {
           .should(
             "have.css",
             "background-color",
-            $elem.css("background-color"), //rgb(134, 239, 172)
+            $elem.css("background-color"),
           ); //new widget with its own color
 
         cy.get(widgetsPage.widgetBtn)
           .eq(1)
-          .should("have.css", "background-color", "rgb(219, 39, 119)"); //old widgets still conforming to theme color
+          .should("have.css", "background-color", "rgb(239, 68, 68)"); //old widgets still conforming to theme color
         cy.get(widgetsPage.iconWidgetBtn).should(
           "have.css",
           "background-color",
-          "rgb(219, 39, 119)",
+          "rgb(239, 68, 68)",
         );
       });
 
