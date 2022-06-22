@@ -10,9 +10,6 @@ describe("MultiSelect Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  beforeEach(() => {
-    cy.wait(7000);
-  });
   it("Selects value with invalid default value", () => {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.testJsontext("options", JSON.stringify(data.input));
@@ -31,37 +28,7 @@ describe("MultiSelect Widget Functionality", function() {
       .first()
       .should("have.text", "Option 3");
   });
-  it("Selects value with enter in default value", () => {
-    cy.testJsontext(
-      "defaultvalue",
-      '[\n  {\n    "label": "Option 3",\n    "value": "3"\n  }\n]',
-    );
-    cy.get(formWidgetsPage.multiselectwidgetv2)
-      .find(".rc-select-selection-item-content")
-      .first()
-      .should("have.text", "Option 3");
-  });
-  it("Dropdown Functionality To Validate Options", function() {
-    cy.get(".rc-select-selector").click({ force: true });
-    cy.dropdownMultiSelectDynamic("Option 2");
-  });
-  it("Dropdown Functionality To Unchecked Visible Widget", function() {
-    cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
-    cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
-      "not.exist",
-    );
-    cy.get(publish.backToEditor).click();
-  });
-  it("Dropdown Functionality To Check Visible Widget", function() {
-    cy.openPropertyPane("multiselectwidgetv2");
-    cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
-    cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
-      "be.visible",
-    );
-    cy.get(publish.backToEditor).click();
-  });
+
   it("Dropdown Functionality To Check Allow select all option", function() {
     // select all option is not enable
     cy.get(formWidgetsPage.multiselectwidgetv2)
@@ -113,6 +80,37 @@ describe("MultiSelect Widget Functionality", function() {
     );
     // Check if isDirty is set to false
     cy.get(".t--widget-textwidget").should("contain", "false");
+  });
+  it("Selects value with enter in default value", () => {
+    cy.updateCodeInput(
+      ".t--property-control-defaultvalue",
+      '[\n  {\n    "label": "Option 3",\n    "value": "3"\n  }\n]',
+    );
+    cy.get(formWidgetsPage.multiselectwidgetv2)
+      .find(".rc-select-selection-item-content")
+      .first()
+      .should("have.text", "Option 3");
+  });
+  it("Dropdown Functionality To Validate Options", function() {
+    cy.get(".rc-select-selector").click({ force: true });
+    cy.dropdownMultiSelectDynamic("Option 2");
+  });
+  it("Dropdown Functionality To Unchecked Visible Widget", function() {
+    cy.togglebarDisable(commonlocators.visibleCheckbox);
+    cy.PublishtheApp();
+    cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
+      "not.exist",
+    );
+    cy.get(publish.backToEditor).click();
+  });
+  it("Dropdown Functionality To Check Visible Widget", function() {
+    cy.openPropertyPane("multiselectwidgetv2");
+    cy.togglebar(commonlocators.visibleCheckbox);
+    cy.PublishtheApp();
+    cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
+      "be.visible",
+    );
+    cy.get(publish.backToEditor).click();
   });
 });
 afterEach(() => {
