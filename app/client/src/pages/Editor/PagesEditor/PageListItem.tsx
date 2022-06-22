@@ -29,7 +29,12 @@ import {
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
 
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  selectApplicationVersion,
+} from "selectors/editorSelectors";
+import { ApplicationVersion } from "actions/applicationActions";
+import { Button, Category, TextInput } from "components/ads";
 
 export const Container = styled.div`
   display: flex;
@@ -49,6 +54,10 @@ export const ListItem = styled.div`
   align-items: center;
   padding: 10px;
   background-color: ${Colors.GREY_1};
+  .url {
+    background-color: ${Colors.GREY_3};
+    padding: 2px 4px;
+  }
 `;
 
 const Actions = styled.div`
@@ -97,7 +106,7 @@ function PageListItem(props: PageListItemProps) {
   const { item } = props;
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
-
+  const applicationVersion = useSelector(selectApplicationVersion);
   /**
    * clones the page
    *
@@ -147,74 +156,99 @@ function PageListItem(props: PageListItemProps) {
           height={20}
           width={20}
         />
-        <EditName page={item} />
+        <div className="flex flex-col items-start px-3 flex-1">
+          <div className="flex flex-row justify-between w-full">
+            <EditName page={item} />
+            <Actions {...disableDrag}>
+              {item.isDefault && (
+                <TooltipComponent
+                  content={createMessage(DEFAULT_PAGE_TOOLTIP)}
+                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                  position={Position.BOTTOM}
+                >
+                  <Action>
+                    <DefaultPageIcon
+                      color={Colors.GREEN}
+                      height={16}
+                      width={16}
+                    />
+                  </Action>
+                </TooltipComponent>
+              )}
+              {item.isHidden && (
+                <TooltipComponent
+                  content={createMessage(HIDDEN_TOOLTIP)}
+                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                  position={Position.BOTTOM}
+                >
+                  <Action>
+                    <HideIcon color={Colors.GREY_9} height={16} width={16} />
+                  </Action>
+                </TooltipComponent>
+              )}
+              <ContextMenu
+                onCopy={clonePageCallback}
+                onDelete={deletePageCallback}
+                onSetPageDefault={setPageAsDefaultCallback}
+                onSetPageHidden={setPageHidden}
+                page={item}
+              />
+              <TooltipComponent
+                content={createMessage(CLONE_TOOLTIP)}
+                hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                position={Position.BOTTOM}
+              >
+                <Action type="button">
+                  <CopyIcon
+                    color={Colors.GREY_9}
+                    height={16}
+                    onClick={clonePageCallback}
+                    width={16}
+                  />
+                </Action>
+              </TooltipComponent>
+              <TooltipComponent
+                content={createMessage(DELETE_TOOLTIP)}
+                hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                position={Position.BOTTOM}
+              >
+                <Action type="button">
+                  <DeleteIcon
+                    color={
+                      item.isDefault
+                        ? get(theme, "colors.propertyPane.deleteIconColor")
+                        : Colors.GREY_9
+                    }
+                    disabled={item.isDefault}
+                    height={16}
+                    onClick={deletePageCallback}
+                    width={16}
+                  />
+                </Action>
+              </TooltipComponent>
+            </Actions>
+          </div>
+          {applicationVersion > ApplicationVersion.DEFAULT && (
+            <div className="flex flex-row justify-start">
+              <div className="flex flex-row justify-start gap-1 items-center">
+                <span className="text-xs url">{`${window.location.origin}/app/`}</span>
+                <TextInput defaultValue={item.customSlug} height="32px" />
+                <span className="text-xs url">-{item.pageId}</span>
+                <div className="flex flex-row gap-2 items-center">
+                  <Button category={Category.primary} text="save" />
+                  <Button
+                    category={Category.tertiary}
+                    tag="button"
+                    text="reset to default"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
         {/* Disabling drag on action items as attempting to drag also invokes the click event.
          Clicks events in child elements could be disabled once we upgrade react-use-gesture to
          the latest version */}
-        <Actions {...disableDrag}>
-          {item.isDefault && (
-            <TooltipComponent
-              content={createMessage(DEFAULT_PAGE_TOOLTIP)}
-              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-              position={Position.BOTTOM}
-            >
-              <Action>
-                <DefaultPageIcon color={Colors.GREEN} height={16} width={16} />
-              </Action>
-            </TooltipComponent>
-          )}
-          {item.isHidden && (
-            <TooltipComponent
-              content={createMessage(HIDDEN_TOOLTIP)}
-              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-              position={Position.BOTTOM}
-            >
-              <Action>
-                <HideIcon color={Colors.GREY_9} height={16} width={16} />
-              </Action>
-            </TooltipComponent>
-          )}
-          <ContextMenu
-            onCopy={clonePageCallback}
-            onDelete={deletePageCallback}
-            onSetPageDefault={setPageAsDefaultCallback}
-            onSetPageHidden={setPageHidden}
-            page={item}
-          />
-          <TooltipComponent
-            content={createMessage(CLONE_TOOLTIP)}
-            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-            position={Position.BOTTOM}
-          >
-            <Action type="button">
-              <CopyIcon
-                color={Colors.GREY_9}
-                height={16}
-                onClick={clonePageCallback}
-                width={16}
-              />
-            </Action>
-          </TooltipComponent>
-          <TooltipComponent
-            content={createMessage(DELETE_TOOLTIP)}
-            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-            position={Position.BOTTOM}
-          >
-            <Action type="button">
-              <DeleteIcon
-                color={
-                  item.isDefault
-                    ? get(theme, "colors.propertyPane.deleteIconColor")
-                    : Colors.GREY_9
-                }
-                disabled={item.isDefault}
-                height={16}
-                onClick={deletePageCallback}
-                width={16}
-              />
-            </Action>
-          </TooltipComponent>
-        </Actions>
       </ListItem>
     </Container>
   );

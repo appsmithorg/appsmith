@@ -67,6 +67,7 @@ type BaseURLBuilderParams = {
   pageId: string;
   pageSlug: string;
   applicationVersion?: ApplicationVersion;
+  customPageSlug?: string;
 };
 
 type URLBuilderParams = BaseURLBuilderParams & {
@@ -105,6 +106,7 @@ function baseURLBuilder(
     applicationId,
     applicationSlug,
     applicationVersion,
+    customPageSlug,
     pageId,
     pageSlug,
     ...rest
@@ -141,13 +143,18 @@ function baseURLBuilder(
     applicationId = applicationId || BASE_URL_BUILDER_PARAMS.applicationId;
     basePath = `/applications/${applicationId}/pages/${pageId}`;
   } else {
-    applicationSlug =
-      applicationSlug ||
-      BASE_URL_BUILDER_PARAMS.applicationSlug ||
-      PLACEHOLDER_APP_SLUG;
-    pageSlug =
-      pageSlug || BASE_URL_BUILDER_PARAMS.pageSlug || PLACEHOLDER_PAGE_SLUG;
-    basePath = `/app/${applicationSlug}/${pageSlug}-${pageId}`;
+    customPageSlug = customPageSlug || BASE_URL_BUILDER_PARAMS.customPageSlug;
+    if (customPageSlug) {
+      basePath = `/app/${customPageSlug}-${pageId}`;
+    } else {
+      applicationSlug =
+        applicationSlug ||
+        BASE_URL_BUILDER_PARAMS.applicationSlug ||
+        PLACEHOLDER_APP_SLUG;
+      pageSlug =
+        pageSlug || BASE_URL_BUILDER_PARAMS.pageSlug || PLACEHOLDER_PAGE_SLUG;
+      basePath = `/app/${applicationSlug}/${pageSlug}-${pageId}`;
+    }
   }
   basePath += mode === APP_MODE.EDIT ? "/edit" : "";
 

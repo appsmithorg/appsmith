@@ -60,6 +60,7 @@ import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
 import { builderURL, viewerURL } from "RouteBuilder";
 import history from "utils/history";
+import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -598,7 +599,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const viewApplicationURL = viewerURL({
     applicationSlug: props.application.slug as string,
     applicationVersion: props.application.applicationVersion,
-    pageSlug: defaultPageSlug || "page",
+    pageSlug: defaultPageSlug || PLACEHOLDER_PAGE_SLUG,
     applicationId: props.application.id,
     pageId: props.application.defaultPageId as string,
     params,
@@ -607,7 +608,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     applicationSlug: props.application.slug as string,
     applicationVersion: props.application.applicationVersion,
     applicationId: props.application.id,
-    pageSlug: defaultPageSlug || "page",
+    pageSlug: defaultPageSlug || PLACEHOLDER_PAGE_SLUG,
     pageId: props.application.defaultPageId as string,
     params,
   });

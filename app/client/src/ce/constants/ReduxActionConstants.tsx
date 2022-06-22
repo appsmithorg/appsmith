@@ -997,6 +997,7 @@ export interface Page {
   latest?: boolean;
   isHidden?: boolean;
   slug?: string;
+  customSlug?: string;
 }
 
 export interface ClonePageSuccessPayload {

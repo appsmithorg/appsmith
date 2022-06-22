@@ -9,6 +9,7 @@ import {
   BASE_SIGNUP_URL,
   BASE_URL,
   BUILDER_PATH,
+  BUILDER_CUSTOM_PATH,
   WORKSPACE_URL,
   SIGN_UP_URL,
   SIGNUP_SUCCESS_URL,
@@ -18,6 +19,7 @@ import {
   UNSUBSCRIBE_EMAIL_URL,
   SETUP,
   VIEWER_PATH,
+  VIEWER_CUSTOM_PATH,
   ADMIN_SETTINGS_PATH,
   ADMIN_SETTINGS_CATEGORY_PATH,
   ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
@@ -157,9 +159,17 @@ function AppRouter(props: {
               <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
               <SentryRoute
                 component={EditorLoader}
+                path={BUILDER_CUSTOM_PATH}
+              />
+              <SentryRoute
+                component={EditorLoader}
                 path={BUILDER_PATH_DEPRECATED}
               />
               <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
+              <SentryRoute
+                component={AppViewerLoader}
+                path={VIEWER_CUSTOM_PATH}
+              />
               <SentryRoute
                 component={AppViewerLoader}
                 path={VIEWER_PATH_DEPRECATED}

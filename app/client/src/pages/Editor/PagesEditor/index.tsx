@@ -158,7 +158,7 @@ function PagesEditor() {
 
       <DraggableList
         ItemRenderer={draggableListRenderItem}
-        itemHeight={70}
+        itemHeight={90}
         items={pages}
         keyAccessor={"pageId"}
         onUpdate={(newOrder: any, originalIndex: number, newIndex: number) => {
