@@ -17,7 +17,7 @@
             {
               "label": "Port",
               "configProperty": "datasourceConfiguration.endpoints[*].port",
-              "dataType": "NUMBER",
+              "AppsmithType": "NUMBER",
               "controlType": "KEYVALUE_ARRAY"
             }
           ]
@@ -47,7 +47,7 @@
             {
               "label": "Password",
               "configProperty": "datasourceConfiguration.authentication.password",
-              "dataType": "PASSWORD",
+              "AppsmithType": "PASSWORD",
               "controlType": "INPUT_TEXT",
               "placeholderText": "Password",
               "encrypted": true
@@ -120,7 +120,7 @@
           "label": "Base64 Encoded CA Certificate String",
           "configProperty": "datasourceConfiguration.connection.ssl.caCertificateFile.base64Content",
           "controlType": "INPUT_TEXT",
-          "dataType": "PASSWORD",
+          "AppsmithType": "PASSWORD",
           "encrypted": true,
           "hidden": {
             "path": "datasourceConfiguration.connection.ssl.caCertificateType",

@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class JSValue {
     String name;
-    String dataType;
+    String AppsmithType;
     Object value;
     Boolean isValid;
 }

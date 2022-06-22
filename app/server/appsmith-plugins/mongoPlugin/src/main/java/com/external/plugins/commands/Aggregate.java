@@ -1,6 +1,6 @@
 package com.external.plugins.commands;
 
-import com.appsmith.external.constants.DataType;
+import com.appsmith.external.constants.AppsmithType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
@@ -73,8 +73,8 @@ public class Aggregate extends MongoCommand {
 
         commandDocument.put(AGGREGATE, this.collection);
 
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(this.pipeline);
-        if (dataType.equals(DataType.ARRAY)) {
+        AppsmithType AppsmithType = DataTypeStringUtils.stringToKnownAppsmithTypeConverter(this.pipeline);
+        if (AppsmithType.equals(AppsmithType.ARRAY)) {
             try {
                 BsonArray arrayListFromInput = BsonArray.parse(this.pipeline);
                 if (arrayListFromInput.isEmpty()) {

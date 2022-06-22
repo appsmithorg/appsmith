@@ -61,12 +61,12 @@ public class SqlUtils {
      */
     public static final String FOREIGN_KEYS_QUERY = "SHOW IMPORTED KEYS";
 
-    public static String getDefaultValueByDataType(String datatype) {
-        if (datatype == null) {
+    public static String getDefaultValueByAppsmithType(String AppsmithType) {
+        if (AppsmithType == null) {
             return "null";
         }
-        datatype = datatype.toUpperCase();
-        switch (datatype) {
+        AppsmithType = AppsmithType.toUpperCase();
+        switch (AppsmithType) {
             case "NUMBER":
             case "DECIMAL":
             case "NUMERIC":
@@ -138,7 +138,7 @@ public class SqlUtils {
             for (DatasourceStructure.Column column : columnsWithoutDefault) {
                 final String name = column.getName();
                 final String type = column.getType();
-                String value = getDefaultValueByDataType(type);
+                String value = getDefaultValueByAppsmithType(type);
 
                 columnNames.add(name);
                 columnValues.add(value);

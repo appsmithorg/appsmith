@@ -1,6 +1,6 @@
 package com.external.plugins;
 
-import com.appsmith.external.constants.DataType;
+import com.appsmith.external.constants.AppsmithType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -462,7 +462,7 @@ public class MssqlPlugin extends BasePlugin {
                                              Object... args) throws AppsmithPluginException {
 
             PreparedStatement preparedStatement = (PreparedStatement) input;
-            DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
+            AppsmithType valueType = DataTypeStringUtils.stringToKnownAppsmithTypeConverter(value);
 
             Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
             insertedParams.add(parameter);
@@ -511,7 +511,7 @@ public class MssqlPlugin extends BasePlugin {
                         break;
                     }
                     case ARRAY: {
-                        throw new IllegalArgumentException("Array datatype is not supported in MS SQL");
+                        throw new IllegalArgumentException("Array AppsmithType is not supported in MS SQL");
                     }
                     case STRING: {
                         preparedStatement.setString(index, value);

@@ -347,8 +347,8 @@ public class MongoPluginTest {
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
 
 
@@ -437,8 +437,8 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
                 })
                 .verifyComplete();
@@ -490,8 +490,8 @@ public class MongoPluginTest {
                     assertEquals("Alden Cantrell", value.get("name").asText());
                     assertEquals(30, value.get("age").asInt());
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
                 })
                 .verifyComplete();
@@ -529,8 +529,8 @@ public class MongoPluginTest {
                     assertEquals("2018-12-31T00:00:00Z", node.get("dob").asText());
                     assertEquals("123456.789012", node.get("netWorth").toString());
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
                 })
                 .verifyComplete();
@@ -935,8 +935,8 @@ public class MongoPluginTest {
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
                 })
                 .verifyComplete();
@@ -974,8 +974,8 @@ public class MongoPluginTest {
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
                 })
                 .verifyComplete();
@@ -1091,8 +1091,8 @@ public class MongoPluginTest {
                     assertEquals(parameterEntry.getValue(), "INTEGER");
 
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
 
                     String expectedQuery = "{\n" +
@@ -1182,8 +1182,8 @@ public class MongoPluginTest {
                     assertEquals(parameterEntry.getValue(), "INTEGER");
 
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
 
                     String expectedQuery = "{\n" +
@@ -1246,8 +1246,8 @@ public class MongoPluginTest {
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
                 })
                 .verifyComplete();
@@ -1277,8 +1277,8 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
                 })
                 .verifyComplete();
@@ -1318,8 +1318,8 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
                 })
                 .verifyComplete();
@@ -1364,8 +1364,8 @@ public class MongoPluginTest {
                     JsonNode value = ((ObjectNode) result.getBody()).get("nModified");
                     assertEquals(value.asText(), "1");
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
                 })
                 .verifyComplete();
@@ -1398,8 +1398,8 @@ public class MongoPluginTest {
                     JsonNode value = ((ObjectNode) result.getBody()).get("nModified");
                     assertEquals(value.asText(), "3");
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
                 })
                 .verifyComplete();
@@ -1692,8 +1692,8 @@ public class MongoPluginTest {
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
 
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
 
                     String expectedQuery = "{\"find\": \"users\", \"filter\": {\"age\": {\"$gte\": 30}}, \"sort\": {\"id\": 1}, \"limit\": 10, \"batchSize\": 10}";
@@ -1746,8 +1746,8 @@ public class MongoPluginTest {
                     assertEquals(3, ((ArrayNode) result.getBody()).size());
 
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
 
                     String expectedQuery = "{\"find\": \"users\", \"filter\": {}, \"sort\": {\"id\": 1}, \"limit\": 10, \"batchSize\": 10}";
@@ -1850,8 +1850,8 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
                 })
                 .verifyComplete();
@@ -2146,8 +2146,8 @@ public class MongoPluginTest {
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
                 })
                 .verifyComplete();
@@ -2190,8 +2190,8 @@ public class MongoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
                 })
                 .verifyComplete();
@@ -2249,8 +2249,8 @@ public class MongoPluginTest {
                     JsonNode value = ((ObjectNode) result.getBody()).get("nModified");
                     assertEquals(value.asText(), "3");
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
+                            List.of(new ParsedAppsmithType(JSON), new ParsedAppsmithType(RAW)).toString(),
+                            result.getAppsmithTypes().toString()
                     );
                 })
                 .verifyComplete();

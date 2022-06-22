@@ -730,7 +730,7 @@ public class MySqlPluginTest {
     }
 
     @Test
-    public void testExecuteDataTypes() {
+    public void testExecuteAppsmithTypes() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
@@ -783,7 +783,7 @@ public class MySqlPluginTest {
      * TINYTEXT, TEXT, MEDIUMTEXT, LONGTEXT, ENUM, SET, JSON, GEOMETRY, POINT
      */
     @Test
-    public void testExecuteDataTypesExtensive() throws AppsmithPluginException {
+    public void testExecuteAppsmithTypesExtensive() throws AppsmithPluginException {
         String query_create_table_numeric_types = "create table test_numeric_types (c_integer INTEGER, c_smallint " +
                 "SMALLINT, c_tinyint TINYINT, c_mediumint MEDIUMINT, c_bigint BIGINT, c_decimal DECIMAL, c_float " +
                 "FLOAT, c_double DOUBLE, c_bit BIT(10));";

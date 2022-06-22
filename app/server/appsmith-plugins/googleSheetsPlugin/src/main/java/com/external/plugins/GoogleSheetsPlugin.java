@@ -297,7 +297,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                              String binding,
                                              String value,
                                              Object input,
-                                             List<Map.Entry<String, String>> insertedParams,
+                                             List<Map.Entry<String, Class<?>>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
             return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);

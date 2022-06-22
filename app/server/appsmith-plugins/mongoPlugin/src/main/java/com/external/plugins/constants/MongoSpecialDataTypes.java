@@ -5,7 +5,7 @@ package com.external.plugins.constants;
  * . e.g. normally {"name": "Chris"} is a valid BSON document but with ObjectId type as the value the quotes need to
  * be handled differently: {"_id": ObjectId("xyz")} is valid instead of {"_id": "ObjectId(\"xyz\")"}
  */
-public enum MongoSpecialDataTypes {
+public enum MongoSpecialAppsmithTypes {
     ObjectId,
     ISODate,
     NumberLong,

@@ -35,7 +35,7 @@ public class ActionExecutionResult {
 
     ActionExecutionRequest request;
 
-    List<ParsedDataType> dataTypes;
+    List<ParsedAppsmithType> AppsmithTypes;
 
     List<WidgetSuggestionDTO> suggestedWidgets;
 

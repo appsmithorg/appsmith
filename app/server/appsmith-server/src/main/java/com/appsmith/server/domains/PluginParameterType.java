@@ -11,5 +11,5 @@ import lombok.ToString;
 @NoArgsConstructor
 public class PluginParameterType {
     String key;
-    String dataType;
+    String AppsmithType;
 }

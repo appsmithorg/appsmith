@@ -1,9 +1,10 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.constants.ConditionalOperator;
-import com.appsmith.external.constants.DataType;
+import com.appsmith.external.AppsmithTypes.AppsmithType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.services.AppsmithTypeServiceImpl;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDataTypeConverter;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
@@ -36,7 +36,7 @@ public class Condition {
     Object value;
 
     @JsonIgnore
-    DataType valueDataType;
+    AppsmithType valueAppsmithType;
 
     public Condition(String path, String operator, String value) {
         this.path = path;
@@ -44,33 +44,33 @@ public class Condition {
         this.value = value;
     }
 
-    public static List<Condition> addValueDataType(List<Condition> conditionList) {
+    public static List<Condition> addValueAppsmithType(List<Condition> conditionList) {
 
         return conditionList
                 .stream()
                 .map(condition -> {
                     if (condition.getValue() instanceof String) {
                         String value = (String) condition.getValue();
-                        DataType dataType = stringToKnownDataTypeConverter(value);
-                        condition.setValueDataType(dataType);
+                        AppsmithType AppsmithType = AppsmithTypeServiceImpl.getInstance().getAppsmithType(value);
+                        condition.setValueAppsmithType(AppsmithType);
                     }
                     return condition;
                 })
                 .collect(Collectors.toList());
     }
 
-    public static Condition addValueDataType(Condition condition) {
+    public static Condition addValueAppsmithType(Condition condition) {
         Object objValue = condition.getValue();
 
         if (objValue instanceof String) {
             String value = (String) condition.getValue();
-            DataType dataType = stringToKnownDataTypeConverter(value);
-            condition.setValueDataType(dataType);
+            AppsmithType AppsmithType = AppsmithTypeServiceImpl.getInstance().getAppsmithType(value);
+            condition.setValueAppsmithType(AppsmithType);
         } else if (objValue instanceof List) {
             List<Condition> conditionList = (List<Condition>) objValue;
             List<Condition> updatedConditions = conditionList
                     .stream()
-                    .map(subCondition -> addValueDataType(subCondition))
+                    .map(subCondition -> addValueAppsmithType(subCondition))
                     .collect(Collectors.toList());
             condition.setValue(updatedConditions);
         }

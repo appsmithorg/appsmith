@@ -1,6 +1,6 @@
 package com.external.plugins;
 
-import com.appsmith.external.constants.DataType;
+import com.appsmith.external.constants.AppsmithType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -395,24 +395,24 @@ public class MySqlPlugin extends BasePlugin {
                                              Object... args) {
 
             Statement connectionStatement = (Statement) input;
-            DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
+            AppsmithType valueType = DataTypeStringUtils.stringToKnownAppsmithTypeConverter(value);
 
             Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
             insertedParams.add(parameter);
 
-            if (DataType.NULL.equals(valueType)) {
+            if (AppsmithType.NULL.equals(valueType)) {
                 try {
                     connectionStatement.bindNull((index - 1), Object.class);
                 } catch (UnsupportedOperationException e) {
                     // Do nothing. Move on
                 }
-            } else if (DataType.INTEGER.equals(valueType)) {
+            } else if (AppsmithType.INTEGER.equals(valueType)) {
                 /**
-                 * - NumberFormatException is NOT expected here since stringToKnownDataTypeConverter uses parseInt
+                 * - NumberFormatException is NOT expected here since stringToKnownAppsmithTypeConverter uses parseInt
                  * method to detect INTEGER type.
                  */
                 connectionStatement.bind((index - 1), Integer.parseInt(value));
-            } else if (DataType.BOOLEAN.equals(valueType)) {
+            } else if (AppsmithType.BOOLEAN.equals(valueType)) {
                 connectionStatement.bind((index - 1), Boolean.parseBoolean(value) == TRUE ? 1 : 0);
             } else {
                 connectionStatement.bind((index - 1), value);

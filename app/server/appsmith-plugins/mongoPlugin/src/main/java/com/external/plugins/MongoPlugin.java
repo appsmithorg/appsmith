@@ -1,7 +1,7 @@
 package com.external.plugins;
 
-import com.appsmith.external.constants.DataType;
-import com.appsmith.external.constants.DisplayDataType;
+import com.appsmith.external.constants.AppsmithType;
+import com.appsmith.external.constants.DisplayAppsmithType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -18,13 +18,13 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
-import com.appsmith.external.models.ParsedDataType;
+import com.appsmith.external.models.ParsedAppsmithType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
-import com.external.plugins.constants.MongoSpecialDataTypes;
+import com.external.plugins.constants.MongoSpecialAppsmithTypes;
 import com.external.plugins.utils.MongoErrorUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -356,9 +356,9 @@ public class MongoPlugin extends BasePlugin {
 
                             if (BigInteger.ONE.equals(status)) {
                                 result.setIsExecutionSuccess(true);
-                                result.setDataTypes(List.of(
-                                        new ParsedDataType(DisplayDataType.JSON),
-                                        new ParsedDataType(DisplayDataType.RAW)
+                                result.setAppsmithTypes(List.of(
+                                        new ParsedAppsmithType(DisplayAppsmithType.JSON),
+                                        new ParsedAppsmithType(DisplayAppsmithType.RAW)
                                 ));
 
                                 /*
@@ -467,14 +467,14 @@ public class MongoPlugin extends BasePlugin {
          * happens as part of smart substitution process.
          *
          * @param replacementValue - value to be substituted
-         * @param dataType         - the expected datatype of the value
+         * @param AppsmithType         - the expected AppsmithType of the value
          * @return - updated replacement value
          */
         @Override
-        public String sanitizeReplacement(String replacementValue, DataType dataType) {
+        public String sanitizeReplacement(String replacementValue, AppsmithType AppsmithType) {
             replacementValue = removeOrAddQuotesAroundMongoDBSpecialTypes(replacementValue);
 
-            if (DataType.BSON_SPECIAL_DATA_TYPES.equals(dataType)) {
+            if (AppsmithType.BSON_SPECIAL_DATA_TYPES.equals(AppsmithType)) {
                 /*
                   For all other data types the replacementValue is prepared for replacement (by using Matcher
                   .quoteReplacement(...)) during the common handling of data types in
@@ -501,7 +501,7 @@ public class MongoPlugin extends BasePlugin {
          */
         private String removeOrAddQuotesAroundMongoDBSpecialTypes(String query) {
             // Iterating over MongoDB types and creating a regex for every one of them
-            for (MongoSpecialDataTypes specialType : MongoSpecialDataTypes.values()) {
+            for (MongoSpecialAppsmithTypes specialType : MongoSpecialAppsmithTypes.values()) {
                 final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E", specialType.name());
 
                 Map<String, String> objectIdMap = new LinkedHashMap<>();
@@ -826,39 +826,39 @@ public class MongoPlugin extends BasePlugin {
                                              String binding,
                                              String value,
                                              Object input,
-                                             List<Map.Entry<String, String>> insertedParams,
+                                             List<Map.Entry<String, Class<?>>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            DataType dataType = stringToKnownMongoDBDataTypeConverter(value);
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value,dataType, insertedParams, this);
+            AppsmithType datatype = stringToKnownMongoDBAppsmithTypeConverter(value);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, , insertedParams, this);
         }
 
         /**
          * This method checks if the replacement string contains any usage of special Mongo data types like
-         * `ObjectId` or `ISODate`. For complete list please check out `MongoSpecialDataTypes.java`. The check for
-         * special data type only happens if the common data type detection login in `DataTypeStringUtils
-         * .stringToKnownDataTypeConverter` identifies the data type of the replacement value as `DataType.STRING`
+         * `ObjectId` or `ISODate`. For complete list please check out `MongoSpecialAppsmithTypes.java`. The check for
+         * special data type only happens if the common data type detection login in `DatatypeStringUtils
+         * .stringToKnownAppsmithTypeConverter` identifies the data type of the replacement value as `AppsmithType.STRING`
          * even though it contains a Mongo special data type and hence should be treated differently.
          *
          * @param replacement replacement value
          * @return identified data type of replacement value
          */
-        private DataType stringToKnownMongoDBDataTypeConverter(String replacement) {
-            DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
-            if (dataType == DataType.STRING) {
-                for (MongoSpecialDataTypes specialType : MongoSpecialDataTypes.values()) {
+        private AppsmithType stringToKnownMongoDBAppsmithTypeConverter(String replacement) {
+            AppsmithType AppsmithType = DataTypeStringUtils.stringToKnownAppsmithTypeConverter(replacement);
+            if (AppsmithType == AppsmithType.STRING) {
+                for (MongoSpecialAppsmithTypes specialType : MongoSpecialAppsmithTypes.values()) {
                     final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E",
                             specialType.name());
                     final Pattern pattern = Pattern.compile(regex);
                     final Matcher matcher = pattern.matcher(replacement);
                     if (matcher.find()) {
-                        dataType = DataType.BSON_SPECIAL_DATA_TYPES;
+                        AppsmithType = AppsmithType.BSON_SPECIAL_DATA_TYPES;
                         break;
                     }
                 }
             }
 
-            return dataType;
+            return AppsmithType;
         }
 
 

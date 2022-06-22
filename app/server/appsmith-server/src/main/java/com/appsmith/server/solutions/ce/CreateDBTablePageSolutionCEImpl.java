@@ -123,7 +123,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     );
 
     // Currently, we only support string matching (like/ilike etc) for WHERE operator in SelectQuery so the allowed
-    // types will refer to the equivalent datatype in different databases
+    // types will refer to the equivalent AppsmithType in different databases
     private static final Set<String> ALLOWED_TYPE_FOR_WHERE_CLAUSE = Set.of("string", "text", "varchar", "char", "character");
 
     // Pattern to match all words in the text

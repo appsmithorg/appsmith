@@ -1,6 +1,6 @@
 package com.external.plugins;
 
-import com.appsmith.external.constants.DataType;
+import com.appsmith.external.constants.AppsmithType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -75,15 +75,15 @@ import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.Sizeof.sizeof;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.BOOL;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.DATE;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.DECIMAL;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.FLOAT8;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.INT4;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.INT8;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.TIME;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.VARCHAR;
-import static com.external.plugins.utils.PostgresDataTypeUtils.extractExplicitCasting;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.BOOL;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.DATE;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.DECIMAL;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.FLOAT8;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.INT4;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.INT8;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.TIME;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.VARCHAR;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.extractExplicitCasting;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -235,10 +235,10 @@ public class PostgresPlugin extends BasePlugin {
             List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a ? as expected in a prepared statement.
             String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
-            List<DataType> explicitCastDataTypes = extractExplicitCasting(updatedQuery);
+            List<AppsmithType> explicitCastAppsmithTypes = extractExplicitCasting(updatedQuery);
             actionConfiguration.setBody(updatedQuery);
             return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE,
-                    mustacheKeysInOrder, executeActionDTO, explicitCastDataTypes);
+                    mustacheKeysInOrder, executeActionDTO, explicitCastAppsmithTypes);
         }
 
         private Mono<ActionExecutionResult> executeCommon(HikariDataSource connection,
@@ -247,7 +247,7 @@ public class PostgresPlugin extends BasePlugin {
                                                           Boolean preparedStatement,
                                                           List<String> mustacheValuesInOrder,
                                                           ExecuteActionDTO executeActionDTO,
-                                                          List<DataType> explicitCastDataTypes) {
+                                                          List<AppsmithType> explicitCastAppsmithTypes) {
 
             final Map<String, Object> requestData = new HashMap<>();
             requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
@@ -306,7 +306,7 @@ public class PostgresPlugin extends BasePlugin {
                                 executeActionDTO.getParams(),
                                 parameters,
                                 connectionFromPool,
-                                explicitCastDataTypes);
+                                explicitCastAppsmithTypes);
 
                         IntStream.range(0, parameters.size())
                                 .forEachOrdered(i ->
@@ -828,13 +828,13 @@ public class PostgresPlugin extends BasePlugin {
 
             PreparedStatement preparedStatement = (PreparedStatement) input;
             HikariProxyConnection connection = (HikariProxyConnection) args[0];
-            List<DataType> explicitCastDataTypes = (List<DataType>) args[1];
-            DataType valueType;
+            List<AppsmithType> explicitCastAppsmithTypes = (List<AppsmithType>) args[1];
+            AppsmithType valueType;
             // If explicitly cast, set the user specified data type
-            if (explicitCastDataTypes != null && explicitCastDataTypes.get(index - 1) != null) {
-                valueType = explicitCastDataTypes.get(index - 1);
+            if (explicitCastAppsmithTypes != null && explicitCastAppsmithTypes.get(index - 1) != null) {
+                valueType = explicitCastAppsmithTypes.get(index - 1);
             } else {
-                valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
+                valueType = DataTypeStringUtils.stringToKnownAppsmithTypeConverter(value);
             }
 
             Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
@@ -890,8 +890,8 @@ public class PostgresPlugin extends BasePlugin {
                         }
                         // Find the type of the entries in the list
                         Object firstEntry = arrayListFromInput.get(0);
-                        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter((String.valueOf(firstEntry)));
-                        String typeName = toPostgresqlPrimitiveTypeName(dataType);
+                        AppsmithType AppsmithType = DataTypeStringUtils.stringToKnownAppsmithTypeConverter((String.valueOf(firstEntry)));
+                        String typeName = toPostgresqlPrimitiveTypeName(AppsmithType);
 
                         // Create the Sql Array and set it.
                         Array inputArray = connection.createArrayOf(typeName, arrayListFromInput.toArray());
@@ -923,7 +923,7 @@ public class PostgresPlugin extends BasePlugin {
 
         }
 
-        private static String toPostgresqlPrimitiveTypeName(DataType type) {
+        private static String toPostgresqlPrimitiveTypeName(AppsmithType type) {
             switch (type) {
                 case LONG:
                     return INT8;
@@ -942,7 +942,7 @@ public class PostgresPlugin extends BasePlugin {
                 case DOUBLE:
                     return FLOAT8;
                 case ARRAY:
-                    throw new IllegalArgumentException("Array of Array datatype is not supported.");
+                    throw new IllegalArgumentException("Array of Array AppsmithType is not supported.");
                 default:
                     throw new IllegalArgumentException("Unable to map the computed data type to primitive Postgresql type");
             }

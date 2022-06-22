@@ -97,7 +97,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
+import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayAppsmithTypes;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -817,7 +817,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     return Mono.just(result);
                 })
-                .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
+                .map(result -> addAppsmithTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
     }
 
     @Override
@@ -940,7 +940,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         result.getRequest().setRequestParams(transformedParams);
     }
 
-    private ActionExecutionResult addDataTypesAndSetSuggestedWidget(ActionExecutionResult result, Boolean viewMode) {
+    private ActionExecutionResult addAppsmithTypesAndSetSuggestedWidget(ActionExecutionResult result, Boolean viewMode) {
 
         if (FALSE.equals(viewMode)) {
             result.setSuggestedWidgets(getSuggestedWidgets(result.getBody()));
@@ -951,11 +951,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
          * - It means that data types have been added by specific plugin.
          */
 
-        if (!CollectionUtils.isEmpty(result.getDataTypes())) {
+        if (!CollectionUtils.isEmpty(result.getAppsmithTypes())) {
             return result;
         }
 
-        result.setDataTypes(getDisplayDataTypes(result.getBody()));
+        result.setAppsmithTypes(getDisplayAppsmithTypes(result.getBody()));
 
         return result;
     }

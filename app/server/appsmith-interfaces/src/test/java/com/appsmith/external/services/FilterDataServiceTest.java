@@ -1,7 +1,7 @@
 package com.appsmith.external.services;
 
 import com.appsmith.external.constants.ConditionalOperator;
-import com.appsmith.external.constants.DataType;
+import com.appsmith.external.constants.AppsmithType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.UQIDataFilterParams;
@@ -37,10 +37,10 @@ public class FilterDataServiceTest {
 
     @Test
     public void testGenerateTable() {
-        Map<String, DataType> schema = Map.of(
-                "id", DataType.INTEGER,
-                "name", DataType.STRING,
-                "status", DataType.BOOLEAN
+        Map<String, AppsmithType> schema = Map.of(
+                "id", AppsmithType.INTEGER,
+                "name", AppsmithType.STRING,
+                "status", AppsmithType.BOOLEAN
         );
 
         String table = filterDataService.generateTable(schema);
@@ -691,7 +691,7 @@ public class FilterDataServiceTest {
         try {
 
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
-            Map<String, DataType> schema = filterDataService.generateSchema(items);
+            Map<String, AppsmithType> schema = filterDataService.generateSchema(items);
 
             Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
             Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
@@ -1171,7 +1171,7 @@ public class FilterDataServiceTest {
     }
 
     @Test
-    public void testValuesOfUnsupportedDataTypeNew() {
+    public void testValuesOfUnsupportedAppsmithTypeNew() {
         String data = "[\n" +
                 "  {\n" +
                 "    \"id\": 2381224,\n" +

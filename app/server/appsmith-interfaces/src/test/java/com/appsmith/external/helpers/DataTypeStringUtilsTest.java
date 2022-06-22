@@ -1,8 +1,8 @@
 package com.appsmith.external.helpers;
 
-import com.appsmith.external.constants.DataType;
-import com.appsmith.external.constants.DisplayDataType;
-import com.appsmith.external.models.ParsedDataType;
+import com.appsmith.external.constants.AppsmithType;
+import com.appsmith.external.constants.DisplayAppsmithType;
+import com.appsmith.external.models.ParsedAppsmithType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -13,95 +13,95 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
-import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDataTypeConverter;
+import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayAppsmithTypes;
+import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownAppsmithTypeConverter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DataTypeStringUtilsTest {
 
     @Test
-    public void checkTimeStampDataType() {
+    public void checkTimeStampAppsmithType() {
         String timestamp = "2021-03-24 14:05:34";
-        DataType dataType = stringToKnownDataTypeConverter(timestamp);
+        AppsmithType AppsmithType = stringToKnownAppsmithTypeConverter(timestamp);
 
-        assertThat(dataType).isEqualByComparingTo(DataType.TIMESTAMP);
+        assertThat(AppsmithType).isEqualByComparingTo(AppsmithType.TIMESTAMP);
     }
 
     @Test
-    public void checkDateDataType() {
+    public void checkDateAppsmithType() {
         String date = "2021-03-24";
-        DataType dataType = stringToKnownDataTypeConverter(date);
+        AppsmithType AppsmithType = stringToKnownAppsmithTypeConverter(date);
 
-        assertThat(dataType).isEqualByComparingTo(DataType.DATE);
+        assertThat(AppsmithType).isEqualByComparingTo(AppsmithType.DATE);
     }
 
     @Test
-    public void checkBooleanDataType() {
+    public void checkBooleanAppsmithType() {
         String boolInput = "true";
-        DataType dataType = stringToKnownDataTypeConverter(boolInput);
+        AppsmithType AppsmithType = stringToKnownAppsmithTypeConverter(boolInput);
 
-        assertThat(dataType).isEqualByComparingTo(DataType.BOOLEAN);
+        assertThat(AppsmithType).isEqualByComparingTo(AppsmithType.BOOLEAN);
     }
 
     @Test
-    public void checkStringDataType() {
+    public void checkStringAppsmithType() {
         // Starting the string with number because earlier this was incorrectly being identified as JSON.
         String stringData = "2.1 In order to understand recursion, one must first understand recursion. -Anonymous";
-        DataType dataType = stringToKnownDataTypeConverter(stringData);
+        AppsmithType AppsmithType = stringToKnownAppsmithTypeConverter(stringData);
 
-        assertThat(dataType).isEqualByComparingTo(DataType.STRING);
+        assertThat(AppsmithType).isEqualByComparingTo(AppsmithType.STRING);
     }
 
     @Test
-    public void checkIntegerDataType() {
+    public void checkIntegerAppsmithType() {
         String intData = "1234";
-        DataType dataType = stringToKnownDataTypeConverter(intData);
+        AppsmithType AppsmithType = stringToKnownAppsmithTypeConverter(intData);
 
-        assertThat(dataType).isEqualByComparingTo(DataType.INTEGER);
+        assertThat(AppsmithType).isEqualByComparingTo(AppsmithType.INTEGER);
     }
 
     @Test
-    public void checkFloatDataType() {
+    public void checkFloatAppsmithType() {
         String floatData = "12.34";
-        DataType dataType = stringToKnownDataTypeConverter(floatData);
+        AppsmithType AppsmithType = stringToKnownAppsmithTypeConverter(floatData);
 
-        assertThat(dataType).isEqualByComparingTo(DataType.FLOAT);
+        assertThat(AppsmithType).isEqualByComparingTo(AppsmithType.FLOAT);
     }
 
     @Test
     public void checkCommaDelimitedIntegerValues() {
         String strData = "54,024,464";
-        DataType dataType = stringToKnownDataTypeConverter(strData);
+        AppsmithType AppsmithType = stringToKnownAppsmithTypeConverter(strData);
 
-        assertThat(dataType).isEqualByComparingTo(DataType.INTEGER);
+        assertThat(AppsmithType).isEqualByComparingTo(AppsmithType.INTEGER);
     }
 
     @Test
     public void checkCommaDelimitedFloatValues() {
         String floatData = "54,024,464,177.345300";
-        DataType dataType = stringToKnownDataTypeConverter(floatData);
+        AppsmithType AppsmithType = stringToKnownAppsmithTypeConverter(floatData);
 
-        assertThat(dataType).isEqualByComparingTo(DataType.FLOAT);
+        assertThat(AppsmithType).isEqualByComparingTo(AppsmithType.FLOAT);
     }
 
     @Test
     public void checkCommaDelimitedLongValues() {
         String strData = "454,024,464,454,987,777";
-        DataType dataType = stringToKnownDataTypeConverter(strData);
+        AppsmithType AppsmithType = stringToKnownAppsmithTypeConverter(strData);
 
-        assertThat(dataType).isEqualByComparingTo(DataType.LONG);
+        assertThat(AppsmithType).isEqualByComparingTo(AppsmithType.LONG);
     }
 
     @Test
-    public void checkSimpleArrayDataType() {
+    public void checkSimpleArrayAppsmithType() {
         String arrayData = "[1,2,3,4]";
-        DataType dataType = stringToKnownDataTypeConverter(arrayData);
+        AppsmithType AppsmithType = stringToKnownAppsmithTypeConverter(arrayData);
 
-        assertThat(dataType).isEqualByComparingTo(DataType.ARRAY);
+        assertThat(AppsmithType).isEqualByComparingTo(AppsmithType.ARRAY);
     }
 
     @Test
-    public void checkArrayOfObjectsDataType() {
+    public void checkArrayOfObjectsAppsmithType() {
         String arrayData = "[\n" +
                 "  {\n" +
                 "    \"key1\": \"value\"\n" +
@@ -113,83 +113,83 @@ public class DataTypeStringUtilsTest {
                 "    \"key3\": \"value\"\n" +
                 "  }\n" +
                 "]";
-        DataType dataType = stringToKnownDataTypeConverter(arrayData);
+        AppsmithType AppsmithType = stringToKnownAppsmithTypeConverter(arrayData);
 
-        assertThat(dataType).isEqualByComparingTo(DataType.ARRAY);
+        assertThat(AppsmithType).isEqualByComparingTo(AppsmithType.ARRAY);
     }
 
     @Test
-    public void checkJsonDataType() {
+    public void checkJsonAppsmithType() {
         String jsonData = "{\n" +
                 "  \"key1\": \"value\"\n" +
                 "}";
-        DataType dataType = stringToKnownDataTypeConverter(jsonData);
+        AppsmithType AppsmithType = stringToKnownAppsmithTypeConverter(jsonData);
 
-        assertThat(dataType).isEqualByComparingTo(DataType.JSON_OBJECT);
+        assertThat(AppsmithType).isEqualByComparingTo(AppsmithType.JSON_OBJECT);
     }
 
     @Test
-    public void checkNullDataType() {
+    public void checkNullAppsmithType() {
         String nullData = "null";
-        DataType dataType = stringToKnownDataTypeConverter(nullData);
+        AppsmithType AppsmithType = stringToKnownAppsmithTypeConverter(nullData);
 
-        assertThat(dataType).isEqualByComparingTo(DataType.NULL);
+        assertThat(AppsmithType).isEqualByComparingTo(AppsmithType.NULL);
     }
 
     @Test
     public void testJsonStrictParsing() {
         // https://static.javadoc.io/com.google.code.gson/gson/2.8.5/com/google/gson/stream/JsonReader.html#setLenient-boolean-
         // Streams that start with the non-execute prefix, ")]}'\n".
-        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("){}"));
-        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("]{}"));
-        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("}{}"));
+        assertThat(AppsmithType.STRING).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("){}"));
+        assertThat(AppsmithType.STRING).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("]{}"));
+        assertThat(AppsmithType.STRING).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("}{}"));
         // Streams that include multiple top-level values. With strict parsing, each stream must contain exactly one top-level value.
-        assertThat(DataType.BSON).isEqualByComparingTo(stringToKnownDataTypeConverter("{}{}"));
-        assertThat(DataType.BSON).isEqualByComparingTo(stringToKnownDataTypeConverter("{}[]null"));
+        assertThat(AppsmithType.BSON).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{}{}"));
+        assertThat(AppsmithType.BSON).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{}[]null"));
         // Top-level values of any type. With strict parsing, the top-level value must be an object or an array.
-        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter(""));
-        assertThat(DataType.NULL).isEqualByComparingTo(stringToKnownDataTypeConverter("null"));
-        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("Abracadabra"));
-        assertThat(DataType.INTEGER).isEqualByComparingTo(stringToKnownDataTypeConverter("13"));
-        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("\"literal\""));
-        assertThat(DataType.NULL).isEqualByComparingTo(stringToKnownDataTypeConverter("[]"));
+        assertThat(AppsmithType.STRING).isEqualByComparingTo(stringToKnownAppsmithTypeConverter(""));
+        assertThat(AppsmithType.NULL).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("null"));
+        assertThat(AppsmithType.STRING).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("Abracadabra"));
+        assertThat(AppsmithType.INTEGER).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("13"));
+        assertThat(AppsmithType.STRING).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("\"literal\""));
+        assertThat(AppsmithType.NULL).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("[]"));
         // Numbers may be NaNs or infinities.
-        assertThat(DataType.BSON).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"number\": NaN}"));
-        assertThat(DataType.BSON).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"number\": Infinity}"));
+        assertThat(AppsmithType.BSON).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{\"number\": NaN}"));
+        assertThat(AppsmithType.BSON).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{\"number\": Infinity}"));
         // End of line comments starting with // or # and ending with a newline character.
-        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{//comment\n}"));
-        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{#comment\n}"));
+        assertThat(AppsmithType.STRING).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{//comment\n}"));
+        assertThat(AppsmithType.STRING).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{#comment\n}"));
         // C-style comments starting with /* and ending with */. Such comments may not be nested.
-        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{/*comment*/}"));
+        assertThat(AppsmithType.STRING).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{/*comment*/}"));
         // Names that are unquoted or 'single quoted'.
-        assertThat(DataType.BSON).isEqualByComparingTo(stringToKnownDataTypeConverter("{a: 1}"));
-        assertThat(DataType.BSON).isEqualByComparingTo(stringToKnownDataTypeConverter("{'a': 1}"));
+        assertThat(AppsmithType.BSON).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{a: 1}"));
+        assertThat(AppsmithType.BSON).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{'a': 1}"));
         // Strings that are unquoted or 'single quoted'.
-        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": str}"));
-        assertThat(DataType.BSON).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": ''}"));
+        assertThat(AppsmithType.STRING).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{\"a\": str}"));
+        assertThat(AppsmithType.BSON).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{\"a\": ''}"));
         // Array elements separated by ; instead of ,.
-        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": [1;2]}"));
+        assertThat(AppsmithType.STRING).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{\"a\": [1;2]}"));
         // Unnecessary array separators. These are interpreted as if null was the omitted value.
-        assertThat(DataType.BSON).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": [1,]}"));
+        assertThat(AppsmithType.BSON).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{\"a\": [1,]}"));
         // Names and values separated by = or => instead of :.
-        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\" = 13}"));
-        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\" => 13}"));
+        assertThat(AppsmithType.STRING).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{\"a\" = 13}"));
+        assertThat(AppsmithType.STRING).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{\"a\" => 13}"));
         // Name/value pairs separated by ; instead of ,.
-        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": 1; \"b\": 2}"));
+        assertThat(AppsmithType.STRING).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{\"a\": 1; \"b\": 2}"));
 
-        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": }"));
-        assertThat(DataType.STRING).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": ,}"));
-        assertThat(DataType.BSON).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": 0,}"));
+        assertThat(AppsmithType.STRING).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{\"a\": }"));
+        assertThat(AppsmithType.STRING).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{\"a\": ,}"));
+        assertThat(AppsmithType.BSON).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{\"a\": 0,}"));
 
-        assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(stringToKnownDataTypeConverter("{} "));
-        assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": null} \n \n"));
-        assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": 0}"));
-        assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": \"\"}"));
-        assertThat(DataType.JSON_OBJECT).isEqualByComparingTo(stringToKnownDataTypeConverter("{\"a\": []}"));
+        assertThat(AppsmithType.JSON_OBJECT).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{} "));
+        assertThat(AppsmithType.JSON_OBJECT).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{\"a\": null} \n \n"));
+        assertThat(AppsmithType.JSON_OBJECT).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{\"a\": 0}"));
+        assertThat(AppsmithType.JSON_OBJECT).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{\"a\": \"\"}"));
+        assertThat(AppsmithType.JSON_OBJECT).isEqualByComparingTo(stringToKnownAppsmithTypeConverter("{\"a\": []}"));
     }
 
     @Test
-    public void testGetDisplayDataTypes_withNestedObjectsInList_returnsWithTable() {
+    public void testGetDisplayAppsmithTypes_withNestedObjectsInList_returnsWithTable() {
 
         final List<Object> data = new ArrayList<>();
         final Map<String, Object> objectMap = new HashMap<>();
@@ -198,13 +198,13 @@ public class DataTypeStringUtilsTest {
         objectMap.put("k", nestedObjectMap);
 
         data.add(objectMap);
-        final List<ParsedDataType> displayDataTypes = getDisplayDataTypes(data);
+        final List<ParsedAppsmithType> displayAppsmithTypes = getDisplayAppsmithTypes(data);
 
-        assertThat(displayDataTypes).anyMatch(parsedDataType -> parsedDataType.getDataType().equals(DisplayDataType.TABLE));
+        assertThat(displayAppsmithTypes).anyMatch(parsedAppsmithType -> parsedAppsmithType.getAppsmithType().equals(DisplayAppsmithType.TABLE));
     }
 
     @Test
-    public void testGetDisplayDataTypes_withNestedObjectsInArrayNode_returnsWithTable() {
+    public void testGetDisplayAppsmithTypes_withNestedObjectsInArrayNode_returnsWithTable() {
         final ObjectMapper objectMapper = new ObjectMapper();
         final ArrayNode data = objectMapper.createArrayNode();
         final ObjectNode objectNode = objectMapper.createObjectNode();
@@ -213,13 +213,13 @@ public class DataTypeStringUtilsTest {
         objectNode.set("k", nestedObjectNode);
 
         data.add(objectNode);
-        final List<ParsedDataType> displayDataTypes = getDisplayDataTypes(data);
+        final List<ParsedAppsmithType> displayAppsmithTypes = getDisplayAppsmithTypes(data);
 
-        assertThat(displayDataTypes).anyMatch(parsedDataType -> parsedDataType.getDataType().equals(DisplayDataType.TABLE));
+        assertThat(displayAppsmithTypes).anyMatch(parsedAppsmithType -> parsedAppsmithType.getAppsmithType().equals(DisplayAppsmithType.TABLE));
     }
 
     @Test
-    public void testGetDisplayDataTypes_withNestedObjectsInString_returnsWithTable() {
+    public void testGetDisplayAppsmithTypes_withNestedObjectsInString_returnsWithTable() {
         final ObjectMapper objectMapper = new ObjectMapper();
         final ArrayNode data = objectMapper.createArrayNode();
         final ObjectNode objectNode = objectMapper.createObjectNode();
@@ -228,8 +228,8 @@ public class DataTypeStringUtilsTest {
         objectNode.set("k", nestedObjectNode);
 
         data.add(objectNode);
-        final List<ParsedDataType> displayDataTypes = getDisplayDataTypes(data.toString());
+        final List<ParsedAppsmithType> displayAppsmithTypes = getDisplayAppsmithTypes(data.toString());
 
-        assertThat(displayDataTypes).anyMatch(parsedDataType -> parsedDataType.getDataType().equals(DisplayDataType.TABLE));
+        assertThat(displayAppsmithTypes).anyMatch(parsedAppsmithType -> parsedAppsmithType.getAppsmithType().equals(DisplayAppsmithType.TABLE));
     }
 }

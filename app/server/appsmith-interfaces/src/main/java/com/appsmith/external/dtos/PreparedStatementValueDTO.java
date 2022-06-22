@@ -1,6 +1,6 @@
 package com.appsmith.external.dtos;
 
-import com.appsmith.external.constants.DataType;
+import com.appsmith.external.datatypes.AppsmithType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,5 +14,5 @@ public class PreparedStatementValueDTO {
 
     String value;
 
-    DataType dataType;
+    AppsmithType dataType;
 }

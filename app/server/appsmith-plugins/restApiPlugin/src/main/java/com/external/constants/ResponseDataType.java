@@ -1,5 +1,5 @@
 package com.external.constants;
 
-public enum ResponseDataType {
+public enum ResponseAppsmithType {
     BINARY, IMAGE, TEXT, JSON, UNDEFINED
 }

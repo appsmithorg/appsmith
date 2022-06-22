@@ -1,6 +1,6 @@
 package com.external.utils;
 
-import com.appsmith.external.constants.DataType;
+import com.appsmith.external.constants.AppsmithType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.constants.ConditionalOperator;
@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class WhereConditionUtils {
@@ -44,10 +43,10 @@ public class WhereConditionUtils {
             );
         }
 
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(strValue);
+        AppsmithType AppsmithType = DataTypeStringUtils.stringToKnownAppsmithTypeConverter(strValue);
         Object value = strValue.trim();
 
-        switch (dataType) {
+        switch (AppsmithType) {
             case INTEGER:
             case LONG:
                 value = Long.parseLong(strValue);

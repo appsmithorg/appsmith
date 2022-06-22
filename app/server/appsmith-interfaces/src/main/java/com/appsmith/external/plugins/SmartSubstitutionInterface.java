@@ -1,6 +1,6 @@
 package com.appsmith.external.plugins;
 
-import com.appsmith.external.constants.DataType;
+import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Param;
@@ -53,7 +53,7 @@ public interface SmartSubstitutionInterface {
     // Default implementation does not do any substitution. The plugin doing intelligent substitution is responsible
     // for overriding this function.
     default Object substituteValueInInput(int index, String binding, String value, Object input,
-                                          List<Map.Entry<String, String>> insertedParams, Object... args) throws AppsmithPluginException {
+                                          List<Map.Entry<String, Class<?>>> insertedParams, Object... args) throws AppsmithPluginException {
         return input;
     }
 
@@ -65,10 +65,10 @@ public interface SmartSubstitutionInterface {
      * override this method to provide plugin specific implementation.
      *
      * @param replacementValue - value to be substituted
-     * @param dataType
+     * @param AppsmithType
      * @return - updated replacement value
      */
-    default String sanitizeReplacement(String replacementValue, DataType dataType) {
+    default String sanitizeReplacement(String replacementValue, AppsmithType datatype) {
         return replacementValue;
     }
 }

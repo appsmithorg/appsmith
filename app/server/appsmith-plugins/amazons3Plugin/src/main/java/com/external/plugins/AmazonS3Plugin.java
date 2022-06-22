@@ -76,7 +76,7 @@ import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
-import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
+import static com.external.plugins.constants.FieldName.READ_DATATYPE;
 import static com.external.plugins.constants.FieldName.CREATE_EXPIRY;
 import static com.external.plugins.constants.FieldName.LIST_EXPIRY;
 import static com.external.plugins.constants.FieldName.LIST_PAGINATE;
@@ -1047,7 +1047,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                              String binding,
                                              String value,
                                              Object input,
-                                             List<Map.Entry<String, String>> insertedParams,
+                                             List<Map.Entry<String, Class<?>>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
             return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);

@@ -10,24 +10,24 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.appsmith.external.constants.DataType.BOOLEAN;
-import static com.appsmith.external.constants.DataType.DOUBLE;
-import static com.appsmith.external.constants.DataType.FLOAT;
-import static com.appsmith.external.constants.DataType.INTEGER;
-import static com.appsmith.external.constants.DataType.LONG;
-import static com.appsmith.external.constants.DataType.STRING;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.BOOL;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.DATE;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.DECIMAL;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.FLOAT8;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.INT;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.INT4;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.INT8;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.TEXT;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.TIME;
-import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.VARCHAR;
+import static com.appsmith.external.constants.AppsmithType.BOOLEAN;
+import static com.appsmith.external.constants.AppsmithType.DOUBLE;
+import static com.appsmith.external.constants.AppsmithType.FLOAT;
+import static com.appsmith.external.constants.AppsmithType.INTEGER;
+import static com.appsmith.external.constants.AppsmithType.LONG;
+import static com.appsmith.external.constants.AppsmithType.STRING;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.BOOL;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.DATE;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.DECIMAL;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.FLOAT8;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.INT;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.INT4;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.INT8;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.TEXT;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.TIME;
+import static com.external.plugins.utils.PostgresAppsmithTypeUtils.AppsmithType.VARCHAR;
 
-public class PostgresDataTypeUtils {
+public class PostgresAppsmithTypeUtils {
 
     /**
      * questionWithCast will match the following sample strings in a query
@@ -40,16 +40,16 @@ public class PostgresDataTypeUtils {
     private static String questionWithCast = "\\?(?:::)*([a-zA-Z]+)*";
     private static Pattern questionWithCastPattern = Pattern.compile(questionWithCast);
 
-    public static DataType dataType = new DataType();
+    public static AppsmithType AppsmithType = new AppsmithType();
 
-    public static class DataType {
+    public static class AppsmithType {
         /**
          * Declare all the explicitly castable postgresql types below. These would be automatically added to the
-         * dataTypes set automatically.
+         * AppsmithTypes set automatically.
          *
          * !!! WARNING !!!
          * When adding a new data type to support for explicit casting, please ensure to add an entry in the Map
-         * dataTypeMapper which maps the postgres data types to Appsmith data types.
+         * AppsmithTypeMapper which maps the postgres data types to Appsmith data types.
          */
         public static final String INT8 = "int8";
         public static final String INT4 = "int4";
@@ -62,19 +62,19 @@ public class PostgresDataTypeUtils {
         public static final String TEXT = "text";
         public static final String INT = "int";
 
-        public Set dataTypes = null;
+        public Set AppsmithTypes = null;
 
-        public Set getDataTypes() {
+        public Set getAppsmithTypes() {
             // if data types hasn't been initialized, read and set all the supported data types for postgres
-            if (dataTypes == null || dataTypes.isEmpty()) {
-                dataTypes = new HashSet<>();
+            if (AppsmithTypes == null || AppsmithTypes.isEmpty()) {
+                AppsmithTypes = new HashSet<>();
 
                 Field[] fields = this.getClass().getDeclaredFields();
 
                 for (Field field : fields) {
                     if (field.getType().equals(String.class)) { // if it is a String field
                         try {
-                            dataTypes.add(field.get(dataType));
+                            AppsmithTypes.add(field.get(AppsmithType));
                         } catch (IllegalArgumentException | IllegalAccessException e) {
                             // We weren't able to read the value of the field. Ignore this field and continue
                             // Still print the stack trace for posterity.
@@ -84,55 +84,55 @@ public class PostgresDataTypeUtils {
                 }
             }
             // We are assured that data types has been set.
-            return dataTypes;
+            return AppsmithTypes;
         }
     }
 
     // Stores the mapping between postgres data types and appsmith data types
-    public static Map dataTypeMapper;
+    public static Map AppsmithTypeMapper;
 
-    private static Map getDataTypeMapper() {
-        if (dataTypeMapper == null) {
-            dataTypeMapper = new HashMap<String, com.appsmith.external.constants.DataType>();
-            dataTypeMapper.put(INT8, LONG);
-            dataTypeMapper.put(INT4, INTEGER);
-            dataTypeMapper.put(DECIMAL, FLOAT);
-            dataTypeMapper.put(VARCHAR, STRING);
-            dataTypeMapper.put(BOOL, BOOLEAN);
-            dataTypeMapper.put(DATE, com.appsmith.external.constants.DataType.DATE);
-            dataTypeMapper.put(TIME, com.appsmith.external.constants.DataType.TIME);
-            dataTypeMapper.put(FLOAT8, DOUBLE);
-            dataTypeMapper.put(TEXT, STRING);
-            dataTypeMapper.put(INT, INTEGER);
+    private static Map getAppsmithTypeMapper() {
+        if (AppsmithTypeMapper == null) {
+            AppsmithTypeMapper = new HashMap<String, com.appsmith.external.constants.AppsmithType>();
+            AppsmithTypeMapper.put(INT8, LONG);
+            AppsmithTypeMapper.put(INT4, INTEGER);
+            AppsmithTypeMapper.put(DECIMAL, FLOAT);
+            AppsmithTypeMapper.put(VARCHAR, STRING);
+            AppsmithTypeMapper.put(BOOL, BOOLEAN);
+            AppsmithTypeMapper.put(DATE, com.appsmith.external.constants.AppsmithType.DATE);
+            AppsmithTypeMapper.put(TIME, com.appsmith.external.constants.AppsmithType.TIME);
+            AppsmithTypeMapper.put(FLOAT8, DOUBLE);
+            AppsmithTypeMapper.put(TEXT, STRING);
+            AppsmithTypeMapper.put(INT, INTEGER);
 
             // Must ensure that all the declared postgres data types have a mapping to appsmith data types
-            assert(dataTypeMapper.size() == dataType.getDataTypes().size());
+            assert(AppsmithTypeMapper.size() == AppsmithType.getAppsmithTypes().size());
         }
 
-        return dataTypeMapper;
+        return AppsmithTypeMapper;
     }
 
-    public static List<com.appsmith.external.constants.DataType> extractExplicitCasting(String query) {
+    public static List<com.appsmith.external.constants.AppsmithType> extractExplicitCasting(String query) {
         Matcher matcher = questionWithCastPattern.matcher(query);
-        List<com.appsmith.external.constants.DataType> inputDataTypes = new ArrayList<>();
+        List<com.appsmith.external.constants.AppsmithType> inputAppsmithTypes = new ArrayList<>();
 
         while (matcher.find()) {
-            String prospectiveDataType = matcher.group(1);
+            String prospectiveAppsmithType = matcher.group(1);
 
-            if (prospectiveDataType != null) {
-                String dataTypeFromInput = prospectiveDataType.trim().toLowerCase();
-                if (dataType.getDataTypes().contains(dataTypeFromInput)) {
-                    com.appsmith.external.constants.DataType appsmithDataType
-                            = (com.appsmith.external.constants.DataType) getDataTypeMapper().get(dataTypeFromInput);
-                    inputDataTypes.add(appsmithDataType);
+            if (prospectiveAppsmithType != null) {
+                String AppsmithTypeFromInput = prospectiveAppsmithType.trim().toLowerCase();
+                if (AppsmithType.getAppsmithTypes().contains(AppsmithTypeFromInput)) {
+                    com.appsmith.external.constants.AppsmithType appsmithAppsmithType
+                            = (com.appsmith.external.constants.AppsmithType) getAppsmithTypeMapper().get(AppsmithTypeFromInput);
+                    inputAppsmithTypes.add(appsmithAppsmithType);
                     continue;
                 }
             }
             // Either no external casting exists or unsupported data type is being used. Do not use external casting for this
             // and instead default to implicit type casting (default behaviour) by setting the entry to null.
-            inputDataTypes.add(null);
+            inputAppsmithTypes.add(null);
         }
 
-        return inputDataTypes;
+        return inputAppsmithTypes;
     }
 }

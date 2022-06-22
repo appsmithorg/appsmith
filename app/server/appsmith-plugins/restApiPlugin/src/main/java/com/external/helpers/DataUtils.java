@@ -41,7 +41,7 @@ public class DataUtils {
     private static DataUtils dataUtils;
     private final ObjectMapper objectMapper;
 
-    public enum MultipartFormDataType {
+    public enum MultipartFormAppsmithType {
         TEXT,
         FILE,
         ARRAY,
@@ -157,10 +157,10 @@ public class DataUtils {
                             continue;
                         }
 
-                        final MultipartFormDataType multipartFormDataType =
-                                MultipartFormDataType.valueOf(property.getType().toUpperCase(Locale.ROOT));
+                        final MultipartFormAppsmithType multipartFormAppsmithType =
+                                MultipartFormAppsmithType.valueOf(property.getType().toUpperCase(Locale.ROOT));
 
-                        switch (multipartFormDataType) {
+                        switch (multipartFormAppsmithType) {
                             case TEXT:
                                 byte[] valueBytesArray = new byte[0];
                                 if (StringUtils.hasLength(String.valueOf(property.getValue()))) {

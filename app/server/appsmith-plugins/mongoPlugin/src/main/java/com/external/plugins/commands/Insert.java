@@ -1,6 +1,6 @@
 package com.external.plugins.commands;
 
-import com.appsmith.external.constants.DataType;
+import com.appsmith.external.constants.AppsmithType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
@@ -67,8 +67,8 @@ public class Insert extends MongoCommand {
 
         commandDocument.put(INSERT, this.collection);
 
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(this.documents);
-        if (dataType.equals(DataType.ARRAY)) {
+        AppsmithType AppsmithType = DataTypeStringUtils.stringToKnownAppsmithTypeConverter(this.documents);
+        if (AppsmithType.equals(AppsmithType.ARRAY)) {
             try {
                 List arrayListFromInput = BsonArray.parse(this.documents);
                 if (arrayListFromInput.isEmpty()) {

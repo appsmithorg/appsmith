@@ -22,7 +22,7 @@
           "label": "Service Account Credentials",
           "configProperty": "datasourceConfiguration.authentication.password",
           "controlType": "INPUT_TEXT",
-          "dataType": "PASSWORD",
+          "AppsmithType": "PASSWORD",
           "isRequired": true,
           "initialValue": ""
         }

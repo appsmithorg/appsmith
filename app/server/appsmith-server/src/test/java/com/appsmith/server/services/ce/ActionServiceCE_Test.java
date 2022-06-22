@@ -1,6 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.constants.DisplayDataType;
+import com.appsmith.external.constants.DisplayAppsmithType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -15,7 +15,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
-import com.appsmith.external.models.ParsedDataType;
+import com.appsmith.external.models.ParsedAppsmithType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.WidgetSuggestionDTO;
@@ -664,7 +664,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
     }
 
     @Test
@@ -698,7 +698,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult, List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
     }
 
     @Test
@@ -730,7 +730,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
     }
 
     @Test
@@ -1014,7 +1014,7 @@ public class ActionServiceCE_Test {
     }
 
     private void executeAndAssertAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration,
-                                        ActionExecutionResult mockResult, List<ParsedDataType> expectedReturnDataTypes) {
+                                        ActionExecutionResult mockResult, List<ParsedAppsmithType> expectedReturnAppsmithTypes) {
 
         List<WidgetSuggestionDTO> expectedWidgets = mockResult.getSuggestedWidgets();
         Mono<ActionExecutionResult> actionExecutionResultMono = executeAction(executeActionDTO, actionConfiguration, mockResult);
@@ -1023,7 +1023,7 @@ public class ActionServiceCE_Test {
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getBody()).isEqualTo(mockResult.getBody());
-                    assertThat(result.getDataTypes().toString()).isEqualTo(expectedReturnDataTypes.toString());
+                    assertThat(result.getAppsmithTypes().toString()).isEqualTo(expectedReturnAppsmithTypes.toString());
                     assertThat(result.getSuggestedWidgets().size()).isEqualTo(expectedWidgets.size());
                     assertThat(result.getSuggestedWidgets().containsAll(expectedWidgets));
                     assertThat(expectedWidgets.containsAll(result.getSuggestedWidgets()));
@@ -1469,8 +1469,8 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.TABLE), new ParsedDataType(DisplayDataType.JSON)
-                        , new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.TABLE), new ParsedAppsmithType(DisplayAppsmithType.JSON)
+                        , new ParsedAppsmithType(DisplayAppsmithType.RAW)));
     }
 
     @Test
@@ -1514,7 +1514,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.JSON), new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.JSON), new ParsedAppsmithType(DisplayAppsmithType.RAW)));
     }
 
     @Test
@@ -1537,7 +1537,7 @@ public class ActionServiceCE_Test {
                 " }");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setAppsmithTypes(List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
@@ -1559,7 +1559,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
     }
 
     @Test
@@ -1641,7 +1641,7 @@ public class ActionServiceCE_Test {
         mockResult.setBody(arrNode);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setAppsmithTypes(List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.CHART_WIDGET, "x", "y"));
@@ -1666,7 +1666,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
     }
 
@@ -1754,7 +1754,7 @@ public class ActionServiceCE_Test {
         mockResult.setBody(arrNode);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setAppsmithTypes(List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.CHART_WIDGET, "id", "ppu"));
@@ -1779,7 +1779,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
     }
 
@@ -1859,7 +1859,7 @@ public class ActionServiceCE_Test {
         mockResult.setBody(arrNode);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setAppsmithTypes(List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.CHART_WIDGET, "url", "width"));
@@ -1884,7 +1884,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
     }
 
@@ -1920,7 +1920,7 @@ public class ActionServiceCE_Test {
         mockResult.setBody(arrNode);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setAppsmithTypes(List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.SELECT_WIDGET, "CarType", "carID"));
@@ -1944,7 +1944,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
     }
 
@@ -1963,7 +1963,7 @@ public class ActionServiceCE_Test {
         mockResult.setBody(arrNode);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setAppsmithTypes(List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.INPUT_WIDGET));
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
@@ -1985,7 +1985,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
     }
 
@@ -2006,7 +2006,7 @@ public class ActionServiceCE_Test {
         mockResult.setBody(arrNode);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setAppsmithTypes(List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET));
@@ -2029,7 +2029,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
     }
 
@@ -2048,7 +2048,7 @@ public class ActionServiceCE_Test {
         mockResult.setBody(arrNode);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setAppsmithTypes(List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         mockResult.setSuggestedWidgets(widgetTypeList);
@@ -2069,7 +2069,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
     }
 
@@ -2088,7 +2088,7 @@ public class ActionServiceCE_Test {
         mockResult.setBody(arrNode);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setAppsmithTypes(List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.INPUT_WIDGET));
@@ -2111,7 +2111,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
     }
 
@@ -2157,7 +2157,7 @@ public class ActionServiceCE_Test {
         mockResult.setBody(arrNode);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setAppsmithTypes(List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TEXT_WIDGET,"users"));
@@ -2182,7 +2182,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
     }
 
@@ -2211,7 +2211,7 @@ public class ActionServiceCE_Test {
         mockResult.setBody(arrNode);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setAppsmithTypes(List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
@@ -2233,7 +2233,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
     }
 
@@ -2273,7 +2273,7 @@ public class ActionServiceCE_Test {
         mockResult.setBody(arrNode);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setAppsmithTypes(List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
@@ -2295,7 +2295,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
     }
 
@@ -2318,7 +2318,7 @@ public class ActionServiceCE_Test {
         mockResult.setBody(arrNode);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setAppsmithTypes(List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TEXT_WIDGET,"users"));
@@ -2340,7 +2340,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
     }
 
@@ -2364,7 +2364,7 @@ public class ActionServiceCE_Test {
         mockResult.setBody(listData);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setAppsmithTypes(List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.CHART_WIDGET, "url", "width"));
@@ -2389,7 +2389,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
     }
 
     @Test
@@ -2413,7 +2413,7 @@ public class ActionServiceCE_Test {
         mockResult.setBody(listData);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setAppsmithTypes(List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.SELECT_WIDGET, "url", "width"));
@@ -2437,7 +2437,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
     }
 
     @Test
@@ -2452,7 +2452,7 @@ public class ActionServiceCE_Test {
         mockResult.setBody(listData);
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
-        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+        mockResult.setAppsmithTypes(List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
@@ -2474,7 +2474,7 @@ public class ActionServiceCE_Test {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+                List.of(new ParsedAppsmithType(DisplayAppsmithType.RAW)));
 
     }
 

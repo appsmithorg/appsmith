@@ -155,7 +155,7 @@ public class PostgresPluginTest {
                         "    name timestamptz default now()\n" +
                         ")");
 
-                statement.execute("CREATE TABLE dataTypeTest (\n" +
+                statement.execute("CREATE TABLE AppsmithTypeTest (\n" +
                         "    id serial PRIMARY KEY,\n" +
                         "    item json,\n" +
                         "    origin jsonb,\n" +
@@ -217,7 +217,7 @@ public class PostgresPluginTest {
 
             try (Statement statement = connection.createStatement()) {
                 statement.execute(
-                        "INSERT INTO dataTypeTest VALUES (" +
+                        "INSERT INTO AppsmithTypeTest VALUES (" +
                                 "1, '{\"type\":\"racket\", \"manufacturer\":\"butterfly\"}'," +
                                 "'{\"country\":\"japan\", \"city\":\"kyoto\"}', 'A Lincoln'"+
                                 ")");
@@ -414,23 +414,23 @@ public class PostgresPluginTest {
                     );
                     assertEquals(campusTable.getKeys().size(), 0);
 
-                    final DatasourceStructure.Table dataTypeTestTable = structure.getTables().get(1);
-                    assertEquals("public.datatypetest", dataTypeTestTable.getName());
+                    final DatasourceStructure.Table AppsmithTypeTestTable = structure.getTables().get(1);
+                    assertEquals("public.AppsmithTypetest", AppsmithTypeTestTable.getName());
                     assertEquals(DatasourceStructure.TableType.TABLE, campusTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
                                     new DatasourceStructure.Column(
                                         "id",
                                         "int4",
-                                        "nextval('datatypetest_id_seq'::regclass)",
+                                        "nextval('AppsmithTypetest_id_seq'::regclass)",
                                         true),
                                     new DatasourceStructure.Column("item", "json", null, false),
                                     new DatasourceStructure.Column("origin", "jsonb", null, false),
                                     new DatasourceStructure.Column("citextdata", "citext", null, false)
                             },
-                            dataTypeTestTable.getColumns().toArray()
+                            AppsmithTypeTestTable.getColumns().toArray()
                     );
-                    assertEquals(dataTypeTestTable.getKeys().size(), 1);
+                    assertEquals(AppsmithTypeTestTable.getKeys().size(), 1);
 
                     final DatasourceStructure.Table possessionsTable = structure.getTables().get(2);
                     assertEquals("public.possessions", possessionsTable.getName());
@@ -1200,9 +1200,9 @@ public class PostgresPluginTest {
     }
 
     @Test
-    public void testDataTypes() {
+    public void testAppsmithTypes() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("SELECT * FROM dataTypeTest");
+        actionConfiguration.setBody("SELECT * FROM AppsmithTypeTest");
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<HikariDataSource> connectionPoolMono = pluginExecutor.datasourceCreate(dsConfig);
         Mono<ActionExecutionResult> resultMono = connectionPoolMono
@@ -1367,12 +1367,12 @@ public class PostgresPluginTest {
     }
 
     @Test
-    public void testPreparedStatementWithJsonDataType() {
+    public void testPreparedStatementWithJsonAppsmithType() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        String query = "INSERT INTO dataTypeTest VALUES ({{id}}, {{jsonObject1}}::json, {{jsonObject2}}::json, {{stringValue}})";
+        String query = "INSERT INTO AppsmithTypeTest VALUES ({{id}}, {{jsonObject1}}::json, {{jsonObject2}}::json, {{stringValue}})";
         actionConfiguration.setBody(query);
 
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
@@ -1423,7 +1423,7 @@ public class PostgresPluginTest {
                 .verifyComplete();
 
         // Delete the newly added row to not affect any other test case
-        actionConfiguration.setBody("DELETE FROM users dataTypeTest id = 10");
+        actionConfiguration.setBody("DELETE FROM users AppsmithTypeTest id = 10");
         connectionCreateMono
                 .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration)).block();
 

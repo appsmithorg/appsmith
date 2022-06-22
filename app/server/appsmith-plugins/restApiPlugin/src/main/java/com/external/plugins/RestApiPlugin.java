@@ -24,7 +24,7 @@ import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
 import com.external.connections.APIConnection;
 import com.external.connections.APIConnectionFactory;
-import com.external.constants.ResponseDataType;
+import com.external.constants.ResponseAppsmithType;
 import com.external.helpers.BufferingFilter;
 import com.external.helpers.DataUtils;
 import com.external.helpers.DatasourceValidator;
@@ -101,8 +101,8 @@ public class RestApiPlugin extends BasePlugin {
         private final String IS_SEND_SESSION_ENABLED_KEY = "isSendSessionEnabled";
         private final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
         private final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
-        private final String RESPONSE_DATA_TYPE = "X-APPSMITH-DATATYPE";
-        private final Set binaryDataTypes = Set.of("application/zip",
+        private final String RESPONSE_DATA_TYPE = "X-APPSMITH-AppsmithType";
+        private final Set binaryAppsmithTypes = Set.of("application/zip",
                 "application/octet-stream",
                 "application/pdf",
                 "application/pkcs8",
@@ -454,7 +454,7 @@ public class RestApiPlugin extends BasePlugin {
 
                         if (body != null) {
 
-                            ResponseDataType responseDataType = ResponseDataType.UNDEFINED;
+                            ResponseAppsmithType responseAppsmithType = ResponseAppsmithType.UNDEFINED;
 
                             /**TODO
                              * Handle XML response. Currently we only handle JSON & Image responses. The other kind of responses
@@ -465,7 +465,7 @@ public class RestApiPlugin extends BasePlugin {
                                 try {
                                     String jsonBody = new String(body, StandardCharsets.UTF_8);
                                     result.setBody(objectMapper.readTree(jsonBody));
-                                    responseDataType = ResponseDataType.JSON;
+                                    responseAppsmithType = ResponseAppsmithType.JSON;
                                 } catch (IOException e) {
                                     System.out.println("Unable to parse response JSON. Setting response body as string.");
                                     String bodyString = new String(body, StandardCharsets.UTF_8);
@@ -483,24 +483,24 @@ public class RestApiPlugin extends BasePlugin {
                                     MediaType.IMAGE_PNG.equals(contentType)) {
                                 String encode = Base64.encode(body);
                                 result.setBody(encode);
-                                responseDataType = ResponseDataType.IMAGE;
+                                responseAppsmithType = ResponseAppsmithType.IMAGE;
 
-                            } else if (binaryDataTypes.contains(contentType.toString())) {
+                            } else if (binaryAppsmithTypes.contains(contentType.toString())) {
                                 String encode = Base64.encode(body);
                                 result.setBody(encode);
-                                responseDataType = ResponseDataType.BINARY;
+                                responseAppsmithType = ResponseAppsmithType.BINARY;
                             } else {
                                 // If the body is not of JSON type, just set it as is.
                                 String bodyString = new String(body, StandardCharsets.UTF_8);
                                 result.setBody(bodyString.trim());
-                                responseDataType = ResponseDataType.TEXT;
+                                responseAppsmithType = ResponseAppsmithType.TEXT;
                             }
 
                             // Now add a new header which specifies the data type of the response as per Appsmith
                             JsonNode headersJsonNode = result.getHeaders();
                             ObjectNode headersObjectNode = (ObjectNode) headersJsonNode;
                             headersObjectNode.putArray(RESPONSE_DATA_TYPE)
-                                    .add(String.valueOf(responseDataType));
+                                    .add(String.valueOf(responseAppsmithType));
                             result.setHeaders(headersObjectNode);
 
                         }

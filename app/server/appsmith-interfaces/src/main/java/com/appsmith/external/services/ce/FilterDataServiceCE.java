@@ -1,13 +1,14 @@
 package com.appsmith.external.services.ce;
 
 import com.appsmith.external.constants.ConditionalOperator;
-import com.appsmith.external.constants.DataType;
 import com.appsmith.external.constants.SortType;
+import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.dtos.PreparedStatementValueDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.UQIDataFilterParams;
+import com.appsmith.external.services.AppsmithTypeServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -37,13 +38,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDataTypeConverter;
-import static com.appsmith.external.models.Condition.addValueDataType;
+import static com.appsmith.external.models.Condition.addValueAppsmithType;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 
 @Slf4j
 public class FilterDataServiceCE implements IFilterDataServiceCE {
+
+    public final AppsmithTypeService AppsmithTypeService = AppsmithTypeServiceImpl.getInstance();
 
     public static final String SORT_BY_COLUMN_NAME_KEY = "column";
     public static final String SORT_BY_TYPE_KEY = "order";
@@ -56,17 +58,6 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     private Connection connection;
 
     private static final String URL = "jdbc:h2:mem:filterDb;DATABASE_TO_UPPER=FALSE";
-
-    private static final Map<DataType, String> SQL_DATATYPE_MAP = Map.of(
-            DataType.INTEGER, "INT",
-            DataType.LONG, "BIGINT",
-            DataType.FLOAT, "REAL",
-            DataType.DOUBLE, "DOUBLE",
-            DataType.BOOLEAN, "BOOLEAN",
-            DataType.STRING, "VARCHAR",
-            DataType.DATE, "DATE",
-            DataType.TIMESTAMP, "TIMESTAMP"
-    );
 
     private static final Map<ConditionalOperator, String> SQL_OPERATOR_MAP = Map.of(
             ConditionalOperator.LT, "<",
@@ -88,7 +79,9 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             connection = DriverManager.getConnection(URL);
         } catch (SQLException e) {
             log.error(e.getMessage());
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Failed to connect to the in memory database. Unable to perform filtering : " + e.getMessage());
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
+                    "Failed to connect to the in memory database. Unable to perform filtering : " + e.getMessage());
         }
     }
 
@@ -151,11 +144,11 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
         Condition condition = uqiDataFilterParams.getCondition();
         if (condition != null) {
-            Condition updatedCondition = addValueDataType(condition);
+            Condition updatedCondition = addValueAppsmithType(condition);
             uqiDataFilterParams.setCondition(updatedCondition);
         }
 
-        Map<String, DataType> schema = generateSchema(items);
+        Map<String, AppsmithType> schema = generateSchema(items);
         String tableName = generateTable(schema);
 
         // insert the data
@@ -172,7 +165,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         return finalResultsNode;
     }
 
-    private List<Map<String, Object>> executeFilterQueryNew(String tableName, Map<String, DataType> schema,
+    private List<Map<String, Object>> executeFilterQueryNew(String tableName, Map<String, AppsmithType> schema,
                                                             UQIDataFilterParams uqiDataFilterParams) {
 
         Condition condition = uqiDataFilterParams.getCondition();
@@ -192,8 +185,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
          * the data value as key. Hence, if two identical data values existed then they would overwrite each other. E.g.
          * if there was where clause like `Name == John` Or `Name != John, (which is a perfectly valid query) then
          * the prepared statement substitution would fail because instead of two values to substitute it would only
-         * fine one i.e. {"John" -> DataType.String} is the only entry it would find whereas two entries are
-         * actually required {"John" -> DataType.String, "John" -> DataType.String} - one for each condition in the
+         * fine one i.e. {"John" -> AppsmithType.String} is the only entry it would find whereas two entries are
+         * actually required {"John" -> AppsmithType.String, "John" -> AppsmithType.String} - one for each condition in the
          * where clause. JUnit TC `testProjectionSortingAndPaginationTogether` takes care of this case as well.
          */
         List<PreparedStatementValueDTO> values = new ArrayList<>();
@@ -229,8 +222,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             for (int i = 0; iterator.hasNext(); i++) {
                 PreparedStatementValueDTO dataInfo = iterator.next();
                 String value = dataInfo.getValue();
-                DataType dataType = dataInfo.getDataType();
-                setValueInStatement(preparedStatement, i + 1, value, dataType);
+                AppsmithType AppsmithType = dataInfo.getDataType();
+                setValueInStatement(preparedStatement, i + 1, value, AppsmithType);
             }
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -280,14 +273,14 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         if (isBlank(limit)) {
             limit = "20";
         }
-        values.add(new PreparedStatementValueDTO(limit, DataType.INTEGER));
+        values.add(new PreparedStatementValueDTO(limit, AppsmithType.INTEGER));
 
         // Set offset value and data type for prepared statement substitution
         String offset = paginateBy.get(PAGINATE_OFFSET_KEY);
         if (isBlank(offset)) {
             offset = "0";
         }
-        values.add(new PreparedStatementValueDTO(offset, DataType.INTEGER));
+        values.add(new PreparedStatementValueDTO(offset, AppsmithType.INTEGER));
     }
 
     /**
@@ -530,19 +523,19 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         return sb.toString();
     }
 
-    public void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema) {
+    public void insertAllData(String tableName, ArrayNode items, Map<String, AppsmithType> schema) {
         insertAllData(tableName, items, schema, null);
     }
 
     /**
-     * Overloaded Method to handle plugin-based DataType conversion.
+     * Overloaded Method to handle plugin-based AppsmithType conversion.
      *
      * @param tableName             - table name in database
      * @param items                 - Data
      * @param schema                - The Schema
-     * @param dataTypeConversionMap - A Map to provide custom Datatype against the actual Datatype found.
+     * @param AppsmithTypeConversionMap - A Map to provide custom AppsmithType against the actual AppsmithType found.
      */
-    public void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema, Map<DataType, DataType> dataTypeConversionMap) {
+    public void insertAllData(String tableName, ArrayNode items, Map<String, AppsmithType> schema, Map<AppsmithType, AppsmithType> AppsmithTypeConversionMap) {
 
         List<String> columnNames = schema.keySet().stream().collect(Collectors.toList());
 
@@ -556,7 +549,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         columnNamesBuilder.append(")");
 
         // In order data types of all the columns
-        List<DataType> columnTypes = new ArrayList<>();
+        List<AppsmithType> columnTypes = new ArrayList<>();
         for (String columnName : columnNames) {
             columnTypes.add(schema.get(columnName));
         }
@@ -575,7 +568,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             // rows, execute the insert for rows so far and start afresh for the rest of the rows
             if (counter == 1000) {
 
-                insertReadyData(insertQueryBuilder.toString(), valuesMasterBuilder, inOrderValues, columnTypes, dataTypeConversionMap);
+                insertReadyData(insertQueryBuilder.toString(), valuesMasterBuilder, inOrderValues, columnTypes, AppsmithTypeConversionMap);
                 // Reset the values builder and counter for new insert queries.
                 valuesMasterBuilder = new StringBuilder();
                 counter = 0;
@@ -618,7 +611,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         }
 
         if (valuesMasterBuilder.length() > 0) {
-            insertReadyData(insertQueryBuilder.toString(), valuesMasterBuilder, inOrderValues, columnTypes, dataTypeConversionMap);
+            insertReadyData(insertQueryBuilder.toString(), valuesMasterBuilder, inOrderValues, columnTypes, AppsmithTypeConversionMap);
         }
     }
 
@@ -636,7 +629,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         }
     }
 
-    private void insertReadyData(String partialInsertQuery, StringBuilder valuesBuilder, List<String> inOrderValues, List<DataType> columnTypes, Map<DataType, DataType> dataTypeConversionMap) {
+    private void insertReadyData(String partialInsertQuery, StringBuilder valuesBuilder, List<String> inOrderValues, List<AppsmithType> columnTypes, Map<AppsmithType, AppsmithType> AppsmithTypeConversionMap) {
 
         Connection conn = checkAndGetConnection();
 
@@ -653,7 +646,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             while (valueCounter < inOrderValues.size()) {
 
                 for (int columnTypeCounter = 0; columnTypeCounter < columnTypes.size(); columnTypeCounter++, valueCounter++) {
-                    setValueInStatement(preparedStatement, valueCounter + 1, inOrderValues.get(valueCounter), columnTypes.get(columnTypeCounter), dataTypeConversionMap);
+                    setValueInStatement(preparedStatement, valueCounter + 1, inOrderValues.get(valueCounter), columnTypes.get(columnTypeCounter), AppsmithTypeConversionMap);
                 }
             }
 
@@ -677,7 +670,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         return connection;
     }
 
-    public String generateTable(Map<String, DataType> schema) {
+    public String generateTable(Map<String, AppsmithType> schema) {
 
         // Generate table name
         String generateUniqueId = new ObjectId().toString().toUpperCase();
@@ -693,7 +686,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         sb.append(" (");
 
         Boolean columnsAdded = false;
-        for (Map.Entry<String, DataType> entry : schema.entrySet()) {
+        for (Map.Entry<String, AppsmithType> entry : schema.entrySet()) {
 
             if (columnsAdded) {
                 // If columns have been added before, add a separator
@@ -701,18 +694,18 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             }
 
             String fieldName = entry.getKey();
-            DataType dataType = entry.getValue();
+            AppsmithType AppsmithType = entry.getValue();
 
-            String sqlDataType = SQL_DATATYPE_MAP.get(dataType);
-            if (sqlDataType == null) {
+            String sqlAppsmithType = SQL_AppsmithType_MAP.get(AppsmithType);
+            if (sqlAppsmithType == null) {
                 // the data type recognized does not have a native support in appsmith right now
                 // default to String
-                sqlDataType = SQL_DATATYPE_MAP.get(DataType.STRING);
+                sqlAppsmithType = SQL_AppsmithType_MAP.get(AppsmithType.STRING);
             }
             columnsAdded = true;
             sb.append("\"" + fieldName + "\"");
             sb.append(" ");
-            sb.append(sqlDataType);
+            sb.append(sqlAppsmithType);
 
         }
 
@@ -734,24 +727,24 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     }
 
 
-    public Map<String, DataType> generateSchema(ArrayNode items) {
+    public Map<String, AppsmithType> generateSchema(ArrayNode items) {
         return generateSchema(items, null);
     }
 
     /**
-     * Overloaded Method to handle plugin-based DataType conversion.
+     * Overloaded Method to handle plugin-based AppsmithType conversion.
      *
      * @param items
-     * @param dataTypeConversionMap - A Map to provide custom Datatype against the actual Datatype found.
+     * @param AppsmithTypeConversionMap - A Map to provide custom AppsmithType against the actual AppsmithType found.
      * @return
      */
-    public Map<String, DataType> generateSchema(ArrayNode items, Map<DataType, DataType> dataTypeConversionMap) {
+    public Map<String, AppsmithType> generateSchema(ArrayNode items, Map<AppsmithType, AppsmithType> AppsmithTypeConversionMap) {
 
         JsonNode item = items.get(0);
 
         Iterator<String> fieldNamesIterator = item.fieldNames();
 
-        Set<String> missingColumnDataTypes = new HashSet<>();
+        Set<String> missingColumnAppsmithTypes = new HashSet<>();
         /*
          * For an object of the following type :
          * {
@@ -762,36 +755,35 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
          *
          * The schema generated would be a Map as follows :
          * {
-         *      field1 : DataType.STRING
-         *      field2 : DataType.BOOLEAN
-         *      field3 : DataType.INTEGER
+         *      field1 : AppsmithType.STRING
+         *      field2 : AppsmithType.BOOLEAN
+         *      field3 : AppsmithType.INTEGER
          * }
          */
-        Map<String, DataType> schema = Stream.generate(() -> null)
+        Map<String, AppsmithType> schema = Stream.generate(() -> null)
                 .takeWhile(x -> fieldNamesIterator.hasNext())
                 .map(n -> fieldNamesIterator.next())
-                .map(name -> {
+                .peek(name -> {
                     if (name.contains("\"") || name.contains("\'")) {
                         throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 "\' or \" are unsupported symbols in column names for filtering. Caused by column name : " + name);
                     }
-                    return name;
                 })
                 .collect(Collectors.toMap(
                                 Function.identity(),
                                 name -> {
                                     String value = item.get(name).asText();
                                     if (StringUtils.isEmpty(value)) {
-                                        missingColumnDataTypes.add(name);
+                                        missingColumnAppsmithTypes.add(name);
                                         // Default to string
-                                        return DataType.STRING;
+                                        return new StringType();
                                     } else {
-                                        DataType foundDataType = stringToKnownDataTypeConverter(value);
-                                        DataType convertedDataType = foundDataType;
-                                        if (name != "rowIndex" && dataTypeConversionMap != null) {
-                                            convertedDataType = dataTypeConversionMap.getOrDefault(foundDataType, foundDataType);
+                                        AppsmithType foundAppsmithType = AppsmithTypeService.getAppsmithType(value);
+                                        AppsmithType convertedAppsmithType = foundAppsmithType;
+                                        if (name != "rowIndex" && AppsmithTypeConversionMap != null) {
+                                            convertedAppsmithType = AppsmithTypeConversionMap.getOrDefault(foundAppsmithType, foundAppsmithType);
                                         }
-                                        return convertedDataType;
+                                        return convertedAppsmithType;
                                     }
                                 },
                                 (u, v) -> {
@@ -805,25 +797,25 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
         // Try to find the missing data type which has been initialized to String
         Set<String> columns = new HashSet();
-        columns.addAll(missingColumnDataTypes);
+        columns.addAll(missingColumnAppsmithTypes);
 
         for (String columnName : columns) {
             for (JsonNode entry : items) {
                 String value = entry.get(columnName).asText();
                 if (!StringUtils.isEmpty(value)) {
-                    DataType foundDataType = stringToKnownDataTypeConverter(value);
-                    DataType dataType = foundDataType;
-                    if (dataTypeConversionMap != null) {
-                        dataType = dataTypeConversionMap.getOrDefault(foundDataType, foundDataType);
+                    AppsmithType foundAppsmithType = stringToKnownAppsmithTypeConverter(value);
+                    AppsmithType AppsmithType = foundAppsmithType;
+                    if (AppsmithTypeConversionMap != null) {
+                        AppsmithType = AppsmithTypeConversionMap.getOrDefault(foundAppsmithType, foundAppsmithType);
                     }
-                    schema.put(columnName, dataType);
-                    missingColumnDataTypes.remove(columnName);
+                    schema.put(columnName, AppsmithType);
+                    missingColumnAppsmithTypes.remove(columnName);
                 }
             }
         }
 
         // We could not assert a data type for a column because no data exists in any of the rows
-        if (!missingColumnDataTypes.isEmpty()) {
+        if (!missingColumnAppsmithTypes.isEmpty()) {
             // TODO : Decide on the interaction expected here. Currently we are defaulting to String and hence no
             // error would be shown to the user and filtering on other columns should continue as is.
         }
@@ -831,53 +823,53 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         return schema;
     }
 
-    private PreparedStatement setValueInStatement(PreparedStatement preparedStatement, int index, String value, DataType dataType) {
-        return setValueInStatement(preparedStatement, index, value, dataType, null);
+    private PreparedStatement setValueInStatement(PreparedStatement preparedStatement, int index, String value, AppsmithType AppsmithType) {
+        return setValueInStatement(preparedStatement, index, value, AppsmithType, null);
     }
 
     /**
-     * Overloaded Method to handle plugin-based DataType conversion.
+     * Overloaded Method to handle plugin-based AppsmithType conversion.
      *
      * @param preparedStatement
      * @param index
      * @param value
-     * @param topRowDataType
-     * @param dataTypeConversionMap - A Map to provide custom Datatype against the actual Datatype found.
+     * @param topRowAppsmithType
+     * @param AppsmithTypeConversionMap - A Map to provide custom AppsmithType against the actual AppsmithType found.
      * @return
      */
-    private PreparedStatement setValueInStatement(PreparedStatement preparedStatement, int index, String value, DataType topRowDataType, Map<DataType, DataType> dataTypeConversionMap) {
+    private PreparedStatement setValueInStatement(PreparedStatement preparedStatement, int index, String value, AppsmithType topRowAppsmithType, Map<AppsmithType, AppsmithType> AppsmithTypeConversionMap) {
 
-        DataType dataType = topRowDataType;
-        if (dataTypeConversionMap != null) {
-            //The input datatype will be converted to custom DatType as per implementing dataTypeConversionMap
-            dataType = dataTypeConversionMap.getOrDefault(topRowDataType, topRowDataType);
+        AppsmithType AppsmithType = topRowAppsmithType;
+        if (AppsmithTypeConversionMap != null) {
+            //The input AppsmithType will be converted to custom DatType as per implementing AppsmithTypeConversionMap
+            AppsmithType = AppsmithTypeConversionMap.getOrDefault(topRowAppsmithType, topRowAppsmithType);
         }
 
         String strNumericValue = value.trim().replaceAll(",", "");
 
-        // Override datatype to null for empty values
+        // Override AppsmithType to null for empty values
         if (StringUtils.isEmpty(value)) {
-            dataType = DataType.NULL;
+            AppsmithType = AppsmithType.NULL;
         } else {
             // value is not empty.
-            DataType currentRowDataType = stringToKnownDataTypeConverter(value);
-            DataType inputDataType = currentRowDataType;
-            if (dataTypeConversionMap != null) {
-                //Datatype of each row be processed, expected to be consistent to column datatype (first row datatype).
-                inputDataType = dataTypeConversionMap.getOrDefault(currentRowDataType, currentRowDataType);
+            AppsmithType currentRowAppsmithType = stringToKnownAppsmithTypeConverter(value);
+            AppsmithType inputAppsmithType = currentRowAppsmithType;
+            if (AppsmithTypeConversionMap != null) {
+                //AppsmithType of each row be processed, expected to be consistent to column AppsmithType (first row AppsmithType).
+                inputAppsmithType = AppsmithTypeConversionMap.getOrDefault(currentRowAppsmithType, currentRowAppsmithType);
             }
-            if (DataType.NULL.equals(inputDataType)) {
-                dataType = DataType.NULL;
+            if (AppsmithType.NULL.equals(inputAppsmithType)) {
+                AppsmithType = AppsmithType.NULL;
             }
-            //We are setting incompatible datatypes of each row to Null, rather allowing it and exit with error.
-            if (dataTypeConversionMap != null && inputDataType != dataType) {
-                log.debug("DataType Error : [" + inputDataType + "] " + value + " is not of type " + dataType + " which is the datatype of the column, hence ignored in filter.");
-                dataType = DataType.NULL;
+            //We are setting incompatible AppsmithTypes of each row to Null, rather allowing it and exit with error.
+            if (AppsmithTypeConversionMap != null && inputAppsmithType != AppsmithType) {
+                log.debug("AppsmithType Error : [" + inputAppsmithType + "] " + value + " is not of type " + AppsmithType + " which is the AppsmithType of the column, hence ignored in filter.");
+                AppsmithType = AppsmithType.NULL;
             }
         }
 
         try {
-            switch (dataType) {
+            switch (AppsmithType) {
                 case NULL: {
                     preparedStatement.setNull(index, Types.NULL);
                     break;
@@ -915,14 +907,14 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             // Add proper handling here.
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
                     "Error while interacting with value " + value + " : " + e.getMessage() +
-                            ". The data type value was being parsed to was : " + dataType);
+                            ". The data type value was being parsed to was : " + AppsmithType);
         }
 
         return preparedStatement;
     }
 
 
-    public boolean validConditionList(List<Condition> conditionList, Map<String, DataType> schema) {
+    public boolean validConditionList(List<Condition> conditionList, Map<String, AppsmithType> schema) {
 
         conditionList
                 .stream()
@@ -950,7 +942,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     }
 
     public String generateLogicalExpression(List<Condition> conditions, List<PreparedStatementValueDTO> values,
-                                            Map<String, DataType> schema, ConditionalOperator logicOp) {
+                                            Map<String, AppsmithType> schema, ConditionalOperator logicOp) {
 
         StringBuilder sb = new StringBuilder();
 

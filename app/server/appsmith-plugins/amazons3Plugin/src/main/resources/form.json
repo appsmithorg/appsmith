@@ -59,7 +59,7 @@
           "label": "Secret Key",
           "configProperty": "datasourceConfiguration.authentication.password",
           "controlType": "INPUT_TEXT",
-          "dataType": "PASSWORD",
+          "AppsmithType": "PASSWORD",
           "initialValue": "",
           "isRequired": true,
           "encrypted": true
