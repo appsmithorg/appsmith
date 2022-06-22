@@ -555,3 +555,13 @@ export const isDynamicHeightEnabledForWidget = (props: WidgetProps) => {
     props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
   );
 };
+
+/**
+ * A utility function to check whether a widget has dynamic height with limits enabled?
+ * @param props
+ */
+export const isDynamicHeightWithLimitsEnabledForWidget = (
+  props: WidgetProps,
+) => {
+  return props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
+};

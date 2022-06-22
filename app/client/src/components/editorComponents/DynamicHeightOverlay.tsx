@@ -1,4 +1,6 @@
-import React from "react";
+import React, { memo } from "react";
+import { useState } from "react";
+import { useDrag } from "react-use-gesture";
 import styled from "styled-components";
 
 const StyledDynamicHeightOverlay = styled.div`
@@ -37,6 +39,7 @@ const OverlayHandle = styled.div`
   position: absolute;
   display: flex;
   align-items: center;
+  height: 18px;
 `;
 
 const OverlayHandleDot = styled.div`
@@ -56,18 +59,34 @@ const OverlayHandleLabel = styled.div`
   margin-left: 4px;
 `;
 
-interface MinHeightOverlayHandleProps {
-  minDynamicHeight: number;
+const DraggableOverlayHandleDot: React.FC<{
+  onUpdate: (dy: number) => void;
+  onStop: () => void;
+}> = ({ children, onStop, onUpdate }) => {
+  const bind = useDrag(
+    (state) => {
+      if (state.first) {
+        return;
+      }
+
+      if (state.last) {
+        onStop();
+        return;
+      }
+
+      onUpdate(state.movement[1]);
+    },
+    { axis: "y" },
+  );
+
+  return <div {...bind()}>{children}</div>;
+};
+interface OverlayHandleProps {
+  y: number;
 }
 
-interface MaxHeightOverlayHandleProps {
-  maxDynamicHeight: number;
-}
-
-const MinHeightOverlayHandle = styled(OverlayHandle)<
-  MinHeightOverlayHandleProps
->`
-  top: ${(props) => props.minDynamicHeight * 10}px;
+const MinHeightOverlayHandle = styled(OverlayHandle)<OverlayHandleProps>`
+  transform: translateY(${(props) => props.y}px);
 `;
 
 const MinHeightOverlayHandleDot = styled(OverlayHandleDot)`
@@ -76,10 +95,8 @@ const MinHeightOverlayHandleDot = styled(OverlayHandleDot)`
   border: 1px solid ${OVERLAY_COLOR};
 `;
 
-const MaxHeightOverlayHandle = styled(OverlayHandle)<
-  MaxHeightOverlayHandleProps
->`
-  top: ${(props) => props.maxDynamicHeight * 10}px;
+const MaxHeightOverlayHandle = styled(OverlayHandle)<OverlayHandleProps>`
+  transform: translateY(${(props) => props.y}px);
 `;
 
 const MaxHeightOverlayHandleDot = styled(OverlayHandleDot)`
@@ -88,20 +105,52 @@ const MaxHeightOverlayHandleDot = styled(OverlayHandleDot)`
   background-color: ${OVERLAY_COLOR};
 `;
 
+function useDy(
+  init: number,
+): [number, { onStop: () => void; onUpdate: (n: number) => void }] {
+  const [y, setY] = useState(init * 10);
+  const [dY, setdY] = useState(0);
+
+  function onUpdate(dy: number) {
+    setdY(dy);
+  }
+
+  function onStop() {
+    setY(y + dY);
+    setdY(0);
+  }
+
+  return [y + dY, { onUpdate, onStop }];
+}
+
 const OverlayHandles: React.FC<MinMaxHeightProps> = ({
   maxDynamicHeight,
   minDynamicHeight,
 }) => {
+  const isColliding = minDynamicHeight === maxDynamicHeight;
+
+  const [maxY, maxFns] = useDy(maxDynamicHeight);
+  const [minY, minFns] = useDy(minDynamicHeight);
+
   return (
     <StyledOverlayHandles>
-      <MinHeightOverlayHandle minDynamicHeight={minDynamicHeight}>
-        <MinHeightOverlayHandleDot />
-        <OverlayHandleLabel>
-          Min-height: {minDynamicHeight} rows
-        </OverlayHandleLabel>
+      <MinHeightOverlayHandle y={minY}>
+        <DraggableOverlayHandleDot {...minFns}>
+          <MinHeightOverlayHandleDot />
+        </DraggableOverlayHandleDot>
+        {!isColliding ? (
+          <OverlayHandleLabel>
+            Min-height: {minDynamicHeight} rows
+          </OverlayHandleLabel>
+        ) : null}
       </MinHeightOverlayHandle>
-      <MaxHeightOverlayHandle maxDynamicHeight={maxDynamicHeight}>
-        <MaxHeightOverlayHandleDot />
+      <MaxHeightOverlayHandle
+        style={isColliding ? { right: "-135px" } : undefined}
+        y={maxY}
+      >
+        <DraggableOverlayHandleDot {...maxFns}>
+          <MaxHeightOverlayHandleDot />
+        </DraggableOverlayHandleDot>
         <OverlayHandleLabel>
           Max-height: {maxDynamicHeight} rows
         </OverlayHandleLabel>
@@ -110,21 +159,27 @@ const OverlayHandles: React.FC<MinMaxHeightProps> = ({
   );
 };
 
-const DynamicHeightOverlay: React.FC<MinMaxHeightProps> = ({
-  children,
-  maxDynamicHeight,
-  minDynamicHeight,
-}) => {
-  return (
-    <StyledDynamicHeightOverlay>
-      <OverlayDisplay maxDynamicHeight={maxDynamicHeight} />
-      <OverlayHandles
-        maxDynamicHeight={maxDynamicHeight}
-        minDynamicHeight={minDynamicHeight}
-      />
-      {children}
-    </StyledDynamicHeightOverlay>
-  );
-};
+const DynamicHeightOverlay: React.FC<MinMaxHeightProps> = memo(
+  ({ children, maxDynamicHeight, minDynamicHeight }) => {
+    return (
+      <StyledDynamicHeightOverlay>
+        <OverlayDisplay maxDynamicHeight={maxDynamicHeight} />
+        <OverlayHandles
+          maxDynamicHeight={maxDynamicHeight}
+          minDynamicHeight={minDynamicHeight}
+        />
+        {children}
+      </StyledDynamicHeightOverlay>
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.maxDynamicHeight === nextProps.maxDynamicHeight &&
+      prevProps.minDynamicHeight === prevProps.maxDynamicHeight
+    );
+  },
+);
+
+DynamicHeightOverlay.displayName = "DynamicHeightOverlay";
 
 export default DynamicHeightOverlay;

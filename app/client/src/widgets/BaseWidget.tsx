@@ -43,7 +43,10 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { isDynamicHeightEnabledForWidget } from "./WidgetUtils";
+import {
+  isDynamicHeightEnabledForWidget,
+  isDynamicHeightWithLimitsEnabledForWidget,
+} from "./WidgetUtils";
 import DynamicHeightOverlay from "components/editorComponents/DynamicHeightOverlay";
 
 /***
@@ -313,6 +316,11 @@ abstract class BaseWidget<
     return (
       <ResizableComponent
         {...this.props}
+        disabledResizeHandles={
+          isDynamicHeightWithLimitsEnabledForWidget(this.props)
+            ? ["top", "bottom"]
+            : undefined
+        }
         paddingOffset={PositionedContainer.padding}
       >
         {content}
@@ -440,17 +448,6 @@ abstract class BaseWidget<
         content = this.getCanvasView();
         content = this.addPreviewModeWidget(content);
 
-        if (
-          this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
-        ) {
-          console.log(
-            "AUTO_HEIGHT_WITH_LIMITS",
-            this.props.maxDynamicHeight,
-            this.props.minDynamicHeight,
-          );
-          content = this.addDynamicHeightOverlay(content);
-        }
-
         content = this.addPreventInteractionOverlay(content);
         content = this.addOverlayComments(content);
 
@@ -458,6 +455,20 @@ abstract class BaseWidget<
           if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
           content = this.makeDraggable(content);
+
+          // The reason to put it after makeDraggable (or before the DraggableComponent in DOM tree)
+          // because we
+          if (
+            this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
+          ) {
+            console.log(
+              "AUTO_HEIGHT_WITH_LIMITS",
+              this.props.maxDynamicHeight,
+              this.props.minDynamicHeight,
+            );
+            content = this.addDynamicHeightOverlay(content);
+          }
+
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
