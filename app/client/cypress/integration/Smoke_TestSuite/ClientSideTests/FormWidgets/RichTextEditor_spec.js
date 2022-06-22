@@ -111,6 +111,9 @@ describe("RichTextEditor Widget Functionality", function() {
   });
 
   it("Reset RichTextEditor", function() {
+    // Enable the widget
+    cy.UncheckWidgetProperties(formWidgetsPage.disableJs);
+
     cy.setTinyMceContent("rte-6h8j08u7ea", "<h1>content</h1>");
 
     cy.validateHTMLText(formWidgetsPage.richTextEditorWidget, "h1", "content");
@@ -134,15 +137,15 @@ describe("RichTextEditor Widget Functionality", function() {
       ".t--property-control-text",
       `{{RichtextEditor.isDirty}}`,
     );
-    // Change defaultText
     cy.openPropertyPane("richtexteditorwidget");
+    // Change defaultText
     cy.testJsontext("defaulttext", "a");
     // Check if isDirty has been changed into false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
     cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then(($iframe) => {
       const $body = $iframe.contents().find("body");
-      cy.wrap($body).type("abc", { force: true });
+      cy.get($body).type("abc", { force: true });
     });
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
