@@ -17,7 +17,7 @@ describe("Validate Datasource Panel Styles", function() {
     cy.get(pages.integrationCreateNew).click();
   });
 
-  it("Tabs style", function() {
+  it("1. Tabs style", function() {
     //Check gap between tab items
     cy.get("[data-cy=t--datasource-tab] .react-tabs__tab-list").should(
       "have.css",
@@ -38,7 +38,7 @@ describe("Validate Datasource Panel Styles", function() {
     );
   });
 
-  it("Mock datasource card design", () => {
+  it("2. Mock datasource card design", () => {
     cy.get(pages.integrationCreateNew).click();
     //Card container style
     cy.datasourceCardContainerStyle(".t--mock-datasource-list");
@@ -62,7 +62,7 @@ describe("Validate Datasource Panel Styles", function() {
     cy.datasourceNameStyle("[data-testid=mockdatasource-name]");
   });
 
-  it("Database datasource card design", () => {
+  it("3. Database datasource card design", () => {
     cy.get(pages.integrationCreateNew).click();
     //Card container style
     cy.datasourceCardContainerStyle(
@@ -86,7 +86,7 @@ describe("Validate Datasource Panel Styles", function() {
     );
   });
 
-  it("New API datasource card design", () => {
+  it("4. New API datasource card design", () => {
     cy.get(pages.integrationCreateNew).click();
     //Card container style
     cy.datasourceCardContainerStyle(
@@ -110,14 +110,14 @@ describe("Validate Datasource Panel Styles", function() {
     cy.get(".t--integrationsHomePage").should("have.css", "font-size", "20px");
   });
 
-  it("Action button icon placement", () => {
+  it("5. Action button icon placement", () => {
     //Navigate to Active tab
     cy.get(pages.integrationActiveTab).click({ force: true });
     //Icon should be placed left to the text.
     cy.get(".t--create-query .t--left-icon");
   });
 
-  it("Datasource Active card styles", () => {
+  it("6. Datasource Active card styles", () => {
     //Active card wrapper
     cy.get(".t--datasource")
       .should("have.css", "padding", "15px")
@@ -152,7 +152,7 @@ describe("Validate Datasource Panel Styles", function() {
       .and("have.css", "align-items", "center");
   });
 
-  it("Collapse component styles", () => {
+  it("7. Collapse component styles", () => {
     //Collapse wrapper
     cy.get("[data-testid=datasource-collapse-wrapper]")
       .should("have.css", "color", backgroundColorGray700)
