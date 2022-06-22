@@ -31,6 +31,13 @@ const useDropdown = ({ inputRef, renderMode }: useDropdownProps) => {
     }
   }, []);
 
+  const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    // Backspace would simultaneously remove an option, so it should only be used within the search input
+    if (event.key === "Backspace") {
+      event.stopPropagation();
+    }
+  };
+
   // Avoid scrolls when Popup is opened
   function BackDrop() {
     return <BackDropContainer onClick={closeBackDrop} />;
@@ -61,6 +68,7 @@ const useDropdown = ({ inputRef, renderMode }: useDropdownProps) => {
     getPopupContainer,
     onOpen,
     selectRef,
+    onKeyDown,
   };
 };
 

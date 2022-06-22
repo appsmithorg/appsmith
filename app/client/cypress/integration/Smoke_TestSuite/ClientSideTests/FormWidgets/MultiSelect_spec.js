@@ -25,6 +25,8 @@ describe("MultiSelect Widget Functionality", function() {
     cy.get(".multi-select-dropdown")
       .contains("Option 3")
       .click({ force: true });
+    cy.get("body").type("{esc}");
+
     cy.wait(2000);
     //Validating option inside multiselect widget
     cy.get(".rc-select-selection-item-content")

@@ -110,7 +110,13 @@ function MultiSelectComponent({
   const labelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { BackDrop, getPopupContainer, onOpen, selectRef } = useDropdown({
+  const {
+    BackDrop,
+    getPopupContainer,
+    onKeyDown,
+    onOpen,
+    selectRef,
+  } = useDropdown({
     inputRef,
     renderMode,
   });
@@ -228,7 +234,7 @@ function MultiSelectComponent({
             inputRef={inputRef}
             leftIcon="search"
             onChange={onQueryChange}
-            onKeyDown={(e) => e.stopPropagation()}
+            onKeyDown={onKeyDown}
             placeholder="Filter..."
             // ref={inputRef}
             rightElement={clearButton as JSX.Element}

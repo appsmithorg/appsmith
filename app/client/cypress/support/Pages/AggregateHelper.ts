@@ -307,11 +307,7 @@ export class AggregateHelper {
     }
 
     // //closing multiselect dropdown
-    cy.get(
-      `.multiselectwidgetv2:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
-    )
-      .first()
-      .click({ force: true });
+    cy.get("body").type("{esc}");
     // cy.get(this.locator._widgetInDeployed(endp))
     //     .eq(index)
     //     .click()

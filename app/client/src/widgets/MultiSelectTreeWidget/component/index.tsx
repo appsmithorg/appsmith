@@ -138,7 +138,13 @@ function MultiTreeSelectComponent({
 
   const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
 
-  const { BackDrop, getPopupContainer, onOpen, selectRef } = useDropdown({
+  const {
+    BackDrop,
+    getPopupContainer,
+    onKeyDown,
+    onOpen,
+    selectRef,
+  } = useDropdown({
     inputRef,
     renderMode,
   });
@@ -187,7 +193,7 @@ function MultiTreeSelectComponent({
             inputRef={inputRef}
             leftIcon="search"
             onChange={onQueryChange}
-            onKeyDown={(e) => e.stopPropagation()}
+            onKeyDown={onKeyDown}
             placeholder="Filter..."
             rightElement={clearButton as JSX.Element}
             small
