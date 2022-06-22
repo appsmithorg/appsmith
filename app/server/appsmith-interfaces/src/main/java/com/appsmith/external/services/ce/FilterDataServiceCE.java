@@ -3,12 +3,20 @@ package com.appsmith.external.services.ce;
 import com.appsmith.external.constants.ConditionalOperator;
 import com.appsmith.external.constants.SortType;
 import com.appsmith.external.datatypes.AppsmithType;
+import com.appsmith.external.datatypes.BooleanType;
+import com.appsmith.external.datatypes.DoubleType;
+import com.appsmith.external.datatypes.FloatType;
+import com.appsmith.external.datatypes.IntegerType;
+import com.appsmith.external.datatypes.LongType;
+import com.appsmith.external.datatypes.NullType;
+import com.appsmith.external.datatypes.StringType;
 import com.appsmith.external.dtos.PreparedStatementValueDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.UQIDataFilterParams;
-import com.appsmith.external.services.AppsmithTypeServiceImpl;
+import com.appsmith.external.services.DatatypeService;
+import com.appsmith.external.services.DatatypeServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -45,7 +53,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Slf4j
 public class FilterDataServiceCE implements IFilterDataServiceCE {
 
-    public final AppsmithTypeService AppsmithTypeService = AppsmithTypeServiceImpl.getInstance();
+    public final DatatypeService dataTypeService = DatatypeServiceImpl.getInstance();
 
     public static final String SORT_BY_COLUMN_NAME_KEY = "column";
     public static final String SORT_BY_TYPE_KEY = "order";
@@ -54,7 +62,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     public static final String PAGINATE_LIMIT_KEY = "limit";
     public static final String PAGINATE_OFFSET_KEY = "offset";
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
     private Connection connection;
 
     private static final String URL = "jdbc:h2:mem:filterDb;DATABASE_TO_UPPER=FALSE";
@@ -85,10 +93,6 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         }
     }
 
-    public ArrayNode filterData(ArrayNode items, List<Condition> conditionList) {
-        return filterData(items, conditionList, null);
-    }
-
     /**
      * Overloaded Method to handle plugin-based DataType conversion.
      * Plugins implementing this passes parameter 'dataTypeConversionMap' to instruct how their DataTypes to be processed.
@@ -96,31 +100,31 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
      *
      * @param items
      * @param conditionList
-     * @param dataTypeConversionMap - A Map to provide custom Datatype(value) against the actual Datatype(key) found.
      * @return
      */
-    public ArrayNode filterData(ArrayNode items, List<Condition> conditionList, Map<DataType, DataType> dataTypeConversionMap) {
+    @Override
+    public ArrayNode filterData(ArrayNode items, List<Condition> conditionList) {
 
         if (items == null || items.size() == 0) {
             return items;
         }
 
-        Map<String, DataType> schema = generateSchema(items, dataTypeConversionMap);
+        Map<String, AppsmithType> schema = generateSchema(items);
 
         if (!validConditionList(conditionList, schema)) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Conditions for filtering were incomplete or incorrect.");
         }
 
-        List<Condition> conditions = addValueDataType(conditionList);
+        List<Condition> conditions = addValueAppsmithType(conditionList);
 
 
         String tableName = generateTable(schema);
 
         // insert the data
-        insertAllData(tableName, items, schema, dataTypeConversionMap);
+        insertAllData(tableName, items, schema);
 
         // Filter the data
-        List<Map<String, Object>> finalResults = executeFilterQueryOldFormat(tableName, conditions, schema, dataTypeConversionMap);
+        List<Map<String, Object>> finalResults = executeFilterQueryOldFormat(tableName, conditions, schema);
 
         // Now that the data has been filtered. Clean Up. Drop the table
         dropTable(tableName);
@@ -273,14 +277,14 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         if (isBlank(limit)) {
             limit = "20";
         }
-        values.add(new PreparedStatementValueDTO(limit, AppsmithType.INTEGER));
+        values.add(new PreparedStatementValueDTO(limit, new IntegerType()));
 
         // Set offset value and data type for prepared statement substitution
         String offset = paginateBy.get(PAGINATE_OFFSET_KEY);
         if (isBlank(offset)) {
             offset = "0";
         }
-        values.add(new PreparedStatementValueDTO(offset, AppsmithType.INTEGER));
+        values.add(new PreparedStatementValueDTO(offset, new IntegerType()));
     }
 
     /**
@@ -367,10 +371,10 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
      * @param tableName             - table name in database
      * @param conditions            - Where Conditions
      * @param schema                - The Schema
-     * @param dataTypeConversionMap - A Map to provide custom Datatype against the actual Datatype found.
      * @return
      */
-    public List<Map<String, Object>> executeFilterQueryOldFormat(String tableName, List<Condition> conditions, Map<String, DataType> schema, Map<DataType, DataType> dataTypeConversionMap) {
+    @Override
+    public List<Map<String, Object>> executeFilterQueryOldFormat(String tableName, List<Condition> conditions, Map<String, AppsmithType> schema) {
         Connection conn = checkAndGetConnection();
 
         StringBuilder sb = new StringBuilder("SELECT * FROM " + tableName);
@@ -394,8 +398,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             for (int i = 0; iterator.hasNext(); i++) {
                 PreparedStatementValueDTO valueEntry = iterator.next();
                 String value = valueEntry.getValue();
-                DataType dataType = valueEntry.getDataType();
-                setValueInStatement(preparedStatement, i + 1, value, dataType, dataTypeConversionMap);
+                AppsmithType dataType = valueEntry.getDataType();
+                setValueInStatement(preparedStatement, i + 1, value, dataType);
             }
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -425,7 +429,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         return rowsList;
     }
 
-    private String generateWhereClauseOldFormat(List<Condition> conditions, LinkedList<PreparedStatementValueDTO> values, Map<String, DataType> schema) {
+    private String generateWhereClauseOldFormat(List<Condition> conditions, LinkedList<PreparedStatementValueDTO> values, Map<String, AppsmithType> schema) {
 
         StringBuilder sb = new StringBuilder();
         Boolean firstCondition = true;
@@ -694,18 +698,18 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             }
 
             String fieldName = entry.getKey();
-            AppsmithType AppsmithType = entry.getValue();
+            AppsmithType datatype = entry.getValue();
 
-            String sqlAppsmithType = SQL_AppsmithType_MAP.get(AppsmithType);
-            if (sqlAppsmithType == null) {
+            String sqlDatatype = SQL_.get(datatype);
+            if (sqlDatatype == null) {
                 // the data type recognized does not have a native support in appsmith right now
                 // default to String
-                sqlAppsmithType = SQL_AppsmithType_MAP.get(AppsmithType.STRING);
+                sqlDatatype = SQL_AppsmithType_MAP.get(AppsmithType.STRING);
             }
             columnsAdded = true;
             sb.append("\"" + fieldName + "\"");
             sb.append(" ");
-            sb.append(sqlAppsmithType);
+            sb.append(sqlDatatype);
 
         }
 
@@ -735,10 +739,10 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
      * Overloaded Method to handle plugin-based AppsmithType conversion.
      *
      * @param items
-     * @param AppsmithTypeConversionMap - A Map to provide custom AppsmithType against the actual AppsmithType found.
+     * @param appsmithTypeConversionMap - A Map to provide custom AppsmithType against the actual AppsmithType found.
      * @return
      */
-    public Map<String, AppsmithType> generateSchema(ArrayNode items, Map<AppsmithType, AppsmithType> AppsmithTypeConversionMap) {
+    public Map<String, AppsmithType> generateSchema(ArrayNode items, Map<AppsmithType, AppsmithType> appsmithTypeConversionMap) {
 
         JsonNode item = items.get(0);
 
@@ -764,9 +768,9 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 .takeWhile(x -> fieldNamesIterator.hasNext())
                 .map(n -> fieldNamesIterator.next())
                 .peek(name -> {
-                    if (name.contains("\"") || name.contains("\'")) {
+                    if (name.contains("\"") || name.contains("'")) {
                         throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "\' or \" are unsupported symbols in column names for filtering. Caused by column name : " + name);
+                                "' or \" are unsupported symbols in column names for filtering. Caused by column name : " + name);
                     }
                 })
                 .collect(Collectors.toMap(
@@ -778,10 +782,10 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                                         // Default to string
                                         return new StringType();
                                     } else {
-                                        AppsmithType foundAppsmithType = AppsmithTypeService.getAppsmithType(value);
+                                        AppsmithType foundAppsmithType = dataTypeService.getAppsmithType(value);
                                         AppsmithType convertedAppsmithType = foundAppsmithType;
-                                        if (name != "rowIndex" && AppsmithTypeConversionMap != null) {
-                                            convertedAppsmithType = AppsmithTypeConversionMap.getOrDefault(foundAppsmithType, foundAppsmithType);
+                                        if (name != "rowIndex" && appsmithTypeConversionMap != null) {
+                                            convertedAppsmithType = appsmithTypeConversionMap.getOrDefault(foundAppsmithType, foundAppsmithType);
                                         }
                                         return convertedAppsmithType;
                                     }
@@ -803,12 +807,12 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             for (JsonNode entry : items) {
                 String value = entry.get(columnName).asText();
                 if (!StringUtils.isEmpty(value)) {
-                    AppsmithType foundAppsmithType = stringToKnownAppsmithTypeConverter(value);
-                    AppsmithType AppsmithType = foundAppsmithType;
-                    if (AppsmithTypeConversionMap != null) {
-                        AppsmithType = AppsmithTypeConversionMap.getOrDefault(foundAppsmithType, foundAppsmithType);
+                    AppsmithType foundAppsmithType = dataTypeService.getAppsmithType(value);
+
+                    if (appsmithTypeConversionMap != null) {
+                        foundAppsmithType = appsmithTypeConversionMap.getOrDefault(foundAppsmithType, foundAppsmithType);
                     }
-                    schema.put(columnName, AppsmithType);
+                    schema.put(columnName, foundAppsmithType);
                     missingColumnAppsmithTypes.remove(columnName);
                 }
             }
@@ -839,62 +843,48 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
      */
     private PreparedStatement setValueInStatement(PreparedStatement preparedStatement, int index, String value, AppsmithType topRowAppsmithType, Map<AppsmithType, AppsmithType> AppsmithTypeConversionMap) {
 
-        AppsmithType AppsmithType = topRowAppsmithType;
+        AppsmithType appsmithType = topRowAppsmithType;
         if (AppsmithTypeConversionMap != null) {
             //The input AppsmithType will be converted to custom DatType as per implementing AppsmithTypeConversionMap
-            AppsmithType = AppsmithTypeConversionMap.getOrDefault(topRowAppsmithType, topRowAppsmithType);
+            appsmithType = AppsmithTypeConversionMap.getOrDefault(topRowAppsmithType, topRowAppsmithType);
         }
 
         String strNumericValue = value.trim().replaceAll(",", "");
 
         // Override AppsmithType to null for empty values
         if (StringUtils.isEmpty(value)) {
-            AppsmithType = AppsmithType.NULL;
+            appsmithType = new NullType();
         } else {
             // value is not empty.
-            AppsmithType currentRowAppsmithType = stringToKnownAppsmithTypeConverter(value);
+            AppsmithType currentRowAppsmithType = dataTypeService.getAppsmithType(value);
             AppsmithType inputAppsmithType = currentRowAppsmithType;
             if (AppsmithTypeConversionMap != null) {
                 //AppsmithType of each row be processed, expected to be consistent to column AppsmithType (first row AppsmithType).
                 inputAppsmithType = AppsmithTypeConversionMap.getOrDefault(currentRowAppsmithType, currentRowAppsmithType);
             }
-            if (AppsmithType.NULL.equals(inputAppsmithType)) {
-                AppsmithType = AppsmithType.NULL;
+            if (inputAppsmithType instanceof NullType) {
+                appsmithType = new NullType();
             }
             //We are setting incompatible AppsmithTypes of each row to Null, rather allowing it and exit with error.
-            if (AppsmithTypeConversionMap != null && inputAppsmithType != AppsmithType) {
-                log.debug("AppsmithType Error : [" + inputAppsmithType + "] " + value + " is not of type " + AppsmithType + " which is the AppsmithType of the column, hence ignored in filter.");
-                AppsmithType = AppsmithType.NULL;
+            if (AppsmithTypeConversionMap != null && inputAppsmithType != appsmithType) {
+                log.debug("AppsmithType Error : [" + inputAppsmithType + "] " + value + " is not of type " + appsmithType + " which is the AppsmithType of the column, hence ignored in filter.");
+                appsmithType = new NullType();
             }
         }
 
         try {
-            switch (AppsmithType) {
-                case NULL: {
-                    preparedStatement.setNull(index, Types.NULL);
-                    break;
-                }
-                case INTEGER: {
-                    preparedStatement.setInt(index, Integer.parseInt(strNumericValue));
-                    break;
-                }
-                case LONG: {
-                    preparedStatement.setLong(index, Long.parseLong(strNumericValue));
-                    break;
-                }
-                case FLOAT:
-                case DOUBLE: {
-                    preparedStatement.setBigDecimal(index, new BigDecimal(String.valueOf(strNumericValue)));
-                    break;
-                }
-                case BOOLEAN: {
-                    preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
-                    break;
-                }
-                case STRING:
-                default:
-                    preparedStatement.setString(index, value);
-                    break;
+            if (appsmithType instanceof NullType) {
+                preparedStatement.setNull(index, Types.NULL);
+            } else if (appsmithType instanceof IntegerType) {
+                preparedStatement.setInt(index, Integer.parseInt(strNumericValue));
+            } else if (appsmithType instanceof LongType) {
+                preparedStatement.setLong(index, Long.parseLong(strNumericValue));
+            } else if (appsmithType instanceof FloatType || appsmithType instanceof DoubleType) {
+                preparedStatement.setBigDecimal(index, new BigDecimal(strNumericValue));
+            } else if (appsmithType instanceof BooleanType) {
+                preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
+            } else {
+                preparedStatement.setString(index, value);
             }
 
         } catch (SQLException e) {
@@ -907,7 +897,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             // Add proper handling here.
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
                     "Error while interacting with value " + value + " : " + e.getMessage() +
-                            ". The data type value was being parsed to was : " + AppsmithType);
+                            ". The data type value was being parsed to was : " + appsmithType);
         }
 
         return preparedStatement;

@@ -1,8 +1,8 @@
 package com.appsmith.external.helpers;
 
-import com.appsmith.external.constants.DisplayAppsmithType;
+import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.datatypes.AppsmithType;
-import com.appsmith.external.models.ParsedAppsmithType;
+import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.DatatypeService;
 import com.appsmith.external.services.DatatypeServiceImpl;
@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.parser.JSONParser;
 
 import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
@@ -28,8 +27,6 @@ public class DataTypeStringUtils {
     private static final Pattern placeholderPattern = Pattern.compile(APPSMITH_SUBSTITUTION_PLACEHOLDER);
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-
-    private static final JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
     private static final DatatypeService datatypeService = DatatypeServiceImpl.getInstance();
 
@@ -128,27 +125,27 @@ public class DataTypeStringUtils {
         return false;
     }
 
-    public static List<ParsedAppsmithType> getDisplayAppsmithTypes(Object data) {
+    public static List<ParsedDataType> getDisplayDataTypes(Object data) {
 
         if (data == null) {
             return new ArrayList<>();
         }
 
-        List<ParsedAppsmithType> AppsmithTypes = new ArrayList<>();
+        List<ParsedDataType> dataTypes = new ArrayList<>();
 
         // Check if the data is a valid table.
         if (isDisplayTypeTable(data)) {
-            AppsmithTypes.add(new ParsedAppsmithType(DisplayAppsmithType.TABLE));
+            dataTypes.add(new ParsedDataType(DisplayDataType.TABLE));
         }
 
         // Check if the data is a valid json.
         if (isDisplayTypeJson(data)) {
-            AppsmithTypes.add(new ParsedAppsmithType(DisplayAppsmithType.JSON));
+            dataTypes.add(new ParsedDataType(DisplayDataType.JSON));
         }
 
         // All data types can be categorized as raw by default.
-        AppsmithTypes.add(new ParsedAppsmithType(DisplayAppsmithType.RAW));
+        dataTypes.add(new ParsedDataType(DisplayDataType.RAW));
 
-        return AppsmithTypes;
+        return dataTypes;
     }
 }

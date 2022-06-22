@@ -51,6 +51,6 @@ public class DatatypeServiceCEImpl implements DatatypeServiceCE {
 
     @Override
     public AppsmithType getAppsmithType(String originalValue) {
-        return this.getAppsmithType(this.defaultTypesList, originalValue);
+        return this.getAppsmithType(originalValue, this.defaultTypesList);
     }
 }

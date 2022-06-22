@@ -1,7 +1,7 @@
 package com.appsmith.external.services;
 
 import com.appsmith.external.constants.ConditionalOperator;
-import com.appsmith.external.constants.AppsmithType;
+import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.UQIDataFilterParams;

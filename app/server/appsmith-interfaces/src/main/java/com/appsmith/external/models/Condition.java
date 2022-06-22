@@ -1,10 +1,10 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.constants.ConditionalOperator;
-import com.appsmith.external.AppsmithTypes.AppsmithType;
+import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.services.AppsmithTypeServiceImpl;
+import com.appsmith.external.services.DatatypeServiceImpl;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -51,7 +50,7 @@ public class Condition {
                 .map(condition -> {
                     if (condition.getValue() instanceof String) {
                         String value = (String) condition.getValue();
-                        AppsmithType AppsmithType = AppsmithTypeServiceImpl.getInstance().getAppsmithType(value);
+                        AppsmithType AppsmithType = DatatypeServiceImpl.getInstance().getAppsmithType(value);
                         condition.setValueAppsmithType(AppsmithType);
                     }
                     return condition;
@@ -64,7 +63,7 @@ public class Condition {
 
         if (objValue instanceof String) {
             String value = (String) condition.getValue();
-            AppsmithType AppsmithType = AppsmithTypeServiceImpl.getInstance().getAppsmithType(value);
+            AppsmithType AppsmithType = DatatypeServiceImpl.getInstance().getAppsmithType(value);
             condition.setValueAppsmithType(AppsmithType);
         } else if (objValue instanceof List) {
             List<Condition> conditionList = (List<Condition>) objValue;
@@ -80,8 +79,9 @@ public class Condition {
     /**
      * To evaluate 'Path' and 'Operator' to be available for filtering
      * 'Values' not evaluated for availability, to support searching empty values
+     *
      * @param condition
-     * @return  Boolean
+     * @return Boolean
      */
     public static Boolean isValid(Condition condition) {
 
@@ -96,13 +96,14 @@ public class Condition {
      * To generate condition list based on selected condition
      * Mandatory inputs validated are path and operator
      * Value is optional and considered as a null input
+     *
      * @param configurationList
      * @return
      */
     public static List<Condition> generateFromConfiguration(List<Object> configurationList) {
         List<Condition> conditionList = new ArrayList<>();
 
-        for(Object config : configurationList) {
+        for (Object config : configurationList) {
             Map<String, String> condition = (Map<String, String>) config;
             if (condition.entrySet().isEmpty()) {
                 // Its an empty object set by the client for UX. Ignore the same

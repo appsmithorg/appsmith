@@ -1,6 +1,5 @@
 package com.external.config;
 
-import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
@@ -209,7 +208,7 @@ public class GetValuesMethod implements Method {
         ArrayNode preFilteringResponse = this.objectMapper.valueToTree(collectedCells);
 
         if (isWhereConditionConfigured(methodConfig)) {
-            return filterDataService.filterData(preFilteringResponse, methodConfig.getWhereConditions(), getDataTypeConversionMap());
+            return filterDataService.filterData(preFilteringResponse, methodConfig.getWhereConditions());
         }
 
         return preFilteringResponse;

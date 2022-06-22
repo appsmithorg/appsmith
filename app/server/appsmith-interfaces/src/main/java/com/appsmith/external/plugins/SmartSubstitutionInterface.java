@@ -25,7 +25,7 @@ public interface SmartSubstitutionInterface {
     default Object smartSubstitutionOfBindings(Object input,
                                                List<String> mustacheValuesInOrder,
                                                List<Param> evaluatedParams,
-                                               List<Map.Entry<String, String>> insertedParams,
+                                               List<Map.Entry<String, Class<?>>> insertedParams,
                                                Object... args) throws AppsmithPluginException {
 
         if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
@@ -65,7 +65,7 @@ public interface SmartSubstitutionInterface {
      * override this method to provide plugin specific implementation.
      *
      * @param replacementValue - value to be substituted
-     * @param AppsmithType
+     * @param datatype
      * @return - updated replacement value
      */
     default String sanitizeReplacement(String replacementValue, AppsmithType datatype) {

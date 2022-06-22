@@ -2,7 +2,9 @@ package com.appsmith.external.helpers;
 
 import com.appsmith.external.constants.AppsmithType;
 import com.appsmith.external.constants.DisplayAppsmithType;
+import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.models.ParsedAppsmithType;
+import com.appsmith.external.models.ParsedDataType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -13,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayAppsmithTypes;
+import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownAppsmithTypeConverter;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -198,9 +200,9 @@ public class DataTypeStringUtilsTest {
         objectMap.put("k", nestedObjectMap);
 
         data.add(objectMap);
-        final List<ParsedAppsmithType> displayAppsmithTypes = getDisplayAppsmithTypes(data);
+        final List<ParsedDataType> displayAppsmithTypes = getDisplayDataTypes(data);
 
-        assertThat(displayAppsmithTypes).anyMatch(parsedAppsmithType -> parsedAppsmithType.getAppsmithType().equals(DisplayAppsmithType.TABLE));
+        assertThat(displayAppsmithTypes).anyMatch(parsedAppsmithType -> parsedAppsmithType.getDataType().equals(DisplayDataType.TABLE));
     }
 
     @Test
@@ -213,7 +215,7 @@ public class DataTypeStringUtilsTest {
         objectNode.set("k", nestedObjectNode);
 
         data.add(objectNode);
-        final List<ParsedAppsmithType> displayAppsmithTypes = getDisplayAppsmithTypes(data);
+        final List<ParsedAppsmithType> displayAppsmithTypes = getDisplayDataTypes(data);
 
         assertThat(displayAppsmithTypes).anyMatch(parsedAppsmithType -> parsedAppsmithType.getAppsmithType().equals(DisplayAppsmithType.TABLE));
     }
@@ -228,7 +230,7 @@ public class DataTypeStringUtilsTest {
         objectNode.set("k", nestedObjectNode);
 
         data.add(objectNode);
-        final List<ParsedAppsmithType> displayAppsmithTypes = getDisplayAppsmithTypes(data.toString());
+        final List<ParsedAppsmithType> displayAppsmithTypes = getDisplayDataTypes(data.toString());
 
         assertThat(displayAppsmithTypes).anyMatch(parsedAppsmithType -> parsedAppsmithType.getAppsmithType().equals(DisplayAppsmithType.TABLE));
     }
