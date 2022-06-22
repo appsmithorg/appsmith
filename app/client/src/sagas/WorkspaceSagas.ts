@@ -34,6 +34,7 @@ import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
 import { getAllApplications } from "actions/applicationActions";
 import log from "loglevel";
+import { User } from "constants/userConstants";
 import {
   createMessage,
   DELETE_WORKSPACE_SUCCESSFUL,
@@ -44,7 +45,7 @@ export function* fetchRolesSaga() {
     const response: FetchWorkspaceRolesResponse = yield call(
       WorkspaceApi.fetchRoles,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_WORKSPACE_ROLES_SUCCESS,
@@ -71,7 +72,7 @@ export function* fetchWorkspaceSaga(
       WorkspaceApi.fetchWorkspace,
       request,
     );
-    const isValidResponse = yield request.skipValidation ||
+    const isValidResponse: boolean = yield request.skipValidation ||
       validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -96,7 +97,7 @@ export function* fetchAllUsersSaga(action: ReduxAction<FetchAllUsersRequest>) {
       WorkspaceApi.fetchAllUsers,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const users = response.data.map((user) => ({
         ...user,
@@ -127,7 +128,7 @@ export function* changeWorkspaceUserRoleSaga(
       WorkspaceApi.changeWorkspaceUserRole,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.CHANGE_WORKSPACE_USER_ROLE_SUCCESS,
@@ -153,9 +154,9 @@ export function* deleteWorkspaceUserSaga(
       WorkspaceApi.deleteWorkspaceUser,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const currentUser = yield select(getCurrentUser);
+      const currentUser: User | undefined = yield select(getCurrentUser);
       if (currentUser?.username == action.payload.username) {
         history.replace(APPLICATIONS_URL);
       } else {
@@ -167,6 +168,7 @@ export function* deleteWorkspaceUserSaga(
         });
       }
       Toaster.show({
+        //@ts-expect-error: response is of type unknown
         text: `${response.data.username} has been removed successfully`,
         variant: Variant.success,
       });
@@ -188,7 +190,7 @@ export function* fetchAllRolesSaga(action: ReduxAction<FetchAllRolesRequest>) {
       WorkspaceApi.fetchAllRoles,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_ALL_ROLES_SUCCESS,
@@ -209,7 +211,7 @@ export function* saveWorkspaceSaga(action: ReduxAction<SaveWorkspaceRequest>) {
       WorkspaceApi.saveWorkspace,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.SAVE_WORKSPACE_SUCCESS,
@@ -220,7 +222,7 @@ export function* saveWorkspaceSaga(action: ReduxAction<SaveWorkspaceRequest>) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_WORKSPACE_ERROR,
       payload: {
-        error: error.message,
+        error: (error as Error).message,
       },
     });
   }
@@ -236,7 +238,7 @@ export function* deleteWorkspaceSaga(action: ReduxAction<string>) {
       WorkspaceApi.deleteWorkspace,
       workspaceId,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.DELETE_WORKSPACE_SUCCESS,
@@ -251,7 +253,7 @@ export function* deleteWorkspaceSaga(action: ReduxAction<string>) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_WORKSPACE_ERROR,
       payload: {
-        error: error.message,
+        error: (error as Error).message,
       },
     });
   }
@@ -267,9 +269,11 @@ export function* createWorkspaceSaga(
       WorkspaceApi.createWorkspace,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
-      const errorMessage = yield getResponseErrorMessage(response);
+      const errorMessage: string | undefined = yield getResponseErrorMessage(
+        response,
+      );
       yield call(reject, { _error: errorMessage });
     } else {
       yield put({
@@ -282,10 +286,11 @@ export function* createWorkspaceSaga(
     }
 
     // get created worskpace in focus
+    // @ts-expect-error: response is of type unknown
     const workspaceId = response.data.id;
     history.push(`${window.location.pathname}#${workspaceId}`);
   } catch (error) {
-    yield call(reject, { _error: error.message });
+    yield call(reject, { _error: (error as Error).message });
     yield put({
       type: ReduxActionErrorTypes.CREATE_WORKSPACE_ERROR,
       payload: {
@@ -304,9 +309,9 @@ export function* uploadWorkspaceLogoSaga(
       WorkspaceApi.saveWorkspaceLogo,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const allWorkspaces = yield select(getCurrentWorkspace);
+      const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
       const currentWorkspace = allWorkspaces.filter(
         (el: Workspace) => el.id === request.id,
       );
@@ -315,6 +320,7 @@ export function* uploadWorkspaceLogoSaga(
           type: ReduxActionTypes.SAVE_WORKSPACE_SUCCESS,
           payload: {
             id: currentWorkspace[0].id,
+            // @ts-expect-error: response is of type unknown
             logoUrl: response.data.logoUrl,
           },
         });
@@ -336,9 +342,9 @@ export function* deleteWorkspaceLogoSaga(action: ReduxAction<{ id: string }>) {
       WorkspaceApi.deleteWorkspaceLogo,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const allWorkspaces = yield select(getCurrentWorkspace);
+      const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
       const currentWorkspace = allWorkspaces.filter(
         (el: Workspace) => el.id === request.id,
       );
@@ -347,6 +353,7 @@ export function* deleteWorkspaceLogoSaga(action: ReduxAction<{ id: string }>) {
           type: ReduxActionTypes.SAVE_WORKSPACE_SUCCESS,
           payload: {
             id: currentWorkspace[0].id,
+            // @ts-expect-error: response is of type unknown
             logoUrl: response.data.logoUrl,
           },
         });

@@ -6,6 +6,7 @@ import { useHistory } from "react-router-dom";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { Colors } from "constants/Colors";
 import { builderURL, generateTemplateFormURL } from "RouteBuilder";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Back = styled.span`
   height: 30px;
@@ -22,6 +23,12 @@ function BackButton() {
     const redirectURL = isGeneratePageInitiator
       ? generateTemplateFormURL()
       : builderURL();
+
+    AnalyticsUtil.logEvent("BACK_BUTTON_CLICK", {
+      type: "BACK_BUTTON",
+      fromUrl: location.pathname,
+      toUrl: redirectURL,
+    });
     history.push(redirectURL);
   };
   return (
