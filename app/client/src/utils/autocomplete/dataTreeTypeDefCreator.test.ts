@@ -12,6 +12,7 @@ import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 
 describe("dataTreeTypeDefCreator", () => {
   it("creates the right def for a widget", () => {
+    // @ts-expect-error: meta property not provided
     const dataTreeEntity: DataTreeWidget = {
       widgetId: "yolo",
       widgetName: "Input1",
@@ -39,10 +40,16 @@ describe("dataTreeTypeDefCreator", () => {
       },
       validationPaths: {},
       logBlackList: {},
+      propertyOverrideDependency: {},
+      overridingPropertyPaths: {},
+      privateWidgets: {},
     };
-    const { def, entityInfo } = dataTreeTypeDefCreator({
-      Input1: dataTreeEntity,
-    });
+    const { def, entityInfo } = dataTreeTypeDefCreator(
+      {
+        Input1: dataTreeEntity,
+      },
+      false,
+    );
     // TODO hetu: needs better general testing
     // instead of testing each widget maybe we can test to ensure
     // that defs are in a correct format

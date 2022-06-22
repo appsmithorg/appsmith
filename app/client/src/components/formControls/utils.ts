@@ -309,16 +309,14 @@ export function fixActionPayloadForMongoQuery(
           actionObjectDiff[i]?.path?.length &&
           actionObjectDiff[i]?.kind === "N"
         ) {
-          // Calculate path from path[] in diff
-          //@ts-ignore
+          // @ts-expect-error: Types are not available
           if (typeof actionObjectDiff[i]?.path[0] === "string") {
-            //@ts-ignore
+            // @ts-expect-error: Types are not available
             path = actionObjectDiff[i]?.path?.join(".");
           }
-          // get value from diff object
-          //@ts-ignore
+          // @ts-expect-error: Types are not available
           value = actionObjectDiff[i]?.rhs;
-          //@ts-ignore
+          // @ts-expect-error: Types are not available
           set(action, path, value);
         }
       }
