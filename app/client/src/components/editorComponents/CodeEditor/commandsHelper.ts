@@ -136,8 +136,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
         });
         return true;
       }
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       editor.closeHint();
       return false;
     },
