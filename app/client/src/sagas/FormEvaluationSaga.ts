@@ -14,7 +14,7 @@ import {
   FormEvaluationState,
 } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FORM_EVALUATION_REDUX_ACTIONS } from "actions/evaluationActions";
-import { ActionConfig } from "entities/Action";
+import { Action, ActionConfig } from "entities/Action";
 import { FormConfigType } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";
 import { ApiResponse } from "api/ApiResponses";
@@ -24,6 +24,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { get, isEmpty } from "lodash";
 import { klona } from "klona/lite";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 let isEvaluating = false; // Flag to maintain the queue of evals
 
@@ -243,8 +244,8 @@ function* fetchDynamicValueSaga(
     // this is a temporary variable, used to derive the evaluated value of the current parameters before being stored in the evaluated params
     let substitutedParameters = {};
 
-    const action = yield select(getAction, actionId);
-    const dataTree = yield select(getDataTree);
+    const action: Action = yield select(getAction, actionId);
+    const dataTree: DataTree = yield select(getDataTree);
 
     if (!!action) {
       evalAction = dataTree[action.name];
@@ -306,7 +307,9 @@ function* fetchDynamicValueSaga(
       },
     );
     dynamicFetchedValues.isLoading = false;
+    // @ts-expect-error: we don't know what the response will be
     if (response.responseMeta.status === 200 && "trigger" in response.data) {
+      // @ts-expect-error: we don't know what the response will be
       dynamicFetchedValues.data = response.data.trigger;
       dynamicFetchedValues.hasFetchFailed = false;
     } else {

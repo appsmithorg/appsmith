@@ -92,7 +92,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   // URL or selecting new query from the query pane
   yield put(initFormEvaluations(currentEditorConfig, currentSettingConfig, id));
 
-  const allPlugins = yield select(getPlugins);
+  const allPlugins: Plugin[] = yield select(getPlugins);
   let uiComponent = UIComponentTypes.DbEditorForm;
   if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
 
@@ -107,7 +107,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 
   if (currentSettingConfig) {
-    const settingInitialValues = yield call(
+    const settingInitialValues: Record<string, unknown> = yield call(
       getConfigInitialValues,
       currentSettingConfig,
       uiComponent === UIComponentTypes.UQIDbEditorForm,
