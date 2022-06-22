@@ -14,12 +14,13 @@ import { EvaluationError } from "utils/DynamicBindingUtils";
 import { getActionIdFromURL } from "pages/Editor/Explorer/helpers";
 import { extractConditionalOutput } from "components/formControls/utils";
 
-type GetFormData = (
-  state: AppState,
-  formName: string,
-) => { initialValues: any; values: any; valid: boolean };
+export type GetFormData = {
+  initialValues: Record<string, unknown>;
+  values: any;
+  valid: boolean;
+};
 
-export const getFormData: GetFormData = (state, formName) => {
+export const getFormData = (state: AppState, formName: string): GetFormData => {
   const initialValues = getFormInitialValues(formName)(state);
   const values = getFormValues(formName)(state);
   const valid = isValid(formName)(state);

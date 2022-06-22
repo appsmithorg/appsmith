@@ -1,6 +1,6 @@
 import Api from "api/Api";
 import { AxiosPromise } from "axios";
-import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import { PluginType } from "entities/Action";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 
@@ -58,13 +58,13 @@ class PluginsApi extends Api {
   }
   static fetchPlugins(
     workspaceId: string,
-  ): AxiosPromise<GenericApiResponse<Plugin[]>> {
+  ): AxiosPromise<ApiResponse<Plugin[]>> {
     return Api.get(PluginsApi.url, { workspaceId: workspaceId });
   }
 
   static fetchFormConfig(
     id: string,
-  ): AxiosPromise<GenericApiResponse<PluginFormPayload>> {
+  ): AxiosPromise<ApiResponse<PluginFormPayload>> {
     return Api.get(PluginsApi.url + `/${id}/form`);
   }
 
@@ -76,9 +76,7 @@ class PluginsApi extends Api {
     return Api.post(url, body);
   }
 
-  static fetchDefaultPlugins(): AxiosPromise<
-    GenericApiResponse<DefaultPlugin[]>
-  > {
+  static fetchDefaultPlugins(): AxiosPromise<ApiResponse<DefaultPlugin[]>> {
     return Api.get(PluginsApi.url + `/default/icons`);
   }
 }
