@@ -6,6 +6,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Plugin;
@@ -16,6 +17,7 @@ import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -34,6 +36,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -76,8 +79,14 @@ public class MockDataServiceTest {
     @Autowired
     NewActionService newActionService;
 
+    @Autowired
+    PluginRepository pluginRepository;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
+
+    @MockBean
+    PluginExecutor pluginExecutor;
 
     String workspaceId = "";
 
@@ -247,13 +256,19 @@ public class MockDataServiceTest {
     public void testGetDataFromMockDB() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
         Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
-        Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("response-body");
+
+        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("Users");
         mockDataSource.setWorkspaceId(workspaceId);
         mockDataSource.setPackageName("postgres-plugin");
-        mockDataSource.setPluginId(plugin.getId());
+        mockDataSource.setPluginId(installed_plugin.getId());
         Datasource datasourceMono = mockDataService.createMockDataSet(mockDataSource).block();
 
         ActionDTO action = new ActionDTO();
@@ -266,6 +281,8 @@ public class MockDataServiceTest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteDbQuery");
         action.setDatasource(datasourceMono);
+
+        Mockito.when(pluginExecutor.executeParameterized(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.just(mockResult));
 
         Mono<ActionExecutionResult> resultMono = layoutActionService.createSingleAction(action)
                 .flatMap(savedAction -> {
