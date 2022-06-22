@@ -194,7 +194,7 @@ const doConnectionsHaveErrors = (
 };
 
 const getDataTreeWithOnlyIds = createSelector(getDataTree, (tree) =>
-  mapValues(pick(tree, ["ENTITY_TYPE", "widgetId", "actionId"])),
+  mapValues(tree, (x) => pick(x, ["ENTITY_TYPE", "widgetId", "actionId"])),
 );
 
 const useDependencyList = (name: string) => {
