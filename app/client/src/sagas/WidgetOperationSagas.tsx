@@ -703,7 +703,7 @@ const unsetPropertyPath = (obj: Record<string, unknown>, path: string) => {
 function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
   const { widgetId: parentWidgetId } = action.payload;
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const evaluatedDataTree = yield select(getDataTree);
+  const evaluatedDataTree: DataTree = yield select(getDataTree);
   const childrenList = getWidgetChildren(
     canvasWidgets,
     parentWidgetId,
