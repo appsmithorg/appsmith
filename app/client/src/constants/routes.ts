@@ -67,10 +67,14 @@ export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_PATH);
 export const matchQueryBasePath = match(QUERIES_EDITOR_BASE_PATH);
 export const matchQueryPath = match(QUERIES_EDITOR_ID_PATH);
 export const matchBuilderPath = (pathName: string) =>
-  match(BUILDER_PATH)(pathName) || match(BUILDER_PATH_DEPRECATED)(pathName);
+  match(BUILDER_PATH)(pathName) ||
+  match(BUILDER_PATH_DEPRECATED)(pathName) ||
+  match(BUILDER_CUSTOM_PATH)(pathName);
 export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
 export const matchViewerPath = (pathName: string) =>
-  match(VIEWER_PATH)(pathName) || match(VIEWER_PATH_DEPRECATED)(pathName);
+  match(VIEWER_PATH)(pathName) ||
+  match(VIEWER_PATH_DEPRECATED)(pathName) ||
+  match(VIEWER_CUSTOM_PATH)(pathName);
 export const matchViewerForkPath = (pathName: string) =>
   match(`${VIEWER_PATH}${VIEWER_FORK_PATH}`)(pathName) ||
   match(`${VIEWER_PATH_DEPRECATED}${VIEWER_FORK_PATH}`)(pathName);
