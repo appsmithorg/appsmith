@@ -36,6 +36,7 @@ import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
+import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -50,6 +51,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
+import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
@@ -154,6 +156,9 @@ public class ActionServiceCE_Test {
 
     @Autowired
     ApplicationService applicationService;
+
+    @Autowired
+    MockDataService mockDataService;
 
     Application testApp = null;
 
@@ -2612,6 +2617,47 @@ public class ActionServiceCE_Test {
                     assertThat(datasource1.getInvalids()).isEmpty();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void executeAction_actionOnMockDatasource_success() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("response-body");
+
+        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        MockDataSource mockDataSource = new MockDataSource();
+        mockDataSource.setName("Users");
+        mockDataSource.setWorkspaceId(workspaceId);
+        mockDataSource.setPackageName("postgres-plugin");
+        mockDataSource.setPluginId(installed_plugin.getId());
+        Datasource mockDatasource = mockDataService.createMockDataSet(mockDataSource).block();
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
+        mockResult.setSuggestedWidgets(widgetTypeList);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select * from users");
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecuteDbQuery");
+        action.setDatasource(mockDatasource);
+        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
 }
