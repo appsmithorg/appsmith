@@ -27,7 +27,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                    AnalyticsService analyticsService,
                                    PluginRepository pluginRepository,
                                    SessionUserService sessionUserService,
-                                   UserWorkspaceService userOrganizationService,
+                                   UserWorkspaceService userWorkspaceService,
                                    UserRepository userRepository,
                                    RoleGraph roleGraph,
                                    AssetRepository assetRepository,
@@ -35,7 +35,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                    ApplicationRepository applicationRepository) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                pluginRepository, sessionUserService, userOrganizationService, userRepository, roleGraph,
+                pluginRepository, sessionUserService, userWorkspaceService, userRepository, roleGraph,
                 assetRepository, assetService, applicationRepository);
     }
 }

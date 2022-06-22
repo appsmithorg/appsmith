@@ -62,11 +62,11 @@ ff4j:
           - name: weight
             value: 1
 
-    - uid: RBAC
+    - uid: PROPERTY_PANE_GROUPING
       enable: true
-      description: Enable access control settings
+      description: Group the properties into content & style tab also adds search option in property pane
       flipstrategy:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
-          - name: emailDomains
-            value: appsmith.com
+          - name: emails
+            value: aswath+test_grouping@appsmith.com

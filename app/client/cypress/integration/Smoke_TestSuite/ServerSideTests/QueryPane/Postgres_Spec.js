@@ -331,7 +331,17 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.deleteQueryUsingContext();
   });
 
-  it("12. Deletes the datasource", () => {
+  it("12. Bug 14493: The application is breaking when user runs the query with result as empty array", function() {
+    cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.get(queryLocators.templateMenu).click({ force: true });
+    cy.typeValueNValidate(
+      "select * from public.users where name='Ayush1234' ORDER BY id LIMIT 10",
+    );
+    cy.runQuery();
+    cy.deleteQueryUsingContext();
+  });
+
+  it("13. Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });

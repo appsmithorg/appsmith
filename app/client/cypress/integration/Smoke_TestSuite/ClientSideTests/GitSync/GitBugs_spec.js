@@ -16,10 +16,10 @@ let repoName;
 describe("Git sync Bug #10773", function() {
   before(() => {
     cy.NavigateToHome();
-    cy.createOrg();
-    cy.wait("@createOrg").then((interception) => {
-      const newOrganizationName = interception.response.body.data.name;
-      cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
+    cy.createWorkspace();
+    cy.wait("@createWorkspace").then((interception) => {
+      const newWorkspaceName = interception.response.body.data.name;
+      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
 
     cy.generateUUID().then((uid) => {
@@ -64,10 +64,10 @@ describe("Git sync Bug #10773", function() {
 describe("Git Bug: Fix clone page issue where JSObject are not showing up in destination page when application is connected to git", function() {
   it("Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
     cy.NavigateToHome();
-    cy.createOrg();
-    cy.wait("@createOrg").then((interception) => {
-      const newOrganizationName = interception.response.body.data.name;
-      cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
+    cy.createWorkspace();
+    cy.wait("@createWorkspace").then((interception) => {
+      const newWorkspaceName = interception.response.body.data.name;
+      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
       cy.addDsl(dsl);
     });
     // connect app to git
@@ -76,7 +76,7 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
       cy.createTestGithubRepo(repoName);
       cy.connectToGitRepo(repoName);
     });
-    ee.expandCollapseEntity("QUERIES/JS", true);
+    ee.ExpandCollapseEntity("QUERIES/JS", true);
     // create JS object and validate its data on Page1
     cy.createJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
@@ -168,13 +168,13 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
 describe("Git synced app with JSObject", function() {
   it("Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function() {
     cy.NavigateToHome();
-    cy.createOrg();
-    cy.wait("@createOrg").then((interception) => {
-      const newOrganizationName = interception.response.body.data.name;
-      cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
+    cy.createWorkspace();
+    cy.wait("@createWorkspace").then((interception) => {
+      const newWorkspaceName = interception.response.body.data.name;
+      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
       cy.addDsl(dsl);
     });
-    ee.expandCollapseEntity("QUERIES/JS", true);
+    ee.ExpandCollapseEntity("QUERIES/JS", true);
     // create JS object and validate its data on Page1
     cy.createJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
@@ -270,10 +270,10 @@ describe("Git synced app with JSObject", function() {
 describe("Git sync Bug #13385", function() {
   it("Bug:13385 : Unable to see application in home page after the git connect flow is aborted in middle", () => {
     cy.NavigateToHome();
-    cy.createOrg();
-    cy.wait("@createOrg").then((interception) => {
-      const newOrganizationName = interception.response.body.data.name;
-      cy.CreateAppForOrg(newOrganizationName, `${newOrganizationName}app`);
+    cy.createWorkspace();
+    cy.wait("@createWorkspace").then((interception) => {
+      const newWorkspaceName = interception.response.body.data.name;
+      cy.CreateAppForWorkspace(newWorkspaceName, `${newWorkspaceName}app`);
 
       cy.generateUUID().then((uid) => {
         const owner = Cypress.env("TEST_GITHUB_USER_NAME");
@@ -306,7 +306,7 @@ describe("Git sync Bug #13385", function() {
       cy.NavigateToHome();
       cy.reload();
       cy.wait(3000);
-      cy.SearchApp(`${newOrganizationName}app`);
+      cy.SearchApp(`${newWorkspaceName}app`);
     });
   });
 });

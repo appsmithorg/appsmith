@@ -74,7 +74,7 @@ export type SetPageOrderRequest = {
   applicationId: string;
 };
 
-export type CreatePageResponse = ApiResponse<unknown>;
+export type CreatePageResponse = ApiResponse;
 
 export type FetchPageListResponseData = {
   pages: Array<{
@@ -85,7 +85,7 @@ export type FetchPageListResponseData = {
     layouts: Array<PageLayout>;
     slug?: string;
   }>;
-  organizationId: string;
+  workspaceId: string;
 };
 
 export interface DeletePageRequest {

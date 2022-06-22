@@ -7,6 +7,7 @@ import {
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { isEqual } from "lodash";
 import { SelectedArenaDimensions } from "pages/common/CanvasArenas/CanvasSelectionArena";
+import { Task } from "redux-saga";
 import { all, cancel, put, select, take, takeLatest } from "redux-saga/effects";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { getSelectedWidgets } from "selectors/ui";
@@ -125,7 +126,7 @@ function* startCanvasSelectionSaga(
         [containerWidgetId: string]: OccupiedSpace[];
       }
     | undefined = yield select(getOccupiedSpaces);
-  const selectionTask = yield takeLatest(
+  const selectionTask: Task = yield takeLatest(
     ReduxActionTypes.SELECT_WIDGETS_IN_AREA,
     selectAllWidgetsInAreaSaga,
     {

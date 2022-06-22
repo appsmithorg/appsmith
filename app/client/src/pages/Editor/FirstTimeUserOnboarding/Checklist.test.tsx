@@ -1,3 +1,6 @@
+const history = jest.fn();
+const dispatch = jest.fn();
+
 import { bindDataOnCanvas } from "actions/pluginActionActions";
 import { updateURLFactory } from "RouteBuilder";
 import { builderURL, integrationEditorURL } from "RouteBuilder";
@@ -16,7 +19,6 @@ jest.mock("pages/Editor/utils", () => ({
   useIsWidgetActionConnectionPresent: () => useIsWidgetActionConnectionPresent,
 }));
 
-const dispatch = jest.fn();
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
   return {
@@ -25,13 +27,9 @@ jest.mock("react-redux", () => {
   };
 });
 
-let history: any;
-jest.mock("utils/history", () => {
-  history = jest.fn();
-  return {
-    push: history,
-  };
-});
+jest.mock("utils/history", () => ({
+  push: history,
+}));
 
 function renderComponent(store: any) {
   render(

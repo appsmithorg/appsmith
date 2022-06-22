@@ -120,6 +120,7 @@
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
             <scope>test</scope>
+            <version>3.4.6</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -154,7 +155,7 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <scope>test</scope>
+            <version>3.14.9</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>

@@ -222,6 +222,57 @@ describe("WidgetOperationSaga", () => {
     );
   });
 
+  it("handleSpecificCasesWhilePasting should rename dynamicTriggerPathList template keys for a copied list widget", async () => {
+    const result = handleSpecificCasesWhilePasting(
+      {
+        widgetId: "list2",
+        type: "LIST_WIDGET",
+        widgetName: "List2",
+        parentId: "0",
+        renderMode: "CANVAS",
+        parentColumnSpace: 2,
+        parentRowSpace: 3,
+        leftColumn: 2,
+        rightColumn: 3,
+        topRow: 1,
+        bottomRow: 3,
+        isLoading: false,
+        listData: [],
+        version: 16,
+        disablePropertyPane: false,
+        template: {
+          Image1: {
+            widgetId: "image1",
+            type: "Image_WIDGET",
+            widgetName: "Image1",
+            parentId: "list2",
+            renderMode: "CANVAS",
+            parentColumnSpace: 2,
+            parentRowSpace: 3,
+            leftColumn: 2,
+            rightColumn: 3,
+            topRow: 1,
+            bottomRow: 3,
+            isLoading: false,
+            listData: [],
+            version: 16,
+            disablePropertyPane: false,
+            dynamicTriggerPathList: [{ key: "onClick" }],
+          },
+        },
+        dynamicTriggerPathList: [{ key: "template.Image1.onClick" }],
+      },
+      {},
+      {
+        Image1: "Image1Copy",
+      },
+      [],
+    );
+    expect(get(result, "list2.dynamicTriggerPathList.0.key")).toStrictEqual(
+      "template.Image1Copy.onClick",
+    );
+  });
+
   it("should return correct close modal reference name after executing handleSpecificCasesWhilePasting", async () => {
     const result = handleSpecificCasesWhilePasting(
       {

@@ -26,7 +26,7 @@ import {
   getActions,
   getPlugins,
 } from "selectors/entitiesSelector";
-import { PluginType, QueryAction } from "entities/Action";
+import { Action, PluginType, QueryAction } from "entities/Action";
 import {
   createActionRequest,
   setActionProperty,
@@ -54,6 +54,7 @@ import {
   ActionData,
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
+import { Plugin } from "api/PluginApi";
 import {
   datasourcesEditorIdURL,
   integrationEditorURL,
@@ -74,7 +75,7 @@ function* changeQuerySaga(
     history.push(APPLICATIONS_URL);
     return;
   }
-  const action = yield select(getAction, id);
+  const action: Action | undefined = yield select(getAction, id);
   if (!action) {
     history.push(
       integrationEditorURL({
@@ -101,7 +102,7 @@ function* changeQuerySaga(
       initFormEvaluations(currentEditorConfig, currentSettingConfig, id),
     );
 
-    const allPlugins = yield select(getPlugins);
+    const allPlugins: Plugin[] = yield select(getPlugins);
     let uiComponent = UIComponentTypes.DbEditorForm;
     if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
 
@@ -116,7 +117,7 @@ function* changeQuerySaga(
     }
 
     if (currentSettingConfig) {
-      const settingInitialValues = yield call(
+      const settingInitialValues: Record<string, unknown> = yield call(
         getConfigInitialValues,
         currentSettingConfig,
         uiComponent === UIComponentTypes.UQIDbEditorForm,
@@ -136,6 +137,7 @@ function* changeQuerySaga(
         startFormEvaluations(
           id,
           formInitialValues.actionConfiguration,
+          //@ts-expect-error: id does not exists
           action.datasource.id,
           pluginId,
         ),
@@ -161,7 +163,10 @@ function* formValueChangeSaga(
   const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
 
   if (field === "datasource.id") {
-    const datasource = yield select(getDatasource, actionPayload.payload);
+    const datasource: Datasource | undefined = yield select(
+      getDatasource,
+      actionPayload.payload,
+    );
 
     // Update the datasource not just the datasource id.
     yield put(
@@ -213,7 +218,9 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   } = actionPayload.payload;
   if (pluginType === PluginType.DB || pluginType === PluginType.REMOTE) {
     yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
-    const pluginTemplates = yield select(getPluginTemplates);
+    const pluginTemplates: Record<string, unknown> = yield select(
+      getPluginTemplates,
+    );
     const queryTemplate = pluginTemplates[pluginId];
     // Do not show template view if the query has body(code) or if there are no templates
     const showTemplate = !(
@@ -235,9 +242,16 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
 }
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
-  const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
+  const plugin: Plugin | undefined = yield select(
+    getPlugin,
+    actionPayload.payload.pluginId,
+  );
   // Only look at db plugins
-  if (plugin.type !== PluginType.DB && plugin.type !== PluginType.REMOTE)
+  if (
+    plugin &&
+    plugin.type !== PluginType.DB &&
+    plugin.type !== PluginType.REMOTE
+  )
     return;
 
   yield put(
@@ -261,7 +275,7 @@ function* handleNameChangeSuccessSaga(
   action: ReduxAction<{ actionId: string }>,
 ) {
   const { actionId } = action.payload;
-  const actionObj = yield select(getAction, actionId);
+  const actionObj: Action | undefined = yield select(getAction, actionId);
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
   if (!actionObj) {
     // Error case, log to sentry

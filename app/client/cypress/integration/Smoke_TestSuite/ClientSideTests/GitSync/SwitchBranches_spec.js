@@ -13,10 +13,10 @@ let repoName;
 describe("Git sync:", function() {
   before(() => {
     cy.NavigateToHome();
-    cy.createOrg();
-    cy.wait("@createOrg").then((interception) => {
-      const newOrganizationName = interception.response.body.data.name;
-      cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
+    cy.createWorkspace();
+    cy.wait("@createWorkspace").then((interception) => {
+      const newWorkspaceName = interception.response.body.data.name;
+      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
 
     cy.generateUUID().then((uid) => {
@@ -217,6 +217,7 @@ describe("Git sync:", function() {
     cy.get(gitSyncLocators.closeBranchList).click();
     cy.switchGitBranch(`origin/${tempBranchRenamed}`);
     cy.switchGitBranch(`origin/${tempBranchRenamed}`, true);
+    cy.wait(4000); // wait for switch branch
     // assert error toast
     cy.contains(`origin/${tempBranchRenamed} already exists`);
     cy.get(gitSyncLocators.closeBranchList).click();

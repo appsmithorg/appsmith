@@ -77,44 +77,44 @@ export function getExpectedValue(
         autocompleteDataType: AutocompleteDataType.BOOLEAN,
       };
     case ValidationTypes.NUMBER:
-      let type = "number";
+      let numberType = "number";
       let eg = 100;
       if (config.params?.min) {
-        type = `${type} Min: ${config.params?.min}`;
+        numberType = `${numberType} Min: ${config.params?.min}`;
         eg = config.params?.min;
       }
       if (config.params?.max) {
-        type = `${type} Max: ${config.params?.max}`;
+        numberType = `${numberType} Max: ${config.params?.max}`;
         eg = config.params?.max;
       }
       if (config.params?.required) {
-        type = `${type} Required`;
+        numberType = `${numberType} Required`;
       }
 
       return {
-        type,
+        type: numberType,
         example: eg,
         autocompleteDataType: AutocompleteDataType.NUMBER,
       };
     case ValidationTypes.OBJECT:
       const _exampleObj: Record<string, unknown> = {};
-      type = "Object";
+      let objectType = "Object";
       if (config.params?.allowedKeys) {
-        type = "{";
+        objectType = "{";
         config.params?.allowedKeys.forEach((allowedKeyConfig) => {
           const _expected = getExpectedValue(allowedKeyConfig);
-          type = `${type} "${allowedKeyConfig.name}": "${_expected?.type}",`;
+          objectType = `${objectType} "${allowedKeyConfig.name}": "${_expected?.type}",`;
           _exampleObj[allowedKeyConfig.name] = _expected?.example;
         });
-        type = `${type.substring(0, type.length - 1)} }`;
+        objectType = `${objectType.substring(0, objectType.length - 1)} }`;
         return {
-          type,
+          type: objectType,
           example: _exampleObj,
           autocompleteDataType: AutocompleteDataType.OBJECT,
         };
       }
       return {
-        type,
+        type: objectType,
         example: { key: "value" },
         autocompleteDataType: AutocompleteDataType.OBJECT,
       };

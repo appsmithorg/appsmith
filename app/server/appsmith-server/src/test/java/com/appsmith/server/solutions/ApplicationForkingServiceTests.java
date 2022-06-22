@@ -151,7 +151,7 @@ public class ApplicationForkingServiceTests {
 
     private static String sourceAppId;
 
-    private static String testUserOrgId;
+    private static String testUserWorkspaceId;
 
     private static boolean isSetupDone = false;
 
@@ -167,12 +167,12 @@ public class ApplicationForkingServiceTests {
 
 
         Workspace sourceWorkspace = new Workspace();
-        sourceWorkspace.setName("Source Organization");
+        sourceWorkspace.setName("Source Workspace");
         workspaceService.create(sourceWorkspace).map(Workspace::getId).block();
 
         Application app1 = new Application();
         app1.setName("1 - public app");
-        app1.setOrganizationId(sourceWorkspace.getId());
+        app1.setWorkspaceId(sourceWorkspace.getId());
         app1.setForkingEnabled(true);
         app1 = applicationPageService.createApplication(app1).block();
         sourceAppId = app1.getId();
@@ -182,7 +182,7 @@ public class ApplicationForkingServiceTests {
         // Save action
         Datasource datasource = new Datasource();
         datasource.setName("Default Database");
-        datasource.setOrganizationId(app1.getOrganizationId());
+        datasource.setWorkspaceId(app1.getWorkspaceId());
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
@@ -204,7 +204,7 @@ public class ApplicationForkingServiceTests {
         actionCollectionDTO.setName("testCollection1");
         actionCollectionDTO.setPageId(app1.getPages().get(0).getId());
         actionCollectionDTO.setApplicationId(sourceAppId);
-        actionCollectionDTO.setOrganizationId(sourceWorkspace.getId());
+        actionCollectionDTO.setWorkspaceId(sourceWorkspace.getId());
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
         actionCollectionDTO.setBody("export default {\n" +
@@ -259,7 +259,7 @@ public class ApplicationForkingServiceTests {
         ArrayList<String> users = new ArrayList<>();
         users.add("usertest@usertest.com");
         inviteUsersDTO.setUsernames(users);
-        inviteUsersDTO.setOrgId(sourceWorkspace.getId());
+        inviteUsersDTO.setWorkspaceId(sourceWorkspace.getId());
         inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
         userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
@@ -280,10 +280,10 @@ public class ApplicationForkingServiceTests {
         return Mono
                 .when(
                         applicationService
-                                .findByOrganizationId(workspace.getId(), READ_APPLICATIONS)
+                                .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                                 .map(data.applications::add),
                         datasourceService
-                                .findAllByOrganizationId(workspace.getId(), READ_DATASOURCES)
+                                .findAllByWorkspaceId(workspace.getId(), READ_DATASOURCES)
                                 .map(data.datasources::add),
                         getActionsInWorkspace(workspace)
                                 .map(data.actions::add)
@@ -296,12 +296,12 @@ public class ApplicationForkingServiceTests {
     public void test1_cloneWorkspaceWithItsContents() {
 
         Workspace targetWorkspace = new Workspace();
-        targetWorkspace.setName("Target Organization");
+        targetWorkspace.setName("Target Workspace");
 
         final Mono<Application> resultMono = workspaceService.create(targetWorkspace)
                 .map(Workspace::getId)
-                .flatMap(targetOrganizationId ->
-                        applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetOrganizationId)
+                .flatMap(targetWorkspaceId ->
+                        applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspaceId)
                 );
 
         StepVerifier.create(resultMono
@@ -389,11 +389,11 @@ public class ApplicationForkingServiceTests {
     public void test2_forkApplicationWithReadApplicationUserAccess() {
 
         Workspace targetWorkspace = new Workspace();
-        targetWorkspace.setName("test-user-organization");
+        targetWorkspace.setName("test-user-workspace");
 
         final Mono<Application> resultMono = workspaceService.create(targetWorkspace)
                 .flatMap(workspace -> {
-                    testUserOrgId = workspace.getId();
+                    testUserWorkspaceId = workspace.getId();
                     return applicationForkingService.forkApplicationToWorkspace(sourceAppId, workspace.getId());
                 });
 
@@ -409,11 +409,11 @@ public class ApplicationForkingServiceTests {
     @WithUserDetails(value = "api_user")
     public void test3_failForkApplicationWithInvalidPermission() {
 
-        final Mono<Application> resultMono = applicationForkingService.forkApplicationToWorkspace(sourceAppId, testUserOrgId);
+        final Mono<Application> resultMono = applicationForkingService.forkApplicationToWorkspace(sourceAppId, testUserWorkspaceId);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, testUserOrgId)))
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, testUserWorkspaceId)))
                 .verify();
     }
 
@@ -422,7 +422,7 @@ public class ApplicationForkingServiceTests {
     public void test4_validForkApplication_cancelledMidWay_createValidApplication() {
 
         Workspace targetWorkspace = new Workspace();
-        targetWorkspace.setName("Target Organization");
+        targetWorkspace.setName("Target Workspace");
         targetWorkspace = workspaceService.create(targetWorkspace).block();
 
         // Trigger the fork application flow
@@ -439,7 +439,7 @@ public class ApplicationForkingServiceTests {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationService.findByOrganizationId(workspace.getId(), READ_APPLICATIONS).next();
+                    return applicationService.findByWorkspaceId(workspace.getId(), READ_APPLICATIONS).next();
                 })
                 .cache();
 
@@ -565,13 +565,13 @@ public class ApplicationForkingServiceTests {
             // published mode should have the custom theme as we publish after forking the app
             assertThat(publishedModeTheme.isSystemTheme()).isFalse();
             // published mode theme will have no application id and org id set as the customizations were not saved
-            assertThat(publishedModeTheme.getOrganizationId()).isNullOrEmpty();
+            assertThat(publishedModeTheme.getWorkspaceId()).isNullOrEmpty();
             assertThat(publishedModeTheme.getApplicationId()).isNullOrEmpty();
 
             // edit mode theme should be a custom one
             assertThat(editModeTheme.isSystemTheme()).isFalse();
             // edit mode theme will have no application id and org id set as the customizations were not saved
-            assertThat(editModeTheme.getOrganizationId()).isNullOrEmpty();
+            assertThat(editModeTheme.getWorkspaceId()).isNullOrEmpty();
             assertThat(editModeTheme.getApplicationId()).isNullOrEmpty();
 
             // forked theme should have the same name as src theme
@@ -624,7 +624,7 @@ public class ApplicationForkingServiceTests {
             // edit mode theme should be system theme
             assertThat(editModeTheme.isSystemTheme()).isTrue();
             // edit mode theme will have no application id and org id set as it's system theme
-            assertThat(editModeTheme.getOrganizationId()).isNullOrEmpty();
+            assertThat(editModeTheme.getWorkspaceId()).isNullOrEmpty();
             assertThat(editModeTheme.getApplicationId()).isNullOrEmpty();
 
             // forked theme should be default theme
@@ -684,14 +684,14 @@ public class ApplicationForkingServiceTests {
             assertThat(publishedModeTheme.isSystemTheme()).isFalse();
 
             // published mode theme will have no application id and org id set as it's a copy
-            assertThat(publishedModeTheme.getOrganizationId()).isNullOrEmpty();
+            assertThat(publishedModeTheme.getWorkspaceId()).isNullOrEmpty();
             assertThat(publishedModeTheme.getApplicationId()).isNullOrEmpty();
 
             // edit mode theme should be a custom one
             assertThat(editModeTheme.isSystemTheme()).isFalse();
 
             // edit mode theme will have application id and org id set as the customizations were saved
-            assertThat(editModeTheme.getOrganizationId()).isNullOrEmpty();
+            assertThat(editModeTheme.getWorkspaceId()).isNullOrEmpty();
             assertThat(editModeTheme.getApplicationId()).isNullOrEmpty();
 
             // forked theme should have the same name as src theme
@@ -712,7 +712,7 @@ public class ApplicationForkingServiceTests {
         targetWorkspace.setName("delete-edit-mode-page-target-org");
         targetWorkspace = workspaceService.create(targetWorkspace).block();
         assert targetWorkspace != null;
-        final String targetOrgId = targetWorkspace.getId();
+        final String targetWorkspaceId = targetWorkspace.getId();
 
         Workspace srcWorkspace = new Workspace();
         srcWorkspace.setName("delete-edit-mode-page-src-org");
@@ -728,7 +728,7 @@ public class ApplicationForkingServiceTests {
         final String pageId = Objects.requireNonNull(applicationPageService.createPage(pageDTO).block()).getId();
         final Mono<Application> resultMono = applicationPageService.publish(originalAppId, true)
                 .flatMap(ignored -> applicationPageService.deleteUnpublishedPage(pageId))
-                .flatMap(page -> applicationForkingService.forkApplicationToWorkspace(pageDTO.getApplicationId(), targetOrgId));
+                .flatMap(page -> applicationForkingService.forkApplicationToWorkspace(pageDTO.getApplicationId(), targetWorkspaceId));
 
         StepVerifier.create(resultMono
                         .zipWhen(application1 -> newPageService.findNewPagesByApplicationId(application1.getId(), READ_PAGES).collectList()
@@ -754,7 +754,7 @@ public class ApplicationForkingServiceTests {
 
     private Flux<ActionDTO> getActionsInWorkspace(Workspace workspace) {
         return applicationService
-                .findByOrganizationId(workspace.getId(), READ_APPLICATIONS)
+                .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                 // fetch the unpublished pages
                 .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
                 .flatMap(page -> newActionService.getUnpublishedActionsExceptJs(new LinkedMultiValueMap<>(
@@ -793,7 +793,7 @@ public class ApplicationForkingServiceTests {
                                 // Create a branch application
                                 Application branchApp = new Application();
                                 branchApp.setName("app_" + uniqueString);
-                                return applicationPageService.createApplication(branchApp, srcApplication.getOrganizationId())
+                                return applicationPageService.createApplication(branchApp, srcApplication.getWorkspaceId())
                                         .zipWith(Mono.just(srcApplication));
                             });
                 })
@@ -828,7 +828,7 @@ public class ApplicationForkingServiceTests {
         StepVerifier
                 .create(applicationMono)
                 .assertNext(forkedApplication -> {
-                    assertThat(forkedApplication.getPages().size()).isEqualTo(2);
+                    assertThat(forkedApplication.getPages().size()).isEqualTo(1);
         }).verifyComplete();
     }
 }

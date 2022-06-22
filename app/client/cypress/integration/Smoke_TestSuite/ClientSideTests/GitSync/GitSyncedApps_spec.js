@@ -5,7 +5,6 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import jsActions from "../../../../locators/jsActionLocators";
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 import ApiEditor from "../../../../locators/ApiEditor";
 import homePage from "../../../../locators/HomePage";
@@ -24,10 +23,10 @@ let repoName;
 describe("Git sync apps", function() {
   before(() => {
     // cy.NavigateToHome();
-    // cy.createOrg();
-    //  cy.wait("@createOrg").then((interception) => {
-    //    const newOrganizationName = interception.response.body.data.name;
-    //    cy.CreateAppForOrg(newOrganizationName, "gitSyncApp");
+    // cy.createWorkspace();
+    //  cy.wait("@createWorkspace").then((interception) => {
+    //    const newWorkspaceName = interception.response.body.data.name;
+    //    cy.CreateAppForWorkspace(newWorkspaceName, "gitSyncApp");
   });
   it("1. Generate postgreSQL crud page , connect to git, clone the page, rename page with special character in it", () => {
     cy.NavigateToHome();
@@ -503,7 +502,7 @@ describe("Git sync apps", function() {
     cy.get(homePage.optionsIcon)
       .first()
       .click();
-    cy.get(homePage.orgImportAppOption).click({ force: true });
+    cy.get(homePage.workspaceImportAppOption).click({ force: true });
     cy.get(".t--import-json-card")
       .next()
       .click();

@@ -10,6 +10,6 @@
   "isEnabled": true,
   "isSuperUser": true,
   "name": "test",
-  "organizationIds": ["61a8a112ccc8b629d92a1aad"],
+  "workspaceIds": ["61a8a112ccc8b629d92a1aad"],
   "username": "test@appsmith.com"
 }

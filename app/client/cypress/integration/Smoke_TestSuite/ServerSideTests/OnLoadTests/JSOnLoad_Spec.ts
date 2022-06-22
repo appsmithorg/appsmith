@@ -72,7 +72,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("3. Tc 54, 55 - Verify OnPage Load - auto enabled from above case for JSOBject", function() {
@@ -90,9 +90,10 @@ describe("JSObjects OnLoad Actions tests", function() {
   it("4. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function() {
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getId", false, true);
-    deployMode.DeployApp();
-    agHelper.ValidateToastMessage('The action "GetUser" has failed');
-    agHelper.NavigateBacktoEditor();
+    deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
+    agHelper.WaitUntilToastDisappear('The action "GetUser" has failed');
+    deployMode.NavigateBacktoEditor();
+    agHelper.WaitUntilToastDisappear('The action "GetUser" has failed');
   });
 
   it("5. Tc 53 - Verify OnPage Load - Enabling back & Before Function calling disabled for JSOBject", function() {
@@ -109,11 +110,12 @@ describe("JSObjects OnLoad Actions tests", function() {
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("6. Tc 55 - Verify OnPage Load - Enabling & Before Function calling Enabling for JSOBject", function() {
-    ee.SelectEntityByName(jsName as string, "QUERIES/JS");
+    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.SelectEntityByName(jsName as string);
     jsEditor.EnableDisableAsyncFuncSettings("getId", true, true);
     deployMode.DeployApp();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
@@ -122,11 +124,11 @@ describe("JSObjects OnLoad Actions tests", function() {
     );
     agHelper.ClickButton("Yes");
     agHelper.AssertElementAbsence(locator._toastMsg);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
-    agHelper.NavigateBacktoEditor();
+    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getId"),
@@ -155,7 +157,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getId"),
@@ -228,18 +230,18 @@ describe("JSObjects OnLoad Actions tests", function() {
       agHelper.AddDsl(val, locator._widgetInCanvas("imagewidget"));
     });
 
-    ee.expandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("QUERIES/JS");
     apiPage.CreateAndFillApi(
       "https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json",
       "Quotes",
     );
-    apiPage.ConfirmBeforeRunningApi(true);
+    apiPage.ToggleConfirmBeforeRunningApi(true);
 
     apiPage.CreateAndFillApi(
       "https://api.whatdoestrumpthink.com/api/v1/quotes/random",
       "WhatTrumpThinks",
     );
-    apiPage.ConfirmBeforeRunningApi(true);
+    apiPage.ToggleConfirmBeforeRunningApi(true);
 
     jsEditor.CreateJSObject(
       `export default {
@@ -347,7 +349,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   it("10. API with OnPageLoad & Confirmation both enabled & called directly & setting previous Api's confirmation to false", () => {
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "Quotes" has failed');
@@ -363,10 +365,10 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage("Failed to execute actions during page load");
 
-    ee.expandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("QUERIES/JS");
     apiPage.CreateAndFillApi("https://catfact.ninja/fact", "CatFacts");
-    apiPage.OnPageLoadRun(true);
-    apiPage.ConfirmBeforeRunningApi(true);
+    apiPage.ToggleOnPageLoadRun(true);
+    apiPage.ToggleConfirmBeforeRunningApi(true);
 
     ee.SelectEntityByName("Image1", "WIDGETS");
     jsEditor.EnterJSContext(
@@ -377,9 +379,9 @@ describe("JSObjects OnLoad Actions tests", function() {
     );
 
     ee.SelectEntityByName("Quotes", "QUERIES/JS");
-    apiPage.OnPageLoadRun(false);
+    apiPage.ToggleOnPageLoadRun(false);
     ee.SelectEntityByName("WhatTrumpThinks");
-    apiPage.OnPageLoadRun(false);
+    apiPage.ToggleOnPageLoadRun(false);
 
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     jsEditor.EnableDisableAsyncFuncSettings("callQuotes", false, false); //OnPageLoad made true once mapped with widget
@@ -402,13 +404,13 @@ describe("JSObjects OnLoad Actions tests", function() {
     homePage.ImportApp("JSObjOnLoadApp.json");
     homePage.AssertImport();
 
-    ee.expandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("QUERIES/JS");
     apiPage.CreateAndFillApi(
       "https://anapioficeandfire.com/api/books/{{this.params.id}}",
       "getBooks",
     );
     //apiPage.OnPageLoadRun(true); //OnPageLoad made true after mapping to JSONForm
-    apiPage.ConfirmBeforeRunningApi(true);
+    apiPage.ToggleConfirmBeforeRunningApi(true);
 
     dataSources.NavigateFromActiveDS(guid, true);
     agHelper.GetNClick(dataSources._templateMenu);
@@ -511,7 +513,6 @@ describe("JSObjects OnLoad Actions tests", function() {
 
   it("12. Tc #1646 - Honouring the order of execution & Bug 13826 + Bug 13646 - Delpoy page", () => {
     deployMode.DeployApp();
-    agHelper.Sleep(2000);
     agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "getBooks" has failed');
@@ -540,7 +541,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       .GetText(locator._jsonFormInputField("url"), "val")
       .then(($url) => expect($url).not.be.empty);
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "getBooks" has failed');
