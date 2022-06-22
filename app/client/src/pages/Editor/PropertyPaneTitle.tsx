@@ -171,7 +171,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   }, []);
 
   return props.widgetId || props.isPanelTitle ? (
-    <div className="flex items-center w-full px-3 space-x-1 z-3">
+    <div className="flex items-center w-full px-3 space-x-1 z-[3]">
       {/* BACK BUTTON */}
       {props.isPanelTitle && (
         <button

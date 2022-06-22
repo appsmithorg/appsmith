@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { get } from "lodash";
 import {
   ApplicationPayload,
-  PageListPayload,
+  Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { isEllipsisActive } from "utils/helpers";
@@ -132,8 +132,8 @@ function PageTabContainer({
 }
 
 type Props = {
+  appPages: Page[];
   currentApplicationDetails?: ApplicationPayload;
-  appPages: PageListPayload;
   measuredTabsRef: (ref: HTMLElement | null) => void;
   tabsScrollable: boolean;
   setShowScrollArrows: () => void;

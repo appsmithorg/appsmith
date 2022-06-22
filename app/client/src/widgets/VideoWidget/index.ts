@@ -6,6 +6,7 @@ export const CONFIG = {
   name: "Video",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["youtube"],
   defaults: {
     rows: 28,
     columns: 24,

@@ -6,6 +6,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Divider",
   iconSVG: IconSVG,
+  searchTags: ["line"],
   defaults: {
     rows: 4,
     columns: 20,
