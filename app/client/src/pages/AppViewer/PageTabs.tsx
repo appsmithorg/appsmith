@@ -18,7 +18,7 @@ import { useSelector } from "react-redux";
 import { trimQueryString } from "utils/helpers";
 import { getPageURL } from "utils/AppsmithUtils";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { NO_CUSTOM_SLUG, viewerURL } from "RouteBuilder";
+import { viewerURL } from "RouteBuilder";
 
 const PageTab = styled(NavLink)`
   display: flex;

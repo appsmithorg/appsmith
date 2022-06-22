@@ -3,9 +3,16 @@ import AppEngine from ".";
 import AppEditorEngine from "./AppEditorEngine";
 import AppViewerEngine from "./AppViewerEngine";
 
+const registeredAppEngines = {
+  [APP_MODE.EDIT]: AppEditorEngine,
+  [APP_MODE.PUBLISHED]: AppViewerEngine,
+};
+
 export default class AppEngineFactory {
-  static create(mode: APP_MODE): AppEngine {
-    if (mode === APP_MODE.EDIT) return new AppEditorEngine(mode);
-    return new AppViewerEngine(mode);
+  static create(
+    type: keyof typeof registeredAppEngines,
+    mode: APP_MODE,
+  ): AppEngine {
+    return new registeredAppEngines[type](mode);
   }
 }

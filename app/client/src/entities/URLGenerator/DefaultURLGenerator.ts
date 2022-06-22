@@ -8,8 +8,8 @@ import { isURLDeprecated } from "utils/helpers";
 import URLGenerator from ".";
 
 export default class DefaultURLGenerator extends URLGenerator {
-  constructor(applicationVersion: ApplicationVersion, mode: APP_MODE) {
-    super(applicationVersion, mode);
+  constructor(mode: APP_MODE) {
+    super(mode);
   }
 
   *generateURL(pageId: string) {

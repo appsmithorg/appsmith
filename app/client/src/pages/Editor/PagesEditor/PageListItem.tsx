@@ -1,7 +1,7 @@
 import { get } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import styled, { useTheme } from "styled-components";
-import React, { useCallback, DragEvent, useState } from "react";
+import React, { useCallback, DragEvent, useState, useEffect } from "react";
 
 import {
   updatePage,
@@ -254,6 +254,10 @@ function CustomURLSlug(props: CustomURLSlugProp) {
   const dispatch = useDispatch();
   const isLoading = useSelector(isPageLoading(page.pageId));
 
+  useEffect(() => {
+    setCustomSlug(page.customSlug || "");
+  }, [page.customSlug]);
+
   const noSpecialCharactersValidator = useCallback(
     (text: string) => {
       const noSpecialCharacters = /^[A-Za-z0-9\-]+$/;
@@ -267,9 +271,13 @@ function CustomURLSlug(props: CustomURLSlugProp) {
     [setIsSlugValid],
   );
 
-  const saveSlug = () => {
+  const saveSlug = useCallback(() => {
     dispatch(setPageSlug({ customSlug, pageId: page.pageId }));
-  };
+  }, [page.pageId, customSlug]);
+
+  const resetCustomSlug = useCallback(() => {
+    dispatch(setPageSlug({ customSlug: "", pageId: page.pageId }));
+  }, [page.pageId]);
 
   const onChange = useCallback(
     (value: string) => {
@@ -288,6 +296,7 @@ function CustomURLSlug(props: CustomURLSlugProp) {
           height="32px"
           onChange={onChange}
           validator={noSpecialCharactersValidator}
+          value={customSlug}
         />
         <span className="text-xs url">-{page.pageId}</span>
         <div className="flex flex-row gap-2 items-center">
@@ -305,6 +314,7 @@ function CustomURLSlug(props: CustomURLSlugProp) {
           {page.customSlug && (
             <Button
               category={Category.tertiary}
+              onClick={resetCustomSlug}
               tag="button"
               text="reset to default"
             />

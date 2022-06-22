@@ -3,10 +3,13 @@ import { APP_MODE } from "entities/App";
 import DefaultURLGenerator from "./DefaultURLGenerator";
 import { SlugURLGenerator } from "./SlugURLGenerator";
 
+const registeredURLGenerators = {
+  [ApplicationVersion.DEFAULT]: DefaultURLGenerator,
+  [ApplicationVersion.SLUG_URL]: SlugURLGenerator,
+};
+
 export default class URLGeneratorFactory {
-  static create(applicationVersion: ApplicationVersion, mode: APP_MODE) {
-    if (applicationVersion === ApplicationVersion.SLUG_URL)
-      return new SlugURLGenerator(applicationVersion, mode);
-    return new DefaultURLGenerator(applicationVersion, mode);
+  static create(type: keyof typeof registeredURLGenerators, mode: APP_MODE) {
+    return new registeredURLGenerators[type](mode);
   }
 }

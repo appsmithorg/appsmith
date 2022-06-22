@@ -1,4 +1,3 @@
-import { ApplicationVersion } from "actions/applicationActions";
 import { ApplicationPayload, Page } from "ce/constants/ReduxActionConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { APP_MODE } from "entities/App";
@@ -10,8 +9,8 @@ import { getUpdatedRoute, isURLDeprecated } from "utils/helpers";
 import URLGenerator from ".";
 
 export class SlugURLGenerator extends URLGenerator {
-  constructor(applicationVersion: ApplicationVersion, mode: APP_MODE) {
-    super(applicationVersion, mode);
+  constructor(mode: APP_MODE) {
+    super(mode);
   }
 
   *generateURL(pageId: string, pageIdInUrl: string) {

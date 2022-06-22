@@ -55,7 +55,10 @@ export function* failFastApiCalls(
 
 function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
   try {
-    const engine: AppEngine = AppEngineFactory.create(action.payload.mode);
+    const engine: AppEngine = AppEngineFactory.create(
+      action.payload.mode,
+      action.payload.mode,
+    );
     engine.startPerformanceTracking();
     yield call(engine.setupEngine, action.payload);
     const { applicationId, toLoadPageId } = yield call(
