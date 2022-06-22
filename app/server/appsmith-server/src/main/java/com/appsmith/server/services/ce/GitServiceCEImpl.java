@@ -510,10 +510,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return releaseFileLock(defaultApplicationId)
                                 .then(Mono.error(e));
                     }
-<<<<<<< HEAD
-                    return Mono.zip(repoPathMono, currentUserMono, Mono.just(childApplication));
-=======
-
                     gitData.setLastCommittedAt(Instant.now());
                     Mono<Application> branchedApplicationMono = updateGitMetadata(childApplication.getId(), gitData);
                     return Mono.zip(
@@ -522,7 +518,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                             branchedApplicationMono,
                             Mono.just(childApplication)
                     );
->>>>>>> release
                 })
                 .onErrorResume(e -> {
                     log.error("Error in commit flow: ", e);
