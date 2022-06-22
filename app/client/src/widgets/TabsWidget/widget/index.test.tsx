@@ -3,11 +3,27 @@ import {
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
 import { render, fireEvent } from "test/testUtils";
+import * as dataTreeSelectors from "selectors/dataTreeSelectors";
+import * as editorSelectors from "selectors/editorSelectors";
 import Canvas from "pages/Editor/Canvas";
 import React from "react";
-import { MockPageDSL } from "test/testCommon";
+import {
+  mockCreateCanvasWidget,
+  mockGetWidgetEvalValues,
+  MockPageDSL,
+} from "test/testCommon";
 
 describe("Tabs widget functional cases", () => {
+  jest
+    .spyOn(dataTreeSelectors, "getWidgetEvalValues")
+    .mockImplementation(mockGetWidgetEvalValues);
+  jest
+    .spyOn(editorSelectors, "computeMainContainerWidget")
+    .mockImplementation((widget) => widget as any);
+  jest
+    .spyOn(editorSelectors, "createCanvasWidget")
+    .mockImplementation(mockCreateCanvasWidget);
+
   it("Should render 2 tabs by default", () => {
     const children: any = buildChildren([{ type: "TABS_WIDGET" }]);
     const dsl: any = widgetCanvasFactory.build({

@@ -6,7 +6,9 @@ import {
 } from "test/factories/WidgetFactoryUtils";
 import {
   MockApplication,
+  mockCreateCanvasWidget,
   mockGetCanvasWidgetDsl,
+  mockGetWidgetEvalValues,
   MockPageDSL,
   syntheticTestMouseEvent,
 } from "test/testCommon";
@@ -19,8 +21,19 @@ import { UpdatedMainContainer } from "test/testMockedWidgets";
 import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";
 import Canvas from "pages/Editor/Canvas";
+import * as dataTreeSelectors from "selectors/dataTreeSelectors";
 
 describe("Canvas selection test cases", () => {
+  jest
+    .spyOn(dataTreeSelectors, "getWidgetEvalValues")
+    .mockImplementation(mockGetWidgetEvalValues);
+  jest
+    .spyOn(utilities, "computeMainContainerWidget")
+    .mockImplementation((widget) => widget as any);
+  jest
+    .spyOn(utilities, "createCanvasWidget")
+    .mockImplementation(mockCreateCanvasWidget);
+
   it("Should select using canvas draw", () => {
     const children: any = buildChildren([
       {

@@ -18,6 +18,7 @@ import { AppState } from "reducers";
 import { CanvasWidgetStructure } from "./constants";
 import { getCanvasWidget } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
+import { klona } from "klona";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -56,14 +57,16 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     let widgetProps: WidgetProps | null = null;
 
     if (!skipWidgetPropsHydration) {
-      const canvasWidgetProps =
-        widgetId === MAIN_CONTAINER_WIDGET_ID
-          ? computeMainContainerWidget(canvasWidget, mainCanvasProps)
-          : canvasWidget;
+      const canvasWidgetProps = (() => {
+        if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
+          return computeMainContainerWidget(canvasWidget, mainCanvasProps);
+        }
+        return evaluatedWidget
+          ? createCanvasWidget(canvasWidget, evaluatedWidget)
+          : createLoadingWidget(canvasWidget);
+      })();
 
-      widgetProps = evaluatedWidget
-        ? createCanvasWidget(canvasWidgetProps, evaluatedWidget)
-        : createLoadingWidget(canvasWidgetProps);
+      widgetProps = klona(canvasWidgetProps);
 
       widgetProps.isVisible =
         widgetProps.isVisible ?? widgetProps.type !== "MODAL_WIDGET";
