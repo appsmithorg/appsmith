@@ -16,7 +16,7 @@ import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitDeployKeys;
@@ -71,6 +71,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -167,8 +168,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     application.setGitApplicationMetadata(gitApplicationMetadata);
                     return applicationService.save(application);
                 })
-                .flatMap(applicationService::setTransientFields)
-                .map(responseUtils::updateApplicationWithDefaultResources);
+                .flatMap(applicationService::setTransientFields);
     }
 
     @Override
@@ -475,9 +475,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.error(e);
                     }
 
+                    gitData.setLastCommittedAt(Instant.now());
+                    Mono<Application> branchedApplicationMono = updateGitMetadata(childApplication.getId(), gitData);
                     return Mono.zip(
                             repoPathMono,
                             currentUserMono,
+                            branchedApplicationMono,
                             Mono.just(childApplication)
                     );
                 })
@@ -777,6 +780,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         gitApplicationMetadata.setBrowserSupportedRemoteUrl(browserSupportedUrl);
 
                                         gitApplicationMetadata.setIsRepoPrivate(isRepoPrivate);
+                                        gitApplicationMetadata.setLastCommittedAt(Instant.now());
 
                                         // Set branchName for each application resource
                                         return importExportApplicationService.exportApplicationById(applicationId, SerialiseApplicationObjective.VERSION_CONTROL)
@@ -1173,9 +1177,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 srcBranchGitData.setIsRepoPrivate(null);
                                 // Save a new application in DB and update from the parent branch application
                                 srcBranchGitData.setGitAuth(null);
+                                srcBranchGitData.setLastCommittedAt(Instant.now());
                                 srcApplication.setId(null);
                                 srcApplication.setPages(null);
                                 srcApplication.setPublishedPages(null);
+                                srcApplication.setEditModeThemeId(null);
+                                srcApplication.setPublishedModeThemeId(null);
                                 srcApplication.setGitApplicationMetadata(srcBranchGitData);
                                 return Mono.zip(
                                         applicationService.save(srcApplication),
@@ -1283,6 +1290,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     // Save a new application in DB and update from the parent branch application
                     srcBranchGitData.setGitAuth(null);
                     srcBranchGitData.setIsRepoPrivate(null);
+                    srcBranchGitData.setLastCommittedAt(Instant.now());
                     srcApplication.setId(null);
                     srcApplication.setPages(null);
                     srcApplication.setPublishedPages(null);
@@ -1927,6 +1935,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl())
                                 );
                                 gitApplicationMetadata.setIsRepoPrivate(isRepoPrivate);
+                                gitApplicationMetadata.setLastCommittedAt(Instant.now());
 
                                 application.setGitApplicationMetadata(gitApplicationMetadata);
                                 return Mono.just(application).zipWith(profileMono);
