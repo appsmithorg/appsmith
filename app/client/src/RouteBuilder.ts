@@ -315,11 +315,14 @@ export const onboardingCheckListUrl = (
   });
 
 export const builderURL = (props?: Optional<URLBuilderParams>): string => {
-  return baseURLBuilder({ ...props });
+  return baseURLBuilder({ customSlug: NO_CUSTOM_SLUG, ...props });
 };
 
 export const viewerURL = (props?: Optional<URLBuilderParams>): string => {
-  return baseURLBuilder({ ...props }, APP_MODE.PUBLISHED);
+  return baseURLBuilder(
+    { customSlug: NO_CUSTOM_SLUG, ...props },
+    APP_MODE.PUBLISHED,
+  );
 };
 
 export function adminSettingsCategoryUrl({

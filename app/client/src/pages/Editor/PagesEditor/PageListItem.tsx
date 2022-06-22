@@ -280,7 +280,7 @@ function CustomURLSlug(props: CustomURLSlugProp) {
 
   if (applicationVersion < ApplicationVersion.SLUG_URL) return null;
   return (
-    <div className="flex flex-row justify-start mb-2">
+    <div className="flex flex-row justify-start mb-2 px-1">
       <div className="flex flex-row justify-start gap-1 items-center">
         <span className="text-xs url">{`${window.location.origin}/app/`}</span>
         <TextInput
@@ -293,7 +293,11 @@ function CustomURLSlug(props: CustomURLSlugProp) {
         <div className="flex flex-row gap-2 items-center">
           <Button
             category={Category.primary}
-            disabled={page.customSlug === customSlug || !isSlugValid}
+            disabled={
+              page.customSlug === customSlug ||
+              !isSlugValid ||
+              customSlug === ""
+            }
             isLoading={isLoading}
             onClick={saveSlug}
             text="save"
