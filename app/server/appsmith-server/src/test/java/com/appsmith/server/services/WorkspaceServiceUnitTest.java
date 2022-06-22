@@ -2,8 +2,10 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.UserAndGroupDTO;
+import com.appsmith.server.dtos.UserGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -16,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -59,12 +62,27 @@ public class WorkspaceServiceUnitTest {
 
     WorkspaceService workspaceService;
 
+    ModelMapper modelMapper;
+
     @Before
     public void setUp() {
+        modelMapper = new ModelMapper();
         workspaceService = new WorkspaceServiceImpl(scheduler, validator, mongoConverter, reactiveMongoTemplate,
                 workspaceRepository, analyticsService, pluginRepository, sessionUserService, userWorkspaceService,
                 userRepository, roleGraph, assetRepository, assetService, applicationRepository, userGroupService,
-                permissionGroupService, rbacPolicyService, policyUtils);
+                permissionGroupService, rbacPolicyService, policyUtils, modelMapper);
+    }
+
+    @Test
+    public void whenMapUserGroup_thenConvertsToUserGroupInfoDTO() {
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName("Test");
+        userGroup.setId("123");
+        userGroup.setDescription("Test");
+        UserGroupInfoDTO userGroupInfoDTO = modelMapper.map(userGroup, UserGroupInfoDTO.class);
+        Assert.assertEquals(userGroup.getName(), userGroupInfoDTO.getName());
+        Assert.assertEquals(userGroup.getId(), userGroupInfoDTO.getId());
+        Assert.assertEquals(userGroup.getDescription(), userGroupInfoDTO.getDescription());
     }
 
     @Test
