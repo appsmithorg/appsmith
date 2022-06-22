@@ -35,6 +35,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -55,7 +56,7 @@ type WidgetAddTabChild = {
 };
 
 function* getEntityNames() {
-  const evalTree = yield select(getDataTree);
+  const evalTree: DataTree = yield select(getDataTree);
   return Object.keys(evalTree);
 }
 
@@ -68,7 +69,9 @@ function* getEntityNames() {
  * @returns
  */
 function* getThemeDefaultConfig(type: string) {
-  const stylesheet = yield select(getSelectedAppThemeStylesheet);
+  const stylesheet: Record<string, unknown> = yield select(
+    getSelectedAppThemeStylesheet,
+  );
 
   return stylesheet[type] || themePropertiesDefaults;
 }
@@ -91,7 +94,10 @@ function* getChildWidgetProps(
   const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
     "blueprint",
   ]);
-  const themeDefaultConfig = yield call(getThemeDefaultConfig, type);
+  const themeDefaultConfig: Record<string, unknown> = yield call(
+    getThemeDefaultConfig,
+    type,
+  );
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
     const entityNames: string[] = yield call(getEntityNames);
@@ -251,7 +257,7 @@ export function* getUpdateDslAfterCreatingChild(
   const stateParent: FlattenedWidgetProps = yield select(getWidget, widgetId);
   // const parent = Object.assign({}, stateParent);
   // Get all the widgets from the canvasWidgetsReducer
-  const stateWidgets = yield select(getWidgets);
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = Object.assign({}, stateWidgets);
   // Generate the full WidgetProps of the widget to be added.
   const childWidgetPayload: GeneratedWidgetPayload = yield generateChildWidgets(
