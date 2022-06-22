@@ -150,7 +150,7 @@
     "scroll-into-view-if-needed": "^2.2.26",
     "shallowequal": "^1.1.0",
     "showdown": "^1.9.1",
-    "smartlook-client": "^4.5.1",
+    "smartlook-client": "7.0.0",
     "socket.io-client": "^4.2.0",
     "styled-components": "^5.2.0",
     "styled-system": "^5.1.5",

@@ -254,6 +254,14 @@ class AnalyticsUtil {
     smartlookClient.init(id);
   }
 
+  static isSmartlookInitialized() {
+    return smartlookClient.initialized();
+  }
+  static customMixPanelEvent() {
+    const windowDoc: any = window;
+    windowDoc.mixpanel && windowDoc.mixpanel.track("RECORDING_INITIALIZED");
+  }
+
   static initializeSegment(key: string) {
     (function init(window: any) {
       const analytics = (window.analytics = window.analytics || []);

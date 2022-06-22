@@ -95,6 +95,9 @@ export const initializeAnalyticsAndTrackers = () => {
       AnalyticsUtil.initializeSmartLook(id);
     }
 
+    if (AnalyticsUtil.isSmartlookInitialized()) {
+      AnalyticsUtil.customMixPanelEvent();
+    }
     if (appsmithConfigs.segment.enabled && !(window as any).analytics) {
       if (appsmithConfigs.segment.apiKey) {
         // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments

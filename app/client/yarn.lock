@@ -15790,9 +15790,10 @@ smart-buffer@^4.1.0:
   resolved "https://registry.yarnpkg.com/smart-buffer/-/smart-buffer-4.2.0.tgz#6e1d71fa4f18c05f7d0ff216dd16a481d0e8d9ae"
   integrity sha512-94hK0Hh8rPqQl2xXc3HsaBoOXKV20MToPkcXvwbISWLEs+64sBq5kFgn2kJDHb1Pry9yrP0dxrCI9RRci7RXKg==
 
-smartlook-client@^4.5.1:
-  version "4.6.1"
-  resolved "https://registry.npmjs.org/smartlook-client/-/smartlook-client-4.6.1.tgz"
+smartlook-client@7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/smartlook-client/-/smartlook-client-7.0.0.tgz#7254af076dfc4e0d9960d3bf508ee43466f3e630"
+  integrity sha512-ilgnaatPDRi6yEzYQLDSohy1p727/y0iyOjE8Mfe9z1FP5zvsRjkAOFy0IyLQVllrn3fNMeHO3u7/2lMfaTy5A==
 
 snake-case@^2.1.0:
   version "2.1.0"
