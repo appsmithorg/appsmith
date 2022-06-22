@@ -15,7 +15,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import { isWidgetDeprecated } from "../utils";
 import { BannerMessage } from "components/ads/BannerMessage";
 import { Colors } from "constants/Colors";
-import { IconSize } from "components/ads";
+import { IconSize, SearchInput, SearchVariant } from "components/ads";
 import {
   createMessage,
   WIDGET_DEPRECATION_WARNING,
@@ -25,6 +25,7 @@ import { TabComponent } from "components/ads/Tabs";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import WidgetFactory from "utils/WidgetFactory";
 import styled from "styled-components";
+import { InputWrapper } from "components/ads/TextInput";
 
 const PropertyPaneContent = styled.div`
   .react-tabs__tab-list {
@@ -34,6 +35,12 @@ const PropertyPaneContent = styled.div`
 
   .tab-title {
     font-size: 12px;
+  }
+`;
+
+const StyledSearchInput = styled(SearchInput)`
+  ${InputWrapper} {
+    background: ${Colors.GRAY_50};
   }
 `;
 
@@ -158,6 +165,7 @@ function PropertyPaneView(
         className="pt-3 t--property-pane-view"
         data-guided-tour-id="property-pane"
       >
+        <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
         {!doActionsExist && !hideConnectDataCTA && (
           <ConnectDataCTA
             widgetId={widgetProperties.widgetId}
@@ -165,7 +173,6 @@ function PropertyPaneView(
             widgetType={widgetProperties?.type}
           />
         )}
-        <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
         {isDeprecated && (
           <BannerMessage
             backgroundColor={Colors.WARNING_ORANGE}
@@ -180,36 +187,43 @@ function PropertyPaneView(
         )}
         {featureFlags.PROPERTY_PANE_GROUPING &&
         isContentAndStyleConfigAvailable ? (
-          <TabComponent
-            tabs={[
-              {
-                key: "content",
-                title: "CONTENT",
-                panelComponent: (
-                  <PropertyControlsGenerator
-                    group={PropertyPaneGroup.CONTENT}
-                    id={widgetProperties.widgetId}
-                    panel={panel}
-                    theme={EditorTheme.LIGHT}
-                    type={widgetProperties.type}
-                  />
-                ),
-              },
-              {
-                key: "style",
-                title: "STYLE",
-                panelComponent: (
-                  <PropertyControlsGenerator
-                    group={PropertyPaneGroup.STYLE}
-                    id={widgetProperties.widgetId}
-                    panel={panel}
-                    theme={EditorTheme.LIGHT}
-                    type={widgetProperties.type}
-                  />
-                ),
-              },
-            ]}
-          />
+          <>
+            <StyledSearchInput
+              fill
+              placeholder="Search for controls, labels etc"
+              variant={SearchVariant.BACKGROUND}
+            />
+            <TabComponent
+              tabs={[
+                {
+                  key: "content",
+                  title: "CONTENT",
+                  panelComponent: (
+                    <PropertyControlsGenerator
+                      group={PropertyPaneGroup.CONTENT}
+                      id={widgetProperties.widgetId}
+                      panel={panel}
+                      theme={EditorTheme.LIGHT}
+                      type={widgetProperties.type}
+                    />
+                  ),
+                },
+                {
+                  key: "style",
+                  title: "STYLE",
+                  panelComponent: (
+                    <PropertyControlsGenerator
+                      group={PropertyPaneGroup.STYLE}
+                      id={widgetProperties.widgetId}
+                      panel={panel}
+                      theme={EditorTheme.LIGHT}
+                      type={widgetProperties.type}
+                    />
+                  ),
+                },
+              ]}
+            />
+          </>
         ) : (
           <PropertyControlsGenerator
             id={widgetProperties.widgetId}
