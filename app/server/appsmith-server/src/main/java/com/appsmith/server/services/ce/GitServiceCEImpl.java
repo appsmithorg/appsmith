@@ -2173,6 +2173,12 @@ public class GitServiceCEImpl implements GitServiceCE {
         );
     }
 
+    /**
+     * In some scenarios:
+     * connect: after loading the modal, keyTypes is not available, so a network call has to be made to ssh-keypair.
+     * import: cannot make a ssh-keypair call because application Id doesn’t exist yet, so API fails.
+     * @return Git docs urls for all the scenarios, client will cache this data and use it
+     */
     @Override
     public Mono<List<GitDocsDTO>> getGitDocUrls() {
         ErrorReferenceDocUrl[] docSet = ErrorReferenceDocUrl.values();

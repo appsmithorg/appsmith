@@ -2,7 +2,6 @@ package com.appsmith.external.constants;
 
 import lombok.Getter;
 
-@Getter
 public enum ErrorReferenceDocUrl {
 
     GIT_MERGE_CONFLICT("https://docs.appsmith.com/core-concepts/version-control-with-git/merging-branches"),
