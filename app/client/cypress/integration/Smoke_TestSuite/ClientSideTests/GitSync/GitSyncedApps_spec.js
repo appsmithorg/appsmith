@@ -5,7 +5,6 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import jsActions from "../../../../locators/jsActionLocators";
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 import ApiEditor from "../../../../locators/ApiEditor";
 import homePage from "../../../../locators/HomePage";
