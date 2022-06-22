@@ -217,6 +217,7 @@ describe("Git sync:", function() {
     cy.get(gitSyncLocators.closeBranchList).click();
     cy.switchGitBranch(`origin/${tempBranchRenamed}`);
     cy.switchGitBranch(`origin/${tempBranchRenamed}`, true);
+    cy.wait(4000); // wait for switch branch
     // assert error toast
     cy.contains(`origin/${tempBranchRenamed} already exists`);
     cy.get(gitSyncLocators.closeBranchList).click();
