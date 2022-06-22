@@ -1,4 +1,4 @@
-import { find, get, pick, set, compact } from "lodash";
+import { find, get, pick, set } from "lodash";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
 
@@ -78,11 +78,12 @@ export const getWidgetPropsForPropertyPaneView = createSelector(
 export const selectedWidgetsPresentInCanvas = createSelector(
   getWidgets,
   getSelectedWidgets,
-  // Make sure the widgets in selectedWidgets still exists in the canvasWidgets
   (canvasWidgets, selectedWidgets) => {
-    return compact(
-      selectedWidgets.map((widgetId) => get(canvasWidgets, widgetId)?.widgetId),
-    );
+    const widgets = [];
+    for (const widget of selectedWidgets) {
+      if (widget in canvasWidgets) widgets.push(widget);
+    }
+    return widgets;
   },
 );
 
