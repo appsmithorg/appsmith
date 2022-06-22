@@ -11,6 +11,7 @@ export const CONFIG = {
   name: "Button",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["click", "submit"],
   defaults: {
     animateLoading: true,
     text: "Submit",
