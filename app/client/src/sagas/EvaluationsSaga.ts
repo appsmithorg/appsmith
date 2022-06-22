@@ -365,8 +365,18 @@ export function* executeFunction(collectionName: string, action: JSAction) {
   const { errors, result } = response;
   const isDirty = !!errors.length;
 
-  // "not defined" sentry error log, is catched here.
-  yield call(evalErrorHandler, errors);
+  // parse error of variables and function of jsobject
+  // matching of the response error type with normal error type
+  yield call(
+    evalErrorHandler,
+    errors.map((error: any) => ({
+      type: error.errorType,
+      message: error.errorMessage,
+      context: {
+        propertyPath: error.originalBinding,
+      },
+    })),
+  );
   return { result, isDirty };
 }
 

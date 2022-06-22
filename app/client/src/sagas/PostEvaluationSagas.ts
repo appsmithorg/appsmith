@@ -274,6 +274,16 @@ export function* evalErrorHandler(
         });
         break;
       }
+      case EvalErrorTypes.PARSE_ERROR: {
+        Toaster.show({
+          text: `${error.message} at: ${error.context?.propertyPath}`,
+          variant: Variant.danger,
+        });
+        AppsmithConsole.error({
+          text: `${error.message} at: ${error.context?.propertyPath}`,
+        });
+        break;
+      }
       case EvalErrorTypes.PARSE_JS_ERROR: {
         Toaster.show({
           text: `${error.message} at: ${error.context?.entity.name}`,
@@ -291,8 +301,7 @@ export function* evalErrorHandler(
         break;
       }
       default: {
-        // it's catching almost "() is not defined" issue. we don't need to log on sentry
-        // Sentry.captureException(error);
+        Sentry.captureException(error);
         log.debug(error);
       }
     }
