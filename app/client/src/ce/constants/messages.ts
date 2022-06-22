@@ -1052,6 +1052,7 @@ export const WIDGET_DEPRECATION_WARNING = (widgetName: string) =>
 export const WIDGET_DEPRECATION_WARNING_HEADER = () => "Stay up-to-date";
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
+export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
