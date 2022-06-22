@@ -9,6 +9,8 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.WorkspaceServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
+
+import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -37,11 +39,12 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                 UserGroupService userGroupService,
                                 PermissionGroupService permissionGroupService,
                                 RbacPolicyService rbacPolicyService,
-                                PolicyUtils policyUtils) {
+                                PolicyUtils policyUtils,
+                                ModelMapper modelMapper) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 pluginRepository, sessionUserService, userWorkspaceService, userRepository, roleGraph,
                 assetRepository, assetService, applicationRepository, userGroupService, permissionGroupService,
-                rbacPolicyService, policyUtils);
+                rbacPolicyService, policyUtils, modelMapper);
     }
 }
