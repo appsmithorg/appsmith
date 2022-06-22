@@ -66,6 +66,7 @@ export type UpdatePageRequest = {
   id: string;
   name: string;
   isHidden?: boolean;
+  customSlug?: string;
 };
 
 export type SetPageOrderRequest = {

@@ -1,10 +1,6 @@
 import React from "react";
 import { ApplicationVersion } from "actions/applicationActions";
-import {
-  builderURL,
-  getRouteBuilderParams,
-  updateURLFactory,
-} from "RouteBuilder";
+import { builderURL, URLParamsFactory } from "RouteBuilder";
 import {
   Page,
   ReduxActionTypes,
@@ -80,9 +76,13 @@ describe("URL slug names", () => {
       pageId: "pageId",
       pageSlug: "pageSlug",
     };
-    updateURLFactory({ applicationVersion: ApplicationVersion.DEFAULT });
+    URLParamsFactory.updateURLParams({
+      applicationVersion: ApplicationVersion.DEFAULT,
+    });
     const url1 = builderURL(params);
-    updateURLFactory({ applicationVersion: ApplicationVersion.SLUG_URL });
+    URLParamsFactory.updateURLParams({
+      applicationVersion: ApplicationVersion.SLUG_URL,
+    });
     const url2 = builderURL(params);
     store.dispatch({
       type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
@@ -117,7 +117,7 @@ describe("URL slug names", () => {
       type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
       payload: updatedApplicationPayload,
     });
-    const { applicationSlug } = getRouteBuilderParams();
+    const { applicationSlug } = URLParamsFactory.getURLParams();
     expect(applicationSlug).toBe(updatedApplicationPayload.slug);
 
     store.dispatch({
@@ -125,12 +125,12 @@ describe("URL slug names", () => {
       payload: updatedPagePayload,
     });
 
-    const { pageSlug: updatedPageSlug } = getRouteBuilderParams();
+    const { pageSlug: updatedPageSlug } = URLParamsFactory.getURLParams();
 
     expect(updatedPageSlug).toBe("page-1");
 
     store.dispatch(updateCurrentPage("605c435a91dea93f0eaf91bc", "my-page-2"));
-    const { pageSlug } = getRouteBuilderParams();
+    const { pageSlug } = URLParamsFactory.getURLParams();
 
     expect(pageSlug).toBe("my-page-2");
   });

@@ -490,3 +490,11 @@ export const resetApplicationWidgets = () => ({
 export const fetchPageDSLs = () => ({
   type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
 });
+
+export const setPageSlug = (payload: {
+  customSlug: string;
+  pageId: string;
+}) => ({
+  type: ReduxActionTypes.UPDATE_CUSTOM_SLUG_INIT,
+  payload,
+});

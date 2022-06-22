@@ -1,13 +1,14 @@
 import { get } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import styled, { useTheme } from "styled-components";
-import React, { useCallback, DragEvent } from "react";
+import React, { useCallback, DragEvent, useState } from "react";
 
 import {
   updatePage,
   clonePageInit,
   deletePage,
   setPageAsDefault,
+  setPageSlug,
 } from "actions/pageActions";
 import EditName from "./EditName";
 import ContextMenu from "./ContextMenu";
@@ -35,6 +36,7 @@ import {
 } from "selectors/editorSelectors";
 import { ApplicationVersion } from "actions/applicationActions";
 import { Button, Category, TextInput } from "components/ads";
+import { AppState } from "reducers";
 
 export const Container = styled.div`
   display: flex;
@@ -106,7 +108,6 @@ function PageListItem(props: PageListItemProps) {
   const { item } = props;
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
-  const applicationVersion = useSelector(selectApplicationVersion);
   /**
    * clones the page
    *
@@ -228,23 +229,7 @@ function PageListItem(props: PageListItemProps) {
               </TooltipComponent>
             </Actions>
           </div>
-          {applicationVersion > ApplicationVersion.DEFAULT && (
-            <div className="flex flex-row justify-start">
-              <div className="flex flex-row justify-start gap-1 items-center">
-                <span className="text-xs url">{`${window.location.origin}/app/`}</span>
-                <TextInput defaultValue={item.customSlug} height="32px" />
-                <span className="text-xs url">-{item.pageId}</span>
-                <div className="flex flex-row gap-2 items-center">
-                  <Button category={Category.primary} text="save" />
-                  <Button
-                    category={Category.tertiary}
-                    tag="button"
-                    text="reset to default"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+          <CustomURLSlug page={item} />
         </div>
         {/* Disabling drag on action items as attempting to drag also invokes the click event.
          Clicks events in child elements could be disabled once we upgrade react-use-gesture to
@@ -253,4 +238,77 @@ function PageListItem(props: PageListItemProps) {
     </Container>
   );
 }
+
+type CustomURLSlugProp = {
+  page: Page;
+};
+
+const isPageLoading = (pageId: string) => (state: AppState) =>
+  state.entities.pageList.loading[pageId];
+
+function CustomURLSlug(props: CustomURLSlugProp) {
+  const { page } = props;
+  const applicationVersion = useSelector(selectApplicationVersion);
+  const [customSlug, setCustomSlug] = useState(page.customSlug || "");
+  const [isSlugValid, setIsSlugValid] = useState(true);
+  const dispatch = useDispatch();
+  const isLoading = useSelector(isPageLoading(page.pageId));
+
+  const noSpecialCharactersValidator = useCallback(
+    (text: string) => {
+      const noSpecialCharacters = /^[A-Za-z0-9\-]+$/;
+      const isValid = !text || noSpecialCharacters.test(text);
+      setIsSlugValid(isValid);
+      return {
+        isValid,
+        message: isValid ? "" : "No special character allowed",
+      };
+    },
+    [setIsSlugValid],
+  );
+
+  const saveSlug = () => {
+    dispatch(setPageSlug({ customSlug, pageId: page.pageId }));
+  };
+
+  const onChange = useCallback(
+    (value: string) => {
+      setCustomSlug(value);
+    },
+    [setCustomSlug],
+  );
+
+  if (applicationVersion < ApplicationVersion.SLUG_URL) return null;
+  return (
+    <div className="flex flex-row justify-start mb-2">
+      <div className="flex flex-row justify-start gap-1 items-center">
+        <span className="text-xs url">{`${window.location.origin}/app/`}</span>
+        <TextInput
+          defaultValue={page.customSlug}
+          height="32px"
+          onChange={onChange}
+          validator={noSpecialCharactersValidator}
+        />
+        <span className="text-xs url">-{page.pageId}</span>
+        <div className="flex flex-row gap-2 items-center">
+          <Button
+            category={Category.primary}
+            disabled={page.customSlug === customSlug || !isSlugValid}
+            isLoading={isLoading}
+            onClick={saveSlug}
+            text="save"
+          />
+          {page.customSlug && (
+            <Button
+              category={Category.tertiary}
+              tag="button"
+              text="reset to default"
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default PageListItem;

@@ -1,5 +1,6 @@
 import {
   ADMIN_SETTINGS_PATH,
+  BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
   GEN_TEMPLATE_FORM_ROUTE,
@@ -7,6 +8,7 @@ import {
   PLACEHOLDER_APP_SLUG,
   PLACEHOLDER_PAGE_SLUG,
   TEMPLATES_PATH,
+  VIEWER_CUSTOM_PATH,
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
@@ -18,6 +20,35 @@ import {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
+
+type Optional<T extends { [k in keyof T]: T[k] }> = {
+  [K in keyof T]+?: T[K];
+};
+
+type BaseURLBuilderParams = {
+  applicationId: string;
+  applicationSlug: string;
+  pageId: string;
+  pageSlug: string;
+  applicationVersion?: ApplicationVersion;
+  customSlug?: string;
+};
+
+type URLBuilderParams = BaseURLBuilderParams & {
+  suffix: string;
+  branch: string;
+  hash: string;
+  params: Record<string, any>;
+};
+
+export const DEFAULT_BASE_URL_BUILDER_PARAMS: BaseURLBuilderParams = {
+  applicationId: "",
+  applicationSlug: "",
+  pageId: "",
+  pageSlug: "",
+};
+
+export const NO_CUSTOM_SLUG = "NO_CUSTOM_SLUG";
 
 export function convertToQueryParams(
   params: Record<string, string> = {},
@@ -37,7 +68,7 @@ export function convertToQueryParams(
 
 const fetchParamsToPersist = () => {
   const existingParams = getQueryParamsObject() || {};
-  // not persisting the entire query currently, since that's the current behaviour
+  // not persisting the entire query currently, since that's the current behavior
   const { branch, embed } = existingParams;
   let params = { branch, embed } as any;
   // test param to make sure a query param is present in the URL during dev and tests
@@ -57,63 +88,37 @@ export const fillPathname = (
     .replace(`/pages/${page.pageId}`, `/${page.slug}-${page.pageId}`);
 };
 
-type Optional<T extends { [k in keyof T]: T[k] }> = {
-  [K in keyof T]+?: T[K];
-};
-
-type BaseURLBuilderParams = {
-  applicationId: string;
-  applicationSlug: string;
-  pageId: string;
-  pageSlug: string;
-  applicationVersion?: ApplicationVersion;
-  customPageSlug?: string;
-};
-
-type URLBuilderParams = BaseURLBuilderParams & {
-  suffix: string;
-  branch: string;
-  hash: string;
-  params: Record<string, any>;
-};
-
-export const DEFAULT_BASE_URL_BUILDER_PARAMS: BaseURLBuilderParams = {
-  applicationId: "",
-  applicationSlug: "",
-  pageId: "",
-  pageSlug: "",
-};
-
 /**
- * This variable is private to this module and should not be exported.
  * This variable holds the information essential for url building, (current applicationId, pageId, pageSlug and applicationSlug ),
- * updateURLFactory method is used to update this variable in a middleware. Refer /store.ts.
+ * updateURLParams method is used to update this variable in a middleware. Refer /store.ts.
  * */
-let BASE_URL_BUILDER_PARAMS = DEFAULT_BASE_URL_BUILDER_PARAMS;
+export const URLParamsFactory = (function() {
+  let BASE_URL_BUILDER_PARAMS = DEFAULT_BASE_URL_BUILDER_PARAMS;
+  const updateURLParams = function(params: Optional<BaseURLBuilderParams>) {
+    BASE_URL_BUILDER_PARAMS = {
+      ...BASE_URL_BUILDER_PARAMS,
+      ...params,
+    };
+  };
+  const getURLParams = function() {
+    return Object.assign({}, BASE_URL_BUILDER_PARAMS);
+  };
+  return {
+    updateURLParams,
+    getURLParams,
+  };
+})();
 
-export function updateURLFactory(params: Optional<BaseURLBuilderParams>) {
-  BASE_URL_BUILDER_PARAMS = { ...BASE_URL_BUILDER_PARAMS, ...params };
-}
-
-export const getRouteBuilderParams = () => BASE_URL_BUILDER_PARAMS;
-
-/**
- * Do not export this method directly. Please write wrappers for your URLs.
- * Uses applicationVersion attribute to determine whether to use slug URLs or legacy URLs.
- */
-function baseURLBuilder(
-  {
+function getBasePath(params: Optional<URLBuilderParams>, mode: APP_MODE) {
+  let {
     applicationId,
     applicationSlug,
     applicationVersion,
-    customPageSlug,
+    customSlug,
     pageId,
     pageSlug,
-    ...rest
-  }: Optional<URLBuilderParams>,
-  mode: APP_MODE = APP_MODE.EDIT,
-): string {
-  const { hash = "", params = {}, suffix } = { ...rest };
+  } = params;
+  const BASE_URL_BUILDER_PARAMS = URLParamsFactory.getURLParams();
   applicationVersion =
     applicationVersion || BASE_URL_BUILDER_PARAMS.applicationVersion;
   const shouldUseLegacyURLs =
@@ -122,15 +127,16 @@ function baseURLBuilder(
 
   let basePath = "";
   pageId = pageId || BASE_URL_BUILDER_PARAMS.pageId;
-
   // fallback incase pageId is not set
   if (!pageId) {
     const match = matchPath<{ pageId: string }>(window.location.pathname, {
       path: [
         BUILDER_PATH,
         BUILDER_PATH_DEPRECATED,
+        BUILDER_CUSTOM_PATH,
         VIEWER_PATH,
         VIEWER_PATH_DEPRECATED,
+        VIEWER_CUSTOM_PATH,
       ],
       strict: false,
       exact: false,
@@ -138,14 +144,13 @@ function baseURLBuilder(
     pageId = match?.params.pageId;
   }
   // fallback incase pageId is not set
-
   if (shouldUseLegacyURLs) {
     applicationId = applicationId || BASE_URL_BUILDER_PARAMS.applicationId;
     basePath = `/applications/${applicationId}/pages/${pageId}`;
   } else {
-    customPageSlug = customPageSlug || BASE_URL_BUILDER_PARAMS.customPageSlug;
-    if (customPageSlug) {
-      basePath = `/app/${customPageSlug}-${pageId}`;
+    customSlug = customSlug || BASE_URL_BUILDER_PARAMS.customSlug;
+    if (customSlug && customSlug !== NO_CUSTOM_SLUG) {
+      basePath = `/app/${customSlug}-${pageId}`;
     } else {
       applicationSlug =
         applicationSlug ||
@@ -157,13 +162,24 @@ function baseURLBuilder(
     }
   }
   basePath += mode === APP_MODE.EDIT ? "/edit" : "";
+  return basePath;
+}
 
+/**
+ * Do not export this method directly. Write wrappers for your URLs.
+ * Uses applicationVersion attribute to determine whether to use slug URLs or legacy URLs.
+ */
+function baseURLBuilder(
+  urlParams: Optional<URLBuilderParams>,
+  mode: APP_MODE = APP_MODE.EDIT,
+): string {
+  const { hash = "", params = {}, suffix } = urlParams;
+  const basePath = getBasePath(urlParams, mode);
   const paramsToPersist = fetchParamsToPersist();
   const modifiedParams = { ...paramsToPersist, ...params };
   const queryString = convertToQueryParams(modifiedParams);
   const suffixPath = suffix ? `/${suffix}` : "";
   const hashPath = hash ? `#${hash}` : "";
-
   // hash fragment should be at the end of the href
   // ref: https://www.rfc-editor.org/rfc/rfc3986#section-4.1
   return `${basePath}${suffixPath}${queryString}${hashPath}`;

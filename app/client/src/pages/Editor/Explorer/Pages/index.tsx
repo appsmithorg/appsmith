@@ -31,7 +31,7 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "selectors/entitiesSelector";
-import { builderURL, pageListEditorURL } from "RouteBuilder";
+import { builderURL, NO_CUSTOM_SLUG, pageListEditorURL } from "RouteBuilder";
 import { saveExplorerStatus, getExplorerStatus } from "../helpers";
 import { tailwindLayers } from "constants/Layers";
 import useResize, {
@@ -106,6 +106,7 @@ function Pages() {
       builderURL({
         pageSlug: page.slug as string,
         pageId: page.pageId,
+        customSlug: page.customSlug || NO_CUSTOM_SLUG,
       }),
     );
   }, []);

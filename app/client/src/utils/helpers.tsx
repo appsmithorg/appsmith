@@ -735,6 +735,13 @@ export const getUpdatedRoute = (
   });
   if (!match || !match.params) return updatedPath;
   const { applicationSlug, pageSlug } = match?.params;
+  if (params.customSlug) {
+    updatedPath = updatedPath.replace(
+      `${applicationSlug}/${pageSlug}`,
+      `${params.customSlug}-`,
+    );
+    return updatedPath;
+  }
   if (params.applicationSlug)
     updatedPath = updatedPath.replace(applicationSlug, params.applicationSlug);
   if (params.pageSlug)

@@ -94,7 +94,7 @@ import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import {
   DEFAULT_BASE_URL_BUILDER_PARAMS,
-  updateURLFactory,
+  URLParamsFactory,
 } from "RouteBuilder";
 
 const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
@@ -532,7 +532,7 @@ function ApplicationsSection(props: any) {
 
   useEffect(() => {
     // Clears URL params cache
-    updateURLFactory(DEFAULT_BASE_URL_BUILDER_PARAMS);
+    URLParamsFactory.updateURLParams(DEFAULT_BASE_URL_BUILDER_PARAMS);
   }, []);
 
   const duplicateApplicationDispatch = (applicationId: string) => {

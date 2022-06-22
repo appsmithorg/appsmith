@@ -2,7 +2,7 @@ const history = jest.fn();
 const dispatch = jest.fn();
 
 import { bindDataOnCanvas } from "actions/pluginActionActions";
-import { updateURLFactory } from "RouteBuilder";
+import { URLParamsFactory } from "RouteBuilder";
 import { builderURL, integrationEditorURL } from "RouteBuilder";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { INTEGRATION_TABS } from "constants/routes";
@@ -44,7 +44,7 @@ describe("Checklist", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
-    updateURLFactory({
+    URLParamsFactory.updateURLParams({
       applicationSlug: initialState.ui.applications.currentApplication.slug,
       applicationId: initialState.entities.pageList.applicationId,
       pageSlug: initialState.entities.pageList.pages[0].slug,

@@ -119,6 +119,7 @@ import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { builderURL, generateTemplateURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
+import { takeEvery } from "redux-saga/effects";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -986,6 +987,37 @@ export function* setPageOrderSaga(action: ReduxAction<SetPageOrderRequest>) {
   }
 }
 
+function* setCustomSlugSaga(
+  action: ReduxAction<{ pageId: string; customSlug: string }>,
+) {
+  const { customSlug, pageId } = action.payload;
+  const response: ApiResponse<Page> = yield call(PageApi.updatePage, {
+    id: pageId,
+    customSlug,
+  });
+  try {
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (!isValidResponse) return;
+    yield put({
+      type: ReduxActionTypes.UPDATE_PAGE_SUCCESS,
+      payload: response.data,
+    });
+    yield put({
+      type: ReduxActionTypes.UPDATE_CUSTOM_SLUG_SUCCESS,
+      payload: {
+        pageId,
+      },
+    });
+  } catch (e) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_CUSTOM_SLUG_ERROR,
+      payload: {
+        pageId,
+      },
+    });
+  }
+}
+
 export function* generateTemplatePageSaga(
   action: ReduxAction<GenerateTemplatePageRequest>,
 ) {
@@ -1094,5 +1126,6 @@ export default function* pageSagas() {
     ),
     takeLatest(ReduxActionTypes.SET_PAGE_ORDER_INIT, setPageOrderSaga),
     takeLatest(ReduxActionTypes.POPULATE_PAGEDSLS_INIT, populatePageDSLsSaga),
+    takeEvery(ReduxActionTypes.UPDATE_CUSTOM_SLUG_INIT, setCustomSlugSaga),
   ]);
 }
