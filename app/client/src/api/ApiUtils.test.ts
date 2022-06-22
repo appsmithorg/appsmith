@@ -33,8 +33,7 @@ describe("axios api interceptors", () => {
         },
         config: {
           url: "https://app.appsmith.com/v1/api/actions/execute",
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
+          // @ts-expect-error: type mismatch
           timer: 0,
         },
       };
@@ -54,8 +53,7 @@ describe("axios api interceptors", () => {
         data: "Test data",
         config: {
           url: "https://app.appsmith.com/v1/api/actions",
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
+          //@ts-expect-error: type mismatch
           timer: 0,
         },
       };

@@ -201,6 +201,7 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   },
 };
 
+// @ts-expect-error: meta is required
 const BASE_WIDGET: DataTreeWidget = {
   logBlackList: {},
   widgetId: "randomID",
@@ -230,6 +231,7 @@ const BASE_ACTION: DataTreeAction = {
   clear: {},
   logBlackList: {},
   actionId: "randomId",
+  pluginId: "",
   name: "randomActionName",
   datasourceUrl: "",
   config: {
@@ -634,8 +636,7 @@ describe("DataTreeEvaluator", () => {
       "Text1.text",
       "Api2.config.pluginSpecifiedTemplates[0].value",
     ]);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     expect(dataTree.Api2.config.body).toBe("{ 'name': Test }");
     const updatedTree3 = {
       ...updatedTree2,
@@ -661,8 +662,7 @@ describe("DataTreeEvaluator", () => {
       "Text1.text",
       "Api2.config.pluginSpecifiedTemplates[0].value",
     ]);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     expect(dataTree3.Api2.config.body).toBe("{ 'name': \"Test\" }");
   });
 });

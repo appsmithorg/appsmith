@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
+// @ts-expect-error: Types are not available
 import widgetPropertyFns from "!!raw-loader!./derived.js";
 
 // TODO(abhinav):
