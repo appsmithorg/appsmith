@@ -1,6 +1,6 @@
 package com.appsmith.external.models;
 
-import com.appsmith.external.constants.DisplayAppsmithType;
+import com.appsmith.external.constants.DisplayDataType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,6 +10,6 @@ import lombok.ToString;
 @Setter
 @ToString
 @AllArgsConstructor
-public class ParsedAppsmithType {
-    private final DisplayAppsmithType AppsmithType;
+public class ParsedDataType {
+    private final DisplayDataType dataType;
 }

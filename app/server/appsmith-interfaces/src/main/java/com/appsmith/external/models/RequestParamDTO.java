@@ -22,6 +22,6 @@ public class RequestParamDTO {
     @JsonIgnore
     private String label; // Only meant for internal use. It is returned as key for the RequestParamDTO object.
     @JsonIgnore
-    private List<ParsedAppsmithType> types; // Not getting used for now but still keeping it here for future use.
+    private List<ParsedDataType> types; // Not getting used for now but still keeping it here for future use.
     private Map<String, Object> substitutedParams;
 }
