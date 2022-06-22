@@ -149,6 +149,6 @@ describe("Text Widget color/font/alignment Functionality", function() {
       "10px",
     );
     cy.selectColor("bordercolor");
-    cy.readTextDataValidateCSS("border-color", "rgb(229, 231, 235)");
+    cy.readTextDataValidateCSS("border-color", "rgb(228, 228, 231)");
   });
 });
