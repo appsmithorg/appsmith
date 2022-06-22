@@ -1,7 +1,9 @@
 import { matchDatasourcePath } from "constants/routes";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { AppState } from "reducers";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
+import { getWidgets } from "sagas/selectors";
 import { isWidget } from "workers/evaluationUtils";
 import { getDataTree } from "./dataTreeSelectors";
 export const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
@@ -9,15 +11,18 @@ export const hideErrors = (state: AppState) => state.ui.debugger.hideErrors;
 export const getFilteredErrors = createSelector(
   getDebuggerErrors,
   hideErrors,
+  getWidgets,
   getDataTree,
-  (errors, hideErrors, dataTree: DataTree) => {
+  (errors, hideErrors, canvasWidgets, dataTree: DataTree) => {
     if (hideErrors) return {};
 
     const filteredErrors = Object.fromEntries(
       Object.entries(errors).filter(([, error]) => {
         const entity = error?.source?.name && dataTree[error.source.name];
-        if (entity && isWidget(entity) && !entity.isVisible) {
-          return false;
+        if (entity && isWidget(entity)) {
+          return entity.isVisible
+            ? isParentVisible(entity, canvasWidgets, dataTree)
+            : false;
         }
         return true;
       }),
@@ -26,6 +31,29 @@ export const getFilteredErrors = createSelector(
     return filteredErrors;
   },
 );
+
+export const isParentVisible = (
+  widgetData: DataTreeWidget,
+  canvasWidgets: CanvasWidgetsReduxState,
+  dataTree: DataTree,
+): boolean => {
+  if (widgetData.parentId && widgetData.parentId !== "0") {
+    const parentWidget = canvasWidgets[widgetData.parentId];
+    if (parentWidget) {
+      const parentWidgetData = dataTree[
+        parentWidget.widgetName
+      ] as DataTreeWidget;
+      console.log("paren data", widgetData, parentWidget, parentWidgetData);
+      if (parentWidgetData) {
+        return parentWidgetData.isVisible
+          ? isParentVisible(parentWidgetData, canvasWidgets, dataTree)
+          : false;
+      }
+    }
+  }
+  return !!widgetData.isVisible;
+};
+
 export const getCurrentDebuggerTab = (state: AppState) =>
   state.ui.debugger.currentTab;
 
