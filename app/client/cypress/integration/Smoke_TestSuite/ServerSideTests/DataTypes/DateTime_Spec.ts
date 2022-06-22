@@ -118,6 +118,7 @@ describe("Postgres - Datatype DateTime tests", function() {
    EXTRACT (MINUTE  FROM  INTERVAL '5 hours 21 minutes');`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "SELECT");
     agHelper.RenameWithInPane("intervalRecords");
+    agHelper.EnterValue(query);
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0 years 11 mons 29 days 23 hours 0 mins 0.0 secs");
@@ -131,7 +132,7 @@ describe("Postgres - Datatype DateTime tests", function() {
     dataSources.ReadQueryTableResponse(3).then(($cellData) => {
       expect($cellData).to.eq("21");
     });
-    agHelper.EnterValue(query);
+    agHelper.ActionContextMenuWithInPane("Delete")
   });
 
   it("10. Inserting record - datetimetypes", () => {
