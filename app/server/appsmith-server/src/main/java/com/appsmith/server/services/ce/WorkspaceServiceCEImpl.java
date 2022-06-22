@@ -558,7 +558,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         Flux<UserGroupInfoDTO> userGroupInfoFlux = userGroupFlux
                 .map(userGroup -> modelMapper.map(userGroup, UserGroupInfoDTO.class));
 
-        // Convert to Set and return
+        // Convert to List and return
         return userGroupInfoFlux.collectList();
     }
 
