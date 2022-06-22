@@ -18,20 +18,21 @@
       - virtualenv
       - python3-setuptools
       - gnupg2
+      - policykit-1
+      - libnss3
+      - libnss3-dev
       - libnss3-tools
     state: latest
   become: true
   tags:
     - always
 
-- name: Change permissions to pkexec
-  file:
-    path: "/usr/bin/pkexec"
-    state: file
-    owner: root
-    group: root
-    mode: 0755
+- name: Upgrade dist to apply security fixes
+  ansible.builtin.apt:
+    upgrade: dist
   become: true
+  tags:
+    - always
 
 - name: Ensure old versions of Docker are not installed
   package:
