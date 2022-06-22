@@ -374,6 +374,7 @@ export const entityDefinitions: Record<string, unknown> = {
     source: "string",
     title: "string",
     message: generateTypeDef(widget.message),
+    messageEventProps: generateTypeDef(widget.messageEventProps),
   }),
   DIVIDER_WIDGET: {
     "!doc": "Divider is a simple UI widget used as a separator",
