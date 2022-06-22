@@ -5,10 +5,12 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +25,7 @@ import reactor.test.StepVerifier;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,6 +46,9 @@ public class ApplicationPageServiceTest {
 
     @Autowired
     ApplicationRepository applicationRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     private CommentThread createCommentThread(ApplicationMode mode, PageDTO pageDTO) {
         CommentThread commentThread = new CommentThread();
@@ -79,6 +85,9 @@ public class ApplicationPageServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void deleteUnpublishedPage_WhenPageDeleted_EditModeCommentsDeleted() {
+
+        List<User> userList = userRepository.findAllByEmails(Set.of("api_user")).collectList().block();
+
         Mono<List<CommentThread>> getThreadMono = createPageMono(UUID.randomUUID().toString())
                 .flatMap(pageDTO -> {
                     CommentThread editModeCommentThread = createCommentThread(ApplicationMode.EDIT, pageDTO);

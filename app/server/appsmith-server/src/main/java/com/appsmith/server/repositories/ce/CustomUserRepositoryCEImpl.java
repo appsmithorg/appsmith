@@ -34,9 +34,11 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     }
 
     @Override
-    public Flux<User> findAllByEmails(Set<String> emails, AclPermission aclPermission) {
+    public Flux<User> findAllByEmails(Set<String> emails) {
         Criteria emailCriteria = where(fieldName(QUser.user.email)).in(emails);
-        return queryAll(List.of(emailCriteria), aclPermission);
+        Query query = new Query();
+        query.addCriteria(emailCriteria);
+        return mongoOperations.find(query, User.class);
     }
 
     @Override
