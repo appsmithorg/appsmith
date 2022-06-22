@@ -106,8 +106,6 @@ describe("Postgres - Datatype DateTime tests", function() {
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "DELETE");
     agHelper.RenameWithInPane("dropTable");
     agHelper.EnterValue(query);
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
-    ee.ExpandCollapseEntity(dsName, false);
   });
 
   it("9. Validating interval methods", () => {
@@ -121,7 +119,9 @@ describe("Postgres - Datatype DateTime tests", function() {
     agHelper.EnterValue(query);
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("0 years 11 mons 29 days 23 hours 0 mins 0.0 secs");
+      expect($cellData).to.eq(
+        "0 years 11 mons 29 days 23 hours 0 mins 0.0 secs",
+      );
     });
     dataSources.ReadQueryTableResponse(1).then(($cellData) => {
       expect($cellData).to.eq("0 years 1 mons 0 days 0 hours 0 mins 0.0 secs");
@@ -132,7 +132,9 @@ describe("Postgres - Datatype DateTime tests", function() {
     dataSources.ReadQueryTableResponse(3).then(($cellData) => {
       expect($cellData).to.eq("21");
     });
-    agHelper.ActionContextMenuWithInPane("Delete")
+    agHelper.ActionContextMenuWithInPane("Delete");
+    ee.ExpandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity(dsName, false);
   });
 
   it("10. Inserting record - datetimetypes", () => {
@@ -255,7 +257,7 @@ describe("Postgres - Datatype DateTime tests", function() {
     agHelper.ClickButton("DeleteQuery", 1);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.Sleep(2500);//Allwowing time for delete to be success
+    agHelper.Sleep(2500); //Allwowing time for delete to be success
     agHelper
       .GetText(table._showPageItemsCount)
       .then(($count) => expect($count).contain("1")); //asserting 2nd record is deleted
