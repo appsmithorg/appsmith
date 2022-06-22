@@ -17,7 +17,7 @@
             {
               "label": "Port",
               "configProperty": "datasourceConfiguration.endpoints[*].port",
-              "AppsmithType": "NUMBER",
+              "dataType": "NUMBER",
               "controlType": "KEYVALUE_ARRAY"
             }
           ]
@@ -26,7 +26,7 @@
           "label": "Database Number",
           "configProperty": "datasourceConfiguration.authentication.databaseName",
           "controlType": "INPUT_TEXT",
-          "AppsmithType": "NUMBER",
+          "dataType": "NUMBER",
           "placeholderText": "0"
         }
       ]
@@ -47,7 +47,7 @@
             {
               "label": "Password",
               "configProperty": "datasourceConfiguration.authentication.password",
-              "AppsmithType": "PASSWORD",
+              "dataType": "PASSWORD",
               "controlType": "INPUT_TEXT",
               "placeholderText": "Password",
               "encrypted": true

@@ -28,7 +28,7 @@
           "info": "Maximum time after which the query will return",
           "configProperty": "actionConfiguration.timeoutInMillisecond",
           "controlType": "INPUT_TEXT",
-          "AppsmithType": "NUMBER"
+          "dataType": "NUMBER"
         }
       ]
     }

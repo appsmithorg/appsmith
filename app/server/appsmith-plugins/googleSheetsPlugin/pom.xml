@@ -71,15 +71,15 @@
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.AppsmithType</groupId>
-            <artifactId>jackson-AppsmithType-jdk8</artifactId>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
             <version>2.10.2</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.AppsmithType</groupId>
-            <artifactId>jackson-AppsmithType-jsr310</artifactId>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
             <version>2.10.2</version>
             <scope>provided</scope>
             <exclusions>

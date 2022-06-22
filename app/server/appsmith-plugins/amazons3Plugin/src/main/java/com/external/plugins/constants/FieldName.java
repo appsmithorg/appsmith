@@ -25,9 +25,9 @@ public class FieldName {
     public static final String PAGINATE = "pagination.data";
 
     public static final String CREATE_EXPIRY = CREATE + "." + EXPIRY;
-    public static final String CREATE_AppsmithType = CREATE + "." + AppsmithType;
+    public static final String CREATE_DATATYPE = CREATE + "." + DATATYPE;
     public static final String READ_EXPIRY = READ + "." + EXPIRY;
-    public static final String READ_AppsmithType = READ + "." + AppsmithType;
+    public static final String READ_DATATYPE = READ + "." + DATATYPE;
     public static final String LIST_PREFIX = LIST + "." + PREFIX;
     public static final String LIST_SIGNED_URL = LIST + "." + SIGNED_URL;
     public static final String LIST_EXPIRY = LIST + "." + EXPIRY;

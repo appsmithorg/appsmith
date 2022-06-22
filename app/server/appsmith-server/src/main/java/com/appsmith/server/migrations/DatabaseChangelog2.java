@@ -418,7 +418,7 @@ public class DatabaseChangelog2 {
                 }
                 final Map<String, Object> newCreateMap = new HashMap<>();
                 f.put("create", newCreateMap);
-                convertToFormDataObject(newCreateMap, "AppsmithType", createMap.get("AppsmithType"));
+                convertToFormDataObject(newCreateMap, "dataType", createMap.get("dataType"));
                 convertToFormDataObject(newCreateMap, "expiry", createMap.get("expiry"));
                 break;
             case "READ_FILE":
@@ -428,7 +428,7 @@ public class DatabaseChangelog2 {
                 }
                 final Map<String, Object> newReadMap = new HashMap<>();
                 f.put("read", newReadMap);
-                convertToFormDataObject(newReadMap, "AppsmithType", readMap.get("usingBase64Encoding"));
+                convertToFormDataObject(newReadMap, "dataType", readMap.get("usingBase64Encoding"));
                 break;
         }
     }
@@ -465,7 +465,7 @@ public class DatabaseChangelog2 {
             Map<String, String> dynamicBindingMapper = new HashMap<>();
             dynamicBindingMapper.put("formData.command", "formData.command.data");
             dynamicBindingMapper.put("formData.bucket", "formData.bucket.data");
-            dynamicBindingMapper.put("formData.create.AppsmithType", "formData.create.AppsmithType.data");
+            dynamicBindingMapper.put("formData.create.dataType", "formData.create.dataType.data");
             dynamicBindingMapper.put("formData.create.expiry", "formData.create.expiry.data");
             dynamicBindingMapper.put("formData.delete.expiry", "formData.delete.expiry.data");
             dynamicBindingMapper.put("formData.list.prefix", "formData.list.prefix.data");
@@ -475,7 +475,7 @@ public class DatabaseChangelog2 {
             dynamicBindingMapper.put("formData.list.unSignedUrl", "formData.list.unSignedUrl.data");
             dynamicBindingMapper.put("formData.list.sortBy", "formData.list.sortBy.data");
             dynamicBindingMapper.put("formData.list.pagination", "formData.list.pagination.data");
-            dynamicBindingMapper.put("formData.read.usingBase64Encoding", "formData.read.AppsmithType.data");
+            dynamicBindingMapper.put("formData.read.usingBase64Encoding", "formData.read.dataType.data");
             dynamicBindingMapper.put("formData.read.expiry", "formData.read.expiry.data");
             dynamicBindingMapper.put("formData.smartSubstitution", "formData.smartSubstitution.data");
             dynamicBindingMapper.put("body", "formData.body.data");

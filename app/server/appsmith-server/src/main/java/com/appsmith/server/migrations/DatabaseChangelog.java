@@ -2197,8 +2197,8 @@ public class DatabaseChangelog {
         });
     }
 
-    @ChangeSet(order = "066", id = "migrate-smartSubstitution-AppsmithType", author = "")
-    public void migrateSmartSubstitutionAppsmithTypeBoolean(MongockTemplate mongoTemplate, MongoOperations mongoOperations) {
+    @ChangeSet(order = "066", id = "migrate-smartSubstitution-dataType", author = "")
+    public void migrateSmartSubstitutionDataTypeBoolean(MongockTemplate mongoTemplate, MongoOperations mongoOperations) {
         Set<String> smartSubTurnedOn = new HashSet<>();
         Set<String> smartSubTurnedOff = new HashSet<>();
         Set<String> noSmartSubConfig = new HashSet<>();
@@ -3475,7 +3475,7 @@ public class DatabaseChangelog {
             Map.entry(3, List.of("list.expiry")),
             Map.entry(4, List.of("list.prefix")),
             Map.entry(5, List.of("read.usingBase64Encoding")),
-            Map.entry(6, List.of("create.AppsmithType", "read.AppsmithType")),
+            Map.entry(6, List.of("create.dataType", "read.dataType")),
             Map.entry(7, List.of("create.expiry", "read.expiry", "delete.expiry")),
             Map.entry(8, List.of("list.unSignedUrl"))
     );

@@ -120,7 +120,7 @@
         {
           "label": "Client Secret",
           "configProperty": "datasourceConfiguration.authentication.clientSecret",
-          "AppsmithType": "PASSWORD",
+          "dataType": "PASSWORD",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
           "hidden": {

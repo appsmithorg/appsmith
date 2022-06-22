@@ -32,7 +32,7 @@
         },
         {
           "label": "File Data Type",
-          "configProperty": "actionConfiguration.formData.create.AppsmithType.data",
+          "configProperty": "actionConfiguration.formData.create.dataType.data",
           "controlType": "DROP_DOWN",
           "initialValue": "YES",
           "options": [

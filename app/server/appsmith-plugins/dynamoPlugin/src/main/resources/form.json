@@ -149,7 +149,7 @@
           "label": "AWS Secret Access Key",
           "configProperty": "datasourceConfiguration.authentication.password",
           "controlType": "INPUT_TEXT",
-          "AppsmithType": "PASSWORD",
+          "dataType": "PASSWORD",
           "initialValue": "",
           "encrypted": true
         }
