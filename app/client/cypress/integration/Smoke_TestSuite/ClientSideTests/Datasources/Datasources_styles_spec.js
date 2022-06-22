@@ -39,6 +39,7 @@ describe("Validate Datasource Panel Styles", function() {
   });
 
   it("Mock datasource card design", () => {
+    cy.get(pages.integrationCreateNew).click();
     //Card container style
     cy.datasourceCardContainerStyle(".t--mock-datasource-list");
     //Datasource card
@@ -62,6 +63,7 @@ describe("Validate Datasource Panel Styles", function() {
   });
 
   it("Database datasource card design", () => {
+    cy.get(pages.integrationCreateNew).click();
     //Card container style
     cy.datasourceCardContainerStyle(
       "[data-testid=database-datasource-card-container]",
@@ -85,6 +87,7 @@ describe("Validate Datasource Panel Styles", function() {
   });
 
   it("New API datasource card design", () => {
+    cy.get(pages.integrationCreateNew).click();
     //Card container style
     cy.datasourceCardContainerStyle(
       "[data-testid=newapi-datasource-card-container]",
