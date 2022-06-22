@@ -4,7 +4,7 @@ import styled, { ThemeProvider } from "styled-components";
 // import AppsmithLogo from "assets/images/appsmith_logo.png";
 import {
   ApplicationPayload,
-  PageListPayload,
+  Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -57,7 +57,7 @@ const HeaderRightItemContainer = styled.div`
 type AppViewerHeaderProps = {
   url?: string;
   currentApplicationDetails?: ApplicationPayload;
-  pages: PageListPayload;
+  pages: Page[];
   currentWorkspaceId: string;
   currentUser?: User;
   lightTheme: Theme;

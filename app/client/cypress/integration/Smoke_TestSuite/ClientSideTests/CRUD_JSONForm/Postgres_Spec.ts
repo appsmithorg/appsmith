@@ -125,7 +125,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    ee.expandCollapseEntity("PAGES");
+    ee.ExpandCollapseEntity("PAGES");
     ee.ActionContextMenuByEntityName(
       "Public.orders",
       "Delete",
@@ -174,7 +174,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
 
-    ee.expandCollapseEntity(dsName);
+    ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("public.vessels"));
   });
@@ -279,7 +279,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     ee.SelectEntityByName("UpdateQuery", "QUERIES/JS");
     agHelper.EnterValue(updateQuery);
     agHelper.AssertAutoSave();
-    ee.expandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity("QUERIES/JS", false);
   });
 
   it("8. Verify Update data from Deploy page - on Vessels - existing record", () => {
@@ -448,6 +448,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Confirm");
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.Sleep(2500);// for delete to take effect!
     table.AssertSelectedRow(0); //Control going back to 1st row in table
     dataSources.AssertJSONFormHeader(0, 0, "ship_id");
   });
@@ -520,12 +521,12 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     ee.SelectEntityByName("InsertQuery", "QUERIES/JS");
     agHelper.EnterValue(insertQuery);
     agHelper.AssertAutoSave();
-    ee.expandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity("QUERIES/JS", false);
   });
 
   it("13. Verify Add/Insert from Deploy page - on Vessels - new record", () => {
-    ee.expandCollapseEntity("WIDGETS");
-    ee.expandCollapseEntity("Insert_Modal");
+    ee.ExpandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("Insert_Modal");
     //ee.ActionContextMenuByEntityName("JSONForm1Copy", "Delete")
     ee.SelectEntityByName("insert_form");
     agHelper.Sleep(2000);
@@ -688,7 +689,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
-    ee.expandCollapseEntity(dsName);
+    ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.vessels"));
   });
