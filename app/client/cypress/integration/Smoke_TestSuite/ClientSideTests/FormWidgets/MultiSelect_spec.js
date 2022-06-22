@@ -10,9 +10,6 @@ describe("MultiSelect Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  beforeEach(() => {
-    cy.wait(7000);
-  });
   it("Selects value with invalid default value", () => {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.testJsontext("options", JSON.stringify(data.input));
@@ -25,8 +22,6 @@ describe("MultiSelect Widget Functionality", function() {
     cy.get(".multi-select-dropdown")
       .contains("Option 3")
       .click({ force: true });
-    cy.get("body").type("{esc}");
-
     cy.wait(2000);
     //Validating option inside multiselect widget
     cy.get(".rc-select-selection-item-content")
@@ -87,8 +82,8 @@ describe("MultiSelect Widget Functionality", function() {
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
   it("Selects value with enter in default value", () => {
-    cy.testJsontext(
-      "defaultvalue",
+    cy.updateCodeInput(
+      ".t--property-control-defaultvalue",
       '[\n  {\n    "label": "Option 3",\n    "value": "3"\n  }\n]',
     );
     cy.get(formWidgetsPage.multiselectwidgetv2)
