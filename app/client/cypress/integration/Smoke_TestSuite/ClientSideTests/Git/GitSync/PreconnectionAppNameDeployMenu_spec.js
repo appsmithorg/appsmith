@@ -1,5 +1,5 @@
-import homePage from "../../../../locators/HomePage";
-const commonLocators = require("../../../../locators/commonlocators.json");
+import homePage from "../../../../../locators/HomePage";
+const commonLocators = require("../../../../../locators/commonlocators.json");
 
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 

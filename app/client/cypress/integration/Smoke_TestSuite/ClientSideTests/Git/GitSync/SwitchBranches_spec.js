@@ -1,9 +1,9 @@
-import pages from "../../../../locators/Pages";
-import commonLocators from "../../../../locators/commonlocators";
-import explorer from "../../../../locators/explorerlocators";
-import gitSyncLocators from "../../../../locators/gitSyncLocators";
-import homePage from "../../../../locators/HomePage";
-import jsActions from "../../../../locators/jsActionLocators";
+import pages from "../../../../../locators/Pages.json";
+import commonLocators from "../../../../../locators/commonlocators.json";
+import explorer from "../../../../../locators/explorerlocators.json";
+import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import homePage from "../../../../../locators/HomePage";
+import jsActions from "../../../../../locators/jsActionLocators.json";
 
 const parentBranchKey = "ParentBranch";
 const childBranchKey = "ChildBranch";

@@ -1,10 +1,10 @@
-import gitSyncLocators from "../../../../locators/gitSyncLocators";
-const dsl = require("../../../../fixtures/JsObjecWithGitdsl.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
-const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const pages = require("../../../../locators/Pages.json");
-import homePage from "../../../../locators/HomePage";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+const dsl = require("../../../../../fixtures/JsObjecWithGitdsl.json");
+const commonlocators = require("../../../../../locators/commonlocators.json");
+const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
+const pages = require("../../../../../locators/Pages.json");
+import homePage from "../../../../../locators/HomePage";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
 const pagename = "ChildPage";
 const tempBranch = "feat/tempBranch";

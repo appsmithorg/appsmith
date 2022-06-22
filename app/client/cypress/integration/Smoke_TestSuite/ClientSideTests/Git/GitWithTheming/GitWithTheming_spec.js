@@ -1,4 +1,5 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
+
 describe("Git with Theming:", function() {
   const backgroudColorMaster = "rgb(85, 61, 233)";
   const backgroudColorChildBranch = "rgb(222, 21, 147)";

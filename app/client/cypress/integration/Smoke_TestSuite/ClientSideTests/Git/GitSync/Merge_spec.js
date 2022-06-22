@@ -1,5 +1,5 @@
-import gitSyncLocators from "../../../../locators/gitSyncLocators";
-import commonLocators from "../../../../locators/commonlocators";
+import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import commonLocators from "../../../../../locators/commonlocators.json";
 
 let repoName;
 let childBranchKey = "ChildBranch";
