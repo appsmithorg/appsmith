@@ -20,6 +20,7 @@ export const getFilteredErrors = createSelector(
       Object.entries(errors).filter(([, error]) => {
         const entity = error?.source?.name && dataTree[error.source.name];
         if (entity && isWidget(entity)) {
+          console.log("---------- my errors");
           return entity.isVisible
             ? isParentVisible(entity, canvasWidgets, dataTree)
             : false;
@@ -27,7 +28,7 @@ export const getFilteredErrors = createSelector(
         return true;
       }),
     );
-    console.log("my errors", errors, filteredErrors);
+    console.log("--------------------- my errors", errors, filteredErrors);
     return filteredErrors;
   },
 );
@@ -43,11 +44,18 @@ export const isParentVisible = (
       const parentWidgetData = dataTree[
         parentWidget.widgetName
       ] as DataTreeWidget;
-      console.log("paren data", widgetData, parentWidget, parentWidgetData);
+      console.log("my errors", widgetData, parentWidgetData);
       if (parentWidgetData) {
-        return parentWidgetData.isVisible
-          ? isParentVisible(parentWidgetData, canvasWidgets, dataTree)
-          : false;
+        switch (parentWidgetData.type) {
+          case "TABS_WIDGET":
+            return parentWidgetData.selectedTab === widgetData.tabName;
+          case "MODAL_WIDGET":
+            return !!parentWidgetData.isVisible;
+          default:
+            return parentWidgetData.isVisible
+              ? isParentVisible(parentWidgetData, canvasWidgets, dataTree)
+              : false;
+        }
       }
     }
   }
