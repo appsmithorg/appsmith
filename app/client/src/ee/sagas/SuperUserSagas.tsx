@@ -16,14 +16,18 @@ import {
 import { User } from "constants/userConstants";
 import { takeLatest, all, call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
+import { ApiResponse } from "api/ApiResponses";
 
 export function* FetchSamlMetadataSaga(
   action: ReduxAction<FetchSamlMetadataPayload>,
 ) {
   const settings = action.payload;
   try {
-    const response = yield call(UserApi.fetchSamlMetadata, settings);
-    const isValidResponse = yield validateResponse(response);
+    const response: ApiResponse = yield call(
+      UserApi.fetchSamlMetadata,
+      settings,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       Toaster.show({
