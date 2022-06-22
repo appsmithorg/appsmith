@@ -13,11 +13,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import javax.validation.Validator;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class UserGroupServiceCEImpl extends BaseService<UserGroupRepository, UserGroup, String> implements UserGroupServiceCE{
 
@@ -49,7 +48,7 @@ public class UserGroupServiceCEImpl extends BaseService<UserGroupRepository, Use
     @Override
     public Mono<UserGroup> bulkAddUsers(UserGroup userGroup, List<User> users) {
         userGroup.getUsers().addAll(users.stream().map(user -> new UserInGroup(user)).collect(Collectors.toList()));
-        return repository.updateById(userGroup.getId(), userGroup, AclPermission.MANAGE_USER_GROUPS);
+        return repository.updateById(userGroup.getId(), userGroup, AclPermission.INVITE_USER_GROUPS);
     }
 
     @Override

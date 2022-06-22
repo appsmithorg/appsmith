@@ -4,7 +4,6 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.Appsmith;
@@ -32,7 +31,6 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.BaseService;
@@ -42,11 +40,9 @@ import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
-import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserChangedHandler;
 import com.google.common.base.Strings;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -71,7 +67,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -696,7 +691,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         // Check if the invited user exists. If yes, return the user, else create a new user by triggering
         // createNewUserAndSendInviteEmail. In both the cases, send the appropriate emails
-        Flux<User> inviteUsersFlux = Flux.fromIterable(usernames)
+        Mono<List<User>> inviteUsersMono = Flux.fromIterable(usernames)
                 .flatMap(username -> Mono.zip(Mono.just(username), workspaceMono, currentUserMono, userGroupMono))
                 .flatMap(tuple -> {
                     String username = tuple.getT1();
@@ -723,10 +718,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             })
                             .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, userGroup.getName()));
                 })
+                .collectList()
                 .cache();
 
         // Add user to user group
-        Mono<UserGroup> bulkAddUserResultMono = Mono.zip(userGroupMono, inviteUsersFlux.collectList())
+        Mono<UserGroup> bulkAddUserResultMono = Mono.zip(userGroupMono, inviteUsersMono)
                 .flatMap(tuple -> {
                     UserGroup userGroup = tuple.getT1();
                     List<User> users = tuple.getT2();
@@ -734,7 +730,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 }).cache();
 
         // Send analytics event and don't wait for the result
-        Mono.zip(currentUserMono, inviteUsersFlux.collectList())
+        Mono<Object> sendAnalyticsEventMono = Mono.zip(currentUserMono, inviteUsersMono)
                 .flatMap(tuple -> {
                     User currentUser = tuple.getT1();
                     List<User> users = tuple.getT2();
@@ -747,10 +743,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     return Mono.empty();
                 });
 
-        return bulkAddUserResultMono.then(inviteUsersFlux.collectList());
+        return Mono.zip(bulkAddUserResultMono, sendAnalyticsEventMono).then(inviteUsersMono);
     }
 
-    private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Workspace workspace, User inviter, String role) {
+    private Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader,
+                                                                 Workspace workspace, User inviter, String role) {
         User newUser = new User();
         newUser.setEmail(email.toLowerCase());
 
