@@ -8,7 +8,7 @@ import {
   StyledCheckbox,
 } from "./index.styled";
 import {
-  CANVAS_CLASSNAME,
+  CANVAS_SELECTOR,
   MODAL_PORTAL_CLASSNAME,
   TextSize,
 } from "constants/WidgetConstants";
@@ -109,7 +109,7 @@ function MultiSelectComponent({
         `.${MODAL_PORTAL_CLASSNAME}`,
       ) as HTMLElement;
     }
-    return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
+    return document.querySelector(`.${CANVAS_SELECTOR}`) as HTMLElement;
   }, []);
 
   const handleSelectAll = () => {

@@ -241,8 +241,13 @@ export class AggregateHelper {
         .click();
     }
     if (endp == "selectwidget")
-      cy.get(this.locator._selectOptionValue(dropdownOption)).click({ force: true });
-    else cy.get(this.locator._dropDownValue(dropdownOption)).click({ force: true });
+      cy.get(this.locator._selectOptionValue(dropdownOption)).click({
+        force: true,
+      });
+    else
+      cy.get(this.locator._dropDownValue(dropdownOption)).click({
+        force: true,
+      });
 
     this.Sleep(); //for selected value to reflect!
   }
@@ -522,16 +527,20 @@ export class AggregateHelper {
     this.AssertAutoSave();
   }
 
-  public EnterInputText(name: string, input: string, toClear = false, isInput = true) {
-    toClear && this.ClearInputText(name)
+  public EnterInputText(
+    name: string,
+    input: string,
+    toClear = false,
+    isInput = true,
+  ) {
+    toClear && this.ClearInputText(name);
     cy.xpath(this.locator._inputWidgetValueField(name, isInput))
-      .trigger('click')
+      .trigger("click")
       .type(input);
   }
 
   public ClearInputText(name: string, isInput = true) {
-    cy.xpath(this.locator._inputWidgetValueField(name, isInput))
-      .clear();
+    cy.xpath(this.locator._inputWidgetValueField(name, isInput)).clear();
   }
 
   public UpdateCodeInput(selector: string, value: string) {
