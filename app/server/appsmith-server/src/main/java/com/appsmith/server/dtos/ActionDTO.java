@@ -2,10 +2,10 @@ package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.domains.ActionProvider;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.Documentation;
 import com.appsmith.server.domains.PluginType;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -146,6 +146,19 @@ public class ActionDTO {
             return this.name;
         } else {
             return this.fullyQualifiedName;
+        }
+    }
+    public void sanitiseToExportDBObject() {
+        this.setDefaultResources(null);
+        this.setCacheResponse(null);
+        if (this.getDatasource() != null) {
+            this.getDatasource().setCreatedAt(null);
+        }
+        if (this.getUserPermissions() != null) {
+            this.getUserPermissions().clear();
+        }
+        if (this.getPolicies() != null) {
+            this.getPolicies().clear();
         }
     }
 }

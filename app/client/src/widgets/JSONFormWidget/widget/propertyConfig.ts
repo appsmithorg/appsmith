@@ -52,12 +52,12 @@ export const sourceDataValidationFn = (
     return {
       isValid: false,
       parsed: {},
-      messages: [e.message],
+      messages: [(e as Error).message],
     };
   }
 };
 
-const onGenerateFormClick = ({
+export const onGenerateFormClick = ({
   batchUpdateProperties,
   props,
 }: OnButtonClickProps) => {
@@ -73,6 +73,7 @@ const onGenerateFormClick = ({
   const { dynamicPropertyPathList, schema, status } = computeSchema({
     currentDynamicPropertyPathList: widgetProperties.dynamicPropertyPathList,
     currSourceData,
+    fieldThemeStylesheets: widgetProperties.childStylesheet,
     prevSchema: widgetProperties.schema,
     prevSourceData,
     widgetName: widgetProperties.widgetName,
@@ -314,7 +315,12 @@ export default [
         onClick: onGenerateFormClick,
         isDisabled: generateFormCTADisabled,
         isTriggerProperty: false,
-        dependencies: ["autoGenerateForm", "schema", "fieldLimitExceeded"],
+        dependencies: [
+          "autoGenerateForm",
+          "schema",
+          "fieldLimitExceeded",
+          "childStylesheet",
+        ],
         evaluatedDependencies: ["sourceData"],
       },
       {

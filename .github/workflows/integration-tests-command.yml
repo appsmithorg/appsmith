@@ -1491,7 +1491,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           NODE_TLS_REJECT_UNAUTHORIZED: "0"
           MACHINE: ${{matrix.machine}}
-        run: sudo ./start-test.sh
+        run: ./start-test.sh
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle

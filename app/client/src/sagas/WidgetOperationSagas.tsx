@@ -159,7 +159,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
 
     const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     let widget = { ...stateWidget };
-    const stateWidgets = yield select(getWidgets);
+    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const widgets = { ...stateWidgets };
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
@@ -435,7 +435,7 @@ export function* setWidgetDynamicPropertySaga(
 
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
   widget.dynamicBindingPathList = dynamicBindingPathList;
-  const stateWidgets = yield select(getWidgets);
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
 
   // Save the layout
@@ -580,7 +580,7 @@ function* batchUpdateWidgetPropertySaga(
     getPropertiesUpdatedWidget,
     action.payload,
   );
-  const stateWidgets = yield select(getWidgets);
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: updatedWidget };
   log.debug(
     "Batch widget property update calculations took: ",
@@ -596,7 +596,7 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
 ) {
   const start = performance.now();
   const { updatesArray } = action.payload;
-  const stateWidgets = yield select(getWidgets);
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const updatedWidgets: WidgetProps[] = yield all(
     updatesArray.map((eachUpdate) => {
       return call(getPropertiesUpdatedWidget, eachUpdate);
@@ -716,7 +716,7 @@ function* updateCanvasSize(
   action: ReduxAction<{ canvasWidgetId: string; snapRows: number }>,
 ) {
   const { canvasWidgetId, snapRows } = action.payload;
-  const canvasWidget = yield select(getWidget, canvasWidgetId);
+  const canvasWidget: WidgetProps = yield select(getWidget, canvasWidgetId);
 
   const originalSnapRows = canvasWidget.bottomRow - canvasWidget.topRow;
 
@@ -748,7 +748,10 @@ function* createSelectedWidgetsCopy(selectedWidgets: FlattenedWidgetProps[]) {
     list: FlattenedWidgetProps[];
   }[] = yield all(selectedWidgets.map((each) => call(createWidgetCopy, each)));
 
-  return yield saveCopiedWidgets(JSON.stringify(widgetListsToStore));
+  const saveResult: boolean = yield saveCopiedWidgets(
+    JSON.stringify(widgetListsToStore),
+  );
+  return saveResult;
 }
 
 /**
@@ -785,7 +788,9 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
   const selectedWidgetProps = selectedWidgets.map((each) => allWidgets[each]);
 
-  const saveResult = yield createSelectedWidgetsCopy(selectedWidgetProps);
+  const saveResult: boolean = yield createSelectedWidgetsCopy(
+    selectedWidgetProps,
+  );
 
   selectedWidgetProps.forEach((each) => {
     const eventName = action.payload.isShortcut
@@ -1579,7 +1584,9 @@ function* cutWidgetSaga() {
 
   const selectedWidgetProps = selectedWidgets.map((each) => allWidgets[each]);
 
-  const saveResult = yield createSelectedWidgetsCopy(selectedWidgetProps);
+  const saveResult: boolean = yield createSelectedWidgetsCopy(
+    selectedWidgetProps,
+  );
 
   selectedWidgetProps.forEach((each) => {
     const eventName = "WIDGET_CUT_VIA_SHORTCUT"; // cut only supported through a shortcut
@@ -1617,8 +1624,8 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
 
   const defaultConfig = WidgetFactory.widgetConfigMap.get(widgetConfig.type);
 
-  const evalTree = yield select(getDataTree);
-  const widgets = yield select(getWidgets);
+  const evalTree: DataTree = yield select(getDataTree);
+  const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
   const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree);
 
@@ -1700,12 +1707,14 @@ function* widgetBatchUpdatePropertySaga() {
    * batch update to be flushed out to the store before processing
    * the another batch update.
    */
-  const batchUpdateWidgetPropertyChannel = yield actionChannel(
+  const batchUpdateWidgetPropertyChannel: unknown = yield actionChannel(
     ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,
   );
 
   while (true) {
-    const action = yield take(batchUpdateWidgetPropertyChannel);
+    // @ts-expect-error: Type mismatch
+    const action: unknown = yield take(batchUpdateWidgetPropertyChannel);
+    // @ts-expect-error: Type mismatch
     yield call(batchUpdateWidgetPropertySaga, action);
   }
 }

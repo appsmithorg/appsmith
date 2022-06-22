@@ -4,6 +4,7 @@
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import {
+  CANVAS_SELECTOR,
   CONTAINER_GRID_PADDING,
   GridDefaults,
   TextSizes,
@@ -539,3 +540,6 @@ export const parseSchemaItem = (
     });
   }
 };
+
+export const getMainCanvas = () =>
+  document.querySelector(`.${CANVAS_SELECTOR}`) as HTMLElement;
