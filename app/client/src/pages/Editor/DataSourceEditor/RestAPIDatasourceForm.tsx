@@ -42,9 +42,6 @@ import {
 } from "entities/Datasource/RestAPIForm";
 import {
   createMessage,
-  REST_API_AUTHORIZATION_APPSMITH_ERROR,
-  REST_API_AUTHORIZATION_FAILED,
-  REST_API_AUTHORIZATION_SUCCESSFUL,
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
 } from "@appsmith/constants/messages";
@@ -173,29 +170,11 @@ class DatasourceRestAPIEditor extends React.Component<
     this.state = { confirmDelete: false };
   }
   componentDidMount() {
-    const status = this.props.responseStatus;
-
     // set replay data
     this.props.initializeReplayEntity(
       this.props.datasource.id,
       this.props.initialValues,
     );
-
-    if (status) {
-      // Set default error message
-      let message = REST_API_AUTHORIZATION_FAILED;
-      let variant = Variant.danger;
-      if (status === "success") {
-        message = REST_API_AUTHORIZATION_SUCCESSFUL;
-        variant = Variant.success;
-      } else if (status === "appsmith_error") {
-        message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
-      }
-      Toaster.show({
-        text: this.props.responseMessage || createMessage(message),
-        variant,
-      });
-    }
   }
 
   componentDidUpdate() {
@@ -1150,13 +1129,6 @@ const mapStateToProps = (state: AppState, props: any) => {
   ) as Datasource;
 
   const hintMessages = datasource && datasource.messages;
-  let responseStatus = props.responseStatus;
-  let responseMessage = props.responseMessage;
-  if (props.location) {
-    const search = new URLSearchParams(props.location.search);
-    responseStatus = search.get("response_status");
-    responseMessage = search.get("display_message");
-  }
 
   return {
     initialValues: datasourceToFormValues(datasource),
@@ -1167,8 +1139,6 @@ const mapStateToProps = (state: AppState, props: any) => {
     ) as ApiDatasourceForm,
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
     messages: hintMessages,
-    responseStatus,
-    responseMessage,
   };
 };
 

@@ -28,6 +28,14 @@ import {
   selectURLSlugs,
 } from "selectors/editorSelectors";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
+import {
+  createMessage,
+  REST_API_AUTHORIZATION_APPSMITH_ERROR,
+  REST_API_AUTHORIZATION_FAILED,
+  REST_API_AUTHORIZATION_SUCCESSFUL,
+} from "ce/constants/messages";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 interface ReduxStateProps {
   datasourceId: string;
@@ -77,6 +85,30 @@ class DataSourceEditor extends React.Component<Props> {
       this.props.pluginDatasourceForm !== "RestAPIDatasourceForm"
     ) {
       this.props.switchDatasource(this.props.datasourceId);
+    }
+
+    if (
+      this.props.pluginDatasourceForm === "RestAPIDatasourceForm" &&
+      this.props.location
+    ) {
+      const search = new URLSearchParams(this.props.location.search);
+      const responseStatus = search.get("response_status");
+      const responseMessage = search.get("display_message");
+      if (responseStatus) {
+        // Set default error message
+        let message = REST_API_AUTHORIZATION_FAILED;
+        let variant = Variant.danger;
+        if (responseStatus === "success") {
+          message = REST_API_AUTHORIZATION_SUCCESSFUL;
+          variant = Variant.success;
+        } else if (responseStatus === "appsmith_error") {
+          message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
+        }
+        Toaster.show({
+          text: responseMessage || createMessage(message),
+          variant,
+        });
+      }
     }
   }
 
