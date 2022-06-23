@@ -499,6 +499,7 @@ function* batchCallsToUpdateWidgetDynamicHeightSaga(
   if (dynamicHeightUpdateQueue) {
     yield cancel(dynamicHeightUpdateQueue);
   }
+  // @ts-expect-error: type is any
   dynamicHeightUpdateQueue = yield fork(
     updateWidgetDynamicHeightSaga,
     dynamicHeightUpdateWidgets,
