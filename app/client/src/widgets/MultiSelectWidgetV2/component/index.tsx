@@ -18,11 +18,7 @@ import MenuItemCheckBox, {
   StyledCheckbox,
   InputContainer,
 } from "./index.styled";
-import {
-  CANVAS_CLASSNAME,
-  MODAL_PORTAL_CLASSNAME,
-  TextSize,
-} from "constants/WidgetConstants";
+import { RenderMode, TextSize } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
@@ -30,10 +26,12 @@ import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { uniqBy } from "lodash";
 import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import useDropdown from "widgets/useDropdown";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;
 };
+
 export interface MultiSelectProps
   extends Required<
     Pick<
@@ -67,10 +65,10 @@ export interface MultiSelectProps
   accentColor?: string;
   onFocus?: (e: React.FocusEvent) => void;
   onBlur?: (e: React.FocusEvent) => void;
+  renderMode?: RenderMode;
 }
 
 const DEBOUNCE_TIMEOUT = 1000;
-const FOCUS_TIMEOUT = 500;
 
 const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
   (
@@ -101,6 +99,7 @@ const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
       onFocus,
       options,
       placeholder,
+      renderMode,
       serverSideFiltering,
       value,
       widgetId,
@@ -116,6 +115,17 @@ const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
     const _menu = ref;
     const labelRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    const {
+      BackDrop,
+      getPopupContainer,
+      onKeyDown,
+      onOpen,
+      selectRef,
+    } = useDropdown({
+      inputRef,
+      renderMode,
+    });
 
     // SelectAll if all options are in Value
     useEffect(() => {
@@ -169,15 +179,6 @@ const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
         ) : null,
       [filter],
     );
-    const getDropdownPosition = useCallback(() => {
-      const node = (_menu as React.MutableRefObject<HTMLDivElement>).current;
-      if (Boolean(node?.closest(`.${MODAL_PORTAL_CLASSNAME}`))) {
-        return document.querySelector(
-          `.${MODAL_PORTAL_CLASSNAME}`,
-        ) as HTMLElement;
-      }
-      return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
-    }, []);
 
     const handleSelectAll = () => {
       if (!isSelectAll) {
@@ -202,12 +203,6 @@ const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
       return onChange([]);
     };
 
-    const onOpen = useCallback((open: boolean) => {
-      if (open) {
-        setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
-      }
-    }, []);
-
     const checkOptionsAndValue = () => {
       const emptyFalseArr = [false];
       if (value.length === 0 || filteredOptions.length === 0)
@@ -215,50 +210,6 @@ const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
       return filteredOptions.map((x) => value.some((y) => y.value === x.value));
     };
 
-    // SelectAll if all options are in Value
-    useEffect(() => {
-      if (
-        !isSelectAll &&
-        filteredOptions.length &&
-        value.length &&
-        !checkOptionsAndValue().includes(false)
-      ) {
-        setIsSelectAll(true);
-      }
-      if (isSelectAll && filteredOptions.length !== value.length) {
-        setIsSelectAll(false);
-      }
-    }, [filteredOptions, value]);
-
-    // Trigger onFilterChange once filter is Updated
-    useEffect(() => {
-      const timeOutId = setTimeout(
-        () => onFilterChange(filter),
-        DEBOUNCE_TIMEOUT,
-      );
-      return () => clearTimeout(timeOutId);
-    }, [filter]);
-
-    // Filter options based on serverSideFiltering
-    useEffect(
-      () => {
-        if (serverSideFiltering) {
-          return setFilteredOptions(options);
-        }
-        const filtered = options.filter((option) => {
-          return (
-            String(option.label)
-              .toLowerCase()
-              .indexOf(filter.toLowerCase()) >= 0 ||
-            String(option.value)
-              .toLowerCase()
-              .indexOf(filter.toLowerCase()) >= 0
-          );
-        });
-        setFilteredOptions(filtered);
-      },
-      serverSideFiltering ? [options] : [filter, options],
-    );
     useEffect(() => {
       const parentWidth = width - WidgetContainerDiff;
       if (compactMode && labelRef.current) {
@@ -290,12 +241,13 @@ const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
         >,
       ) => (
         <>
+          <BackDrop />
           {isFilterable ? (
             <InputGroup
               inputRef={inputRef}
               leftIcon="search"
               onChange={onQueryChange}
-              onKeyDown={(e) => e.stopPropagation()}
+              onKeyDown={onKeyDown}
               placeholder="Filter..."
               // ref={inputRef}
               rightElement={clearButton as JSX.Element}
@@ -368,15 +320,15 @@ const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
           <Select
             animation="slide-up"
             choiceTransitionName="rc-select-selection__choice-zoom"
+            className="rc-select"
             // TODO: Make Autofocus a variable in the property pane
             // autoFocus
-            className="rc-select"
             defaultActiveFirstOption={false}
             disabled={disabled}
             dropdownClassName={`multi-select-dropdown multiselect-popover-width-${widgetId}`}
             dropdownRender={dropdownRender}
             dropdownStyle={dropdownStyle}
-            getPopupContainer={getDropdownPosition}
+            getPopupContainer={getPopupContainer}
             inputIcon={
               <Icon
                 className="dropdown-icon"
@@ -398,6 +350,7 @@ const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
             onFocus={onFocus}
             options={filteredOptions}
             placeholder={placeholder || "select option(s)"}
+            ref={selectRef}
             removeIcon={
               <Icon
                 className="remove-icon"
@@ -414,7 +367,5 @@ const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
     );
   },
 );
-
-MultiSelectComponent.displayName = "MultiSelectComponent";
 
 export default MultiSelectComponent;

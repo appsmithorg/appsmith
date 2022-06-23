@@ -120,7 +120,7 @@ function* addWidgetAndMoveWidgetsSaga(
     yield put(updateAndSaveLayout(updatedWidgetsOnAddAndMove));
     yield put({
       type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
-      payload: [newWidget.widgetId],
+      payload: [newWidget.newWidgetId],
     });
     log.debug("move computations took", performance.now() - start, "ms");
   } catch (error) {

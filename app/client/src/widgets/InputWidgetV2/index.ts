@@ -10,6 +10,7 @@ export const CONFIG = {
   name: "Input",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["form", "text input", "number", "textarea"],
   defaults: {
     ...BaseConfig.defaults,
     inputType: "TEXT",

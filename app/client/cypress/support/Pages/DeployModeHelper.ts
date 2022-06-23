@@ -40,7 +40,7 @@ export class DeployMode {
 
     this.agHelper.WaitUntilEleAppear(eleToCheckInDeployPage);
     localStorage.setItem("inDeployedMode", "true");
-    toCheckFailureToast && this.agHelper.AssertElementAbsence(this.locator._toastMsg);//Validating bug - 14141
+    toCheckFailureToast && this.agHelper.AssertElementAbsence(this.locator._toastMsg);//Validating bug - 14141 + 14252
     this.agHelper.Sleep(2000); //for Depoy page to settle!
   }
 
@@ -52,6 +52,12 @@ export class DeployMode {
         window.location.target = "_self";
       });
     });
+  }
+
+   public NavigateBacktoEditor() {
+    cy.get(this.locator._backToEditor).click();
+    this.agHelper.Sleep(2000);
+    localStorage.setItem("inDeployedMode", "false");
   }
 
   public EnterJSONInputValue(fieldName: string, value: string, index = 0) {

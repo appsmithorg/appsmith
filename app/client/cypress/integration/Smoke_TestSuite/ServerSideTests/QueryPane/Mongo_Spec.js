@@ -228,7 +228,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
   it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
     let id;
-    ee.expandCollapseEntity(`${datasourceName}`);
+    ee.ExpandCollapseEntity(`${datasourceName}`);
     cy.xpath(queryLocators.listingAndReviewContext)
       .invoke("show")
       .click({ force: true });

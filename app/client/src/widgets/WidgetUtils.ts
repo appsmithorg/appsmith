@@ -4,6 +4,7 @@
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import {
+  CANVAS_SELECTOR,
   CONTAINER_GRID_PADDING,
   GridDefaults,
   TextSizes,
@@ -572,3 +573,5 @@ export function getWidgetMinDynamicHeight(props: WidgetProps) {
     return props.minDynamicHeight || WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
   }
 }
+export const getMainCanvas = () =>
+  document.querySelector(`.${CANVAS_SELECTOR}`) as HTMLElement;
