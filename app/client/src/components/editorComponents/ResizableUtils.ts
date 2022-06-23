@@ -1,6 +1,7 @@
 import { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
 import { GridDefaults } from "constants/WidgetConstants";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import { ReflowDirection } from "reflow/reflowTypes";
 
 export type UIElementSize = { height: number; width: number };
 
@@ -73,3 +74,19 @@ export const computeFinalRowCols = (
 
   return hasRowColsChanged(newRowCols, props) ? newRowCols : false;
 };
+
+export function isHandleResizeAllowed(
+  horizontalEnabled: boolean,
+  verticalEnabled: boolean,
+  direction?: ReflowDirection,
+): boolean {
+  if (direction === ReflowDirection.TOP || direction === ReflowDirection.BOTTOM)
+    return verticalEnabled;
+  else if (
+    direction === ReflowDirection.LEFT ||
+    direction === ReflowDirection.RIGHT
+  ) {
+    return horizontalEnabled;
+  }
+  return true;
+}

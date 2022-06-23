@@ -211,10 +211,17 @@ const PropertyControl = memo((props: Props) => {
     }
     if (propertiesToUpdate) {
       const allUpdates: Record<string, unknown> = {};
+      // TODO(abhinav): DEBUG: Ask Rahul and Ashok, if this causes issues anywhere else.
+
+      // We add the current updated first, so that the updatehooks can override the value
+      // This is needed for transformations in some cases. For example,
+      // the INPUT_TEXT control uses string as default, we can convert this into a number
+      // by calling an updateHook which runs the parseInt over this value.
+      allUpdates[propertyName] = propertyValue;
       propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
         allUpdates[propertyPath] = propertyValue;
       });
-      allUpdates[propertyName] = propertyValue;
+
       AppsmithConsole.info({
         logType: LOG_TYPE.WIDGET_UPDATE,
         text: "Widget properties were updated",
@@ -252,6 +259,7 @@ const PropertyControl = memo((props: Props) => {
           [propertyName]: propertyValue,
         },
       });
+
       return {
         widgetId: widgetProperties.widgetId,
         updates: {

@@ -48,15 +48,16 @@ function validateMinHeight(value: unknown, props: WidgetProps) {
     return {
       isValid: false,
       messages: [`Value should be a positive integer greater than ${WidgetHeightLimits.MIN_HEIGHT_IN_ROWS}`],
-      parsed: WidgetHeightLimits.MIN_HEIGHT_IN_ROWS,
+      parsed: 4,
     };
   } else if (_value > _maxHeight) {
     return {
       isValid: false,
       messages: [`Value should be less than or equal Max. Height`],
-      parsed: _maxHeight || WidgetHeightLimits.MIN_HEIGHT_IN_ROWS,
+      parsed: _maxHeight || 4,
     };
   }
+
   return {
     isValid: true,
     parsed: _value,
@@ -71,13 +72,13 @@ function validateMaxHeight(value: unknown, props:WidgetProps) {
     return {
       isValid: false,
       messages: [`Value should be a positive integer greater than 2`],
-      parsed: WidgetHeightLimits.MAX_HEIGHT_IN_ROWS,
+      parsed: 9000,
     }
   } else if (_value < _minHeight) {
     return {
       isValid: false,
       messages: [`Value should be greater than or equal Min. Height`],
-      parsed: _minHeight || WidgetHeightLimits.MIN_HEIGHT_IN_ROWS
+      parsed: _minHeight || 4
     }
   }
   return {
@@ -86,10 +87,68 @@ function validateMaxHeight(value: unknown, props:WidgetProps) {
     messages: []
   }
 }
+// TODO (abhinav): ADD_UNIT_TESTS
+function updateMinMaxDynamicHeight(
+  props: WidgetProps,
+  propertyName: string,
+  propertyValue: unknown,
+) {
+  const updates = [{
+    propertyPath: propertyName,
+    propertyValue: propertyValue,
+  }];
+  if(propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) {
+    const minDynamicHeight = parseInt(props.minDynamicHeight, 10);
+    if(isNaN(minDynamicHeight) || minDynamicHeight < WidgetHeightLimits.MIN_HEIGHT_IN_ROWS){
+    updates.push({
+      propertyPath: "minDynamicHeight",
+      propertyValue: WidgetHeightLimits.MIN_HEIGHT_IN_ROWS
+    })            
+    }
+    const maxDynamicHeight = parseInt(props.maxDynamicHeight, 10);
+    if(isNaN(maxDynamicHeight) || maxDynamicHeight < (props.bottomRow - props.topRow)) {
+      updates.push({
+        propertyPath: "maxDynamicHeight",
+        propertyValue: WidgetHeightLimits.MAX_HEIGHT_IN_ROWS
+      })
+    }
+  } else if(propertyValue === DynamicHeight.AUTO_HEIGHT) {
+    updates.push({
+      propertyPath: "minDynamicHeight",
+      propertyValue: WidgetHeightLimits.MIN_HEIGHT_IN_ROWS
+    }, {
+      propertyPath: "maxDynamicHeight",
+      propertyValue: WidgetHeightLimits.MAX_HEIGHT_IN_ROWS
+    })
+  }
+  
+  if (
+    (propertyValue === DynamicHeight.AUTO_HEIGHT || propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) &&
+    props.shouldScrollContents === false
+  ) {
+    updates.push(
+      {
+        propertyPath: "shouldScrollContents",
+        propertyValue: true,
+      })
+  }
+
+  return updates;
+}
+
+function transformToNumber(props: WidgetProps,
+  propertyName: string,
+  propertyValue: string) {
+    return [{
+      propertyPath: propertyName,
+      propertyValue: parseInt(propertyValue, 10)
+    }]
+  }
 // TODO FEATURE:(abhinav) Add validations to these properties
 export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
   DYNAMIC_HEIGHT: {
     sectionName: "Layout Features",
+    hidden:(props) => { if(props.type === "TABLE_WIDGET") return !props.serverSidePaginationEnabled; else return false; },
     children: [
       {
         helpText:
@@ -100,24 +159,7 @@ export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
         isBindProperty: false,
         isTriggerProperty: false,
         dependencies: ["shouldScrollContents"],
-        updateHook: (
-          props: WidgetProps,
-          propertyName: string,
-          propertyValue: string,
-        ) => {
-          if (
-            (propertyValue === DynamicHeight.AUTO_HEIGHT || propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) &&
-            props.shouldScrollContents === false &&
-            propertyName === "dynamicHeight"
-          ) {
-            return [
-              {
-                propertyPath: "shouldScrollContents",
-                propertyValue: true,
-              },
-            ];
-          }
-        },
+        updateHook: updateMinMaxDynamicHeight,
         options: [
           {
             label: "Auto Height",
@@ -143,6 +185,7 @@ export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
         isJSConvertible: false,
         isBindProperty: true,
         isTriggerProperty: false,
+        updateHook: transformToNumber,
         validation: {
           type: ValidationTypes.FUNCTION,
           params: {
@@ -162,6 +205,7 @@ export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
         controlType: "INPUT_TEXT",
         dependencies: ["dynamicHeight"],
         hidden: hideDynamicHeightPropertyControl,
+        updateHook: transformToNumber,
         validation: {
           type: ValidationTypes.FUNCTION,
           params: {

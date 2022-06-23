@@ -415,7 +415,7 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
           parentId = parent.parentId;
         }
         canvasLevelMap[canvasWidget.widgetId] = level;
-        // Initilise the occupied spaces with an empty array
+        // Initialise the occupied spaces with an empty array
         occupiedSpaces[canvasWidgetId] = [];
         // If this canvas widget has children
         if (canvasWidget.children && canvasWidget.children.length > 0) {

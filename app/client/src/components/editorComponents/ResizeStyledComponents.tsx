@@ -35,6 +35,7 @@ const ResizeIndicatorStyle = css<{
 export const EdgeHandleStyles = css<{
   showAsBorder: boolean;
   showLightBorder: boolean;
+  disableDot: boolean;
 }>`
   position: absolute;
   width: ${EDGE_RESIZE_HANDLE_WIDTH}px;
@@ -50,12 +51,14 @@ export const EdgeHandleStyles = css<{
     }};
     content: "";
   }
-  ${(props) => (!props.showAsBorder ? ResizeIndicatorStyle : "")}
+  ${(props) =>
+    props.showAsBorder || props.disableDot ? "" : ResizeIndicatorStyle}
 `;
 
 export const VerticalHandleStyles = css<{
   showAsBorder: boolean;
   showLightBorder: boolean;
+  disableDot: boolean;
 }>`
   ${EdgeHandleStyles}
   top:-${WIDGET_PADDING - 1}px;
@@ -72,6 +75,7 @@ export const VerticalHandleStyles = css<{
 export const HorizontalHandleStyles = css<{
   showAsBorder: boolean;
   showLightBorder: boolean;
+  disableDot: boolean;
 }>`
   ${EdgeHandleStyles}
   left: -${WIDGET_PADDING}px;

@@ -7,6 +7,7 @@ import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   TextSizes,
+  WidgetHeightLimits,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import generate from "nanoid/generate";
@@ -555,3 +556,19 @@ export const isDynamicHeightEnabledForWidget = (props: WidgetProps) => {
     props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
   );
 };
+
+export function getWidgetMaxDynamicHeight(props: WidgetProps) {
+  if (props.dynamicHeight === DynamicHeight.AUTO_HEIGHT) {
+    return WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
+  } else if (props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) {
+    return props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
+  }
+}
+
+export function getWidgetMinDynamicHeight(props: WidgetProps) {
+  if (props.dynamicHeight === DynamicHeight.AUTO_HEIGHT) {
+    return WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+  } else if (props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) {
+    return props.minDynamicHeight || WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+  }
+}
