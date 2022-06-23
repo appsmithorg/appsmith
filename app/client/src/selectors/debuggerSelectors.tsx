@@ -50,7 +50,7 @@ export const isParentVisible = (
 
   // console.log("my errors", widgetData, parentWidgetData);
   switch (parentWidgetData.type) {
-    // check of types instead of harcoded string
+    // check for types instead of harcoded string
     case "TABS_WIDGET":
       return parentWidgetData.selectedTab === widgetData.tabName;
     case "MODAL_WIDGET":
