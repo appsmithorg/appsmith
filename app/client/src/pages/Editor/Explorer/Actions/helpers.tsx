@@ -52,8 +52,6 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     ) => {
       if (!!plugin && pluginType === PluginType.SAAS) {
         return saasEditorApiIdURL({
-          applicationSlug,
-          pageSlug,
           pageId,
           pluginPackageName: plugin.packageName,
           apiId: id,
@@ -63,12 +61,11 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
         pluginType === PluginType.REMOTE
       ) {
         return queryEditorIdURL({
-          pageSlug,
           pageId,
           queryId: id,
         });
       } else {
-        return apiEditorIdURL({ pageSlug, pageId, apiId: id });
+        return apiEditorIdURL({ pageId, apiId: id });
       }
     },
     getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {

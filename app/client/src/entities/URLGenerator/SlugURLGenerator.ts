@@ -40,7 +40,7 @@ export class SlugURLGenerator extends URLGenerator {
         fillPathname(pathname, currentApplication, currentPage) + search + hash;
     } else {
       // View Mode - generate a new viewer URL - auto updates query params
-      newURL = viewerURL({ applicationSlug, pageSlug, pageId }) + hash;
+      newURL = viewerURL({ pageId }) + hash;
     }
     return newURL;
   }

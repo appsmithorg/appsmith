@@ -92,10 +92,7 @@ import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
-import {
-  DEFAULT_BASE_URL_BUILDER_PARAMS,
-  URLParamsFactory,
-} from "RouteBuilder";
+import urlBuilder from "entities/URLGenerator/URLAssembly";
 
 const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -532,7 +529,7 @@ function ApplicationsSection(props: any) {
 
   useEffect(() => {
     // Clears URL params cache
-    URLParamsFactory.updateURLParams(DEFAULT_BASE_URL_BUILDER_PARAMS);
+    urlBuilder.resetURLParams();
   }, []);
 
   const duplicateApplicationDispatch = (applicationId: string) => {

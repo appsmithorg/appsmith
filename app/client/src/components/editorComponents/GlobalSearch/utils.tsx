@@ -370,8 +370,6 @@ export const actionOperations: ActionOperation[] = [
     ) => {
       const queryParams = getQueryParams();
       const curlImportURL = curlImportPageURL({
-        applicationSlug,
-        pageSlug,
         pageId,
         params: {
           from,

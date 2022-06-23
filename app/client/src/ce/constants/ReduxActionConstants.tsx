@@ -999,7 +999,7 @@ export interface Page {
   isDefault: boolean;
   latest?: boolean;
   isHidden?: boolean;
-  slug?: string;
+  slug: string;
   customSlug?: string;
 }
 

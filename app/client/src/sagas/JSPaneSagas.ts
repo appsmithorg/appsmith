@@ -128,9 +128,10 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
 function* handleJSCollectionCreatedSaga(
   actionPayload: ReduxAction<JSCollection>,
 ) {
-  const { id } = actionPayload.payload;
+  const { id, pageId } = actionPayload.payload;
   history.push(
     jsCollectionIdURL({
+      pageId,
       collectionId: id,
       params: {
         editName: true,
@@ -314,6 +315,7 @@ function* handleJSObjectNameChangeSuccessSaga(
     }
     history.push(
       jsCollectionIdURL({
+        pageId: actionObj.pageId,
         collectionId: actionId,
         params,
       }),

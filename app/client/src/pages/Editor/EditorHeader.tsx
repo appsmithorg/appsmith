@@ -416,8 +416,6 @@ export function EditorHeader(props: EditorHeaderProps) {
               applicationId={applicationId}
               className="t--application-name editable-application-name max-w-48"
               currentDeployLink={viewerURL({
-                applicationSlug,
-                pageSlug,
                 pageId,
               })}
               defaultSavingState={
@@ -512,8 +510,6 @@ export function EditorHeader(props: EditorHeaderProps) {
 
               <DeployLinkButtonDialog
                 link={viewerURL({
-                  applicationSlug,
-                  pageSlug,
                   pageId,
                 })}
                 trigger={

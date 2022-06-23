@@ -102,7 +102,7 @@ import { getFormNames, getFormValues } from "redux-form";
 import { CURL_IMPORT_FORM } from "constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
 import { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
-import { getBasePath } from "pages/Editor/Explorer/helpers";
+import { matchBasePath } from "pages/Editor/Explorer/helpers";
 import { isTrueObject } from "workers/evaluationUtils";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 import { Plugin } from "api/PluginApi";
@@ -382,18 +382,20 @@ export default function* executePluginActionTriggerSaga(
 }
 
 function* runActionShortcutSaga() {
-  const location = window.location.pathname;
-  const basePath = getBasePath();
-  const match: any = matchPath(location, {
+  const pathname = window.location.pathname;
+  const baseMatch = matchBasePath(pathname);
+  if (!baseMatch) return;
+  const { path } = baseMatch;
+  const match: any = matchPath(pathname, {
     path: [
-      trimQueryString(`${basePath}${API_EDITOR_BASE_PATH}`),
-      trimQueryString(`${basePath}${API_EDITOR_ID_PATH}`),
-      trimQueryString(`${basePath}${QUERIES_EDITOR_BASE_PATH}`),
-      trimQueryString(`${basePath}${QUERIES_EDITOR_ID_PATH}`),
-      trimQueryString(`${basePath}${API_EDITOR_PATH_WITH_SELECTED_PAGE_ID}`),
-      trimQueryString(`${basePath}${INTEGRATION_EDITOR_PATH}`),
-      trimQueryString(`${basePath}${SAAS_EDITOR_API_ID_PATH}`),
-      `${basePath}${CURL_IMPORT_PAGE_PATH}`,
+      trimQueryString(`${path}${API_EDITOR_BASE_PATH}`),
+      trimQueryString(`${path}${API_EDITOR_ID_PATH}`),
+      trimQueryString(`${path}${QUERIES_EDITOR_BASE_PATH}`),
+      trimQueryString(`${path}${QUERIES_EDITOR_ID_PATH}`),
+      trimQueryString(`${path}${API_EDITOR_PATH_WITH_SELECTED_PAGE_ID}`),
+      trimQueryString(`${path}${INTEGRATION_EDITOR_PATH}`),
+      trimQueryString(`${path}${SAAS_EDITOR_API_ID_PATH}`),
+      `${path}${CURL_IMPORT_PAGE_PATH}`,
     ],
     exact: true,
     strict: false,

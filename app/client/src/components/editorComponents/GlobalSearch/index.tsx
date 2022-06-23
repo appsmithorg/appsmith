@@ -428,8 +428,6 @@ function GlobalSearch() {
     const { id, pageId } = config;
     history.push(
       jsCollectionIdURL({
-        applicationSlug,
-        pageSlug: pageIdToSlugMap[pageId],
         pageId,
         collectionId: id,
       }),
@@ -441,7 +439,6 @@ function GlobalSearch() {
     toggleShow();
     history.push(
       datasourcesEditorIdURL({
-        pageSlug: pageIdToSlugMap[item.pageId],
         pageId: item.pageId,
         datasourceId: item.id,
         params: getQueryParams(),
@@ -453,7 +450,6 @@ function GlobalSearch() {
     toggleShow();
     history.push(
       builderURL({
-        pageSlug: pageIdToSlugMap[item.pageId] as string,
         pageId: item.pageId,
       }),
     );

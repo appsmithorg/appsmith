@@ -1,54 +1,33 @@
 import {
   ADMIN_SETTINGS_PATH,
-  BUILDER_CUSTOM_PATH,
-  BUILDER_PATH,
-  BUILDER_PATH_DEPRECATED,
   GEN_TEMPLATE_FORM_ROUTE,
   GEN_TEMPLATE_URL,
-  PLACEHOLDER_APP_SLUG,
-  PLACEHOLDER_PAGE_SLUG,
   TEMPLATES_PATH,
-  VIEWER_CUSTOM_PATH,
-  VIEWER_PATH,
-  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
-import getQueryParamsObject from "utils/getQueryParamsObject";
-import { matchPath } from "react-router";
-import { ApplicationVersion } from "actions/applicationActions";
+import urlBuilder from "entities/URLGenerator/URLAssembly";
 import {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 
-type Optional<T extends { [k in keyof T]: T[k] }> = {
-  [K in keyof T]+?: T[K];
-};
-
-type BaseURLBuilderParams = {
-  applicationId: string;
-  applicationSlug: string;
+export type URLBuilderParams = {
+  suffix?: string;
+  branch?: string;
+  hash?: string;
+  params?: Record<string, any>;
   pageId: string;
-  pageSlug: string;
-  applicationVersion?: ApplicationVersion;
-  customSlug?: string;
 };
 
-type URLBuilderParams = BaseURLBuilderParams & {
-  suffix: string;
-  branch: string;
-  hash: string;
-  params: Record<string, any>;
+export const fillPathname = (
+  pathname: string,
+  application: ApplicationPayload,
+  page: Page,
+) => {
+  return pathname
+    .replace(`/applications/${application.id}`, `/app/${application.slug}`)
+    .replace(`/pages/${page.pageId}`, `/${page.slug}-${page.pageId}`);
 };
-
-export const DEFAULT_BASE_URL_BUILDER_PARAMS: BaseURLBuilderParams = {
-  applicationId: "",
-  applicationSlug: "",
-  pageId: "",
-  pageSlug: "",
-};
-
-export const NO_CUSTOM_SLUG = "NO_CUSTOM_SLUG";
 
 export function convertToQueryParams(
   params: Record<string, string> = {},
@@ -66,263 +45,236 @@ export function convertToQueryParams(
   return queryParams.length ? "?" + queryParams.join("&") : "";
 }
 
-const fetchParamsToPersist = () => {
-  const existingParams = getQueryParamsObject() || {};
-  // not persisting the entire query currently, since that's the current behavior
-  const { branch, embed } = existingParams;
-  let params = { branch, embed } as any;
-  // test param to make sure a query param is present in the URL during dev and tests
-  if ((window as any).Cypress) {
-    params = { a: "b", ...params };
-  }
-  return params;
-};
-
-export const fillPathname = (
-  pathname: string,
-  application: ApplicationPayload,
-  page: Page,
-) => {
-  return pathname
-    .replace(`/applications/${application.id}`, `/app/${application.slug}`)
-    .replace(`/pages/${page.pageId}`, `/${page.slug}-${page.pageId}`);
-};
-
 /**
  * This variable holds the information essential for url building, (current applicationId, pageId, pageSlug and applicationSlug ),
  * updateURLParams method is used to update this variable in a middleware. Refer /store.ts.
  * */
-export const URLParamsFactory = (function() {
-  let BASE_URL_BUILDER_PARAMS = DEFAULT_BASE_URL_BUILDER_PARAMS;
-  const updateURLParams = function(params: Optional<BaseURLBuilderParams>) {
-    BASE_URL_BUILDER_PARAMS = {
-      ...BASE_URL_BUILDER_PARAMS,
-      ...params,
-    };
-  };
-  const getURLParams = function() {
-    return Object.assign({}, BASE_URL_BUILDER_PARAMS);
-  };
-  return {
-    updateURLParams,
-    getURLParams,
-  };
-})();
+// export const URLParamsFactory = (function() {
+//   let BASE_URL_BUILDER_PARAMS = {};
+//   const updateURLParams = function(params: any) {
+//     BASE_URL_BUILDER_PARAMS = {
+//       ...BASE_URL_BUILDER_PARAMS,
+//       ...params,
+//     };
+//   };
+//   const getURLParams = function() {
+//     return Object.assign({}, BASE_URL_BUILDER_PARAMS);
+//   };
+//   const compileURL = function(pageId: string, mode: APP_MODE) {};
+//   return {
+//     updateURLParams,
+//     getURLParams,
+//     compileURL,
+//   };
+// })();
 
-function getBasePath(params: Optional<URLBuilderParams>, mode: APP_MODE) {
-  let {
-    applicationId,
-    applicationSlug,
-    applicationVersion,
-    customSlug,
-    pageId,
-    pageSlug,
-  } = params;
-  const BASE_URL_BUILDER_PARAMS = URLParamsFactory.getURLParams();
-  applicationVersion =
-    applicationVersion || BASE_URL_BUILDER_PARAMS.applicationVersion;
-  const shouldUseLegacyURLs =
-    typeof applicationVersion !== "undefined" &&
-    applicationVersion < ApplicationVersion.SLUG_URL;
+// function buildBasePath(params: URLBuilderParams, mode: APP_MODE) {
+//   let {
+//     applicationId,
+//     applicationSlug,
+//     applicationVersion,
+//     customSlug,
+//     pageId,
+//     pageSlug,
+//   } = params;
+//   const baseURLBuilderParams = URLParamsFactory.getURLParams();
+//   applicationVersion =
+//     applicationVersion || baseURLBuilderParams.applicationVersion;
+//   const shouldUseLegacyURLs =
+//     typeof applicationVersion !== "undefined" &&
+//     applicationVersion < ApplicationVersion.SLUG_URL;
 
-  let basePath = "";
-  pageId = pageId || BASE_URL_BUILDER_PARAMS.pageId;
-  // fallback incase pageId is not set
-  if (!pageId) {
-    const match = matchPath<{ pageId: string }>(window.location.pathname, {
-      path: [
-        BUILDER_PATH,
-        BUILDER_PATH_DEPRECATED,
-        BUILDER_CUSTOM_PATH,
-        VIEWER_PATH,
-        VIEWER_PATH_DEPRECATED,
-        VIEWER_CUSTOM_PATH,
-      ],
-      strict: false,
-      exact: false,
-    });
-    pageId = match?.params.pageId;
-  }
-  // fallback incase pageId is not set
-  if (shouldUseLegacyURLs) {
-    applicationId = applicationId || BASE_URL_BUILDER_PARAMS.applicationId;
-    basePath = `/applications/${applicationId}/pages/${pageId}`;
-  } else {
-    customSlug = customSlug || BASE_URL_BUILDER_PARAMS.customSlug;
-    if (customSlug && customSlug !== NO_CUSTOM_SLUG) {
-      basePath = `/app/${customSlug}-${pageId}`;
-    } else {
-      applicationSlug =
-        applicationSlug ||
-        BASE_URL_BUILDER_PARAMS.applicationSlug ||
-        PLACEHOLDER_APP_SLUG;
-      pageSlug =
-        pageSlug || BASE_URL_BUILDER_PARAMS.pageSlug || PLACEHOLDER_PAGE_SLUG;
-      basePath = `/app/${applicationSlug}/${pageSlug}-${pageId}`;
-    }
-  }
-  basePath += mode === APP_MODE.EDIT ? "/edit" : "";
-  return basePath;
-}
+//   let basePath = "";
+//   pageId = pageId || baseURLBuilderParams.pageId;
+//   // fallback incase pageId is not set
+//   if (!pageId) {
+//     const match = matchPath<{ pageId: string }>(window.location.pathname, {
+//       path: [
+//         BUILDER_PATH,
+//         BUILDER_PATH_DEPRECATED,
+//         BUILDER_CUSTOM_PATH,
+//         VIEWER_PATH,
+//         VIEWER_PATH_DEPRECATED,
+//         VIEWER_CUSTOM_PATH,
+//       ],
+//       strict: false,
+//       exact: false,
+//     });
+//     pageId = match?.params.pageId;
+//   }
+//   // fallback incase pageId is not set
+//   if (shouldUseLegacyURLs) {
+//     applicationId = applicationId || baseURLBuilderParams.applicationId;
+//     basePath = `/applications/${applicationId}/pages/${pageId}`;
+//   } else {
+//     customSlug = customSlug || baseURLBuilderParams.customSlug;
+//     if (customSlug && customSlug !== NO_CUSTOM_SLUG) {
+//       basePath = `/app/${customSlug}-${pageId}`;
+//     } else {
+//       applicationSlug =
+//         applicationSlug ||
+//         baseURLBuilderParams.applicationSlug ||
+//         PLACEHOLDER_APP_SLUG;
+//       pageSlug =
+//         pageSlug || baseURLBuilderParams.pageSlug || PLACEHOLDER_PAGE_SLUG;
+//       basePath = `/app/${applicationSlug}/${pageSlug}-${pageId}`;
+//       generatePath(BUILDER_PATH, {
+//         applicationSlug,
+//         pageSlug: `${pageSlug}-`,
+//         pageId,
+//       });
+//     }
+//   }
+//   basePath += mode === APP_MODE.EDIT ? "/edit" : "";
+//   return basePath;
+// }
 
 /**
  * Do not export this method directly. Write wrappers for your URLs.
  * Uses applicationVersion attribute to determine whether to use slug URLs or legacy URLs.
  */
-function baseURLBuilder(
-  urlParams: Optional<URLBuilderParams>,
-  mode: APP_MODE = APP_MODE.EDIT,
-): string {
-  const { hash = "", params = {}, suffix } = urlParams;
-  const basePath = getBasePath(urlParams, mode);
-  const paramsToPersist = fetchParamsToPersist();
-  const modifiedParams = { ...paramsToPersist, ...params };
-  const queryString = convertToQueryParams(modifiedParams);
-  const suffixPath = suffix ? `/${suffix}` : "";
-  const hashPath = hash ? `#${hash}` : "";
-  // hash fragment should be at the end of the href
-  // ref: https://www.rfc-editor.org/rfc/rfc3986#section-4.1
-  return `${basePath}${suffixPath}${queryString}${hashPath}`;
-}
+// function urlBuilder.build(
+//   urlParams: URLBuilderParams,
+//   mode: APP_MODE = APP_MODE.EDIT,
+// ): string {
+//   const { hash = "", params = {}, suffix } = urlParams;
+//   const basePath = buildBasePath(urlParams, mode);
+//   const paramsToPersist = fetchParamsToPersist();
+//   const modifiedParams = { ...paramsToPersist, ...params };
+//   const queryString = convertToQueryParams(modifiedParams);
+//   const suffixPath = suffix ? `/${suffix}` : "";
+//   const hashPath = hash ? `#${hash}` : "";
+//   // hash fragment should be at the end of the href
+//   // ref: https://www.rfc-editor.org/rfc/rfc3986#section-4.1
+//   return `${basePath}${suffixPath}${queryString}${hashPath}`;
+// }
 
-export const pageListEditorURL = (
-  props?: Optional<URLBuilderParams>,
-): string => {
-  return baseURLBuilder({
+export const pageListEditorURL = (props: URLBuilderParams): string => {
+  return urlBuilder.build({
     ...props,
     suffix: "pages",
   });
 };
-export const datasourcesEditorURL = (
-  props?: Optional<URLBuilderParams>,
-): string =>
-  baseURLBuilder({
+export const datasourcesEditorURL = (props: URLBuilderParams): string =>
+  urlBuilder.build({
     ...props,
     suffix: "datasource",
   });
 
 export const datasourcesEditorIdURL = (
-  props: Optional<URLBuilderParams> & {
+  props: URLBuilderParams & {
     datasourceId: string;
   },
 ): string => {
-  return baseURLBuilder({
+  return urlBuilder.build({
     ...props,
     suffix: `datasource/${props.datasourceId}`,
   });
 };
 
 export const jsCollectionIdURL = (
-  props: Optional<URLBuilderParams> & {
+  props: URLBuilderParams & {
     collectionId: string;
   },
 ): string => {
-  return baseURLBuilder({
+  return urlBuilder.build({
     ...props,
     suffix: `jsObjects/${props.collectionId}`,
   });
 };
 
 export const integrationEditorURL = (
-  props: Optional<URLBuilderParams> & { selectedTab: string },
+  props: URLBuilderParams & { selectedTab: string },
 ): string => {
   const suffixPath = props.suffix ? `/${props.suffix}` : "";
-  return baseURLBuilder({
+  return urlBuilder.build({
     ...props,
     suffix: `datasources/${props.selectedTab}${suffixPath}`,
   });
 };
 
 export const queryEditorIdURL = (
-  props: Optional<URLBuilderParams> & {
+  props: URLBuilderParams & {
     queryId: string;
   },
 ): string =>
-  baseURLBuilder({
+  urlBuilder.build({
     ...props,
     suffix: `queries/${props.queryId}`,
   });
 
 export const apiEditorIdURL = (
-  props: Optional<URLBuilderParams> & {
+  props: URLBuilderParams & {
     apiId: string;
   },
 ): string =>
-  baseURLBuilder({
+  urlBuilder.build({
     ...props,
     suffix: `api/${props.apiId}`,
   });
 
-export const curlImportPageURL = (props?: Optional<URLBuilderParams>): string =>
-  baseURLBuilder({
+export const curlImportPageURL = (props: URLBuilderParams): string =>
+  urlBuilder.build({
     ...props,
     suffix: "api/curl/curl-import",
   });
 
-export const providerTemplatesURL = ({
-  providerId,
-}: Optional<URLBuilderParams> & {
-  providerId: string;
-}): string =>
-  baseURLBuilder({
-    suffix: `api/provider/${providerId}`,
+export const providerTemplatesURL = (
+  props: URLBuilderParams & {
+    providerId: string;
+  },
+): string =>
+  urlBuilder.build({
+    ...props,
+    suffix: `api/provider/${props.providerId}`,
   });
 
 export const saasEditorDatasourceIdURL = (
-  props: Optional<URLBuilderParams> & {
+  props: URLBuilderParams & {
     pluginPackageName: string;
     datasourceId: string;
   },
 ): string =>
-  baseURLBuilder({
+  urlBuilder.build({
     ...props,
     suffix: `saas/${props.pluginPackageName}/datasources/${props.datasourceId}`,
   });
 
 export const saasEditorApiIdURL = (
-  props: Optional<URLBuilderParams> & {
+  props: URLBuilderParams & {
     pluginPackageName: string;
     apiId: string;
   },
 ): string =>
-  baseURLBuilder({
+  urlBuilder.build({
     ...props,
     suffix: `saas/${props.pluginPackageName}/api/${props.apiId}`,
   });
 
-export const generateTemplateURL = (
-  props?: Optional<URLBuilderParams>,
-): string =>
-  baseURLBuilder({
+export const generateTemplateURL = (props: URLBuilderParams): string =>
+  urlBuilder.build({
     ...props,
     suffix: GEN_TEMPLATE_URL,
   });
 
-export const generateTemplateFormURL = (
-  props?: Optional<URLBuilderParams>,
-): string =>
-  baseURLBuilder({
+export const generateTemplateFormURL = (props: URLBuilderParams): string =>
+  urlBuilder.build({
     ...props,
     suffix: `${GEN_TEMPLATE_URL}${GEN_TEMPLATE_FORM_ROUTE}`,
   });
 
-export const onboardingCheckListUrl = (
-  props?: Optional<URLBuilderParams>,
-): string =>
-  baseURLBuilder({
+export const onboardingCheckListUrl = (props: URLBuilderParams): string =>
+  urlBuilder.build({
     ...props,
     suffix: "checklist",
   });
 
-export const builderURL = (props?: Optional<URLBuilderParams>): string => {
-  return baseURLBuilder({ customSlug: NO_CUSTOM_SLUG, ...props });
+export const builderURL = (props: URLBuilderParams): string => {
+  return urlBuilder.build(props);
 };
 
-export const viewerURL = (props?: Optional<URLBuilderParams>): string => {
-  return baseURLBuilder(
-    { customSlug: NO_CUSTOM_SLUG, ...props },
-    APP_MODE.PUBLISHED,
-  );
+export const viewerURL = (props: URLBuilderParams): string => {
+  return urlBuilder.build(props, APP_MODE.PUBLISHED);
 };
 
 export function adminSettingsCategoryUrl({

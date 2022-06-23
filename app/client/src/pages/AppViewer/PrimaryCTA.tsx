@@ -57,7 +57,6 @@ function PrimaryCTA(props: Props) {
   const forkURL = useMemo(() => {
     const encodedForkRedirectURL = `${encodeURIComponent(
       `${window.location.origin}${viewerURL({
-        applicationId: currentApplication?.applicationId,
         pageId: currentPageID,
         suffix: "fork",
       })}`,

@@ -13,7 +13,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { URLParamsFactory } from "RouteBuilder";
+import urlBuilder from "entities/URLGenerator/URLAssembly";
 import { updateSlugNamesInURL } from "utils/helpers";
 
 const sagaMiddleware = createSagaMiddleware();
@@ -35,46 +35,37 @@ const routeParamsMiddleware: Middleware = () => (next: any) => (
 ) => {
   switch (action.type) {
     case ReduxActionTypes.FETCH_APPLICATION_SUCCESS: {
-      const { applicationVersion, id, slug } = action.payload;
-      URLParamsFactory.updateURLParams({
-        applicationId: id,
-        applicationSlug: slug,
-        applicationVersion,
-      });
+      urlBuilder.updateURLParams(action.payload);
       break;
     }
     case ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE: {
       const { slug } = action.payload;
-      URLParamsFactory.updateURLParams({ applicationSlug: slug });
+      urlBuilder.updateURLParams(action.payload);
       updateSlugNamesInURL({
         applicationSlug: slug,
       });
       break;
     }
-    case ReduxActionTypes.SWITCH_CURRENT_PAGE_ID: {
-      const id = action.payload.id;
-      const slug = action.payload.slug;
-      URLParamsFactory.updateURLParams({ pageId: id, pageSlug: slug });
-      break;
-    }
+    // case ReduxActionTypes.SWITCH_CURRENT_PAGE_ID: {
+    //   const id = action.payload.id;
+    //   const slug = action.payload.slug;
+    //   URLParamsFactory.updateURLParams({ pageId: id, pageSlug: slug });
+    //   break;
+    // }
     case ReduxActionTypes.UPDATE_PAGE_SUCCESS: {
       const id = action.payload.id;
-      const slug = action.payload.slug;
-      const customSlug = action.payload.customSlug;
-      const { pageId } = URLParamsFactory.getURLParams();
+      urlBuilder.updateURLParams(null, [{ ...action.payload, pageId: id }]);
       // Update route params and page slug in URL only if the current page is updated
-      if (pageId === id) {
-        URLParamsFactory.updateURLParams({ pageSlug: slug, customSlug });
-        updateSlugNamesInURL({
-          pageSlug: slug,
-          customSlug,
-        });
-      }
+      // if (pageId === id) {
+      //   updateSlugNamesInURL({
+      //     pageSlug: slug,
+      //     customSlug,
+      //   });
+      // }
       break;
     }
     case ReduxActionTypes.UPDATE_APPLICATION_SUCCESS:
-      const { applicationVersion } = action.payload;
-      URLParamsFactory.updateURLParams({ applicationVersion });
+      urlBuilder.updateURLParams(action.payload);
       break;
     default:
       break;

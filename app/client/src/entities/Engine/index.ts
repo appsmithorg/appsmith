@@ -2,6 +2,7 @@ import { fetchApplication } from "actions/applicationActions";
 import { setAppMode, updateAppPersistentStore } from "actions/pageActions";
 import {
   ApplicationPayload,
+  Page,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
@@ -16,6 +17,8 @@ import history from "utils/history";
 import URLGenerator from "entities/URLGenerator";
 import URLGeneratorFactory from "entities/URLGenerator/factory";
 import { updateBranchLocally } from "actions/gitSyncActions";
+import urlBuilder from "entities/URLGenerator/URLAssembly";
+import { getPageList } from "selectors/entitiesSelector";
 
 export type AppEnginePayload = {
   applicationId?: string;
@@ -60,19 +63,29 @@ export default abstract class AppEngine {
         ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
       ],
     );
-    const { applicationVersion, id }: ApplicationPayload = yield select(
-      getCurrentApplication,
+    const application: ApplicationPayload = yield select(getCurrentApplication);
+    yield put(
+      updateAppPersistentStore(getPersistentAppStore(application.id, branch)),
     );
-    yield put(updateAppPersistentStore(getPersistentAppStore(id, branch)));
     let toLoadPageId = pageId;
     const defaultPageId: string = yield select(getDefaultPageId);
     toLoadPageId = toLoadPageId || defaultPageId;
+    const allPages: Page[] = yield select(getPageList);
+
+    urlBuilder.updateURLParams(
+      application,
+      allPages.map((page) => ({
+        pageId: page.pageId,
+        pageSlug: page.slug,
+        customSlug: page.customSlug,
+      })),
+    );
 
     this._urlGenerator = URLGeneratorFactory.create(
-      applicationVersion,
+      application.applicationVersion,
       this._mode,
     );
-    return { toLoadPageId, applicationId: id };
+    return { toLoadPageId, applicationId: application.id };
   }
 
   *setupEngine(payload: AppEnginePayload): any {

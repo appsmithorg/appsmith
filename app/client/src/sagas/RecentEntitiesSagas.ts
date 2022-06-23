@@ -5,7 +5,7 @@ import {
 import { all, put, takeLatest } from "redux-saga/effects";
 import { updateRecentEntity } from "actions/globalSearchActions";
 import { matchPath } from "react-router";
-import { getBasePath } from "pages/Editor/Explorer/helpers";
+import { matchBasePath } from "pages/Editor/Explorer/helpers";
 import {
   API_EDITOR_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
@@ -25,9 +25,9 @@ export const getEntityInCurrentPath = (pathName: string) => {
       params: builderMatch?.params,
     };
 
-  const basePath = getBasePath();
-  if (!basePath) return {};
-
+  const baseMatch = matchBasePath(pathName);
+  if (!baseMatch) return;
+  const { path: basePath } = baseMatch;
   const apiMatch = matchPath<{ apiId: string }>(pathName, {
     path: [
       `${basePath}${API_EDITOR_ID_PATH}`,

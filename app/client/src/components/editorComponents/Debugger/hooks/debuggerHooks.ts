@@ -132,8 +132,6 @@ export const useEntityLink = () => {
       } else if (isJSAction(entity)) {
         history.push(
           jsCollectionIdURL({
-            applicationSlug,
-            pageSlug,
             pageId,
             collectionId: entity.actionId,
           }),

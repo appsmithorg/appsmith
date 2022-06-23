@@ -179,13 +179,11 @@ function* copyJSCollectionSaga(
 
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
-  const jsAction: JSCollection = yield select(getJSCollection, id);
-  const pageSlug: string = yield select(selectPageSlugById(jsAction.pageId));
+  const { pageId }: JSCollection = yield select(getJSCollection, id);
   history.push(
     jsCollectionIdURL({
-      pageSlug,
-      pageId: jsAction.pageId,
-      collectionId: jsAction.id,
+      pageId: pageId,
+      collectionId: id,
     }),
   );
 }
