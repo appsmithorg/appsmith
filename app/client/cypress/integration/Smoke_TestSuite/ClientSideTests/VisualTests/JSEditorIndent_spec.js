@@ -8,7 +8,7 @@ describe("JSEditor Indendation - Visual tests", () => {
   //  2. Run test in headless mode with any browser except chrome.(to maintain same resolution in CI)
   //  3. New screenshot will be generated in the snapshot folder.
 
-  it("JSEditor validation for Prettify Code with lint errors", () => {
+  it("1. JSEditor validation for Prettify Code with lint errors", () => {
     jsEditor.CreateJSObject(
       `let allFuncs = [Genderize.run({ country: 'India' }),
     RandomUser.run(),
@@ -37,17 +37,10 @@ describe("JSEditor Indendation - Visual tests", () => {
       .wait(3000); //allowing time to prettify!
 
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify1");
-
-    cy.get(".t--more-action-menu")
-      .first()
-      .click();
-    cy.contains("Prettify Code")
-      .trigger("click")
-      .wait(3000); //allowing time to prettify!
-    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
+    cy.get("div.CodeMirror").not.matchImageSnapshot("jsObjBeforePrettify1");
   });
 
-  it("JSEditor validation for Prettify Code with no errors", () => {
+  it("2. JSEditor validation for Prettify Code with no errors", () => {
     jsEditor.CreateJSObject(
       `console.log("hi");
 console.log("hidchjvxz sd,bcjmsd");
@@ -80,9 +73,7 @@ hi(1,2);
       },
     );
 
-    cy.get("div.CodeMirror").matchImageSnapshot(
-      "jsObjWithValidCodeBeforePrettify1",
-    );
+    cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify2");
     cy.get(".t--more-action-menu")
       .first()
       .click();
@@ -90,18 +81,7 @@ hi(1,2);
       .trigger("click")
       .wait(3000); //allowing time to prettify!
 
-    cy.get("div.CodeMirror").matchImageSnapshot(
-      "jsObjWithValidCodeAfterPrettify1",
-    );
-
-    cy.get(".t--more-action-menu")
-      .first()
-      .click();
-    cy.contains("Prettify Code")
-      .trigger("click")
-      .wait(3000); //allowing time to prettify!
-    cy.get("div.CodeMirror").matchImageSnapshot(
-      "jsObjWithValidCodeAfterPrettify2",
-    );
+    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
+    cy.get("div.CodeMirror").not.matchImageSnapshot("jsObjBeforePrettify2");
   });
 });
