@@ -1,4 +1,4 @@
-import React, { memo, useRef } from "react";
+import React, { memo, useEffect, useRef } from "react";
 import { useState } from "react";
 import { useDrag } from "react-use-gesture";
 import styled from "styled-components";
@@ -144,6 +144,10 @@ function useDy(
   const [y, setY] = useState(init * 10);
   const [dY, setdY] = useState(0);
 
+  useEffect(() => {
+    setY(init * 10);
+  }, [init]);
+
   function onUpdate(dy: number) {
     setdY(dy);
   }
@@ -230,12 +234,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlay> = memo(
         />
         {children}
       </StyledDynamicHeightOverlay>
-    );
-  },
-  (prevProps, nextProps) => {
-    return (
-      prevProps.maxDynamicHeight === nextProps.maxDynamicHeight &&
-      prevProps.minDynamicHeight === prevProps.maxDynamicHeight
     );
   },
 );
