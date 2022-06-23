@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useRef } from "react";
 import { useState } from "react";
 import { useDrag } from "react-use-gesture";
 import styled from "styled-components";
@@ -63,6 +63,8 @@ const DraggableOverlayHandleDot: React.FC<{
   onUpdate: (dy: number) => void;
   onStop: () => void;
 }> = ({ children, onStop, onUpdate }) => {
+  const ref = useRef<HTMLDivElement>(null);
+
   const bind = useDrag(
     (state) => {
       if (state.first) {
@@ -78,8 +80,32 @@ const DraggableOverlayHandleDot: React.FC<{
     },
     { axis: "y" },
   );
-
-  return <div {...bind()}>{children}</div>;
+  const bindings = bind();
+  return (
+    <div
+      ref={ref}
+      style={{
+        cursor: "pointer",
+        padding: 4,
+      }}
+      {...bindings}
+      onDragStart={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        bindings?.onMouseDown && bindings.onMouseDown(e);
+      }}
+      onMouseUp={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
+      {children}
+    </div>
+  );
 };
 interface OverlayHandleProps {
   y: number;
