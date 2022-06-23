@@ -121,6 +121,7 @@ describe("getFilteredErrors", () => {
           ENTITY_TYPE: ENTITY_TYPE.WIDGET,
         },
         ModalCanvas: {
+          isVisible: true,
           type: "CANVAS_WIDGET",
           widgetId: "modal_canvas_id",
           parentId: "modal1_id",
