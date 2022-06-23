@@ -2285,30 +2285,66 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void generateSSHKey_DataNotExistsInCollection_Success() {
-        Mono<GitAuth> publicKey = gitService.generateSSHKey();
+    public void generateSSHKeyDefaultType_DataNotExistsInCollection_Success() {
+        Mono<GitAuth> publicKey = gitService.generateSSHKey(null);
 
         StepVerifier
                 .create(publicKey)
                 .assertNext(s -> {
                     assertThat(s).isNotNull();
                     assertThat(s.getPublicKey()).contains("appsmith");
+                    assertThat(s.getPublicKey()).startsWith("ECDSA");
                 })
                 .verifyComplete();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void generateSSHKey_KeyExistsInCollection_Success() {
-        GitAuth publicKey = gitService.generateSSHKey().block();
+    public void generateSSHKeyRSAType_DataNotExistsInCollection_Success() {
+        Mono<GitAuth> publicKey = gitService.generateSSHKey("RSA");
 
-        Mono<GitAuth> newKey = gitService.generateSSHKey();
+        StepVerifier
+                .create(publicKey)
+                .assertNext(s -> {
+                    assertThat(s).isNotNull();
+                    assertThat(s.getPublicKey()).contains("appsmith");
+                    assertThat(s.getPublicKey()).startsWith("ssh-rsa");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void generateSSHKeyDefaultType_KeyExistsInCollection_Success() {
+        GitAuth publicKey = gitService.generateSSHKey(null).block();
+
+        Mono<GitAuth> newKey = gitService.generateSSHKey(null);
 
         StepVerifier
                 .create(newKey)
                 .assertNext(s -> {
                     assertThat(s).isNotNull();
                     assertThat(s.getPublicKey()).contains("appsmith");
+                    assertThat(s.getPublicKey()).startsWith("ECDSA");
+                    assertThat(s.getPublicKey()).isNotEqualTo(publicKey.getPublicKey());
+                    assertThat(s.getPrivateKey()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void generateSSHKeyRSA_KeyExistsInCollection_Success() {
+        GitAuth publicKey = gitService.generateSSHKey(null).block();
+
+        Mono<GitAuth> newKey = gitService.generateSSHKey("RSA");
+
+        StepVerifier
+                .create(newKey)
+                .assertNext(s -> {
+                    assertThat(s).isNotNull();
+                    assertThat(s.getPublicKey()).contains("appsmith");
+                    assertThat(s.getPublicKey()).startsWith("ssh-rsa");
                     assertThat(s.getPublicKey()).isNotEqualTo(publicKey.getPublicKey());
                     assertThat(s.getPrivateKey()).isNotEmpty();
                 })
@@ -2345,7 +2381,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_privateRepoLimitReached_ThrowApplicationLimitError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        gitService.generateSSHKey().block();
+        gitService.generateSSHKey(null).block();
         Mockito
                 .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.any(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(0));
@@ -2363,7 +2399,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_emptyRepo_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey().block();
+        GitAuth gitAuth = gitService.generateSSHKey(null).block();
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.setExportedApplication(null);
@@ -2389,7 +2425,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_validRequest_Success() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey().block();
+        GitAuth gitAuth = gitService.generateSSHKey(null).block();
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testRepo");
@@ -2422,7 +2458,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_validRequestWithDuplicateApplicationName_Success() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitRepo.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey().block();
+        GitAuth gitAuth = gitService.generateSSHKey(null).block();
 
         ApplicationJson applicationJson =  createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitRepo (1)");
@@ -2466,7 +2502,7 @@ public class GitServiceTest {
                 .block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey().block();
+        GitAuth gitAuth = gitService.generateSSHKey(null).block();
 
         ApplicationJson applicationJson =  createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitImportRepo");
@@ -2513,7 +2549,7 @@ public class GitServiceTest {
                 .block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepoCancelledMidway.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey().block();
+        GitAuth gitAuth = gitService.generateSSHKey(null).block();
 
         ApplicationJson applicationJson =  createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName(null);
@@ -2573,7 +2609,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfDifferentType_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo1.git", testUserProfile);
-        gitService.generateSSHKey().block();
+        gitService.generateSSHKey(null).block();
         ApplicationJson applicationJson =  createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitImportRepo1");
         applicationJson.getDatasourceList().get(0).setName("db-auth-1");
@@ -2605,7 +2641,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_validRequestWithEmptyRepo_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/emptyRepo.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey().block();
+        GitAuth gitAuth = gitService.generateSSHKey(null).block();
 
         ApplicationJson applicationJson =new ApplicationJson();
 
