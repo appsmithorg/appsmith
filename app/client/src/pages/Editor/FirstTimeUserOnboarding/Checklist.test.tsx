@@ -81,6 +81,7 @@ describe("Checklist", () => {
     fireEvent.click(datasourceButton[0]);
     expect(history).toHaveBeenCalledWith(
       integrationEditorURL({
+        pageId: initialState.entities.pageList.currentPageId,
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
@@ -96,6 +97,7 @@ describe("Checklist", () => {
     fireEvent.click(actionButton[0]);
     expect(history).toHaveBeenCalledWith(
       integrationEditorURL({
+        pageId: initialState.entities.pageList.currentPageId,
         selectedTab: INTEGRATION_TABS.ACTIVE,
       }),
     );

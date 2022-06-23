@@ -14,6 +14,8 @@ import {
   generateTemplateFormURL,
   integrationEditorURL,
 } from "RouteBuilder";
+import { useSelector } from "react-redux";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 const IconContainer = styled.div`
   //width: 100%;
@@ -31,6 +33,7 @@ function CloseEditor() {
   const params: string = location.search;
   const searchParamsInstance = new URLSearchParams(params);
   const redirectTo = searchParamsInstance.get("from");
+  const pageId = useSelector(getCurrentPageId);
 
   const isGeneratePageInitiator = getIsGeneratePageInitiator();
   let integrationTab = INTEGRATION_TABS.ACTIVE;
@@ -45,8 +48,8 @@ function CloseEditor() {
   // then route user back to `/generate-page/form`
   // else go back to BUILDER_PAGE
   const redirectURL = isGeneratePageInitiator
-    ? generateTemplateFormURL()
-    : builderURL();
+    ? generateTemplateFormURL({ pageId })
+    : builderURL({ pageId });
 
   const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
@@ -58,6 +61,7 @@ function CloseEditor() {
     const URL =
       redirectTo === "datasources"
         ? integrationEditorURL({
+            pageId,
             selectedTab: integrationTab,
             params: getQueryParams(),
           })

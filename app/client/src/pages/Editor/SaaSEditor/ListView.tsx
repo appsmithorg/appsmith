@@ -179,7 +179,6 @@ class ListView extends React.Component<Props> {
           onBackButton={() =>
             history.push(
               integrationEditorURL({
-                applicationId,
                 pageId,
                 selectedTab: INTEGRATION_TABS.ACTIVE,
               }),

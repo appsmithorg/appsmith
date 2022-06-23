@@ -65,6 +65,7 @@ describe("Tasks", () => {
     fireEvent.click(button[0]);
     expect(history).toHaveBeenCalledWith(
       integrationEditorURL({
+        pageId: initialState.entities.pageList.currentPageId,
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
@@ -93,6 +94,7 @@ describe("Tasks", () => {
     fireEvent.click(button[0]);
     expect(history).toHaveBeenCalledWith(
       integrationEditorURL({
+        pageId: initialState.entities.pageList.currentPageId,
         selectedTab: INTEGRATION_TABS.ACTIVE,
       }),
     );

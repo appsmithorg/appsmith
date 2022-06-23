@@ -397,6 +397,7 @@ export function* deleteActionSaga(
     const isApi = action.pluginType === PluginType.API;
     const isQuery = action.pluginType === PluginType.DB;
     const isSaas = action.pluginType === PluginType.SAAS;
+    const pageId: string = yield select(getCurrentPageId);
 
     const response: ApiResponse<Action> = yield ActionAPI.deleteAction(id);
     const isValidResponse: boolean = yield validateResponse(response);
@@ -430,6 +431,7 @@ export function* deleteActionSaga(
     } else {
       history.push(
         integrationEditorURL({
+          pageId,
           selectedTab: INTEGRATION_TABS.NEW,
         }),
       );
@@ -941,6 +943,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
     case SlashCommand.NEW_INTEGRATION:
       history.push(
         integrationEditorURL({
+          pageId,
           selectedTab: INTEGRATION_TABS.NEW,
         }),
       );

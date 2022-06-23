@@ -351,6 +351,7 @@ export default function OnboardingChecklist() {
                 });
                 history.push(
                   integrationEditorURL({
+                    pageId,
                     selectedTab: INTEGRATION_TABS.NEW,
                   }),
                 );
@@ -401,6 +402,7 @@ export default function OnboardingChecklist() {
                 });
                 history.push(
                   integrationEditorURL({
+                    pageId,
                     selectedTab: INTEGRATION_TABS.ACTIVE,
                   }),
                 );

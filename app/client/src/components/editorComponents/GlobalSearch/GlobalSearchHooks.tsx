@@ -143,8 +143,6 @@ export const useFilteredFileOperations = (query = "") => {
         ) => {
           history.push(
             integrationEditorURL({
-              applicationSlug,
-              pageSlug,
               pageId,
               selectedTab: INTEGRATION_TABS.NEW,
             }),

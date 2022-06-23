@@ -2,7 +2,7 @@ import Button, { Category, Size } from "components/ads/Button";
 import React, { useCallback } from "react";
 import { AppState } from "reducers";
 import styled from "styled-components";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import {
@@ -13,6 +13,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { WidgetType } from "constants/WidgetConstants";
 import { integrationEditorURL } from "RouteBuilder";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 const StyledDiv = styled.div`
   color: ${(props) => props.theme.colors.propertyPane.ctaTextColor};
@@ -54,7 +55,7 @@ type ConnectDataCTAProps = {
 
 function ConnectDataCTA(props: ConnectDataCTAProps) {
   const dispatch = useDispatch();
-
+  const pageId: string = useSelector(getCurrentPageId);
   const openHelpModal = useCallback(() => {
     dispatch(setGlobalSearchQuery("Connecting to Data Sources"));
     dispatch(toggleShowGlobalSearchModal());
@@ -67,6 +68,7 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
     const { widgetId, widgetTitle, widgetType } = props;
     history.push(
       integrationEditorURL({
+        pageId,
         selectedTab: INTEGRATION_TABS.NEW,
         params: { mode: INTEGRATION_EDITOR_MODES.AUTO },
       }),

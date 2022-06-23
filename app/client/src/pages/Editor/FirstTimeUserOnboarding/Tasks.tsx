@@ -132,6 +132,7 @@ export default function OnboardingTasks() {
               });
               history.push(
                 integrationEditorURL({
+                  pageId,
                   selectedTab: INTEGRATION_TABS.NEW,
                 }),
               );
@@ -183,6 +184,7 @@ export default function OnboardingTasks() {
               });
               history.push(
                 integrationEditorURL({
+                  pageId,
                   selectedTab: INTEGRATION_TABS.ACTIVE,
                 }),
               );

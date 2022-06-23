@@ -79,6 +79,7 @@ function* changeQuerySaga(
   if (!action) {
     history.push(
       integrationEditorURL({
+        pageId,
         selectedTab: INTEGRATION_TABS.ACTIVE,
       }),
     );
