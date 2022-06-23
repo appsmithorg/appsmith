@@ -20,7 +20,7 @@ public class ReleaseNotesServiceTest {
 
     @Test
     public void testComputeNewReleases() {
-        List<ReleaseNode> releaseNodes = releaseNotesService.getReleaseNodesCache();
+        List<ReleaseNode> releaseNodes = releaseNotesService.getReleaseNodes().block();
         releaseNodes.addAll(List.of(
                 new ReleaseNode("v3"),
                 new ReleaseNode("v2"),
