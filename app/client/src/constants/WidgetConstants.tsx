@@ -93,7 +93,7 @@ export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
 export const MAIN_CONTAINER_WIDGET_ID = "0";
 export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
 export const MODAL_PORTAL_CLASSNAME = "bp3-modal-widget";
-export const CANVAS_CLASSNAME = "appsmith_widget_0";
+export const CANVAS_SELECTOR = "canvas";
 
 export const DEFAULT_CENTER = { lat: -34.397, lng: 150.644 };
 
