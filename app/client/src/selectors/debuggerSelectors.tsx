@@ -19,8 +19,9 @@ export const getFilteredErrors = createSelector(
     const filteredErrors = Object.fromEntries(
       Object.entries(errors).filter(([, error]) => {
         const entity = error?.source?.name && dataTree[error.source.name];
+        // filter error - when widget or parent widget is hidden
+        // parent widgets e.g. modal, tab, container
         if (entity && isWidget(entity)) {
-          // console.log("---------- my errors");
           return entity.isVisible
             ? isParentVisible(entity, canvasWidgets, dataTree)
             : false;
@@ -28,31 +29,30 @@ export const getFilteredErrors = createSelector(
         return true;
       }),
     );
-    // console.log("--------------------- my errors", errors, filteredErrors);
     return filteredErrors;
   },
 );
 
 export const isParentVisible = (
-  widgetData: DataTreeWidget,
+  currentWidgetData: DataTreeWidget,
   canvasWidgets: CanvasWidgetsReduxState,
   dataTree: DataTree,
 ): boolean => {
-  const isWidgetVisible = !!widgetData.isVisible;
-  if (!widgetData.parentId || widgetData.parentId === "0") {
+  const isWidgetVisible = !!currentWidgetData.isVisible;
+  if (!currentWidgetData.parentId || currentWidgetData.parentId === "0") {
     return isWidgetVisible;
   }
-  const parentWidget = canvasWidgets[widgetData.parentId];
+  const parentWidget = canvasWidgets[currentWidgetData.parentId];
   if (!parentWidget) return isWidgetVisible;
 
   const parentWidgetData = dataTree[parentWidget.widgetName] as DataTreeWidget;
   if (!parentWidgetData) return isWidgetVisible;
 
-  // console.log("my errors", widgetData, parentWidgetData);
   switch (parentWidgetData.type) {
-    // check for types instead of harcoded string
+    // check for widget types instead of harcoded string
     case "TABS_WIDGET":
-      return parentWidgetData.selectedTab === widgetData.tabName;
+      // need type for selectedTab and tabName
+      return parentWidgetData.selectedTab === currentWidgetData.tabName;
     case "MODAL_WIDGET":
       return !!parentWidgetData.isVisible;
     default:
