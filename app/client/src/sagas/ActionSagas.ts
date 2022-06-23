@@ -797,7 +797,6 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
     );
     history.push(
       saasEditorApiIdURL({
-        pageSlug,
         pageId: action.pageId,
         pluginPackageName: plugin.packageName,
         apiId: action.id,

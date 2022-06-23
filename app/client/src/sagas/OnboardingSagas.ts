@@ -398,11 +398,8 @@ function* firstTimeUserOnboardingInitSaga(
     type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
     payload: true,
   });
-  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   history.replace(
     builderURL({
-      applicationSlug,
-      pageSlug,
       pageId: action.payload.pageId,
     }),
   );

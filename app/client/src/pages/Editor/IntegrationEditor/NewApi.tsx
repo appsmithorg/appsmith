@@ -219,8 +219,6 @@ function NewApiScreen(props: Props) {
 
         delete queryParams.isGeneratePageMode;
         const curlImportURL = curlImportPageURL({
-          applicationSlug,
-          pageSlug,
           pageId,
           params: {
             from: "datasources",

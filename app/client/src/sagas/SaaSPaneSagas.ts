@@ -34,11 +34,13 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const { id, pluginId } = actionPayload.payload;
   const plugin: Plugin | undefined = yield select(getPlugin, pluginId);
+  const pageId: string = yield select(getCurrentPageId);
 
   if (!plugin) return;
   if (plugin.type !== "SAAS") return;
   history.push(
     saasEditorApiIdURL({
+      pageId,
       pluginPackageName: plugin.packageName,
       apiId: id,
       params: {

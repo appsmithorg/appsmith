@@ -97,7 +97,6 @@ function DatasourceCard(props: DatasourceCardProps) {
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
-  const pageId = useSelector(getCurrentPageId);
   const queryActions = useSelector(getActionsForCurrentPage);
   const queriesWithThisDatasource = queryActions.filter(
     (action) =>
@@ -112,7 +111,6 @@ function DatasourceCard(props: DatasourceCardProps) {
   const editDatasource = () => {
     history.push(
       saasEditorDatasourceIdURL({
-        pageId,
         ...params,
         datasourceId: datasource.id,
       }),

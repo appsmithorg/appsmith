@@ -64,7 +64,7 @@ const ExplorerDatasourceEntity = React.memo(
           }),
         );
       }
-    }, [props.datasource.id]);
+    }, [props.datasource.id, pageId, props.plugin]);
 
     const queryId = getQueryIdFromURL();
     const queryAction = useSelector((state: AppState) =>

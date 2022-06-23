@@ -125,6 +125,9 @@ class URLBuilder {
     currentPageParams = {
       ...currentPageParams,
       pageSlug: `${currentPageParams.pageSlug}-`,
+      customSlug: currentPageParams.customSlug
+        ? `${currentPageParams.customSlug}-`
+        : currentPageParams.customSlug,
     };
 
     return { ...this.appParams, ...currentPageParams };
