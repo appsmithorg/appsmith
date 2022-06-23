@@ -71,6 +71,7 @@ export interface Oauth2Common {
   resource: string;
   sendScopeWithRefreshToken: string;
   refreshTokenClientCredentialsLocation: string;
+  useSelfSignedCert?: boolean;
 }
 
 export interface ClientCredentials extends Oauth2Common {

@@ -103,6 +103,7 @@ const formToDatasourceAuthentication = (
       sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken,
       refreshTokenClientCredentialsLocation:
         authentication.refreshTokenClientCredentialsLocation,
+      useSelfSignedCert: authentication.useSelfSignedCert,
     };
     if (isClientCredentials(authType, authentication)) {
       return {
