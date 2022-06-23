@@ -216,29 +216,30 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     pluginId,
     pluginType,
   } = actionPayload.payload;
-  if (pluginType === PluginType.DB || pluginType === PluginType.REMOTE) {
-    yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
-    const pluginTemplates: Record<string, unknown> = yield select(
-      getPluginTemplates,
-    );
-    const queryTemplate = pluginTemplates[pluginId];
-    // Do not show template view if the query has body(code) or if there are no templates
-    const showTemplate = !(
-      !!actionConfiguration.body ||
-      !!actionConfiguration.formData?.body ||
-      isEmpty(queryTemplate)
-    );
-    history.replace(
-      queryEditorIdURL({
-        queryId: id,
-        params: {
-          editName: "true",
-          showTemplate,
-          from: "datasources",
-        },
-      }),
-    );
-  }
+  const pageId: string = yield select(getCurrentPageId);
+  if (pluginType !== PluginType.DB && pluginType !== PluginType.REMOTE) return;
+  yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
+  const pluginTemplates: Record<string, unknown> = yield select(
+    getPluginTemplates,
+  );
+  const queryTemplate = pluginTemplates[pluginId];
+  // Do not show template view if the query has body(code) or if there are no templates
+  const showTemplate = !(
+    !!actionConfiguration.body ||
+    !!actionConfiguration.formData?.body ||
+    isEmpty(queryTemplate)
+  );
+  history.replace(
+    queryEditorIdURL({
+      pageId,
+      queryId: id,
+      params: {
+        editName: "true",
+        showTemplate,
+        from: "datasources",
+      },
+    }),
+  );
 }
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
@@ -301,6 +302,7 @@ function* handleNameChangeSuccessSaga(
     }
     history.replace(
       queryEditorIdURL({
+        pageId: actionObj.pageId,
         queryId: actionId,
         params,
       }),

@@ -167,13 +167,6 @@ function* setUpTourAppSaga() {
   const query: ActionData | undefined = yield select(getQueryAction);
   yield put(clearActionResponse(query?.config.id ?? ""));
   const applicationId: string = yield select(getCurrentApplicationId);
-  history.push(
-    queryEditorIdURL({
-      pageId: query?.config.pageId ?? "",
-      queryId: query?.config.id ?? "",
-    }),
-  );
-
   yield put(
     updateApplicationLayout(applicationId || "", {
       appLayout: {
@@ -184,6 +177,13 @@ function* setUpTourAppSaga() {
   // Hide the explorer initialy
   yield put(setExplorerPinnedAction(false));
   yield put(toggleLoader(false));
+  if (!query) return;
+  history.push(
+    queryEditorIdURL({
+      pageId: query.config.pageId,
+      queryId: query.config.id,
+    }),
+  );
 }
 
 function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {

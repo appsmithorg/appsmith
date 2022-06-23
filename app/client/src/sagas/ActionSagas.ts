@@ -775,7 +775,6 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   if (isApi) {
     history.push(
       apiEditorIdURL({
-        pageSlug,
         pageId: action.pageId,
         apiId: action.id,
       }),
@@ -784,7 +783,6 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   if (isQuery) {
     history.push(
       queryEditorIdURL({
-        pageSlug,
         pageId: action.pageId,
         queryId: action.id,
       }),
