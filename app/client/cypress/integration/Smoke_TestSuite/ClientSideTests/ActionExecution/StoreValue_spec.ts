@@ -7,7 +7,7 @@ describe("storeValue Action test", () => {
     //
   });
 
-  it("1. Running consecutive storeValue actions and await", function() {
+  it("1. Bug 14653: Running consecutive storeValue actions and await", function() {
     const jsObjectBody = `export default {
       myFun1: () => {
         let values =
@@ -18,10 +18,10 @@ describe("storeValue Action test", () => {
             storeValue('val4', 'number 4')
           ]
         return Promise.all(values)
-          .then(() => {	
+          .then(() => {
             showAlert(JSON.stringify(appsmith.store))
         })
-          .catch((err) => { 
+          .catch((err) => {
             return showAlert('Could not store values in store ' + err.toString());
           })
       }
@@ -34,11 +34,9 @@ describe("storeValue Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    agHelper.AssertAutoSave();
-
-    jsEditor.EditJSObj(jsObjectBody);
-
-    agHelper.AssertAutoSave();
+    //Bug 14503
+    // jsEditor.EditJSObj(jsObjectBody);
+    // agHelper.AssertAutoSave();
 
     // running twice due to bug
     Cypress._.times(2, () => {
@@ -58,4 +56,5 @@ describe("storeValue Action test", () => {
       2,
     );
   });
+
 });
