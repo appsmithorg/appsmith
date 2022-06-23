@@ -238,7 +238,7 @@ describe("Postgres - Datatype Boolean & Enum types tests", function() {
     table.WaitForTableEmpty();
   });
 
-  it("12. Inserting another record (- to check serial column) - boolenumtypes", () => {
+  it("12. Inserting another record (to check serial column) - boolenumtypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
     agHelper.SelectDropDown("Wednesday");
