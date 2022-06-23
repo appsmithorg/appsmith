@@ -1,25 +1,22 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.Policy;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
-import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.CommentThread;
-import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.ChangeUserGroupDTO;
-import com.appsmith.server.dtos.UserAndGroupDTO;
-import com.appsmith.server.domains.Page;
-import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.UserInGroup;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.UpdateUserGroupDTO;
 import com.appsmith.server.dtos.UserAndGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -31,23 +28,10 @@ import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserGroupService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.transaction.annotation.Transactional;
 
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 
 
 @Slf4j
@@ -101,6 +85,12 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .filter(pair -> pair.getT2().contains(pair.getT1().getId())) // filter out groups that are not default
                 .map(pair -> pair.getT1())
                 .single() // get the first group, should we handle the case if user is part of multiple default user groups?
+                .flatMap(userGroup -> {
+                    if(userGroup.getName().startsWith(FieldName.ADMINISTRATOR) && userGroup.getUsers().size() == 1) {
+                        return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR));
+                    }
+                    return Mono.just(userGroup);
+                })
                 // If we cannot find the groups, that means either user is not part of any default group or current user has no access to the group
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change userGroup of a member")));
 
@@ -122,13 +112,15 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
      */
     @Transactional
     @Override
-    public Mono<UserAndGroupDTO> changeUserGroupForMember(String workspaceId, ChangeUserGroupDTO changeUserGroupDTO, String originHeader) {
+    public Mono<UserAndGroupDTO> updateUserGroupForMember(String workspaceId, UpdateUserGroupDTO changeUserGroupDTO, String originHeader) {
         if (changeUserGroupDTO.getUsername() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAME));
         }
 
+        // If new group id is null, remove the user from the workspace, this was the old behaviour with UserRoles
         if(changeUserGroupDTO.getNewGroupId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NEW_GROUP_ID));
+            return leaveWorkspace(workspaceId)
+                    .map(user -> UserAndGroupDTO.builder().username(user.getUsername()).name(user.getName()).build());
         }
 
         // Read the workspace

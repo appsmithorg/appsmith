@@ -2,7 +2,7 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.ChangeUserGroupDTO;
+import com.appsmith.server.dtos.UpdateUserGroupDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserAndGroupDTO;
 import com.appsmith.server.dtos.UserGroupInfoDTO;
@@ -53,10 +53,10 @@ public class WorkspaceControllerCE extends BaseController<WorkspaceService, Work
     }
 
     @PutMapping("/{workspaceId}/userGroup")
-    public Mono<ResponseDTO<UserAndGroupDTO>> changeUserGroupForMember(@RequestBody ChangeUserGroupDTO changeUserGroupDTO,
+    public Mono<ResponseDTO<UserAndGroupDTO>> changeUserGroupForMember(@RequestBody UpdateUserGroupDTO changeUserGroupDTO,
                                                            @PathVariable String workspaceId,
                                                            @RequestHeader(name = "Origin", required = false) String originHeader) {
-        return userWorkspaceService.changeUserGroupForMember(workspaceId, changeUserGroupDTO, originHeader)
+        return userWorkspaceService.updateUserGroupForMember(workspaceId, changeUserGroupDTO, originHeader)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 

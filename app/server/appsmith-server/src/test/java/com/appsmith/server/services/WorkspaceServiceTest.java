@@ -15,6 +15,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.UpdateUserGroupDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.UserAndGroupDTO;
 import com.appsmith.server.dtos.UserGroupInfoDTO;
@@ -700,10 +701,10 @@ public class WorkspaceServiceTest {
         Mono<Workspace> userAddedToWorkspaceMono = workspaceMono
                 .flatMap(workspace1 -> {
                     // Add user to workspace
-                    UserRole userRole = new UserRole();
-                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-                    userRole.setUsername("usertest@usertest.com");
-                    return userWorkspaceService.addUserRoleToWorkspace(workspace1.getId(), userRole);
+                    Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(workspace1.getId()).cache();
+                    Mono<UserGroup> adminGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR)).single();
+                    Mono<User> userMono = userService.findByEmail("usertest@usertest.com");
+                    return userMono.zipWith(adminGroupMono).flatMap(tuple -> userGroupService.addUser(tuple.getT2(), tuple.getT1())).thenReturn(workspace1);
                 })
                 .map(workspace1 -> {
                     log.debug("Workspace policies after adding user is : {}", workspace1.getPolicies());
@@ -798,10 +799,10 @@ public class WorkspaceServiceTest {
         Mono<Workspace> userAddedToWorkspaceMono = workspaceMono
                 .flatMap(workspace1 -> {
                     // Add user to workspace
-                    UserRole userRole = new UserRole();
-                    userRole.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
-                    userRole.setUsername("usertest@usertest.com");
-                    return userWorkspaceService.addUserRoleToWorkspace(workspace1.getId(), userRole);
+                    Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(workspace1.getId()).cache();
+                    Mono<UserGroup> adminGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER)).single();
+                    Mono<User> userMono = userService.findByEmail("usertest@usertest.com");
+                    return userMono.zipWith(adminGroupMono).flatMap(tuple -> userGroupService.addUser(tuple.getT2(), tuple.getT1())).thenReturn(workspace1);
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Viewer Test Application",
@@ -866,22 +867,25 @@ public class WorkspaceServiceTest {
         Mono<Workspace> userAddedToWorkspaceMono = workspaceMono
                 .flatMap(workspace1 -> {
                     // Add user to workspace
-                    UserRole userRole = new UserRole();
-                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-                    userRole.setUsername("usertest@usertest.com");
-                    return userWorkspaceService.addUserRoleToWorkspace(workspace1.getId(), userRole);
+                    Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(workspace1.getId()).cache();
+                    Mono<UserGroup> adminGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR)).single();
+                    Mono<User> userMono = userService.findByEmail("usertest@usertest.com");
+                    return userMono.zipWith(adminGroupMono).flatMap(tuple -> userGroupService.addUser(tuple.getT2(), tuple.getT1())).thenReturn(workspace1);
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Test Application",
                 AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
-        Mono<UserRole> userRoleChangeMono = workspaceMono
+        Mono<UserAndGroupDTO> userRoleChangeMono = workspaceMono
                 .flatMap(workspace1 -> {
-                    UserRole userRole = new UserRole();
-                    userRole.setUsername("usertest@usertest.com");
-                    userRole.setRoleName("App Viewer");
-                    return userWorkspaceService.changeUserGroupForMember(workspace1.getId(), userRole, "http://localhost:8080");
+                    Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(workspace1.getId()).cache();
+                    Mono<UserGroup> viewerGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER)).single();
+                    return viewerGroupMono.flatMap(userGroup -> {
+                        return userWorkspaceService.updateUserGroupForMember(workspace1.getId(), 
+                            UpdateUserGroupDTO.builder().username("usertest@usertest.comusertest@usertest.com").newGroupId(userGroup.getId()).build(),
+                            "http://localhost:8080");
+                    });
                 });
 
         Mono<Application> applicationAfterRoleChange = workspaceMono
@@ -934,10 +938,10 @@ public class WorkspaceServiceTest {
         Mono<Workspace> userAddedToWorkspaceMono = workspaceMono
                 .flatMap(workspace1 -> {
                     // Add user to workspace
-                    UserRole userRole = new UserRole();
-                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-                    userRole.setUsername("usertest@usertest.com");
-                    return userWorkspaceService.addUserRoleToWorkspace(workspace1.getId(), userRole);
+                    Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(workspace1.getId()).cache();
+                    Mono<UserGroup> adminGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR)).single();
+                    Mono<User> userMono = userService.findByEmail("usertest@usertest.com");
+                    return userMono.zipWith(adminGroupMono).flatMap(tuple -> userGroupService.addUser(tuple.getT2(), tuple.getT1())).thenReturn(workspace1);
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Delete Test Application",
@@ -947,13 +951,10 @@ public class WorkspaceServiceTest {
         Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Delete Test Workspace")
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "workspace by name")));
 
-        Mono<UserRole> userRoleChangeMono = workspaceMono
+        Mono<UserAndGroupDTO> userRoleChangeMono = workspaceMono
                 .flatMap(workspace1 -> {
-                    UserRole userRole = new UserRole();
-                    userRole.setUsername("usertest@usertest.com");
                     // Setting the role name to null ensures that user is deleted from the workspace
-                    userRole.setRoleName(null);
-                    return userWorkspaceService.changeUserGroupForMember(workspace1.getId(), userRole, "http://localhost:8080");
+                    return userWorkspaceService.updateUserGroupForMember(workspace1.getId(), UpdateUserGroupDTO.builder().username("usertest@usertest.com").newGroupId(null).build(), "http://localhost:8080");
                 });
 
         Mono<Tuple2<Application, Workspace>> tupleMono = workspaceMono
