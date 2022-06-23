@@ -197,7 +197,13 @@ class DatePickerComponent extends React.Component<
         this.props.maxDate &&
         !this.state.selectedDate
       ) {
-        return new Date(this.props.minDate);
+        switch (true) {
+          case new Date(this.props.minDate) > new Date():
+          case new Date(this.props.maxDate) < new Date():
+            return new Date(this.props.minDate);
+          default:
+            return new Date();
+        }
       }
       // Min-Selcted
       else if (this.props.minDate && this.state.selectedDate) {
