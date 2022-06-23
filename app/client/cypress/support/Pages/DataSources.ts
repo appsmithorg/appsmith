@@ -272,6 +272,8 @@ export class DataSources {
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
+    this.ee.SelectEntityByName(datasourceName, "DATASOURCES");
+    this.ee.ExpandCollapseEntity(datasourceName, false);
     this.NavigateToDSCreateNew();
     this.agHelper.GetNClick(this._activeTab);
     cy.get(this._datasourceCard)
