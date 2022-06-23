@@ -159,7 +159,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       message: undefined,
-      messageEventProps: undefined,
+      messageMetadata: undefined,
     };
   }
 
@@ -193,7 +193,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     origin,
     ports,
   }: MessageEvent) => {
-    this.props.updateWidgetMetaProperty("messageEventProps", {
+    this.props.updateWidgetMetaProperty("messageMetadata", {
       lastEventId,
       origin,
       ports,
