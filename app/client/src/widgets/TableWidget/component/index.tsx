@@ -81,10 +81,7 @@ interface ReactTableComponentProps {
   boxShadow?: string;
 }
 
-const ReactTableComponent = React.forwardRef<
-  HTMLDivElement,
-  ReactTableComponentProps
->((props, ref) => {
+function ReactTableComponent(props: ReactTableComponentProps) {
   const {
     applyFilter,
     columns,
@@ -288,7 +285,6 @@ const ReactTableComponent = React.forwardRef<
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
       prevPageClick={prevPageClick}
-      ref={ref}
       searchKey={searchKey}
       searchTableData={searchTableData}
       selectTableRow={selectTableRow}
@@ -305,7 +301,7 @@ const ReactTableComponent = React.forwardRef<
       width={width}
     />
   );
-});
+}
 
 export default React.memo(ReactTableComponent, (prev, next) => {
   return (
