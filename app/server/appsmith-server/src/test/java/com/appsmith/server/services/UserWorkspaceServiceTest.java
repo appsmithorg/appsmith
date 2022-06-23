@@ -190,7 +190,7 @@ public class UserWorkspaceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void changeUserGroupForMember_WhenAdminUserGroupRemovedWithNoOtherAdmin_ThrowsExceptions() {
+    public void updateUserGroupForMember_WhenAdminUserGroupRemovedWithNoOtherAdmin_ThrowsExceptions() {
         // add the current user as an admin to the workspace first
         User currentUser = userRepository.findByEmail("api_user").block();
         Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(workspace.getId()).cache();
@@ -206,7 +206,7 @@ public class UserWorkspaceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void changeUserGroupForMember_WhenAdminUserGroupRemovedButOtherAdminExists_MemberRemoved() {
+    public void updateUserGroupForMember_WhenAdminUserGroupRemovedButOtherAdminExists_MemberRemoved() {
         // add another admin role to the workspace
         UserRole adminRole = createUserRole("dummy_username2", "dummy_user_id2", ORGANIZATION_ADMIN);
         this.workspace.getUserRoles().add(adminRole);
