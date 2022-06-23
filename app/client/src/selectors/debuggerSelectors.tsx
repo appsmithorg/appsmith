@@ -48,11 +48,17 @@ export const isParentVisible = (
   const parentWidgetData = dataTree[parentWidget.widgetName] as DataTreeWidget;
   if (!parentWidgetData) return isWidgetVisible;
 
+  // TODO: add table and list widget cases
   switch (parentWidgetData.type) {
     // check for widget types instead of harcoded string
     case "TABS_WIDGET":
       // need type for selectedTab and tabName
-      return parentWidgetData.selectedTab === currentWidgetData.tabName;
+      const isTabContentVisible =
+        !!parentWidgetData.isVisible &&
+        parentWidgetData.selectedTab === currentWidgetData.tabName;
+      return isTabContentVisible
+        ? isParentVisible(parentWidgetData, canvasWidgets, dataTree)
+        : false;
     case "MODAL_WIDGET":
       return !!parentWidgetData.isVisible;
     default:
