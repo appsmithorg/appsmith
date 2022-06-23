@@ -2293,7 +2293,7 @@ public class GitServiceTest {
                 .assertNext(s -> {
                     assertThat(s).isNotNull();
                     assertThat(s.getPublicKey()).contains("appsmith");
-                    assertThat(s.getPublicKey()).startsWith("ECDSA");
+                    assertThat(s.getPublicKey()).startsWith("ecdsa-sha2-nistp256");
                 })
                 .verifyComplete();
     }
@@ -2325,7 +2325,7 @@ public class GitServiceTest {
                 .assertNext(s -> {
                     assertThat(s).isNotNull();
                     assertThat(s.getPublicKey()).contains("appsmith");
-                    assertThat(s.getPublicKey()).startsWith("ECDSA");
+                    assertThat(s.getPublicKey()).startsWith("ecdsa-sha2-nistp256");
                     assertThat(s.getPublicKey()).isNotEqualTo(publicKey.getPublicKey());
                     assertThat(s.getPrivateKey()).isNotEmpty();
                 })
