@@ -244,6 +244,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
 }
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
+  const pageId: string = yield select(getCurrentPageId);
   const plugin: Plugin | undefined = yield select(
     getPlugin,
     actionPayload.payload.pluginId,
@@ -261,6 +262,7 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   );
   history.push(
     datasourcesEditorIdURL({
+      pageId,
       datasourceId: actionPayload.payload.id,
       params: { from: "datasources", ...getQueryParams() },
     }),

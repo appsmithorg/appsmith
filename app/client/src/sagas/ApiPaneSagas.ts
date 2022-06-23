@@ -68,6 +68,7 @@ import {
   datasourcesEditorIdURL,
   integrationEditorURL,
 } from "RouteBuilder";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -526,11 +527,13 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
     getPlugin,
     actionPayload.payload.pluginId,
   );
+  const pageId: string = yield select(getCurrentPageId);
   // Only look at API plugins
   if (plugin && plugin.type !== PluginType.API) return;
 
   history.push(
     datasourcesEditorIdURL({
+      pageId,
       datasourceId: actionPayload.payload.id,
       params: {
         from: "datasources",

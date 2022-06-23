@@ -709,6 +709,7 @@ function* changeDatasourceSaga(
   const { datasource, shouldNotRedirect } = actionPayload.payload;
   const { id } = datasource;
   const draft: Record<string, unknown> = yield select(getDatasourceDraft, id);
+  const pageId: string = yield select(getCurrentPageId);
   let data;
 
   if (_.isEmpty(draft)) {
@@ -723,6 +724,7 @@ function* changeDatasourceSaga(
   // this redirects to the same route, so checking first.
   const datasourcePath = trimQueryString(
     datasourcesEditorIdURL({
+      pageId,
       datasourceId: datasource.id,
     }),
   );
@@ -730,6 +732,7 @@ function* changeDatasourceSaga(
   if (history.location.pathname !== datasourcePath)
     history.push(
       datasourcesEditorIdURL({
+        pageId,
         datasourceId: datasource.id,
         params: getQueryParams(),
       }),

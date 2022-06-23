@@ -40,6 +40,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { debounce } from "lodash";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -168,6 +169,8 @@ function DatasourceCard(props: DatasourceCardProps) {
     datasource.pluginId
   ];
 
+  const pageId = useSelector(getCurrentPageId);
+
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
@@ -191,6 +194,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     if (plugin && plugin.type === PluginType.SAAS) {
       history.push(
         saasEditorDatasourceIdURL({
+          pageId,
           pluginPackageName: plugin.packageName,
           datasourceId: datasource.id,
           params: {
@@ -203,6 +207,7 @@ function DatasourceCard(props: DatasourceCardProps) {
       dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
       history.push(
         datasourcesEditorIdURL({
+          pageId,
           datasourceId: datasource.id,
           params: {
             from: "datasources",
@@ -222,6 +227,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
     history.push(
       generateTemplateFormURL({
+        pageId,
         params: {
           datasourceId: datasource.id,
           new_page: true,
