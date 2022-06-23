@@ -1,10 +1,10 @@
 const testdata = require("../../../../fixtures/testdata.json");
 import ApiEditor from "../../../../locators/ApiEditor";
-
+let APIName;
 const testUrl1 =
   "http://localhost:5001/v1/dynamicrecords/generaterecords?records=10";
 const testUrl2 = "http://localhost:5001/v1/dynamicrecords/getstudents";
-
+const testUrl3 = "http://localhost:5001//v1/dynamicrecords/getrecordsArray";
 describe("API Panel Test Functionality ", function() {
   it("Test Search API fetaure", function() {
     cy.log("Login Successful");
@@ -36,5 +36,15 @@ describe("API Panel Test Functionality ", function() {
     cy.checkIfApiPaneIsVisible();
     cy.get(ApiEditor.tableResponseTab).click();
     cy.checkIfApiPaneIsVisible();
+  });
+  it("Bug 14242: Appsmith crash when create an API pointing to Github hosted json", function() {
+    cy.NavigateToAPI_Panel();
+    cy.generateUUID().then((uid) => {
+      APIName = uid;
+      cy.CreateAPI(APIName);
+    });
+    cy.enterDatasource(testUrl3);
+    cy.SaveAndRunAPI();
+    cy.ResponseStatusCheck("200");
   });
 });
