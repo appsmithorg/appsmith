@@ -38,28 +38,28 @@ export const isParentVisible = (
   canvasWidgets: CanvasWidgetsReduxState,
   dataTree: DataTree,
 ): boolean => {
-  if (widgetData.parentId && widgetData.parentId !== "0") {
-    const parentWidget = canvasWidgets[widgetData.parentId];
-    if (parentWidget) {
-      const parentWidgetData = dataTree[
-        parentWidget.widgetName
-      ] as DataTreeWidget;
-      // console.log("my errors", widgetData, parentWidgetData);
-      if (parentWidgetData) {
-        switch (parentWidgetData.type) {
-          case "TABS_WIDGET":
-            return parentWidgetData.selectedTab === widgetData.tabName;
-          case "MODAL_WIDGET":
-            return !!parentWidgetData.isVisible;
-          default:
-            return parentWidgetData.isVisible
-              ? isParentVisible(parentWidgetData, canvasWidgets, dataTree)
-              : false;
-        }
-      }
-    }
+  const isWidgetVisible = !!widgetData.isVisible;
+  if (!widgetData.parentId || widgetData.parentId === "0") {
+    return isWidgetVisible;
   }
-  return !!widgetData.isVisible;
+  const parentWidget = canvasWidgets[widgetData.parentId];
+  if (!parentWidget) return isWidgetVisible;
+
+  const parentWidgetData = dataTree[parentWidget.widgetName] as DataTreeWidget;
+  if (!parentWidgetData) return isWidgetVisible;
+
+  // console.log("my errors", widgetData, parentWidgetData);
+  switch (parentWidgetData.type) {
+    // check of types instead of harcoded string
+    case "TABS_WIDGET":
+      return parentWidgetData.selectedTab === widgetData.tabName;
+    case "MODAL_WIDGET":
+      return !!parentWidgetData.isVisible;
+    default:
+      return parentWidgetData.isVisible
+        ? isParentVisible(parentWidgetData, canvasWidgets, dataTree)
+        : false;
+  }
 };
 
 export const getCurrentDebuggerTab = (state: AppState) =>
