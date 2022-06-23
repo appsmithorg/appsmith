@@ -16,7 +16,6 @@ describe("Add functions", () => {
       config: {},
       datasourceUrl: "",
       pluginType: PluginType.API,
-      pluginId: "",
       dynamicBindingPathList: [],
       name: "action1",
       bindingPaths: {},

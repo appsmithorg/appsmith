@@ -31,7 +31,7 @@ export function* executePostMessage(
     }
   } catch (error) {
     logActionExecutionError(
-      error.message,
+      (error as Error).message,
       triggerMeta.source,
       triggerMeta.triggerPropertyName,
     );
