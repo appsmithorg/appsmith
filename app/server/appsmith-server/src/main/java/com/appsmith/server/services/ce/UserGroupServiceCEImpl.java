@@ -49,7 +49,7 @@ public class UserGroupServiceCEImpl extends BaseService<UserGroupRepository, Use
     @Override
     public Mono<UserGroup> bulkAddUsers(UserGroup userGroup, List<User> users) {
         userGroup.getUsers().addAll(users.stream().map(user -> new UserInGroup(user)).collect(Collectors.toList()));
-        return repository.updateById(userGroup.getId(), userGroup, AclPermission.MANAGE_USER_GROUPS);
+        return repository.updateById(userGroup.getId(), userGroup, AclPermission.INVITE_USER_GROUPS);
     }
 
     @Override
@@ -60,5 +60,24 @@ public class UserGroupServiceCEImpl extends BaseService<UserGroupRepository, Use
     @Override
     public Flux<UserGroup> getAllByIds(Set<String> ids, AclPermission permission) {
         return repository.findAllByIds(ids, permission);
+    }
+
+    @Override
+    public Flux<UserGroup> getAllByUserId(String userId, AclPermission permission) {
+        return repository.findAllByUserId(userId, permission);
+    }
+
+    @Override
+    public Mono<UserGroup> addUser(UserGroup userGroup, User user) {
+        return bulkAddUsers(userGroup, List.of(user));
+    }
+
+    @Override
+    public Mono<UserGroup> removeUser(UserGroup userGroup, User user) {
+        boolean removed = userGroup.getUsers().remove(new UserInGroup(user));
+        if (removed) {
+            return repository.updateById(userGroup.getId(), userGroup, AclPermission.INVITE_USER_GROUPS);
+        }
+        return Mono.just(userGroup);
     }
 }

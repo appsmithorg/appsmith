@@ -126,5 +126,7 @@ public class FieldName {
             "applications";
     public static final Object USER_GROUP = "userGroup";
     public static final Object GROUP_ID = "groupId";
+    public static final Object USERNAME = "username";
+    public static final Object NEW_GROUP_ID = "newGroupId";
 
 }

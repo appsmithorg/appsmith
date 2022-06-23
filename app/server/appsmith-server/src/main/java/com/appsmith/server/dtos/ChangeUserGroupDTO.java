@@ -1,0 +1,12 @@
+package com.appsmith.server.dtos;
+
+import lombok.Data;
+
+@Data
+public class ChangeUserGroupDTO {
+    
+    private String username;
+
+    private String newGroupId;
+    
+}

@@ -12,4 +12,6 @@ public interface CustomUserGroupRepositoryCE extends AppsmithRepository<UserGrou
 
     Flux<UserGroup> findAllByIds(Set<String> ids, AclPermission permission);
 
+    Flux<UserGroup> findAllByUserId(String userId, AclPermission permission);
+
 }

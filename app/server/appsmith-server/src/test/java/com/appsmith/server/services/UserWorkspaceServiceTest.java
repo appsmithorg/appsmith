@@ -191,7 +191,7 @@ public class UserWorkspaceServiceTest {
         UserRole updatedRole = new UserRole();
         updatedRole.setUsername(currentUser.getUsername());
 
-        Mono<UserRole> userRoleMono = userWorkspaceService.updateRoleForMember(workspace.getId(), updatedRole, null);
+        Mono<UserRole> userRoleMono = userWorkspaceService.changeUserGroupForMember(workspace.getId(), updatedRole, null);
         StepVerifier.create(userRoleMono).expectErrorMessage(
                 AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage()
         ).verify();
@@ -214,7 +214,7 @@ public class UserWorkspaceServiceTest {
         UserRole updatedRole = new UserRole();
         updatedRole.setUsername(currentUser.getUsername());
 
-        Mono<UserRole> userRoleMono = userWorkspaceService.updateRoleForMember(workspace.getId(), updatedRole, null);
+        Mono<UserRole> userRoleMono = userWorkspaceService.changeUserGroupForMember(workspace.getId(), updatedRole, null);
         StepVerifier.create(userRoleMono).assertNext(
                 userRole1 -> {
                     assertEquals(currentUser.getUsername(), userRole1.getUsername());
@@ -265,7 +265,7 @@ public class UserWorkspaceServiceTest {
                 }).flatMap(commentThread -> {
                     // update an user's role
                     UserRole updatedRole = createUserRole("test_developer", "test_developer", ORGANIZATION_VIEWER);
-                    return userWorkspaceService.updateRoleForMember(
+                    return userWorkspaceService.changeUserGroupForMember(
                             workspace.getId(), updatedRole, null
                     ).thenReturn(commentThread);
                 }).flatMap(commentThread ->
@@ -297,7 +297,7 @@ public class UserWorkspaceServiceTest {
                 }).flatMap(commentThread -> {
                     // remove the test_developer user from the workspace
                     UserRole updatedRole = createUserRole("test_developer", "test_developer", null);
-                    return userWorkspaceService.updateRoleForMember(workspace.getId(), updatedRole, null)
+                    return userWorkspaceService.changeUserGroupForMember(workspace.getId(), updatedRole, null)
                             .thenReturn(commentThread);
                 }).flatMap(commentThread ->
                         commentThreadRepository.findById(commentThread.getId())
@@ -308,47 +308,6 @@ public class UserWorkspaceServiceTest {
             assertThat(policyUtils.isPermissionPresentForUser(
                     policies, AclPermission.READ_THREADS.getValue(), "test_developer"
             )).isFalse();
-            assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREADS.getValue(), "api_user"
-            )).isTrue();
-        }).verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails("api_user")
-    public void bulkAddUsersToWorkspace_WhenNewUserAdded_ThreadPolicyUpdated() {
-        // create a new user
-        User user = new User();
-        user.setEmail("new_test_user");
-        Mono<User> saveUserMono = userRepository.save(user);
-
-        Mono<CommentThread> commentThreadMono = applicationRepository.save(createTestApplicationForCommentThreadTests())
-                .flatMap(savedApplication -> {
-                    CommentThread commentThread = new CommentThread();
-                    commentThread.setApplicationId(savedApplication.getId());
-                    commentThread.setPolicies(policyGenerator.getAllChildPolicies(
-                            savedApplication.getPolicies(), Application.class, CommentThread.class
-                    ));
-                    return commentThreadRepository.save(commentThread);
-                }).flatMap(commentThread -> {
-                    // add the new user to the workspace
-                    List<User> users = new ArrayList<>(1);
-                    users.add(user);
-                    return userWorkspaceService
-                            .bulkAddUsersToWorkspace(workspace, users, ORGANIZATION_DEVELOPER.getName())
-                            .thenReturn(commentThread);
-                }).flatMap(commentThread ->
-                        commentThreadRepository.findById(commentThread.getId())
-                );
-
-        StepVerifier.create(saveUserMono.then(commentThreadMono)).assertNext(commentThread -> {
-            Set<Policy> policies = commentThread.getPolicies();
-            assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREADS.getValue(), "test_developer"
-            )).isTrue();
-            assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREADS.getValue(), "new_test_user"
-            )).isTrue();
             assertThat(policyUtils.isPermissionPresentForUser(
                     policies, AclPermission.READ_THREADS.getValue(), "api_user"
             )).isTrue();

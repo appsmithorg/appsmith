@@ -881,7 +881,7 @@ public class WorkspaceServiceTest {
                     UserRole userRole = new UserRole();
                     userRole.setUsername("usertest@usertest.com");
                     userRole.setRoleName("App Viewer");
-                    return userWorkspaceService.updateRoleForMember(workspace1.getId(), userRole, "http://localhost:8080");
+                    return userWorkspaceService.changeUserGroupForMember(workspace1.getId(), userRole, "http://localhost:8080");
                 });
 
         Mono<Application> applicationAfterRoleChange = workspaceMono
@@ -953,7 +953,7 @@ public class WorkspaceServiceTest {
                     userRole.setUsername("usertest@usertest.com");
                     // Setting the role name to null ensures that user is deleted from the workspace
                     userRole.setRoleName(null);
-                    return userWorkspaceService.updateRoleForMember(workspace1.getId(), userRole, "http://localhost:8080");
+                    return userWorkspaceService.changeUserGroupForMember(workspace1.getId(), userRole, "http://localhost:8080");
                 });
 
         Mono<Tuple2<Application, Workspace>> tupleMono = workspaceMono
