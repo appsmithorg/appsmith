@@ -431,10 +431,20 @@ abstract class BaseWidget<
   }
 
   addDynamicHeightOverlay(content: ReactNode) {
+    const onMaxHeightSet = (height: number) => {
+      this.updateWidgetProperty("maxDynamicHeight", Math.floor(height / 10));
+    };
+
+    const onMinHeightSet = (height: number) => {
+      this.updateWidgetProperty("minDynamicHeight", Math.floor(height / 10));
+    };
+
     return (
       <DynamicHeightOverlay
         maxDynamicHeight={this.props.maxDynamicHeight}
         minDynamicHeight={this.props.minDynamicHeight}
+        onMaxHeightSet={onMaxHeightSet}
+        onMinHeightSet={onMinHeightSet}
       >
         {content}
       </DynamicHeightOverlay>

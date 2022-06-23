@@ -12,7 +12,7 @@ const StyledDynamicHeightOverlay = styled.div`
 const OVERLAY_COLOR = "#F32B8B";
 
 interface OverlayDisplayProps {
-  maxDynamicHeight: number;
+  maxY: number;
 }
 
 const OverlayDisplay = styled.div<OverlayDisplayProps>`
@@ -20,7 +20,7 @@ const OverlayDisplay = styled.div<OverlayDisplayProps>`
   top: 0;
   left: 0;
   width: 100%;
-  height: ${(props) => props.maxDynamicHeight * 10}px;
+  height: ${(props) => props.maxY}px;
   border-bottom: 1px solid ${OVERLAY_COLOR};
   background-color: rgba(243, 43, 139, 0.1);
 `;
@@ -59,10 +59,16 @@ const OverlayHandleLabel = styled.div`
   margin-left: 4px;
 `;
 
-const DraggableOverlayHandleDot: React.FC<{
-  onUpdate: (dy: number) => void;
+interface DragFunctions {
   onStop: () => void;
-}> = ({ children, onStop, onUpdate }) => {
+  onUpdate: (n: number) => void;
+}
+
+const DraggableOverlayHandleDot: React.FC<DragFunctions> = ({
+  children,
+  onStop,
+  onUpdate,
+}) => {
   const ref = useRef<HTMLDivElement>(null);
 
   const bind = useDrag(
@@ -133,7 +139,8 @@ const MaxHeightOverlayHandleDot = styled(OverlayHandleDot)`
 
 function useDy(
   init: number,
-): [number, { onStop: () => void; onUpdate: (n: number) => void }] {
+  onHeightSet: (height: number) => void,
+): [number, DragFunctions] {
   const [y, setY] = useState(init * 10);
   const [dY, setdY] = useState(0);
 
@@ -142,57 +149,84 @@ function useDy(
   }
 
   function onStop() {
-    setY(y + dY);
+    const heightToSet = y + dY;
+    setY(heightToSet);
     setdY(0);
+    onHeightSet(heightToSet);
   }
 
   return [y + dY, { onUpdate, onStop }];
 }
 
-const OverlayHandles: React.FC<MinMaxHeightProps> = ({
-  maxDynamicHeight,
-  minDynamicHeight,
-}) => {
-  const isColliding = minDynamicHeight === maxDynamicHeight;
+interface OverlayHandlesProps {
+  maxY: number;
+  minY: number;
+  maxDragFunctions: DragFunctions;
+  minDragFunctions: DragFunctions;
+  onMaxHeightSet: (height: number) => void;
+  onMinHeightSet: (height: number) => void;
+}
 
-  const [maxY, maxFns] = useDy(maxDynamicHeight);
-  const [minY, minFns] = useDy(minDynamicHeight);
+const OverlayHandles: React.FC<OverlayHandlesProps> = ({
+  maxDragFunctions,
+  maxY,
+  minDragFunctions,
+  minY,
+}) => {
+  const isColliding = maxY === minY;
+
+  const maxRows = Math.floor(maxY / 10);
+  const minRows = Math.floor(minY / 10);
 
   return (
     <StyledOverlayHandles>
       <MinHeightOverlayHandle y={minY}>
-        <DraggableOverlayHandleDot {...minFns}>
+        <DraggableOverlayHandleDot {...minDragFunctions}>
           <MinHeightOverlayHandleDot />
         </DraggableOverlayHandleDot>
         {!isColliding ? (
-          <OverlayHandleLabel>
-            Min-height: {minDynamicHeight} rows
-          </OverlayHandleLabel>
+          <OverlayHandleLabel>Min-height: {minRows} rows</OverlayHandleLabel>
         ) : null}
       </MinHeightOverlayHandle>
       <MaxHeightOverlayHandle
         style={isColliding ? { right: "-135px" } : undefined}
         y={maxY}
       >
-        <DraggableOverlayHandleDot {...maxFns}>
+        <DraggableOverlayHandleDot {...maxDragFunctions}>
           <MaxHeightOverlayHandleDot />
         </DraggableOverlayHandleDot>
-        <OverlayHandleLabel>
-          Max-height: {maxDynamicHeight} rows
-        </OverlayHandleLabel>
+        <OverlayHandleLabel>Max-height: {maxRows} rows</OverlayHandleLabel>
       </MaxHeightOverlayHandle>
     </StyledOverlayHandles>
   );
 };
 
-const DynamicHeightOverlay: React.FC<MinMaxHeightProps> = memo(
-  ({ children, maxDynamicHeight, minDynamicHeight }) => {
+interface DynamicHeightOverlay extends MinMaxHeightProps {
+  onMaxHeightSet: (height: number) => void;
+  onMinHeightSet: (height: number) => void;
+}
+
+const DynamicHeightOverlay: React.FC<DynamicHeightOverlay> = memo(
+  ({
+    children,
+    maxDynamicHeight,
+    minDynamicHeight,
+    onMaxHeightSet,
+    onMinHeightSet,
+  }) => {
+    const [maxY, maxDragFunctions] = useDy(maxDynamicHeight, onMaxHeightSet);
+    const [minY, minDragFunctions] = useDy(minDynamicHeight, onMinHeightSet);
+
     return (
       <StyledDynamicHeightOverlay>
-        <OverlayDisplay maxDynamicHeight={maxDynamicHeight} />
+        <OverlayDisplay maxY={maxY} />
         <OverlayHandles
-          maxDynamicHeight={maxDynamicHeight}
-          minDynamicHeight={minDynamicHeight}
+          maxDragFunctions={maxDragFunctions}
+          maxY={maxY}
+          minDragFunctions={minDragFunctions}
+          minY={minY}
+          onMaxHeightSet={onMaxHeightSet}
+          onMinHeightSet={onMinHeightSet}
         />
         {children}
       </StyledDynamicHeightOverlay>
