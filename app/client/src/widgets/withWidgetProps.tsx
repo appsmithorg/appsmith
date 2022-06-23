@@ -68,6 +68,13 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
       widgetProps = klona(canvasWidgetProps);
 
+      /**
+       * MODAL_WIDGET by default is to be hidden unless the isVisible property is found.
+       * If the isVisible property is undefined and the widget is MODAL_WIDGET then isVisible
+       * is set to false
+       * If the isVisible property is undefined and the widget is not MODAL_WIDGET then isVisible
+       * is set to true
+       */
       widgetProps.isVisible =
         widgetProps.isVisible ?? widgetProps.type !== "MODAL_WIDGET";
 
@@ -107,6 +114,15 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     return <WrappedWidget {...props} {...widgetProps} />;
   }
 
+  /**
+   * TODO (Ashit): These might not be needed anymore as these were added when the
+   * this HOC was the first wrapper of the Widget and then the metaHOC. By doing so
+   * The metaHOC needed access to the following functions present in the Widget
+   * These were just used as proxy to the metHOC.
+   *
+   * Now the metaHOC is the first layer and then the withWidgetProps so a proxy
+   * might not be need. These needs to be double checked are removed.
+   */
   WrappedComponent.getMetaPropertiesMap = WrappedWidget.getMetaPropertiesMap;
   WrappedComponent.getDefaultPropertiesMap =
     WrappedWidget.getDefaultPropertiesMap;
