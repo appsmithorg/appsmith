@@ -132,14 +132,20 @@ export function SettingsForm(
     _.forEach(props.settingsConfig, (value, settingName) => {
       const setting = AdminConfig.settingsMap[settingName];
       if (setting && setting.controlType == SettingTypes.TOGGLE) {
-        props.settingsConfig[settingName] =
-          props.settingsConfig[settingName].toString() == "true";
+        if (settingName.toLowerCase().includes("enable")) {
+          props.settingsConfig[settingName] =
+            props.settingsConfig[settingName].toString() == "" ||
+            props.settingsConfig[settingName].toString() == "true";
+        } else {
+          props.settingsConfig[settingName] =
+            props.settingsConfig[settingName].toString() == "true";
+        }
       }
     });
     props.initialize(props.settingsConfig);
   };
 
-  useEffect(onClear, []);
+  useEffect(onClear, [subCategory]);
 
   const onReleaseNotesClose = useCallback(() => {
     dispatch({

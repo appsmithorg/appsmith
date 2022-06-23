@@ -22,6 +22,7 @@ const ToggleStatus = styled.span`
 function FieldToggleWithToggleText(
   toggleText?: (value: boolean) => string,
   id?: string,
+  isDisableProperty?: boolean,
 ) {
   return function FieldToggle(
     componentProps: FormTextFieldProps & {
@@ -30,8 +31,10 @@ function FieldToggleWithToggleText(
     },
   ) {
     function onToggle(value?: boolean) {
-      componentProps.input.onChange && componentProps.input.onChange(!value);
-      componentProps.input.onBlur && componentProps.input.onBlur(!value);
+      componentProps.input.onChange &&
+        componentProps.input.onChange(isDisableProperty ? !value : value);
+      componentProps.input.onBlur &&
+        componentProps.input.onBlur(isDisableProperty ? !value : value);
     }
     /* Value = !ENV_VARIABLE
     This has been done intentionally as naming convention used contains the word disabled but the UI should show the button enabled by default.
@@ -41,11 +44,15 @@ function FieldToggleWithToggleText(
         <Toggle
           cypressSelector={id}
           onToggle={onToggle}
-          value={!componentProps.input.value}
+          value={
+            isDisableProperty
+              ? !componentProps.input.value
+              : componentProps.input.value
+          }
         />
         <ToggleStatus>
           {typeof toggleText == "function"
-            ? createMessage(() => toggleText(!componentProps.input.value))
+            ? createMessage(() => toggleText(componentProps.input.value))
             : componentProps.input.value
             ? createMessage(() => "Enabled")
             : createMessage(() => "Disabled")}
@@ -64,7 +71,11 @@ export function ToggleComponent({ setting }: SettingComponentProps) {
     <StyledFieldToggleGroup>
       <FormGroup setting={setting}>
         <Field
-          component={FieldToggleWithToggleText(setting.toggleText, setting.id)}
+          component={FieldToggleWithToggleText(
+            setting.toggleText,
+            setting.id,
+            setting.name?.toLowerCase().includes("enable") ? false : true,
+          )}
           name={setting.name}
         />
       </FormGroup>
