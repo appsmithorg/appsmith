@@ -549,7 +549,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
         run: |
-          docker build -t fatcontainer .
+          docker build --build-arg GIT_SHA=${GITHUB_SHA} -t fatcontainer .
 
       - name: Load docker image
         if: steps.run_result.outputs.run_result != 'success'
