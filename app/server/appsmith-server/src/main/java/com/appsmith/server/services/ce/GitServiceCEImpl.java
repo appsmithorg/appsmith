@@ -26,6 +26,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -57,7 +58,6 @@ import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
-import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
@@ -74,6 +74,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -91,7 +92,6 @@ import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNA
 import static com.appsmith.server.constants.FieldName.DEFAULT;
 import static com.appsmith.server.helpers.DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
-import static org.mockito.BDDMockito.then;
 
 /**
  * Git APIs are slow today because these needs to communicate with remote repo and/or serialise and de-serialise the
@@ -1863,7 +1863,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                     mergeStatus.setConflictingFiles(((CheckoutConflictException) error)
                                                             .getConflictingPaths());
                                                 }
-                                                mergeStatus.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT);
+                                                mergeStatus.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT.getDocUrl());
                                                 return mergeStatus;
                                             });
                                 } catch (GitAPIException | IOException e) {
@@ -2114,8 +2114,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<GitAuth> generateSSHKey() {
-        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(null);
+    public Mono<GitAuth> generateSSHKey(String keyType) {
+        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
 
         GitDeployKeys gitDeployKeys = new GitDeployKeys();
         gitDeployKeys.setGitAuth(gitAuth);
@@ -2277,6 +2277,25 @@ public class GitServiceCEImpl implements GitServiceCE {
         return Mono.create(sink -> discardChangeMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
         );
+    }
+
+    /**
+     * In some scenarios:
+     * connect: after loading the modal, keyTypes is not available, so a network call has to be made to ssh-keypair.
+     * import: cannot make a ssh-keypair call because application Id doesn’t exist yet, so API fails.
+     * @return Git docs urls for all the scenarios, client will cache this data and use it
+     */
+    @Override
+    public Mono<List<GitDocsDTO>> getGitDocUrls() {
+        ErrorReferenceDocUrl[] docSet = ErrorReferenceDocUrl.values();
+        List<GitDocsDTO> gitDocsDTOList = new ArrayList<>();
+        for(ErrorReferenceDocUrl docUrl : docSet ) {
+            GitDocsDTO gitDocsDTO = new GitDocsDTO();
+            gitDocsDTO.setDocKey(docUrl);
+            gitDocsDTO.setDocUrl(docUrl.getDocUrl());
+            gitDocsDTOList.add(gitDocsDTO);
+        }
+        return Mono.just(gitDocsDTOList);
     }
 
     private Mono<Application> deleteApplicationCreatedFromGitImport(String applicationId, String workspaceId, String repoName) {
