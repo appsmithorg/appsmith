@@ -26,6 +26,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -69,6 +70,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -1764,7 +1766,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                     mergeStatus.setConflictingFiles(((CheckoutConflictException) error)
                                                             .getConflictingPaths());
                                                 }
-                                                mergeStatus.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT);
+                                                mergeStatus.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT.getDocUrl());
                                                 return mergeStatus;
                                             });
                                 } catch (GitAPIException | IOException e) {
@@ -2178,6 +2180,25 @@ public class GitServiceCEImpl implements GitServiceCE {
         return Mono.create(sink -> discardChangeMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
         );
+    }
+
+    /**
+     * In some scenarios:
+     * connect: after loading the modal, keyTypes is not available, so a network call has to be made to ssh-keypair.
+     * import: cannot make a ssh-keypair call because application Id doesn’t exist yet, so API fails.
+     * @return Git docs urls for all the scenarios, client will cache this data and use it
+     */
+    @Override
+    public Mono<List<GitDocsDTO>> getGitDocUrls() {
+        ErrorReferenceDocUrl[] docSet = ErrorReferenceDocUrl.values();
+        List<GitDocsDTO> gitDocsDTOList = new ArrayList<>();
+        for(ErrorReferenceDocUrl docUrl : docSet ) {
+            GitDocsDTO gitDocsDTO = new GitDocsDTO();
+            gitDocsDTO.setDocKey(docUrl);
+            gitDocsDTO.setDocUrl(docUrl.getDocUrl());
+            gitDocsDTOList.add(gitDocsDTO);
+        }
+        return Mono.just(gitDocsDTOList);
     }
 
     private Mono<Application> deleteApplicationCreatedFromGitImport(String applicationId, String workspaceId, String repoName) {
