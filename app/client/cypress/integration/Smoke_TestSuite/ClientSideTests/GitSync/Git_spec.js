@@ -130,6 +130,7 @@ describe("Git sync:", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(8000);
     cy.switchGitBranch(mainBranch);
+    cy.wait(4000); // wait for switch branch
     cy.contains("NewPage");
   });
 

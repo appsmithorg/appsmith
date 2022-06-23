@@ -1,6 +1,7 @@
 import {
   ARRAY_ITEM_KEY,
   DataType,
+  FieldThemeStylesheet,
   FieldType,
   ROOT_SCHEMA_KEY,
   Schema,
@@ -540,6 +541,7 @@ describe(".computeSchema", () => {
     const response = computeSchema({
       currSourceData: sourceData,
       widgetName: "JSONForm1",
+      fieldThemeStylesheets: {} as FieldThemeStylesheet,
     });
 
     expect(response.status).toEqual(ComputedSchemaStatus.LIMIT_EXCEEDED);
@@ -554,6 +556,7 @@ describe(".computeSchema", () => {
       const response = computeSchema({
         currSourceData: sourceData,
         widgetName: "JSONForm1",
+        fieldThemeStylesheets: {} as FieldThemeStylesheet,
       });
 
       expect(response.status).toEqual(ComputedSchemaStatus.UNCHANGED);
@@ -583,6 +586,7 @@ describe(".computeSchema", () => {
       currSourceData,
       prevSourceData,
       widgetName: "JSONForm1",
+      fieldThemeStylesheets: {} as FieldThemeStylesheet,
     });
 
     expect(response.status).toEqual(ComputedSchemaStatus.UNCHANGED);
