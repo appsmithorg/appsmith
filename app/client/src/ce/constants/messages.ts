@@ -22,6 +22,10 @@ export const API_PATH_START_WITH_SLASH_ERROR = () => `Path cannot start with /`;
 export const FIELD_REQUIRED_ERROR = () => `This field is required`;
 export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = () =>
   `Default Text length must be less than Max Chars allowed`;
+export const INPUT_DEFAULT_TEXT_MAX_NUM_ERROR = () =>
+  `Default Text value must be less than Max number allowed`;
+export const INPUT_DEFAULT_TEXT_MIN_NUM_ERROR = () =>
+  `Default Text value must be greater than Min number allowed`;
 export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
@@ -1043,9 +1047,12 @@ export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
 export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
-export const WIDGET_DEPRECATION_WARNING = (widgetName: string) =>
-  `A new version of the ${widgetName}widget is available. Upgrade to enjoy an enhanced experience.`;
-export const WIDGET_DEPRECATION_WARNING_HEADER = () => "Stay up-to-date";
+export const WIDGET_DEPRECATION_MESSAGE = (widgetName: string) =>
+  `The ${widgetName}widget you are currently using is now deprecated.`;
+export const DEPRECATION_WIDGET_REPLACEMENT_MESSAGE = (
+  replacingWidgetName: string,
+) =>
+  ` You can drag a new ${replacingWidgetName} widget and configure it in place of the deprecated widget.`;
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";

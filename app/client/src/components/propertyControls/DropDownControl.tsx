@@ -132,7 +132,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     if (
       (config as DropDownControlProps)?.options
-        ?.map((x: { value: string }) => x.value)
+        ?.map((x: { value: string }) => x.value.toString())
         .includes(value)
     )
       return true;

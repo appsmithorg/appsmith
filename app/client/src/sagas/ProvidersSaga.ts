@@ -51,7 +51,7 @@ export function* fetchProviderTemplatesSaga(
       request,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
@@ -72,7 +72,7 @@ export function* fetchProviderTemplatesSaga(
 export function* addApiToPageSaga(
   action: ReduxActionWithPromise<AddApiToPageRequest>,
 ) {
-  const workspaceId = yield select(getCurrentWorkspaceId);
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
   const request: AddApiToPageRequest = {
     ...action.payload,
     workspaceId,
@@ -82,7 +82,7 @@ export function* addApiToPageSaga(
       request,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       const { payload } = action;
@@ -103,7 +103,7 @@ export function* addApiToPageSaga(
         data: response.data,
       });
 
-      const applicationId = yield select(getCurrentApplicationId);
+      const applicationId: string = yield select(getCurrentApplicationId);
       yield put(fetchActions({ applicationId }, []));
     }
   } catch (error) {
@@ -126,9 +126,10 @@ export function* fetchProvidersWithCategorySaga(
       request,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
+      // @ts-expect-error: response is of type unknown
       if (response.data.providers.length === 0) {
         yield put({
           type: ReduxActionTypes.SET_PROVIDERS_LENGTH,
@@ -180,7 +181,7 @@ export function* fetchProviderDetailsByProviderIdSaga(
       request,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
@@ -207,7 +208,7 @@ export function* searchApiOrProviderSaga(
       action.payload,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
