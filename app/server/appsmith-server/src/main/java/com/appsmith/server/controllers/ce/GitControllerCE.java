@@ -196,8 +196,8 @@ public class GitControllerCE {
     }
 
     @GetMapping("/import/keys")
-    public Mono<ResponseDTO<GitAuth>> generateKeyForGitImport() {
-        return service.generateSSHKey()
+    public Mono<ResponseDTO<GitAuth>> generateKeyForGitImport(@RequestParam(required = false) String keyType) {
+        return service.generateSSHKey(keyType)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
     
