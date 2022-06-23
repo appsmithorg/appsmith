@@ -92,8 +92,10 @@ export const initializeAnalyticsAndTrackers = () => {
 
   try {
     if (appsmithConfigs.smartLook.enabled && !(window as any).smartlook) {
-      const { id } = appsmithConfigs.smartLook;
-      AnalyticsUtil.initializeSmartLook(id);
+      // const { id } = appsmithConfigs.smartLook;
+      AnalyticsUtil.initializeSmartLook(
+        "ad774c3c4dd5cdf3fdd3b0b44073b9537ad73f11",
+      );
     }
 
     if (AnalyticsUtil.isSmartlookInitialized()) {
