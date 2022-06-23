@@ -4,9 +4,8 @@
 name: Ami Packer Build
 
 on:
-  pull_request:
   # This line enables manual triggering of this workflow.
-    types: [opened, labeled, unlabeled, assigned, edited, reopened, synchronize, ready_for_review]
+  workflow_dispatch:
 
 jobs:
   packer:
