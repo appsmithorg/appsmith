@@ -13,6 +13,10 @@ import { Template } from "api/TemplatesApi";
 const Wrapper = styled.div`
   width: max(300px, 25%);
   padding: 0px 20px;
+  position: sticky;
+  top: 0;
+  position: -webkit-sticky;
+  height: fit-content;
 `;
 
 const Card = styled.div`
