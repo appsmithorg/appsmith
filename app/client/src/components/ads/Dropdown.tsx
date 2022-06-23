@@ -110,6 +110,7 @@ export type DropdownProps = CommonComponentProps &
     portalClassName?: string;
     customBadge?: JSX.Element;
     selectedHighlightBg?: string;
+    showEmptyOptions?: boolean;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption | DropdownOption[];
@@ -704,10 +705,17 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   isMultiSelect?: boolean;
   allowDeselection?: boolean;
   isOpen: boolean; // dropdown popover options flashes when closed, this prop helps to make sure it never happens again.
+  showEmptyOptions?: boolean;
 }
 
 export function RenderDropdownOptions(props: DropdownOptionsProps) {
-  const { onSearch, optionClickHandler, optionWidth, renderOption } = props;
+  const {
+    onSearch,
+    optionClickHandler,
+    optionWidth,
+    renderOption,
+    showEmptyOptions = false,
+  } = props;
   const [options, setOptions] = useState<Array<DropdownOption>>(props.options);
   const [searchValue, setSearchValue] = useState<string>("");
   const onOptionSearch = (searchStr: string) => {
@@ -726,7 +734,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
   };
   const theme = useTheme() as Theme;
 
-  if (!options.length) return null;
+  if (!options.length && !showEmptyOptions) return null;
 
   return (
     <DropdownWrapper

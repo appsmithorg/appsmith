@@ -180,8 +180,10 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
         optionWidth="340px"
         options={props.options}
         portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
+        searchAutoFocus
         searchPlaceholder="Search by currency or country"
         selected={selectedOption}
+        showEmptyOptions
         showLabelOnly
       />
       <PopoverStyles
