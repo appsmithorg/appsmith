@@ -19,7 +19,7 @@ export interface ChangeAppViewAccessRequest {
   publicAccess: boolean;
 }
 
-export type PublishApplicationResponse = ApiResponse<unknown>;
+export type PublishApplicationResponse = ApiResponse;
 
 export interface ApplicationPagePayload {
   id: string;

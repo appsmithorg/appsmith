@@ -91,7 +91,7 @@ describe("Drag and Drop widgets into Main container", () => {
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
   jest
     .spyOn(useDynamicAppLayoutHook, "useDynamicAppLayout")
-    .mockImplementation(() => [true, jest.fn()]);
+    .mockImplementation(() => true);
 
   const pushState = jest.spyOn(window.history, "pushState");
   pushState.mockImplementation((state: any, title: any, url: any) => {
