@@ -39,7 +39,9 @@ describe("Shopping cart App", function() {
       .last()
       .click();
     cy.get(queryLocators.queryNameField).type("EditProducts");
-    cy.get("[data-cy='actionConfiguration.formData.command.data']").click();
+    cy.get("[data-cy='actionConfiguration.formData.command.data']").click({
+      multiple: true,
+    });
     cy.get(".t--dropdown-option")
       .eq(2)
       .click();

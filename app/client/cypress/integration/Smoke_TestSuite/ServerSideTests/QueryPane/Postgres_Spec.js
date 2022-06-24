@@ -291,11 +291,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       "response.body.responseMeta.status",
       409,
     );
-    cy.actionContextMenuByEntityName(
-      "Public.users_crud",
-      "Delete",
-      "Are you sure?",
-    );
+    cy.actionContextMenuByEntityName(datasourceName, "Delete", "Are you sure?");
   });
 
   it("10. Validate Drop of the Newly Created Table from Postgress datasource", () => {
