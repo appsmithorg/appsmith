@@ -219,28 +219,28 @@ export class AggregateHelper {
     );
   }
 
-  public SelectPropertiesDropDown(endp: string, dropdownOption: string) {
-    cy.xpath(this.locator._selectPropDropdown(endp))
+  public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
+    cy.xpath(this.locator._selectPropDropdown(endpoint))
       .first()
       .scrollIntoView()
       .click();
     cy.get(this.locator._dropDownValue(dropdownOption)).click();
   }
 
-  public SelectDropDown(dropdownOption: string, endp = "selectwidget") {
+  public SelectDropDown(dropdownOption: string, endpoint = "selectwidget") {
     const mode = window.localStorage.getItem("inDeployedMode");
     if (mode == "false") {
-      cy.xpath(this.locator._selectWidgetDropdown(endp))
+      cy.xpath(this.locator._selectWidgetDropdown(endpoint))
         .first()
         .scrollIntoView()
         .click();
     } else {
-      cy.xpath(this.locator._selectWidgetDropdownInDeployed(endp))
+      cy.xpath(this.locator._selectWidgetDropdownInDeployed(endpoint))
         .first()
         .scrollIntoView()
         .click();
     }
-    if (endp == "selectwidget")
+    if (endpoint == "selectwidget")
       cy.get(this.locator._selectOptionValue(dropdownOption)).click({
         force: true,
       });
@@ -256,14 +256,14 @@ export class AggregateHelper {
     dropdownOption: string,
     insideParent = "",
     index = 0,
-    endp = "dropdownwidget",
+    endpoint = "dropdownwidget",
   ) {
     const mode = window.localStorage.getItem("inDeployedMode");
     //cy.log("mode frm deployed is:" + mode)
     const modeSelector =
       mode == "true"
-        ? this.locator._selectWidgetDropdownInDeployed(endp)
-        : this.locator._selectWidgetDropdown(endp);
+        ? this.locator._selectWidgetDropdownInDeployed(endpoint)
+        : this.locator._selectWidgetDropdown(endpoint);
     const finalSelector = insideParent
       ? this.locator._divWithClass(insideParent) + modeSelector
       : modeSelector;
@@ -287,9 +287,9 @@ export class AggregateHelper {
     options: string[],
     index = 0,
     check = true,
-    endp = "multiselectwidgetv2",
+    endpoint = "multiselectwidgetv2",
   ) {
-    cy.get(this.locator._widgetInDeployed(endp) + " div.rc-select-selector")
+    cy.get(this.locator._widgetInDeployed(endpoint) + " div.rc-select-selector")
       .eq(index)
       .scrollIntoView()
       .then(($element: any) => {
@@ -324,7 +324,7 @@ export class AggregateHelper {
 
     // //closing multiselect dropdown
     cy.get("body").type("{esc}");
-    // cy.get(this.locator._widgetInDeployed(endp))
+    // cy.get(this.locator._widgetInDeployed(endpoint))
     //     .eq(index)
     //     .click()
   }
