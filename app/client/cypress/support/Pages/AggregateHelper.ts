@@ -94,6 +94,7 @@ export class AggregateHelper {
       .type(renameVal, { force: true })
       .should("have.value", renameVal)
       .blur();
+    this.Sleep();
   }
 
   public AssertAutoSave() {
@@ -415,6 +416,26 @@ export class AggregateHelper {
         expect(classes).includes(toggle);
       });
     }
+  }
+
+  public ToggleSwitch(
+    switchName: string,
+    toggle: "check" | "uncheck" = "check",
+  ) {
+    let locator = cy.xpath(this.locator._switchToggle(switchName));
+    let parentLoc = locator.parent("label");
+    if (toggle == "check")
+      parentLoc.then(($parent) => {
+        if (!$parent.hasClass("t--switch-widget-active")) {
+          locator.click();
+        }
+      });
+    else
+      parentLoc.then(($parent) => {
+        if (!$parent.hasClass("t--switch-widget-inactive")) {
+          locator.click();
+        }
+      });
   }
 
   // public NavigateBacktoEditor() {
