@@ -1,11 +1,12 @@
 const dsl = require("../../../../fixtures/listRegressionDsl.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-const testdata = require("../../../../fixtures/testdata.json");
-const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+let jsEditor = ObjectsRegistry.JSEditor;
 
 describe("Binding the list widget with text widget", function() {
-  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+  //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   before(() => {
     cy.addDsl(dsl);
@@ -13,7 +14,7 @@ describe("Binding the list widget with text widget", function() {
 
   it("Validate text widget data based on changes in list widget Data1", function() {
     cy.PublishtheApp();
-    cy.wait(5000);
+    cy.wait(2000);
     cy.get(".t--widget-textwidget span:contains('Vivek')").should(
       "have.length",
       1,
@@ -33,9 +34,10 @@ describe("Binding the list widget with text widget", function() {
     );
   });
 
-  it.skip("Validate text widget data based on changes in list widget Data2", function() {
+  it("Validate text widget data based on changes in list widget Data2", function() {
     cy.SearchEntityandOpen("List1");
-    cy.updateComputedValue(
+    jsEditor.EnterJSContext(
+      "Items",
       '[[{ "name": "pawan"}, { "name": "Vivek" }], [{ "name": "Ashok"}, {"name": "rahul"}]]',
     );
     cy.wait("@updateLayout").should(
@@ -44,44 +46,50 @@ describe("Binding the list widget with text widget", function() {
       200,
     );
     cy.SearchEntityandOpen("Text3");
-    cy.wait(3000);
-    cy.updateComputedValue("{{currentItem.map(item => item.name).join(", ")}}");
+    cy.wait(1000);
+    jsEditor.EnterJSContext(
+      "Text",
+      '{{currentItem.map(item => item.name).join(", ")}}',
+    );
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
     cy.PublishtheApp();
-    cy.wait(5000);
-    cy.get(".t--widget-textwidget span:contains('pawan,Vivek')").should(
+    cy.wait(2000);
+    cy.get(".t--widget-textwidget span:contains('pawan, Vivek')").should(
       "have.length",
       1,
     );
-    cy.get(".t--widget-textwidget span:contains('Ashok,rahul')").should(
+    cy.get(".t--widget-textwidget span:contains('Ashok, rahul')").should(
       "have.length",
       1,
     );
     cy.get(publish.backToEditor).click({ force: true });
   });
 
-  it.skip("Validate text widget data based on changes in list widget Data3", function() {
+  it("Validate text widget data based on changes in list widget Data3", function() {
     cy.SearchEntityandOpen("List1");
-    cy.updateComputedValue('[{ "name": "pawan"}, { "name": "Vivek" }]');
+    jsEditor.EnterJSContext(
+      "Items",
+      '[{ "name": "pawan"}, { "name": "Vivek" }]',
+    );
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
     cy.SearchEntityandOpen("Text3");
-    cy.wait(3000);
-    cy.updateComputedValue("{{currentItem.name}}");
+    cy.wait(1000);
+    jsEditor.EnterJSContext("Text", "{{currentItem.name}}");
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
     cy.PublishtheApp();
-    cy.wait(5000);
+    cy.wait(2000);
     cy.get(".t--widget-textwidget span:contains('Vivek')").should(
       "have.length",
       2,
