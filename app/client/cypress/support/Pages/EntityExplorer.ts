@@ -21,7 +21,7 @@ export class EntityExplorer {
   private _contextMenu = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
     entityNameinLeftSidebar +
-    "']/ancestor::div[1]/following-sibling::div//div[contains(@class, 'entity-context-menu-icon')]";
+    "']/ancestor::div[2]/following-sibling::div//div[contains(@class, 'entity-context-menu-icon')]";
   private _contextMenuItem = (item: string) =>
     "//div[text()='" +
     item +
