@@ -6,6 +6,7 @@ import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -23,7 +24,7 @@ import reactor.test.StepVerifier;
 import java.io.IOException;
 import java.util.List;
 
-import static com.appsmith.server.migrations.DatabaseChangelog.objectMapper;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -32,15 +33,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ApplicationTemplateServiceTest {
     ApplicationTemplateService applicationTemplateService;
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @MockBean
     private UserDataService userDataService;
+
     @MockBean
     private CloudServicesConfig cloudServicesConfig;
+
     @MockBean
     private ReleaseNotesService releaseNotesService;
+
     @MockBean
     private ImportExportApplicationService importExportApplicationService;
+
     @MockBean
     private AnalyticsService analyticsService;
 
