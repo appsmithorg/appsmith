@@ -85,9 +85,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         widgetProps.rightColumn = props.rightColumn;
         widgetProps.bottomRow = props.bottomRow;
         widgetProps.minHeight = props.minHeight;
-        // TODO: Add these
-        // widgetProps.shouldScrollContents = props.shouldScrollContents;
-        // widgetProps.canExtend = props.canExtend;
+        widgetProps.shouldScrollContents = props.shouldScrollContents;
+        widgetProps.canExtend = props.canExtend;
         widgetProps.parentId = props.parentId;
       } else {
         widgetProps.parentColumnSpace = props.parentColumnSpace;
