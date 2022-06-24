@@ -17,7 +17,7 @@ async function getBackupFileName(){
         }}}).catch(err => {
           console.log(err);
       });
-    console.log("\n" + backupFiles.length + " Appsmith backup file(s) found: ");
+    console.log("\n" + backupFiles.length + " Appsmith backup file(s) found: [Listed in chronological order]");
     if (backupFiles.length == 0){
       return 
     }
