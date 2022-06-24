@@ -38,11 +38,7 @@ import {
 import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
-import {
-  getActionById,
-  getCurrentPageId,
-  selectPageSlugById,
-} from "selectors/editorSelectors";
+import { getActionById, getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Action,
@@ -772,7 +768,6 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const isApi = action.pluginType === PluginType.API;
   const isQuery = action.pluginType === PluginType.DB;
   const isSaas = action.pluginType === PluginType.SAAS;
-  const pageSlug: string = yield select(selectPageSlugById(action.pageId));
 
   if (isApi) {
     history.push(

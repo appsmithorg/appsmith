@@ -166,7 +166,6 @@ class ListView extends React.Component<Props> {
 
   renderNotFound() {
     const {
-      applicationId,
       history,
       match: {
         params: { pageId },

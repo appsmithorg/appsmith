@@ -17,7 +17,6 @@ import history from "utils/history";
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
-import { getCurrentPageId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   border: 2px solid #d6d6d6;

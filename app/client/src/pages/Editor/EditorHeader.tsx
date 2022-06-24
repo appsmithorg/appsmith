@@ -18,7 +18,6 @@ import {
   getCurrentPageId,
   getIsPublishingApplication,
   previewModeSelector,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import {
   getAllUsers,
@@ -341,7 +340,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   const filteredSharedUserList = props.sharedUserList.filter(
     (user) => user.username !== props.currentUser?.username,
   );
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const showModes = !shouldHideComments;
 
   return (

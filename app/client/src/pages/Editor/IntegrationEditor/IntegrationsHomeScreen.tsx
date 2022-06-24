@@ -22,10 +22,7 @@ import BackButton from "../DataSourceEditor/BackButton";
 import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import {
-  getCurrentApplicationId,
-  selectURLSlugs,
-} from "selectors/editorSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { integrationEditorURL } from "RouteBuilder";
 
 const HeaderFlex = styled.div`
@@ -100,8 +97,6 @@ type IntegrationsHomeScreenProps = {
   dataSources: Datasource[];
   mockDatasources: MockDatasource[];
   applicationId: string;
-  applicationSlug: string;
-  pageSlug: string;
 };
 
 type IntegrationsHomeScreenState = {
@@ -319,13 +314,7 @@ class IntegrationsHomeScreen extends React.Component<
   };
 
   componentDidMount() {
-    const {
-      applicationSlug,
-      dataSources,
-      history,
-      pageId,
-      pageSlug,
-    } = this.props;
+    const { dataSources, history, pageId } = this.props;
 
     const queryParams = getQueryParams();
     const redirectMode = queryParams.mode;
@@ -371,13 +360,7 @@ class IntegrationsHomeScreen extends React.Component<
 
   componentDidUpdate(prevProps: Props) {
     this.syncActivePrimaryMenu();
-    const {
-      applicationSlug,
-      dataSources,
-      history,
-      pageId,
-      pageSlug,
-    } = this.props;
+    const { dataSources, history, pageId } = this.props;
     if (dataSources.length === 0 && prevProps.dataSources.length > 0) {
       history.replace(
         integrationEditorURL({
@@ -548,14 +531,11 @@ class IntegrationsHomeScreen extends React.Component<
 }
 
 const mapStateToProps = (state: AppState) => {
-  const { applicationSlug, pageSlug } = selectURLSlugs(state);
   return {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
     isCreating: state.ui.apiPane.isCreating,
     applicationId: getCurrentApplicationId(state),
-    applicationSlug,
-    pageSlug,
   };
 };
 

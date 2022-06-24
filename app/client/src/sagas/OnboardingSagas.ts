@@ -40,7 +40,6 @@ import {
 } from "actions/onboardingActions";
 import {
   getCurrentApplicationId,
-  selectURLSlugs,
   getCurrentPageId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";

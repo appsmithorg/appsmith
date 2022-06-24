@@ -3,7 +3,6 @@ import React, {
   useState,
   useRef,
   useContext,
-  useMemo,
   useCallback,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
@@ -63,7 +62,6 @@ import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
 import { builderURL, viewerURL } from "RouteBuilder";
 import history from "utils/history";
-import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import urlBuilder from "entities/URLGenerator/URLAssembly";
 
 type NameWrapperProps = {
@@ -443,12 +441,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const applicationId = props.application?.id;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
-
-  const defaultPageSlug = useMemo(() => {
-    const pages = props.application.pages || [];
-    const defaultPage = pages.find((page) => page.isDefault);
-    return defaultPage?.slug || defaultPage?.name;
-  }, []);
 
   useEffect(() => {
     let colorCode;

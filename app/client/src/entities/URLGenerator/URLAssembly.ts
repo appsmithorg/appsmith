@@ -1,6 +1,5 @@
 import { ApplicationVersion } from "actions/applicationActions";
-import { ApplicationPagePayload } from "api/ApplicationApi";
-import { ApplicationPayload, Page } from "ce/constants/ReduxActionConstants";
+import { ApplicationPayload } from "ce/constants/ReduxActionConstants";
 import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
