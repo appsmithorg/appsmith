@@ -40,8 +40,8 @@ export class Table {
     "']/parent::div/parent::div/parent::div";
   private _nextPage = ".t--widget-tablewidget .t--table-widget-next-page";
   private _previousPage = ".t--widget-tablewidget .t--table-widget-prev-page";
-  private _pageNumber = ".t--widget-tablewidget .page-item";
-  private _pageNumberServerSideOff =
+  private _pageNumberServerSidePagination = ".t--widget-tablewidget .page-item";
+  private _pageNumberClientSidePagination =
     ".t--widget-tablewidget .t--table-widget-page-input input";
   _tableRow = (rowNum: number, colNum: number) =>
     `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
@@ -82,15 +82,14 @@ export class Table {
   _filtersCount = this._filterBtn + " span.action-title";
 
   public WaitUntilTableLoad(rowIndex = 0, colIndex = 0) {
-    cy.waitUntil(() => this.ReadTableRowColumnData(rowIndex, colIndex, 2000),
-      {
-        errorMsg: "Table is not populated",
-        timeout: 10000,
-        interval: 2000
-      }).then(cellData => {
-        expect(cellData).not.empty
-        this.agHelper.Sleep(500)
-      });
+    cy.waitUntil(() => this.ReadTableRowColumnData(rowIndex, colIndex, 2000), {
+      errorMsg: "Table is not populated",
+      timeout: 10000,
+      interval: 2000,
+    }).then((cellData) => {
+      expect(cellData).not.empty;
+      this.agHelper.Sleep(500);
+    });
   }
 
   public WaitForTableEmpty() {
@@ -135,33 +134,56 @@ export class Table {
     });
   }
 
-  public NavigateToNextPage() {
+  public NavigateToNextPage(isServerPagination = true) {
     let curPageNo: number;
-    cy.get(this._pageNumber)
-      .invoke("text")
+    this.agHelper
+      .GetText(
+        isServerPagination
+          ? this._pageNumberServerSidePagination
+          : this._pageNumberClientSidePagination,
+        isServerPagination ? "text" : "val",
+      )
       .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
     cy.get(this._nextPage).click();
-    cy.get(this._pageNumber)
-      .invoke("text")
+    this.agHelper
+      .GetText(
+        isServerPagination
+          ? this._pageNumberServerSidePagination
+          : this._pageNumberClientSidePagination,
+        isServerPagination ? "text" : "val",
+      )
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
   }
 
-  public NavigateToPreviousPage() {
+  public NavigateToPreviousPage(isServerPagination = true) {
     let curPageNo: number;
-    cy.get(this._pageNumber)
-      .invoke("text")
+    this.agHelper
+      .GetText(
+        isServerPagination
+          ? this._pageNumberServerSidePagination
+          : this._pageNumberClientSidePagination,
+        isServerPagination ? "text" : "val",
+      )
       .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
     cy.get(this._previousPage).click();
-    cy.get(this._pageNumber)
-      .invoke("text")
+    this.agHelper
+      .GetText(
+        isServerPagination
+          ? this._pageNumberServerSidePagination
+          : this._pageNumberClientSidePagination,
+        isServerPagination ? "text" : "val",
+      )
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo - 1));
   }
 
   public AssertPageNumber(pageNo: number, serverSide: "Off" | "On" = "On") {
     if (serverSide == "On")
-      cy.get(this._pageNumber).should("have.text", Number(pageNo));
+      cy.get(this._pageNumberServerSidePagination).should(
+        "have.text",
+        Number(pageNo),
+      );
     else {
-      cy.get(this._pageNumberServerSideOff).should(
+      cy.get(this._pageNumberClientSidePagination).should(
         "have.value",
         Number(pageNo),
       );
