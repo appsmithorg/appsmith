@@ -507,11 +507,13 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const { id, pluginType } = actionPayload.payload;
   const action: Action | undefined = yield select(getAction, id);
   const data = action ? { ...action } : {};
+  const pageId: string = yield select(getCurrentPageId);
 
   if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
     history.push(
       apiEditorIdURL({
+        pageId,
         apiId: id,
         params: {
           editName: "true",
@@ -614,6 +616,7 @@ function* handleApiNameChangeSuccessSaga(
     }
     history.push(
       apiEditorIdURL({
+        pageId: actionObj.pageId,
         apiId: actionId,
         params,
       }),

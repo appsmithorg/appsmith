@@ -1,3 +1,4 @@
+import urlBuilder from "entities/URLGenerator/URLAssembly";
 import { builderURL, viewerURL } from "RouteBuilder";
 
 describe("builderURL", () => {
@@ -5,13 +6,22 @@ describe("builderURL", () => {
   beforeAll(() => {
     location = window.location;
     delete (window as any).location;
+    urlBuilder.updateURLParams(
+      {
+        applicationSlug: ":applicationSlug",
+      },
+      [
+        {
+          pageId: "pageId",
+          pageSlug: ":pageSlug",
+        },
+      ],
+    );
   });
 
   it("persists embed query param", () => {
     (window as any).location = new URL("https://example.com?embed=true");
     const pageURL = builderURL({
-      applicationSlug: ":applicationSlug",
-      pageSlug: ":pageSlug",
       pageId: ":pageId",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
@@ -21,8 +31,6 @@ describe("builderURL", () => {
   it("does not append embed query param when it does not exist", () => {
     (window as any).location = new URL("https://example.com");
     const pageURL = builderURL({
-      applicationSlug: ":applicationSlug",
-      pageSlug: ":pageSlug",
       pageId: ":pageId",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
@@ -44,8 +52,6 @@ describe("viewerURL", () => {
   it("persists embed query param", () => {
     (window as any).location = new URL("https://example.com?embed=true");
     const pageURL = viewerURL({
-      applicationSlug: ":applicationSlug",
-      pageSlug: ":pageSlug",
       pageId: ":pageId",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
@@ -55,8 +61,6 @@ describe("viewerURL", () => {
   it("does not append embed query param when it does not exist", () => {
     (window as any).location = new URL("https://example.com");
     const pageURL = viewerURL({
-      applicationSlug: ":applicationSlug",
-      pageSlug: ":pageSlug",
       pageId: ":pageId",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);

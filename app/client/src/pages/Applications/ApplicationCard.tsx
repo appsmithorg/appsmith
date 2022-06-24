@@ -592,22 +592,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
   if (showGitBadge) {
     params.branch = showGitBadge;
   }
-  // const viewApplicationURL = viewerURL({
-  //   applicationSlug: props.application.slug as string,
-  //   applicationVersion: props.application.applicationVersion,
-  //   pageSlug: defaultPageSlug || PLACEHOLDER_PAGE_SLUG,
-  //   applicationId: props.application.id,
-  //   pageId: props.application.defaultPageId as string,
-  //   params,
-  // });
-  // const editApplicationURL = builderURL({
-  //   applicationSlug: props.application.slug as string,
-  //   applicationVersion: props.application.applicationVersion,
-  //   applicationId: props.application.id,
-  //   pageSlug: defaultPageSlug || PLACEHOLDER_PAGE_SLUG,
-  //   pageId: props.application.defaultPageId as string,
-  //   params,
-  // });
 
   const appNameText = (
     <Text cypressSelector="t--app-card-name" type={TextType.H3}>

@@ -352,6 +352,7 @@ export type GenerateCRUDSuccess = {
     id: string;
     name: string;
     isDefault?: boolean;
+    slug: string;
   };
   isNewPage: boolean;
 };

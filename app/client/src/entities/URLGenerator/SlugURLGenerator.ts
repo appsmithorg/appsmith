@@ -1,5 +1,4 @@
 import { ApplicationPayload, Page } from "ce/constants/ReduxActionConstants";
-import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { select } from "redux-saga/effects";
 import { fillPathname, viewerURL } from "RouteBuilder";
@@ -17,9 +16,9 @@ export class SlugURLGenerator extends URLGenerator {
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
-    const applicationSlug = currentApplication.slug || PLACEHOLDER_APP_SLUG;
+    const applicationSlug = currentApplication.slug;
     const currentPage: Page = yield select(getPageById(pageId));
-    const pageSlug = currentPage?.slug || PLACEHOLDER_PAGE_SLUG;
+    const pageSlug = currentPage.slug;
     let newURL = "";
     const { hash, pathname, search } = window.location;
     const isCurrentURLDeprecated = isURLDeprecated(pathname) || !pageIdInUrl;

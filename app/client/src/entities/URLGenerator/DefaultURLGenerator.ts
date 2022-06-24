@@ -27,11 +27,10 @@ export default class DefaultURLGenerator extends URLGenerator {
       // when switch from a branch with updated URL to another one with legacy URLs,
       // we need to compute the legacy url
       // This scenario can happen only in edit mode.
-      newURL =
-        builderURL({
-          applicationId: currentApplication.id,
-          pageId: pageId,
-        }) + hash;
+      newURL = builderURL({
+        pageId: pageId,
+        hash,
+      });
     }
     return newURL;
   }

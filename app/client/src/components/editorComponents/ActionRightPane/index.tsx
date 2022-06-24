@@ -29,7 +29,10 @@ import {
   SuggestedWidget as SuggestedWidgetsType,
 } from "api/ActionAPI";
 import { Colors } from "constants/Colors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
 
 const SideBar = styled.div`
@@ -215,6 +218,7 @@ function ActionSidebar({
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
+  const pageId = useSelector(getCurrentPageId);
   const params = useParams<{
     pageId: string;
     apiId?: string;
@@ -245,7 +249,7 @@ function ActionSidebar({
   }
 
   const navigeteToCanvas = () => {
-    history.push(builderURL());
+    history.push(builderURL({ pageId }));
   };
 
   return (

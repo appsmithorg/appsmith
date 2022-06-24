@@ -12,37 +12,24 @@ import {
   BUILD_FROM_SCRATCH_ACTION_SUBTITLE,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useSelector } from "react-redux";
-import { selectURLSlugs } from "selectors/editorSelectors";
 import { builderURL, generateTemplateFormURL } from "RouteBuilder";
 
 type routeId = {
-  applicationSlug: string;
   pageId: string;
-  pageSlug: string;
 };
 
-const routeToEmptyEditorFromGenPage = ({
-  applicationSlug,
-  pageId,
-  pageSlug,
-}: routeId): void => {
+const routeToEmptyEditorFromGenPage = ({ pageId }: routeId): void => {
   AnalyticsUtil.logEvent("BUILD_FROM_SCRATCH_ACTION_CARD_CLICK");
-  history.push(builderURL({ applicationSlug, pageSlug, pageId }));
+  history.push(builderURL({ pageId }));
 };
 
-const goToGenPageForm = ({
-  applicationSlug,
-  pageId,
-  pageSlug,
-}: routeId): void => {
+const goToGenPageForm = ({ pageId }: routeId): void => {
   AnalyticsUtil.logEvent("GEN_CRUD_PAGE_ACTION_CARD_CLICK");
-  history.push(generateTemplateFormURL({ applicationSlug, pageSlug, pageId }));
+  history.push(generateTemplateFormURL({ pageId }));
 };
 
 function ActionCards() {
   const { pageId } = useParams<ExplorerURLParams>();
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   return (
     <>
@@ -51,8 +38,6 @@ function ActionCards() {
         className="t--BuildFromScratch"
         onClick={() =>
           routeToEmptyEditorFromGenPage({
-            applicationSlug,
-            pageSlug,
             pageId,
           })
         }
@@ -70,7 +55,7 @@ function ActionCards() {
           />
         )}
         className="t--GenerateCRUDPage"
-        onClick={() => goToGenPageForm({ applicationSlug, pageSlug, pageId })}
+        onClick={() => goToGenPageForm({ pageId })}
         subTitle={GENERATE_PAGE_ACTION_SUBTITLE()}
         title={GENERATE_PAGE_ACTION_TITLE()}
       />

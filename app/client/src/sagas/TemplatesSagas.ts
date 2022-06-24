@@ -9,7 +9,6 @@ import TemplatesAPI, {
   FetchTemplateResponse,
   ImportTemplateResponse,
 } from "api/TemplatesApi";
-import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
 import { setTemplateNotificationSeenAction } from "actions/templateActions";
@@ -57,13 +56,8 @@ function* importTemplateToWorkspaceSaga(
         ...response.data,
         defaultPageId: getDefaultPageId(response.data.pages) as string,
       };
-      const defaultPage = response.data.pages.find((page) => page.isDefault);
-      const defaultPageSlug = defaultPage?.slug || PLACEHOLDER_PAGE_SLUG;
+      // TODO: Update route params here
       const pageURL = builderURL({
-        applicationId: application.id,
-        applicationSlug: application.slug,
-        applicationVersion: application.applicationVersion,
-        pageSlug: defaultPageSlug,
         pageId: application.defaultPageId,
       });
       yield put({

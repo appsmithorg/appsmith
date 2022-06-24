@@ -522,13 +522,8 @@ export const getZoomLevel = (state: AppState) => {
 export const getIsSavingEntity = (state: AppState) =>
   state.ui.editor.loadingStates.savingEntity;
 
-export const getEditorURL = createSelector(
-  getCurrentPageId,
-  selectURLSlugs,
-  (pageId: string, { applicationSlug, pageSlug }) =>
-    builderURL({
-      applicationSlug,
-      pageSlug,
-      pageId,
-    }),
+export const getEditorURL = createSelector(getCurrentPageId, (pageId: string) =>
+  builderURL({
+    pageId,
+  }),
 );

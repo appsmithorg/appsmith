@@ -6,7 +6,6 @@ import {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -163,11 +162,7 @@ export function PageTabs(props: Props) {
             pathname ===
             trimQueryString(
               viewerURL({
-                applicationSlug:
-                  currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
-                pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,
                 pageId: page.pageId,
-                customSlug: page.customSlug,
               }),
             )
           }

@@ -1,8 +1,4 @@
-import {
-  ApplicationPayload,
-  Page,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+import { Page, ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
@@ -20,7 +16,6 @@ import localStorage from "utils/localStorage";
 import { APP_MODE } from "entities/App";
 import { trimQueryString } from "./helpers";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { osName } from "react-device-detect";
 
@@ -399,17 +394,10 @@ export const getCamelCaseString = (sourceString: string) => {
  * @param page
  * @returns
  */
-export const getPageURL = (
-  page: Page,
-  appMode: APP_MODE | undefined,
-  currentApplicationDetails: ApplicationPayload | undefined,
-) => {
+export const getPageURL = (page: Page, appMode: APP_MODE | undefined) => {
   if (appMode === APP_MODE.PUBLISHED) {
     return trimQueryString(
       viewerURL({
-        applicationSlug:
-          currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
-        pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,
         pageId: page.pageId,
       }),
     );
@@ -417,8 +405,6 @@ export const getPageURL = (
 
   return trimQueryString(
     builderURL({
-      applicationSlug: currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
-      pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,
       pageId: page.pageId,
     }),
   );

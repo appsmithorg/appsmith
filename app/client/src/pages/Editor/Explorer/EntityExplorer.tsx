@@ -29,6 +29,7 @@ import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { SEARCH_ENTITY } from "constants/Explorer";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -86,8 +87,9 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     getIsFirstTimeUserOnboardingEnabled,
   );
   const noResults = false;
+  const pageId = useSelector(getCurrentPageId);
   const showWidgetsSidebar = useCallback(() => {
-    history.push(builderURL());
+    history.push(builderURL({ pageId }));
     dispatch(forceOpenWidgetPanel(true));
     if (isFirstTimeUserOnboardingEnabled) {
       dispatch(toggleInOnboardingWidgetSelection(true));

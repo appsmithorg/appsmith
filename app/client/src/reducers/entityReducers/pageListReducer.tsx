@@ -54,6 +54,7 @@ export const pageListReducer = createReducer(initialState, {
       pageId: string;
       layoutId: string;
       isDefault: boolean;
+      slug: string;
     }>,
   ) => {
     const _state = state;
@@ -175,6 +176,7 @@ export const pageListReducer = createReducer(initialState, {
         pageId: action.payload.page.id,
         layoutId: action.payload.page.layouts[0].id,
         isDefault: !!action.payload.page.isDefault,
+        slug: action.payload.page.slug,
       };
       _state.pages.push({ ...newPage, latest: true });
     }

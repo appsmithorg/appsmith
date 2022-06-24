@@ -1008,6 +1008,7 @@ export interface ClonePageSuccessPayload {
   pageId: string;
   layoutId: string;
   isDefault: boolean;
+  slug: string;
 }
 
 export interface ApplicationPayload {
@@ -1020,7 +1021,7 @@ export interface ApplicationPayload {
   isPublic?: boolean;
   userPermissions?: string[];
   appIsExample: boolean;
-  slug?: string;
+  slug: string;
   forkingEnabled?: boolean;
   appLayout?: AppLayoutConfig;
   gitApplicationMetadata?: GitApplicationMetadata;

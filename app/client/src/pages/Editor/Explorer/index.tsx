@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import { AppState } from "reducers";
 import { builderURL } from "RouteBuilder";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { trimQueryString } from "utils/helpers";
@@ -23,6 +24,7 @@ function ExplorerContent() {
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
+  const pageId = useSelector(getCurrentPageId);
   const location = useLocation();
   const switches = useMemo(
     () => [
@@ -35,12 +37,14 @@ function ExplorerContent() {
         id: "widgets",
         text: "Widgets",
         action: () => {
-          if (!(trimQueryString(builderURL()) === location.pathname)) {
-            history.push(builderURL());
+          if (
+            !(trimQueryString(builderURL({ pageId })) === location.pathname)
+          ) {
+            history.push(builderURL({ pageId }));
             AnalyticsUtil.logEvent("WIDGET_TAB_CLICK", {
               type: "WIDGET_TAB",
               fromUrl: location.pathname,
-              toUrl: builderURL(),
+              toUrl: builderURL({ pageId }),
             });
           }
           dispatch(forceOpenWidgetPanel(true));

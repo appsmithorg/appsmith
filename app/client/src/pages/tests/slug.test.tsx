@@ -1,6 +1,6 @@
 import React from "react";
 import { ApplicationVersion } from "actions/applicationActions";
-import { builderURL, URLParamsFactory } from "RouteBuilder";
+import { builderURL } from "RouteBuilder";
 import {
   Page,
   ReduxActionTypes,
@@ -25,6 +25,7 @@ import { updateCurrentPage } from "actions/pageActions";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { getPageURL } from "utils/AppsmithUtils";
 import { APP_MODE } from "entities/App";
+import urlBuilder from "entities/URLGenerator/URLAssembly";
 
 describe("URL slug names", () => {
   beforeEach(async () => {
@@ -76,11 +77,11 @@ describe("URL slug names", () => {
       pageId: "pageId",
       pageSlug: "pageSlug",
     };
-    URLParamsFactory.updateURLParams({
+    urlBuilder.updateURLParams({
       applicationVersion: ApplicationVersion.DEFAULT,
     });
     const url1 = builderURL(params);
-    URLParamsFactory.updateURLParams({
+    urlBuilder.updateURLParams({
       applicationVersion: ApplicationVersion.SLUG_URL,
     });
     const url2 = builderURL(params);

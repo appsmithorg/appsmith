@@ -12,6 +12,7 @@ import PageListItem, { Action } from "./PageListItem";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
+  getCurrentPageId,
   getPageList,
 } from "selectors/editorSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -72,6 +73,7 @@ function PagesEditor() {
   )?.map((page) => ({ ...page, id: page.pageId }));
   const currentApp = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId) as string;
+  const pageId = useSelector(getCurrentPageId);
 
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGES_LIST_LOAD", {
@@ -115,8 +117,8 @@ function PagesEditor() {
    * @return void
    */
   const onClose = useCallback(() => {
-    history.push(builderURL());
-  }, []);
+    history.push(builderURL({ pageId }));
+  }, [pageId]);
 
   /**
    * Draggable List Render item

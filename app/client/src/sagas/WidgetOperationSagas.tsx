@@ -1546,12 +1546,14 @@ function* pasteWidgetSaga(
 
   yield put(updateAndSaveLayout(reflowedWidgets));
 
+  const pageId: string = yield select(getCurrentPageId);
+
   if (
     copiedWidgetGroups &&
     copiedWidgetGroups.length > 0 &&
     matchGeneratePagePath(window.location.pathname)
   ) {
-    history.push(builderURL());
+    history.push(builderURL({ pageId }));
   }
 
   yield put({

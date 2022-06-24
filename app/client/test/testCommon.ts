@@ -27,6 +27,7 @@ export const useMockDsl = (dsl: any) => {
       applicationId: "app_id",
       isDefault: true,
       isHidden: false,
+      slug: "page-1",
       layouts: [
         {
           id: "layout_id",
