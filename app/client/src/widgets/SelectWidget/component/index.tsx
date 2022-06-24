@@ -358,7 +358,11 @@ class SelectComponent extends React.Component<
               popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId}`,
             }}
             query={this.props.filterText}
-            resetOnClose
+            /**
+             * Clear the search input on closing the widget
+             * and serverSideFiltering is off
+             */
+            resetOnClose={!this.props.serverSideFiltering}
             scrollToActiveItem
             value={this.props.value as string}
           >

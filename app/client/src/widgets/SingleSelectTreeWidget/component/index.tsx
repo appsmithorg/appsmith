@@ -17,17 +17,14 @@ import {
 import "rc-tree-select/assets/index.less";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
-import {
-  CANVAS_CLASSNAME,
-  MODAL_PORTAL_CLASSNAME,
-  TextSize,
-} from "constants/WidgetConstants";
+import { RenderMode, TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import useDropdown from "widgets/useDropdown";
 
 export interface TreeSelectProps
   extends Required<
@@ -61,6 +58,7 @@ export interface TreeSelectProps
   widgetId: string;
   filterText?: string;
   isFilterable: boolean;
+  renderMode?: RenderMode;
 }
 
 const getSvg = (expanded: boolean) => (
@@ -97,7 +95,6 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
   }
   return getSvg(treeNode.expanded);
 };
-const FOCUS_TIMEOUT = 500;
 
 function SingleSelectTreeComponent({
   accentColor,
@@ -123,6 +120,7 @@ function SingleSelectTreeComponent({
   onChange,
   options,
   placeholder,
+  renderMode,
   value,
   widgetId,
   width,
@@ -135,21 +133,23 @@ function SingleSelectTreeComponent({
   const inputRef = useRef<HTMLInputElement>(null);
   const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
 
+  const {
+    BackDrop,
+    getPopupContainer,
+    onKeyDown,
+    onOpen,
+    selectRef,
+  } = useDropdown({
+    inputRef,
+    renderMode,
+  });
+
   // treeDefaultExpandAll is uncontrolled after first render,
   // using this to force render to respond to changes in expandAll
   useEffect(() => {
     setKey(Math.random());
   }, [expandAll]);
 
-  const getDropdownPosition = useCallback(() => {
-    const node = _menu.current;
-    if (Boolean(node?.closest(`.${MODAL_PORTAL_CLASSNAME}`))) {
-      return document.querySelector(
-        `.${MODAL_PORTAL_CLASSNAME}`,
-      ) as HTMLElement;
-    }
-    return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
-  }, []);
   const onSelectionChange = useCallback(
     (value?: DefaultValueType, labelList?: ReactNode[]) => {
       setFilter("");
@@ -158,13 +158,6 @@ function SingleSelectTreeComponent({
     [],
   );
   const onClear = useCallback(() => onChange([], []), []);
-  const onOpen = useCallback((open: boolean) => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
-    } else {
-      setFilter("");
-    }
-  }, []);
   const clearButton = useMemo(
     () =>
       filter ? (
@@ -197,13 +190,13 @@ function SingleSelectTreeComponent({
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
       <>
+        <BackDrop />
         {isFilterable ? (
           <InputGroup
-            autoFocus
             inputRef={inputRef}
             leftIcon="search"
             onChange={onQueryChange}
-            onKeyDown={(e) => e.stopPropagation()}
+            onKeyDown={onKeyDown}
             placeholder="Filter..."
             rightElement={clearButton as JSX.Element}
             small
@@ -216,6 +209,12 @@ function SingleSelectTreeComponent({
     ),
     [loading, isFilterable, filter, onQueryChange],
   );
+
+  const onDropdownVisibleChange = (open: boolean) => {
+    onOpen(open);
+    // Clear the search input on closing the widget
+    setFilter("");
+  };
 
   return (
     <TreeSelectContainer
@@ -268,7 +267,7 @@ function SingleSelectTreeComponent({
           dropdownRender={dropdownRender}
           dropdownStyle={dropdownStyle}
           filterTreeNode
-          getPopupContainer={getDropdownPosition}
+          getPopupContainer={getPopupContainer}
           inputIcon={
             <Icon
               className="dropdown-icon"
@@ -283,8 +282,9 @@ function SingleSelectTreeComponent({
           notFoundContent="No Results Found"
           onChange={onSelectionChange}
           onClear={onClear}
-          onDropdownVisibleChange={onOpen}
+          onDropdownVisibleChange={onDropdownVisibleChange}
           placeholder={placeholder}
+          ref={selectRef}
           searchValue={filter}
           showArrow
           showSearch={false}
