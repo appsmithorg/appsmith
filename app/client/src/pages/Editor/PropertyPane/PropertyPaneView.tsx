@@ -12,15 +12,10 @@ import PropertyPaneConnections from "./PropertyPaneConnections";
 import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 import { WidgetType } from "constants/WidgetConstants";
-import { isWidgetDeprecated } from "../utils";
+import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { BannerMessage } from "components/ads/BannerMessage";
 import { Colors } from "constants/Colors";
 import { IconSize, SearchInput, SearchVariant } from "components/ads";
-import {
-  createMessage,
-  WIDGET_DEPRECATION_WARNING,
-  WIDGET_DEPRECATION_WARNING_HEADER,
-} from "@appsmith/constants/messages";
 import { TabComponent } from "components/ads/Tabs";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import WidgetFactory from "utils/WidgetFactory";
@@ -130,16 +125,16 @@ function PropertyPaneView(
   if (!widgetProperties) return null;
 
   // Building Deprecation Messages
-  const isDeprecated = isWidgetDeprecated(widgetProperties.type);
-  const widgetDisplayName = widgetProperties.displayName
-    ? `${widgetProperties.displayName} `
-    : "";
+  const {
+    currentWidgetName,
+    isDeprecated,
+    widgetReplacedWith,
+  } = isWidgetDeprecated(widgetProperties.type);
   // generate messages
-  const deprecationMessage = createMessage(
-    WIDGET_DEPRECATION_WARNING,
-    widgetDisplayName,
+  const deprecationMessage = buildDeprecationWidgetMessage(
+    currentWidgetName,
+    widgetReplacedWith,
   );
-  const deprecationHeader = createMessage(WIDGET_DEPRECATION_WARNING_HEADER);
 
   // TODO(aswathkk): remove this when PROPERTY_PANE_GROUPING feature is released
   const isContentAndStyleConfigAvailable =
@@ -181,7 +176,6 @@ function PropertyPaneView(
             iconColor={Colors.WARNING_SOLID}
             iconSize={IconSize.XXXXL}
             message={deprecationMessage}
-            messageHeader={deprecationHeader}
             textColor={Colors.BROWN}
           />
         )}
