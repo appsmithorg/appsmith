@@ -2,8 +2,7 @@ const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let dataSources = ObjectsRegistry.DataSources,
-  agHelper = ObjectsRegistry.AggregateHelper;
+let dataSources = ObjectsRegistry.DataSources;
 
 let datasourceName, actionName;
 
@@ -11,7 +10,6 @@ describe("Mongo Active datasource test cases", function() {
   before(() => {
     cy.NavigateToDatasourceEditor();
     dataSources.CreatePlugIn("MongoDB");
-    agHelper.ValidateToastMessage("datasource created"); //verifying there is no error toast, Bug 14566
     cy.fillMongoDatasourceForm();
     cy.get(datasourceEditor.saveBtn).click({ force: true });
     cy.wait("@createDatasource").then((httpResponse) => {
