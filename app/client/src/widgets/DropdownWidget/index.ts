@@ -10,6 +10,7 @@ export const CONFIG = {
   needsMeta: true,
   hideCard: true,
   isDeprecated: true,
+  replacement: "SELECT_WIDGET",
   defaults: {
     rows: 7,
     columns: 20,
