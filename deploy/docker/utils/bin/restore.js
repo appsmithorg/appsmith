@@ -9,25 +9,23 @@ const utils = require('./utils');
 const Constants = require('./constants');
 
 async function getBackupFileName(){
-  const backupFiles = [];
-  await fsPromises.readdir(Constants.BACKUP_PATH).then(filenames => {
-    for (let filename of filenames) {
-      if (filename.match(/^appsmith-backup-.*\.tar\.gz$/)) {
-        backupFiles.push(filename);
-        }}}).catch(err => {
-          console.log(err);
-      });
-    console.log("\n" + backupFiles.length + " Appsmith backup file(s) found: [Listed in chronological order]");
-    if (backupFiles.length == 0){
-      return 
-    }
-    console.log('----------------------------------------------------------------');
-    console.log('Index\t|\tAppsmith Backup Archive File');
-    console.log('----------------------------------------------------------------');
-    for (var i=0; i<backupFiles.length; i++)
-      console.log(i + '\t|\t'+ backupFiles[i]);
-    console.log('----------------------------------------------------------------');
-  
+
+  const backupFiles = await utils.listLocalBackupFiles();
+  console.log("\n" + backupFiles.length + " Appsmith backup file(s) found: [Sorted in ascending/chronological order]");
+  if (backupFiles.length == 0){
+    return 
+  }
+  console.log('----------------------------------------------------------------');
+  console.log('Index\t|\tAppsmith Backup Archive File');
+  console.log('----------------------------------------------------------------');
+  for (var i=0; i<backupFiles.length; i++){
+    if (i === backupFiles.length -1)
+      console.log(i + '\t|\t' + backupFiles[i] + ' <--Most recent backup');
+    else
+      console.log(i + '\t|\t' + backupFiles[i]);
+  }
+  console.log('----------------------------------------------------------------');
+
   var backupFileIndex = Number(readlineSync.question('Please enter the backup file index: '));
   if (!isNaN(backupFileIndex) && Number.isInteger(backupFileIndex) && (backupFileIndex >= 0) && (backupFileIndex < backupFiles.length)){
     return backupFiles[Number(backupFileIndex)];
@@ -58,14 +56,11 @@ async function restoreDockerEnvFile(restoreContentsPath, backupName){
   var encryptionSalt = process.env.APPSMITH_ENCRYPTION_SALT;
   await utils.execCommand(['mv', dockerEnvFile, dockerEnvFile + '.' + backupName]);
   await utils.execCommand(['cp', restoreContentsPath + '/docker.env', dockerEnvFile]);
-  console.log("Your current Appsmith instance has the following encryption values:\n" +
-                "APPSMITH_ENCRYPTION_PASSWORD=" + encryptionPwd + "\n" +
-                "APPSMITH_ENCRYPTION_SALT" + encryptionSalt);
 
-  if ((encryptionPwd != null) && (encryptionSalt != null)){
-    const input = readlineSync.question('Would you like to proceed using the existing encryption values?\n\
+  if ((encryptionPwd !== '') && (encryptionSalt !== '')){
+    const input = readlineSync.question('Existing encryption env values of the previous instance were found.\n\
     Press Enter to continue with existing encryption values\n\
-    Or Type "n"/"No" to provide encryption key & password for the restore instance.\n');
+    Or Type "n"/"No" to provide encryption key & password for the new restore instance.\n');
     const answer = input && input.toLocaleUpperCase();
     if (answer === 'N' || answer === 'NO') {
       encryptionPwd = readlineSync.question('Enter the APPSMITH_ENCRYPTION_PASSWORD: ', {
