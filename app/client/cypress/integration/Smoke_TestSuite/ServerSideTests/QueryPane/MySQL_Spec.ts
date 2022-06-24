@@ -73,7 +73,7 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
   });
 
   function runQueryNValidate(query: string, columnHeaders: string[]) {
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders(columnHeaders);
   }

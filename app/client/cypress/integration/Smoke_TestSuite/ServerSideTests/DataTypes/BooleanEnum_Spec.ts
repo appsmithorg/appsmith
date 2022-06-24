@@ -39,14 +39,14 @@ describe("Postgres - Datatype Boolean & Enum types tests", function() {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("createEnum");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
     dataSources.RunQuery();
 
     query = `create table boolenumtypes (serialId SERIAL not null primary key, workingDay weekdays, AreWeWorking boolean)`;
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("createTable");
     agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
     dataSources.RunQuery();
 
     //ee.ExpandCollapseEntity(dsName); //Clicking Create Query from Active DS is already expanding ds
@@ -70,43 +70,43 @@ describe("Postgres - Datatype Boolean & Enum types tests", function() {
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("insertRecord");
     agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
 
     query = `UPDATE public."boolenumtypes" SET "workingday" = {{Updateworkingday.selectedOptionValue}}, "areweworking" = {{Updateareweworking.isSwitchedOn}} WHERE serialid = {{Table1.selectedRow.serialid}};`;
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("updateRecord");
     agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
 
     query = `SELECT * from enum_range(NULL::weekdays)`;
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("getEnum");
     agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
 
     query = `DELETE FROM public."boolenumtypes" WHERE serialId ={{Table1.selectedRow.serialid}}`;
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("deleteRecord");
     agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
 
     query = `DELETE FROM public."boolenumtypes"`;
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("deleteAllRecords");
     agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
 
     query = `drop table public."boolenumtypes"`;
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("dropTable");
     agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
 
     query = `drop type weekdays`;
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("dropEnum");
     agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
 
     ee.ExpandCollapseEntity("QUERIES/JS", false);
     ee.ExpandCollapseEntity(dsName, false);
@@ -197,7 +197,7 @@ describe("Postgres - Datatype Boolean & Enum types tests", function() {
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("verifyEnumOrdering");
     agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(1).then(($cellData) => {
       expect($cellData).to.eq("Saturday");
@@ -207,7 +207,7 @@ describe("Postgres - Datatype Boolean & Enum types tests", function() {
     });
 
     query = `SELECT * FROM boolenumtypes WHERE workingday = (SELECT MIN(workingday) FROM boolenumtypes);`;
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(1).then(($cellData) => {
       expect($cellData).to.eq("Monday");

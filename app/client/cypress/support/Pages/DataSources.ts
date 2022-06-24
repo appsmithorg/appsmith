@@ -380,4 +380,11 @@ export class DataSources {
 
     this.agHelper.AssertAutoSave();
   }
+
+  public EnterQuery(query: string) {
+    cy.get(this.locator._codeEditorTarget).then(($field: any) => {
+      this.agHelper.UpdateCodeInput($field, query);
+    });
+    this.agHelper.AssertAutoSave();
+  }
 }

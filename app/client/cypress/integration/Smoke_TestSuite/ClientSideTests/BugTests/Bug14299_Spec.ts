@@ -40,7 +40,7 @@ describe("[Bug]: The data from the query does not show up on the widget #14299",
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("getAstronauts");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
     jsEditor.CreateJSObject(
       `export default {
       runAstros: () => {

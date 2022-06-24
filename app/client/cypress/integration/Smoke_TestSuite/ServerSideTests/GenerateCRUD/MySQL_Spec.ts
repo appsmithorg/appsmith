@@ -163,7 +163,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("CreateProductLines");
-    agHelper.EnterValue(tableCreateQuery);
+    dataSources.EnterQuery(tableCreateQuery);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
@@ -304,7 +304,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("CreateStores");
-    agHelper.EnterValue(tableCreateQuery);
+    dataSources.EnterQuery(tableCreateQuery);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
@@ -584,7 +584,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropStores");
-    agHelper.EnterValue(deleteTblQuery);
+    dataSources.EnterQuery(deleteTblQuery);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
@@ -600,7 +600,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropStores");
-    agHelper.EnterValue(deleteTblQuery);
+    dataSources.EnterQuery(deleteTblQuery);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 

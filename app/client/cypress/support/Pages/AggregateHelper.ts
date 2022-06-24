@@ -524,10 +524,6 @@ export class AggregateHelper {
           this.UpdateCodeInput($field, valueToEnter);
         },
       );
-    } else {
-      cy.get(this.locator._codeEditorTarget).then(($field: any) => {
-        this.UpdateCodeInput($field, valueToEnter);
-      });
     }
     this.AssertAutoSave();
   }

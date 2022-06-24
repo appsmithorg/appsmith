@@ -41,7 +41,7 @@ describe("Postgres - Datatype DateTime tests", function() {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("createTable");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
     cy.get(".CodeMirror textarea").focus();
     dataSources.RunQuery();
     ee.ExpandCollapseEntity(dsName);
@@ -64,7 +64,7 @@ describe("Postgres - Datatype DateTime tests", function() {
     agHelper
       .GetText(dataSources._noRecordFound)
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
   });
 
   it("4. Creating INSERT query - datetimetypes", () => {
@@ -72,7 +72,7 @@ describe("Postgres - Datatype DateTime tests", function() {
     VALUES('{{Insertts.text}}', '{{Inserttstz.text}}', '{{Insertdater.text}}', '{{Inserttimer.text}}', '{{Insertintervaler.text}}');`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "INSERT");
     agHelper.RenameWithInPane("insertRecord");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
     dataSources.ToggleUsePreparedStatement(false);
   });
 
@@ -82,7 +82,7 @@ describe("Postgres - Datatype DateTime tests", function() {
     "intervaler" = '{{Updateintervaler.text}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "UPDATE");
     agHelper.RenameWithInPane("updateRecord");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
     dataSources.ToggleUsePreparedStatement(false);
   });
 
@@ -91,21 +91,21 @@ describe("Postgres - Datatype DateTime tests", function() {
     WHERE serialId = {{Table1.selectedRow.serialid}};`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "DELETE");
     agHelper.RenameWithInPane("deleteRecord");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
   });
 
   it("7. Creating DELETE query for complete table empty - datetimetypes", () => {
     query = `DELETE FROM public."datetimetypes"`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "DELETE");
     agHelper.RenameWithInPane("deleteAllRecords");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
   });
 
   it("8. Creating DROP table query - datetimetypes", () => {
     query = `drop table public."datetimetypes"`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "DELETE");
     agHelper.RenameWithInPane("dropTable");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
   });
 
   it("9. Validating interval methods", () => {
@@ -116,7 +116,7 @@ describe("Postgres - Datatype DateTime tests", function() {
    EXTRACT (MINUTE  FROM  INTERVAL '5 hours 21 minutes');`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "SELECT");
     agHelper.RenameWithInPane("intervalRecords");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq(
