@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -72,19 +73,16 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
          Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, AclPermission.READ_WORKSPACES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
-        // Get default user group ids
-        Mono<Set<String>> defaultUserGroups = workspaceMono
-                .flatMap(workspace -> Mono.just(workspace.getDefaultUserGroups()))
-                .cache();
-
         Mono<User>  userMono = sessionUserService.getCurrentUser().cache();
 
-        // Get old groups
-        Mono<UserGroup> oldDefaultUserGroupsMono = userMono.flatMapMany(user -> userGroupService.getAllByUserId(user.getId(), AclPermission.INVITE_USER_GROUPS))
-                .zipWith(defaultUserGroups)
-                .filter(pair -> pair.getT2().contains(pair.getT1().getId())) // filter out groups that are not default
-                .map(pair -> pair.getT1())
-                .single() // get the first group, should we handle the case if user is part of multiple default user groups?
+        Mono<UserGroup> oldDefaultUserGroupsMono = Mono.zip(workspaceMono, userMono)
+                .flatMapMany(tuple -> {
+                    Workspace workspace = tuple.getT1();
+                    User user = tuple.getT2();
+                    return userGroupService.getAllByUserIdAndDefaultWorkspaceId(user.getId(), workspace.getId(), AclPermission.READ_USER_GROUPS);
+                })
+                //TODO do we handle case of multiple default group ids
+                .single()
                 .flatMap(userGroup -> {
                     if(userGroup.getName().startsWith(FieldName.ADMINISTRATOR) && userGroup.getUsers().size() == 1) {
                         return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR));
@@ -94,12 +92,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 // If we cannot find the groups, that means either user is not part of any default group or current user has no access to the group
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change userGroup of a member")));
 
-        // Remove the user from the old group
-        oldDefaultUserGroupsMono
-                .zipWith(userMono)
-                .flatMap(pair -> userGroupService.removeUser(pair.getT1(), pair.getT2()));
-
-        return userMono;
+        return oldDefaultUserGroupsMono.flatMap(userGroup -> userGroupService.removeSelf(userGroup))
+                .then(userMono);
     }
 
     /**
@@ -117,57 +111,65 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAME));
         }
 
-        // If new group id is null, remove the user from the workspace, this was the old behaviour with UserRoles
-        if(changeUserGroupDTO.getNewGroupId() == null) {
-            return leaveWorkspace(workspaceId)
-                    .map(user -> UserAndGroupDTO.builder().username(user.getUsername()).name(user.getName()).build());
-        }
-
         // Read the workspace
         Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, AclPermission.READ_WORKSPACES)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
-
-        // Get default user group ids
-        Mono<Set<String>> defaultUserGroups = workspaceMono
-                .flatMap(workspace -> Mono.just(workspace.getDefaultUserGroups()))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
                 .cache();
 
-        // Get user
+        // Get the user
         Mono<User> userMono = userRepository.findByEmail(changeUserGroupDTO.getUsername(), AclPermission.READ_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, changeUserGroupDTO.getUsername())))
                 .cache();
 
-        // Get old groups
-        Mono<UserGroup> oldDefaultUserGroupsMono = userMono.flatMapMany(user -> userGroupService.getAllByUserId(user.getId(), AclPermission.INVITE_USER_GROUPS))
-                .zipWith(defaultUserGroups)
-                .filter(pair -> pair.getT2().contains(pair.getT1().getId())) // filter out groups that are not default
-                .map(pair -> pair.getT1())
-                .single() // get the first group, should we handle the case if user is part of multiple default user groups?
+        Mono<UserGroup> oldDefaultUserGroupMono = Mono.zip(workspaceMono, userMono)
+                .flatMapMany(tuple -> {
+                    Workspace workspace = tuple.getT1();
+                    User user = tuple.getT2();
+                    return userGroupService.getAllByUserIdAndDefaultWorkspaceId(user.getId(), workspace.getId(), AclPermission.MANAGE_USER_GROUPS);
+                })
+                //TODO do we handle case of multiple default group ids
+                .single()
+                .flatMap(userGroup -> {
+                    if(userGroup.getName().startsWith(FieldName.ADMINISTRATOR) && userGroup.getUsers().size() == 1) {
+                        return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR));
+                    }
+                    return Mono.just(userGroup);
+                })
                 // If we cannot find the groups, that means either user is not part of any default group or current user has no access to the group
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change userGroup of a member")));
 
-        // Get new group
-        Mono<UserGroup> newDefaultUserGroupMono = userGroupService.getById(changeUserGroupDTO.getNewGroupId(), AclPermission.INVITE_USER_GROUPS)
-                .zipWith(defaultUserGroups)
-                .filter(pair -> pair.getT2().contains(pair.getT1().getId())) // filter out groups that are not default
-                .map(pair -> pair.getT1())
-                // If we cannot find the group, that means either newGroupId is not a default group or current user has no access to the group
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change userGroup of a member")));
-
         // Remove the user from the old group
-        oldDefaultUserGroupsMono
+        Mono<UserGroup> userGroupRemovedMono = oldDefaultUserGroupMono
                 .zipWith(userMono)
                 .flatMap(pair -> userGroupService.removeUser(pair.getT1(), pair.getT2()));
 
+        // If new group id is not present, just remove the old group and return UserAndGroupDTO
+        if(!StringUtils.hasText(changeUserGroupDTO.getNewGroupId())) {
+            return userGroupRemovedMono.then(userMono)
+                    .map(user ->UserAndGroupDTO.builder().username(user.getUsername()).name(user.getName()).build());
+        }
+
+        // Get the new group
+        Mono<UserGroup> newDefaultUserGroupMono = Mono.zip(workspaceMono, userMono)
+                .flatMap(tuple -> {
+                    Workspace workspace = tuple.getT1();
+                    User user = tuple.getT2();
+                    return userGroupService.getByIdAndDefaultWorkspaceId(user.getId(), workspace.getId(), AclPermission.INVITE_USER_GROUPS);
+                })
+                // If we cannot find the group, that means either newGroupId is not a default group or current user has no access to the group
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change userGroup of a member")));
+
         // Add the user to the new group
-        Mono<UserGroup> newUserGroupMono = newDefaultUserGroupMono
+        Mono<UserGroup> userGroupAddedMono = newDefaultUserGroupMono
                 .zipWith(userMono)
                 .flatMap(pair -> userGroupService.addUser(pair.getT1(), pair.getT2()));
 
-        return Mono.zip(userMono, newUserGroupMono)
+        // Remove the old group, add the new group and then return UserAndGroupDTO
+        return userGroupRemovedMono
+                .then(userGroupAddedMono).zipWith(userMono)
                 .map(pair -> {
-                    User user = pair.getT1();
-                    UserGroup newUserGroup = pair.getT2();
+                    User user = pair.getT2();
+                    UserGroup newUserGroup = pair.getT1();
                     return UserAndGroupDTO.builder()
                         .username(user.getUsername())
                         .name(user.getName())

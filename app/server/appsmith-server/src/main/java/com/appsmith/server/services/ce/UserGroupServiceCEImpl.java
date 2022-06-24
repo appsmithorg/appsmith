@@ -9,6 +9,8 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -72,12 +74,36 @@ public class UserGroupServiceCEImpl extends BaseService<UserGroupRepository, Use
         return bulkAddUsers(userGroup, List.of(user));
     }
 
-    @Override
-    public Mono<UserGroup> removeUser(UserGroup userGroup, User user) {
+    private Mono<UserGroup> removeUserAsPermission(UserGroup userGroup, User user, AclPermission permission) {
         boolean removed = userGroup.getUsers().remove(new UserInGroup(user));
         if (removed) {
-            return repository.updateById(userGroup.getId(), userGroup, AclPermission.INVITE_USER_GROUPS);
+            return repository.updateById(userGroup.getId(), userGroup, permission);
         }
         return Mono.just(userGroup);
+    }
+
+    @Override
+    public Mono<UserGroup> removeUser(UserGroup userGroup, User user) {
+        return removeUserAsPermission(userGroup, user, AclPermission.MANAGE_USER_GROUPS);
+    }
+
+    @Override
+    public Mono<UserGroup> removeSelf(UserGroup userGroup) {
+        Mono<User> userMono = ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> (User) auth.getPrincipal());
+        return userMono.flatMap(user -> removeUserAsPermission(userGroup, user, AclPermission.READ_USER_GROUPS));
+    }
+
+    @Override
+    public Flux<UserGroup> getAllByUserIdAndDefaultWorkspaceId(String userId, String defaultWorkspaceId,
+            AclPermission permission) {
+        return repository.findAllByUserIdAndDefaultWorkspaceId(userId, defaultWorkspaceId, permission);
+    }
+
+    @Override
+    public Mono<UserGroup> getByIdAndDefaultWorkspaceId(String id, String defaultWorkspaceId,
+            AclPermission permission) {
+        return repository.findByIdAndDefaultWorkspaceId(id, defaultWorkspaceId, permission);
     }
 }

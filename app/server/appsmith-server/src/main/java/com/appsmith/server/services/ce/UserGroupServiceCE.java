@@ -22,9 +22,13 @@ public interface UserGroupServiceCE extends CrudService<UserGroup, String> {
 
     Flux<UserGroup> getAllByUserId(String userId, AclPermission permission);
 
+    Flux<UserGroup> getAllByUserIdAndDefaultWorkspaceId(String userId, String defaultWorkspaceId, AclPermission permission);
+
     Mono<UserGroup> save(UserGroup userGroup);
 
     Mono<UserGroup> getById(String id, AclPermission permission);
+
+    Mono<UserGroup> getByIdAndDefaultWorkspaceId(String id, String defaultWorkspaceId, AclPermission permission);
 
     Flux<UserGroup> getDefaultUserGroups(String workspaceId);
     
@@ -33,5 +37,7 @@ public interface UserGroupServiceCE extends CrudService<UserGroup, String> {
     Mono<UserGroup> addUser(UserGroup userGroup, User user);
 
     Mono<UserGroup> removeUser(UserGroup userGroup, User user);
+
+    Mono<UserGroup> removeSelf(UserGroup userGroup);
 
 }

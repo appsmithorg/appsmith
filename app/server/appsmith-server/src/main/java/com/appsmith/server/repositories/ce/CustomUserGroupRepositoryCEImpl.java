@@ -7,6 +7,7 @@ import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Set;
@@ -34,5 +35,21 @@ public class CustomUserGroupRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public Flux<UserGroup> findAllByUserId(String userId, AclPermission permission) {
         Criteria userIdCriteria = where(fieldName(QUserGroup.userGroup.users)).elemMatch(where("id").is(userId));
         return queryAll(List.of(userIdCriteria), permission);
+    }
+
+    @Override
+    public Flux<UserGroup> findAllByUserIdAndDefaultWorkspaceId(String userId, String defaultWorkspaceId,
+            AclPermission permission) {
+        Criteria userIdCriteria = where(fieldName(QUserGroup.userGroup.users)).elemMatch(where("id").is(userId));
+        Criteria defaultWorkspaceIdCriteria = where(fieldName(QUserGroup.userGroup.defaultWorkspaceId)).is(defaultWorkspaceId);
+        return queryAll(List.of(userIdCriteria, defaultWorkspaceIdCriteria), permission);
+    }
+
+    @Override
+    public Mono<UserGroup> findByIdAndDefaultWorkspaceId(String id, String defaultWorkspaceId,
+            AclPermission permission) {
+        Criteria idCriteria = where(fieldName(QBaseDomain.baseDomain.id)).is(id);
+        Criteria defaultWorkspaceIdCriteria = where(fieldName(QUserGroup.userGroup.defaultWorkspaceId)).is(defaultWorkspaceId);
+        return queryOne(List.of(idCriteria, defaultWorkspaceIdCriteria), permission);
     }
 }
