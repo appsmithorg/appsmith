@@ -33,18 +33,15 @@ describe("storeValue Action test", () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-
-    // Add wait time as parsing JSOject takes time
-    agHelper.GetNClick(jsEditor._runButton, 0, false, 6000);
-
+    agHelper.WaitUntilToastDisappear('created successfully')
+    agHelper.GetNClick(jsEditor._runButton);
     agHelper.ValidateToastMessage(
       JSON.stringify({
         val1: "number 1",
         val2: "number 2",
         val3: "number 3",
         val4: "number 4",
-      }),
-      2,
+      }), 2
     );
   });
 });
