@@ -156,7 +156,7 @@ describe("DataTreeEvaluator", () => {
         },
       ];
       updateDependencyMap({
-        currentThis: dataTreeEvaluator,
+        dataTreeEvalRef: dataTreeEvaluator,
         translatedDiffs: translatedDiffs as Array<DataTreeDiff>,
         unEvalDataTree: dataTreeEvaluator.oldUnEvalTree,
       });
@@ -179,7 +179,7 @@ describe("DataTreeEvaluator", () => {
         },
       ];
       updateDependencyMap({
-        currentThis: dataTreeEvaluator,
+        dataTreeEvalRef: dataTreeEvaluator,
         translatedDiffs: translatedDiffs as Array<DataTreeDiff>,
         unEvalDataTree: dataTreeEvaluator.oldUnEvalTree,
       });

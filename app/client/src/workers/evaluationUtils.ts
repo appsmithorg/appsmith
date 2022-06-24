@@ -31,6 +31,8 @@ import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
+import { isObject } from "lodash";
+import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -1032,3 +1034,12 @@ export const overrideWidgetProperties = (params: {
     }
   }
 };
+
+export function isValidEntity(
+  entity: DataTreeEntity,
+): entity is DataTreeObjectEntity {
+  if (!isObject(entity)) {
+    return false;
+  }
+  return "ENTITY_TYPE" in entity;
+}

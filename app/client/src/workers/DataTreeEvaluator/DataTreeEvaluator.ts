@@ -18,7 +18,6 @@ import {
   DataTreeAction,
   DataTreeEntity,
   DataTreeJSAction,
-  DataTreeObjectEntity,
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
@@ -46,6 +45,9 @@ import {
   getParams,
   updateJSCollectionInDataTree,
   removeFunctionsAndVariableJSCollection,
+  addWidgetPropertyDependencies,
+  overrideWidgetProperties,
+  isValidEntity,
 } from "workers/evaluationUtils";
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -69,20 +71,18 @@ import { substituteDynamicBindingWithValues } from "workers/evaluationSubstituti
 import { Severity } from "entities/AppsmithConsole";
 import { getLintingErrors } from "workers/lint";
 import { error as logError } from "loglevel";
-
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
-import {
-  addWidgetPropertyDependencies,
-  overrideWidgetProperties,
-} from "../evaluationUtils";
 import {
   ActionValidationConfigMap,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
 import { EvalMetaUpdates } from "./types";
-import { extractReferencesFromBinding } from "../DependencyMap/utils";
-import { updateDependencyMap, createDependencyMap } from "../DependencyMap";
+import { extractReferencesFromBinding } from "workers/DependencyMap/utils";
+import {
+  updateDependencyMap,
+  createDependencyMap,
+} from "workers/DependencyMap";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -306,7 +306,7 @@ export default class DataTreeEvaluator {
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
     const { dependenciesOfRemovedPaths, removedPaths } = updateDependencyMap({
-      currentThis: this,
+      dataTreeEvalRef: this,
       translatedDiffs,
       unEvalDataTree: localUnEvalTree,
     });
@@ -1413,10 +1413,3 @@ export default class DataTreeEvaluator {
 // TODO cryptic comment below. Dont know if we still need this. Duplicate function
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 const isDynamicValue = (value: string): boolean => DATA_BIND_REGEX.test(value);
-
-function isValidEntity(entity: DataTreeEntity): entity is DataTreeObjectEntity {
-  if (!_.isObject(entity)) {
-    return false;
-  }
-  return "ENTITY_TYPE" in entity;
-}
