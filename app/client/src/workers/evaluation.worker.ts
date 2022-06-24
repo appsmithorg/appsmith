@@ -66,7 +66,7 @@ function messageEventListener(
               errors: [
                 {
                   type: EvalErrorTypes.CLONE_ERROR,
-                  message: e.message,
+                  message: (e as Error)?.message,
                   context: JSON.stringify(rest),
                 },
               ],
