@@ -1,4 +1,6 @@
 const shell = require('shelljs');
+const fsPromises = require('fs/promises');
+const Constants = require('./constants')
 const childProcess = require('child_process');
 
 function showHelp() {
@@ -57,9 +59,22 @@ function execCommand(cmd, options) {
   })
 }
 
+async function listLocalBackupFiles(){ // Ascending order
+  const backupFiles = [];
+  await fsPromises.readdir(Constants.BACKUP_PATH).then(filenames => {
+    for (let filename of filenames) {
+      if (filename.match(/^appsmith-backup-.*\.tar\.gz$/)) {
+        backupFiles.push(filename);
+        }}}).catch(err => {
+          console.log(err);
+      });
+  return backupFiles;
+}
+
 module.exports = {
   showHelp,
   start,
   stop,
   execCommand,
+  listLocalBackupFiles,
 };
