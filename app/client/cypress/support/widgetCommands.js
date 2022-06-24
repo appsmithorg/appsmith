@@ -443,7 +443,7 @@ Cypress.Commands.add("updateCodeInput", ($selector, value) => {
   cy.EnableAllCodeEditors();
   cy.get($selector)
     .first()
-    .click()
+    .click({ force: true })
     .find(".CodeMirror")
     .first()
     .then((ins) => {
