@@ -6,6 +6,7 @@ import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { PopperModifiers } from "@blueprintjs/core";
 
 export type MenuProps = CommonComponentProps & {
+  autoFocus?: boolean;
   children?: ReactNode[];
   closeOnItemClick?: boolean;
   target: JSX.Element;
@@ -40,6 +41,7 @@ const MenuOption = styled.div`
 function Menu(props: MenuProps) {
   return (
     <Popover
+      autoFocus={props.autoFocus}
       canEscapeKeyClose={props.canEscapeKeyClose}
       className={props.className}
       data-cy={props.cypressSelector}

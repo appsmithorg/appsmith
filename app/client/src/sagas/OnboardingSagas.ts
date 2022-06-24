@@ -25,13 +25,13 @@ import TourApp from "pages/Editor/GuidedTour/app.json";
 import {
   getFirstTimeUserOnboardingApplicationId,
   getHadReachedStep,
-  getOnboardingOrganisations,
+  getOnboardingWorkspaces,
   getQueryAction,
   getTableWidget,
 } from "selectors/onboardingSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { Organization } from "constants/orgConstants";
+import { Workspaces } from "constants/workspaceConstants";
 import {
   enableGuidedTour,
   focusWidgetProperty,
@@ -67,45 +67,49 @@ import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { User } from "constants/userConstants";
 import { builderURL, queryEditorIdURL } from "RouteBuilder";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
+import { shouldBeDefined } from "utils/helpers";
 
 function* createApplication() {
   // If we are starting onboarding from the editor wait for the editor to reset.
-  const isEditorInitialised = yield select(getIsEditorInitialized);
-  let userOrgs: Organization[] = yield select(getOnboardingOrganisations);
+  const isEditorInitialised: boolean = yield select(getIsEditorInitialized);
+  let userWorkspaces: Workspaces[] = yield select(getOnboardingWorkspaces);
   if (isEditorInitialised) {
     yield take(ReduxActionTypes.RESET_EDITOR_SUCCESS);
 
-    // If we haven't fetched the organisation list yet we wait for it to complete
-    // as we need an organisation where we create an application
-    if (!userOrgs.length) {
-      yield take(ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS);
+    // If we haven't fetched the workspace list yet we wait for it to complete
+    // as we need an workspace where we create an application
+    if (!userWorkspaces.length) {
+      yield take(ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS);
     }
   }
 
-  userOrgs = yield select(getOnboardingOrganisations);
-  const currentUser = yield select(getCurrentUser);
-  const currentOrganizationId = currentUser.currentOrganizationId;
-  let organization;
-  if (!currentOrganizationId) {
-    organization = userOrgs[0];
+  userWorkspaces = yield select(getOnboardingWorkspaces);
+  const currentUser: User | undefined = yield select(getCurrentUser);
+  // @ts-expect-error: currentUser can be undefined
+  const currentWorkspaceId = currentUser.currentWorkspaceId;
+  let workspace;
+  if (!currentWorkspaceId) {
+    workspace = userWorkspaces[0];
   } else {
-    const filteredOrganizations = userOrgs.filter(
-      (org: any) => org.organization.id === currentOrganizationId,
+    const filteredWorkspaces = userWorkspaces.filter(
+      (workspace: any) => workspace.workspace.id === currentWorkspaceId,
     );
-    organization = filteredOrganizations[0];
+    workspace = filteredWorkspaces[0];
   }
 
-  if (organization) {
+  if (workspace) {
     const appFileObject = new File([JSON.stringify(TourApp)], "app.json", {
       type: "application/json",
     });
     yield put(enableGuidedTour(true));
     yield put(
       importApplication({
-        orgId: organization.organization.id,
+        workspaceId: workspace.workspace.id,
         applicationFile: appFileObject,
       }),
     );
@@ -115,7 +119,7 @@ function* createApplication() {
 }
 
 function* setCurrentStepSaga(action: ReduxAction<number>) {
-  const hadReachedStep = yield select(getHadReachedStep);
+  const hadReachedStep: number = yield select(getHadReachedStep);
   // Log only once when we reach that step
   if (action.payload > hadReachedStep) {
     AnalyticsUtil.logEvent("GUIDED_TOUR_REACHED_STEP", {
@@ -145,6 +149,7 @@ function* setUpTourAppSaga() {
   });
 
   yield delay(500);
+  // @ts-expect-error: No type declared for getTableWidgetSelector.
   const tableWidget = yield select(getTableWidget);
   yield put(
     batchUpdateMultipleWidgetProperties([
@@ -189,7 +194,7 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
   const defaultConfig = WidgetFactory.widgetConfigMap.get(widgetConfig.type);
 
   const evalTree: DataTree = yield select(getDataTree);
-  const widgets = yield select(getWidgets);
+  const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
   const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree, {
     prefix: widgetConfig.widgetName,
@@ -309,7 +314,10 @@ function* selectWidgetSaga(
   const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
     getWidgets,
   );
-  const pageId = yield select(getCurrentPageId);
+  const pageId = shouldBeDefined<string>(
+    yield select(getCurrentPageId),
+    "Page not found in state.entities.pageList.currentPageId",
+  );
   const widget = Object.values(widgets).find((widget) => {
     return widget.widgetName === action.payload.widgetName;
   });

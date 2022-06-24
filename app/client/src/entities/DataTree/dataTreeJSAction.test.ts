@@ -9,7 +9,7 @@ describe("generateDataTreeJSAction", () => {
       config: {
         id: "1234",
         applicationId: "app123",
-        organizationId: "org123",
+        workspaceId: "org123",
         name: "JSObject2",
         pageId: "page123",
         pluginId: "plugin123",
@@ -20,7 +20,7 @@ describe("generateDataTreeJSAction", () => {
           {
             id: "abcd",
             applicationId: "app123",
-            organizationId: "org123",
+            workspaceId: "org123",
             pluginType: PluginType.JS,
             pluginId: "plugin123",
             name: "myFun2",
@@ -29,7 +29,7 @@ describe("generateDataTreeJSAction", () => {
               userPermissions: [],
               name: "UNUSED_DATASOURCE",
               pluginId: "plugin123",
-              organizationId: "org123",
+              workspaceId: "org123",
               messages: [],
               isValid: true,
               new: true,
@@ -38,6 +38,7 @@ describe("generateDataTreeJSAction", () => {
             collectionId: "1234",
             actionConfiguration: {
               timeoutInMillisecond: 10000,
+              // @ts-expect-error: paginationType does not exists on JSAction
               paginationType: "NONE",
               encodeParamsToggle: true,
               body: "async () => {\n\t\t//use async-await or promises\n\t}",
@@ -67,7 +68,7 @@ describe("generateDataTreeJSAction", () => {
           {
             id: "623973054d9aea1b062af87b",
             applicationId: "app123",
-            organizationId: "org123",
+            workspaceId: "org123",
             pluginType: "JS",
             pluginId: "plugin123",
             name: "myFun1",
@@ -76,7 +77,7 @@ describe("generateDataTreeJSAction", () => {
               userPermissions: [],
               name: "UNUSED_DATASOURCE",
               pluginId: "plugin123",
-              organizationId: "org123",
+              workspaceId: "org123",
               messages: [],
               isValid: true,
               new: true,
@@ -85,6 +86,7 @@ describe("generateDataTreeJSAction", () => {
             collectionId: "1234",
             actionConfiguration: {
               timeoutInMillisecond: 10000,
+              // @ts-expect-error: paginationType does not exists on JSAction
               paginationType: "NONE",
               encodeParamsToggle: true,
               body: "() => {\n\t\t//write code here\n\t}",
@@ -195,7 +197,7 @@ describe("generateDataTreeJSAction", () => {
       config: {
         id: "1234",
         applicationId: "app123",
-        organizationId: "org123",
+        workspaceId: "org123",
         name: "JSObject2",
         pageId: "page123",
         pluginId: "plugin123",
@@ -206,7 +208,7 @@ describe("generateDataTreeJSAction", () => {
           {
             id: "abcd",
             applicationId: "app123",
-            organizationId: "org123",
+            workspaceId: "org123",
             pluginType: PluginType.JS,
             pluginId: "plugin123",
             name: "myFun2",
@@ -215,7 +217,7 @@ describe("generateDataTreeJSAction", () => {
               userPermissions: [],
               name: "UNUSED_DATASOURCE",
               pluginId: "plugin123",
-              organizationId: "org123",
+              workspaceId: "org123",
               messages: [],
               isValid: true,
               new: true,
@@ -224,6 +226,7 @@ describe("generateDataTreeJSAction", () => {
             collectionId: "1234",
             actionConfiguration: {
               timeoutInMillisecond: 10000,
+              // @ts-expect-error: paginationType does not exists on JSAction
               paginationType: "NONE",
               encodeParamsToggle: true,
               body: "async () => {\n\t\t//use async-await or promises\n\t}",
@@ -253,7 +256,7 @@ describe("generateDataTreeJSAction", () => {
           {
             id: "623973054d9aea1b062af87b",
             applicationId: "app123",
-            organizationId: "org123",
+            workspaceId: "org123",
             pluginType: "JS",
             pluginId: "plugin123",
             name: "myFun1",
@@ -262,7 +265,7 @@ describe("generateDataTreeJSAction", () => {
               userPermissions: [],
               name: "UNUSED_DATASOURCE",
               pluginId: "plugin123",
-              organizationId: "org123",
+              workspaceId: "org123",
               messages: [],
               isValid: true,
               new: true,
@@ -271,6 +274,7 @@ describe("generateDataTreeJSAction", () => {
             collectionId: "1234",
             actionConfiguration: {
               timeoutInMillisecond: 10000,
+              // @ts-expect-error: paginationType does not exists on JSAction
               paginationType: "NONE",
               encodeParamsToggle: true,
               body: "() => {\n\t\t//write code here\n\t}",

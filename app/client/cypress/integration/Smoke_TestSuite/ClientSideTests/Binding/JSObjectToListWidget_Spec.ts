@@ -70,7 +70,7 @@ describe("Validate JSObj binding to Table widget", () => {
     table.NavigateToPreviousPage_List();
     table.AssertPageNumber_List(1);
     agHelper.AssertElementLength(locator._textWidgetInDeployed, 8);
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("3. Validate the List widget + Bug 12438 ", function() {

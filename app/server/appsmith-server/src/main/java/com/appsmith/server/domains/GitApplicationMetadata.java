@@ -1,10 +1,13 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.AppsmithDomain;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import org.springframework.data.annotation.Transient;
+
+import java.time.Instant;
 import java.util.Map;
 
 // This class will be used for one-to-one mapping for the DB application and the application present in the git repo.
@@ -29,7 +32,7 @@ public class GitApplicationMetadata implements AppsmithDomain {
     String repoName;
 
     // Default application id used for storing the application files in local volume :
-    // container-volumes/git_repo/organizationId/defaultApplicationId/branchName/applicationDirectoryStructure...
+    // container-volumes/git_repo/workspaceId/defaultApplicationId/branchName/applicationDirectoryStructure...
     String defaultApplicationId;
 
     // Git credentials used to push changes to remote repo and will be stored with default application only to optimise
@@ -46,4 +49,7 @@ public class GitApplicationMetadata implements AppsmithDomain {
     // Deploy key documentation url
     @Transient
     String docUrl;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX", timezone = "UTC")
+    Instant lastCommittedAt;
 }

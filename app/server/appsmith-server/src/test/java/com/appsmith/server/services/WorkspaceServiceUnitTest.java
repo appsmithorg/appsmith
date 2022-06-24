@@ -26,7 +26,7 @@ import reactor.test.StepVerifier;
 import javax.validation.Validator;
 import java.util.List;
 
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 public class WorkspaceServiceUnitTest {
@@ -60,13 +60,13 @@ public class WorkspaceServiceUnitTest {
     public void getWorkspaceMembers_WhenRoleIsNull_ReturnsEmptyList() {
         // create a workspace object
         Workspace testWorkspace = new Workspace();
-        testWorkspace.setName("Get All Members For Organization Test");
+        testWorkspace.setName("Get All Members For Workspace Test");
         testWorkspace.setDomain("test.com");
         testWorkspace.setWebsite("https://test.com");
         testWorkspace.setId("test-org-id");
 
         // mock repository methods so that they return the objects we've created
-        Mockito.when(workspaceRepository.findById("test-org-id", ORGANIZATION_INVITE_USERS))
+        Mockito.when(workspaceRepository.findById("test-org-id", WORKSPACE_INVITE_USERS))
                 .thenReturn(Mono.just(testWorkspace));
 
         Mono<List<UserRole>> workspaceMembers = workspaceService.getWorkspaceMembers(testWorkspace.getId());
@@ -80,15 +80,15 @@ public class WorkspaceServiceUnitTest {
 
     @Test
     public void getWorkspaceMembers_WhenNoOrgFound_ThrowsException() {
-        String sampleOrgId = "test-org-id";
+        String sampleWorkspaceId = "test-org-id";
         // mock repository methods so that they return the objects we've created
-        Mockito.when(workspaceRepository.findById(sampleOrgId, ORGANIZATION_INVITE_USERS))
+        Mockito.when(workspaceRepository.findById(sampleWorkspaceId, WORKSPACE_INVITE_USERS))
                 .thenReturn(Mono.empty());
 
-        Mono<List<UserRole>> workspaceMembers = workspaceService.getWorkspaceMembers(sampleOrgId);
+        Mono<List<UserRole>> workspaceMembers = workspaceService.getWorkspaceMembers(sampleWorkspaceId);
         StepVerifier
                 .create(workspaceMembers)
-                .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, sampleOrgId))
+                .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, sampleWorkspaceId))
                 .verify();
     }
 }
