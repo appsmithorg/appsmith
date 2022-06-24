@@ -194,6 +194,7 @@ function PageSelection(props: PageSelectionProps) {
           disabled={!selectedPages.length}
           onClick={importPagesToApp}
           size={Size.large}
+          tag="button"
           text="ADD SELECTED PAGES"
         />
       </Card>
