@@ -318,7 +318,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
    */
   shouldDisableLink = (): boolean => {
     const text = this.props.text || "";
-    const count: number = countOccurrences(text, "\n", false);
+    const count: number = countOccurrences(text, "\n", false, 0);
     return count === 0 && text.length > MAX_HTML_PARSING_LENGTH;
   };
 

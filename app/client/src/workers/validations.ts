@@ -264,6 +264,14 @@ function validateExcessLineBreaks(value: any): boolean {
   return lineBreakCount > MAX_ALLOWED_LINE_BREAKS;
 }
 
+function validateExcessLength(text: string): boolean {
+  /**
+   * Check if text is too long and without any line breaks.
+   */
+  const lineBreakCount = countOccurrences(text, "\n", false, 0);
+  return lineBreakCount === 0 && text.length > 20000;
+}
+
 //TODO: parameter props may not be in use
 export const validate = (
   config: ValidationConfig,
@@ -429,6 +437,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           isValid: false,
         };
       }
+    }
+
+    if (validateExcessLength(parsed as string)) {
+      return {
+        parsed: (parsed as string)?.substring(0, 2000),
+        isValid: false,
+        messages: ["Excessive text length"],
+      };
     }
 
     if (
