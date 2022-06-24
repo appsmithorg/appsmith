@@ -4,12 +4,14 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.CommentOnboardingState;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
@@ -32,6 +34,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -76,6 +80,9 @@ public class CommentServiceTest {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    UserGroupService userGroupService;
 
     @Autowired
     private NotificationRepository notificationRepository;
@@ -629,13 +636,13 @@ public class CommentServiceTest {
             user.setEmail("some_other_user");
             user.setPassword("mypassword");
 
-            UserRole userRole = new UserRole();
-            userRole.setUsername(user.getUsername());
-            userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-            userRole.setRole(AppsmithRole.ORGANIZATION_ADMIN);
+            Mono<User> userMono = userService.create(user);
+            Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(application.getWorkspaceId());
+            Mono<UserGroup> adminGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR)).single();
+            Mono<?> addUserAsAdminToWorkspaceMono = adminGroupMono.zipWith(userMono)
+                    .flatMap(tuple -> userGroupService.addUser(tuple.getT1(), tuple.getT2()));
 
-            return userService.create(user)
-                    .then(userWorkspaceService.addUserRoleToWorkspace(application.getWorkspaceId(), userRole))
+            return addUserAsAdminToWorkspaceMono
                     .then(userWorkspaceService.leaveWorkspace(application.getWorkspaceId()))
                     .thenReturn(application);
         }).flatMap(application -> {

@@ -7,6 +7,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
@@ -15,6 +16,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
@@ -43,6 +45,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -98,6 +102,9 @@ public class ActionCollectionServiceTest {
 
     @Autowired
     NewActionService newActionService;
+
+    @Autowired
+    UserGroupService userGroupService;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -223,11 +230,16 @@ public class ActionCollectionServiceTest {
         ActionCollectionDTO actionCollection =
                 layoutCollectionService.createCollection(actionCollectionDTO).block();
 
-        UserRole userRole = new UserRole();
-        userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-        userRole.setUsername("usertest@usertest.com");
+        Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(testApp.getWorkspaceId());
+        Mono<UserGroup> adminGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR)).single();
+        Mono<User> userMono = userService.findByEmail("usertest@usertest.com");
 
-        userWorkspaceService.addUserRoleToWorkspace(testApp.getWorkspaceId(), userRole).block();
+        Mono.zip(userMono, adminGroupMono)
+                .flatMap(tuple -> {
+                        User user = tuple.getT1();
+                        UserGroup adminGroup = tuple.getT2();
+                        return userGroupService.addUser(adminGroup, user);
+                }).block();
 
         assert actionCollection != null;
         Mono<ActionCollection> readActionCollectionMono =

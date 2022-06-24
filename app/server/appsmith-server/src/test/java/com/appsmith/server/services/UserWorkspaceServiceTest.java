@@ -8,8 +8,11 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.UpdateUserGroupDTO;
+import com.appsmith.server.dtos.UserAndGroupDTO;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -27,6 +30,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.CollectionUtils;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -73,6 +78,9 @@ public class UserWorkspaceServiceTest {
 
     @Autowired
     private UserDataService userDataService;
+
+    @Autowired
+    private UserGroupService userGroupService;
 
     private Workspace workspace;
     private User user;
@@ -140,10 +148,12 @@ public class UserWorkspaceServiceTest {
             return userDataService.updateForUser(currentUser, userData);
         });
 
-        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_DEVELOPER);
+        Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(application.getWorkspaceId());
+        Mono<UserGroup> adminGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.DEVELOPER)).single();
+        Mono<?> addUserAsDeveloperToWorkspaceMono = adminGroupMono
+                .flatMap(adminUserGroup -> userGroupService.addUser(adminUserGroup, currentUser));
 
-        Mono<User> userMono = userWorkspaceService
-                .addUserToWorkspaceGivenUserObject(this.workspace, currentUser, userRole)
+        Mono<User> userMono = addUserAsDeveloperToWorkspaceMono
                 .then(saveUserDataMono)
                 .then(userWorkspaceService.leaveWorkspace(this.workspace.getId()));
 
@@ -180,18 +190,15 @@ public class UserWorkspaceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateRoleForMember_WhenAdminRoleRemovedWithNoOtherAdmin_ThrowsExceptions() {
+    public void updateUserGroupForMember_WhenAdminUserGroupRemovedWithNoOtherAdmin_ThrowsExceptions() {
         // add the current user as an admin to the workspace first
         User currentUser = userRepository.findByEmail("api_user").block();
-        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_ADMIN);
+        Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(workspace.getId()).cache();
+        UserGroup adminGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR)).single().block();
+        
+        userGroupService.addUser(adminGroupMono, currentUser).block();
 
-        userWorkspaceService.addUserToWorkspaceGivenUserObject(workspace, currentUser, userRole).block();
-
-        // try to remove the user from workspace
-        UserRole updatedRole = new UserRole();
-        updatedRole.setUsername(currentUser.getUsername());
-
-        Mono<UserRole> userRoleMono = userWorkspaceService.updateRoleForMember(workspace.getId(), updatedRole, null);
+        Mono<UserAndGroupDTO> userRoleMono = userWorkspaceService.updateUserGroupForMember(workspace.getId(), UpdateUserGroupDTO.builder().username(currentUser.getUsername()).build(), null);
         StepVerifier.create(userRoleMono).expectErrorMessage(
                 AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage()
         ).verify();
@@ -199,7 +206,7 @@ public class UserWorkspaceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateRoleForMember_WhenAdminRoleRemovedButOtherAdminExists_MemberRemoved() {
+    public void updateUserGroupForMember_WhenAdminUserGroupRemovedButOtherAdminExists_MemberRemoved() {
         // add another admin role to the workspace
         UserRole adminRole = createUserRole("dummy_username2", "dummy_user_id2", ORGANIZATION_ADMIN);
         this.workspace.getUserRoles().add(adminRole);
@@ -207,14 +214,12 @@ public class UserWorkspaceServiceTest {
 
         // add the current user as an admin to the workspace
         User currentUser = userRepository.findByEmail("api_user").block();
-        UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_ADMIN);
-        userWorkspaceService.addUserToWorkspaceGivenUserObject(workspace, currentUser, userRole).block();
+        Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(workspace.getId()).cache();
+        UserGroup adminGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR)).single().block();
+        userGroupService.addUser(adminGroupMono, currentUser).block();
 
         // try to remove the user from workspace
-        UserRole updatedRole = new UserRole();
-        updatedRole.setUsername(currentUser.getUsername());
-
-        Mono<UserRole> userRoleMono = userWorkspaceService.updateRoleForMember(workspace.getId(), updatedRole, null);
+        Mono<UserAndGroupDTO> userRoleMono = userWorkspaceService.updateUserGroupForMember(workspace.getId(), UpdateUserGroupDTO.builder().username(currentUser.getUsername()).build(), null);
         StepVerifier.create(userRoleMono).assertNext(
                 userRole1 -> {
                     assertEquals(currentUser.getUsername(), userRole1.getUsername());
@@ -261,12 +266,15 @@ public class UserWorkspaceServiceTest {
                     commentThread.setPolicies(policyGenerator.getAllChildPolicies(
                             savedApplication.getPolicies(), Application.class, CommentThread.class
                     ));
-                    return commentThreadRepository.save(commentThread);
-                }).flatMap(commentThread -> {
+                    Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(workspace.getId()).cache();
+                    return commentThreadRepository.save(commentThread).zipWith(userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER)).single());
+                }).flatMap(tuple -> {
+                    CommentThread commentThread = tuple.getT1();
+                    UserGroup adminGroup = tuple.getT2();
                     // update an user's role
-                    UserRole updatedRole = createUserRole("test_developer", "test_developer", ORGANIZATION_VIEWER);
-                    return userWorkspaceService.updateRoleForMember(
-                            workspace.getId(), updatedRole, null
+                    //UserRole updatedRole = createUserRole("test_developer", "test_developer", ORGANIZATION_VIEWER);
+                    return userWorkspaceService.updateUserGroupForMember(
+                            workspace.getId(), UpdateUserGroupDTO.builder().username("test_developer").newGroupId(adminGroup.getId()).build(), null
                     ).thenReturn(commentThread);
                 }).flatMap(commentThread ->
                     commentThreadRepository.findById(commentThread.getId())
@@ -296,8 +304,7 @@ public class UserWorkspaceServiceTest {
                     return commentThreadRepository.save(commentThread);
                 }).flatMap(commentThread -> {
                     // remove the test_developer user from the workspace
-                    UserRole updatedRole = createUserRole("test_developer", "test_developer", null);
-                    return userWorkspaceService.updateRoleForMember(workspace.getId(), updatedRole, null)
+                    return userWorkspaceService.updateUserGroupForMember(workspace.getId(), UpdateUserGroupDTO.builder().username("test_developer").build(), null)
                             .thenReturn(commentThread);
                 }).flatMap(commentThread ->
                         commentThreadRepository.findById(commentThread.getId())
@@ -308,47 +315,6 @@ public class UserWorkspaceServiceTest {
             assertThat(policyUtils.isPermissionPresentForUser(
                     policies, AclPermission.READ_THREADS.getValue(), "test_developer"
             )).isFalse();
-            assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREADS.getValue(), "api_user"
-            )).isTrue();
-        }).verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails("api_user")
-    public void bulkAddUsersToWorkspace_WhenNewUserAdded_ThreadPolicyUpdated() {
-        // create a new user
-        User user = new User();
-        user.setEmail("new_test_user");
-        Mono<User> saveUserMono = userRepository.save(user);
-
-        Mono<CommentThread> commentThreadMono = applicationRepository.save(createTestApplicationForCommentThreadTests())
-                .flatMap(savedApplication -> {
-                    CommentThread commentThread = new CommentThread();
-                    commentThread.setApplicationId(savedApplication.getId());
-                    commentThread.setPolicies(policyGenerator.getAllChildPolicies(
-                            savedApplication.getPolicies(), Application.class, CommentThread.class
-                    ));
-                    return commentThreadRepository.save(commentThread);
-                }).flatMap(commentThread -> {
-                    // add the new user to the workspace
-                    List<User> users = new ArrayList<>(1);
-                    users.add(user);
-                    return userWorkspaceService
-                            .bulkAddUsersToWorkspace(workspace, users, ORGANIZATION_DEVELOPER.getName())
-                            .thenReturn(commentThread);
-                }).flatMap(commentThread ->
-                        commentThreadRepository.findById(commentThread.getId())
-                );
-
-        StepVerifier.create(saveUserMono.then(commentThreadMono)).assertNext(commentThread -> {
-            Set<Policy> policies = commentThread.getPolicies();
-            assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREADS.getValue(), "test_developer"
-            )).isTrue();
-            assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREADS.getValue(), "new_test_user"
-            )).isTrue();
             assertThat(policyUtils.isPermissionPresentForUser(
                     policies, AclPermission.READ_THREADS.getValue(), "api_user"
             )).isTrue();
