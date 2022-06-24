@@ -16,24 +16,23 @@ import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { BannerMessage } from "components/ads/BannerMessage";
 import { Colors } from "constants/Colors";
 import { IconSize, SearchInput, SearchVariant } from "components/ads";
-import { TabComponent } from "components/ads/Tabs";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import WidgetFactory from "utils/WidgetFactory";
 import styled from "styled-components";
 import { InputWrapper } from "components/ads/TextInput";
+import { PropertyPaneTab } from "./PropertyPaneTab";
 
 const PropertyPaneContent = styled.div`
-  .react-tabs__tab-list {
-    border-bottom: 1px solid ${Colors.GREY_4};
-    padding: 0 0.5rem;
-  }
-
-  .tab-title {
-    font-size: 12px;
+  .react-tabs .react-tabs__tab-list {
+    display: none;
   }
 `;
 
 const StyledSearchInput = styled(SearchInput)`
+  position: sticky;
+  top: 52px;
+  z-index: 10;
+
   ${InputWrapper} {
     background: ${Colors.GRAY_50};
   }
@@ -145,7 +144,7 @@ function PropertyPaneView(
 
   return (
     <div
-      className="relative flex flex-col w-full pt-3 overflow-y-auto"
+      className="w-full overflow-y-auto"
       key={`property-pane-${widgetProperties.widgetId}`}
     >
       <PropertyPaneTitle
@@ -156,10 +155,7 @@ function PropertyPaneView(
         widgetType={widgetProperties?.type}
       />
 
-      <PropertyPaneContent
-        className="pt-3 t--property-pane-view"
-        data-guided-tour-id="property-pane"
-      >
+      <div style={{ marginTop: "52px" }}>
         <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
         {!doActionsExist && !hideConnectDataCTA && (
           <ConnectDataCTA
@@ -179,6 +175,12 @@ function PropertyPaneView(
             textColor={Colors.BROWN}
           />
         )}
+      </div>
+
+      <PropertyPaneContent
+        className="t--property-pane-view"
+        data-guided-tour-id="property-pane"
+      >
         {featureFlags.PROPERTY_PANE_GROUPING &&
         isContentAndStyleConfigAvailable ? (
           <>
@@ -187,7 +189,7 @@ function PropertyPaneView(
               placeholder="Search for controls, labels etc"
               variant={SearchVariant.BACKGROUND}
             />
-            <TabComponent
+            <PropertyPaneTab
               tabs={[
                 {
                   key: "content",
