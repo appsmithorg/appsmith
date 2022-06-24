@@ -1,4 +1,4 @@
-import { extractIdentifiersFromCode } from "workers/ast";
+import { extractIdentifiersFromCode, parseJSObjectWithAST } from "workers/ast";
 
 describe("getAllIdentifiers", () => {
   it("works properly", () => {
@@ -226,5 +226,87 @@ describe("getAllIdentifiers", () => {
       const references = extractIdentifiersFromCode(perCase.script);
       expect(references).toStrictEqual(perCase.expectedResults);
     });
+  });
+});
+
+describe("parseJSObjectWithAST", () => {
+  it("parse js object", () => {
+    const body = `{
+	myVar1: [],
+	myVar2: {},
+	myFun1: () => {
+		//write code here
+	},
+	myFun2: async () => {
+		//use async-await or promises
+	}
+}`;
+    const parsedObject = [
+      {
+        key: "myVar1",
+        value: "[]",
+        type: "ArrayExpression",
+      },
+      {
+        key: "myVar2",
+        value: "{}",
+        type: "ObjectExpression",
+      },
+      {
+        key: "myFun1",
+        value: "() => {}",
+        type: "ArrowFunctionExpression",
+      },
+      {
+        key: "myFun2",
+        value: "async () => {}",
+        type: "ArrowFunctionExpression",
+      },
+    ];
+    const resultParsedObject = parseJSObjectWithAST(body);
+    expect(resultParsedObject).toStrictEqual(parsedObject);
+  });
+  it("parse js object with literal", () => {
+    const body = `{
+	myVar1: [],
+	myVar2: {
+		"a": "app",
+	},
+	myFun1: () => {
+		//write code here
+	},
+	myFun2: async () => {
+		//use async-await or promises
+	}
+}`;
+    const parsedObject = [
+      {
+        key: "myVar1",
+        value: "[]",
+        type: "ArrayExpression",
+      },
+      {
+        key: '"a"',
+        value: '"app"',
+        type: "Literal",
+      },
+      {
+        key: "myVar2",
+        value: '{\n  "a": "app"\n}',
+        type: "ObjectExpression",
+      },
+      {
+        key: "myFun1",
+        value: "() => {}",
+        type: "ArrowFunctionExpression",
+      },
+      {
+        key: "myFun2",
+        value: "async () => {}",
+        type: "ArrowFunctionExpression",
+      },
+    ];
+    const resultParsedObject = parseJSObjectWithAST(body);
+    expect(resultParsedObject).toStrictEqual(parsedObject);
   });
 });

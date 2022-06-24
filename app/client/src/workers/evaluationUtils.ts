@@ -822,6 +822,22 @@ export const updateJSCollectionInDataTree = (
         }
       } else {
         varList.push(newVar.name);
+        const reactivePaths = jsCollection.reactivePaths;
+        reactivePaths[newVar.name] =
+          EvaluationSubstitutionType.SMART_SUBSTITUTE;
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.reactivePaths`,
+          reactivePaths,
+        );
+        const dynamicBindingPathList = jsCollection.dynamicBindingPathList;
+        dynamicBindingPathList.push({ key: newVar.name });
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.dynamicBindingPathList`,
+          dynamicBindingPathList,
+        );
+
         _.set(modifiedDataTree, `${jsCollection.name}.variables`, varList);
         _.set(
           modifiedDataTree,
@@ -830,15 +846,33 @@ export const updateJSCollectionInDataTree = (
         );
       }
     }
-    let newVarList: Array<string> = [];
+    let newVarList: Array<string> = varList;
     for (let i = 0; i < varList.length; i++) {
       const varListItem = varList[i];
       const existsInParsed = parsedBody.variables.find(
         (item) => item.name === varListItem,
       );
       if (!existsInParsed) {
+        const reactivePaths = jsCollection.reactivePaths;
+        delete reactivePaths[varListItem];
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.reactivePaths`,
+          reactivePaths,
+        );
+
+        let dynamicBindingPathList = jsCollection.dynamicBindingPathList;
+        dynamicBindingPathList = dynamicBindingPathList.filter(
+          (path) => path["key"] !== varListItem,
+        );
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.dynamicBindingPathList`,
+          dynamicBindingPathList,
+        );
+
+        newVarList = newVarList.filter((item) => item !== varListItem);
         delete modifiedDataTree[`${jsCollection.name}`][`${varListItem}`];
-        newVarList = varList.filter((item) => item !== varListItem);
       }
     }
     if (newVarList.length) {
