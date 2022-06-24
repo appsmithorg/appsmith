@@ -40,7 +40,8 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
     cy.closePropertyPane();
-    cy.selectEntityByName("Text2");
+    cy.SearchEntityandOpen("Text2");
+    cy.EnableAllCodeEditors();
     cy.testJsontext("text", "{{DatePicker1.selectedDate}}");
     cy.closePropertyPane();
   });
