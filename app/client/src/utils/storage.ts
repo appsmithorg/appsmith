@@ -203,7 +203,7 @@ export const setEnableFirstTimeUserOnboarding = async (flag: boolean) => {
 
 export const getEnableFirstTimeUserOnboarding = async () => {
   try {
-    const enableFirstTimeUserOnboarding: any = await store.getItem(
+    const enableFirstTimeUserOnboarding: string | null = await store.getItem(
       STORAGE_KEYS.ENABLE_FIRST_TIME_USER_ONBOARDING,
     );
     return enableFirstTimeUserOnboarding;
@@ -263,7 +263,7 @@ export const setFirstTimeUserOnboardingIntroModalVisibility = async (
 
 export const getFirstTimeUserOnboardingIntroModalVisibility = async () => {
   try {
-    const flag = await store.getItem(
+    const flag: string | null = await store.getItem(
       STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY,
     );
     return flag;
