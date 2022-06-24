@@ -705,11 +705,8 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
             );
             pageId = defaultPage ? defaultPage.id : "";
           }
-
+          // TODO: Update URL Params
           const pageURL = builderURL({
-            applicationId: app.id,
-            applicationSlug: app.slug,
-            applicationVersion: app.applicationVersion,
             pageId,
           });
           history.push(pageURL);
@@ -848,14 +845,9 @@ function* discardChanges() {
     );
     if (isValidResponse) {
       yield put(discardChangesSuccess(response?.data));
-      // yield fetchGitStatusSaga();
-      const applicationId: string = yield select(getCurrentApplicationId);
       const pageId: string = yield select(getCurrentPageId);
       localStorage.setItem("GIT_DISCARD_CHANGES", "success");
-      window.open(
-        builderURL({ applicationId: applicationId, pageId: pageId }),
-        "_self",
-      );
+      window.open(builderURL({ pageId: pageId }), "_self");
     }
   } catch (error) {
     yield put(discardChangesFailure({ error }));

@@ -845,6 +845,7 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = yield select(
     getGenerateCRUDEnabledPluginMap,
   );
+  const pageId: string = yield select(getCurrentPageId);
   const updatedDatasource = action.payload;
 
   const { queryParams = {} } = action;
@@ -860,6 +861,7 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   ) {
     history.push(
       generateTemplateFormURL({
+        pageId,
         params: {
           datasourceId: updatedDatasource.id,
         },

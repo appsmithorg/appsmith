@@ -174,7 +174,7 @@ export function PageTabs(props: Props) {
             activeClassName="is-active"
             className="t--page-switch-tab"
             to={{
-              pathname: getPageURL(page, appMode, currentApplicationDetails),
+              pathname: getPageURL(page, appMode),
               search: query,
             }}
           >

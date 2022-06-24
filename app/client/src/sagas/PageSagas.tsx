@@ -571,6 +571,7 @@ export function* createPageSaga(
           dsl: extractCurrentDSL(response),
         },
       });
+      // TODO: Update URL params here
       // route to generate template for new page created
       if (!createPageAction.payload.blockNavigation) {
         const firstTimeUserOnboardingApplicationId: string = yield select(
@@ -586,14 +587,12 @@ export function* createPageSaga(
         ) {
           history.push(
             builderURL({
-              pageSlug: response.data.slug,
               pageId: response.data.id,
             }),
           );
         } else {
           history.push(
             generateTemplateURL({
-              pageSlug: response.data.slug,
               pageId: response.data.id,
             }),
           );
@@ -653,14 +652,13 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
           dsl: undefined,
         },
       });
-      const pageSlug: string = yield select(selectPageSlugById(defaultPageId));
+      // Update route params here
       const currentPageId: string = yield select(
         (state: AppState) => state.entities.pageList.currentPageId,
       );
       if (currentPageId === action.payload.id)
         history.push(
           builderURL({
-            pageSlug,
             pageId: defaultPageId,
           }),
         );
@@ -704,10 +702,11 @@ export function* clonePageSaga(
       yield put(fetchJSCollectionsForPage(response.data.id));
       yield put(selectMultipleWidgetsAction([]));
 
+      // TODO: Update URL params here.
+
       if (!clonePageAction.payload.blockNavigation) {
         history.push(
           builderURL({
-            pageSlug: response.data.slug,
             pageId: response.data.id,
           }),
         );
@@ -1077,7 +1076,6 @@ export function* generateTemplatePageSaga(
 
       history.replace(
         builderURL({
-          pageSlug: response.data.page.slug,
           pageId,
         }),
       );

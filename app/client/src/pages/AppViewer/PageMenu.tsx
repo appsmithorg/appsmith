@@ -103,7 +103,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
               className="flex flex-col px-3 py-2 text-gray-700 no-underline border-transparent border-r-3 hover:no-underline focus:text-gray-700"
               key={page.pageId}
               to={{
-                pathname: getPageURL(page, appMode, application),
+                pathname: getPageURL(page, appMode),
                 search: query,
               }}
             >

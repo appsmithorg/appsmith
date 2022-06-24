@@ -26,7 +26,7 @@ export const getEntityInCurrentPath = (pathName: string) => {
     };
 
   const baseMatch = matchBasePath(pathName);
-  if (!baseMatch) return;
+  if (!baseMatch) return { type: "", id: "" };
   const { path: basePath } = baseMatch;
   const apiMatch = matchPath<{ apiId: string }>(pathName, {
     path: [
@@ -72,7 +72,10 @@ export const getEntityInCurrentPath = (pathName: string) => {
     };
   }
 
-  return {};
+  return {
+    type: "",
+    id: "",
+  };
 };
 
 function* handleSelectWidget(action: ReduxAction<{ widgetId: string }>) {
