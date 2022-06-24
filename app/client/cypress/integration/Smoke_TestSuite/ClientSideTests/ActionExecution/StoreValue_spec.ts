@@ -34,11 +34,11 @@ describe("storeValue Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    // running twice due to bug
+    // Add wait time as parsing JSOject takes time
     cy.get(jsEditor._runButton)
       .first()
       .click()
-      .wait(3000);
+      .wait(6000);
 
     agHelper.ValidateToastMessage(
       JSON.stringify({
