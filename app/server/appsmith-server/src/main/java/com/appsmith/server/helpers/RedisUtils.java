@@ -3,12 +3,14 @@ package com.appsmith.server.helpers;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 
 import java.time.Duration;
 
+@Component
 @RequiredArgsConstructor
 public class RedisUtils {
     private final ReactiveRedisOperations<String, String> redisOperations;

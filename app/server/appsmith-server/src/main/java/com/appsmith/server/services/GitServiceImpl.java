@@ -6,6 +6,7 @@ import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ce.GitServiceCEImpl;
@@ -38,11 +39,12 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                           GitDeployKeysRepository gitDeployKeysRepository,
                           DatasourceService datasourceService,
                           PluginService pluginService,
-                          ReactiveRedisOperations redisOperations) {
+                          ReactiveRedisOperations redisOperations,
+                          RedisUtils redisUtils) {
 
         super(userService, userDataService, sessionUserService, applicationService, applicationPageService,
                 newPageService, newActionService, actionCollectionService, fileUtils, importExportApplicationService,
                 gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository,
-                datasourceService, pluginService, redisOperations);
+                datasourceService, pluginService, redisOperations, redisUtils);
     }
 }
