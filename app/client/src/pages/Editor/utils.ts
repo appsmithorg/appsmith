@@ -6,6 +6,11 @@ import { useLocation } from "react-router";
 import { WidgetType } from "constants/WidgetConstants";
 import ResizeObserver from "resize-observer-polyfill";
 import WidgetFactory from "utils/WidgetFactory";
+import {
+  createMessage,
+  DEPRECATION_WIDGET_REPLACEMENT_MESSAGE,
+  WIDGET_DEPRECATION_MESSAGE,
+} from "@appsmith/constants/messages";
 
 export const draggableElement = (
   id: string,
@@ -237,6 +242,43 @@ export const useQuery = () => {
   return useMemo(() => new URLSearchParams(search), [search]);
 };
 
+/**
+ * Method that returns if the WidgetType is deprecated along with,
+ * deprecated widget's display name (currentWidgetName) and
+ * the name of the widget that is being replaced with (widgetReplacedWith)
+ *
+ * @param WidgetType
+ * @returns
+ */
 export function isWidgetDeprecated(WidgetType: WidgetType) {
-  return !!WidgetFactory.widgetConfigMap.get(WidgetType)?.isDeprecated;
+  const currentWidgetConfig = WidgetFactory.widgetConfigMap.get(WidgetType);
+  const isDeprecated = !!currentWidgetConfig?.isDeprecated;
+  let widgetReplacedWith;
+  if (isDeprecated && currentWidgetConfig?.replacement) {
+    widgetReplacedWith = WidgetFactory.widgetConfigMap.get(
+      currentWidgetConfig.replacement,
+    )?.displayName;
+  }
+
+  return {
+    isDeprecated,
+    currentWidgetName: currentWidgetConfig?.displayName,
+    widgetReplacedWith,
+  };
+}
+
+export function buildDeprecationWidgetMessage(
+  currentWidgetName: string,
+  replacingWidgetName: string,
+) {
+  const widgetName = currentWidgetName ? `${currentWidgetName} ` : "";
+  const deprecationMessage = createMessage(
+    WIDGET_DEPRECATION_MESSAGE,
+    widgetName,
+  );
+  const deprecatedReplacementMessage = replacingWidgetName
+    ? createMessage(DEPRECATION_WIDGET_REPLACEMENT_MESSAGE, replacingWidgetName)
+    : "";
+
+  return `${deprecationMessage}${deprecatedReplacementMessage}`;
 }

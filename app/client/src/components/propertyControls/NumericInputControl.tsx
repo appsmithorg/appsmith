@@ -24,6 +24,9 @@ const StyledNumericInput = styled(NumericInput)<ThemeProp & INumericInputProps>`
       .bp3-button-group {
         .bp3-button {
           border-radius: 0;
+          &:focus {
+            border: 1px solid var(--appsmith-input-focus-border-color);
+          }
         }
       }
     }
