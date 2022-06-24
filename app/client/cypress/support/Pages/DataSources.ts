@@ -31,7 +31,7 @@ export class DataSources {
   _dropdownTitle = (ddTitle: string) =>
     "//p[contains(text(),'" +
     ddTitle +
-    "')]/parent::label/following-sibling::div/div/div";
+    "')]/ancestor::label/parent::div/following-sibling::div/div/div";
   _reconnectModal = "div.reconnect-datasource-modal";
   _activeDSListReconnectModal = (dbName: string) =>
     "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']";
