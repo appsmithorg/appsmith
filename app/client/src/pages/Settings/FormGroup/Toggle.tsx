@@ -22,7 +22,7 @@ const ToggleStatus = styled.span`
 function FieldToggleWithToggleText(
   toggleText?: (value: boolean) => string,
   id?: string,
-  isDisableProperty?: boolean,
+  isPropertyDisabled?: boolean,
 ) {
   return function FieldToggle(
     componentProps: FormTextFieldProps & {
@@ -30,11 +30,13 @@ function FieldToggleWithToggleText(
       input: Partial<WrappedFieldInputProps>;
     },
   ) {
+    const val = componentProps.input.value;
+
     function onToggle(value?: boolean) {
+      const toggleValue = isPropertyDisabled ? !value : value;
       componentProps.input.onChange &&
-        componentProps.input.onChange(isDisableProperty ? !value : value);
-      componentProps.input.onBlur &&
-        componentProps.input.onBlur(isDisableProperty ? !value : value);
+        componentProps.input.onChange(toggleValue);
+      componentProps.input.onBlur && componentProps.input.onBlur(toggleValue);
     }
     /* Value = !ENV_VARIABLE
     This has been done intentionally as naming convention used contains the word disabled but the UI should show the button enabled by default.
@@ -44,16 +46,12 @@ function FieldToggleWithToggleText(
         <Toggle
           cypressSelector={id}
           onToggle={onToggle}
-          value={
-            isDisableProperty
-              ? !componentProps.input.value
-              : componentProps.input.value
-          }
+          value={isPropertyDisabled ? !val : val}
         />
         <ToggleStatus>
           {typeof toggleText == "function"
-            ? createMessage(() => toggleText(componentProps.input.value))
-            : componentProps.input.value
+            ? createMessage(() => toggleText(val))
+            : val
             ? createMessage(() => "Enabled")
             : createMessage(() => "Disabled")}
         </ToggleStatus>
@@ -74,7 +72,7 @@ export function ToggleComponent({ setting }: SettingComponentProps) {
           component={FieldToggleWithToggleText(
             setting.toggleText,
             setting.id,
-            setting.name?.toLowerCase().includes("enable") ? false : true,
+            !setting.name?.toLowerCase().includes("enable"),
           )}
           name={setting.name}
         />

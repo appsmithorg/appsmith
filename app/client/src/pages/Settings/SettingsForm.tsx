@@ -132,13 +132,12 @@ export function SettingsForm(
     _.forEach(props.settingsConfig, (value, settingName) => {
       const setting = AdminConfig.settingsMap[settingName];
       if (setting && setting.controlType == SettingTypes.TOGGLE) {
+        const settingsStr = props.settingsConfig[settingName].toString();
         if (settingName.toLowerCase().includes("enable")) {
           props.settingsConfig[settingName] =
-            props.settingsConfig[settingName].toString() == "" ||
-            props.settingsConfig[settingName].toString() == "true";
+            settingsStr === "" || settingsStr === "true";
         } else {
-          props.settingsConfig[settingName] =
-            props.settingsConfig[settingName].toString() == "true";
+          props.settingsConfig[settingName] = settingsStr === "true";
         }
       }
     });
