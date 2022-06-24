@@ -121,6 +121,7 @@ describe("Postgres - Datatype Boolean & Enum types tests", function() {
     agHelper.SelectDropDown("Monday");
     agHelper.ToggleSwitch("Areweworking");
     agHelper.ClickButton("Insert");
+    agHelper.AssertElementAbsence(locator._toastMsg);//Assert that Insert did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
@@ -175,6 +176,7 @@ describe("Postgres - Datatype Boolean & Enum types tests", function() {
     agHelper.AssertElementVisible(locator._modal);
     agHelper.ToggleSwitch("Areweworking", "check");
     agHelper.ClickButton("Update");
+    agHelper.AssertElementAbsence(locator._toastMsg);//Assert that Update did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
     table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence

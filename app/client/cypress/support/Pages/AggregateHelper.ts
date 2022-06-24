@@ -94,6 +94,7 @@ export class AggregateHelper {
       .type(renameVal, { force: true })
       .should("have.value", renameVal)
       .blur();
+    this.Sleep();
   }
 
   public AssertAutoSave() {
@@ -417,7 +418,10 @@ export class AggregateHelper {
     }
   }
 
-  public ToggleSwitch(switchName: string, toggle: "check" | "uncheck" = "check") {
+  public ToggleSwitch(
+    switchName: string,
+    toggle: "check" | "uncheck" = "check",
+  ) {
     let locator = cy.xpath(this.locator._switchToggle(switchName));
     let parentLoc = locator.parent("label");
     if (toggle == "check")
