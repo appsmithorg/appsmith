@@ -40,7 +40,7 @@ export class DeployMode {
 
     this.agHelper.WaitUntilEleAppear(eleToCheckInDeployPage);
     localStorage.setItem("inDeployedMode", "true");
-    toCheckFailureToast && this.agHelper.AssertElementAbsence(this.locator._toastMsg);//Validating bug - 14141
+    toCheckFailureToast && this.agHelper.AssertElementAbsence(this.locator._toastMsg);//Validating bug - 14141 + 14252
     this.agHelper.Sleep(2000); //for Depoy page to settle!
   }
 
