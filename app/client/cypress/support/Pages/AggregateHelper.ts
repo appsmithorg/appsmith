@@ -94,6 +94,7 @@ export class AggregateHelper {
       .type(renameVal, { force: true })
       .should("have.value", renameVal)
       .blur();
+    this.Sleep();
   }
 
   public AssertAutoSave() {
@@ -220,28 +221,28 @@ export class AggregateHelper {
     );
   }
 
-  public SelectPropertiesDropDown(endp: string, ddOption: string) {
-    cy.xpath(this.locator._selectPropDropdown(endp))
+  public SelectPropertiesDropDown(endpoint: string, ddOption: string) {
+    cy.xpath(this.locator._selectPropDropdown(endpoint))
       .first()
       .scrollIntoView()
       .click();
     cy.get(this.locator._dropDownValue(ddOption)).click();
   }
 
-  public SelectDropDown(ddOption: string, endp = "selectwidget") {
+  public SelectDropDown(ddOption: string, endpoint: string = "selectwidget") {
     const mode = window.localStorage.getItem("inDeployedMode");
     if (mode == "false") {
-      cy.xpath(this.locator._selectWidgetDropdown(endp))
+      cy.xpath(this.locator._selectWidgetDropdown(endpoint))
         .first()
         .scrollIntoView()
         .click();
     } else {
-      cy.xpath(this.locator._selectWidgetDropdownInDeployed(endp))
+      cy.xpath(this.locator._selectWidgetDropdownInDeployed(endpoint))
         .first()
         .scrollIntoView()
         .click();
     }
-    if (endp == "selectwidget")
+    if (endpoint == "selectwidget")
       cy.get(this.locator._selectOptionValue(ddOption)).click({ force: true });
     else cy.get(this.locator._dropDownValue(ddOption)).click({ force: true });
 
@@ -252,14 +253,14 @@ export class AggregateHelper {
     ddOption: string,
     insideParent = "",
     index = 0,
-    endp = "dropdownwidget",
+    endpoint: string = "dropdownwidget",
   ) {
     const mode = window.localStorage.getItem("inDeployedMode");
     //cy.log("mode frm deployed is:" + mode)
     const modeSelector =
       mode == "true"
-        ? this.locator._selectWidgetDropdownInDeployed(endp)
-        : this.locator._selectWidgetDropdown(endp);
+        ? this.locator._selectWidgetDropdownInDeployed(endpoint)
+        : this.locator._selectWidgetDropdown(endpoint);
     const finalSelector = insideParent
       ? this.locator._divWithClass(insideParent) + modeSelector
       : modeSelector;
@@ -283,9 +284,9 @@ export class AggregateHelper {
     options: string[],
     index = 0,
     check = true,
-    endp = "multiselectwidgetv2",
+    endpoint: string = "multiselectwidgetv2",
   ) {
-    cy.get(this.locator._widgetInDeployed(endp) + " div.rc-select-selector")
+    cy.get(this.locator._widgetInDeployed(endpoint) + " div.rc-select-selector")
       .eq(index)
       .scrollIntoView()
       .click();
@@ -308,7 +309,7 @@ export class AggregateHelper {
 
     // //closing multiselect dropdown
     cy.get("body").type("{esc}");
-    // cy.get(this.locator._widgetInDeployed(endp))
+    // cy.get(this.locator._widgetInDeployed(endpoint))
     //     .eq(index)
     //     .click()
   }
@@ -415,6 +416,26 @@ export class AggregateHelper {
         expect(classes).includes(toggle);
       });
     }
+  }
+
+  public ToggleSwitch(
+    switchName: string,
+    toggle: "check" | "uncheck" = "check",
+  ) {
+    let locator = cy.xpath(this.locator._switchToggle(switchName));
+    let parentLoc = locator.parent("label");
+    if (toggle == "check")
+      parentLoc.then(($parent) => {
+        if (!$parent.hasClass("t--switch-widget-active")) {
+          locator.click();
+        }
+      });
+    else
+      parentLoc.then(($parent) => {
+        if (!$parent.hasClass("t--switch-widget-inactive")) {
+          locator.click();
+        }
+      });
   }
 
   // public NavigateBacktoEditor() {

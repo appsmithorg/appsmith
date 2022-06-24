@@ -28,6 +28,8 @@ export const generateDataTreeJSAction = (
       const variable = variables[i];
       variableList[variable.name] = variable.value;
       listVariables.push(variable.name);
+      dynamicBindingPathList.push({ key: variable.name });
+      bindingPaths[variable.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
     }
   }
   const dependencyMap: DependencyMap = {};
