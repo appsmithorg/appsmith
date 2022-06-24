@@ -45,12 +45,13 @@ export class EntityExplorer {
   private _pageClone = ".single-select >div:contains('Clone')";
   private getPageLocator = (pageName: string) =>
     `.t--entity-name:contains(${pageName})`;
+  private _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + " Query']";
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
     section: "WIDGETS" | "QUERIES/JS" | "DATASOURCES" | "" = "",
   ) {
-    if (section) this.expandCollapseEntity(section); //to expand respective section
+    if (section) this.ExpandCollapseEntity(section); //to expand respective section
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
       .last()
       .click({ multiple: true });
@@ -81,7 +82,7 @@ export class EntityExplorer {
     );
   }
 
-  public expandCollapseEntity(entityName: string, expand = true) {
+  public ExpandCollapseEntity(entityName: string, expand = true) {
     cy.xpath(this._expandCollapseArrow(entityName))
       .invoke("attr", "name")
       .then((arrow) => {
@@ -141,7 +142,7 @@ export class EntityExplorer {
   }
 
   public ClonePage(pageName = "Page1") {
-    this.expandCollapseEntity("PAGES")
+    this.ExpandCollapseEntity("PAGES");
     cy.get(this.getPageLocator(pageName))
       .trigger("mouseover")
       .click({ force: true });
@@ -152,5 +153,12 @@ export class EntityExplorer {
       .click({ force: true });
     cy.get(this._pageClone).click({ force: true });
     this.agHelper.ValidateNetworkStatus("@clonePage", 201);
+  }
+
+  public CreateNewDsQuery(dsName: string) {
+    cy.get(this.locator._createNew)
+      .last()
+      .click({ force: true });
+    cy.xpath(this._visibleTextSpan(dsName)).click({ force: true });
   }
 }
