@@ -3,10 +3,10 @@ const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let dataSources = ObjectsRegistry.DataSources,
-  agHelper = ObjectsRegistry.AggregateHelper,
-  locator = ObjectsRegistry.CommonLocators;
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 let datasourceName, actionName;
+
 describe("Mongo Active datasource test cases", function() {
   before(() => {
     cy.NavigateToDatasourceEditor();
