@@ -34,17 +34,11 @@ describe("storeValue Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    //Bug 14503
-    // jsEditor.EditJSObj(jsObjectBody);
-    // agHelper.AssertAutoSave();
-
     // running twice due to bug
-    Cypress._.times(2, () => {
-      cy.get(jsEditor._runButton)
-        .first()
-        .click()
-        .wait(3000);
-    });
+    cy.get(jsEditor._runButton)
+      .first()
+      .click()
+      .wait(3000);
 
     agHelper.ValidateToastMessage(
       JSON.stringify({
@@ -56,5 +50,4 @@ describe("storeValue Action test", () => {
       2,
     );
   });
-
 });
