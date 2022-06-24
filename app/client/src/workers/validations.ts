@@ -439,9 +439,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       }
     }
 
-    if (validateExcessLength(parsed as string, 2000)) {
+    if (validateExcessLength(parsed as string, 20000)) {
       return {
-        parsed: (parsed as string)?.substring(0, 2000),
+        parsed: (parsed as string)?.substring(0, 20000),
         isValid: false,
         messages: [
           "Excessive text length without a line break. Rendering a substring to avoid app crash.",
