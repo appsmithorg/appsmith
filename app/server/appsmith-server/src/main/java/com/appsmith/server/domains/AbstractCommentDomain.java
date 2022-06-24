@@ -18,7 +18,12 @@ public abstract class AbstractCommentDomain extends BaseDomain {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     String authorUsername; // username i.e. email of the user, who authored this comment or thread.
+
+    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    @Deprecated
     String orgId;
+
+    String workspaceId;
 
     /** Edit/Published Mode */
     ApplicationMode mode;

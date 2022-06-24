@@ -208,8 +208,24 @@ export const handleSpecificCasesWhilePasting = (
         }
       }
 
-      // updating dynamicBindingPath in copied widget if the copied widge thas reference to oldWidgetNames
+      // updating dynamicBindingPath in copied widget if the copied widget thas reference to oldWidgetNames
       widget.dynamicBindingPathList = (widget.dynamicBindingPathList || []).map(
+        (path: any) => {
+          if (path.key.startsWith(`template.${oldWidgetName}`)) {
+            return {
+              key: path.key.replace(
+                `template.${oldWidgetName}`,
+                `template.${newWidgetName}`,
+              ),
+            };
+          }
+
+          return path;
+        },
+      );
+
+      // updating dynamicTriggerPath in copied widget if the copied widget thas reference to oldWidgetNames
+      widget.dynamicTriggerPathList = (widget.dynamicTriggerPathList || []).map(
         (path: any) => {
           if (path.key.startsWith(`template.${oldWidgetName}`)) {
             return {
@@ -1367,6 +1383,10 @@ export function* createWidgetCopy(widget: FlattenedWidgetProps) {
   };
 }
 
+export type WidgetsInTree = (WidgetProps & {
+  children?: string[] | undefined;
+})[];
+
 /**
  * get all widgets in tree
  *
@@ -1377,7 +1397,7 @@ export function* createWidgetCopy(widget: FlattenedWidgetProps) {
 export const getAllWidgetsInTree = (
   widgetId: string,
   canvasWidgets: CanvasWidgetsReduxState,
-) => {
+): WidgetsInTree => {
   const widget = canvasWidgets[widgetId];
   const widgetList = [widget];
   if (widget && widget.children) {

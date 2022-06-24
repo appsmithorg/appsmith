@@ -7,9 +7,10 @@ export const CONFIG = {
   name: "Rating",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["stars"],
   defaults: {
     rows: 4,
-    columns: 10,
+    columns: 20,
     animateLoading: true,
     maxCount: 5,
     defaultRate: 3,
