@@ -51,6 +51,12 @@ public class GitControllerCE {
     public GitControllerCE(GitService service) {
         this.service = service;
     }
+    /**
+     * applicationId is the defaultApplicationId
+     * For every git connected app, the master branch applicationId is used as defaultApplicationId
+     * This is stored in gitApplicationMetadata
+     * Note : The master branch here refers to the app that was created even before connecting to git
+     * */
 
     @PostMapping("/profile/default")
     public Mono<ResponseDTO<Map<String, GitProfile>>> saveGitProfile(@RequestBody GitProfile gitProfile) {
