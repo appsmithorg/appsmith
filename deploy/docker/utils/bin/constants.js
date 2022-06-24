@@ -7,7 +7,7 @@ const DUMP_FILE_NAME = "appsmith-data.archive"
 
 const BACKUP_ERROR_LOG_PATH = '/appsmith-stacks/logs/backup'
 
-const MIN_REQUIRED_DISK_SPACE_IN_BYTES = 536870912099999999 // 5GB
+const MIN_REQUIRED_DISK_SPACE_IN_BYTES = 5368709120 // 5GB
 
 module.exports = {
     BACKUP_PATH,
