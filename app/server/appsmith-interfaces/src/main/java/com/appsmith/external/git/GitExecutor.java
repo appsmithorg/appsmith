@@ -134,7 +134,7 @@ public interface GitExecutor {
      * @param isRepoPath does the repoSuffix contains the complete repoPath or only the suffix
      * @return messages received after the remote is fetched
      */
-    Mono<String> fetchRemote(Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath);
+    Mono<String> fetchRemote(Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath, String branchName, boolean isFetchAll);
 
 
     /**
