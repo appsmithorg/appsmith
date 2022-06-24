@@ -228,7 +228,7 @@ export class AggregateHelper {
     cy.get(this.locator._dropDownValue(ddOption)).click();
   }
 
-  public SelectDropDown(ddOption: string, endpoint: string = "selectwidget") {
+  public SelectDropDown(ddOption: string, endpoint = "selectwidget") {
     const mode = window.localStorage.getItem("inDeployedMode");
     if (mode == "false") {
       cy.xpath(this.locator._selectWidgetDropdown(endpoint))
@@ -252,7 +252,7 @@ export class AggregateHelper {
     ddOption: string,
     insideParent = "",
     index = 0,
-    endpoint: string = "dropdownwidget",
+    endpoint = "dropdownwidget",
   ) {
     const mode = window.localStorage.getItem("inDeployedMode");
     //cy.log("mode frm deployed is:" + mode)
@@ -283,7 +283,7 @@ export class AggregateHelper {
     options: string[],
     index = 0,
     check = true,
-    endpoint: string = "multiselectwidgetv2",
+    endpoint = "multiselectwidgetv2",
   ) {
     cy.get(this.locator._widgetInDeployed(endpoint) + " div.rc-select-selector")
       .eq(index)
@@ -364,14 +364,19 @@ export class AggregateHelper {
     });
   }
 
-  public GetNClick(selector: string, index = 0, force = false) {
+  public GetNClick(
+    selector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+  ) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator
       .eq(index)
       .click({ force: force })
-      .wait(500);
+      .wait(waitTimeInterval);
   }
 
   public GetNClickByContains(

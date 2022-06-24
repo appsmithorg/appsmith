@@ -35,10 +35,7 @@ describe("storeValue Action test", () => {
     });
 
     // Add wait time as parsing JSOject takes time
-    cy.get(jsEditor._runButton)
-      .first()
-      .click()
-      .wait(6000);
+    agHelper.GetNClick(jsEditor._runButton, 0, false, 6000);
 
     agHelper.ValidateToastMessage(
       JSON.stringify({
