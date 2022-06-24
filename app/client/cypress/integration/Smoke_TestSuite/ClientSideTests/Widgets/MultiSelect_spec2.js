@@ -29,9 +29,9 @@ describe("MultiSelect Widget Functionality", function() {
       .first()
       .focus({ force: true })
       .type("{uparrow}", { force: true });
-    cy.get(".multi-select-dropdown")
-      .contains("Option 3")
-      .click({ force: true });
+
+    cy.dropdownMultiSelectDynamic("Option 3");
+
     cy.wait(2000);
     //Validating option inside multiselect widget
     cy.get(".rc-select-selection-item-content")
@@ -55,26 +55,7 @@ describe("MultiSelect Widget Functionality", function() {
     cy.dropdownMultiSelectDynamic("Option 2");
   });
 
-  it("4. Dropdown Functionality To Unchecked Visible Widget", function() {
-    cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
-    cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
-      "not.exist",
-    );
-    cy.get(publish.backToEditor).click();
-  });
-
-  it("5. Dropdown Functionality To Check Visible Widget", function() {
-    cy.openPropertyPane("multiselectwidgetv2");
-    cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
-    cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
-      "be.visible",
-    );
-    cy.get(publish.backToEditor).click();
-  });
-
-  it("6. Dropdown Functionality To Check Allow select all option", function() {
+  it("4. Dropdown Functionality To Check Allow select all option", function() {
     // select all option is not enable
     cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-selection-item-content")
@@ -90,10 +71,10 @@ describe("MultiSelect Widget Functionality", function() {
       .first()
       .focus({ force: true })
       .type("{uparrow}", { force: true });
-    cy.get(".multi-select-dropdown")
-      .contains("Select all")
-      .click({ force: true });
-    cy.wait(2000);
+
+    cy.dropdownMultiSelectDynamic("Select all");
+
+    cy.wait(3000);
     //Validating option inside multiselect widget
     cy.get(".rc-select-selection-item-content")
       .eq(0)
@@ -103,7 +84,7 @@ describe("MultiSelect Widget Functionality", function() {
       .should("have.text", "Option 2");
   });
 
-  it("7. Check isDirty meta property", function() {
+  it("5. Check isDirty meta property", function() {
     cy.openPropertyPane(WIDGET.TEXT);
     cy.updateCodeInput(PROPERTY_SELECTOR.text, `{{MultiSelect2.isDirty}}`);
     // Init isDirty by changing defaultOptionValue
@@ -176,7 +157,7 @@ describe("MultiSelect Widget Functionality", function() {
     },
   ];
 
-  it("8. Verify MultiSelect resets to default value", function() {
+  it("6. Verify MultiSelect resets to default value", function() {
     resetTestCases.forEach((testCase) => {
       const {
         defaultValue,
@@ -213,7 +194,7 @@ describe("MultiSelect Widget Functionality", function() {
     });
   });
 
-  it("9. Verify MultiSelect deselection behavior", function() {
+  it("7. Verify MultiSelect deselection behavior", function() {
     cy.openPropertyPane("multiselectwidgetv2");
     // set options
     jsEditor.EnterJSContext(
@@ -228,5 +209,24 @@ describe("MultiSelect Widget Functionality", function() {
     cy.get(getWidgetSelector("textwidget"))
       .eq(1)
       .should("have.text", "");
+  });
+
+  it("8. Dropdown Functionality To Unchecked Visible Widget", function() {
+    cy.togglebarDisable(commonlocators.visibleCheckbox);
+    cy.PublishtheApp();
+    cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
+      "not.exist",
+    );
+    cy.get(publish.backToEditor).click();
+  });
+
+  it("9. Dropdown Functionality To Check Visible Widget", function() {
+    cy.openPropertyPane("multiselectwidgetv2");
+    cy.togglebar(commonlocators.visibleCheckbox);
+    cy.PublishtheApp();
+    cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
+      "be.visible",
+    );
+    cy.get(publish.backToEditor).click();
   });
 });
