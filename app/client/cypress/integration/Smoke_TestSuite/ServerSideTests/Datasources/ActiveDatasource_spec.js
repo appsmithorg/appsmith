@@ -11,7 +11,7 @@ describe("Mongo Active datasource test cases", function() {
   before(() => {
     cy.NavigateToDatasourceEditor();
     dataSources.CreatePlugIn("MongoDB");
-    agHelper.AssertElementAbsence(locator._toastMsg); //verifying there is no error toast, Bug 14566
+    agHelper.ValidateToastMessage("datasource created"); //verifying there is no error toast, Bug 14566
     cy.fillMongoDatasourceForm();
     cy.get(datasourceEditor.saveBtn).click({ force: true });
     cy.wait("@createDatasource").then((httpResponse) => {
