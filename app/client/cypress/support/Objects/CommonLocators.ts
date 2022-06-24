@@ -55,7 +55,7 @@ export class CommonLocators {
     _openNavigationTab = (tabToOpen: string) => `#switcher--${tabToOpen}`
     _selectWidgetDropdown = (widgetType: string) => `//div[contains(@class, 't--draggable-${widgetType}')]//button`
     _selectWidgetDropdownInDeployed = (widgetType: string) => `//div[contains(@class, 't--widget-${widgetType}')]//button`
-    _inputFieldByName = (fieldName: string) => "//p[text()='" + fieldName + "']/parent::label/following-sibling::div"
+    _inputFieldByName = (fieldName: string) => "//p[text()='" + fieldName + "']/ancestor::label/parent::div/following-sibling::div"
     _existingFieldTextByName = (fieldName: string) => "//label[text()='" + fieldName + "']/ancestor::div[contains(@class, 't--property-control-" + fieldName.replace(/ +/g, "").toLowerCase() + "')]"
     _existingFieldValueByName = (fieldName: string) => this._existingFieldTextByName(fieldName) + "//div[contains(@class,'CodeMirror-code')]"
     _existingActualValueByName = (fieldName: string) => this._existingFieldValueByName(fieldName) + "//span/span"
@@ -70,8 +70,9 @@ export class CommonLocators {
     _jsonFormHeader = ".t--jsonform-body > div:first-child"
     _jsonFormWidget = ".t--widget-jsonformwidget"
     _lintErrorElement = `span.CodeMirror-lint-mark-error`
-    _datePicker = (date: number) => "//div[@class ='bp3-datepicker']//div[@class = 'DayPicker-Day']//div[text()='" + date + "']";
+    _datePicker = (date: number) => "//div[@class ='bp3-datepicker']//div[contains(@class, 'DayPicker-Day')]//div[text()='" + date + "']";
     _inputWidgetValueField= (fieldName: string, input : boolean = true) => `//label[contains(@class, 't--input-widget-label')][text()='${fieldName}']/ancestor::div[@data-testid='input-container']//${input ? "input" : "textarea"}`
-    _deleteIcon = "button .bp3-icon-delete";
-
+    _deleteIcon = "button .bp3-icon-delete"
+    _datePickerValue = "div[data-testid='datepicker-container'] input"
+    _switchToggle = (switchName: string) => "//div[contains(@class, 't--switch-widget-label')][text()='"+switchName+"']/parent::label/span"
 }
