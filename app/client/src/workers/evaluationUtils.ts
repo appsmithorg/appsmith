@@ -156,7 +156,32 @@ export const translateDiffEventToDataTreeDiffEvent = (
           typeof difference.lhs === "string" && isDynamicValue(difference.lhs);
       }
 
-      if (rhsChange || lhsChange) {
+      // JsObject function renaming
+      // remove .data from a String instance manually
+      // since it won't be identified when calculating diffs
+      // source for .data in a String instance -> `updateLocalUnEvalTree`
+      if (
+        isJsAction &&
+        rhsChange &&
+        difference.lhs instanceof String &&
+        _.get(difference.lhs, "data")
+      ) {
+        result = [
+          {
+            event: DataTreeDiffEvent.DELETE,
+            payload: {
+              propertyPath: `${propertyPath}.data`,
+            },
+          },
+          {
+            event: DataTreeDiffEvent.EDIT,
+            payload: {
+              propertyPath,
+              value: difference.rhs,
+            },
+          },
+        ];
+      } else if (rhsChange || lhsChange) {
         result.event = DataTreeDiffEvent.EDIT;
         result.payload = {
           propertyPath,
@@ -197,6 +222,19 @@ export const translateDiffEventToDataTreeDiffEvent = (
             },
           };
         });
+
+        // when an object is being replaced by an array
+        // list all new array accessors that are being added
+        // so dependencies will be created based on existing bindings
+        if (Array.isArray(difference.rhs)) {
+          result = result.concat(
+            translateDiffArrayIndexAccessors(
+              propertyPath,
+              difference.rhs,
+              DataTreeDiffEvent.NEW,
+            ),
+          );
+        }
       } else if (
         !isTrueObject(difference.lhs) &&
         isTrueObject(difference.rhs)
@@ -214,6 +252,19 @@ export const translateDiffEventToDataTreeDiffEvent = (
             },
           };
         });
+
+        // when an array is being replaced by an object
+        // remove all array accessors that are deleted
+        // so dependencies by existing bindings are removed
+        if (Array.isArray(difference.lhs)) {
+          result = result.concat(
+            translateDiffArrayIndexAccessors(
+              propertyPath,
+              difference.lhs,
+              DataTreeDiffEvent.DELETE,
+            ),
+          );
+        }
       }
       break;
     }
@@ -233,6 +284,23 @@ export const translateDiffEventToDataTreeDiffEvent = (
   return result;
 };
 
+export const translateDiffArrayIndexAccessors = (
+  propertyPath: string,
+  array: unknown[],
+  event: DataTreeDiffEvent,
+) => {
+  const result: DataTreeDiff[] = [];
+  array.forEach((data, index) => {
+    const path = `${propertyPath}[${index}]`;
+    result.push({
+      event,
+      payload: {
+        propertyPath: path,
+      },
+    });
+  });
+  return result;
+};
 /*
   Table1.selectedRow
   Table1.selectedRow.email: ["Input1.defaultText"]
@@ -754,6 +822,22 @@ export const updateJSCollectionInDataTree = (
         }
       } else {
         varList.push(newVar.name);
+        const reactivePaths = jsCollection.reactivePaths;
+        reactivePaths[newVar.name] =
+          EvaluationSubstitutionType.SMART_SUBSTITUTE;
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.reactivePaths`,
+          reactivePaths,
+        );
+        const dynamicBindingPathList = jsCollection.dynamicBindingPathList;
+        dynamicBindingPathList.push({ key: newVar.name });
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.dynamicBindingPathList`,
+          dynamicBindingPathList,
+        );
+
         _.set(modifiedDataTree, `${jsCollection.name}.variables`, varList);
         _.set(
           modifiedDataTree,
@@ -762,15 +846,33 @@ export const updateJSCollectionInDataTree = (
         );
       }
     }
-    let newVarList: Array<string> = [];
+    let newVarList: Array<string> = varList;
     for (let i = 0; i < varList.length; i++) {
       const varListItem = varList[i];
       const existsInParsed = parsedBody.variables.find(
         (item) => item.name === varListItem,
       );
       if (!existsInParsed) {
+        const reactivePaths = jsCollection.reactivePaths;
+        delete reactivePaths[varListItem];
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.reactivePaths`,
+          reactivePaths,
+        );
+
+        let dynamicBindingPathList = jsCollection.dynamicBindingPathList;
+        dynamicBindingPathList = dynamicBindingPathList.filter(
+          (path) => path["key"] !== varListItem,
+        );
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.dynamicBindingPathList`,
+          dynamicBindingPathList,
+        );
+
+        newVarList = newVarList.filter((item) => item !== varListItem);
         delete modifiedDataTree[`${jsCollection.name}`][`${varListItem}`];
-        newVarList = varList.filter((item) => item !== varListItem);
       }
     }
     if (newVarList.length) {

@@ -19,8 +19,10 @@ import { createMessage, ERROR_500 } from "@appsmith/constants/messages";
 import localStorage from "utils/localStorage";
 import { APP_MODE } from "entities/App";
 import { trimQueryString } from "./helpers";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { builderURL, viewerURL } from "RouteBuilder";
+import { osName } from "react-device-detect";
 
 export const createReducer = (
   initialState: any,
@@ -172,7 +174,7 @@ export const createNewApiName = (actions: ActionDataState, pageId: string) => {
 };
 
 export const createNewJSFunctionName = (
-  jsActions: ActionDataState,
+  jsActions: JSCollectionData[],
   pageId: string,
 ) => {
   const pageJsFunctionNames = jsActions
@@ -347,7 +349,7 @@ export const isBlobUrl = (url: string) => {
  * @param type string file type
  * @returns string containing blob id and type
  */
-export const createBlobUrl = (data: Blob | string, type: string) => {
+export const createBlobUrl = (data: Blob | MediaSource, type: string) => {
   let url = URL.createObjectURL(data);
   url = url.replace(
     `${window.location.protocol}//${window.location.hostname}/`,
@@ -451,4 +453,9 @@ export const base64ToBlob = (
 
   const blob = new Blob(byteArrays, { type: contentType });
   return blob;
+};
+
+// util function to detect current os is Mac
+export const isMacOs = () => {
+  return osName === "Mac OS";
 };

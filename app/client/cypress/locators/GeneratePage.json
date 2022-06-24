@@ -7,7 +7,7 @@
   "dropdownOption": ".bp3-popover-content .t--dropdown-option",
   "selectSearchColumnDropdown": "[data-cy=t--searchColumn-dropdown]",
   "generatePageFormSubmitBtn": "[data-cy=t--generate-page-form-submit]",
-  "selectRowinTable": "//div[text()='CRUD User2']/ancestor::div[contains(@class,'tr')]",
+  "selectRowinTable": "//span[text()='CRUD User2']/ancestor::div[contains(@class,'tr')]",
   "currentStatusField": "//div[@type='FORM_WIDGET']//span[text()='Status']//ancestor::div[contains(@class,'t--widget-textwidget')]/following-sibling::div[contains(@class, 't--widget-inputwidgetv2')][1]//input",
   "updateBtn": "span:contains('Update')",
   "addRowIcon": "//span[@icon='add']/ancestor::div[1]",

@@ -1,6 +1,6 @@
 import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import API from "api/Api";
-import { GenericApiResponse } from "./ApiResponses";
+import { ApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
 
 import { DatasourceAuthentication, Datasource } from "entities/Datasource";
@@ -21,7 +21,7 @@ export interface EmbeddedRestDatasourceRequest {
   invalids: Array<string>;
   isValid: boolean;
   name: string;
-  organizationId: string;
+  workspaceId: string;
   pluginId: string;
 }
 
@@ -36,9 +36,9 @@ class DatasourcesApi extends API {
   static url = "v1/datasources";
 
   static fetchDatasources(
-    orgId: string,
-  ): AxiosPromise<GenericApiResponse<Datasource[]>> {
-    return API.get(DatasourcesApi.url + `?organizationId=${orgId}`);
+    workspaceId: string,
+  ): AxiosPromise<ApiResponse<Datasource[]>> {
+    return API.get(DatasourcesApi.url + `?workspaceId=${workspaceId}`);
   }
 
   static createDatasource(datasourceConfig: Partial<Datasource>): Promise<any> {
@@ -71,21 +71,19 @@ class DatasourcesApi extends API {
     );
   }
 
-  static fetchMockDatasources(): AxiosPromise<
-    GenericApiResponse<Datasource[]>
-  > {
+  static fetchMockDatasources(): AxiosPromise<ApiResponse<Datasource[]>> {
     return API.get(DatasourcesApi.url + "/mocks");
   }
 
   static addMockDbToDatasources(
     name: string,
-    organizationId: string,
+    workspaceId: string,
     pluginId: string,
     packageName: string,
   ): Promise<any> {
     return API.post(DatasourcesApi.url + `/mocks`, {
       name,
-      organizationId,
+      workspaceId,
       pluginId,
       packageName,
     });

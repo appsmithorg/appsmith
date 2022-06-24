@@ -27,7 +27,7 @@ export type TextInputProps = CommonComponentProps & {
   onChange?: (value: string) => void;
 };
 
-const SearchInputWrapper = styled.div<{ border?: boolean }>`
+const SearchInputWrapper = styled.div<{ border?: boolean; className?: string }>`
   & > div {
     border: none;
 
@@ -94,7 +94,11 @@ const SearchInput = forwardRef(
       return props.onChange && props.onChange("");
     }, [props]);
     return (
-      <SearchInputWrapper border={props.border} ref={wrapperRef}>
+      <SearchInputWrapper
+        border={props.border}
+        className={props.className}
+        ref={wrapperRef}
+      >
         <TextInput
           {...props}
           defaultValue={searchValue}

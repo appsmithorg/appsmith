@@ -60,8 +60,8 @@ public class DatasourceContextServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
-        orgId = testWorkspace.getId();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_WORKSPACES).block();
+        workspaceId = testWorkspace.getId();
     }
 
     @Test
@@ -81,7 +81,7 @@ public class DatasourceContextServiceTest {
         authenticationDTO.setPassword(password);
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         final Datasource createdDatasource = pluginMono
                 .map(plugin -> {
@@ -119,7 +119,7 @@ public class DatasourceContextServiceTest {
         DBAuth authenticationDTO = new DBAuth();
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         final Datasource createdDatasource = pluginMono
                 .map(plugin -> {

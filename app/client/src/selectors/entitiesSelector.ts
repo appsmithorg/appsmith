@@ -536,10 +536,10 @@ export const getAllWidgetsMap = createSelector(
 export const getAllPageWidgets = createSelector(
   getAllWidgetsMap,
   (widgetsMap) => {
-    return Object.entries(widgetsMap).reduce(
-      (res: any[], [, widget]: any) => [...res, widget],
-      [],
-    );
+    return Object.entries(widgetsMap).reduce((res: any[], [, widget]: any) => {
+      res.push(widget);
+      return res;
+    }, []);
   },
 );
 
@@ -795,7 +795,9 @@ export const getJSActions = (
     (jsCollectionData) => jsCollectionData.config.id === JSCollectionId,
   );
 
-  return jsCollection?.config.actions ?? [];
+  return jsCollection?.config.actions
+    ? sortBy(jsCollection?.config.actions, ["name"])
+    : [];
 };
 
 export const getActiveJSActionId = (

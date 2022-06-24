@@ -5,7 +5,7 @@ import { getDifferenceInJSCollection, ParsedBody } from "./JSPaneUtils";
 const JSObject1: JSCollection = {
   id: "1234",
   applicationId: "app123",
-  organizationId: "org123",
+  workspaceId: "workspace123",
   name: "JSObject2",
   pageId: "page123",
   pluginId: "plugin123",
@@ -16,7 +16,7 @@ const JSObject1: JSCollection = {
     {
       id: "fun2",
       applicationId: "app123",
-      organizationId: "org123",
+      workspaceId: "workspace123",
       pluginType: "JS",
       pluginId: "plugin123",
       name: "myFun2",
@@ -25,7 +25,7 @@ const JSObject1: JSCollection = {
         userPermissions: [],
         name: "UNUSED_DATASOURCE",
         pluginId: "plugin123",
-        organizationId: "org123",
+        workspaceId: "workspace123",
         messages: [],
         isValid: true,
         new: true,
@@ -34,6 +34,7 @@ const JSObject1: JSCollection = {
       collectionId: "1234",
       actionConfiguration: {
         timeoutInMillisecond: 10000,
+        // @ts-expect-error: paginationType does not exists on JSAction
         paginationType: "NONE",
         encodeParamsToggle: true,
         body: "async () => {\n\t\t//use async-await or promises\n\t}",
@@ -58,7 +59,7 @@ const JSObject1: JSCollection = {
     {
       id: "fun1",
       applicationId: "app123",
-      organizationId: "org123",
+      workspaceId: "workspace123",
       pluginType: "JS",
       pluginId: "plugin123",
       name: "myFun1",
@@ -67,7 +68,7 @@ const JSObject1: JSCollection = {
         userPermissions: [],
         name: "UNUSED_DATASOURCE",
         pluginId: "plugin123",
-        organizationId: "org123",
+        workspaceId: "workspace123",
         messages: [],
         isValid: true,
         new: true,
@@ -76,6 +77,7 @@ const JSObject1: JSCollection = {
       collectionId: "1234",
       actionConfiguration: {
         timeoutInMillisecond: 10000,
+        // @ts-expect-error: paginationType does not exists on JSAction
         paginationType: "NONE",
         encodeParamsToggle: true,
         body: "() => {\n\t\t//write code here\n\t}",
@@ -116,7 +118,7 @@ const JSObject1: JSCollection = {
 const JSObject2: JSCollection = {
   id: "1234",
   applicationId: "app123",
-  organizationId: "org123",
+  workspaceId: "workspace123",
   name: "JSObject2",
   pageId: "page123",
   pluginId: "plugin123",
@@ -127,7 +129,7 @@ const JSObject2: JSCollection = {
     {
       id: "fun1",
       applicationId: "app123",
-      organizationId: "org123",
+      workspaceId: "workspace123",
       pluginType: "JS",
       pluginId: "plugin123",
       name: "myFun1",
@@ -136,7 +138,7 @@ const JSObject2: JSCollection = {
         userPermissions: [],
         name: "UNUSED_DATASOURCE",
         pluginId: "plugin123",
-        organizationId: "org123",
+        workspaceId: "workspace123",
         messages: [],
         isValid: true,
         new: true,
@@ -145,6 +147,7 @@ const JSObject2: JSCollection = {
       collectionId: "1234",
       actionConfiguration: {
         timeoutInMillisecond: 10000,
+        // @ts-expect-error: paginationType does not exists on JSAction
         paginationType: "NONE",
         encodeParamsToggle: true,
         body: "() => {\n\t\t//write code here\n\t}",
@@ -169,7 +172,7 @@ const JSObject2: JSCollection = {
     {
       id: "fun2",
       applicationId: "app123",
-      organizationId: "org123",
+      workspaceId: "workspace123",
       pluginType: "JS",
       pluginId: "plugin123",
       name: "myFun2",
@@ -178,7 +181,7 @@ const JSObject2: JSCollection = {
         userPermissions: [],
         name: "UNUSED_DATASOURCE",
         pluginId: "plugin123",
-        organizationId: "org123",
+        workspaceId: "workspace123",
         messages: [],
         isValid: true,
         new: true,
@@ -187,6 +190,7 @@ const JSObject2: JSCollection = {
       collectionId: "1234",
       actionConfiguration: {
         timeoutInMillisecond: 10000,
+        // @ts-expect-error: paginationType does not exists on JSAction
         paginationType: "NONE",
         encodeParamsToggle: true,
         body: "async () => {\n\t\t//use async-await or promises\n\t}",
@@ -257,7 +261,7 @@ const resultRenamedActions = {
     {
       id: "fun1",
       applicationId: "app123",
-      organizationId: "org123",
+      workspaceId: "workspace123",
       pluginType: "JS",
       pluginId: "plugin123",
       name: "myFun11",
@@ -266,7 +270,7 @@ const resultRenamedActions = {
         userPermissions: [],
         name: "UNUSED_DATASOURCE",
         pluginId: "plugin123",
-        organizationId: "org123",
+        workspaceId: "workspace123",
         messages: [],
         isValid: true,
         new: true,
@@ -338,7 +342,7 @@ const resultDeletedActions = {
     {
       id: "fun2",
       applicationId: "app123",
-      organizationId: "org123",
+      workspaceId: "workspace123",
       pluginType: "JS",
       pluginId: "plugin123",
       name: "myFun2",
@@ -347,7 +351,7 @@ const resultDeletedActions = {
         userPermissions: [],
         name: "UNUSED_DATASOURCE",
         pluginId: "plugin123",
-        organizationId: "org123",
+        workspaceId: "workspace123",
         messages: [],
         isValid: true,
         new: true,
@@ -455,7 +459,7 @@ const resultChangedBody = {
     {
       id: "fun2",
       applicationId: "app123",
-      organizationId: "org123",
+      workspaceId: "workspace123",
       pluginType: "JS",
       pluginId: "plugin123",
       name: "myFun2",
@@ -464,7 +468,7 @@ const resultChangedBody = {
         userPermissions: [],
         name: "UNUSED_DATASOURCE",
         pluginId: "plugin123",
-        organizationId: "org123",
+        workspaceId: "workspace123",
         messages: [],
         isValid: true,
         new: true,
@@ -536,7 +540,7 @@ const resultChangedParameters = {
     {
       id: "fun2",
       applicationId: "app123",
-      organizationId: "org123",
+      workspaceId: "workspace123",
       pluginType: "JS",
       pluginId: "plugin123",
       name: "myFun2",
@@ -545,7 +549,7 @@ const resultChangedParameters = {
         userPermissions: [],
         name: "UNUSED_DATASOURCE",
         pluginId: "plugin123",
-        organizationId: "org123",
+        workspaceId: "workspace123",
         messages: [],
         isValid: true,
         new: true,
@@ -617,7 +621,7 @@ const resultRemovedAsync = {
     {
       id: "fun2",
       applicationId: "app123",
-      organizationId: "org123",
+      workspaceId: "workspace123",
       pluginType: "JS",
       pluginId: "plugin123",
       name: "myFun2",
@@ -626,7 +630,7 @@ const resultRemovedAsync = {
         userPermissions: [],
         name: "UNUSED_DATASOURCE",
         pluginId: "plugin123",
-        organizationId: "org123",
+        workspaceId: "workspace123",
         messages: [],
         isValid: true,
         new: true,
@@ -695,7 +699,7 @@ const resultAddedAsync = {
     {
       id: "fun1",
       applicationId: "app123",
-      organizationId: "org123",
+      workspaceId: "workspace123",
       pluginType: "JS",
       pluginId: "plugin123",
       name: "myFun1",
@@ -704,7 +708,7 @@ const resultAddedAsync = {
         userPermissions: [],
         name: "UNUSED_DATASOURCE",
         pluginId: "plugin123",
-        organizationId: "org123",
+        workspaceId: "workspace123",
         messages: [],
         isValid: true,
         new: true,
@@ -780,7 +784,7 @@ const resultAddedAction = {
       executeOnLoad: false,
       pageId: "page123",
       collectionId: "1234",
-      organizationId: "org123",
+      workspaceId: "workspace123",
       actionConfiguration: {
         body: "async () => {\n\t\t//use async-await or promises\n\t}",
         isAsync: true,

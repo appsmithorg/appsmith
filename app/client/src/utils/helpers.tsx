@@ -12,7 +12,7 @@ import {
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
 import { get, set, isNil } from "lodash";
-import { Org } from "constants/orgConstants";
+import { Workspace } from "constants/workspaceConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -469,11 +469,11 @@ export const renameKeyInObject = (object: any, key: string, newKey: string) => {
   return object;
 };
 
-// Can be used to check if the user has developer role access to org
-export const getCanCreateApplications = (currentOrg: Org) => {
-  const userOrgPermissions = currentOrg.userPermissions || [];
+// Can be used to check if the user has developer role access to workspace
+export const getCanCreateApplications = (currentWorkspace: Workspace) => {
+  const userWorkspacePermissions = currentWorkspace.userPermissions || [];
   const canManage = isPermitted(
-    userOrgPermissions,
+    userWorkspacePermissions,
     PERMISSION_TYPE.CREATE_APPLICATION,
   );
   return canManage;
@@ -687,6 +687,22 @@ export const captureInvalidDynamicBindingPath = (
   return currentDSL;
 };
 
+/**
+ * Function to handle undefined returned in case of using [].find()
+ * @param result
+ * @param errorMessage
+ * @returns the result if not undefined or throws an Error
+ */
+export function shouldBeDefined<T>(
+  result: T | undefined | null,
+  errorMessage: string,
+): T {
+  if (result === undefined || result === null) {
+    throw new TypeError(errorMessage);
+  }
+
+  return result;
+}
 /*
  * Check if a value is null / undefined / empty string
  *
