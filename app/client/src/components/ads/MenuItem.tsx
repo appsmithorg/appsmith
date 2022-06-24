@@ -3,8 +3,8 @@ import { CommonComponentProps, Classes } from "./common";
 import styled from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
 import Text, { TextType, FontWeight } from "./Text";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import { TooltipComponent } from "design-system";
+import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
 
 export type MenuItemProps = CommonComponentProps & {
   icon?: IconName;
@@ -16,7 +16,7 @@ export type MenuItemProps = CommonComponentProps & {
   selected?: boolean;
   containerClassName?: string;
   onSelect?: (e: React.MouseEvent, ...rest: any) => void;
-  tooltipPos?: Position; // tooltip position of menu item
+  tooltipPos?: PopoverPosition; // tooltip position of menu item
 };
 
 const ItemRow = styled.a<{ disabled?: boolean; selected?: boolean }>`
@@ -94,7 +94,7 @@ const MenuItem = forwardRef(
     return props.ellipsize && props.text.length > props.ellipsize ? (
       <TooltipComponent
         content={props.text}
-        position={props.tooltipPos || Position.BOTTOM}
+        position={props.tooltipPos || "bottom"}
       >
         <MenuItemContent ref={ref} {...props} />
       </TooltipComponent>
