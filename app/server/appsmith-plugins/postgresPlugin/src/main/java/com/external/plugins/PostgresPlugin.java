@@ -573,10 +573,6 @@ public class PostgresPlugin extends BasePlugin {
                     invalids.add("Missing username for authentication.");
                 }
 
-                if (StringUtils.isEmpty(authentication.getPassword())) {
-                    invalids.add("Missing password for authentication.");
-                }
-
                 if (StringUtils.isEmpty(authentication.getDatabaseName())) {
                     invalids.add("Missing database name.");
                 }

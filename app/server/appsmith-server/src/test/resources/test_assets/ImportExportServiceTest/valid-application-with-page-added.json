@@ -109,8 +109,7 @@
       "pluginId": "postgres-plugin",
       "invalids": [
         "Missing endpoint.",
-        "Missing username for authentication.",
-        "Missing password for authentication."
+        "Missing username for authentication."
       ],
       "messages": [],
       "isConfigured": false,
