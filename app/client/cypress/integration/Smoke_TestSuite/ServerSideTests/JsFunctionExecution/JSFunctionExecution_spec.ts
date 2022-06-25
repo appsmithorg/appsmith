@@ -408,8 +408,8 @@ describe("JS Function Execution", function() {
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
   });
 
-  it("9. Verify that js function execution errors are logged in debugger", () => {
-    const JS_OBJECT = `export default {
+  it("9. Verify that js function execution errors are logged in debugger and removed when function is deleted", () => {
+    const JS_OBJECT_WITH_PARSE_ERROR = `export default {
       myVar1: [],
       myVar2: {},
       myFun1: () => {
@@ -417,8 +417,23 @@ describe("JS Function Execution", function() {
         return Table1.unknown.name
       }
     }`;
+
+    const JS_OBJECT_WITHOUT_PARSE_ERROR = `export default {
+      myVar1: [],
+      myVar2: {},
+      myFun1: () => {
+        //write code here
+        return Table1.unknown
+      }
+    }`;
+
+    const JS_OBJECT_WITH_DELETED_FUNCTION = `export default {
+      myVar1: [],
+      myVar2: {}
+    }`;
+
     // Create js object
-    jsEditor.CreateJSObject(JS_OBJECT, {
+    jsEditor.CreateJSObject(JS_OBJECT_WITH_PARSE_ERROR, {
       paste: true,
       completeReplace: true,
       toRun: true,
@@ -435,5 +450,26 @@ describe("JS Function Execution", function() {
     cy.contains(
       "TypeError: Cannot read properties of undefined (reading 'name')",
     ).should("exist");
+
+    // Fix parse error and assert that debugger error is removed
+    jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR);
+    agHelper.GetNClick(jsEditor._runButton);
+    jsEditor.AssertParseError(false, true);
+    agHelper.GetNClick(locator._errorTab);
+    cy.contains(
+      "TypeError: Cannot read properties of undefined (reading 'name')",
+    ).should("not.exist");
+
+    // Re-introduce parse errors
+    jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR);
+    agHelper.GetNClick(jsEditor._runButton);
+
+    // Delete function
+    jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION);
+    // Assert that parse error is removed from debugger when function is deleted
+    agHelper.GetNClick(locator._errorTab);
+    cy.contains(
+      "TypeError: Cannot read properties of undefined (reading 'name')",
+    ).should("not.exist");
   });
 });
