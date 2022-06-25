@@ -308,7 +308,7 @@ describe("Postgres - Datatype DateTime tests", function() {
     table.WaitForTableEmpty();
   });
 
-  it("16. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
+  it("16. Validate Drop of the Newly Created - datetimetypes - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("dropTable");
