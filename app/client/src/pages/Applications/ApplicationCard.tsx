@@ -62,7 +62,7 @@ import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
 import { builderURL, viewerURL } from "RouteBuilder";
 import history from "utils/history";
-import urlBuilder from "entities/URLGenerator/URLAssembly";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -729,7 +729,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
     );
     if (!page) return;
     urlBuilder.updateURLParams(
-      props.application,
+      {
+        applicationSlug: props.application.slug,
+        applicationVersion: props.application.applicationVersion,
+        applicationId: props.application.id,
+      },
       props.application.pages.map((page) => ({
         pageSlug: page.slug,
         customSlug: page.customSlug,

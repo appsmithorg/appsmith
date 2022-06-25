@@ -1,11 +1,11 @@
 import { ApplicationVersion } from "actions/applicationActions";
 import { APP_MODE } from "entities/App";
-import DefaultURLGenerator from "./DefaultURLGenerator";
-import { SlugURLGenerator } from "./SlugURLGenerator";
+import DefaultURLRedirect from "./DefaultURLRedirect";
+import { SlugURLRedirect } from "./SlugURLRedirect";
 
 const registeredURLGenerators = {
-  [ApplicationVersion.DEFAULT]: DefaultURLGenerator,
-  [ApplicationVersion.SLUG_URL]: SlugURLGenerator,
+  [ApplicationVersion.DEFAULT]: DefaultURLRedirect,
+  [ApplicationVersion.SLUG_URL]: SlugURLRedirect,
 };
 
 export default class URLGeneratorFactory {

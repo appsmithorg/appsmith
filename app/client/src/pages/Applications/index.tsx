@@ -92,7 +92,7 @@ import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
-import urlBuilder from "entities/URLGenerator/URLAssembly";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 
 const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;

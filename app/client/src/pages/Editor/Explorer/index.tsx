@@ -60,6 +60,7 @@ function ExplorerContent() {
       isFirstTimeUserOnboardingEnabled,
       toggleInOnboardingWidgetSelection,
       location.pathname,
+      pageId,
     ],
   );
   const [activeSwitch, setActiveSwitch] = useState(switches[0]);

@@ -1,4 +1,4 @@
-import urlBuilder from "entities/URLGenerator/URLAssembly";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 import { builderURL, viewerURL } from "RouteBuilder";
 
 describe("builderURL", () => {

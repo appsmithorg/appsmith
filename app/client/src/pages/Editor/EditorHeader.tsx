@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  lazy,
+  Suspense,
+  useMemo,
+} from "react";
 import styled, { ThemeProvider } from "styled-components";
 import classNames from "classnames";
 import { Classes as Popover2Classes } from "@blueprintjs/popover2";
@@ -86,6 +93,7 @@ import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
+import { useHref } from "./utils";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -264,6 +272,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   const user = useSelector(getCurrentUser);
   const shouldHideComments = useHideComments();
   const isPreviewMode = useSelector(previewModeSelector);
+  const deployLink = useHref(viewerURL, { pageId });
 
   useEffect(() => {
     if (window.location.href) {
@@ -413,9 +422,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             <EditorAppName
               applicationId={applicationId}
               className="t--application-name editable-application-name max-w-48"
-              currentDeployLink={viewerURL({
-                pageId,
-              })}
+              currentDeployLink={deployLink}
               defaultSavingState={
                 isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
               }
@@ -507,9 +514,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               </TooltipComponent>
 
               <DeployLinkButtonDialog
-                link={viewerURL({
-                  pageId,
-                })}
+                link={deployLink}
                 trigger={
                   <StyledDeployIcon
                     fillColor="#fff"

@@ -5,14 +5,14 @@ import { select } from "redux-saga/effects";
 import { builderURL } from "RouteBuilder";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { isURLDeprecated } from "utils/helpers";
-import URLGenerator from ".";
+import URLRedirect from ".";
 
-export default class DefaultURLGenerator extends URLGenerator {
+export default class DefaultURLRedirect extends URLRedirect {
   constructor(mode: APP_MODE) {
     super(mode);
   }
 
-  *generateURL(pageId: string) {
+  *generateRedirectURL(pageId: string) {
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );

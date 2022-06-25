@@ -31,7 +31,7 @@ import {
 } from "ce/constants/ReduxActionConstants";
 import { addBranchParam } from "constants/routes";
 import { APP_MODE } from "entities/App";
-import { call, put, select } from "redux-saga/effects";
+import { all, call, put, select } from "redux-saga/effects";
 import { failFastApiCalls } from "sagas/InitSagas";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
@@ -51,6 +51,8 @@ export default class AppEditorEngine extends AppEngine {
     this.loadAppEntities = this.loadAppEntities.bind(this);
     this.loadGit = this.loadGit.bind(this);
     this.completeChore = this.completeChore.bind(this);
+    this.loadPageThemesAndActions = this.loadPageThemesAndActions.bind(this);
+    this.loadPluginsAndDatasources = this.loadPluginsAndDatasources.bind(this);
   }
 
   /**
@@ -157,8 +159,10 @@ export default class AppEditorEngine extends AppEngine {
   }
 
   public *loadAppEntities(toLoadPageId: string, applicationId: string): any {
-    yield* this.loadPageThemesAndActions(toLoadPageId, applicationId);
-    yield* this.loadPluginsAndDatasources();
+    yield all([
+      call(this.loadPageThemesAndActions, toLoadPageId, applicationId),
+      call(this.loadPluginsAndDatasources),
+    ]);
   }
 
   public *completeChore() {

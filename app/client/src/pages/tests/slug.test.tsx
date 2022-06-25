@@ -25,7 +25,7 @@ import { updateCurrentPage } from "actions/pageActions";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { getPageURL } from "utils/AppsmithUtils";
 import { APP_MODE } from "entities/App";
-import urlBuilder from "entities/URLGenerator/URLAssembly";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 
 describe("URL slug names", () => {
   beforeEach(async () => {
@@ -118,7 +118,7 @@ describe("URL slug names", () => {
       type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
       payload: updatedApplicationPayload,
     });
-    const { applicationSlug } = URLParamsFactory.getURLParams();
+    const { applicationSlug } = urlBuilder.getURLParams();
     expect(applicationSlug).toBe(updatedApplicationPayload.slug);
 
     store.dispatch({
@@ -126,12 +126,12 @@ describe("URL slug names", () => {
       payload: updatedPagePayload,
     });
 
-    const { pageSlug: updatedPageSlug } = URLParamsFactory.getURLParams();
+    const { pageSlug: updatedPageSlug } = urlBuilder.getURLParams();
 
     expect(updatedPageSlug).toBe("page-1");
 
     store.dispatch(updateCurrentPage("605c435a91dea93f0eaf91bc", "my-page-2"));
-    const { pageSlug } = URLParamsFactory.getURLParams();
+    const { pageSlug } = urlBuilder.getURLParams();
 
     expect(pageSlug).toBe("my-page-2");
   });

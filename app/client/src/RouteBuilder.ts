@@ -5,7 +5,7 @@ import {
   TEMPLATES_PATH,
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
-import urlBuilder from "entities/URLGenerator/URLAssembly";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 import {
   ApplicationPayload,
   Page,

@@ -1,6 +1,6 @@
 import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
 import _, { debounce } from "lodash";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
 import { useLocation } from "react-router";
 import { WidgetType } from "constants/WidgetConstants";
@@ -11,6 +11,16 @@ import {
   DEPRECATION_WIDGET_REPLACEMENT_MESSAGE,
   WIDGET_DEPRECATION_MESSAGE,
 } from "@appsmith/constants/messages";
+import { URLBuilderParams } from "RouteBuilder";
+import { useSelector } from "react-redux";
+import {
+  getCurrentApplicationId,
+  getIsEditorInitialized,
+  getPageById,
+  selectURLSlugs,
+} from "selectors/editorSelectors";
+import { Page } from "ce/constants/ReduxActionConstants";
+import { getIsInitialized } from "selectors/appViewSelectors";
 
 export const draggableElement = (
   id: string,
@@ -281,4 +291,20 @@ export function buildDeprecationWidgetMessage(
     : "";
 
   return `${deprecationMessage}${deprecatedReplacementMessage}`;
+}
+
+export function useHref(
+  urlBuilderFn: (params: URLBuilderParams) => string,
+  params: URLBuilderParams,
+) {
+  const isEditorInitialized = useSelector(getIsEditorInitialized);
+  const isViewerInitialized = useSelector(getIsInitialized);
+  const [href, setHref] = useState("");
+
+  useEffect(() => {
+    if (isEditorInitialized || isViewerInitialized)
+      setHref(urlBuilderFn(params));
+  }, [isEditorInitialized, isViewerInitialized, params]);
+
+  return href;
 }

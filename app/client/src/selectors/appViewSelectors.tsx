@@ -29,14 +29,6 @@ export const getCurrentDSLPageId = createSelector(
   (pageList: PageListReduxState) => pageList.currentPageId,
 );
 
-export const getEditorURL = createSelector(
-  getPageListState,
-  (pageList: PageListReduxState) =>
-    builderURL({
-      pageId: pageList.currentPageId,
-    }),
-);
-
 /**
  * returns the height of header in app view mode
  *

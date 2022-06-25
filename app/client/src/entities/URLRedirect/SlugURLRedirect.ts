@@ -5,14 +5,14 @@ import { fillPathname, viewerURL } from "RouteBuilder";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { getPageById } from "selectors/editorSelectors";
 import { getUpdatedRoute, isURLDeprecated } from "utils/helpers";
-import URLGenerator from ".";
+import URLRedirect from ".";
 
-export class SlugURLGenerator extends URLGenerator {
+export class SlugURLRedirect extends URLRedirect {
   constructor(mode: APP_MODE) {
     super(mode);
   }
 
-  *generateURL(pageId: string, pageIdInUrl: string) {
+  *generateRedirectURL(pageId: string, pageIdInUrl: string) {
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );

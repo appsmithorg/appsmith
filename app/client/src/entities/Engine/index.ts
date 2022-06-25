@@ -14,11 +14,9 @@ import { failFastApiCalls } from "sagas/InitSagas";
 import { getDefaultPageId } from "sagas/selectors";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import history from "utils/history";
-import URLGenerator from "entities/URLGenerator";
-import URLGeneratorFactory from "entities/URLGenerator/factory";
+import URLRedirect from "entities/URLRedirect/index";
+import URLGeneratorFactory from "entities/URLRedirect/factory";
 import { updateBranchLocally } from "actions/gitSyncActions";
-import urlBuilder from "entities/URLGenerator/URLAssembly";
-import { getPageList } from "selectors/entitiesSelector";
 
 export type AppEnginePayload = {
   applicationId?: string;
@@ -40,9 +38,9 @@ export default abstract class AppEngine {
   private _mode: APP_MODE;
   constructor(mode: APP_MODE) {
     this._mode = mode;
-    this._urlGenerator = null;
+    this._urlRedirect = null;
   }
-  private _urlGenerator: URLGenerator | null;
+  private _urlRedirect: URLRedirect | null;
 
   abstract loadAppEntities(toLoadPageId: string, applicationId: string): any;
   abstract loadGit(applicationId: string): any;
@@ -67,21 +65,8 @@ export default abstract class AppEngine {
     yield put(
       updateAppPersistentStore(getPersistentAppStore(application.id, branch)),
     );
-    let toLoadPageId = pageId;
-    const defaultPageId: string = yield select(getDefaultPageId);
-    toLoadPageId = toLoadPageId || defaultPageId;
-    const allPages: Page[] = yield select(getPageList);
-
-    urlBuilder.updateURLParams(
-      application,
-      allPages.map((page) => ({
-        pageId: page.pageId,
-        pageSlug: page.slug,
-        customSlug: page.customSlug,
-      })),
-    );
-
-    this._urlGenerator = URLGeneratorFactory.create(
+    const toLoadPageId: string = pageId || (yield select(getDefaultPageId));
+    this._urlRedirect = URLGeneratorFactory.create(
       application.applicationVersion,
       this._mode,
     );
@@ -97,14 +82,14 @@ export default abstract class AppEngine {
 
   *loadAppURL(pageId: string, pageIdInUrl?: string) {
     try {
-      if (this._urlGenerator) {
-        const newURL: string = yield call(
-          this._urlGenerator.generateURL.bind(this),
-          pageId,
-          pageIdInUrl,
-        );
-        newURL && history.replace(newURL);
-      }
+      if (!this._urlRedirect) return;
+      const newURL: string = yield call(
+        this._urlRedirect.generateRedirectURL.bind(this),
+        pageId,
+        pageIdInUrl,
+      );
+      if (!newURL) return;
+      history.replace(newURL);
     } catch (e) {
       log.error(e);
     }

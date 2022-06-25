@@ -24,6 +24,7 @@ import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { getAllApplications } from "actions/applicationActions";
 import { viewerURL } from "RouteBuilder";
 import { useHistory } from "react-router";
+import { useHref } from "pages/Editor/utils";
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -53,16 +54,18 @@ function PrimaryCTA(props: Props) {
   const userPermissions = currentApplication?.userPermissions ?? [];
   const canEdit = isPermitted(userPermissions, permissionRequired);
 
+  const appViewerURL = useHref(viewerURL, {
+    pageId: currentPageID,
+    suffix: "fork",
+  });
+
   // get the fork url
   const forkURL = useMemo(() => {
     const encodedForkRedirectURL = `${encodeURIComponent(
-      `${window.location.origin}${viewerURL({
-        pageId: currentPageID,
-        suffix: "fork",
-      })}`,
+      `${window.location.origin}${appViewerURL}`,
     )}`;
     return `${AUTH_LOGIN_URL}?redirectUrl=${encodedForkRedirectURL}`;
-  }, [currentApplication?.applicationId, currentPageID]);
+  }, [appViewerURL]);
 
   const LOGIN_URL = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
     window.location.href,
