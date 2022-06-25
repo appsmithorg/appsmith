@@ -228,7 +228,10 @@ function JSResponseView(props: Props) {
                 fill
                 label={
                   <FailedMessage>
-                    <DebugButton onClick={onDebugClick} />
+                    <DebugButton
+                      className="js-editor-debug-cta"
+                      onClick={onDebugClick}
+                    />
                   </FailedMessage>
                 }
                 text={

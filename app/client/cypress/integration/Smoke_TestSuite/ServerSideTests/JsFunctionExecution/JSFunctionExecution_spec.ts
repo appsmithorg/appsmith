@@ -10,7 +10,8 @@ const jsEditor = ObjectsRegistry.JSEditor,
 
 let onPageLoadAndConfirmExecuteFunctionsLength: number,
   getJSObject: any,
-  functionsLength: number, jsObj: any;
+  functionsLength: number,
+  jsObj: any;
 
 describe("JS Function Execution", function() {
   interface IFunctionSettingData {
@@ -275,7 +276,22 @@ describe("JS Function Execution", function() {
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2);
     agHelper.AssertElementAbsence(locator._toastMsg);
   });
-
+  function assertAsyncFunctionsOrder(data: IFunctionSettingData[]) {
+    // sorts functions alphabetically
+    const sortFunctions = (data: IFunctionSettingData[]) =>
+      data.sort((a, b) => a.name.localeCompare(b.name));
+    cy.get(jsEditor._asyncJSFunctionSettings).then(function($lis) {
+      const asyncFunctionLength = $lis.length;
+      // Assert number of async functions
+      expect(asyncFunctionLength).to.equal(functionsLength);
+      Object.values(sortFunctions(data)).forEach((functionSetting, idx) => {
+        // Assert alphabetical order
+        expect($lis.eq(idx)).to.have.id(
+          jsEditor._getJSFunctionSettingsId(functionSetting.name),
+        );
+      });
+    });
+  }
   it("7. Maintains order of async functions in settings tab alphabetically at all times", function() {
     functionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.length;
     // Number of functions set to run on page load and should also confirm before execute
@@ -341,7 +357,7 @@ describe("JS Function Execution", function() {
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
   });
 
-  it("8. Verify Asyn methods alphabetical order after clone page and after rename", () => {
+  it("8. Verify Async methods have alphabetical order after cloning page and renaming it", () => {
     const FUNCTIONS_SETTINGS_RENAMED_DATA: IFunctionSettingData[] = [
       {
         name: "newGetId",
@@ -392,20 +408,32 @@ describe("JS Function Execution", function() {
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
   });
 
-  function assertAsyncFunctionsOrder(data: IFunctionSettingData[]) {
-    // sorts functions alphabetically
-    const sortFunctions = (data: IFunctionSettingData[]) =>
-      data.sort((a, b) => a.name.localeCompare(b.name));
-    cy.get(jsEditor._asyncJSFunctionSettings).then(function($lis) {
-      const asyncFunctionLength = $lis.length;
-      // Assert number of async functions
-      expect(asyncFunctionLength).to.equal(functionsLength);
-      Object.values(sortFunctions(data)).forEach((functionSetting, idx) => {
-        // Assert alphabetical order
-        expect($lis.eq(idx)).to.have.id(
-          jsEditor._getJSFunctionSettingsId(functionSetting.name),
-        );
-      });
+  it("9. Verify that js function execution errors are logged in debugger", () => {
+    const JS_OBJECT = `export default {
+      myVar1: [],
+      myVar2: {},
+      myFun1: () => {
+        //write code here
+        return Table1.unknown.name
+      }
+    }`;
+    // Create js object
+    jsEditor.CreateJSObject(JS_OBJECT, {
+      paste: true,
+      completeReplace: true,
+      toRun: true,
+      shouldCreateNewJSObj: true,
     });
-  }
+
+    // Assert that there is a function execution parse error
+    jsEditor.AssertParseError(true, true);
+    // click the debug icon
+    agHelper.GetNClick(jsEditor._debugCTA);
+    // Assert that errors tab is not empty
+    cy.contains("No signs of trouble here!").should("not.exist");
+    // Assert presence of typeError
+    cy.contains(
+      "TypeError: Cannot read properties of undefined (reading 'name')",
+    ).should("exist");
+  });
 });
