@@ -9,6 +9,8 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import {
+  ApplicationPayload,
+  Page,
   ReduxAction,
   ReduxActionTypes,
   ReduxActionWithoutPayload,
@@ -20,12 +22,21 @@ import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { resetRecentEntities } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
-import { getIsEditorInitialized } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getIsEditorInitialized,
+} from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
 import AppEngine, { AppEnginePayload } from "entities/Engine";
 import AppEngineFactory from "entities/Engine/factory";
+import {
+  ReduxURLChangeAction,
+  URL_CHANGE_ACTIONS,
+} from "actions/evaluationActions";
+import { ApplicationPagePayload } from "api/ApplicationApi";
+import { updateSlugNamesInURL } from "utils/helpers";
 
 export function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -108,10 +119,38 @@ export function* waitForInit() {
   }
 }
 
+function* updateURLSaga(
+  action: ReduxURLChangeAction<
+    ApplicationPagePayload | ApplicationPayload | Page
+  >,
+) {
+  const pageId: string = yield select(getCurrentPageId);
+  const payload = action.payload;
+
+  if ("applicationVersion" in payload) {
+    updateSlugNamesInURL({ applicationSlug: payload.slug });
+    return;
+  }
+  if ("pageId" in payload) {
+    if (payload.pageId !== pageId) return;
+    updateSlugNamesInURL({
+      pageSlug: payload.slug,
+      customSlug: payload.customSlug || "",
+    });
+    return;
+  }
+  if (payload.id !== pageId) return;
+  updateSlugNamesInURL({
+    pageSlug: payload.slug,
+    customSlug: payload.customSlug || "",
+  });
+}
+
 export default function* watchInitSagas() {
   yield all([
     takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, startAppEngine),
     takeLatest(ReduxActionTypes.INITIALIZE_PAGE_VIEWER, startAppEngine),
     takeLatest(ReduxActionTypes.RESET_EDITOR_REQUEST, resetEditorSaga),
+    takeLatest(URL_CHANGE_ACTIONS, updateURLSaga),
   ]);
 }

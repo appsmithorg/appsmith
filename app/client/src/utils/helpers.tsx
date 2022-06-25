@@ -727,14 +727,17 @@ export const isURLDeprecated = (url: string) => {
 
 const matchSlugURLPath = (path: string) =>
   matchPath<{ applicationSlug: string; pageSlug: string }>(path, {
-    path: [BUILDER_PATH, VIEWER_PATH],
+    path: [trimQueryString(BUILDER_PATH), trimQueryString(VIEWER_PATH)],
     strict: false,
     exact: false,
   });
 
 const matchCustomSlugURLPath = (path: string) =>
   matchPath<{ customSlug: string }>(path, {
-    path: [BUILDER_CUSTOM_PATH, VIEWER_CUSTOM_PATH],
+    path: [
+      trimQueryString(BUILDER_CUSTOM_PATH),
+      trimQueryString(VIEWER_CUSTOM_PATH),
+    ],
     strict: false,
     exact: false,
   });
