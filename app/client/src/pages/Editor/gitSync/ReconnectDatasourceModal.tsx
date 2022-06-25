@@ -47,7 +47,7 @@ import {
   setWorkspaceIdForImport,
 } from "actions/applicationActions";
 import { AuthType, Datasource } from "entities/Datasource";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useQuery } from "../utils";

@@ -7,9 +7,8 @@ import {
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { isEllipsisActive } from "utils/helpers";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { Position } from "@blueprintjs/core";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { useSelector } from "react-redux";
@@ -101,7 +100,7 @@ function PageTabName({
       content={name}
       disabled={!ellipsisActive}
       maxWidth="400px"
-      position={Position.BOTTOM}
+      position="bottom"
     >
       {tabNameText}
     </TooltipComponent>
