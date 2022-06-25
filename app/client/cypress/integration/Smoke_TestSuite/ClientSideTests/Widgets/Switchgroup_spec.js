@@ -107,10 +107,7 @@ describe("Switchgroup Widget Functionality", function() {
       .contains("Oops, Something went wrong.")
       .should("not.exist");
     cy.wait(1000);
-    // check if the evaluation is disabled
-    cy.get(".t--widget-textwidget").should(
-      "contain",
-      `{{SwitchGroup1.selectedValues[0]}}`,
-    );
+    // Assert that evaluation is not disabled
+    cy.get(".t--widget-textwidget").should("contain", `BLUE`);
   });
 });
