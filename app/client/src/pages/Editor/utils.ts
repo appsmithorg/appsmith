@@ -13,13 +13,7 @@ import {
 } from "@appsmith/constants/messages";
 import { URLBuilderParams } from "RouteBuilder";
 import { useSelector } from "react-redux";
-import {
-  getCurrentApplicationId,
-  getIsEditorInitialized,
-  getPageById,
-  selectURLSlugs,
-} from "selectors/editorSelectors";
-import { Page } from "ce/constants/ReduxActionConstants";
+import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { getIsInitialized } from "selectors/appViewSelectors";
 
 export const draggableElement = (

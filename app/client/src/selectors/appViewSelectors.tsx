@@ -2,7 +2,6 @@ import { createSelector } from "reselect";
 import { AppState } from "reducers";
 import { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
-import { builderURL } from "RouteBuilder";
 
 const getAppViewState = (state: AppState) => state.ui.appView;
 const getPageListState = (state: AppState): PageListReduxState =>

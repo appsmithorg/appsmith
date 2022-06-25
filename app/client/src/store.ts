@@ -17,7 +17,6 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import { updateSlugNamesInURL } from "utils/helpers";
-import { ApplicationPagePayload } from "api/ApplicationApi";
 
 const sagaMiddleware = createSagaMiddleware();
 const sentryReduxEnhancer = Sentry.createReduxEnhancer({

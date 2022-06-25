@@ -73,7 +73,6 @@ import {
   getCurrentLayoutId,
   getCurrentPageId,
   getCurrentPageName,
-  selectPageSlugById,
 } from "selectors/editorSelectors";
 import {
   executePageLoadActions,

@@ -139,7 +139,7 @@ type Props = {
 };
 
 export function PageTabs(props: Props) {
-  const { appPages, currentApplicationDetails } = props;
+  const { appPages } = props;
   const location = useLocation();
   const { pathname } = location;
   const appMode = useSelector(getAppMode);

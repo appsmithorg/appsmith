@@ -2,7 +2,6 @@ import { fetchApplication } from "actions/applicationActions";
 import { setAppMode, updateAppPersistentStore } from "actions/pageActions";
 import {
   ApplicationPayload,
-  Page,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";

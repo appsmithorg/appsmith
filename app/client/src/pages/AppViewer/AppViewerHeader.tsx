@@ -242,7 +242,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
           isOpen={isMenuOpen}
           pages={pages}
           setMenuOpen={setMenuOpen}
-          url={props.url}
+          url={editorURL}
         />
         <TourCompletionMessage />
       </>
