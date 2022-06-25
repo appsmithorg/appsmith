@@ -199,7 +199,6 @@ function JSResponseView(props: Props) {
     });
     dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
-
   useEffect(() => {
     setResponseStatus(
       getJSResponseViewState(

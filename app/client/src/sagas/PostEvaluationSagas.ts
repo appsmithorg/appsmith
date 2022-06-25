@@ -400,14 +400,14 @@ export function* handleJSFunctionExecutionErrorLog(
 ) {
   errors.length
     ? AppsmithConsole.addError({
-        id: `${collectionId + action.id}`,
+        id: `${collectionId}-${action.id}`,
         logType: LOG_TYPE.EVAL_ERROR,
         text: `${createMessage(JS_EXECUTION_FAILURE)}: ${collectionName}.${
           action.name
         }`,
         messages: errors.map((error) => ({
           message: error.errorMessage || error.message,
-          type: PLATFORM_ERROR.JS_EXECUTION,
+          type: PLATFORM_ERROR.JS_FUNCTION_EXECUTION,
           subType: error.errorType,
         })),
         source: {
@@ -417,5 +417,5 @@ export function* handleJSFunctionExecutionErrorLog(
           propertyPath: `${collectionName}.${action.name}`,
         },
       })
-    : AppsmithConsole.deleteError(`${collectionId + action.id}`);
+    : AppsmithConsole.deleteError(`${collectionId}-${action.id}`);
 }

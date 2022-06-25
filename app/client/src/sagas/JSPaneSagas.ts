@@ -272,7 +272,7 @@ function* updateJSCollection(data: {
           );
           // delete all execution error logs for deletedActions if present
           deletedActions.forEach((action) =>
-            AppsmithConsole.deleteError(`${jsCollection.id + action.id}`),
+            AppsmithConsole.deleteError(`${jsCollection.id}-${action.id}`),
           );
         }
 
