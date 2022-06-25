@@ -531,7 +531,6 @@ class MultiSelectWidget extends BaseWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedOptions: "defaultOptionValue",
-      filterText: "",
     };
   }
 

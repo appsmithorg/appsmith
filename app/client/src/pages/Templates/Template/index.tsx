@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Template as TemplateInterface } from "api/TemplatesApi";
 import history from "utils/history";
 import Button, { Size } from "components/ads/Button";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
 import LargeTemplate from "./LargeTemplate";
