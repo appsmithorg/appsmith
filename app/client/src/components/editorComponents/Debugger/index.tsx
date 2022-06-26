@@ -18,7 +18,7 @@ import {
   hideDebuggerIconSelector,
 } from "selectors/debuggerSelectors";
 import { matchBuilderPath } from "constants/routes";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 
 function Debugger() {

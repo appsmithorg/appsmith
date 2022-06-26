@@ -18,7 +18,7 @@ import { Page } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { MenuIcons } from "icons/MenuIcons";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import {
   CLONE_TOOLTIP,
   createMessage,
@@ -27,7 +27,6 @@ import {
   HIDDEN_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { Position } from "@blueprintjs/core";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -156,7 +155,7 @@ function PageListItem(props: PageListItemProps) {
             <TooltipComponent
               content={createMessage(DEFAULT_PAGE_TOOLTIP)}
               hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-              position={Position.BOTTOM}
+              position="bottom"
             >
               <Action>
                 <DefaultPageIcon color={Colors.GREEN} height={16} width={16} />
@@ -167,7 +166,7 @@ function PageListItem(props: PageListItemProps) {
             <TooltipComponent
               content={createMessage(HIDDEN_TOOLTIP)}
               hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-              position={Position.BOTTOM}
+              position="bottom"
             >
               <Action>
                 <HideIcon color={Colors.GREY_9} height={16} width={16} />
@@ -184,7 +183,7 @@ function PageListItem(props: PageListItemProps) {
           <TooltipComponent
             content={createMessage(CLONE_TOOLTIP)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-            position={Position.BOTTOM}
+            position="bottom"
           >
             <Action type="button">
               <CopyIcon
@@ -198,7 +197,7 @@ function PageListItem(props: PageListItemProps) {
           <TooltipComponent
             content={createMessage(DELETE_TOOLTIP)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-            position={Position.BOTTOM}
+            position="bottom"
           >
             <Action type="button">
               <DeleteIcon
