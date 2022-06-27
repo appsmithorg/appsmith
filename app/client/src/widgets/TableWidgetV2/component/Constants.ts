@@ -366,3 +366,9 @@ export type BaseCellComponentProps = {
   textColor?: string;
   textSize?: string;
 };
+
+export enum CheckboxState {
+  UNCHECKED = 0,
+  CHECKED = 1,
+  PARTIAL = 2,
+}

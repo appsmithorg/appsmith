@@ -95,7 +95,6 @@ export default {
       propertyName: "alias",
       label: "Property name",
       controlType: "INPUT_TEXT",
-      customJSControl: "TABLE_COMPUTE_VALUE",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const columnId = propertyPath.match(/primaryColumns\.(.*)\.alias/);
         let isDerivedProperty = false;

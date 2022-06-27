@@ -3,6 +3,7 @@ import React from "react";
 import { CellCheckboxWrapper, CellCheckbox } from "../TableStyledWrappers";
 import { ReactComponent as CheckBoxCheckIcon } from "assets/icons/widget/table/checkbox-check.svg";
 import { ReactComponent as CheckBoxLineIcon } from "assets/icons/widget/table/checkbox-line.svg";
+import { CheckboxState } from "../Constants";
 
 export const renderBodyCheckBoxCell = (
   isChecked: boolean,
@@ -41,8 +42,10 @@ export const renderHeaderCheckBoxCell = (
   >
     <CellCheckbox>
       {/*1 - all row selected | 2 - some rows selected */}
-      {checkState === 1 && <CheckBoxCheckIcon className="th-svg" />}
-      {checkState === 2 && (
+      {checkState === CheckboxState.CHECKED && (
+        <CheckBoxCheckIcon className="th-svg" />
+      )}
+      {checkState === CheckboxState.PARTIAL && (
         <CheckBoxLineIcon className="th-svg t--table-multiselect-header-half-check-svg" />
       )}
     </CellCheckbox>

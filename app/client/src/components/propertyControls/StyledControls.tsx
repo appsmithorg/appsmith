@@ -12,7 +12,6 @@ import TextInput, { TextInputProps } from "components/ads/TextInput";
 import Dropdown from "components/ads/Dropdown";
 import { IconWrapper } from "constants/IconConstants";
 import { InputWrapper } from "components/ads/TextInput";
-import MultiSelectDropdown from "components/ads/MultiselectDropdown";
 import { Checkbox } from "components/ads";
 
 type ControlWrapperProps = {
