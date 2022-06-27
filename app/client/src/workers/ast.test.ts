@@ -310,4 +310,40 @@ describe("parseJSObjectWithAST", () => {
     const resultParsedObject = parseJSObjectWithAST(body);
     expect(resultParsedObject).toStrictEqual(parsedObject);
   });
+  it("parse js object with variable declaration inside function", () => {
+    const body = `{
+      myFun1: () => {
+        const a = {
+          conditions: [],
+          requires: 1,
+          testFunc: () => {},
+          testFunc2: function(){}
+        };
+      },
+      myFun2: async () => {
+        //use async-await or promises
+      }
+    }`;
+    const parsedObject = [
+      {
+        key: "myFun1",
+        value: `() => {
+  const a = {
+    conditions: [],
+    requires: 1,
+    testFunc: () => {},
+    testFunc2: function () {}
+  };
+}`,
+        type: "ArrowFunctionExpression",
+      },
+      {
+        key: "myFun2",
+        value: "async () => {}",
+        type: "ArrowFunctionExpression",
+      },
+    ];
+    const resultParsedObject = parseJSObjectWithAST(body);
+    expect(resultParsedObject).toStrictEqual(parsedObject);
+  });
 });
