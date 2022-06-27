@@ -11,7 +11,7 @@ const jsEditor = ObjectsRegistry.JSEditor,
 let onPageLoadAndConfirmExecuteFunctionsLength: number,
   getJSObject: any,
   functionsLength: number,
-  jsObj: any;
+  jsObj: string;
 
 describe("JS Function Execution", function() {
   interface IFunctionSettingData {
@@ -458,7 +458,7 @@ describe("JS Function Execution", function() {
       agHelper.Sleep();
     }
 
-    ee.SelectEntityByName(jsObj as string, "QUERIES/JS");
+    ee.SelectEntityByName(jsObj, "QUERIES/JS");
 
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
