@@ -47,7 +47,6 @@ export class AggregateHelper {
     dsl: string,
     elementToCheckPresenceaftDslLoad: string | "" = "",
   ) {
-    let currentURL;
     let pageid: string;
     let layoutId;
     cy.url().then((url) => {
@@ -94,6 +93,7 @@ export class AggregateHelper {
       .type(renameVal, { force: true })
       .should("have.value", renameVal)
       .blur();
+    this.Sleep();
   }
 
   public AssertAutoSave() {
@@ -220,46 +220,51 @@ export class AggregateHelper {
     );
   }
 
-  public SelectPropertiesDropDown(endp: string, ddOption: string) {
-    cy.xpath(this.locator._selectPropDropdown(endp))
+  public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
+    cy.xpath(this.locator._selectPropDropdown(endpoint))
       .first()
       .scrollIntoView()
       .click();
-    cy.get(this.locator._dropDownValue(ddOption)).click();
+    cy.get(this.locator._dropDownValue(dropdownOption)).click();
   }
 
-  public SelectDropDown(ddOption: string, endp = "selectwidget") {
+  public SelectDropDown(dropdownOption: string, endpoint = "selectwidget") {
     const mode = window.localStorage.getItem("inDeployedMode");
     if (mode == "false") {
-      cy.xpath(this.locator._selectWidgetDropdown(endp))
+      cy.xpath(this.locator._selectWidgetDropdown(endpoint))
         .first()
         .scrollIntoView()
         .click();
     } else {
-      cy.xpath(this.locator._selectWidgetDropdownInDeployed(endp))
+      cy.xpath(this.locator._selectWidgetDropdownInDeployed(endpoint))
         .first()
         .scrollIntoView()
         .click();
     }
-    if (endp == "selectwidget")
-      cy.get(this.locator._selectOptionValue(ddOption)).click({ force: true });
-    else cy.get(this.locator._dropDownValue(ddOption)).click({ force: true });
+    if (endpoint == "selectwidget")
+      cy.get(this.locator._selectOptionValue(dropdownOption)).click({
+        force: true,
+      });
+    else
+      cy.get(this.locator._dropDownValue(dropdownOption)).click({
+        force: true,
+      });
 
     this.Sleep(); //for selected value to reflect!
   }
 
   public SelectFromDropDown(
-    ddOption: string,
+    dropdownOption: string,
     insideParent = "",
     index = 0,
-    endp = "dropdownwidget",
+    endpoint = "dropdownwidget",
   ) {
     const mode = window.localStorage.getItem("inDeployedMode");
     //cy.log("mode frm deployed is:" + mode)
     const modeSelector =
       mode == "true"
-        ? this.locator._selectWidgetDropdownInDeployed(endp)
-        : this.locator._selectWidgetDropdown(endp);
+        ? this.locator._selectWidgetDropdownInDeployed(endpoint)
+        : this.locator._selectWidgetDropdown(endpoint);
     const finalSelector = insideParent
       ? this.locator._divWithClass(insideParent) + modeSelector
       : modeSelector;
@@ -268,14 +273,14 @@ export class AggregateHelper {
       .eq(index)
       .scrollIntoView()
       .click();
-    cy.get(this.locator._dropDownValue(ddOption)).click({ force: true });
+    cy.get(this.locator._dropDownValue(dropdownOption)).click({ force: true });
     this.Sleep(); //for selected value to reflect!
   }
 
-  public SelectDropdownList(ddName: string, ddOption: string) {
+  public SelectDropdownList(ddName: string, dropdownOption: string) {
     this.GetNClick(this.locator._existingFieldTextByName(ddName));
     cy.get(this.locator._dropdownText)
-      .contains(ddOption)
+      .contains(dropdownOption)
       .click();
   }
 
@@ -283,12 +288,24 @@ export class AggregateHelper {
     options: string[],
     index = 0,
     check = true,
-    endp = "multiselectwidgetv2",
+    endpoint = "multiselectwidgetv2",
   ) {
-    cy.get(this.locator._widgetInDeployed(endp) + " div.rc-select-selector")
+    cy.get(this.locator._widgetInDeployed(endpoint) + " div.rc-select-selector")
       .eq(index)
       .scrollIntoView()
-      .click();
+      .then(($element: any) => {
+        // here, we try to click on downArrow in dropdown of multiSelect.
+        // the position is calculated from top left of the element
+        const dropdownCenterPosition = +$element.height / 2;
+        const dropdownArrowApproxPosition = +$element.width - 10;
+        cy.get($element).click(
+          dropdownArrowApproxPosition,
+          dropdownCenterPosition,
+          {
+            force: true,
+          },
+        );
+      });
 
     if (check) {
       options.forEach(($each) => {
@@ -308,7 +325,7 @@ export class AggregateHelper {
 
     // //closing multiselect dropdown
     cy.get("body").type("{esc}");
-    // cy.get(this.locator._widgetInDeployed(endp))
+    // cy.get(this.locator._widgetInDeployed(endpoint))
     //     .eq(index)
     //     .click()
   }
@@ -415,6 +432,26 @@ export class AggregateHelper {
         expect(classes).includes(toggle);
       });
     }
+  }
+
+  public ToggleSwitch(
+    switchName: string,
+    toggle: "check" | "uncheck" = "check",
+  ) {
+    let locator = cy.xpath(this.locator._switchToggle(switchName));
+    let parentLoc = locator.parent("label");
+    if (toggle == "check")
+      parentLoc.then(($parent) => {
+        if (!$parent.hasClass("t--switch-widget-active")) {
+          locator.click();
+        }
+      });
+    else
+      parentLoc.then(($parent) => {
+        if (!$parent.hasClass("t--switch-widget-inactive")) {
+          locator.click();
+        }
+      });
   }
 
   // public NavigateBacktoEditor() {

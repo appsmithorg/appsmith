@@ -32,8 +32,7 @@ import {
 import { Space } from "./StyledComponents";
 import Icon, { IconSize, IconWrapper } from "components/ads/Icon";
 import { get } from "lodash";
-import Tooltip from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core";
+import { TooltipComponent as Tooltip } from "design-system";
 import Spinner from "components/ads/Spinner";
 import {
   isLocalBranch,
@@ -199,7 +198,7 @@ export function Header({
             modifiers={{
               flip: { enabled: false },
             }}
-            position={Position.TOP}
+            position="top"
           >
             <Icon
               className="t--sync-branches"
