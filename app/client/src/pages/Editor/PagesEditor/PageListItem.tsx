@@ -291,7 +291,6 @@ function CustomURLSlug(props: CustomURLSlugProp) {
       <div className="flex flex-row justify-start gap-1 items-center">
         <span className="text-xs url">{`${window.location.origin}/app/`}</span>
         <TextInput
-          defaultValue={page.customSlug}
           height="32px"
           onChange={onChange}
           validator={noSpecialCharactersValidator}

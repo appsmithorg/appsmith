@@ -18,7 +18,7 @@ export class SlugURLRedirect extends URLRedirect {
     );
     const applicationSlug = currentApplication.slug;
     const currentPage: Page = yield select(getPageById(pageId));
-    const pageSlug = currentPage.slug;
+    const { customSlug = "", slug: pageSlug } = currentPage;
     let newURL = "";
     const { hash, pathname, search } = window.location;
     const isCurrentURLDeprecated = isURLDeprecated(pathname) || !pageIdInUrl;
@@ -28,6 +28,7 @@ export class SlugURLRedirect extends URLRedirect {
           applicationSlug,
           pageSlug,
           pageId,
+          customSlug,
         }) +
         search +
         hash;
@@ -39,7 +40,7 @@ export class SlugURLRedirect extends URLRedirect {
         fillPathname(pathname, currentApplication, currentPage) + search + hash;
     } else {
       // View Mode - generate a new viewer URL - auto updates query params
-      newURL = viewerURL({ pageId }) + hash;
+      newURL = viewerURL({ pageId, hash });
     }
     return newURL;
   }

@@ -124,6 +124,7 @@ function* updateURLSaga(
     ApplicationPagePayload | ApplicationPayload | Page
   >,
 ) {
+  yield call(waitForInit);
   const pageId: string = yield select(getCurrentPageId);
   const payload = action.payload;
 

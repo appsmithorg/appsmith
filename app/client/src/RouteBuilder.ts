@@ -24,9 +24,13 @@ export const fillPathname = (
   application: ApplicationPayload,
   page: Page,
 ) => {
-  return pathname
-    .replace(`/applications/${application.id}`, `/app/${application.slug}`)
-    .replace(`/pages/${page.pageId}`, `/${page.slug}-${page.pageId}`);
+  const replaceValue = page.customSlug
+    ? `/app/${page.customSlug}-${page.pageId}`
+    : `/app/${application.slug}/${page.slug}-${page.pageId}`;
+  return pathname.replace(
+    `/applications/${application.id}/pages/${page.pageId}`,
+    replaceValue,
+  );
 };
 
 export function convertToQueryParams(
