@@ -31,6 +31,7 @@ export const getAutoIndentShortcutKeyText = () => {
 export const autoIndentCode = (editor: CodeMirror.Editor) => {
   editor.operation(() => {
     editor.focus();
+    editor.setCursor(0);
     editor.eachLine((line: any) => {
       const lineNumber = editor.getLineNumber(line);
       if (!isNil(lineNumber)) {
