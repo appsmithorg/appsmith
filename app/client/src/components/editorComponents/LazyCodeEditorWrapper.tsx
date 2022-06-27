@@ -204,7 +204,7 @@ function CodeEditor(props: any) {
   useEffect(() => {
     function lazyLoadEditor() {
       handle = (window as any).requestIdleCallback(
-        () => setEditorVisibility(false),
+        () => setEditorVisibility(true),
         {
           // if callback hasn't executed in 1500 ms, then trigger it urgently
           timeout: 1500,
