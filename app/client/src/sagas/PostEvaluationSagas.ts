@@ -302,10 +302,17 @@ export function* logSuccessfulBindings(
   unEvalTree: DataTree,
   dataTree: DataTree,
   evaluationOrder: string[],
+  isCreateFirstTree: boolean,
 ) {
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
   if (!evaluationOrder) return;
+
+  if (isCreateFirstTree) {
+    // we only aim to log binding success which were added by user
+    // for first evaluation, bindings are not added by user hence skipping it.
+    return;
+  }
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
       evaluatedPath,
@@ -317,6 +324,7 @@ export function* logSuccessfulBindings(
       const isABinding = find(entity.dynamicBindingPathList, {
         key: propertyPath,
       });
+
       const logBlackList = entity.logBlackList;
       const errors: EvaluationError[] = get(
         dataTree,

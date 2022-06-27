@@ -114,7 +114,8 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   it("6. Tc 55 - Verify OnPage Load - Enabling & Before Function calling Enabling for JSOBject", function() {
-    ee.SelectEntityByName(jsName as string, "QUERIES/JS");
+    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.SelectEntityByName(jsName as string);
     jsEditor.EnableDisableAsyncFuncSettings("getId", true, true);
     deployMode.DeployApp();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
@@ -126,7 +127,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    //agHelper.ValidateNetworkExecutionSuccess("@postExecute");
     deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
