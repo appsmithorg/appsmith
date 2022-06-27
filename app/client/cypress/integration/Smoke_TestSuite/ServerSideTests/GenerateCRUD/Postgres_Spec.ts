@@ -286,9 +286,9 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     ee.SelectEntityByName("update_form", "WIDGETS");
     updatingVesselsJSONPropertyFileds();
     deployMode.DeployApp();
-    agHelper.Sleep(2000)
+    agHelper.Sleep(2000);
     table.SelectTableRow(0); //to make JSON form hidden
-    agHelper.Sleep(2000);//Sleep time for tab to disappear!
+    agHelper.Sleep(2000); //Sleep time for tab to disappear!
     agHelper.AssertElementAbsence(locator._jsonFormWidget);
     table.SelectTableRow(5);
     agHelper.AssertElementVisible(locator._jsonFormWidget);
@@ -448,7 +448,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Confirm");
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.Sleep(2500);// for delete to take effect!
+    agHelper.Sleep(2500); // for delete to take effect!
     table.AssertSelectedRow(0); //Control going back to 1st row in table
     dataSources.AssertJSONFormHeader(0, 0, "ship_id");
   });
@@ -541,7 +541,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     table.AssertSelectedRow(0);
 
     agHelper.GetNClick(dataSources._addIcon);
-    agHelper.Sleep()
+    agHelper.Sleep();
     //agHelper.AssertElementVisible(locator._jsonFormWidget, 1); //Insert Modal
     agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
 
@@ -590,7 +590,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.EnterJSONInputValue("Speed", "0.6", 1);
 
     agHelper.GetNClick(
-      deployMode._jsonFormDatepickerFieldByName("Eta Updated"), 1
+      deployMode._jsonFormDatepickerFieldByName("Eta Updated"),
+      1,
     );
     agHelper.GetNClick(locator._datePicker(2));
 
@@ -598,7 +599,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     deployMode.EnterJSONInputValue("Current Port", "GALVESTON", 1);
 
-    cy.xpath(deployMode._jsonFormFieldByName("Callsign", true)).eq(1)
+    cy.xpath(deployMode._jsonFormFieldByName("Callsign", true))
+      .eq(1)
       .invoke("attr", "type")
       .should("eq", "password");
 
@@ -674,7 +676,11 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    ee.ActionContextMenuByEntityName("Public.vessels", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName(
+      "Public.vessels",
+      "Delete",
+      "Are you sure?",
+    );
     agHelper.ValidateNetworkStatus("@deletePage", 200);
   });
 
