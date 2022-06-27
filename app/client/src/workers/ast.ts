@@ -300,25 +300,65 @@ const getPropertyAccessor = (propertyNode: IdentifierNode | LiteralNode) => {
   }
 };
 
-export const parseJSObjectWithAST = (jsObjectBody: string) => {
-  const createString = `var jsObj = ${jsObjectBody}`;
-  const ast = parse(createString, { ecmaVersion: ECMA_VERSION });
-  const rawKeyValues: any = [];
-  const parsedObject: any = [];
+interface ObjectNode extends Node {
+  id: {
+    end: number;
+    start: number;
+    type: string;
+    name: string;
+  };
+  init: {
+    end: number;
+    properties: Array<Node>;
+    start: number;
+    type: string;
+  };
+}
+
+export const parseJSObjectWithAST = (
+  jsObjectBody: string,
+): Array<{
+  key: string;
+  value: string;
+  type: string;
+}> => {
+  /* 
+    jsObjectVariableName value is added such actual js code would never name same variable name. 
+    if the variable name will be same then also we won't have problem here as jsObjectVariableName will be last node in VariableDeclarator hence overriding the previous JSObjectProperties.
+    Keeping this just for sanity check if any caveat was missed.
+  */
+  const jsObjectVariableName =
+    "____INTERNAL_JS_OBJECT_NAME_USED_FOR_PARSING_____";
+  const jsCode = `var ${jsObjectVariableName}  = ${jsObjectBody}`;
+  const ast = parse(jsCode, { ecmaVersion: ECMA_VERSION });
+  const parsedObjectProperties = new Set<{
+    key: string;
+    value: string;
+    type: string;
+  }>();
+  let JSObjectProperties: Array<Node> = [];
+
   simple(ast, {
-    Property(node: any) {
-      rawKeyValues.push({
-        key: node.key,
-        value: node.value,
-      });
+    VariableDeclarator(node: Node) {
+      const jsObjectNode = node as ObjectNode;
+      if (
+        jsObjectNode.id &&
+        jsObjectNode.id.name &&
+        jsObjectNode.id.name === jsObjectVariableName &&
+        jsObjectNode.id.type === "Identifier"
+      ) {
+        JSObjectProperties = jsObjectNode.init.properties;
+      }
     },
   });
-  rawKeyValues.forEach((rawKeyValue: any) => {
-    parsedObject.push({
-      key: generate(rawKeyValue.key),
-      value: generate(rawKeyValue.value),
-      type: rawKeyValue.value.type,
+
+  JSObjectProperties.forEach((node) => {
+    const propertyNode = node as PropertyNode;
+    parsedObjectProperties.add({
+      key: generate(propertyNode.key),
+      value: generate(propertyNode.value),
+      type: propertyNode.value.type,
     });
   });
-  return parsedObject;
+  return [...parsedObjectProperties];
 };
