@@ -27,7 +27,9 @@ describe("Git import flow", function() {
       .click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
     cy.get(homePage.workspaceImportAppModal).should("be.visible");
+    cy.wait(1000);
     cy.xpath(homePage.uploadLogo).attachFile("gitImport.json");
+    cy.wait(1500);
     cy.wait("@importNewApplication").then((interception) => {
       cy.log(interception.response.body.data);
       cy.wait(100);
@@ -169,6 +171,7 @@ describe("Git import flow", function() {
     cy.get(gitSyncLocators.commitButton).click();
     cy.wait(8000);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
+    cy.wait(2000);
     cy.merge(mainBranch);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
