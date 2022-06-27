@@ -16,7 +16,7 @@
     "mongodb": "^4.4.0",
     "readline-sync": "1.4.10",
     "shelljs": "0.8.5",
-    "nodemailer": "6.7.5",
+    "nodemailer": "6.7.5"
   },
   "bin": {
     "appsmithctl": "./bin/index.js"
