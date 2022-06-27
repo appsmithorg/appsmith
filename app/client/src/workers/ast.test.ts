@@ -308,7 +308,6 @@ describe("parseJSObjectWithAST", () => {
       },
     ];
     const resultParsedObject = parseJSObjectWithAST(body);
-    console.log(resultParsedObject, parsedObject);
     expect(resultParsedObject).toStrictEqual(parsedObject);
   });
 });
