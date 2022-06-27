@@ -19,7 +19,7 @@ import { getDependenciesFromInverseDependencies } from "./helpers";
 import { useSelectedEntity, useEntityLink } from "./hooks/debuggerHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey, thinScrollbar } from "constants/DefaultTheme";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import Text, { TextType } from "components/ads/Text";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
