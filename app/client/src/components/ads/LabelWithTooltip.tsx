@@ -1,10 +1,10 @@
 import React, { useCallback, useRef, useState } from "react";
 import styled, { css } from "styled-components";
-import { Alignment, Classes, Label, Position } from "@blueprintjs/core";
+import { Alignment, Classes, Label } from "@blueprintjs/core";
 
 import { LabelPosition } from "components/constants";
 import { FontStyleTypes } from "constants/WidgetConstants";
-import Tooltip from "./Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
 import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
@@ -257,7 +257,7 @@ const LabelWithTooltip = React.forwardRef<
         content={text}
         hoverOpenDelay={LABEL_TOOLTIP_OPEN_DELAY}
         isOpen={tooltipOpen}
-        position={Position.TOP}
+        position="top"
       >
         <StyledLabel
           className={`${
@@ -281,7 +281,7 @@ const LabelWithTooltip = React.forwardRef<
         <Tooltip
           content={helpText}
           hoverOpenDelay={LABEL_TOOLTIP_OPEN_DELAY}
-          position={Position.TOP}
+          position="top"
         >
           <ToolTipIcon
             color={Colors.SILVER_CHALICE}
