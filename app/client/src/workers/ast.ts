@@ -1,7 +1,7 @@
 import { parse, Node } from "acorn";
 import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "constants/ast";
-import _ from "lodash";
+import { isFinite, isString } from "lodash";
 import { sanitizeScript } from "./evaluate";
 import { generate } from "astring";
 
@@ -25,7 +25,7 @@ import { generate } from "astring";
  */
 
 type Pattern = IdentifierNode | AssignmentPatternNode;
-
+type Expression = Node;
 // doc: https://github.com/estree/estree/blob/master/es5.md#memberexpression
 interface MemberExpressionNode extends Node {
   type: NodeTypes.MemberExpression;
@@ -46,6 +46,7 @@ interface IdentifierNode extends Node {
 interface VariableDeclaratorNode extends Node {
   type: NodeTypes.VariableDeclarator;
   id: IdentifierNode;
+  init: Expression | null;
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#functions
@@ -60,8 +61,13 @@ interface FunctionDeclarationNode extends Node, Function {
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#functionexpression
-interface FunctionExpressionNode extends Node, Function {
+interface FunctionExpressionNode extends Expression, Function {
   type: NodeTypes.FunctionExpression;
+}
+
+export interface ObjectExpression extends Expression {
+  type: NodeTypes.ObjectExpression;
+  properties: Array<PropertyNode>;
 }
 
 // doc: https://github.com/estree/estree/blob/master/es2015.md#assignmentpattern
@@ -105,6 +111,10 @@ const isFunctionExpression = (node: Node): node is FunctionExpressionNode => {
   return node.type === NodeTypes.FunctionExpression;
 };
 
+const isObjectExpression = (node: Node): node is ObjectExpression => {
+  return node.type === NodeTypes.ObjectExpression;
+};
+
 const isAssignmentPatternNode = (node: Node): node is AssignmentPatternNode => {
   return node.type === NodeTypes.AssignmentPattern;
 };
@@ -122,7 +132,7 @@ const isArrayAccessorNode = (node: Node): node is MemberExpressionNode => {
     isMemberExpressionNode(node) &&
     node.computed &&
     isLiteralNode(node.property) &&
-    _.isFinite(node.property.value)
+    isFinite(node.property.value)
   );
 };
 
@@ -291,38 +301,31 @@ const constructFinalMemberExpIdentifier = (
 const getPropertyAccessor = (propertyNode: IdentifierNode | LiteralNode) => {
   if (isIdentifierNode(propertyNode)) {
     return `.${propertyNode.name}`;
-  } else if (isLiteralNode(propertyNode) && _.isString(propertyNode.value)) {
+  } else if (isLiteralNode(propertyNode) && isString(propertyNode.value)) {
     // is string literal search a['b']
     return `.${propertyNode.value}`;
-  } else if (isLiteralNode(propertyNode) && _.isFinite(propertyNode.value)) {
+  } else if (isLiteralNode(propertyNode) && isFinite(propertyNode.value)) {
     // is array index search - a[9]
     return `[${propertyNode.value}]`;
   }
 };
 
-// https://github.com/estree/estree/blob/master/es5.md#objectexpression
-interface ObjectNode extends Node {
-  id: {
-    end: number;
-    start: number;
-    type: string;
-    name: string;
-  };
-  init: {
-    end: number;
-    properties: Array<PropertyNode>;
-    start: number;
-    type: string;
-  };
-}
+export const isFunctionNode = (type: string) => {
+  return (
+    type === NodeTypes.ArrowFunctionExpression ||
+    type === NodeTypes.FunctionExpression
+  );
+};
 
-export const parseJSObjectWithAST = (
-  jsObjectBody: string,
-): Array<{
+type JsObjectProperty = {
   key: string;
   value: string;
   type: string;
-}> => {
+};
+
+export const parseJSObjectWithAST = (
+  jsObjectBody: string,
+): Array<JsObjectProperty> => {
   /* 
     jsObjectVariableName value is added such actual js code would never name same variable name. 
     if the variable name will be same then also we won't have problem here as jsObjectVariableName will be last node in VariableDeclarator hence overriding the previous JSObjectProperties.
@@ -332,34 +335,30 @@ export const parseJSObjectWithAST = (
     "____INTERNAL_JS_OBJECT_NAME_USED_FOR_PARSING_____";
   const jsCode = `var ${jsObjectVariableName}  = ${jsObjectBody}`;
   const ast = parse(jsCode, { ecmaVersion: ECMA_VERSION });
-  const parsedObjectProperties = new Set<{
-    key: string;
-    value: string;
-    type: string;
-  }>();
-  let JSObjectProperties: Array<Node> = [];
+  const parsedObjectProperties = new Set<JsObjectProperty>();
+  let JSObjectProperties: Array<PropertyNode> = [];
 
   simple(ast, {
     VariableDeclarator(node: Node) {
-      const jsObjectNode = node as ObjectNode;
       if (
-        jsObjectNode.id &&
-        jsObjectNode.id.name &&
-        jsObjectNode.id.name === jsObjectVariableName &&
-        jsObjectNode.id.type === "Identifier"
+        isVariableDeclarator(node) &&
+        node.init &&
+        isObjectExpression(node.init)
       ) {
-        JSObjectProperties = jsObjectNode.init.properties;
+        JSObjectProperties = node.init.properties;
       }
     },
   });
 
   JSObjectProperties.forEach((node) => {
-    const propertyNode = node as PropertyNode;
+    const propertyNode = node;
+    // here we use `generate` function to convert our AST Node to JSCode
     parsedObjectProperties.add({
       key: generate(propertyNode.key),
       value: generate(propertyNode.value),
       type: propertyNode.value.type,
     });
   });
+
   return [...parsedObjectProperties];
 };
