@@ -55,13 +55,9 @@ describe("DefaultRendere - ", () => {
           expected: "[object Object]",
         },
       ].forEach((testValue) => {
-        expect(
-          getCellText(
-            testValue.value,
-            testValue.cellProperties as CellLayoutProperties,
-            testValue.columnType,
-          ),
-        ).toEqual(testValue.expected);
+        expect(getCellText(testValue.value, testValue.columnType)).toEqual(
+          testValue.expected,
+        );
       });
     });
   });

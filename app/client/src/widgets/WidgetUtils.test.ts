@@ -2,6 +2,7 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
+import { PropertyHookUpdates } from "constants/PropertyControlConstants";
 import { TextSizes } from "constants/WidgetConstants";
 import { remove } from "lodash";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
@@ -436,12 +437,7 @@ type composePropertyUpdateHookInputType = Array<
     props: unknown,
     propertyPath: string,
     propertyValue: any,
-  ) =>
-    | {
-        propertyPath: string;
-        propertyValue: any;
-      }
-    | undefined
+  ) => PropertyHookUpdates[] | undefined
 >;
 describe("composePropertyUpdateHook", () => {
   it("should test that it's returning a function", () => {
