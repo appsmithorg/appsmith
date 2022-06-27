@@ -643,9 +643,9 @@ describe("Validate Mongo Query Pane Validations", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
 
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
+    agHelper.RenameWithInPane("DropAuthorNAwards"); //Due to template appearing after renaming
     agHelper.GetNClick(dataSources._templateMenu);
 
-    agHelper.RenameWithInPane("DropAuthorNAwards");
     agHelper.EnterValue(dropCollection);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
