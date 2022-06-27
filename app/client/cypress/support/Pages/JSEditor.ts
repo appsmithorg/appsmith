@@ -162,6 +162,8 @@ export class JSEditor {
     //this.agHelper.Sleep(5000)//Ample wait due to open bug # 10284
 
     if (toRun) {
+      // Wait for toast message to disappear, this gives ample time for parsing of JSObject to have completed (#14806)
+      this.agHelper.WaitUntilToastDisappear("created successfully");
       //clicking 1 times & waits for 3 second for result to be populated!
       Cypress._.times(1, () => {
         cy.get(this._runButton)

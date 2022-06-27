@@ -1,6 +1,10 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const { AggregateHelper: agHelper, JSEditor: jsEditor } = ObjectsRegistry;
+const {
+  AggregateHelper: agHelper,
+  CommonLocators: locator,
+  JSEditor: jsEditor,
+} = ObjectsRegistry;
 
 describe("storeValue Action test", () => {
   before(() => {
@@ -30,18 +34,39 @@ describe("storeValue Action test", () => {
     jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
       completeReplace: true,
-      toRun: false,
+      toRun: true,
       shouldCreateNewJSObj: true,
     });
-    agHelper.WaitUntilToastDisappear('created successfully')
-    agHelper.GetNClick(jsEditor._runButton);
     agHelper.ValidateToastMessage(
       JSON.stringify({
         val1: "number 1",
         val2: "number 2",
         val3: "number 3",
         val4: "number 4",
-      }), 2
+      }),
+      2,
     );
+  });
+
+  it("2. Accepts paths as keys and updates path accordingly", function() {
+    const JS_OBJECT_BODY = `export default {
+      myFun1: async ()=>{
+      await storeValue("student", {details:{name:"Abha"}}, false)
+      await storeValue("student.details.name", "Annah", false)
+      await showAlert(appsmith.store.student.details.name)
+    }	
+    }`;
+
+    // create js object
+    jsEditor.CreateJSObject(JS_OBJECT_BODY, {
+      paste: true,
+      completeReplace: true,
+      toRun: true,
+      shouldCreateNewJSObj: true,
+    });
+
+    cy.get(locator._toastMsg)
+      .first()
+      .should("contain.text", "Annah");
   });
 });
