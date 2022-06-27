@@ -140,9 +140,6 @@ export * from "./Toast";
 export { default as Toggle } from "./Toggle";
 export * from "./Toggle";
 
-export { default as Tooltip } from "./Tooltip";
-export * from "./Tooltip";
-
 export { default as TreeDropdown } from "./TreeDropdown";
 export * from "./TreeDropdown";
 
