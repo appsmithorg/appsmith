@@ -898,6 +898,7 @@ describe("App Theming funtionality", function() {
       .wait(2000);
 
     //Change individual widget properties for Button1
+    ee.NavigateToSwitcher("explorer");
     ee.ExpandCollapseEntity("WIDGETS"); //to expand widgets
     ee.SelectEntityByName("Button1");
 

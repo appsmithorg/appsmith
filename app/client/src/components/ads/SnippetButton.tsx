@@ -5,7 +5,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { Category, Size } from "./Button";
-import TooltipComponent from "./Tooltip";
+import { TooltipComponent } from "design-system";
 import AdsIcon, { IconSize } from "components/ads/Icon";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
