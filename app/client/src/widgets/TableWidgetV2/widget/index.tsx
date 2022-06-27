@@ -20,8 +20,6 @@ import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
-
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { ReactTableFilter, OperatorTypes } from "../component/Constants";
 import {
   ColumnTypes,
@@ -899,18 +897,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     try {
       row = row || filteredTableData[rowIndex];
 
-      const { jsSnippets } = getDynamicBindings(action);
-      const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
-        return prev + `{{ ${next} }} `;
-      }, "");
-
-      if (modifiedAction) {
+      if (action) {
         this.props.updateWidgetMetaProperty(
           "triggeredRowIndex",
           row?.[ORIGINAL_INDEX_KEY],
           {
             triggerPropertyName: triggerPropertyName,
-            dynamicString: modifiedAction,
+            dynamicString: action,
             event: {
               type: eventType,
               callback: onComplete,
