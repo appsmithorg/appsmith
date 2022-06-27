@@ -93,6 +93,7 @@ import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceMo
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
+import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErrorModal";
 
 const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -1011,6 +1012,7 @@ class Applications extends Component<
                 }}
               />
               <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+              <RepoLimitExceededErrorModal />
             </ApplicationsWrapper>
           )}
         </MediaQuery>
