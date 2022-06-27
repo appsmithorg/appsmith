@@ -1,6 +1,10 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const { AggregateHelper: agHelper, JSEditor: jsEditor } = ObjectsRegistry;
+const {
+  AggregateHelper: agHelper,
+  CommonLocators: locator,
+  JSEditor: jsEditor,
+} = ObjectsRegistry;
 
 describe("storeValue Action test", () => {
   before(() => {
@@ -30,20 +34,8 @@ describe("storeValue Action test", () => {
     jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
       completeReplace: true,
-      toRun: false,
+      toRun: true,
       shouldCreateNewJSObj: true,
-    });
-
-    //Bug 14503
-    // jsEditor.EditJSObj(jsObjectBody);
-    // agHelper.AssertAutoSave();
-
-    // running twice due to bug
-    Cypress._.times(2, () => {
-      cy.get(jsEditor._runButton)
-        .first()
-        .click()
-        .wait(3000);
     });
 
     agHelper.ValidateToastMessage(
@@ -57,4 +49,25 @@ describe("storeValue Action test", () => {
     );
   });
 
+  it("2. Accepts paths as keys and updates path accordingly", function() {
+    const JS_OBJECT_BODY = `export default {
+      myFun1: async ()=>{
+      await storeValue("student", {details:{name:"Abha"}}, false)
+      await storeValue("student.details.name", "Annah", false)
+      await showAlert(appsmith.store.student.details.name)
+    }	
+    }`;
+
+    // create js object
+    jsEditor.CreateJSObject(JS_OBJECT_BODY, {
+      paste: true,
+      completeReplace: true,
+      toRun: true,
+      shouldCreateNewJSObj: true,
+    });
+
+    cy.get(locator._toastMsg)
+      .first()
+      .should("contain.text", "Annah");
+  });
 });
