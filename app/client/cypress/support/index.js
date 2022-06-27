@@ -83,8 +83,9 @@ before(function() {
   cy.visit("/applications");
   cy.wait("@getMe");
   cy.wait(3000);
-  cy.get(".t--applications-container .createnew").should("be.visible");
-  cy.get(".t--applications-container .createnew").should("be.enabled");
+  cy.get(".t--applications-container .createnew")
+    .should("be.visible")
+    .should("be.enabled");
   cy.generateUUID().then((id) => {
     cy.CreateAppInFirstListedWorkspace(id);
     localStorage.setItem("AppName", id);
