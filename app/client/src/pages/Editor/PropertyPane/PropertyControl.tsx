@@ -41,9 +41,8 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { Tooltip } from "components/ads";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
@@ -524,7 +523,7 @@ const PropertyControl = memo((props: Props) => {
               tooltip={props.helpText}
             />
             {isConvertible && (
-              <Tooltip
+              <TooltipComponent
                 content={JS_TOGGLE_DISABLED_MESSAGE}
                 disabled={!isToggleDisabled}
                 hoverOpenDelay={200}
@@ -541,7 +540,7 @@ const PropertyControl = memo((props: Props) => {
                 >
                   <ControlIcons.JS_TOGGLE />
                 </JSToggleButton>
-              </Tooltip>
+              </TooltipComponent>
             )}
             {isPropertyDeviatedFromTheme && (
               <>

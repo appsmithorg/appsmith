@@ -5,7 +5,7 @@ import Dropdown, {
   DefaultDropDownValueNodeProps,
   DropdownOption,
 } from "components/ads/Dropdown";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { AppState } from "reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -26,13 +26,16 @@ import { setCurrentTab, showDebugger } from "actions/debuggerActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
-import { Position } from "@blueprintjs/core";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   interactionAnalyticsEvent,
   InteractionAnalyticsEventDetail,
   INTERACTION_ANALYTICS_EVENT,
 } from "utils/AppsmithUtils";
+import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
+import equal from "fast-deep-equal";
+import { mapValues, pick } from "lodash";
+import { createSelector } from "reselect";
 
 const CONNECTION_HEIGHT = 28;
 
@@ -184,7 +187,7 @@ type TriggerNodeProps = DefaultDropDownValueNodeProps & {
   connectionType: "INCOMING" | "OUTGOING";
   hasError: boolean;
   justifyContent: string;
-  tooltipPosition?: Position;
+  tooltipPosition?: PopoverPosition;
 };
 
 const doConnectionsHaveErrors = (
@@ -196,9 +199,16 @@ const doConnectionsHaveErrors = (
   );
 };
 
+const getDataTreeWithOnlyIds = createSelector(getDataTree, (tree) =>
+  mapValues(tree, (x) => pick(x, ["ENTITY_TYPE", "widgetId", "actionId"])),
+);
+
 const useDependencyList = (name: string) => {
-  const dataTree = useSelector(getDataTree);
-  const deps = useSelector((state: AppState) => state.evaluations.dependencies);
+  const dataTree = useSelector(getDataTreeWithOnlyIds, equal);
+  const inverseDependencyMap = useSelector(
+    (state: AppState) => state.evaluations.dependencies.inverseDependencyMap,
+    equal,
+  );
   const guidedTour = useSelector(inGuidedTour);
 
   const getEntityId = useCallback((name) => {
@@ -213,11 +223,8 @@ const useDependencyList = (name: string) => {
 
   const entityDependencies = useMemo(() => {
     if (guidedTour) return null;
-    return getDependenciesFromInverseDependencies(
-      deps.inverseDependencyMap,
-      name,
-    );
-  }, [name, deps.inverseDependencyMap, guidedTour]);
+    return getDependenciesFromInverseDependencies(inverseDependencyMap, name);
+  }, [name, inverseDependencyMap, guidedTour]);
 
   const dependencyOptions =
     entityDependencies?.directDependencies.map((e) => ({

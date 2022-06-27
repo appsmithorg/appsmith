@@ -18,8 +18,7 @@ import ModalComponent from "../ModalComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import bootIntercom from "utils/bootIntercom";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core";
+import { TooltipComponent } from "design-system";
 import {
   createMessage,
   HELP_RESOURCE_TOOLTIP,
@@ -148,7 +147,7 @@ class HelpModal extends React.Component<Props> {
               content={createMessage(HELP_RESOURCE_TOOLTIP)}
               disabled={isHelpModalOpen}
               hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-              position={Position.LEFT}
+              position="left"
             >
               {isHelpModalOpen ? (
                 <CloseIcon height={50} width={50} />

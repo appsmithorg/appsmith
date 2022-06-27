@@ -531,7 +531,6 @@ class MultiSelectWidget extends BaseWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedOptions: "defaultOptionValue",
-      filterText: "",
     };
   }
 
@@ -615,6 +614,7 @@ class MultiSelectWidget extends BaseWidget<
         onFilterChange={this.onFilterChange}
         options={options}
         placeholder={this.props.placeholderText as string}
+        renderMode={this.props.renderMode}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}
         widgetId={this.props.widgetId}
