@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
-import { Button, Icon, Menu, MenuItem, Position } from "@blueprintjs/core";
+import { Button, Icon, Menu, MenuItem } from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
 import Webcam from "react-webcam";
 import { useStopwatch } from "react-timer-hook";
@@ -22,7 +22,7 @@ import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
 import { useSelector } from "store";
 import { Colors } from "constants/Colors";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 
 import {
   CameraMode,
@@ -347,11 +347,7 @@ function ControlPanel(props: ControlPanelProps) {
     switch (status) {
       case MediaCaptureStatusTypes.IMAGE_DEFAULT:
         return (
-          <TooltipComponent
-            content="Take photo"
-            donotUsePortal
-            position={Position.TOP}
-          >
+          <TooltipComponent content="Take photo" donotUsePortal position="top">
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
               icon={<Icon color="white" icon="full-circle" iconSize={20} />}
@@ -366,11 +362,7 @@ function ControlPanel(props: ControlPanelProps) {
       case MediaCaptureStatusTypes.IMAGE_CAPTURED:
         return (
           <>
-            <TooltipComponent
-              content="Save"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Save" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.SHARP}
                 icon={<Icon color="white" icon="tick" iconSize={20} />}
@@ -378,11 +370,7 @@ function ControlPanel(props: ControlPanelProps) {
                 variant={ButtonVariantTypes.PRIMARY}
               />
             </TooltipComponent>
-            <TooltipComponent
-              content="Discard"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Discard" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.CIRCLE}
                 icon={<Icon color="white" icon="cross" iconSize={20} />}
@@ -397,11 +385,7 @@ function ControlPanel(props: ControlPanelProps) {
 
       case MediaCaptureStatusTypes.IMAGE_SAVED:
         return (
-          <TooltipComponent
-            content="Refresh"
-            donotUsePortal
-            position={Position.TOP}
-          >
+          <TooltipComponent content="Refresh" donotUsePortal position="top">
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
               icon={<Icon color="white" icon="refresh" iconSize={20} />}
@@ -418,7 +402,7 @@ function ControlPanel(props: ControlPanelProps) {
           <TooltipComponent
             content="Start recording"
             donotUsePortal
-            position={Position.TOP}
+            position="top"
           >
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
@@ -437,7 +421,7 @@ function ControlPanel(props: ControlPanelProps) {
             <TooltipComponent
               content="Stop recording"
               donotUsePortal
-              position={Position.TOP}
+              position="top"
             >
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.CIRCLE}
@@ -448,11 +432,7 @@ function ControlPanel(props: ControlPanelProps) {
                 variant={ButtonVariantTypes.SECONDARY}
               />
             </TooltipComponent>
-            <TooltipComponent
-              content="Discard"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Discard" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.CIRCLE}
                 icon={<Icon color="white" icon="cross" iconSize={20} />}
@@ -468,11 +448,7 @@ function ControlPanel(props: ControlPanelProps) {
       case MediaCaptureStatusTypes.VIDEO_CAPTURED:
         return (
           <>
-            <TooltipComponent
-              content="Save"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Save" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.SHARP}
                 icon={<Icon color="white" icon="tick" iconSize={20} />}
@@ -482,11 +458,7 @@ function ControlPanel(props: ControlPanelProps) {
                 variant={ButtonVariantTypes.PRIMARY}
               />
             </TooltipComponent>
-            <TooltipComponent
-              content="Play"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Play" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.CIRCLE}
                 icon={<Icon color="white" icon="play" iconSize={20} />}
@@ -494,11 +466,7 @@ function ControlPanel(props: ControlPanelProps) {
                 variant={ButtonVariantTypes.TERTIARY}
               />
             </TooltipComponent>
-            <TooltipComponent
-              content="Discard"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Discard" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.CIRCLE}
                 icon={<Icon color="white" icon="cross" iconSize={20} />}
@@ -514,11 +482,7 @@ function ControlPanel(props: ControlPanelProps) {
       case MediaCaptureStatusTypes.VIDEO_PLAYING:
         return (
           <>
-            <TooltipComponent
-              content="Save"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Save" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.SHARP}
                 icon={<Icon color="white" icon="tick" iconSize={20} />}
@@ -528,11 +492,7 @@ function ControlPanel(props: ControlPanelProps) {
                 variant={ButtonVariantTypes.PRIMARY}
               />
             </TooltipComponent>
-            <TooltipComponent
-              content="Pause"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Pause" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.CIRCLE}
                 icon={<Icon color="white" icon="pause" iconSize={20} />}
@@ -542,11 +502,7 @@ function ControlPanel(props: ControlPanelProps) {
                 variant={ButtonVariantTypes.TERTIARY}
               />
             </TooltipComponent>
-            <TooltipComponent
-              content="Discard"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Discard" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.CIRCLE}
                 icon={<Icon color="white" icon="cross" iconSize={20} />}
@@ -562,11 +518,7 @@ function ControlPanel(props: ControlPanelProps) {
       case MediaCaptureStatusTypes.VIDEO_PAUSED:
         return (
           <>
-            <TooltipComponent
-              content="Save"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Save" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.SHARP}
                 icon={<Icon color="white" icon="tick" iconSize={20} />}
@@ -576,11 +528,7 @@ function ControlPanel(props: ControlPanelProps) {
                 variant={ButtonVariantTypes.PRIMARY}
               />
             </TooltipComponent>
-            <TooltipComponent
-              content="Play"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Play" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.CIRCLE}
                 icon={<Icon color="white" icon="play" iconSize={20} />}
@@ -588,11 +536,7 @@ function ControlPanel(props: ControlPanelProps) {
                 variant={ButtonVariantTypes.TERTIARY}
               />
             </TooltipComponent>
-            <TooltipComponent
-              content="Discard"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Discard" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.CIRCLE}
                 icon={<Icon color="white" icon="cross" iconSize={20} />}
@@ -608,11 +552,7 @@ function ControlPanel(props: ControlPanelProps) {
       case MediaCaptureStatusTypes.VIDEO_SAVED:
         return (
           <>
-            <TooltipComponent
-              content="Play"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Play" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.CIRCLE}
                 icon={<Icon color="white" icon="play" iconSize={20} />}
@@ -622,11 +562,7 @@ function ControlPanel(props: ControlPanelProps) {
                 variant={ButtonVariantTypes.TERTIARY}
               />
             </TooltipComponent>
-            <TooltipComponent
-              content="Refresh"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Refresh" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.CIRCLE}
                 icon={<Icon color="white" icon="refresh" iconSize={20} />}
@@ -642,11 +578,7 @@ function ControlPanel(props: ControlPanelProps) {
       case MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE:
         return (
           <>
-            <TooltipComponent
-              content="Pause"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Pause" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.CIRCLE}
                 icon={<Icon color="white" icon="pause" iconSize={20} />}
@@ -656,11 +588,7 @@ function ControlPanel(props: ControlPanelProps) {
                 variant={ButtonVariantTypes.TERTIARY}
               />
             </TooltipComponent>
-            <TooltipComponent
-              content="Refresh"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Refresh" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.CIRCLE}
                 icon={<Icon color="white" icon="refresh" iconSize={20} />}
@@ -676,11 +604,7 @@ function ControlPanel(props: ControlPanelProps) {
       case MediaCaptureStatusTypes.VIDEO_PAUSED_AFTER_SAVE:
         return (
           <>
-            <TooltipComponent
-              content="Play"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Play" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.CIRCLE}
                 icon={<Icon color="white" icon="play" iconSize={20} />}
@@ -690,11 +614,7 @@ function ControlPanel(props: ControlPanelProps) {
                 variant={ButtonVariantTypes.TERTIARY}
               />
             </TooltipComponent>
-            <TooltipComponent
-              content="Refresh"
-              donotUsePortal
-              position={Position.TOP}
-            >
+            <TooltipComponent content="Refresh" donotUsePortal position="top">
               <StyledButton
                 borderRadius={ButtonBorderRadiusTypes.CIRCLE}
                 icon={<Icon color="white" icon="refresh" iconSize={20} />}
@@ -717,7 +637,7 @@ function ControlPanel(props: ControlPanelProps) {
       <TooltipComponent
         content="Exit full screen"
         donotUsePortal
-        position={Position.TOP_RIGHT}
+        position="top-right"
       >
         <StyledButton
           borderRadius={ButtonBorderRadiusTypes.SHARP}
@@ -732,7 +652,7 @@ function ControlPanel(props: ControlPanelProps) {
       <TooltipComponent
         content="Full screen"
         donotUsePortal
-        position={Position.TOP_RIGHT}
+        position="top-right"
       >
         <StyledButton
           borderRadius={ButtonBorderRadiusTypes.SHARP}
