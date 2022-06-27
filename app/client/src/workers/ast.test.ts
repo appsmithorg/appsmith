@@ -285,11 +285,12 @@ describe("parseJSObjectWithAST", () => {
         value: "[]",
         type: "ArrayExpression",
       },
-      {
-        key: '"a"',
-        value: '"app"',
-        type: "Literal",
-      },
+      // "a" shouldn't be considered as jsObject's property as it is value of myVar2
+      // {
+      //   key: '"a"',
+      //   value: '"app"',
+      //   type: "Literal",
+      // },
       {
         key: "myVar2",
         value: '{\n  "a": "app"\n}',
@@ -307,6 +308,7 @@ describe("parseJSObjectWithAST", () => {
       },
     ];
     const resultParsedObject = parseJSObjectWithAST(body);
+    console.log(resultParsedObject, parsedObject);
     expect(resultParsedObject).toStrictEqual(parsedObject);
   });
 });

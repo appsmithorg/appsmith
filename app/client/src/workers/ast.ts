@@ -300,6 +300,7 @@ const getPropertyAccessor = (propertyNode: IdentifierNode | LiteralNode) => {
   }
 };
 
+// https://github.com/estree/estree/blob/master/es5.md#objectexpression
 interface ObjectNode extends Node {
   id: {
     end: number;
@@ -309,7 +310,7 @@ interface ObjectNode extends Node {
   };
   init: {
     end: number;
-    properties: Array<Node>;
+    properties: Array<PropertyNode>;
     start: number;
     type: string;
   };
