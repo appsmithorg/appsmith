@@ -8,24 +8,24 @@ import {
   UpdateCanvasPayload,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
+  ClonePageActionPayload,
   clonePageSuccess,
+  CreatePageActionPayload,
   deletePageSuccess,
+  fetchAllPageEntityCompletion,
   FetchPageListPayload,
   fetchPageSuccess,
   fetchPublishedPageSuccess,
-  savePageSuccess,
-  setUrlData,
-  initCanvasLayout,
-  updateCurrentPage,
-  updateWidgetNameSuccess,
-  updateAndSaveLayout,
-  saveLayout,
-  setLastUpdatedTime,
-  ClonePageActionPayload,
-  CreatePageActionPayload,
   generateTemplateError,
   generateTemplateSuccess,
-  fetchAllPageEntityCompletion,
+  initCanvasLayout,
+  saveLayout,
+  savePageSuccess,
+  setLastUpdatedTime,
+  setUrlData,
+  updateAndSaveLayout,
+  updateCurrentPage,
+  updateWidgetNameSuccess,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -35,6 +35,7 @@ import PageApi, {
   FetchPageRequest,
   FetchPageResponse,
   FetchPublishedPageRequest,
+  GenerateTemplatePageRequest,
   PageLayout,
   SavePageResponse,
   SetPageOrderRequest,
@@ -58,7 +59,11 @@ import {
 import history from "utils/history";
 import { captureInvalidDynamicBindingPath, isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
+import {
+  checkIfMigrationIsNeeded,
+  needMigrationDSLs,
+  PageDSL,
+} from "utils/DSLMigrations";
 import {
   getAllPageIds,
   getEditorConfigs,
@@ -77,10 +82,10 @@ import {
 import {
   executePageLoadActions,
   fetchActionsForPage,
+  fetchActionsForPageError,
+  fetchActionsForPageSuccess,
   setActionsToExecuteOnPageLoad,
   setJSActionsToExecuteOnPageLoad,
-  fetchActionsForPageSuccess,
-  fetchActionsForPageError,
 } from "actions/pluginActionActions";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
@@ -97,20 +102,19 @@ import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
-import { GenerateTemplatePageRequest } from "api/PageApi";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
 import {
-  getIsFirstTimeUserOnboardingEnabled,
   getFirstTimeUserOnboardingApplicationId,
+  getIsFirstTimeUserOnboardingEnabled,
   inGuidedTour,
 } from "selectors/onboardingSelectors";
 import {
   fetchJSCollectionsForPage,
-  fetchJSCollectionsForPageSuccess,
   fetchJSCollectionsForPageError,
+  fetchJSCollectionsForPageSuccess,
 } from "actions/jsActionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -250,10 +254,12 @@ export function* handleFetchedPage({
     });
 
     if (willPageBeMigrated) {
-      yield put(saveLayout());
+      call(populatePageDSLsSaga);
+      // yield put(saveLayout());
     }
   }
 }
+
 const getLastUpdateTime = (pageResponse: FetchPageResponse): number =>
   pageResponse.data.lastUpdatedTime;
 
@@ -373,6 +379,28 @@ export function* fetchAllPublishedPagesSaga() {
     );
   } catch (error) {
     log.error({ error });
+  }
+}
+
+function* savePageLayoutSaga(page: PageDSL) {
+  try {
+    const savePageResponse: SavePageResponse = yield call(
+      PageApi.savePage,
+      page,
+    );
+    const isValidResponse: boolean = yield validateResponse(savePageResponse);
+    const event = isValidResponse
+      ? "ALL_DSL_MIGRATION_AT_ONCE_SUCCESS"
+      : "ALL_DSL_MIGRATION_AT_ONCE_FAILURE";
+    AnalyticsUtil.logEvent(event);
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
+      payload: {
+        error,
+        show: false,
+      },
+    });
   }
 }
 
@@ -825,9 +853,11 @@ export function* updateWidgetNameSaga(
         const request: UpdateWidgetNameRequest = {
           newName: action.payload.newName,
           oldName: widgetName,
-          // @ts-expect-error: pageId can be undefined
+
+          /* @ts-expect-error: pageId can be undefined */
           pageId,
-          // @ts-expect-error: layoutId can be undefined
+
+          /* @ts-expect-error: layoutId can be undefined */
           layoutId,
         };
         const response: UpdateWidgetNameResponse = yield call(
@@ -915,6 +945,7 @@ function* fetchPageDSLSaga(pageId: string) {
     if (isValidResponse) {
       return {
         pageId: pageId,
+        layoutId: fetchPageResponse?.data?.layouts[0]?.id,
         dsl: extractCurrentDSL(fetchPageResponse),
       };
     }
@@ -939,7 +970,7 @@ export function* populatePageDSLsSaga() {
     const pageIds: string[] = yield select((state: AppState) =>
       state.entities.pageList.pages.map((page: Page) => page.pageId),
     );
-    const pageDSLs: unknown = yield all(
+    const pageDSLs: PageDSL[] = yield all(
       pageIds.map((pageId: string) => {
         return call(fetchPageDSLSaga, pageId);
       }),
@@ -948,6 +979,13 @@ export function* populatePageDSLsSaga() {
       type: ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
       payload: pageDSLs,
     });
+    const pagesDSLforMigrations = needMigrationDSLs(pageDSLs);
+    if (pagesDSLforMigrations.length > 0) {
+      AnalyticsUtil.logEvent("SAVE_ALL_PAGES_LAYOUT_AT_ONCE_INIT");
+      for (const pageDSL of pagesDSLforMigrations) {
+        yield savePageLayoutSaga(pageDSL);
+      }
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.POPULATE_PAGEDSLS_ERROR,
@@ -1038,7 +1076,8 @@ export function* generateTemplatePageSaga(
         generateTemplateSuccess({
           page: response.data.page,
           isNewPage: !request.pageId,
-          // if pageId if not defined, that means a new page is generated.
+
+          /* if pageId if not defined, that means a new page is generated. */
         }),
       );
 

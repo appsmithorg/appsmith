@@ -1511,6 +1511,18 @@ export const checkIfMigrationIsNeeded = (
   return currentDSL.version !== LATEST_PAGE_VERSION;
 };
 
+export type PageDSL = {
+  pageId: string;
+  layoutId: string;
+  dsl: DSLWidget;
+};
+
+export const needMigrationDSLs = (pageDSLs: PageDSL[]) => {
+  return pageDSLs.filter(
+    (pageDSL) => pageDSL.dsl.version !== LATEST_PAGE_VERSION,
+  );
+};
+
 export const migrateDatePickerMinMaxDate = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
