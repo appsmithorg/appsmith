@@ -173,7 +173,7 @@ function* evaluateTreeSaga(
   if (evalMetaUpdates.length) {
     yield put(updateMetaState(evalMetaUpdates));
   }
-  log.debug({ evalMetaUpdates });
+  log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
   log.debug({ jsUpdates: jsUpdates });
