@@ -48,7 +48,7 @@ export const HighlighedCodeContainer = styled("div")`
     margin: 0 !important;
     overflow: hidden !important;
     font-family: monospace !important;
-    padding: 8px !important;
+    padding: 0 !important;
     background: white !important;
 
     word-wrap: break-word !important;
@@ -57,8 +57,12 @@ export const HighlighedCodeContainer = styled("div")`
 
     code {
       background: white !important;
-      color: #4b4848 !important;
+      color: #858282 !important;
       font-family: monospace !important;
+
+      span > span {
+        color: inherit !important;
+      }
     }
   }
 `;
@@ -89,6 +93,10 @@ const ContentWrapper = styled("div")<{ containsCode: boolean }>`
   min-height: 38px;
   border: 1px solid;
   border-color: inherit;
+`;
+
+const NoCodeText = styled("div")`
+  color: #858282 !important;
 `;
 
 /**
@@ -180,7 +188,7 @@ function CodeEditor(props: any) {
 
   const highlightedText = () => {
     if (!containsCode) {
-      return <div>{text}</div>;
+      return <NoCodeText>{text}</NoCodeText>;
     }
     return (
       <SyntaxHighlighter
@@ -196,7 +204,7 @@ function CodeEditor(props: any) {
   useEffect(() => {
     function lazyLoadEditor() {
       handle = (window as any).requestIdleCallback(
-        () => setEditorVisibility(true),
+        () => setEditorVisibility(false),
         {
           // if callback hasn't executed in 1500 ms, then trigger it urgently
           timeout: 1500,
