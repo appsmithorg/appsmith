@@ -50,6 +50,7 @@ export function enhancePropertyPaneConfig(
   if (features && features.dynamicHeight) {
     config.splice(1, 0, PropertyPaneConfigTemplates.DYNAMIC_HEIGHT);
   }
+
   return config;
 }
 

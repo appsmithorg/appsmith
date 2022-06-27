@@ -16,6 +16,7 @@ import { commentModeSelector } from "selectors/commentsSelectors";
 import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 const minSize = 100;
 
@@ -145,6 +146,12 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       width: Math.max(minSize, this.getModalWidth(dimensions.width)),
     };
 
+    if (
+      newDimensions.height !== this.props.height &&
+      isDynamicHeightEnabledForWidget(this.props)
+    )
+      return;
+
     const canvasWidgetId =
       this.props.children && this.props.children.length > 0
         ? this.props.children[0]?.widgetId
@@ -219,6 +226,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
         enableResize={isResizeEnabled}
         height={this.props.height}
+        isDynamicHeightEnabled={isDynamicHeightEnabledForWidget(this.props)}
         isEditMode={isEditMode}
         isOpen={!!this.props.isVisible}
         maxWidth={this.getMaxModalWidth()}

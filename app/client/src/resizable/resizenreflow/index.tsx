@@ -524,7 +524,7 @@ export function ReflowResizable(props: ResizableProps) {
           style={_props}
         >
           {props.children}
-          {renderHandles}
+          {props.enableHorizontalResize && renderHandles}
         </ResizeWrapper>
       )}
     </Spring>
