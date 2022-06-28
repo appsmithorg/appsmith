@@ -540,6 +540,16 @@ export function updateThemeStylesheetsInColumns(
     });
 
     if (propertiesToUpdate.length) {
+      /*
+       * Temporary patch to make evaluations to compute inverseDependencyMap when
+       * column type is changed.
+       * TODO(Balaji): remove once https://github.com/appsmithorg/appsmith/issues/14436 gets fixed
+       */
+      propertiesToUpdate.push({
+        propertyPath: `primaryColumns.${columnId}.iconName`,
+        propertyValue: "",
+      });
+
       return propertiesToUpdate;
     }
   }
