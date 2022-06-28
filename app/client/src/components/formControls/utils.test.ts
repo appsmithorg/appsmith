@@ -737,6 +737,39 @@ describe("UQI form render methods", () => {
         input: {},
         output: false,
       },
+      {
+        input: {
+          controlType: "SECTION",
+          label: "Select Bucket to Query",
+          children: [
+            {
+              label: "Bucket Name",
+              configProperty: "actionConfiguration.formData.bucket.data",
+              controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+              evaluationSubstitutionType: "TEMPLATE",
+              isRequired: true,
+              initialValue: "",
+            },
+          ],
+        },
+        output: true,
+      },
+      {
+        input: {
+          label: "Select Bucket to Query",
+          children: [
+            {
+              label: "Bucket Name",
+              configProperty: "actionConfiguration.formData.bucket.data",
+              controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+              evaluationSubstitutionType: "TEMPLATE",
+              isRequired: true,
+              initialValue: "",
+            },
+          ],
+        },
+        output: false,
+      },
     ];
 
     testCases.forEach((testCase) => {
