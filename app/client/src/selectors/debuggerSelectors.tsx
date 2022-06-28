@@ -48,7 +48,6 @@ export const isParentVisible = (
   const parentWidgetData = dataTree[parentWidget.widgetName] as DataTreeWidget;
   if (!parentWidgetData) return isWidgetVisible;
 
-  // TODO: add table and list widget cases
   switch (parentWidgetData.type) {
     // check for widget types instead of harcoded string
     case "TABS_WIDGET":
