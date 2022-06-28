@@ -38,11 +38,5 @@ export const autoIndentCode = (editor: CodeMirror.Editor) => {
         editor.indentLine(lineNumber, "smart");
       }
     });
-    /*
-     * We need to use a setTimeout here to postpone the refresh() to
-     * after CodeMirror/Browser has updated the layout according to the new content
-     */
-    editor.setValue(editor.getValue());
-    setTimeout(() => editor.refresh(), 0);
   });
 };
