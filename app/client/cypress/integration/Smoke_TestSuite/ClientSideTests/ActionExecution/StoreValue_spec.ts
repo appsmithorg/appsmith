@@ -61,7 +61,7 @@ describe("storeValue Action test", () => {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("2. Accepts paths as keys and updates path accordingly", function() {
+  it("2. Bug 14827 : Accepts paths as keys and updates path accordingly", function() {
     const JS_OBJECT_BODY = `export default {
       storePathTest: async ()=> {
       await storeValue("student", {details:{isTopper:true, name: "Abhah", grade: 1}}, false)
