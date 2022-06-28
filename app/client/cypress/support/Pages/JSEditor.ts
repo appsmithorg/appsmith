@@ -91,7 +91,7 @@ export class JSEditor {
   //#endregion
 
   //#region Page functions
-  public NavigateToNewJSEditor() {
+  public NavigateToNewJSEditor(toValidateToast = false) {
     cy.get(this.locator._createNew)
       .last()
       .click({ force: true });
@@ -108,7 +108,7 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    //this.agHelper.WaitUntilToastDisappear('created successfully')
+    toValidateToast && this.agHelper.WaitUntilToastDisappear('created successfully');
     this.agHelper.Sleep();
   }
 
@@ -118,7 +118,7 @@ export class JSEditor {
   ) {
     const { completeReplace, paste, shouldCreateNewJSObj, toRun } = options;
 
-    shouldCreateNewJSObj && this.NavigateToNewJSEditor();
+    shouldCreateNewJSObj && this.NavigateToNewJSEditor(toRun);
     if (!completeReplace) {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
@@ -152,24 +152,19 @@ export class JSEditor {
         } else {
           input.type(JSCode, {
             parseSpecialCharSequences: false,
-            delay: 150,
+            delay: 100,
             force: true,
           });
         }
       });
 
     this.agHelper.AssertAutoSave(); //Ample wait due to open bug # 10284
-    //this.agHelper.Sleep(5000)//Ample wait due to open bug # 10284
 
     if (toRun) {
-      // Wait for toast message to disappear, this gives ample time for parsing of JSObject to have completed (#14806)
-      this.agHelper.WaitUntilToastDisappear("created successfully");
-      //clicking 1 times & waits for 3 second for result to be populated!
+      //clicking 1 times & waits for 2 second for result to be populated!
       Cypress._.times(1, () => {
-        cy.get(this._runButton)
-          .first()
-          .click()
-          .wait(3000);
+        this.agHelper.GetNClick(this._runButton);
+        this.agHelper.Sleep(2000);
       });
       cy.get(this.locator._empty).should("not.exist");
     }

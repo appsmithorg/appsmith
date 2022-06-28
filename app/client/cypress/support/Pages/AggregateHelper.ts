@@ -110,10 +110,9 @@ export class AggregateHelper {
     });
   }
 
-  public ValidateToastMessage(text: string, length = 1) {
-    cy.get(this.locator._toastMsg)
-      .should("have.length", length)
-      .should("contain.text", text);
+  public ValidateToastMessage(text: string, index = 0, length = 1) {
+    cy.get(this.locator._toastMsg).should("have.length.at.least", length);
+    cy.get(this.locator._toastMsg).eq(index).should("contain.text", text);
   }
 
   public ClickButton(btnVisibleText: string, index = 0, shouldSleep = true) {
