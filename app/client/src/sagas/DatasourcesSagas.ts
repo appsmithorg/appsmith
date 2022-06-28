@@ -1002,7 +1002,7 @@ function* executeDatasourceQuerySaga(
     // const response: GenericApiResponse<any> = yield DatasourcesApi.executeDatasourceQuery(
     //   action.payload,
     // );
-    const response: ApiResponse = yield DatasourcesApi.executeDatasourceQuery(
+    const response: ApiResponse = yield DatasourcesApi.executeGoogleSheetsDatasourceQuery(
       action.payload,
     );
     const isValidResponse: boolean = yield validateResponse(response);

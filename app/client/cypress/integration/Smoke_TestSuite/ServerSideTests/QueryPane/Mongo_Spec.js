@@ -44,7 +44,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     // );
 
     cy.validateNSelectDropdown("Commands", "Find Document(s)", "Raw");
-    // cy.get(queryLocators.templateMenu).click();
+    cy.get(queryLocators.templateMenu).click();
     cy.typeValueNValidate('{"find": "listingAndReviews","limit": 10}', "Query");
 
     // cy.get(".CodeMirror textarea")

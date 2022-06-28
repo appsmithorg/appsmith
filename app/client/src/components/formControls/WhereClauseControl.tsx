@@ -224,6 +224,7 @@ function ConditionComponent(props: any, index: number) {
       />
       {/* Component to render the delete icon */}
       <CenteredIcon
+        cypressSelector={`t--where-clause-delete-[${index}]`}
         name="cross"
         onClick={(e) => {
           e.stopPropagation();
@@ -275,7 +276,10 @@ function ConditionBlock(props: any) {
   const logicalFieldValue = _.get(formValues, logicalFieldPath);
 
   return (
-    <SecondaryBox showBorder={props.currentNestingLevel >= 1}>
+    <SecondaryBox
+      className={`t--${props?.configProperty}`}
+      showBorder={props.currentNestingLevel >= 1}
+    >
       {props.fields &&
         props.fields.length > 0 &&
         props.fields.map((field: any, index: number) => {
@@ -328,6 +332,7 @@ function ConditionBlock(props: any) {
                   />
                   <CenteredIcon
                     alignSelf={"start"}
+                    cypressSelector={`t--where-clause-delete-[${index}]`}
                     name="cross"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -356,6 +361,7 @@ function ConditionBlock(props: any) {
 
       <ActionBox marginLeft={`${DropdownWidth + Margin}px`}>
         <AddMoreAction
+          className={`t--where-add-condition[${props?.currentNestingLevel}]`}
           onClick={
             () =>
               props.fields.push({
@@ -381,6 +387,7 @@ function ConditionBlock(props: any) {
           position="bottom"
         >
           <AddMoreAction
+            className={`t--where-add-group-condition[${props?.currentNestingLevel}]`}
             isDisabled={!(props.currentNestingLevel < props.nestedLevels)}
             onClick={() => {
               if (props.currentNestingLevel < props.nestedLevels) {

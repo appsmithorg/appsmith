@@ -78,7 +78,8 @@ export function InputText(props: {
     }
   }
   return (
-    <div style={customStyle}>
+    <div className={`t--${props?.name}`} style={customStyle}>
+      {/* <div style={customStyle}> */}
       <StyledDynamicTextField
         dataTreePath={dataTreePath}
         disabled={props.disabled}

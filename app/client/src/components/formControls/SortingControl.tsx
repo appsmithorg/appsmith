@@ -162,7 +162,7 @@ function SortingComponent(props: any) {
   }, [props.fields.length]);
 
   return (
-    <SortingContainer>
+    <SortingContainer className={`t--${props?.configProperty}`}>
       {props.fields &&
         props.fields.length > 0 &&
         props.fields.map((field: any, index: number) => {
@@ -198,6 +198,7 @@ function SortingComponent(props: any) {
               />
               {/* Component to render the delete icon */}
               <CenteredIcon
+                cypressSelector={`t--sorting-delete-[${index}]`}
                 name="cross"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -209,6 +210,7 @@ function SortingComponent(props: any) {
           );
         })}
       <StyledBottomLabelContainer
+        data-cy={`t--sorting-add-field`}
         onClick={() =>
           props.fields.push({
             column: "",

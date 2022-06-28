@@ -502,6 +502,16 @@ export class AggregateHelper {
     this.VerifyEvaluatedValue(valueToType);
   }
 
+  // by dynamic input value we mean QUERY_DYNAMIC_INPUT_TEXT formControls.
+  public TypeDynamicInputValueNValidate(valueToType: string, fieldName = "") {
+    this.EnterValue(valueToType, {
+      propFieldName: fieldName,
+      directInput: true,
+      inputFieldName: "",
+    });
+    this.VerifyEvaluatedValue(valueToType);
+  }
+
   public EnterValue(
     valueToEnter: string,
     options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
@@ -530,6 +540,18 @@ export class AggregateHelper {
       });
     }
     this.AssertAutoSave();
+  }
+
+  public VerifyCodeInputValue(propFieldName: string, value: string) {
+    cy.get(propFieldName).then(($field: any) => {
+      this.CheckCodeInputValue($field, value);
+    });
+  }
+
+  public BlurInput(propFieldName: string) {
+    cy.get(propFieldName).then(($field: any) => {
+      this.BlurCodeInput($field);
+    });
   }
 
   public EnterInputText(
@@ -561,6 +583,31 @@ export class AggregateHelper {
       });
   }
 
+  public BlurCodeInput(selector: string) {
+    cy.wrap(selector)
+      .find(".CodeMirror")
+      .first()
+      .then((ins: any) => {
+        const input = ins[0].CodeMirror;
+        input.focus();
+        this.Sleep(200);
+        input.display.input.blur();
+        this.Sleep(200);
+      });
+  }
+
+  public CheckCodeInputValue(selector: string, expectedValue: string) {
+    cy.wrap(selector)
+      .find(".CodeMirror")
+      .first()
+      .then((ins: any) => {
+        const input = ins[0].CodeMirror;
+        const inputVal = input.getValue();
+        this.Sleep(200);
+        expect(inputVal).to.eq(expectedValue);
+      });
+  }
+
   public VerifyEvaluatedValue(currentValue: string) {
     this.Sleep(3000);
     cy.get(this.locator._evaluatedCurrentValue)
@@ -572,6 +619,10 @@ export class AggregateHelper {
       .click({ force: true })
       .then(($text) => {
         if ($text.text()) expect($text.text()).to.eq(currentValue);
+      })
+      .trigger("mouseout")
+      .then(() => {
+        cy.wait(2000);
       });
   }
 

@@ -41,7 +41,10 @@ function EntitySelectorComponent(props: any) {
   );
 
   return (
-    <EntitySelectorContainer key={`ES_${configProperty}`}>
+    <EntitySelectorContainer
+      className={`t--${configProperty}`}
+      key={`ES_${configProperty}`}
+    >
       {visibleSchemas &&
         visibleSchemas.length > 0 &&
         visibleSchemas.map((singleSchema: any, index: number) => {

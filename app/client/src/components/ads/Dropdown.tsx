@@ -642,6 +642,7 @@ function DefaultDropDownValueNode({
               <Chips key={s.value}>
                 <Text type={TextType.P1}>{s.label}</Text>
                 <StyledClose
+                  className={`t--remove-option-${s.label}`}
                   onClick={(event: any) => {
                     event.stopPropagation();
                     if (removeSelectedOptionClickHandler) {
@@ -752,6 +753,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
   return (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
+      data-cy="dropdown-options-wrapper"
       data-testid="dropdown-options-wrapper"
       isOpen={props.isOpen}
       width={optionWidth}
@@ -811,6 +813,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               <OptionWrapper
                 aria-selected={isSelected}
                 className={`t--dropdown-option ${isSelected ? "selected" : ""}`}
+                data-cy={`t--dropdown-option-${option?.label}`}
                 disabled={option.disabled}
                 key={index}
                 onClick={

@@ -92,6 +92,7 @@ class DropDownControl extends BaseControl<Props> {
 
     return (
       <DropdownSelect
+        className={`t--${this?.props?.configProperty}`}
         data-cy={this.props.configProperty}
         style={styles}
         width={styles.width}
@@ -184,6 +185,7 @@ function renderDropdown(
     <Dropdown
       allowDeselection={props?.isMultiSelect}
       boundary="window"
+      cypressSelector={`t--dropdown-${props?.configProperty}`}
       disabled={props.disabled}
       dontUsePortal={false}
       dropdownMaxHeight="250px"

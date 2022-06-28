@@ -52,15 +52,16 @@ type JSToggleButtonProps = {
   isActive: boolean;
   isToggleDisabled?: boolean;
   handleClick: (_: any) => void;
+  cypressSelector?: string;
 };
 
 function JSToggleButton(props: JSToggleButtonProps) {
   return (
     <JSToggleButtonWrapper
       active={props.isActive}
-      className={`focus:ring-2 t--js-toggle ${
-        props.isActive ? "is-active" : ""
-      }`}
+      className={`focus:ring-2 t--js-toggle ${props.isActive ? "is-active" : ""}
+      ${props.cypressSelector}
+      `}
       disabled={props.isToggleDisabled}
       onClick={props.handleClick}
     >

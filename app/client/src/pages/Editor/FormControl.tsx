@@ -66,7 +66,7 @@ function FormControl(props: FormControlProps) {
           multipleConfig={props?.multipleConfig}
         >
           <div
-            className={`t--form-control-${props.config.controlType} t--${props.config?.configProperty}`}
+            className={`t--form-control-${props.config.controlType}`}
             data-replay-id={btoa(props.config.configProperty)}
           >
             {viewTypes.length > 0 && viewTypes.includes(ViewTypes.JSON) ? (

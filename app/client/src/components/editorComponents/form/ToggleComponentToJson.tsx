@@ -49,6 +49,7 @@ function ToggleComponentToJsonHandler(props: HandlerProps) {
   };
   return (
     <JSToggleButton
+      cypressSelector={`t--${props.configProperty}-JS`}
       handleClick={handleViewTypeSwitch}
       isActive={viewType === ViewTypes.JSON}
     />
