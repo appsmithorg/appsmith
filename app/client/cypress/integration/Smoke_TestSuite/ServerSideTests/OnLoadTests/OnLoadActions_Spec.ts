@@ -61,7 +61,7 @@ describe("Layout OnLoad Actions tests", function() {
     //apiPage.RunAPI();
 
     //Adding dependency in right order matters!
-    ee.expandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("WIDGETS");
     ee.SelectEntityByName("Image1");
     jsEditor.EnterJSContext("Image", `{{RandomFlora.data}}`, true);
 
@@ -125,9 +125,7 @@ describe("Layout OnLoad Actions tests", function() {
     //   });
     // });
 
-    deployMode.DeployApp();
-    agHelper.Sleep(); //waiting for error toast - incase it wants to appear!
-    agHelper.AssertElementAbsence(locator._toastMsg);
+    deployMode.DeployApp(locator._widgetInDeployed("textwidget"), false);
     agHelper.Sleep(5000); //for all api's to ccomplete call!
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);
@@ -164,7 +162,7 @@ describe("Layout OnLoad Actions tests", function() {
       );
     });
 
-    agHelper.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
   it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function() {
@@ -180,9 +178,7 @@ describe("Layout OnLoad Actions tests", function() {
       value: "{{RandomUser.data.results[0].name.first}}",
     }); // verifies Bug 10055
 
-    deployMode.DeployApp();
-    agHelper.Sleep(); //waiting for error toast - incase it wants to appear!
-    agHelper.AssertElementAbsence(locator._toastMsg);
+    deployMode.DeployApp(locator._widgetInDeployed("textwidget"), false);
     agHelper.Sleep(5000); //for all api's to ccomplete call!
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);

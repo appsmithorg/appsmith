@@ -1,6 +1,8 @@
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
 import { createGlobalData } from "workers/evaluate";
+import uniqueId from "lodash/uniqueId";
+jest.mock("lodash/uniqueId");
 
 describe("Add functions", () => {
   const workerEventMock = jest.fn();
@@ -9,6 +11,7 @@ describe("Add functions", () => {
   const dataTree: DataTree = {
     action1: {
       actionId: "123",
+      pluginId: "",
       data: {},
       config: {},
       datasourceUrl: "",
@@ -50,8 +53,8 @@ describe("Add functions", () => {
     expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
       payload: {
         actionId: "123",
-        onError: 'function () { return "failure"; }',
-        onSuccess: 'function () { return "success"; }',
+        onError: '() => "failure"',
+        onSuccess: '() => "success"',
         params: {
           param1: "value1",
         },
@@ -70,7 +73,7 @@ describe("Add functions", () => {
       payload: {
         actionId: "123",
         onError: undefined,
-        onSuccess: 'function () { return "success"; }',
+        onSuccess: '() => "success"',
         params: {
           param1: "value1",
         },
@@ -87,7 +90,7 @@ describe("Add functions", () => {
     expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
       payload: {
         actionId: "123",
-        onError: 'function () { return "failure"; }',
+        onError: '() => "failure"',
         onSuccess: undefined,
         params: {
           param1: "value1",
@@ -298,6 +301,10 @@ describe("Add functions", () => {
     const key = "some";
     const value = "thing";
     const persist = false;
+    const uniqueActionRequestId = "kjebd";
+
+    // @ts-expect-error: mockReturnValueOnce is not available on uniqueId
+    uniqueId.mockReturnValueOnce(uniqueActionRequestId);
 
     expect(dataTreeWithFunctions.storeValue(key, value, persist)).resolves.toBe(
       {},
@@ -314,6 +321,7 @@ describe("Add functions", () => {
             key,
             value,
             persist,
+            uniqueActionRequestId,
           },
         },
       },
@@ -400,7 +408,7 @@ describe("Add functions", () => {
       expect.arrayContaining([
         expect.objectContaining({
           payload: {
-            callback: 'function () { return "test"; }',
+            callback: '() => "test"',
             id: "myInterval",
             interval: 5000,
           },
@@ -424,5 +432,163 @@ describe("Add functions", () => {
         }),
       ]),
     );
+  });
+
+  describe("Post message to target window works", () => {
+    const targetOrigin = "https://dev.appsmith.com/";
+
+    it("Post message with first argument (message) as a string", () => {
+      const message = "Hello world!";
+
+      expect(
+        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: "Hello world!",
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as undefined", () => {
+      const message = undefined;
+
+      expect(
+        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: undefined,
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as null", () => {
+      const message = null;
+
+      expect(
+        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: null,
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as a number", () => {
+      const message = 1826;
+
+      expect(
+        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: 1826,
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as a boolean", () => {
+      const message = true;
+
+      expect(
+        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: true,
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as an array", () => {
+      const message = [1, 2, 3, [1, 2, 3, [1, 2, 3]]];
+
+      expect(
+        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: [1, 2, 3, [1, 2, 3, [1, 2, 3]]],
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as an object", () => {
+      const message = {
+        key: 1,
+        status: "active",
+        person: {
+          name: "timothee chalamet",
+        },
+        randomArr: [1, 2, 3],
+      };
+
+      expect(
+        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: {
+                key: 1,
+                status: "active",
+                person: {
+                  name: "timothee chalamet",
+                },
+                randomArr: [1, 2, 3],
+              },
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
   });
 });

@@ -13,7 +13,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
@@ -21,10 +20,12 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
@@ -37,6 +38,7 @@ import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -44,7 +46,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -73,9 +74,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -86,6 +87,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
@@ -137,6 +139,9 @@ public class GitServiceTest {
     @Autowired
     DatasourceService datasourceService;
 
+    @Autowired
+    private ThemeService themeService;
+
     @MockBean
     GitExecutor gitExecutor;
 
@@ -149,7 +154,7 @@ public class GitServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    private static String orgId;
+    private static String workspaceId;
     private static Application gitConnectedApplication = new Application();
     private static final String DEFAULT_GIT_PROFILE = "default";
     private static final String DEFAULT_BRANCH = "defaultBranchName";
@@ -163,14 +168,14 @@ public class GitServiceTest {
     @Before
     public void setup() throws IOException, GitAPIException {
 
-        if (StringUtils.isEmpty(orgId)) {
-            orgId = workspaceRepository
-                    .findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS)
+        if (StringUtils.isEmpty(workspaceId)) {
+            workspaceId = workspaceRepository
+                    .findByName("Another Test Workspace", AclPermission.READ_WORKSPACES)
                     .block()
                     .getId();
         }
         Mockito
-                .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(orgId), Mockito.anyBoolean()))
+                .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(workspaceId), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(-1));
 
         Mockito
@@ -211,10 +216,9 @@ public class GitServiceTest {
         return stringifiedFile
                 .map(data -> {
                     Gson gson = new Gson();
-                    Type fileType = new TypeToken<ApplicationJson>() {
-                    }.getType();
-                    return gson.fromJson(data, fileType);
-                });
+                    return gson.fromJson(data, ApplicationJson.class);
+                })
+                .map(JsonSchemaMigration::migrateApplicationToLatestSchema);
     }
 
     private GitConnectDTO getConnectRequest(String remoteUrl, GitProfile gitProfile) {
@@ -225,7 +229,7 @@ public class GitServiceTest {
     }
 
     private Application createApplicationConnectedToGit(String name, String branchName) throws IOException, GitAPIException {
-        return createApplicationConnectedToGit(name, branchName, orgId);
+        return createApplicationConnectedToGit(name, branchName, workspaceId);
     }
 
     private Application createApplicationConnectedToGit(String name, String branchName, String workspaceId) throws IOException, GitAPIException {
@@ -254,7 +258,7 @@ public class GitServiceTest {
 
         Application testApplication = new Application();
         testApplication.setName(name);
-        testApplication.setOrganizationId(workspaceId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
@@ -312,7 +316,7 @@ public class GitServiceTest {
         Application testApplication = new Application();
         testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
         testApplication.setName("InvalidGitApplicationMetadata");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
@@ -340,7 +344,7 @@ public class GitServiceTest {
         gitAuth.setPublicKey("publicKey");
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setName("EmptyPrivateKey");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
@@ -364,7 +368,7 @@ public class GitServiceTest {
         gitAuth.setPrivateKey("privatekey");
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setName("EmptyPublicKey");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
@@ -390,7 +394,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("InvalidRemoteUrl");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
@@ -419,7 +423,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("InvalidRemoteUrlHttp");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("https://github.com/test/testRepo.git", testUserProfile);
@@ -453,7 +457,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("InvalidFilePath");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testy.git", testUserProfile);
@@ -482,7 +486,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("ValidTest TestApp");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testy.git", testUserProfile);
@@ -543,7 +547,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("validData_WithEmptyPublishedPages");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
@@ -598,7 +602,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("emptyDefaultProfileConnectTest");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", gitProfile);
@@ -636,7 +640,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setRepoName("testRepo");
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("localGitProfile");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", gitProfile);
@@ -681,7 +685,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("connectApplicationToGit_WithNonEmptyPublishedPages");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         PageDTO page = new PageDTO();
@@ -710,7 +714,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_moreThanThreePrivateRepos_throwException() throws IOException, GitAPIException {
         Workspace workspace = new Workspace();
-        workspace.setName("Limit Private Repo Test Organization");
+        workspace.setName("Limit Private Repo Test Workspace");
         String limitPrivateRepoTestWorkspaceId = workspaceService.create(workspace).map(Workspace::getId).block();
 
         Mockito
@@ -742,7 +746,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("connectApplicationToGit_WithNonEmptyPublishedPages");
-        testApplication.setOrganizationId(limitPrivateRepoTestWorkspaceId);
+        testApplication.setWorkspaceId(limitPrivateRepoTestWorkspaceId);
         Application application = applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
@@ -759,7 +763,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_toggleAccessibilityToPublicForConnectedApp_connectSuccessful() throws IOException, GitAPIException {
         Workspace workspace = new Workspace();
-        workspace.setName("Toggle Accessibility To Public From Private Repo Test Organization");
+        workspace.setName("Toggle Accessibility To Public From Private Repo Test Workspace");
         String limitPrivateRepoTestWorkspaceId = workspaceService.create(workspace).map(Workspace::getId).block();
 
         Mockito
@@ -790,7 +794,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("connectApplicationToGit_WithNonEmptyPublishedPages");
-        testApplication.setOrganizationId(limitPrivateRepoTestWorkspaceId);
+        testApplication.setWorkspaceId(limitPrivateRepoTestWorkspaceId);
         Application application = applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
@@ -837,7 +841,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("connectApplicationToGit_WithValidCustomGitDomain_CloneSuccess");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.test.net:user/test/tests/testRepo.git", testUserProfile);
@@ -871,7 +875,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("updateGitMetadata_EmptyData_Success");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
         GitApplicationMetadata gitApplicationMetadata1 = null;
 
@@ -897,7 +901,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("updateGitMetadata_EmptyData_Success1");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
         GitApplicationMetadata gitApplicationMetadata1 = application1.getGitApplicationMetadata();
         gitApplicationMetadata1.setRemoteUrl("https://test/.git");
@@ -945,7 +949,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setBranchName("defaultBranch");
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("detachRemote_validData");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
 
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication)
                 .flatMap(application -> {
@@ -965,7 +969,7 @@ public class GitServiceTest {
                     // Save action
                     Datasource datasource = new Datasource();
                     datasource.setName("Default Database");
-                    datasource.setOrganizationId(application.getOrganizationId());
+                    datasource.setWorkspaceId(application.getWorkspaceId());
                     datasource.setPluginId(tuple.getT2().getId());
                     datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
@@ -1012,7 +1016,7 @@ public class GitServiceTest {
                     actionCollectionDTO.setName("testCollection1");
                     actionCollectionDTO.setPageId(application.getPages().get(0).getId());
                     actionCollectionDTO.setApplicationId(application.getId());
-                    actionCollectionDTO.setOrganizationId(application.getOrganizationId());
+                    actionCollectionDTO.setWorkspaceId(application.getWorkspaceId());
                     actionCollectionDTO.setPluginId(datasource.getPluginId());
                     actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
                     actionCollectionDTO.setBody("collectionBody");
@@ -1116,7 +1120,7 @@ public class GitServiceTest {
         Application testApplication = new Application();
         testApplication.setGitApplicationMetadata(null);
         testApplication.setName("detachRemote_EmptyGitData");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         Mono<Application> applicationMono = gitService.detachRemote(application1.getId());
@@ -1134,7 +1138,7 @@ public class GitServiceTest {
         Application testApplication = new Application();
         testApplication.setGitApplicationMetadata(null);
         testApplication.setName("validData_WithNonEmptyPublishedPages");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         Mono<List<GitBranchDTO>> listMono = gitService.listBranchForApplication(application1.getId(), false, "defaultBranch");
@@ -1157,7 +1161,7 @@ public class GitServiceTest {
         Application testApplication = new Application();
         testApplication.setGitApplicationMetadata(null);
         testApplication.setName("listBranchForApplication_GitFailure_ThrowError");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         Mono<List<GitBranchDTO>> listMono = gitService.listBranchForApplication(application1.getId(), false, "defaultBranch");
@@ -1658,7 +1662,7 @@ public class GitServiceTest {
 
         Application application = new Application();
         application.setName("sampleAppNotConnectedToGit");
-        application.setOrganizationId(orgId);
+        application.setWorkspaceId(workspaceId);
         application.setId(null);
         application = applicationPageService.createApplication(application).block();
 
@@ -1964,7 +1968,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("validAppWithActionAndActionCollection");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
 
         Mono<Application> createBranchMono = applicationPageService.createApplication(testApplication)
                 .flatMap(application ->
@@ -1981,7 +1985,7 @@ public class GitServiceTest {
                     // Save action
                     Datasource datasource = new Datasource();
                     datasource.setName("Default Database");
-                    datasource.setOrganizationId(application.getOrganizationId());
+                    datasource.setWorkspaceId(application.getWorkspaceId());
                     datasource.setPluginId(tuple.getT2().getId());
                     datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
@@ -2020,7 +2024,7 @@ public class GitServiceTest {
                     actionCollectionDTO.setName("testCollection1");
                     actionCollectionDTO.setPageId(application.getPages().get(0).getId());
                     actionCollectionDTO.setApplicationId(application.getId());
-                    actionCollectionDTO.setOrganizationId(application.getOrganizationId());
+                    actionCollectionDTO.setWorkspaceId(application.getWorkspaceId());
                     actionCollectionDTO.setPluginId(datasource.getPluginId());
                     actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
                     actionCollectionDTO.setBody("collectionBody");
@@ -2131,6 +2135,85 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void createBranch_SrcHasCustomTheme_newApplicationCreatedWithThemesCopied() throws GitAPIException, IOException {
+        GitBranchDTO createGitBranchDTO = new GitBranchDTO();
+        createGitBranchDTO.setBranchName("valid_branch");
+
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+
+        Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just("fetchResult"));
+        Mockito.when(gitExecutor.listBranches(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(new ArrayList<>()));
+        Mockito.when(gitExecutor.createAndCheckoutToBranch(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(createGitBranchDTO.getBranchName()));
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("")));
+        Mockito.when(gitExecutor.commitApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just("System generated commit"));
+        Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+        Mockito.when(gitExecutor.pushApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("pushed successfully"));
+
+        Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(DEFAULT_BRANCH));
+        Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class))).thenReturn(Mono.just(true));
+        Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("textPath")));
+
+        Application testApplication = new Application();
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPublicKey("testkey");
+        gitAuth.setPrivateKey("privatekey");
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        testApplication.setName("Test App" + UUID.randomUUID().toString());
+        testApplication.setWorkspaceId(workspaceId);
+
+        Mono<Tuple2<Application, Application>> createBranchMono = applicationPageService.createApplication(testApplication)
+                .flatMap(application ->
+                        Mono.zip(
+                                Mono.just(application),
+                                pluginRepository.findByPackageName("installed-plugin"),
+                                newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false))
+                )
+                .flatMap(tuple -> {
+                    Application application = tuple.getT1();
+                    // customize the theme for this application
+                    return themeService.getSystemTheme(Theme.DEFAULT_THEME_NAME).flatMap(theme -> {
+                        theme.setId(null);
+                        theme.setName("Custom theme");
+                        return themeService.updateTheme(application.getId(), null, theme);
+                    }).then(
+                        gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "origin")
+                    );
+                })
+                .flatMap(application ->
+                        gitService
+                                .createBranch(application.getId(), createGitBranchDTO, application.getGitApplicationMetadata().getBranchName())
+                                .then(applicationService.findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS))
+                )
+                .zipWhen(application ->
+                    applicationService.findById(application.getGitApplicationMetadata().getDefaultApplicationId())
+                );
+
+        StepVerifier
+                .create(createBranchMono)
+                .assertNext(tuple -> {
+                    Application srcApp = tuple.getT1();
+                    Application branchedApp = tuple.getT2();
+                    assertThat(srcApp.getEditModeThemeId()).isNotEqualTo(branchedApp.getEditModeThemeId());
+                    assertThat(srcApp.getPublishedModeThemeId()).isNotEqualTo(branchedApp.getPublishedModeThemeId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_cancelledMidway_cloneSuccess() throws IOException {
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -2155,7 +2238,7 @@ public class GitServiceTest {
         gitApplicationMetadata.setRemoteUrl("git@github.com:test/testRepo.git");
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("validData");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
@@ -2300,30 +2383,66 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void generateSSHKey_DataNotExistsInCollection_Success() {
-        Mono<GitAuth> publicKey = gitService.generateSSHKey();
+    public void generateSSHKeyDefaultType_DataNotExistsInCollection_Success() {
+        Mono<GitAuth> publicKey = gitService.generateSSHKey(null);
 
         StepVerifier
                 .create(publicKey)
                 .assertNext(s -> {
                     assertThat(s).isNotNull();
                     assertThat(s.getPublicKey()).contains("appsmith");
+                    assertThat(s.getPublicKey()).startsWith("ecdsa-sha2-nistp256");
                 })
                 .verifyComplete();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void generateSSHKey_KeyExistsInCollection_Success() {
-        GitAuth publicKey = gitService.generateSSHKey().block();
+    public void generateSSHKeyRSAType_DataNotExistsInCollection_Success() {
+        Mono<GitAuth> publicKey = gitService.generateSSHKey("RSA");
 
-        Mono<GitAuth> newKey = gitService.generateSSHKey();
+        StepVerifier
+                .create(publicKey)
+                .assertNext(s -> {
+                    assertThat(s).isNotNull();
+                    assertThat(s.getPublicKey()).contains("appsmith");
+                    assertThat(s.getPublicKey()).startsWith("ssh-rsa");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void generateSSHKeyDefaultType_KeyExistsInCollection_Success() {
+        GitAuth publicKey = gitService.generateSSHKey(null).block();
+
+        Mono<GitAuth> newKey = gitService.generateSSHKey(null);
 
         StepVerifier
                 .create(newKey)
                 .assertNext(s -> {
                     assertThat(s).isNotNull();
                     assertThat(s.getPublicKey()).contains("appsmith");
+                    assertThat(s.getPublicKey()).startsWith("ecdsa-sha2-nistp256");
+                    assertThat(s.getPublicKey()).isNotEqualTo(publicKey.getPublicKey());
+                    assertThat(s.getPrivateKey()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void generateSSHKeyRSA_KeyExistsInCollection_Success() {
+        GitAuth publicKey = gitService.generateSSHKey(null).block();
+
+        Mono<GitAuth> newKey = gitService.generateSSHKey("RSA");
+
+        StepVerifier
+                .create(newKey)
+                .assertNext(s -> {
+                    assertThat(s).isNotNull();
+                    assertThat(s.getPublicKey()).contains("appsmith");
+                    assertThat(s.getPublicKey()).startsWith("ssh-rsa");
                     assertThat(s.getPublicKey()).isNotEqualTo(publicKey.getPublicKey());
                     assertThat(s.getPrivateKey()).isNotEmpty();
                 })
@@ -2345,7 +2464,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_emptyOrganizationId_ThrowError() {
+    public void importApplicationFromGit_emptyWorkspaceId_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(null, gitConnectDTO);
 
@@ -2360,12 +2479,12 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_privateRepoLimitReached_ThrowApplicationLimitError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        gitService.generateSSHKey().block();
+        gitService.generateSSHKey(null).block();
         Mockito
                 .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.any(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(0));
 
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(workspaceId, gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
@@ -2378,7 +2497,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_emptyRepo_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey().block();
+        GitAuth gitAuth = gitService.generateSSHKey(null).block();
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.setExportedApplication(null);
@@ -2391,7 +2510,7 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.deleteLocalRepo(Mockito.any(Path.class)))
                 .thenReturn(Mono.just(true));
 
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(workspaceId, gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
@@ -2404,7 +2523,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_validRequest_Success() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey().block();
+        GitAuth gitAuth = gitService.generateSSHKey(null).block();
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testRepo");
@@ -2415,7 +2534,7 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
 
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(workspaceId, gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
@@ -2437,7 +2556,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_validRequestWithDuplicateApplicationName_Success() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitRepo.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey().block();
+        GitAuth gitAuth = gitService.generateSSHKey(null).block();
 
         ApplicationJson applicationJson =  createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitRepo (1)");
@@ -2445,7 +2564,7 @@ public class GitServiceTest {
 
         Application testApplication = new Application();
         testApplication.setName("testGitRepo");
-        testApplication.setOrganizationId(orgId);
+        testApplication.setWorkspaceId(workspaceId);
         applicationPageService.createApplication(testApplication).block();
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -2453,7 +2572,7 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
 
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(workspaceId, gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
@@ -2481,7 +2600,7 @@ public class GitServiceTest {
                 .block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey().block();
+        GitAuth gitAuth = gitService.generateSSHKey(null).block();
 
         ApplicationJson applicationJson =  createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitImportRepo");
@@ -2491,7 +2610,7 @@ public class GitServiceTest {
         Datasource datasource = new Datasource();
         datasource.setName("db-auth-testGitImportRepo");
         datasource.setPluginId(pluginId);
-        datasource.setOrganizationId(testWorkspaceId);
+        datasource.setWorkspaceId(testWorkspaceId);
         datasourceService.create(datasource).block();
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -2500,7 +2619,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitFileUtils.deleteLocalRepo(Mockito.any(Path.class))).thenReturn(Mono.just(true));
 
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(workspaceId, gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
@@ -2528,7 +2647,7 @@ public class GitServiceTest {
                 .block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepoCancelledMidway.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey().block();
+        GitAuth gitAuth = gitService.generateSSHKey(null).block();
 
         ApplicationJson applicationJson =  createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName(null);
@@ -2538,7 +2657,7 @@ public class GitServiceTest {
         Datasource datasource = new Datasource();
         datasource.setName("db-auth-testGitImportRepo");
         datasource.setPluginId(pluginId);
-        datasource.setOrganizationId(testWorkspaceId);
+        datasource.setWorkspaceId(testWorkspaceId);
         datasourceService.create(datasource).block();
 
         Mockito
@@ -2564,7 +2683,7 @@ public class GitServiceTest {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationService.findByOrganizationId(testWorkspaceId, READ_APPLICATIONS)
+                    return applicationService.findByWorkspaceId(testWorkspaceId, READ_APPLICATIONS)
                             .filter(application1 -> "testGitImportRepoCancelledMidway".equals(application1.getName()))
                             .next();
                 });
@@ -2588,7 +2707,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfDifferentType_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo1.git", testUserProfile);
-        gitService.generateSSHKey().block();
+        gitService.generateSSHKey(null).block();
         ApplicationJson applicationJson =  createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitImportRepo1");
         applicationJson.getDatasourceList().get(0).setName("db-auth-1");
@@ -2597,7 +2716,7 @@ public class GitServiceTest {
         Datasource datasource = new Datasource();
         datasource.setName("db-auth-1");
         datasource.setPluginId(pluginId);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         datasourceService.create(datasource).block();
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -2607,7 +2726,7 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.deleteLocalRepo(Mockito.any(Path.class)))
                 .thenReturn(Mono.just(true));
 
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(workspaceId, gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
@@ -2620,7 +2739,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_validRequestWithEmptyRepo_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/emptyRepo.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey().block();
+        GitAuth gitAuth = gitService.generateSSHKey(null).block();
 
         ApplicationJson applicationJson =new ApplicationJson();
 
@@ -2630,7 +2749,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitFileUtils.deleteLocalRepo(Mockito.any(Path.class))).thenReturn(Mono.just(true));
 
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(workspaceId, gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
@@ -2720,7 +2839,7 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void deleteBranch_defaultBranchUpdated_Success() throws IOException, GitAPIException {
-        Application application = createApplicationConnectedToGit("deleteBranch_defaultBranchUpdated_Success", "master");
+        Application application = createApplicationConnectedToGit("deleteBranch_defaultBranchUpdated_Success1", "master");
         application.getGitApplicationMetadata().setDefaultBranchName("f1");
         applicationService.save(application).block();
 
@@ -2738,7 +2857,7 @@ public class GitServiceTest {
                 .create(applicationMono)
                 .assertNext(application1 -> {
                     assertThat(application1.getDeleted()).isEqualTo(Boolean.FALSE);
-                    assertThat(application1.getName()).isEqualTo("deleteBranch_defaultBranchUpdated_Success");
+                    assertThat(application1.getName()).isEqualTo("deleteBranch_defaultBranchUpdated_Success1");
                 })
                 .verifyComplete();
     }

@@ -57,8 +57,8 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
-import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
-import static com.appsmith.server.acl.AclPermission.USER_READ_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.USER_READ_WORKSPACES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -174,13 +174,13 @@ public class UserServiceTest {
         //Add valid workspace id to the updateUser object.
         Mono<User> userMono = workspaceService.create(updateWorkspace)
                 .flatMap(org -> {
-                    updateUser.setCurrentOrganizationId(org.getId());
+                    updateUser.setCurrentWorkspaceId(org.getId());
                     return userMono1.flatMap(user -> userService.update(user.getId(), updateUser));
                 });
 
         StepVerifier.create(userMono)
                 .assertNext(user -> {
-                    assertThat(user.getCurrentOrganizationId()).isEqualTo(updateUser.getCurrentOrganizationId());
+                    assertThat(user.getCurrentWorkspaceId()).isEqualTo(updateUser.getCurrentWorkspaceId());
                 })
                 .verifyComplete();
     }
@@ -211,7 +211,7 @@ public class UserServiceTest {
                 .users(Set.of(newUser.getUsername())).build();
 
         Policy manageUserOrgPolicy = Policy.builder()
-                .permission(USER_MANAGE_ORGANIZATIONS.getValue())
+                .permission(USER_MANAGE_WORKSPACES.getValue())
                 .users(Set.of(newUser.getUsername())).build();
 
         Policy readUserPolicy = Policy.builder()
@@ -219,7 +219,7 @@ public class UserServiceTest {
                 .users(Set.of(newUser.getUsername())).build();
 
         Policy readUserOrgPolicy = Policy.builder()
-                .permission(USER_READ_ORGANIZATIONS.getValue())
+                .permission(USER_READ_WORKSPACES.getValue())
                 .users(Set.of(newUser.getUsername())).build();
 
         Mono<User> userMono = userService.create(newUser);
@@ -235,7 +235,7 @@ public class UserServiceTest {
                     // Since there is a template workspace, the user won't have an empty default workspace. They
                     // will get a clone of the default workspace when they first login. So, we expect it to be
                     // empty here.
-                    assertThat(user.getOrganizationIds()).hasSize(1);
+                    assertThat(user.getWorkspaceIds()).hasSize(1);
                     assertThat(user.getTenantId() != null);
                 })
                 .verifyComplete();
@@ -256,7 +256,7 @@ public class UserServiceTest {
                 .users(Set.of(sampleEmailLowercase)).build();
 
         Policy manageUserOrgPolicy = Policy.builder()
-                .permission(USER_MANAGE_ORGANIZATIONS.getValue())
+                .permission(USER_MANAGE_WORKSPACES.getValue())
                 .users(Set.of(sampleEmailLowercase)).build();
 
         Policy readUserPolicy = Policy.builder()
@@ -264,7 +264,7 @@ public class UserServiceTest {
                 .users(Set.of(sampleEmailLowercase)).build();
 
         Policy readUserOrgPolicy = Policy.builder()
-                .permission(USER_READ_ORGANIZATIONS.getValue())
+                .permission(USER_READ_WORKSPACES.getValue())
                 .users(Set.of(sampleEmailLowercase)).build();
 
         Mono<User> userMono = userService.create(newUser);
@@ -282,7 +282,7 @@ public class UserServiceTest {
                     // Since there is a template workspace, the user won't have an empty default workspace. They
                     // will get a clone of the default workspace when they first login. So, we expect it to be
                     // empty here.
-                    assertThat(user.getOrganizationIds()).hasSize(1);
+                    assertThat(user.getWorkspaceIds()).hasSize(1);
                 })
                 .verifyComplete();
     }
@@ -423,9 +423,9 @@ public class UserServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void signUpAfterBeingInvitedToAppsmithOrganization() {
+    public void signUpAfterBeingInvitedToAppsmithWorkspace() {
         Workspace workspace = new Workspace();
-        workspace.setName("SignUp after adding user to Test Organization");
+        workspace.setName("SignUp after adding user to Test Workspace");
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
 
@@ -442,7 +442,7 @@ public class UserServiceTest {
                     ArrayList<String> users = new ArrayList<>();
                     users.add(newUserEmail);
                     inviteUsersDTO.setUsernames(users);
-                    inviteUsersDTO.setOrgId(workspace1.getId());
+                    inviteUsersDTO.setWorkspaceId(workspace1.getId());
                     inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
@@ -678,6 +678,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @WithMockAppsmithUser
     public void buildUserProfileDTO_WhenAnonymousUser_ReturnsProfile() {
         User user = new User();
         user.setIsAnonymous(true);

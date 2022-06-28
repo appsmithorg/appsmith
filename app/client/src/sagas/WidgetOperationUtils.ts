@@ -51,6 +51,8 @@ import {
 import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { isWidget } from "../workers/evaluationUtils";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -208,8 +210,24 @@ export const handleSpecificCasesWhilePasting = (
         }
       }
 
-      // updating dynamicBindingPath in copied widget if the copied widge thas reference to oldWidgetNames
+      // updating dynamicBindingPath in copied widget if the copied widget thas reference to oldWidgetNames
       widget.dynamicBindingPathList = (widget.dynamicBindingPathList || []).map(
+        (path: any) => {
+          if (path.key.startsWith(`template.${oldWidgetName}`)) {
+            return {
+              key: path.key.replace(
+                `template.${oldWidgetName}`,
+                `template.${newWidgetName}`,
+              ),
+            };
+          }
+
+          return path;
+        },
+      );
+
+      // updating dynamicTriggerPath in copied widget if the copied widget thas reference to oldWidgetNames
+      widget.dynamicTriggerPathList = (widget.dynamicTriggerPathList || []).map(
         (path: any) => {
           if (path.key.startsWith(`template.${oldWidgetName}`)) {
             return {
@@ -254,8 +272,7 @@ export const handleSpecificCasesWhilePasting = (
 
   return widgets;
 };
-
-export function getWidgetChildren(
+export function getWidgetChildrenIds(
   canvasWidgets: CanvasWidgetsReduxState,
   widgetId: string,
 ): any {
@@ -273,7 +290,7 @@ export function getWidgetChildren(
       if (children.hasOwnProperty(childIndex)) {
         const child = children[childIndex];
         childrenIds.push(child);
-        const grandChildren = getWidgetChildren(canvasWidgets, child);
+        const grandChildren = getWidgetChildrenIds(canvasWidgets, child);
         if (grandChildren.length) {
           childrenIds.push(...grandChildren);
         }
@@ -281,6 +298,54 @@ export function getWidgetChildren(
     }
   }
   return childrenIds;
+}
+
+export type ChildrenWidgetMap = { id: string; evaluatedWidget: DataTreeWidget };
+/**
+ * getWidgetChildren: It gets all the child widgets of given widget's id with evaluated values
+ *
+ */
+export function getWidgetChildren(
+  canvasWidgets: CanvasWidgetsReduxState,
+  widgetId: string,
+  evaluatedDataTree: DataTree,
+): ChildrenWidgetMap[] {
+  const childrenList: ChildrenWidgetMap[] = [];
+  const widget = _.get(canvasWidgets, widgetId);
+  // When a form widget tries to resetChildrenMetaProperties
+  // But one or more of its container like children
+  // have just been deleted, widget can be undefined
+  if (widget === undefined) {
+    return [];
+  }
+
+  const { children = [] } = widget;
+  if (children && children.length) {
+    for (const childIndex in children) {
+      if (children.hasOwnProperty(childIndex)) {
+        const childWidgetId = children[childIndex];
+
+        const childCanvasWidget = _.get(canvasWidgets, childWidgetId);
+        const childWidgetName = childCanvasWidget.widgetName;
+        const childWidget = evaluatedDataTree[childWidgetName];
+        if (isWidget(childWidget)) {
+          childrenList.push({
+            id: childWidgetId,
+            evaluatedWidget: childWidget,
+          });
+          const grandChildren = getWidgetChildren(
+            canvasWidgets,
+            childWidgetId,
+            evaluatedDataTree,
+          );
+          if (grandChildren.length) {
+            childrenList.push(...grandChildren);
+          }
+        }
+      }
+    }
+  }
+  return childrenList;
 }
 
 export const getParentWidgetIdForPasting = function*(
@@ -371,7 +436,7 @@ export const getSelectedWidgetIfPastingIntoListWidget = function(
     selectedWidget.children &&
     selectedWidget?.type === "LIST_WIDGET"
   ) {
-    const childrenIds: string[] = getWidgetChildren(
+    const childrenIds: string[] = getWidgetChildrenIds(
       canvasWidgets,
       selectedWidget.children[0],
     );
@@ -1367,6 +1432,10 @@ export function* createWidgetCopy(widget: FlattenedWidgetProps) {
   };
 }
 
+export type WidgetsInTree = (WidgetProps & {
+  children?: string[] | undefined;
+})[];
+
 /**
  * get all widgets in tree
  *
@@ -1377,7 +1446,7 @@ export function* createWidgetCopy(widget: FlattenedWidgetProps) {
 export const getAllWidgetsInTree = (
   widgetId: string,
   canvasWidgets: CanvasWidgetsReduxState,
-) => {
+): WidgetsInTree => {
   const widget = canvasWidgets[widgetId];
   const widgetList = [widget];
   if (widget && widget.children) {
