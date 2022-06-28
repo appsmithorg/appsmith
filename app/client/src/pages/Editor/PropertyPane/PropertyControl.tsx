@@ -479,22 +479,39 @@ const PropertyControl = memo((props: Props) => {
       config.controlType,
     );
 
+    const customJSControl = getCustomJSControl();
+
     let isToggleDisabled = false;
     if (
-      isDynamic && // JS mode is enabled
-      propertyValue !== "" && // value is not empty
-      !canDisplayValueInUI?.(config, propertyValue) // value can't be represented in UI mode
+      isDynamic // JS toggle button is ON
     ) {
-      isToggleDisabled = true;
-    }
+      if (
+        // Check if value is not empty
+        propertyValue !== undefined &&
+        propertyValue !== ""
+      ) {
+        let value = propertyValue;
+        // extract out the value from binding, if there is custom JS control (Table & JSONForm widget)
+        if (customJSControl && isDynamicValue(value)) {
+          const extractValue = PropertyControlFactory.inputComputedValueMap.get(
+            customJSControl,
+          );
+          if (extractValue)
+            value = extractValue(value, widgetProperties.widgetName);
+        }
 
-    // Checks if the value is same as the one defined in theme stylesheet.
-    if (
-      typeof propertyStylesheetValue === "string" &&
-      THEME_BINDING_REGEX.test(propertyStylesheetValue) &&
-      propertyStylesheetValue === propertyValue
-    ) {
-      isToggleDisabled = false;
+        // disable button if value can't be represented in UI mode
+        if (!canDisplayValueInUI?.(config, value)) isToggleDisabled = true;
+      }
+
+      // Enable button if the value is same as the one defined in theme stylesheet.
+      if (
+        typeof propertyStylesheetValue === "string" &&
+        THEME_BINDING_REGEX.test(propertyStylesheetValue) &&
+        propertyStylesheetValue === propertyValue
+      ) {
+        isToggleDisabled = false;
+      }
     }
 
     try {
@@ -567,7 +584,7 @@ const PropertyControl = memo((props: Props) => {
               theme: props.theme,
             },
             isDynamic,
-            getCustomJSControl(),
+            customJSControl,
             additionAutocomplete,
             hideEvaluatedValue(),
           )}
