@@ -3,7 +3,6 @@ import { AxiosPromise } from "axios";
 import { ApiResponse } from "api/ApiResponses";
 import { PluginType } from "entities/Action";
 import { DependencyMap } from "utils/DynamicBindingUtils";
-import { DropdownOption } from "components/ads/Dropdown";
 
 export type PluginId = string;
 export type PluginPackageName = string;
@@ -54,6 +53,9 @@ export interface DefaultPlugin {
 
 class PluginsApi extends Api {
   static url = "v1/plugins";
+  static defaultDynamicTriggerURL(datasourceId: string): string {
+    return `/v1/datasources/${datasourceId}/trigger`;
+  }
   static fetchPlugins(
     workspaceId: string,
   ): AxiosPromise<ApiResponse<Plugin[]>> {
@@ -70,7 +72,7 @@ class PluginsApi extends Api {
   static fetchDynamicFormValues(
     url: string,
     body: Record<string, any>,
-  ): AxiosPromise<ApiResponse<DropdownOption[]>> {
+  ): AxiosPromise<ApiResponse> {
     return Api.post(url, body);
   }
 

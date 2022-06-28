@@ -104,6 +104,7 @@ class DynamicTextControl extends BaseControl<
             mode={mode}
             name={this.props.configProperty}
             placeholder={placeholderText}
+            showLineNumbers={this.props.showLineNumbers}
             size={EditorSize.EXTENDED}
             tabBehaviour={TabBehaviour.INDENT}
           />
