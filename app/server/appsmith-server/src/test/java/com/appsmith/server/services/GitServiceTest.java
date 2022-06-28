@@ -164,6 +164,8 @@ public class GitServiceTest {
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
     private final static String GIT_CONFIG_ERROR = "Unable to find the git configuration, please configure your application " +
             "with git to use version control service";
+    private final static String CONFLICTED_SUCCESS_MESSAGE = " branch has been created from conflicted state. Please " +
+            "resolve merge conflicts in remote and pull again";
 
     @Before
     public void setup() throws IOException, GitAPIException {
@@ -1861,7 +1863,7 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
         Mockito.when(gitExecutor.pushApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just("REJECTED"));
+                .thenReturn(Mono.just("REJECTED"), Mono.just("Success"));
 
         assert applicationJson != null;
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -1873,13 +1875,17 @@ public class GitServiceTest {
                 .thenReturn(Mono.just("fetched"));
         Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
+        Mockito.when(gitExecutor.createAndCheckoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(DEFAULT_BRANCH));
+        Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
 
         Mono<String> commitAndPushMono = gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
 
         StepVerifier
                 .create(commitAndPushMono.zipWhen(status -> applicationService.findByIdAndBranchName(gitConnectedApplication.getId(), DEFAULT_BRANCH)))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().equals(AppsmithError.GIT_PULL_CONFLICTS.getMessage(new org.eclipse.jgit.errors.CheckoutConflictException("").getMessage())))
+                        && throwable.getMessage().equals(AppsmithError.GIT_PULL_CONFLICTS.getMessage(DEFAULT_BRANCH + CONFLICTED_SUCCESS_MESSAGE)))
                 .verify();
     }
 

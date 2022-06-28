@@ -372,7 +372,7 @@ public class GitExecutorImpl implements GitExecutor {
                             mergeConflictFiles.addAll(mergeResult.getConflicts().keySet());
                         }
                         mergeStatus.setConflictingFiles(mergeConflictFiles);
-                        //On merge conflicts abort the merge => git merge --abort
+                        // On merge conflicts abort the merge => git merge --abort
                         git.getRepository().writeMergeCommitMsg(null);
                         git.getRepository().writeMergeHeads(null);
                         processStopwatch.stopAndLogTimeInMillis();

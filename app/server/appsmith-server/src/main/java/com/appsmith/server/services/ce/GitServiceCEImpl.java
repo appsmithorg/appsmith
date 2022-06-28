@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.constants.ErrorReferenceDocUrl;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
@@ -10,13 +11,11 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.EmailConfig;
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitDeployKeys;
@@ -24,6 +23,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDocsDTO;
@@ -70,8 +70,10 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,8 +128,8 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
-    private final static String MERGE_CONFLICT_BRANCH_NAME = "_mergeConflict";
-    private final static String CONFLICTED_SUCCESS_MESSAGE = "branch has been created from conflicted state. Please " +
+    private final static String MERGE_CONFLICT_BRANCH_NAME = "_conflicted_";
+    private final static String CONFLICTED_SUCCESS_MESSAGE = " branch has been created from conflicted state. Please " +
             "resolve merge conflicts in remote and pull again";
 
     private final static String GIT_CONFIG_ERROR = "Unable to find the git configuration, please configure your application " +
@@ -1795,6 +1797,17 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<String> createConflictedBranch(String defaultApplicationId, String branchName) {
+
+        /*
+            1. Dehydrate the latest branched application from DB
+            2. Create new branch from conflicted state
+            3. Name new branch as baseBranch_conflicted_timestamp
+            4. Push changes to remote from conflicted branch
+            5. Delete the branch from local filesystem as not required
+            6. Ask user to resolve merge conflicts from remote and pull again
+         */
+
+
         if (StringUtils.isEmptyOrNull(branchName)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
         }
@@ -1825,7 +1838,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(tuple -> {
                     GitApplicationMetadata gitData = tuple.getT2();
                     Path repoSuffix = tuple.getT3();
-                    return gitExecutor.createAndCheckoutToBranch(repoSuffix, branchName + MERGE_CONFLICT_BRANCH_NAME)
+                    final String PATTERN_FORMAT = "yyyy-MM-dd'T'HH-mm-ss";
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(PATTERN_FORMAT)
+                            .withZone(ZoneId.systemDefault());
+                    String formattedInstant = formatter.format(Instant.now());
+
+                    return gitExecutor
+                            .createAndCheckoutToBranch(repoSuffix, branchName + MERGE_CONFLICT_BRANCH_NAME + formattedInstant)
                             .flatMap(conflictedBranchName ->
                                     commitAndPushWithDefaultCommit(repoSuffix, gitData.getGitAuth(), gitData, DEFAULT_COMMIT_REASONS.CONFLICT_STATE)
                                             .flatMap(successMessage -> gitExecutor.checkoutToBranch(repoSuffix, branchName))
@@ -2392,7 +2411,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                             ))
                             .onErrorResume(error -> {
                                 if(error instanceof org.eclipse.jgit.errors.CheckoutConflictException) {
-                                    return Mono.error(new AppsmithException(AppsmithError.GIT_PULL_CONFLICTS, error.getMessage()));
+                                    // Create new branch from conflicted state and ask user to resolve merge conflicts
+                                    // on remote
+                                    return createConflictedBranch(gitData.getDefaultApplicationId(), gitData.getBranchName())
+                                            .flatMap(conflictedMessage -> Mono.error(new AppsmithException(AppsmithError.GIT_PULL_CONFLICTS, conflictedMessage)));
                                 }
                                 else if (error.getMessage().contains("Nothing to fetch")) {
                                     MergeStatusDTO mergeStatus = new MergeStatusDTO();
