@@ -443,8 +443,6 @@ jobs:
         shell: bash
     strategy:
       fail-fast: false
-      matrix:
-        job: [0, 1,]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -483,8 +481,8 @@ jobs:
 
       # Fetch prior run result
       - name: Get the previous run result
-        id: run_result_fat
-        run: cat ~/run_result_fat 2>/dev/null || echo 'default'
+        id: run_result
+        run: cat ~/run_result 2>/dev/null || echo 'default'
 
       # In case this is second attempt try restoring failed tests
       - name: Restore the previous failed combine result
@@ -492,7 +490,7 @@ jobs:
         uses: martijnhols/actions-cache/restore@v3
         with:
           path: |
-            ~/combined_failed_spec_fat
+            ~/combined_failed_spec
           key: ${{ github.run_id }}-"ui-test-result"-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
@@ -502,7 +500,7 @@ jobs:
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
-          failed_spec_env=$(cat ~/combined_failed_spec_fat)
+          failed_spec_env=$(cat ~/combined_failed_spec)
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -689,28 +687,28 @@ jobs:
         if: failure()
         run: echo "::set-output name=run_result::failedtest" > ~/run_result
 
-      # Create a directory ~/failed_spec_fat and add a dummy file
+      # Create a directory ~/failed_spec and add a dummy file
       # This will ensure upload and download steps are successfull
       - name: Create direcotrs for failed tests
         if: always()
         run: |
-          mkdir -p  ~/failed_spec_fat
-          echo  "empty" >> ~/failed_spec_fat/dummy-fat-${{ matrix.job }}
+          mkdir -p  ~/failed_spec
+          echo  "empty" >> ~/failed_spec/dummy-${{ matrix.job }}
 
       # add list failed tests to a file
       - name: Incase of test failures copy them to a file
         if: failure()
         run: |
           cd ${{ github.workspace }}/app/client/cypress/
-          find screenshots -type d|grep -i spec |sed 's/screenshots/cypress\/integration/g' > ~/failed_spec_fat/failed_spec_fat-${{ matrix.job }}
+          find screenshots -type d|grep -i spec |sed 's/screenshots/cypress\/integration/g' > ~/failed_spec/failed_spec-${{ matrix.job }}
 
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: failed-spec-fat
-          path: ~/failed_spec_fat
+          name: failed-spec
+          path: ~/failed_spec
 
       # Force store previous run result to cache
       - name: Store the previous run result
@@ -718,7 +716,7 @@ jobs:
         uses: martijnhols/actions-cache/save@v3
         with:
           path: |
-            ~/run_result_fat
+            ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
@@ -729,7 +727,7 @@ jobs:
         uses: martijnhols/actions-cache/save@v3
         with:
           path: |
-            ~/failed_spec_fat
+            ~/failed_spec
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
