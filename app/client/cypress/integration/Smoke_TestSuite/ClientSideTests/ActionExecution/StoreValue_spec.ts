@@ -63,13 +63,16 @@ describe("storeValue Action test", () => {
 
   it("2. Accepts paths as keys and updates path accordingly", function() {
     const JS_OBJECT_BODY = `export default {
-      storePathTest: async ()=>{
-      await storeValue("student", {details:{name:"Abha"}}, false)
-      await showAlert(appsmith.store.student.details.name)
-      await storeValue("student.details.name", "Annah", false)
-      await showAlert(appsmith.store.student.details.name)
-    }
-    }`;
+      storePathTest: async ()=> {
+      await storeValue("student", {details:{isTopper:true, name: "Abhah", grade: 1}}, false)
+      await showAlert(JSON.stringify(appsmith.store.student.details));
+      await storeValue("student.details.name", "Annah", false);
+      await showAlert(appsmith.store.student.details.name);
+      await storeValue("student", {details:{isTopper:false, name: "Alia", grade: 3}}, false)
+      await showAlert(appsmith.store.student.details.isTopper.toString());
+     }
+     }
+ `;
 
     // create js object
     jsEditor.CreateJSObject(JS_OBJECT_BODY, {
@@ -88,8 +91,9 @@ describe("storeValue Action test", () => {
 
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    agHelper.ValidateToastMessage("Abha", 0);
+    agHelper.ValidateToastMessage('{"isTopper":true,"name":"Abhah","grade":1}', 0);
     agHelper.ValidateToastMessage("Annah", 1);
+    agHelper.ValidateToastMessage("false", 2);
     deployMode.NavigateBacktoEditor();
   });
 });
