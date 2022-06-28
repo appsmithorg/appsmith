@@ -42,8 +42,7 @@ export const HighlighedCodeContainer = styled("div")<{ containsCode: boolean }>`
   line-height: 21px !important;
 
   min-height: inherit;
-  padding: ${({ containsCode }) =>
-    containsCode ? "7px 10px 4px 10px" : "6px 10px"} !important;
+  padding: 6px 10px !important;
 
   pre {
     margin: 0 !important;
@@ -59,6 +58,7 @@ export const HighlighedCodeContainer = styled("div")<{ containsCode: boolean }>`
     code {
       background: white !important;
       font-family: monospace !important;
+      line-height: 1.495 !important;
     }
   }
 `;
