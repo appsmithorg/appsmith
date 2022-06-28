@@ -5,6 +5,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
@@ -48,8 +49,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import retrofit.http.HEAD;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -118,6 +121,8 @@ public class ActionCollectionServiceTest {
 
     @Autowired
     UserGroupRepository userGroupRepository;
+
+    UserGroupService userGroupService;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -288,7 +293,16 @@ public class ActionCollectionServiceTest {
         inviteUsersDTO.setUserGroupId(adminUserGroupId);
         inviteUsersDTO.setUsernames(List.of("usertest@usertest.com"));
 
-        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
+        Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(testApp.getWorkspaceId());
+        Mono<UserGroup> adminGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR)).single();
+        Mono<User> userMono = userService.findByEmail("usertest@usertest.com");
+
+        Mono.zip(userMono, adminGroupMono)
+                .flatMap(tuple -> {
+                    User user = tuple.getT1();
+                    UserGroup adminGroup = tuple.getT2();
+                    return userGroupService.addUser(adminGroup, user);
+                }).block();
 
         assert actionCollection != null;
         Mono<ActionCollection> readActionCollectionMono =
