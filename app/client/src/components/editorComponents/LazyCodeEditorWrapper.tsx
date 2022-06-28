@@ -34,7 +34,7 @@ export const ReadOnlyInput = styled.input`
   height: -webkit-fill-available !important;
 `;
 
-export const HighlighedCodeContainer = styled("div")`
+export const HighlighedCodeContainer = styled("div")<{ containsCode: boolean }>`
   width: 100%;
   background-color: #fff !important;
   font-family: monospace !important;
@@ -42,7 +42,8 @@ export const HighlighedCodeContainer = styled("div")`
   line-height: 21px !important;
 
   min-height: inherit;
-  padding: 6px 10px !important;
+  padding: ${({ containsCode }) =>
+    containsCode ? "7px 10px 4px 10px" : "6px 10px"} !important;
 
   pre {
     margin: 0 !important;
@@ -57,12 +58,7 @@ export const HighlighedCodeContainer = styled("div")`
 
     code {
       background: white !important;
-      color: #858282 !important;
       font-family: monospace !important;
-
-      span > span {
-        color: inherit !important;
-      }
     }
   }
 `;
@@ -90,9 +86,13 @@ const LazyEditorWrapper = styled("div")`
 const ContentWrapper = styled("div")<{ containsCode: boolean }>`
   overflow: hidden;
   height: ${({ containsCode }) => (containsCode ? "auto" : "38px")};
-  min-height: 38px;
+  min-height: 36px;
   border: 1px solid;
   border-color: inherit;
+
+  div:nth-child(1) {
+    min-height: 36px;
+  }
 `;
 
 const NoCodeText = styled("div")`
@@ -176,9 +176,12 @@ function CodeEditor(props: any) {
   }, [dynamicData, props.dataTreePath]);
 
   useEffect(() => {
-    const str: string = props?.input?.value || props?.placeholder || "";
+    // Check if input value contains code
+    let str: string = props?.input?.value || "";
     if (str && typeof str === "string" && str?.indexOf("{{") > -1)
       setContainsCode(true);
+    // If !inputValue; then use placeholder
+    if (!str?.toString()?.length) str = props?.placeholder || "";
     setText(
       Array.isArray(str) || typeof str === "object"
         ? JSON.stringify(str, null, 2)
@@ -252,7 +255,9 @@ function CodeEditor(props: any) {
             type="text"
             value={""}
           />
-          <HighlighedCodeContainer>{highlightedText()}</HighlighedCodeContainer>
+          <HighlighedCodeContainer containsCode={containsCode}>
+            {highlightedText()}
+          </HighlighedCodeContainer>
         </EditorWrapper>
       </ContentWrapper>
       {showLintError && lintError && (
