@@ -505,6 +505,7 @@ export class AggregateHelper {
     if (action == "Delete") {
       !jsDelete && this.ValidateNetworkStatus("@deleteAction");
       jsDelete && this.ValidateNetworkStatus("@deleteJSCollection");
+      jsDelete && this.WaitUntilToastDisappear("deleted successfully")
     }
   }
 

@@ -156,9 +156,8 @@ describe("JS Function Execution", function() {
         toRun: false,
         shouldCreateNewJSObj: true,
       });
-
       // Assert presence of toast message
-      agHelper.ValidateToastMessage(invalidJSObjectStartToastMessage);
+      agHelper.WaitUntilToastDisappear(invalidJSObjectStartToastMessage);
 
       // Assert presence of lint error at the start line
       cy.get(locator._lintErrorElement)
@@ -255,7 +254,6 @@ describe("JS Function Execution", function() {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    agHelper.WaitUntilToastDisappear("created successfully");
 
     // change sync function name and test that cyclic dependency is not created
     jsEditor.EditJSObj(syncJSCodeWithRenamedFunction1);
@@ -269,7 +267,6 @@ describe("JS Function Execution", function() {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    agHelper.WaitUntilToastDisappear("created successfully");
     // change async function name and test that cyclic dependency is not created
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction1);
     agHelper.AssertElementAbsence(locator._toastMsg);
