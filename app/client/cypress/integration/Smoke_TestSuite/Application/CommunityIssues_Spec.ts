@@ -119,7 +119,7 @@ describe("AForce - Community Issues page validations", function() {
   });
 
   it("4. Change Default selected row in table and verify", () => {
-    jsEditor.EnterJSContext("Default Selected Row", "1");
+    propPane.UpdateFieldValue("Default Selected Row", "1");
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
     table.AssertPageNumber(1);

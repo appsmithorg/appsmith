@@ -3,7 +3,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 let dataSet: any, dsl: any;
 let agHelper = ObjectsRegistry.AggregateHelper,
     ee = ObjectsRegistry.EntityExplorer,
-    jsEditor = ObjectsRegistry.JSEditor,
+    propPane = ObjectsRegistry.PropertyPane,
     locator = ObjectsRegistry.CommonLocators,
     deployMode = ObjectsRegistry.DeployMode;
 
@@ -22,13 +22,13 @@ describe("Input widget test with default value from chart datapoint", () => {
 
     it("1. Chart widget - Input widget test with default value from another Input widget", () => {
         ee.SelectEntityByName("Input1", 'WIDGETS')
-        jsEditor.EnterJSContext("Default Text", dataSet.bindChartData + "}}");
+        propPane.UpdateFieldValue("Default Text", dataSet.bindChartData + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
         ee.SelectEntityByName("Chart1")
         agHelper.SelectPropertiesDropDown("ondatapointclick", "Show message")
         agHelper.EnterActionValue("Message", dataSet.bindingDataPoint)
         ee.SelectEntityByName("Input2")
-        jsEditor.EnterJSContext("Default Text", dataSet.bindingSeriesTitle + "}}");
+        propPane.UpdateFieldValue("Default Text", dataSet.bindingSeriesTitle + "}}");
         deployMode.DeployApp()
         agHelper.Sleep(1500)//waiting for chart to load!
         agHelper.GetNClick("//*[local-name()='rect']", 13)

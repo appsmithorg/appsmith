@@ -9,8 +9,7 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   homePage = ObjectsRegistry.HomePage,
   dataSources = ObjectsRegistry.DataSources,
   propPane = ObjectsRegistry.PropertyPane,
-  deployMode = ObjectsRegistry.DeployMode,
-  jsEditor = ObjectsRegistry.JSEditor;
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate MySQL Generate CRUD with JSON Form", () => {
   before(() => {
@@ -693,7 +692,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
   function updatingStoreJSONPropertyFileds() {
     propPane.ChangeJsonFormFieldType("Store Status", "Radio Group");
-    jsEditor.EnterJSContext(
+    propPane.UpdateFieldValue(
       "Options",
       `[{
         "label": "Active",

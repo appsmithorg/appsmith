@@ -19,7 +19,6 @@ type filedTypeValues =
 
 export class PropertyPane {
   private agHelper = ObjectsRegistry.AggregateHelper;
-  private jsEditor = ObjectsRegistry.JSEditor;
   private locator = ObjectsRegistry.CommonLocators;
 
   _fieldConfig = (fieldName: string) =>
@@ -109,9 +108,9 @@ export class PropertyPane {
         .GetText(this.locator._existingActualValueByName("Property Name"))
         .then(($propName) => {
           placeHolderText = "{{sourceData." + $propName + "}}";
-          this.jsEditor.EnterJSContext("Placeholder", placeHolderText);
+          this.UpdateFieldValue("Placeholder", placeHolderText);
         });
-      this.jsEditor.EnterJSContext("Default Value", "");
+      this.UpdateFieldValue("Default Value", "");
       this.NavigateBackToPropertyPane();
     });
   }
@@ -129,10 +128,22 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave();
   }
 
-  public SelectJSFunctionToExecute(eventName: string, jsName: string, funcName: string){
+  public SelectJSFunctionToExecute(
+    eventName: string,
+    jsName: string,
+    funcName: string,
+  ) {
     this.agHelper.SelectPropertiesDropDown(eventName, "Execute a JS function");
     this.agHelper.GetNClick(this.locator._dropDownValue(jsName), 0, true);
     this.agHelper.GetNClick(this.locator._dropDownValue(funcName), 0, true);
     this.agHelper.AssertAutoSave();
+  }
+
+  public UpdateFieldValue(name: string, value: string) {
+    this.agHelper.EnterValue(value, {
+      propFieldName: name,
+      directInput: false,
+      inputFieldName: "",
+    });
   }
 }
