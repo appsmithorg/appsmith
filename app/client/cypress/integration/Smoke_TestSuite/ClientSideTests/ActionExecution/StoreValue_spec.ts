@@ -70,6 +70,7 @@ describe("storeValue Action test", () => {
       await showAlert(appsmith.store.student.details.name);
       await storeValue("student", {details:{isTopper:false, name: "Alia", grade: 3}}, false)
       await showAlert(appsmith.store.student.details.isTopper.toString());
+      await showAlert(appsmith.store.student.details.grade.toString());
      }
      }
  `;
@@ -91,9 +92,10 @@ describe("storeValue Action test", () => {
 
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    agHelper.ValidateToastMessage('{"isTopper":true,"name":"Abhah","grade":1}', 0);
-    agHelper.ValidateToastMessage("Annah", 1);
-    agHelper.ValidateToastMessage("false", 2);
+    agHelper.ValidateToastMessage('{"isTopper":true,"name":"Abhah","grade":1}', 0, 1);
+    agHelper.ValidateToastMessage("Annah", 1, 2);
+    agHelper.ValidateToastMessage("false", 2, 3);
+    agHelper.ValidateToastMessage("3", 3, 4);
     deployMode.NavigateBacktoEditor();
   });
 });
