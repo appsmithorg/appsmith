@@ -43,6 +43,7 @@ describe("storeValue Action test", () => {
     });
 
     ee.SelectEntityByName("Button1", "WIDGETS");
+    propPane.UpdateFieldValue("Label", "StoreTest");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
         "onClick",
@@ -52,7 +53,7 @@ describe("storeValue Action test", () => {
     });
 
     deployMode.DeployApp();
-    agHelper.ClickButton("Submit");
+    agHelper.ClickButton("StoreTest");
     agHelper.ValidateToastMessage(
       JSON.stringify({
         val1: "number 1",
@@ -87,6 +88,7 @@ describe("storeValue Action test", () => {
     });
 
     ee.SelectEntityByName("Button1", "WIDGETS");
+    propPane.UpdateFieldValue("Label", "StorePathTest");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
         "onClick",
@@ -96,7 +98,7 @@ describe("storeValue Action test", () => {
     });
 
     deployMode.DeployApp();
-    agHelper.ClickButton("Submit");
+    agHelper.ClickButton("StorePathTest");
     agHelper.ValidateToastMessage(
       '{"isTopper":true,"name":"Abhah","grade":1}',
       0,
@@ -129,6 +131,7 @@ describe("storeValue Action test", () => {
     });
 
     ee.SelectEntityByName("Button1", "WIDGETS");
+    propPane.UpdateFieldValue("Label", "SetStore");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
         "onClick",
@@ -139,6 +142,7 @@ describe("storeValue Action test", () => {
 
     ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
     ee.SelectEntityByName("Button2", "WIDGETS");
+    propPane.UpdateFieldValue("Label", "ShowStore");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
         "onClick",
@@ -148,11 +152,11 @@ describe("storeValue Action test", () => {
     });
 
     deployMode.DeployApp();
-    agHelper.ClickButton("Submit", 0);
+    agHelper.ClickButton("SetStore");
     agHelper.ValidateToastMessage('{"a":1}', 0, 1);
     agHelper.ValidateToastMessage('{"b":2}', 1, 2);
     agHelper.WaitUntilToastDisappear('{"b":2}');
-    agHelper.ClickButton("Submit", 1);
+    agHelper.ClickButton("ShowStore");
     agHelper.ValidateToastMessage('{"a":1,"two":{"b":2}}', 0);
     deployMode.NavigateBacktoEditor();
   });

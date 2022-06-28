@@ -6,7 +6,8 @@ const jsEditor = ObjectsRegistry.JSEditor,
   ee = ObjectsRegistry.EntityExplorer,
   table = ObjectsRegistry.Table,
   agHelper = ObjectsRegistry.AggregateHelper,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  propPane = ObjectsRegistry.PropertyPane;
 
 let onPageLoadAndConfirmExecuteFunctionsLength: number,
   getJSObject: any,
@@ -199,7 +200,7 @@ describe("JS Function Execution", function() {
 
     cy.get("@jsObjName").then((jsObjName) => {
       ee.SelectEntityByName("Table1", "WIDGETS");
-      jsEditor.EnterJSContext("Table Data", `{{${jsObjName}.largeData}}`);
+      propPane.UpdateFieldValue("Table Data", `{{${jsObjName}.largeData}}`);
     });
 
     // Deploy App and test that table loads properly
