@@ -204,8 +204,8 @@ export class URLBuilder {
     this.pageParams = {};
   }
 
-  getURLParams() {
-    return { appParams: this.appParams, pageParams: this.pageParams };
+  getURLParams(pageId: string) {
+    return { ...this.appParams, ...this.pageParams[pageId] };
   }
 
   generateBasePath(pageId: string, mode: APP_MODE) {
