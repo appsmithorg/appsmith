@@ -2,18 +2,21 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const {
   AggregateHelper: agHelper,
-  CommonLocators: locator,
+  EntityExplorer: ee,
   JSEditor: jsEditor,
+  CommonLocators: locator,
+  DeployMode: deployMode,
 } = ObjectsRegistry;
 
 describe("storeValue Action test", () => {
   before(() => {
-    //
+    ee.DragDropWidgetNVerify("buttonwidget", 100, 100);
+    ee.NavigateToSwitcher("explorer");
   });
 
   it("1. Bug 14653: Running consecutive storeValue actions and await", function() {
     const jsObjectBody = `export default {
-      myFun1: () => {
+      storeTest: () => {
         let values =
           [
             storeValue('val1', 'number 1'),
@@ -34,9 +37,19 @@ describe("storeValue Action test", () => {
     jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
       completeReplace: true,
-      toRun: true,
+      toRun: false,
       shouldCreateNewJSObj: true,
     });
+
+    ee.SelectEntityByName("Button1", "WIDGETS");
+    cy.get("@jsObjName").then((jsObj: any) => {
+      agHelper.SelectPropertiesDropDown("onClick", "Execute a JS function");
+      agHelper.GetNClick(locator._dropDownValue(jsObj as string), 0, true);
+      agHelper.GetNClick(locator._dropDownValue("storeTest"), 0, true);
+    });
+
+    deployMode.DeployApp();
+    agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage(
       JSON.stringify({
         val1: "number 1",
@@ -44,29 +57,39 @@ describe("storeValue Action test", () => {
         val3: "number 3",
         val4: "number 4",
       }),
-      2,
     );
+    deployMode.NavigateBacktoEditor();
   });
 
   it("2. Accepts paths as keys and updates path accordingly", function() {
     const JS_OBJECT_BODY = `export default {
-      myFun1: async ()=>{
+      storePathTest: async ()=>{
       await storeValue("student", {details:{name:"Abha"}}, false)
+      await showAlert(appsmith.store.student.details.name)
       await storeValue("student.details.name", "Annah", false)
       await showAlert(appsmith.store.student.details.name)
-    }	
+    }
     }`;
 
     // create js object
     jsEditor.CreateJSObject(JS_OBJECT_BODY, {
       paste: true,
       completeReplace: true,
-      toRun: true,
+      toRun: false,
       shouldCreateNewJSObj: true,
     });
 
-    cy.get(locator._toastMsg)
-      .first()
-      .should("contain.text", "Annah");
+    ee.SelectEntityByName("Button1", "WIDGETS");
+    cy.get("@jsObjName").then((jsObj: any) => {
+      agHelper.SelectPropertiesDropDown("onClick", "Execute a JS function");
+      agHelper.GetNClick(locator._dropDownValue(jsObj as string), 0, true);
+      agHelper.GetNClick(locator._dropDownValue("storePathTest"), 0, true);
+    });
+
+    deployMode.DeployApp();
+    agHelper.ClickButton("Submit");
+    agHelper.ValidateToastMessage("Abha", 0);
+    agHelper.ValidateToastMessage("Annah", 1);
+    deployMode.NavigateBacktoEditor();
   });
 });
