@@ -286,12 +286,14 @@ describe("JSObjects OnLoad Actions tests", function() {
         .and("contain", jsName as string)
         .and("contain", "will be executed automatically on page load");
 
+      agHelper.WaitUntilToastDisappear("Quotes");
+
       ee.SelectEntityByName("Input2");
       propPane.UpdatePropertyFieldValue(
         "Default Text",
         "{{" + jsObjName + ".callTrump.data.message}}",
       );
-      agHelper.ValidateToastMessage(
+      agHelper.WaitUntilToastDisappear(
         (("[" + jsName) as string) +
           ".callTrump] will be executed automatically on page load",
       );
