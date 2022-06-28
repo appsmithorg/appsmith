@@ -260,7 +260,7 @@ class EditorSidebar extends React.Component<Props, State> {
     const { search } = this.state;
     const { list } = this.props;
     const fuse = new Fuse(list, FUSE_OPTIONS);
-    return search ? fuse.search(search) : list;
+    return search ? fuse.search(search).map((r) => r.item) : list;
   };
 
   getPageWiseList = (items: Item[]): PageWiseList => {

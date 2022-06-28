@@ -387,7 +387,7 @@ class DropDownComponent extends React.Component<
 
   itemListPredicate(query: string, items: DropdownOption[]) {
     const fuse = new Fuse(items, FUSE_OPTIONS);
-    return query ? fuse.search(query) : items;
+    return query ? fuse.search(query).map((x) => x.item) : items;
   }
 
   onItemSelect = (item: DropdownOption): void => {

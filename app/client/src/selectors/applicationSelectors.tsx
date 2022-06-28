@@ -72,7 +72,7 @@ export const getApplicationList = createSelector(
       keyword.trim().length > 0
     ) {
       const fuzzy = new Fuse(applications, fuzzySearchOptions);
-      return fuzzy.search(keyword) as ApplicationPayload[];
+      return fuzzy.search(keyword).map((x) => x.item);
     } else if (
       applications &&
       (keyword === undefined || keyword.trim().length === 0)
@@ -97,7 +97,7 @@ export const getUserApplicationsWorkspacesList = createSelector(
       keyword.trim().length > 0
     ) {
       const fuzzy = new Fuse(applicationsWorkspaces, fuzzySearchOptions);
-      let workspaceList = fuzzy.search(keyword) as WorkspaceDetails[];
+      let workspaceList = fuzzy.search(keyword).map((x) => x.item);
       workspaceList = workspaceList.map((workspace) => {
         const applicationFuzzy = new Fuse(workspace.applications, {
           ...fuzzySearchOptions,

@@ -55,7 +55,7 @@
     "fast-xml-parser": "^3.17.5",
     "flow-bin": "^0.148.0",
     "focus-trap-react": "^8.9.2",
-    "fuse.js": "^3.4.5",
+    "fuse.js": "^6.6.2",
     "fusioncharts": "^3.18.0",
     "fusionmaps": "^3.18.0",
     "history": "^4.10.1",
