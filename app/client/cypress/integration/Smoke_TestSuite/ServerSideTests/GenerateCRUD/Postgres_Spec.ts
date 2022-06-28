@@ -802,7 +802,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     propPane.NavigateBackToPropertyPane();
 
     propPane.ChangeJsonFormFieldType("Vessel Type", "Select");
-    propPane.UpdateFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "Options",
       `{{["Cargo", "Pleasure Craft", "Passenger", "Fishing", "Special Craft"].map(item=> {return {
         label: item,
@@ -812,9 +812,9 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     propPane.NavigateBackToPropertyPane();
 
     propPane.OpenJsonFormFieldSettings("Timezone");
-    propPane.UpdateFieldValue("Min", "-10");
-    propPane.UpdateFieldValue("Max", "10");
-    propPane.UpdateFieldValue("Error Message", "Not a valid timezone!");
+    propPane.UpdatePropertyFieldValue("Min", "-10");
+    propPane.UpdatePropertyFieldValue("Max", "10");
+    propPane.UpdatePropertyFieldValue("Error Message", "Not a valid timezone!");
     propPane.NavigateBackToPropertyPane();
 
     propPane.ChangeJsonFormFieldType("Eta Updated", "Datepicker");

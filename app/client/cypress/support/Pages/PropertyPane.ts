@@ -108,9 +108,9 @@ export class PropertyPane {
         .GetText(this.locator._existingActualValueByName("Property Name"))
         .then(($propName) => {
           placeHolderText = "{{sourceData." + $propName + "}}";
-          this.UpdateFieldValue("Placeholder", placeHolderText);
+          this.UpdatePropertyFieldValue("Placeholder", placeHolderText);
         });
-      this.UpdateFieldValue("Default Value", "");
+      this.UpdatePropertyFieldValue("Default Value", "");
       this.NavigateBackToPropertyPane();
     });
   }
@@ -139,11 +139,10 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave();
   }
 
-  public UpdateFieldValue(name: string, value: string) {
-    this.agHelper.EnterValue(value, {
-      propFieldName: name,
-      directInput: false,
-      inputFieldName: "",
-    });
+  public UpdatePropertyFieldValue(propFieldName: string, valueToEnter: string) {
+    cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
+      ($field: any) => {
+        this.agHelper.UpdateCodeInput($field, valueToEnter);
+      });
   }
 }

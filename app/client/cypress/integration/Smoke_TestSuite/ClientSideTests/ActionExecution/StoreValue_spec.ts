@@ -43,7 +43,7 @@ describe("storeValue Action test", () => {
     });
 
     ee.SelectEntityByName("Button1", "WIDGETS");
-    propPane.UpdateFieldValue("Label", "StoreTest");
+    propPane.UpdatePropertyFieldValue("Label", "StoreTest");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
         "onClick",
@@ -88,7 +88,7 @@ describe("storeValue Action test", () => {
     });
 
     ee.SelectEntityByName("Button1", "WIDGETS");
-    propPane.UpdateFieldValue("Label", "StorePathTest");
+    propPane.UpdatePropertyFieldValue("Label", "StorePathTest");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
         "onClick",
@@ -131,7 +131,7 @@ describe("storeValue Action test", () => {
     });
 
     ee.SelectEntityByName("Button1", "WIDGETS");
-    propPane.UpdateFieldValue("Label", "SetStore");
+    propPane.UpdatePropertyFieldValue("Label", "SetStore");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
         "onClick",
@@ -142,7 +142,7 @@ describe("storeValue Action test", () => {
 
     ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
     ee.SelectEntityByName("Button2", "WIDGETS");
-    propPane.UpdateFieldValue("Label", "ShowStore");
+    propPane.UpdatePropertyFieldValue("Label", "ShowStore");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
         "onClick",

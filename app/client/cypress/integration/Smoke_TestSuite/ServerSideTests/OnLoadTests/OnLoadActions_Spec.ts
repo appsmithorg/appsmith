@@ -63,20 +63,20 @@ describe("Layout OnLoad Actions tests", function() {
     //Adding dependency in right order matters!
     ee.ExpandCollapseEntity("WIDGETS");
     ee.SelectEntityByName("Image1");
-    propPane.UpdateFieldValue("Image", `{{RandomFlora.data}}`);
+    propPane.UpdatePropertyFieldValue("Image", `{{RandomFlora.data}}`);
 
     ee.SelectEntityByName("Image2");
-    propPane.UpdateFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "Image",
       `{{RandomUser.data.results[0].picture.large}}`);
 
     ee.SelectEntityByName("Text1");
-    propPane.UpdateFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "Text",
       `{{InspiringQuotes.data.quote.body}}\n--\n{{InspiringQuotes.data.quote.author}}\n`);
 
     ee.SelectEntityByName("Text2");
-    propPane.UpdateFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "Text",
       `Hi, here is {{RandomUser.data.results[0].name.first}} & I'm {{RandomUser.data.results[0].dob.age}}'yo\nI live in {{RandomUser.data.results[0].location.country}}\nMy Suggestion : {{Suggestions.data.activity}}\n\nI'm {{Genderize.data.gender}}`);
 

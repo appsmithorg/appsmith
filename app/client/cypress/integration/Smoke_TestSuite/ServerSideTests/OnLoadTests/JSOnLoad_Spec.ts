@@ -56,7 +56,7 @@ describe("JSObjects OnLoad Actions tests", function() {
           ".getId.data}}",
       );
       ee.SelectEntityByName("Table1", "WIDGETS");
-      propPane.UpdateFieldValue("Table Data", "{{GetUser.data}}");
+      propPane.UpdatePropertyFieldValue("Table Data", "{{GetUser.data}}");
       agHelper.ValidateToastMessage(
         (("[" + jsName) as string) +
           ".getId, GetUser] will be executed automatically on page load",
@@ -276,7 +276,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       // cy.get(locator._toastMsg).contains(regex)
 
       ee.SelectEntityByName("Input1", "WIDGETS");
-      propPane.UpdateFieldValue(
+      propPane.UpdatePropertyFieldValue(
         "Default Text",
         "{{" + jsObjName + ".callQuotes.data}}",
       );
@@ -287,7 +287,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         .and("contain", "will be executed automatically on page load");
 
       ee.SelectEntityByName("Input2");
-      propPane.UpdateFieldValue(
+      propPane.UpdatePropertyFieldValue(
         "Default Text",
         "{{" + jsObjName + ".callTrump.data.message}}",
       );
@@ -469,7 +469,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       //jsEditor.EnableDisableAsyncFuncSettings("callCountry", false, true); Bug # 13826
 
       ee.SelectEntityByName("Select1", "WIDGETS");
-      propPane.UpdateFieldValue(
+      propPane.UpdatePropertyFieldValue(
         "Options",
         `{{ getCitiesList.data.map((row) => {
           return { label: row.city, value: row.city }
@@ -506,7 +506,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       // agHelper.GetNClick(locator._dropDownValue("callBooks"));
 
       ee.SelectEntityByName("JSONForm1");
-      propPane.UpdateFieldValue("Source Data", "{{getBooks.data}}");
+      propPane.UpdatePropertyFieldValue("Source Data", "{{getBooks.data}}");
       //this toast is not coming due to existing JSON date errors but its made true at API
       //agHelper.ValidateToastMessage("[getBooks] will be executed automatically on page load");
     });

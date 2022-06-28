@@ -55,7 +55,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
       );
     });
     ee.SelectEntityByName("Table1");
-    propPane.UpdateFieldValue("Table Data", "{{ParamsTest.data}}");
+    propPane.UpdatePropertyFieldValue("Table Data", "{{ParamsTest.data}}");
 
     ee.SelectEntityByName("ParamsTest", "QUERIES/JS");
     apiPage.ToggleOnPageLoadRun(false); //Bug 12476

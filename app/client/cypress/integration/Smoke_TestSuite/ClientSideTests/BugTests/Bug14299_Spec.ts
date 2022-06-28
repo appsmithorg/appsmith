@@ -56,16 +56,16 @@ describe("[Bug]: The data from the query does not show up on the widget #14299",
     );
 
     ee.SelectEntityByName("Table1");
-    propPane.UpdateFieldValue("Table Data", `{{JSObject1.runAstros.data}}`);
+    propPane.UpdatePropertyFieldValue("Table Data", `{{JSObject1.runAstros.data}}`);
 
     ee.SelectEntityByName("DatePicker1");
-    propPane.UpdateFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "Default Date",
       `{{moment(Table1.selectedRow.date_of_death)}}`,
     );
 
     ee.SelectEntityByName("Text1");
-    propPane.UpdateFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "Text",
       `Date: {{moment(Table1.selectedRow.date_of_death).toString()}}`,
     );

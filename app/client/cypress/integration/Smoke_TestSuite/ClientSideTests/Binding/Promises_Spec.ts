@@ -112,7 +112,7 @@ describe("Validate basic Promises", () => {
       true,
     );
     ee.SelectEntityByName("Image1");
-    propPane.UpdateFieldValue("Image", `{{Christmas.data}}`);
+    propPane.UpdatePropertyFieldValue("Image", `{{Christmas.data}}`);
     agHelper.ValidateToastMessage(
       "will be executed automatically on page load",
     );
@@ -185,7 +185,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       "GetAnime",
     );
     ee.SelectEntityByName("List1", "WIDGETS");
-    propPane.UpdateFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "Items",
       `[{
   "name": {{ GetAnime.data.results[0].title }},

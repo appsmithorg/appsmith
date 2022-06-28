@@ -17,6 +17,7 @@ export class JSEditor {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
   public ee = ObjectsRegistry.EntityExplorer;
+  public propPane = ObjectsRegistry.PropertyPane;
 
   //#region Element locators
   _runButton = "button.run-js-action";
@@ -108,7 +109,8 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    toValidateToast && this.agHelper.WaitUntilToastDisappear('created successfully');
+    toValidateToast &&
+      this.agHelper.WaitUntilToastDisappear("created successfully");
     this.agHelper.Sleep();
   }
 
@@ -187,7 +189,6 @@ export class JSEditor {
     value: string,
     paste = true,
     toToggleOnJS = false,
-    notField = false,
   ) {
     if (toToggleOnJS) {
       cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
@@ -212,11 +213,7 @@ export class JSEditor {
     //   .type("{del}", { force: true });
 
     if (paste) {
-      this.agHelper.EnterValue(value, {
-        propFieldName: endp,
-        directInput: notField,
-        inputFieldName: "",
-      });
+      this.propPane.UpdatePropertyFieldValue(endp, value);
     } else {
       cy.get(
         this.locator._propertyControl +
