@@ -8,7 +8,7 @@ import { DROPDOWN_DIMENSION, DEFAULT_DROPDOWN_OPTION } from "../constants";
 import { SelectWrapper, Label, Bold } from "./styles";
 import TextInput from "components/ads/TextInput";
 import { GeneratePagePayload } from "./types";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import styled from "styled-components";
 import {
   UseSheetListReturn,

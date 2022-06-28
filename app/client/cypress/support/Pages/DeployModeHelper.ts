@@ -85,12 +85,12 @@ export class DeployMode {
       .wait(500);
   }
 
-  public SelectJsonFormDropDown(ddOption: string, index = 0) {
+  public SelectJsonFormDropDown(dropdownOption: string, index = 0) {
     cy.get(this._jsonSelectDropdown)
       .eq(index)
       .scrollIntoView()
       .click();
-    cy.get(this.locator._selectOptionValue(ddOption)).click({ force: true });
+    cy.get(this.locator._selectOptionValue(dropdownOption)).click({ force: true });
     this.agHelper.Sleep(); //for selected value to reflect!
   }
 }
