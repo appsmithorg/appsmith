@@ -12,7 +12,7 @@ import {
   Text,
   TextType,
 } from "components/ads";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { Colors } from "constants/Colors";
 import React, { useState } from "react";

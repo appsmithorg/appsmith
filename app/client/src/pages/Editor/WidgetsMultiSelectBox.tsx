@@ -12,13 +12,13 @@ import {
 import { modText } from "utils/helpers";
 import { Layers } from "constants/Layers";
 import { FormIcons } from "icons/FormIcons";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { ControlIcons } from "icons/ControlIcons";
 import { getSelectedWidgets } from "selectors/ui";
 
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
-import { IPopoverSharedProps, Position } from "@blueprintjs/core";
+import { IPopoverSharedProps } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import WidgetFactory from "utils/WidgetFactory";
 import { AppState } from "reducers";
@@ -348,7 +348,7 @@ function WidgetsMultiSelectBox(props: {
             content={copyHelpText}
             maxWidth="400px"
             modifiers={PopoverModifiers}
-            position={Position.RIGHT}
+            position="right"
           >
             <StyledAction
               onClick={stopEventPropagation}
@@ -363,7 +363,7 @@ function WidgetsMultiSelectBox(props: {
             content={cutHelpText}
             maxWidth="400px"
             modifiers={PopoverModifiers}
-            position={Position.RIGHT}
+            position="right"
           >
             <StyledAction
               onClick={stopEventPropagation}
@@ -378,7 +378,7 @@ function WidgetsMultiSelectBox(props: {
             content={deleteHelpText}
             maxWidth="400px"
             modifiers={PopoverModifiers}
-            position={Position.RIGHT}
+            position="right"
           >
             <StyledAction
               onClick={stopEventPropagation}
@@ -393,7 +393,7 @@ function WidgetsMultiSelectBox(props: {
             content={groupHelpText}
             maxWidth="400px"
             modifiers={PopoverModifiers}
-            position={Position.RIGHT}
+            position="right"
           >
             <StyledAction
               onClick={stopEventPropagation}
