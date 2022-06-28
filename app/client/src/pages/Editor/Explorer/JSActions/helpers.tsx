@@ -1,20 +1,18 @@
-import { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { groupBy } from "lodash";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { selectJSCollections } from "selectors/editorSelectors";
 
 export const useNewJSCollectionName = () => {
-  const jsactions = useSelector((state: AppState) => state.entities.jsActions);
-  const groupedActions = useMemo(() => {
-    return groupBy(jsactions, "config.pageId");
-  }, [jsactions]);
+  const jsCollections = useSelector(selectJSCollections);
   return (
     name: string,
     destinationPageId: string,
     isCopyOperation?: boolean,
   ) => {
+    const groupedActions = groupBy(jsCollections, "config.pageId");
+
     const pageActions = groupedActions[destinationPageId];
     // Get action names of the destination page only
     const actionNames = pageActions

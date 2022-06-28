@@ -24,6 +24,7 @@ import {
   CONTEXT_SHOW_BINDING,
   createMessage,
 } from "@appsmith/constants/messages";
+import { getPageList } from "selectors/entitiesSelector";
 
 type EntityContextMenuProps = {
   id: string;
@@ -34,8 +35,8 @@ type EntityContextMenuProps = {
 export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewJSCollectionName();
   const [confirmDelete, setConfirmDelete] = useState(false);
-
   const dispatch = useDispatch();
+  const pageList = useSelector(getPageList);
 
   const showBinding = useCallback(
     (actionId, actionName) =>
@@ -79,13 +80,13 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
     [dispatch],
   );
 
-  const menuPages = useSelector((state: AppState) => {
-    return state.entities.pageList.pages.map((page) => ({
+  const menuPages = React.useMemo(() => {
+    return pageList.map((page) => ({
       label: page.pageName,
       id: page.pageId,
       value: page.pageName,
     }));
-  });
+  }, [pageList]);
   const editJSCollectionName = useCallback(
     () => dispatch(initExplorerEntityNameEdit(props.id)),
     [dispatch, props.id],

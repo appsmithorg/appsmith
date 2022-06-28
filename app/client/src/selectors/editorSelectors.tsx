@@ -532,3 +532,6 @@ export const getEditorURL = createSelector(
       pageId,
     }),
 );
+
+export const selectJSCollections = (state: AppState) =>
+  state.entities.jsActions;
