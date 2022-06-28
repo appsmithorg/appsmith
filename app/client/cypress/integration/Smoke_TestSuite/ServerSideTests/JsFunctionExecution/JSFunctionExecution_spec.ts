@@ -200,7 +200,7 @@ describe("JS Function Execution", function() {
 
     cy.get("@jsObjName").then((jsObjName) => {
       ee.SelectEntityByName("Table1", "WIDGETS");
-      propPane.UpdateFieldValue("Table Data", `{{${jsObjName}.largeData}}`);
+      propPane.UpdatePropertyFieldValue("Table Data", `{{${jsObjName}.largeData}}`);
     });
 
     // Deploy App and test that table loads properly

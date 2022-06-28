@@ -41,7 +41,7 @@ describe("Validate JSObjects binding to Input widget", () => {
       .should("equal", "Hello"); //Before mapping JSObject value of input
     cy.get("@jsObjName").then((jsObjName) => {
       jsOjbNameReceived = jsObjName;
-      propPane.UpdateFieldValue("Default Text",  "{{" + jsObjName + ".myFun1()}}");
+      propPane.UpdatePropertyFieldValue("Default Text",  "{{" + jsObjName + ".myFun1()}}");
     });
     cy.get(locator._inputWidget)
       .last()

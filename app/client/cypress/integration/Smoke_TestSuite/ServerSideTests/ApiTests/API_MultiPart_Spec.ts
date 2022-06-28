@@ -128,7 +128,7 @@ describe("Validate API request body panel", () => {
     );
 
     ee.SelectEntityByName("Image1");
-    propPane.UpdateFieldValue("Image", "{{CloudinaryUploadApi.data.url}}");
+    propPane.UpdatePropertyFieldValue("Image", "{{CloudinaryUploadApi.data.url}}");
 
     ee.SelectEntityByName("CloudinaryUploadApi", "QUERIES/JS");
 

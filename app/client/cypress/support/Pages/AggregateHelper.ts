@@ -527,14 +527,7 @@ export class AggregateHelper {
     options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
   ) {
     const { directInput, inputFieldName, propFieldName } = options;
-
-    if (propFieldName && !directInput && !inputFieldName) {
-      cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
-        ($field: any) => {
-          this.UpdateCodeInput($field, valueToEnter);
-        },
-      );
-    } else if (propFieldName && directInput && !inputFieldName) {
+    if (propFieldName && directInput && !inputFieldName) {
       cy.get(propFieldName).then(($field: any) => {
         this.UpdateCodeInput($field, valueToEnter);
       });

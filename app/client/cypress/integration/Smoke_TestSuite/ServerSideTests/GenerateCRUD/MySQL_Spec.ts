@@ -692,7 +692,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
   function updatingStoreJSONPropertyFileds() {
     propPane.ChangeJsonFormFieldType("Store Status", "Radio Group");
-    propPane.UpdateFieldValue(
+    propPane.UpdatePropertyFieldValue(
       "Options",
       `[{
         "label": "Active",
