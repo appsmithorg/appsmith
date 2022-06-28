@@ -164,6 +164,96 @@ class DatePickerComponent extends React.Component<
       isValid && this.state.selectedDate
         ? new Date(this.state.selectedDate)
         : null;
+
+    const getInitialMonth = () => {
+      // None
+      if (
+        !this.props.minDate &&
+        !this.props.maxDate &&
+        !this.state.selectedDate
+      ) {
+        return new Date();
+      }
+      // Min-Max-Selcted
+      else if (
+        this.props.minDate &&
+        this.props.maxDate &&
+        this.state.selectedDate
+      ) {
+        switch (true) {
+          case new Date(this.props.minDate) > new Date(this.state.selectedDate):
+            return new Date(this.props.minDate);
+          case new Date(this.props.minDate) < new Date(this.state.selectedDate):
+            return isValid
+              ? new Date(this.state.selectedDate)
+              : new Date(this.props.minDate);
+          default:
+            return new Date();
+        }
+      }
+      // Min-Max-!Selcted
+      else if (
+        this.props.minDate &&
+        this.props.maxDate &&
+        !this.state.selectedDate
+      ) {
+        switch (true) {
+          case new Date(this.props.minDate) > new Date():
+          case new Date(this.props.maxDate) < new Date():
+            return new Date(this.props.minDate);
+          default:
+            return new Date();
+        }
+      }
+      // Min-Selcted
+      else if (this.props.minDate && this.state.selectedDate) {
+        switch (true) {
+          case new Date(this.props.minDate) > new Date(this.state.selectedDate):
+            return new Date(this.props.minDate);
+          case new Date(this.props.minDate) < new Date(this.state.selectedDate):
+            return new Date(this.state.selectedDate);
+          default:
+            return new Date();
+        }
+      }
+      // Max-Selcted
+      else if (this.props.maxDate && this.state.selectedDate) {
+        switch (true) {
+          case new Date(this.props.maxDate) > new Date(this.state.selectedDate):
+            return new Date(this.state.selectedDate);
+          case new Date(this.props.maxDate) < new Date(this.state.selectedDate):
+            return new Date(this.props.maxDate);
+          default:
+            return new Date();
+        }
+      }
+      // Selected
+      else if (this.state.selectedDate) {
+        return new Date(this.state.selectedDate);
+      }
+      // Min
+      else if (this.props.minDate) {
+        switch (true) {
+          case new Date(this.props.minDate) > new Date():
+            return new Date(this.props.minDate);
+          default:
+            return new Date();
+        }
+      }
+      // Max
+      else if (this.props.maxDate) {
+        switch (true) {
+          case new Date(this.props.maxDate) < new Date():
+            return new Date(this.props.maxDate);
+          default:
+            return new Date();
+        }
+      } else {
+        return new Date();
+      }
+    };
+    const initialMonth = getInitialMonth();
+
     return (
       <StyledControlGroup
         accentColor={this.props.accentColor}
@@ -209,6 +299,7 @@ class DatePickerComponent extends React.Component<
               }}
               disabled={this.props.isDisabled}
               formatDate={this.formatDate}
+              initialMonth={initialMonth}
               inputProps={{
                 inputRef: this.props.inputRef,
               }}

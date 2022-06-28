@@ -22,8 +22,7 @@ import {
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-import { Position } from "@blueprintjs/core";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import styled from "styled-components";
 import PageContextMenu from "./PageContextMenu";
@@ -141,7 +140,7 @@ function Pages() {
         boundary="viewport"
         content={createMessage(PAGE_PROPERTIES_TOOLTIP)}
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position={Position.BOTTOM}
+        position="bottom"
       >
         {settingsIcon}
       </TooltipComponent>
