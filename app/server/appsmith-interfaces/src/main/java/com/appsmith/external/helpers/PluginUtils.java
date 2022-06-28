@@ -393,16 +393,13 @@ public class PluginUtils {
 
     public static String replaceMappedColumnInStringValue(Map<String, String> mappedColumns, Object propertyValue) {
         // In case the entire value finds a match in the mappedColumns, replace it
-        Pattern replacePattern = Pattern.compile(Pattern.quote(propertyValue.toString()));
-        Matcher matcher = replacePattern.matcher(propertyValue.toString());
-        if (matcher.find()) {
-            return matcher.replaceAll(key ->
-                    mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()));
+        if (mappedColumns.containsKey((String) propertyValue)) {
+            return mappedColumns.get(propertyValue);
         }
 
         // If the column name is present inside a string (like json), then find all the words and replace
         // the column name with user one.
-        matcher = WORD_PATTERN.matcher(propertyValue.toString());
+        Matcher matcher = WORD_PATTERN.matcher(propertyValue.toString());
         if (matcher.find()) {
             return matcher.replaceAll(key ->
                     mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()));

@@ -127,10 +127,6 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, DISPLAY_TYPE));
         }
 
-        if ("ENTITY_SELECTOR".equals(request.getRequestType())) {
-            return Mono.just(new HashSet<>());
-        }
-
         final Map<String, Object> parameters = request.getParameters();
         Mono<DatasourceStructure> structureMono = datasourceStructureSolution.getStructure(datasource, false);
 
