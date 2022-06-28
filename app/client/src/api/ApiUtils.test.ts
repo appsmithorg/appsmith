@@ -29,7 +29,7 @@ describe("axios api interceptors", () => {
       const response: AxiosResponse = {
         data: "Test data",
         headers: {
-          "content-length": 123,
+          "content-length": "123",
         },
         config: {
           url: "https://app.appsmith.com/v1/api/actions/execute",

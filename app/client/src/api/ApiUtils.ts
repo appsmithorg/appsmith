@@ -42,6 +42,7 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   const branch =
     getCurrentGitBranch(store.getState()) || getQueryParamsObject().branch;
   if (branch) {
+    // @ts-expect-error: config.headers might be undefined
     config.headers.branchName = branch;
   }
   if (config.url?.indexOf("/git/") !== -1) {
