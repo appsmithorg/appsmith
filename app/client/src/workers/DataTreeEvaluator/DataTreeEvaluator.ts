@@ -215,6 +215,7 @@ export default class DataTreeEvaluator {
       Object.keys(jsUpdates).forEach((jsEntity) => {
         const entity = localUnEvalTree[jsEntity];
         const parsedBody = jsUpdates[jsEntity].parsedBody;
+        console.log("$$$", { parsedBody });
         if (isJSAction(entity)) {
           if (!!parsedBody) {
             //add/delete/update functions from dataTree
