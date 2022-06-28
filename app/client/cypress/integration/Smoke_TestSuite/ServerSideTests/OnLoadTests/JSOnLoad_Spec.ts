@@ -303,19 +303,19 @@ describe("JSObjects OnLoad Actions tests", function() {
       //One Quotes confirmation - for API true
       agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
       agHelper.ClickButton("No");
-      agHelper.ValidateToastMessage('The action "Quotes" has failed');
+      agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');
 
       //Another for API called via JS callQuotes()
       agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
       agHelper.ClickButton("No");
-      agHelper.ValidateToastMessage('The action "Quotes" has failed');
+      agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');
 
       //Confirmation - first JSObj then API
       agHelper.AssertElementVisible(
         jsEditor._dialogBody((jsName as string) + ".callTrump"),
       );
       agHelper.ClickButton("No");
-      agHelper.ValidateToastMessage(
+      agHelper.WaitUntilToastDisappear(
         "Failed to execute actions during page load",
       ); //When Confirmation is NO validate error toast!
       agHelper.AssertElementAbsence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is NO, dependent API confirmation should not appear
