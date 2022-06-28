@@ -1,58 +1,92 @@
 package com.appsmith.server.configurations;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.ImmutableMongoCmdOptions;
 import de.flapdoodle.embed.mongo.config.ImmutableMongodConfig;
+import de.flapdoodle.embed.mongo.config.MongoCmdOptions;
 import de.flapdoodle.embed.mongo.config.MongodConfig;
+import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.config.Storage;
 import de.flapdoodle.embed.mongo.distribution.Version;
-import org.bson.Document;
+import de.flapdoodle.embed.process.runtime.Network;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.mongo.MongoProperties;
+import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
+/**
+ * Overrides the default configuration to enable journaling.
+ * Most of the code is copied from {@link EmbeddedMongoAutoConfiguration}
+ *
+ * @see EmbeddedMongoAutoConfiguration
+ */
 @Configuration
+@AutoConfigureBefore(EmbeddedMongoAutoConfiguration.class)
+@EnableConfigurationProperties({MongoProperties.class, EmbeddedMongoProperties.class})
 public class EmbeddedMongoConfig {
-//    @Bean
-//    public ImmutableMongodConfig prepareMongodConfig() throws IOException {
-//        ImmutableMongodConfig mongoConfigConfig = MongodConfig.builder()
-//                .version(Version.Main.V4_2)
-//                //.replication(new Storage("/tmp", "rs0", 5000))
-//                .build();
-//
-////        MongodExecutable mongodExecutable = MongodStarter.getDefaultInstance().prepare(mongoConfig);
-////        mongodExecutable.start();
-//
-//        // init replica set, aka rs.initiate()
-////        MongoClient client = MongoClients.create("mongodb://localhost");
-////        client.getDatabase("admin").runCommand(new Document("replSetInitiate", new Document()));
-////        client.close();
-//        return mongoConfigConfig;
-//    }
 
-    @Bean(destroyMethod = "stop")
-    public MongodExecutable mongodExecutable1() throws IOException {
-        Storage storage = new Storage(null, "rs0", 0);
-        ImmutableMongodConfig mongodConfig = MongodConfig
-                .builder()
-                .version(Version.Main.PRODUCTION)
-                .replication(storage)
-                .cmdOptions(ImmutableMongoCmdOptions.builder().useNoJournal(false).build())
-                .build();
+    /**
+     * Ref {@link EmbeddedMongoAutoConfiguration}
+     */
+    private static final byte[] IP4_LOOPBACK_ADDRESS = {127, 0, 0, 1};
 
-        MongodStarter starter = MongodStarter.getDefaultInstance();
+    /**
+     * Ref {@link EmbeddedMongoAutoConfiguration}
+     */
+    private static final byte[] IP6_LOOPBACK_ADDRESS = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
 
-        MongodExecutable executable = starter.prepare(mongodConfig);
-        executable.start();
+    private final MongoProperties properties;
 
-        try (MongoClient client = MongoClients.create("mongodb://localhost:27018")) { //  + host + ":" + port
-            client.getDatabase("admin").runCommand(new Document("replSetInitiate", new Document()));
+    public EmbeddedMongoConfig(MongoProperties properties) {
+        this.properties = properties;
+    }
+
+    /**
+     * Overrides the default embedded mongo configuration to enable journaling.
+     * Actual magic happens here.
+     *
+     * @return Mongod configuration which is used to set up the embedded mongo server as well as the mongo clients
+     * ({@link MongoRepository}, {@link MongoTemplate}, etc.)
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public MongodConfig embeddedMongoConfiguration(EmbeddedMongoProperties embeddedProperties) throws IOException {
+        ImmutableMongodConfig.Builder builder = MongodConfig.builder().version(Version.Main.V4_4);
+        EmbeddedMongoProperties.Storage storage = embeddedProperties.getStorage();
+        if (storage != null) {
+            String databaseDir = storage.getDatabaseDir();
+            String replSetName = storage.getReplSetName() == null ? "rs0" : storage.getReplSetName();
+            int oplogSize = (storage.getOplogSize() != null) ? (int) storage.getOplogSize().toMegabytes() : 0;
+            builder.replication(new Storage(databaseDir, replSetName, oplogSize));
+
+            // This line enables the required journaling. This line is missing from actual spring boot's implementation.
+            builder.cmdOptions(MongoCmdOptions.builder().useNoJournal(false).build());
         }
+        Integer configuredPort = this.properties.getPort();
+        if (configuredPort != null && configuredPort > 0) {
+            builder.net(new Net(getHost().getHostAddress(), configuredPort, Network.localhostIsIPv6()));
+        } else {
+            builder.net(new Net(getHost().getHostAddress(), Network.getFreeServerPort(getHost()),
+                    Network.localhostIsIPv6()));
+        }
+        return builder.build();
+    }
 
-        return executable;
+    /**
+     * Copied as is from {@link EmbeddedMongoAutoConfiguration}
+     */
+    private InetAddress getHost() throws UnknownHostException {
+        if (this.properties.getHost() == null) {
+            return InetAddress.getByAddress(Network.localhostIsIPv6() ? IP6_LOOPBACK_ADDRESS : IP4_LOOPBACK_ADDRESS);
+        }
+        return InetAddress.getByName(this.properties.getHost());
     }
 }

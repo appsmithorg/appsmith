@@ -72,6 +72,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -784,6 +785,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @param appendToApp whether applicationJson will be appended to the existing app or not
      * @return Updated application
      */
+    @Transactional
     private Mono<Application> importApplicationInWorkspace(String workspaceId,
                                                            ApplicationJson applicationJson,
                                                            String applicationId,
