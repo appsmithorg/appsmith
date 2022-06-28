@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
-import { AppState } from "reducers";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import {
   moveJSCollectionRequest,
