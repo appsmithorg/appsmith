@@ -6,6 +6,7 @@ const {
   JSEditor: jsEditor,
   CommonLocators: locator,
   DeployMode: deployMode,
+  PropertyPane: propPane,
 } = ObjectsRegistry;
 
 describe("storeValue Action test", () => {
@@ -43,9 +44,11 @@ describe("storeValue Action test", () => {
 
     ee.SelectEntityByName("Button1", "WIDGETS");
     cy.get("@jsObjName").then((jsObj: any) => {
-      agHelper.SelectPropertiesDropDown("onClick", "Execute a JS function");
-      agHelper.GetNClick(locator._dropDownValue(jsObj as string), 0, true);
-      agHelper.GetNClick(locator._dropDownValue("storeTest"), 0, true);
+      propPane.SelectJSFunctionToExecute(
+        "onClick",
+        jsObj as string,
+        "storeTest",
+      );
     });
 
     deployMode.DeployApp();
@@ -61,7 +64,7 @@ describe("storeValue Action test", () => {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("2. Bug 14827 : Accepts paths as keys and updates path accordingly", function() {
+  it("2. Bug 14827 : Accepts paths as keys and updates path accordingly - multiple type key values", function() {
     const JS_OBJECT_BODY = `export default {
       storePathTest: async ()=> {
       await storeValue("student", {details:{isTopper:true, name: "Abhah", grade: 1}}, false)
@@ -85,17 +88,72 @@ describe("storeValue Action test", () => {
 
     ee.SelectEntityByName("Button1", "WIDGETS");
     cy.get("@jsObjName").then((jsObj: any) => {
-      agHelper.SelectPropertiesDropDown("onClick", "Execute a JS function");
-      agHelper.GetNClick(locator._dropDownValue(jsObj as string), 0, true);
-      agHelper.GetNClick(locator._dropDownValue("storePathTest"), 0, true);
+      propPane.SelectJSFunctionToExecute(
+        "onClick",
+        jsObj as string,
+        "storePathTest",
+      );
     });
 
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    agHelper.ValidateToastMessage('{"isTopper":true,"name":"Abhah","grade":1}', 0, 1);
+    agHelper.ValidateToastMessage(
+      '{"isTopper":true,"name":"Abhah","grade":1}',
+      0,
+      1,
+    );
     agHelper.ValidateToastMessage("Annah", 1, 2);
     agHelper.ValidateToastMessage("false", 2, 3);
     agHelper.ValidateToastMessage("3", 3, 4);
+    deployMode.NavigateBacktoEditor();
+  });
+
+  it("3. Bug 14827 : Accepts paths as keys and updates path accordingly - object keys", function() {
+    const JS_OBJECT_BODY = `export default {
+      setStore: async () => {
+        await storeValue("test", { "a": 1}, false);
+        await showAlert(JSON.stringify(appsmith.store.test));
+        await storeValue("test.two", { "b": 2}, false);
+        await showAlert(JSON.stringify(appsmith.store.test.two));
+      },
+      showStore: () =>  {
+        showAlert(JSON.stringify(appsmith.store.test));}
+    }`;
+
+    // create js object
+    jsEditor.CreateJSObject(JS_OBJECT_BODY, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+
+    ee.SelectEntityByName("Button1", "WIDGETS");
+    cy.get("@jsObjName").then((jsObj: any) => {
+      propPane.SelectJSFunctionToExecute(
+        "onClick",
+        jsObj as string,
+        "setStore",
+      );
+    });
+
+    ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
+    ee.SelectEntityByName("Button2", "WIDGETS");
+    cy.get("@jsObjName").then((jsObj: any) => {
+      propPane.SelectJSFunctionToExecute(
+        "onClick",
+        jsObj as string,
+        "showStore",
+      );
+    });
+
+    deployMode.DeployApp();
+    agHelper.ClickButton("Submit", 0);
+    agHelper.ValidateToastMessage('{"a":1}', 0, 1);
+    agHelper.ValidateToastMessage('{"b":2}', 1, 2);
+    agHelper.WaitUntilToastDisappear('{"b":2}');
+    agHelper.ClickButton("Submit", 1);
+    agHelper.ValidateToastMessage('{"a":1,"two":{"b":2}}', 0);
     deployMode.NavigateBacktoEditor();
   });
 });
