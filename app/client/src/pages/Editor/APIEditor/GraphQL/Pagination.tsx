@@ -12,7 +12,6 @@ import { Dropdown, Checkbox } from "components/ads";
 import { AnyAction, bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import log from "loglevel";
 import Tooltip from "components/ads/Tooltip";
 import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
@@ -127,9 +126,7 @@ const graphqlParseVariables = (queryBody: string) => {
         }
       }
     }
-  } catch (error) {
-    log.error(error);
-  }
+  } catch (error) {}
 
   return variables;
 };

@@ -10,6 +10,7 @@ import { Icon } from "@blueprintjs/core";
 import { ControlIcons } from "icons/ControlIcons";
 import { ReactComponent as ApiIcon } from "assets/icons/menu/api-colored.svg";
 import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
+import { ReactComponent as GraphqlIcon } from "assets/images/Graphql-logo.svg";
 
 export const ENTITY_ICON_SIZE = 16;
 
@@ -311,3 +312,11 @@ export const JsFileIconV2 = (
     <EntityIcon.textIcon>JS</EntityIcon.textIcon>
   </EntityIcon>
 );
+
+export function GraphQLIconV2() {
+  return (
+    <EntityIcon>
+      <GraphqlIcon />
+    </EntityIcon>
+  );
+}

@@ -6,11 +6,12 @@ import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import PlusLogo from "assets/images/Plus-logo.svg";
+import GraphQLLogo from "assets/images/Graphql-logo.svg";
 import { Plugin } from "api/PluginApi";
 import { createNewApiAction } from "actions/apiPaneActions";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
-import { getGraphQLPlugin, PluginType } from "entities/Action";
+import { PluginType } from "entities/Action";
 import { Spinner } from "@blueprintjs/core";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
@@ -19,6 +20,10 @@ import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { selectURLSlugs } from "selectors/editorSelectors";
 import { curlImportPageURL } from "RouteBuilder";
+import {
+  GRAPHQL_PLUGIN_PACKAGE_NAME,
+  REST_PLUGIN_PACKAGE_NAME,
+} from "constants/ApiEditorConstants";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -124,7 +129,11 @@ const CardContentWrapper = styled.div`
 `;
 
 type ApiHomeScreenProps = {
-  createNewApiAction: (pageId: string, from: EventLocation) => void;
+  createNewApiAction: (
+    pageId: string,
+    from: EventLocation,
+    apiType?: string,
+  ) => void;
   history: {
     replace: (data: string) => void;
     push: (data: string) => void;
@@ -144,6 +153,7 @@ type Props = ApiHomeScreenProps;
 const API_ACTION = {
   IMPORT_CURL: "IMPORT_CURL",
   CREATE_NEW_API: "CREATE_NEW_API",
+  CREATE_NEW_GRAPHQL_API: "CREATE_NEW_GRAPHQL_API",
   CREATE_DATASOURCE_FORM: "CREATE_DATASOURCE_FORM",
   AUTH_API: "AUTH_API",
 };
@@ -176,12 +186,18 @@ function NewApiScreen(props: Props) {
     }
   }, [authApiPlugin, props.createDatasourceFromForm]);
 
-  const handleCreateNew = () => {
+  const handleCreateNew = (source: string) => {
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-      source: "CREATE_NEW_API",
+      source,
     });
     if (pageId) {
-      createNewApiAction(pageId, "API_PANE");
+      createNewApiAction(
+        pageId,
+        "API_PANE",
+        source === API_ACTION.CREATE_NEW_GRAPHQL_API
+          ? GRAPHQL_PLUGIN_PACKAGE_NAME
+          : REST_PLUGIN_PACKAGE_NAME,
+      );
     }
   };
 
@@ -207,7 +223,8 @@ function NewApiScreen(props: Props) {
     }
     switch (actionType) {
       case API_ACTION.CREATE_NEW_API:
-        handleCreateNew();
+      case API_ACTION.CREATE_NEW_GRAPHQL_API:
+        handleCreateNew(actionType);
         break;
       case API_ACTION.IMPORT_CURL: {
         AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
@@ -243,15 +260,13 @@ function NewApiScreen(props: Props) {
     }
   };
 
+  // Api plugins with Graphql
   const API_PLUGINS = plugins.filter(
-    (p) => p.type === PluginType.SAAS || p.type === PluginType.REMOTE,
+    (p) =>
+      p.packageName === GRAPHQL_PLUGIN_PACKAGE_NAME ||
+      p.type === PluginType.SAAS ||
+      p.type === PluginType.REMOTE,
   );
-
-  const graphqlPlugin = getGraphQLPlugin(plugins);
-
-  if (graphqlPlugin) {
-    API_PLUGINS.push(graphqlPlugin);
-  }
 
   return (
     <StyledContainer>
@@ -285,6 +300,21 @@ function NewApiScreen(props: Props) {
               />
             </div>
             <p className="textBtn">CURL import</p>
+          </CardContentWrapper>
+        </ApiCard>
+        <ApiCard
+          className="t--createBlankCurlCard"
+          onClick={() => handleOnClick(API_ACTION.CREATE_NEW_GRAPHQL_API)}
+        >
+          <CardContentWrapper>
+            <div className="content-icon-wrapper">
+              <img
+                alt="GRAPHQL"
+                className="graphqlImage t--graphqlImage content-icon"
+                src={GraphQLLogo}
+              />
+            </div>
+            <p className="textBtn">Create new GraphQL API</p>
           </CardContentWrapper>
         </ApiCard>
         {authApiPlugin && (
