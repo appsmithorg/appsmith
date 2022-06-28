@@ -1,8 +1,7 @@
 import React, { useEffect, useRef } from "react";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { useSelector } from "react-redux";
 import Text, { TextType } from "../Text";
-import { Position } from "@blueprintjs/core";
 import { getActiveTourIndex, getActiveTourType } from "selectors/tourSelectors";
 import { TourType } from "entities/Tour";
 import TourStepsByType from "constants/TourSteps";
@@ -98,7 +97,7 @@ function TourTooltipWrapper(props: Props) {
           }
           isOpen={!!isOpen}
           modifiers={props.modifiers}
-          position={Position.BOTTOM}
+          position="bottom"
           {...tourStepConfig?.data.tooltipProps}
         >
           {children}

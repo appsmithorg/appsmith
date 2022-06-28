@@ -20,8 +20,7 @@ import { useSelector } from "react-redux";
 import bootIntercom from "utils/bootIntercom";
 import { Colors } from "constants/Colors";
 import Icon from "components/ads/Icon";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core";
+import { TooltipComponent } from "design-system";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -207,7 +206,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                         hoverOpenDelay={0}
                         minWidth={"180px"}
                         openOnTargetFocus={false}
-                        position={Position.RIGHT}
+                        position="right"
                       >
                         <Icon
                           className={`${method.category}-green-check`}
