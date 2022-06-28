@@ -12,6 +12,7 @@ import PropertySection from "./PropertySection";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Boxed from "../GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
+import Fuse from "fuse.js";
 
 export enum PropertyPaneGroup {
   CONTENT,
@@ -24,6 +25,7 @@ export type PropertyControlsGeneratorProps = {
   type: WidgetType;
   panel: IPanelProps;
   theme: EditorTheme;
+  searchQuery?: string;
 };
 
 export const generatePropertyControl = (
@@ -47,7 +49,7 @@ export const generatePropertyControl = (
             hidden={sectionConfig.hidden}
             id={config.id || sectionConfig.sectionName}
             isDefaultOpen={sectionConfig.isDefaultOpen}
-            key={config.id + props.id}
+            key={config.id + props.id + props.searchQuery?.trim()}
             name={sectionConfig.sectionName}
             propertyPath={sectionConfig.propertySectionPath}
           >
@@ -81,7 +83,7 @@ export const generatePropertyControl = (
 export function PropertyControlsGenerator(
   props: PropertyControlsGeneratorProps,
 ) {
-  let config;
+  let config: Readonly<PropertyPaneConfig[]>;
   switch (props.group) {
     case PropertyPaneGroup.CONTENT:
       config = WidgetFactory.getWidgetPropertyPaneContentConfig(props.type);
@@ -92,9 +94,42 @@ export function PropertyControlsGenerator(
     default:
       config = WidgetFactory.getWidgetPropertyPaneConfig(props.type);
   }
+
+  // let fuse: Fuse<PropertyPaneConfig[], Fuse.FuseOptions<any>>;
+
+  // useEffect(() => {
+  // TODO(aswathkk): Make use of Fuse.createIndex to make the indexing Faster
+  const fuse = new Fuse(config, {
+    includeMatches: true,
+    keys: ["children.label"],
+    threshold: 0.5,
+    location: 0,
+    distance: 100,
+  });
+  // }, []);
+
+  let res = config;
+  if (props.searchQuery && props.searchQuery.trim() !== "") {
+    const results = fuse.search(props.searchQuery);
+    const r: PropertyPaneConfig[] = [];
+    for (const result of results) {
+      const indexSet = new Set(
+        result.matches
+          ?.filter((x) => x.key === "children.label")
+          .map((x) => x.refIndex) || [],
+      );
+      if (result.item.children)
+        r.push({
+          ...result.item,
+          children: result.item.children.filter((_, i) => indexSet.has(i)),
+        });
+    }
+    res = r;
+  }
+
   return (
     <div className="px-3 pb-2">
-      {generatePropertyControl(config as readonly PropertyPaneConfig[], props)}
+      {generatePropertyControl(res as readonly PropertyPaneConfig[], props)}
     </div>
   );
 }

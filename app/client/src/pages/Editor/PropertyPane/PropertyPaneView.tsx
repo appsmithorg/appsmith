@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useMemo } from "react";
+import React, { ReactElement, useCallback, useMemo, useState } from "react";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
@@ -22,6 +22,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import styled from "styled-components";
 import { InputWrapper } from "components/ads/TextInput";
 import { PropertyPaneTab } from "./PropertyPaneTab";
+import debounce from "lodash/debounce";
 
 const PropertyPaneContent = styled.div`
   .react-tabs .react-tabs__tab-list {
@@ -76,6 +77,11 @@ function PropertyPaneView(
 
     return true;
   }, [widgetProperties?.type, excludeList]);
+  const [searchText, setSearchText] = useState("");
+
+  const debouncedSetSearchText = debounce(setSearchText, 250, {
+    maxWait: 1000,
+  });
 
   /**
    * on delete button click
@@ -124,6 +130,40 @@ function PropertyPaneView(
       },
     ];
   }, [onCopy, onDelete]);
+
+  const tabs = useMemo(
+    () => [
+      {
+        key: "content",
+        title: "CONTENT",
+        panelComponent: (
+          <PropertyControlsGenerator
+            group={PropertyPaneGroup.CONTENT}
+            id={widgetProperties.widgetId}
+            panel={panel}
+            searchQuery={searchText}
+            theme={EditorTheme.LIGHT}
+            type={widgetProperties.type}
+          />
+        ),
+      },
+      {
+        key: "style",
+        title: "STYLE",
+        panelComponent: (
+          <PropertyControlsGenerator
+            group={PropertyPaneGroup.STYLE}
+            id={widgetProperties.widgetId}
+            panel={panel}
+            searchQuery={searchText}
+            theme={EditorTheme.LIGHT}
+            type={widgetProperties.type}
+          />
+        ),
+      },
+    ],
+    [widgetProperties.widgetId, panel, searchText, widgetProperties.type],
+  );
 
   if (!widgetProperties) return null;
 
@@ -190,44 +230,18 @@ function PropertyPaneView(
           <>
             <StyledSearchInput
               fill
+              onChange={debouncedSetSearchText}
               placeholder="Search for controls, labels etc"
               variant={SearchVariant.BACKGROUND}
             />
-            <PropertyPaneTab
-              tabs={[
-                {
-                  key: "content",
-                  title: "CONTENT",
-                  panelComponent: (
-                    <PropertyControlsGenerator
-                      group={PropertyPaneGroup.CONTENT}
-                      id={widgetProperties.widgetId}
-                      panel={panel}
-                      theme={EditorTheme.LIGHT}
-                      type={widgetProperties.type}
-                    />
-                  ),
-                },
-                {
-                  key: "style",
-                  title: "STYLE",
-                  panelComponent: (
-                    <PropertyControlsGenerator
-                      group={PropertyPaneGroup.STYLE}
-                      id={widgetProperties.widgetId}
-                      panel={panel}
-                      theme={EditorTheme.LIGHT}
-                      type={widgetProperties.type}
-                    />
-                  ),
-                },
-              ]}
-            />
+            <div>Search term: {searchText}</div>
+            <PropertyPaneTab tabs={tabs} />
           </>
         ) : (
           <PropertyControlsGenerator
             id={widgetProperties.widgetId}
             panel={panel}
+            searchQuery={searchText}
             theme={EditorTheme.LIGHT}
             type={widgetProperties.type}
           />
