@@ -3,17 +3,11 @@ import { useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import AppsIcon from "remixicon-react/AppsLineIcon";
 
-import { getCurrentUser } from "selectors/usersSelectors";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
 function BackToHomeButton() {
   const history = useHistory();
-  const currentUser = useSelector(getCurrentUser);
   const selectedTheme = useSelector(getSelectedAppTheme);
-
-  // if user is not logged in, don't render anything
-  if (currentUser?.username == ANONYMOUS_USERNAME) return null;
 
   return (
     <button

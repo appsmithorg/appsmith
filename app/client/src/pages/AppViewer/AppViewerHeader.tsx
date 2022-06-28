@@ -106,7 +106,9 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                 )}
               </div>
               <div className="">
-                <BackToHomeButton />
+                {currentUser?.username == ANONYMOUS_USERNAME && (
+                  <BackToHomeButton />
+                )}
               </div>
             </section>
             <div className="absolute top-0 bottom-0 flex items-center justify-center w-full mt-auto text-center">

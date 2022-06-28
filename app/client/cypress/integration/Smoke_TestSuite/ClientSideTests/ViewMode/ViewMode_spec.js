@@ -1,6 +1,6 @@
 const dsl = require("../../../../fixtures/previewMode.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
+
+const BASE_URL = Cypress.config().baseUrl;
 
 describe("Preview mode functionality", function() {
   before(() => {
@@ -11,10 +11,6 @@ describe("Preview mode functionality", function() {
     cy.PublishtheApp();
 
     cy.get(".t--back-to-home").click();
-    cy.url().should("eq", Cypress.config().baseUrl + "applications");
-  });
-
-  afterEach(() => {
-    // put your clean up code if any
+    cy.url().should("eq", BASE_URL + "applications");
   });
 });
