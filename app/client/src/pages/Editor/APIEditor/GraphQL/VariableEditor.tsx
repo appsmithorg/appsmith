@@ -8,8 +8,6 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core/lib/esnext/common";
 import { Text, TextType } from "components/ads";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
@@ -52,15 +50,9 @@ function VariableEditor(props: VariableProps) {
   return (
     <VariableWrapper>
       <VariableHeader>
-        <TooltipComponent
-          content="Add your query variables here!"
-          hoverOpenDelay={300}
-          position={Position.BOTTOM_LEFT}
-        >
-          <Text color={Colors.GRAY_700} type={TextType.H6}>
-            Query Variables
-          </Text>
-        </TooltipComponent>
+        <Text color={Colors.GRAY_700} type={TextType.H6}>
+          Query Variables
+        </Text>
       </VariableHeader>
       <DynamicTextField
         border={CodeEditorBorder.ALL_SIDE}

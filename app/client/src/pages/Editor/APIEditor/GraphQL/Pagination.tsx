@@ -16,6 +16,7 @@ import log from "loglevel";
 import Tooltip from "components/ads/Tooltip";
 import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
+import { Colors } from "constants/Colors";
 
 interface PaginationProps {
   onTestClick: (test?: "PREV" | "NEXT") => void;
@@ -28,19 +29,14 @@ interface PaginationProps {
   limitBased?: any;
 }
 
-const Description = styled(Text)`
-  display: block;
-  margin-bottom: ${(props) => props.theme.spaces[6]}px;
-`;
-
 const SubHeading = styled(Text)`
   display: block;
-  margin-bottom: ${(props) => props.theme.spaces[8]}px;
+  margin-bottom: ${(props) => props.theme.spaces[4]}px;
   color: ${(props) => props.theme.colors.apiPane.pagination.stepTitle};
 `;
 
 const PaginationTypeView = styled.div`
-  margin: -16px 0 16px 28px;
+  margin: -16px 0 24px 28px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -58,19 +54,25 @@ const PaginationSection = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-`;
-
-const PaginationFieldContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
 `;
 
 const PaginationFieldWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: ${(props) => props.theme.spaces[5]}px;
   width: 48%;
+  max-width: 280px;
+`;
+
+const PaginationFieldContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  &:not(:last-child) {
+    margin-bottom: ${(props) => props.theme.spaces[9]}px;
+  }
+  ${PaginationFieldWrapper}:last-child {
+    margin-left: 24px;
+  }
 `;
 
 const Step = styled.div`
@@ -80,7 +82,7 @@ const Step = styled.div`
   }
 
   & label .bp3-popover-target .label-icon-wrapper {
-    text-decoration: underline;
+    border-bottom: 1px dashed ${Colors.LIGHT_GREYISH_BLUE};
     cursor: help;
   }
 `;
@@ -134,10 +136,13 @@ const graphqlParseVariables = (queryBody: string) => {
 
 type PaginationTypeBasedWrapperProps = {
   dataReplayId: string;
-  onInputChange?: any;
-  onSelectVariable: any;
-  onSeparateKeyChange?: any;
-  selectedVariable: any;
+  onInputChange?: (value: any) => void;
+  onSelectVariable: (_: any, dropdownOption: any) => void;
+  onSeparateKeyChange?: (value: any) => void;
+  selectedVariable: {
+    label?: string;
+    value?: string;
+  };
   separateKeyFlag?: boolean;
   separateKeyLabel?: string;
   separateKeyPath?: string;
@@ -194,7 +199,16 @@ function PaginationTypeBasedWrapper({
           fillOptions
           onSelect={onSelectVariable}
           options={variableOptions}
-          selected={selectedVariable}
+          placeholder={
+            variableOptions.length > 0
+              ? "Select a variable"
+              : "Add variables in query to select here"
+          }
+          selected={
+            (selectedVariable.label && selectedVariable.value
+              ? selectedVariable
+              : undefined) as any
+          }
           showLabelOnly
           width={"100%"}
         />
@@ -220,6 +234,7 @@ function PaginationTypeBasedWrapper({
           name={valuePath}
           onChange={onInputChange}
           placeholder={valuePlaceholder || ""}
+          showLightningMenu={!(separateKeyFlag && !separateValueFlag)}
         />
         {separateKeyFlag &&
           separateKeyPath &&
@@ -316,11 +331,11 @@ function Pagination(props: PaginationProps) {
           selectedOptionElements={[
             null,
             <PaginationTypeView key={`${PaginationType.PAGE_NO}-element`}>
+              <Text type={TextType.P1}>
+                Specify a specific limit (number of results) and offset (the
+                number of records that needed to be skipped).
+              </Text>
               <PaginationSection>
-                <Description type={TextType.P1}>
-                  Specify a specific limit (number of results) and offset (the
-                  number of records that needed to be skipped).
-                </Description>
                 {/* Limit */}
                 <PaginationTypeBasedWrapper
                   dataReplayId={btoa(
@@ -396,7 +411,7 @@ function Pagination(props: PaginationProps) {
               </PaginationSection>
             </PaginationTypeView>,
             <PaginationTypeView key={`${PaginationType.CURSOR}-element`}>
-              <Description type={TextType.P1}>
+              <Text type={TextType.P1}>
                 Specfiy the previous and next cursor variables along with a
                 limit value.{" "}
                 <a
@@ -408,9 +423,9 @@ function Pagination(props: PaginationProps) {
                   Refer documentation
                 </a>{" "}
                 for more information
-              </Description>
+              </Text>
               <PaginationSection>
-                <SubHeading type={TextType.P2}>
+                <SubHeading type={TextType.P1}>
                   Configure Previous Page
                 </SubHeading>
                 {/* Previous Limit Value */}
@@ -488,7 +503,7 @@ function Pagination(props: PaginationProps) {
                 />
               </PaginationSection>
               <PaginationSection>
-                <SubHeading type={TextType.P2}>Configure Next Page</SubHeading>
+                <SubHeading type={TextType.P1}>Configure Next Page</SubHeading>
                 {/* Next Limit Value */}
                 <PaginationTypeBasedWrapper
                   dataReplayId={btoa(`${PAGINATION_PREFIX}.next.limit`)}
