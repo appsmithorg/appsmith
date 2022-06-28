@@ -14,24 +14,6 @@ export const FIRST_EVAL_REDUX_ACTIONS = [
   ReduxActionTypes.FETCH_ALL_PAGE_ENTITY_COMPLETION,
 ];
 
-export const URL_CHANGE_ACTIONS = [
-  ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS,
-  ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
-  ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
-  ReduxActionTypes.FORK_APPLICATION_SUCCESS,
-  ReduxActionTypes.CREATE_APPLICATION_SUCCESS,
-  ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
-  ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
-  ReduxActionTypes.UPDATE_PAGE_SUCCESS,
-  ReduxActionTypes.CREATE_PAGE_SUCCESS,
-  ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
-];
-
-export type ReduxURLChangeAction<T> = {
-  type: typeof URL_CHANGE_ACTIONS;
-  payload: T;
-};
-
 export const EVALUATE_REDUX_ACTIONS = [
   ...FIRST_EVAL_REDUX_ACTIONS,
   // Actions

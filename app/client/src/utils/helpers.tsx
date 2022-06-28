@@ -758,8 +758,19 @@ export const getUpdatedRoute = (
   });
   if (matchCustomPath?.params) {
     const { customSlug } = matchCustomPath.params;
-    updatedPath.replace(`${customSlug}`, `${params.customSlug}-`);
+    if (params.customSlug) {
+      updatedPath = updatedPath.replace(
+        `${customSlug}`,
+        `${params.customSlug}-`,
+      );
+    } else {
+      updatedPath = updatedPath.replace(
+        `${customSlug}`,
+        `${params.applicationSlug}/${params.pageSlug}-`,
+      );
+    }
   }
+  return updatedPath;
 };
 
 export const updateSlugNamesInURL = (params: Record<string, string>) => {

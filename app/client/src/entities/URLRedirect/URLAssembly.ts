@@ -3,6 +3,7 @@ import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  PLACEHOLDER_PAGE_SLUG,
   VIEWER_CUSTOM_PATH,
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
@@ -164,7 +165,7 @@ export class URLBuilder {
     let currentPageParams = this.pageParams[pageId] || {};
     currentPageParams = {
       ...currentPageParams,
-      pageSlug: `${currentPageParams.pageSlug}-`,
+      pageSlug: `${currentPageParams.pageSlug || PLACEHOLDER_PAGE_SLUG}-`,
       customSlug: currentPageParams.customSlug
         ? `${currentPageParams.customSlug}-`
         : currentPageParams.customSlug,

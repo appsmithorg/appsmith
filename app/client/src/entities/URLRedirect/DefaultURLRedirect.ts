@@ -22,16 +22,15 @@ export default class DefaultURLRedirect extends URLRedirect {
       currentApplication.applicationVersion < ApplicationVersion.SLUG_URL &&
       !isURLDeprecated(pathname) &&
       this._mode === APP_MODE.EDIT;
-    if (shouldSwitchFromNewToLegacyURL) {
-      // We do not allow downgrading application version but,
-      // when switch from a branch with updated URL to another one with legacy URLs,
-      // we need to compute the legacy url
-      // This scenario can happen only in edit mode.
-      newURL = builderURL({
-        pageId: pageId,
-        hash,
-      });
-    }
+    if (!shouldSwitchFromNewToLegacyURL) return;
+    // We do not allow downgrading application version but,
+    // when switch from a branch with updated URL to another one with legacy URLs,
+    // we need to compute the legacy url
+    // This scenario can happen only in edit mode.
+    newURL = builderURL({
+      pageId: pageId,
+      hash,
+    });
     return newURL;
   }
 }
