@@ -128,4 +128,11 @@ export class PropertyPane {
     }
     this.agHelper.AssertAutoSave();
   }
+
+  public SelectJSFunctionToExecute(eventName: string, jsName: string, funcName: string){
+    this.agHelper.SelectPropertiesDropDown(eventName, "Execute a JS function");
+    this.agHelper.GetNClick(this.locator._dropDownValue(jsName), 0, true);
+    this.agHelper.GetNClick(this.locator._dropDownValue(funcName), 0, true);
+    this.agHelper.AssertAutoSave();
+  }
 }
