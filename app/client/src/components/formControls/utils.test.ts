@@ -10,8 +10,9 @@ import {
   extractConditionalOutput,
   checkIfSectionCanRender,
   checkIfSectionIsEnabled,
+  updateEvaluatedSectionConfig,
 } from "./utils";
-import { FormConfigType, HiddenType } from "./BaseControl";
+import { HiddenType } from "./BaseControl";
 import { set } from "lodash";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 
@@ -695,6 +696,14 @@ describe("UQI form render methods", () => {
         input: "identifier3",
         output: false,
       },
+      {
+        input: "identifier4",
+        output: false,
+      },
+      {
+        input: "identifier5",
+        output: true,
+      },
     ];
     testCases.forEach((testCase) => {
       const output = checkIfSectionCanRender(formEvaluation[testCase.input]);
@@ -777,6 +786,57 @@ describe("UQI form render methods", () => {
       expect(output).toEqual(testCase.output);
     });
   });
+
+  it("update section config tests", () => {
+    const testCases = [
+      {
+        input: {
+          sectionObject: {
+            key1: "valueX",
+            key2: "valueY",
+            disabled: false,
+            visible: false,
+            controlType: "SECTION",
+          },
+          path: "updateSectionConfigTest1",
+        },
+        output: {
+          key1: "value1",
+          key2: "value2",
+          disabled: false,
+          visible: false,
+          controlType: "SECTION",
+        },
+      },
+      {
+        input: {
+          sectionObject: {
+            key1: "valueX",
+            key2: "valueY",
+            disabled: false,
+            visible: false,
+            controlType: "SECTION",
+          },
+          path: "updateSectionConfigTest2",
+        },
+        output: {
+          key1: "valueX",
+          key2: "valueY",
+          disabled: false,
+          visible: false,
+          controlType: "SECTION",
+        },
+      },
+    ];
+
+    testCases.forEach((testCase) => {
+      const output = updateEvaluatedSectionConfig(
+        testCase.input.sectionObject,
+        formEvaluation[testCase.input.path],
+      );
+      expect(output).toEqual(testCase.output);
+    });
+  });
 });
 
 // Constant evaluation object used for testing
@@ -803,5 +863,43 @@ const formEvaluation: Record<string, any> = {
   identifier3: {
     conditionals: {},
     visible: false,
+  },
+  identifier4: {
+    conditionals: {},
+    visible: true,
+    evaluateFormConfig: {
+      updateEvaluatedConfig: false,
+    },
+  },
+  identifier5: {
+    conditionals: {},
+    visible: true,
+    evaluateFormConfig: {
+      updateEvaluatedConfig: "false",
+    },
+  },
+  updateSectionConfigTest1: {
+    conditionals: {},
+    visible: true,
+    enabled: true,
+    evaluateFormConfig: {
+      updateEvaluatedConfig: true,
+      evaluateFormConfigObject: {
+        key1: { output: "value1" },
+        key2: { output: "value2" },
+      },
+    },
+  },
+  updateSectionConfigTest2: {
+    conditionals: {},
+    visible: true,
+    enabled: true,
+    evaluateFormConfig: {
+      updateEvaluatedConfig: false,
+      evaluateFormConfigObject: {
+        key1: { output: "value1" },
+        key2: { output: "value2" },
+      },
+    },
   },
 };
