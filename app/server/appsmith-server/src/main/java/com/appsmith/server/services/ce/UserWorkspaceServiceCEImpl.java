@@ -203,8 +203,9 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .flatMapMany(Flux::fromIterable)
                 .map(UserAndGroupDTO::getUsername)
                 .collect(Collectors.toSet())
-                .flatMapMany(usernames -> userRepository.findAllByEmails(usernames, AclPermission.READ_USERS))
-                .collectMap(User::getUsername).cache();
+                .flatMapMany(usernames -> userRepository.findAllByEmails(usernames))
+                .collectMap(User::getUsername)
+                .cache();
 
         // Update name in the list of UserAndGroupDTO
         userAndGroupDTOsMono = userAndGroupDTOsMono

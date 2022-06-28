@@ -109,11 +109,20 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     }
 
     public static final Criteria userAcl(Set<String> permissionGroups, AclPermission permission) {
+
+        // Check if the permission is being provided by any of the permission groups
         Criteria permissionGroupCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
-                .elemMatch(Criteria.where("permissionGroups").all(permissionGroups)
+                .elemMatch(Criteria.where("permissionGroups").in(permissionGroups)
                         .and("permission").is(permission.getValue()));
 
-        return permissionGroupCriteria;
+        // Also check if the permission is being provided by being assigned to ANONYMOUS_USER, aka
+        // open for public.
+        Criteria anonymousUserCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
+                .elemMatch(Criteria.where("users").all(FieldName.ANONYMOUS_USER)
+                        .and("permission").is(permission.getValue())
+                );
+
+        return new Criteria().orOperator(permissionGroupCriteria, anonymousUserCriteria);
     }
 
     protected Criteria getIdCriteria(Object id) {
