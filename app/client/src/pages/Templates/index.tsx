@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
-import { Classes, ControlGroup } from "@blueprintjs/core";
+import { ControlGroup } from "@blueprintjs/core";
 import { debounce, noop, isEmpty } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
 import SearchInput, { SearchVariant } from "components/ads/SearchInput";
@@ -34,6 +34,7 @@ import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { Template } from "api/TemplatesApi";
+import LoadingScreen from "./TemplatesModal/LoadingScreen";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const PageWrapper = styled.div`
@@ -73,22 +74,6 @@ export const ResultsCount = styled.div`
   margin-top: ${(props) => props.theme.spaces[5]}px;
   margin-left: ${(props) => props.theme.spaces[12]}px;
   padding-bottom: ${(props) => props.theme.spaces[11]}px;
-`;
-
-const Loader = styled(TemplateListWrapper)`
-  height: 100vh;
-  .results-count {
-    height: 20px;
-    width: 100px;
-  }
-`;
-
-const LoadingTemplateList = styled.div`
-  margin-top: ${(props) => props.theme.spaces[11]}px;
-  // 200 is to have some space at the bottom
-  height: calc(100% - 200px);
-  margin-right: ${(props) => props.theme.spaces[9]}px;
-  margin-left: ${(props) => props.theme.spaces[12] + 2}px;
 `;
 
 const SearchWrapper = styled.div`
@@ -149,15 +134,6 @@ function TemplateRoutes() {
   );
 }
 
-function TemplateListLoader() {
-  return (
-    <Loader>
-      <ResultsCount className={`results-count ${Classes.SKELETON}`} />
-      <LoadingTemplateList className={Classes.SKELETON} />
-    </Loader>
-  );
-}
-
 type TemplatesContentProps = {
   onTemplateClick?: (id: string) => void;
   onForkTemplateClick?: (template: Template) => void;
@@ -193,7 +169,7 @@ export function TemplatesContent(props: TemplatesContentProps) {
   }
 
   if (isLoading) {
-    return <TemplateListLoader />;
+    return <LoadingScreen text="Loading templates" />;
   }
 
   return (

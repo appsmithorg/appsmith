@@ -4,7 +4,7 @@ import { ReactComponent as Database } from "assets/icons/ads/database-3.svg";
 import { ReactComponent as AddPage } from "assets/icons/ads/file-add-line.svg";
 import { Popover2 } from "@blueprintjs/popover2";
 import Text, { TextType } from "components/ads/Text";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { EntityClassNames } from "../Entity";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
@@ -17,14 +17,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { ExplorerURLParams } from "../helpers";
 import { selectURLSlugs } from "selectors/editorSelectors";
 import { showTemplatesModal } from "actions/templateActions";
+import { Colors } from "constants/Colors";
+import {
+  ADD_PAGE_FROM_TEMPLATE,
+  ADD_PAGE_TOOLTIP,
+  createMessage,
+  CREATE_PAGE,
+  GENERATE_PAGE_ACTION_TITLE,
+} from "@appsmith/constants/messages";
 
 const MenuItem = styled.div`
   display: flex;
-  gap: 10px;
+  gap: ${(props) => props.theme.spaces[3]}px;
   height: 40px;
   width: 250px;
   align-items: center;
-  padding-left: 16px;
+  padding-left: ${(props) => props.theme.spaces[7]}px;
   svg {
     height: 16px;
     width: 16px;
@@ -32,7 +40,7 @@ const MenuItem = styled.div`
   cursor: pointer;
 
   &:hover {
-    background-color: #f1f1f1;
+    background-color: ${Colors.GREY_2};
   }
 `;
 
@@ -56,12 +64,12 @@ function AddPageContextMenu({
 
   const ContextMenuItems = [
     {
-      title: "Create a blank page",
+      title: createMessage(CREATE_PAGE),
       icon: <AddPage />,
       onClick: createPageCallback,
     },
     {
-      title: "Generate page from data table",
+      title: createMessage(GENERATE_PAGE_ACTION_TITLE),
       icon: <Database />,
       onClick: () =>
         history.push(
@@ -69,7 +77,7 @@ function AddPageContextMenu({
         ),
     },
     {
-      title: "Add page from template",
+      title: createMessage(ADD_PAGE_FROM_TEMPLATE),
       icon: <Layout />,
       onClick: () => dispatch(showTemplatesModal(true)),
     },
@@ -89,7 +97,7 @@ function AddPageContextMenu({
             return (
               <MenuItem key={item.title} onClick={() => onMenuItemClick(item)}>
                 {item.icon}
-                <Text color={"#575757"} type={TextType.P3}>
+                <Text color={Colors.GRAY_700} type={TextType.P3}>
                   {item.title}
                 </Text>
               </MenuItem>
@@ -105,10 +113,10 @@ function AddPageContextMenu({
       }}
       placement="right-start"
     >
-      <TooltipComponent
+      <Tooltip
         boundary="viewport"
         className={EntityClassNames.TOOLTIP}
-        content={"Add a new page"}
+        content={createMessage(ADD_PAGE_TOOLTIP)}
         disabled={show}
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
         position={Position.RIGHT}
@@ -117,7 +125,7 @@ function AddPageContextMenu({
           className={`${className} ${show ? "selected" : ""}`}
           onClick={() => setShow(true)}
         />
-      </TooltipComponent>
+      </Tooltip>
     </Popover2>
   );
 }
