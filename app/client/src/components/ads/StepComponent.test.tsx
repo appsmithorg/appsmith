@@ -2,7 +2,7 @@ import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import { ThemeProvider } from "constants/DefaultTheme";
-import { StepComponent } from "./StepComponent";
+import StepComponent from "./StepComponent";
 import { lightTheme } from "selectors/themeSelectors";
 import userEvent from "@testing-library/user-event";
 import { noop } from "lodash";

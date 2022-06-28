@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
-import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
+import useAdsEvent from "utils/hooks/useAdsEvent";
+import { ADSEventTypes } from "utils/AppsmithUtils";
 
 const StyledIncreaseIcon = styled(
   ControlIcons.INCREASE_CONTROL as AnyStyledComponent,
@@ -68,74 +69,87 @@ interface StepComponentProps {
   onChange: (value: number, isUpdatedViaKeyboard: boolean) => void;
 }
 
-export function StepComponent(props: StepComponentProps) {
-  const {
-    dispatchInteractionAnalyticsEvent,
-    eventEmitterRef,
-  } = useInteractionAnalyticsEvent<HTMLDivElement>();
+const StepComponent = React.forwardRef(
+  (props: StepComponentProps, ref: any) => {
+    const { dispatchAdsEvent, eventEmitterRef } = useAdsEvent<HTMLDivElement>(
+      false,
+      ref,
+    );
 
-  function decrease(isUpdatedViaKeyboard = false) {
-    if (props.value < props.min) {
-      return;
-    }
-    const value = props.value - props.steps;
-    props.onChange(value, isUpdatedViaKeyboard);
-  }
-
-  function increase(isUpdatedViaKeyboard = false) {
-    if (props.value > props.max) {
-      return;
-    }
-    const value = props.value + props.steps;
-    props.onChange(value, isUpdatedViaKeyboard);
-  }
-
-  function handleKeydown(e: React.KeyboardEvent) {
-    switch (e.key) {
-      case "ArrowUp":
-      case "Up":
-      case "ArrowRight":
-      case "Right":
-        dispatchInteractionAnalyticsEvent({ key: e.key });
-        increase(true);
-        e.preventDefault();
-        break;
-      case "ArrowDown":
-      case "Down":
-      case "ArrowLeft":
-      case "Left":
-        dispatchInteractionAnalyticsEvent({ key: e.key });
-        decrease(true);
-        e.preventDefault();
-        break;
-      case "Tab":
-        dispatchInteractionAnalyticsEvent({
-          key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+    const emitKeyboardAnalyticsEvent = useCallback(
+      (key: string) => {
+        dispatchAdsEvent({
+          component: "StepComponent",
+          event: ADSEventTypes.KEYBOARD_ANALYTICS,
+          meta: {
+            key,
+          },
         });
-        break;
-    }
-  }
+      },
+      [dispatchAdsEvent],
+    );
 
-  return (
-    <StepWrapper
-      data-testid="step-wrapper"
-      onKeyDown={handleKeydown}
-      ref={eventEmitterRef}
-      tabIndex={0}
-    >
-      <StyledDecreaseIcon
-        height={2}
-        onClick={() => decrease(false)}
-        width={12}
-      />
-      <InputWrapper>{props.displayFormat(props.value)}</InputWrapper>
-      <StyledIncreaseIcon
-        height={12}
-        onClick={() => increase(false)}
-        width={12}
-      />
-    </StepWrapper>
-  );
-}
+    function decrease(isUpdatedViaKeyboard = false) {
+      if (props.value < props.min) {
+        return;
+      }
+      const value = props.value - props.steps;
+      props.onChange(value, isUpdatedViaKeyboard);
+    }
+
+    function increase(isUpdatedViaKeyboard = false) {
+      if (props.value > props.max) {
+        return;
+      }
+      const value = props.value + props.steps;
+      props.onChange(value, isUpdatedViaKeyboard);
+    }
+
+    function handleKeydown(e: React.KeyboardEvent) {
+      switch (e.key) {
+        case "ArrowUp":
+        case "Up":
+        case "ArrowRight":
+        case "Right":
+          emitKeyboardAnalyticsEvent(e.key);
+          increase(true);
+          e.preventDefault();
+          break;
+        case "ArrowDown":
+        case "Down":
+        case "ArrowLeft":
+        case "Left":
+          emitKeyboardAnalyticsEvent(e.key);
+          decrease(true);
+          e.preventDefault();
+          break;
+        case "Tab":
+          emitKeyboardAnalyticsEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
+          break;
+      }
+    }
+
+    return (
+      <StepWrapper
+        data-testid="step-wrapper"
+        onKeyDown={handleKeydown}
+        ref={eventEmitterRef}
+        tabIndex={0}
+      >
+        <StyledDecreaseIcon
+          height={2}
+          onClick={() => decrease(false)}
+          width={12}
+        />
+        <InputWrapper>{props.displayFormat(props.value)}</InputWrapper>
+        <StyledIncreaseIcon
+          height={12}
+          onClick={() => increase(false)}
+          width={12}
+        />
+      </StepWrapper>
+    );
+  },
+);
 
 export default StepComponent;

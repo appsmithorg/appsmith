@@ -134,6 +134,39 @@ export const interactionAnalyticsEvent = (
     detail,
   });
 
+export function emitInteractionAnalyticsEvent<T extends HTMLElement>(
+  element: T | null,
+  args: Record<string, unknown>,
+) {
+  element?.dispatchEvent(interactionAnalyticsEvent(args));
+}
+
+export const ADS_EVENT = "ADS_EVENT";
+
+export enum ADSEventTypes {
+  KEYBOARD_ANALYTICS = "KEYBOARD_ANALYTICS",
+}
+
+export type AdsEventDetail = {
+  component: string;
+  event: ADSEventTypes;
+  meta: Record<string, unknown>;
+};
+
+export function createAdsEvent(detail: AdsEventDetail) {
+  return new CustomEvent(ADS_EVENT, {
+    bubbles: true,
+    detail,
+  });
+}
+
+export function emitAdsEvent<T extends HTMLElement>(
+  element: T | null,
+  args: AdsEventDetail,
+) {
+  element?.dispatchEvent(createAdsEvent(args));
+}
+
 export const getNextEntityName = (
   prefix: string,
   existingNames: string[],

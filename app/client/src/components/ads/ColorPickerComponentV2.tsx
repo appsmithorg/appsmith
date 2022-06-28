@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useMemo, useState } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useMemo,
+  useState,
+  useCallback,
+} from "react";
 import styled from "styled-components";
 import {
   Popover,
@@ -18,7 +24,8 @@ import {
 import { getWidgets } from "sagas/selectors";
 import { extractColorsFromString } from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
-import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
+import useAdsEvent from "utils/hooks/useAdsEvent";
+import { ADSEventTypes } from "utils/AppsmithUtils";
 const FocusTrap = require("focus-trap-react");
 
 const MAX_COLS = 10;
@@ -302,232 +309,243 @@ const POPOVER_MODFIER = {
   },
 };
 
-function ColorPickerComponent(props: ColorPickerProps) {
-  const { isOpen: isOpenProp = false } = props;
-  const inputRef = useRef<HTMLDivElement>(null);
-  const popupRef = useRef<HTMLDivElement>(null);
-  const inputGroupRef = useRef<HTMLInputElement>(null);
-  // isClick is used to track whether the input field is in focus by mouse click or by keyboard
-  // This is used since we open the popup only on mouse click not on keyboard focus
-  const isClick = useRef(false);
-  const [isOpen, setIsOpen] = React.useState(isOpenProp);
-  const [color, setColor] = React.useState(
-    props.evaluatedColorValue || props.color,
-  );
+const ColorPickerComponent = React.forwardRef(
+  (props: ColorPickerProps, containerRef: any) => {
+    const { isOpen: isOpenProp = false } = props;
+    const popupRef = useRef<HTMLDivElement>(null);
+    const inputGroupRef = useRef<HTMLInputElement>(null);
+    // isClick is used to track whether the input field is in focus by mouse click or by keyboard
+    // This is used since we open the popup only on mouse click not on keyboard focus
+    const isClick = useRef(false);
+    const [isOpen, setIsOpen] = React.useState(isOpenProp);
+    const [color, setColor] = React.useState(
+      props.evaluatedColorValue || props.color,
+    );
 
-  const debouncedOnChange = React.useCallback(
-    debounce((color: string, isUpdatedViaKeyboard: boolean) => {
-      props.changeColor(color, isUpdatedViaKeyboard);
-    }, DEBOUNCE_TIMER),
-    [],
-  );
+    const debouncedOnChange = React.useCallback(
+      debounce((color: string, isUpdatedViaKeyboard: boolean) => {
+        props.changeColor(color, isUpdatedViaKeyboard);
+      }, DEBOUNCE_TIMER),
+      [],
+    );
 
-  useEffect(() => {
-    setIsOpen(isOpenProp);
-  }, [isOpenProp, setIsOpen]);
+    useEffect(() => {
+      setIsOpen(isOpenProp);
+    }, [isOpenProp, setIsOpen]);
 
-  const currentFocus = useRef(0);
-  const { dispatchInteractionAnalyticsEvent } = useInteractionAnalyticsEvent(
-    false,
-    inputRef,
-  );
+    const currentFocus = useRef(0);
 
-  const handleKeydown = (e: KeyboardEvent) => {
-    if (isOpen) {
-      switch (e.key) {
-        case "Escape":
-          dispatchInteractionAnalyticsEvent({ key: e.key });
-          setIsOpen(false);
-          setTimeout(() => {
-            inputGroupRef.current?.focus();
-          }, 300);
-          e.stopPropagation();
-          break;
-        case "Tab":
-          dispatchInteractionAnalyticsEvent({
-            key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
-          });
-          currentFocus.current = 0;
-          if (document.activeElement === inputGroupRef.current) {
+    const { dispatchAdsEvent } = useAdsEvent<HTMLDivElement>(
+      false,
+      containerRef,
+    );
+
+    const emitKeyboardAnalyticsEvent = useCallback(
+      (key: string) => {
+        dispatchAdsEvent({
+          component: "ColorPicker",
+          event: ADSEventTypes.KEYBOARD_ANALYTICS,
+          meta: {
+            key,
+          },
+        });
+      },
+      [dispatchAdsEvent],
+    );
+
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (isOpen) {
+        switch (e.key) {
+          case "Escape":
+            emitKeyboardAnalyticsEvent(e.key);
+            setIsOpen(false);
             setTimeout(() => {
-              const firstElement = popupRef.current?.querySelectorAll(
-                "[tabindex='0']",
-              )?.[0] as any;
-              firstElement?.focus();
-            });
+              inputGroupRef.current?.focus();
+            }, 300);
+            e.stopPropagation();
+            break;
+          case "Tab":
+            emitKeyboardAnalyticsEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
+            currentFocus.current = 0;
+            if (document.activeElement === inputGroupRef.current) {
+              setTimeout(() => {
+                const firstElement = popupRef.current?.querySelectorAll(
+                  "[tabindex='0']",
+                )?.[0] as any;
+                firstElement?.focus();
+              });
+            }
+            break;
+          case "Enter":
+          case " ":
+            emitKeyboardAnalyticsEvent(e.key);
+            (document.activeElement as any)?.click();
+            setTimeout(() => {
+              inputGroupRef.current?.focus();
+            }, 300);
+            e.preventDefault();
+            break;
+          case "ArrowRight": {
+            emitKeyboardAnalyticsEvent(e.key);
+            const totalColors =
+              document.activeElement?.parentElement?.childElementCount ?? 0;
+            currentFocus.current = currentFocus.current + 1;
+            if (
+              currentFocus.current % MAX_COLS === 0 ||
+              currentFocus.current >= totalColors
+            )
+              currentFocus.current =
+                currentFocus.current % MAX_COLS === 0
+                  ? currentFocus.current - MAX_COLS
+                  : totalColors - (totalColors % MAX_COLS);
+            (document.activeElement?.parentElement?.childNodes[
+              currentFocus.current
+            ] as any).focus();
+            break;
           }
-          break;
-        case "Enter":
-        case " ":
-          dispatchInteractionAnalyticsEvent({ key: e.key });
-          (document.activeElement as any)?.click();
-          setTimeout(() => {
-            inputGroupRef.current?.focus();
-          }, 300);
-          e.preventDefault();
-          break;
-        case "ArrowRight": {
-          dispatchInteractionAnalyticsEvent({ key: e.key });
-          const totalColors =
-            document.activeElement?.parentElement?.childElementCount ?? 0;
-          currentFocus.current = currentFocus.current + 1;
-          if (
-            currentFocus.current % MAX_COLS === 0 ||
-            currentFocus.current >= totalColors
-          )
-            currentFocus.current =
-              currentFocus.current % MAX_COLS === 0
-                ? currentFocus.current - MAX_COLS
-                : totalColors - (totalColors % MAX_COLS);
-          (document.activeElement?.parentElement?.childNodes[
-            currentFocus.current
-          ] as any).focus();
-          break;
-        }
-        case "ArrowLeft": {
-          dispatchInteractionAnalyticsEvent({ key: e.key });
-          const totalColors =
-            document.activeElement?.parentElement?.childElementCount ?? 0;
-          currentFocus.current = currentFocus.current - 1;
-          if (
-            currentFocus.current < 0 ||
-            currentFocus.current % MAX_COLS === MAX_COLS - 1
-          ) {
+          case "ArrowLeft": {
+            emitKeyboardAnalyticsEvent(e.key);
+            const totalColors =
+              document.activeElement?.parentElement?.childElementCount ?? 0;
+            currentFocus.current = currentFocus.current - 1;
+            if (
+              currentFocus.current < 0 ||
+              currentFocus.current % MAX_COLS === MAX_COLS - 1
+            ) {
+              currentFocus.current = currentFocus.current + MAX_COLS;
+              if (currentFocus.current > totalColors)
+                currentFocus.current = totalColors - 1;
+            }
+            (document.activeElement?.parentElement?.childNodes[
+              currentFocus.current
+            ] as any).focus();
+            break;
+          }
+          case "ArrowDown": {
+            emitKeyboardAnalyticsEvent(e.key);
+            const totalColors =
+              document.activeElement?.parentElement?.childElementCount ?? 0;
+            if (totalColors < MAX_COLS) break;
             currentFocus.current = currentFocus.current + MAX_COLS;
-            if (currentFocus.current > totalColors)
-              currentFocus.current = totalColors - 1;
+            if (currentFocus.current >= totalColors)
+              currentFocus.current = currentFocus.current % MAX_COLS;
+            (document.activeElement?.parentElement?.childNodes[
+              currentFocus.current
+            ] as any).focus();
+            break;
           }
-          (document.activeElement?.parentElement?.childNodes[
-            currentFocus.current
-          ] as any).focus();
-          break;
-        }
-        case "ArrowDown": {
-          dispatchInteractionAnalyticsEvent({ key: e.key });
-          const totalColors =
-            document.activeElement?.parentElement?.childElementCount ?? 0;
-          if (totalColors < MAX_COLS) break;
-          currentFocus.current = currentFocus.current + MAX_COLS;
-          if (currentFocus.current >= totalColors)
-            currentFocus.current = currentFocus.current % MAX_COLS;
-          (document.activeElement?.parentElement?.childNodes[
-            currentFocus.current
-          ] as any).focus();
-          break;
-        }
-        case "ArrowUp": {
-          dispatchInteractionAnalyticsEvent({ key: e.key });
-          const totalColors =
-            document.activeElement?.parentElement?.childElementCount ?? 0;
-          if (totalColors < MAX_COLS) break;
-          currentFocus.current = currentFocus.current - MAX_COLS;
-          if (currentFocus.current < 0) {
-            const factor = Math.floor(totalColors / MAX_COLS) * MAX_COLS;
-            const nextIndex = factor + currentFocus.current + MAX_COLS;
-            if (nextIndex >= totalColors)
-              currentFocus.current = nextIndex - MAX_COLS;
-            else currentFocus.current = nextIndex;
+          case "ArrowUp": {
+            emitKeyboardAnalyticsEvent(e.key);
+            const totalColors =
+              document.activeElement?.parentElement?.childElementCount ?? 0;
+            if (totalColors < MAX_COLS) break;
+            currentFocus.current = currentFocus.current - MAX_COLS;
+            if (currentFocus.current < 0) {
+              const factor = Math.floor(totalColors / MAX_COLS) * MAX_COLS;
+              const nextIndex = factor + currentFocus.current + MAX_COLS;
+              if (nextIndex >= totalColors)
+                currentFocus.current = nextIndex - MAX_COLS;
+              else currentFocus.current = nextIndex;
+            }
+            (document.activeElement?.parentElement?.childNodes[
+              currentFocus.current
+            ] as any).focus();
+            break;
           }
-          (document.activeElement?.parentElement?.childNodes[
-            currentFocus.current
-          ] as any).focus();
-          break;
+        }
+      } else if (document.activeElement === inputGroupRef.current) {
+        switch (e.key) {
+          case "Enter":
+            emitKeyboardAnalyticsEvent(e.key);
+            setIsOpen(true);
+            const firstElement = popupRef.current?.querySelectorAll(
+              "[tabindex='0']",
+            )?.[0] as any;
+            firstElement?.focus();
+            break;
+          case "Escape":
+            emitKeyboardAnalyticsEvent(e.key);
+            inputGroupRef.current?.blur();
+            break;
+          case "Tab":
+            emitKeyboardAnalyticsEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
         }
       }
-    } else if (document.activeElement === inputGroupRef.current) {
-      switch (e.key) {
-        case "Enter":
-          dispatchInteractionAnalyticsEvent({ key: e.key });
-          setIsOpen(true);
-          const firstElement = popupRef.current?.querySelectorAll(
-            "[tabindex='0']",
-          )?.[0] as any;
-          firstElement?.focus();
-          break;
-        case "Escape":
-          dispatchInteractionAnalyticsEvent({ key: e.key });
-          inputGroupRef.current?.blur();
-          break;
-        case "Tab":
-          dispatchInteractionAnalyticsEvent({
-            key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
-          });
-      }
-    }
-  };
-
-  useEffect(() => {
-    document.body.addEventListener("keydown", handleKeydown);
-    return () => {
-      document.body.removeEventListener("keydown", handleKeydown);
     };
-  }, [handleKeydown]);
 
-  const handleChangeColor = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    debouncedOnChange(value, true);
-    setColor(value);
-  };
+    useEffect(() => {
+      document.body.addEventListener("keydown", handleKeydown);
+      return () => {
+        document.body.removeEventListener("keydown", handleKeydown);
+      };
+    }, [handleKeydown]);
 
-  // if props.color changes and state color is different,
-  // sets the state color to props color
-  useEffect(() => {
-    if (props.color !== color) {
-      setColor(props.color);
-    }
-  }, [props.color]);
+    const handleChangeColor = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+      debouncedOnChange(value, true);
+      setColor(value);
+    };
 
-  const handleInputClick = () => {
-    isClick.current = true;
-  };
+    // if props.color changes and state color is different,
+    // sets the state color to props color
+    useEffect(() => {
+      if (props.color !== color) {
+        setColor(props.color);
+      }
+    }, [props.color]);
 
-  const handleOnInteraction = (nextOpenState: boolean) => {
-    if (isOpen !== nextOpenState) {
-      if (isClick.current) setIsOpen(true);
-      else setIsOpen(nextOpenState);
-      isClick.current = false;
-    }
-  };
+    const handleInputClick = () => {
+      isClick.current = true;
+    };
 
-  return (
-    <div
-      className="popover-target-colorpicker t--colorpicker-v2-popover"
-      ref={inputRef}
-    >
-      <Popover
-        autoFocus={false}
-        boundary="viewport"
-        enforceFocus={false}
-        interactionKind={PopoverInteractionKind.CLICK}
-        isOpen={isOpen}
-        minimal
-        modifiers={POPOVER_MODFIER}
-        onInteraction={handleOnInteraction}
+    const handleOnInteraction = (nextOpenState: boolean) => {
+      if (isOpen !== nextOpenState) {
+        if (isClick.current) setIsOpen(true);
+        else setIsOpen(nextOpenState);
+        isClick.current = false;
+      }
+    };
+
+    return (
+      <div
+        className="popover-target-colorpicker t--colorpicker-v2-popover"
+        ref={containerRef}
       >
-        <StyledInputGroup
-          autoFocus={props.autoFocus}
-          inputRef={inputGroupRef}
-          leftIcon={
-            <LeftIcon color={color} handleInputClick={handleInputClick} />
-          }
-          onChange={handleChangeColor}
-          onClick={handleInputClick}
-          placeholder="enter color name or hex"
-          value={color}
-        />
+        <Popover
+          autoFocus={false}
+          boundary="viewport"
+          enforceFocus={false}
+          interactionKind={PopoverInteractionKind.CLICK}
+          isOpen={isOpen}
+          minimal
+          modifiers={POPOVER_MODFIER}
+          onInteraction={handleOnInteraction}
+        >
+          <StyledInputGroup
+            autoFocus={props.autoFocus}
+            inputRef={inputGroupRef}
+            leftIcon={
+              <LeftIcon color={color} handleInputClick={handleInputClick} />
+            }
+            onChange={handleChangeColor}
+            onClick={handleInputClick}
+            placeholder="enter color name or hex"
+            value={color}
+          />
 
-        <ColorPickerPopup
-          changeColor={props.changeColor}
-          color={color}
-          containerRef={popupRef}
-          setColor={setColor}
-          setIsOpen={setIsOpen}
-          showApplicationColors={props.showApplicationColors}
-          showThemeColors={props.showThemeColors}
-        />
-      </Popover>
-    </div>
-  );
-}
+          <ColorPickerPopup
+            changeColor={props.changeColor}
+            color={color}
+            containerRef={popupRef}
+            setColor={setColor}
+            setIsOpen={setIsOpen}
+            showApplicationColors={props.showApplicationColors}
+            showThemeColors={props.showThemeColors}
+          />
+        </Popover>
+      </div>
+    );
+  },
+);
 
 export default ColorPickerComponent;

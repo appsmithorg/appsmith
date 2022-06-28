@@ -1,11 +1,45 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import StepComponent from "components/ads/StepComponent";
+import {
+  AdsEventDetail,
+  ADSEventTypes,
+  ADS_EVENT,
+  emitInteractionAnalyticsEvent,
+} from "utils/AppsmithUtils";
 
 const MIN = 0;
 const MAX = 100;
 
 class StepControl extends BaseControl<StepControlProps> {
+  componentRef = React.createRef<HTMLDivElement>();
+
+  componentDidMount() {
+    this.componentRef.current?.addEventListener(
+      ADS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  componentWillUnmount() {
+    this.componentRef.current?.removeEventListener(
+      ADS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
+    if (
+      e.detail.component === "StepComponent" &&
+      e.detail.event === ADSEventTypes.KEYBOARD_ANALYTICS
+    ) {
+      emitInteractionAnalyticsEvent(this.componentRef.current, {
+        key: e.detail.meta.key,
+      });
+      e.stopPropagation();
+    }
+  };
+
   getStepTypeControls = () => {
     const { stepType } = this.props;
     if (stepType === "ZOOM_PERCENTAGE") {
@@ -42,6 +76,7 @@ class StepControl extends BaseControl<StepControlProps> {
             isUpdatedViaKeyboard,
           );
         }}
+        ref={this.componentRef}
         steps={steps}
         value={this.props.propertyValue}
       />

@@ -15,7 +15,7 @@ import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 import _ from "lodash";
 import { generateReactKey } from "utils/generators";
-import { emitInteractionAnalyticsEvent } from "utils/hooks/useInteractionAnalyticsEvent";
+import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;

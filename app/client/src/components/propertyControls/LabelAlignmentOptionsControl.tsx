@@ -6,6 +6,12 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import ButtonTabComponent, {
   ButtonTabOption,
 } from "components/ads/ButtonTabComponent";
+import {
+  AdsEventDetail,
+  ADSEventTypes,
+  ADS_EVENT,
+  emitInteractionAnalyticsEvent,
+} from "utils/AppsmithUtils";
 
 const ControlContainer = styled.div`
   & > div:last-child {
@@ -25,10 +31,39 @@ export interface LabelAlignmentOptionsControlProps extends ControlProps {
 class LabelAlignmentOptionsControl extends BaseControl<
   LabelAlignmentOptionsControlProps
 > {
+  componentRef = React.createRef<HTMLDivElement>();
+
   constructor(props: LabelAlignmentOptionsControlProps) {
     super(props);
     this.handleAlign = this.handleAlign.bind(this);
   }
+
+  componentDidMount() {
+    this.componentRef.current?.addEventListener(
+      ADS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  componentWillUnmount() {
+    this.componentRef.current?.removeEventListener(
+      ADS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
+    if (
+      e.detail.component === "ButtonTab" &&
+      e.detail.event === ADSEventTypes.KEYBOARD_ANALYTICS
+    ) {
+      emitInteractionAnalyticsEvent(this.componentRef.current, {
+        key: e.detail.meta.key,
+      });
+      e.stopPropagation();
+    }
+  };
+
   static getControlType() {
     return "LABEL_ALIGNMENT_OPTIONS";
   }
@@ -39,6 +74,7 @@ class LabelAlignmentOptionsControl extends BaseControl<
       <ControlContainer>
         <ButtonTabComponent
           options={options}
+          ref={this.componentRef}
           selectButton={this.handleAlign}
           values={[propertyValue || Alignment.LEFT]}
         />

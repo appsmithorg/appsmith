@@ -4,8 +4,38 @@ import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
 import { DropdownOption } from "components/ads/Dropdown";
 import { isNil } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { AdsEventDetail, ADSEventTypes, ADS_EVENT } from "utils/AppsmithUtils";
+import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
+  containerRef = React.createRef<HTMLDivElement>();
+
+  componentDidMount() {
+    this.containerRef.current?.addEventListener(
+      ADS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  componentWillUnmount() {
+    this.containerRef.current?.removeEventListener(
+      ADS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
+    if (
+      e.detail.component === "Dropdown" &&
+      e.detail.event === ADSEventTypes.KEYBOARD_ANALYTICS
+    ) {
+      emitInteractionAnalyticsEvent(this.containerRef.current, {
+        key: e.detail.meta.key,
+      });
+      e.stopPropagation();
+    }
+  };
+
   render() {
     let defaultSelected: DropdownOption | DropdownOption[] = {
       label: "No selection.",
@@ -51,7 +81,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     }
 
     return (
-      <StyledDropDownContainer>
+      <StyledDropDownContainer ref={this.containerRef}>
         <StyledDropDown
           dropdownHeight={this.props.dropdownHeight}
           dropdownMaxHeight="200px"

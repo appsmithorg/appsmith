@@ -23,7 +23,7 @@ import {
   InteractionAnalyticsEventDetail,
   INTERACTION_ANALYTICS_EVENT,
 } from "utils/AppsmithUtils";
-import { emitInteractionAnalyticsEvent } from "utils/hooks/useInteractionAnalyticsEvent";
+import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { BannerMessage } from "components/ads/BannerMessage";

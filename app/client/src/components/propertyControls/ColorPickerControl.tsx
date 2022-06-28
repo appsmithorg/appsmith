@@ -2,8 +2,42 @@ import React from "react";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import ColorPickerComponent from "components/ads/ColorPickerComponentV2";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import {
+  AdsEventDetail,
+  ADSEventTypes,
+  ADS_EVENT,
+  emitInteractionAnalyticsEvent,
+} from "utils/AppsmithUtils";
 
 class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
+  componentRef = React.createRef<HTMLDivElement>();
+
+  componentDidMount() {
+    this.componentRef.current?.addEventListener(
+      ADS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  componentWillUnmount() {
+    this.componentRef.current?.removeEventListener(
+      ADS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
+    if (
+      e.detail.component === "ColorPicker" &&
+      e.detail.event === ADSEventTypes.KEYBOARD_ANALYTICS
+    ) {
+      emitInteractionAnalyticsEvent(this.componentRef.current, {
+        key: e.detail.meta.key,
+      });
+      e.stopPropagation();
+    }
+  };
+
   handleChangeColor = (color: string, isUpdatedViaKeyboard: boolean) => {
     this.updateProperty(this.props.propertyName, color, isUpdatedViaKeyboard);
   };
@@ -21,6 +55,7 @@ class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
             ? computedEvaluatedValue
             : this.props.propertyValue || ""
         }
+        ref={this.componentRef}
         showApplicationColors
         showThemeColors
       />

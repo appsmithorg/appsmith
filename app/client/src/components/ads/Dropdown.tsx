@@ -24,6 +24,7 @@ import { useTheme } from "styled-components";
 import { findIndex, isArray } from "lodash";
 import { SubTextPosition } from "components/constants";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
+import { ADSEventTypes, emitAdsEvent } from "utils/AppsmithUtils";
 
 export type DropdownOnSelect = (
   value?: string,
@@ -574,6 +575,19 @@ const scrollIntoViewOptions: ScrollIntoViewOptions = {
   block: "nearest",
 };
 
+function emitKeyboardAnalyticsEvent(
+  element: HTMLDivElement | null,
+  key: string,
+) {
+  emitAdsEvent(element, {
+    component: "Dropdown",
+    event: ADSEventTypes.KEYBOARD_ANALYTICS,
+    meta: {
+      key,
+    },
+  });
+}
+
 function TooltipWrappedText(
   props: TextProps & {
     label: string;
@@ -956,16 +970,11 @@ export default function Dropdown(props: DropdownProps) {
     }
   };
 
-  const { dispatchInteractionAnalyticsEvent } = useInteractionAnalyticsEvent(
-    false,
-    dropdownWrapperRef,
-  );
-
   const handleKeydown = useCallback(
     (e: React.KeyboardEvent) => {
       switch (e.key) {
         case "Escape":
-          dispatchInteractionAnalyticsEvent({ key: e.key });
+          emitKeyboardAnalyticsEvent(dropdownWrapperRef.current, e.key);
           if (isOpen) {
             setSelected((prevSelected) => {
               if (prevSelected != props.selected) return props.selected;
@@ -976,7 +985,7 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case " ":
-          dispatchInteractionAnalyticsEvent({ key: e.key });
+          emitKeyboardAnalyticsEvent(dropdownWrapperRef.current, e.key);
           if (closeOnSpace) {
             e.preventDefault();
             if (isOpen) {
@@ -992,7 +1001,7 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case "Enter":
-          dispatchInteractionAnalyticsEvent({ key: e.key });
+          emitKeyboardAnalyticsEvent(dropdownWrapperRef.current, e.key);
           e.preventDefault();
           if (isOpen) {
             if (props.isMultiSelect) {
@@ -1006,7 +1015,7 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case "ArrowUp":
-          dispatchInteractionAnalyticsEvent({ key: e.key });
+          emitKeyboardAnalyticsEvent(dropdownWrapperRef.current, e.key);
           e.preventDefault();
           if (isOpen) {
             if (props.isMultiSelect) {
@@ -1037,7 +1046,7 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case "ArrowDown":
-          dispatchInteractionAnalyticsEvent({ key: e.key });
+          emitKeyboardAnalyticsEvent(dropdownWrapperRef.current, e.key);
           e.preventDefault();
           if (isOpen) {
             if (props.isMultiSelect) {
@@ -1068,9 +1077,10 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case "Tab":
-          dispatchInteractionAnalyticsEvent({
-            key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
-          });
+          emitKeyboardAnalyticsEvent(
+            dropdownWrapperRef.current,
+            `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+          );
           if (isOpen) {
             setIsOpen(false);
           }

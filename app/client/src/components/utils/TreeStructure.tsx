@@ -65,8 +65,12 @@ type TreeStructureProps = {
   children: React.ReactNode;
 };
 
-function TreeStructure(props: TreeStructureProps) {
-  return <TreeStructureWrapper>{props.children}</TreeStructureWrapper>;
-}
+const TreeStructure = React.forwardRef(
+  (props: TreeStructureProps, ref: any) => {
+    return (
+      <TreeStructureWrapper ref={ref}>{props.children}</TreeStructureWrapper>
+    );
+  },
+);
 
 export default TreeStructure;

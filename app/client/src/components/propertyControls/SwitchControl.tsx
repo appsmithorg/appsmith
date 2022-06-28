@@ -1,7 +1,12 @@
 import React from "react";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import Switch from "components/ads/Switch";
-import { INTERACTION_ANALYTICS_EVENT } from "utils/AppsmithUtils";
+import {
+  AdsEventDetail,
+  ADSEventTypes,
+  ADS_EVENT,
+  emitInteractionAnalyticsEvent,
+} from "utils/AppsmithUtils";
 
 class SwitchControl extends BaseControl<ControlProps> {
   isUpdatedViaKeyboard = false;
@@ -9,20 +14,29 @@ class SwitchControl extends BaseControl<ControlProps> {
 
   componentDidMount() {
     this.containerRef.current?.addEventListener(
-      INTERACTION_ANALYTICS_EVENT,
-      this.handleKbdEvent,
+      ADS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
     );
   }
 
   componentWillUnmount() {
     this.containerRef.current?.removeEventListener(
-      INTERACTION_ANALYTICS_EVENT,
-      this.handleKbdEvent,
+      ADS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
     );
   }
 
-  handleKbdEvent = () => {
-    this.isUpdatedViaKeyboard = true;
+  handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
+    if (
+      e.detail.component === "AdsSwitch" &&
+      e.detail.event === ADSEventTypes.KEYBOARD_ANALYTICS
+    ) {
+      this.isUpdatedViaKeyboard = true;
+      emitInteractionAnalyticsEvent(this.containerRef.current, {
+        key: e.detail.meta.key,
+      });
+      e.stopPropagation();
+    }
   };
 
   render() {

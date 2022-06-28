@@ -1,7 +1,7 @@
 import { RefObject, useRef } from "react";
-import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
+import { AdsEventDetail, emitAdsEvent } from "utils/AppsmithUtils";
 
-export default function useInteractionAnalyticsEvent<T extends HTMLElement>(
+export default function useAdsEvent<T extends HTMLElement>(
   isCallbackRef = false,
   ref?: React.RefObject<T>,
 ) {
@@ -18,13 +18,13 @@ export default function useInteractionAnalyticsEvent<T extends HTMLElement>(
     eventEmitterRef = internalRef;
   }
 
-  function dispatchInteractionAnalyticsEvent(args: Record<string, unknown>) {
-    if (isCallbackRef) emitInteractionAnalyticsEvent(element, args);
-    else emitInteractionAnalyticsEvent(eventEmitterRef.current, args);
+  function dispatchAdsEvent(args: AdsEventDetail) {
+    if (isCallbackRef) emitAdsEvent(element, args);
+    else emitAdsEvent(eventEmitterRef.current, args);
   }
 
   return {
-    dispatchInteractionAnalyticsEvent,
+    dispatchAdsEvent,
     eventEmitterRef,
     eventEmitterRefCallback,
   };

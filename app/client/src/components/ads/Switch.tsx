@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "constants/DefaultTheme";
 import { ISwitchProps, Switch } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
-import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
+import useAdsEvent from "utils/hooks/useAdsEvent";
+import { ADSEventTypes } from "utils/AppsmithUtils";
 
 const StyledSwitch = styled(Switch)`
   &&&&& input:checked ~ span {
@@ -16,21 +17,31 @@ const StyledSwitch = styled(Switch)`
 `;
 
 export default function AdsSwitch(props: ISwitchProps) {
-  const {
-    dispatchInteractionAnalyticsEvent,
-    eventEmitterRefCallback,
-  } = useInteractionAnalyticsEvent<HTMLInputElement>(true);
+  const { dispatchAdsEvent, eventEmitterRefCallback } = useAdsEvent<
+    HTMLDivElement
+  >(true);
+
+  const emitKeyboardAnalyticsEvent = useCallback(
+    (key: string) => {
+      dispatchAdsEvent({
+        component: "AdsSwitch",
+        event: ADSEventTypes.KEYBOARD_ANALYTICS,
+        meta: {
+          key,
+        },
+      });
+    },
+    [dispatchAdsEvent],
+  );
 
   const handleKeydown = (e: React.KeyboardEvent) => {
     switch (e.key) {
       case "Enter":
       case " ":
-        dispatchInteractionAnalyticsEvent({ key: e.key });
+        emitKeyboardAnalyticsEvent(e.key);
         break;
       case "Tab":
-        dispatchInteractionAnalyticsEvent({
-          key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
-        });
+        emitKeyboardAnalyticsEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
         break;
     }
   };

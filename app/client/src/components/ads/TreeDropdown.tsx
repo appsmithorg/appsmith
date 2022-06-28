@@ -23,7 +23,8 @@ import { Colors } from "constants/Colors";
 import { DropdownOption } from "components/constants";
 import Icon, { IconSize } from "components/ads/Icon";
 import { replayHighlightClass } from "globalStyles/portals";
-import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
+import useAdsEvent from "utils/hooks/useAdsEvent";
+import { ADSEventTypes } from "utils/AppsmithUtils";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
@@ -278,9 +279,20 @@ function TreeDropdown(props: TreeDropdownProps) {
   const selectedOptionIndex = useRef([findIndex(optionTree, selectedOption)]);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const { dispatchInteractionAnalyticsEvent } = useInteractionAnalyticsEvent<
-    HTMLButtonElement
-  >(false, buttonRef);
+  const { dispatchAdsEvent } = useAdsEvent<HTMLButtonElement>(false, buttonRef);
+
+  const emitKeyboardAnalyticsEvent = useCallback(
+    (key: string) => {
+      dispatchAdsEvent({
+        component: "TreeDropdown",
+        event: ADSEventTypes.KEYBOARD_ANALYTICS,
+        meta: {
+          key,
+        },
+      });
+    },
+    [dispatchAdsEvent],
+  );
 
   useEffect(() => {
     if (!isOpen) {
@@ -393,7 +405,7 @@ function TreeDropdown(props: TreeDropdownProps) {
     switch (e.key) {
       case "Escape":
         if (isOpen) {
-          dispatchInteractionAnalyticsEvent({ key: e.key });
+          emitKeyboardAnalyticsEvent(e.key);
           if (selectedOptionIndex.current.length > 1) {
             setOptionTree((prev) => {
               const prevIndex = selectedOptionIndex.current.slice(0, -1);
@@ -420,7 +432,7 @@ function TreeDropdown(props: TreeDropdownProps) {
       case "Enter":
       case "ArrowRight":
         if (isOpen) {
-          dispatchInteractionAnalyticsEvent({ key: e.key });
+          emitKeyboardAnalyticsEvent(e.key);
           const selectedOpt = getItem(optionTree, selectedOptionIndex.current);
           if (selectedOpt?.children) {
             handleOptionClick(selectedOpt)(e, true);
@@ -429,14 +441,14 @@ function TreeDropdown(props: TreeDropdownProps) {
             shouldOpen.current = false;
           }
         } else if (e.key !== "ArrowRight") {
-          dispatchInteractionAnalyticsEvent({ key: e.key });
+          emitKeyboardAnalyticsEvent(e.key);
           setIsOpen(true);
           selectedOptionIndex.current = [findIndex(optionTree, selectedOption)];
           shouldOpen.current = true;
         }
         break;
       case "ArrowUp":
-        dispatchInteractionAnalyticsEvent({ key: e.key });
+        emitKeyboardAnalyticsEvent(e.key);
         e.preventDefault();
         if (isOpen) {
           let currentLength = optionTree.length;
@@ -458,7 +470,7 @@ function TreeDropdown(props: TreeDropdownProps) {
         }
         break;
       case "ArrowDown":
-        dispatchInteractionAnalyticsEvent({ key: e.key });
+        emitKeyboardAnalyticsEvent(e.key);
         e.preventDefault();
         if (isOpen) {
           let currentLength = optionTree.length;
@@ -480,9 +492,7 @@ function TreeDropdown(props: TreeDropdownProps) {
         }
         break;
       case "Tab":
-        dispatchInteractionAnalyticsEvent({
-          key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
-        });
+        emitKeyboardAnalyticsEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
         if (isOpen) {
           setIsOpen(false);
           // reset selected option
@@ -492,7 +502,7 @@ function TreeDropdown(props: TreeDropdownProps) {
         }
         break;
       case "ArrowLeft":
-        dispatchInteractionAnalyticsEvent({ key: e.key });
+        emitKeyboardAnalyticsEvent(e.key);
         if (selectedOptionIndex.current.length > 1) {
           setOptionTree((prev) => {
             const prevIndex = selectedOptionIndex.current.slice(0, -1);

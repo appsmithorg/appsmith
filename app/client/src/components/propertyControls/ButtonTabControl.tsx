@@ -4,9 +4,42 @@ import ButtonTabComponent, {
   ButtonTabOption,
 } from "components/ads/ButtonTabComponent";
 import produce from "immer";
-import { DropDownControlProps } from "./DropDownControl";
+import {
+  AdsEventDetail,
+  ADSEventTypes,
+  ADS_EVENT,
+  emitInteractionAnalyticsEvent,
+} from "utils/AppsmithUtils";
 
 class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
+  componentRef = React.createRef<HTMLDivElement>();
+
+  componentDidMount() {
+    this.componentRef.current?.addEventListener(
+      ADS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  componentWillUnmount() {
+    this.componentRef.current?.removeEventListener(
+      ADS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
+    if (
+      e.detail.component === "ButtonTab" &&
+      e.detail.event === ADSEventTypes.KEYBOARD_ANALYTICS
+    ) {
+      emitInteractionAnalyticsEvent(this.componentRef.current, {
+        key: e.detail.meta.key,
+      });
+      e.stopPropagation();
+    }
+  };
+
   selectButton = (value: string, isUpdatedViaKeyboard = false) => {
     const { defaultValue, propertyValue } = this.props;
     const values: string[] = propertyValue
@@ -32,11 +65,13 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
       );
     }
   };
+
   render() {
     const { options, propertyValue } = this.props;
     return (
       <ButtonTabComponent
         options={options}
+        ref={this.componentRef}
         selectButton={this.selectButton}
         values={propertyValue ? propertyValue.split(",") : []}
       />
@@ -49,7 +84,7 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
 
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     const allowedValues = new Set(
-      (config as DropDownControlProps)?.options?.map(
+      (config as ButtonTabControlProps)?.options?.map(
         (x: { value: string }) => x.value,
       ),
     );
