@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.appsmith.external.constants.FieldName.FILE_TYPE;
+import static com.appsmith.external.constants.CommonFieldName.FILE_TYPE;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 /**

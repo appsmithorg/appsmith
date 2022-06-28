@@ -172,9 +172,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.sessionUserService = sessionUserService;
         this.policyUtils = policyUtils;
         this.authenticationValidator = authenticationValidator;
-        this.configService = configService;
         this.objectMapper = new ObjectMapper();
         this.responseUtils = responseUtils;
+        this.configService = configService;
     }
 
     @Override
@@ -695,7 +695,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     Mono<ActionExecutionResult> executionMono = validatedDatasourceMono
                             .flatMap(datasource1 -> {
                                 if (plugin.isRemotePlugin()) {
-                                    return this.getRemoteDatasourceContext(plugin, datasource1);
+                                    return datasourceContextService.getRemoteDatasourceContext(plugin, datasource1);
                                 } else {
                                     return datasourceContextService.getDatasourceContext(datasource1);
                                 }

@@ -38,6 +38,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
@@ -51,10 +52,12 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -68,6 +71,7 @@ import java.util.stream.Stream;
 
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
+import static com.appsmith.server.migrations.DatabaseChangelog.getUpdatedDynamicBindingPathList;
 import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.TRUE;
@@ -77,6 +81,9 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 @Slf4j
 @ChangeLog(order = "002")
 public class DatabaseChangelog2 {
+
+    public static ObjectMapper objectMapper = new ObjectMapper();
+    static Pattern sheetRangePattern = Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?[^\"]*");
 
     @ChangeSet(order = "001", id = "fix-plugin-title-casing", author = "")
     public void fixPluginTitleCasing(MongockTemplate mongockTemplate) {
@@ -349,14 +356,24 @@ public class DatabaseChangelog2 {
     }
 
     private static void convertToFormDataObject(Map<String, Object> formDataMap, String key, Object value) {
+        convertToFormDataObject(formDataMap, key, value, false);
+    }
+
+    private static void convertToFormDataObject(Map<String, Object> formDataMap, String key, Object value, boolean hasBinding) {
         if (value == null) {
             return;
         }
         if (key != null) {
             final HashMap<String, Object> map = new HashMap<>();
             map.put("data", value);
-            map.put("componentData", value);
-            map.put("viewType", "component");
+            // If the element has a binding, it would not make sense to display it in the component mode.
+            if (hasBinding) {
+                map.put("jsonData", value);
+                map.put("viewType", "json");
+            } else {
+                map.put("componentData", value);
+                map.put("viewType", "component");
+            }
             formDataMap.put(key, map);
         }
     }
@@ -752,7 +769,7 @@ public class DatabaseChangelog2 {
                         fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
-                .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+                        .named("defaultApplicationId_gitSyncId_deleted_compound_index")
         );
 
         ensureIndexes(mongockTemplate, NewAction.class,
@@ -761,7 +778,7 @@ public class DatabaseChangelog2 {
                         fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
-                .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+                        .named("defaultApplicationId_gitSyncId_deleted_compound_index")
         );
 
         ensureIndexes(mongockTemplate, NewPage.class,
@@ -770,14 +787,15 @@ public class DatabaseChangelog2 {
                         fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
-                .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+                        .named("defaultApplicationId_gitSyncId_deleted_compound_index")
         );
     }
 
 
     /**
-     * We'll remove the uniqe index on organization slugs. We'll also regenerate the slugs for all organizations as
+     * We'll remove the unique index on organization slugs. We'll also regenerate the slugs for all organizations as
      * most of them are outdated
+     *
      * @param mongockTemplate MongockTemplate instance
      */
     @ChangeSet(order = "008", id = "update-organization-slugs", author = "")
@@ -808,7 +826,7 @@ public class DatabaseChangelog2 {
         //Memory optimization note:
         //Call stream instead of findAll to avoid out of memory if the collection is big
         //stream implementation lazy loads the data using underlying cursor open on the collection
-        //the data is loaded as as and when needed by the pipeline
+        //the data is loaded as and when needed by the pipeline
         try(Stream<Organization> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Organization.class)
             .stream()) { 
             stream.forEach((organization) -> {
@@ -826,7 +844,7 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "010", id = "add-workspace-indexes", author = "")
     public void addWorkspaceIndexes(MongockTemplate mongockTemplate) {
         ensureIndexes(mongockTemplate, Workspace.class,
-            makeIndex("createdAt")
+                makeIndex("createdAt")
         );
     }
 
@@ -835,7 +853,7 @@ public class DatabaseChangelog2 {
         for (Sequence sequence : mongockTemplate.findAll(Sequence.class)) {
             String oldName = sequence.getName();
             String newName = oldName.replaceAll("(.*) for organization with _id : (.*)", "$1 for workspace with _id : $2");
-            if(!newName.equals(oldName)) {
+            if (!newName.equals(oldName)) {
                 //Using strings in the field names instead of QSequence becauce Sequence is not a AppsmithDomain
                 mongockTemplate.updateFirst(query(where("name").is(oldName)),
                         Update.update("name", newName),
@@ -872,7 +890,7 @@ public class DatabaseChangelog2 {
         Query tenantQuery = new Query();
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
         Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
-        assert(defaultTenant != null);
+        assert (defaultTenant != null);
 
         // Set all the workspaces to be under the default tenant
         mongockTemplate.updateMulti(
@@ -884,12 +902,12 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "014", id = "add-tenant-to-all-users-and-flush-redis", author = "")
-    public void addTenantToUsersAndFlushRedis(MongockTemplate mongockTemplate, ReactiveRedisOperations<String, String>reactiveRedisOperations) {
+    public void addTenantToUsersAndFlushRedis(MongockTemplate mongockTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
 
         Query tenantQuery = new Query();
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
         Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
-        assert(defaultTenant != null);
+        assert (defaultTenant != null);
 
         // Set all the users to be under the default tenant
         mongockTemplate.updateMulti(
@@ -1037,5 +1055,303 @@ public class DatabaseChangelog2 {
         mongockTemplate.updateMulti(new Query(Criteria.where("publishedAction.datasource.organizationId").exists(true)),
             AggregationUpdate.update().set("publishedAction.datasource.workspaceId").toValueOf(Fields.field("publishedAction.datasource.organizationId")),
             NewAction.class);
+    }
+
+    @ChangeSet(order = "020", id = "migrate-google-sheets-to-uqi", author = "")
+    public void migrateGoogleSheetsToUqi(MongockTemplate mongockTemplate) {
+
+        // Get plugin references to Google Sheets actions
+        Plugin uqiPlugin = mongockTemplate.findOne(
+                query(where("packageName").in("google-sheets-plugin")),
+                Plugin.class
+        );
+        assert uqiPlugin != null;
+        uqiPlugin.setUiComponent("UQIDbEditorForm");
+
+        mongockTemplate.save(uqiPlugin);
+
+        final String pluginId = uqiPlugin.getId();
+
+        // Find all relevant actions
+        final Query actionQuery = query(
+                where(fieldName(QNewAction.newAction.pluginId)).is(pluginId)
+                        .and(fieldName(QNewAction.newAction.deleted)).ne(true)); // setting `deleted` != `true`
+        actionQuery.fields()
+                .include(fieldName(QNewAction.newAction.id));
+
+        List<NewAction> uqiActions = mongockTemplate.find(
+                actionQuery,
+                NewAction.class
+        );
+
+        // Retrieve the formData path for all actions
+        for (NewAction uqiActionWithId : uqiActions) {
+
+            // Fetch one action at a time to avoid OOM.
+            final NewAction uqiAction = mongockTemplate.findOne(
+                    query(where(fieldName(QNewAction.newAction.id)).is(uqiActionWithId.getId())),
+                    NewAction.class
+            );
+
+            assert uqiAction != null;
+            ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
+
+            /* No migrations required if action configuration does not exist. */
+            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+                continue;
+            }
+
+            try {
+                migrateGoogleSheetsToUqi(uqiAction);
+            } catch (AppsmithException e) {
+                // This action is already migrated, move on
+                log.error("Failed with error: {}", e.getMessage());
+                log.error("Failing action: {}", uqiAction.getId());
+                continue;
+            }
+            mongockTemplate.save(uqiAction);
+        }
+    }
+
+    public static void migrateGoogleSheetsToUqi(NewAction uqiAction) {
+
+        final Map<Integer, List<String>> googleSheetsMigrationMap = Map.ofEntries(
+                Map.entry(0, List.of("command.data", "entityType.data")),
+                Map.entry(1, List.of("sheetUrl.data")),
+                Map.entry(2, List.of("range.data")),
+                Map.entry(3, List.of("spreadsheetName.data")),
+                Map.entry(4, List.of("tableHeaderIndex.data")),
+                Map.entry(5, List.of("queryFormat.data")),
+                Map.entry(6, List.of("pagination.data.limit")),
+                Map.entry(7, List.of("sheetName.data")),
+                Map.entry(8, List.of("pagination.data.offset")),
+                Map.entry(9, List.of("rowObjects.data")),
+                Map.entry(10, List.of("rowObjects.data")),
+                Map.entry(11, List.of("rowIndex.data")),
+                Map.entry(12, List.of("")), // We do not expect deleteFormat to have been dynamically bound at all
+                Map.entry(13, List.of("smartSubstitution.data")),
+                Map.entry(14, List.of("where.data"))
+
+        );
+
+        ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
+        /**
+         * Migrate unpublished action configuration data.
+         */
+        Map<String, Object> newUnpublishedFormDataMap = new HashMap<>();
+        mapGoogleSheetsToNewFormData(unpublishedAction, newUnpublishedFormDataMap);
+        unpublishedAction.getActionConfiguration().setFormData(newUnpublishedFormDataMap);
+
+        ActionDTO publishedAction = uqiAction.getPublishedAction();
+        /**
+         * Migrate published action configuration data.
+         */
+        if (publishedAction.getActionConfiguration() != null) {
+            Map<String, Object> newPublishedFormDataMap = new HashMap<>();
+            mapGoogleSheetsToNewFormData(publishedAction, newPublishedFormDataMap);
+            publishedAction.getActionConfiguration().setFormData(newPublishedFormDataMap);
+        }
+
+        List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
+        List<Property> newDynamicBindingPathList = getUpdatedDynamicBindingPathList(dynamicBindingPathList,
+                objectMapper, uqiAction, googleSheetsMigrationMap);
+        unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
+    }
+
+    private static void mapGoogleSheetsToNewFormData(ActionDTO action, Map<String, Object> f) {
+        final Map<String, Object> formData = action.getActionConfiguration().getFormData();
+
+        if (formData != null) {
+            // This action has already been migrated
+            throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
+        }
+
+        final List<Property> pluginSpecifiedTemplates = action.getActionConfiguration().getPluginSpecifiedTemplates();
+
+        if (pluginSpecifiedTemplates == null || pluginSpecifiedTemplates.isEmpty()) {
+            // Nothing to do with this action, it is already incorrectly configured
+            return;
+        }
+
+        final String oldCommand = (String) pluginSpecifiedTemplates.get(0).getValue();
+
+        switch (oldCommand) {
+            case "GET":
+                convertToFormDataObject(f, "command", "FETCH_MANY");
+                convertToFormDataObject(f, "entityType", "ROWS");
+                break;
+            case "APPEND":
+                convertToFormDataObject(f, "command", "INSERT_ONE");
+                convertToFormDataObject(f, "entityType", "ROWS");
+                break;
+            case "UPDATE":
+                convertToFormDataObject(f, "command", "UPDATE_ONE");
+                convertToFormDataObject(f, "entityType", "ROWS");
+                break;
+            case "DELETE_ROW":
+                convertToFormDataObject(f, "command", "DELETE_ONE");
+                convertToFormDataObject(f, "entityType", "ROWS");
+                break;
+            case "LIST":
+                convertToFormDataObject(f, "command", "FETCH_MANY");
+                convertToFormDataObject(f, "entityType", "SPREADSHEET");
+                break;
+            case "INFO":
+                convertToFormDataObject(f, "command", "FETCH_DETAILS");
+                convertToFormDataObject(f, "entityType", "SPREADSHEET");
+                break;
+            case "CREATE":
+                convertToFormDataObject(f, "command", "INSERT_ONE");
+                convertToFormDataObject(f, "entityType", "SPREADSHEET");
+                break;
+            case "DELETE":
+                convertToFormDataObject(f, "command", "DELETE_ONE");
+                break;
+            case "BULK_APPEND":
+                convertToFormDataObject(f, "command", "INSERT_MANY");
+                convertToFormDataObject(f, "entityType", "ROWS");
+                break;
+            case "BULK_UPDATE":
+                convertToFormDataObject(f, "command", "UPDATE_MANY");
+                convertToFormDataObject(f, "entityType", "ROWS");
+                break;
+            default:
+        }
+
+        final int pluginSpecifiedTemplatesSize = pluginSpecifiedTemplates.size();
+
+        switch (pluginSpecifiedTemplatesSize) {
+            case 15:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(14)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(14).getValue())) {
+                    convertToFormDataObject(f, "where", updateWhereClauseFormat(pluginSpecifiedTemplates.get(14).getValue()));
+                }
+            case 14:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(13)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(13).getValue())) {
+                    convertToFormDataObject(f, "smartSubstitution", pluginSpecifiedTemplates.get(13).getValue());
+                }
+            case 13:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(12)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(12).getValue()) && "DELETE".equals(oldCommand)) {
+                    convertToFormDataObject(f, "entityType", pluginSpecifiedTemplates.get(12).getValue());
+                }
+            case 12:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(11)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(11).getValue())) {
+                    convertToFormDataObject(f, "rowIndex", pluginSpecifiedTemplates.get(11).getValue());
+                }
+            case 11:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(10)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(10).getValue())) {
+                    convertToFormDataObject(f, "rowObjects", pluginSpecifiedTemplates.get(10).getValue());
+                }
+            case 10:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(9)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(9).getValue())) {
+                    convertToFormDataObject(f, "rowObjects", pluginSpecifiedTemplates.get(9).getValue());
+                }
+            case 9:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(8)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(8).getValue())) {
+                    if (!f.containsKey("pagination")) {
+                        final HashMap<String, Object> map = new HashMap<>();
+                        map.put("offset", pluginSpecifiedTemplates.get(8).getValue());
+                        convertToFormDataObject(f, "pagination", map);
+                    } else {
+                        final Map<String, Object> pagination = (Map<String, Object>) f.get("pagination");
+                        final Map<String, Object> data = (Map<String, Object>) pagination.get("data");
+                        final Map<String, Object> componentData = (Map<String, Object>) pagination.get("componentData");
+                        data.put("offset", pluginSpecifiedTemplates.get(8).getValue());
+                        componentData.put("offset", pluginSpecifiedTemplates.get(8).getValue());
+                    }
+                }
+            case 8:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(7)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(7).getValue())) {
+                    // Sheet name will now have a dropdown component that is selected from a pre-populated list.
+                    // Bindings would need to be placed in the JS mode
+                    boolean hasBinding = false;
+                    if (action.getDynamicBindingPathList() != null) {
+                        hasBinding = action.getDynamicBindingPathList().stream().anyMatch(dynamicBindingPath -> {
+                            return dynamicBindingPath.getKey().contains("pluginSpecifiedTemplates[7]");
+                        });
+                    }
+                    convertToFormDataObject(f, "sheetName", pluginSpecifiedTemplates.get(7).getValue(), hasBinding);
+                }
+            case 7:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(6)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(6).getValue())) {
+                    if (!f.containsKey("pagination")) {
+                        final HashMap<String, Object> map = new HashMap<>();
+                        map.put("limit", pluginSpecifiedTemplates.get(6).getValue());
+                        convertToFormDataObject(f, "pagination", map);
+                    } else {
+                        final Map<String, Object> pagination = (Map<String, Object>) f.get("pagination");
+                        final Map<String, Object> data = (Map<String, Object>) pagination.get("data");
+                        final Map<String, Object> componentData = (Map<String, Object>) pagination.get("componentData");
+                        data.put("limit", pluginSpecifiedTemplates.get(6).getValue());
+                        componentData.put("limit", pluginSpecifiedTemplates.get(6).getValue());
+                    }
+                }
+            case 6:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(5)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(5).getValue())) {
+                    convertToFormDataObject(f, "queryFormat", pluginSpecifiedTemplates.get(5).getValue());
+                }
+            case 5:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(4)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(4).getValue())) {
+                    convertToFormDataObject(f, "tableHeaderIndex", pluginSpecifiedTemplates.get(4).getValue());
+                }
+            case 4:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(3)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(3).getValue())) {
+                    convertToFormDataObject(f, "spreadsheetName", pluginSpecifiedTemplates.get(3).getValue());
+                }
+            case 3:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(2)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(2).getValue())) {
+                    convertToFormDataObject(f, "range", pluginSpecifiedTemplates.get(2).getValue());
+                }
+            case 2:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(1)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(1).getValue())) {
+                    // Sheet URL will now have a dropdown component that is selected from a pre-populated list.
+                    // Bindings would need to be placed in the JS mode
+                    boolean hasBinding = false;
+                    if (action.getDynamicBindingPathList() != null) {
+                        hasBinding = action.getDynamicBindingPathList().stream().anyMatch(dynamicBindingPath -> {
+                            return dynamicBindingPath.getKey().contains("pluginSpecifiedTemplates[1]");
+                        });
+                    }
+                    final String spreadsheetUrl = (String) pluginSpecifiedTemplates.get(1).getValue();
+                    final Matcher matcher = sheetRangePattern.matcher(spreadsheetUrl);
+
+                    if (matcher.find()) {
+                        final String newSpreadsheetUrl = matcher.replaceAll("https://docs.google.com/spreadsheets/d/" + matcher.group(1) + "/edit");
+                        convertToFormDataObject(f, "sheetUrl", newSpreadsheetUrl, hasBinding);
+                    } else {
+                        convertToFormDataObject(f, "sheetUrl", spreadsheetUrl, hasBinding);
+                    }
+                }
+        }
+
+    }
+
+    private static Map<String, Object> updateWhereClauseFormat(Object oldWhereClauseArray) {
+        final Map<String, Object> newWhereClause = new HashMap<>();
+        newWhereClause.put("condition", "AND");
+        final List<Object> convertedConditionArray = new ArrayList<>();
+        newWhereClause.put("children", convertedConditionArray);
+
+        if (oldWhereClauseArray instanceof List) {
+            ((ArrayList) oldWhereClauseArray)
+                    .stream()
+                    .forEach(oldWhereClauseCondition -> {
+                        if (oldWhereClauseCondition != null) {
+                            Map<String, Object> newWhereClauseCondition = new HashMap<>();
+                            final Map clauseCondition = (Map) oldWhereClauseCondition;
+                            if (clauseCondition.containsKey("path")) {
+                                newWhereClauseCondition.put("key", clauseCondition.get("path"));
+                            }
+                            if (clauseCondition.containsKey("operator")) {
+                                newWhereClauseCondition.put("condition", clauseCondition.get("operator"));
+                            }
+                            if (clauseCondition.containsKey("value")) {
+                                newWhereClauseCondition.put("value", clauseCondition.get("value"));
+                            }
+                            convertedConditionArray.add(newWhereClauseCondition);
+                        }
+                    });
+        }
+
+        return newWhereClause;
     }
 }

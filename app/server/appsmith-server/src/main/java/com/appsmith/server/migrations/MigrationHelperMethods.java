@@ -150,4 +150,19 @@ public class MigrationHelperMethods {
             });
         }
     }
+
+    public static void migrateGoogleSheetsActionsToUqi(ApplicationJson applicationJson) {
+        final List<NewAction> actionList = applicationJson.getActionList();
+
+        if (!CollectionUtils.isNullOrEmpty(actionList)) {
+            actionList.parallelStream()
+                    .forEach(newAction -> {
+                        // Determine plugin
+                        final String pluginName = newAction.getPluginId();
+                        if ("google-sheets-plugin".equals(pluginName)) {
+                            DatabaseChangelog2.migrateGoogleSheetsToUqi(newAction);
+                        }
+                    });
+        }
+    }
 }

@@ -1,8 +1,10 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.models.ClientDataDisplayType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.Workspace;
@@ -22,12 +24,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.appsmith.external.models.DatasourceStructure.TableType.TABLE;
 import static org.junit.Assert.assertEquals;
@@ -126,16 +127,19 @@ public class DatasourceTriggerSolutionTest {
                                 Mockito.anyBoolean()))
                 .thenReturn(Mono.just(testStructure));
 
+        Mono<TriggerResultDTO> tableNameMono = datasourceTriggerSolution.trigger(
+                datasourceId,
+                new TriggerRequestDTO(
+                        "ENTITY_SELECTOR",
+                        Map.of(),
+                        ClientDataDisplayType.DROP_DOWN));
 
-        MultiValueMap<String, Object> requestConfig = new LinkedMultiValueMap<>();
-        requestConfig.add("requestType", "ENTITY_SELECTOR");
-        requestConfig.add("displayType", "DROPDOWN");
-        requestConfig.add("parameters", "");
-
-        Mono<TriggerResultDTO> tableNameMono = datasourceTriggerSolution.trigger(datasourceId, requestConfig);
-
-        requestConfig.set("parameters", "Table1");
-        Mono<TriggerResultDTO> columnNamesMono = datasourceTriggerSolution.trigger(datasourceId, requestConfig);
+        Mono<TriggerResultDTO> columnNamesMono = datasourceTriggerSolution.trigger(
+                datasourceId,
+                new TriggerRequestDTO(
+                        "ENTITY_SELECTOR",
+                        Map.of("tableName", "Table1"),
+                        ClientDataDisplayType.DROP_DOWN));
 
         StepVerifier.create(tableNameMono)
                 .assertNext(tablesResult -> {

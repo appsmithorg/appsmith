@@ -26,6 +26,7 @@ import com.appsmith.server.dtos.CRUDPageResponseDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.services.AnalyticsService;
@@ -80,6 +81,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
     private final ResponseUtils responseUtils;
+    private final PluginExecutorHelper pluginExecutorHelper;
 
     private static final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
 
@@ -132,7 +134,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     /**
      * This function will clone template page along with the actions. DatasourceStructure is used to map the
      * templateColumns with the datasource under consideration
-     * @param defaultPageId for which the template page needs to be replicated
+     *
+     * @param defaultPageId   for which the template page needs to be replicated
      * @param pageResourceDTO
      * @return generated pageDTO from the template resource
      */
@@ -164,8 +167,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
-        final String tableName =  pageResourceDTO.getTableName();
-        final String datasourceId =  pageResourceDTO.getDatasourceId();
+        final String tableName = pageResourceDTO.getTableName();
+        final String datasourceId = pageResourceDTO.getDatasourceId();
         final String defaultApplicationId = pageResourceDTO.getApplicationId();
         final String searchColumn = pageResourceDTO.getSearchColumn();
         final Set<String> columns = pageResourceDTO.getColumns();
@@ -237,7 +240,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     layout.setLayoutOnLoadActions(null);
 
                     // Extract table names : public.templateTable => templateTable
-                    final String templateTableRef =  TEMPLATE_TABLE_NAME.split("\\.", 2)[1];
+                    final String templateTableRef = TEMPLATE_TABLE_NAME.split("\\.", 2)[1];
                     final String tableRef = tableName.contains(".") ? tableName.split("\\.", 2)[1] : tableName;
 
                     Datasource templateDatasource = applicationJson
@@ -333,7 +336,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     if (Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) && !CollectionUtils.isEmpty(templateActionList)) {
                         final Map<String, Object> formData = templateActionList.get(0).getUnpublishedAction().getActionConfiguration().getFormData();
                         mappedColumnsAndTableName.put(
-                                (String) ((Map<?,?>)formData.get("bucket")).get("data"),
+                                (String) ((Map<?, ?>) formData.get("bucket")).get("data"),
                                 tableName
                         );
                     }
@@ -356,7 +359,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     Set<String> deletedWidgets = tuple.getT3();
                     Plugin plugin = tuple.getT4();
                     String tableNameInAction = tuple.getT5();
-                    String savedPageId =  tuple.getT6();
+                    String savedPageId = tuple.getT6();
                     log.debug("Going to clone actions from template application for page {}", savedPageId);
                     return cloneActionsFromTemplateApplication(datasource,
                             tableNameInAction,
@@ -390,9 +393,9 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
     /**
      * @param defaultApplicationId application from which the page should be fetched
-     * @param defaultPageId default page for which equivalent branched page is going to be fetched
-     * @param tableName if page is not present then name of the page name should include tableName
-     * @param branchName branch of which the page needs to be fetched
+     * @param defaultPageId        default page for which equivalent branched page is going to be fetched
+     * @param tableName            if page is not present then name of the page name should include tableName
+     * @param branchName           branch of which the page needs to be fetched
      * @return NewPage if not present already with the incremental suffix number to avoid duplicate application names
      */
     private Mono<NewPage> getOrCreatePage(String defaultApplicationId, String defaultPageId, String tableName, String branchName) {
@@ -404,7 +407,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         */
 
         log.debug("Fetching page from application {}, defaultPageId {}, branchName {}", defaultApplicationId, defaultPageId, branchName);
-        if(defaultPageId != null) {
+        if (defaultPageId != null) {
             return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
@@ -452,7 +455,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
     /**
      * @param datasource resource from which table has to be filtered
-     * @param tableName to filter the available tables in the datasource
+     * @param tableName  to filter the available tables in the datasource
      * @return Table from the provided datasource if structure is present
      */
     private Table getTable(Datasource datasource, String tableName) {
@@ -464,7 +467,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         if (datasourceStructure != null) {
             return datasourceStructure.getTables()
                     .stream()
-                    .filter(table1 -> StringUtils.equals(table1.getName(),tableName))
+                    .filter(table1 -> StringUtils.equals(table1.getName(), tableName))
                     .findAny()
                     .orElse(null);
         }
@@ -473,6 +476,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
     /**
      * This will fetch the template application resource which then act as a reference to clone layouts and actions
+     *
      * @param filePath template application path
      * @return template application file
      * @throws IOException
@@ -501,11 +505,12 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     /**
      * This function will clone actions from the template application and update action configuration using mapped
      * columns between the template datasource and datasource in context
-     * @param datasource datasource connected by user
-     * @param tableName Table name provided by the user
-     * @param pageId Page to which actions needs to be cloned
+     *
+     * @param datasource         datasource connected by user
+     * @param tableName          Table name provided by the user
+     * @param pageId             Page to which actions needs to be cloned
      * @param templateActionList Actions from the template application related to specific datasource
-     * @param mappedColumns Mapped column names between template and resource table under consideration
+     * @param mappedColumns      Mapped column names between template and resource table under consideration
      * @param deletedWidgetNames Deleted column ref when template application have more # of columns than the users table
      * @return cloned and updated actions from template application actions
      */
@@ -568,7 +573,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                     // matcher as the bucket name can be test.appsmith etc
                                     property.setValue(mappedColumns.get(property.getValue().toString()));
                                 } else if (property.getKey() != null && !CollectionUtils.isEmpty(pluginSpecificTemplateParams)
-                                        && pluginSpecificTemplateParams.get(property.getKey()) != null){
+                                        && pluginSpecificTemplateParams.get(property.getKey()) != null) {
                                     property.setValue(pluginSpecificTemplateParams.get(property.getKey()));
                                 } else {
                                     final Matcher matcher = WORD_PATTERN.matcher(property.getValue().toString());
@@ -583,59 +588,24 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
                     log.debug("Cloning form data for action ");
                     Map<String, Object> formData = actionConfiguration.getFormData();
-                    if (!CollectionUtils.isEmpty(formData)) {
-                        // using for-each loop for iteration over Map.entrySet()
-                        updateFormData(formData, mappedColumns, pluginSpecificTemplateParams);
-                    }
-                    actionDTO.setActionConfiguration(deleteUnwantedWidgetReferenceInActions(actionConfiguration, deletedWidgetNames));
-
-                    return layoutActionService.createSingleAction(actionDTO);
+                    return pluginExecutorHelper
+                            .getPluginExecutorFromPackageName(templateAction.getPluginId())
+                            .map(pluginExecutor -> {
+                                if (!CollectionUtils.isEmpty(formData)) {
+                                    pluginExecutor.updateCrudTemplateFormData(formData, mappedColumns, pluginSpecificTemplateParams);
+                                }
+                                actionDTO.setActionConfiguration(deleteUnwantedWidgetReferenceInActions(actionConfiguration, deletedWidgetNames));
+                                return actionDTO;
+                            })
+                            .flatMap(layoutActionService::createSingleAction);
                 });
     }
 
     /**
-     * This method will recursively replace the column names from template table to user provided table
-     * @param formData form data from action configuration object
-     * @param mappedColumns column name map from template table to user defined table
-     * @param pluginSpecificTemplateParams plugin specified fields like S3 bucket name etc
-     */
-    private void updateFormData(Map<String, Object> formData,
-                                Map<String, String> mappedColumns,
-                                Map<String, String> pluginSpecificTemplateParams) {
-        for (Map.Entry<String,Object> property : formData.entrySet()) {
-            if (property.getValue() != null) {
-                if (property.getKey() != null && !CollectionUtils.isEmpty(pluginSpecificTemplateParams)
-                        && pluginSpecificTemplateParams.get(property.getKey()) != null){
-                    property.setValue(pluginSpecificTemplateParams.get(property.getKey()));
-                } else {
-                    // Recursively replace the column names from template table with user provided table using mappedColumns
-                    if (property.getValue() instanceof String) {
-
-                        // In case the entire value finds a match in the mappedColumns, replace it
-                        String propertyValue = ((String) property.getValue());
-                        if (mappedColumns.containsKey(propertyValue)) {
-                            property.setValue(mappedColumns.get(propertyValue));
-                        }
-
-                        // If the column name is present inside a string, then find all the words and replace
-                        // the column name with user one.
-                        Matcher matcher = WORD_PATTERN.matcher((String) property.getValue());
-                        property.setValue(matcher.replaceAll(key ->
-                                mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
-                        );
-                    }
-                    if (property.getValue() instanceof Map) {
-                        updateFormData((Map<String, Object>)property.getValue(), mappedColumns, pluginSpecificTemplateParams);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * This function maps the column names between the template datasource table and the user's table
-     * @param sourceTable provides keys for Map from column names
-     * @param destTable provides values for Map from column names
+     *
+     * @param sourceTable  provides keys for Map from column names
+     * @param destTable    provides values for Map from column names
      * @param searchColumn specific column provided to implement the filter for Select and Find query
      * @param tableColumns Specific columns provided by higher order function to act as values for Map
      * @return
@@ -706,8 +676,9 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
     /**
      * This function maps the primary key names between the template datasource table and the user's table
+     *
      * @param sourceTable Template table whose pKey will act as key for the MAP
-     * @param destTable Table from the users datasource whose keys will act as values for the MAP
+     * @param destTable   Table from the users datasource whose keys will act as values for the MAP
      * @return Map of <sourceKeyColumnName, destinationKeyColumnName>
      */
 
@@ -781,9 +752,10 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
     /**
      * This function updates the dsl of current node and recursively iterate over it's children
+     *
      * @param dsl
      * @param mappedColumnsAndTableNames map to replace column names and update dsl
-     * @param deletedWidgets store the widgets those are deleted from the dsl
+     * @param deletedWidgets             store the widgets those are deleted from the dsl
      * @return updated dsl for the widget
      */
     private JSONObject extractAndUpdateAllWidgetFromDSL(JSONObject dsl,
@@ -923,8 +895,9 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     /**
      * This will delete widget names from body when template datasource have more number of columns than the user
      * connected datasource. Also it will replace the template column names with the user connected datasource column names
+     *
      * @param actionConfiguration resource which needs to be updated
-     * @param deletedWidgetNames widgets for which references to be removed from the actionConfiguration
+     * @param deletedWidgetNames  widgets for which references to be removed from the actionConfiguration
      * @return updated ActionConfiguration with deleteWidgets ref removed
      */
     private ActionConfiguration deleteUnwantedWidgetReferenceInActions(ActionConfiguration actionConfiguration,
@@ -1035,13 +1008,14 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
     /**
      * This method removes the unwanted fields like column names and widget names from formData.
+     *
      * @param formData where updates required as per user db table
-     * @param regex to replace the unwanted field this will be useful when the connected datasource have less number of
-     *              columns than template datasource
+     * @param regex    to replace the unwanted field this will be useful when the connected datasource have less number of
+     *                 columns than template datasource
      */
     private void removeUnwantedFieldRefFromFormData(Map<String, Object> formData,
                                                     String regex) {
-        for (Map.Entry<String,Object> property : formData.entrySet()) {
+        for (Map.Entry<String, Object> property : formData.entrySet()) {
             if (property.getValue() != null) {
                 if (property.getValue() instanceof String) {
                     property.setValue(property.getValue().toString().replaceAll(regex, ""));
