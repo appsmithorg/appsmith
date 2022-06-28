@@ -92,7 +92,7 @@ export class JSEditor {
   //#endregion
 
   //#region Page functions
-  public NavigateToNewJSEditor(toValidateToast = false) {
+  public NavigateToNewJSEditor() {
     cy.get(this.locator._createNew)
       .last()
       .click({ force: true });
@@ -109,8 +109,7 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    toValidateToast &&
-      this.agHelper.WaitUntilToastDisappear("created successfully");
+    this.agHelper.WaitUntilToastDisappear("created successfully"); //to not hinder with other toast msgs!
     this.agHelper.Sleep();
   }
 
@@ -120,7 +119,7 @@ export class JSEditor {
   ) {
     const { completeReplace, paste, shouldCreateNewJSObj, toRun } = options;
 
-    shouldCreateNewJSObj && this.NavigateToNewJSEditor(toRun);
+    shouldCreateNewJSObj && this.NavigateToNewJSEditor();
     if (!completeReplace) {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
