@@ -106,7 +106,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                 )}
               </div>
               <div className="">
-                {currentUser?.username == ANONYMOUS_USERNAME && (
+                {currentUser?.username !== ANONYMOUS_USERNAME && (
                   <BackToHomeButton />
                 )}
               </div>
