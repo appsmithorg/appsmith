@@ -242,6 +242,8 @@ describe("JS Function Execution", function() {
     // Re-introduce parse errors
     jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR);
     agHelper.GetNClick(jsEditor._runButton);
+    // Assert that there is a function execution parse error
+    jsEditor.AssertParseError(true, true);
 
     // Delete function
     jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION);
