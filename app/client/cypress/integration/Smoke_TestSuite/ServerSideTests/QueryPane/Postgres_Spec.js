@@ -2,7 +2,9 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
+let ee = ObjectsRegistry.EntityExplorer;
 let datasourceName;
 
 describe("Validate CRUD queries for Postgres along with UI flow verifications", function() {
@@ -304,6 +306,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate(deleteTblQuery);
     cy.runQuery();
+    ee.ExpandCollapseEntity("DATASOURCES");
     cy.actionContextMenuByEntityName(datasourceName, "Refresh");
     cy.xpath("//div[text()='public.users_crud']").should("not.exist"); //validating drop is successful!
     cy.deleteQueryUsingContext();

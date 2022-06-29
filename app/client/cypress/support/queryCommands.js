@@ -262,6 +262,20 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add(
+  "ValidateAndSelectDropdownOption",
+  (dropdownIdentifier, currentOption, newOption, isDynamic = false) => {
+    cy.VerifyCurrentDropdownOption(dropdownIdentifier, currentOption);
+    if (newOption) {
+      cy.TargetDropdownAndSelectOption(
+        dropdownIdentifier,
+        newOption,
+        isDynamic,
+      );
+    }
+  },
+);
+
 Cypress.Commands.add("NavigateToAction", (actionName) => {
   cy.get(queryEditor.navigateToAction)
     .contains(actionName)
