@@ -63,8 +63,8 @@ async function run() {
       await mailer.sendBackupErrorToAdmins(err, timestamp);
     }   
   } finally {
-      utils.start(['backend', 'rts']);
-      process.exit(errorCode);
+    utils.start(['backend', 'rts']);
+    process.exit(errorCode);
 
   }
 }
