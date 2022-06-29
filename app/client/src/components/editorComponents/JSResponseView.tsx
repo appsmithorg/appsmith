@@ -212,7 +212,7 @@ function JSResponseView(props: Props) {
   }, [responses, isExecuting, currentFunction, isSaving, isDirty]);
   const tabs = [
     {
-      key: "body",
+      key: "response",
       title: "Response",
       panelComponent: (
         <>

@@ -239,6 +239,8 @@ describe("JS Function Execution", function() {
       "TypeError: Cannot read properties of undefined (reading 'name')",
     ).should("not.exist");
 
+    // Switch back to response tab
+    agHelper.GetNClick(locator._responseTab);
     // Re-introduce parse errors
     jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR);
     agHelper.GetNClick(jsEditor._runButton);
