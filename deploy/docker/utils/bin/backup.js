@@ -7,7 +7,7 @@ const shell = require('shelljs');
 const utils = require('./utils');
 const Constants = require('./constants');
 const logger = require('./logger');
-const mailer = require('./mailer')
+const mailer = require('./mailer');
 
 const command_args = process.argv.slice(3);
  
