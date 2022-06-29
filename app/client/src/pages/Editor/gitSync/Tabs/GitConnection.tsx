@@ -112,7 +112,7 @@ const Container = styled.div`
   }
 
   &::-webkit-scrollbar {
-    width: 0px;
+    width: 0;
   }
 `;
 

@@ -223,7 +223,7 @@ describe("gitSync utils", () => {
       };
       const actual = changeInfoSinceLastCommit(applicationData);
       const expected = {
-        changeReasonText: "Changes since last commit",
+        changeReasonText: "Changes since last deployment",
         isAutoUpdate: false,
         isManualUpdate: false,
       };
@@ -243,7 +243,7 @@ describe("gitSync utils", () => {
       };
       const actual = changeInfoSinceLastCommit(applicationData);
       const expected = {
-        changeReasonText: "Appsmith update changes since last commit",
+        changeReasonText: "Changes since last deployment",
         isAutoUpdate: true,
         isManualUpdate: false,
       };
@@ -263,7 +263,7 @@ describe("gitSync utils", () => {
       };
       const actual = changeInfoSinceLastCommit(applicationData);
       const expected = {
-        changeReasonText: "Appsmith update and user changes since last commit",
+        changeReasonText: "Changes since last deployment",
         isAutoUpdate: true,
         isManualUpdate: true,
       };
@@ -283,7 +283,7 @@ describe("gitSync utils", () => {
       };
       const actual = changeInfoSinceLastCommit(applicationData);
       const expected = {
-        changeReasonText: "Changes since last commit",
+        changeReasonText: "Changes since last deployment",
         isAutoUpdate: false,
         isManualUpdate: true,
       };

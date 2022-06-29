@@ -1,8 +1,6 @@
 import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
-  CHANGES_ONLY_MIGRATION,
-  CHANGES_ONLY_USER,
-  CHANGES_USER_AND_MIGRATION,
+  CHANGES_SINCE_LAST_DEPLOYMENT,
   createMessage,
 } from "@appsmith/constants/messages";
 
@@ -75,11 +73,6 @@ export function changeInfoSinceLastCommit(
 ) {
   const isAutoUpdate = !!currentApplication?.isAutoUpdate;
   const isManualUpdate = !!currentApplication?.isManualUpdate;
-  const changeReason = isAutoUpdate
-    ? isManualUpdate
-      ? CHANGES_USER_AND_MIGRATION
-      : CHANGES_ONLY_MIGRATION
-    : CHANGES_ONLY_USER;
-  const changeReasonText = createMessage(changeReason);
+  const changeReasonText = createMessage(CHANGES_SINCE_LAST_DEPLOYMENT);
   return { isAutoUpdate, isManualUpdate, changeReasonText };
 }

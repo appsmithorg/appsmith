@@ -1,15 +1,19 @@
 import React from "react";
 import styled from "constants/DefaultTheme";
-import { Classes } from "components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+import { Classes, Icon, IconSize, Text, TextType } from "components/ads";
 import { Colors } from "constants/Colors";
-import Icon, { IconSize } from "components/ads/Icon";
 import { useSelector } from "react-redux";
 import {
   getGitStatus,
   getIsFetchingGitStatus,
 } from "selectors/gitSyncSelectors";
 import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
+import {
+  CHANGES_FROM_APPSMITH,
+  createMessage,
+  NOT_PUSHED_YET,
+  TRY_TO_PULL,
+} from "@appsmith/constants/messages";
 
 const DummyChange = styled.div`
   width: 50%;
@@ -43,7 +47,8 @@ const Changes = styled.div`
 `;
 
 export enum Kind {
-  COMMIT = "COMMIT",
+  AHEAD_COMMIT = "AHEAD_COMMIT",
+  BEHIND_COMMIT = "BEHIND_COMMIT",
   DATA_SOURCE = "DATA_SOURCE",
   JS_OBJECT = "JS_OBJECT",
   PAGE = "PAGE",
@@ -61,10 +66,15 @@ type GitStatusMap = {
 };
 
 const STATUS_MAP: GitStatusMap = {
-  [Kind.COMMIT]: (status: GitStatusData) => ({
-    message: commitMessage(status),
+  [Kind.AHEAD_COMMIT]: (status: GitStatusData) => ({
+    message: aheadCommitMessage(status),
     iconName: "git-commit",
-    hasValue: (status?.aheadCount || 0) > 0 || (status?.behindCount || 0) > 0,
+    hasValue: (status?.aheadCount || 0) > 0,
+  }),
+  [Kind.BEHIND_COMMIT]: (status: GitStatusData) => ({
+    message: behindCommitMessage(status),
+    iconName: "git-commit",
+    hasValue: (status?.behindCount || 0) > 0,
   }),
   [Kind.DATA_SOURCE]: (status: GitStatusData) => ({
     message: `${status?.modifiedDatasources || 0} ${
@@ -96,22 +106,24 @@ const STATUS_MAP: GitStatusMap = {
   }),
 };
 
-function commitMessage(status: GitStatusData) {
-  const aheadCount = status?.aheadCount || 0;
+function behindCommitMessage(status: GitStatusData) {
   const behindCount = status?.behindCount || 0;
-  const aheadMessage =
-    aheadCount > 0
-      ? (aheadCount || 0) === 1
-        ? `${aheadCount || 0} commit ahead`
-        : `${aheadCount || 0} commits ahead`
-      : null;
-  const behindMessage =
-    behindCount > 0
-      ? (behindCount || 0) === 1
-        ? `${behindCount || 0} commit behind`
-        : `${behindCount || 0} commits behind `
-      : null;
-  return [aheadMessage, behindMessage].filter((i) => i !== null).join(" and ");
+  let behindMessage =
+    (behindCount || 0) === 1
+      ? `${behindCount || 0} commit`
+      : `${behindCount || 0} commits`;
+  behindMessage += ` behind. ${createMessage(TRY_TO_PULL)}`;
+  return behindMessage;
+}
+
+function aheadCommitMessage(status: GitStatusData) {
+  const aheadCount = status?.aheadCount || 0;
+  let aheadMessage =
+    (aheadCount || 0) === 1
+      ? `${aheadCount || 0} commit`
+      : `${aheadCount || 0} commits`;
+  aheadMessage += ` ahead. ${createMessage(NOT_PUSHED_YET)}`;
+  return aheadMessage;
 }
 
 export function Change(props: Partial<GitStatusProps>) {
@@ -126,16 +138,16 @@ export function Change(props: Partial<GitStatusProps>) {
 }
 
 const defaultStatus: GitStatusData = {
-  aheadCount: 0,
-  behindCount: 0,
+  aheadCount: 3,
+  behindCount: 10,
   conflicting: [],
   discardDocUrl: "",
   isClean: false,
   modified: [],
-  modifiedDatasources: 0,
-  modifiedJSObjects: 0,
-  modifiedPages: 0,
-  modifiedQueries: 0,
+  modifiedDatasources: 11,
+  modifiedJSObjects: 13,
+  modifiedPages: 19,
+  modifiedQueries: 24,
   remoteBranch: "",
 };
 
@@ -150,9 +162,10 @@ export function gitChangeListData(
   const changeKind = [
     Kind.PAGE,
     Kind.QUERY,
-    Kind.COMMIT,
     Kind.JS_OBJECT,
     Kind.DATA_SOURCE,
+    Kind.AHEAD_COMMIT,
+    Kind.BEHIND_COMMIT,
   ];
   return changeKind
     .map((type: Kind) => STATUS_MAP[type](status))
@@ -161,10 +174,24 @@ export function gitChangeListData(
     .filter((s) => !!s);
 }
 
-export default function GitChangesList() {
+export default function GitChangesList({
+  isAutoUpdate,
+}: {
+  isAutoUpdate: boolean;
+}) {
   const status: GitStatusData = useSelector(getGitStatus) as GitStatusData;
   const loading = useSelector(getIsFetchingGitStatus);
   const changes = gitChangeListData(status);
+  if (isAutoUpdate) {
+    changes.push(
+      <Change
+        hasValue={isAutoUpdate}
+        iconName="info"
+        key="change-status-auto-update"
+        message={createMessage(CHANGES_FROM_APPSMITH)}
+      />,
+    );
+  }
   return loading ? (
     <DummyChange data-testid={"t--git-change-loading-dummy"} />
   ) : (
