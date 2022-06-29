@@ -94,7 +94,11 @@ module.exports = class Perf {
 
     this.currentTrace = action;
     await delay(5000, `before starting trace ${action}`);
+    await this.page._client.send("HeapProfiler.enable");
+    await this.page._client.send("HeapProfiler.collectGarbage");
+
     const path = `${APP_ROOT}/traces/${action}-${getFormattedTime()}-chrome-profile.json`;
+
     await this.page.tracing.start({
       path: path,
       screenshots: true,
@@ -122,7 +126,7 @@ module.exports = class Perf {
     await this.page.waitForNavigation();
 
     const currentUrl = this.page.url();
-    const pageId = currentURL
+    const pageId = currentUrl
       .split("/")[5]
       ?.split("-")
       .pop();

@@ -105,7 +105,7 @@ exports.login = async (page) => {
   await page.waitForSelector(passwordSelector);
   await page.waitForSelector(buttonSelector);
 
-  await page.type(emailSelector, "hello@myemail.com");
+  await page.type(emailSelector, "hello@ymail.com");
   await page.type(passwordSelector, "qwerty1234");
   delay(1000, "before clicking login button");
   await page.click(buttonSelector);
