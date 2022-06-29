@@ -26,6 +26,7 @@ type PermissionGroupProps = {
   permissionName: string;
   isAppsmithProvided: boolean;
   id: string;
+  isNew?: boolean;
 };
 
 export const permissionGroupTableData: PermissionGroupProps[] = [
@@ -35,6 +36,7 @@ export const permissionGroupTableData: PermissionGroupProps[] = [
     isDeleting: false,
     permissionName: "HR_Appsmith",
     isAppsmithProvided: false,
+    isNew: false,
   },
   {
     id: "2",
@@ -42,6 +44,7 @@ export const permissionGroupTableData: PermissionGroupProps[] = [
     isDeleting: false,
     permissionName: "devops_design",
     isAppsmithProvided: false,
+    isNew: false,
   },
   {
     id: "3",
@@ -49,6 +52,7 @@ export const permissionGroupTableData: PermissionGroupProps[] = [
     isDeleting: false,
     permissionName: "devops_eng_nov",
     isAppsmithProvided: false,
+    isNew: false,
   },
   {
     id: "4",
@@ -56,6 +60,7 @@ export const permissionGroupTableData: PermissionGroupProps[] = [
     isDeleting: false,
     permissionName: "marketing_nov",
     isAppsmithProvided: false,
+    isNew: false,
   },
   {
     id: "5",
@@ -63,6 +68,7 @@ export const permissionGroupTableData: PermissionGroupProps[] = [
     isDeleting: false,
     permissionName: "Administrator",
     isAppsmithProvided: true,
+    isNew: false,
   },
   {
     id: "6",
@@ -70,6 +76,7 @@ export const permissionGroupTableData: PermissionGroupProps[] = [
     isDeleting: false,
     permissionName: "App Viewer",
     isAppsmithProvided: true,
+    isNew: false,
   },
 ];
 
@@ -78,17 +85,40 @@ export function PermissionGroupListing() {
   const [searchValue, setSearchValue] = useState("");
   const params = useParams() as any;
   const selectedPermGrpId = params?.selected;
-  const selectedPermissionGroup = data.find(
+  const selPermissionGroup = permissionGroupTableData.find(
     (group) => group.id === selectedPermGrpId,
   );
+  const [selectedPermissionGroup, setSelectedPermissionGroup] = useState(
+    selPermissionGroup,
+  );
+  const [isNewGroup, setIsNewGroup] = useState(false);
 
   const history = useHistory();
+
+  useEffect(() => {
+    if (isNewGroup && params.selected) {
+      setSelectedPermissionGroup({
+        id: "10102",
+        isEditing: false,
+        isDeleting: false,
+        permissionName: "Untitled Permission Group",
+        isAppsmithProvided: false,
+        isNew: true,
+      });
+    } else {
+      const selPermissionGroup = permissionGroupTableData.find(
+        (group) => group.id === selectedPermGrpId,
+      );
+      setSelectedPermissionGroup(selPermissionGroup);
+      setIsNewGroup(false);
+    }
+  }, [params]);
 
   useEffect(() => {
     setData(permissionGroupTableData);
   }, [permissionGroupTableData]);
 
-  const onDeleteHanlder = (id: string) => {
+  const onDeleteHandler = (id: string) => {
     const updatedData = data.filter((permissionGroup) => {
       return permissionGroup.id !== id;
     });
@@ -100,6 +130,7 @@ export function PermissionGroupListing() {
       ...permission,
       id: uniqueId("pg"),
       permissionName: `Copy of ${permission.permissionName}`,
+      isAppsmithProvided: false,
     };
     permissionGroupTableData.push(clonedData);
     setData([...permissionGroupTableData]);
@@ -141,7 +172,8 @@ export function PermissionGroupListing() {
         const selectedPermission = data.find(
           (permission) => permission.id === id,
         );
-        selectedPermission && onCloneHandler(selectedPermission);
+        selectedPermission &&
+          onCloneHandler({ ...selectedPermission, isAppsmithProvided: false });
       },
       text: "Clone Permission Group",
       label: "clone",
@@ -160,7 +192,7 @@ export function PermissionGroupListing() {
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: (e, key: string) => {
-        onDeleteHanlder(key);
+        onDeleteHandler(key);
       },
       text: "Delete Permission Group",
     },
@@ -177,8 +209,9 @@ export function PermissionGroupListing() {
     },
   ];
 
-  const onButtonClick = () => {
-    /*console.log("hello onClickHandler");*/
+  const onAddButtonClick = () => {
+    setIsNewGroup(true);
+    history.push(`/settings/permission-groups/10102`);
   };
 
   const onSearch = debounce((search: string) => {
@@ -201,14 +234,14 @@ export function PermissionGroupListing() {
       {selectedPermissionGroup ? (
         <PermissionGroupAddEdit
           onClone={onCloneHandler}
-          onDelete={onDeleteHanlder}
+          onDelete={onDeleteHandler}
           selected={selectedPermissionGroup}
         />
       ) : (
         <>
           <PageHeader
             buttonText="Add Group"
-            onButtonClick={onButtonClick}
+            onButtonClick={onAddButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
             searchPlaceholder="Search permission groups"

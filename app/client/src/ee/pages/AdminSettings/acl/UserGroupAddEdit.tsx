@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Icon,
@@ -7,13 +7,20 @@ import {
   MenuItem,
   MenuItemProps,
   Table,
+  Toaster,
+  Variant,
 } from "components/ads";
 import styled from "styled-components";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
 import { PageHeader } from "./PageHeader";
 import ProfileImage from "pages/common/ProfileImage";
-import { BackButton, HelpPopoverStyle, TabsWrapper } from "./components";
+import {
+  BackButton,
+  HelpPopoverStyle,
+  SaveButtonBar,
+  TabsWrapper,
+} from "./components";
 import { debounce } from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
@@ -32,6 +39,7 @@ export type UserGroupProps = {
   allUsers: Array<any>;
   allPermissions: Array<any>;
   activePermissions: Array<any>;
+  isNew?: boolean;
 };
 
 export type UserGroupEditProps = {
@@ -133,14 +141,28 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [users, setUsers] = useState<User[]>(selected.allUsers || []);
   const [permissions, setPermissions] = useState<Permissions>({
     activePermissions: selected.activePermissions || [],
     allPermissions: selected.allPermissions || [],
   });
 
+  const [removedActiveGroups, setRemovedActiveGroups] = useState<Array<any>>(
+    [],
+  );
+  const [addedAllGroups, setAddedAllGroups] = useState<Array<any>>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [pageTitle, setPageTitle] = useState(selected.rolename);
+
   const history = useHistory();
+
+  useEffect(() => {
+    const saving =
+      removedActiveGroups.length > 0 ||
+      addedAllGroups.length > 0 ||
+      pageTitle !== selected.rolename;
+    setIsSaving(saving);
+  }, [removedActiveGroups, addedAllGroups, pageTitle]);
 
   const onButtonClick = () => {
     setShowModal(true);
@@ -175,6 +197,55 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
       });
     }
   }, 300);
+
+  const onAddGroup = (group: any) => {
+    if (addedAllGroups.includes(group)) {
+      const updateGroups = addedAllGroups.filter((grp) => grp !== group);
+      setAddedAllGroups(updateGroups);
+    } else {
+      setAddedAllGroups([...addedAllGroups, group]);
+    }
+  };
+
+  const onRemoveGroup = (group: any) => {
+    if (removedActiveGroups.includes(group)) {
+      const updateGroups = removedActiveGroups.filter((grp) => grp !== group);
+      setRemovedActiveGroups(updateGroups);
+    } else {
+      setRemovedActiveGroups([...removedActiveGroups, group]);
+    }
+  };
+
+  const onSaveChanges = () => {
+    const updatedActiveGroups = permissions.activePermissions.filter(
+      (role) => !removedActiveGroups.includes(role),
+    );
+    updatedActiveGroups.push(...addedAllGroups);
+    const updatedAllGroups = permissions.allPermissions.filter(
+      (role) => !addedAllGroups.includes(role),
+    );
+    updatedAllGroups.push(...removedActiveGroups);
+    setPermissions({
+      activePermissions: updatedActiveGroups,
+      allPermissions: updatedAllGroups,
+    });
+    setRemovedActiveGroups([]);
+    setAddedAllGroups([]);
+    Toaster.show({
+      text: "Successfully Saved",
+      variant: Variant.success,
+    });
+  };
+
+  const onClearChanges = () => {
+    setRemovedActiveGroups([]);
+    setAddedAllGroups([]);
+    setPageTitle(selected.rolename);
+  };
+
+  const onEditTitle = (name: string) => {
+    setPageTitle(name);
+  };
 
   const columns = [
     {
@@ -293,7 +364,11 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
       panelComponent: (
         <ActiveAllGroupsList
           activeGroups={permissions.activePermissions}
+          addedAllGroups={addedAllGroups}
           allGroups={permissions.allPermissions}
+          onAddGroup={onAddGroup}
+          onRemoveGroup={onRemoveGroup}
+          removedActiveGroups={removedActiveGroups}
           searchValue={searchValue}
         />
       ),
@@ -321,7 +396,6 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
     {
       className: "rename-menu-item",
       icon: "edit-underline",
-      onSelect: () => setIsEditingTitle(true),
       text: "Rename User Group",
       label: "rename",
     },
@@ -335,17 +409,18 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
   ];
 
   return (
-    <div data-testid="t--user-edit-wrapper">
+    <div data-testid="t--user-edit-wrapper" style={{ width: "100%" }}>
       <BackButton />
       <PageHeader
         buttonText="Add users"
-        isEditingTitle={isEditingTitle}
+        isEditingTitle={selected.isNew}
         isTitleEditable
         onButtonClick={onButtonClick}
+        onEditTitle={onEditTitle}
         onSearch={onSearch}
         pageMenuItems={menuItems}
         searchPlaceholder="Search"
-        title={selected.rolename}
+        title={pageTitle}
       />
       <TabsWrapper data-testid="t--user-edit-tabs-wrapper">
         <TabComponent
@@ -354,6 +429,9 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
           tabs={tabs}
         />
       </TabsWrapper>
+      {isSaving && (
+        <SaveButtonBar onClear={onClearChanges} onSave={onSaveChanges} />
+      )}
       <FormDialogComponent
         Form={WorkspaceInviteUsersForm}
         canOutsideClickClose
