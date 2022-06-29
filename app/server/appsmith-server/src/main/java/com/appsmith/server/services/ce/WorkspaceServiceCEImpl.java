@@ -1,15 +1,21 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.RbacPolicy;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.WorkspacePlugin;
+import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.UserGroupInfoDTO;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -40,14 +46,21 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRIPTION;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
 
 @Slf4j
 public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Workspace, String>
@@ -164,82 +177,56 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
         workspace.setTenantId(user.getTenantId());
 
-//        return validateObject(workspace)
-//                // Install all the default plugins when the org is created
-//                /* TODO: This is a hack. We should ideally use the pluginService.installPlugin() function.
-//                    Not using it right now because of circular dependency b/w workspaceService and pluginService
-//                    Also, since all our deployments are single node, this logic will still work
-//                 */
-//                .flatMap(org -> pluginRepository.findByDefaultInstall(true)
-//                        .map(obj -> new WorkspacePlugin(obj.getId(), WorkspacePluginStatus.FREE))
-//                        .collect(Collectors.toSet())
-//                        .map(pluginList -> {
-//                            org.setPlugins(pluginList);
-//                            return org;
-//                        }))
-//                // Save the workspace in the db
-//                .flatMap(repository::save)
-//                // Generate the default workspace user & permission groups
-//                .flatMap(createdWorkspace1 -> {
-//                    return generateDefaultUserGroups(createdWorkspace1)
-//                            .zipWith(Mono.just(createdWorkspace1))
-//                            .flatMap(tuple -> {
-//                                Set<UserGroup> userGroups = tuple.getT1();
-//                                Workspace createdWorkspace = tuple.getT2();
-//                                // Now generate the permission groups and corresponding policies and finally return user groups and permission groups
-//                                return Mono.zip(
-//                                        Mono.just(userGroups),
-//                                        Mono.just(createdWorkspace),
-//                                        generateDefaultPermissionGroupsAndPolicy(createdWorkspace, userGroups)
-//                                );
-//                            })
-//                            .flatMap(tuple -> {
-//                                Set<UserGroup> userGroups = tuple.getT1();
-//                                Workspace createdWorkspace = tuple.getT2();
-//                                Set<PermissionGroup> permissionGroups = tuple.getT3();
-//
-//                                createdWorkspace.setDefaultUserGroups(
-//                                        userGroups.stream()
-//                                                .map(UserGroup::getId)
-//                                                .collect(Collectors.toSet())
-//                                );
-//
-//                                createdWorkspace.setDefaultPermissionGroups(
-//                                        permissionGroups.stream()
-//                                                .map(PermissionGroup::getId)
-//                                                .collect(Collectors.toSet())
-//                                );
-//
-//                                UserGroup admin = userGroups.stream()
-//                                        .filter(group -> group.getName().startsWith(ADMINISTRATOR))
-//                                        .findFirst()
-//                                        .get();
-//
-//                                // Add the user creating the workspace to the administrator user group
-//                                admin.setUsers(Set.of(new UserInGroup(user)));
-//
-//                                // Apply the permissions to the workspace
-//                                for (PermissionGroup permissionGroup : permissionGroups) {
-//                                    Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionForObject(permissionGroup, createdWorkspace.getId());
-//
-//                                    createdWorkspace = policyUtils.addPoliciesToExistingObject(policyMap, createdWorkspace);
-//                                }
-//
-//                                return Flux.fromIterable(userGroups)
-//                                        .flatMap(userGroup -> {
-//                                            // Apply the permissions to the user group
-//                                            for (PermissionGroup permissionGroup : permissionGroups) {
-//                                                Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionForObject(permissionGroup, userGroup.getId());
-//
-//                                                userGroup = policyUtils.addPoliciesToExistingObject(policyMap, userGroup);
-//                                            }
-//
-//                                            return userGroupService.update(userGroup.getId(), userGroup);
-//                                        })
-//                                        .then(repository.save(createdWorkspace));
-//                            });
-//                })
-        return null;
+        return validateObject(workspace)
+                // Install all the default plugins when the org is created
+                /* TODO: This is a hack. We should ideally use the pluginService.installPlugin() function.
+                    Not using it right now because of circular dependency b/w workspaceService and pluginService
+                    Also, since all our deployments are single node, this logic will still work
+                 */
+                .flatMap(org -> pluginRepository.findByDefaultInstall(true)
+                        .map(obj -> new WorkspacePlugin(obj.getId(), WorkspacePluginStatus.FREE))
+                        .collect(Collectors.toSet())
+                        .map(pluginList -> {
+                            org.setPlugins(pluginList);
+                            return org;
+                        }))
+                // Save the workspace in the db
+                .flatMap(repository::save)
+                // Generate the default permission groups & policy for the current user
+                .flatMap(createdWorkspace1 -> {
+                    return Mono.zip(generateDefaultPermissionGroups(createdWorkspace1), Mono.just(createdWorkspace1))
+                            .flatMap(tuple -> {
+
+                                Set<PermissionGroup> permissionGroups = tuple.getT1();
+                                Workspace createdWorkspace = tuple.getT2();
+
+                                createdWorkspace.setDefaultPermissionGroups(
+                                        permissionGroups.stream()
+                                                .map(PermissionGroup::getId)
+                                                .collect(Collectors.toSet())
+                                );
+
+                                // Apply the permissions to the workspace
+                                for (PermissionGroup permissionGroup : permissionGroups) {
+                                    Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionForObject(permissionGroup, createdWorkspace.getId());
+
+                                    createdWorkspace = policyUtils.addPoliciesToExistingObject(policyMap, createdWorkspace);
+                                }
+
+                                PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                                        .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                                        .findFirst().get();
+
+                                // Create a policy for current user to become the administrator
+                                RbacPolicy userPolicy = new RbacPolicy();
+                                userPolicy.setUserId(user.getId());
+                                userPolicy.setPermissionGroupIds(Set.of(adminPermissionGroup.getId()));
+
+                                return rbacPolicyService.create(userPolicy)
+                                        // save the workspace with updated permissions
+                                        .then(repository.save(createdWorkspace));
+                            });
+                });
     }
 
     private String generateNewDefaultName(String oldName, String workspaceName) {
@@ -260,156 +247,124 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         return prefix + " - " + workspaceName;
     }
 
-//    private Mono<Set<UserGroup>> generateDefaultUserGroups(Workspace workspace) {
-//        String workspaceName = workspace.getName();
-//
-//        // Administrator user group
-//        UserGroup adminUserGroup = new UserGroup();
-//
-//        adminUserGroup.setName(getDefaultNameForGroupInWorkspace(ADMINISTRATOR, workspaceName));
-//        adminUserGroup.setDefaultWorkspaceId(workspace.getId());
-//        adminUserGroup.setTenantId(workspace.getTenantId());
-//        adminUserGroup.setDescription(WORKSPACE_ADMINISTRATOR_DESCRIPTION);
-//
-//        UserGroup developerUserGroup = new UserGroup();
-//        developerUserGroup.setName(getDefaultNameForGroupInWorkspace(DEVELOPER, workspaceName));
-//        developerUserGroup.setDefaultWorkspaceId(workspace.getId());
-//        developerUserGroup.setTenantId(workspace.getTenantId());
-//        developerUserGroup.setDescription(WORKSPACE_DEVELOPER_DESCRIPTION);
-//
-//        UserGroup viewerUserGroup = new UserGroup();
-//        viewerUserGroup.setName(getDefaultNameForGroupInWorkspace(VIEWER, workspaceName));
-//        viewerUserGroup.setDefaultWorkspaceId(workspace.getId());
-//        viewerUserGroup.setTenantId(workspace.getTenantId());
-//        viewerUserGroup.setDescription(WORKSPACE_VIEWER_DESCRIPTION);
-//
-//        return Flux.fromIterable(List.of(adminUserGroup, developerUserGroup, viewerUserGroup))
-//                .flatMap(userGroup -> userGroupService.create(userGroup))
-//                .collect(Collectors.toSet());
-//    }
-//
-//    private Mono<Set<PermissionGroup>> generateDefaultPermissionGroupsAndPolicy(Workspace workspace, Set<UserGroup> defaultUserGroups) {
-//        String workspaceName = workspace.getName();
-//
-//        UserGroup adminUserGroup = defaultUserGroups.stream()
-//                .filter(userGroup -> userGroup.getName().startsWith(ADMINISTRATOR))
-//                .findFirst()
-//                .get();
-//
-//        UserGroup developerUserGroup = defaultUserGroups.stream()
-//                .filter(userGroup -> userGroup.getName().startsWith(DEVELOPER))
-//                .findFirst()
-//                .get();
-//
-//        UserGroup viewerUserGroup = defaultUserGroups.stream()
-//                .filter(userGroup -> userGroup.getName().startsWith(VIEWER))
-//                .findFirst()
-//                .get();
-//
-//        Set<AclPermission> userGroupAclPermissions = Set.of(READ_USER_GROUPS, INVITE_USER_GROUPS);
-//
-//        // Administrator permission group
-//        PermissionGroup adminPermissionGroup = new PermissionGroup();
-//        adminPermissionGroup.setName(getDefaultNameForGroupInWorkspace(ADMINISTRATOR, workspaceName));
-//        adminPermissionGroup.setIsDefault(TRUE);
-//        adminPermissionGroup.setTenantId(workspace.getTenantId());
-//        adminPermissionGroup.setDescription(WORKSPACE_ADMINISTRATOR_DESCRIPTION);
-//        Set<Permission> workspacePermissions = AppsmithRole.ORGANIZATION_ADMIN
-//                .getPermissions()
-//                .stream()
-//                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
-//                .collect(Collectors.toSet());
-//
-//        // Give read & invite permissions to all the default user groups for administrator
-//        Set<Permission> adminUserGroupPermissions = new HashSet<>();
-//        defaultUserGroups.stream()
-//                .forEach(userGroup -> {
-//                    for (AclPermission permission : userGroupAclPermissions) {
-//                        adminUserGroupPermissions.add(new Permission(userGroup.getId(), permission));
-//                    }
-//                });
-//
-//        Set<Permission> permissionGroup = new HashSet<>();
-//        permissionGroup.addAll(workspacePermissions);
-//        permissionGroup.addAll(adminUserGroupPermissions);
-//        adminPermissionGroup.setPermissions(permissionGroup);
-//
-//        // Developer permission group
-//        PermissionGroup developerPermissionGroup = new PermissionGroup();
-//        developerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(DEVELOPER, workspaceName));
-//        developerPermissionGroup.setIsDefault(TRUE);
-//        developerPermissionGroup.setTenantId(workspace.getTenantId());
-//        developerPermissionGroup.setDescription(WORKSPACE_DEVELOPER_DESCRIPTION);
-//        workspacePermissions = AppsmithRole.ORGANIZATION_DEVELOPER
-//                .getPermissions()
-//                .stream()
-//                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
-//                .collect(Collectors.toSet());
-//
-//        // Give read & invite permissions to developer & app viewer user groups for developer
-//        Set<Permission> devUserGroupPermissions = new HashSet<Permission>();
-//        Set.of(developerUserGroup, viewerUserGroup)
-//                .stream()
-//                .forEach(userGroup -> {
-//                    for (AclPermission permission : userGroupAclPermissions) {
-//                        devUserGroupPermissions.add(new Permission(userGroup.getId(), permission));
-//                    }
-//                });
-//
-//        permissionGroup = new HashSet<>();
-//        permissionGroup.addAll(workspacePermissions);
-//        permissionGroup.addAll(devUserGroupPermissions);
-//        developerPermissionGroup.setPermissions(permissionGroup);
-//
-//        // App viewer permission group
-//        PermissionGroup viewerPermissionGroup = new PermissionGroup();
-//        viewerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(VIEWER, workspaceName));
-//        viewerPermissionGroup.setIsDefault(TRUE);
-//        viewerPermissionGroup.setTenantId(workspace.getTenantId());
-//        viewerPermissionGroup.setDescription(WORKSPACE_VIEWER_DESCRIPTION);
-//        workspacePermissions = AppsmithRole.ORGANIZATION_VIEWER
-//                .getPermissions()
-//                .stream()
-//                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
-//                .collect(Collectors.toSet());
-//
-//        // Give read & invite permissions to app viewer user group for developer
-//        Set<Permission> viewerUserGroupPermissions = new HashSet<Permission>();
-//
-//        for (AclPermission permission : userGroupAclPermissions) {
-//            viewerUserGroupPermissions.add(new Permission(viewerUserGroup.getId(), permission));
-//        }
-//
-//        permissionGroup = new HashSet<>();
-//        permissionGroup.addAll(workspacePermissions);
-//        permissionGroup.addAll(viewerUserGroupPermissions);
-//        viewerPermissionGroup.setPermissions(permissionGroup);
-//
-//        return Flux.fromIterable(List.of(adminPermissionGroup, developerPermissionGroup, viewerPermissionGroup))
-//                .flatMap(permissionGroup1 -> permissionGroupService.create(permissionGroup1))
-//                .flatMap(savedPermissionGroup -> {
-//                    // Now create the policy mapping user groups and permission groups
-//                    RbacPolicy policy = new RbacPolicy();
-//                    policy.setPermissionGroupIds(Set.of(savedPermissionGroup.getId()));
-//
-//                    String name = savedPermissionGroup.getName();
-//
-//                    if (name.startsWith(ADMINISTRATOR)) {
-//                        policy.setUserGroupId(adminUserGroup.getId());
-//                    } else if (name.startsWith(DEVELOPER)) {
-//                        policy.setUserGroupId(developerUserGroup.getId());
-//                    } else if (name.startsWith(VIEWER)) {
-//                        policy.setUserGroupId(viewerUserGroup.getId());
-//                    } else {
-//                        // Unsupported state
-//                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-//                    }
-//
-//                    return rbacPolicyService.create(policy)
-//                            .thenReturn(savedPermissionGroup);
-//                })
-//                .collect(Collectors.toSet());
-//    }
+    private Mono<Set<PermissionGroup>> generateDefaultPermissionGroupsWithoutPermissions(Workspace workspace) {
+        String workspaceName = workspace.getName();
+        String workspaceId = workspace.getId();
+        // Administrator permission group
+        PermissionGroup adminPermissionGroup = new PermissionGroup();
+        adminPermissionGroup.setName(getDefaultNameForGroupInWorkspace(ADMINISTRATOR, workspaceName));
+        adminPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        adminPermissionGroup.setTenantId(workspace.getTenantId());
+        adminPermissionGroup.setDescription(WORKSPACE_ADMINISTRATOR_DESCRIPTION);
+        Set<Permission> workspacePermissions = AppsmithRole.ORGANIZATION_ADMIN
+                .getPermissions()
+                .stream()
+                .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
+                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
+                .collect(Collectors.toSet());
+        adminPermissionGroup.setPermissions(workspacePermissions);
+
+        // Developer permission group
+        PermissionGroup developerPermissionGroup = new PermissionGroup();
+        developerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(DEVELOPER, workspaceName));
+        developerPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        developerPermissionGroup.setTenantId(workspace.getTenantId());
+        developerPermissionGroup.setDescription(WORKSPACE_DEVELOPER_DESCRIPTION);
+        workspacePermissions = AppsmithRole.ORGANIZATION_DEVELOPER
+                .getPermissions()
+                .stream()
+                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
+                .collect(Collectors.toSet());
+        developerPermissionGroup.setPermissions(workspacePermissions);
+
+        // App viewer permission group
+        PermissionGroup viewerPermissionGroup = new PermissionGroup();
+        viewerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(VIEWER, workspaceName));
+        viewerPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        viewerPermissionGroup.setTenantId(workspace.getTenantId());
+        viewerPermissionGroup.setDescription(WORKSPACE_VIEWER_DESCRIPTION);
+        workspacePermissions = AppsmithRole.ORGANIZATION_VIEWER
+                .getPermissions()
+                .stream()
+                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
+                .collect(Collectors.toSet());
+        viewerPermissionGroup.setPermissions(workspacePermissions);
+
+        return Flux.fromIterable(List.of(adminPermissionGroup, developerPermissionGroup, viewerPermissionGroup))
+                .flatMap(permissionGroup1 -> permissionGroupService.create(permissionGroup1))
+                .collect(Collectors.toSet());
+    }
+
+    Mono<Set<PermissionGroup>> generatePermissionsForDefaultPermissionGroups(Set<PermissionGroup> permissionGroups, Workspace workspace) {
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
+
+        // Administrator permissions
+        Set<Permission> workspacePermissions = AppsmithRole.ORGANIZATION_ADMIN
+                .getPermissions()
+                .stream()
+                .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
+                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
+                .collect(Collectors.toSet());
+        // The administrator should also be able to assign any of the three permissions groups
+        Set<Permission> permissionGroupPermissions = permissionGroups.stream()
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
+                .collect(Collectors.toSet());
+        Set<Permission> permissions = new HashSet<>();
+        permissions.addAll(workspacePermissions);
+        permissions.addAll(permissionGroupPermissions);
+        adminPermissionGroup.setPermissions(permissions);
+
+        // Developer Permissions
+        workspacePermissions = AppsmithRole.ORGANIZATION_DEVELOPER
+                .getPermissions()
+                .stream()
+                .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
+                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
+                .collect(Collectors.toSet());
+        // The developer should also be able to assign developer & viewer permission groups
+        permissionGroupPermissions = Set.of(developerPermissionGroup, viewerPermissionGroup).stream()
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
+                .collect(Collectors.toSet());
+        permissions = new HashSet<>();
+        permissions.addAll(workspacePermissions);
+        permissions.addAll(permissionGroupPermissions);
+        developerPermissionGroup.setPermissions(permissions);
+
+        // App Viewer Permissions
+        workspacePermissions = AppsmithRole.ORGANIZATION_VIEWER
+                .getPermissions()
+                .stream()
+                .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
+                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
+                .collect(Collectors.toSet());
+        // The app viewers should also be able to assign to viewer permission groups
+        permissionGroupPermissions = Set.of(viewerPermissionGroup).stream()
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
+                .collect(Collectors.toSet());
+        permissions = new HashSet<>();
+        permissions.addAll(workspacePermissions);
+        permissions.addAll(permissionGroupPermissions);
+        viewerPermissionGroup.setPermissions(permissions);
+
+        return Flux.fromIterable(permissionGroups)
+                .flatMap(permissionGroup -> permissionGroupService.save(permissionGroup))
+                .collect(Collectors.toSet());
+    }
+
+    private Mono<Set<PermissionGroup>> generateDefaultPermissionGroups(Workspace workspace) {
+
+        return generateDefaultPermissionGroupsWithoutPermissions(workspace)
+                // Generate the permissions per permission group
+                .flatMap(permissionGroups -> generatePermissionsForDefaultPermissionGroups(permissionGroups, workspace));
+    }
 
     /**
      * Create workspace needs to first fetch and embed Setting object in OrganizationSetting
@@ -443,17 +398,9 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             resource.setSlug(TextUtils.makeSlug(newWorkspaceName));
             updateDefaultGroups_thenReturnWorkspaceMono = findWorkspaceMono
                     .flatMap(workspace -> {
-//                        Set<String> defaultUserGroupsIds = workspace.getDefaultUserGroups();
                         Set<String> defaultPermissionGroupsIds = workspace.getDefaultPermissionGroups();
-//
-//                        Flux<UserGroup> defaultUserGroupsFlux = userGroupService.findAllByIds(defaultUserGroupsIds);
+
                         Flux<PermissionGroup> defaultPermissionGroupsFlux = permissionGroupService.findAllByIds(defaultPermissionGroupsIds);
-//
-//                        Flux<UserGroup> updatedUserGroupFlux = defaultUserGroupsFlux
-//                                .flatMap(userGroup -> {
-//                                    userGroup.setName(generateNewDefaultName(userGroup.getName(), newWorkspaceName));
-//                                    return userGroupService.save(userGroup);
-//                                });
 
                         Flux<PermissionGroup> updatedPermissionGroupFlux = defaultPermissionGroupsFlux
                                 .flatMap(permissionGroup -> {
