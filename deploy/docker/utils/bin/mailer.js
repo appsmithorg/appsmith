@@ -17,13 +17,13 @@ const mailTo = process.env.APPSMITH_ADMIN_EMAILS
 async function sendBackupErrorToAdmins(err, backupTimestamp){
     console.log('Sending Error mail to admins.')
     try{
-        if ( mailEnabled === '' || mailFrom === '' || mailHost === '' || mailPort === '' || mailUser === '' || mailPass === ''){
+        if ( !mailEnabled || !mailFrom || !mailHost || !mailPort || !mailUser || !mailPass ){
             throw new Error('Failed to send error mail. Email provider is not configured, please refer to https://docs.appsmith.com/setup/instance-configuration/email to configure it.');
           }
-        else if (mailTo === ''){
+        else if (!mailTo){
             throw new Error('Failed to send error mail. Admin email(s) not configured, please refer to https://docs.appsmith.com/setup/instance-configuration/disable-user-signup#administrator-emails to configure it.');
           }
-        else if (mailEnabled === 'false' || mailEnabled === '' ){
+        else if (!mailEnabled){
             throw new Error('Mail not sent! APPSMITH_MAIL_ENABLED env val is disabled, please refer to https://docs.appsmith.com/setup/instance-configuration/email to enable it.');
         }
         else {
@@ -33,7 +33,6 @@ async function sendBackupErrorToAdmins(err, backupTimestamp){
             const lastBackupPath = Constants.BACKUP_PATH + '/' + lastBackupfile
         
             let domainNameOrIP = process.env.APPSMITH_CUSTOM_DOMAIN 
-            console.log('domain= ' + mailFrom)
             if (domainNameOrIP === ''){
                 console.log('Host IP:')
                 domainNameOrIP = shell.exec('curl -s ifconfig.me')
