@@ -43,10 +43,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import {
-  isDynamicHeightEnabledForWidget,
-  isDynamicHeightWithLimitsEnabledForWidget,
-} from "./WidgetUtils";
+import { isDynamicHeightEnabledForWidget } from "./WidgetUtils";
 import DynamicHeightOverlay from "components/editorComponents/DynamicHeightOverlay";
 import log from "loglevel";
 
