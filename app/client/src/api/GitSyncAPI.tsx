@@ -145,7 +145,7 @@ class GitSyncAPI extends Api {
   }
 
   static importApp(payload: ConnectToGitPayload, workspaceId: string) {
-    return Api.post(`${GitSyncAPI.baseURL}/import/app/${workspaceId}`, payload);
+    return Api.post(`${GitSyncAPI.baseURL}/import/${workspaceId}`, payload);
   }
 
   static getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
