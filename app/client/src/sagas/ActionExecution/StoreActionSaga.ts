@@ -23,7 +23,7 @@ export default function* storeValueLocally(
     const appStoreName = getAppStoreName(applicationId, branch);
     const existingStore = localStorage.getItem(appStoreName) || "{}";
     const parsedStore = JSON.parse(existingStore);
-    _.set(parsedStore, action.key, action.value);
+    parsedStore[action.key] = action.value;
     const storeString = JSON.stringify(parsedStore);
     localStorage.setItem(appStoreName, storeString);
     yield put(updateAppPersistentStore(parsedStore, action));
@@ -34,8 +34,8 @@ export default function* storeValueLocally(
     const existingStore: AppStoreState = yield select(getAppStoreData);
     const newTransientStore = {
       ...existingStore.transient,
+      [action.key]: action.value,
     };
-    _.set(newTransientStore, action.key, action.value);
     yield put(updateAppTransientStore(newTransientStore, action));
     AppsmithConsole.info({
       text: `store('${action.key}', '${action.value}', false)`,
