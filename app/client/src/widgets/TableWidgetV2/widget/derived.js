@@ -149,7 +149,7 @@ export default {
   //
   getProcessedTableData: (props, moment, _) => {
     /*
-     * TODO(Balaji): We need to take the inline edited cells and custom column values
+     * TODO(Balaji): custom column values
      * from meta and inject that into sanitised data
      */
     let data;

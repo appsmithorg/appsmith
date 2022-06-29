@@ -225,7 +225,8 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
-        return !isColumnTypeEditable(columnType);
+        const isDerived = get(props, `${baseProperty}.isDerived`, false);
+        return !isColumnTypeEditable(columnType) || isDerived;
       },
     },
     {

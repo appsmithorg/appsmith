@@ -184,7 +184,8 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
           ),
           isChecked:
             isColumnTypeEditable(column.columnType) && column.isEditable,
-          isCheckboxDisabled: !isColumnTypeEditable(column.columnType),
+          isCheckboxDisabled:
+            !isColumnTypeEditable(column.columnType) || column.isDerived,
         };
       },
     );
@@ -394,7 +395,10 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     const columns: ColumnsType = this.props.propertyValue || {};
 
     return !Object.values(columns).find(
-      (column) => !column.isEditable && isColumnTypeEditable(column.columnType),
+      (column) =>
+        !column.isEditable &&
+        isColumnTypeEditable(column.columnType) &&
+        !column.isDerived,
     );
   };
 
@@ -403,7 +407,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     const columns: ColumnsType = this.props.propertyValue || {};
 
     Object.values(columns).forEach((column) => {
-      if (isColumnTypeEditable(column.columnType)) {
+      if (isColumnTypeEditable(column.columnType) && !column.isDerived) {
         this.updateProperty(
           `${this.props.propertyName}.${column.id}.isEditable`,
           !isEditable,
