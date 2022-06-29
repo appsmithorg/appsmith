@@ -1,5 +1,5 @@
 import React from "react";
-import BaseControl, { ControlData, ControlProps } from "./BaseControl";
+import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
 import { DropdownOption } from "components/ads/Dropdown";
 import { isNil } from "lodash";
@@ -129,14 +129,28 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     return "DROP_DOWN";
   }
 
-  static canDisplayValueInUI(config: ControlData, value: any): boolean {
-    if (
-      (config as DropDownControlProps)?.options
-        ?.map((x: { value: string }) => x.value.toString())
-        .includes(value)
-    )
+  static canDisplayValueInUI(
+    config: DropDownControlProps,
+    value: any,
+  ): boolean {
+    const allowedValues = new Set(
+      config?.options?.map((x: { value: string | number }) =>
+        x.value.toString(),
+      ),
+    );
+    if (config.isMultiSelect) {
+      try {
+        const values = JSON.parse(value);
+        for (const x of values.map((x: string | number) => x.toString())) {
+          if (!allowedValues.has(x)) return false;
+        }
+      } catch {
+        return false;
+      }
       return true;
-    return false;
+    } else {
+      return allowedValues.has(value);
+    }
   }
 }
 
