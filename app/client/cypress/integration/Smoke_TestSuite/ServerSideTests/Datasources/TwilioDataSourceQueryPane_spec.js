@@ -9,11 +9,9 @@ import ApiEditor from "../../../../locators/ApiEditor";
     9. Ensure user is able to add special characters to the name from Pane
     10. Ensure user is able to save the queries
     12. Ensure user is able to edit the query pane and the changes get saved
-
-    14. Ensure user is able to COPY query into the Different page from Query Pane
-    15. Ensure user is able to MOVE query into the Different page from Query Pane
     16. Ensure user is able to Name conventions that are appropriate when moved/Copied
 */
+
 describe("Test ideas Query Pane  ", function() {
   before(() => {
     localStorage.setItem("ApiPaneV2", "ApiPaneV2");
@@ -143,21 +141,75 @@ describe("Test ideas Query Pane  ", function() {
 
   it("14. Test user is able to COPY query into the Different page from Query Pane", function() {
     cy.Createpage("Page2");
-    /*cy.contains(".t--entity-name", "Page1").click();
-      cy.get(".t--entity-collapse-toggle").click({ multiple: true });
-      cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST").click();
+    cy.contains(".t--entity-name", "Page1").click();
 
-      cy.get(".t--more-action-menu").should("exist");
-      cy.get(".t--more-action-menu").click({ multiple: true });
-      cy.selectAction("Copy to page");
-      cy.selectAction("Page2");
-      cy.contains(".t--entity-name", "Page2").click();
-      
-    
-      cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy").should("exist");*/
+    cy.xpath(
+      "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
+    )
+      .invoke("attr", "name")
+      .then((arrow) => {
+        cy.xpath(
+          "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
+        )
+          .trigger("click", { multiple: true, force: true })
+          .wait(1000);
+      });
+
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST").click();
+    cy.get(".t--more-action-menu").should("exist");
+    cy.get(".t--more-action-menu").click({ multiple: true });
+    cy.selectAction("Copy to page");
+    cy.selectAction("Page2");
+
+    cy.contains(".t--entity-name", "Page2").click();
+    cy.wait(1000);
+
+    cy.xpath(
+      "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
+    )
+      .invoke("attr", "name")
+      .then((arrow) => {
+        cy.xpath(
+          "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
+        ).trigger("click", { multiple: true, force: true });
+      });
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy").should("exist");
   });
 
-  /*
-    it("15. Test user is able to MOVE query into the Different page from Query Pane", function() {
-    });*/
+  it("15. Test user is able to MOVE query into the Different page from Query Pane", function() {
+    cy.contains(".t--entity-name", "Page1").click();
+
+    cy.xpath(
+      "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
+    )
+      .invoke("attr", "name")
+      .then((arrow) => {
+        cy.xpath(
+          "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
+        )
+          .trigger("click", { multiple: true, force: true })
+          .wait(1000);
+      });
+
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST").click();
+    cy.get(".t--more-action-menu").should("exist");
+    cy.get(".t--more-action-menu").click({ multiple: true });
+    cy.selectAction("Move to page");
+    cy.selectAction("Page2");
+
+    cy.contains(".t--entity-name", "Page2").click();
+    cy.wait(1000);
+
+    cy.xpath(
+      "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
+    )
+      .invoke("attr", "name")
+      .then((arrow) => {
+        cy.xpath(
+          "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
+        ).trigger("click", { multiple: true, force: true });
+      });
+
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST").should("exist");
+  });
 });
