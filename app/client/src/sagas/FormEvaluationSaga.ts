@@ -10,7 +10,6 @@ import { evalFormConfig } from "./EvaluationsSaga";
 import {
   ConditionalOutput,
   DynamicValues,
-  FormEvalOutput,
   FormEvaluationState,
 } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FORM_EVALUATION_REDUX_ACTIONS } from "actions/evaluationActions";
@@ -25,6 +24,10 @@ import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { get, isEmpty } from "lodash";
 import { klona } from "klona/lite";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  extractFetchDynamicValueFormConfigs,
+  extractQueueOfValuesToBeFetched,
+} from "./helper";
 
 let isEvaluating = false; // Flag to maintain the queue of evals
 
@@ -49,33 +52,6 @@ let fetchDynamicValQueue: any = [];
 // Function to set isEvaluating flag
 const setIsEvaluating = (newState: boolean) => {
   isEvaluating = newState;
-};
-
-// Function to extract all the objects that have to fetch dynamic values
-const extractQueueOfValuesToBeFetched = (evalOutput: FormEvalOutput) => {
-  let output: Record<string, ConditionalOutput> = {};
-  Object.entries(evalOutput).forEach(([key, value]) => {
-    if (
-      "fetchDynamicValues" in value &&
-      !!value.fetchDynamicValues &&
-      "allowedToFetch" in value.fetchDynamicValues &&
-      value.fetchDynamicValues.allowedToFetch
-    ) {
-      output = { ...output, [key]: value };
-    }
-  });
-  return output;
-};
-
-// function to extract all objects that have dynamic values
-const extractFetchDynamicValueFormConfigs = (evalOutput: FormEvalOutput) => {
-  let output: Record<string, ConditionalOutput> = {};
-  Object.entries(evalOutput).forEach(([key, value]) => {
-    if ("fetchDynamicValues" in value && !!value.fetchDynamicValues) {
-      output = { ...output, [key]: value };
-    }
-  });
-  return output;
 };
 
 function* setFormEvaluationSagaAsync(
