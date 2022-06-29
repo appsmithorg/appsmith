@@ -16,7 +16,6 @@ import history from "utils/history";
 import URLRedirect from "entities/URLRedirect/index";
 import URLGeneratorFactory from "entities/URLRedirect/factory";
 import { updateBranchLocally } from "actions/gitSyncActions";
-import { AutoBind } from "utils/helpers";
 
 export type AppEnginePayload = {
   applicationId?: string;
@@ -48,7 +47,6 @@ export default abstract class AppEngine {
   abstract stopPerformanceTracking(): any;
   abstract completeChore(): any;
 
-  @AutoBind
   *loadAppData(payload: AppEnginePayload) {
     const { applicationId, branch, pageId } = payload;
     yield failFastApiCalls(
@@ -74,7 +72,6 @@ export default abstract class AppEngine {
     return { toLoadPageId, applicationId: application.id };
   }
 
-  @AutoBind
   *setupEngine(payload: AppEnginePayload): any {
     const { branch } = payload;
     yield put(updateBranchLocally(branch || ""));
@@ -82,7 +79,6 @@ export default abstract class AppEngine {
     yield put({ type: ReduxActionTypes.START_EVALUATION });
   }
 
-  @AutoBind
   *loadAppURL(pageId: string, pageIdInUrl?: string) {
     try {
       if (!this._urlRedirect) return;

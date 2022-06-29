@@ -231,11 +231,19 @@ export class URLBuilder {
     return basePath;
   }
 
+  /**
+   * @throws {URIError}
+   * @param builderParams
+   * @param mode
+   * @returns URL string
+   */
   build(builderParams: URLBuilderParams, mode: APP_MODE = APP_MODE.EDIT) {
     const { hash = "", params = {}, suffix, pageId } = builderParams;
 
     if (!this.appParams.applicationId || !this.pageParams[pageId] || !pageId) {
-      throw new Error("Missing URL params");
+      throw new URIError(
+        "Missing URL params. If you are trying to set href inside a react component use the 'useHref' hook.",
+      );
     }
 
     const basePath = this.generateBasePath(pageId, mode);

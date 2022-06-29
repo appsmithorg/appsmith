@@ -24,7 +24,7 @@ export default class DefaultURLRedirect extends URLRedirect {
       this._mode === APP_MODE.EDIT;
     if (!shouldSwitchFromNewToLegacyURL) return;
     // We do not allow downgrading application version but,
-    // when switch from a branch with updated URL to another one with legacy URLs,
+    // when switch from a branch with slug URL to another one with legacy URLs,
     // we need to compute the legacy url
     // This scenario can happen only in edit mode.
     newURL = builderURL({

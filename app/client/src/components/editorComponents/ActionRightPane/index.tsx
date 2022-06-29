@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -238,6 +238,9 @@ function ActionSidebar({
       }),
     );
   };
+  const navigateToCanvas = useCallback(() => {
+    history.push(builderURL({ pageId }));
+  }, [pageId]);
   const hasWidgets = Object.keys(widgets).length > 1;
 
   const showSuggestedWidgets =
@@ -248,13 +251,9 @@ function ActionSidebar({
     return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
   }
 
-  const navigeteToCanvas = () => {
-    history.push(builderURL({ pageId }));
-  };
-
   return (
     <SideBar>
-      <BackButton onClick={navigeteToCanvas}>
+      <BackButton onClick={navigateToCanvas}>
         <Icon
           fillColor={Colors.DOVE_GRAY}
           keepColors
