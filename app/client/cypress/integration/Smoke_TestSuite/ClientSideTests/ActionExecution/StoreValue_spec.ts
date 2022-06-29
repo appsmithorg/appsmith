@@ -73,29 +73,28 @@ describe("storeValue Action test", () => {
       details: { isTopper: false, name: "Alia", grade: 3 },
     };
     const JS_OBJECT_BODY = `export default {
-      storePathTest: async ()=> {
-      await storeValue("student", ${JSON.stringify(
-        DEFAULT_STUDENT_OBJECT,
-      )}, false)
-      await showAlert(JSON.stringify(appsmith.store.student.details));
-      await storeValue("student.details.name", "Annah", false);
-      await showAlert(appsmith.store.student.details.name);
-      await showAlert(appsmith.store["student.details.name"]);
-      await storeValue("student",${JSON.stringify(
-        MODIFIED_STUDENT_OBJECT,
-      )} , false)
-      await showAlert(appsmith.store.student.details.isTopper.toString());
-      await storeValue("student.details.isTopper", true, false);    
-      await showAlert(appsmith.store.student.details.isTopper.toString());
-      await showAlert(appsmith.store["student.details.isTopper"].toString());
-      await storeValue("student.details.grade", 5, false);
-      await showAlert(appsmith.store.student.details.grade.toString());
-      await showAlert(appsmith.store["student.details.grade"].toString());
-     }
-     }
- `;
+        storePathTest: async ()=> {
+        await storeValue("student", ${JSON.stringify(
+          DEFAULT_STUDENT_OBJECT,
+        )}, false)
+        await showAlert(JSON.stringify(appsmith.store.student));
+        await storeValue("student.details.name", "Annah", false);
+        await showAlert(appsmith.store.student.details.name);
+        await showAlert(appsmith.store["student.details.name"]);
+       },
+       modifyStorePathTest: async ()=>{
+        await storeValue("student",${JSON.stringify(
+          MODIFIED_STUDENT_OBJECT,
+        )} , false)
+        await showAlert(JSON.stringify(appsmith.store.student));
+        await storeValue("student.details.isTopper", true, false);
+        await showAlert(appsmith.store.student.details.isTopper.toString());
+        await showAlert(appsmith.store["student.details.isTopper"].toString());
+       }
+       }
+   `;
 
-    // create js object
+    // Create js object
     jsEditor.CreateJSObject(JS_OBJECT_BODY, {
       paste: true,
       completeReplace: true,
@@ -103,6 +102,7 @@ describe("storeValue Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
+    // Button1
     ee.SelectEntityByName("Button1", "WIDGETS");
     propPane.UpdatePropertyFieldValue("Label", "StorePathTest");
     cy.get("@jsObjName").then((jsObj: any) => {
@@ -113,28 +113,36 @@ describe("storeValue Action test", () => {
       );
     });
 
+    // Button 2
+    ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
+    ee.SelectEntityByName("Button2", "WIDGETS");
+    propPane.UpdatePropertyFieldValue("Label", "modifyStorePathTest");
+    cy.get("@jsObjName").then((jsObj: any) => {
+      propPane.SelectJSFunctionToExecute(
+        "onClick",
+        jsObj as string,
+        "modifyStorePathTest",
+      );
+    });
+
     deployMode.DeployApp();
     agHelper.ClickButton("StorePathTest");
     agHelper.ValidateToastMessage(JSON.stringify(DEFAULT_STUDENT_OBJECT), 0, 1);
     agHelper.ValidateToastMessage(DEFAULT_STUDENT_OBJECT.details.name, 1, 2);
     agHelper.ValidateToastMessage("Annah", 2, 3);
+    agHelper.WaitUntilToastDisappear("Annah");
+    agHelper.ClickButton("modifyStorePathTest");
     agHelper.ValidateToastMessage(
-      `${MODIFIED_STUDENT_OBJECT.details.isTopper}`,
-      3,
-      4,
+      JSON.stringify(MODIFIED_STUDENT_OBJECT.details),
+      0,
+      1,
     );
     agHelper.ValidateToastMessage(
       `${MODIFIED_STUDENT_OBJECT.details.isTopper}`,
-      4,
-      5,
+      1,
+      2,
     );
-    agHelper.ValidateToastMessage(`true`, 5, 6);
-    agHelper.ValidateToastMessage(
-      `${MODIFIED_STUDENT_OBJECT.details.grade}`,
-      6,
-      7,
-    );
-    agHelper.ValidateToastMessage(`5`, 3, 4);
+    agHelper.ValidateToastMessage(`true`, 2, 3);
     deployMode.NavigateBacktoEditor();
   });
 
@@ -143,9 +151,9 @@ describe("storeValue Action test", () => {
 
     const JS_OBJECT_BODY = `export default {
       setStore: async () => {
-        await storeValue("test", ${TEST_OBJECT}, false);
+        await storeValue("test", ${JSON.stringify(TEST_OBJECT)}, false);
         await showAlert(JSON.stringify(appsmith.store.test));
-        await storeValue("test.two", { "b": 2}, false);
+        await storeValue("test.two",{"b":2}, false);
         await showAlert(JSON.stringify(appsmith.store.test.two));
         await showAlert(JSON.stringify(appsmith.store["test.two"]));
       },
@@ -172,7 +180,7 @@ describe("storeValue Action test", () => {
     });
 
     ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
-    ee.SelectEntityByName("Button2", "WIDGETS");
+    ee.SelectEntityByName("Button3", "WIDGETS");
     propPane.UpdatePropertyFieldValue("Label", "ShowStore");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
@@ -186,8 +194,8 @@ describe("storeValue Action test", () => {
     agHelper.ClickButton("SetStore");
     agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT), 0, 1);
     agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT.two), 1, 2);
-    agHelper.ValidateToastMessage(`{ "b": 2}`, 1, 2);
-    agHelper.WaitUntilToastDisappear(`{ "b": 2}`);
+    agHelper.ValidateToastMessage(`{"b":2}`, 2, 3);
+    agHelper.WaitUntilToastDisappear(`{"b":2}`);
     agHelper.ClickButton("ShowStore");
     agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT), 0);
     deployMode.NavigateBacktoEditor();
