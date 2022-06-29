@@ -50,10 +50,12 @@ describe("Checklist", () => {
         applicationId: initialState.entities.pageList.applicationId,
         applicationVersion: 2,
       },
-      {
-        pageSlug: initialState.entities.pageList.pages[0].slug,
-        pageId: initialState.entities.pageList.currentPageId,
-      },
+      [
+        {
+          pageSlug: initialState.entities.pageList.pages[0].slug,
+          pageId: initialState.entities.pageList.currentPageId,
+        },
+      ],
     );
   });
 

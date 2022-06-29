@@ -9,10 +9,12 @@ describe("builderURL", () => {
     urlBuilder.updateURLParams(
       {
         applicationSlug: ":applicationSlug",
+        applicationId: ":applicationId",
+        applicationVersion: 2,
       },
       [
         {
-          pageId: "pageId",
+          pageId: ":pageId",
           pageSlug: ":pageSlug",
         },
       ],
@@ -47,6 +49,19 @@ describe("viewerURL", () => {
   let location: typeof window.location;
   beforeAll(() => {
     location = window.location;
+    urlBuilder.updateURLParams(
+      {
+        applicationSlug: ":applicationSlug",
+        applicationId: ":applicationId",
+        applicationVersion: 2,
+      },
+      [
+        {
+          pageId: ":pageId",
+          pageSlug: ":pageSlug",
+        },
+      ],
+    );
   });
 
   it("persists embed query param", () => {

@@ -89,12 +89,13 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
   const noResults = false;
   const pageId = useSelector(getCurrentPageId);
   const showWidgetsSidebar = useCallback(() => {
+    console.log("****PageId**(", pageId);
     history.push(builderURL({ pageId }));
     dispatch(forceOpenWidgetPanel(true));
     if (isFirstTimeUserOnboardingEnabled) {
       dispatch(toggleInOnboardingWidgetSelection(true));
     }
-  }, [isFirstTimeUserOnboardingEnabled]);
+  }, [isFirstTimeUserOnboardingEnabled, pageId]);
 
   /**
    * filter entitites
