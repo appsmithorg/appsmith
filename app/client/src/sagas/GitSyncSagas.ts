@@ -5,7 +5,14 @@ import {
   ReduxActionTypes,
   ReduxActionWithCallbacks,
 } from "@appsmith/constants/ReduxActionConstants";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import {
+  all,
+  call,
+  put,
+  select,
+  takeLatest,
+  throttle,
+} from "redux-saga/effects";
 import GitSyncAPI, {
   MergeBranchPayload,
   MergeStatusPayload,
@@ -186,6 +193,20 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
 
       const updatedPath = addBranchParam(branch);
       history.replace(updatedPath);
+
+      /* commit effect START */
+      yield put(commitToRepoSuccess());
+      const curApplication: ApplicationPayload = yield select(
+        getCurrentApplication,
+      );
+      if (curApplication) {
+        curApplication.lastDeployedAt = new Date().toISOString();
+        yield put({
+          type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+          payload: curApplication,
+        });
+      }
+      /* commit effect END */
     }
   } catch (error) {
     if (action.onErrorCallback) {
@@ -869,7 +890,7 @@ export default function* gitSyncSagas() {
       updateGlobalGitConfig,
     ),
     takeLatest(ReduxActionTypes.SWITCH_GIT_BRANCH_INIT, switchBranch),
-    takeLatest(ReduxActionTypes.FETCH_BRANCHES_INIT, fetchBranches),
+    throttle(5 * 1000, ReduxActionTypes.FETCH_BRANCHES_INIT, fetchBranches),
     takeLatest(ReduxActionTypes.CREATE_NEW_BRANCH_INIT, createNewBranch),
     takeLatest(
       ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_INIT,
@@ -881,7 +902,11 @@ export default function* gitSyncSagas() {
     ),
     takeLatest(ReduxActionTypes.FETCH_GIT_STATUS_INIT, fetchGitStatusSaga),
     takeLatest(ReduxActionTypes.MERGE_BRANCH_INIT, mergeBranchSaga),
-    takeLatest(ReduxActionTypes.FETCH_MERGE_STATUS_INIT, fetchMergeStatusSaga),
+    throttle(
+      5 * 1000,
+      ReduxActionTypes.FETCH_MERGE_STATUS_INIT,
+      fetchMergeStatusSaga,
+    ),
     takeLatest(ReduxActionTypes.GIT_PULL_INIT, gitPullSaga),
     takeLatest(ReduxActionTypes.SHOW_CONNECT_GIT_MODAL, showConnectGitModal),
     takeLatest(ReduxActionTypes.DISCONNECT_GIT, disconnectGitSaga),

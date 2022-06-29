@@ -13,6 +13,7 @@ export interface WidgetConfiguration {
   defaults: Partial<WidgetProps> & WidgetConfigProps;
   hideCard?: boolean;
   isDeprecated?: boolean;
+  replacement?: string;
   isCanvas?: boolean;
   needsMeta?: boolean;
   features?: WidgetFeatures;
