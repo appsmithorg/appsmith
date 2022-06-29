@@ -11,7 +11,7 @@
   "Alerttypedropdown": ".t--open-dropdown-Select-type",
   "dropdownmenu": ".t--dropdown-option",
   "containerInnerText": ".t--draggable-containerwidget span.t--widget-name",
-  "optionchangetextDropdown": " .t--property-control-onoptionchange .CodeMirror-code",
+  "optionchangetextDropdown": " .t--property-control-onoptionchange .CodeMirror textarea",
   "optionchangetextDatePicker": " .t--property-control-ondateselected .CodeMirror-code",
   "optionchangetextCheckbox": ".t--property-control-oncheckchange .CodeMirror-code",
   "optionchangetextSwitch": ".t--property-control-onchange .CodeMirror textarea",
