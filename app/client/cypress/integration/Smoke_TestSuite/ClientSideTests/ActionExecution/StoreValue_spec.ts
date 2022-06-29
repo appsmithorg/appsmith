@@ -65,16 +65,32 @@ describe("storeValue Action test", () => {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("2. Bug 14827 : Accepts paths as keys and updates path accordingly - multiple type key values", function() {
+  it("2. Bug 14827 : Accepts paths as keys and doesn't update paths in store but creates a new field with path as key", function() {
+    const DEFAULT_STUDENT_OBJECT = {
+      details: { isTopper: true, name: "Abhah", grade: 1 },
+    };
+    const MODIFIED_STUDENT_OBJECT = {
+      details: { isTopper: false, name: "Alia", grade: 3 },
+    };
     const JS_OBJECT_BODY = `export default {
       storePathTest: async ()=> {
-      await storeValue("student", {details:{isTopper:true, name: "Abhah", grade: 1}}, false)
+      await storeValue("student", ${JSON.stringify(
+        DEFAULT_STUDENT_OBJECT,
+      )}, false)
       await showAlert(JSON.stringify(appsmith.store.student.details));
       await storeValue("student.details.name", "Annah", false);
       await showAlert(appsmith.store.student.details.name);
-      await storeValue("student", {details:{isTopper:false, name: "Alia", grade: 3}}, false)
+      await showAlert(appsmith.store["student.details.name"]);
+      await storeValue("student",${JSON.stringify(
+        MODIFIED_STUDENT_OBJECT,
+      )} , false)
       await showAlert(appsmith.store.student.details.isTopper.toString());
+      await storeValue("student.details.isTopper", true, false);    
+      await showAlert(appsmith.store.student.details.isTopper.toString());
+      await showAlert(appsmith.store["student.details.isTopper"].toString());
+      await storeValue("student.details.grade", 5, false);
       await showAlert(appsmith.store.student.details.grade.toString());
+      await showAlert(appsmith.store["student.details.grade"].toString());
      }
      }
  `;
@@ -99,24 +115,39 @@ describe("storeValue Action test", () => {
 
     deployMode.DeployApp();
     agHelper.ClickButton("StorePathTest");
+    agHelper.ValidateToastMessage(JSON.stringify(DEFAULT_STUDENT_OBJECT), 0, 1);
+    agHelper.ValidateToastMessage(DEFAULT_STUDENT_OBJECT.details.name, 1, 2);
+    agHelper.ValidateToastMessage("Annah", 2, 3);
     agHelper.ValidateToastMessage(
-      '{"isTopper":true,"name":"Abhah","grade":1}',
-      0,
-      1,
+      `${MODIFIED_STUDENT_OBJECT.details.isTopper}`,
+      3,
+      4,
     );
-    agHelper.ValidateToastMessage("Annah", 1, 2);
-    agHelper.ValidateToastMessage("false", 2, 3);
-    agHelper.ValidateToastMessage("3", 3, 4);
+    agHelper.ValidateToastMessage(
+      `${MODIFIED_STUDENT_OBJECT.details.isTopper}`,
+      4,
+      5,
+    );
+    agHelper.ValidateToastMessage(`true`, 5, 6);
+    agHelper.ValidateToastMessage(
+      `${MODIFIED_STUDENT_OBJECT.details.grade}`,
+      6,
+      7,
+    );
+    agHelper.ValidateToastMessage(`5`, 3, 4);
     deployMode.NavigateBacktoEditor();
   });
 
-  it("3. Bug 14827 : Accepts paths as keys and updates path accordingly - object keys", function() {
+  it("3. Bug 14827 : Accepts paths as keys and doesn't update paths in store but creates a new field with path as key - object keys", function() {
+    const TEST_OBJECT = { a: 1, two: {} };
+
     const JS_OBJECT_BODY = `export default {
       setStore: async () => {
-        await storeValue("test", { "a": 1}, false);
+        await storeValue("test", ${TEST_OBJECT}, false);
         await showAlert(JSON.stringify(appsmith.store.test));
         await storeValue("test.two", { "b": 2}, false);
         await showAlert(JSON.stringify(appsmith.store.test.two));
+        await showAlert(JSON.stringify(appsmith.store["test.two"]));
       },
       showStore: () =>  {
         showAlert(JSON.stringify(appsmith.store.test));}
@@ -153,11 +184,12 @@ describe("storeValue Action test", () => {
 
     deployMode.DeployApp();
     agHelper.ClickButton("SetStore");
-    agHelper.ValidateToastMessage('{"a":1}', 0, 1);
-    agHelper.ValidateToastMessage('{"b":2}', 1, 2);
-    agHelper.WaitUntilToastDisappear('{"b":2}');
+    agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT), 0, 1);
+    agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT.two), 1, 2);
+    agHelper.ValidateToastMessage(`{ "b": 2}`, 1, 2);
+    agHelper.WaitUntilToastDisappear(`{ "b": 2}`);
     agHelper.ClickButton("ShowStore");
-    agHelper.ValidateToastMessage('{"a":1,"two":{"b":2}}', 0);
+    agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT), 0);
     deployMode.NavigateBacktoEditor();
   });
 });
