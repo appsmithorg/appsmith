@@ -12,6 +12,7 @@ import {
   showByColumnType,
   uniqueColumnAliasValidation,
   updateColumnLevelEditability,
+  updateInlineEditingOptionDropdownVisibilityHook,
   updateNumberColumnTypeTextAlignment,
   updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
@@ -196,7 +197,13 @@ export default {
     },
     {
       propertyName: "isCellEditable",
-      dependencies: ["primaryColumns", "columnType"],
+      dependencies: [
+        "primaryColumns",
+        "columnOrder",
+        "columnType",
+        "childStylesheet",
+        "inlineEditingSaveOption",
+      ],
       label: "Editable",
       helpText: "Controls the inline editablity of the cell in the column",
       defaultValue: false,
@@ -205,7 +212,10 @@ export default {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
-      updateHook: updateColumnLevelEditability,
+      updateHook: composePropertyUpdateHook([
+        updateColumnLevelEditability,
+        updateInlineEditingOptionDropdownVisibilityHook,
+      ]),
       validation: {
         type: ValidationTypes.TABLE_PROPERTY,
         params: {
