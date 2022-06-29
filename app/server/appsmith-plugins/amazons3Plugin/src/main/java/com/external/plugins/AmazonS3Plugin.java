@@ -823,12 +823,9 @@ public class AmazonS3Plugin extends BasePlugin {
                         System.out.println(Thread.currentThread().getName() + ": In the S3 Plugin, got action execution result");
                         return Mono.just(actionExecutionResult);
                     })
-                    // Transform AmazonS3Exception to AppsmithPluginException
+                    // Transform AmazonS3Exception and AmazonServiceException to AppsmithPluginException
                     .onErrorResume(e -> {
-                        if (e instanceof AmazonS3Exception) {
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
-                        }
-                        else if (e instanceof AmazonServiceException) {
+                        if (e instanceof AmazonS3Exception || e instanceof AmazonServiceException) {
                             return Mono.error(new AppsmithPluginException(e, AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                         }
                         return Mono.error(e);
