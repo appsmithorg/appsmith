@@ -532,6 +532,7 @@ class IntegrationsHomeScreen extends React.Component<
             <MainTabsContainer>
               {showTabs && (
                 <TabComponent
+                  cypressSelector="t--datasource-tab"
                   onSelect={this.onSelectPrimaryMenu}
                   selectedIndex={this.state.activePrimaryMenuId}
                   tabs={PRIMARY_MENU}
