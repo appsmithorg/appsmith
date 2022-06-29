@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "constants/DefaultTheme";
-import { Classes, Icon, IconSize, Text, TextType } from "components/ads";
+import { Classes } from "components/ads/common";
+import Icon, { IconSize } from "components/ads/Icon";
+import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
@@ -138,16 +140,16 @@ export function Change(props: Partial<GitStatusProps>) {
 }
 
 const defaultStatus: GitStatusData = {
-  aheadCount: 3,
-  behindCount: 10,
+  aheadCount: 0,
+  behindCount: 0,
   conflicting: [],
   discardDocUrl: "",
   isClean: false,
   modified: [],
-  modifiedDatasources: 11,
-  modifiedJSObjects: 13,
-  modifiedPages: 19,
-  modifiedQueries: 24,
+  modifiedDatasources: 0,
+  modifiedJSObjects: 0,
+  modifiedPages: 0,
+  modifiedQueries: 0,
   remoteBranch: "",
 };
 
