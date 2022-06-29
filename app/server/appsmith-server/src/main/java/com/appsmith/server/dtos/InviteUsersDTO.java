@@ -14,6 +14,6 @@ public class InviteUsersDTO {
     List<String> usernames;
 
     @NotNull
-    String userGroupId;
+    String permissionGroupId;
 
 }

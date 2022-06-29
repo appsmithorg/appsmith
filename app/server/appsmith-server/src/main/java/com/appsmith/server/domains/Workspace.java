@@ -51,8 +51,6 @@ public class Workspace extends BaseDomain {
     @JsonIgnore
     private Set<String> defaultPermissionGroups;
 
-    @JsonIgnore
-    private Set<String> defaultUserGroups;
 
     public String makeSlug() {
         return toSlug(name);
