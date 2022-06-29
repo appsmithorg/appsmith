@@ -92,6 +92,7 @@ describe("URL slug names", () => {
       {
         applicationVersion: ApplicationVersion.DEFAULT,
         applicationSlug: params.applicationSlug,
+        applicationId: params.applicationId,
       },
       [
         {
@@ -100,21 +101,21 @@ describe("URL slug names", () => {
         },
       ],
     );
-    const url1 = builderURL(params);
+    const url1 = builderURL({ pageId: params.pageId });
     urlBuilder.updateURLParams({
       applicationVersion: ApplicationVersion.SLUG_URL,
     });
-    const url2 = builderURL(params);
+    const url2 = builderURL({ pageId: params.pageId });
     store.dispatch({
-      type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+      type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
       payload: { applicationVersion: ApplicationVersion.DEFAULT },
     });
-    const url3 = builderURL(params);
+    const url3 = builderURL({ pageId: params.pageId });
     store.dispatch({
       type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
       payload: { applicationVersion: ApplicationVersion.SLUG_URL },
     });
-    const url4 = builderURL(params);
+    const url4 = builderURL({ pageId: params.pageId });
     expect(url1).toBe("/applications/appId/pages/pageId/edit");
     expect(url2).toBe("/app/appSlug/pageSlug-pageId/edit");
     expect(url3).toBe("/applications/appId/pages/pageId/edit");
@@ -126,6 +127,7 @@ describe("URL slug names", () => {
       type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
       payload: {
         ...fetchApplicationMockResponse.data.application,
+        pages: fetchApplicationMockResponse.data.pages,
         applicationVersion: 1,
       },
     });
@@ -149,7 +151,7 @@ describe("URL slug names", () => {
 
     expect(applicationSlug).toBe(updatedApplicationPayload.slug);
 
-    expect(updatedPageSlug).toBe("page-1");
+    expect(updatedPageSlug).toBe(updatedPagePayload.slug);
 
     store.dispatch(updateCurrentPage("605c435a91dea93f0eaf91bc", "my-page-2"));
     const { pageSlug } = urlBuilder.getURLParams("605c435a91dea93f0eaf91bc");

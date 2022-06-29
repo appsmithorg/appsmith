@@ -9,6 +9,7 @@ import { Provider } from "react-redux";
 import { fireEvent, render, screen } from "test/testUtils";
 import OnboardingTasks from "./Tasks";
 import { getStore, initialState } from "./testUtils";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
@@ -39,6 +40,19 @@ describe("Tasks", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    urlBuilder.updateURLParams(
+      {
+        applicationSlug: initialState.ui.applications.currentApplication.slug,
+        applicationId: initialState.entities.pageList.applicationId,
+        applicationVersion: 2,
+      },
+      [
+        {
+          pageSlug: initialState.entities.pageList.pages[0].slug,
+          pageId: initialState.entities.pageList.currentPageId,
+        },
+      ],
+    );
   });
 
   afterEach(() => {

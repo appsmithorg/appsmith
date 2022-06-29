@@ -185,7 +185,14 @@ export class URLBuilder {
     appParams: ApplicationURLParams | null,
     pageParams?: PageURLParams[],
   ) {
-    if (appParams) Object.assign(this.appParams, appParams);
+    if (appParams) {
+      this.appParams.applicationId =
+        appParams.applicationId || this.appParams.applicationId;
+      this.appParams.applicationSlug =
+        appParams.applicationSlug || this.appParams.applicationSlug;
+      this.appParams.applicationVersion =
+        appParams.applicationVersion || this.appParams.applicationVersion;
+    }
     if (pageParams) {
       const params = pageParams.reduce((acc, page) => {
         acc[page.pageId] = page;
