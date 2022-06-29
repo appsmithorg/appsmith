@@ -11,6 +11,6 @@ async function backup_error(err){
   }
 
 module.exports = {
-    backup_error
+    backup_error,
   };
   
