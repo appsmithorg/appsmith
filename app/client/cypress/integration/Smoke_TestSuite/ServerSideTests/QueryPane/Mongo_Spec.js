@@ -129,7 +129,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     //cy.setQueryTimeout(30000);
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
-      "Find Documents(s)",
+      "Find Document(s)",
       "Count",
     );
     cy.typeValueNValidate("listingAndReviews", formControls.mongoCollection);
@@ -152,7 +152,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
-      "Find Documents(s)",
+      "Find Document(s)",
       "Distinct",
     );
     cy.typeValueNValidate("listingAndReviews", formControls.mongoCollection);
@@ -272,23 +272,23 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.xpath("//div[text()='Find']")
       .click()
       .wait(100); //wait for Find form to open
-    cy.EvaluatFieldValue("Collection").then((colData) => {
+    cy.EvaluatFieldValue(formControls.mongoCollection).then((colData) => {
       let localcolData = colData.replace("{", "").replace("}", "");
       cy.log("Collection value is fieldData: " + localcolData);
       cy.wrap(localcolData).as("colData");
     });
-    cy.EvaluatFieldValue("Query").then((queryData) => {
+    cy.EvaluatFieldValue(formControls.mongoFindQuery).then((queryData) => {
       let localqueryData = queryData.replace("{", "").replace("}", "");
       id = localqueryData;
       cy.log("Query value is : " + localqueryData);
       cy.wrap(localqueryData).as("queryData");
     });
-    cy.EvaluatFieldValue("Sort").then((sortData) => {
+    cy.EvaluatFieldValue(formControls.mongoFindSort).then((sortData) => {
       let localsortData = sortData.replace("{", "").replace("}", "");
       cy.log("Sort value is : " + localsortData);
       cy.wrap(localsortData).as("sortData");
     });
-    cy.EvaluatFieldValue("Limit").then((limitData) => {
+    cy.EvaluatFieldValue(formControls.mongoFindLimit).then((limitData) => {
       let locallimitData = limitData.replace("{", "").replace("}", "");
       cy.log("Limit value is : " + locallimitData);
       cy.wrap(locallimitData).as("limitData");

@@ -506,10 +506,6 @@ Cypress.Commands.add("EvaluateCurrentValue", (currentValue) => {
     .click({ force: true })
     .then(($text) => {
       if ($text.text()) expect($text.text()).to.eq(currentValue);
-    })
-    .trigger("mouseout")
-    .then(() => {
-      cy.wait(2000);
     });
 });
 
@@ -1378,11 +1374,7 @@ Cypress.Commands.add(
     let toValidate = false;
     if (currentValue) toValidate = true;
     if (fieldName) {
-      cy.xpath(
-        "//p[text()='" +
-          fieldName +
-          "']/parent::label/following-sibling::div//div[@class='CodeMirror-code']",
-      ).click();
+      cy.get(fieldName).click();
     } else {
       cy.xpath("//div[@class='CodeMirror-code']")
         .first()
