@@ -557,12 +557,16 @@ export function getBoundariesFromSelectedWidgets(
   const rightMostWidget = selectedWidgets.sort(
     (a, b) => b.rightColumn - a.rightColumn,
   )[0];
+  const bottomMostWidget = selectedWidgets.sort(
+    (a, b) => b.bottomRow - a.bottomRow,
+  )[0];
   const thickestWidget = selectedWidgets.sort(
     (a, b) => b.bottomRow - b.topRow - a.bottomRow + a.topRow,
   )[0];
 
   return {
     totalWidth: rightMostWidget.rightColumn - leftMostWidget.leftColumn,
+    totalHeight: bottomMostWidget.bottomRow - topMostWidget.topRow,
     maxThickness: thickestWidget.bottomRow - thickestWidget.topRow,
     topMostRow: topMostWidget.topRow,
     leftMostColumn: leftMostWidget.leftColumn,
