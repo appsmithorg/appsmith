@@ -344,7 +344,7 @@ class ButtonGroupWidget extends BaseWidget<
                             ],
                           },
                           {
-                            sectionName: "Actions",
+                            sectionName: "Events",
                             children: [
                               {
                                 helpText:
@@ -396,7 +396,7 @@ class ButtonGroupWidget extends BaseWidget<
                   ],
                 },
                 {
-                  sectionName: "Actions",
+                  sectionName: "Events",
                   hidden: (
                     props: ButtonGroupWidgetProps,
                     propertyPath: string,

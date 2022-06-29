@@ -209,12 +209,12 @@ export const translateDiffEventToDataTreeDiffEvent = (
         if (isTrueObject(difference.lhs)) {
           Object.keys(difference.lhs).forEach((diffKey) => {
             const path = `${propertyPath}.${diffKey}`;
-            return {
+            (result as DataTreeDiff[]).push({
               event: DataTreeDiffEvent.DELETE,
               payload: {
                 propertyPath: path,
               },
-            };
+            });
           });
         }
       } else if (difference.lhs === undefined || difference.rhs === undefined) {
