@@ -2,21 +2,22 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.CommentOnboardingState;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
-import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.NotificationRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.solutions.EmailEventHandler;
 import com.mongodb.client.result.UpdateResult;
@@ -32,18 +33,27 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.appsmith.server.acl.AclPermission.COMMENT_ON_THREADS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_COMMENTS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_THREADS;
+import static com.appsmith.server.acl.AclPermission.READ_COMMENTS;
+import static com.appsmith.server.acl.AclPermission.READ_THREADS;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -78,10 +88,16 @@ public class CommentServiceTest {
     UserService userService;
 
     @Autowired
+    UserGroupService userGroupService;
+
+    @Autowired
     private NotificationRepository notificationRepository;
 
     @Autowired
     private UserWorkspaceService userWorkspaceService;
+
+    @Autowired
+    private PermissionGroupRepository permissionGroupRepository;
 
     @MockBean
     private Analytics analytics;
@@ -112,8 +128,10 @@ public class CommentServiceTest {
         Workspace workspace = new Workspace();
         workspace.setName(randomId + "-test-org");
 
-        final Mono<Tuple2<CommentThread, List<CommentThread>>> resultMono = workspaceService
-                .create(workspace).flatMap(workspace1 -> {
+        Mono<Workspace> workspaceMono = workspaceService.create(workspace).cache();
+
+        final Mono<Tuple2<CommentThread, List<CommentThread>>> resultMono = workspaceMono
+                .flatMap(workspace1 -> {
                     Application application = new Application();
                     application.setName(randomId + "-test-app");
                     application.setWorkspaceId(workspace1.getId());
@@ -133,23 +151,56 @@ public class CommentServiceTest {
                     return commentService.getThreadsByApplicationId(filterDTO);
                 });
 
-        StepVerifier.create(resultMono)
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceMono
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
+
+        StepVerifier.create(Mono.zip(resultMono, defaultPermissionGroupsMono))
                 .assertNext(tuple -> {
-                    final CommentThread thread = tuple.getT1();
-                    final List<CommentThread> threadsInApp = tuple.getT2();
+                    final CommentThread thread = tuple.getT1().getT1();
+                    final List<CommentThread> threadsInApp = tuple.getT1().getT2();
+                    List<PermissionGroup> permissionGroups = tuple.getT2();
+
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                            .findFirst().get();
+
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                            .findFirst().get();
+
+                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                            .findFirst().get();
+
+                    Policy manageThreadsPolicy = Policy.builder().permission(MANAGE_THREADS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
+                    Policy readThreadsPolicy = Policy.builder().permission(READ_THREADS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
+                    Policy commendThreadsPolicy = Policy.builder().permission(COMMENT_ON_THREADS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
+                    Policy manageCommentsPolicy = Policy.builder().permission(MANAGE_COMMENTS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
+                    Policy readCommentsPolicy = Policy.builder().permission(READ_COMMENTS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
 
                     assertThat(thread.getId()).isNotEmpty();
                     //assertThat(thread.getResolved()).isNull();
                     assertThat(thread.getPolicies()).containsExactlyInAnyOrder(
-                            Policy.builder().permission(AclPermission.READ_THREADS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
-                            Policy.builder().permission(AclPermission.MANAGE_THREADS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
-                            Policy.builder().permission(AclPermission.COMMENT_ON_THREADS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
+                            manageThreadsPolicy, readThreadsPolicy, commendThreadsPolicy
                     );
                     assertThat(thread.getComments()).hasSize(2);  // one comment is from bot
                     assertThat(thread.getComments().get(0).getBody()).isEqualTo(makePlainTextComment("comment one").getBody());
                     assertThat(thread.getComments().get(0).getPolicies()).containsExactlyInAnyOrder(
-                            Policy.builder().permission(AclPermission.MANAGE_COMMENTS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
-                            Policy.builder().permission(AclPermission.READ_COMMENTS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
+                            manageCommentsPolicy, readCommentsPolicy
                     );
 
                     assertThat(threadsInApp).hasSize(1);
@@ -629,13 +680,13 @@ public class CommentServiceTest {
             user.setEmail("some_other_user");
             user.setPassword("mypassword");
 
-            UserRole userRole = new UserRole();
-            userRole.setUsername(user.getUsername());
-            userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-            userRole.setRole(AppsmithRole.ORGANIZATION_ADMIN);
+            Mono<User> userMono = userService.create(user);
+            Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(application.getWorkspaceId());
+            Mono<UserGroup> adminGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR)).single();
+            Mono<?> addUserAsAdminToWorkspaceMono = adminGroupMono.zipWith(userMono)
+                    .flatMap(tuple -> userGroupService.addUser(tuple.getT1(), tuple.getT2()));
 
-            return userService.create(user)
-                    .then(userWorkspaceService.addUserRoleToWorkspace(application.getWorkspaceId(), userRole))
+            return addUserAsAdminToWorkspaceMono
                     .then(userWorkspaceService.leaveWorkspace(application.getWorkspaceId()))
                     .thenReturn(application);
         }).flatMap(application -> {

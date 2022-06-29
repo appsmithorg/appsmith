@@ -5,7 +5,6 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.services.EncryptionService;
-import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -149,6 +148,9 @@ public class ApplicationForkingServiceTests {
     @Autowired
     private ThemeService themeService;
 
+    @Autowired
+    private UserGroupService userGroupService;
+
     private static String sourceAppId;
 
     private static String testUserWorkspaceId;
@@ -255,12 +257,16 @@ public class ApplicationForkingServiceTests {
         // Running TC in a sequence is a bad practice for unit TCs but here we are testing the invite user and then fork
         // application as a part of this flow.
         // We need to test with VIEW user access so that any user should be able to fork template applications
+        UserGroup userGroup = userGroupService.getDefaultUserGroups(sourceWorkspace.getId())
+                .collectList().block()
+                .stream()
+                .filter(userGroup1 -> userGroup1.getName().startsWith(FieldName.VIEWER))
+                .findFirst().get();
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
         ArrayList<String> users = new ArrayList<>();
         users.add("usertest@usertest.com");
         inviteUsersDTO.setUsernames(users);
-        inviteUsersDTO.setWorkspaceId(sourceWorkspace.getId());
-        inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+        inviteUsersDTO.setUserGroupId(userGroup.getId());
         userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         isSetupDone = true;

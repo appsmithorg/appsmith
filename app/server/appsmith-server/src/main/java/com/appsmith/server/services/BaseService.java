@@ -25,8 +25,6 @@ import javax.validation.Validator;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -93,7 +91,7 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
 
         return mongoTemplate.updateFirst(query, updateObj, resource.getClass())
                 .flatMap(obj -> repository.findById(id))
-                .flatMap(analyticsService::sendUpdateEvent);
+                .flatMap(obj -> analyticsService.sendUpdateEvent(obj));
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
@@ -165,94 +163,6 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
                 });
     }
 
-
-    /**
-     * This function appends new policies to an object.
-     * This should be used in updating workspace/application permissions to cascade the same permissions across all
-     * the objects lying below in the hierarchy
-     * @param id : Object Id
-     * @param policies : Policies that have to be appended to the object
-     * @return Object which has been updated with the new policies.
-     */
-    @Override
-    public Mono<T> addPolicies(ID id, Set<Policy> policies) {
-        Map<String, Set<Policy>> policyMap = getAllPoliciesAsMap(policies);
-
-        return getById(id)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "object", id)))
-                .flatMap(obj -> {
-                    // Append the user to the existing permission policy if it already exists.
-                    for (Policy policy : obj.getPolicies()) {
-                        String permission = policy.getPermission();
-                        if (policyMap.containsKey(permission)) {
-                            for (Policy newPolicy : policyMap.get(permission)) {
-                                policy.getUsers().addAll(newPolicy.getUsers());
-
-                                if (newPolicy.getGroups() != null) {
-                                    if (policy.getGroups() == null) {
-                                        policy.setGroups(new HashSet<>());
-                                    }
-                                    policy.getGroups().addAll(newPolicy.getGroups());
-                                }
-                            }
-                            // Remove this permission from the policyMap as this has been accounted for in the above code
-                            policyMap.remove(permission);
-                        }
-                    }
-
-                    // For all the remaining policies which exist in the policyMap but didnt exist in the object
-                    // earlier, just add them to the set
-                    Iterator<String> iterator = policyMap.keySet().iterator();
-                    while(iterator.hasNext()) {
-                        String permission = iterator.next();
-                        Set<Policy> policySet = policyMap.get(permission);
-                        obj.getPolicies().addAll(policySet);
-                    }
-
-                    return repository.save(obj);
-                });
-    }
-
-    /**
-     * This function removes existing policies from an object.
-     * This should be used in updating workspace/application permissions to cascade the same permissions across all
-     * the objects lying below in the hierarchy
-     * @param id : Object Id
-     * @param policies : Policies that have to be removed from the object
-     * @return Object which has been updated with the removal of policies.
-     */
-    @Override
-    public Mono<T> removePolicies(ID id, Set<Policy> policies) {
-        Map<String, Set<Policy>> policyMap = getAllPoliciesAsMap(policies);
-
-        return getById(id)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "object", id)))
-                .flatMap(obj -> {
-                    // Remove the user from the existing permission policy if it exists.
-                    for (Policy policy : obj.getPolicies()) {
-                        String permission = policy.getPermission();
-                        if (policyMap.containsKey(permission)) {
-                            for (Policy newPolicy : policyMap.get(permission)) {
-                                Set<String> usersInObjectPolicy = policy.getUsers();
-                                usersInObjectPolicy.removeAll(newPolicy.getUsers());
-                                policy.setUsers(usersInObjectPolicy);
-
-                                if (newPolicy.getGroups() != null && policy.getGroups() != null) {
-                                    Set<String> groupsInObjectPolicy = policy.getGroups();
-                                    groupsInObjectPolicy.removeAll(newPolicy.getGroups());
-                                }
-                            }
-                            // Remove this permission from the policyMap as this has been accounted for in the above code
-                            policyMap.remove(permission);
-                        }
-                    }
-
-                    // For all the remaining policies which exist in the policyMap but didnt exist in the object
-                    // earlier, we dont need to remove it. Save and return.
-
-                    return repository.save(obj);
-                });
-    }
 
     private Map<String, Set<Policy>> getAllPoliciesAsMap(Set<Policy> policies) {
         return policies

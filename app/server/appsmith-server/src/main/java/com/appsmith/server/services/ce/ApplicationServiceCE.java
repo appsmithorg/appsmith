@@ -68,4 +68,5 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);
 
+    Mono<Application> findByIdAndExportWithConfiguration(String applicationId, Boolean exportWithConfiguration);
 }
