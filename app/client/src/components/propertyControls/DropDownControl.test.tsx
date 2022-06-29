@@ -1,5 +1,4 @@
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { config } from "localforage";
 import { noop } from "lodash";
 import DropDownControl, { DropDownControlProps } from "./DropDownControl";
 
