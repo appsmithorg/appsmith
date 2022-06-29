@@ -781,12 +781,8 @@ export const updateSlugNamesInURL = (params: Record<string, string>) => {
   history.replace(newURL + search);
 };
 
-export function AutoBind(this: any) {
-  const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(this));
-  methods
-    .filter(
-      (method) =>
-        method !== "constructor" && typeof this[method] === "function",
-    )
-    .forEach((method) => (this[method] = this[method].bind(this)));
+export function AutoBind(target: any, _: string, descriptor: any) {
+  if (typeof descriptor.value === "function")
+    descriptor.value = descriptor.value.bind(target);
+  return descriptor;
 }

@@ -36,6 +36,7 @@ import { failFastApiCalls } from "sagas/InitSagas";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { AutoBind } from "utils/helpers";
 import history from "utils/history";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -45,14 +46,6 @@ import AppEngine, { AppEnginePayload } from ".";
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
     super(mode);
-    this.setupEngine = this.setupEngine.bind(this);
-    this.loadAppData = this.loadAppData.bind(this);
-    this.loadAppURL = this.loadAppURL.bind(this);
-    this.loadAppEntities = this.loadAppEntities.bind(this);
-    this.loadGit = this.loadGit.bind(this);
-    this.completeChore = this.completeChore.bind(this);
-    this.loadPageThemesAndActions = this.loadPageThemesAndActions.bind(this);
-    this.loadPluginsAndDatasources = this.loadPluginsAndDatasources.bind(this);
   }
 
   /**
@@ -62,6 +55,7 @@ export default class AppEditorEngine extends AppEngine {
    * @param AppEnginePayload
    * @returns
    */
+  @AutoBind
   public *setupEngine(payload: AppEnginePayload): any {
     yield* super.setupEngine.call(this, payload);
     yield put(resetEditorSuccess());
@@ -79,6 +73,7 @@ export default class AppEditorEngine extends AppEngine {
     );
   }
 
+  @AutoBind
   private *loadPageThemesAndActions(
     toLoadPageId: string,
     applicationId: string,
@@ -118,6 +113,7 @@ export default class AppEditorEngine extends AppEngine {
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 
+  @AutoBind
   private *loadPluginsAndDatasources() {
     const initActions = [
       fetchPlugins(),
@@ -158,6 +154,7 @@ export default class AppEditorEngine extends AppEngine {
     if (!pluginFormCall) return;
   }
 
+  @AutoBind
   public *loadAppEntities(toLoadPageId: string, applicationId: string): any {
     yield all([
       call(this.loadPageThemesAndActions, toLoadPageId, applicationId),
@@ -165,6 +162,7 @@ export default class AppEditorEngine extends AppEngine {
     ]);
   }
 
+  @AutoBind
   public *completeChore() {
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
@@ -178,6 +176,7 @@ export default class AppEditorEngine extends AppEngine {
     });
   }
 
+  @AutoBind
   public *loadGit(applicationId: string) {
     const branchInStore: string = yield select(getCurrentGitBranch);
     yield put(
