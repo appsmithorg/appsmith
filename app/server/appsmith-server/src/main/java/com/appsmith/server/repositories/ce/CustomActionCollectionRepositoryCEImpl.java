@@ -116,7 +116,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> getCurrentPermissionGroups((User) principal))
+                .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
                 .flatMapMany(permissionGroups -> {
                     Query query = new Query();
 
