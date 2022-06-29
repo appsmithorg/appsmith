@@ -12,7 +12,6 @@ import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import _ from "lodash";
 
 export default function* storeValueLocally(
   action: StoreValueActionDescription["payload"],
