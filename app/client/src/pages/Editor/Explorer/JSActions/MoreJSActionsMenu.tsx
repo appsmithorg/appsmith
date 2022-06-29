@@ -25,6 +25,7 @@ import {
   getAutoIndentShortcutKeyText,
 } from "components/editorComponents/CodeEditor/utils/autoIndentUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { updateJSCollectionBody } from "../../../../actions/jsPaneActions";
 
 type EntityContextMenuProps = {
   id: string;
@@ -166,6 +167,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
             // @ts-ignore
             const editor = document.querySelector(".CodeMirror").CodeMirror;
             autoIndentCode(editor);
+            dispatch(updateJSCollectionBody(editor.getValue(), props.id));
             AnalyticsUtil.logEvent("PRETTIFY_CODE_MANUAL_TRIGGER");
           },
           label: "Prettify Code",
