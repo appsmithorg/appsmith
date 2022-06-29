@@ -254,7 +254,8 @@ export const handleSpecificCasesWhilePasting = (
       newWidgetList,
       (copyWidget) =>
         copyWidget.type === "BUTTON_WIDGET" ||
-        copyWidget.type === "ICON_WIDGET",
+        copyWidget.type === "ICON_WIDGET" ||
+        copyWidget.type === "ICON_BUTTON_WIDGET",
     );
     // replace oldName with new one if any of this widget have onClick action for old modal
     copiedBtnIcnWidgets.map((copyWidget) => {
@@ -411,19 +412,6 @@ export const getParentWidgetIdForPasting = function*(
   return newWidgetParentId;
 };
 
-export const isCopiedModalWidget = function(
-  copiedWidgetGroups: CopiedWidgetGroup[],
-  widgets: CanvasWidgetsReduxState,
-) {
-  if (copiedWidgetGroups.length !== 1) return false;
-
-  const copiedWidget = widgets[copiedWidgetGroups[0].widgetId];
-
-  if (copiedWidget && copiedWidget.type === "MODAL_WIDGET") return true;
-
-  return false;
-};
-
 export const getSelectedWidgetIfPastingIntoListWidget = function(
   canvasWidgets: CanvasWidgetsReduxState,
   selectedWidget: FlattenedWidgetProps | undefined,
@@ -444,8 +432,7 @@ export const getSelectedWidgetIfPastingIntoListWidget = function(
 
     // if any copiedWidget is a list widget, we will paste into the parent of list widget
     for (let i = 0; i < copiedWidgets.length; i++) {
-      const copiedWidgetId = copiedWidgets[i].widgetId;
-      const copiedWidget = canvasWidgets[copiedWidgetId];
+      const copiedWidget = copiedWidgets[i].list[0];
 
       if (copiedWidget?.type === "LIST_WIDGET") {
         return selectedWidget;
