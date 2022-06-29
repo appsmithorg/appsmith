@@ -177,7 +177,7 @@ function* evaluateTreeSaga(
 
   const updatedDataTree: DataTree = yield select(getDataTree);
   log.debug({ jsUpdates: jsUpdates });
-  log.debug("$$$", { dataTree: updatedDataTree });
+  log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
   // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
   yield call(evalErrorHandler as any, errors, updatedDataTree, evaluationOrder);
