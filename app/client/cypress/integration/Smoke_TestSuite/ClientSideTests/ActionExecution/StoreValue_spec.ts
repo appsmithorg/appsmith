@@ -179,7 +179,7 @@ describe("storeValue Action test", () => {
       );
     });
 
-    ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
+    ee.DragDropWidgetNVerify("buttonwidget", 100, 300);
     ee.SelectEntityByName("Button3", "WIDGETS");
     propPane.UpdatePropertyFieldValue("Label", "ShowStore");
     cy.get("@jsObjName").then((jsObj: any) => {
