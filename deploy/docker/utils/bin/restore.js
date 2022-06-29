@@ -57,7 +57,7 @@ async function restoreDockerEnvFile(restoreContentsPath, backupName){
   await utils.execCommand(['mv', dockerEnvFile, dockerEnvFile + '.' + backupName]);
   await utils.execCommand(['cp', restoreContentsPath + '/docker.env', dockerEnvFile]);
 
-  if ((encryptionPwd !== '') && (encryptionSalt !== '')){
+  if (encryptionPwd && encryptionSalt){
     const input = readlineSync.question('Existing encryption env values of the previous instance were found.\n\
     Press Enter to continue with existing encryption values\n\
     Or Type "n"/"No" to provide encryption key & password for the new restore instance.\n');
