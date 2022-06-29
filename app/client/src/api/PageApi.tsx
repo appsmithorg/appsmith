@@ -40,6 +40,7 @@ export type FetchPageResponseData = {
   applicationId: string;
   layouts: Array<PageLayout>;
   lastUpdatedTime: number;
+  customSlug?: string;
 };
 
 export type FetchPublishedPageResponseData = FetchPageResponseData;

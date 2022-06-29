@@ -560,7 +560,7 @@ export function* createPageSaga(
           pageName: response.data.name,
           layoutId: response.data.layouts[0].id,
           slug: response.data.slug,
-          customSlug: response.data.slug,
+          customSlug: response.data.customSlug,
         },
       });
       // Add this to the page DSLs for entity explorer
