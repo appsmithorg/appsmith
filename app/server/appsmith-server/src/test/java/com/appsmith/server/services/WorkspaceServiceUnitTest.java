@@ -4,7 +4,6 @@ import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.UserAndGroupDTO;
-import com.appsmith.server.dtos.UserGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -49,8 +48,6 @@ public class WorkspaceServiceUnitTest {
     @MockBean AnalyticsService analyticsService;
     @MockBean ApplicationRepository applicationRepository;
 
-    @MockBean UserGroupService userGroupService;
-
     @MockBean PermissionGroupService permissionGroupService;
 
     @MockBean RbacPolicyService rbacPolicyService;
@@ -68,21 +65,21 @@ public class WorkspaceServiceUnitTest {
         modelMapper = new ModelMapper();
         workspaceService = new WorkspaceServiceImpl(scheduler, validator, mongoConverter, reactiveMongoTemplate,
                 workspaceRepository, analyticsService, pluginRepository, sessionUserService, userWorkspaceService,
-                userRepository, roleGraph, assetRepository, assetService, applicationRepository, userGroupService,
+                userRepository, roleGraph, assetRepository, assetService, applicationRepository,
                 permissionGroupService, rbacPolicyService, policyUtils, modelMapper);
     }
 
-    @Test
-    public void whenMapUserGroup_thenConvertsToUserGroupInfoDTO() {
-        UserGroup userGroup = new UserGroup();
-        userGroup.setName("Test");
-        userGroup.setId("123");
-        userGroup.setDescription("Test");
-        UserGroupInfoDTO userGroupInfoDTO = modelMapper.map(userGroup, UserGroupInfoDTO.class);
-        Assert.assertEquals(userGroup.getName(), userGroupInfoDTO.getName());
-        Assert.assertEquals(userGroup.getId(), userGroupInfoDTO.getId());
-        Assert.assertEquals(userGroup.getDescription(), userGroupInfoDTO.getDescription());
-    }
+//    @Test
+//    public void whenMapUserGroup_thenConvertsToUserGroupInfoDTO() {
+//        UserGroup userGroup = new UserGroup();
+//        userGroup.setName("Test");
+//        userGroup.setId("123");
+//        userGroup.setDescription("Test");
+//        UserGroupInfoDTO userGroupInfoDTO = modelMapper.map(userGroup, UserGroupInfoDTO.class);
+//        Assert.assertEquals(userGroup.getName(), userGroupInfoDTO.getName());
+//        Assert.assertEquals(userGroup.getId(), userGroupInfoDTO.getId());
+//        Assert.assertEquals(userGroup.getDescription(), userGroupInfoDTO.getDescription());
+//    }
 
     @Test
     public void getWorkspaceMembers_WhenRoleIsNull_ReturnsEmptyList() {

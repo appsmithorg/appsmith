@@ -6,8 +6,6 @@ import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.QRbacPolicy;
-import com.appsmith.server.domains.QUserGroup;
-import com.appsmith.server.domains.QUserInGroup;
 import com.appsmith.server.domains.RbacPolicy;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -65,35 +63,13 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
      * @return
      */
     protected Mono<Set<String>> getCurrentPermissionGroups(User user) {
-
-        return findAllUserGroupsByUserId(user.getId())
-                .map(UserGroup::getId)
-                .collect(Collectors.toSet())
-                .flatMap(userGroupIds -> findAllPermissionGroups(user.getId(), userGroupIds));
-    }
-
-    private Flux<UserGroup> findAllUserGroupsByUserId(String userId) {
-        Criteria userIdCriteria = Criteria.where(fieldName(QUserGroup.userGroup.users))
-                .elemMatch(Criteria.where(fieldName(QUserInGroup.userInGroup.id)).is(userId));
+        Criteria userIdCriteria = Criteria.where(fieldName(QRbacPolicy.rbacPolicy.userId)).is(user.getId());
 
         Query query = new Query();
         query.addCriteria(userIdCriteria);
-        return mongoOperations.find(query, UserGroup.class);
-    }
-
-    private Mono<Set<String>> findAllPermissionGroups(String userId, Set<String> userGroupIds) {
-        Criteria userGroupIdsCriteria = Criteria.where(fieldName(QRbacPolicy.rbacPolicy.userGroupId))
-                .in(userGroupIds);
-        Criteria userIdCriteria = Criteria.where(fieldName(QRbacPolicy.rbacPolicy.userId)).is(userId);
-
-        Criteria userOrUserGroupCriteria = new Criteria().orOperator(userGroupIdsCriteria, userIdCriteria);
-
-        Query query = new Query();
-        query.addCriteria(userOrUserGroupCriteria);
         return mongoOperations.find(query, RbacPolicy.class)
                 .flatMap(policy -> Flux.fromIterable(policy.getPermissionGroupIds()))
                 .collect(Collectors.toSet());
-
     }
 
     public static final String fieldName(Path path) {

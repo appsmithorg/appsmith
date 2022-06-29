@@ -40,7 +40,6 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserChangedHandler;
-import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -72,7 +71,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
@@ -98,7 +96,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final EncryptionService encryptionService;
     private final UserDataService userDataService;
     private final TenantService tenantService;
-    private final UserGroupService userGroupService;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -128,8 +125,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              EncryptionService encryptionService,
                              ApplicationPageService applicationPageService,
                              UserDataService userDataService,
-                             TenantService tenantService,
-                             UserGroupService userGroupService) {
+                             TenantService tenantService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -144,7 +140,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.encryptionService = encryptionService;
         this.userDataService = userDataService;
         this.tenantService = tenantService;
-        this.userGroupService = userGroupService;
     }
 
     @Override
@@ -657,91 +652,93 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     @Override
     public Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader) {
 
-        if (originHeader == null || originHeader.isBlank()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
-        }
+//        if (originHeader == null || originHeader.isBlank()) {
+//            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
+//        }
+//
+//        List<String> originalUsernames = inviteUsersDTO.getUsernames();
+//
+//        if (CollectionUtils.isEmpty(originalUsernames)) {
+//            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAMES));
+//        }
+//
+//        if (!StringUtils.hasText(inviteUsersDTO.getUserGroupId())) {
+//            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.GROUP_ID));
+//        }
+//
+//        List<String> usernames = new ArrayList<>();
+//        for (String username : originalUsernames) {
+//            usernames.add(username.toLowerCase());
+//        }
+//
+//        Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
+//
+//        // Check if the current user has invite permissions to the group and group is workspace's default group.
+//        Mono<UserGroup> userGroupMono = userGroupService.getById(inviteUsersDTO.getUserGroupId(), AclPermission.INVITE_USER_GROUPS)
+//                .filter(userGroup -> !Strings.isNullOrEmpty(userGroup.getDefaultWorkspaceId()))
+//                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER_GROUP)))
+//                .cache();
+//
+//        // Get workspace from the default group.
+//        Mono<Workspace> workspaceMono = userGroupMono.flatMap(userGroup -> workspaceService.getById(userGroup.getDefaultWorkspaceId())).cache();
+//
+//        // Check if the invited user exists. If yes, return the user, else create a new user by triggering
+//        // createNewUserAndSendInviteEmail. In both the cases, send the appropriate emails
+//        Mono<List<User>> inviteUsersMono = Flux.fromIterable(usernames)
+//                .flatMap(username -> Mono.zip(Mono.just(username), workspaceMono, currentUserMono, userGroupMono))
+//                .flatMap(tuple -> {
+//                    String username = tuple.getT1();
+//                    Workspace workspace = tuple.getT2();
+//                    User currentUser = tuple.getT3();
+//                    UserGroup userGroup = tuple.getT4();
+//
+//                    return repository.findByEmail(username)
+//                            .flatMap(existingUser -> {
+//                                // The user already existed, just send an email informing that the user has been added
+//                                // to a new workspace
+//                                log.debug("Going to send email to user {} informing that the user has been added to new workspace {}",
+//                                        existingUser.getEmail(), workspace.getName());
+//
+//                                // Email template parameters initialization below.
+//                                Map<String, String> params = getEmailParams(workspace, currentUser, originHeader, false);
+//
+//                                Mono<Boolean> emailMono = emailSender.sendMail(existingUser.getEmail(),
+//                                        "Appsmith: You have been added to a new organization",
+//                                        USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE, params);
+//
+//                                return emailMono
+//                                        .thenReturn(existingUser);
+//                            })
+//                            .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, userGroup.getName()));
+//                })
+//                .collectList()
+//                .cache();
+//
+//        // Add user to user group
+//        Mono<UserGroup> bulkAddUserResultMono = Mono.zip(userGroupMono, inviteUsersMono)
+//                .flatMap(tuple -> {
+//                    UserGroup userGroup = tuple.getT1();
+//                    List<User> users = tuple.getT2();
+//                    return userGroupService.bulkAddUsers(userGroup, users);
+//                }).cache();
+//
+//        // Send analytics event and don't wait for the result
+//        Mono<Object> sendAnalyticsEventMono = Mono.zip(currentUserMono, inviteUsersMono)
+//                .flatMap(tuple -> {
+//                    User currentUser = tuple.getT1();
+//                    List<User> users = tuple.getT2();
+//                    Map<String, Object> analyticsProperties = new HashMap<>();
+//                    long numberOfUsers = users.size();
+//                    List<String> invitedUsers = users.stream().map(User::getEmail).collect(Collectors.toList());
+//                    analyticsProperties.put("numberOfUsersInvited", numberOfUsers);
+//                    analyticsProperties.put("userEmails", invitedUsers);
+//                    analyticsService.sendEvent("execute_INVITE_USERS", currentUser.getEmail(), analyticsProperties);
+//                    return Mono.empty();
+//                });
+//
+//        return Mono.zip(bulkAddUserResultMono, sendAnalyticsEventMono).then(inviteUsersMono);
 
-        List<String> originalUsernames = inviteUsersDTO.getUsernames();
-
-        if (CollectionUtils.isEmpty(originalUsernames)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAMES));
-        }
-
-        if (!StringUtils.hasText(inviteUsersDTO.getUserGroupId())) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.GROUP_ID));
-        }
-        
-        List<String> usernames = new ArrayList<>();
-        for (String username : originalUsernames) {
-            usernames.add(username.toLowerCase());
-        }
-
-        Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
-
-        // Check if the current user has invite permissions to the group and group is workspace's default group.
-        Mono<UserGroup> userGroupMono = userGroupService.getById(inviteUsersDTO.getUserGroupId(), AclPermission.INVITE_USER_GROUPS)
-                .filter(userGroup -> !Strings.isNullOrEmpty(userGroup.getDefaultWorkspaceId()))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER_GROUP)))
-                .cache();
-
-        // Get workspace from the default group.
-        Mono<Workspace> workspaceMono = userGroupMono.flatMap(userGroup -> workspaceService.getById(userGroup.getDefaultWorkspaceId())).cache();
-
-        // Check if the invited user exists. If yes, return the user, else create a new user by triggering
-        // createNewUserAndSendInviteEmail. In both the cases, send the appropriate emails
-        Mono<List<User>> inviteUsersMono = Flux.fromIterable(usernames)
-                .flatMap(username -> Mono.zip(Mono.just(username), workspaceMono, currentUserMono, userGroupMono))
-                .flatMap(tuple -> {
-                    String username = tuple.getT1();
-                    Workspace workspace = tuple.getT2();
-                    User currentUser = tuple.getT3();
-                    UserGroup userGroup = tuple.getT4();
-
-                    return repository.findByEmail(username)
-                            .flatMap(existingUser -> {
-                                // The user already existed, just send an email informing that the user has been added
-                                // to a new workspace
-                                log.debug("Going to send email to user {} informing that the user has been added to new workspace {}",
-                                        existingUser.getEmail(), workspace.getName());
-
-                                // Email template parameters initialization below.
-                                Map<String, String> params = getEmailParams(workspace, currentUser, originHeader, false);
-
-                                Mono<Boolean> emailMono = emailSender.sendMail(existingUser.getEmail(),
-                                        "Appsmith: You have been added to a new organization",
-                                        USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE, params);
-
-                                return emailMono
-                                        .thenReturn(existingUser);
-                            })
-                            .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, userGroup.getName()));
-                })
-                .collectList()
-                .cache();
-
-        // Add user to user group
-        Mono<UserGroup> bulkAddUserResultMono = Mono.zip(userGroupMono, inviteUsersMono)
-                .flatMap(tuple -> {
-                    UserGroup userGroup = tuple.getT1();
-                    List<User> users = tuple.getT2();
-                    return userGroupService.bulkAddUsers(userGroup, users);
-                }).cache();
-
-        // Send analytics event and don't wait for the result
-        Mono<Object> sendAnalyticsEventMono = Mono.zip(currentUserMono, inviteUsersMono)
-                .flatMap(tuple -> {
-                    User currentUser = tuple.getT1();
-                    List<User> users = tuple.getT2();
-                    Map<String, Object> analyticsProperties = new HashMap<>();
-                    long numberOfUsers = users.size();
-                    List<String> invitedUsers = users.stream().map(User::getEmail).collect(Collectors.toList());
-                    analyticsProperties.put("numberOfUsersInvited", numberOfUsers);
-                    analyticsProperties.put("userEmails", invitedUsers);
-                    analyticsService.sendEvent("execute_INVITE_USERS", currentUser.getEmail(), analyticsProperties);
-                    return Mono.empty();
-                });
-
-        return Mono.zip(bulkAddUserResultMono, sendAnalyticsEventMono).then(inviteUsersMono);
+        return null;
     }
 
     private Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader,
