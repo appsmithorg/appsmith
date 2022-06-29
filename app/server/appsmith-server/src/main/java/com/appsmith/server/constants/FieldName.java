@@ -113,4 +113,20 @@ public class FieldName {
     public static final String THEME = "theme";
     public static final String EDIT_MODE_THEME = "editModeTheme";
     public static final String FLOW_NAME = "flowName";
+
+    public static final String ADMINISTRATOR = "Administrator";
+    public static final String WORKSPACE_ADMINISTRATOR_DESCRIPTION = "Can modify all organization settings including " +
+            "editing applications, inviting other users to the organization and exporting applications " +
+            "from the organization";
+    public static final String DEVELOPER = "Developer";
+    public static String WORKSPACE_DEVELOPER_DESCRIPTION = "Can edit and view applications along with inviting other " +
+            "users to the organization";
+    public static final String VIEWER = "App Viewer";
+    public static final String WORKSPACE_VIEWER_DESCRIPTION = "Can view applications and invite other users to view " +
+            "applications";
+    public static final Object USER_GROUP = "userGroup";
+    public static final Object GROUP_ID = "groupId";
+    public static final Object USERNAME = "username";
+    public static final Object NEW_GROUP_ID = "newGroupId";
+
 }

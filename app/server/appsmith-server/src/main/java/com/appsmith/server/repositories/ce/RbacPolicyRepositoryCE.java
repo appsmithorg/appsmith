@@ -5,4 +5,5 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomRbacPolicyRepository;
 
 public interface RbacPolicyRepositoryCE extends BaseRepository<RbacPolicy, String>, CustomRbacPolicyRepository {
+
 }

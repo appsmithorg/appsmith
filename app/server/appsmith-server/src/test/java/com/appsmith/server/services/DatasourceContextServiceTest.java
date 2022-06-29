@@ -1,18 +1,17 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.services.EncryptionService;
-import com.appsmith.server.acl.AclPermission;
-import com.appsmith.external.models.Datasource;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -41,24 +40,28 @@ public class DatasourceContextServiceTest {
     @Autowired
     DatasourceService datasourceService;
 
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    WorkspaceService workspaceService;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
-
-    String workspaceId = "";
-
-    @Before
-    @WithUserDetails(value = "api_user")
-    public void setup() {
-        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_WORKSPACES).block();
-        workspaceId = testWorkspace.getId();
-    }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void checkDecryptionOfAuthenticationDTOTest() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        User apiUser = userService.findByEmail("api_user").block();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("checkDecryptionOfAuthenticationDTOTest");
+
+        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        String workspaceId = workspace.getId();
+
+        Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();
         datasource.setName("test datasource name for authenticated fields decryption test");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
@@ -100,7 +103,14 @@ public class DatasourceContextServiceTest {
     public void checkDecryptionOfAuthenticationDTONullPassword() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        User apiUser = userService.findByEmail("api_user").block();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("checkDecryptionOfAuthenticationDTONullPassword");
+
+        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        String workspaceId = workspace.getId();
+
+        Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();
         datasource.setName("test datasource name for authenticated fields decryption test null password");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();

@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.Set;
 
 @Document
@@ -22,8 +23,9 @@ public class PermissionGroup extends BaseDomain {
 
     String description;
 
-    Set<Permission> permissions;
 
     String defaultWorkspaceId;
+
+    Set<Permission> permissions = new HashSet<>();
 
 }

@@ -5,29 +5,34 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
+import com.appsmith.server.dtos.UserGroupInfoDTO;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.UserGroupRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -43,6 +48,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -53,11 +59,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -99,6 +111,17 @@ public class ActionCollectionServiceTest {
     @Autowired
     NewActionService newActionService;
 
+    @Autowired
+    PluginService pluginService;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    UserGroupRepository userGroupRepository;
+
+    UserGroupService userGroupService;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
@@ -118,15 +141,20 @@ public class ActionCollectionServiceTest {
     public void setup() {
         User apiUser = userService.findByEmail("api_user").block();
         assert apiUser != null;
-        workspaceId = apiUser.getWorkspaceIds().iterator().next();
-        Workspace workspace = workspaceService.getById(workspaceId).block();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("ActionCollectionServiceTest");
+
+        if (workspaceId == null) {
+            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            workspaceId = workspace.getId();
+        }
 
         if (testApp == null && testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
-            assert workspace != null;
-            testApp = applicationPageService.createApplication(application, workspace.getId()).block();
+
+            testApp = applicationPageService.createApplication(application, workspaceId).block();
 
             assert testApp != null;
             final String pageId = testApp.getPages().get(0).getId();
@@ -156,14 +184,15 @@ public class ActionCollectionServiceTest {
             layout.setPublishedDsl(dsl);
         }
 
-        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_WORKSPACES).block();
-        assert testWorkspace != null;
-        workspaceId = testWorkspace.getId();
+        Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
+        PluginWorkspaceDTO pluginWorkspaceDTO = new PluginWorkspaceDTO();
+        pluginWorkspaceDTO.setPluginId(installedJsPlugin.getId());
+        pluginWorkspaceDTO.setWorkspaceId(workspaceId);
+        pluginWorkspaceDTO.setStatus(WorkspacePluginStatus.FREE);
+        pluginService.installPlugin(pluginWorkspaceDTO).block();
         datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setWorkspaceId(workspaceId);
-        Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
-        assert installedJsPlugin != null;
         datasource.setPluginId(installedJsPlugin.getId());
     }
 
@@ -180,12 +209,14 @@ public class ActionCollectionServiceTest {
     public void createValidActionCollectionAndCheckPermissions() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testActionCollection");
@@ -199,11 +230,36 @@ public class ActionCollectionServiceTest {
                 .flatMap(createdCollection -> actionCollectionService.findById(createdCollection.getId(), READ_ACTIONS));
 
         StepVerifier
-                .create(actionCollectionMono)
-                .assertNext(createdActionCollection -> {
+                .create(Mono.zip(actionCollectionMono, defaultPermissionGroupsMono))
+                .assertNext(tuple -> {
+                    ActionCollection createdActionCollection = tuple.getT1();
                     assertThat(createdActionCollection.getId()).isNotEmpty();
                     assertThat(createdActionCollection.getUnpublishedCollection().getName()).isEqualTo(actionCollectionDTO.getName());
-                    assertThat(createdActionCollection.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy));
+
+                    List<PermissionGroup> permissionGroups = tuple.getT2();
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                            .findFirst().get();
+
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                            .findFirst().get();
+
+                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                            .findFirst().get();
+
+                    Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                            .build();
+
+                    assertThat(createdActionCollection.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
                 })
                 .verifyComplete();
     }
@@ -223,29 +279,80 @@ public class ActionCollectionServiceTest {
         ActionCollectionDTO actionCollection =
                 layoutCollectionService.createCollection(actionCollectionDTO).block();
 
-        UserRole userRole = new UserRole();
-        userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-        userRole.setUsername("usertest@usertest.com");
+        List<UserGroupInfoDTO> userGroupsDto = workspaceService.getUserGroupsForWorkspace(workspaceId).block();
 
-        userWorkspaceService.addUserRoleToWorkspace(testApp.getWorkspaceId(), userRole).block();
+        String adminUserGroupId = userGroupsDto.stream()
+                .filter(userGroupInfoDTO -> userGroupInfoDTO.getName().startsWith(ADMINISTRATOR))
+                .map(userGroupInfoDTO -> userGroupInfoDTO.getId())
+                .findFirst()
+                .get();
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setUserGroupId(adminUserGroupId);
+        inviteUsersDTO.setUsernames(List.of("usertest@usertest.com"));
+
+        Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(testApp.getWorkspaceId());
+        Mono<UserGroup> adminGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR)).single();
+        Mono<User> userMono = userService.findByEmail("usertest@usertest.com");
+
+        Mono.zip(userMono, adminGroupMono)
+                .flatMap(tuple -> {
+                    User user = tuple.getT1();
+                    UserGroup adminGroup = tuple.getT2();
+                    return userGroupService.addUser(adminGroup, user);
+                }).block();
 
         assert actionCollection != null;
         Mono<ActionCollection> readActionCollectionMono =
                 actionCollectionService.findById(actionCollection.getId(), READ_ACTIONS)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "ActionCollection", actionCollection.getId())));
 
+        Mono<UserGroup> adminUserGroupMono = userGroupRepository.findById(adminUserGroupId, READ_USER_GROUPS);
+
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
+
         StepVerifier
-                .create(readActionCollectionMono)
-                .assertNext(updatedActionCollection -> {
+                .create(Mono.zip(readActionCollectionMono, adminUserGroupMono, defaultPermissionGroupsMono))
+                .assertNext(tuple -> {
+
+                    ActionCollection updatedActionCollection = tuple.getT1();
+                    UserGroup adminUserGroup = tuple.getT2();
+                    List<PermissionGroup> permissionGroups = tuple.getT3();
+
+                    // Assert that the admin user group contains the invited user
+                    assertThat(
+                            adminUserGroup.getUsers().stream()
+                                    .map(user -> user.getUsername())
+                                    .collect(Collectors.toSet())
+                    ).containsAll(Set.of("api_user", "usertest@usertest.com"));
+
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                            .findFirst().get();
+
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                            .findFirst().get();
+
+                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                            .findFirst().get();
 
                     Policy manageActionCollectionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
-                            .users(Set.of("api_user", "usertest@usertest.com"))
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
                     Policy readActionCollectionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
-                            .users(Set.of("api_user", "usertest@usertest.com"))
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
                     Policy executeActionCollectionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
-                            .users(Set.of("api_user", "usertest@usertest.com"))
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                             .build();
 
                     assertThat(updatedActionCollection.getPolicies()).isNotEmpty();
