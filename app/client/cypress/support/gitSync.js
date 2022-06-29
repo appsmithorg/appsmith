@@ -45,7 +45,7 @@ Cypress.Commands.add(
 
     cy.intercept(
       {
-        url: "api/v1/git/connect/app*",
+        url: "api/v1/git/connect/app/*",
         hostname: window.location.host,
       },
       (req) => {
