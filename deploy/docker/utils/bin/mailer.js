@@ -15,7 +15,7 @@ const mailPass = process.env.APPSMITH_MAIL_PASSWORD
 const mailTo = process.env.APPSMITH_ADMIN_EMAILS
 
 async function sendBackupErrorToAdmins(err, backupTimestamp){
-    console.log('Sending Error mail to admins.')
+    console.log('Sending Error mail to admins.');
     try{
         if ( !mailEnabled || !mailFrom || !mailHost || !mailPort || !mailUser || !mailPass ){
             throw new Error('Failed to send error mail. Email provider is not configured, please refer to https://docs.appsmith.com/setup/instance-configuration/email to configure it.');
@@ -28,9 +28,9 @@ async function sendBackupErrorToAdmins(err, backupTimestamp){
         }
         else {
             const backupFiles = await utils.listLocalBackupFiles();
-            const lastBackupfile = backupFiles.pop()
+            const lastBackupfile = backupFiles.pop();
             const lastBackupTimestamp = lastBackupfile.match(/appsmith-backup-(.*)\.tar.gz/)[1]
-            const lastBackupPath = Constants.BACKUP_PATH + '/' + lastBackupfile
+            const lastBackupPath = Constants.BACKUP_PATH + '/' + lastBackupfile;
         
             let domainNameOrIP = process.env.APPSMITH_CUSTOM_DOMAIN 
             if (domainNameOrIP === ''){
@@ -53,7 +53,7 @@ async function sendBackupErrorToAdmins(err, backupTimestamp){
                         'Last Successful Backup timestamp: ' + lastBackupTimestamp + '\n' +
                         'Last Successful Backup location: ' + lastBackupPath + '\n\n' +
                         'Link to Appsmith admin settings: ' + adminSettingsURL +
-                        '\n\n' + err.stack
+                        '\n\n' + err.stack;
         //   console.log('Mail body: ' + text)
             await transporter.sendMail({
                 from: mailFrom,
@@ -63,12 +63,12 @@ async function sendBackupErrorToAdmins(err, backupTimestamp){
                 });
             }
         } catch(err){
-            console.log(err)
+            console.log(err);
             await logger.backup_error(err.stack);
             return
     }
 }
 
 module.exports = {
-    sendBackupErrorToAdmins
-}
+    sendBackupErrorToAdmins,
+};
