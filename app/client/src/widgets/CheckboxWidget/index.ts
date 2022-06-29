@@ -11,6 +11,7 @@ export const CONFIG = {
   name: "Checkbox",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["boolean"],
   defaults: {
     rows: 4,
     columns: 7,

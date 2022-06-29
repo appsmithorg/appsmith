@@ -4,7 +4,6 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
@@ -23,7 +22,6 @@ import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -45,7 +43,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Slf4j
@@ -160,22 +157,15 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @GetMapping("/export/{id}")
-    public Mono<ResponseEntity<ApplicationJson>> getApplicationFile(@PathVariable String id,
-                                                                    @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    public Mono<ResponseEntity<Object>> getApplicationFile(@PathVariable String id,
+                                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to export application with id: {}, branch: {}", id, branchName);
 
-        return importExportApplicationService.exportApplicationById(id, branchName)
+        return importExportApplicationService.getApplicationFile(id, branchName)
                 .map(fetchedResource -> {
-                    String applicationName = fetchedResource.getExportedApplication().getName();
-                    HttpHeaders responseHeaders = new HttpHeaders();
-                    ContentDisposition contentDisposition = ContentDisposition
-                            .builder("attachment")
-                            .filename(applicationName + ".json", StandardCharsets.UTF_8)
-                            .build();
-                    responseHeaders.setContentDisposition(contentDisposition);
-                    responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-
-                    return new ResponseEntity<>(fetchedResource, responseHeaders, HttpStatus.OK);
+                    HttpHeaders responseHeaders = fetchedResource.getHttpHeaders();
+                    Object applicationResource = fetchedResource.getApplicationResource();
+                    return new ResponseEntity<>(applicationResource, responseHeaders, HttpStatus.OK);
                 });
     }
 

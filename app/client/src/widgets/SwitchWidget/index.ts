@@ -11,6 +11,7 @@ export const CONFIG = {
   name: "Switch",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["boolean"],
   defaults: {
     label: "Label",
     rows: 4,

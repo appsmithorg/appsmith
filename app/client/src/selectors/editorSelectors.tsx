@@ -2,7 +2,7 @@ import { createSelector } from "reselect";
 
 import { AppState } from "reducers";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -214,7 +214,7 @@ export const getWidgetCards = createSelector(
       (config) => !config.hideCard,
     );
 
-    const _cards = cards.map((config) => {
+    const _cards: WidgetCardProps[] = cards.map((config) => {
       const {
         columns,
         detachFromLayout = false,
@@ -222,6 +222,7 @@ export const getWidgetCards = createSelector(
         iconSVG,
         key,
         rows,
+        searchTags,
         type,
       } = config;
       return {
@@ -232,6 +233,7 @@ export const getWidgetCards = createSelector(
         detachFromLayout,
         displayName,
         icon: iconSVG,
+        searchTags,
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
@@ -415,7 +417,7 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
           parentId = parent.parentId;
         }
         canvasLevelMap[canvasWidget.widgetId] = level;
-        // Initilise the occupied spaces with an empty array
+        // Initialise the occupied spaces with an empty array
         occupiedSpaces[canvasWidgetId] = [];
         // If this canvas widget has children
         if (canvasWidget.children && canvasWidget.children.length > 0) {

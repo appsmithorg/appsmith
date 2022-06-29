@@ -23,6 +23,7 @@ export const CONFIG = {
   features: {
     dynamicHeight: true,
   },
+  searchTags: ["dialog", "popup", "notification"],
   defaults: {
     rows: 24,
     columns: 24,

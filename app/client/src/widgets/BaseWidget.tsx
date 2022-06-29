@@ -48,6 +48,7 @@ import {
   isDynamicHeightWithLimitsEnabledForWidget,
 } from "./WidgetUtils";
 import DynamicHeightOverlay from "components/editorComponents/DynamicHeightOverlay";
+import log from "loglevel";
 
 /***
  * BaseWidget
@@ -181,7 +182,7 @@ abstract class BaseWidget<
     const { updateWidgetDynamicHeight } = this.context;
     if (updateWidgetDynamicHeight) {
       const { widgetId } = this.props;
-      console.log("updateDynamicHeight", height, shouldUpdate);
+      log.debug("updateDynamicHeight", height, shouldUpdate);
       shouldUpdate &&
         updateWidgetDynamicHeight(widgetId, height + WIDGET_PADDING * 2);
     }
@@ -239,22 +240,7 @@ abstract class BaseWidget<
   /* eslint-disable @typescript-eslint/no-unused-vars */
   componentDidUpdate(prevProps: T) {
     const expectedHeight = this.contentRef.current?.scrollHeight;
-    // if (expectedHeight !== undefined) {
-    //   if (
-    //     prevProps.type === "TEXT_WIDGET" ||
-    //     prevProps.type === "RATE_WIDGET" ||
-    //     prevProps.type === "CHECKBOX_WIDGET" ||
-    //     prevProps.type === "SWITCH_WIDGET"
-    //   ) {
-    //     this.updateDynamicHeight(expectedHeight + 8);
-    //   } else if (prevProps.type === "TABLE_WIDGET") {
-    //     this.updateDynamicHeight(expectedHeight + 80);
-    //   } else if (prevProps.type === "JSON_FORM_WIDGET") {
-    //     this.updateDynamicHeight(expectedHeight + 61);
-    //   } else {
     if (expectedHeight !== undefined) this.updateDynamicHeight(expectedHeight);
-    //   }
-    // }
   }
 
   componentDidMount(): void {}
@@ -316,11 +302,6 @@ abstract class BaseWidget<
     return (
       <ResizableComponent
         {...this.props}
-        disabledResizeHandles={
-          isDynamicHeightWithLimitsEnabledForWidget(this.props)
-            ? ["top", "bottom"]
-            : undefined
-        }
         paddingOffset={PositionedContainer.padding}
       >
         {content}

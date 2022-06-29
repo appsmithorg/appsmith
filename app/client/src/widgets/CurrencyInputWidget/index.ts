@@ -11,6 +11,7 @@ export const CONFIG = {
   name: "Currency Input",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["amount", "total"],
   defaults: {
     ...BaseConfig.defaults,
     widgetName: "CurrencyInput",

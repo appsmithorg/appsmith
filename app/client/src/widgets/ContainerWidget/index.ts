@@ -10,6 +10,7 @@ export const CONFIG = {
   features: {
     dynamicHeight: true,
   },
+  searchTags: ["div", "parent", "group"],
   defaults: {
     backgroundColor: "#FFFFFF",
     rows: 40,

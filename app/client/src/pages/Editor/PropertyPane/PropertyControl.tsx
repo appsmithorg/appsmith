@@ -41,10 +41,12 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { Tooltip } from "components/ads";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
+import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -211,10 +213,17 @@ const PropertyControl = memo((props: Props) => {
     }
     if (propertiesToUpdate) {
       const allUpdates: Record<string, unknown> = {};
+      // TODO(abhinav): DEBUG: Ask Rahul and Ashok, if this causes issues anywhere else.
+
+      // We add the current updated first, so that the updatehooks can override the value
+      // This is needed for transformations in some cases. For example,
+      // the INPUT_TEXT control uses string as default, we can convert this into a number
+      // by calling an updateHook which runs the parseInt over this value.
+      allUpdates[propertyName] = propertyValue;
       propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
         allUpdates[propertyPath] = propertyValue;
       });
-      allUpdates[propertyName] = propertyValue;
+
       AppsmithConsole.info({
         logType: LOG_TYPE.WIDGET_UPDATE,
         text: "Widget properties were updated",
@@ -252,6 +261,7 @@ const PropertyControl = memo((props: Props) => {
           [propertyName]: propertyValue,
         },
       });
+
       return {
         widgetId: widgetProperties.widgetId,
         updates: {
@@ -475,6 +485,27 @@ const PropertyControl = memo((props: Props) => {
     };
 
     const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);
+    const canDisplayValueInUI = PropertyControlFactory.controlUIToggleValidation.get(
+      config.controlType,
+    );
+
+    let isToggleDisabled = false;
+    if (
+      isDynamic && // JS mode is enabled
+      propertyValue !== "" && // value is not empty
+      !canDisplayValueInUI?.(config, propertyValue) // value can't be represented in UI mode
+    ) {
+      isToggleDisabled = true;
+    }
+
+    // Checks if the value is same as the one defined in theme stylesheet.
+    if (
+      typeof propertyStylesheetValue === "string" &&
+      THEME_BINDING_REGEX.test(propertyStylesheetValue) &&
+      propertyStylesheetValue === propertyValue
+    ) {
+      isToggleDisabled = false;
+    }
 
     try {
       return (
@@ -496,15 +527,24 @@ const PropertyControl = memo((props: Props) => {
               tooltip={props.helpText}
             />
             {isConvertible && (
-              <JSToggleButton
-                active={isDynamic}
-                className={`focus:ring-2 t--js-toggle ${
-                  isDynamic ? "is-active" : ""
-                }`}
-                onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
+              <Tooltip
+                content={JS_TOGGLE_DISABLED_MESSAGE}
+                disabled={!isToggleDisabled}
+                hoverOpenDelay={200}
+                openOnTargetFocus={false}
+                position="auto"
               >
-                <ControlIcons.JS_TOGGLE />
-              </JSToggleButton>
+                <JSToggleButton
+                  active={isDynamic}
+                  className={`focus:ring-2 t--js-toggle ${
+                    isDynamic ? "is-active" : ""
+                  }`}
+                  disabled={isToggleDisabled}
+                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
+                >
+                  <ControlIcons.JS_TOGGLE />
+                </JSToggleButton>
+              </Tooltip>
             )}
             {isPropertyDeviatedFromTheme && (
               <>

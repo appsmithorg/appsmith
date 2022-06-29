@@ -291,12 +291,17 @@ export const ResizableComponent = memo(function ResizableComponent(
     [props.parentColumnSpace, props.parentRowSpace],
   );
 
+  const isVerticalResizeEnabled = useMemo(() => {
+    return !isDynamicHeightEnabledForWidget(props) && isEnabled;
+  }, [props, isDynamicHeightEnabledForWidget, isEnabled]);
+
   return (
     <Resizable
       allowResize={!isMultiSelectedWidget}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
-      enable={isEnabled}
+      enableHorizontalResize={isEnabled}
+      enableVerticalResize={isVerticalResizeEnabled}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
       handles={handles}

@@ -10,6 +10,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Text",
   iconSVG: IconSVG,
+  searchTags: ["typography", "paragraph"],
   defaults: {
     text: "Label",
     fontSize: DEFAULT_FONT_SIZE,

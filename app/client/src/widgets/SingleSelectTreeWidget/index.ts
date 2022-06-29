@@ -9,6 +9,7 @@ export const CONFIG = {
   },
   type: Widget.getWidgetType(),
   name: "TreeSelect",
+  searchTags: ["dropdown"],
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {

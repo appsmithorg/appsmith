@@ -498,6 +498,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         ref={this.contentRef}
+        renderMode={this.props.renderMode}
         value={filteredValue}
         widgetId={this.props.widgetId}
         width={componentWidth}

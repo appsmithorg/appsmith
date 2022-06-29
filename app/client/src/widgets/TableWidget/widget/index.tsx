@@ -34,7 +34,11 @@ import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 
 import { DynamicPath, getDynamicBindings } from "utils/DynamicBindingUtils";
-import { ReactTableFilter, OperatorTypes } from "../component/Constants";
+import {
+  ReactTableFilter,
+  OperatorTypes,
+  TABLE_SIZES,
+} from "../component/Constants";
 import { TableWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import { selectRowIndex, selectRowIndices } from "./utilities";
@@ -51,7 +55,11 @@ import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
-import { borderRadiusUtility, boxShadowMigration } from "widgets/WidgetUtils";
+import {
+  borderRadiusUtility,
+  boxShadowMigration,
+  isDynamicHeightEnabledForWidget,
+} from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
 
 const ReactTableComponent = lazy(() =>
@@ -728,6 +736,31 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         });
       }
     }
+
+    if (
+      this.props.serverSidePaginationEnabled &&
+      isDynamicHeightEnabledForWidget(this.props)
+    ) {
+      const isHeaderVisible =
+        this.props.isVisibleSearch ||
+        this.props.isVisibleFilters ||
+        this.props.isVisibleDownload ||
+        this.props.isVisiblePagination;
+      const tableSizes =
+        TABLE_SIZES[this.props.compactMode || CompactModeTypes.DEFAULT];
+
+      const bodyHeight = this.props.tableData.length * tableSizes.ROW_HEIGHT;
+      const tableHeaderHeight = isHeaderVisible
+        ? tableSizes.TABLE_HEADER_HEIGHT
+        : 0;
+      const columnHeaderHeight = tableSizes.COLUMN_HEADER_HEIGHT;
+
+      const expectedTableHeight =
+        bodyHeight + tableHeaderHeight + columnHeaderHeight;
+      const { componentHeight } = this.getComponentDimensions();
+      if (componentHeight !== expectedTableHeight)
+        this.updateDynamicHeight(expectedTableHeight);
+    }
   }
 
   updateSelectedRowIndex = () => {
@@ -855,7 +888,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
           }
           prevPageClick={this.handlePrevPageClick}
-          ref={this.contentRef}
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}
           selectAllRow={this.handleAllRowSelect}

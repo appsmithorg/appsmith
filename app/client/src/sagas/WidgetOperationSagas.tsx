@@ -1,6 +1,7 @@
 import {
   ReduxAction,
   ReduxActionErrorTypes,
+  ReduxActionType,
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -41,7 +42,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, isString, set } from "lodash";
+import _, { cloneDeep, isString, set, uniq } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import {
@@ -143,6 +144,7 @@ import { matchGeneratePagePath } from "constants/routes";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { generateDynamicHeightComputationTree } from "ce/actions/dynamicHeightActions";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -161,9 +163,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
 
     const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     let widget = { ...stateWidget };
-    const stateWidgets: {
-      [widgetId: string]: FlattenedWidgetProps;
-    } = yield select(getWidgets);
+    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const widgets = { ...stateWidgets };
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
@@ -440,9 +440,7 @@ export function* setWidgetDynamicPropertySaga(
 
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
   widget.dynamicBindingPathList = dynamicBindingPathList;
-  const stateWidgets: {
-    [widgetId: string]: FlattenedWidgetProps;
-  } = yield select(getWidgets);
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
 
   // Save the layout
@@ -528,6 +526,17 @@ export function getPropertiesToUpdate(
   };
 }
 
+export function* getIsContainerLikeWidget(widget: FlattenedWidgetProps) {
+  const children = widget.children;
+  if (Array.isArray(children) && children.length > 0) {
+    const firstChild: FlattenedWidgetProps = yield select(
+      getWidget,
+      children[0],
+    );
+    if (firstChild.type === "CANVAS_WIDGET") return true;
+  }
+  return false;
+}
 export function* getPropertiesUpdatedWidget(
   updatesObj: UpdateWidgetPropertyPayload,
 ) {
@@ -541,6 +550,8 @@ export function* getPropertiesUpdatedWidget(
   if (!stateWidget) return;
 
   let widget = cloneDeep(stateWidget);
+  const isContainerLikeWidget: boolean = yield getIsContainerLikeWidget(widget);
+  const actionsToDispatch: Array<ReduxActionType> = [];
   try {
     if (Object.keys(modify).length > 0) {
       const {
@@ -552,6 +563,18 @@ export function* getPropertiesUpdatedWidget(
       // We loop over all updates
       Object.entries(propertyUpdates).forEach(
         ([propertyPath, propertyValue]) => {
+          if (
+            ((propertyPath === "dynamicHeight" &&
+              (propertyValue === DynamicHeight.AUTO_HEIGHT ||
+                propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS)) ||
+              propertyPath === "minDynamicHeight" ||
+              propertyPath === "maxDynamicHeight") &&
+            isContainerLikeWidget
+          ) {
+            actionsToDispatch.push(
+              ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT,
+            );
+          }
           // since property paths could be nested, we use lodash set method
           widget = set(widget, propertyPath, propertyValue);
         },
@@ -571,7 +594,10 @@ export function* getPropertiesUpdatedWidget(
   // If there exists another spot in this workflow, where we are iterating over the dynamicTriggerPathList and dynamicBindingPathList, after
   // performing all updates to the widget, we can piggy back on that iteration to purge orphaned paths
   // I couldn't find it, so here it is.
-  return purgeOrphanedDynamicPaths(widget);
+  return {
+    updatedWidget: purgeOrphanedDynamicPaths(widget),
+    actionsToDispatch,
+  };
 }
 
 function* batchUpdateWidgetPropertySaga(
@@ -583,14 +609,15 @@ function* batchUpdateWidgetPropertySaga(
     // Handling the case where sometimes widget id is not passed through here
     return;
   }
-  const updatedWidget: WidgetProps = yield call(
-    getPropertiesUpdatedWidget,
-    action.payload,
-  );
-  const stateWidgets: {
-    [widgetId: string]: FlattenedWidgetProps;
-  } = yield select(getWidgets);
-  const widgets = { ...stateWidgets, [widgetId]: updatedWidget };
+  const updatedWidgetAndActionsToDispatch: {
+    updatedWidget: WidgetProps;
+    actionsToDispatch: ReduxActionType[];
+  } = yield call(getPropertiesUpdatedWidget, action.payload);
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widgets = {
+    ...stateWidgets,
+    [widgetId]: updatedWidgetAndActionsToDispatch.updatedWidget,
+  };
   log.debug(
     "Batch widget property update calculations took: ",
     performance.now() - start,
@@ -598,6 +625,14 @@ function* batchUpdateWidgetPropertySaga(
   );
   // Save the layout
   yield put(updateAndSaveLayout(widgets, undefined, shouldReplay));
+  const uniqueActions = uniq(
+    updatedWidgetAndActionsToDispatch.actionsToDispatch,
+  );
+  for (const actionType of uniqueActions) {
+    yield put({
+      type: actionType,
+    });
+  }
 }
 
 function* batchUpdateMultipleWidgetsPropertiesSaga(
@@ -605,19 +640,22 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
 ) {
   const start = performance.now();
   const { updatesArray } = action.payload;
-  const stateWidgets: {
-    [widgetId: string]: FlattenedWidgetProps;
-  } = yield select(getWidgets);
-  const updatedWidgets: WidgetProps[] = yield all(
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const updatedWidgetsAndActionsToDispatch: Array<{
+    updatedWidget: WidgetProps;
+    actionsToDispatch: ReduxActionType[];
+  }> = yield all(
     updatesArray.map((eachUpdate) => {
       return call(getPropertiesUpdatedWidget, eachUpdate);
     }),
   );
-  const updatedStateWidgets = updatedWidgets.reduce(
-    (allWidgets, eachUpdatedWidget) => {
+
+  const updatedStateWidgets = updatedWidgetsAndActionsToDispatch.reduce(
+    (allWidgets, eachUpdatedWidgetAndActionsToDispatch) => {
       return {
         ...allWidgets,
-        [eachUpdatedWidget.widgetId]: eachUpdatedWidget,
+        [eachUpdatedWidgetAndActionsToDispatch.updatedWidget.widgetId]:
+          eachUpdatedWidgetAndActionsToDispatch.updatedWidget,
       };
     },
     stateWidgets,
@@ -631,6 +669,14 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
 
   // Save the layout
   yield put(updateAndSaveLayout(updatedStateWidgets));
+  for (const updatedWidgetAndActions of updatedWidgetsAndActionsToDispatch) {
+    const uniqueActions = uniq(updatedWidgetAndActions.actionsToDispatch);
+    for (const actionType of uniqueActions) {
+      yield put({
+        type: actionType,
+      });
+    }
+  }
 }
 
 function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
@@ -762,7 +808,10 @@ function* createSelectedWidgetsCopy(selectedWidgets: FlattenedWidgetProps[]) {
     list: FlattenedWidgetProps[];
   }[] = yield all(selectedWidgets.map((each) => call(createWidgetCopy, each)));
 
-  return yield saveCopiedWidgets(JSON.stringify(widgetListsToStore));
+  const saveResult: boolean = yield saveCopiedWidgets(
+    JSON.stringify(widgetListsToStore),
+  );
+  return saveResult;
 }
 
 /**
@@ -799,7 +848,9 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
   const selectedWidgetProps = selectedWidgets.map((each) => allWidgets[each]);
 
-  const saveResult = yield createSelectedWidgetsCopy(selectedWidgetProps);
+  const saveResult: boolean = yield createSelectedWidgetsCopy(
+    selectedWidgetProps,
+  );
 
   selectedWidgetProps.forEach((each) => {
     const eventName = action.payload.isShortcut
@@ -1631,8 +1682,8 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
 
   const defaultConfig = WidgetFactory.widgetConfigMap.get(widgetConfig.type);
 
-  const evalTree = yield select(getDataTree);
-  const widgets = yield select(getWidgets);
+  const evalTree: DataTree = yield select(getDataTree);
+  const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
   const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree);
 
@@ -1714,12 +1765,14 @@ function* widgetBatchUpdatePropertySaga() {
    * batch update to be flushed out to the store before processing
    * the another batch update.
    */
-  const batchUpdateWidgetPropertyChannel = yield actionChannel(
+  const batchUpdateWidgetPropertyChannel: unknown = yield actionChannel(
     ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,
   );
 
   while (true) {
-    const action = yield take(batchUpdateWidgetPropertyChannel);
+    // @ts-expect-error: Type mismatch
+    const action: unknown = yield take(batchUpdateWidgetPropertyChannel);
+    // @ts-expect-error: Type mismatch
     yield call(batchUpdateWidgetPropertySaga, action);
   }
 }

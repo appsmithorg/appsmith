@@ -130,6 +130,7 @@ export type ModalComponentProps = {
   widgetName: string;
   backgroundColor: string;
   borderRadius: string;
+  isDynamicHeightEnabled: boolean;
 };
 
 /* eslint-disable react/display-name */
@@ -217,6 +218,10 @@ export default function ModalComponent(props: ModalComponentProps) {
     });
   };
 
+  const isVerticalResizeEnabled = useMemo(() => {
+    return !props.isDynamicHeightEnabled && enableResize;
+  }, [props.isDynamicHeightEnabled, enableResize]);
+
   const getResizableContent = () => {
     //id for Content is required for Copy Paste inside the modal
     return (
@@ -224,7 +229,8 @@ export default function ModalComponent(props: ModalComponentProps) {
         allowResize
         componentHeight={props.height || 0}
         componentWidth={props.width || 0}
-        enable={enableResize}
+        enableHorizontalResize={enableResize}
+        enableVerticalResize={isVerticalResizeEnabled}
         handles={handles}
         isColliding={() => false}
         onStart={onResizeStart}

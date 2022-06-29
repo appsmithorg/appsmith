@@ -11,6 +11,7 @@ export const CONFIG = {
   features: {
     dynamicHeight: true,
   },
+  searchTags: ["choice"],
   defaults: {
     rows: 8,
     columns: 20,

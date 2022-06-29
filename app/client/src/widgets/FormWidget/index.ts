@@ -12,6 +12,7 @@ export const CONFIG = {
   features: {
     dynamicHeight: true,
   },
+  searchTags: ["group"],
   defaults: {
     rows: 40,
     columns: 24,
