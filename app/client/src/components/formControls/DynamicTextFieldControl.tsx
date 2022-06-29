@@ -78,7 +78,7 @@ class DynamicTextControl extends BaseControl<
         : EditorModes.JSON_WITH_BINDING;
 
     return (
-      <Wrapper>
+      <Wrapper className={`t--${configProperty}`}>
         {showTemplate ? (
           <TemplateMenu
             createTemplate={(templateString) => {

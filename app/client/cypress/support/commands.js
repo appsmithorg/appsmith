@@ -506,6 +506,10 @@ Cypress.Commands.add("EvaluateCurrentValue", (currentValue) => {
     .click({ force: true })
     .then(($text) => {
       if ($text.text()) expect($text.text()).to.eq(currentValue);
+    })
+    .trigger("mouseout")
+    .then(() => {
+      cy.wait(2000);
     });
 });
 
@@ -1279,11 +1283,12 @@ Cypress.Commands.add(
   },
 );
 
+// the way we target form controls from now on has to change
+// we would be getting the form controls by their class names and not their xpaths.
+// the xpath method is flaky and highly subjected to change.
 Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
   if (fieldName) {
-    cy.xpath(
-      "//p[text()='" + fieldName + "']/parent::label/following-sibling::div",
-    ).then(($field) => {
+    cy.get(fieldName).then(($field) => {
       cy.updateCodeInput($field, valueToType);
     });
   } else {
@@ -1326,7 +1331,7 @@ Cypress.Commands.add(
     cy.xpath(
       "//div[text()='" +
         entityNameinLeftSidebar +
-        "']/ancestor::div[1]/following-sibling::div//div[contains(@class, 'entity-context-menu-icon')]",
+        "']/ancestor::div[2]/following-sibling::div//div[contains(@class, 'entity-context-menu-icon')]",
     )
       .last()
       .click({ force: true });
