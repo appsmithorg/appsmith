@@ -12,7 +12,7 @@ const isVisible = {
   "!doc": "Boolean value indicating if the widget is in visible state",
 };
 
-export const entityDefinitions: Record<string, unknown> = {
+export const entityDefinitions = {
   APPSMITH: (entity: DataTreeAppsmith) => {
     const generatedTypeDef = generateTypeDef(
       _.omit(entity, "ENTITY_TYPE", EVALUATION_PATH),
@@ -670,6 +670,11 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Stop executing a setInterval with id",
     "!type": "fn(id: string) -> void",
   },
+  postMessageToTargetWindow: {
+    "!doc":
+      "Establish cross-origin communication between Window objects/page and iframes",
+    "!type": "fn(message: unknown, targetOrigin: string)",
+  },
 };
 
 export const getPropsForJSActionEntity = ({
@@ -695,3 +700,5 @@ export const getPropsForJSActionEntity = ({
   }
   return properties;
 };
+
+export type EntityDefinitionsOptions = keyof typeof entityDefinitions;

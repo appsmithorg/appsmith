@@ -29,7 +29,7 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getWidgetChildren } from "./WidgetOperationUtils";
+import { getWidgetChildrenIds } from "./WidgetOperationUtils";
 import { AppState } from "reducers";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import WidgetFactory from "utils/WidgetFactory";
@@ -140,7 +140,7 @@ function* getAllSelectableChildren() {
     : false;
   if (selectGrandChildren) {
     allChildren = yield call(
-      getWidgetChildren,
+      getWidgetChildrenIds,
       canvasWidgets,
       lastSelectedWidget,
     );

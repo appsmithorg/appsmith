@@ -88,8 +88,7 @@ function accessorValidation(
   }
 
   const existingKeys = (Object.values(schema) || []).map(
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     (schemaItem) => schemaItem.name,
   );
 

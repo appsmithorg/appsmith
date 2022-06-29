@@ -67,7 +67,7 @@ import ScrollIndicator from "components/ads/ScrollIndicator";
 import DeployedKeyUI from "../components/DeployedKeyUI";
 import GitConnectError from "../components/GitConnectError";
 import Link from "../components/Link";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import Icon, { IconSize } from "components/ads/Icon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { isValidGitRemoteUrl } from "../utils";

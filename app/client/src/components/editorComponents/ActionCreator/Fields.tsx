@@ -232,6 +232,7 @@ export const ActionType = {
   getGeolocation: "appsmith.geolocation.getCurrentPosition",
   watchGeolocation: "appsmith.geolocation.watchPosition",
   stopWatchGeolocation: "appsmith.geolocation.clearWatch",
+  postMessage: "postMessageToTargetWindow",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
@@ -355,6 +356,8 @@ export enum FieldType {
   DELAY_FIELD = "DELAY_FIELD",
   ID_FIELD = "ID_FIELD",
   CLEAR_INTERVAL_ID_FIELD = "CLEAR_INTERVAL_ID_FIELD",
+  MESSAGE_FIELD = "MESSAGE_FIELD",
+  TARGET_ORIGIN_FIELD = "TARGET_ORIGIN_FIELD",
 }
 
 type FieldConfig = {
@@ -622,6 +625,24 @@ const fieldConfigs: FieldConfigs = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
+  [FieldType.MESSAGE_FIELD]: {
+    getter: (value: string) => {
+      return textGetter(value, 0);
+    },
+    setter: (value: string, currentValue: string) => {
+      return textSetter(value, currentValue, 0);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.TARGET_ORIGIN_FIELD]: {
+    getter: (value: string) => {
+      return textGetter(value, 1);
+    },
+    setter: (value: string, currentValue: string) => {
+      return textSetter(value, currentValue, 1);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
 };
 
 function renderField(props: {
@@ -793,6 +814,8 @@ function renderField(props: {
     case FieldType.DELAY_FIELD:
     case FieldType.ID_FIELD:
     case FieldType.CLEAR_INTERVAL_ID_FIELD:
+    case FieldType.MESSAGE_FIELD:
+    case FieldType.TARGET_ORIGIN_FIELD:
       let fieldLabel = "";
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
@@ -818,6 +841,10 @@ function renderField(props: {
         fieldLabel = "Id";
       } else if (fieldType === FieldType.CLEAR_INTERVAL_ID_FIELD) {
         fieldLabel = "Id";
+      } else if (fieldType === FieldType.MESSAGE_FIELD) {
+        fieldLabel = "Message";
+      } else if (fieldType === FieldType.TARGET_ORIGIN_FIELD) {
+        fieldLabel = "Target origin";
       }
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: fieldLabel,
