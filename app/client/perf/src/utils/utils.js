@@ -89,7 +89,8 @@ exports.saveProfile = async (reactProfiler, name) => {
 };
 
 exports.login = async (page) => {
-  const url = "https://dev.appsmith.com/user/login";
+  const url = "https://release.app.appsmith.com/user/login";
+  // const url = "https://dev.appsmith.com/user/login";
   // const url = "http://localhost/user/login";
 
   await page.goto(url);
