@@ -5,7 +5,7 @@ import {
   InlineEditingSaveOptions,
   TableWidgetProps,
 } from "../constants";
-import _, { get } from "lodash";
+import _, { get, isBoolean } from "lodash";
 import { Colors } from "constants/Colors";
 import {
   combineDynamicBindings,
@@ -215,6 +215,13 @@ export const updateColumnOrderHook = (
 
 const EDITABLITY_PATH_REGEX = /^primaryColumns\.(\w+)\.isEditable$/;
 
+function isMatchingEditablePath(propertyPath: string) {
+  return (
+    EDITABLITY_PATH_REGEX.test(propertyPath) ||
+    CELL_EDITABLITY_PATH_REGEX.test(propertyPath)
+  );
+}
+
 export const updateInlineEditingOptionDropdownVisibilityHook = (
   props: TableWidgetProps,
   propertyPath: string,
@@ -226,7 +233,7 @@ export const updateInlineEditingOptionDropdownVisibilityHook = (
     props &&
     !props.showInlineEditingOptionDropdown &&
     propertyValue &&
-    EDITABLITY_PATH_REGEX.test(propertyPath)
+    isMatchingEditablePath(propertyPath)
   ) {
     propertiesToUpdate.push({
       propertyPath: `showInlineEditingOptionDropdown`,
@@ -236,8 +243,9 @@ export const updateInlineEditingOptionDropdownVisibilityHook = (
 
   if (
     props &&
-    EDITABLITY_PATH_REGEX.test(propertyPath) &&
-    props.inlineEditingSaveOption === InlineEditingSaveOptions.ROW_LEVEL
+    isMatchingEditablePath(propertyPath) &&
+    props.inlineEditingSaveOption === InlineEditingSaveOptions.ROW_LEVEL &&
+    isBoolean(propertyValue)
   ) {
     if (propertyValue) {
       const editActionsColumn = Object.values(props.primaryColumns).find(
@@ -251,7 +259,8 @@ export const updateInlineEditingOptionDropdownVisibilityHook = (
         ];
       }
     } else {
-      const columnIdMatcher = propertyPath.match(EDITABLITY_PATH_REGEX);
+      const regex = /^primaryColumns\.(\w+)\.(\w+)$/;
+      const columnIdMatcher = propertyPath.match(regex);
       const columnId = columnIdMatcher && columnIdMatcher[1];
       const isAtleastOneColumnEditablePresent = Object.values(
         props.primaryColumns,
@@ -292,7 +301,11 @@ export const updateColumnLevelEditability = (
   propertyPath: string,
   propertyValue: any,
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  if (props && propertyValue && CELL_EDITABLITY_PATH_REGEX.test(propertyPath)) {
+  if (
+    props &&
+    CELL_EDITABLITY_PATH_REGEX.test(propertyPath) &&
+    isBoolean(propertyValue)
+  ) {
     const match = CELL_EDITABLITY_PATH_REGEX.exec(propertyPath) || [];
     const columnIdHash = match[1];
 
