@@ -1038,4 +1038,27 @@ public class DatabaseChangelog2 {
             AggregationUpdate.update().set("publishedAction.datasource.workspaceId").toValueOf(Fields.field("publishedAction.datasource.organizationId")),
             NewAction.class);
     }
+
+    @ChangeSet(order = "20", id = "add-anonymousUser", author = "")
+    public void addAnonymousUser(MongockTemplate mongockTemplate) {
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant tenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+
+        Query userQuery = new Query();
+        userQuery.addCriteria(where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER))
+                .addCriteria(where(fieldName(QUser.user.tenantId)).is(tenant.getId()));
+        User anonymousUser = mongockTemplate.findOne(userQuery, User.class);
+
+        if (anonymousUser != null) {
+            anonymousUser = new User();
+            anonymousUser.setName(FieldName.ANONYMOUS_USER);
+            anonymousUser.setEmail(FieldName.ANONYMOUS_USER);
+            anonymousUser.setCurrentWorkspaceId("");
+            anonymousUser.setWorkspaceIds(new HashSet<>());
+            anonymousUser.setIsAnonymous(true);
+
+            mongockTemplate.save(anonymousUser);
+        }
+    }
 }
