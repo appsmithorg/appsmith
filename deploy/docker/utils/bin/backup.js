@@ -7,7 +7,7 @@ const shell = require('shelljs');
 const utils = require('./utils');
 const Constants = require('./constants');
 const logger = require('./logger');
-const mailer = require('./mailer')
+const mailer = require('./mailer');
 
 const command_args = process.argv.slice(3);
  
@@ -24,15 +24,15 @@ async function run() {
       }
     });
 
-      utils.stop(['backend', 'rts']);
+    utils.stop(['backend', 'rts']);
 
-      console.log('Available free space at /appsmith-stacks')
-      const availSpaceInBytes =  Number(shell.exec('df --output=avail -B 1 /appsmith-stacks | tail -n 1'))
-      console.log('\n')
+    console.log('Available free space at /appsmith-stacks');
+    const availSpaceInBytes =  Number(shell.exec('df --output=avail -B 1 /appsmith-stacks | tail -n 1'));
+    console.log('\n');
 
-      if (availSpaceInBytes < Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES){
-        throw new Error('Not enough space avaliable at /appsmith-stacks. Please ensure availability of atleast 5GB to backup successfully.')
-      }
+    if (availSpaceInBytes < Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES){
+      throw new Error('Not enough space avaliable at /appsmith-stacks. Please ensure availability of atleast 5GB to backup successfully.');
+    }
 
     const backupRootPath = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'appsmithctl-backup-'));
     const backupContentsPath = backupRootPath + '/appsmith-backup-' + timestamp;
@@ -63,8 +63,8 @@ async function run() {
       await mailer.sendBackupErrorToAdmins(err, timestamp);
     }   
   } finally {
-      utils.start(['backend', 'rts']);
-      process.exit(errorCode);
+    utils.start(['backend', 'rts']);
+    process.exit(errorCode);
 
   }
 }
