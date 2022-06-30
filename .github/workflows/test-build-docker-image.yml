@@ -422,6 +422,8 @@ jobs:
         shell: bash
     strategy:
       fail-fast: false
+      matrix:
+        job: [0, 1,]
 
     # Service containers to run with this job. Required for running tests
     services:
