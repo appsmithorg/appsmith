@@ -54,7 +54,7 @@ describe("storeValue Action test", () => {
 
     deployMode.DeployApp();
     agHelper.ClickButton("StoreTest");
-    agHelper.ValidateToastMessage(
+    agHelper.WaitUntilToastDisappear(
       JSON.stringify({
         val1: "number 1",
         val2: "number 2",
@@ -129,8 +129,8 @@ describe("storeValue Action test", () => {
     agHelper.ClickButton("StorePathTest");
     agHelper.ValidateToastMessage(JSON.stringify(DEFAULT_STUDENT_OBJECT), 0, 1);
     agHelper.ValidateToastMessage(DEFAULT_STUDENT_OBJECT.details.name, 1, 2);
-    agHelper.ValidateToastMessage("Annah", 2, 3);
-    agHelper.WaitUntilToastDisappear("Annah");
+    agHelper.WaitUntilToastDisappear("Annah", 2, 3);
+
     agHelper.ClickButton("modifyStorePathTest");
     agHelper.ValidateToastMessage(
       JSON.stringify(MODIFIED_STUDENT_OBJECT.details),
@@ -142,7 +142,7 @@ describe("storeValue Action test", () => {
       1,
       2,
     );
-    agHelper.ValidateToastMessage(`true`, 2, 3);
+    agHelper.WaitUntilToastDisappear(`true`, 2, 3);
     deployMode.NavigateBacktoEditor();
   });
 
@@ -193,8 +193,8 @@ describe("storeValue Action test", () => {
     agHelper.ClickButton("SetStore");
     agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT), 0, 1);
     agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT.two), 1, 2);
-    agHelper.ValidateToastMessage(`{"b":2}`, 2, 3);
-    agHelper.WaitUntilToastDisappear(`{"b":2}`);
+    agHelper.WaitUntilToastDisappear(`{"b":2}`, 2, 3);
+
     agHelper.ClickButton("ShowStore");
     agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT), 0);
     deployMode.NavigateBacktoEditor();

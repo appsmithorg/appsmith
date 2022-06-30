@@ -139,8 +139,8 @@ export class AggregateHelper {
     });
   }
 
-  public WaitUntilToastDisappear(msgToCheckforDisappearance: string | "") {
-    this.ValidateToastMessage(msgToCheckforDisappearance);
+  public WaitUntilToastDisappear(msgToCheckforDisappearance: string | "", index = 0 , length = 1) {
+    this.ValidateToastMessage(msgToCheckforDisappearance, index, length);
     cy.waitUntil(() => cy.get(this.locator._toastMsg), {
       errorMsg: msgToCheckforDisappearance + " did not disappear",
       timeout: 5000,

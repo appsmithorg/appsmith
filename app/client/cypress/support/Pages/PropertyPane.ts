@@ -71,7 +71,7 @@ export class PropertyPane {
   public ChangeTheme(newTheme: string) {
     this.agHelper.GetNClick(this._changeThemeBtn, 0, true);
     this.agHelper.GetNClick(this._themeCard(newTheme));
-    this.agHelper.ValidateToastMessage("Theme " + newTheme + " Applied");
+    this.agHelper.WaitUntilToastDisappear("Theme " + newTheme + " Applied");
   }
 
   public ChangeColor(
