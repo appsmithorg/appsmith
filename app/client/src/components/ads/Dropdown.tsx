@@ -17,7 +17,7 @@ import Spinner from "./Spinner";
 import { ReactComponent as Check } from "assets/icons/control/checkmark.svg";
 import { ReactComponent as Close } from "assets/icons/control/remove.svg";
 import { replayHighlightClass } from "globalStyles/portals";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
 import SegmentHeader from "components/ads/ListSegmentHeader";
 import { useTheme } from "styled-components";
@@ -582,7 +582,7 @@ function TooltipWrappedText(
       boundary="window"
       content={label}
       disabled={!isEllipsisActive(targetRef.current)}
-      position={Position.TOP}
+      position="top"
     >
       <StyledText ref={targetRef} {...textProps}>
         {label}
