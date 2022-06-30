@@ -152,6 +152,8 @@ async function run() {
         await restoreDatabase(restoreContentsPath);
         await restoreDockerEnvFile(restoreContentsPath, backupName);
         await restoreGitStorageArchive(restoreContentsPath, backupName);
+        console.log('Appsmith instance successfully restored.');
+        await fsPromises.rm(restoreRootPath, {recursive: true, force: true});
       }
     } catch (err) {
       console.log(err);
