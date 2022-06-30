@@ -5,7 +5,6 @@ import UserApi from "@appsmith/api/UserApi";
 
 import { AppsmithNotification, NotificationTypes } from "entities/Notification";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { useCommentThreadURL } from "comments/utils";
 import {
   markNotificationAsReadRequest,
   setIsNotificationsListVisible,
