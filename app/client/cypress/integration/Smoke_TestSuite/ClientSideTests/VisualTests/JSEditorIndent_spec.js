@@ -10,16 +10,20 @@ describe("JSEditor Indendation - Visual tests", () => {
 
   it("1. JSEditor validation for Prettify Code with lint errors, triggered by menu option", () => {
     jsEditor.CreateJSObject(
-      `let allFuncs = [Genderize.run({ country: 'India' }),
-    RandomUser.run(),
-    GetAnime.run({ name: 'Gintama' }),
-    InspiringQuotes.run(),
-    Agify.run({ person: 'Scripty' }),
-    Christmas.run()
-    ]
-    showAlert("Running all api's", "warning");
-    return Promise.all(allFuncs).then(() =>
-    showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Please check your api's again", "error")); `,
+      `export default {
+myVar1: [], myVar2: {},myFun1: () => {
+let allFuncs = [
+Genderize.run({ country: 'India' }),
+RandomUser.run(),
+GetAnime.run({ name: 'Gintama' }),
+InspiringQuotes.run(),
+Agify.run({ person: 'Scripty' }),
+Christmas.run()
+]
+showAlert("Running all api's", "warning");
+return Promise.all(allFuncs).then(() => showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Please check your api's again", "error")); },myFun2: async () => {
+//use async-await or promises}
+}`,
       {
         paste: true,
         completeReplace: true,
@@ -45,7 +49,11 @@ describe("JSEditor Indendation - Visual tests", () => {
 
   it("2. JSEditor validation for Prettify Code with no errors, triggered by menu option", () => {
     jsEditor.CreateJSObject(
-      `console.log("hi");
+      `export default {
+myVar1: [],
+myVar2: {},
+myFun1: () => {
+console.log("hi");
 console.log("hidchjvxz sd,bcjmsd");
 let sum = 0;
 for (let i = 1; i<5; i++) {
@@ -67,9 +75,13 @@ function hi(a,b) {
 console.log(a,b);
 }
 hi(1,2);
-`,
+},
+myFun2: async () => {
+//use async-await or promises
+}
+}`,
       {
-        paste: false,
+        paste: true,
         completeReplace: false,
         toRun: false,
         shouldCreateNewJSObj: true,
@@ -89,20 +101,40 @@ hi(1,2);
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
     cy.get("div.CodeMirror").click();
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
+
+    // click run button and take a snap to make sure prettify did not revert
+    cy.contains("Run")
+      .click({ force: true })
+      .wait(3000); // allow time to run
+    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
+
+    // click dropdown to change function and make sure prettify has not reverted
+    cy.get("[data-cy='function-select-dropdown']")
+      .first()
+      .click({ force: true });
+    cy.contains("myFun2").trigger("click");
+    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
   });
 
   it("3. JSEditor validation for Prettify Code with lint errors, triggered by keyboard shortcut", () => {
     jsEditor.CreateJSObject(
-      `let allFuncs = [Genderize.run({ country: 'India' }),
-    RandomUser.run(),
-    GetAnime.run({ name: 'Gintama' }),
-    InspiringQuotes.run(),
-    Agify.run({ person: 'Scripty' }),
-    Christmas.run()
-    ]
-    showAlert("Running all api's", "warning");
-    return Promise.all(allFuncs).then(() =>
-    showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Please check your api's again", "error")); `,
+      `export default {
+myVar1: [],
+myVar2: {},
+myFun1: () => {
+let allFuncs = [
+Genderize.run({ country: 'India' }),
+RandomUser.run(),
+GetAnime.run({ name: 'Gintama' }),
+InspiringQuotes.run(),
+Agify.run({ person: 'Scripty' }),
+Christmas.run()
+]
+showAlert("Running all api's", "warning");
+return Promise.all(allFuncs).then(() => showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Please check your api's again", "error")); },
+myFun2: async () => {
+//use async-await or promises}
+}`,
       {
         paste: true,
         completeReplace: true,
@@ -123,7 +155,11 @@ hi(1,2);
 
   it("4. JSEditor validation for Prettify Code with no errors, triggered by keyboard shortcut", () => {
     jsEditor.CreateJSObject(
-      `console.log("hi");
+      `export default {
+myVar1: [],
+myVar2: {},
+myFun1: () => {
+console.log("hi");
 console.log("hidchjvxz sd,bcjmsd");
 let sum = 0;
 for (let i = 1; i<5; i++) {
@@ -145,9 +181,13 @@ function hi(a,b) {
 console.log(a,b);
 }
 hi(1,2);
-`,
+},
+myFun2: async () => {
+//use async-await or promises
+}
+}`,
       {
-        paste: false,
+        paste: true,
         completeReplace: false,
         toRun: false,
         shouldCreateNewJSObj: true,
@@ -161,6 +201,20 @@ hi(1,2);
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
     cy.get("div.CodeMirror").click();
+    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4");
+
+    // click run button and take a snap to make sure prettify did not revert
+    cy.contains("Run")
+      .click({ force: true })
+      .wait(3000); // allow time to run
+    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4");
+
+    // click dropdown to change function and make sure prettify has not reverted
+    // click dropdown to change function and make sure prettify has not reverted
+    cy.get("[data-cy='function-select-dropdown']")
+      .first()
+      .click({ force: true });
+    cy.contains("myFun2").trigger("click");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4");
   });
 
