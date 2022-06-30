@@ -37,7 +37,7 @@ import {
   isExploringSelector,
 } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
-import { generateDynamicHeightComputationTree } from "ce/actions/dynamicHeightActions";
+import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {

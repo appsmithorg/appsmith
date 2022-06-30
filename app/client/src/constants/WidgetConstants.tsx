@@ -86,6 +86,8 @@ export const WidgetHeightLimits = {
   MIN_HEIGHT_IN_ROWS: 4,
 };
 
+export const CANVAS_MIN_HEIGHT = 380;
+
 // Note: Widget Padding + Container Padding === DEFAULT_GRID_ROW_HEIGHT to gracefully lose one row when a container is used,
 // which wud allow the user to place elements centered inside a container(columns are rendered proportionally so it take cares of itself).
 
