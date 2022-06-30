@@ -88,6 +88,7 @@ async function restoreDockerEnvFile(restoreContentsPath, backupName){
 
   console.log('Restoring docker environment file completed');
 }
+
 async function restoreGitStorageArchive(restoreContentsPath, backupName){
   console.log('Restoring git-storage archive');
   // TODO: Consider APPSMITH_GIT_ROOT env for later iterations
@@ -97,6 +98,7 @@ async function restoreGitStorageArchive(restoreContentsPath, backupName){
   console.log('Restoring git-storage archive completed');
 
 }
+
 async function checkRestoreVersionCompatability(restoreContentsPath){
   const content = await fsPromises.readFile('/opt/appsmith/rts/version.js', {encoding: 'utf8'});
   const currentVersion = content.match(/\bexports\.VERSION\s*=\s*["']([^"]+)["']/)[1];
