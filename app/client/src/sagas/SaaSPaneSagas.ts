@@ -11,8 +11,12 @@ import { Plugin } from "api/PluginApi";
 import { saasEditorApiIdURL, saasEditorDatasourceIdURL } from "RouteBuilder";
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
-  const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
+  const plugin: Plugin | undefined = yield select(
+    getPlugin,
+    actionPayload.payload.pluginId,
+  );
   // Only look at SAAS plugins
+  if (!plugin) return;
   if (plugin.type !== PluginType.SAAS) return;
 
   history.push(
@@ -26,8 +30,9 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const { id, pluginId } = actionPayload.payload;
-  const plugin: Plugin = yield select(getPlugin, pluginId);
+  const plugin: Plugin | undefined = yield select(getPlugin, pluginId);
 
+  if (!plugin) return;
   if (plugin.type !== "SAAS") return;
   history.push(
     saasEditorApiIdURL({

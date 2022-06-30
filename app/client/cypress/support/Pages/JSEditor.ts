@@ -81,6 +81,7 @@ export class JSEditor {
   _getJSFunctionSettingsId = (JSFunctionName: string) =>
     `${JSFunctionName}-settings`;
   _asyncJSFunctionSettings = `.t--async-js-function-settings`;
+  _debugCTA = `button.js-editor-debug-cta`;
   //#endregion
 
   //#region constants
@@ -309,7 +310,7 @@ export class JSEditor {
       .then((text) => cy.wrap(text).as("jsObjName"));
   }
 
-  public validateDefaultJSObjProperties(jsObjName: string) {
+  public ValidateDefaultJSObjProperties(jsObjName: string) {
     this.ee.ActionContextMenuByEntityName(jsObjName, "Show Bindings");
     cy.get(this._propertyList).then(function($lis) {
       const bindingsLength = $lis.length;

@@ -2,9 +2,9 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.services.CrudService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

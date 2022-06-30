@@ -17,24 +17,24 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
 
-  public saveLocalStorageCache() {
+  public SaveLocalStorageCache() {
     Object.keys(localStorage).forEach((key) => {
       LOCAL_STORAGE_MEMORY[key] = localStorage[key];
     });
   }
 
-  public restoreLocalStorageCache() {
+  public RestoreLocalStorageCache() {
     Object.keys(LOCAL_STORAGE_MEMORY).forEach((key) => {
       localStorage.setItem(key, LOCAL_STORAGE_MEMORY[key]);
     });
   }
 
-  public clearLocalStorageCache() {
+  public ClearLocalStorageCache() {
     localStorage.clear();
     LOCAL_STORAGE_MEMORY = {};
   }
 
-  public TypeTab(shiftKey: boolean = false, ctrlKey: boolean = false) {
+  public TypeTab(shiftKey = false, ctrlKey = false) {
     cy.focused().trigger("keydown", {
       keyCode: 9,
       which: 9,
@@ -47,7 +47,6 @@ export class AggregateHelper {
     dsl: string,
     elementToCheckPresenceaftDslLoad: string | "" = "",
   ) {
-    let currentURL;
     let pageid: string;
     let layoutId;
     cy.url().then((url) => {
@@ -86,14 +85,15 @@ export class AggregateHelper {
   }
 
   public RenameWithInPane(renameVal: string, query = true) {
-    let name = query ? this.locator._queryName : this.locator._dsName;
-    let text = query ? this.locator._queryNameTxt : this.locator._dsNameTxt;
+    const name = query ? this.locator._queryName : this.locator._dsName;
+    const text = query ? this.locator._queryNameTxt : this.locator._dsNameTxt;
     cy.get(name).click({ force: true });
     cy.get(text)
       .clear({ force: true })
       .type(renameVal, { force: true })
       .should("have.value", renameVal)
       .blur();
+    this.Sleep();
   }
 
   public AssertAutoSave() {
@@ -220,47 +220,52 @@ export class AggregateHelper {
     );
   }
 
-  public SelectPropertiesDropDown(endp: string, ddOption: string) {
-    cy.xpath(this.locator._selectPropDropdown(endp))
+  public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
+    cy.xpath(this.locator._selectPropDropdown(endpoint))
       .first()
       .scrollIntoView()
       .click();
-    cy.get(this.locator._dropDownValue(ddOption)).click();
+    cy.get(this.locator._dropDownValue(dropdownOption)).click();
   }
 
-  public SelectDropDown(ddOption: string, endp: string = "selectwidget") {
-    let mode = window.localStorage.getItem("inDeployedMode");
+  public SelectDropDown(dropdownOption: string, endpoint = "selectwidget") {
+    const mode = window.localStorage.getItem("inDeployedMode");
     if (mode == "false") {
-      cy.xpath(this.locator._selectWidgetDropdown(endp))
+      cy.xpath(this.locator._selectWidgetDropdown(endpoint))
         .first()
         .scrollIntoView()
         .click();
     } else {
-      cy.xpath(this.locator._selectWidgetDropdownInDeployed(endp))
+      cy.xpath(this.locator._selectWidgetDropdownInDeployed(endpoint))
         .first()
         .scrollIntoView()
         .click();
     }
-    if (endp == "selectwidget")
-      cy.get(this.locator._selectOptionValue(ddOption)).click({ force: true });
-    else cy.get(this.locator._dropDownValue(ddOption)).click({ force: true });
+    if (endpoint == "selectwidget")
+      cy.get(this.locator._selectOptionValue(dropdownOption)).click({
+        force: true,
+      });
+    else
+      cy.get(this.locator._dropDownValue(dropdownOption)).click({
+        force: true,
+      });
 
     this.Sleep(); //for selected value to reflect!
   }
 
   public SelectFromDropDown(
-    ddOption: string,
-    insideParent: string = "",
+    dropdownOption: string,
+    insideParent = "",
     index = 0,
-    endp: string = "dropdownwidget",
+    endpoint = "dropdownwidget",
   ) {
-    let mode = window.localStorage.getItem("inDeployedMode");
+    const mode = window.localStorage.getItem("inDeployedMode");
     //cy.log("mode frm deployed is:" + mode)
-    let modeSelector =
+    const modeSelector =
       mode == "true"
-        ? this.locator._selectWidgetDropdownInDeployed(endp)
-        : this.locator._selectWidgetDropdown(endp);
-    let finalSelector = insideParent
+        ? this.locator._selectWidgetDropdownInDeployed(endpoint)
+        : this.locator._selectWidgetDropdown(endpoint);
+    const finalSelector = insideParent
       ? this.locator._divWithClass(insideParent) + modeSelector
       : modeSelector;
     cy.log(finalSelector);
@@ -268,14 +273,14 @@ export class AggregateHelper {
       .eq(index)
       .scrollIntoView()
       .click();
-    cy.get(this.locator._dropDownValue(ddOption)).click({ force: true });
+    cy.get(this.locator._dropDownValue(dropdownOption)).click({ force: true });
     this.Sleep(); //for selected value to reflect!
   }
 
-  public SelectDropdownList(ddName: string, ddOption: string) {
+  public SelectDropdownList(ddName: string, dropdownOption: string) {
     this.GetNClick(this.locator._existingFieldTextByName(ddName));
     cy.get(this.locator._dropdownText)
-      .contains(ddOption)
+      .contains(dropdownOption)
       .click();
   }
 
@@ -283,12 +288,24 @@ export class AggregateHelper {
     options: string[],
     index = 0,
     check = true,
-    endp: string = "multiselectwidgetv2",
+    endpoint = "multiselectwidgetv2",
   ) {
-    cy.get(this.locator._widgetInDeployed(endp) + " div.rc-select-selector")
+    cy.get(this.locator._widgetInDeployed(endpoint) + " div.rc-select-selector")
       .eq(index)
       .scrollIntoView()
-      .click();
+      .then(($element: any) => {
+        // here, we try to click on downArrow in dropdown of multiSelect.
+        // the position is calculated from top left of the element
+        const dropdownCenterPosition = +$element.height / 2;
+        const dropdownArrowApproxPosition = +$element.width - 10;
+        cy.get($element).click(
+          dropdownArrowApproxPosition,
+          dropdownCenterPosition,
+          {
+            force: true,
+          },
+        );
+      });
 
     if (check) {
       options.forEach(($each) => {
@@ -308,7 +325,7 @@ export class AggregateHelper {
 
     // //closing multiselect dropdown
     cy.get("body").type("{esc}");
-    // cy.get(this.locator._widgetInDeployed(endp))
+    // cy.get(this.locator._widgetInDeployed(endpoint))
     //     .eq(index)
     //     .click()
   }
@@ -364,14 +381,19 @@ export class AggregateHelper {
     });
   }
 
-  public GetNClick(selector: string, index = 0, force = false) {
-    let locator = selector.startsWith("//")
+  public GetNClick(
+    selector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+  ) {
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator
       .eq(index)
       .click({ force: force })
-      .wait(500);
+      .wait(waitTimeInterval);
   }
 
   public GetNClickByContains(
@@ -387,7 +409,7 @@ export class AggregateHelper {
   }
 
   public CheckUncheck(selector: string, check = true) {
-    let locator = selector.startsWith("//")
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     if (check) {
@@ -417,6 +439,26 @@ export class AggregateHelper {
     }
   }
 
+  public ToggleSwitch(
+    switchName: string,
+    toggle: "check" | "uncheck" = "check",
+  ) {
+    const locator = cy.xpath(this.locator._switchToggle(switchName));
+    const parentLoc = locator.parent("label");
+    if (toggle == "check")
+      parentLoc.then(($parent) => {
+        if (!$parent.hasClass("t--switch-widget-active")) {
+          locator.click();
+        }
+      });
+    else
+      parentLoc.then(($parent) => {
+        if (!$parent.hasClass("t--switch-widget-inactive")) {
+          locator.click();
+        }
+      });
+  }
+
   // public NavigateBacktoEditor() {
   //   cy.get(this.locator._backToEditor).click();
   //   this.Sleep(2000);
@@ -435,7 +477,7 @@ export class AggregateHelper {
   }
 
   public GetElementLength(selector: string) {
-    let locator = selector.startsWith("//")
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator.its("length");
@@ -485,7 +527,7 @@ export class AggregateHelper {
     valueToEnter: string,
     options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
   ) {
-    const { propFieldName, directInput, inputFieldName } = options;
+    const { directInput, inputFieldName, propFieldName } = options;
 
     if (propFieldName && !directInput && !inputFieldName) {
       cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
@@ -511,16 +553,20 @@ export class AggregateHelper {
     this.AssertAutoSave();
   }
 
-  public EnterInputText(name: string, input: string, toClear = false, isInput = true) {
-    toClear && this.ClearInputText(name)
+  public EnterInputText(
+    name: string,
+    input: string,
+    toClear = false,
+    isInput = true,
+  ) {
+    toClear && this.ClearInputText(name);
     cy.xpath(this.locator._inputWidgetValueField(name, isInput))
-      .click()
+      .trigger("click")
       .type(input);
   }
 
   public ClearInputText(name: string, isInput = true) {
-    cy.xpath(this.locator._inputWidgetValueField(name, isInput))
-      .clear();
+    cy.xpath(this.locator._inputWidgetValueField(name, isInput)).clear();
   }
 
   public UpdateCodeInput(selector: string, value: string) {
@@ -603,7 +649,7 @@ export class AggregateHelper {
 
   public AssertElementAbsence(selector: string) {
     //Should not exists - cannot take indexes
-    let locator = selector.startsWith("//")
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector, { timeout: 0 })
       : cy.get(selector, { timeout: 0 });
     locator.should("not.exist");
@@ -614,14 +660,14 @@ export class AggregateHelper {
     textOrValue: "text" | "val" = "text",
     index = 0,
   ) {
-    let locator = selector.startsWith("//")
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator.eq(index).invoke(textOrValue);
   }
 
   public AssertElementVisible(selector: string, index = 0) {
-    let locator = selector.startsWith("//")
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     locator
@@ -631,7 +677,7 @@ export class AggregateHelper {
   }
 
   public AssertElementExist(selector: string, index = 0) {
-    let locator = selector.startsWith("//")
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     locator.eq(index).should("exist");
@@ -642,7 +688,7 @@ export class AggregateHelper {
     length: number,
     index: number | null = null,
   ) {
-    let locator = selector.startsWith("//")
+    const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     if (index) locator.eq(index).should("have.length", length);

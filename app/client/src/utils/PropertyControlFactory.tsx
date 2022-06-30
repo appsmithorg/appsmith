@@ -12,14 +12,20 @@ class PropertyControlFactory {
     ControlType,
     typeof BaseControl.canDisplayValueInUI
   > = new Map();
+  static inputComputedValueMap: Map<
+    ControlType,
+    typeof BaseControl.getInputComputedValue
+  > = new Map();
 
   static registerControlBuilder(
     controlType: ControlType,
     controlBuilder: ControlBuilder<ControlProps>,
     validationFn: typeof BaseControl.canDisplayValueInUI,
+    inputComputedValueFn: typeof BaseControl.getInputComputedValue,
   ) {
     this.controlMap.set(controlType, controlBuilder);
     this.controlUIToggleValidation.set(controlType, validationFn);
+    this.inputComputedValueMap.set(controlType, inputComputedValueFn);
   }
 
   static createControl(

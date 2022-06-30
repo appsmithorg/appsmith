@@ -1,5 +1,6 @@
 import {
   actionChannel,
+  ActionPattern,
   all,
   call,
   delay,
@@ -26,6 +27,7 @@ import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
+  EvalError,
   EVAL_WORKER_ACTIONS,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
@@ -45,6 +47,7 @@ import {
 } from "actions/evaluationActions";
 import {
   evalErrorHandler,
+  handleJSFunctionExecutionErrorLog,
   logSuccessfulBindings,
   postEvalActionDispatcher,
   updateTernDefinitions,
@@ -92,24 +95,43 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
 import { JSUpdate } from "utils/JSPaneUtils";
 import { DataTreeDiff } from "workers/evaluationUtils";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { AppTheme } from "entities/AppTheming";
+import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 const worker = new GracefulWorkerService(Worker);
 
+export type EvalTreePayload = {
+  dataTree: DataTree;
+  dependencies: Record<string, string[]>;
+  errors: EvalError[];
+  evalMetaUpdates: EvalMetaUpdates;
+  evaluationOrder: string[];
+  jsUpdates: Record<string, JSUpdate>;
+  logs: any[];
+  unEvalUpdates: DataTreeDiff[];
+  isCreateFirstTree: boolean;
+};
+
 function* evaluateTreeSaga(
   postEvalActions?: Array<AnyReduxAction>,
   shouldReplay?: boolean,
 ) {
-  const allActionValidationConfig = yield select(getAllActionValidationConfig);
-  const unevalTree = yield select(getUnevaluatedDataTree);
-  const widgets = yield select(getWidgets);
-  const theme = yield select(getSelectedAppTheme);
+  const allActionValidationConfig: {
+    [actionId: string]: ActionValidationConfigMap;
+  } = yield select(getAllActionValidationConfig);
+  const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
+  const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const theme: AppTheme = yield select(getSelectedAppTheme);
 
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
+
+  // @ts-expect-error: Worker Response is unknown
   const workerResponse = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,
@@ -132,23 +154,15 @@ function* evaluateTreeSaga(
     jsUpdates,
     logs,
     unEvalUpdates,
-  }: {
-    dataTree: DataTree;
-    dependencies: Record<string, string[]>;
-    errors: EvalError[];
-    evalMetaUpdates: EvalMetaUpdates;
-    evaluationOrder: string[];
-    jsUpdates: Record<string, JSUpdate>;
-    logs: any[];
-    unEvalUpdates: DataTreeDiff[];
-  } = workerResponse;
+    isCreateFirstTree = false,
+  }: EvalTreePayload = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  const oldDataTree = yield select(getDataTree);
+  const oldDataTree: DataTree = yield select(getDataTree);
 
   const updates = diff(oldDataTree, dataTree) || [];
 
@@ -160,7 +174,7 @@ function* evaluateTreeSaga(
   if (evalMetaUpdates.length) {
     yield put(updateMetaState(evalMetaUpdates));
   }
-  log.debug({ evalMetaUpdates });
+  log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
   log.debug({ jsUpdates: jsUpdates });
@@ -169,7 +183,7 @@ function* evaluateTreeSaga(
   // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
   yield call(evalErrorHandler as any, errors, updatedDataTree, evaluationOrder);
 
-  const appMode = yield select(getAppMode);
+  const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode !== APP_MODE.PUBLISHED) {
     yield call(makeUpdateJSCollection, jsUpdates);
     yield fork(
@@ -177,6 +191,7 @@ function* evaluateTreeSaga(
       unevalTree,
       updatedDataTree,
       evaluationOrder,
+      isCreateFirstTree,
     );
 
     yield fork(updateTernDefinitions, updatedDataTree, unEvalUpdates);
@@ -192,7 +207,7 @@ export function* evaluateActionBindings(
   bindings: string[],
   executionParams: Record<string, any> | string = {},
 ) {
-  const workerResponse = yield call(
+  const workerResponse: { errors: EvalError[]; values: unknown } = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS,
     {
@@ -222,7 +237,7 @@ export function* evaluateAndExecuteDynamicTrigger(
   callbackData?: Array<any>,
   globalContext?: Record<string, unknown>,
 ) {
-  const unEvalTree = yield select(getUnevaluatedDataTree);
+  const unEvalTree: DataTree = yield select(getUnevaluatedDataTree);
   log.debug({ execute: dynamicTrigger });
 
   const { requestChannel, responseChannel } = yield call(
@@ -316,10 +331,12 @@ function* executeTriggerRequestSaga(
       triggerMeta,
     );
     responsePayload.success = true;
-  } catch (e) {
+  } catch (error) {
     // When error occurs in execution of triggers,
     // a success: false is sent to reject the promise
-    responsePayload.data.reason = e;
+
+    // @ts-expect-error: reason is of type string
+    responsePayload.data.reason = error;
     responsePayload.success = false;
   }
   responseChannel.put({
@@ -334,7 +351,11 @@ export function* clearEvalCache() {
   return true;
 }
 
-export function* executeFunction(collectionName: string, action: JSAction) {
+export function* executeFunction(
+  collectionName: string,
+  action: JSAction,
+  collectionId: string,
+) {
   const functionCall = `${collectionName}.${action.name}()`;
   const { isAsync } = action.actionConfiguration;
   let response: {
@@ -365,7 +386,13 @@ export function* executeFunction(collectionName: string, action: JSAction) {
   const { errors, result } = response;
   const isDirty = !!errors.length;
 
-  yield call(evalErrorHandler, errors);
+  yield call(
+    handleJSFunctionExecutionErrorLog,
+    collectionId,
+    collectionName,
+    action,
+    errors,
+  );
   return { result, isDirty };
 }
 
@@ -374,14 +401,21 @@ export function* validateProperty(
   value: any,
   props: WidgetProps,
 ) {
-  const unevalTree = yield select(getUnevaluatedDataTree);
+  const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
+  // @ts-expect-error: We have a typeMismatch for validationPaths
   const validation = unevalTree[props.widgetName].validationPaths[property];
-  return yield call(worker.request, EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY, {
-    property,
-    value,
-    props,
-    validation,
-  });
+  const response: unknown = yield call(
+    worker.request,
+    EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY,
+    {
+      property,
+      value,
+      props,
+      validation,
+    },
+  );
+
+  return response;
 }
 
 function evalQueueBuffer() {
@@ -456,9 +490,11 @@ function* evaluationChangeListenerSaga() {
   yield call(worker.start);
   yield call(worker.request, EVAL_WORKER_ACTIONS.SETUP);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
-  const initAction = yield take(FIRST_EVAL_REDUX_ACTIONS);
+  const initAction: {
+    postEvalActions: Array<ReduxAction<unknown>>;
+  } = yield take(FIRST_EVAL_REDUX_ACTIONS);
   yield fork(evaluateTreeSaga, initAction.postEvalActions);
-  const evtActionChannel = yield actionChannel(
+  const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),
   );
@@ -552,13 +588,12 @@ export function* evaluateSnippetSaga(action: any) {
 export function* evaluateArgumentSaga(action: any) {
   const { name, type, value } = action.payload;
   try {
-    const workerResponse = yield call(
-      worker.request,
-      EVAL_WORKER_ACTIONS.EVAL_EXPRESSION,
-      {
-        expression: value,
-      },
-    );
+    const workerResponse: {
+      errors: Array<unknown>;
+      result: unknown;
+    } = yield call(worker.request, EVAL_WORKER_ACTIONS.EVAL_EXPRESSION, {
+      expression: value,
+    });
     const lintErrors = (workerResponse.errors || []).filter(
       (error: any) => error.errorType !== PropertyEvaluationErrorType.LINT,
     );
@@ -602,17 +637,24 @@ export function* updateReplayEntitySaga(
   //Delay updates to replay object to not persist every keystroke
   yield delay(REPLAY_DELAY);
   const { entity, entityId, entityType } = actionPayload.payload;
-  return yield call(worker.request, EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT, {
-    entityId,
-    entity,
-    entityType,
-  });
+  const workerResponse: unknown = yield call(
+    worker.request,
+    EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT,
+    {
+      entityId,
+      entity,
+      entityType,
+    },
+  );
+
+  return workerResponse;
 }
 
 export function* workerComputeUndoRedo(operation: string, entityId: string) {
-  return yield call(worker.request, operation, {
+  const workerResponse: unknown = yield call(worker.request, operation, {
     entityId,
   });
+  return workerResponse;
 }
 
 // Type to represent the state of the evaluation reducer
@@ -623,11 +665,13 @@ export interface FormEvaluationConfig
 
 // Function to trigger the form eval job in the worker
 export function* evalFormConfig(formEvaluationConfigObj: FormEvaluationConfig) {
-  return yield call(
+  const workerResponse: unknown = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.INIT_FORM_EVAL,
     formEvaluationConfigObj,
   );
+
+  return workerResponse;
 }
 
 export function* setAppVersionOnWorkerSaga(action: {

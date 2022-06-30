@@ -2,7 +2,7 @@ import { createSelector } from "reselect";
 
 import { AppState } from "reducers";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -206,7 +206,7 @@ export const getWidgetCards = createSelector(
       (config) => !config.hideCard,
     );
 
-    const _cards = cards.map((config) => {
+    const _cards: WidgetCardProps[] = cards.map((config) => {
       const {
         columns,
         detachFromLayout = false,
@@ -214,6 +214,7 @@ export const getWidgetCards = createSelector(
         iconSVG,
         key,
         rows,
+        searchTags,
         type,
       } = config;
       return {
@@ -224,6 +225,7 @@ export const getWidgetCards = createSelector(
         detachFromLayout,
         displayName,
         icon: iconSVG,
+        searchTags,
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);

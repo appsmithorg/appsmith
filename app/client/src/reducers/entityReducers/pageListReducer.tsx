@@ -2,7 +2,7 @@ import { sortBy } from "lodash";
 import {
   ReduxAction,
   ReduxActionTypes,
-  PageListPayload,
+  Page,
   ClonePageSuccessPayload,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -35,7 +35,7 @@ export const pageListReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS]: (
     state: PageListReduxState,
-    action: ReduxAction<{ pages: PageListPayload; applicationId: string }>,
+    action: ReduxAction<{ pages: Page[]; applicationId: string }>,
   ) => {
     return {
       ...state,
@@ -184,7 +184,7 @@ export interface AppLayoutConfig {
 }
 
 export interface PageListReduxState {
-  pages: PageListPayload;
+  pages: Page[];
   applicationId: string;
   defaultPageId: string;
   currentPageId: string;

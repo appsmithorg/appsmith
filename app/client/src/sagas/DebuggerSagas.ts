@@ -52,6 +52,7 @@ import { Plugin } from "api/PluginApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(
@@ -135,7 +136,9 @@ function* logDependentEntityProperties(payload: Log) {
   const dataTree: DataTree = yield select(getDataTree);
 
   const propertyPath = `${source.name}.` + payload.source?.propertyPath;
-  const inverseDependencyMap = yield select(getEvaluationInverseDependencyMap);
+  const inverseDependencyMap: DependencyMap = yield select(
+    getEvaluationInverseDependencyMap,
+  );
   const finalValue = getDependencyChain(propertyPath, inverseDependencyMap);
 
   yield all(
@@ -213,9 +216,7 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
     case LOG_TYPE.JS_PARSE_SUCCESS:
       AppsmithConsole.deleteError(payload.source?.id ?? "");
       break;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    // Fall through intentional here
+    // @ts-expect-error: Types are not available
     case LOG_TYPE.TRIGGER_EVAL_ERROR:
       yield put(debuggerLog(payload));
     case LOG_TYPE.EVAL_ERROR:
@@ -229,7 +230,7 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
       break;
     case LOG_TYPE.ACTION_EXECUTION_ERROR:
       {
-        const formattedLog = yield call(
+        const formattedLog: Log = yield call(
           formatActionRequestSaga,
           payload,
           "state",
@@ -240,7 +241,7 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
       break;
     case LOG_TYPE.ACTION_EXECUTION_SUCCESS:
       {
-        const formattedLog = yield call(
+        const formattedLog: Log = yield call(
           formatActionRequestSaga,
           payload,
           "state.request",
@@ -265,7 +266,7 @@ function* logDebuggerErrorAnalyticsSaga(
 ) {
   try {
     const { payload } = action;
-    const currentPageId = yield select(getCurrentPageId);
+    const currentPageId: string | undefined = yield select(getCurrentPageId);
 
     if (payload.entityType === ENTITY_TYPE.WIDGET) {
       const widget: WidgetProps | undefined = yield select(
@@ -313,6 +314,7 @@ function* logDebuggerErrorAnalyticsSaga(
         getJSCollection,
         payload.entityId,
       );
+      if (!action) return;
       const plugin: Plugin = yield select(getPlugin, action.pluginId);
       const pluginName = plugin?.name?.replace(/ /g, "");
 

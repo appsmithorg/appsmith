@@ -5,6 +5,6 @@ export const editorInitializer = async () => {
   registerWidgets();
   PropertyControlRegistry.registerPropertyControlBuilders();
 
-  const moment = await import("moment-timezone");
+  const { default: moment } = await import("moment-timezone");
   moment.tz.setDefault(moment.tz.guess());
 };

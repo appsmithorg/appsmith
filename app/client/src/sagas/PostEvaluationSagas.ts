@@ -1,4 +1,9 @@
-import { ENTITY_TYPE, Log, Severity } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  Log,
+  PLATFORM_ERROR,
+  Severity,
+} from "entities/AppsmithConsole";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
@@ -31,6 +36,7 @@ import {
   ERROR_EVAL_ERROR_GENERIC,
   JS_OBJECT_BODY_INVALID,
   VALUE_IS_INVALID,
+  JS_EXECUTION_FAILURE,
 } from "@appsmith/constants/messages";
 import log from "loglevel";
 import { AppState } from "reducers";
@@ -40,6 +46,7 @@ import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreato
 import TernServer from "utils/autocomplete/TernServer";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
+import { JSAction } from "entities/JSCollection";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 /**
@@ -302,10 +309,17 @@ export function* logSuccessfulBindings(
   unEvalTree: DataTree,
   dataTree: DataTree,
   evaluationOrder: string[],
+  isCreateFirstTree: boolean,
 ) {
-  const appMode: APP_MODE = yield select(getAppMode);
+  const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
   if (!evaluationOrder) return;
+
+  if (isCreateFirstTree) {
+    // we only aim to log binding success which were added by user
+    // for first evaluation, bindings are not added by user hence skipping it.
+    return;
+  }
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
       evaluatedPath,
@@ -317,6 +331,7 @@ export function* logSuccessfulBindings(
       const isABinding = find(entity.dynamicBindingPathList, {
         key: propertyPath,
       });
+
       const logBlackList = entity.logBlackList;
       const errors: EvaluationError[] = get(
         dataTree,
@@ -383,4 +398,32 @@ export function* updateTernDefinitions(
     log.debug("Tern", { updates });
     log.debug("Tern definitions updated took ", (end - start).toFixed(2));
   }
+}
+
+export function* handleJSFunctionExecutionErrorLog(
+  collectionId: string,
+  collectionName: string,
+  action: JSAction,
+  errors: any[],
+) {
+  errors.length
+    ? AppsmithConsole.addError({
+        id: `${collectionId}-${action.id}`,
+        logType: LOG_TYPE.EVAL_ERROR,
+        text: `${createMessage(JS_EXECUTION_FAILURE)}: ${collectionName}.${
+          action.name
+        }`,
+        messages: errors.map((error) => ({
+          message: error.errorMessage || error.message,
+          type: PLATFORM_ERROR.JS_FUNCTION_EXECUTION,
+          subType: error.errorType,
+        })),
+        source: {
+          id: action.id,
+          name: `${collectionName}.${action.name}`,
+          type: ENTITY_TYPE.JSACTION,
+          propertyPath: `${collectionName}.${action.name}`,
+        },
+      })
+    : AppsmithConsole.deleteError(`${collectionId}-${action.id}`);
 }
