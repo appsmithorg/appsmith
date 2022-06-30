@@ -50,7 +50,7 @@ import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
 import GitChangesList from "../components/GitChangesList";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import Text, { TextType } from "components/ads/Text";
 import InfoWrapper from "../components/InfoWrapper";
 import Link from "../components/Link";

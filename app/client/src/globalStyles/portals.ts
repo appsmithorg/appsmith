@@ -13,12 +13,6 @@ export const PortalStyles = createGlobalStyle`
     z-index: ${Layers.header};
   }
   
-  #tooltip-root {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    z-index: ${Layers.max};
-  }
 
   .bp3-portal {
     z-index: ${Layers.portals};
