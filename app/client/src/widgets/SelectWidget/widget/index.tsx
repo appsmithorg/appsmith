@@ -220,6 +220,31 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         ],
       },
       {
+        sectionName: "Events",
+        children: [
+          {
+            helpText: "Triggers an action when a user selects an option",
+            propertyName: "onOptionChange",
+            label: "onOptionChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Trigger an action on change of filterText",
+            hidden: (props: SelectWidgetProps) => !props.serverSideFiltering,
+            dependencies: ["serverSideFiltering"],
+            propertyName: "onFilterUpdate",
+            label: "onFilterUpdate",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+      {
         sectionName: "Label",
         children: [
           {
@@ -394,31 +419,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-      {
-        sectionName: "Actions",
-        children: [
-          {
-            helpText: "Triggers an action when a user selects an option",
-            propertyName: "onOptionChange",
-            label: "onOptionChange",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-          {
-            helpText: "Trigger an action on change of filterText",
-            hidden: (props: SelectWidgetProps) => !props.serverSideFiltering,
-            dependencies: ["serverSideFiltering"],
-            propertyName: "onFilterUpdate",
-            label: "onFilterUpdate",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
           },
         ],
       },

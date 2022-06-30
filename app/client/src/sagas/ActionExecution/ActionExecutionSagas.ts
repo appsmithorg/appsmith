@@ -10,8 +10,8 @@ import {
 import * as log from "loglevel";
 import { all, call, put, takeEvery, takeLatest } from "redux-saga/effects";
 import {
-  evaluateAndExecuteDynamicTrigger,
   evaluateArgumentSaga,
+  evaluateAndExecuteDynamicTrigger,
   evaluateSnippetSaga,
   setAppVersionOnWorkerSaga,
 } from "sagas/EvaluationsSaga";
@@ -36,12 +36,12 @@ import {
   logActionExecutionError,
   TriggerFailureError,
   UncaughtPromiseError,
-  UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
 import {
   clearIntervalSaga,
   setIntervalSaga,
 } from "sagas/ActionExecution/SetIntervalSaga";
+import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import {
   getCurrentLocationSaga,
   stopWatchCurrentLocation,
@@ -49,7 +49,6 @@ import {
 } from "sagas/ActionExecution/GetCurrentLocationSaga";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
-import { postMessageSaga } from "./PostMessageSaga";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -142,9 +141,6 @@ export function* executeActionTriggers(
       if (!flag) {
         throw new UserCancelledActionExecutionError();
       }
-      break;
-    case ActionTriggerType.POST_MESSAGE:
-      yield call(postMessageSaga, trigger.payload, triggerMeta);
       break;
     default:
       log.error("Trigger type unknown", trigger);
