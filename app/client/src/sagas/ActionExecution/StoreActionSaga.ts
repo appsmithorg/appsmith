@@ -33,6 +33,7 @@ export default function* storeValueLocally(
     const existingStore: AppStoreState = yield select(getAppStoreData);
     const newTransientStore = {
       ...existingStore.transient,
+      [action.key]: action.value,
     };
     yield put(updateAppTransientStore(newTransientStore, action));
     AppsmithConsole.info({
