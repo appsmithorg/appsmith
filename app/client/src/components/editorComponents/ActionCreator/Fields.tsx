@@ -546,6 +546,8 @@ function renderField(props: {
     case FieldType.DELAY_FIELD:
     case FieldType.ID_FIELD:
     case FieldType.CLEAR_INTERVAL_ID_FIELD:
+    case FieldType.MESSAGE_FIELD:
+    case FieldType.TARGET_ORIGIN_FIELD:
       let fieldLabel = "";
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
@@ -571,6 +573,10 @@ function renderField(props: {
         fieldLabel = "Id";
       } else if (fieldType === FieldType.CLEAR_INTERVAL_ID_FIELD) {
         fieldLabel = "Id";
+      } else if (fieldType === FieldType.MESSAGE_FIELD) {
+        fieldLabel = "Message";
+      } else if (fieldType === FieldType.TARGET_ORIGIN_FIELD) {
+        fieldLabel = "Target origin";
       }
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: fieldLabel,

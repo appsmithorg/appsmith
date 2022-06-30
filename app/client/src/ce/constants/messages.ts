@@ -396,9 +396,10 @@ export const RESET_WIDGET = () => `Reset widget`;
 export const EXECUTE_JS_FUNCTION = () => `Execute a JS function`;
 export const SET_INTERVAL = () => `Set interval`;
 export const CLEAR_INTERVAL = () => `Clear interval`;
-export const GET_GEO_LOCATION = () => `Get geolocation`;
-export const WATCH_GEO_LOCATION = () => `Watch geolocation`;
-export const STOP_WATCH_GEO_LOCATION = () => `Stop watching geolocation`;
+export const GET_GEO_LOCATION = () => `Get Geolocation`;
+export const WATCH_GEO_LOCATION = () => `Watch Geolocation`;
+export const STOP_WATCH_GEO_LOCATION = () => `Stop watching Geolocation`;
+export const POST_MESSAGE = () => `Post message to a target window`;
 
 //js actions
 export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
