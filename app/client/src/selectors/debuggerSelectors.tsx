@@ -22,9 +22,21 @@ export const getFilteredErrors = createSelector(
         // filter error - when widget or parent widget is hidden
         // parent widgets e.g. modal, tab, container
         if (entity && isWidget(entity)) {
-          return entity.isVisible
-            ? isParentVisible(entity, canvasWidgets, dataTree)
-            : false;
+          if (!hasParentWidget(entity)) {
+            return entity.isVisible
+              ? true
+              : error.source?.propertyPath === "isVisible";
+          } else {
+            const isParentWidgetVisible = isParentVisible(
+              entity,
+              canvasWidgets,
+              dataTree,
+            );
+            return entity.isVisible
+              ? isParentWidgetVisible
+              : isParentWidgetVisible &&
+                  error.source?.propertyPath === "isVisible";
+          }
         }
         return true;
       }),
@@ -39,10 +51,10 @@ export const isParentVisible = (
   dataTree: DataTree,
 ): boolean => {
   const isWidgetVisible = !!currentWidgetData.isVisible;
-  if (!currentWidgetData.parentId || currentWidgetData.parentId === "0") {
+  if (!hasParentWidget(currentWidgetData)) {
     return isWidgetVisible;
   }
-  const parentWidget = canvasWidgets[currentWidgetData.parentId];
+  const parentWidget = canvasWidgets[currentWidgetData.parentId as string];
   if (!parentWidget) return isWidgetVisible;
 
   const parentWidgetData = dataTree[parentWidget.widgetName] as DataTreeWidget;
@@ -66,6 +78,9 @@ export const isParentVisible = (
         : false;
   }
 };
+
+export const hasParentWidget = (widget: DataTreeWidget) =>
+  widget.parentId && widget.parentId !== "0";
 
 export const getCurrentDebuggerTab = (state: AppState) =>
   state.ui.debugger.currentTab;
