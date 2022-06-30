@@ -23,7 +23,7 @@ import { Colors } from "constants/Colors";
 import { DropdownOption } from "components/constants";
 import Icon, { IconSize } from "components/ads/Icon";
 import { replayHighlightClass } from "globalStyles/portals";
-import useAdsEvent from "utils/hooks/useAdsEvent";
+import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
 
 export type TreeDropdownOption = DropdownOption & {
@@ -279,11 +279,11 @@ function TreeDropdown(props: TreeDropdownProps) {
   const selectedOptionIndex = useRef([findIndex(optionTree, selectedOption)]);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const { dispatchAdsEvent } = useAdsEvent<HTMLButtonElement>(false, buttonRef);
+  const { dispatchDSEvent } = useDSEvent<HTMLButtonElement>(false, buttonRef);
 
   const emitKeyboardAnalyticsEvent = useCallback(
     (key: string) => {
-      dispatchAdsEvent({
+      dispatchDSEvent({
         component: "TreeDropdown",
         event: DSEventTypes.KEYBOARD_ANALYTICS,
         meta: {
@@ -291,7 +291,7 @@ function TreeDropdown(props: TreeDropdownProps) {
         },
       });
     },
-    [dispatchAdsEvent],
+    [dispatchDSEvent],
   );
 
   useEffect(() => {

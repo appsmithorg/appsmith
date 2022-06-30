@@ -4,7 +4,7 @@ import { Colors } from "constants/Colors";
 import { ControlIcons } from "icons/ControlIcons";
 import _ from "lodash";
 import { DSEventTypes } from "utils/AppsmithUtils";
-import useAdsEvent from "utils/hooks/useAdsEvent";
+import useDSEvent from "utils/hooks/useDSEvent";
 
 const ItemWrapper = styled.div<{ selected: boolean }>`
   min-width: 32px;
@@ -64,14 +64,14 @@ const ButtonTabComponent = React.forwardRef(
       }
     }
 
-    const { dispatchAdsEvent, eventEmitterRef } = useAdsEvent<HTMLDivElement>(
+    const { dispatchDSEvent, eventEmitterRef } = useDSEvent<HTMLDivElement>(
       false,
       ref,
     );
 
     const emitKeyboardAnalyticsEvent = useCallback(
       (key: string) => {
-        dispatchAdsEvent({
+        dispatchDSEvent({
           component: "ButtonTab",
           event: DSEventTypes.KEYBOARD_ANALYTICS,
           meta: {
@@ -79,7 +79,7 @@ const ButtonTabComponent = React.forwardRef(
           },
         });
       },
-      [dispatchAdsEvent],
+      [dispatchDSEvent],
     );
 
     const [focusedIndex, setFocusedIndex] = useState<number>(-1);

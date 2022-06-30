@@ -24,7 +24,7 @@ import {
 import { getWidgets } from "sagas/selectors";
 import { extractColorsFromString } from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
-import useAdsEvent from "utils/hooks/useAdsEvent";
+import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
 const FocusTrap = require("focus-trap-react");
 
@@ -335,14 +335,11 @@ const ColorPickerComponent = React.forwardRef(
 
     const currentFocus = useRef(0);
 
-    const { dispatchAdsEvent } = useAdsEvent<HTMLDivElement>(
-      false,
-      containerRef,
-    );
+    const { dispatchDSEvent } = useDSEvent<HTMLDivElement>(false, containerRef);
 
     const emitKeyboardAnalyticsEvent = useCallback(
       (key: string) => {
-        dispatchAdsEvent({
+        dispatchDSEvent({
           component: "ColorPicker",
           event: DSEventTypes.KEYBOARD_ANALYTICS,
           meta: {
@@ -350,7 +347,7 @@ const ColorPickerComponent = React.forwardRef(
           },
         });
       },
-      [dispatchAdsEvent],
+      [dispatchDSEvent],
     );
 
     const handleKeydown = (e: KeyboardEvent) => {

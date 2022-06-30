@@ -3,7 +3,7 @@ import styled from "constants/DefaultTheme";
 import { ISwitchProps, Switch } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
-import useAdsEvent from "utils/hooks/useAdsEvent";
+import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
 
 const StyledSwitch = styled(Switch)`
@@ -17,13 +17,13 @@ const StyledSwitch = styled(Switch)`
 `;
 
 export default function AdsSwitch(props: ISwitchProps) {
-  const { dispatchAdsEvent, eventEmitterRefCallback } = useAdsEvent<
+  const { dispatchDSEvent, eventEmitterRefCallback } = useDSEvent<
     HTMLDivElement
   >(true);
 
   const emitKeyboardAnalyticsEvent = useCallback(
     (key: string) => {
-      dispatchAdsEvent({
+      dispatchDSEvent({
         component: "AdsSwitch",
         event: DSEventTypes.KEYBOARD_ANALYTICS,
         meta: {
@@ -31,7 +31,7 @@ export default function AdsSwitch(props: ISwitchProps) {
         },
       });
     },
-    [dispatchAdsEvent],
+    [dispatchDSEvent],
   );
 
   const handleKeydown = (e: React.KeyboardEvent) => {

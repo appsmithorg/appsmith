@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
-import useAdsEvent from "utils/hooks/useAdsEvent";
+import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
 
 const StyledIncreaseIcon = styled(
@@ -71,14 +71,14 @@ interface StepComponentProps {
 
 const StepComponent = React.forwardRef(
   (props: StepComponentProps, ref: any) => {
-    const { dispatchAdsEvent, eventEmitterRef } = useAdsEvent<HTMLDivElement>(
+    const { dispatchDSEvent, eventEmitterRef } = useDSEvent<HTMLDivElement>(
       false,
       ref,
     );
 
     const emitKeyboardAnalyticsEvent = useCallback(
       (key: string) => {
-        dispatchAdsEvent({
+        dispatchDSEvent({
           component: "StepComponent",
           event: DSEventTypes.KEYBOARD_ANALYTICS,
           meta: {
@@ -86,7 +86,7 @@ const StepComponent = React.forwardRef(
           },
         });
       },
-      [dispatchAdsEvent],
+      [dispatchDSEvent],
     );
 
     function decrease(isUpdatedViaKeyboard = false) {

@@ -153,18 +153,18 @@ export type DSEventDetail = {
   meta: Record<string, unknown>;
 };
 
-export function createAdsEvent(detail: DSEventDetail) {
+export function createDSEvent(detail: DSEventDetail) {
   return new CustomEvent(DS_EVENT, {
     bubbles: true,
     detail,
   });
 }
 
-export function emitAdsEvent<T extends HTMLElement>(
+export function emitDSEvent<T extends HTMLElement>(
   element: T | null,
   args: DSEventDetail,
 ) {
-  element?.dispatchEvent(createAdsEvent(args));
+  element?.dispatchEvent(createDSEvent(args));
 }
 
 export const getNextEntityName = (
