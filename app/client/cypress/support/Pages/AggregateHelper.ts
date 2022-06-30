@@ -380,14 +380,19 @@ export class AggregateHelper {
     });
   }
 
-  public GetNClick(selector: string, index = 0, force = false) {
+  public GetNClick(
+    selector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+  ) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator
       .eq(index)
       .click({ force: force })
-      .wait(500);
+      .wait(waitTimeInterval);
   }
 
   public GetNClickByContains(
@@ -437,8 +442,8 @@ export class AggregateHelper {
     switchName: string,
     toggle: "check" | "uncheck" = "check",
   ) {
-    let locator = cy.xpath(this.locator._switchToggle(switchName));
-    let parentLoc = locator.parent("label");
+    const locator = cy.xpath(this.locator._switchToggle(switchName));
+    const parentLoc = locator.parent("label");
     if (toggle == "check")
       parentLoc.then(($parent) => {
         if (!$parent.hasClass("t--switch-widget-active")) {

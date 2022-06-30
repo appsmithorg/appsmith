@@ -705,6 +705,7 @@ describe("WidgetOperationSaga", () => {
     ] as any) as WidgetProps[];
     expect(getBoundariesFromSelectedWidgets(selectedWidgets)).toEqual({
       totalWidth: 40,
+      totalHeight: 60,
       maxThickness: 30,
       topMostRow: 10,
       leftMostColumn: 20,
