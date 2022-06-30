@@ -21,7 +21,7 @@ export class EntityExplorer {
   private _contextMenu = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
     entityNameinLeftSidebar +
-    "']/ancestor::div[2]/following-sibling::div//div[contains(@class, 'entity-context-menu-icon')]";
+    "']/ancestor::div[1]/following-sibling::div//div[contains(@class, 'entity-context-menu-icon')]";
   private _contextMenuItem = (item: string) =>
     "//div[text()='" +
     item +
@@ -45,7 +45,8 @@ export class EntityExplorer {
   private _pageClone = ".single-select >div:contains('Clone')";
   private getPageLocator = (pageName: string) =>
     `.t--entity-name:contains(${pageName})`;
-  private _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + " Query']";
+  private _visibleTextSpan = (spanText: string) =>
+    "//span[text()='" + spanText + " Query']";
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
