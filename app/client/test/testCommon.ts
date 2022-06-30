@@ -16,6 +16,7 @@ import { getCanvasWidgets } from "selectors/entitiesSelector";
 
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { DSLWidget } from "widgets/constants";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 
 export const useMockDsl = (dsl: any) => {
   const dispatch = useDispatch();
@@ -110,6 +111,19 @@ export function MockApplication({ children }: any) {
     slug: "app-name",
     applicationVersion: 2,
   };
+  urlBuilder.updateURLParams(
+    {
+      applicationId: mockResp.id,
+      applicationSlug: mockResp.slug,
+      applicationVersion: mockResp.applicationVersion,
+    },
+    [
+      {
+        pageId: mockResp.pages[0].id,
+        pageSlug: mockResp.pages[0].slug,
+      },
+    ],
+  );
   dispatch({
     type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
     payload: mockResp,
@@ -117,9 +131,7 @@ export function MockApplication({ children }: any) {
   dispatch({
     type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
     payload: {
-      pages: [
-        { id: "page_id", name: "Page1", isDefault: true, slug: "page-1" },
-      ],
+      pages: mockResp.pages,
     },
   });
   dispatch({

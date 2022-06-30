@@ -34,7 +34,7 @@ import { widgetsMapWithParentModalId } from "selectors/entitiesSelector";
 
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
-import { getCommentThreadURL } from "../utils";
+import { useCommentThreadURL } from "../utils";
 
 import {
   deleteCommentRequest,
@@ -299,7 +299,7 @@ function CommentCard({
     pinnedBy = "You";
   }
 
-  const commentThreadURL = getCommentThreadURL({
+  const commentThreadURL = useCommentThreadURL({
     commentThreadId,
     isResolved: !!commentThread?.resolvedState?.active,
     pageId: commentThread?.pageId,

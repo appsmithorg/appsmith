@@ -4,6 +4,7 @@ import { APP_MODE } from "entities/App";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { builderURL, viewerURL } from "RouteBuilder";
+import { useHref } from "pages/Editor/utils";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 // used for dev
@@ -113,7 +114,7 @@ export const getOffsetPos = (
   return getRelativePos(clickPosition, boundingClientRect);
 };
 
-export const getCommentThreadURL = ({
+export const useCommentThreadURL = ({
   branch,
   commentThreadId,
   isResolved,
@@ -141,12 +142,12 @@ export const getCommentThreadURL = ({
 
   const urlBuilder = mode === APP_MODE.PUBLISHED ? viewerURL : builderURL;
 
-  const url = new URL(
-    `${window.location.origin}${urlBuilder({
-      pageId,
-      params: queryParams,
-    })}`,
-  );
+  const pathname = useHref(urlBuilder, {
+    pageId,
+    params: queryParams,
+  });
+
+  const url = new URL(`${window.location.origin}${pathname}`);
 
   return url;
 };

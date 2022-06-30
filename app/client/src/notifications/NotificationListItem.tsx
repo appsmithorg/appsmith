@@ -5,7 +5,7 @@ import UserApi from "@appsmith/api/UserApi";
 
 import { AppsmithNotification, NotificationTypes } from "entities/Notification";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { getCommentThreadURL } from "comments/utils";
+import { useCommentThreadURL } from "comments/utils";
 import {
   markNotificationAsReadRequest,
   setIsNotificationsListVisible,
@@ -24,6 +24,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
+import { builderURL, viewerURL } from "RouteBuilder";
 
 export const NOTIFICATION_HEIGHT = 82;
 
@@ -139,18 +140,16 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
   const handleClick = async () => {
     const modeFromRole = await getModeFromUserRole(workspaceId);
     const mode = getModeFromRoleAndDomain(modeFromRole, modeFromComment);
-
-    const commentThreadUrl = getCommentThreadURL({
-      branch: branchName,
-      commentThreadId: threadId,
-      // isResolved: resolvedState?.active,
-      mode,
+    const urlBuilder = mode === APP_MODE.EDIT ? builderURL : viewerURL;
+    const commentThreadURL = urlBuilder({
       pageId,
+      params: {
+        commentThreadId: threadId,
+        branch: branchName,
+      },
     });
     dispatch(setIsNotificationsListVisible(false));
-    history.push(
-      `${commentThreadUrl.pathname}${commentThreadUrl.search}${commentThreadUrl.hash}`,
-    );
+    history.push(commentThreadURL);
 
     dispatch(markNotificationAsReadRequest(id || (_id as string)));
   };
@@ -208,20 +207,19 @@ function CommentThreadNotification(props: {
   const handleClick = async () => {
     const modeFromRole = await getModeFromUserRole(workspaceId);
     const mode = getModeFromRoleAndDomain(modeFromRole, modeFromThread);
-
-    const commentThreadUrl = getCommentThreadURL({
-      branch: branchName,
-      commentThreadId,
-      isResolved: resolvedState?.active,
-      mode,
+    const urlBuilder = mode === APP_MODE.EDIT ? builderURL : viewerURL;
+    const commentThreadURL = urlBuilder({
       pageId,
+      params: {
+        commentThreadId,
+        branch: branchName,
+        isResolved: resolvedState?.active,
+      },
     });
 
     dispatch(setIsNotificationsListVisible(false));
 
-    history.push(
-      `${commentThreadUrl.pathname}${commentThreadUrl.search}${commentThreadUrl.hash}`,
-    );
+    history.push(commentThreadURL);
 
     dispatch(
       markNotificationAsReadRequest(
