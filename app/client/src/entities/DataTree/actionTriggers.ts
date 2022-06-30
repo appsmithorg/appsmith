@@ -37,6 +37,7 @@ export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
   [ActionTriggerType.WATCH_CURRENT_LOCATION]: "watchLocation",
   [ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION]: "stopWatch",
   [ActionTriggerType.CONFIRMATION_MODAL]: "ConfirmationModal",
+  [ActionTriggerType.POST_MESSAGE]: "postWindowMessage",
 };
 
 export type RunPluginActionDescription = {

@@ -373,6 +373,18 @@ function getFieldFromValue(
       field: FieldType.CALLBACK_FUNCTION_FIELD,
     });
   }
+
+  if (value.indexOf("postWindowMessage") !== -1) {
+    fields.push(
+      {
+        field: FieldType.MESSAGE_FIELD,
+      },
+      {
+        field: FieldType.TARGET_ORIGIN_FIELD,
+      },
+    );
+  }
+
   return fields;
 }
 

@@ -261,6 +261,16 @@ const DATA_TREE_FUNCTIONS: Record<
         };
       },
   },
+  postWindowMessage: function(message: unknown, targetOrigin: string) {
+    return {
+      type: ActionTriggerType.POST_MESSAGE,
+      payload: {
+        message,
+        targetOrigin,
+      },
+      executionType: ExecutionType.TRIGGER,
+    };
+  },
 };
 
 export const enhanceDataTreeWithFunctions = (
