@@ -126,7 +126,7 @@ public class MongoConfig {
     }
 
     @Bean
-    public ReactiveTransactionManager reactiveTransactionManager(ReactiveMongoDatabaseFactory dbf) {
-        return new ReactiveMongoTransactionManager(dbf);
+    public ReactiveTransactionManager reactiveTransactionManager(ReactiveMongoDatabaseFactory factory) {
+        return new ReactiveMongoTransactionManager(factory);
     }
 }

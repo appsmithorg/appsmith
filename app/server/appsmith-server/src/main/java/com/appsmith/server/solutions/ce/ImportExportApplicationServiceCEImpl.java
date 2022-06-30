@@ -20,12 +20,12 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
@@ -88,6 +88,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -100,10 +101,14 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
-import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
+
+/**
+ * Transactional can be used at class as well as method level as well
+ */
 
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class ImportExportApplicationServiceCEImpl implements ImportExportApplicationServiceCE {
 
     private final DatasourceService datasourceService;
@@ -785,7 +790,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @param appendToApp whether applicationJson will be appended to the existing app or not
      * @return Updated application
      */
-    @Transactional
     private Mono<Application> importApplicationInWorkspace(String workspaceId,
                                                            ApplicationJson applicationJson,
                                                            String applicationId,
