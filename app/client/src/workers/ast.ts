@@ -281,10 +281,8 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
   return Array.from(identifiers);
 };
 
-//
 type functionParams = { paramName: string; defaultValue: unknown };
 
-// Literal, ArrayExpression,
 const getFunctionalParamsFromNode = (
   node:
     | FunctionDeclarationNode
