@@ -10,14 +10,19 @@ export class DeployMode {
     }`;
   _jsonFormRadioFieldByName = (fieldName: string) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='radiogroup-container']//input`;
-    _jsonFormDatepickerFieldByName = (fieldName: string) =>
+  _jsonFormDatepickerFieldByName = (fieldName: string) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='datepicker-container']//input`;
   _jsonSelectDropdown = "button.select-button";
-  _clearDropdown = "button.select-button span.cancel-icon"
+  private _jsonFormMultiSelectByName = (fieldName: string) =>
+    `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='multiselect-container']`;
+  _clearDropdown = "button.select-button span.cancel-icon";
+  private _jsonFormMultiSelectOptions = (option: string) =>
+    `//div[@title='${option}']//input[@type='checkbox']/ancestor::div[@title='${option}']`;
 
   //refering PublishtheApp from command.js
   public DeployApp(
-    eleToCheckInDeployPage: string = this.locator._backToEditor, toCheckFailureToast= true
+    eleToCheckInDeployPage: string = this.locator._backToEditor,
+    toCheckFailureToast = true,
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
     // Wait before publish
@@ -40,7 +45,8 @@ export class DeployMode {
 
     this.agHelper.WaitUntilEleAppear(eleToCheckInDeployPage);
     localStorage.setItem("inDeployedMode", "true");
-    toCheckFailureToast && this.agHelper.AssertElementAbsence(this.locator._toastMsg);//Validating bug - 14141 + 14252
+    toCheckFailureToast &&
+      this.agHelper.AssertElementAbsence(this.locator._toastMsg); //Validating bug - 14141 + 14252
     this.agHelper.Sleep(2000); //for Depoy page to settle!
   }
 
@@ -54,7 +60,7 @@ export class DeployMode {
     });
   }
 
-   public NavigateBacktoEditor() {
+  public NavigateBacktoEditor() {
     cy.get(this.locator._backToEditor).click();
     this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");
@@ -88,7 +94,61 @@ export class DeployMode {
       .eq(index)
       .scrollIntoView()
       .click();
-    cy.get(this.locator._selectOptionValue(dropdownOption)).click({ force: true });
+    cy.get(this.locator._selectOptionValue(dropdownOption)).click({
+      force: true,
+    });
     this.agHelper.Sleep(); //for selected value to reflect!
+  }
+
+  public SelectJsonFormMultiSelect(
+    name: string,
+    options: string[],
+    index = 0,
+    check = true,
+  ) {
+    cy.get(this._jsonFormMultiSelectByName(name))
+      .eq(index)
+      .scrollIntoView()
+      .then(($element: any) => {
+        // here, we try to click on downArrow in dropdown of multiSelect.
+        // the position is calculated from top left of the element
+        const dropdownCenterPosition = +$element.height / 2;
+        const dropdownArrowApproxPosition = +$element.width - 10;
+        cy.get($element).click(
+          dropdownArrowApproxPosition,
+          dropdownCenterPosition,
+          {
+            force: true,
+          },
+        );
+      });
+
+    if (check) {
+      options.forEach(($each) => {
+        cy.get(this.locator._multiSelectOptions($each))
+          .check({ force: true })
+          .wait(800);
+        cy.xpath(this._jsonFormMultiSelectOptions($each)).should(
+          "have.class",
+          "rc-select-item-option-selected",
+        );
+      });
+    } else {
+      options.forEach(($each) => {
+        cy.get(this.locator._multiSelectOptions($each))
+          .uncheck({ force: true })
+          .wait(800);
+        cy.xpath(this._jsonFormMultiSelectOptions($each)).should(
+          "not.have.class",
+          "rc-select-item-option-selected",
+        );
+      });
+    }
+
+    // //closing multiselect dropdown
+    cy.get("body").type("{esc}");
+    // cy.get(this.locator._widgetInDeployed(endpoint))
+    //     .eq(index)
+    //     .click()
   }
 }
