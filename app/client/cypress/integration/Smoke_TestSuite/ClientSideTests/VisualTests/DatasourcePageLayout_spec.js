@@ -10,7 +10,7 @@ describe("Visual tests for datasources", () => {
   //  2. Run test in headless mode with any browser
   //      command: "npx cypress run --spec cypress/integration/<path>  --browser chrome"
   //  3. New screenshot will be generated in the snapshot folder.
-  /*it("Layout validation for datasource page", () => {
+  it("Layout validation for datasource page", () => {
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
@@ -22,7 +22,8 @@ describe("Visual tests for datasources", () => {
     cy.get(".t--integrationsHomePage").matchImageSnapshot(
       "emptydatasourcepage",
     );
-    cy.NavigateToDatasourceEditor();
+  });
+  /* cy.NavigateToDatasourceEditor();
     cy.wait(2000);
     cy.get("#new-api").matchImageSnapshot("apiSection");
     cy.get("span:contains('Database')")
