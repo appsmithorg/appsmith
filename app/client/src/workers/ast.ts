@@ -131,7 +131,7 @@ export const isPropertyNode = (node: Node): node is PropertyNode => {
   return node.type === NodeTypes.Property;
 };
 
-export const isFunctionNode = (
+export const isPropertyAFunctionNode = (
   node: Node,
 ): node is ArrowFunctionExpressionNode | FunctionExpressionNode => {
   return (
@@ -393,7 +393,7 @@ export const parseJSObjectWithAST = (
       type: propertyNode.value.type,
     };
 
-    if (isFunctionNode(propertyNode.value)) {
+    if (isPropertyAFunctionNode(propertyNode.value)) {
       // if in future we need default values of each param, we could implement that in getFunctionalParamsFromNode
       // currently we don't consume it anywhere hence avoiding to calculate that.
       params = getFunctionalParamsFromNode(propertyNode.value);

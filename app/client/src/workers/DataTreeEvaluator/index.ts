@@ -83,7 +83,7 @@ import {
   getJSEntities,
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
-} from "workers/JSObject/index";
+} from "workers/JSObject";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
