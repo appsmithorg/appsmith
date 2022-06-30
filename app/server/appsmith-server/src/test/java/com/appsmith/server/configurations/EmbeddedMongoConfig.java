@@ -81,7 +81,7 @@ public class EmbeddedMongoConfig {
     }
 
     /**
-     * Copied as is from {@link EmbeddedMongoAutoConfiguration}
+     * Ref {@link EmbeddedMongoAutoConfiguration}
      */
     private InetAddress getHost() throws UnknownHostException {
         if (this.properties.getHost() == null) {

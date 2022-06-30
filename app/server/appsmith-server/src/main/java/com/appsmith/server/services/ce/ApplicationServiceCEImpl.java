@@ -623,4 +623,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     public Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId) {
         return repository.getApplicationByDefaultApplicationIdAndDefaultBranch(defaultApplicationId);
     }
+
+    @Override
+    public Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission) {
+        return repository.findByNameAndWorkspaceId(applicationName, workspaceId, permission);
+    }
 }

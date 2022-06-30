@@ -68,4 +68,5 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);
 
+    Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission);
 }

@@ -1,12 +1,12 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -16,10 +16,10 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -46,7 +46,6 @@ import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -67,9 +66,9 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 
@@ -1089,22 +1088,25 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = this.setApplicationPolicies(userMono, application.getWorkspaceId(), application);
+        Mono<Application> applicationMono = applicationService.findByNameAndWorkspaceId(actualName, application.getWorkspaceId(), MANAGE_APPLICATIONS);
 
-        return applicationWithPoliciesMono
-                .zipWith(userMono)
-                .flatMap(tuple -> {
-                    Application application1 = tuple.getT1();
-                    application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
-                    // We can't use create or createApplication method here as we are expecting update operation if the
-                    // _id is available with application object
-                    return applicationService.save(application);
-                })
-                .onErrorResume(DuplicateKeyException.class, error -> {
-                    if (error.getMessage() != null) {
-                        return this.createOrUpdateSuffixedApplication(application, name, 1 + suffix);
-                    }
-                    throw error;
-                });
+        // We are taking pessimistic approach as this flow is used in import application where we are using transactions
+        // which creates problem if we hit duplicate key exception
+        return applicationMono
+                .flatMap(application1 ->
+                    this.createOrUpdateSuffixedApplication(application, name, 1 + suffix)
+                )
+                .switchIfEmpty(Mono.defer(() ->
+                    applicationWithPoliciesMono
+                            .zipWith(userMono)
+                            .flatMap(tuple -> {
+                                Application application1 = tuple.getT1();
+                                application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
+                                // We can't use create or createApplication method here as we are expecting update operation if the
+                                // _id is available with application object
+                                return applicationService.save(application);
+                            })
+                ));
     }
 
 
