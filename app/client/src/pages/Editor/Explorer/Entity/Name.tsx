@@ -1,11 +1,11 @@
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { Colors } from "constants/Colors";
 
 import React, { forwardRef, useEffect, useMemo, useRef, useState } from "react";
-import { Classes, Position } from "@blueprintjs/core";
+import { Classes } from "@blueprintjs/core";
 import styled from "styled-components";
 import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
 
@@ -136,7 +136,7 @@ export const EntityName = React.memo(
             disabled={!isEllipsisActive(targetRef.current)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
             modifiers={{ arrow: { enabled: false } }}
-            position={Position.TOP_LEFT}
+            position="top-left"
           >
             <Wrapper
               className={`${
