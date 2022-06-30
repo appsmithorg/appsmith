@@ -357,7 +357,7 @@ export function isFunctionAsync(
   return (function() {
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {
-      ALLOW_ASYNC: true,
+      ALLOW_ASYNC: false,
       IS_ASYNC: false,
     };
     //// Add internal functions to dataTree;

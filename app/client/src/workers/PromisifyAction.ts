@@ -27,7 +27,7 @@ export const promisifyAction = (
      * @link isFunctionAsync
      * */
     self.IS_ASYNC = true;
-    throw new Error("Async function called in a sync field");
+    //throw new Error("Async function called in a sync field");
   }
   const workerRequestIdCopy = workerRequestId.concat("");
   return new Promise((resolve, reject) => {
