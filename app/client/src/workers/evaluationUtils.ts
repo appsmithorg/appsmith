@@ -24,7 +24,6 @@ import _ from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
-import { Variable } from "entities/JSCollection";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
@@ -604,28 +603,6 @@ export function getSafeToRenderDataTree(
     );
     return { ...tree, [entityKey]: safeToRenderEntity };
   }, tree);
-}
-
-export const STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm;
-export const ARGUMENT_NAMES = /([^\s,]+)/g;
-
-export function getParams(func: any) {
-  const fnStr = func.toString().replace(STRIP_COMMENTS, "");
-  const args: Array<Variable> = [];
-  let result = fnStr
-    .slice(fnStr.indexOf("(") + 1, fnStr.indexOf(")"))
-    .match(ARGUMENT_NAMES);
-  if (result === null) result = [];
-  if (result && result.length) {
-    result.forEach((arg: string) => {
-      const element = arg.split("=");
-      args.push({
-        name: element[0],
-        value: element[1],
-      });
-    });
-  }
-  return args;
 }
 
 export const addErrorToEntityProperty = (

@@ -2,14 +2,13 @@ import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
-import { isFunctionNode, parseJSObjectWithAST } from "workers/ast";
+import { isTypeOfFunction, parseJSObjectWithAST } from "workers/ast";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import evaluateSync, { isFunctionAsync } from "workers/evaluate";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
-  getParams,
   isJSAction,
 } from "workers/evaluationUtils";
 import {
@@ -93,7 +92,7 @@ export function saveResolvedFunctionsAndJSUpdates(
       const variables: any = [];
       if (!!parsedObject) {
         parsedObject.forEach((parsedElement) => {
-          if (isFunctionNode(parsedElement.type)) {
+          if (isTypeOfFunction(parsedElement.type)) {
             try {
               const { result } = evaluateSync(
                 parsedElement.value,
@@ -103,7 +102,13 @@ export function saveResolvedFunctionsAndJSUpdates(
               );
               if (!!result) {
                 // we can generate arguments from AST parsing
-                const params = getParams(result);
+                const params = parsedElement.arguments.map(
+                  ({ defaultValue, paramName }) => ({
+                    key: paramName,
+                    value: defaultValue,
+                  }),
+                );
+
                 const functionString = parsedElement.value;
                 set(
                   dataTreeEvalRef.resolvedFunctions,

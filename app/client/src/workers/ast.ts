@@ -65,6 +65,10 @@ interface FunctionExpressionNode extends Expression, Function {
   type: NodeTypes.FunctionExpression;
 }
 
+interface ArrowFunctionExpressionNode extends Expression, Function {
+  type: NodeTypes.ArrowFunctionExpression;
+}
+
 export interface ObjectExpression extends Expression {
   type: NodeTypes.ObjectExpression;
   properties: Array<PropertyNode>;
@@ -127,6 +131,15 @@ export const isPropertyNode = (node: Node): node is PropertyNode => {
   return node.type === NodeTypes.Property;
 };
 
+export const isFunctionNode = (
+  node: Node,
+): node is ArrowFunctionExpressionNode | FunctionExpressionNode => {
+  return (
+    node.type === NodeTypes.ArrowFunctionExpression ||
+    node.type === NodeTypes.FunctionExpression
+  );
+};
+
 const isArrayAccessorNode = (node: Node): node is MemberExpressionNode => {
   return (
     isMemberExpressionNode(node) &&
@@ -160,7 +173,7 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
   // List of variables declared within the script. This will be removed from identifier list
   const variableDeclarations = new Set<string>();
   // List of functionalParams found. This will be removed from the identifier list
-  let functionalParams = new Set<string>();
+  let functionalParams = new Set<functionParams>();
   let ast: Node = { end: 0, start: 0, type: "" };
   try {
     const sanitizedScript = sanitizeScript(code);
@@ -263,21 +276,41 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
 
   // Remove declared variables and function params
   variableDeclarations.forEach((variable) => identifiers.delete(variable));
-  functionalParams.forEach((param) => identifiers.delete(param));
+  functionalParams.forEach((param) => identifiers.delete(param.paramName));
 
   return Array.from(identifiers);
 };
 
+//
+type functionParams = { paramName: string; defaultValue: unknown };
+
+// Literal, ArrayExpression,
 const getFunctionalParamsFromNode = (
-  node: FunctionDeclarationNode | FunctionExpressionNode,
-): Set<string> => {
-  const functionalParams = new Set<string>();
+  node:
+    | FunctionDeclarationNode
+    | FunctionExpressionNode
+    | ArrowFunctionExpressionNode,
+  needValue = false,
+): Set<functionParams> => {
+  const functionalParams = new Set<functionParams>();
   node.params.forEach((paramNode) => {
     if (isIdentifierNode(paramNode)) {
-      functionalParams.add(paramNode.name);
+      functionalParams.add({
+        paramName: paramNode.name,
+        defaultValue: undefined,
+      });
     } else if (isAssignmentPatternNode(paramNode)) {
       if (isIdentifierNode(paramNode.left)) {
-        functionalParams.add(paramNode.left.name);
+        const paramName = paramNode.left.name;
+        if (!needValue) {
+          functionalParams.add({ paramName, defaultValue: undefined });
+        } else {
+          // figure out how to get value of paramNode.right for each node type
+          // currently we don't use params value, hence skipping it
+          // functionalParams.add({
+          //   defaultValue: paramNode.right.value,
+          // });
+        }
       }
     }
   });
@@ -310,7 +343,7 @@ const getPropertyAccessor = (propertyNode: IdentifierNode | LiteralNode) => {
   }
 };
 
-export const isFunctionNode = (type: string) => {
+export const isTypeOfFunction = (type: string) => {
   return (
     type === NodeTypes.ArrowFunctionExpression ||
     type === NodeTypes.FunctionExpression
@@ -321,6 +354,7 @@ type JsObjectProperty = {
   key: string;
   value: string;
   type: string;
+  arguments: Array<functionParams>;
 };
 
 export const parseJSObjectWithAST = (
@@ -351,12 +385,21 @@ export const parseJSObjectWithAST = (
   });
 
   JSObjectProperties.forEach((node) => {
+    let params = new Set<functionParams>();
     const propertyNode = node;
+
+    if (isFunctionNode(propertyNode.value)) {
+      // if in future we need default values of each param, we could implement that in getFunctionalParamsFromNode
+      // currently we don't consume it anywhere hence avoiding to calculate that.
+      params = getFunctionalParamsFromNode(propertyNode.value);
+    }
+
     // here we use `generate` function to convert our AST Node to JSCode
     parsedObjectProperties.add({
       key: generate(propertyNode.key),
       value: generate(propertyNode.value),
       type: propertyNode.value.type,
+      arguments: [...params],
     });
   });
 
