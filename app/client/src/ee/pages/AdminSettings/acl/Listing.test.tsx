@@ -104,7 +104,7 @@ describe("<Listing />", () => {
     const deleteOption = document.getElementsByClassName("delete-menu-item");
     expect(deleteOption[0]).toHaveTextContent("Delete User");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
-    await userEvent.click(deleteOption[0]);
+    expect(() => userEvent.click(deleteOption[0])).toThrow();
     // const confirmText = document.getElementsByClassName("delete-menu-item");
     // expect(confirmText[0]).toHaveTextContent("Are you sure?");
     // await userEvent.dblClick(deleteOption[0]);

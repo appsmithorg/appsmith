@@ -52,7 +52,23 @@ jobs:
         shell: bash
 
     steps:
-      # Checkout the code
+      - name: Load secrets from AWS
+        env:
+          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID_FOR_SECRETS }}"
+          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_SECRETS }}"
+          AWS_REGION: us-east-2
+        uses: abhilash1in/aws-secrets-manager-action@v2.1.0
+        with:
+          secrets: |
+            ga/segment_key
+          parse-json: true
+
+      - name: Check if required variables are available
+        run: |
+          set -o errexit
+          set -o xtrace
+          test -n "${GA_SEGMENT_KEY_EE_LATEST-}"
+
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -82,11 +98,11 @@ jobs:
         env:
           REACT_APP_ENVIRONMENT: "PRODUCTION"
           REACT_APP_FUSIONCHARTS_LICENSE_KEY: "${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }}"
-          REACT_APP_SEGMENT_CE_KEY: "${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
           REACT_APP_VERSION_ID: "${{ needs.prelude.outputs.tag }}"
           REACT_APP_INTERCOM_APP_ID: "${{ secrets.APPSMITH_INTERCOM_ID }}"
         run: |
           REACT_APP_VERSION_RELEASE_DATE="$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
+            REACT_APP_SEGMENT_CE_KEY="$GA_SEGMENT_KEY_EE_LATEST" \
             yarn build
           ls -l build
 
@@ -191,6 +207,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Load secrets from AWS
+        env:
+          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID_FOR_SECRETS }}"
+          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_SECRETS }}"
+          AWS_REGION: us-east-2
+        uses: abhilash1in/aws-secrets-manager-action@v2.1.0
+        with:
+          secrets: |
+            ga/segment_key
+          parse-json: true
+
+      - name: Check if required variables are available
+        run: |
+          set -o errexit
+          set -o xtrace
+          test -n "${GA_SEGMENT_KEY_EE_LATEST-}"
+
       - name: Checkout the merged commit from PR and base branch
         uses: actions/checkout@v2
 
@@ -254,19 +287,19 @@ jobs:
           docker buildx build \
             --platform linux/arm64,linux/amd64 \
             --push \
-            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            --build-arg APPSMITH_SEGMENT_CE_KEY=$GA_SEGMENT_KEY_EE_LATEST \
             $tag_args \
             .
 
       - name: Build and push server image
         working-directory: app/server
         run: |
-          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{needs.prelude.outputs.tag}} .
+          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=$GA_SEGMENT_KEY_EE_LATEST -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{needs.prelude.outputs.tag}} .
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{needs.prelude.outputs.tag}}
 
           # Only build & tag with latest if the tag doesn't contain beta
           if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
-            docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:latest .
+            docker build --build-arg APPSMITH_SEGMENT_CE_KEY=$GA_SEGMENT_KEY_EE_LATEST -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:latest .
             docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:latest
           fi
 

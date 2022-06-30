@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import Text, { TextType } from "components/ads/Text";
 import FormTextField from "components/ads/formFields/TextField";
 import FormTextAreaField from "components/ads/formFields/TextAreaField";
