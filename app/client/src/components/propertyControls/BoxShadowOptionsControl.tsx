@@ -6,7 +6,7 @@ import { boxShadowOptions } from "constants/ThemeConstants";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import { ButtonTabComponent } from "components/ads";
 import {
-  AdsEventDetail,
+  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
@@ -62,7 +62,7 @@ class BoxShadowOptionsControl extends BaseControl<
     );
   }
 
-  handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
+  handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
       e.detail.component === "ButtonTab" &&
       e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS

@@ -2,7 +2,7 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import StepComponent from "components/ads/StepComponent";
 import {
-  AdsEventDetail,
+  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
@@ -28,7 +28,7 @@ class StepControl extends BaseControl<StepControlProps> {
     );
   }
 
-  handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
+  handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
       e.detail.component === "StepComponent" &&
       e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS

@@ -1,5 +1,5 @@
 import { RefObject, useRef } from "react";
-import { AdsEventDetail, emitAdsEvent } from "utils/AppsmithUtils";
+import { DSEventDetail, emitAdsEvent } from "utils/AppsmithUtils";
 
 export default function useAdsEvent<T extends HTMLElement>(
   isCallbackRef = false,
@@ -18,7 +18,7 @@ export default function useAdsEvent<T extends HTMLElement>(
     eventEmitterRef = internalRef;
   }
 
-  function dispatchAdsEvent(args: AdsEventDetail) {
+  function dispatchAdsEvent(args: DSEventDetail) {
     if (isCallbackRef) emitAdsEvent(element, args);
     else emitAdsEvent(eventEmitterRef.current, args);
   }

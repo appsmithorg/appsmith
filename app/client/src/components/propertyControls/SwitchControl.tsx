@@ -2,7 +2,7 @@ import React from "react";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import Switch from "components/ads/Switch";
 import {
-  AdsEventDetail,
+  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
@@ -26,7 +26,7 @@ class SwitchControl extends BaseControl<ControlProps> {
     );
   }
 
-  handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
+  handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
       e.detail.component === "AdsSwitch" &&
       e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS

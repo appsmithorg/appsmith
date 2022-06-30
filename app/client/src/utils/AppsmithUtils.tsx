@@ -147,13 +147,13 @@ export enum DSEventTypes {
   KEYBOARD_ANALYTICS = "KEYBOARD_ANALYTICS",
 }
 
-export type AdsEventDetail = {
+export type DSEventDetail = {
   component: string;
   event: DSEventTypes;
   meta: Record<string, unknown>;
 };
 
-export function createAdsEvent(detail: AdsEventDetail) {
+export function createAdsEvent(detail: DSEventDetail) {
   return new CustomEvent(DS_EVENT, {
     bubbles: true,
     detail,
@@ -162,7 +162,7 @@ export function createAdsEvent(detail: AdsEventDetail) {
 
 export function emitAdsEvent<T extends HTMLElement>(
   element: T | null,
-  args: AdsEventDetail,
+  args: DSEventDetail,
 ) {
   element?.dispatchEvent(createAdsEvent(args));
 }

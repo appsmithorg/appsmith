@@ -4,7 +4,7 @@ import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
 import { DropdownOption } from "components/ads/Dropdown";
 import {
-  AdsEventDetail,
+  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
@@ -27,7 +27,7 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
     );
   }
 
-  handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
+  handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
       e.detail.component === "Dropdown" &&
       e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS

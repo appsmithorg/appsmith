@@ -3,7 +3,7 @@ import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 // import DynamicActionCreator from "components/editorComponents/DynamicActionCreator";
 import { ActionCreator } from "components/editorComponents/ActionCreator";
 import {
-  AdsEventDetail,
+  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
@@ -26,7 +26,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     );
   }
 
-  handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
+  handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
       e.detail.component === "TreeDropdown" &&
       e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS

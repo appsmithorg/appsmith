@@ -5,7 +5,7 @@ import ButtonTabComponent, {
 } from "components/ads/ButtonTabComponent";
 import produce from "immer";
 import {
-  AdsEventDetail,
+  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
@@ -28,7 +28,7 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
     );
   }
 
-  handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
+  handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
       e.detail.component === "ButtonTab" &&
       e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS

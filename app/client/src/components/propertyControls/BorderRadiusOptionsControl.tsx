@@ -5,7 +5,7 @@ import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
 import { ButtonTabComponent } from "components/ads";
 import {
-  AdsEventDetail,
+  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
@@ -68,7 +68,7 @@ class BorderRadiusOptionsControl extends BaseControl<
     );
   }
 
-  handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
+  handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
       e.detail.component === "ButtonTab" &&
       e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS

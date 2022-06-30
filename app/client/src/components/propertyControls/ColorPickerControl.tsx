@@ -3,7 +3,7 @@ import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import ColorPickerComponent from "components/ads/ColorPickerComponentV2";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import {
-  AdsEventDetail,
+  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
@@ -26,7 +26,7 @@ class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
     );
   }
 
-  handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
+  handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
       e.detail.component === "ColorPicker" &&
       e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS
