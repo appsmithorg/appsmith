@@ -191,6 +191,7 @@ describe("Shopping cart App", function() {
       .eq(3)
       .should("have.text", "3");
   });
+  
 
   /*it("Connect the appplication to git and validate data in deploy mode and edit mode", function() {
     cy.generateUUID().then((uid) => {
