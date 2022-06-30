@@ -101,13 +101,16 @@ export function saveResolvedFunctionsAndJSUpdates(
                 true,
               );
               if (!!result) {
-                // we can generate arguments from AST parsing
-                const params = parsedElement.arguments.map(
-                  ({ defaultValue, paramName }) => ({
-                    key: paramName,
-                    value: defaultValue,
-                  }),
-                );
+                let params: Array<{ key: string; value: unknown }> = [];
+
+                if (parsedElement.arguments) {
+                  params = parsedElement.arguments.map(
+                    ({ defaultValue, paramName }) => ({
+                      key: paramName,
+                      value: defaultValue,
+                    }),
+                  );
+                }
 
                 const functionString = parsedElement.value;
                 set(
