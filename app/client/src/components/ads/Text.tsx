@@ -88,11 +88,9 @@ const getFontWeight = ({
   }
 };
 
-const Text = styled.span.attrs((props: TextProps) => ({
-  className: props.className
-    ? `${props.className} ${Classes.TEXT}`
-    : Classes.TEXT,
-  "data-cy": props.cypressSelector,
+const Text = styled.span.attrs<TextProps>(({ className, cypressSelector }) => ({
+  className: className ? `${className} ${Classes.TEXT}` : Classes.TEXT,
+  "data-cy": cypressSelector,
 }))<TextProps>`
   text-decoration: ${(props) => (props.underline ? "underline" : "unset")};
   font-style: ${(props) => (props.italic ? "italic" : "normal")};

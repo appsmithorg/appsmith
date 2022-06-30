@@ -200,9 +200,8 @@ class SingleSelectTreeWidget extends BaseWidget<
           },
         ],
       },
-
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when a user selects an option",
@@ -394,20 +393,6 @@ class SingleSelectTreeWidget extends BaseWidget<
           },
         ],
       },
-      {
-        sectionName: "Events",
-        children: [
-          {
-            helpText: "Triggers an action when a user selects an option",
-            propertyName: "onOptionChange",
-            label: "onOptionChange",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
     ];
   }
 
@@ -494,6 +479,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         onChange={this.onOptionChange}
         options={options}
         placeholder={this.props.placeholderText as string}
+        renderMode={this.props.renderMode}
         value={filteredValue}
         widgetId={this.props.widgetId}
         width={componentWidth}

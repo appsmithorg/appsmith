@@ -51,6 +51,8 @@ import {
 import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { isWidget } from "../workers/evaluationUtils";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -252,7 +254,8 @@ export const handleSpecificCasesWhilePasting = (
       newWidgetList,
       (copyWidget) =>
         copyWidget.type === "BUTTON_WIDGET" ||
-        copyWidget.type === "ICON_WIDGET",
+        copyWidget.type === "ICON_WIDGET" ||
+        copyWidget.type === "ICON_BUTTON_WIDGET",
     );
     // replace oldName with new one if any of this widget have onClick action for old modal
     copiedBtnIcnWidgets.map((copyWidget) => {
@@ -270,8 +273,7 @@ export const handleSpecificCasesWhilePasting = (
 
   return widgets;
 };
-
-export function getWidgetChildren(
+export function getWidgetChildrenIds(
   canvasWidgets: CanvasWidgetsReduxState,
   widgetId: string,
 ): any {
@@ -289,7 +291,7 @@ export function getWidgetChildren(
       if (children.hasOwnProperty(childIndex)) {
         const child = children[childIndex];
         childrenIds.push(child);
-        const grandChildren = getWidgetChildren(canvasWidgets, child);
+        const grandChildren = getWidgetChildrenIds(canvasWidgets, child);
         if (grandChildren.length) {
           childrenIds.push(...grandChildren);
         }
@@ -297,6 +299,54 @@ export function getWidgetChildren(
     }
   }
   return childrenIds;
+}
+
+export type ChildrenWidgetMap = { id: string; evaluatedWidget: DataTreeWidget };
+/**
+ * getWidgetChildren: It gets all the child widgets of given widget's id with evaluated values
+ *
+ */
+export function getWidgetChildren(
+  canvasWidgets: CanvasWidgetsReduxState,
+  widgetId: string,
+  evaluatedDataTree: DataTree,
+): ChildrenWidgetMap[] {
+  const childrenList: ChildrenWidgetMap[] = [];
+  const widget = _.get(canvasWidgets, widgetId);
+  // When a form widget tries to resetChildrenMetaProperties
+  // But one or more of its container like children
+  // have just been deleted, widget can be undefined
+  if (widget === undefined) {
+    return [];
+  }
+
+  const { children = [] } = widget;
+  if (children && children.length) {
+    for (const childIndex in children) {
+      if (children.hasOwnProperty(childIndex)) {
+        const childWidgetId = children[childIndex];
+
+        const childCanvasWidget = _.get(canvasWidgets, childWidgetId);
+        const childWidgetName = childCanvasWidget.widgetName;
+        const childWidget = evaluatedDataTree[childWidgetName];
+        if (isWidget(childWidget)) {
+          childrenList.push({
+            id: childWidgetId,
+            evaluatedWidget: childWidget,
+          });
+          const grandChildren = getWidgetChildren(
+            canvasWidgets,
+            childWidgetId,
+            evaluatedDataTree,
+          );
+          if (grandChildren.length) {
+            childrenList.push(...grandChildren);
+          }
+        }
+      }
+    }
+  }
+  return childrenList;
 }
 
 export const getParentWidgetIdForPasting = function*(
@@ -362,19 +412,6 @@ export const getParentWidgetIdForPasting = function*(
   return newWidgetParentId;
 };
 
-export const isCopiedModalWidget = function(
-  copiedWidgetGroups: CopiedWidgetGroup[],
-  widgets: CanvasWidgetsReduxState,
-) {
-  if (copiedWidgetGroups.length !== 1) return false;
-
-  const copiedWidget = widgets[copiedWidgetGroups[0].widgetId];
-
-  if (copiedWidget && copiedWidget.type === "MODAL_WIDGET") return true;
-
-  return false;
-};
-
 export const getSelectedWidgetIfPastingIntoListWidget = function(
   canvasWidgets: CanvasWidgetsReduxState,
   selectedWidget: FlattenedWidgetProps | undefined,
@@ -387,7 +424,7 @@ export const getSelectedWidgetIfPastingIntoListWidget = function(
     selectedWidget.children &&
     selectedWidget?.type === "LIST_WIDGET"
   ) {
-    const childrenIds: string[] = getWidgetChildren(
+    const childrenIds: string[] = getWidgetChildrenIds(
       canvasWidgets,
       selectedWidget.children[0],
     );
@@ -395,8 +432,7 @@ export const getSelectedWidgetIfPastingIntoListWidget = function(
 
     // if any copiedWidget is a list widget, we will paste into the parent of list widget
     for (let i = 0; i < copiedWidgets.length; i++) {
-      const copiedWidgetId = copiedWidgets[i].widgetId;
-      const copiedWidget = canvasWidgets[copiedWidgetId];
+      const copiedWidget = copiedWidgets[i].list[0];
 
       if (copiedWidget?.type === "LIST_WIDGET") {
         return selectedWidget;
@@ -521,12 +557,16 @@ export function getBoundariesFromSelectedWidgets(
   const rightMostWidget = selectedWidgets.sort(
     (a, b) => b.rightColumn - a.rightColumn,
   )[0];
+  const bottomMostWidget = selectedWidgets.sort(
+    (a, b) => b.bottomRow - a.bottomRow,
+  )[0];
   const thickestWidget = selectedWidgets.sort(
     (a, b) => b.bottomRow - b.topRow - a.bottomRow + a.topRow,
   )[0];
 
   return {
     totalWidth: rightMostWidget.rightColumn - leftMostWidget.leftColumn,
+    totalHeight: bottomMostWidget.bottomRow - topMostWidget.topRow,
     maxThickness: thickestWidget.bottomRow - thickestWidget.topRow,
     topMostRow: topMostWidget.topRow,
     leftMostColumn: leftMostWidget.leftColumn,
@@ -1383,6 +1423,10 @@ export function* createWidgetCopy(widget: FlattenedWidgetProps) {
   };
 }
 
+export type WidgetsInTree = (WidgetProps & {
+  children?: string[] | undefined;
+})[];
+
 /**
  * get all widgets in tree
  *
@@ -1393,7 +1437,7 @@ export function* createWidgetCopy(widget: FlattenedWidgetProps) {
 export const getAllWidgetsInTree = (
   widgetId: string,
   canvasWidgets: CanvasWidgetsReduxState,
-) => {
+): WidgetsInTree => {
   const widget = canvasWidgets[widgetId];
   const widgetList = [widget];
   if (widget && widget.children) {
