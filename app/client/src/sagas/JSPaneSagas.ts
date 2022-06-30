@@ -271,6 +271,10 @@ function* updateJSCollection(data: {
             jsCollection,
             createMessage(JS_FUNCTION_DELETE_SUCCESS),
           );
+          // delete all execution error logs for deletedActions if present
+          deletedActions.forEach((action) =>
+            AppsmithConsole.deleteError(`${jsCollection.id}-${action.id}`),
+          );
         }
 
         yield put(
@@ -355,6 +359,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       executeFunction,
       collectionName,
       action,
+      collectionId,
     );
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
