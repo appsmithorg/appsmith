@@ -35,11 +35,11 @@ describe("Shopping cart App", function() {
       .first()
       .type("Productnames");
     cy.assertPageSave();
-    // cy.get(appPage.dropdownChevronLeft).click();
-    // // EditProducts query to update the cart
-    // cy.get(queryLocators.createQuery)
-    //   .last()
-    //   .click();
+    cy.get(appPage.dropdownChevronLeft).click();
+    // EditProducts query to update the cart
+    cy.get(queryLocators.createQuery)
+      .last()
+      .click();
     cy.wait(5000);
     cy.get(queryLocators.queryNameField).type("EditProducts");
     cy.TargetDropdownAndSelectOption(
