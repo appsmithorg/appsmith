@@ -17,7 +17,6 @@ interface OverlayDisplayProps {
 }
 
 const OverlayDisplay = styled.div<OverlayDisplayProps>`
-  display: ${(props) => (props.isActive ? "block" : "none")};
   position: absolute;
   top: 0;
   left: 0;
@@ -38,6 +37,8 @@ const StyledOverlayHandles = styled.div`
 `;
 
 const OverlayHandleLabel = styled.div`
+  position: absolute;
+  pointer-events: none;
   padding: 1px 4px;
   background: #191919;
   font-weight: 400;
@@ -46,7 +47,7 @@ const OverlayHandleLabel = styled.div`
   color: #ffffff;
   text-align: center;
   white-space: nowrap;
-  margin-left: 4px;
+  left: 16px;
 `;
 
 const OverlayHandle = styled.div`
@@ -260,15 +261,31 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlay> = memo(
     }, [maxDynamicHeight]);
 
     function onMaxUpdate(dy: number) {
+      if (maxY + dy <= minY) {
+        setMindY(dy + (maxY - minY));
+      }
+
       setMaxdY(dy);
+    }
+
+    function updateMaxHeight(height: number) {
+      setMaxY(height);
+      onMaxHeightSet(height);
+    }
+
+    function updateMinHeight(height: number) {
+      setMinY(height);
+      onMinHeightSet(height);
     }
 
     function onMaxStop() {
       setIsMaxDotDragging(false);
       const heightToSet = maxY + maxdY;
-      setMaxY(heightToSet);
+      updateMaxHeight(heightToSet);
       setMaxdY(0);
-      onMaxHeightSet(heightToSet);
+      if (heightToSet === minY + mindY) {
+        updateMinHeight(heightToSet);
+      }
     }
 
     /////////////////////////////////////////////////////////
@@ -282,15 +299,21 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlay> = memo(
         return;
       }
 
+      if (minY + dy >= maxY) {
+        setMaxdY(dy - (maxY - minY));
+      }
+
       setMindY(dy);
     }
 
     function onMinStop() {
       setIsMinDotDragging(false);
       const heightToSet = minY + mindY;
-      setMinY(heightToSet);
+      updateMinHeight(heightToSet);
       setMindY(0);
-      onMinHeightSet(heightToSet);
+      if (heightToSet === maxY + maxdY) {
+        updateMaxHeight(heightToSet);
+      }
     }
 
     function onMinDotStart() {

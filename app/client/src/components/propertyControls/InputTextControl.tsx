@@ -18,6 +18,7 @@ export function InputText(props: {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
+  onFocus?: () => void;
   evaluatedValue?: any;
   expected?: CodeEditorExpected;
   placeholder?: string;
@@ -32,6 +33,7 @@ export function InputText(props: {
     expected,
     hideEvaluatedValue,
     onChange,
+    onFocus,
     placeholder,
     value,
   } = props;
@@ -55,6 +57,7 @@ export function InputText(props: {
         }}
         isEditorHidden={!isOpen}
         mode={EditorModes.TEXT_WITH_BINDING}
+        onEditorFocus={onFocus}
         placeholder={placeholder}
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
@@ -73,6 +76,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
       expected,
       hideEvaluatedValue,
       label,
+      onFocus,
       placeholderText,
       propertyValue,
     } = this.props;
@@ -85,6 +89,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
         hideEvaluatedValue={hideEvaluatedValue}
         label={label}
         onChange={this.onTextChange}
+        onFocus={onFocus}
         placeholder={placeholderText}
         theme={this.props.theme}
         value={propertyValue ? propertyValue : defaultValue}
@@ -124,6 +129,7 @@ export interface InputControlProps extends ControlProps {
   validationMessage?: string;
   isDisabled?: boolean;
   defaultValue?: any;
+  onFocus?: () => void;
 }
 
 export default InputTextControl;

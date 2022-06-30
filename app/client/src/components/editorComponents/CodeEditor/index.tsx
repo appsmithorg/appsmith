@@ -181,6 +181,9 @@ export type EditorProps = EditorStyleProps &
     isJSObject?: boolean;
     // Custom gutter
     customGutter?: CodeEditorGutter;
+
+    // On focus event handler
+    onEditorFocus?: () => void;
   };
 
 type Props = ReduxStateProps &
@@ -493,6 +496,10 @@ class CodeEditor extends Component<Props, State> {
         .forEach(
           (hinter) => hinter.showHint && hinter.showHint(cm, entityInformation),
         );
+    }
+
+    if (this.props.onEditorFocus) {
+      this.props.onEditorFocus();
     }
   };
 

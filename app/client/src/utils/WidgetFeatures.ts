@@ -145,10 +145,11 @@ function transformToNumber(props: WidgetProps,
     }]
   }
 // TODO FEATURE:(abhinav) Add validations to these properties
-export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
+
+export const PropertyPaneConfigTemplates = {
   DYNAMIC_HEIGHT: {
     sectionName: "Layout Features",
-    hidden:(props) => { if(props.type === "TABLE_WIDGET") return !props.serverSidePaginationEnabled; else return false; },
+    hidden:(props: any) => { if(props.type === "TABLE_WIDGET") return !props.serverSidePaginationEnabled; else return false; },
     children: [
       {
         helpText:
@@ -200,6 +201,9 @@ export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
       },
       {
         propertyName: "maxDynamicHeight",
+        onFocus: () => {
+          console.log("onFocus", "FOCUSED");
+        },
         label: "Max Height (in rows)",
         helpText: "Maximum Height, after which contents will scroll",
         controlType: "INPUT_TEXT",
