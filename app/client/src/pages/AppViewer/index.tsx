@@ -261,7 +261,16 @@ function AppViewer(props: Props) {
               >
                 {isInitialized && registered && <AppViewerPageContainer />}
               </AppViewerBody>
-              {showBrandingBadge && <BrandingBadge />}
+              {showBrandingBadge && (
+                <a
+                  className="fixed right-8 bottom-4 z-2 hover:no-underline hidden md:flex"
+                  href="https://appsmith.com"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <BrandingBadge />
+                </a>
+              )}
             </AppViewerBodyContainer>
           </ContainerWithComments>
           <AddCommentTourComponent />

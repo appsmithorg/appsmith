@@ -14,6 +14,7 @@ export enum SettingTypes {
   ACCORDION = "ACCORDION",
   TAGINPUT = "TAGINPUT",
   DROPDOWN = "DROPDOWN",
+  CHECKBOX = "CHECKBOX",
 }
 
 export enum SettingSubtype {
@@ -54,6 +55,7 @@ export interface Setting {
   formName?: string;
   fieldName?: string;
   dropdownOptions?: Array<{ id: string; value: string; label?: string }>;
+  needsUpgrade?: boolean;
 }
 
 export interface Category {

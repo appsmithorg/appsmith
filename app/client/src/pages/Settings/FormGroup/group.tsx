@@ -23,6 +23,7 @@ import TagInputField from "./TagInputField";
 import Dropdown from "./Dropdown";
 import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
+import Checkbox from "./Checkbox";
 
 type GroupProps = {
   name?: string;
@@ -124,6 +125,16 @@ export default function Group({
                     key={setting.name || setting.id}
                   >
                     <Toggle setting={setting} />
+                  </div>
+                );
+              case SettingTypes.CHECKBOX:
+                return (
+                  <div
+                    className={setting.isHidden ? "hide" : ""}
+                    data-testid="admin-settings-group-toggle"
+                    key={setting.name || setting.id}
+                  >
+                    <Checkbox setting={setting} />
                   </div>
                 );
               case SettingTypes.LINK:

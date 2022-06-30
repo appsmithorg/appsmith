@@ -33,7 +33,6 @@ export const StyledFormGroup = styled.div`
   & svg:hover {
     cursor: default;
     path {
-      fill: #fff;
     }
   }
 `;

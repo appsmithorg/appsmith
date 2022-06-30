@@ -65,5 +65,13 @@ export const config: AdminConfigType = {
       toggleText: (value: boolean) =>
         value ? "Don't share any data" : "Share Anonymous Telemetry",
     },
+    {
+      id: "APPSMITH_HIDE_WATERMARK",
+      category: SettingCategories.GENERAL,
+      controlType: SettingTypes.CHECKBOX,
+      label: "Appsmith Watermark",
+      text: "Show Appsmith Watermark",
+      needsUpgrade: true,
+    },
   ],
 } as AdminConfigType;
