@@ -14,9 +14,16 @@ import {
 } from "workers/evaluationUtils";
 import {
   removeFunctionsAndVariableJSCollection,
-  updateJSCollectionInDataTree,
+  updateJSCollectionInUnEvalTree,
 } from "workers/JSObject/utils";
 
+/**
+ * Here we update our unEvalTree according to the change in JSObject's body
+ *
+ * @param jsUpdates
+ * @param localUnEvalTree
+ * @returns
+ */
 export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   jsUpdates: Record<string, JSUpdate>,
   localUnEvalTree: DataTree,
@@ -28,7 +35,7 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
       if (isJSAction(entity)) {
         if (!!parsedBody) {
           //add/delete/update functions from dataTree
-          localUnEvalTree = updateJSCollectionInDataTree(
+          localUnEvalTree = updateJSCollectionInUnEvalTree(
             parsedBody,
             entity,
             localUnEvalTree,
@@ -46,6 +53,21 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   return localUnEvalTree;
 };
 
+const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
+
+/**
+ * Here we parse the JSObject and then determine
+ * 1. it's nature : async or sync
+ * 2. Find arguments of JS Actions
+ * 3. set variables and actions in currentJSCollectionState and resolvedFunctions
+ *
+ * @param dataTreeEvalRef
+ * @param entity
+ * @param jsUpdates
+ * @param unEvalDataTree
+ * @param entityName
+ * @returns
+ */
 export function saveResolvedFunctionsAndJSUpdates(
   dataTreeEvalRef: DataTreeEvaluator,
   entity: DataTreeJSAction,
@@ -53,7 +75,6 @@ export function saveResolvedFunctionsAndJSUpdates(
   unEvalDataTree: DataTree,
   entityName: string,
 ) {
-  const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
   const correctFormat = regex.test(entity.body);
   if (correctFormat) {
     const body = entity.body.replace(/export default/g, "");
@@ -81,6 +102,7 @@ export function saveResolvedFunctionsAndJSUpdates(
                 true,
               );
               if (!!result) {
+                // we can generate arguments from AST parsing
                 const params = getParams(result);
                 const functionString = parsedElement.value;
                 set(
@@ -161,11 +183,13 @@ export function parseJSActions(
         diff.payload.propertyPath,
       );
       const entity = unEvalDataTree[entityName];
+
+      if (!isJSAction(entity)) {
+        return false;
+      }
+
       if (diff.event === DataTreeDiffEvent.DELETE) {
-        const deletedEntity = oldUnEvalTree[entityName];
-        if (!isJSAction(deletedEntity)) {
-          return;
-        }
+        // when JSObject is deleted, we remove it from currentJSCollectionState & resolvedFunctions
         if (
           dataTreeEvalRef.currentJSCollectionState &&
           dataTreeEvalRef.currentJSCollectionState[diff.payload.propertyPath]
@@ -181,9 +205,7 @@ export function parseJSActions(
           delete dataTreeEvalRef.resolvedFunctions[diff.payload.propertyPath];
         }
       }
-      if (!isJSAction(entity)) {
-        return false;
-      }
+
       if (
         (diff.event === DataTreeDiffEvent.EDIT && propertyPath === "body") ||
         (diff.event === DataTreeDiffEvent.NEW && propertyPath === "")
@@ -212,6 +234,7 @@ export function parseJSActions(
       );
     });
   }
+
   Object.keys(jsUpdates).forEach((entityName) => {
     const parsedBody = jsUpdates[entityName].parsedBody;
     if (!parsedBody) return;

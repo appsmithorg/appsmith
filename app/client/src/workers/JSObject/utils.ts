@@ -6,16 +6,21 @@ import {
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get } from "lodash";
 
-export const updateJSCollectionInDataTree = (
+/**
+ * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
+  NOTE: For other entity below logic is maintained in DataTreeFactory, for JSObject we handle it inside evaluations
+ * 
+ * @param parsedBody 
+ * @param jsCollection 
+ * @param unEvalTree 
+ * @returns 
+ */
+export const updateJSCollectionInUnEvalTree = (
   parsedBody: ParsedBody,
   jsCollection: DataTreeJSAction,
   unEvalTree: DataTree,
 ) => {
-  // here we remove the properties (variables and actions) which got removed from the JSObject
-  // parsedBody has new variables and actions list
   // jsCollection here means unEvalTree JSObject
-  // for other entity below logic is maintained in DataTreeFactory of each entity.
-  // for JSObject we handle it inside evaluations
   const modifiedUnEvalTree = unEvalTree;
   const functionsList: Array<string> = [];
   const varList: Array<string> = jsCollection.variables;
@@ -217,6 +222,13 @@ export const updateJSCollectionInDataTree = (
   return modifiedUnEvalTree;
 };
 
+/**
+ * When JSObject parseBody is empty we remove all variables and actions from unEvalTree
+ * this will lead to removal of properties from the dataTree
+ * @param unEvalTree
+ * @param entity
+ * @returns
+ */
 export const removeFunctionsAndVariableJSCollection = (
   unEvalTree: DataTree,
   entity: DataTreeJSAction,
