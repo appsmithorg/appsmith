@@ -308,7 +308,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       //Another for API called via JS callQuotes()
       agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
       agHelper.ClickButton("No");
-      agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');
+      //agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');No toast appears!
 
       //Confirmation - first JSObj then API
       agHelper.AssertElementVisible(

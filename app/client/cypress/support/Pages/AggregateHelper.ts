@@ -112,7 +112,9 @@ export class AggregateHelper {
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
     cy.get(this.locator._toastMsg).should("have.length.at.least", length);
-    cy.get(this.locator._toastMsg).eq(index).should("contain.text", text);
+    cy.get(this.locator._toastMsg)
+      .eq(index)
+      .should("contain.text", text);
   }
 
   public ClickButton(btnVisibleText: string, index = 0, shouldSleep = true) {
@@ -138,6 +140,7 @@ export class AggregateHelper {
   }
 
   public WaitUntilToastDisappear(msgToCheckforDisappearance: string | "") {
+    this.ValidateToastMessage(msgToCheckforDisappearance);
     cy.waitUntil(() => cy.get(this.locator._toastMsg), {
       errorMsg: msgToCheckforDisappearance + " did not disappear",
       timeout: 5000,
@@ -510,7 +513,7 @@ export class AggregateHelper {
     if (action == "Delete") {
       !jsDelete && this.ValidateNetworkStatus("@deleteAction");
       jsDelete && this.ValidateNetworkStatus("@deleteJSCollection");
-      jsDelete && this.WaitUntilToastDisappear("deleted successfully")
+      jsDelete && this.WaitUntilToastDisappear("deleted successfully");
     }
   }
 
