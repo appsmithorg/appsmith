@@ -33,6 +33,7 @@ import org.springframework.data.mongodb.core.convert.NoOpDbRefResolver;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 import org.springframework.transaction.ReactiveTransactionManager;
+import org.springframework.transaction.reactive.TransactionalOperator;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -128,5 +129,10 @@ public class MongoConfig {
     @Bean
     public ReactiveTransactionManager reactiveTransactionManager(ReactiveMongoDatabaseFactory factory) {
         return new ReactiveMongoTransactionManager(factory);
+    }
+
+    @Bean
+    public TransactionalOperator transactionalOperator(ReactiveTransactionManager transactionManager) {
+        return TransactionalOperator.create(transactionManager);
     }
 }

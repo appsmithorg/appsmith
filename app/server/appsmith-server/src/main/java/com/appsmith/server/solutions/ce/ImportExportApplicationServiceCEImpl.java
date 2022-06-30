@@ -72,7 +72,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -102,13 +102,8 @@ import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
 
-/**
- * Transactional can be used at class as well as method level as well
- */
-
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
 public class ImportExportApplicationServiceCEImpl implements ImportExportApplicationServiceCE {
 
     private final DatasourceService datasourceService;
@@ -129,6 +124,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final ThemeService themeService;
     private final PolicyUtils policyUtils;
     private final AnalyticsService analyticsService;
+    private final TransactionalOperator transactionalOperator;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -1294,7 +1290,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
                                 return application;
                             });
-                });
+                })
+                .as(transactionalOperator::transactional);
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
         // and action collection. This process may take time and the client may cancel the request. This leads to the flow
