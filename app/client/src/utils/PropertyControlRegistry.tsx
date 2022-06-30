@@ -80,6 +80,7 @@ class PropertyControlRegistry {
             },
           },
           Control.canDisplayValueInUI,
+          Control.getInputComputedValue,
         );
       },
     );
