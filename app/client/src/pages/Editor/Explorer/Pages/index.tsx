@@ -46,6 +46,7 @@ import useResize, {
 import AddPageContextMenu from "./AddPageContextMenu";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
+import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -122,6 +123,7 @@ function Pages() {
         type: "PAGES",
         toUrl: navigateToUrl,
       });
+      dispatch(toggleInOnboardingWidgetSelection(true));
       history.push(navigateToUrl);
     },
     [location.pathname],
