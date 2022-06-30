@@ -30,8 +30,6 @@ describe("Shopping cart App", function() {
       .last()
       .click();
     cy.get(queryLocators.queryNameField).type("GetProduct");
-    // Clicking outside to trigger the save
-    cy.get("body").click(0, 0);
     cy.get(".CodeEditorTarget")
       .first()
       .type("Productnames");
