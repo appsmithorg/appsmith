@@ -21,14 +21,14 @@ describe("promise execution", () => {
   afterAll(() => {
     jest.restoreAllMocks();
   });
-
-  it("throws when allow async is not enabled", () => {
-    self.ALLOW_ASYNC = false;
-    self.IS_ASYNC = false;
-    expect(dataTreeWithFunctions.showAlert).toThrowError();
-    expect(self.IS_ASYNC).toBe(true);
-    expect(postMessageMock).not.toHaveBeenCalled();
-  });
+  //we no longer add async functions to sync fields during evaluation hence this is not valid anymore
+  // it("throws when allow async is not enabled", () => {
+  //   self.ALLOW_ASYNC = false;
+  //   self.IS_ASYNC = false;
+  //   expect(dataTreeWithFunctions.showAlert).toThrowError();
+  //   expect(self.IS_ASYNC).toBe(true);
+  //   expect(postMessageMock).not.toHaveBeenCalled();
+  // });
   it("sends an event from the worker", () => {
     dataTreeWithFunctions.showAlert("test alert", "info");
     expect(postMessageMock).toBeCalledWith({
