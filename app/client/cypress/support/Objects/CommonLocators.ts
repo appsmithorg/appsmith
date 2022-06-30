@@ -37,6 +37,7 @@ export class CommonLocators {
     _uploadBtn = "button.uppy-StatusBar-actionBtn--upload"
     _debuggerIcon = ".t--debugger svg"
     _errorTab = "[data-cy=t--tab-ERROR]"
+    _responseTab = "[data-cy=t--tab-response]"
     _debugErrorMsg = ".t--debugger-message"
     _debuggerLabel = "span.debugger-label"
     _modal = ".t--modal-widget"

@@ -6,13 +6,14 @@ import {
   apiRequestInterceptor,
   apiSuccessResponseInterceptor,
 } from "api/ApiUtils";
-import { API_REQUEST_HEADERS } from "constants/AppsmithActionConstants/ActionConstants";
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {
   baseURL: "/api/",
   timeout: REQUEST_TIMEOUT_MS,
-  headers: API_REQUEST_HEADERS,
+  headers: {
+    "Content-Type": "application/json",
+  },
   withCredentials: true,
 };
 
@@ -25,11 +26,7 @@ axiosInstance.interceptors.response.use(
 );
 
 class Api {
-  static get(
-    url: string,
-    queryParams?: any,
-    config: Partial<AxiosRequestConfig> = {},
-  ) {
+  static get(url: string, queryParams?: any, config: AxiosRequestConfig = {}) {
     return axiosInstance.get(url + convertObjectToQueryParams(queryParams), {
       ...apiRequestConfig,
       ...config,
@@ -40,7 +37,7 @@ class Api {
     url: string,
     body?: any,
     queryParams?: any,
-    config: Partial<AxiosRequestConfig> = {},
+    config: AxiosRequestConfig = {},
   ) {
     return axiosInstance.post(
       url + convertObjectToQueryParams(queryParams),
@@ -56,7 +53,7 @@ class Api {
     url: string,
     body?: any,
     queryParams?: any,
-    config: Partial<AxiosRequestConfig> = {},
+    config: AxiosRequestConfig = {},
   ) {
     return axiosInstance.put(
       url + convertObjectToQueryParams(queryParams),
@@ -72,7 +69,7 @@ class Api {
     url: string,
     body?: any,
     queryParams?: any,
-    config: Partial<AxiosRequestConfig> = {},
+    config: AxiosRequestConfig = {},
   ) {
     return axiosInstance.patch(
       url + convertObjectToQueryParams(queryParams),
@@ -87,7 +84,7 @@ class Api {
   static delete(
     url: string,
     queryParams?: any,
-    config: Partial<AxiosRequestConfig> = {},
+    config: AxiosRequestConfig = {},
   ) {
     return axiosInstance.delete(url + convertObjectToQueryParams(queryParams), {
       ...apiRequestConfig,

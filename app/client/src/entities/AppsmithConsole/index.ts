@@ -11,6 +11,7 @@ export enum ENTITY_TYPE {
 
 export enum PLATFORM_ERROR {
   PLUGIN_EXECUTION = "PLUGIN_EXECUTION",
+  JS_FUNCTION_EXECUTION = "JS_FUNCTION_EXECUTION",
 }
 
 export type ErrorType = PropertyEvaluationErrorType | PLATFORM_ERROR;

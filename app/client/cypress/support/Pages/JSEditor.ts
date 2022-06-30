@@ -82,6 +82,7 @@ export class JSEditor {
   _getJSFunctionSettingsId = (JSFunctionName: string) =>
     `${JSFunctionName}-settings`;
   _asyncJSFunctionSettings = `.t--async-js-function-settings`;
+  _debugCTA = `button.js-editor-debug-cta`;
   //#endregion
 
   //#region constants
