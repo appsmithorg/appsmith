@@ -267,7 +267,7 @@ export const DATA_TREE_FUNCTIONS: Record<
         };
       },
   },
-  postMessageToTargetWindow: function(message: unknown, targetOrigin: string) {
+  postWindowMessage: function(message: unknown, targetOrigin: string) {
     return {
       type: ActionTriggerType.POST_MESSAGE,
       payload: {

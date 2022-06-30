@@ -20,11 +20,7 @@ export function* executePostMessage(
 ) {
   const { message, targetOrigin } = payload;
   try {
-    if (targetOrigin === "*") {
-      throw new TriggerFailureError(
-        "Please enter a valid url as targetOrigin. Failing to provide a specific target discloses the data you send to any interested malicious site.",
-      );
-    } else if (isEmpty(targetOrigin)) {
+    if (isEmpty(targetOrigin)) {
       throw new TriggerFailureError("Please enter a target origin URL.");
     } else {
       window.parent.postMessage(message, targetOrigin, undefined);

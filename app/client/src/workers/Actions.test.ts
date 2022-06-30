@@ -459,7 +459,7 @@ describe("Add functions", () => {
       const message = "Hello world!";
 
       expect(
-        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+        dataTreeWithFunctions.postWindowMessage(message, targetOrigin),
       ).toBe(undefined);
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
@@ -479,7 +479,7 @@ describe("Add functions", () => {
       const message = undefined;
 
       expect(
-        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+        dataTreeWithFunctions.postWindowMessage(message, targetOrigin),
       ).toBe(undefined);
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
@@ -499,7 +499,7 @@ describe("Add functions", () => {
       const message = null;
 
       expect(
-        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+        dataTreeWithFunctions.postWindowMessage(message, targetOrigin),
       ).toBe(undefined);
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
@@ -519,7 +519,7 @@ describe("Add functions", () => {
       const message = 1826;
 
       expect(
-        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+        dataTreeWithFunctions.postWindowMessage(message, targetOrigin),
       ).toBe(undefined);
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
@@ -539,7 +539,7 @@ describe("Add functions", () => {
       const message = true;
 
       expect(
-        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+        dataTreeWithFunctions.postWindowMessage(message, targetOrigin),
       ).toBe(undefined);
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
@@ -559,7 +559,7 @@ describe("Add functions", () => {
       const message = [1, 2, 3, [1, 2, 3, [1, 2, 3]]];
 
       expect(
-        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+        dataTreeWithFunctions.postWindowMessage(message, targetOrigin),
       ).toBe(undefined);
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
@@ -586,7 +586,7 @@ describe("Add functions", () => {
       };
 
       expect(
-        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+        dataTreeWithFunctions.postWindowMessage(message, targetOrigin),
       ).toBe(undefined);
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
