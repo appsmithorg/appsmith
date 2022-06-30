@@ -7,7 +7,7 @@ import produce from "immer";
 import {
   AdsEventDetail,
   ADSEventTypes,
-  ADS_EVENT,
+  DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
 
@@ -16,14 +16,14 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
 
   componentDidMount() {
     this.componentRef.current?.addEventListener(
-      ADS_EVENT,
+      DS_EVENT,
       this.handleAdsEvent as (arg0: Event) => void,
     );
   }
 
   componentWillUnmount() {
     this.componentRef.current?.removeEventListener(
-      ADS_EVENT,
+      DS_EVENT,
       this.handleAdsEvent as (arg0: Event) => void,
     );
   }

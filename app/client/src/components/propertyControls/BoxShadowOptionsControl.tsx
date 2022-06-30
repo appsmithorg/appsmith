@@ -8,7 +8,7 @@ import { ButtonTabComponent } from "components/ads";
 import {
   AdsEventDetail,
   ADSEventTypes,
-  ADS_EVENT,
+  DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
 export interface BoxShadowOptionsControlProps extends ControlProps {
@@ -50,14 +50,14 @@ class BoxShadowOptionsControl extends BaseControl<
 
   componentDidMount() {
     this.componentRef.current?.addEventListener(
-      ADS_EVENT,
+      DS_EVENT,
       this.handleAdsEvent as (arg0: Event) => void,
     );
   }
 
   componentWillUnmount() {
     this.componentRef.current?.removeEventListener(
-      ADS_EVENT,
+      DS_EVENT,
       this.handleAdsEvent as (arg0: Event) => void,
     );
   }

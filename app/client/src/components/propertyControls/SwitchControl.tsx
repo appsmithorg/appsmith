@@ -4,7 +4,7 @@ import Switch from "components/ads/Switch";
 import {
   AdsEventDetail,
   ADSEventTypes,
-  ADS_EVENT,
+  DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
 
@@ -14,14 +14,14 @@ class SwitchControl extends BaseControl<ControlProps> {
 
   componentDidMount() {
     this.containerRef.current?.addEventListener(
-      ADS_EVENT,
+      DS_EVENT,
       this.handleAdsEvent as (arg0: Event) => void,
     );
   }
 
   componentWillUnmount() {
     this.containerRef.current?.removeEventListener(
-      ADS_EVENT,
+      DS_EVENT,
       this.handleAdsEvent as (arg0: Event) => void,
     );
   }

@@ -141,7 +141,7 @@ export function emitInteractionAnalyticsEvent<T extends HTMLElement>(
   element?.dispatchEvent(interactionAnalyticsEvent(args));
 }
 
-export const ADS_EVENT = "ADS_EVENT";
+export const DS_EVENT = "DS_EVENT";
 
 export enum ADSEventTypes {
   KEYBOARD_ANALYTICS = "KEYBOARD_ANALYTICS",
@@ -154,7 +154,7 @@ export type AdsEventDetail = {
 };
 
 export function createAdsEvent(detail: AdsEventDetail) {
-  return new CustomEvent(ADS_EVENT, {
+  return new CustomEvent(DS_EVENT, {
     bubbles: true,
     detail,
   });

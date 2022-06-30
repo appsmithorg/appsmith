@@ -4,7 +4,7 @@ import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
 import { DropdownOption } from "components/ads/Dropdown";
 import { isNil } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { AdsEventDetail, ADSEventTypes, ADS_EVENT } from "utils/AppsmithUtils";
+import { AdsEventDetail, ADSEventTypes, DS_EVENT } from "utils/AppsmithUtils";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
@@ -12,14 +12,14 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
   componentDidMount() {
     this.containerRef.current?.addEventListener(
-      ADS_EVENT,
+      DS_EVENT,
       this.handleAdsEvent as (arg0: Event) => void,
     );
   }
 
   componentWillUnmount() {
     this.containerRef.current?.removeEventListener(
-      ADS_EVENT,
+      DS_EVENT,
       this.handleAdsEvent as (arg0: Event) => void,
     );
   }
