@@ -354,7 +354,7 @@ type JsObjectProperty = {
   key: string;
   value: string;
   type: string;
-  arguments: Array<functionParams>;
+  arguments?: Array<functionParams>;
 };
 
 export const parseJSObjectWithAST = (
@@ -367,8 +367,10 @@ export const parseJSObjectWithAST = (
   */
   const jsObjectVariableName =
     "____INTERNAL_JS_OBJECT_NAME_USED_FOR_PARSING_____";
-  const jsCode = `var ${jsObjectVariableName}  = ${jsObjectBody}`;
+  const jsCode = `var ${jsObjectVariableName} = ${jsObjectBody}`;
+
   const ast = parse(jsCode, { ecmaVersion: ECMA_VERSION });
+
   const parsedObjectProperties = new Set<JsObjectProperty>();
   let JSObjectProperties: Array<PropertyNode> = [];
 
@@ -387,20 +389,24 @@ export const parseJSObjectWithAST = (
   JSObjectProperties.forEach((node) => {
     let params = new Set<functionParams>();
     const propertyNode = node;
+    let property: JsObjectProperty = {
+      key: generate(propertyNode.key),
+      value: generate(propertyNode.value),
+      type: propertyNode.value.type,
+    };
 
     if (isFunctionNode(propertyNode.value)) {
       // if in future we need default values of each param, we could implement that in getFunctionalParamsFromNode
       // currently we don't consume it anywhere hence avoiding to calculate that.
       params = getFunctionalParamsFromNode(propertyNode.value);
+      property = {
+        ...property,
+        arguments: [...params],
+      };
     }
 
     // here we use `generate` function to convert our AST Node to JSCode
-    parsedObjectProperties.add({
-      key: generate(propertyNode.key),
-      value: generate(propertyNode.value),
-      type: propertyNode.value.type,
-      arguments: [...params],
-    });
+    parsedObjectProperties.add(property);
   });
 
   return [...parsedObjectProperties];

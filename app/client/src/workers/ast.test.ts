@@ -256,16 +256,19 @@ describe("parseJSObjectWithAST", () => {
         key: "myFun1",
         value: "() => {}",
         type: "ArrowFunctionExpression",
+        arguments: [],
       },
       {
         key: "myFun2",
         value: "async () => {}",
         type: "ArrowFunctionExpression",
+        arguments: [],
       },
     ];
     const resultParsedObject = parseJSObjectWithAST(body);
     expect(resultParsedObject).toStrictEqual(parsedObject);
   });
+
   it("parse js object with literal", () => {
     const body = `{
 	myVar1: [],
@@ -294,16 +297,19 @@ describe("parseJSObjectWithAST", () => {
         key: "myFun1",
         value: "() => {}",
         type: "ArrowFunctionExpression",
+        arguments: [],
       },
       {
         key: "myFun2",
         value: "async () => {}",
         type: "ArrowFunctionExpression",
+        arguments: [],
       },
     ];
     const resultParsedObject = parseJSObjectWithAST(body);
     expect(resultParsedObject).toStrictEqual(parsedObject);
   });
+
   it("parse js object with variable declaration inside function", () => {
     const body = `{
       myFun1: () => {
@@ -330,14 +336,77 @@ describe("parseJSObjectWithAST", () => {
   };
 }`,
         type: "ArrowFunctionExpression",
+        arguments: [],
       },
       {
         key: "myFun2",
         value: "async () => {}",
         type: "ArrowFunctionExpression",
+        arguments: [],
       },
     ];
     const resultParsedObject = parseJSObjectWithAST(body);
     expect(resultParsedObject).toStrictEqual(parsedObject);
+  });
+
+  it("parse js object with params of all types", () => {
+    const body = `{
+      myFun2: async (a,b = Array(1,2,3),c = "", d = [], e = this.myVar1, f = {}, g = function(){}, h = Object.assign({}), i = String(), j = storeValue()) => {
+        //use async-await or promises
+      },
+    }`;
+
+    const parsedObject = [
+      {
+        key: "myFun2",
+        value:
+          'async (a, b = Array(1, 2, 3), c = "", d = [], e = this.myVar1, f = {}, g = function () {}, h = Object.assign({}), i = String(), j = storeValue()) => {}',
+        type: "ArrowFunctionExpression",
+        arguments: [
+          {
+            paramName: "a",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "b",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "c",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "d",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "e",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "f",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "g",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "h",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "i",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "j",
+            defaultValue: undefined,
+          },
+        ],
+      },
+    ];
+    const resultParsedObject = parseJSObjectWithAST(body);
+    expect(resultParsedObject).toEqual(parsedObject);
   });
 });
