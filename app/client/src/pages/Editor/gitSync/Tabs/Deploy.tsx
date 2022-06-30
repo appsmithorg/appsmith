@@ -201,7 +201,11 @@ function Deploy() {
   }, []);
   const commitButtonDisabled = !hasChangesToCommit || !commitMessage;
   const commitButtonLoading = isCommittingInProgress;
-  const commitInputDisabled = !hasChangesToCommit || isCommittingInProgress;
+  const commitInputDisabled =
+    !hasChangesToCommit ||
+    isCommittingInProgress ||
+    isCommitAndPushSuccessful ||
+    isDiscarding;
 
   const commitRequired =
     !!gitStatus?.modifiedPages ||

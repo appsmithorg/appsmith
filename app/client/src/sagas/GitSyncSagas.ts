@@ -193,6 +193,20 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
 
       const updatedPath = addBranchParam(branch);
       history.replace(updatedPath);
+
+      /* commit effect START */
+      yield put(commitToRepoSuccess());
+      const curApplication: ApplicationPayload = yield select(
+        getCurrentApplication,
+      );
+      if (curApplication) {
+        curApplication.lastDeployedAt = new Date().toISOString();
+        yield put({
+          type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+          payload: curApplication,
+        });
+      }
+      /* commit effect END */
     }
   } catch (error) {
     if (action.onErrorCallback) {
