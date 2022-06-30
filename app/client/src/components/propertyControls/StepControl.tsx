@@ -3,7 +3,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import StepComponent from "components/ads/StepComponent";
 import {
   AdsEventDetail,
-  ADSEventTypes,
+  DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
@@ -31,7 +31,7 @@ class StepControl extends BaseControl<StepControlProps> {
   handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
     if (
       e.detail.component === "StepComponent" &&
-      e.detail.event === ADSEventTypes.KEYBOARD_ANALYTICS
+      e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS
     ) {
       emitInteractionAnalyticsEvent(this.componentRef.current, {
         key: e.detail.meta.key,

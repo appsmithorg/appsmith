@@ -3,7 +3,7 @@ import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import Switch from "components/ads/Switch";
 import {
   AdsEventDetail,
-  ADSEventTypes,
+  DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
@@ -29,7 +29,7 @@ class SwitchControl extends BaseControl<ControlProps> {
   handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
     if (
       e.detail.component === "AdsSwitch" &&
-      e.detail.event === ADSEventTypes.KEYBOARD_ANALYTICS
+      e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS
     ) {
       this.isUpdatedViaKeyboard = true;
       emitInteractionAnalyticsEvent(this.containerRef.current, {

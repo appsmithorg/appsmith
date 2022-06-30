@@ -4,7 +4,7 @@ import { ISwitchProps, Switch } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 import useAdsEvent from "utils/hooks/useAdsEvent";
-import { ADSEventTypes } from "utils/AppsmithUtils";
+import { DSEventTypes } from "utils/AppsmithUtils";
 
 const StyledSwitch = styled(Switch)`
   &&&&& input:checked ~ span {
@@ -25,7 +25,7 @@ export default function AdsSwitch(props: ISwitchProps) {
     (key: string) => {
       dispatchAdsEvent({
         component: "AdsSwitch",
-        event: ADSEventTypes.KEYBOARD_ANALYTICS,
+        event: DSEventTypes.KEYBOARD_ANALYTICS,
         meta: {
           key,
         },

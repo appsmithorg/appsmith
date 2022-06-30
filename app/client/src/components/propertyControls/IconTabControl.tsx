@@ -5,7 +5,7 @@ import ButtonTabComponent, {
 } from "components/ads/ButtonTabComponent";
 import {
   AdsEventDetail,
-  ADSEventTypes,
+  DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
@@ -30,7 +30,7 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
   handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
     if (
       e.detail.component === "ButtonTab" &&
-      e.detail.event === ADSEventTypes.KEYBOARD_ANALYTICS
+      e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS
     ) {
       emitInteractionAnalyticsEvent(this.componentRef.current, {
         key: e.detail.meta.key,

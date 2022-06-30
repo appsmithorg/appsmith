@@ -4,7 +4,7 @@ import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import { ActionCreator } from "components/editorComponents/ActionCreator";
 import {
   AdsEventDetail,
-  ADSEventTypes,
+  DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
@@ -29,7 +29,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
   handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
     if (
       e.detail.component === "TreeDropdown" &&
-      e.detail.event === ADSEventTypes.KEYBOARD_ANALYTICS
+      e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS
     ) {
       emitInteractionAnalyticsEvent(this.componentRef.current, {
         key: e.detail.meta.key,

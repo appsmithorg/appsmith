@@ -5,7 +5,7 @@ import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
 import { DropdownOption } from "components/ads/Dropdown";
 import {
   AdsEventDetail,
-  ADSEventTypes,
+  DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
@@ -30,7 +30,7 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
   handleAdsEvent = (e: CustomEvent<AdsEventDetail>) => {
     if (
       e.detail.component === "Dropdown" &&
-      e.detail.event === ADSEventTypes.KEYBOARD_ANALYTICS
+      e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS
     ) {
       emitInteractionAnalyticsEvent(this.containerRef.current, {
         key: e.detail.meta.key,

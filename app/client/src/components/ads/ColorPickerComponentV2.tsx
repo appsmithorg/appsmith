@@ -25,7 +25,7 @@ import { getWidgets } from "sagas/selectors";
 import { extractColorsFromString } from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useAdsEvent from "utils/hooks/useAdsEvent";
-import { ADSEventTypes } from "utils/AppsmithUtils";
+import { DSEventTypes } from "utils/AppsmithUtils";
 const FocusTrap = require("focus-trap-react");
 
 const MAX_COLS = 10;
@@ -344,7 +344,7 @@ const ColorPickerComponent = React.forwardRef(
       (key: string) => {
         dispatchAdsEvent({
           component: "ColorPicker",
-          event: ADSEventTypes.KEYBOARD_ANALYTICS,
+          event: DSEventTypes.KEYBOARD_ANALYTICS,
           meta: {
             key,
           },

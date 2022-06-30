@@ -143,13 +143,13 @@ export function emitInteractionAnalyticsEvent<T extends HTMLElement>(
 
 export const DS_EVENT = "DS_EVENT";
 
-export enum ADSEventTypes {
+export enum DSEventTypes {
   KEYBOARD_ANALYTICS = "KEYBOARD_ANALYTICS",
 }
 
 export type AdsEventDetail = {
   component: string;
-  event: ADSEventTypes;
+  event: DSEventTypes;
   meta: Record<string, unknown>;
 };
 

@@ -23,7 +23,7 @@ import SegmentHeader from "components/ads/ListSegmentHeader";
 import { useTheme } from "styled-components";
 import { findIndex, isArray } from "lodash";
 import { SubTextPosition } from "components/constants";
-import { ADSEventTypes, emitAdsEvent } from "utils/AppsmithUtils";
+import { DSEventTypes, emitAdsEvent } from "utils/AppsmithUtils";
 
 export type DropdownOnSelect = (
   value?: string,
@@ -580,7 +580,7 @@ function emitKeyboardAnalyticsEvent(
 ) {
   emitAdsEvent(element, {
     component: "Dropdown",
-    event: ADSEventTypes.KEYBOARD_ANALYTICS,
+    event: DSEventTypes.KEYBOARD_ANALYTICS,
     meta: {
       key,
     },

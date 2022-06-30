@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ControlIcons } from "icons/ControlIcons";
 import _ from "lodash";
-import { ADSEventTypes } from "utils/AppsmithUtils";
+import { DSEventTypes } from "utils/AppsmithUtils";
 import useAdsEvent from "utils/hooks/useAdsEvent";
 
 const ItemWrapper = styled.div<{ selected: boolean }>`
@@ -73,7 +73,7 @@ const ButtonTabComponent = React.forwardRef(
       (key: string) => {
         dispatchAdsEvent({
           component: "ButtonTab",
-          event: ADSEventTypes.KEYBOARD_ANALYTICS,
+          event: DSEventTypes.KEYBOARD_ANALYTICS,
           meta: {
             key,
           },

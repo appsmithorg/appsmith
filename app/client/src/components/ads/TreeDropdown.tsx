@@ -24,7 +24,7 @@ import { DropdownOption } from "components/constants";
 import Icon, { IconSize } from "components/ads/Icon";
 import { replayHighlightClass } from "globalStyles/portals";
 import useAdsEvent from "utils/hooks/useAdsEvent";
-import { ADSEventTypes } from "utils/AppsmithUtils";
+import { DSEventTypes } from "utils/AppsmithUtils";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
@@ -285,7 +285,7 @@ function TreeDropdown(props: TreeDropdownProps) {
     (key: string) => {
       dispatchAdsEvent({
         component: "TreeDropdown",
-        event: ADSEventTypes.KEYBOARD_ANALYTICS,
+        event: DSEventTypes.KEYBOARD_ANALYTICS,
         meta: {
           key,
         },

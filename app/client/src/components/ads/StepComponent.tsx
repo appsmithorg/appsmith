@@ -3,7 +3,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
 import useAdsEvent from "utils/hooks/useAdsEvent";
-import { ADSEventTypes } from "utils/AppsmithUtils";
+import { DSEventTypes } from "utils/AppsmithUtils";
 
 const StyledIncreaseIcon = styled(
   ControlIcons.INCREASE_CONTROL as AnyStyledComponent,
@@ -80,7 +80,7 @@ const StepComponent = React.forwardRef(
       (key: string) => {
         dispatchAdsEvent({
           component: "StepComponent",
-          event: ADSEventTypes.KEYBOARD_ANALYTICS,
+          event: DSEventTypes.KEYBOARD_ANALYTICS,
           meta: {
             key,
           },
