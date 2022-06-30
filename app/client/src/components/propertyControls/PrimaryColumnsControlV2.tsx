@@ -426,6 +426,17 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
         }
       }
     });
+
+    if (isEditable) {
+      const columnOrder = this.props.widgetProperties.columnOrder || [];
+      const editActionColumn = Object.values(columns).find(
+        (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
+      );
+
+      if (editActionColumn) {
+        this.deleteOption(columnOrder.indexOf(editActionColumn.id));
+      }
+    }
   };
 
   checkAndUpdateIfEditableColumnPresent = () => {

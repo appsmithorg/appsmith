@@ -64,7 +64,7 @@ export default {
     {
       propertyName: "discardButtonColor",
       label: "Button Color",
-      controlType: "COLOR_PICKER",
+      controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
       helpText: "Changes the color of the button",
       isJSConvertible: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
