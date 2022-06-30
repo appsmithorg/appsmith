@@ -18,7 +18,7 @@ export const ReadOnlyInput = styled.input`
 `;
 
 export const HighlighedCodeContainer = styled("div")<{
-  containsObject: boolean;
+  containsCode: boolean;
 }>`
   width: 100%;
   background-color: #fff !important;
