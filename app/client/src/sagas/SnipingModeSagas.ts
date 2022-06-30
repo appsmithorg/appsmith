@@ -32,7 +32,6 @@ export function* bindDataToWidgetSaga(
   }>,
 ) {
   const pageId: string = yield select(getCurrentPageId);
-  // console.log("Binding Data in Saga");
   const currentURL = new URL(window.location.href);
   const searchParams = currentURL.searchParams;
   const queryId = searchParams.get("bindTo");
