@@ -199,7 +199,6 @@ function JSResponseView(props: Props) {
     });
     dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
-
   useEffect(() => {
     setResponseStatus(
       getJSResponseViewState(
@@ -213,7 +212,7 @@ function JSResponseView(props: Props) {
   }, [responses, isExecuting, currentFunction, isSaving, isDirty]);
   const tabs = [
     {
-      key: "body",
+      key: "response",
       title: "Response",
       panelComponent: (
         <>
@@ -229,7 +228,10 @@ function JSResponseView(props: Props) {
                 fill
                 label={
                   <FailedMessage>
-                    <DebugButton onClick={onDebugClick} />
+                    <DebugButton
+                      className="js-editor-debug-cta"
+                      onClick={onDebugClick}
+                    />
                   </FailedMessage>
                 }
                 text={
