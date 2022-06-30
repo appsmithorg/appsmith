@@ -679,6 +679,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @WithMockAppsmithUser
     public void buildUserProfileDTO_WhenAnonymousUser_ReturnsProfile() {
         User user = new User();
         user.setIsAnonymous(true);
