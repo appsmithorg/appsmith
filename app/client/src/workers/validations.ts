@@ -272,6 +272,25 @@ function validateExcessLength(text: string, maxLength: number): boolean {
   return lineBreakCount === 0 && text.length > maxLength;
 }
 
+/**
+ * Iterate through an object,
+ * Check for length of string values
+ * and trim them in case they are too long.
+ */
+function validateObjectValues(obj: any): any {
+  if (!obj) return;
+  Object.keys(obj).forEach((key) => {
+    if (typeof obj[key] === "string" && obj[key].length > 100000) {
+      obj[key] = obj[key].substring(0, 100000);
+    } else if (isObject(obj[key])) {
+      obj[key] = validateObjectValues(obj[key]);
+    } else if (isArray(obj[key])) {
+      obj[key] = obj[key].map((item: any) => validateObjectValues(item));
+    }
+  });
+  return obj;
+}
+
 //TODO: parameter props may not be in use
 export const validate = (
   config: ValidationConfig,
@@ -391,13 +410,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       ) {
         return {
           isValid: false,
-          parsed: JSON.stringify(value), // Parse without line breaks
+          parsed: JSON.stringify(validateObjectValues(value)), // Parse without line breaks
           messages: [LINE_BREAKS_ERROR_MESSAGE],
         };
       }
       return {
         isValid: false,
-        parsed: JSON.stringify(value, null, 2),
+        parsed: JSON.stringify(validateObjectValues(value), null, 2),
         messages: [
           `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         ],
@@ -439,9 +458,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       }
     }
 
-    if (validateExcessLength(parsed as string, 20000)) {
+    if (validateExcessLength(parsed as string, 200000)) {
       return {
-        parsed: (parsed as string)?.substring(0, 20000),
+        parsed: (parsed as string)?.substring(0, 200000),
         isValid: false,
         messages: [
           "Excessive text length without a line break. Rendering a substring to avoid app crash.",
