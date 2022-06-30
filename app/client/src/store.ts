@@ -1,5 +1,5 @@
 import { reduxBatch } from "@manaflair/redux-batch";
-import { createStore, applyMiddleware, compose, Middleware } from "redux";
+import { createStore, applyMiddleware, compose } from "redux";
 import {
   useSelector as useReduxSelector,
   TypedUseSelectorHook,
