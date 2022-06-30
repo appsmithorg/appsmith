@@ -794,9 +794,7 @@ Cypress.Commands.add("DeleteModal", () => {
 
 Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
   let pageId;
-  cy.get(pages.AddPage)
-    .first()
-    .click({ force: true });
+  cy.CreatePage();
   cy.wait("@createPage").then((xhr) => {
     expect(xhr.response.body.responseMeta.status).to.equal(201);
     if (pageName) {

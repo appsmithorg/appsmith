@@ -1667,3 +1667,10 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add("CreatePage", () => {
+  cy.get(pages.AddPage)
+    .first()
+    .click();
+  cy.get("[data-cy='add-page']").click();
+});

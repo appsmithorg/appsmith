@@ -36,9 +36,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.testSaveDatasource();
 
     //Create Dummy Page2 :
-    cy.get(pages.AddPage)
-      .first()
-      .click();
+    cy.CreatePage();
     cy.wait("@createPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -46,9 +44,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     );
 
     //Create CRUD page-Page3
-    cy.get(pages.AddPage)
-      .first()
-      .click();
+    cy.CreatePage();
     cy.wait("@createPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -87,9 +83,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.get("span:contains('GOT IT')").click();
 
     //Create CRUD page-Page4
-    cy.get(pages.AddPage)
-      .first()
-      .click();
+    cy.CreatePage();
     cy.wait("@createPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",

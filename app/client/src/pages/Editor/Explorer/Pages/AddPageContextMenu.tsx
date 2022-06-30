@@ -67,6 +67,7 @@ function AddPageContextMenu({
       title: createMessage(CREATE_PAGE),
       icon: <AddPage />,
       onClick: createPageCallback,
+      "data-cy": "add-page",
     },
     {
       title: createMessage(GENERATE_PAGE_ACTION_TITLE),
@@ -75,11 +76,13 @@ function AddPageContextMenu({
         history.push(
           generateTemplateFormURL({ applicationSlug, pageSlug, pageId }),
         ),
+      "data-cy": "generate-page",
     },
     {
       title: createMessage(ADD_PAGE_FROM_TEMPLATE),
       icon: <Layout />,
       onClick: () => dispatch(showTemplatesModal(true)),
+      "data-cy": "add-page-from-template",
     },
   ];
 
@@ -95,7 +98,11 @@ function AddPageContextMenu({
         <>
           {ContextMenuItems.map((item) => {
             return (
-              <MenuItem key={item.title} onClick={() => onMenuItemClick(item)}>
+              <MenuItem
+                data-cy={item["data-cy"]}
+                key={item.title}
+                onClick={() => onMenuItemClick(item)}
+              >
                 {item.icon}
                 <Text color={Colors.GRAY_700} type={TextType.P3}>
                   {item.title}
