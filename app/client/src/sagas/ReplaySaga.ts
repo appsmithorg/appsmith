@@ -79,6 +79,7 @@ import {
   updateSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import { AppThemingMode } from "selectors/appThemingSelectors";
+import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
