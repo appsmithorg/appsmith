@@ -187,6 +187,19 @@ describe("Rest Bugs tests", function() {
       });
   });
 
+  it("Bug 13515: API Response gets garbled if encoded with gzip", function() {
+    cy.NavigateToAPI_Panel();
+    cy.CreateAPI("GarbledResponseAPI");
+    cy.enterDatasource("https://postman-echo.com/gzip");
+    cy.wait(1000);
+    cy.onlyQueryRun();
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response.body.data.isExecutionSuccess).to.eq(true);
+      const bodyArr = response.body.data.body;
+      expect(bodyArr).to.have.any.keys("gzipped");
+    });
+  });
+
   afterEach(() => {
     // put your clean up code if any
   });

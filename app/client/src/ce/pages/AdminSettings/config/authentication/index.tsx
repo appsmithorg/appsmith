@@ -39,7 +39,7 @@ const FormAuth: AdminConfigType = {
       subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.TOGGLE,
       label: "Form Login",
-      toggleText: (value: boolean) => (value ? "Enabled" : "Disabled"),
+      toggleText: (value: boolean) => (value ? "Disabled" : "Enabled"),
     },
     {
       id: "APPSMITH_SIGNUP_DISABLED",
@@ -49,8 +49,8 @@ const FormAuth: AdminConfigType = {
       label: "Form Signup",
       toggleText: (value: boolean) =>
         value
-          ? "Allow all users to signup"
-          : "Allow only invited users to signup",
+          ? "Allow only invited users to signup"
+          : "Allow all users to signup",
     },
     {
       id: "APPSMITH_FORM_CALLOUT_BANNER",
