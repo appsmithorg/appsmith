@@ -13,6 +13,7 @@ import {
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
   INPUT_DEFAULT_TEXT_MAX_NUM_ERROR,
   INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
+  INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
@@ -455,6 +456,11 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         isInvalid = true;
         conditionalProps.errorMessage = createMessage(
           INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+        );
+      } else if (value && value.length > this.props.maxChars) {
+        isInvalid = true;
+        conditionalProps.errorMessage = createMessage(
+          INPUT_TEXT_MAX_CHAR_ERROR,
         );
       }
     }

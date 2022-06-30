@@ -16,6 +16,29 @@ describe("Input Widget Max Char Functionality", function() {
     });
   });
 
+  it("Text Input maxChar shows error if inputText longer than maxChar", () => {
+    cy.openPropertyPane("inputwidgetv2");
+    cy.clearComputedValueFirst();
+    cy.testJsontext("defaulttext", "");
+    cy.closePropertyPane("inputwidgetv2");
+
+    cy.get(widgetsPage.innertext)
+      .click({ force: true })
+      .type("1234567");
+
+    cy.openPropertyPane("inputwidgetv2");
+    cy.updateComputedValue(3);
+    cy.closePropertyPane("inputwidgetv2");
+
+    cy.get(widgetsPage.innertext).click();
+    cy.wait(1000);
+    cy.get(".bp3-popover-content").should(($x) => {
+      expect($x).contain(
+        "Input Text length must be less than Max Chars allowed",
+      );
+    });
+  });
+
   it("Number Input will not show error for maxChar validation", () => {
     cy.openPropertyPane("inputwidgetv2");
     cy.selectDropdownValue(commonlocators.dataType, "Number");
