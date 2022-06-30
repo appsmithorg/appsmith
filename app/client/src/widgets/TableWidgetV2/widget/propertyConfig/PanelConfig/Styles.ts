@@ -193,7 +193,7 @@ export default {
     {
       propertyName: "textColor",
       label: "Text Color",
-      controlType: "COLOR_PICKER",
+      controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
       isJSConvertible: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
       dependencies: ["primaryColumns", "columnOrder"],
@@ -220,7 +220,7 @@ export default {
     {
       propertyName: "cellBackground",
       label: "Cell Background",
-      controlType: "COLOR_PICKER",
+      controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
       isJSConvertible: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
       dependencies: ["primaryColumns", "columnOrder"],

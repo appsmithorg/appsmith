@@ -62,6 +62,9 @@ import PrimaryColumnsControlV2 from "components/propertyControls/PrimaryColumnsC
 import ComputeTablePropertyControlV2, {
   ComputeTablePropertyControlPropsV2,
 } from "components/propertyControls/TableComputeValue";
+import PrimaryColumnColorPickerControlV2, {
+  PrimaryColumnColorPickerControlPropsV2,
+} from "components/propertyControls/PrimaryColumnColorPickerControlV2";
 
 export const PropertyControls = {
   InputTextControl,
@@ -97,6 +100,7 @@ export const PropertyControls = {
   LabelAlignmentOptionsControl,
   NumericInputControl,
   PrimaryColumnColorPickerControl,
+  PrimaryColumnColorPickerControlV2,
 };
 
 export type PropertyControlPropsType =
@@ -115,7 +119,8 @@ export type PropertyControlPropsType =
   | NumericInputControlProps
   | PrimaryColumnColorPickerControlProps
   | ComputeTablePropertyControlPropsV2
-  | PrimaryColumnDropdownControlProps;
+  | PrimaryColumnDropdownControlProps
+  | PrimaryColumnColorPickerControlPropsV2;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

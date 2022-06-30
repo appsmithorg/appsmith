@@ -128,7 +128,7 @@ export default {
     {
       propertyName: "buttonColor",
       label: "Button Color",
-      controlType: "COLOR_PICKER",
+      controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
       helpText: "Changes the color of the button",
       isJSConvertible: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
@@ -251,7 +251,7 @@ export default {
       propertyName: "menuColor",
       helpText: "Sets the custom color preset based on the menu button variant",
       label: "Menu Color",
-      controlType: "COLOR_PICKER",
+      controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
       customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
