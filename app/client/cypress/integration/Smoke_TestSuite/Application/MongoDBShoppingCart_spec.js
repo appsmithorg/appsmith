@@ -29,8 +29,9 @@ describe("Shopping cart App", function() {
     cy.get(queryLocators.createQuery)
       .last()
       .click();
-    cy.wait(5000);
     cy.get(queryLocators.queryNameField).type("GetProduct");
+    // Clicking outside to trigger the save
+    cy.get("body").click(0, 0);
     cy.get(".CodeEditorTarget")
       .first()
       .type("Productnames");
@@ -40,16 +41,13 @@ describe("Shopping cart App", function() {
     cy.get(queryLocators.createQuery)
       .last()
       .click();
-    cy.wait(5000);
     cy.get(queryLocators.queryNameField).type("EditProducts");
+    // Clicking outside to trigger the save
+    cy.get("body").click(0, 0);
     cy.TargetDropdownAndSelectOption(
       formControls.commandDropdown,
       "Update Document(s)",
     );
-    // cy.get("[data-cy='actionConfiguration.formData.command.data']").click();
-    // cy.get(".t--dropdown-option")
-    //   .eq(2)
-    //   .click();
     cy.get(".CodeEditorTarget")
       .first()
       .type("Productnames");
@@ -77,6 +75,8 @@ describe("Shopping cart App", function() {
       .click();
     cy.wait(5000);
     cy.get(queryLocators.queryNameField).type("AddProduct");
+    // Clicking outside to trigger the save
+    cy.get("body").click(0, 0);
     cy.TargetDropdownAndSelectOption(
       formControls.commandDropdown,
       "Insert Document(s)",
@@ -105,6 +105,8 @@ describe("Shopping cart App", function() {
       .click();
     cy.wait(5000);
     cy.get(queryLocators.queryNameField).type("DeleteProduct");
+    // Clicking outside to trigger the save
+    cy.get("body").click(0, 0);
     cy.TargetDropdownAndSelectOption(
       formControls.commandDropdown,
       "Delete Document(s)",
