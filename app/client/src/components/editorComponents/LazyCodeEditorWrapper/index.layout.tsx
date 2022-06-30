@@ -5,9 +5,6 @@ import { Icon } from "components/ads";
 export const ReadOnlyInput = styled.input`
   width: 100%;
   background-color: rgba(0, 0, 0, 0) !important;
-  font-family: monospace !important;
-  font-weight: 400 !important;
-  line-height: 21px !important;
 
   position: absolute;
   top: 0;
@@ -32,6 +29,7 @@ export const HighlighedCodeContainer = styled("div")<{
   pre {
     margin: 0 !important;
     overflow: hidden !important;
+    font-size: 14px !important;
     font-family: monospace !important;
     padding: 0 !important;
     background: white !important;
@@ -43,7 +41,8 @@ export const HighlighedCodeContainer = styled("div")<{
     code {
       background: white !important;
       font-family: monospace !important;
-      line-height: 1.495 !important;
+      line-height: 21px !important;
+      font-size: 14px !important;
     }
   }
 `;
