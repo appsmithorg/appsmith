@@ -22,5 +22,17 @@
 	"retries": {
 		"runMode": 1,
 		"openMode": 0
+	},
+	"env": {
+		"USERNAME": "ayush+2@appsmith.com",
+		"PASSWORD": "test123",
+		"TESTUSERNAME1": "ayush+2@appsmith.com",
+		"TESTPASSWORD1": "test123",
+		"TESTUSERNAME2": "ayush+2@appsmith.com",
+		"TESTPASSWORD2": "tets123",
+		"TEST_GITHUB_USER_NAME": "ayushpahwa",
+		"GITHUB_PERSONAL_ACCESS_TOKEN": "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",
+		"S3_ACCESS_KEY": "AKIAVWHAAGIQAAZUC64K",
+		"S3_SECRET_KEY": "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"
 	}
 }
