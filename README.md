@@ -1,4 +1,4 @@
-<a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website"><img src="static/git-banner-new.png" width="100%" alt="Appsmith - The Frontend Tool for Any Backend"></a>
+<a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website"><img src="static/git-banner-new.png" width="100%" alt="Appsmith  - The Frontend Tool for Any Backend"></a>
 
 <h3 align="center">
   <b><a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Get Started</a></b>
