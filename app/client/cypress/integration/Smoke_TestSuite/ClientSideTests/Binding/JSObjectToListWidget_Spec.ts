@@ -7,7 +7,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   apiPage = ObjectsRegistry.ApiPage,
   table = ObjectsRegistry.Table,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  propPane = ObjectsRegistry.PropertyPane;
 
 describe("Validate JSObj binding to Table widget", () => {
   before(() => {
@@ -43,7 +44,7 @@ describe("Validate JSObj binding to Table widget", () => {
 
   it("2. Validate the Api data is updated on List widget + Bug 12438", function() {
     ee.SelectEntityByName("List1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Items",
       (("{{" + jsName) as string) + ".myFun1()}}",
     );
@@ -75,7 +76,7 @@ describe("Validate JSObj binding to Table widget", () => {
 
   it("3. Validate the List widget + Bug 12438 ", function() {
     ee.SelectEntityByName("List1", "WIDGETS");
-    jsEditor.EnterJSContext("Item Spacing (px)", "50");
+    propPane.UpdatePropertyFieldValue("Item Spacing (px)", "50");
     cy.get(locator._textWidget).should("have.length", 6);
     deployMode.DeployApp(locator._textWidgetInDeployed);
     agHelper.AssertElementLength(locator._textWidgetInDeployed, 6);
