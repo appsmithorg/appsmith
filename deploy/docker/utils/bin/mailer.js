@@ -32,36 +32,39 @@ async function sendBackupErrorToAdmins(err, backupTimestamp){
             const lastBackupTimestamp = lastBackupfile.match(/appsmith-backup-(.*)\.tar.gz/)[1]
             const lastBackupPath = Constants.BACKUP_PATH + '/' + lastBackupfile;
         
-            let domainNameOrIP = process.env.APPSMITH_CUSTOM_DOMAIN 
-            if (domainNameOrIP === ''){
-                console.log('Host IP:')
-                domainNameOrIP = shell.exec('curl -s ifconfig.me')
-                console.log('\n')
+            const domainName = process.env.APPSMITH_CUSTOM_DOMAIN
+            const instanceName = process.env.APPSMITH_INSTANCE_NAME
+
+            let text = 'Appsmith backup did not complete successfully.\n\n ' + 
+            'Backup timestamp: ' + backupTimestamp + '\n\n' +
+            'Last Successful Backup timestamp: ' + lastBackupTimestamp + '\n' +
+            'Last Successful Backup location: ' + lastBackupPath + '\n\n' 
+           
+            if (instanceName){
+                text = text + 'Appsmith instance name: ' + instanceName + '\n'
             }
-            
-          const adminSettingsURL = 'http://' + domainNameOrIP + '/settings/general'
-          const transporter = nodemailer.createTransport({
-            host: mailHost,
-            port: mailPort,
-            auth: {
-                user: mailUser,
-                pass: mailPass
-              }
-          });
-          const text = 'Appsmith backup did not complete successfully.\n\n ' + 
-                        'Backup timestamp: ' + backupTimestamp + '\n\n' +
-                        'Last Successful Backup timestamp: ' + lastBackupTimestamp + '\n' +
-                        'Last Successful Backup location: ' + lastBackupPath + '\n\n' +
-                        'Link to Appsmith admin settings: ' + adminSettingsURL +
-                        '\n\n' + err.stack;
-        //   console.log('Mail body: ' + text)
-            await transporter.sendMail({
-                from: mailFrom,
-                to: mailTo,
-                subject: '[Appsmith] ERROR: Backup Failed',
-                text: text
-                });
+            if (domainName){
+                text = text + 'Link to Appsmith admin settings: ' + 'http://' + domainName + '/settings/general'+ '\n'
             }
+            text = text +  '\n' + err.stack;
+             
+            const transporter = nodemailer.createTransport({
+                host: mailHost,
+                port: mailPort,
+                auth: {
+                    user: mailUser,
+                    pass: mailPass
+                }
+            });
+           
+            //   console.log('Mail body: ' + text)
+                await transporter.sendMail({
+                    from: mailFrom,
+                    to: mailTo,
+                    subject: '[Appsmith] ERROR: Backup Failed',
+                    text: text
+                    });
+          }
         } catch(err){
             console.log(err);
             await logger.backup_error(err.stack);
