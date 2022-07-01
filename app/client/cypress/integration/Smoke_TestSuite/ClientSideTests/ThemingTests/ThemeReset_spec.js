@@ -13,11 +13,22 @@ describe("Theme validation usecases", function() {
     cy.openPropertyPane("buttonwidget");
 
     // change color to red
+    cy.window()
+    .its('performance')
+    .invoke('mark', 'updateColor')
+
     cy.get(widgetsPage.buttonColor)
       .click({ force: true })
       .clear()
       .type("red");
 
+    cy.window()
+      .its('performance')
+      .invoke('measure', 'ColorChange')
+      .then(({ duration }) => {
+        const measuredDuration = duration
+        cy.log("duration:"+measuredDuration);
+        });
     // click on canvas to see the theming pane
     cy.get("#canvas-selection-0").click({ force: true });
 
