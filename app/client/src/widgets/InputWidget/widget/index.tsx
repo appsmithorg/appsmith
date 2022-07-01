@@ -834,6 +834,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         isInvalid = true;
         conditionalProps.errorMessage = createMessage(
           INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+          this.props.maxChars,
         );
       }
     }
