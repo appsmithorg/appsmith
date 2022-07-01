@@ -41,13 +41,13 @@ const baseURLRegistry = {
   },
 };
 
-type ApplicationURLParams = {
+export type ApplicationURLParams = {
   applicationId?: string;
   applicationSlug?: string;
   applicationVersion?: ApplicationVersion;
 };
 
-type PageURLParams = {
+export type PageURLParams = {
   pageId: string;
   pageSlug: string;
   customSlug?: string;
