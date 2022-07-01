@@ -309,7 +309,7 @@ const extractExpressionObject = (
   config: string,
   path: any,
   parentPath: string,
-) => {
+): FormConfigEvalObject => {
   const bindingPaths: FormConfigEvalObject = {};
   const expressions = config.match(DATA_BIND_REGEX_GLOBAL);
   if (Array.isArray(expressions) && expressions.length > 0) {

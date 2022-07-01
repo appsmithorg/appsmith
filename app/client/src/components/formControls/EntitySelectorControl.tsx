@@ -1,10 +1,10 @@
 import React from "react";
 import FormControl from "pages/Editor/FormControl";
 import styled from "styled-components";
-import { ControlProps } from "./BaseControl";
+import { ControlProps, FormConfigType } from "./BaseControl";
 import { allowedControlTypes } from "components/formControls/utils";
 
-const dropDownFieldConfig: any = {
+const dropDownFieldConfig: Partial<FormConfigType> = {
   label: "",
   controlType: "DROP_DOWN",
   fetchOptionsConditionally: true,
@@ -14,7 +14,7 @@ const dropDownFieldConfig: any = {
   },
 };
 
-const inputFieldConfig: any = {
+const inputFieldConfig: Partial<FormConfigType> = {
   label: "",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
   customStyles: {

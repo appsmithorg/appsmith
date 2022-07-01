@@ -87,6 +87,7 @@ export type FormConfigType = Omit<ControlData, "configProperty"> & {
   configProperty?: string;
   children?: FormConfigType[];
   options?: DropdownOption[];
+  fetchOptionsConditionally?: boolean;
 };
 
 export interface ControlFunctions {
