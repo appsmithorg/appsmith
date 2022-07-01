@@ -286,6 +286,15 @@ const DropdownSelect = styled.div`
     & > div {
       height: 100%;
     }
+
+    & .appsmith-select__input > input {
+      position: relative;
+      bottom: 4px;
+    }
+
+    & .appsmith-select__input > input[value=""] {
+      caret-color: transparent;
+    }
   }
 `;
 
