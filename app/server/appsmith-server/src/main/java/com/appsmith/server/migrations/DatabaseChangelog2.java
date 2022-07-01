@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.QBaseDomain;
@@ -61,6 +62,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -1037,5 +1039,49 @@ public class DatabaseChangelog2 {
         mongockTemplate.updateMulti(new Query(Criteria.where("publishedAction.datasource.organizationId").exists(true)),
             AggregationUpdate.update().set("publishedAction.datasource.workspaceId").toValueOf(Fields.field("publishedAction.datasource.organizationId")),
             NewAction.class);
+    }
+
+    private List<String>  getCustomizedThemeIds(String fieldName, Function<Application, String> getThemeIdMethod, List<String> systemThemeIds, MongockTemplate mongockTemplate) {
+        // query to get application having a customized theme in the provided fieldName
+        Query getAppsWithCustomTheme = new Query(
+                Criteria.where(fieldName(QApplication.application.gitApplicationMetadata)).exists(true)
+                        .and(fieldName(QApplication.application.deleted)).is(false)
+                        .and(fieldName).nin(systemThemeIds)
+                        .and(fieldName).exists(true)
+        );
+
+        // we need the provided field "fieldName" only
+        getAppsWithCustomTheme.fields().include(fieldName);
+
+        List<Application> applications = mongockTemplate.find(getAppsWithCustomTheme, Application.class);
+        return applications.stream().map(getThemeIdMethod).collect(Collectors.toList());
+    }
+
+    @ChangeSet(order = "019", id = "fix-deleted-themes-when-git-branch-deleted", author = "")
+    public void fixDeletedThemesWhenGitBranchDeleted(MongockTemplate mongockTemplate) {
+        Query getSystemThemesQuery = new Query(Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(TRUE));
+        getSystemThemesQuery.fields().include(fieldName(QTheme.theme.id));
+        List<Theme> systemThemes = mongockTemplate.find(getSystemThemesQuery, Theme.class);
+        List<String> systemThemeIds = systemThemes.stream().map(BaseDomain::getId).collect(Collectors.toList());
+
+        List<String> customizedEditModeThemeIds = getCustomizedThemeIds(
+                fieldName(QApplication.application.editModeThemeId), Application::getEditModeThemeId, systemThemeIds, mongockTemplate
+        );
+
+        List<String> customizedPublishedModeThemeIds = getCustomizedThemeIds(
+                fieldName(QApplication.application.publishedModeThemeId), Application::getPublishedModeThemeId, systemThemeIds, mongockTemplate
+        );
+
+        // combine the theme ids
+        Set<String> set = new HashSet<>();
+        set.addAll(customizedEditModeThemeIds);
+        set.addAll(customizedPublishedModeThemeIds);
+
+        Update update = new Update().set(fieldName(QTheme.theme.deleted), false)
+                .unset(fieldName(QTheme.theme.deletedAt));
+        Criteria deletedCustomThemes = Criteria.where(fieldName(QTheme.theme.id)).in(set)
+                .and(fieldName(QTheme.theme.deleted)).is(true);
+
+        mongockTemplate.updateMulti(new Query(deletedCustomThemes), update, Theme.class);
     }
 }
