@@ -187,6 +187,7 @@ export const clonePageSuccess = (
   pageId: string,
   pageName: string,
   layoutId: string,
+  pageSlug: string,
 ) => {
   return {
     type: ReduxActionTypes.CLONE_PAGE_SUCCESS,
@@ -194,6 +195,7 @@ export const clonePageSuccess = (
       pageId,
       pageName,
       layoutId,
+      pageSlug,
     },
   };
 };

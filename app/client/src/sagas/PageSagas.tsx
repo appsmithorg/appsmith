@@ -687,6 +687,7 @@ export function* clonePageSaga(
           response.data.id,
           response.data.name,
           response.data.layouts[0].id,
+          response.data.slug,
         ),
       );
       // Add this to the page DSLs for entity explorer

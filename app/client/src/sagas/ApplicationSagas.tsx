@@ -429,7 +429,6 @@ export function* duplicateApplicationSaga(
         payload: response.data,
       });
 
-      // TODO: Update URL params here.
       const pageURL = builderURL({
         pageId: application.defaultPageId,
       });
@@ -551,7 +550,6 @@ export function* createApplicationSaga(
           getFirstTimeUserOnboardingApplicationId,
         );
         let pageURL;
-        // TODO: Update route params here
         if (
           isFirstTimeUserOnboardingEnabled &&
           FirstTimeUserOnboardingApplicationId === ""
@@ -614,7 +612,6 @@ export function* forkApplicationSaga(
           application,
         },
       });
-      // TODO: Update route params here
       const pageURL = builderURL({
         pageId: application.defaultPageId as string,
       });

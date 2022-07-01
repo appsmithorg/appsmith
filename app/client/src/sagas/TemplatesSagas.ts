@@ -56,13 +56,12 @@ function* importTemplateToWorkspaceSaga(
         ...response.data,
         defaultPageId: getDefaultPageId(response.data.pages) as string,
       };
-      // TODO: Update route params here
-      const pageURL = builderURL({
-        pageId: application.defaultPageId,
-      });
       yield put({
         type: ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_SUCCESS,
         payload: response.data,
+      });
+      const pageURL = builderURL({
+        pageId: application.defaultPageId,
       });
       history.push(pageURL);
     }

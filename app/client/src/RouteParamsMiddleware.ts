@@ -18,6 +18,7 @@ const routeParamsMiddleware: Middleware = () => (next: any) => (
   switch (action.type) {
     case ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS:
     case ReduxActionTypes.IMPORT_APPLICATION_SUCCESS:
+    case ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_SUCCESS:
     case ReduxActionTypes.FETCH_APPLICATION_SUCCESS: {
       const application: ApplicationPayload = action.payload;
       const { pages } = application;
@@ -107,6 +108,15 @@ const routeParamsMiddleware: Middleware = () => (next: any) => (
         applicationSlug: application.slug,
         applicationVersion: application.applicationVersion,
       };
+      break;
+    case ReduxActionTypes.CLONE_PAGE_SUCCESS:
+      const { pageId, pageSlug } = action.payload;
+      pageParams = [
+        {
+          pageId,
+          pageSlug,
+        },
+      ];
       break;
     default:
       break;
