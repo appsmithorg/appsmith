@@ -19,7 +19,6 @@ type filedTypeValues =
 
 export class PropertyPane {
   private agHelper = ObjectsRegistry.AggregateHelper;
-  private jsEditor = ObjectsRegistry.JSEditor;
   private locator = ObjectsRegistry.CommonLocators;
 
   _fieldConfig = (fieldName: string) =>
@@ -72,7 +71,7 @@ export class PropertyPane {
   public ChangeTheme(newTheme: string) {
     this.agHelper.GetNClick(this._changeThemeBtn, 0, true);
     this.agHelper.GetNClick(this._themeCard(newTheme));
-    this.agHelper.ValidateToastMessage("Theme " + newTheme + " Applied");
+    this.agHelper.WaitUntilToastDisappear("Theme " + newTheme + " Applied");
   }
 
   public ChangeColor(
@@ -109,9 +108,9 @@ export class PropertyPane {
         .GetText(this.locator._existingActualValueByName("Property Name"))
         .then(($propName) => {
           placeHolderText = "{{sourceData." + $propName + "}}";
-          this.jsEditor.EnterJSContext("Placeholder", placeHolderText);
+          this.UpdatePropertyFieldValue("Placeholder", placeHolderText);
         });
-      this.jsEditor.EnterJSContext("Default Value", "");
+      this.UpdatePropertyFieldValue("Default Value", "");
       this.NavigateBackToPropertyPane();
     });
   }
@@ -127,5 +126,23 @@ export class PropertyPane {
         .should("not.be.checked");
     }
     this.agHelper.AssertAutoSave();
+  }
+
+  public SelectJSFunctionToExecute(
+    eventName: string,
+    jsName: string,
+    funcName: string,
+  ) {
+    this.agHelper.SelectPropertiesDropDown(eventName, "Execute a JS function");
+    this.agHelper.GetNClick(this.locator._dropDownValue(jsName), 0, true);
+    this.agHelper.GetNClick(this.locator._dropDownValue(funcName), 0, true);
+    this.agHelper.AssertAutoSave();
+  }
+
+  public UpdatePropertyFieldValue(propFieldName: string, valueToEnter: string) {
+    cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
+      ($field: any) => {
+        this.agHelper.UpdateCodeInput($field, valueToEnter);
+      });
   }
 }

@@ -2,15 +2,14 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let guid: any, dsName: any, newCallsign: any;
 
-let agHelper = ObjectsRegistry.AggregateHelper,
+const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   locator = ObjectsRegistry.CommonLocators,
   table = ObjectsRegistry.Table,
   homePage = ObjectsRegistry.HomePage,
   dataSources = ObjectsRegistry.DataSources,
   propPane = ObjectsRegistry.PropertyPane,
-  deployMode = ObjectsRegistry.DeployMode,
-  jsEditor = ObjectsRegistry.JSEditor;
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate Postgres Generate CRUD with JSON Form", () => {
   before(() => {
@@ -106,7 +105,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    propPane.ChangeTheme("Rounded");
+    propPane.ChangeTheme("Modern");
   });
 
   it("3. Generate CRUD page from datasource present in ACTIVE section", function() {
@@ -135,7 +134,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("4. Create new CRUD Table 'Vessels' and populate & refresh Entity Explorer to find the new table", () => {
-    let tableCreateQuery = `CREATE TABLE Vessels(
+    const tableCreateQuery = `CREATE TABLE Vessels(
       SHIP_ID                  INTEGER  NOT NULL PRIMARY KEY
      ,CALLSIGN                 VARCHAR(7)
      ,SHIPNAME                 VARCHAR(30) NOT NULL
@@ -259,7 +258,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("7. Update the UpdateQuery to update all columns from UI", () => {
-    let updateQuery = `UPDATE public."vessels" SET
+    const updateQuery = `UPDATE public."vessels" SET
 		"callsign" = UPPER('{{update_form.fieldState.callsign.isVisible ? update_form.formData.callsign : update_form.sourceData.callsign}}'),
 		"shipname" = '{{update_form.fieldState.shipname.isVisible ? update_form.formData.shipname : update_form.sourceData.shipname}}',
     "country" = '{{update_form.fieldState.country.isVisible ? update_form.formData.country : update_form.sourceData.country}}',
@@ -483,7 +482,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   it("12. Update the InsertQuery to insert all columns from UI", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    let insertQuery = `INSERT INTO public."vessels" (
+    const insertQuery = `INSERT INTO public."vessels" (
       "ship_id",
       "callsign",
       "shipname",
@@ -685,7 +684,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("16. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
-    let deleteTblQuery = "DROP TABLE Vessels;";
+    const deleteTblQuery = "DROP TABLE Vessels;";
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropVessels");
@@ -701,7 +700,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("17. Verify application does not break when user runs the query with wrong table name", function() {
-    let deleteTblQuery = "DROP TABLE vessels;";
+    const deleteTblQuery = "DROP TABLE vessels;";
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropVessels");
@@ -767,7 +766,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     table.ReadTableRowColumnData(rowIndex, 9, 200).then(($yearBuilt: any) => {
       table.ReadTableRowColumnData(rowIndex, 11, 200).then(($areaCode: any) => {
         table.ReadTableRowColumnData(rowIndex, 3, 200).then(($country: any) => {
-          var callSign =
+          const callSign =
             ($country as string).slice(0, 2) +
             ($areaCode as string).slice(0, 3) +
             ($yearBuilt as string).slice(0, 2); //(/(?<=\()).+?(?=\))/g)
@@ -809,7 +808,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     propPane.NavigateBackToPropertyPane();
 
     propPane.ChangeJsonFormFieldType("Vessel Type", "Select");
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Options",
       `{{["Cargo", "Pleasure Craft", "Passenger", "Fishing", "Special Craft"].map(item=> {return {
         label: item,
@@ -819,9 +818,9 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     propPane.NavigateBackToPropertyPane();
 
     propPane.OpenJsonFormFieldSettings("Timezone");
-    jsEditor.EnterJSContext("Min", "-10");
-    jsEditor.EnterJSContext("Max", "10");
-    jsEditor.EnterJSContext("Error Message", "Not a valid timezone!");
+    propPane.UpdatePropertyFieldValue("Min", "-10");
+    propPane.UpdatePropertyFieldValue("Max", "10");
+    propPane.UpdatePropertyFieldValue("Error Message", "Not a valid timezone!");
     propPane.NavigateBackToPropertyPane();
 
     propPane.ChangeJsonFormFieldType("Eta Updated", "Datepicker");

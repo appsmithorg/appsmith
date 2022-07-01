@@ -110,9 +110,10 @@ export class AggregateHelper {
     });
   }
 
-  public ValidateToastMessage(text: string, length = 1) {
+  public ValidateToastMessage(text: string, index = 0, length = 1) {
+    cy.get(this.locator._toastMsg).should("have.length.at.least", length);
     cy.get(this.locator._toastMsg)
-      .should("have.length", length)
+      .eq(index)
       .should("contain.text", text);
   }
 
@@ -138,7 +139,8 @@ export class AggregateHelper {
     });
   }
 
-  public WaitUntilToastDisappear(msgToCheckforDisappearance: string | "") {
+  public WaitUntilToastDisappear(msgToCheckforDisappearance: string | "", index = 0 , length = 1) {
+    this.ValidateToastMessage(msgToCheckforDisappearance, index, length);
     cy.waitUntil(() => cy.get(this.locator._toastMsg), {
       errorMsg: msgToCheckforDisappearance + " did not disappear",
       timeout: 5000,
@@ -511,6 +513,7 @@ export class AggregateHelper {
     if (action == "Delete") {
       !jsDelete && this.ValidateNetworkStatus("@deleteAction");
       jsDelete && this.ValidateNetworkStatus("@deleteJSCollection");
+      jsDelete && this.WaitUntilToastDisappear("deleted successfully");
     }
   }
 
@@ -528,14 +531,7 @@ export class AggregateHelper {
     options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
   ) {
     const { directInput, inputFieldName, propFieldName } = options;
-
-    if (propFieldName && !directInput && !inputFieldName) {
-      cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
-        ($field: any) => {
-          this.UpdateCodeInput($field, valueToEnter);
-        },
-      );
-    } else if (propFieldName && directInput && !inputFieldName) {
+    if (propFieldName && directInput && !inputFieldName) {
       cy.get(propFieldName).then(($field: any) => {
         this.UpdateCodeInput($field, valueToEnter);
       });
