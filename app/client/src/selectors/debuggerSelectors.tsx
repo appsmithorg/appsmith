@@ -16,12 +16,19 @@ export const getFilteredErrors = createSelector(
   (errors, hideErrors, canvasWidgets, dataTree: DataTree) => {
     if (hideErrors) return {};
 
+    const alwaysShowEntities: Record<string, boolean> = {};
+    Object.entries(errors).forEach(([, error]) => {
+      if (error.source?.propertyPath === "isVisible") {
+        alwaysShowEntities[error.source.id] = true;
+      }
+    });
     const filteredErrors = Object.fromEntries(
       Object.entries(errors).filter(([, error]) => {
         const entity = error?.source?.name && dataTree[error.source.name];
         // filter error - when widget or parent widget is hidden
         // parent widgets e.g. modal, tab, container
         if (entity && isWidget(entity)) {
+          if (alwaysShowEntities[entity.widgetId]) return true;
           if (!hasParentWidget(entity)) {
             return entity.isVisible
               ? true
