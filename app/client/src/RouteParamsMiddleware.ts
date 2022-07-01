@@ -95,7 +95,7 @@ const routeParamsMiddleware: Middleware = () => (next: any) => (
       urlBuilder.updateURLParams(null, [
         {
           pageSlug: page.slug,
-          pageId: page.pageId,
+          pageId: page.id,
           customSlug: page.customSlug,
         },
       ]);
