@@ -14,7 +14,7 @@ export class DeployMode {
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='datepicker-container']//input`;
   _jsonSelectDropdown = "button.select-button";
   private _jsonFormMultiSelectByName = (fieldName: string) =>
-    `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='multiselect-container']`;
+    `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='multiselect-container']//div[contains(@class, 'rc-select-show-arrow')]`;
   _clearDropdown = "button.select-button span.cancel-icon";
   private _jsonFormMultiSelectOptions = (option: string) =>
     `//div[@title='${option}']//input[@type='checkbox']/ancestor::div[@title='${option}']`;
@@ -106,22 +106,11 @@ export class DeployMode {
     index = 0,
     check = true,
   ) {
-    cy.get(this._jsonFormMultiSelectByName(name))
+    cy.xpath(this._jsonFormMultiSelectByName(name))
       .eq(index)
       .scrollIntoView()
-      .then(($element: any) => {
-        // here, we try to click on downArrow in dropdown of multiSelect.
-        // the position is calculated from top left of the element
-        const dropdownCenterPosition = +$element.height / 2;
-        const dropdownArrowApproxPosition = +$element.width - 10;
-        cy.get($element).click(
-          dropdownArrowApproxPosition,
-          dropdownCenterPosition,
-          {
-            force: true,
-          },
-        );
-      });
+      .click();
+    this.agHelper.Sleep(500);
 
     if (check) {
       options.forEach(($each) => {
@@ -144,11 +133,7 @@ export class DeployMode {
         );
       });
     }
-
     // //closing multiselect dropdown
     cy.get("body").type("{esc}");
-    // cy.get(this.locator._widgetInDeployed(endpoint))
-    //     .eq(index)
-    //     .click()
   }
 }

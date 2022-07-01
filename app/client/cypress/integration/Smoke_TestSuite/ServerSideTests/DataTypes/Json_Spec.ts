@@ -109,7 +109,7 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
     ee.ExpandCollapseEntity(dsName, false);
   });
 
-  it("5. Inserting record - jsonbooks", () => {
+  it.only("5. Inserting record - jsonbooks", () => {
     ee.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
@@ -119,11 +119,9 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
     deployMode.EnterJSONInputValue("Customer", "Lily Bush");
     deployMode.EnterJSONInputValue("Title", "PostgreSQL for Beginners");
     deployMode.SelectJsonFormMultiSelect("Type", ["Programming", "Computer"]);
+    agHelper.ToggleSwitch("Published", "check", true);
+    deployMode.EnterJSONInputValue("Price", "150");
 
-//start here!
-
-    agHelper.SelectDropDown("Monday");
-    agHelper.ToggleSwitch("Areweworking");
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Insert did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
@@ -131,94 +129,101 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
     table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("Monday");
-    });
-    table.ReadTableRowColumnData(0, 2, 200).then(($cellData) => {
-      expect($cellData).to.eq("true");
+      expect($cellData).not.to.eq("");
     });
   });
 
-  it("6. Inserting another record - jsonbooks", () => {
+  it.only("6. Inserting another record - jsonbooks", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
-    agHelper.SelectDropDown("Saturday");
-    agHelper.ToggleSwitch("Areweworking", "uncheck");
+
+    deployMode.EnterJSONInputValue("Customer", "Josh William");
+    deployMode.EnterJSONInputValue("Title", "Ivanhoe");
+    deployMode.SelectJsonFormMultiSelect("Type", ["Adventure", "Novel"]);
+    agHelper.ToggleSwitch("Published", "check", true);
+    deployMode.EnterJSONInputValue("Price", "400");
+
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
     table.ReadTableRowColumnData(1, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("Saturday");
-    });
-    table.ReadTableRowColumnData(1, 2, 200).then(($cellData) => {
-      expect($cellData).to.eq("false");
+      expect($cellData).not.to.eq("");
     });
   });
 
-  it("7. Inserting another record - jsonbooks", () => {
+  it.only("7. Inserting another record - jsonbooks", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
-    agHelper.SelectDropDown("Friday");
-    agHelper.ToggleSwitch("Areweworking", "uncheck");
+
+    deployMode.EnterJSONInputValue("Customer", "Mary Clark");
+    deployMode.EnterJSONInputValue("Title", "The Pragmatic Programmer");
+    deployMode.SelectJsonFormMultiSelect("Type", ["Programming"]);
+    agHelper.ToggleSwitch("Published", "uncheck", true);
+    deployMode.EnterJSONInputValue("Price", "360");
+
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
     table.ReadTableRowColumnData(2, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("Friday");
-    });
-    table.ReadTableRowColumnData(2, 2, 200).then(($cellData) => {
-      expect($cellData).to.eq("false");
+      expect($cellData).not.to.eq("");
     });
   });
 
-  it("8. Updating record - jsonbooks", () => {
-    table.SelectTableRow(2);
+  it.only("8. Updating record - jsonbooks", () => {
+    table.SelectTableRow(1);
     agHelper.ClickButton("Run UpdateQuery");
     agHelper.AssertElementVisible(locator._modal);
-    agHelper.ToggleSwitch("Areweworking", "check");
+
+    //deployMode.ClearJSONFieldValue("Title");
+    deployMode.EnterJSONInputValue("Title", " Bill");//Adding Bill to name
+    agHelper.ToggleSwitch("Published", "uncheck", true);
+    deployMode.ClearJSONFieldValue("Price");
+    deployMode.EnterJSONInputValue("Price", "660");
+
     agHelper.ClickButton("Update");
     agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Update did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
+    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
+      expect($cellData).to.eq("3");
+    });
     table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
-      expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
+      expect($cellData).to.eq("2"); //Since recently updated column to pushed to last!
     });
     table.ReadTableRowColumnData(2, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("Friday");
-    });
-    table.ReadTableRowColumnData(2, 2, 200).then(($cellData) => {
-      expect($cellData).to.eq("true");
+      expect($cellData).not.to.eq("");
     });
   });
 
-  it("9. Validating Enum Ordering", () => {
-    deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
-    query = `SELECT * FROM jsonbooks WHERE workingday > 'Tuesday';`;
-    ee.ExpandCollapseEntity("QUERIES/JS");
-    ee.CreateNewDsQuery(dsName);
-    agHelper.RenameWithInPane("verifyEnumOrdering");
-    agHelper.GetNClick(dataSources._templateMenu);
-    dataSources.EnterQuery(query);
-    dataSources.RunQuery();
-    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
-      expect($cellData).to.eq("Saturday");
-    });
-    dataSources.ReadQueryTableResponse(4).then(($cellData) => {
-      expect($cellData).to.eq("Friday");
-    });
+  // it("9. Validating Enum Ordering", () => {
+  //   deployMode.NavigateBacktoEditor();
+  //   table.WaitUntilTableLoad();
+  //   query = `SELECT * FROM jsonbooks WHERE workingday > 'Tuesday';`;
+  //   ee.ExpandCollapseEntity("QUERIES/JS");
+  //   ee.CreateNewDsQuery(dsName);
+  //   agHelper.RenameWithInPane("verifyEnumOrdering");
+  //   agHelper.GetNClick(dataSources._templateMenu);
+  //   dataSources.EnterQuery(query);
+  //   dataSources.RunQuery();
+  //   dataSources.ReadQueryTableResponse(1).then(($cellData) => {
+  //     expect($cellData).to.eq("Saturday");
+  //   });
+  //   dataSources.ReadQueryTableResponse(4).then(($cellData) => {
+  //     expect($cellData).to.eq("Friday");
+  //   });
 
-    query = `SELECT * FROM jsonbooks WHERE workingday = (SELECT MIN(workingday) FROM jsonbooks);`;
-    dataSources.EnterQuery(query);
-    dataSources.RunQuery();
-    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
-      expect($cellData).to.eq("Monday");
-    });
-    agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
-  });
+  //   query = `SELECT * FROM jsonbooks WHERE workingday = (SELECT MIN(workingday) FROM jsonbooks);`;
+  //   dataSources.EnterQuery(query);
+  //   dataSources.RunQuery();
+  //   dataSources.ReadQueryTableResponse(1).then(($cellData) => {
+  //     expect($cellData).to.eq("Monday");
+  //   });
+  //   agHelper.ActionContextMenuWithInPane("Delete");
+  //   ee.ExpandCollapseEntity("QUERIES/JS", false);
+  // });
 
   it("10. Deleting records - jsonbooks", () => {
     ee.SelectEntityByName("Page1");
