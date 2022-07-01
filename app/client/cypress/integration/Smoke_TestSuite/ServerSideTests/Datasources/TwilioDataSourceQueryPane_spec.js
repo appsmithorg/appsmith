@@ -7,8 +7,6 @@ import ApiEditor from "../../../../locators/ApiEditor";
     5. Ensure Long body form is added
     6. Ensure use the method from the drop-down
     9. Ensure user is able to add special characters to the name from Pane
-    10. Ensure user is able to save the queries
-    12. Ensure user is able to edit the query pane and the changes get saved
     16. Ensure user is able to Name conventions that are appropriate when moved/Copied
 */
 
@@ -109,11 +107,11 @@ describe("Test ideas Query Pane  ", function() {
 
     cy.selectAction("Edit Name");
 
-    cy.contains(".t--entity-item", "CREATE").type("CREATE MESSAGE TEST");
+    cy.contains(".t--entity-item", "CREATE").type("CREATE MESSAGE TEST1");
 
     cy.get(ApiEditor.airtableImage).click(); //Only to save the query name
 
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST").should("exist");
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1").should("exist");
   });
 
   it("10. Test user is able to save the queries", function() {
@@ -121,6 +119,20 @@ describe("Test ideas Query Pane  ", function() {
     //cy.contains(".t--entity action .ContextMenu", "New Query Test").should("exist");
     //cy.get(".whitespace-nowrap:contains('New Query Test')").should("exist");
     //cy.get(".t--entity-name:contains('New Query Test')").should("exist");
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1")
+      .find(".entity-context-menu-icon")
+      .click({ force: true });
+
+    cy.selectAction("Edit Name");
+
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1").type(
+      "CREATE MESSAGE TEST",
+    );
+
+    cy.get(ApiEditor.airtableImage).click(); //Only to save the query name
+
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST").should("exist");
+    cy.wait(2000);
   });
 
   it("11. Test user is able to reopen the query pane", function() {
@@ -130,7 +142,37 @@ describe("Test ideas Query Pane  ", function() {
     cy.contains(".bp3-editable-text-content", "CREATE_MESSAGE_TEST");
   });
 
+  it("12. Test user is able to edit the query pane and the changes get saved", function() {
+    cy.get(".Datasources__ShowAll-g3whk1-0").click(); //Show all datasources
+    cy.contains(".t--datasource-name", "Test Airtable1.2")
+      .find(queryLocators.createQuery)
+      .click();
+
+    cy.get(queryLocators.queryNameField).type("Test");
+    cy.get(ApiEditor.airtableImage).click(); //Only to save the query name
+    cy.get(ApiEditor.dropdownTypeAuth).click();
+    cy.contains(ApiEditor.dropdownOption, "List Records").click();
+    cy.get(
+      ':nth-child(2) > :nth-child(1) > [style="display: block;"] > .t--form-control-QUERY_DYNAMIC_INPUT_TEXT > [style="width: 35vw; min-height: 38px;"] > .styledComponents__DynamicAutocompleteInputWrapper-gizjok-2 > .EvaluatedValuePopup__Wrapper-dlvj8d-0 > .styledComponents__EditorWrapper-gizjok-0 > [data-testid=code-editor-target] > .CodeMirror > .CodeMirror-scroll > .CodeMirror-sizer > [style="position: relative; top: 0px;"] > .CodeMirror-lines',
+    ).type("1234");
+    cy.get(
+      ':nth-child(3) > :nth-child(1) > [style="display: block;"] > .t--form-control-QUERY_DYNAMIC_INPUT_TEXT > [style="width: 35vw; min-height: 38px;"] > .styledComponents__DynamicAutocompleteInputWrapper-gizjok-2 > .EvaluatedValuePopup__Wrapper-dlvj8d-0 > .styledComponents__EditorWrapper-gizjok-0 > [data-testid=code-editor-target] > .CodeMirror > .CodeMirror-scroll > .CodeMirror-sizer > [style="position: relative; top: 0px;"] > .CodeMirror-lines > [style="position: relative; outline: none;"] > .CodeMirror-code > .CodeMirror-line',
+    ).type("Project");
+    cy.get(ApiEditor.backBtn).click();
+
+    cy.contains(".t--entity-item", "Test").click();
+    cy.contains(
+      ':nth-child(2) > :nth-child(1) > [style="display: block;"] > .t--form-control-QUERY_DYNAMIC_INPUT_TEXT > [style="width: 35vw; min-height: 38px;"] > .styledComponents__DynamicAutocompleteInputWrapper-gizjok-2 > .EvaluatedValuePopup__Wrapper-dlvj8d-0 > .styledComponents__EditorWrapper-gizjok-0 > [data-testid=code-editor-target] > .CodeMirror > .CodeMirror-scroll > .CodeMirror-sizer > [style="position: relative; top: 0px;"] > .CodeMirror-lines',
+      "1234",
+    ).should("exist");
+    cy.contains(
+      ':nth-child(3) > :nth-child(1) > [style="display: block;"] > .t--form-control-QUERY_DYNAMIC_INPUT_TEXT > [style="width: 35vw; min-height: 38px;"] > .styledComponents__DynamicAutocompleteInputWrapper-gizjok-2 > .EvaluatedValuePopup__Wrapper-dlvj8d-0 > .styledComponents__EditorWrapper-gizjok-0 > [data-testid=code-editor-target] > .CodeMirror > .CodeMirror-scroll > .CodeMirror-sizer > [style="position: relative; top: 0px;"] > .CodeMirror-lines > [style="position: relative; outline: none;"] > .CodeMirror-code > .CodeMirror-line',
+      "Project",
+    ).should("exist");
+  });
+
   it("13. Test user is able to COPY query into the same page from Query Pane", function() {
+    cy.get(ApiEditor.backBtn).click();
     cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST").click();
     cy.get(".t--more-action-menu").should("exist");
     cy.get(".t--more-action-menu").click({ multiple: true });
