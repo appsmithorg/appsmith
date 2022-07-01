@@ -141,8 +141,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     if (config.isMultiSelect) {
       try {
         const values = JSON.parse(value);
-        for (const x of values.map((x: string | number) => x.toString())) {
-          if (!allowedValues.has(x)) return false;
+        for (const x of values) {
+          if (!allowedValues.has(x.toString())) return false;
         }
       } catch {
         return false;
