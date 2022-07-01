@@ -4,7 +4,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  propPane = ObjectsRegistry.PropertyPane;
 
 describe("Validate JSObjects binding to Input widget", () => {
   before(() => {
@@ -40,7 +41,7 @@ describe("Validate JSObjects binding to Input widget", () => {
       .should("equal", "Hello"); //Before mapping JSObject value of input
     cy.get("@jsObjName").then((jsObjName) => {
       jsOjbNameReceived = jsObjName;
-      jsEditor.EnterJSContext("Default Text", "{{" + jsObjName + ".myFun1()}}");
+      propPane.UpdatePropertyFieldValue("Default Text",  "{{" + jsObjName + ".myFun1()}}");
     });
     cy.get(locator._inputWidget)
       .last()

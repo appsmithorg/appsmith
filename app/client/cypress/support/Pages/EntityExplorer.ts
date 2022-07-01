@@ -51,6 +51,7 @@ export class EntityExplorer {
     entityNameinLeftSidebar: string,
     section: "WIDGETS" | "QUERIES/JS" | "DATASOURCES" | "" = "",
   ) {
+    this.NavigateToSwitcher("explorer");
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
       .last()
