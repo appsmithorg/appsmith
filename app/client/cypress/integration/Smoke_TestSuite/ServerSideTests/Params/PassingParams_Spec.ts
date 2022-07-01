@@ -8,7 +8,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   table = ObjectsRegistry.Table,
   apiPage = ObjectsRegistry.ApiPage,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  propPane = ObjectsRegistry.PropertyPane;
 
 describe("[Bug] - 10784 - Passing params from JS to SQL query should not break", () => {
   before(() => {
@@ -54,7 +55,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
       );
     });
     ee.SelectEntityByName("Table1");
-    jsEditor.EnterJSContext("Table Data", "{{ParamsTest.data}}");
+    propPane.UpdatePropertyFieldValue("Table Data", "{{ParamsTest.data}}");
 
     ee.SelectEntityByName("ParamsTest", "QUERIES/JS");
     apiPage.ToggleOnPageLoadRun(false); //Bug 12476

@@ -82,7 +82,7 @@ import {
   ActionValidationConfigMap,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
-import { parseJSObjectWithAST } from "workers/ast";
+import { parseJSObjectWithAST, isFunctionNode } from "workers/ast";
 import { klona } from "klona/full";
 import { EvalMetaUpdates } from "./types";
 export default class DataTreeEvaluator {
@@ -1072,15 +1072,19 @@ export default class DataTreeEvaluator {
       try {
         delete this.resolvedFunctions[`${entityName}`];
         delete this.currentJSCollectionState[`${entityName}`];
+        const parseStartTime = performance.now();
         const parsedObject = parseJSObjectWithAST(body);
+        const parseEndTime = performance.now();
+        const JSObjectASTParseTime = parseEndTime - parseStartTime;
+        this.logs.push({
+          JSObjectName: entityName,
+          JSObjectASTParseTime,
+        });
         const actions: any = [];
         const variables: any = [];
         if (!!parsedObject) {
-          parsedObject.forEach((parsedElement: any) => {
-            if (
-              parsedElement.type === "ArrowFunctionExpression" ||
-              parsedElement.type === "FunctionExpression"
-            ) {
+          parsedObject.forEach((parsedElement) => {
+            if (isFunctionNode(parsedElement.type)) {
               try {
                 const { result } = evaluateSync(
                   parsedElement.value,
