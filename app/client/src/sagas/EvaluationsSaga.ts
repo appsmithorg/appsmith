@@ -47,6 +47,7 @@ import {
 } from "actions/evaluationActions";
 import {
   evalErrorHandler,
+  handleJSFunctionExecutionErrorLog,
   logSuccessfulBindings,
   postEvalActionDispatcher,
   updateTernDefinitions,
@@ -102,6 +103,18 @@ let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 const worker = new GracefulWorkerService(Worker);
 
+export type EvalTreePayload = {
+  dataTree: DataTree;
+  dependencies: Record<string, string[]>;
+  errors: EvalError[];
+  evalMetaUpdates: EvalMetaUpdates;
+  evaluationOrder: string[];
+  jsUpdates: Record<string, JSUpdate>;
+  logs: any[];
+  unEvalUpdates: DataTreeDiff[];
+  isCreateFirstTree: boolean;
+};
+
 function* evaluateTreeSaga(
   postEvalActions?: Array<AnyReduxAction>,
   shouldReplay?: boolean,
@@ -141,16 +154,8 @@ function* evaluateTreeSaga(
     jsUpdates,
     logs,
     unEvalUpdates,
-  }: {
-    dataTree: DataTree;
-    dependencies: Record<string, string[]>;
-    errors: EvalError[];
-    evalMetaUpdates: EvalMetaUpdates;
-    evaluationOrder: string[];
-    jsUpdates: Record<string, JSUpdate>;
-    logs: any[];
-    unEvalUpdates: DataTreeDiff[];
-  } = workerResponse;
+    isCreateFirstTree = false,
+  }: EvalTreePayload = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
@@ -169,7 +174,7 @@ function* evaluateTreeSaga(
   if (evalMetaUpdates.length) {
     yield put(updateMetaState(evalMetaUpdates));
   }
-  log.debug({ evalMetaUpdates });
+  log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
   log.debug({ jsUpdates: jsUpdates });
@@ -186,6 +191,7 @@ function* evaluateTreeSaga(
       unevalTree,
       updatedDataTree,
       evaluationOrder,
+      isCreateFirstTree,
     );
 
     yield fork(updateTernDefinitions, updatedDataTree, unEvalUpdates);
@@ -345,7 +351,11 @@ export function* clearEvalCache() {
   return true;
 }
 
-export function* executeFunction(collectionName: string, action: JSAction) {
+export function* executeFunction(
+  collectionName: string,
+  action: JSAction,
+  collectionId: string,
+) {
   const functionCall = `${collectionName}.${action.name}()`;
   const { isAsync } = action.actionConfiguration;
   let response: {
@@ -376,7 +386,13 @@ export function* executeFunction(collectionName: string, action: JSAction) {
   const { errors, result } = response;
   const isDirty = !!errors.length;
 
-  yield call(evalErrorHandler, errors);
+  yield call(
+    handleJSFunctionExecutionErrorLog,
+    collectionId,
+    collectionName,
+    action,
+    errors,
+  );
   return { result, isDirty };
 }
 

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import Pen from "remixicon-react/PencilFillIcon";
 import Eye from "remixicon-react/EyeLineIcon";
@@ -21,7 +21,6 @@ import {
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useLocation } from "react-router";
 import history from "utils/history";
-import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { TourType } from "entities/Tour";
 import useProceedToNextTourStep, {
   useIsTourStepActive,
@@ -189,7 +188,7 @@ function EditModeReset() {
         </>
       }
       hoverOpenDelay={1000}
-      position={Position.BOTTOM}
+      position="bottom"
     >
       <Pen size={20} />
     </TooltipComponent>
@@ -206,7 +205,7 @@ function ViewModeReset() {
         </>
       }
       hoverOpenDelay={1000}
-      position={Position.BOTTOM}
+      position="bottom"
     >
       <Eye size={20} />
     </TooltipComponent>
@@ -281,7 +280,7 @@ function CommentModeBtn({
           </>
         }
         hoverOpenDelay={1000}
-        position={Position.BOTTOM}
+        position="bottom"
       >
         <div className="relative">
           <CommentIcon className="w-5 h-5 text-gray-900" />
@@ -418,7 +417,7 @@ function ToggleCommentModeButton({
                 </>
               }
               hoverOpenDelay={1000}
-              position={Position.BOTTOM}
+              position="bottom"
             >
               <ModeButton
                 active={isPreviewMode}

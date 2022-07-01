@@ -18,7 +18,7 @@ import {
   ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
 } from "constants/routes";
 import { Colors } from "constants/Colors";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import {
   ACCOUNT_TOOLTIP,
   createMessage,
@@ -98,7 +98,7 @@ export default function ProfileDropdown(props: TagProps) {
     <TooltipComponent
       content={createMessage(ACCOUNT_TOOLTIP)}
       hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-      position={Position.BOTTOM_RIGHT}
+      position="bottom-right"
     >
       <ProfileImage
         className="t--profile-menu-icon"
@@ -113,7 +113,7 @@ export default function ProfileDropdown(props: TagProps) {
     <Menu
       className="profile-menu t--profile-menu"
       modifiers={props.modifiers}
-      position={Position.BOTTOM}
+      position={Position.BOTTOM_RIGHT}
       target={Profile}
     >
       <UserInformation>
