@@ -142,7 +142,9 @@ export function HeaderCell(props: {
           horizontalAlignment={column.columnProperties.horizontalAlignment}
         >
           {isColumnEditable && <StyledEditIcon />}
-          <Title width={props.width}>{props.columnName}</Title>
+          <Title width={props.width}>
+            {props.columnName.replace(/\s/g, "\u00a0")}
+          </Title>
         </ColumnNameContainer>
       </div>
       {props.isAscOrder !== undefined ? (
