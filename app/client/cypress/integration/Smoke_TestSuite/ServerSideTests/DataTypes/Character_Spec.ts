@@ -14,7 +14,7 @@ describe("Postgres - Datatype Character tests", function() {
     cy.fixture("CharacterDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    propPane.ChangeTheme("Modern");
+    propPane.ChangeTheme("Pacific");
   });
 
   it("1. Create Postgress DS", function() {

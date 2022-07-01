@@ -287,11 +287,6 @@ export class DataSources {
     this.agHelper.Sleep(2000); //for the CreateQuery/GeneratePage page to load
   }
 
-  public NavigateToActiveDSviaEntityExplorer(datasourceName: string) {
-    this.ee.SelectEntityByName(datasourceName, "DATASOURCES");
-    cy.get(this._createQuery).click({ force: true });
-  }
-
   public ValidateNSelectDropdown(
     ddTitle: string,
     currentValue = "",

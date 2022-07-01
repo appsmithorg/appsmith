@@ -24,7 +24,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
   });
 
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
-    propPane.ChangeTheme("Modern");
+    propPane.ChangeTheme("Water Lily");
 
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {

@@ -32,7 +32,9 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
     });
   });
 
-  it.only("1. Creating enum & table queries - jsonbooks", () => {
+  //#region Json Datatype
+
+  it("1. Creating enum & table queries - jsonbooks", () => {
     query = `CREATE TYPE genres AS ENUM ('Fiction', 'Thriller', 'Horror', 'Marketing & Sales', 'Self-Help', 'Psychology', 'Law', 'Politics', 'Productivity', 'Reference', 'Spirituality');`;
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
@@ -51,7 +53,7 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
     agHelper.AssertElementVisible(ee._entityNameInExplorer("public.jsonbooks"));
   });
 
-  it.only("2. Creating SELECT query - jsonbooks + Bug 14493", () => {
+  it("2. Creating SELECT query - jsonbooks + Bug 14493", () => {
     ee.ActionTemplateMenuByEntityName("public.jsonbooks", "SELECT");
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
@@ -60,7 +62,7 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
   });
 
-  it.only("3. Creating all queries - jsonbooks", () => {
+  it("3. Creating all queries - jsonbooks", () => {
     query = `INSERT INTO jsonbooks(details) VALUES('{"customer": "{{InsertJSONForm.formData.customer}}", "title": "{{InsertJSONForm.formData.title}}", "type": {{InsertJSONForm.formData.type}}, "info": {"published": {{InsertJSONForm.formData.info.published}}, "price": {{InsertJSONForm.formData.info.price}}}}');`;
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("insertRecord");
@@ -109,7 +111,7 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
     ee.ExpandCollapseEntity(dsName, false);
   });
 
-  it.only("5. Inserting record - jsonbooks", () => {
+  it("5. Inserting record - jsonbooks", () => {
     ee.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
@@ -133,7 +135,7 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
     });
   });
 
-  it.only("6. Inserting another record - jsonbooks", () => {
+  it("6. Inserting another record - jsonbooks", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
@@ -153,13 +155,13 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
     });
   });
 
-  it.only("7. Inserting another record - jsonbooks", () => {
+  it("7. Inserting another record - jsonbooks", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
     deployMode.EnterJSONInputValue("Customer", "Mary Clark");
     deployMode.EnterJSONInputValue("Title", "The Pragmatic Programmer");
-    deployMode.SelectJsonFormMultiSelect("Type", ["Programming"]);
+    deployMode.SelectJsonFormMultiSelect("Type", ["Programming"], 0, true);
     agHelper.ToggleSwitch("Published", "uncheck", true);
     deployMode.EnterJSONInputValue("Price", "360");
 
@@ -173,7 +175,7 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
     });
   });
 
-  it.only("8. Updating record - jsonbooks", () => {
+  it("8. Updating record - jsonbooks", () => {
     table.SelectTableRow(1);
     agHelper.ClickButton("Run UpdateQuery");
     agHelper.AssertElementVisible(locator._modal);
@@ -198,32 +200,80 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
     });
   });
 
-  // it("9. Validating Enum Ordering", () => {
-  //   deployMode.NavigateBacktoEditor();
-  //   table.WaitUntilTableLoad();
-  //   query = `SELECT * FROM jsonbooks WHERE workingday > 'Tuesday';`;
-  //   ee.ExpandCollapseEntity("QUERIES/JS");
-  //   ee.CreateNewDsQuery(dsName);
-  //   agHelper.RenameWithInPane("verifyEnumOrdering");
-  //   agHelper.GetNClick(dataSources._templateMenu);
-  //   dataSources.EnterQuery(query);
-  //   dataSources.RunQuery();
-  //   dataSources.ReadQueryTableResponse(1).then(($cellData) => {
-  //     expect($cellData).to.eq("Saturday");
-  //   });
-  //   dataSources.ReadQueryTableResponse(4).then(($cellData) => {
-  //     expect($cellData).to.eq("Friday");
-  //   });
+  it("9. Validating JSON functions", () => {
+    deployMode.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
+    ee.ExpandCollapseEntity("QUERIES/JS");
+    dataSources.NavigateFromActiveDS(dsName, true);
+    agHelper.RenameWithInPane("verifyJsonFunctions");
 
-  //   query = `SELECT * FROM jsonbooks WHERE workingday = (SELECT MIN(workingday) FROM jsonbooks);`;
-  //   dataSources.EnterQuery(query);
-  //   dataSources.RunQuery();
-  //   dataSources.ReadQueryTableResponse(1).then(($cellData) => {
-  //     expect($cellData).to.eq("Monday");
-  //   });
-  //   agHelper.ActionContextMenuWithInPane("Delete");
-  //   ee.ExpandCollapseEntity("QUERIES/JS", false);
-  // });
+    //Verifying -> - returns results in json format
+    query = `SELECT details -> 'title' AS "BookTitle" FROM jsonbooks;`;
+    agHelper.GetNClick(dataSources._templateMenu);
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    dataSources.AssertQueryResponseHeaders(["BookTitle"]);
+    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
+      expect($cellData).to.eq("PostgreSQL for Beginners");
+    });
+    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
+      expect($cellData).to.eq("The Pragmatic Programmer");
+    });
+    dataSources.ReadQueryTableResponse(2).then(($cellData) => {
+      expect($cellData).to.eq("Ivanhoe Bill");
+    });
+
+    //Verifying ->> - returns result in text format
+    query = `SELECT details -> 'info' ->> 'price' AS "BookPrice" FROM jsonbooks;`;
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    dataSources.AssertQueryResponseHeaders(["BookPrice"]);
+    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
+      expect($cellData).to.eq("150");
+    });
+    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
+      expect($cellData).to.eq("360");
+    });
+    dataSources.ReadQueryTableResponse(2).then(($cellData) => {
+      expect($cellData).to.eq("660");
+    });
+
+    //Verifying 'CAST' with 'WHERE' clause
+    query = `SELECT details -> 'customer' AS "P+ Customer", details -> 'info'  ->> 'price' as "Book Price" FROM jsonbooks where CAST (details -> 'info'  ->> 'price' as INTEGER) > 360;`
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    dataSources.AssertQueryResponseHeaders(["P+ Customer", "Book Price"]);
+    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
+      expect($cellData).to.eq("Josh William");
+    });
+    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
+      expect($cellData).to.eq("660");
+    });
+
+    //Verifying Aggregate functions
+    query = `SELECT MIN (CAST (details -> 'info'  ->> 'price' as INTEGER)), MAX (CAST (details -> 'info'  ->> 'price' as INTEGER)), SUM (CAST (details -> 'info'  ->> 'price' as INTEGER)), AVG (CAST (details -> 'info'  ->> 'price' as INTEGER)), count(*) FROM jsonbooks;`
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    dataSources.AssertQueryResponseHeaders(["min", "max", "sum", "avg", "count"]);
+    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
+      expect($cellData).to.eq("150");
+    });
+    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
+      expect($cellData).to.eq("660");
+    });
+    dataSources.ReadQueryTableResponse(2).then(($cellData) => {
+      expect($cellData).to.eq("1170");
+    });
+    dataSources.ReadQueryTableResponse(3).then(($cellData) => {
+      expect($cellData).to.eq("390");
+    });
+    dataSources.ReadQueryTableResponse(4).then(($cellData) => {
+      expect($cellData).to.eq("3");
+    });
+
+    agHelper.ActionContextMenuWithInPane("Delete");
+    ee.ExpandCollapseEntity("QUERIES/JS", false);
+  });
 
   it("10. Deleting records - jsonbooks", () => {
     ee.SelectEntityByName("Page1");
@@ -252,18 +302,24 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
   it("12. Inserting another record (to check serial column) - jsonbooks", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
-    agHelper.SelectDropDown("Wednesday");
-    agHelper.ToggleSwitch("Areweworking", "check");
+
+    deployMode.EnterJSONInputValue("Customer", "Bob Sim");
+    deployMode.EnterJSONInputValue("Title", "Treasure Island");
+    deployMode.SelectJsonFormMultiSelect("Type", ["Novel"]);
+    agHelper.ToggleSwitch("Published", "uncheck", true);
+
+    deployMode.EnterJSONInputValue("Price", "80");
+    agHelper.AssertElementVisible(locator._visibleTextDiv("Out of range!"));
+    deployMode.ClearJSONFieldValue("Price");
+    deployMode.EnterJSONInputValue("Price", "0");//Making it 800
+
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });
     table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("Wednesday");
-    });
-    table.ReadTableRowColumnData(0, 2, 200).then(($cellData) => {
-      expect($cellData).to.eq("true");
+      expect($cellData).not.to.eq("");
     });
   });
 
@@ -284,7 +340,7 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
     ee.ExpandCollapseEntity("DATASOURCES", false);
   });
 
-  it("14. Verify Deletion of the datasource after all created queries are Deleted", () => {
+  it("14. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.ActionContextMenuByEntityName("createEnum", "Delete", "Are you sure?");
@@ -305,9 +361,19 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
       "Are you sure?",
     );
     ee.ActionContextMenuByEntityName("updateRecord", "Delete", "Are you sure?");
+  });
+
+  //#endregion
+
+  //#region JsonB Datatype
+
+  //#endregion
+
+
+  it("25. Verify Deletion of datasource", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("QUERIES/JS");
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
+    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
   });
 });

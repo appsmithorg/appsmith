@@ -301,6 +301,6 @@ describe("Postgres - Datatype Boolean & Enum types tests", function() {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("QUERIES/JS");
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
+    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
   });
 });

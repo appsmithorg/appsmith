@@ -105,7 +105,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    propPane.ChangeTheme("Modern");
+    propPane.ChangeTheme("Sunrise");
   });
 
   it("3. Generate CRUD page from datasource present in ACTIVE section", function() {

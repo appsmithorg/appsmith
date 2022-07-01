@@ -1253,6 +1253,8 @@
                             "labelTextSize": "0.875rem",
                             "label": "Price",
                             "labelStyle": "BOLD",
+                            "minNum": "100",
+                            "maxNum": "1000",
                             "placeholderText": "{{((sourceData, formData, fieldState) => (`100 - 1000`))(InsertJSONForm.sourceData, InsertJSONForm.formData, InsertJSONForm.fieldState)}}"
                           }
                         },

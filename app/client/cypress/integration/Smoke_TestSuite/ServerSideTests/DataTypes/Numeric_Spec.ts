@@ -14,7 +14,7 @@ describe("Postgres - Datatype Numeric tests", function() {
     cy.fixture("NumericDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    propPane.ChangeTheme("Modern");
+    propPane.ChangeTheme("Moon");
   });
 
   it("1. Create Postgress DS", function() {
