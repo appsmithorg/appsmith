@@ -3,7 +3,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 let dataSet: any;
 let agHelper = ObjectsRegistry.AggregateHelper,
     ee = ObjectsRegistry.EntityExplorer,
-    jsEditor = ObjectsRegistry.JSEditor,
+    propPane = ObjectsRegistry.PropertyPane,
     locator = ObjectsRegistry.CommonLocators,
     deployMode = ObjectsRegistry.DeployMode;
 
@@ -21,13 +21,13 @@ describe("Validate basic binding of Input widget to Input widget", () => {
 
     it("1. Input widget test with default value from another Input widget", () => {
         ee.SelectEntityByName("Input1", 'WIDGETS')
-        jsEditor.EnterJSContext("Default Text", dataSet.defaultInputBinding + "}}");
+        propPane.UpdatePropertyFieldValue("Default Text", dataSet.defaultInputBinding + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
     });
 
     it("2. Binding second input widget with first input widget and validating", function () {
         ee.SelectEntityByName("Input2")
-        jsEditor.EnterJSContext("Default Text", dataSet.momentInput + "}}");
+        propPane.UpdatePropertyFieldValue("Default Text", dataSet.momentInput + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
     });
 
