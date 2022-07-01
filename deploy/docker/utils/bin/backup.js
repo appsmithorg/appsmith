@@ -39,7 +39,7 @@ async function run() {
 
     await fsPromises.mkdir(backupContentsPath);
 
-    await exportDatabase(backupContentsPaths);
+    await exportDatabase(backupContentsPath);
 
     await createGitStorageArchive(backupContentsPath);
 
