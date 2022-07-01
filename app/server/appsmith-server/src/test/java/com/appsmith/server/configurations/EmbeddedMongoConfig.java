@@ -26,6 +26,7 @@ import java.util.UUID;
 /**
  * Overrides the default configuration to enable journaling.
  * Most of the code is copied from {@link EmbeddedMongoAutoConfiguration}
+ * Ref doc: https://blog.devgenius.io/how-to-enable-replica-set-in-embbedded-mongo-with-spring-boot-ddeaa079c1c8
  *
  * @see EmbeddedMongoAutoConfiguration
  */
@@ -67,7 +68,7 @@ public class EmbeddedMongoConfig {
             int oplogSize = (storage.getOplogSize() != null) ? (int) storage.getOplogSize().toMegabytes() : 0;
             builder.replication(new Storage(databaseDir, replSetName, oplogSize));
 
-            // This line enables the required journaling. This line is missing from actual spring boot's implementation.
+            // This line enables the required journaling.
             builder.cmdOptions(MongoCmdOptions.builder().useNoJournal(false).build());
         }
         Integer configuredPort = this.properties.getPort();

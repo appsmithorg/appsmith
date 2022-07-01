@@ -20,6 +20,10 @@ public class MongoClientConfig {
 
     final String ADMIN_DB = "admin";
 
+    /**
+     * Method to initiate the replicaset and wait for initialization to complete so that no queries are fired before it
+     * is fully ready.
+     */
     @PostConstruct
     public void waitForReplicaSetStatusOk() {
         mongoClient
