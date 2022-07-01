@@ -24,7 +24,7 @@ import {
   EvalErrorTypes,
 } from "utils/DynamicBindingUtils";
 import { extractReferencesFromBinding } from "./utils";
-import DataTreeEvaluator from "../DataTreeEvaluator/DataTreeEvaluator";
+import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import { flatten, difference, uniq } from "lodash";
 
 export function createDependencyMap(
