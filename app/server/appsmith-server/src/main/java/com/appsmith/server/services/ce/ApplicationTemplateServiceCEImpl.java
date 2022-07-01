@@ -1,11 +1,11 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.external.converters.GsonISOStringToInstantConverter;
+import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -19,6 +19,7 @@ import com.google.gson.reflect.TypeToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponents;
@@ -32,7 +33,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.List;
 
 @Service
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
@@ -144,8 +144,14 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             /* using a custom url builder factory because default builder always encodes URL.
              It's expected that the appDataUrl is already encoded, so we don't need to encode that again.
              Encoding an encoded URL will not work and end up resulting a 404 error */
+        final int size = 4 * 1024 * 1024; // 4 MB
+        final ExchangeStrategies strategies = ExchangeStrategies.builder()
+                .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(size))
+                .build();
+
         WebClient webClient = WebClient.builder()
                 .uriBuilderFactory(new NoEncodingUriBuilderFactory(templateUrl))
+                .exchangeStrategies(strategies)
                 .build();
 
         return webClient

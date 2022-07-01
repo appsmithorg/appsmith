@@ -9,8 +9,7 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   homePage = ObjectsRegistry.HomePage,
   dataSources = ObjectsRegistry.DataSources,
   propPane = ObjectsRegistry.PropertyPane,
-  deployMode = ObjectsRegistry.DeployMode,
-  jsEditor = ObjectsRegistry.JSEditor;
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate Postgres Generate CRUD with JSON Form", () => {
   before(() => {
@@ -803,7 +802,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     propPane.NavigateBackToPropertyPane();
 
     propPane.ChangeJsonFormFieldType("Vessel Type", "Select");
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Options",
       `{{["Cargo", "Pleasure Craft", "Passenger", "Fishing", "Special Craft"].map(item=> {return {
         label: item,
@@ -813,9 +812,9 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     propPane.NavigateBackToPropertyPane();
 
     propPane.OpenJsonFormFieldSettings("Timezone");
-    jsEditor.EnterJSContext("Min", "-10");
-    jsEditor.EnterJSContext("Max", "10");
-    jsEditor.EnterJSContext("Error Message", "Not a valid timezone!");
+    propPane.UpdatePropertyFieldValue("Min", "-10");
+    propPane.UpdatePropertyFieldValue("Max", "10");
+    propPane.UpdatePropertyFieldValue("Error Message", "Not a valid timezone!");
     propPane.NavigateBackToPropertyPane();
 
     propPane.ChangeJsonFormFieldType("Eta Updated", "Datepicker");

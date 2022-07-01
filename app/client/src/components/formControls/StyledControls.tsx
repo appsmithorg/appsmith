@@ -11,7 +11,6 @@ import {
 import { DropdownOption } from "components/constants";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput } from "@blueprintjs/datetime";
-import { TimezonePicker } from "@blueprintjs/timezone";
 import { Colors } from "constants/Colors";
 
 type ControlWrapperProps = {
@@ -24,7 +23,7 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   justify-content: space-between;
   align-items: center;
   flex-direction: ${(props) =>
-    props.orientation === "VERTICAL" ? "column" : "row"}
+    props.orientation === "VERTICAL" ? "column" : "row"};
   margin: ${(props) => props.theme.spaces[3]}px 0;
   & > label {
     color: ${(props) => props.theme.colors.paneText};
@@ -255,7 +254,6 @@ export const StyledDynamicInput = styled.div`
 
 export const StyledInputGroup = styled(InputGroup)`
   & > input {
-    placeholder-text: ${(props) => props.placeholder};
     color: ${(props) => props.theme.colors.textOnDarkBG};
     background: ${(props) => props.theme.colors.paneInputBG};
   }
@@ -264,19 +262,9 @@ export const StyledInputGroup = styled(InputGroup)`
 export const StyledDatePicker = styled(DateInput)`
   & {
     input {
-      placeholderText: ${(props) => props.placeholder};
       color: ${(props) => props.theme.colors.textOnDarkBG};
       background: ${(props) => props.theme.colors.paneInputBG};
     }
-  }
-}
-`;
-
-export const StyledTimeZonePicker = styled(TimezonePicker)`
-  &&& button {
-    background: ${(props) => props.theme.colors.paneInputBG};
-    color: ${(props) => props.theme.colors.textOnDarkBG};
-    box-shadow: none;
   }
 `;
 
