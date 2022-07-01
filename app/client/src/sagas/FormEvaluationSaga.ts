@@ -119,33 +119,36 @@ function* setFormEvaluationSagaAsync(
             fetchDynamicValQueue[fetchDynamicValQueue.length - 1],
           );
 
-          yield put({
-            type: ReduxActionTypes.FETCH_TRIGGER_VALUES_INIT,
-            payload: {
+          // whenever there's a queueOfValuesToBeFetched, call fetchDynamicValuesSaga on it.
+          if (!!queueOfValuesToBeFetched) {
+            yield put({
+              type: ReduxActionTypes.FETCH_TRIGGER_VALUES_INIT,
+              payload: {
+                formId,
+                values: queueOfValuesToBeFetched,
+              },
+            });
+
+            // resetting the fetch dynamic values.
+            fetchDynamicValQueue = [];
+
+            // wait for dataTree to be updated with the latest values before fetching dynamic values.
+            yield race([
+              ReduxActionTypes.SET_LOADING_ENTITIES,
+              ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
+            ]);
+            // then wait some more just to be sure.
+            yield delay(300);
+
+            // Pass the queue to the saga to fetch the dynamic values
+            yield call(
+              fetchDynamicValuesSaga,
+              queueOfValuesToBeFetched,
               formId,
-              values: queueOfValuesToBeFetched,
-            },
-          });
-
-          // resetting the fetch dynamic values.
-          fetchDynamicValQueue = [];
-
-          // wait for dataTree to be updated with the latest values before fetching dynamic values.
-          yield race([
-            ReduxActionTypes.SET_LOADING_ENTITIES,
-            ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
-          ]);
-          // then wait some more just to be sure.
-          yield delay(300);
-
-          // Pass the queue to the saga to fetch the dynamic values
-          yield call(
-            fetchDynamicValuesSaga,
-            queueOfValuesToBeFetched,
-            formId,
-            action.payload.datasourceId ? action.payload.datasourceId : "",
-            action.payload.pluginId ? action.payload.pluginId : "",
-          );
+              action.payload.datasourceId ? action.payload.datasourceId : "",
+              action.payload.pluginId ? action.payload.pluginId : "",
+            );
+          }
         }
       }
     } catch (e) {
