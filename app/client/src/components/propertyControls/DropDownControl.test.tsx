@@ -35,11 +35,16 @@ describe("DropDownControl.canDisplayValue", () => {
       label: "2",
       value: 2,
     },
+    {
+      label: "A",
+      value: "A",
+    },
   ];
   const config = { ...requiredParams, options };
   it("Should return true when a value in the option is passed", () => {
     expect(DropDownControl.canDisplayValueInUI(config, "0")).toEqual(true);
     expect(DropDownControl.canDisplayValueInUI(config, "1")).toEqual(true);
+    expect(DropDownControl.canDisplayValueInUI(config, "A")).toEqual(true);
   });
 
   it("Should return false when a value that is not in the option is passed", () => {
@@ -61,11 +66,16 @@ describe("DropDownControl[isMultiSelect].canDisplayValue", () => {
       label: "2",
       value: 2,
     },
+    {
+      label: "A",
+      value: "A",
+    },
   ];
   const config = { ...requiredParams, options, isMultiSelect: true };
   it("Should return true when a value in the option is passed", () => {
     expect(DropDownControl.canDisplayValueInUI(config, "[0]")).toEqual(true);
     expect(DropDownControl.canDisplayValueInUI(config, "[1]")).toEqual(true);
+    expect(DropDownControl.canDisplayValueInUI(config, '["A"]')).toEqual(true);
   });
 
   it("Should return false when a value that is not in the option is passed", () => {
