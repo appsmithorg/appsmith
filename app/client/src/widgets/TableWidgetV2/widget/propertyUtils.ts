@@ -559,7 +559,7 @@ export function updateThemeStylesheetsInColumns(
        * TODO(Balaji): remove once https://github.com/appsmithorg/appsmith/issues/14436 gets fixed
        */
       propertiesToUpdate.push({
-        propertyPath: `primaryColumns.${columnId}.iconName`,
+        propertyPath: `primaryColumns.${columnId}.customAlias`,
         propertyValue: "",
       });
 
