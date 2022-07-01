@@ -5,7 +5,8 @@ import { DataTreeDiff } from "workers/evaluationUtils";
 import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
 import { arrayAccessorCyclicDependency } from "./mockData/ArrayAccessorTree";
 import { nestedArrayAccessorCyclicDependency } from "./mockData/NestedArrayAccessorTree";
-import { updateDependencyMap } from "../../DependencyMap/index";
+import { updateDependencyMap } from "workers/DependencyMap";
+import { parseJSActions } from "workers/JSObject";
 
 const widgetConfigMap = {};
 ALL_WIDGETS_AND_CONFIG.map(([, config]) => {
@@ -196,7 +197,7 @@ describe("DataTreeEvaluator", () => {
       dataTreeEvaluator.createFirstTree({});
     });
     it("set's isAsync tag for cross JsObject references", () => {
-      const result = dataTreeEvaluator.parseJSActions(asyncTagUnevalTree);
+      const result = parseJSActions(dataTreeEvaluator, asyncTagUnevalTree);
       expect(
         result.jsUpdates["JSObject1"]?.parsedBody?.actions[0].isAsync,
       ).toBe(true);

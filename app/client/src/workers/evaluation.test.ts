@@ -7,7 +7,7 @@ import {
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import { PluginType } from "entities/Action";
-import DataTreeEvaluator from "workers/DataTreeEvaluator/DataTreeEvaluator";
+import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
