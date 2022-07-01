@@ -45,10 +45,10 @@ function TemplatesModal() {
   }, [templatesModalOpen]);
 
   useEffect(() => {
-    if (!templatesCount) {
+    if (!templatesCount && templatesModalOpen) {
       dispatch(getAllTemplates());
     }
-  }, [templatesCount]);
+  }, [templatesCount, templatesModalOpen]);
 
   useEffect(() => {
     if (!pluginListLength) {
