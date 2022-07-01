@@ -250,11 +250,12 @@ describe("RichTextEditor Widget Functionality", function() {
       ".t--property-control-inputtype .bp3-popover-target",
       "Markdown",
     );
-    cy.get(".t--dropdown-option")
-      .contains("Markdown")
-      .click({ force: true });
     setRTEContent(testString);
     testCursorPoistion(testStringLen, tinyMceId);
+    cy.selectDropdownValue(
+      ".t--property-control-inputtype .bp3-popover-target",
+      "HTML",
+    );
   });
 
   it("Check if different font size texts are supported inside the RTE widget", function() {
