@@ -1403,7 +1403,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             fontStyle={cellProperties.fontStyle}
             horizontalAlignment={cellProperties.horizontalAlignment}
             iconAlign={cellProperties.iconAlign}
-            iconName={cellProperties.menuButtoniconName}
+            iconName={cellProperties.menuButtoniconName || undefined}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isCompact={!!cellProperties.isCompact}
             isDisabled={!!cellProperties.isDisabled}
