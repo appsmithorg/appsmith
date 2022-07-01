@@ -30,7 +30,6 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -619,7 +618,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @param importedDoc ApplicationJSON object that needs to be validated
      * @return Name of the field that have error. Empty string otherwise
      */
-    private void validateApplicationJson(ApplicationJson importedDoc) {
+    private String validateApplicationJson(ApplicationJson importedDoc) {
         String errorField = "";
         if (CollectionUtils.isEmpty(importedDoc.getPageList())) {
             errorField = FieldName.PAGES;
@@ -631,149 +630,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             errorField = FieldName.DATASOURCE;
         }
 
-        if (!errorField.isEmpty()) {
-            throw new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE);
-        }
-
-        List<String> unpublishedPageNames = new ArrayList<>();
-        List<String> publishedPageNames = new ArrayList<>();
-        for (NewPage newPage : importedDoc.getPageList()) {
-            if (newPage.getUnpublishedPage() == null) {
-                throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, "Unpublished page can't be null. Please check the pages before import");
-            }
-            unpublishedPageNames.add(newPage.getUnpublishedPage().getName());
-            if (newPage.getPublishedPage() != null) {
-                publishedPageNames.add(newPage.getPublishedPage().getName());
-            }
-        }
-        // Check for unique page names
-        Set<String> uniqueUnpublishedPageNames = new HashSet<>(unpublishedPageNames);
-        if (uniqueUnpublishedPageNames.size() != unpublishedPageNames.size()) {
-            throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, "Unpublished page names should be unique. Please check the pages before import");
-        }
-
-        Set<String> uniquePublishedPageNames = new HashSet<>();
-        if (!CollectionUtils.isEmpty(publishedPageNames)) {
-            uniquePublishedPageNames = new HashSet<>(publishedPageNames);
-            if (uniquePublishedPageNames.size() != publishedPageNames.size()) {
-                throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, "Published page names should be unique. Please check the pages before import");
-            }
-        }
-
-        // Check action collection
-        List<String> unpublishedCollectionIds = new ArrayList<>();
-        List<String> publishedCollectionIds = new ArrayList<>();
-        for (ActionCollection collection : importedDoc.getActionCollectionList()) {
-            ActionCollectionDTO unpublishedCollection = collection.getUnpublishedCollection();
-            ActionCollectionDTO publishedCollection = collection.getPublishedCollection();
-
-            if (unpublishedCollection == null) {
-                throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, "Unpublished action collection can't be null. Please check the action colletions before import");
-            }
-            unpublishedCollectionIds.add(unpublishedCollection.getId());
-            if (publishedCollection != null) {
-                publishedCollectionIds.add(publishedCollection.getId());
-            }
-
-            if (!uniqueUnpublishedPageNames.contains(unpublishedCollection.getPageId())) {
-                throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, String.format("Unable to find page %s in page list, attached to action collection with name %s", unpublishedCollection.getPageId(), collection.getId()));
-            } else if (publishedCollection != null && !uniquePublishedPageNames.contains(publishedCollection.getPageId())) {
-                throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, String.format("Unable to find page %s in page list, attached to action collection with name %s", publishedCollection.getPageId(), collection.getId()));
-            }
-        }
-        // Check for unique collection names
-        Set<String> uniqueUnpublishedCollectionIds = new HashSet<>(unpublishedCollectionIds);
-        if (uniqueUnpublishedCollectionIds.size() != unpublishedCollectionIds.size()) {
-            throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, "Unpublished action collection names should be unique. Please check the collections before import");
-        }
-
-        Set<String> uniquePublishedCollectionIds = new HashSet<>();
-        if (!CollectionUtils.isEmpty(publishedCollectionIds)) {
-            uniquePublishedCollectionIds = new HashSet<>(publishedCollectionIds);
-            if (uniquePublishedCollectionIds.size() != publishedCollectionIds.size()) {
-                throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, "Published action collection names should be unique. Please check the collections before import");
-            }
-        }
-
-
-        // Check actions
-        List<String> unpublishedActionIds = new ArrayList<>();
-        List<String> publishedActionIds = new ArrayList<>();
-        for (NewAction newAction : importedDoc.getActionList()) {
-            ActionDTO unpublishedAction = newAction.getUnpublishedAction();
-            ActionDTO publishedAction = newAction.getPublishedAction();
-
-            if (unpublishedAction == null) {
-                throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, "Unpublished action can't be null. Please check the actions before import");
-            }
-            unpublishedActionIds.add(unpublishedAction.getId());
-            if (publishedAction != null) {
-                publishedActionIds.add(publishedAction.getId());
-            }
-
-            if (!uniqueUnpublishedPageNames.contains(unpublishedAction.getPageId())) {
-                throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, String.format("Unable to find page %s in page list, attached to action with name %s", unpublishedAction.getPageId(), newAction.getId()));
-            }
-
-            if (publishedAction != null && !uniquePublishedPageNames.contains(publishedAction.getPageId())) {
-                throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, String.format("Unable to find page %s in page list, attached to action with name %s", publishedAction.getPageId(), newAction.getId()));
-            }
-
-            if (!StringUtils.isEmpty(unpublishedAction.getCollectionId())
-                    && !uniqueUnpublishedCollectionIds.contains(unpublishedAction.getCollectionId())) {
-                throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, String.format("Unable to find action collection %s in collection list, attached to action with name %s", unpublishedAction.getCollectionId(), newAction.getId()));
-            }
-
-            if (publishedAction != null
-                    && !StringUtils.isEmpty(publishedAction.getCollectionId())
-                    && !uniquePublishedCollectionIds.contains(publishedAction.getCollectionId())) {
-                throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, String.format("Unable to find action collection %s in collection list, attached to action with name %s", unpublishedAction.getCollectionId(), newAction.getId()));
-            }
-        }
-        // Check for unique action names
-        Set<String> uniqueUnpublishedActionIds = new HashSet<>(unpublishedActionIds);
-        if (uniqueUnpublishedActionIds.size() != unpublishedActionIds.size()) {
-            throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, "Unpublished action names should be unique. Please check the actions before import");
-        }
-
-        Set<String> uniquePublishedActionIds = new HashSet<>();
-        if (!CollectionUtils.isEmpty(publishedActionIds)) {
-            uniquePublishedActionIds = new HashSet<>(publishedActionIds);
-            if (uniquePublishedActionIds.size() != publishedActionIds.size()) {
-                throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, "Published action names should be unique. Please check the actions before import");
-            }
-        }
-
-        // Check layoutOnPageLoadAction DSL
-        for (NewPage newPage : importedDoc.getPageList()) {
-            PageDTO unpublishedPage = newPage.getUnpublishedPage();
-            PageDTO publishedPage = newPage.getPublishedPage();
-            this.validateDslActionDTO(unpublishedPage, uniqueUnpublishedActionIds, uniqueUnpublishedCollectionIds);
-            this.validateDslActionDTO(publishedPage, uniquePublishedActionIds, uniquePublishedCollectionIds);
-        }
-    }
-
-    private void validateDslActionDTO(PageDTO page, Set<String> actionIds, Set<String> collectionIds) {
-        if (page == null) {
-            return;
-        }
-        if (!CollectionUtils.isEmpty(page.getLayouts())) {
-            page.getLayouts().forEach(layout -> {
-                if (!CollectionUtils.isEmpty(layout.getLayoutOnLoadActions())) {
-                    layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
-                        for (DslActionDTO dslActionDTO : dslActionDTOS) {
-                            if (!actionIds.contains(dslActionDTO.getId())) {
-                                throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, String.format("Action referenced for on page load with name %s is not available in action list. Please check the actions before import", dslActionDTO.getId()));
-                            }
-
-                            if (!StringUtils.isEmpty(dslActionDTO.getCollectionId()) && !collectionIds.contains(dslActionDTO.getCollectionId())) {
-                                throw new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE, String.format("Action collection referenced for on page load with name %s is not available in action collection list. Please check the actions before import", dslActionDTO.getCollectionId()));
-                            }
-                        }
-                    });
-                }
-            });
-        }
+        return errorField;
     }
 
     /**
@@ -804,7 +661,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
 
         // check for validation error and raise exception if error found
-        validateApplicationJson(importedDoc);
+        String errorField = validateApplicationJson(importedDoc);
+        if (!errorField.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
+        }
 
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceMap = new HashMap<>();
