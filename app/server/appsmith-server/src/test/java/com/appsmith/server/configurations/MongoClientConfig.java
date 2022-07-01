@@ -27,7 +27,7 @@ public class MongoClientConfig {
                 // init replica set, aka rs.initiate()
                 .runCommand(new Document("replSetInitiate", new Document()));
 
-        await().atMost(10, TimeUnit.SECONDS)
+        await().atMost(30, TimeUnit.SECONDS)
                 .pollInterval(1, TimeUnit.SECONDS)
                 .until(() -> isReplicaSetReady(mongoClient));
     }

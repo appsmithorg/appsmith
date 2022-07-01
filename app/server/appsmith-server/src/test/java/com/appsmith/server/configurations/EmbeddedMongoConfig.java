@@ -21,6 +21,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.UUID;
 
 /**
  * Overrides the default configuration to enable journaling.
@@ -51,7 +52,6 @@ public class EmbeddedMongoConfig {
 
     /**
      * Overrides the default embedded mongo configuration to enable journaling.
-     * Actual magic happens here.
      *
      * @return Mongod configuration which is used to set up the embedded mongo server as well as the mongo clients
      * ({@link MongoRepository}, {@link MongoTemplate}, etc.)
@@ -63,7 +63,7 @@ public class EmbeddedMongoConfig {
         EmbeddedMongoProperties.Storage storage = embeddedProperties.getStorage();
         if (storage != null) {
             String databaseDir = storage.getDatabaseDir();
-            String replSetName = storage.getReplSetName() == null ? "rs0" : storage.getReplSetName();
+            String replSetName = storage.getReplSetName() == null ? "appsmith-replica-set" + UUID.randomUUID() : storage.getReplSetName();
             int oplogSize = (storage.getOplogSize() != null) ? (int) storage.getOplogSize().toMegabytes() : 0;
             builder.replication(new Storage(databaseDir, replSetName, oplogSize));
 
