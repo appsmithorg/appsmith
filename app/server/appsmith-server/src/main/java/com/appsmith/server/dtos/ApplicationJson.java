@@ -8,6 +8,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Transient;
@@ -55,6 +56,15 @@ public class ApplicationJson {
     List<NewAction> actionList;
 
     List<ActionCollection> actionCollectionList;
+
+    /**
+     * This field will be used to store map of files to be updated in local file system by comparing the recent
+     * changes in database and the last local git commit.
+     * This field can be used while saving resources to local file system and only update the resource files which
+     * are updated in the database.
+     */
+    @JsonIgnore
+    Map<String, Set<String>> updatedResources;
 
     // TODO remove the plain text fields during the export once we have a way to address sample apps DB authentication
     Map<String, DecryptedSensitiveFields> decryptedFields;

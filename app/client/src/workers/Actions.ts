@@ -119,8 +119,6 @@ const DATA_TREE_FUNCTIONS: Record<
   run: {
     qualifier: (entity) => isAction(entity),
     func: (entity) =>
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       function(
         onSuccessOrParams?: () => unknown | Record<string, unknown>,
         onError?: () => unknown,
@@ -262,6 +260,16 @@ const DATA_TREE_FUNCTIONS: Record<
           executionType: ExecutionType.PROMISE,
         };
       },
+  },
+  postMessageToTargetWindow: function(message: unknown, targetOrigin: string) {
+    return {
+      type: ActionTriggerType.POST_MESSAGE,
+      payload: {
+        message,
+        targetOrigin,
+      },
+      executionType: ExecutionType.TRIGGER,
+    };
   },
 };
 

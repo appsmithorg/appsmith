@@ -1,5 +1,4 @@
-import { Position } from "@blueprintjs/core";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Text, { TextType } from "components/ads/Text";
 import React from "react";
@@ -32,7 +31,7 @@ function PropertyHelpLabel(props: Props) {
       disabled={!toolTipDefined}
       hoverOpenDelay={200}
       openOnTargetFocus={false}
-      position={Position.TOP}
+      position="top"
     >
       <div
         style={{

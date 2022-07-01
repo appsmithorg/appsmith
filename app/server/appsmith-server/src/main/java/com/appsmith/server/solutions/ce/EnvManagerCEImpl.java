@@ -1,11 +1,11 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.EnvVariables;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.EnvChangesResponseDTO;
@@ -18,9 +18,9 @@ import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
-import com.appsmith.server.services.AnalyticsService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import javax.mail.MessagingException;
 import java.io.File;
@@ -47,14 +46,13 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -70,13 +68,13 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_PASSWORD;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_PORT;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_SMTP_AUTH;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_USERNAME;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GITHUB_CLIENT_ID;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_RECAPTCHA_SECRET_KEY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_RECAPTCHA_SITE_KEY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_REPLY_TO;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SIGNUP_ALLOWED_DOMAINS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SIGNUP_DISABLED;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GITHUB_CLIENT_ID;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -232,7 +230,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     if (changesCopy.containsKey(APPSMITH_ADMIN_EMAILS.name())) {
                         commonConfig.setAdminEmails(changesCopy.remove(APPSMITH_ADMIN_EMAILS.name()));
                         String oldAdminEmailsCsv = originalValues.get(APPSMITH_ADMIN_EMAILS.name());
-                        dependentTasks = dependentTasks.then(updateAdminUserPolicies(oldAdminEmailsCsv));
+                        dependentTasks = dependentTasks.then(
+                                updateAdminUserPolicies(oldAdminEmailsCsv).then()
+                        );
                     }
 
                     if (changesCopy.containsKey(APPSMITH_MAIL_FROM.name())) {
@@ -279,16 +279,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         commonConfig.setTelemetryDisabled("true".equals(changesCopy.remove(APPSMITH_DISABLE_TELEMETRY.name())));
                     }
 
-                    // Ideally, we should only need a restart here if `changesCopy` is not empty. However, some of these
-                    // env variables are also used in client code, which means restart might be necessary there. So, to
-                    // provide a more uniform and predictable experience, we always restart.
-                    Mono.delay(Duration.ofSeconds(1))
-                            .then(dependentTasks)
-                            .then(restart())
-                            .subscribeOn(Schedulers.boundedElastic())
-                            .subscribe();
-
-                    return Mono.just(new EnvChangesResponseDTO(true));
+                    return dependentTasks.thenReturn(new EnvChangesResponseDTO(true));
                 });
     }
 
@@ -366,8 +357,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * If an email is removed from admin emails, it'll remove the policy from that user.
      * If a new email is added as admin email, it'll add the policy to that user
      * @param oldAdminEmailsCsv comma separated email addresses that was set as admin email earlier
+     * @return
      */
-    private Mono<Void> updateAdminUserPolicies(String oldAdminEmailsCsv) {
+    private Flux<User> updateAdminUserPolicies(String oldAdminEmailsCsv) {
         Set<String> oldAdminEmails = TextUtils.csvToSet(oldAdminEmailsCsv);
         Set<String> newAdminEmails = commonConfig.getAdminEmails();
 
@@ -395,14 +387,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     return userRepository.save(user);
                 });
 
-        /*
-         * we need to run these two flux immediately because server will be restarted and these changes
-         * should be persisted to DB before that
-         */
-        return Mono.whenDelayError(
-                removedUserFlux.then(),
-                newUsersFlux.then()
-        );
+        int prefetchSize = oldAdminEmails.size(); // prefetch total emails
+        return Flux.mergeDelayError(prefetchSize, removedUserFlux, newUsersFlux);
     }
 
     public Map<String, String> parseToMap(String content) {

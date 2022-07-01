@@ -1,4 +1,4 @@
-import { Position } from "@blueprintjs/core";
+import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
 
 export enum commentsTourStepsEditModeTypes {
   ENTER_COMMENTS_MODE,
@@ -6,6 +6,8 @@ export enum commentsTourStepsEditModeTypes {
   SAY_HELLO,
   RESOLVE,
 }
+
+type TooltipProp = { position: PopoverPosition };
 
 export const commentsTourStepsEditMode = [
   {
@@ -20,7 +22,7 @@ export const commentsTourStepsEditMode = [
     id: commentsTourStepsEditModeTypes.SAY_HELLO,
     data: {
       message: "type Hello",
-      tooltipProps: { position: Position.TOP },
+      tooltipProps: { position: "top" } as TooltipProp,
     },
   },
   {
@@ -49,7 +51,7 @@ export const commentsTourStepsPublishedMode = [
     data: {
       message:
         "Tag your teammate and leave them \n some suggestions for the application!",
-      tooltipProps: { position: Position.TOP },
+      tooltipProps: { position: "top" } as TooltipProp,
     },
   },
 ];

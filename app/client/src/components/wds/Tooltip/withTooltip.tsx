@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import Tooltip from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core";
+import { TooltipComponent as Tooltip } from "design-system";
 
 const ToolTipWrapper = styled.div`
   height: 100%;
@@ -33,7 +32,7 @@ export default function withTooltip<T extends TooltipProps = TooltipProps>(
             content={props.tooltip}
             disabled={props.isDisabled}
             hoverOpenDelay={200}
-            position={Position.TOP}
+            position="top"
           >
             <WrappedComponent {...props} {...(props as T)} />
           </Tooltip>
