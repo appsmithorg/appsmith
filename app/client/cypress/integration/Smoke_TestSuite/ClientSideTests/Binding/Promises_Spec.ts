@@ -5,7 +5,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
   apiPage = ObjectsRegistry.ApiPage,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  propPane = ObjectsRegistry.PropertyPane;
 
 describe("Validate basic Promises", () => {
   it("1. Verify storeValue via .then via direct Promises", () => {
@@ -111,7 +112,7 @@ describe("Validate basic Promises", () => {
       true,
     );
     ee.SelectEntityByName("Image1");
-    jsEditor.EnterJSContext("Image", `{{Christmas.data}}`, true);
+    propPane.UpdatePropertyFieldValue("Image", `{{Christmas.data}}`);
     agHelper.ValidateToastMessage(
       "will be executed automatically on page load",
     );
@@ -184,7 +185,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       "GetAnime",
     );
     ee.SelectEntityByName("List1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Items",
       `[{
   "name": {{ GetAnime.data.results[0].title }},
@@ -200,9 +201,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
   "name": {{ GetAnime.data.results[2].title }},
   "img": {{ GetAnime.data.results[2].image_url }},
   "synopsis": {{ GetAnime.data.results[2].synopsis }}
-}]`,
-      true,
-    );
+}]`);
     agHelper.ValidateToastMessage(
       "will be executed automatically on page load",
     ); //Validating 'Run API on Page Load' is set once api response is mapped
