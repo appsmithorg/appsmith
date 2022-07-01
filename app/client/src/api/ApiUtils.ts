@@ -41,7 +41,7 @@ const is404orAuthPath = () => {
 export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   const branch =
     getCurrentGitBranch(store.getState()) || getQueryParamsObject().branch;
-  if (branch) {
+  if (branch && config.headers) {
     config.headers.branchName = branch;
   }
   if (config.url?.indexOf("/git/") !== -1) {

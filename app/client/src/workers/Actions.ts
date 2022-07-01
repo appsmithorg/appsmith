@@ -77,7 +77,7 @@ const DATA_TREE_FUNCTIONS: Record<
   },
   storeValue: function(key: string, value: string, persist = true) {
     // momentarily store this value in local state to support loops
-    _.set(self, `appsmith.store[${key}]`, value);
+    _.set(self, ["appsmith", "store", key], value);
     return {
       type: ActionTriggerType.STORE_VALUE,
       payload: {
@@ -260,16 +260,6 @@ const DATA_TREE_FUNCTIONS: Record<
           executionType: ExecutionType.PROMISE,
         };
       },
-  },
-  postMessageToTargetWindow: function(message: unknown, targetOrigin: string) {
-    return {
-      type: ActionTriggerType.POST_MESSAGE,
-      payload: {
-        message,
-        targetOrigin,
-      },
-      executionType: ExecutionType.TRIGGER,
-    };
   },
 };
 

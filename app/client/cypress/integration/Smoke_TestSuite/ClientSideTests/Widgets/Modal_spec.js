@@ -54,6 +54,7 @@ describe("Modal Widget Functionality", function() {
 
     cy.wait(1000); //make sure evaluated value disappears
     cy.get(widgets.modalCloseButton).click({ force: true });
+    cy.get(".t--modal-widget").should("have.length", 0);
 
     cy.get("body").type(`{${modifierKey}}v`);
 
@@ -61,6 +62,8 @@ describe("Modal Widget Functionality", function() {
       .eq(1)
       .children()
       .should("have.length", 2);
+    //make sure modalis open on paste
+    cy.get(".t--modal-widget").should("have.length", 1);
   });
 
   it("5. should select modal when clicked on modal label", () => {
@@ -85,5 +88,43 @@ describe("Modal Widget Functionality", function() {
 
     //verify the modal1 is selected
     cy.get(".t--property-pane-title").should("contain", "Modal1");
+  });
+
+  it("6. It should paste modal widget on main Container even when copied in group and paste when a container is selected", () => {
+    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+
+    cy.get(explorer.addWidget).click();
+    //add an additional modal widget and a container widget
+    cy.dragAndDropToCanvas("modalwidget", { x: 300, y: 300 });
+    cy.get(widgets.modalCloseButton).click({ force: true });
+    cy.dragAndDropToCanvas("containerwidget", { x: 300, y: 300 });
+    cy.get("#switcher--explorer").click();
+    cy.get(".t--entity-name")
+      .contains("WIDGETS")
+      .click();
+
+    //select all widgets and copy
+    cy.get(`#div-selection-0`).click({
+      force: true,
+    });
+    cy.get("body").type(`{${modifierKey}}a`);
+    cy.get("body").type(`{${modifierKey}}c`);
+
+    //select container widget
+    cy.get(`#div-selection-0`).click({
+      force: true,
+    });
+    cy.get(`.t--widget-containerwidget`).click({
+      ctrlKey: true,
+    });
+
+    //paste
+    cy.get("body").type(`{${modifierKey}}v`);
+
+    //verify that the two modal widget should have pasted on the main canvas
+    cy.get('.bp3-collapse-body > [step="0"]')
+      .eq(1)
+      .children()
+      .should("have.length", 6);
   });
 });
