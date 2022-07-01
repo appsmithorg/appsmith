@@ -877,11 +877,26 @@ export function EditorJSONtoForm(props: Props) {
 
   const pluginImages = useSelector(getPluginImages);
 
-  const DATASOURCES_OPTIONS = dataSources.map((dataSource) => ({
-    label: dataSource.name,
-    value: dataSource.id,
-    image: pluginImages[dataSource.pluginId],
-  }));
+  type DATASOURCES_OPTIONS_TYPE = {
+    label: string;
+    value: string;
+    image: string;
+  };
+
+  // Filtering the datasources for listing the similar datasources only rather than having all the active datasources in the list, which on switching resulted in error.
+  const DATASOURCES_OPTIONS: Array<DATASOURCES_OPTIONS_TYPE> = dataSources.reduce(
+    (acc: Array<DATASOURCES_OPTIONS_TYPE>, dataSource: Datasource) => {
+      if (dataSource.pluginId === plugin?.id) {
+        acc.push({
+          label: dataSource.name,
+          value: dataSource.id,
+          image: pluginImages[dataSource.pluginId],
+        });
+      }
+      return acc;
+    },
+    [],
+  );
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
