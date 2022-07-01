@@ -3,7 +3,7 @@
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
     <option name="MAIN_CLASS_NAME" value="com.appsmith.server.ServerApplication" />
     <module name="server" />
-    <option name="VM_PARAMETERS" value="-Dpf4j.mode=development -Dpf4j.pluginsDir=appsmith-plugins --add-opens=java.base/java.util=ALL-UNNAMED" />
+    <option name="VM_PARAMETERS" value="-Dpf4j.mode=development -Dpf4j.pluginsDir=appsmith-plugins" />
     <extension name="net.ashald.envfile">
       <option name="IS_ENABLED" value="true" />
       <option name="IS_SUBST" value="false" />

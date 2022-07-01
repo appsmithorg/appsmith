@@ -18,7 +18,7 @@ services:
       - ./container-volumes/git-storage:/data/git-storage
 
   mongo:
-    image: mongo:4.4.15
+    image: mongo:4.4.6
     environment:
       - MONGO_INITDB_DATABASE=appsmith
     volumes:
