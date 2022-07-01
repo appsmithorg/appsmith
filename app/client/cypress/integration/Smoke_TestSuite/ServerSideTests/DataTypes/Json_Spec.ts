@@ -180,7 +180,6 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
     agHelper.ClickButton("Run UpdateQuery");
     agHelper.AssertElementVisible(locator._modal);
 
-    //deployMode.ClearJSONFieldValue("Title");
     deployMode.EnterJSONInputValue("Title", " Bill");//Adding Bill to name
     agHelper.ToggleSwitch("Published", "uncheck", true);
     deployMode.ClearJSONFieldValue("Price");
@@ -285,10 +284,10 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.Sleep(2500); //Allwowing time for delete to be success
     table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
-      expect($cellData).not.to.eq("2"); //asserting 2nd record is deleted
+      expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
     });
     table.ReadTableRowColumnData(1, 0, 200).then(($cellData) => {
-      expect($cellData).to.eq("3");
+      expect($cellData).to.eq("2");
     });
   });
 
@@ -311,7 +310,7 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
     deployMode.EnterJSONInputValue("Price", "80");
     agHelper.AssertElementVisible(locator._visibleTextDiv("Out of range!"));
     deployMode.ClearJSONFieldValue("Price");
-    deployMode.EnterJSONInputValue("Price", "0");//Making it 800
+    deployMode.EnterJSONInputValue("Price", "800");
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
