@@ -3,6 +3,34 @@ const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/formdsl1.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 
+/**
+ * A function to set the content inside an RTE widget
+ * @param textValue
+ */
+const setRTEContent = (textValue) => {
+  // Set the content inside RTE widget
+  cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then(($iframe) => {
+    const $body = $iframe.contents().find("body");
+    cy.wrap($body).type(textValue, { force: true });
+  });
+};
+
+/**
+ * A function to test if the cursor position is at the end of the string.
+ * @param textValueLen
+ */
+const testCursorPoistion = (textValueLen, tinyMceId) => {
+  cy.window().then((win) => {
+    const editor = win.tinymce.editors[tinyMceId];
+
+    // Get the current cursor location
+    const getCurrentCursorLocation = editor.selection.getSel().anchorOffset;
+
+    // Check if the cursor is at the end.
+    expect(getCurrentCursorLocation).to.be.equal(textValueLen);
+  });
+};
+
 describe("RichTextEditor Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
@@ -210,23 +238,23 @@ describe("RichTextEditor Widget Functionality", function() {
     const testString = "Test Content";
     const testStringLen = testString.length;
 
-    // Set the content inside RTE widget
-    cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then(($iframe) => {
-      const $body = $iframe.contents().find("body");
-      cy.wrap($body)
-        // .find("p")
-        .type(testString, { force: true });
-    });
+    // Check if the cursor is at the end when input Type is HTML
+    setRTEContent(testString);
+    testCursorPoistion(testStringLen, tinyMceId);
+    setRTEContent("{selectAll}");
+    setRTEContent("{backspace}");
 
-    cy.window().then((win) => {
-      const editor = win.tinymce.editors[tinyMceId];
-
-      // Get the current cursor location
-      const getCurrentCursorLocation = editor.selection.getSel().anchorOffset;
-
-      // Check if the cursor is at the end.
-      expect(getCurrentCursorLocation).to.be.equal(testStringLen);
-    });
+    // Changing the input type to markdown and again testing the cursor position
+    cy.openPropertyPane("richtexteditorwidget");
+    cy.selectDropdownValue(
+      ".t--property-control-inputtype .bp3-popover-target",
+      "Markdown",
+    );
+    cy.get(".t--dropdown-option")
+      .contains("Markdown")
+      .click({ force: true });
+    setRTEContent(testString);
+    testCursorPoistion(testStringLen, tinyMceId);
   });
 
   it("Check if different font size texts are supported inside the RTE widget", function() {
@@ -234,12 +262,7 @@ describe("RichTextEditor Widget Functionality", function() {
     const testString = "Test Content";
 
     // Set the content inside RTE widget by typing
-    cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then(($iframe) => {
-      const $body = $iframe.contents().find("body");
-      cy.wrap($body).type(`${testString} {enter} ${testString} 1`, {
-        force: true,
-      });
-    });
+    setRTEContent(`${testString} {enter} ${testString} 1`);
 
     cy.get(".tox-tbtn--bespoke").click({ force: true });
     cy.contains("Heading 1").click({ force: true });
