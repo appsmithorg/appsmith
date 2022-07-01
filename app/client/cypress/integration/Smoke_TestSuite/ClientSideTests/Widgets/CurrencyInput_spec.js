@@ -272,4 +272,9 @@ describe("Currency widget - ", () => {
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
+
+  it("Should check that widget input show any errors", function() {
+    cy.get(widgetInput).type("123456789");
+    cy.get(".bp3-popover-content").should("not.exist");
+  });
 });
