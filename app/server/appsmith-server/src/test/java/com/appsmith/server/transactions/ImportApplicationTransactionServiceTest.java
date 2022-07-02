@@ -130,7 +130,7 @@ public class ImportApplicationTransactionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromValidJsonFileTest1() {
+    public void importApplication_exceptionDuringActionSave_savedPagesAndApplicationReverted() {
 
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
@@ -143,11 +143,14 @@ public class ImportApplicationTransactionServiceTest {
         Mono<Application> resultMono = workspaceService.create(newWorkspace)
                 .flatMap(workspace -> importExportApplicationService.importApplicationInWorkspace(workspace.getId(), applicationJson));
 
+        // Check  if expected exception is thrown
         StepVerifier
                 .create(resultMono)
-                .expectError()
+                .expectErrorMatches(error -> error instanceof AppsmithException && error.getMessage().equals(AppsmithError.GENERIC_BAD_REQUEST.getMessage()))
                 .verify();
 
+        // After the import application failed in the middle of execution after the applicann and pages are saved to DB
+        // check if the saved pages reverted after the exception
         assertThat(mongoTemplate.count(new Query(), Application.class)).isEqualTo(applicationCount);
         assertThat(mongoTemplate.count(new Query(), NewPage.class)).isEqualTo(pageCount);
         assertThat(mongoTemplate.count(new Query(), NewAction.class)).isEqualTo(actionCount);
