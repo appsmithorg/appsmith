@@ -1,0 +1,71 @@
+/**
+ * ----------------------------------------------------------------------------
+ * BASE STYLES
+ *-----------------------------------------------------------------------------
+ */
+.base {
+  display: flex;
+  overflow: hidden;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  border-width: 1px;
+  cursor: pointer;
+  outline: 0;
+  gap: theme('spacing.4');
+  min-height: theme('spacing.8');
+  border-radius: var(--wds-radii);
+}
+
+/**
+ * ----------------------------------------------------------------------------
+ * VARIANT STYLES
+ *-----------------------------------------------------------------------------
+ */
+.solid {
+  background: var(--wds-btn-color-bg-accent);
+  color: var(--wds-btn-color-text-onaccent);
+  border-color: var(--wds-btn-color-border-accent);
+}
+
+.solid:hover {
+  background: var(--wds-btn-color-bg-accent-hover);
+}
+
+.outline {
+  color: var(--wds-btn-color-text-accent);
+  border-color: var(--wds-color-border);
+}
+
+.outline:hover {
+  background: var(--wds-color-bg-hover);
+}
+
+.ghost {
+  border-color: transparent;
+  color: var(--wds-btn-color-text);
+}
+
+.ghost:hover {
+  background: var(--wds-color-bg-hover);
+}
+
+.link {
+  border-color: transparent;
+  color: var(--wds-btn-color-text-accent);
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/**
+ * ----------------------------------------------------------------------------
+ * STATES STYLES
+ *-----------------------------------------------------------------------------
+ */
+.disabled {
+  cursor: not-allowed;
+}

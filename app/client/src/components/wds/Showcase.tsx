@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { Checkbox, Button } from "components/wds";
 import { borderRadiusOptions } from "constants/ThemeConstants";
 
+import "components/wds/styles.css";
+
 function Showcase() {
   const [borderRadius, setBorderRadius] = useState("0px");
 
@@ -71,7 +73,6 @@ function Showcase() {
             <div className="space-y-1">
               <h3 className="text-gray-500">Types</h3>
               <div className="flex space-x-3">
-                <Button leftIcon="download" {...theme} />
                 <Button variant="solid" {...theme}>
                   Solid
                 </Button>
@@ -82,6 +83,23 @@ function Showcase() {
                   Ghost
                 </Button>
                 <Button variant="link" {...theme}>
+                  Link
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-gray-500">Disabled</h3>
+              <div className="flex space-x-3">
+                <Button isDisabled variant="solid" {...theme}>
+                  Solid
+                </Button>
+                <Button isDisabled variant="outline" {...theme}>
+                  Outline
+                </Button>
+                <Button isDisabled variant="ghost" {...theme}>
+                  Ghost
+                </Button>
+                <Button isDisabled variant="link" {...theme}>
                   Link
                 </Button>
               </div>

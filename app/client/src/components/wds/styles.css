@@ -1,0 +1,20 @@
+:root {
+  --wds-color-bg: #fff;
+  --wds-color-bg-hover: #f5f5f5;
+  --wds-color-bg-strong: #e6e6e6;
+  --wds-color-bg-light: #f5f5f5;
+  --wds-color-text: rgba(0, 0, 0, .9);
+  --wds-color-border: #e6e6e6;
+  --wds-color-border-strong: #2c2c2c;
+  --wds-color-border-selected: #0d99ff;
+  --wds-color-border-selected-strong: #007be5;
+
+  --wds-color-bg-disabled: #d9d9d9;
+  --wds-color-bg-disabled-secondary: #b3b3b3;
+  --wds-color-text-disabled: rgba(0, 0, 0, .3);
+  --wds-color-text-ondisabled: rgba(255, 255, 255, 1);
+  --wds-color-border-disabled: #e6e6e6;
+  --wds-color-border-disabled-strong: rgba(0, 0, 0, .3);
+
+  --wds-radii: 3rem;
+}

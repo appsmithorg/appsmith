@@ -38,6 +38,7 @@
     "axios": "^0.27.2",
     "caniuse-lite": "^1.0.30001208",
     "classnames": "^2.3.1",
+    "clsx": "^1.1.1",
     "codemirror": "^5.59.2",
     "copy-to-clipboard": "^3.3.1",
     "core-js": "^3.9.1",
