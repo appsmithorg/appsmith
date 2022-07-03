@@ -6,7 +6,7 @@ import {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import { isEllipsisActive } from "utils/helpers";
+import { isEllipsisActive, trimQueryString } from "utils/helpers";
 import { TooltipComponent } from "design-system";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
@@ -180,7 +180,7 @@ function PageTabItem({ page, query }: { page: Page; query: string }) {
       activeClassName="is-active"
       className="t--page-switch-tab"
       to={{
-        pathname: pageURL,
+        pathname: trimQueryString(pageURL),
         search: query,
       }}
     >

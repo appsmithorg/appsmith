@@ -290,9 +290,16 @@ export function buildDeprecationWidgetMessage(
   return `${deprecationMessage}${deprecatedReplacementMessage}`;
 }
 
-export function useHref(
-  urlBuilderFn: (params: URLBuilderParams) => string,
-  params: URLBuilderParams,
+/**
+ * Use this hook if you are try to set href in components that could possibly mount before the application is initialized.
+ * Eg. Deploy button in header.
+ * @param urlBuilderFn
+ * @param params
+ * @returns {String} URL
+ */
+export function useHref<T extends URLBuilderParams>(
+  urlBuilderFn: (params: T) => string,
+  params: T,
 ) {
   const isEditorInitialized = useSelector(getIsEditorInitialized);
   const isViewerInitialized = useSelector(getIsInitialized);

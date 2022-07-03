@@ -156,23 +156,23 @@ function AppRouter(props: {
                 exact
                 path={ADMIN_SETTINGS_CATEGORY_PATH}
               />
+              <SentryRoute
+                component={EditorLoader}
+                path={BUILDER_PATH_DEPRECATED}
+              />
+              <SentryRoute
+                component={AppViewerLoader}
+                path={VIEWER_PATH_DEPRECATED}
+              />
               <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
+              <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
               <SentryRoute
                 component={EditorLoader}
                 path={BUILDER_CUSTOM_PATH}
               />
               <SentryRoute
-                component={EditorLoader}
-                path={BUILDER_PATH_DEPRECATED}
-              />
-              <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
-              <SentryRoute
                 component={AppViewerLoader}
                 path={VIEWER_CUSTOM_PATH}
-              />
-              <SentryRoute
-                component={AppViewerLoader}
-                path={VIEWER_PATH_DEPRECATED}
               />
               <Redirect from={BUILDER_PATCH_PATH} to={BUILDER_PATH} />
               <Redirect from={VIEWER_PATCH_PATH} to={VIEWER_PATH} />

@@ -23,6 +23,7 @@ import { getShowBrandingBadge } from "@appsmith/selectors/workspaceSelectors";
 import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "RouteBuilder";
+import { trimQueryString } from "utils/helpers";
 
 type AppViewerHeaderProps = {
   isOpen?: boolean;
@@ -151,7 +152,7 @@ function PageNavLink({ page, query }: { page: Page; query: string }) {
       className="flex flex-col px-4 py-2 text-gray-700 no-underline border-transparent border-r-3 hover:no-underline focus:text-gray-700"
       key={page.pageId}
       to={{
-        pathname,
+        pathname: trimQueryString(pathname),
         search: query,
       }}
     >
