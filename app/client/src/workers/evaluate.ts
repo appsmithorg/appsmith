@@ -348,80 +348,66 @@ export async function evaluateAsync(
   })();
 }
 
-export function isFunctionAsync(
-  userFunction: unknown,
-  dataTree: DataTree,
-  resolvedFunctions: Record<string, any>,
-  logs: unknown[] = [],
-) {
-  return (function() {
-    /**** Setting the eval context ****/
-    const GLOBAL_DATA: Record<string, any> = {
-      ALLOW_ASYNC: false,
-      IS_ASYNC: false,
-    };
-    //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
-    ///// Adding Data tree with functions
-    Object.keys(dataTreeWithFunctions).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-    });
-    if (!isEmpty(resolvedFunctions)) {
-      Object.keys(resolvedFunctions).forEach((datum: any) => {
-        const resolvedObject = resolvedFunctions[datum];
-        Object.keys(resolvedObject).forEach((key: any) => {
-          const dataTreeKey = GLOBAL_DATA[datum];
-          if (dataTreeKey) {
-            const data = dataTreeKey[key]?.data;
-            //do not remove, we will be investigating this
-            // const isAsync = dataTreeKey.meta[key]?.isAsync || false;
-            // const confirmBeforeExecute =
-            //   dataTreeKey.meta[key]?.confirmBeforeExecute || false;
-            dataTreeKey[key] = resolvedObject[key];
-            // if (isAsync && confirmBeforeExecute) {
-            //   dataTreeKey[key] = confirmationPromise.bind(
-            //     {},
-            //     "",
-            //     resolvedObject[key],
-            //     key,
-            //   );
-            // } else {
-            //   dataTreeKey[key] = resolvedObject[key];
-            // }
-            if (!!data) {
-              dataTreeKey[key].data = data;
-            }
-          }
-        });
-      });
-    }
-    // Set it to self so that the eval function can have access to it
-    // as global data. This is what enables access all appsmith
-    // entity properties from the global context
-    Object.keys(GLOBAL_DATA).forEach((key) => {
-      // @ts-expect-error: Types are not available
-      self[key] = GLOBAL_DATA[key];
-    });
-    try {
-      if (typeof userFunction === "function") {
-        const returnValue = userFunction();
-        if (!!returnValue && returnValue instanceof Promise) {
-          self.IS_ASYNC = true;
-        }
-        if (self.TRIGGER_COLLECTOR.length) {
-          self.IS_ASYNC = true;
-        }
-      }
-    } catch (e) {
-      // We do not want to throw errors for internal operations, to users.
-      // logLevel should help us in debugging this.
-      logs.push({ error: "Error when determining async function" + e });
-    }
-    const isAsync = !!self.IS_ASYNC;
-    for (const entity in GLOBAL_DATA) {
-      // @ts-expect-error: Types are not available
-      delete self[entity];
-    }
-    return isAsync;
-  })();
-}
+// export function isFunctionAsync(
+//   userFunction: unknown,
+//   dataTree: DataTree,
+//   resolvedFunctions: Record<string, any>,
+//   logs: unknown[] = [],
+// ) {
+//   return (function() {
+//     /**** Setting the eval context ****/
+//     const GLOBAL_DATA: Record<string, any> = {
+//       ALLOW_ASYNC: false,
+//       IS_ASYNC: false,
+//     };
+//     //// Add internal functions to dataTree;
+//     const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
+//     ///// Adding Data tree with functions
+//     Object.keys(dataTreeWithFunctions).forEach((datum) => {
+//       GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
+//     });
+//     if (!isEmpty(resolvedFunctions)) {
+//       Object.keys(resolvedFunctions).forEach((datum: any) => {
+//         const resolvedObject = resolvedFunctions[datum];
+//         Object.keys(resolvedObject).forEach((key: any) => {
+//           const dataTreeKey = GLOBAL_DATA[datum];
+//           if (dataTreeKey) {
+//             const data = dataTreeKey[key]?.data;
+//             dataTreeKey[key] = resolvedObject[key];
+//             if (!!data) {
+//               dataTreeKey[key].data = data;
+//             }
+//           }
+//         });
+//       });
+//     }
+//     // Set it to self so that the eval function can have access to it
+//     // as global data. This is what enables access all appsmith
+//     // entity properties from the global context
+//     Object.keys(GLOBAL_DATA).forEach((key) => {
+//       // @ts-expect-error: Types are not available
+//       self[key] = GLOBAL_DATA[key];
+//     });
+//     try {
+//       if (typeof userFunction === "function") {
+//         const returnValue = userFunction();
+//         if (!!returnValue && returnValue instanceof Promise) {
+//           self.IS_ASYNC = true;
+//         }
+//         if (self.TRIGGER_COLLECTOR.length) {
+//           self.IS_ASYNC = true;
+//         }
+//       }
+//     } catch (e) {
+//       // We do not want to throw errors for internal operations, to users.
+//       // logLevel should help us in debugging this.
+//       logs.push({ error: "Error when determining async function" + e });
+//     }
+//     const isAsync = !!self.IS_ASYNC;
+//     for (const entity in GLOBAL_DATA) {
+//       // @ts-expect-error: Types are not available
+//       delete self[entity];
+//     }
+//     return isAsync;
+//   })();
+// }

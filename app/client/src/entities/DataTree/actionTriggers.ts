@@ -20,7 +20,7 @@ export enum ActionTriggerType {
   CONFIRMATION_MODAL = "CONFIRMATION_MODAL",
 }
 
-export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
+export const ActionTriggerFunctionNames = {
   [ActionTriggerType.CLEAR_INTERVAL]: "clearInterval",
   [ActionTriggerType.CLEAR_PLUGIN_ACTION]: "action.clear",
   [ActionTriggerType.CLOSE_MODAL]: "closeModal",

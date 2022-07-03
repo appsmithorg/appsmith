@@ -2,9 +2,13 @@ import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
-import { isTypeOfFunction, parseJSObjectWithAST } from "workers/ast";
+import {
+  isTypeOfFunction,
+  parseJSObjectWithAST,
+  isFunctionAsync,
+} from "workers/ast";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import evaluateSync, { isFunctionAsync } from "workers/evaluate";
+import evaluateSync from "workers/evaluate";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
@@ -245,15 +249,16 @@ export function parseJSActions(
 
   Object.keys(jsUpdates).forEach((entityName) => {
     const parsedBody = jsUpdates[entityName].parsedBody;
+    console.log("$$$", parsedBody);
     if (!parsedBody) return;
     parsedBody.actions = parsedBody.actions.map((action) => {
       return {
         ...action,
         isAsync: isFunctionAsync(
-          action.parsedFunction,
-          unEvalDataTree,
-          dataTreeEvalRef.resolvedFunctions,
-          dataTreeEvalRef.logs,
+          action.body,
+          // unEvalDataTree,
+          // dataTreeEvalRef.resolvedFunctions,
+          // dataTreeEvalRef.logs,
         ),
         // parsedFunction - used only to determine if function is async
         parsedFunction: undefined,

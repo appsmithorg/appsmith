@@ -37,7 +37,7 @@ interface MemberExpressionNode extends Node {
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#identifier
-interface IdentifierNode extends Node {
+interface IdentifierNode extends Expression {
   type: NodeTypes.Identifier;
   name: string;
 }
@@ -62,16 +62,24 @@ interface FunctionDeclarationNode extends Node, Function {
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#functionexpression
 interface FunctionExpressionNode extends Expression, Function {
+  async: boolean;
   type: NodeTypes.FunctionExpression;
 }
 
 interface ArrowFunctionExpressionNode extends Expression, Function {
+  async: boolean;
   type: NodeTypes.ArrowFunctionExpression;
 }
 
-export interface ObjectExpression extends Expression {
+export interface ObjectExpressionNode extends Expression {
   type: NodeTypes.ObjectExpression;
   properties: Array<PropertyNode>;
+}
+
+export interface CallExpressionNode extends Expression {
+  callee: Expression;
+  arguments: Array<Expression>;
+  type: NodeTypes.CallExpression;
 }
 
 // doc: https://github.com/estree/estree/blob/master/es2015.md#assignmentpattern
@@ -115,8 +123,18 @@ const isFunctionExpression = (node: Node): node is FunctionExpressionNode => {
   return node.type === NodeTypes.FunctionExpression;
 };
 
-const isObjectExpression = (node: Node): node is ObjectExpression => {
+const isArrowFunctionExpression = (
+  node: Node,
+): node is ArrowFunctionExpressionNode => {
+  return node.type === NodeTypes.ArrowFunctionExpression;
+};
+
+const isObjectExpression = (node: Node): node is ObjectExpressionNode => {
   return node.type === NodeTypes.ObjectExpression;
+};
+
+const isCallExpression = (node: Node): node is CallExpressionNode => {
+  return node.type === NodeTypes.CallExpression;
 };
 
 const isAssignmentPatternNode = (node: Node): node is AssignmentPatternNode => {
@@ -303,11 +321,13 @@ const getFunctionalParamsFromNode = (
         if (!needValue) {
           functionalParams.add({ paramName, defaultValue: undefined });
         } else {
-          // figure out how to get value of paramNode.right for each node type
-          // currently we don't use params value, hence skipping it
-          // functionalParams.add({
-          //   defaultValue: paramNode.right.value,
-          // });
+          /* 
+            figure out how to get value of paramNode.right for each node type
+            currently we don't use params value, hence skipping it
+            functionalParams.add({
+              defaultValue: paramNode.right.value,
+            });
+          */
         }
       }
     }
@@ -355,6 +375,8 @@ type JsObjectProperty = {
   arguments?: Array<functionParams>;
 };
 
+// move this code to JSObject/utils
+// add comment to explain the logic
 export const parseJSObjectWithAST = (
   jsObjectBody: string,
 ): Array<JsObjectProperty> => {
@@ -408,4 +430,78 @@ export const parseJSObjectWithAST = (
   });
 
   return [...parsedObjectProperties];
+};
+
+// move this code to JSObject/utils
+// remove hardcoded values and generate it according to actions present in platform
+const asyncFunctions: Record<string, boolean> = {
+  clearInterval: true,
+  closeModal: true,
+  copyToClipboard: true,
+  download: true,
+  getCurrentLocation: true,
+  navigateTo: true,
+  resetWidget: true,
+  setInterval: true,
+  showAlert: true,
+  showModal: true,
+  stopWatch: true,
+  storeValue: true,
+  watchLocation: true,
+};
+
+export const isFunctionAsync = (
+  funcCode: FunctionExpressionNode | ArrowFunctionExpressionNode | any,
+): boolean => {
+  const functionName = "____INTERNAL_FUNCTION_NAME_USED_FOR_PARSING_____";
+  const jsCode = `const ${functionName} = ${funcCode}`;
+  let isAsync = false;
+  const ast = parse(jsCode, { ecmaVersion: ECMA_VERSION });
+  let functionNode:
+    | ArrowFunctionExpressionNode
+    | FunctionExpressionNode
+    | undefined;
+  simple(ast, {
+    VariableDeclarator(node: Node) {
+      if (
+        isVariableDeclarator(node) &&
+        node.id.name === functionName &&
+        node.init &&
+        (isFunctionExpression(node.init) ||
+          isArrowFunctionExpression(node.init))
+      ) {
+        functionNode = node.init;
+      }
+    },
+  });
+  // if function has async keyword
+  isAsync = !!(functionNode && functionNode.async);
+
+  if (functionNode && !isAsync) {
+    simple(functionNode, {
+      CallExpression(node: Node) {
+        if (isCallExpression(node) && !isAsync) {
+          const calleeNode = node.callee;
+
+          // check why
+          // const a = () => { return function my(){ storeValue() } }
+          // above code doesn't make function async
+          if (isIdentifierNode(calleeNode)) {
+            isAsync = !!asyncFunctions[calleeNode.name];
+          } else if (
+            isMemberExpressionNode(calleeNode) &&
+            isIdentifierNode(calleeNode.property)
+          ) {
+            // remove hardcoded values and generate it according to actions present in platform
+            if (["run", "clear"].includes(calleeNode.property.name)) {
+              // check if calleeNode.object.name is valid Api or Query name
+              isAsync = true;
+            }
+          }
+        }
+      },
+    });
+  }
+
+  return isAsync;
 };

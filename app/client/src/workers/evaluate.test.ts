@@ -1,13 +1,13 @@
 import evaluate, {
   setupEvaluationEnvironment,
   evaluateAsync,
-  isFunctionAsync,
 } from "workers/evaluate";
 import {
   DataTree,
   DataTreeWidget,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
+import { isFunctionAsync } from "workers/ast";
 import { RenderModes } from "constants/WidgetConstants";
 
 describe("evaluateSync", () => {
@@ -276,7 +276,7 @@ describe("isFunctionAsync", () => {
       if (typeof testFunc === "string") {
         testFunc = eval(testFunc);
       }
-      const actual = isFunctionAsync(testFunc, {}, {});
+      const actual = isFunctionAsync(testFunc);
       expect(actual).toBe(testCase.expected);
     }
   });
