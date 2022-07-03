@@ -35,7 +35,6 @@ type AppViewerHeaderProps = {
 
 export function PageMenu(props: AppViewerHeaderProps) {
   const { application, headerRef, isOpen, pages, setMenuOpen } = props;
-  const appMode = useSelector(getAppMode);
   const menuRef = useRef<any>();
   const selectedTheme = useSelector(getSelectedAppTheme);
   const workspaceID = useSelector(getCurrentWorkspaceId);
