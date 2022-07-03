@@ -4,6 +4,7 @@ export const WIDGET = {
   PHONE_INPUT_WIDGET: "phoneinputwidget",
   CURRENCY_INPUT_WIDGET: "currencyinputwidget",
   BUTTON_WIDGET: "buttonwidget",
+  MULTISELECT_WIDGET: "multiselectwidgetv2",
 } as const;
 
 export const PROPERTY_SELECTOR = {
