@@ -37,6 +37,7 @@ export function Button(props: ButtonProps) {
       {props.isCellVisible && props.action.isVisible ? (
         <StyledButton
           borderRadius={props.action.borderRadius}
+          boxShadow={props.action.boxShadow}
           buttonColor={props.action.backgroundColor}
           buttonVariant={props.action.variant}
           disabled={props.isDisabled}
