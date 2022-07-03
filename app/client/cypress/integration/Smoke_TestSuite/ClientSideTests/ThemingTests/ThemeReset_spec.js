@@ -2,8 +2,8 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
-describe("Theme validation usecases", function () {
-  it("Drag and drop button widget, change value and check reset flow", function () {
+describe("Theme validation usecases", function() {
+  it("Drag and drop button widget, change value and check reset flow", function() {
     // drop button widget
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
@@ -25,8 +25,8 @@ describe("Theme validation usecases", function () {
     cy.window()
       .its("performance")
       .invoke("measure", "ColorChange")
-      .its('duration', { timeout: 0 })
-      .should('be.lessThan', 2000)
+      .its("duration", { timeout: 0 })
+      .should("be.lessThan", 2000);
     /*  
     cy.window()
       .its("performance")
