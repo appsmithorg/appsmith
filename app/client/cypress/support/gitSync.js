@@ -5,6 +5,7 @@ require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import gitSyncLocators from "../locators/gitSyncLocators";
 import homePage from "../locators/HomePage";
+
 const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
 
@@ -99,23 +100,23 @@ Cypress.Commands.add(
 
       // click commit button
       /* if (shouldCommit) {
-          cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-          cy.get(gitSyncLocators.commitButton).click();
-          // check for commit success
-          cy.wait("@commit").should(
-            "have.nested.property",
-            "response.body.responseMeta.status",
-            201,
-          );
+      cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+      cy.get(gitSyncLocators.commitButton).click();
+      // check for commit success
+      cy.wait("@commit").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
 
-          cy.get(gitSyncLocators.closeGitSyncModal).click();
-        }
-      } else {
-        cy.wait("@connectGitRepo").then((interception) => {
-          const status = interception.response.body.responseMeta.status;
-          expect(status).to.be.gte(400);
-        });
-      } */
+      cy.get(gitSyncLocators.closeGitSyncModal).click();
+    }
+  } else {
+    cy.wait("@connectGitRepo").then((interception) => {
+      const status = interception.response.body.responseMeta.status;
+      expect(status).to.be.gte(400);
+    });
+  } */
       cy.get(gitSyncLocators.closeGitSyncModal).click();
     });
   },
@@ -372,14 +373,9 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("gitDiscardChanges", (assertResourceFound = true) => {
+Cypress.Commands.add("gitDiscardChanges", () => {
   cy.get(gitSyncLocators.bottomBarCommitButton).click();
-  //cy.intercept("GET", "/api/v1/git/status/*").as("gitStatus");
-  //  cy.wait("@gitStatus").should(
-  //    "have.nested.property",
-  //    "response.body.responseMeta.status",
-  //   200,
-  // );
+  cy.wait(6000);
   cy.get(gitSyncLocators.discardChanges)
     .children()
     .should("have.text", "Discard changes");
@@ -392,18 +388,8 @@ Cypress.Commands.add("gitDiscardChanges", (assertResourceFound = true) => {
     .should("have.text", "Are you sure?");
   cy.get(gitSyncLocators.discardChanges).click();
   cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
-  if (assertResourceFound) {
-    cy.wait("@applications").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.validateToastMessage("Discarded changes successfully.");
-  } else {
-    cy.get(".bold-text").should(($x) => {
-      expect($x).contain("Page not found");
-    });
-  }
+  cy.wait(2000);
+  cy.validateToastMessage("Discarded changes successfully.");
 });
 
 Cypress.Commands.add("regenerateSSHKey", (repo, generateKey = true) => {
