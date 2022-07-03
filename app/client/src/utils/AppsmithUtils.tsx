@@ -1,4 +1,4 @@
-import { Page, ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
@@ -13,10 +13,7 @@ import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { createMessage, ERROR_500 } from "@appsmith/constants/messages";
 import localStorage from "utils/localStorage";
-import { APP_MODE } from "entities/App";
-import { trimQueryString } from "./helpers";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import { builderURL, viewerURL } from "RouteBuilder";
 import { osName } from "react-device-detect";
 
 export const createReducer = (
