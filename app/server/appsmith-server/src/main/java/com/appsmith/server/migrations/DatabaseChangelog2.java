@@ -1058,7 +1058,7 @@ public class DatabaseChangelog2 {
         return applications.stream().map(getThemeIdMethod).collect(Collectors.toList());
     }
 
-    @ChangeSet(order = "019", id = "fix-deleted-themes-when-git-branch-deleted", author = "")
+    @ChangeSet(order = "020", id = "fix-deleted-themes-when-git-branch-deleted", author = "")
     public void fixDeletedThemesWhenGitBranchDeleted(MongockTemplate mongockTemplate) {
         Query getSystemThemesQuery = new Query(Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(TRUE));
         getSystemThemesQuery.fields().include(fieldName(QTheme.theme.id));
