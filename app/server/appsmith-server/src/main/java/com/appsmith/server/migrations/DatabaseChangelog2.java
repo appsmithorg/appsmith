@@ -1046,8 +1046,9 @@ public class DatabaseChangelog2 {
         Query getAppsWithCustomTheme = new Query(
                 Criteria.where(fieldName(QApplication.application.gitApplicationMetadata)).exists(true)
                         .and(fieldName(QApplication.application.deleted)).is(false)
-                        .and(fieldName).nin(systemThemeIds)
-                        .and(fieldName).exists(true)
+                        .andOperator(
+                                where(fieldName).nin(systemThemeIds), where(fieldName).exists(true)
+                        )
         );
 
         // we need the provided field "fieldName" only
