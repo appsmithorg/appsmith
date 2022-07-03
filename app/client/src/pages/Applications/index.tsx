@@ -94,6 +94,7 @@ import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErrorModal";
+import { resetEditorRequest } from "actions/initActions";
 
 const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -969,6 +970,7 @@ type ApplicationProps = {
     hideHeaderShadow: boolean,
     showHeaderSeparator: boolean,
   ) => void;
+  resetEditor: () => void;
 };
 
 class Applications extends Component<
@@ -987,6 +989,7 @@ class Applications extends Component<
   componentDidMount() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
+    this.props.resetEditor();
     if (!this.props.userWorkspaces.length) {
       this.props.getAllApplication();
     }
@@ -1036,6 +1039,9 @@ const mapStateToProps = (state: AppState) => ({
 const mapDispatchToProps = (dispatch: any) => ({
   getAllApplication: () => {
     dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT });
+  },
+  resetEditor: () => {
+    dispatch(resetEditorRequest());
   },
   searchApplications: (keyword: string) => {
     dispatch({

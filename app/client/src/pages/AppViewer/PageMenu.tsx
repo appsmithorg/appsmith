@@ -4,7 +4,6 @@ import {
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { NavLink } from "react-router-dom";
-import { getPageURL } from "utils/AppsmithUtils";
 import {
   getAppMode,
   showAppInviteUsersDialogSelector,
@@ -21,6 +20,9 @@ import BrandingBadge from "./BrandingBadgeMobile";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
 import { getShowBrandingBadge } from "@appsmith/selectors/workspaceSelectors";
+import { useHref } from "pages/Editor/utils";
+import { APP_MODE } from "entities/App";
+import { builderURL, viewerURL } from "RouteBuilder";
 
 type AppViewerHeaderProps = {
   isOpen?: boolean;
@@ -95,20 +97,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
       >
         <div className="flex-grow py-3 overflow-y-auto" ref={menuRef}>
           {appPages.map((page) => (
-            <NavLink
-              activeClassName="border-r-3 font-semibold"
-              activeStyle={{
-                borderColor: selectedTheme.properties.colors.primaryColor,
-              }}
-              className="flex flex-col px-4 py-2 text-gray-700 no-underline border-transparent border-r-3 hover:no-underline focus:text-gray-700"
-              key={page.pageId}
-              to={{
-                pathname: getPageURL(page, appMode),
-                search: query,
-              }}
-            >
-              {page.pageName}
-            </NavLink>
+            <PageNavLink key={page.pageId} page={page} query={query} />
           ))}
         </div>
         <div className="p-3 space-y-3 border-t">
@@ -143,6 +132,32 @@ export function PageMenu(props: AppViewerHeaderProps) {
         </div>
       </div>
     </>
+  );
+}
+
+function PageNavLink({ page, query }: { page: Page; query: string }) {
+  const appMode = useSelector(getAppMode);
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  const pathname = useHref(
+    appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
+    { pageId: page.pageId },
+  );
+
+  return (
+    <NavLink
+      activeClassName="border-r-3 font-semibold"
+      activeStyle={{
+        borderColor: selectedTheme.properties.colors.primaryColor,
+      }}
+      className="flex flex-col px-4 py-2 text-gray-700 no-underline border-transparent border-r-3 hover:no-underline focus:text-gray-700"
+      key={page.pageId}
+      to={{
+        pathname,
+        search: query,
+      }}
+    >
+      {page.pageName}
+    </NavLink>
   );
 }
 

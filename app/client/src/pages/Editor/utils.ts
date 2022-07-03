@@ -13,7 +13,10 @@ import {
 } from "@appsmith/constants/messages";
 import { URLBuilderParams } from "RouteBuilder";
 import { useSelector } from "react-redux";
-import { getIsEditorInitialized } from "selectors/editorSelectors";
+import {
+  getIsEditorInitialized,
+  selectURLSlugs,
+} from "selectors/editorSelectors";
 import { getIsInitialized } from "selectors/appViewSelectors";
 
 export const draggableElement = (
@@ -293,12 +296,21 @@ export function useHref(
 ) {
   const isEditorInitialized = useSelector(getIsEditorInitialized);
   const isViewerInitialized = useSelector(getIsInitialized);
+  const { applicationSlug, customSlug, pageSlug } = useSelector(selectURLSlugs);
   const [href, setHref] = useState("");
 
   useEffect(() => {
     if (isEditorInitialized || isViewerInitialized)
       setHref(urlBuilderFn(params));
-  }, [isEditorInitialized, isViewerInitialized, params]);
+  }, [
+    isEditorInitialized,
+    isViewerInitialized,
+    params,
+    applicationSlug,
+    pageSlug,
+    customSlug,
+    urlBuilderFn,
+  ]);
 
   return href;
 }

@@ -1,15 +1,8 @@
 import React from "react";
 import { ApplicationVersion } from "actions/applicationActions";
 import { builderURL } from "RouteBuilder";
-import {
-  Page,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import {
-  getCurrentPageId,
-  getPageById,
-  selectURLSlugs,
-} from "selectors/editorSelectors";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { selectURLSlugs } from "selectors/editorSelectors";
 import store from "store";
 import { render } from "test/testUtils";
 import { getUpdatedRoute, isURLDeprecated } from "utils/helpers";
@@ -22,9 +15,6 @@ import {
 } from "./mockData";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import { updateCurrentPage } from "actions/pageActions";
-import { getCurrentApplication } from "selectors/applicationSelectors";
-import { getPageURL } from "utils/AppsmithUtils";
-import { APP_MODE } from "entities/App";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 
 describe("URL slug names", () => {
@@ -173,22 +163,5 @@ describe("URL slug names", () => {
         pageSlug: "page",
       }),
     ).toBe("/app/my-app/page-605c435a91dea93f0eaf91ba/edit");
-  });
-
-  it("tests getPageUrl utility method", () => {
-    const state = store.getState();
-    const currentApplication = getCurrentApplication(state);
-    const currentPageId = getCurrentPageId(state);
-    const page = getPageById(currentPageId)(state) as Page;
-
-    const editPageURL = getPageURL(page, APP_MODE.EDIT);
-    const viewPageURL = getPageURL(page, APP_MODE.PUBLISHED);
-
-    expect(editPageURL).toBe(
-      `/app/${currentApplication?.slug}/${page.slug}-${page.pageId}/edit`,
-    );
-    expect(viewPageURL).toBe(
-      `/app/${currentApplication?.slug}/${page.slug}-${page.pageId}`,
-    );
   });
 });

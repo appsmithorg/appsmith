@@ -155,7 +155,8 @@ export const selectURLSlugs = createSelector(
     const applicationSlug = application?.slug || PLACEHOLDER_APP_SLUG;
     const currentPage = pages.find((page) => page.pageId === pageId);
     const pageSlug = currentPage?.slug || PLACEHOLDER_PAGE_SLUG;
-    return { applicationSlug, pageSlug };
+    const customSlug = currentPage?.customSlug;
+    return { applicationSlug, pageSlug, customSlug };
   },
 );
 

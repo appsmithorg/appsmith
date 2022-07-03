@@ -20,7 +20,6 @@ import {
 import { APP_MODE } from "entities/App";
 import { call, put } from "redux-saga/effects";
 import { failFastApiCalls } from "sagas/InitSagas";
-import { AutoBind } from "utils/helpers";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -53,7 +52,6 @@ export default class AppViewerEngine extends AppEngine {
     }
   }
 
-  @AutoBind
   *setupEngine(payload: AppEnginePayload) {
     yield call(super.setupEngine.bind(this), payload);
   }
@@ -70,7 +68,6 @@ export default class AppViewerEngine extends AppEngine {
     );
   }
 
-  @AutoBind
   *loadAppEntities(toLoadPageId: string, applicationId: string): any {
     const resultOfPrimaryCalls: boolean = yield failFastApiCalls(
       [

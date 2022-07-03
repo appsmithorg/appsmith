@@ -386,30 +386,6 @@ export const getCamelCaseString = (sourceString: string) => {
   return out;
 };
 
-/*
- * gets the page url
- *
- * Note: for edit mode, the page will have different url ( contains '/edit' at the end )
- *
- * @param page
- * @returns
- */
-export const getPageURL = (page: Page, appMode: APP_MODE | undefined) => {
-  if (appMode === APP_MODE.PUBLISHED) {
-    return trimQueryString(
-      viewerURL({
-        pageId: page.pageId,
-      }),
-    );
-  }
-
-  return trimQueryString(
-    builderURL({
-      pageId: page.pageId,
-    }),
-  );
-};
-
 /**
  * Convert Base64 string to Blob
  * @param base64Data
