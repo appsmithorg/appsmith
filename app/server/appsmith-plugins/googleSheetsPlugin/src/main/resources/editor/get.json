@@ -1,0 +1,140 @@
+{
+  "identifier": "GET",
+  "controlType" : "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'GET'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select sheet to query",
+      "children": [
+        {
+          "label": "Spreadsheet URL",
+          "propertyName" : "get_spreadsheetUrl",
+          "configProperty": "actionConfiguration.formData.sheetUrl.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0"
+        },
+        {
+          "label": "Sheet Name",
+          "propertyName" : "get_sheetName",
+          "configProperty": "actionConfiguration.formData.sheetName.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "Sheet1"
+        },
+        {
+          "label": "Table Heading Row Index",
+          "propertyName" : "get_tableHeadingRowIndex",
+          "configProperty": "actionConfiguration.formData.tableHeaderIndex.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "1"
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Query",
+      "description" : "Details",
+      "children": [
+        {
+          "label": "Query Format",
+          "propertyName" : "get_queryFormat",
+          "configProperty": "actionConfiguration.formData.queryFormat.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "ROWS",
+          "options": [
+            {
+              "label": "Query rows",
+              "value": "ROWS"
+            },
+            {
+              "label": "Query range",
+              "value": "RANGE"
+            }
+          ]
+        },
+        {
+          "label": "Cell Range",
+          "propertyName" : "get_cellRange",
+          "configProperty": "actionConfiguration.formData.range.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'GET' && actionConfiguration.formData.queryFormat.data === 'RANGE'}}"
+          },
+          "initialValue": "",
+          "placeholderText": "A2:B"
+        },
+        {
+          "label": "Row Offset",
+          "propertyName" : "get_rowOffset",
+          "configProperty": "actionConfiguration.formData.rowOffset.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'GET' && actionConfiguration.formData.queryFormat.data === 'ROWS'}}"
+          },
+          "initialValue": "0",
+          "placeholderText": "0"
+        },
+        {
+          "label": "Row Limit",
+          "propertyName" : "get_rowLimit",
+          "configProperty": "actionConfiguration.formData.rowLimit.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'GET' && actionConfiguration.formData.queryFormat.data === 'ROWS'}}"
+          },
+          "initialValue": "10",
+          "placeholderText": "10"
+        },
+        {
+          "label": "Do you wanna build a snowman?",
+          "propertyName" : "get_rowSheetName",
+          "configProperty": "actionConfiguration.formData.where.data",
+          "nestedLevels": 3,
+          "controlType": "WHERE_CLAUSE",
+          "logicalTypes": [
+            {
+              "label": "AND",
+              "value": "AND"
+            },
+            {
+              "label": "OR",
+              "value": "OR"
+            }
+          ],
+          "comparisonTypes": [
+            {
+              "label": "<",
+              "value": "LT"
+            },
+            {
+              "label": "<=",
+              "value": "LTE"
+            },
+            {
+              "label": "==",
+              "value": "EQ"
+            },
+            {
+              "label": ">=",
+              "value": "GTE"
+            },
+            {
+              "label": ">",
+              "value": "GT"
+            },
+            {
+              "label": "in",
+              "value": "IN"
+            },
+            {
+              "label": "not in",
+              "value": "NOT_IN"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

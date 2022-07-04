@@ -164,7 +164,12 @@ class FormControlRegistry {
       buildPropertyControl(controlProps: DropDownControlProps): JSX.Element {
         return (
           <DropDownControl
-            fetchOptionsCondtionally={controlProps?.fetchOptionsCondtionally}
+            // I'm keeping the first condition "!!controlProps?.fetchOptionsConditionally" in case we want to pass in this props manually from inside one of the other form controls
+            // for example in the EntitySelectorControl.tsx file in the dropdownFieldConfig object.
+            fetchOptionsConditionally={
+              !!controlProps?.fetchOptionsConditionally ||
+              !!controlProps?.conditionals?.fetchDynamicValues?.condition
+            }
             isMultiSelect
             isSearchable
             {...controlProps}

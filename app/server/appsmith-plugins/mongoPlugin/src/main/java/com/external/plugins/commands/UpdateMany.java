@@ -1,5 +1,6 @@
 package com.external.plugins.commands;
 
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import lombok.Getter;
@@ -14,8 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COLLECTION;
@@ -40,16 +41,16 @@ public class UpdateMany extends MongoCommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
 
         if (validConfigurationPresentInFormData(formData, UPDATE_QUERY)) {
-            this.query = (String) getValueSafelyFromFormData(formData, UPDATE_QUERY);
+            this.query = PluginUtils.getDataValueSafelyFromFormData(formData, UPDATE_QUERY, STRING_TYPE);
         }
 
         if (validConfigurationPresentInFormData(formData, UPDATE_OPERATION)) {
-            this.update = (String) getValueSafelyFromFormData(formData, UPDATE_OPERATION);
+            this.update = PluginUtils.getDataValueSafelyFromFormData(formData, UPDATE_OPERATION, STRING_TYPE);
         }
 
         // Default for this is 1 to indicate updating only one document at a time.
         if (validConfigurationPresentInFormData(formData, UPDATE_LIMIT)) {
-            String limitOption = (String) getValueSafelyFromFormData(formData, UPDATE_LIMIT);
+            String limitOption = PluginUtils.getDataValueSafelyFromFormData(formData, UPDATE_LIMIT, STRING_TYPE);
             if ("ALL".equals(limitOption)) {
                 this.multi = Boolean.TRUE;
             }
@@ -105,12 +106,12 @@ public class UpdateMany extends MongoCommand {
 
         Map<String, Object> configMap = new HashMap<>();
 
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "UPDATE");
-        setValueSafelyInFormData(configMap, COLLECTION, collectionName);
-        setValueSafelyInFormData(configMap, UPDATE_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
-        setValueSafelyInFormData(configMap, UPDATE_OPERATION, "{ \"$set\": { \"" + filterFieldName + "\": \"new value\" } }");
-        setValueSafelyInFormData(configMap, UPDATE_LIMIT, "ALL");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPDATE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, collectionName);
+        setDataValueSafelyInFormData(configMap, UPDATE_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
+        setDataValueSafelyInFormData(configMap, UPDATE_OPERATION, "{ \"$set\": { \"" + filterFieldName + "\": \"new value\" } }");
+        setDataValueSafelyInFormData(configMap, UPDATE_LIMIT, "ALL");
 
         String rawQuery = "{\n" +
                 "  \"update\": \"" + collectionName + "\",\n" +
@@ -123,7 +124,7 @@ public class UpdateMany extends MongoCommand {
                 "    }\n" +
                 "  ]\n" +
                 "}\n";
-        setValueSafelyInFormData(configMap, BODY, rawQuery);
+        setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
         return Collections.singletonList(new DatasourceStructure.Template(
                 "Update",
