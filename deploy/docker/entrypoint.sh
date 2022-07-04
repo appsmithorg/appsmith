@@ -319,6 +319,7 @@ else
 fi
 
 init_keycloak
+
 check_setup_custom_ca_certificates
 mount_letsencrypt_directory
 
