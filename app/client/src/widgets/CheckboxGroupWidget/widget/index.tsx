@@ -165,29 +165,9 @@ class CheckboxGroupWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            updateHook: (
-              props: CheckboxGroupWidgetProps,
-              propertyPath: string,
-              propertyValue: string,
-            ) => {
-              const propertiesToUpdate = [{ propertyPath, propertyValue }];
-              const isOffInline =
-                typeof propertyValue === "string"
-                  ? !(propertyValue === "true")
-                  : !propertyValue;
-
-              if (isOffInline) {
-                propertiesToUpdate.push({
-                  propertyPath: "optionAlignment",
-                  propertyValue: CheckboxGroupAlignmentTypes.NONE,
-                });
-              }
-              return propertiesToUpdate;
-            },
             validation: {
               type: ValidationTypes.BOOLEAN,
             },
-            dependencies: ["isInline"],
           },
           {
             propertyName: "isSelectAll",
@@ -335,12 +315,6 @@ class CheckboxGroupWidget extends BaseWidget<
                 ],
               },
             },
-            hidden: (props: CheckboxGroupWidgetProps) => {
-              return typeof props.isInline === "string"
-                ? !(props.isInline === "true")
-                : !props.isInline;
-            },
-            dependencies: ["isInline"],
           },
           {
             propertyName: "labelTextColor",
