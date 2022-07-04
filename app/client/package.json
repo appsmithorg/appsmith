@@ -201,7 +201,7 @@
     "@types/js-beautify": "^1.13.2",
     "@types/jshint": "^2.12.0",
     "@types/lodash": "^4.14.120",
-    "@types/marked": "^1.2.2",
+    "@types/marked": "^4.0.3",
     "@types/moment-timezone": "^0.5.10",
     "@types/nanoid": "^2.0.0",
     "@types/node": "^10.12.18",
