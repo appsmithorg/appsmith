@@ -103,7 +103,7 @@ export interface DisabledOverlayerProps {
 }
 
 const DisabledOverlayer = styled.div<DisabledOverlayerProps>`
-  ${overlayerMixin}
+  ${overlayerMixin};
   display: ${({ disabled }) => (disabled ? `flex` : `none`)};
   height: 100%;
   z-index: 2;
@@ -358,7 +358,6 @@ function ControlPanel(props: ControlPanelProps) {
             />
           </TooltipComponent>
         );
-        break;
 
       case MediaCaptureStatusTypes.IMAGE_CAPTURED:
         return (
@@ -383,7 +382,6 @@ function ControlPanel(props: ControlPanelProps) {
             </TooltipComponent>
           </>
         );
-        break;
 
       case MediaCaptureStatusTypes.IMAGE_SAVED:
         return (
@@ -398,7 +396,6 @@ function ControlPanel(props: ControlPanelProps) {
             />
           </TooltipComponent>
         );
-        break;
 
       case MediaCaptureStatusTypes.VIDEO_DEFAULT:
         return (
@@ -417,7 +414,7 @@ function ControlPanel(props: ControlPanelProps) {
             />
           </TooltipComponent>
         );
-        break;
+
       case MediaCaptureStatusTypes.VIDEO_RECORDING:
         return (
           <>
@@ -447,7 +444,6 @@ function ControlPanel(props: ControlPanelProps) {
             </TooltipComponent>
           </>
         );
-        break;
 
       case MediaCaptureStatusTypes.VIDEO_CAPTURED:
         return (
@@ -482,7 +478,6 @@ function ControlPanel(props: ControlPanelProps) {
             </TooltipComponent>
           </>
         );
-        break;
 
       case MediaCaptureStatusTypes.VIDEO_PLAYING:
         return (
@@ -519,7 +514,6 @@ function ControlPanel(props: ControlPanelProps) {
             </TooltipComponent>
           </>
         );
-        break;
 
       case MediaCaptureStatusTypes.VIDEO_PAUSED:
         return (
@@ -554,7 +548,6 @@ function ControlPanel(props: ControlPanelProps) {
             </TooltipComponent>
           </>
         );
-        break;
 
       case MediaCaptureStatusTypes.VIDEO_SAVED:
         return (
@@ -581,7 +574,6 @@ function ControlPanel(props: ControlPanelProps) {
             </TooltipComponent>
           </>
         );
-        break;
 
       case MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE:
         return (
@@ -608,7 +600,6 @@ function ControlPanel(props: ControlPanelProps) {
             </TooltipComponent>
           </>
         );
-        break;
 
       case MediaCaptureStatusTypes.VIDEO_PAUSED_AFTER_SAVE:
         return (
@@ -635,7 +626,6 @@ function ControlPanel(props: ControlPanelProps) {
             </TooltipComponent>
           </>
         );
-        break;
 
       default:
         break;
@@ -691,6 +681,7 @@ function ControlPanel(props: ControlPanelProps) {
 const getFormattedDigit = (value: number) => {
   return value >= 10 ? value.toString() : `0${value.toString()}`;
 };
+
 export interface TimerProps {
   days: number;
   hours: number;

@@ -1,6 +1,6 @@
 package com.appsmith.external.constants;
 
-public class FieldName {
+public class CommonFieldName {
     public static final String CLIENT_SECRET = "clientSecret";
     public static final String TOKEN = "token";
     public static final String REFRESH_TOKEN = "refreshToken";

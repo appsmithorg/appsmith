@@ -64,10 +64,8 @@ import { UIComponentTypes } from "api/PluginApi";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 
 // Called whenever the query being edited is changed via the URL or query pane
-function* changeQuerySaga(
-  actionPayload: ReduxAction<{ id: string; isSaas: boolean }>,
-) {
-  const { id, isSaas } = actionPayload.payload;
+function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
+  const { id } = actionPayload.payload;
   let configInitialValues = {};
   const applicationId: string = yield select(getCurrentApplicationId);
   const pageId: string = yield select(getCurrentPageId);
@@ -86,73 +84,64 @@ function* changeQuerySaga(
     return;
   }
 
-  if (isSaas) {
-    yield put(initialize(QUERY_EDITOR_FORM_NAME, action));
-  } else {
-    // fetching pluginId and the consequent configs from the action
-    const pluginId = action.pluginId;
-    const currentEditorConfig: any[] = yield select(getEditorConfig, pluginId);
-    const currentSettingConfig: any[] = yield select(
-      getSettingConfig,
-      pluginId,
+  // fetching pluginId and the consequent configs from the action
+  const pluginId = action.pluginId;
+  const currentEditorConfig: any[] = yield select(getEditorConfig, pluginId);
+  const currentSettingConfig: any[] = yield select(getSettingConfig, pluginId);
+
+  // Update the evaluations when the queryID is changed by changing the
+  // URL or selecting new query from the query pane
+  yield put(initFormEvaluations(currentEditorConfig, currentSettingConfig, id));
+
+  const allPlugins: Plugin[] = yield select(getPlugins);
+  let uiComponent = UIComponentTypes.DbEditorForm;
+  if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
+
+  // If config exists
+  if (currentEditorConfig) {
+    // Get initial values
+    configInitialValues = yield call(
+      getConfigInitialValues,
+      currentEditorConfig,
+      uiComponent === UIComponentTypes.UQIDbEditorForm,
     );
+  }
 
-    // Update the evaluations when the queryID is changed by changing the
-    // URL or selecting new query from the query pane
-    yield put(
-      initFormEvaluations(currentEditorConfig, currentSettingConfig, id),
+  if (currentSettingConfig) {
+    const settingInitialValues: Record<string, unknown> = yield call(
+      getConfigInitialValues,
+      currentSettingConfig,
+      uiComponent === UIComponentTypes.UQIDbEditorForm,
     );
+    configInitialValues = merge(configInitialValues, settingInitialValues);
+  }
 
-    const allPlugins: Plugin[] = yield select(getPlugins);
-    let uiComponent = UIComponentTypes.DbEditorForm;
-    if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
+  // Merge the initial values and action.
+  const formInitialValues = merge(configInitialValues, action);
 
-    // If config exists
-    if (currentEditorConfig) {
-      // Get initial values
-      configInitialValues = yield call(
-        getConfigInitialValues,
-        currentEditorConfig,
-        uiComponent === UIComponentTypes.UQIDbEditorForm,
-      );
-    }
+  // Set the initialValues in the state for redux-form lib
+  yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));
 
-    if (currentSettingConfig) {
-      const settingInitialValues: Record<string, unknown> = yield call(
-        getConfigInitialValues,
-        currentSettingConfig,
-        uiComponent === UIComponentTypes.UQIDbEditorForm,
-      );
-      configInitialValues = merge(configInitialValues, settingInitialValues);
-    }
-
-    // Merge the initial values and action.
-    const formInitialValues = merge(configInitialValues, action);
-
-    // Set the initialValues in the state for redux-form lib
-    yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));
-
-    if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
-      // Once the initial values are set, we can run the evaluations based on them.
-      yield put(
-        startFormEvaluations(
-          id,
-          formInitialValues.actionConfiguration,
-          //@ts-expect-error: id does not exists
-          action.datasource.id,
-          pluginId,
-        ),
-      );
-    }
-
+  if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
+    // Once the initial values are set, we can run the evaluations based on them.
     yield put(
-      updateReplayEntity(
-        formInitialValues.id,
-        formInitialValues,
-        ENTITY_TYPE.ACTION,
+      startFormEvaluations(
+        id,
+        formInitialValues.actionConfiguration,
+        //@ts-expect-error: id does not exists
+        action.datasource.id,
+        pluginId,
       ),
     );
   }
+
+  yield put(
+    updateReplayEntity(
+      formInitialValues.id,
+      formInitialValues,
+      ENTITY_TYPE.ACTION,
+    ),
+  );
 }
 
 function* formValueChangeSaga(

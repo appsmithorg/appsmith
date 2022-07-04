@@ -1,13 +1,12 @@
 package com.appsmith.server.configurations;
 
-import java.io.IOException;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import de.flapdoodle.embed.mongo.config.ImmutableMongodConfig;
 import de.flapdoodle.embed.mongo.config.MongodConfig;
 import de.flapdoodle.embed.mongo.distribution.Version;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.io.IOException;
 
 @Configuration
 public class EmbeddedMongoConfig {
