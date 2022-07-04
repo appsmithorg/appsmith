@@ -45,12 +45,6 @@ function CloseEditor() {
     // hence when routing back, user should go back to INTEGRATION_TABS.NEW tab.
     integrationTab = INTEGRATION_TABS.NEW;
   }
-  // if it is a generate CRUD page flow from which user came here
-  // then route user back to `/generate-page/form`
-  // else go back to BUILDER_PAGE
-  const redirectURL = isGeneratePageInitiator
-    ? generateTemplateFormURL({ pageId })
-    : builderURL({ pageId });
 
   const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
@@ -58,6 +52,13 @@ function CloseEditor() {
       { path: location.pathname },
     );
     e.stopPropagation();
+
+    // if it is a generate CRUD page flow from which user came here
+    // then route user back to `/generate-page/form`
+    // else go back to BUILDER_PAGE
+    const redirectURL = isGeneratePageInitiator
+      ? generateTemplateFormURL({ pageId })
+      : builderURL({ pageId });
 
     const URL =
       redirectTo === "datasources"
