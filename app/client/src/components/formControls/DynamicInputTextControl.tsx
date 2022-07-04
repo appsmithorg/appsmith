@@ -20,6 +20,7 @@ export enum INPUT_TEXT_INPUT_TYPES {
   TEXT = "TEXT",
   PASSWORD = "PASSWORD",
   JSON = "JSON",
+  TEXT_WITH_BINDING = "TEXT_WITH_BINDING",
 }
 
 const StyledDynamicTextField = styled(DynamicTextField)`
@@ -44,6 +45,7 @@ export function InputText(props: {
   inputType?: INPUT_TEXT_INPUT_TYPES;
   customStyles?: any;
   disabled?: boolean;
+  showLineNumbers?: boolean;
 }) {
   const { actionName, inputType, name, placeholder } = props;
   const dataTreePath = actionPathFromName(actionName, name);
@@ -53,6 +55,14 @@ export function InputText(props: {
   if (!!inputType && inputType === INPUT_TEXT_INPUT_TYPES.JSON) {
     editorProps = {
       mode: EditorModes.JSON,
+      size: EditorSize.EXTENDED,
+    };
+  }
+
+  // Set the editor props to enable JSON editing experience
+  if (!!inputType && inputType === INPUT_TEXT_INPUT_TYPES.TEXT_WITH_BINDING) {
+    editorProps = {
+      mode: EditorModes.TEXT_WITH_BINDING,
       size: EditorSize.EXTENDED,
     };
   }
@@ -68,13 +78,15 @@ export function InputText(props: {
     }
   }
   return (
-    <div style={customStyle}>
+    <div className={`t--${props?.name}`} style={customStyle}>
+      {/* <div style={customStyle}> */}
       <StyledDynamicTextField
         dataTreePath={dataTreePath}
         disabled={props.disabled}
         name={name}
         placeholder={placeholder}
         showLightningMenu={false}
+        showLineNumbers={props.showLineNumbers}
         {...editorProps}
       />
     </div>
@@ -92,6 +104,7 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
       inputType,
       label,
       placeholderText,
+      showLineNumbers,
     } = this.props;
 
     let inputTypeProp = inputType;
@@ -108,6 +121,7 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
         label={label}
         name={configProperty}
         placeholder={placeholderText}
+        showLineNumbers={showLineNumbers}
       />
     );
   }

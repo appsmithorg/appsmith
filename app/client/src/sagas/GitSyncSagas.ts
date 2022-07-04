@@ -42,6 +42,7 @@ import {
   fetchMergeStatusFailure,
   fetchMergeStatusSuccess,
   GenerateSSHKeyPairReduxAction,
+  GenerateSSHKeyPairResponsePayload,
   generateSSHKeyPairSuccess,
   getSSHKeyPairError,
   GetSSHKeyPairReduxAction,
@@ -56,7 +57,6 @@ import {
   setShowRepoLimitErrorModal,
   switchGitBranchInit,
   updateLocalGitConfigSuccess,
-  GenerateSSHKeyPairResponsePayload,
 } from "actions/gitSyncActions";
 
 import { showReconnectDatasourceModal } from "actions/applicationActions";
@@ -193,6 +193,20 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
 
       const updatedPath = addBranchParam(branch);
       history.replace(updatedPath);
+
+      /* commit effect START */
+      yield put(commitToRepoSuccess());
+      const curApplication: ApplicationPayload = yield select(
+        getCurrentApplication,
+      );
+      if (curApplication) {
+        curApplication.lastDeployedAt = new Date().toISOString();
+        yield put({
+          type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+          payload: curApplication,
+        });
+      }
+      /* commit effect END */
     }
   } catch (error) {
     if (action.onErrorCallback) {
@@ -886,7 +900,11 @@ export default function* gitSyncSagas() {
       ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_INIT,
       updateLocalGitConfig,
     ),
-    takeLatest(ReduxActionTypes.FETCH_GIT_STATUS_INIT, fetchGitStatusSaga),
+    throttle(
+      5 * 1000,
+      ReduxActionTypes.FETCH_GIT_STATUS_INIT,
+      fetchGitStatusSaga,
+    ),
     takeLatest(ReduxActionTypes.MERGE_BRANCH_INIT, mergeBranchSaga),
     throttle(
       5 * 1000,

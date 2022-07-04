@@ -110,9 +110,10 @@ export class AggregateHelper {
     });
   }
 
-  public ValidateToastMessage(text: string, length = 1) {
+  public ValidateToastMessage(text: string, index = 0, length = 1) {
+    cy.get(this.locator._toastMsg).should("have.length.at.least", length);
     cy.get(this.locator._toastMsg)
-      .should("have.length", length)
+      .eq(index)
       .should("contain.text", text);
   }
 
@@ -138,7 +139,8 @@ export class AggregateHelper {
     });
   }
 
-  public WaitUntilToastDisappear(msgToCheckforDisappearance: string | "") {
+  public WaitUntilToastDisappear(msgToCheckforDisappearance: string | "", index = 0 , length = 1) {
+    this.ValidateToastMessage(msgToCheckforDisappearance, index, length);
     cy.waitUntil(() => cy.get(this.locator._toastMsg), {
       errorMsg: msgToCheckforDisappearance + " did not disappear",
       timeout: 5000,
@@ -381,14 +383,19 @@ export class AggregateHelper {
     });
   }
 
-  public GetNClick(selector: string, index = 0, force = false) {
+  public GetNClick(
+    selector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+  ) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator
       .eq(index)
       .click({ force: force })
-      .wait(500);
+      .wait(waitTimeInterval);
   }
 
   public GetNClickByContains(
@@ -438,8 +445,8 @@ export class AggregateHelper {
     switchName: string,
     toggle: "check" | "uncheck" = "check",
   ) {
-    let locator = cy.xpath(this.locator._switchToggle(switchName));
-    let parentLoc = locator.parent("label");
+    const locator = cy.xpath(this.locator._switchToggle(switchName));
+    const parentLoc = locator.parent("label");
     if (toggle == "check")
       parentLoc.then(($parent) => {
         if (!$parent.hasClass("t--switch-widget-active")) {
@@ -506,6 +513,7 @@ export class AggregateHelper {
     if (action == "Delete") {
       !jsDelete && this.ValidateNetworkStatus("@deleteAction");
       jsDelete && this.ValidateNetworkStatus("@deleteJSCollection");
+      jsDelete && this.WaitUntilToastDisappear("deleted successfully");
     }
   }
 
@@ -518,19 +526,22 @@ export class AggregateHelper {
     this.VerifyEvaluatedValue(valueToType);
   }
 
+  // by dynamic input value we mean QUERY_DYNAMIC_INPUT_TEXT formControls.
+  public TypeDynamicInputValueNValidate(valueToType: string, fieldName = "") {
+    this.EnterValue(valueToType, {
+      propFieldName: fieldName,
+      directInput: true,
+      inputFieldName: "",
+    });
+    this.VerifyEvaluatedValue(valueToType);
+  }
+
   public EnterValue(
     valueToEnter: string,
     options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
   ) {
     const { directInput, inputFieldName, propFieldName } = options;
-
-    if (propFieldName && !directInput && !inputFieldName) {
-      cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
-        ($field: any) => {
-          this.UpdateCodeInput($field, valueToEnter);
-        },
-      );
-    } else if (propFieldName && directInput && !inputFieldName) {
+    if (propFieldName && directInput && !inputFieldName) {
       cy.get(propFieldName).then(($field: any) => {
         this.UpdateCodeInput($field, valueToEnter);
       });
@@ -546,6 +557,18 @@ export class AggregateHelper {
       });
     }
     this.AssertAutoSave();
+  }
+
+  public VerifyCodeInputValue(propFieldName: string, value: string) {
+    cy.get(propFieldName).then(($field: any) => {
+      this.CheckCodeInputValue($field, value);
+    });
+  }
+
+  public BlurInput(propFieldName: string) {
+    cy.get(propFieldName).then(($field: any) => {
+      this.BlurCodeInput($field);
+    });
   }
 
   public EnterInputText(
@@ -577,6 +600,31 @@ export class AggregateHelper {
       });
   }
 
+  public BlurCodeInput(selector: string) {
+    cy.wrap(selector)
+      .find(".CodeMirror")
+      .first()
+      .then((ins: any) => {
+        const input = ins[0].CodeMirror;
+        input.focus();
+        this.Sleep(200);
+        input.display.input.blur();
+        this.Sleep(200);
+      });
+  }
+
+  public CheckCodeInputValue(selector: string, expectedValue: string) {
+    cy.wrap(selector)
+      .find(".CodeMirror")
+      .first()
+      .then((ins: any) => {
+        const input = ins[0].CodeMirror;
+        const inputVal = input.getValue();
+        this.Sleep(200);
+        expect(inputVal).to.eq(expectedValue);
+      });
+  }
+
   public VerifyEvaluatedValue(currentValue: string) {
     this.Sleep(3000);
     cy.get(this.locator._evaluatedCurrentValue)
@@ -588,6 +636,10 @@ export class AggregateHelper {
       .click({ force: true })
       .then(($text) => {
         if ($text.text()) expect($text.text()).to.eq(currentValue);
+      })
+      .trigger("mouseout")
+      .then(() => {
+        cy.wait(2000);
       });
   }
 

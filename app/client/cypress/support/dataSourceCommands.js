@@ -8,6 +8,11 @@ const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
 const explorer = require("../locators/explorerlocators.json");
 
+const backgroundColorBlack = "rgb(0, 0, 0)";
+const backgroundColorGray1 = "rgb(250, 250, 250)";
+const backgroundColorGray2 = "rgb(240, 240, 240)";
+const backgroundColorGray8 = "rgb(113, 110, 110)";
+
 export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
@@ -74,6 +79,15 @@ Cypress.Commands.add("NavigateToDatasourceEditor", () => {
     .last()
     .click({ force: true });
   cy.get(pages.integrationCreateNew)
+    .should("be.visible")
+    .click({ force: true });
+});
+
+Cypress.Commands.add("NavigateToActiveDatasources", () => {
+  cy.get(explorer.addDBQueryEntity)
+    .last()
+    .click({ force: true });
+  cy.get(pages.integrationActiveTab)
     .should("be.visible")
     .click({ force: true });
 });
@@ -398,4 +412,70 @@ Cypress.Commands.add("fillMongoDatasourceFormWithURI", () => {
 
 Cypress.Commands.add("ReconnectDatasource", (datasource) => {
   cy.xpath(`//span[text()='${datasource}']`).click();
+});
+
+Cypress.Commands.add("createMockDatasource", () => {
+  cy.get(".t--mock-datasource")
+    .contains("Users")
+    .click();
+});
+
+Cypress.Commands.add("datasourceCardContainerStyle", (tag) => {
+  cy.get(tag)
+    .should("have.css", "min-width", "150px")
+    .and("have.css", "border-radius", "4px")
+    .and("have.css", "align-items", "center");
+});
+
+Cypress.Commands.add("datasourceCardStyle", (tag) => {
+  cy.get(tag)
+    .should("have.css", "display", "flex")
+    .and("have.css", "justify-content", "space-between")
+    .and("have.css", "align-items", "center")
+    .and("have.css", "height", "64px")
+    .realHover()
+    .should("have.css", "background-color", backgroundColorGray1)
+    .and("have.css", "cursor", "pointer");
+});
+
+Cypress.Commands.add("datasourceImageStyle", (tag) => {
+  cy.get(tag)
+    .should("have.css", "height", "28px")
+    .and("have.css", "max-width", "100%");
+});
+
+Cypress.Commands.add("datasourceContentWrapperStyle", (tag) => {
+  cy.get(tag)
+    .should("have.css", "display", "flex")
+    .and("have.css", "align-items", "center")
+    .and("have.css", "gap", "13px")
+    .and("have.css", "padding-left", "13.5px");
+});
+
+Cypress.Commands.add("datasourceIconWrapperStyle", (tag) => {
+  cy.get(tag)
+    .should("have.css", "background-color", backgroundColorGray2)
+    .and("have.css", "width", "48px")
+    .and("have.css", "height", "48px")
+    .and("have.css", "border-radius", "50%")
+    .and("have.css", "display", "flex")
+    .and("have.css", "align-items", "center");
+});
+
+Cypress.Commands.add("datasourceNameStyle", (tag) => {
+  cy.get(tag)
+    .should("have.css", "color", backgroundColorBlack)
+    .and("have.css", "font-size", "16px")
+    .and("have.css", "font-weight", "400")
+    .and("have.css", "line-height", "24px")
+    .and("have.css", "letter-spacing", "-0.24px");
+});
+
+Cypress.Commands.add("mockDatasourceDescriptionStyle", (tag) => {
+  cy.get(tag)
+    .should("have.css", "color", backgroundColorGray8)
+    .and("have.css", "font-size", "13px")
+    .and("have.css", "font-weight", "400")
+    .and("have.css", "line-height", "17px")
+    .and("have.css", "letter-spacing", "-0.24px");
 });

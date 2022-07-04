@@ -172,7 +172,7 @@ describe("Dropdown Widget Functionality", function() {
     // Open property pane
     cy.SearchEntityandOpen("Dropdown1");
     // Dropdown On Option Change
-    cy.addAction("Option Changed");
+    cy.addEvent("Option Changed");
     cy.PublishtheApp();
     // Change the Option
     cy.get(formWidgetsPage.selectWidget)
