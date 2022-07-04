@@ -3,6 +3,7 @@ import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  PLACEHOLDER_APP_SLUG,
   PLACEHOLDER_PAGE_SLUG,
   VIEWER_CUSTOM_PATH,
   VIEWER_PATH,
@@ -136,8 +137,7 @@ export class URLBuilder {
   private constructor() {
     this.appParams = {
       applicationId: "",
-      applicationVersion: -1,
-      applicationSlug: "",
+      applicationSlug: PLACEHOLDER_APP_SLUG,
     };
     this.pageParams = {};
   }
@@ -149,7 +149,7 @@ export class URLBuilder {
   }
 
   private getURLType(
-    applicationVersion: ApplicationVersion | undefined,
+    applicationVersion: ApplicationURLParams["applicationVersion"],
     customSlug?: string,
   ) {
     if (
@@ -162,16 +162,21 @@ export class URLBuilder {
   }
 
   private getFormattedParams(pageId: string) {
+    const currentAppParams = {
+      applicationSlug: this.appParams.applicationSlug,
+      applicationId: this.appParams.applicationId,
+    };
     let currentPageParams = this.pageParams[pageId] || {};
     currentPageParams = {
       ...currentPageParams,
       pageSlug: `${currentPageParams.pageSlug || PLACEHOLDER_PAGE_SLUG}-`,
       customSlug: currentPageParams.customSlug
         ? `${currentPageParams.customSlug}-`
-        : currentPageParams.customSlug,
+        : "",
+      pageId,
     };
 
-    return { ...this.appParams, ...currentPageParams };
+    return { ...currentAppParams, ...currentPageParams };
   }
 
   static updateSlugNamesInCurrentURL(params: Record<Slug, string>) {
@@ -205,7 +210,6 @@ export class URLBuilder {
   resetURLParams() {
     this.appParams = {
       applicationId: "",
-      applicationVersion: -1,
       applicationSlug: "",
     };
     this.pageParams = {};
@@ -218,7 +222,7 @@ export class URLBuilder {
   generateBasePath(pageId: string, mode: APP_MODE) {
     const { applicationVersion } = this.appParams;
 
-    const { customSlug } = this.pageParams[pageId];
+    const customSlug = this.pageParams[pageId]?.customSlug || "";
 
     const urlType = this.getURLType(applicationVersion, customSlug);
 
@@ -240,7 +244,7 @@ export class URLBuilder {
   build(builderParams: URLBuilderParams, mode: APP_MODE = APP_MODE.EDIT) {
     const { hash = "", params = {}, suffix, pageId } = builderParams;
 
-    if (!this.appParams.applicationId || !this.pageParams[pageId] || !pageId) {
+    if (!pageId) {
       throw new URIError(
         "Missing URL params. If you are trying to set href inside a react component use the 'useHref' hook.",
       );

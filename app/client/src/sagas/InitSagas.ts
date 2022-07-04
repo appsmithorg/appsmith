@@ -26,6 +26,7 @@ import { resetEditorSuccess } from "actions/initActions";
 import {
   getCurrentPageId,
   getIsEditorInitialized,
+  selectCurrentApplicationSlug,
 } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { enableGuidedTour } from "actions/onboardingActions";
@@ -130,6 +131,7 @@ export function* waitForInit() {
 function* updateURLSaga(action: ReduxURLChangeAction) {
   yield call(waitForInit);
   const currentPageId: string = yield select(getCurrentPageId);
+  const applicationSlug: string = yield select(selectCurrentApplicationSlug);
   const payload = action.payload;
 
   if ("applicationVersion" in payload) {
@@ -141,6 +143,7 @@ function* updateURLSaga(action: ReduxURLChangeAction) {
     updateSlugNamesInURL({
       pageSlug: payload.slug,
       customSlug: payload.customSlug || "",
+      applicationSlug,
     });
     return;
   }
@@ -148,6 +151,7 @@ function* updateURLSaga(action: ReduxURLChangeAction) {
   updateSlugNamesInURL({
     pageSlug: payload.slug,
     customSlug: payload.customSlug || "",
+    applicationSlug,
   });
 }
 
