@@ -14,7 +14,7 @@ describe("Postgres - Datatype Character tests", function() {
     cy.fixture("CharacterDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    propPane.ChangeTheme("Sharp");
+    propPane.ChangeTheme("Modern");
   });
 
   it("1. Create Postgress DS", function() {
@@ -230,7 +230,7 @@ describe("Postgres - Datatype Character tests", function() {
     agHelper.ClickButton("DeleteQuery", 1);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.Sleep(2500);//Allwowing time for delete to be success
+    agHelper.Sleep(2500); //Allwowing time for delete to be success
     table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
       expect($cellData).not.to.eq("2"); //asserting 2nd record is deleted
     });
@@ -348,7 +348,7 @@ describe("Postgres - Datatype Character tests", function() {
     });
   });
 
-  it("18. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
+  it("18. Validate Drop of the Newly Created - chartypes - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("dropTable");

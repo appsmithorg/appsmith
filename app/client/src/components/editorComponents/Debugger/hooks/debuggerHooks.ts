@@ -18,6 +18,7 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { isWidget, isAction, isJSAction } from "workers/evaluationUtils";
 import history from "utils/history";
 import { jsCollectionIdURL } from "RouteBuilder";
+import store from "store";
 
 export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
@@ -102,46 +103,43 @@ export const useSelectedEntity = () => {
 };
 
 export const useEntityLink = () => {
-  const dataTree = useSelector(getDataTree);
   const pageId = useSelector(getCurrentPageId);
   const applicationId = useSelector(getCurrentApplicationId);
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const { navigateToWidget } = useNavigateToWidget();
 
-  const navigateToEntity = useCallback(
-    (name) => {
-      const entity = dataTree[name];
-      if (isWidget(entity)) {
-        navigateToWidget(entity.widgetId, entity.type, pageId || "");
-      } else if (isAction(entity)) {
-        const actionConfig = getActionConfig(entity.pluginType);
-        const url =
-          applicationId &&
-          actionConfig?.getURL(
-            applicationSlug,
-            pageSlug,
-            pageId || "",
-            entity.actionId,
-            entity.pluginType,
-          );
-
-        if (url) {
-          history.push(url);
-        }
-      } else if (isJSAction(entity)) {
-        history.push(
-          jsCollectionIdURL({
-            applicationSlug,
-            pageSlug,
-            pageId,
-            collectionId: entity.actionId,
-          }),
+  const navigateToEntity = useCallback((name) => {
+    const dataTree = getDataTree(store.getState());
+    const entity = dataTree[name];
+    if (isWidget(entity)) {
+      navigateToWidget(entity.widgetId, entity.type, pageId || "");
+    } else if (isAction(entity)) {
+      const actionConfig = getActionConfig(entity.pluginType);
+      const url =
+        applicationId &&
+        actionConfig?.getURL(
+          applicationSlug,
+          pageSlug,
+          pageId || "",
+          entity.actionId,
+          entity.pluginType,
         );
+
+      if (url) {
+        history.push(url);
       }
-    },
-    [dataTree],
-  );
+    } else if (isJSAction(entity)) {
+      history.push(
+        jsCollectionIdURL({
+          applicationSlug,
+          pageSlug,
+          pageId,
+          collectionId: entity.actionId,
+        }),
+      );
+    }
+  }, []);
 
   return {
     navigateToEntity,
