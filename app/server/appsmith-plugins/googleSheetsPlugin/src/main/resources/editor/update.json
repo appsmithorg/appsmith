@@ -1,0 +1,65 @@
+{
+  "identifier": "UPDATE",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'UPDATE'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select sheet to query",
+      "children": [
+        {
+          "label": "Spreadsheet URL",
+          "propertyName": "update_spreadsheetUrl",
+          "configProperty": "actionConfiguration.formData.sheetUrl.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0"
+        },
+        {
+          "label": "Sheet Name",
+          "propertyName": "update_sheetName",
+          "configProperty": "actionConfiguration.formData.sheetName.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "Sheet1"
+        },
+        {
+          "label": "Table Heading Row Index",
+          "propertyName": "update_tableHeadingRowIndex",
+          "configProperty": "actionConfiguration.formData.tableHeaderIndex.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "1"
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Query",
+      "description": "Details",
+      "children": [
+        {
+          "label": "Row Object",
+          "propertyName": "update_rowObjectWithSmartSubstitute",
+          "configProperty": "actionConfiguration.formData.rowObject.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'UPDATE' && actionConfiguration.formData.smartSubstitution.data === true}}"
+          },
+          "placeholderText": "{{\n  {\n    ...Table1.selectedRow, \n    columnName: Input1.text\n  }\n}}"
+        },
+        {
+          "label": "Row Object",
+          "propertyName": "update_rowObjectWithoutSmartSubstitute",
+          "configProperty": "actionConfiguration.formData.rowObject.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'UPDATE' && actionConfiguration.formData.smartSubstitution.data === false}}"
+          },
+          "placeholderText": "{{\n  {\n    ...Table1.selectedRow, \n    columnName: Input1.text\n  }\n}}"
+        }
+      ]
+    }
+  ]
+}
