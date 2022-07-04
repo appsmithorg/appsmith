@@ -11,12 +11,16 @@
   align-items: center;
   width: 100%;
   height: 100%;
-  border-width: 1px;
   cursor: pointer;
   outline: 0;
   gap: theme('spacing.4');
   min-height: theme('spacing.8');
   border-radius: var(--wds-radii);
+  box-shadow: var(--wds-shadow);
+}
+
+.base:disabled {
+  cursor: not-allowed;
 }
 
 /**
@@ -34,7 +38,13 @@
   background: var(--wds-btn-color-bg-accent-hover);
 }
 
+.solid:disabled:hover {
+  background: var(--wds-btn-color-bg-accent);
+}
+
 .outline {
+  border-width: 1px;
+  background: transparent;
   color: var(--wds-btn-color-text-accent);
   border-color: var(--wds-color-border);
 }
@@ -43,29 +53,31 @@
   background: var(--wds-color-bg-hover);
 }
 
+.outline:hover:disabled {
+  background: transparent;
+}
+
 .ghost {
+  background: transparent;
   border-color: transparent;
-  color: var(--wds-btn-color-text);
+  color: var(--wds-btn-color-text-accent);
 }
 
 .ghost:hover {
   background: var(--wds-color-bg-hover);
 }
 
+.ghost:disabled:hover {
+  background: transparent;
+  background: var(--wds-color-bg-hover);
+}
+
 .link {
   border-color: transparent;
   color: var(--wds-btn-color-text-accent);
+  box-shadow: none;
 }
 
 .link:hover {
   text-decoration: underline;
-}
-
-/**
- * ----------------------------------------------------------------------------
- * STATES STYLES
- *-----------------------------------------------------------------------------
- */
-.disabled {
-  cursor: not-allowed;
 }

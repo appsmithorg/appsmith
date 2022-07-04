@@ -13,7 +13,12 @@ export const getCSSVariables = (
   props: ButtonProps,
   colorSchemeName: keyof typeof ColorSchemeTypes = "default",
 ): { [key: string]: string } => {
-  const { borderRadius, buttonColor: accentColor, isDisabled } = props;
+  const {
+    borderRadius,
+    boxShadow,
+    buttonColor: accentColor,
+    isDisabled,
+  } = props;
 
   const colorSchemes: any = {
     default: {
@@ -42,7 +47,11 @@ export const getCSSVariables = (
   }
 
   if (borderRadius) {
-    colorScheme["--wds-radii"] = borderRadius;
+    colorScheme["--wds-radii"] = borderRadius || "0px";
+  }
+
+  if (boxShadow) {
+    colorScheme["--wds-shadow"] = boxShadow || "none";
   }
 
   return colorScheme;

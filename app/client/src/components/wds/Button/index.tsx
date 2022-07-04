@@ -65,16 +65,21 @@ function Button(props: ButtonProps) {
 
   const computedClassnames = cx({
     [styles.base]: true,
-    [styles.disabled]: isDisabled,
     [styles[variant || "solid"]]: true,
+    [className || ""]: true,
   });
 
   const cssVariables = useMemo(() => {
     return getCSSVariables(props, "default");
-  }, [borderRadius, buttonColor]);
+  }, [borderRadius, buttonColor, boxShadow]);
 
   return (
-    <button {...rest} className={computedClassnames} style={cssVariables} />
+    <button
+      {...rest}
+      className={computedClassnames}
+      disabled={isDisabled}
+      style={cssVariables}
+    />
   );
 }
 
