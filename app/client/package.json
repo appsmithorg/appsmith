@@ -78,7 +78,7 @@
     "loglevel": "^1.7.1",
     "lottie-web": "^5.7.4",
     "mammoth": "^1.4.19",
-    "marked": "^4.0.10",
+    "marked": "^4.0.17",
     "memoize-one": "^5.2.1",
     "micro-memoize": "^4.0.10",
     "moment": "2.29.3",
