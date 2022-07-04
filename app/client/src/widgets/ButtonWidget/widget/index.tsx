@@ -1,6 +1,9 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  WidgetType,
+} from "constants/WidgetConstants";
 import ButtonComponent, { ButtonType } from "../component";
 import {
   EventType,
@@ -129,9 +132,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         hidden: (
           props: ButtonWidgetProps,
           propertyPath: string,
-          shouldShowFormControl?: boolean,
-        ) => !shouldShowFormControl,
-        dependencies: ["parentId"],
+          parentWidgetId?: string,
+        ) => parentWidgetId === MAIN_CONTAINER_WIDGET_ID,
         children: [
           {
             helpText:

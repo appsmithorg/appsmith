@@ -15,7 +15,11 @@ export type PropertyPaneSectionConfig = {
   sectionName: string;
   id?: string;
   children: PropertyPaneConfig[];
-  hidden?: (props: any, propertyPath: string) => boolean;
+  hidden?: (
+    props: any,
+    propertyPath: string,
+    parentWidgetId?: string,
+  ) => boolean;
   isDefaultOpen?: boolean;
   propertySectionPath?: string;
 };

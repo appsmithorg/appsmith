@@ -11,7 +11,7 @@ import { Collapse } from "@blueprintjs/core";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import styled from "constants/DefaultTheme";
-import { AppState } from "reducers";
+import { getWidgetParent } from "sagas/selectors";
 
 const SectionWrapper = styled.div`
   position: relative;
@@ -53,7 +53,7 @@ type PropertySectionProps = {
   hidden?: (
     props: any,
     propertyPath: string,
-    shouldShowFormControl?: boolean,
+    parentWidgetId?: string,
   ) => boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
@@ -71,23 +71,19 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const [isOpen, open] = useState(!!isDefaultOpen);
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
   /**
-   * used to show hide property based on parent widget if required #3631
+   * get actual parent of widget
+   * for button inside form, button's parent is form
+   * for button on canvas, parent is main container
    */
-  const shouldShowFormControl = useSelector((state: AppState) => {
-    const canvasWidgets = state.entities.canvasWidgets;
-    const widgetParentId = widgetProps.parentId as string;
-    if (canvasWidgets.hasOwnProperty(widgetParentId)) {
-      const widget = canvasWidgets[widgetParentId];
-      if (widget.parentId && canvasWidgets.hasOwnProperty(widget.parentId)) {
-        const parent = canvasWidgets[widget.parentId];
-        return parent.type === "FORM_WIDGET" && parent.parentId === "0";
-      }
-    }
-    return false;
-  });
+  const parentWidget = useSelector(getWidgetParent(widgetProps.widgetId));
+
   if (props.hidden) {
     if (
-      props.hidden(widgetProps, props.propertyPath || "", shouldShowFormControl)
+      props.hidden(
+        widgetProps,
+        props.propertyPath || "",
+        parentWidget?.widgetId,
+      )
     ) {
       return null;
     }
