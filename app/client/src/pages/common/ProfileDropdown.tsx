@@ -113,7 +113,7 @@ export default function ProfileDropdown(props: TagProps) {
     <Menu
       className="profile-menu t--profile-menu"
       modifiers={props.modifiers}
-      position={Position.BOTTOM}
+      position={Position.BOTTOM_RIGHT}
       target={Profile}
     >
       <UserInformation>

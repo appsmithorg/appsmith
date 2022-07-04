@@ -45,12 +45,14 @@ export class EntityExplorer {
   private _pageClone = ".single-select >div:contains('Clone')";
   private getPageLocator = (pageName: string) =>
     `.t--entity-name:contains(${pageName})`;
-  private _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + " Query']";
+  private _visibleTextSpan = (spanText: string) =>
+    "//span[text()='" + spanText + " Query']";
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
     section: "WIDGETS" | "QUERIES/JS" | "DATASOURCES" | "" = "",
   ) {
+    this.NavigateToSwitcher("explorer");
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
       .last()

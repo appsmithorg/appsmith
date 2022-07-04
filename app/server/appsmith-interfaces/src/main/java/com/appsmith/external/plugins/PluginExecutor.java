@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
 
-public interface PluginExecutor<C> extends ExtensionPoint {
+public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
 
     /**
      * This function is implemented by the plugins by default to execute the action.
@@ -205,7 +205,7 @@ public interface PluginExecutor<C> extends ExtensionPoint {
         return Mono.zip(Mono.just(datasourceHintMessages), Mono.just(actionHintMessages));
     }
 
-    default Mono<TriggerResultDTO> trigger(TriggerRequestDTO request) {
+    default Mono<TriggerResultDTO> trigger(C connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
         return Mono.empty();
     }
 

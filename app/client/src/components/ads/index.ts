@@ -144,3 +144,5 @@ export { default as TreeDropdown } from "./TreeDropdown";
 export * from "./TreeDropdown";
 
 export { default as UserProfileImagePicker } from "./UserProfileImagePicker";
+
+export { default as JSToggleButton } from "./JSToggleButtonComponent";

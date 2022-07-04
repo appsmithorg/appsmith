@@ -1,0 +1,22 @@
+{
+  "identifier": "INFO",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'INFO'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select sheet to query",
+      "children": [
+        {
+          "label": "Spreadsheet URL",
+          "propertyName": "info_spreadsheetUrl",
+          "configProperty": "actionConfiguration.formData.sheetUrl.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0"
+        }
+      ]
+    }
+  ]
+}
