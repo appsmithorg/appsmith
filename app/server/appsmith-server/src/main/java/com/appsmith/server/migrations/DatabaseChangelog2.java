@@ -1050,7 +1050,7 @@ public class DatabaseChangelog2 {
                 .addCriteria(where(fieldName(QUser.user.tenantId)).is(tenant.getId()));
         User anonymousUser = mongockTemplate.findOne(userQuery, User.class);
 
-        if (anonymousUser != null) {
+        if (anonymousUser == null) {
             anonymousUser = new User();
             anonymousUser.setName(FieldName.ANONYMOUS_USER);
             anonymousUser.setEmail(FieldName.ANONYMOUS_USER);

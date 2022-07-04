@@ -12,7 +12,6 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.UserGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
@@ -23,11 +22,9 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.RbacPolicyService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -62,9 +59,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final AssetService assetService;
     private final ApplicationRepository applicationRepository;
     private final PermissionGroupService permissionGroupService;
-    private final RbacPolicyService rbacPolicyService;
-    private final PolicyUtils policyUtils;
-    private final ModelMapper modelMapper;
 
 
     @Autowired
@@ -82,10 +76,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                   AssetRepository assetRepository,
                                   AssetService assetService,
                                   ApplicationRepository applicationRepository,
-                                  PermissionGroupService permissionGroupService,
-                                  RbacPolicyService rbacPolicyService,
-                                  PolicyUtils policyUtils,
-                                  ModelMapper modelMapper) {
+                                  PermissionGroupService permissionGroupService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pluginRepository = pluginRepository;
@@ -97,9 +88,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         this.assetService = assetService;
         this.applicationRepository = applicationRepository;
         this.permissionGroupService = permissionGroupService;
-        this.rbacPolicyService = rbacPolicyService;
-        this.policyUtils = policyUtils;
-        this.modelMapper = modelMapper;
     }
 
     @Override
