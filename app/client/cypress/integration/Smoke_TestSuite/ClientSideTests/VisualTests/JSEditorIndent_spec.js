@@ -32,6 +32,8 @@ return Promise.all(allFuncs).then(() => showAlert("Wonderful! all apis executed"
       },
     );
 
+    cy.get("[name='expand-more']").click({ multiple: true, force: true });
+
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify1");
     cy.get(".t--more-action-menu")
       .first()
@@ -88,6 +90,8 @@ myFun2: async () => {
       },
     );
 
+    cy.get("[name='expand-more']").click({ multiple: true, force: true });
+
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify2");
     cy.get(".t--more-action-menu")
       .first()
@@ -143,6 +147,8 @@ myFun2: async () => {
       },
     );
 
+    cy.get("[name='expand-more']").click({ multiple: true, force: true });
+
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify3");
     cy.get("div.CodeMirror").type("{shift+cmd+p}");
 
@@ -194,6 +200,8 @@ myFun2: async () => {
       },
     );
 
+    cy.get("[name='expand-more']").click({ multiple: true, force: true });
+
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify4");
     cy.get("div.CodeMirror").type("{shift+cmd+p}");
 
@@ -225,6 +233,8 @@ myFun2: async () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
+
+    cy.get("[name='expand-more']").click({ multiple: true, force: true });
 
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforeGoLineStartSmart5");
 
