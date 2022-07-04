@@ -9,7 +9,7 @@ import {
   BASE_SIGNUP_URL,
   BASE_URL,
   BUILDER_PATH,
-  ORG_URL,
+  WORKSPACE_URL,
   SIGN_UP_URL,
   SIGNUP_SUCCESS_URL,
   USER_AUTH_URL,
@@ -27,7 +27,7 @@ import {
   VIEWER_PATCH_PATH,
   BUILDER_PATCH_PATH,
 } from "constants/routes";
-import OrganizationLoader from "pages/organization/loader";
+import WorkspaceLoader from "pages/workspace/loader";
 import ApplicationListLoader from "pages/Applications/loader";
 import EditorLoader from "pages/Editor/loader";
 import AppViewerLoader from "pages/AppViewer/loader";
@@ -119,7 +119,7 @@ function AppRouter(props: {
               <SentryRoute component={LandingScreen} exact path={BASE_URL} />
               <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
               <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
-              <SentryRoute component={OrganizationLoader} path={ORG_URL} />
+              <SentryRoute component={WorkspaceLoader} path={WORKSPACE_URL} />
               <SentryRoute component={Users} exact path={USERS_URL} />
               <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
               <SentryRoute component={WDSPage} path="/wds" />

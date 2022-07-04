@@ -229,7 +229,11 @@ export class GracefulWorkerService {
       let keepAlive = true;
       while (keepAlive) {
         // Wait for a message from the worker
-        const workerResponse = yield take(workerChannel);
+        const workerResponse: {
+          responseData: {
+            finished: unknown;
+          };
+        } = yield take(workerChannel);
         const { responseData } = workerResponse;
         // post that message to the request channel so the main thread can read it
         requestChannel.put({ requestData: responseData });
@@ -260,7 +264,7 @@ export class GracefulWorkerService {
       let keepAlive = true;
       while (keepAlive) {
         // Wait for the main thread to respond back after a request
-        const response = yield take(responseChannel);
+        const response: { finished: unknown } = yield take(responseChannel);
         // If we get a finished flag, the worker is requesting to end the request
         if (response.finished) {
           keepAlive = false;

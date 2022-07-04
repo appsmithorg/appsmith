@@ -81,13 +81,15 @@ describe("Klona clone test", () => {
   });
 
   it("Objects and Arrays values", () => {
-    const nestedArray = [
-      "foo",
-      [1, 2, ["hello", "world"], 3],
-      "bar",
-      "baz",
-      {},
-    ];
+    function getNestedArray() {
+      return ["foo", [1, 2, ["hello", "world"], 3], "bar", "baz", {}];
+    }
+
+    function getNestedObject() {
+      return {
+        Input: { text: "abc" },
+      };
+    }
 
     const objectWithMethod = Object.create({
       method() {
@@ -95,26 +97,19 @@ describe("Klona clone test", () => {
       },
     });
 
-    const nestedObject = Object.assign(
-      {},
-      {
-        Input: { text: "abc" },
-      },
-    );
-
     const input = {
       meta: {
-        nestedArray: [...nestedArray],
+        nestedArray: [...getNestedArray()],
         objectWithMethod,
-        nestedObject: { ...nestedObject },
+        nestedObject: { ...getNestedObject() },
       },
     };
 
     const expected = {
       meta: {
-        nestedArray: [...nestedArray],
+        nestedArray: [...getNestedArray()],
         objectWithMethod,
-        nestedObject: { ...nestedObject },
+        nestedObject: { ...getNestedObject() },
       },
     };
 
@@ -123,20 +118,23 @@ describe("Klona clone test", () => {
     // mutate
     input.meta.nestedArray[0] = "abc";
     input.meta.nestedArray[1] = { a: "bc" };
-    input.meta.nestedObject.Input = "hello";
+    input.meta.nestedObject.Input.text = "hello";
 
     expect(
       isEqual(expected.meta.nestedArray[0], result.meta.nestedArray[0]),
     ).toEqual(true);
+
     expect(
       isEqual(expected.meta.nestedArray[1], result.meta.nestedArray[1]),
     ).toEqual(true);
+
     expect(
       isEqual(
         expected.meta.objectWithMethod.method(),
         result.meta.objectWithMethod.method(),
       ),
     ).toEqual(true);
+
     expect(
       isEqual(
         expected.meta.nestedObject.Input.text,

@@ -1,0 +1,45 @@
+{
+  "identifier": "CREATE",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'CREATE'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Query",
+      "description": "Details",
+      "children": [
+        {
+          "label": "Spreadsheet Name",
+          "propertyName": "create_spreadsheetName",
+          "configProperty": "actionConfiguration.formData.spreadsheetName.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": ""
+        },
+        {
+          "label": "Row Objects",
+          "propertyName": "bulkUpdate_rowObjectWithSmartSubstitute",
+          "configProperty": "actionConfiguration.formData.rowObjects.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'CREATE' && actionConfiguration.formData.smartSubstitution.data === true}}"
+          },
+          "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
+        },
+        {
+          "label": "Row Objects",
+          "propertyName": "create_rowObjectWithoutSmartSubstitute",
+          "configProperty": "actionConfiguration.formData.rowObjects.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'CREATE' && actionConfiguration.formData.smartSubstitution.data === false}}"
+          },
+          "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
+        }
+      ]
+    }
+  ]
+}

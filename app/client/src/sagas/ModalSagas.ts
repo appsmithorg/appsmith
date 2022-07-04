@@ -145,7 +145,10 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   });
   yield put(focusWidget(action.payload.modalId));
 
-  const metaProps = yield select(getWidgetMetaProps, action.payload.modalId);
+  const metaProps: Record<string, unknown> = yield select(
+    getWidgetMetaProps,
+    action.payload.modalId,
+  );
   if (!metaProps || !metaProps.isVisible) {
     // Then show the modal we would like to show.
     yield put(
@@ -171,8 +174,11 @@ export function* closeModalSaga(
     let widgetIds: string[] = [];
     // If modalName is provided, we just want to close this modal
     if (modalName) {
-      const widget = yield select(getWidgetByName, modalName);
-      widgetIds = [widget.widgetId];
+      const widget: FlattenedWidgetProps | undefined = yield select(
+        getWidgetByName,
+        modalName,
+      );
+      widgetIds = widget ? [widget.widgetId] : [];
       yield put({
         type: ReduxActionTypes.SHOW_PROPERTY_PANE,
         payload: {},
@@ -228,7 +234,7 @@ export function* resizeModalSaga(resizeAction: ReduxAction<ModalWidgetResize>) {
     const { canvasWidgetId, height, widgetId, width } = resizeAction.payload;
 
     const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
-    const stateWidgets = yield select(getWidgets);
+    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
     let widget = { ...stateWidget };
     const widgets = { ...stateWidgets };

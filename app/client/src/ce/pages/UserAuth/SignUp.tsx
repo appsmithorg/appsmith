@@ -141,7 +141,7 @@ export function SignUp(props: SignUpFormProps) {
           formElement &&
             formElement.setAttribute(
               "action",
-              `${signupURL}?${encodeURIComponent(`recaptchaToken=${token}`)}`,
+              `${signupURL}?recaptchaToken=${token}`,
             );
           formElement && formElement.submit();
         });

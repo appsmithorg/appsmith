@@ -15,7 +15,7 @@ describe("Api Naming conflict on a page test", function() {
     // create another API
     cy.NavigateToAPI_Panel();
     cy.CreateAPI(secondApiName);
-    ee.expandCollapseEntity("QUERIES/JS", true);
+    ee.ExpandCollapseEntity("QUERIES/JS", true);
     // try to rename one of the APIs with an existing API name
     cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
@@ -44,11 +44,11 @@ describe("Api Naming conflict on different pages test", function() {
     cy.log("Login Successful");
     // create a new API
     cy.CreateAPI(firstApiName);
-    ee.expandCollapseEntity("QUERIES/JS", true);
+    ee.ExpandCollapseEntity("QUERIES/JS", true);
     // create a new page and an API on that page
     cy.Createpage("Page2");
     cy.CreateAPI(firstApiName);
-    ee.expandCollapseEntity("QUERIES/JS", true);
+    ee.ExpandCollapseEntity("QUERIES/JS", true);
     cy.get(".t--entity-name")
       .contains(firstApiName)
       .should("exist");
@@ -71,7 +71,7 @@ describe("Api Naming conflict on different pages test", function() {
 describe("Entity Naming conflict test", function() {
   it("expects JS objects and actions to not have identical names on the same page.", function() {
     cy.log("Login Successful");
-    ee.expandCollapseEntity("QUERIES/JS", true);
+    ee.ExpandCollapseEntity("QUERIES/JS", true);
     // create JS object and name it
     cy.createJSObject('return "Hello World";');
 

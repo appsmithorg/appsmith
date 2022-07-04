@@ -11,7 +11,7 @@ import { Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import { FormIcons } from "icons/FormIcons";
 import _ from "lodash";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 
 // ---------- Helpers and constants ----------
 
@@ -124,6 +124,9 @@ function DataSourceOption({
       disabled={
         isSupportedForTemplate || isSelectedNode || isConnectNewDataSourceBtn
       }
+      styles={{
+        width: "100%",
+      }}
     >
       <OptionWrapper
         className="t--dropdown-option"

@@ -11,9 +11,11 @@ export interface WidgetConfiguration {
   defaults: Partial<WidgetProps> & WidgetConfigProps;
   hideCard?: boolean;
   isDeprecated?: boolean;
+  replacement?: string;
   isCanvas?: boolean;
   needsMeta?: boolean;
   features?: WidgetFeatures;
+  searchTags?: string[];
   properties: {
     config: PropertyPaneConfig[];
     default: Record<string, string>;

@@ -12,7 +12,6 @@ import EditableText, {
   EditInteractionKind,
   SavingState,
 } from "components/ads/EditableText";
-import { Position } from "@blueprintjs/core";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import { AppState } from "reducers";
 import { getExistingWidgetNames } from "sagas/selectors";
@@ -21,11 +20,12 @@ import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 
 import { WidgetType } from "constants/WidgetConstants";
 
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
 
 type PropertyPaneTitleProps = {
   title: string;
@@ -37,7 +37,7 @@ type PropertyPaneTitleProps = {
   actions: Array<{
     tooltipContent: any;
     icon: ReactElement;
-    tooltipPosition?: Position;
+    tooltipPosition?: PopoverPosition;
   }>;
 };
 
@@ -171,7 +171,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   }, []);
 
   return props.widgetId || props.isPanelTitle ? (
-    <div className="flex items-center w-full px-3 space-x-1 z-3">
+    <div className="flex items-center w-full px-3 space-x-1 z-[3]">
       {/* BACK BUTTON */}
       {props.isPanelTitle && (
         <button

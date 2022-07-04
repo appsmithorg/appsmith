@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { generateReactKey } from "utils/generators";
 import { Collapsible } from ".";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { addSuggestedWidget } from "actions/widgetActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -81,7 +81,7 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     widgetName: "Chart",
     image: "https://assets.appsmith.com/widgetSuggestion/chart.svg",
   },
-  DROP_DOWN_WIDGET: {
+  SELECT_WIDGET: {
     label: "options",
     propertyName: "options",
     widgetName: "Select",
@@ -133,7 +133,7 @@ function getWidgetProps(
           dynamicBindingPathList: [{ key: `chartData.${reactKey}.data` }],
         },
       };
-    case "DROP_DOWN_WIDGET":
+    case "SELECT_WIDGET":
       return {
         type: suggestedWidget.type,
         props: {

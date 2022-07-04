@@ -96,11 +96,11 @@ export const updatePhotoId = (payload: { photoId: string }) => ({
   payload,
 });
 
-export const leaveOrganization = (orgId: string) => {
+export const leaveWorkspace = (workspaceId: string) => {
   return {
-    type: ReduxActionTypes.LEAVE_ORG_INIT,
+    type: ReduxActionTypes.LEAVE_WORKSPACE_INIT,
     payload: {
-      orgId,
+      workspaceId,
     },
   };
 };

@@ -37,7 +37,7 @@ export const datasourceToFormValues = (
     : "";
   return {
     datasourceId: datasource.id,
-    organizationId: datasource.organizationId,
+    workspaceId: datasource.workspaceId,
     pluginId: datasource.pluginId,
     isValid: datasource.isValid,
     url: datasource.datasourceConfiguration?.url,

@@ -269,7 +269,7 @@ export const validate = (
   config: ValidationConfig,
   value: unknown,
   props: Record<string, unknown>,
-  propertyPath: string,
+  propertyPath = "",
 ): ValidationResponse => {
   const _result = VALIDATORS[config.type as ValidationTypes](
     config,
@@ -307,30 +307,30 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
     case ValidationTypes.BOOLEAN:
       return "boolean";
     case ValidationTypes.NUMBER:
-      let type = "number";
+      let validationType = "number";
       if (config.params?.min) {
-        type = `${type} Min: ${config.params?.min}`;
+        validationType = `${validationType} Min: ${config.params?.min}`;
       }
       if (config.params?.max) {
-        type = `${type} Max: ${config.params?.max}`;
+        validationType = `${validationType} Max: ${config.params?.max}`;
       }
       if (config.params?.required) {
-        type = `${type} Required`;
+        validationType = `${validationType} Required`;
       }
 
-      return type;
+      return validationType;
     case ValidationTypes.OBJECT:
-      type = "Object";
+      let objectType = "Object";
       if (config.params?.allowedKeys) {
-        type = "{";
+        objectType = "{";
         config.params?.allowedKeys.forEach((allowedKeyConfig) => {
           const _expected = getExpectedType(allowedKeyConfig);
-          type = `${type} "${allowedKeyConfig.name}": "${_expected}",`;
+          objectType = `${objectType} "${allowedKeyConfig.name}": "${_expected}",`;
         });
-        type = `${type.substring(0, type.length - 1)} }`;
-        return type;
+        objectType = `${objectType.substring(0, objectType.length - 1)} }`;
+        return objectType;
       }
-      return type;
+      return objectType;
     case ValidationTypes.ARRAY:
     case ValidationTypes.NESTED_OBJECT_ARRAY:
       if (config.params?.allowedValues) {

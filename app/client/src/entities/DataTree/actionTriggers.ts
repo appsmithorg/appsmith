@@ -93,6 +93,7 @@ export type StoreValueActionDescription = {
     key: string;
     value: string;
     persist: boolean;
+    uniqueActionRequestId: string;
   };
 };
 
