@@ -31,7 +31,10 @@ import {
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
-import AppEngine, { AppEnginePayload } from "entities/Engine";
+import AppEngine, {
+  AppEnginePayload,
+  PageNotFoundError,
+} from "entities/Engine";
 import AppEngineFactory from "entities/Engine/factory";
 import { ApplicationPagePayload } from "api/ApplicationApi";
 import { updateSlugNamesInURL } from "utils/helpers";
@@ -85,6 +88,7 @@ function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       engine.loadAppData,
       action.payload,
     );
+    if (!toLoadPageId) return;
     yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
     yield call(engine.loadAppEntities, toLoadPageId, applicationId);
     yield call(engine.loadGit, applicationId);
@@ -93,6 +97,7 @@ function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
   } catch (e) {
     log.error(e);
     Sentry.captureException(e);
+    if (e instanceof PageNotFoundError) return;
     yield put({
       type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
       payload: {

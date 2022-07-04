@@ -33,6 +33,8 @@ export interface IAppEngine {
   completeChore(): any;
 }
 
+export class PageNotFoundError extends Error {}
+
 export default abstract class AppEngine {
   private _mode: APP_MODE;
   constructor(mode: APP_MODE) {
@@ -49,7 +51,7 @@ export default abstract class AppEngine {
 
   *loadAppData(payload: AppEnginePayload) {
     const { applicationId, branch, pageId } = payload;
-    yield failFastApiCalls(
+    const apiCalls: boolean = yield failFastApiCalls(
       [fetchApplication({ applicationId, pageId, mode: this._mode })],
       [
         ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
@@ -60,6 +62,8 @@ export default abstract class AppEngine {
         ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
       ],
     );
+    if (!apiCalls)
+      throw new PageNotFoundError(`Cannot find page with id: ${pageId}`);
     const application: ApplicationPayload = yield select(getCurrentApplication);
     yield put(
       updateAppPersistentStore(getPersistentAppStore(application.id, branch)),
