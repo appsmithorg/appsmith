@@ -31,7 +31,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.RAW;
@@ -47,7 +48,7 @@ public class MongoPluginUtils {
     }
 
     public static Boolean isRawCommand(Map<String, Object> formData) {
-        String command = (String) PluginUtils.getValueSafelyFromFormDataOrDefault(formData, COMMAND, null);
+        String command = PluginUtils.getDataValueSafelyFromFormData(formData, COMMAND, null);
         return RAW.equals(command);
     }
 
@@ -68,13 +69,13 @@ public class MongoPluginUtils {
 
         // We reached here. This means either this is a RAW command input or some configuration error has happened
         // in which case, we default to RAW
-        return (String) getValueSafelyFromFormData(formData, BODY);
+        return PluginUtils.getDataValueSafelyFromFormData(formData, BODY, PluginUtils.STRING_TYPE);
     }
 
     private static MongoCommand getMongoCommand(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
         Map<String, Object> formData = actionConfiguration.getFormData();
         MongoCommand command;
-        switch (getValueSafelyFromFormData(formData, COMMAND, String.class, "")) {
+        switch (getDataValueSafelyFromFormData(formData, COMMAND, STRING_TYPE, "")) {
             case "INSERT":
                 command = new Insert(actionConfiguration);
                 break;

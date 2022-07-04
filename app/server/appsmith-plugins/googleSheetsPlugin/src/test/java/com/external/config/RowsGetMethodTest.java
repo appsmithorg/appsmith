@@ -1,24 +1,24 @@
 package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.external.constants.GoogleSheets;
+import com.external.constants.FieldName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Map;
 
-public class GetValuesMethodTest {
+public class RowsGetMethodTest {
 
     @Test
     public void testTransformResponse_missingJSON_throwsException() {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        GetValuesMethod getValuesMethod = new GetValuesMethod(objectMapper);
+        RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
         try {
-            getValuesMethod.transformResponse(null, null);
+            rowsGetMethod.transformExecutionResponse(null, null);
         } catch (AppsmithPluginException e) {
             Assert.assertTrue("Missing a valid response object.".equalsIgnoreCase(e.getMessage()));
         }
@@ -34,8 +34,8 @@ public class GetValuesMethodTest {
 
         Assert.assertNotNull(jsonNode);
 
-        GetValuesMethod getValuesMethod = new GetValuesMethod(objectMapper);
-        JsonNode result = getValuesMethod.transformResponse(jsonNode, null);
+        RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
+        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, null);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
@@ -54,8 +54,8 @@ public class GetValuesMethodTest {
 
         Assert.assertNotNull(jsonNode);
 
-        GetValuesMethod getValuesMethod = new GetValuesMethod(objectMapper);
-        JsonNode result = getValuesMethod.transformResponse(jsonNode, null);
+        RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
+        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, null);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
@@ -74,8 +74,8 @@ public class GetValuesMethodTest {
 
         Assert.assertNotNull(jsonNode);
 
-        GetValuesMethod getValuesMethod = new GetValuesMethod(objectMapper);
-        JsonNode result = getValuesMethod.transformResponse(jsonNode, null);
+        RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
+        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, null);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
@@ -99,8 +99,8 @@ public class GetValuesMethodTest {
 
         Assert.assertNotNull(jsonNode);
 
-        GetValuesMethod getValuesMethod = new GetValuesMethod(objectMapper);
-        JsonNode result = getValuesMethod.transformResponse(jsonNode, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
+        RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
+        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray() && result.size() == 8);
@@ -126,13 +126,13 @@ public class GetValuesMethodTest {
 
         Assert.assertNotNull(jsonNode);
 
-        GetValuesMethod getValuesMethod = new GetValuesMethod(objectMapper);
-        JsonNode result = getValuesMethod.transformResponse(jsonNode, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
+        RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
+        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
         Assert.assertEquals(3, result.size());
-        Assert.assertEquals(0, result.get(0).get(GoogleSheets.ROW_INDEX).asInt());
+        Assert.assertEquals(0, result.get(0).get(FieldName.ROW_INDEX).asInt());
     }
 
     @Test
@@ -154,12 +154,12 @@ public class GetValuesMethodTest {
 
         Assert.assertNotNull(jsonNode);
 
-        GetValuesMethod getValuesMethod = new GetValuesMethod(objectMapper);
-        JsonNode result = getValuesMethod.transformResponse(jsonNode, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
+        RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
+        JsonNode result = rowsGetMethod.transformExecutionResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
         Assert.assertEquals(3, result.size());
-        Assert.assertEquals(0, result.get(0).get(GoogleSheets.ROW_INDEX).asInt());
+        Assert.assertEquals(0, result.get(0).get(FieldName.ROW_INDEX).asInt());
     }
 }

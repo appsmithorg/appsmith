@@ -4,6 +4,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { FetchPageRequest } from "api/PageApi";
+import { FormConfigType } from "components/formControls/BaseControl";
 
 // Type for the object that will store the dynamic values for each component
 export type DynamicValues = {
@@ -12,7 +13,17 @@ export type DynamicValues = {
   hasStarted: boolean;
   hasFetchFailed: boolean;
   data: any;
-  config: { url: string; method: string; params: Record<string, any> };
+  config: DynamicValuesConfig;
+  evaluatedConfig: DynamicValuesConfig;
+  dynamicDependencyPathList?: Set<string> | undefined;
+};
+
+export type DynamicValuesConfig = { url?: string; params: Record<string, any> };
+
+export type EvaluatedFormConfig = {
+  updateEvaluatedConfig: boolean;
+  paths: string[];
+  evaluateFormConfigObject: FormConfigEvalObject;
 };
 
 export type ConditonalObject = Record<string, any>;
@@ -23,6 +34,13 @@ export type ConditionalOutput = {
   enabled?: boolean;
   fetchDynamicValues?: DynamicValues;
   conditionals?: ConditonalObject;
+  evaluateFormConfig?: EvaluatedFormConfig;
+  configPropertyPath?: string;
+  staticDependencyPathList?: Set<string> | undefined;
+};
+
+export type FormConfigEvalObject = {
+  [path: string]: { expression: string; output: string };
 };
 
 // Type for the object that will store the eval output for the form
@@ -30,6 +48,12 @@ export type FormEvalOutput = Record<string, ConditionalOutput>;
 
 // Type for the object that will store the eval output for the app
 export type FormEvaluationState = Record<string, FormEvalOutput>;
+
+export const isValidFormConfig = (
+  config: FormConfigType,
+): config is FormConfigType => {
+  return "controlType" in config;
+};
 
 const initialState: FormEvaluationState = {};
 

@@ -1,13 +1,14 @@
 import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
 import FormControl from "pages/Editor/FormControl";
 import Icon, { IconSize } from "components/ads/Icon";
 import styled, { css } from "styled-components";
-import { FieldArray } from "redux-form";
-import FormLabel from "components/editorComponents/FormLabel";
+import { FieldArray, getFormValues } from "redux-form";
 import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
 import { getBindingOrConfigPathsForSortingControl } from "entities/Action/actionProperties";
 import { SortingSubComponent } from "./utils";
+import { get, isArray } from "lodash";
 
 // sorting's order dropdown values
 enum OrderDropDownValues {
@@ -18,12 +19,9 @@ enum OrderDropDownValues {
 // Form config for the column field
 const columnFieldConfig: any = {
   key: "column",
-  // controlType: "DROP_DOWN",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
   initialValue: "",
-  // options: [],
   inputType: "TEXT",
-  // placeholderText: "Select Column",
   placeholderText: "Column name",
   customStyles: {
     width: "25vw",
@@ -91,33 +89,69 @@ const CenteredIcon = styled(Icon)<{ noMarginLeft?: boolean }>`
 `;
 
 // container for the bottom label section
-const StyledBottomLabelContainer = styled.div`
+const StyledBottomLabelContainer = styled.div<{ isDisabled?: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: center;
-  color: ${Colors.GREY_7};
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 14px;
+  letter-spacing: 0.6px;
+  margin-right: 20px;
+  color: ${(props) =>
+    props.isDisabled ? "var(--appsmith-color-black-300)" : "#858282;"};
   cursor: pointer;
   width: max-content;
-  &:hover {
-    opacity: 0.8;
-  }
+  text-transform: uppercase;
 `;
 
-export const StyledBottomLabel = styled(FormLabel)`
-  margin-left: 5px;
-  font-weight: 400;
-  font-size: 12px;
-  color: ${Colors.GREY_7};
-  line-height: 16px;
+export const StyledBottomLabel = styled.span`
+  margin-left: 8px;
 `;
 
 function SortingComponent(props: any) {
+  const formValues: any = useSelector((state) =>
+    getFormValues(props.formName)(state),
+  );
+
   const onDeletePressed = (index: number) => {
     props.fields.remove(index);
   };
 
   useEffect(() => {
-    if (props.fields.length < 1) {
+    // this path represents the path to the sortBy object, wherever the location is in the actionConfiguration object
+    let sortingObjectPath;
+    // if the path ends with .data which we expect it to.
+    if (props.configProperty.endsWith(".data")) {
+      // we remove the .data and get the path of the sort object
+      // NOTE: 5 is used because (.data) = 5
+      sortingObjectPath = props.configProperty.substring(
+        0,
+        props.configProperty.length - 5,
+      );
+    }
+    // sortDataValue is the path to the value (.data included) itself in the sort object
+    const sortDataValue = get(formValues, props.configProperty);
+    // sort object value is the path to the sort object itself.
+    const sortObjectValue = get(formValues, sortingObjectPath);
+
+    // The reason we are making this check is to prevent new fields from being pushed when the form control is visited
+    // for some reason the fields object is initially undefined in first render, before being initialized with the correct values after.
+    // so we check to see if the sortObjectValue exist first (if the value has been initalized).
+    if (!sortObjectValue) {
+      return;
+    }
+
+    // then we check if the redux fields have any items in it,
+    // and we also check if the value exists in the redux state as an array and if that value has no items in it.
+    // if they are both empty we want to push a new field.
+    // We also want to check if the value is undefined, this means that the sort data value is non existent, if it is, we want to push a new field.
+    if (
+      (props.fields.length < 1 &&
+        isArray(sortDataValue) &&
+        sortDataValue.length < 1) ||
+      (props.fields.length < 1 && !sortDataValue)
+    ) {
       props.fields.push({
         column: "",
         order: OrderDropDownValues.ASCENDING,
@@ -128,7 +162,7 @@ function SortingComponent(props: any) {
   }, [props.fields.length]);
 
   return (
-    <SortingContainer>
+    <SortingContainer className={`t--${props?.configProperty}`}>
       {props.fields &&
         props.fields.length > 0 &&
         props.fields.map((field: any, index: number) => {
@@ -163,21 +197,20 @@ function SortingComponent(props: any) {
                 formName={props.formName}
               />
               {/* Component to render the delete icon */}
-              {index !== 0 && (
-                <CenteredIcon
-                  name="cross"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeletePressed(index);
-                  }}
-                  size={IconSize.SMALL}
-                />
-              )}
+              <CenteredIcon
+                cypressSelector={`t--sorting-delete-[${index}]`}
+                name="cross"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeletePressed(index);
+                }}
+                size={IconSize.SMALL}
+              />
             </SortingDropdownContainer>
           );
         })}
-
       <StyledBottomLabelContainer
+        data-cy={`t--sorting-add-field`}
         onClick={() =>
           props.fields.push({
             column: "",
@@ -185,8 +218,8 @@ function SortingComponent(props: any) {
           })
         }
       >
-        <CenteredIcon name="add-more-fill" noMarginLeft size={IconSize.SMALL} />
-        <StyledBottomLabel>Add Another sort Parameter</StyledBottomLabel>
+        <Icon name="add-more-fill" size={IconSize.XL} />
+        <StyledBottomLabel>Add Parameter</StyledBottomLabel>
       </StyledBottomLabelContainer>
     </SortingContainer>
   );

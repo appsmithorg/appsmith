@@ -29,16 +29,16 @@ import java.util.stream.StreamSupport;
 /**
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
  */
-public class BulkUpdateMethod implements Method {
+public class RowsBulkUpdateMethod implements ExecutionMethod {
 
     ObjectMapper objectMapper;
 
-    public BulkUpdateMethod(ObjectMapper objectMapper) {
+    public RowsBulkUpdateMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig) {
+    public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Spreadsheet Url");
         }
@@ -55,6 +55,9 @@ public class BulkUpdateMethod implements Method {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Unexpected format for table header index. Please use a number starting from 1");
             }
+        } else {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    "Unexpected format for table header index. Please use a number starting from 1");
         }
         JsonNode bodyNode;
         try {
@@ -77,7 +80,7 @@ public class BulkUpdateMethod implements Method {
         WebClient client = WebClient.builder()
                 .exchangeStrategies(EXCHANGE_STRATEGIES)
                 .build();
-        final GetValuesMethod getValuesMethod = new GetValuesMethod(this.objectMapper);
+        final RowsGetMethod rowsGetMethod = new RowsGetMethod(this.objectMapper);
 
         Map<Integer, RowObject> rowObjectMapFromBody = null;
         try {
@@ -87,20 +90,20 @@ public class BulkUpdateMethod implements Method {
         }
 
         assert rowObjectMapFromBody != null;
-        final Integer rowStart = ((TreeMap<Integer, RowObject>) rowObjectMapFromBody).firstKey();
-        final Integer rowEnd = ((TreeMap<Integer, RowObject>) rowObjectMapFromBody).lastKey();
+        final Integer rowStart = Integer.parseInt(methodConfig.getTableHeaderIndex()) + ((TreeMap<Integer, RowObject>) rowObjectMapFromBody).firstKey() + 1;
+        final Integer rowEnd = Integer.parseInt(methodConfig.getTableHeaderIndex()) + ((TreeMap<Integer, RowObject>) rowObjectMapFromBody).lastKey() + 1;
         final MethodConfig newMethodConfig = methodConfig
                 .toBuilder()
-                .queryFormat("ROWS")
-                .rowOffset(String.valueOf(rowStart))
-                .rowLimit(String.valueOf(rowEnd - rowStart + 1))
+                .queryFormat("RANGE")
+                .spreadsheetRange(rowStart + ":" + rowEnd)
+                .projection(new ArrayList<>())
                 .build();
 
-        getValuesMethod.validateMethodRequest(newMethodConfig);
+        rowsGetMethod.validateExecutionMethodRequest(newMethodConfig);
 
         Map<Integer, RowObject> finalRowObjectMapFromBody = rowObjectMapFromBody;
-        return getValuesMethod
-                .getClient(client, newMethodConfig)
+        return rowsGetMethod
+                .getExecutionClient(client, newMethodConfig)
                 .headers(headers -> headers.set(
                         "Authorization",
                         "Bearer " + oauth2.getAuthenticationResponse().getToken()))
@@ -140,8 +143,8 @@ public class BulkUpdateMethod implements Method {
                     }
 
                     // This is the object with the original values in the referred row
-                    final JsonNode jsonNode = getValuesMethod
-                            .transformResponse(jsonNodeBody, methodConfig);
+                    final JsonNode jsonNode = rowsGetMethod
+                            .transformExecutionResponse(jsonNodeBody, methodConfig);
 
                     if (jsonNode == null || jsonNode.isEmpty()) {
                         throw Exceptions.propagate(new AppsmithPluginException(
@@ -196,7 +199,7 @@ public class BulkUpdateMethod implements Method {
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
+    public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
 
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
@@ -223,7 +226,7 @@ public class BulkUpdateMethod implements Method {
     }
 
     @Override
-    public JsonNode transformResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
