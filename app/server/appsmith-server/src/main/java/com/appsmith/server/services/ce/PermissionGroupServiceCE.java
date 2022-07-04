@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.services.CrudService;
 import reactor.core.publisher.Flux;
@@ -12,4 +13,7 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
     Flux<PermissionGroup> findAllByIds(Set<String> ids);
 
     Mono<PermissionGroup> save(PermissionGroup permissionGroup);
+
+    Mono<PermissionGroup> getById(String id, AclPermission permission);
+
 }
