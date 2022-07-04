@@ -414,10 +414,9 @@ const fieldConfigs: FieldConfigs = {
         case ActionType.integration:
           value = `${value}.run`;
           break;
-        // TODO - remove or see what to do here
-        // case ActionType.navigateTo:
-        //   defaultParams = `'#', {}`;
-        //   break;
+        case ActionType.navigateTo:
+          defaultParams = `'', {}, 'SAME_WINDOW'`;
+          break;
         case ActionType.jsFunction:
           defaultArgs = option.args ? option.args : [];
           break;
@@ -461,10 +460,10 @@ const fieldConfigs: FieldConfigs = {
   },
   [FieldType.PAGE_SELECTOR_FIELD]: {
     getter: (value: any) => {
-      return textGetter(value, 0);
+      return enumTypeGetter(value, 0, "");
     },
     setter: (option: any, currentValue: string) => {
-      return textSetter(option, currentValue, 0);
+      return enumTypeSetter(option.value, currentValue, 0);
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
@@ -494,6 +493,7 @@ const fieldConfigs: FieldConfigs = {
       return textGetter(value, 0);
     },
     setter: (value: string, currentValue: string) => {
+      // TODO - check if url and then set
       return textSetter(value, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
