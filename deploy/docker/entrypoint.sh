@@ -196,15 +196,11 @@ chmod-mongodb-key() {
 
 init_keycloak() {
   echo "Initializing keycloak"
-  if out="$(/opt/keycloak/bin/add-user-keycloak.sh --user "${KEYCLOAK_ADMIN_USERNAME-admin}" --password "$KEYCLOAK_ADMIN_PASSWORD" 2>&1 )"; then
-    # Command run successfully
-    :
-  elif [[ $out == "User with username 'admin' already added to '/opt/keycloak/standalone/configuration/keycloak-add-user.json'" ]]; then
-    # Ignore failure
-    :
-  else 
+  if ! out="$(/opt/keycloak/bin/add-user-keycloak.sh --user "${KEYCLOAK_ADMIN_USERNAME-admin}" --password "$KEYCLOAK_ADMIN_PASSWORD" 2>&1 )"; then
+    if [[ $out != "User with username 'admin' already added to '/opt/keycloak/standalone/configuration/keycloak-add-user.json'" ]]; then # Ignore failure
     echo "$out" >&2
     exit 1
+    fi
   fi
   echo "$out"
   # Make keycloak persistent across reboots
