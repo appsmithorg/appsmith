@@ -81,7 +81,7 @@ const TabsWrapper = styled.div<{
     ${(props) =>
       props.responseViewer &&
       `
-       
+
       `}
   }
 
@@ -173,6 +173,7 @@ const TabTitleWrapper = styled.div<{
   responseViewer?: boolean;
 }>`
   display: flex;
+  align-items: center;
   width: 100%;
   padding: ${(props) => props.theme.spaces[3] - 1}px
     ${(props) => (props.vertical ? `${props.theme.spaces[4] - 1}px` : 0)}
@@ -284,7 +285,9 @@ function DefaultTabItem(props: TabItemProps) {
       <TabTitle className="tab-title" responseViewer={responseViewer}>
         {tab.title}
       </TabTitle>
-      {tab.count && tab.count > 0 ? <TabCount>{tab.count}</TabCount> : null}
+      {tab.count && tab.count > 0 ? (
+        <TabCount data-testid="t--tab-count">{tab.count}</TabCount>
+      ) : null}
     </TabTitleWrapper>
   );
 }
