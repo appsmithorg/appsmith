@@ -5,6 +5,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
@@ -20,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -114,11 +114,11 @@ public class DatasourceControllerCE extends BaseController<DatasourceService, Da
             .map(metadata -> new ResponseDTO<>(HttpStatus.OK.value(), metadata, null));
     }
 
-    @GetMapping("/{datasourceId}/trigger")
+    @PostMapping("/{datasourceId}/trigger")
     public Mono<ResponseDTO<TriggerResultDTO>> trigger(@PathVariable String datasourceId,
-                                                       @RequestParam MultiValueMap<String, Object> params) {
+                                                       @RequestBody TriggerRequestDTO triggerRequestDTO) {
         log.debug("Trigger received for datasource {}", datasourceId);
-        return datasourceTriggerSolution.trigger(datasourceId, params)
+        return datasourceTriggerSolution.trigger(datasourceId, triggerRequestDTO)
                 .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
     }
 

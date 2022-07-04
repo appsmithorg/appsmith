@@ -1,9 +1,9 @@
 package com.external.config;
 
-import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
+import com.appsmith.external.models.UQIDataFilterParams;
 import com.appsmith.external.services.FilterDataService;
 import com.external.domains.RowObject;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -27,14 +27,17 @@ import java.util.regex.Pattern;
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
  */
 @Slf4j
-public class GetValuesMethod implements Method {
+public class RowsGetMethod implements ExecutionMethod, TemplateMethod {
 
     ObjectMapper objectMapper;
     FilterDataService filterDataService;
 
-    public GetValuesMethod(ObjectMapper objectMapper) {
+    public RowsGetMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         this.filterDataService = FilterDataService.getInstance();
+    }
+
+    public RowsGetMethod() {
     }
 
     // Used to capture the range of columns in this request. The handling for this regex makes sure that
@@ -49,7 +52,7 @@ public class GetValuesMethod implements Method {
     Pattern sheetRangePattern = Pattern.compile(".*!([a-zA-Z]*)\\d*:([a-zA-Z]*)\\d*");
 
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig) {
+    public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Spreadsheet Url");
         }
@@ -66,50 +69,21 @@ public class GetValuesMethod implements Method {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Unexpected format for table header index. Please use a number starting from 1");
             }
+        } else {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    "Unexpected format for table header index. Please use a number starting from 1");
         }
-        if ("ROWS".equalsIgnoreCase(methodConfig.getQueryFormat())) {
-            if (methodConfig.getRowOffset() == null || methodConfig.getRowOffset().isBlank()) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Row offset");
-            }
-            int rowOffset = 0;
-            try {
-                rowOffset = Integer.parseInt(methodConfig.getRowOffset());
-                if (rowOffset < 0) {
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            "Unexpected value for row offset. Please use a number starting from 0");
-                }
-
-            } catch (NumberFormatException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Unexpected format for row offset. Please use a number starting from 0");
-            }
-            if (methodConfig.getRowLimit() == null || methodConfig.getRowLimit().isBlank()) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Row limit");
-            }
-            int rowLimit = 1;
-            try {
-                rowLimit = Integer.parseInt(methodConfig.getRowLimit());
-                if (rowLimit <= 0) {
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            "Unexpected value for row limit. Please use a number starting from 1");
-                }
-            } catch (NumberFormatException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Unexpected format for row limit. Please use a number starting from 1");
-            }
-        } else if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
+        if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
             if (methodConfig.getSpreadsheetRange() == null || methodConfig.getSpreadsheetRange().isBlank()) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field 'Cell Range'");
             }
-        } else {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Invalid query format");
         }
 
         return true;
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
+    public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
 
         final List<String> ranges = validateInputs(methodConfig);
 
@@ -138,22 +112,9 @@ public class GetValuesMethod implements Method {
             }
         }
         if ("ROWS".equalsIgnoreCase(methodConfig.getQueryFormat())) {
-            int rowOffset = 0;
-            try {
-                rowOffset = Integer.parseInt(methodConfig.getRowOffset());
-            } catch (NumberFormatException e) {
-                // Should have already been caught
-            }
-            int rowLimit = 1;
-            try {
-                rowLimit = Integer.parseInt(methodConfig.getRowLimit());
-                return List.of(
-                        "'" + methodConfig.getSheetName() + "'!" + tableHeaderIndex + ":" + tableHeaderIndex,
-                        "'" + methodConfig.getSheetName() + "'!" + (tableHeaderIndex + rowOffset + 1) + ":" + (tableHeaderIndex + rowOffset + rowLimit));
-
-            } catch (NumberFormatException e) {
-                // Should have already been caught
-            }
+            return List.of(
+                    "'" + methodConfig.getSheetName() + "'!" + tableHeaderIndex + ":" + tableHeaderIndex,
+                    "'" + methodConfig.getSheetName() + "'!A" + (tableHeaderIndex + 1) + ":ZZZ");
         } else if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
             Matcher matcher = findAllRowsPattern.matcher(methodConfig.getSpreadsheetRange());
             matcher.find();
@@ -165,7 +126,7 @@ public class GetValuesMethod implements Method {
     }
 
     @Override
-    public JsonNode transformResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
@@ -209,7 +170,13 @@ public class GetValuesMethod implements Method {
         ArrayNode preFilteringResponse = this.objectMapper.valueToTree(collectedCells);
 
         if (isWhereConditionConfigured(methodConfig)) {
-            return filterDataService.filterData(preFilteringResponse, methodConfig.getWhereConditions(), getDataTypeConversionMap());
+            return filterDataService.filterDataNew(preFilteringResponse,
+                    new UQIDataFilterParams(
+                            methodConfig.getWhereConditions(),
+                            methodConfig.getProjection(),
+                            methodConfig.getSortBy(),
+                            methodConfig.getPaginateBy()),
+                    getDataTypeConversionMap());
         }
 
         return preFilteringResponse;
@@ -245,14 +212,10 @@ public class GetValuesMethod implements Method {
     }
 
     private Boolean isWhereConditionConfigured(MethodConfig methodConfig) {
-        List<Condition> whereConditions = methodConfig.getWhereConditions();
-
-        if (whereConditions == null || whereConditions.size() == 0) {
-            return false;
-        }
+        Condition whereConditions = methodConfig.getWhereConditions();
 
         // At least 1 condition exists
-        return true;
+        return whereConditions != null;
 
     }
 }

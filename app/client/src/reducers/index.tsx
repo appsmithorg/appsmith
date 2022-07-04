@@ -61,6 +61,7 @@ import { MainCanvasReduxState } from "./uiReducers/mainCanvasReducer";
 import SettingsReducer, {
   SettingsReduxState,
 } from "@appsmith/reducers/settingsReducer";
+import { TriggerValuesEvaluationState } from "./evaluationReducers/triggerReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -133,6 +134,7 @@ export interface AppState {
     dependencies: EvaluationDependencyState;
     loadingEntities: LoadingEntitiesState;
     formEvaluation: FormEvaluationState;
+    triggers: TriggerValuesEvaluationState;
   };
   form: {
     [key: string]: any;

@@ -5,9 +5,8 @@ import * as log from "loglevel";
 import {
   ControlPropertyLabelContainer,
   ControlWrapper,
-  JSToggleButton,
 } from "components/propertyControls/StyledControls";
-import { ControlIcons } from "icons/ControlIcons";
+import { JSToggleButton } from "components/ads";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -543,15 +542,12 @@ const PropertyControl = memo((props: Props) => {
                 position="auto"
               >
                 <JSToggleButton
-                  active={isDynamic}
-                  className={`focus:ring-2 t--js-toggle ${
-                    isDynamic ? "is-active" : ""
-                  }`}
-                  disabled={isToggleDisabled}
-                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
-                >
-                  <ControlIcons.JS_TOGGLE />
-                </JSToggleButton>
+                  handleClick={() =>
+                    toggleDynamicProperty(propertyName, isDynamic)
+                  }
+                  isActive={isDynamic}
+                  isToggleDisabled={isToggleDisabled}
+                />
               </TooltipComponent>
             )}
             {isPropertyDeviatedFromTheme && (

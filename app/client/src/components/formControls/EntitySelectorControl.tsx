@@ -1,68 +1,65 @@
 import React from "react";
 import FormControl from "pages/Editor/FormControl";
 import styled from "styled-components";
-import { ControlProps } from "./BaseControl";
-import { Colors } from "constants/Colors";
-import Icon, { IconSize } from "components/ads/Icon";
+import { ControlProps, FormConfigType } from "./BaseControl";
 import { allowedControlTypes } from "components/formControls/utils";
 
-const dropDownFieldConfig: any = {
+const dropDownFieldConfig: Partial<FormConfigType> = {
   label: "",
   controlType: "DROP_DOWN",
-  fetchOptionsCondtionally: true,
+  fetchOptionsConditionally: true,
   options: [],
+  customStyles: {
+    width: "280px",
+  },
 };
 
-const inputFieldConfig: any = {
+const inputFieldConfig: Partial<FormConfigType> = {
   label: "",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+  customStyles: {
+    width: "280px",
+  },
 };
-
-// Component for the icons
-const CenteredIcon = styled(Icon)<{ noMarginLeft?: boolean }>`
-  margin: 13px;
-  align-self: end;
-  &.hide {
-    opacity: 0;
-    pointer-events: none;
-  }
-  color: ${Colors.GREY_7};
-`;
 
 // main container for the entity selector component
 const EntitySelectorContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: min-content;
-  justify-content: space-between;
+  display: grid;
+  grid-gap: 20px;
+  grid-template-columns: repeat(auto-fill, 280px);
+`;
+
+const EntitySelectorWrapper = styled.div<{ marginRight: string }>`
+  margin-right: ${(props) => props.marginRight};
 `;
 
 function EntitySelectorComponent(props: any) {
   const { configProperty, schema } = props;
 
-  const maxWidthOfComponents = 45;
-  let width = 15;
-  if (schema.length > 0) {
-    width = maxWidthOfComponents / schema.length;
-  }
-  const customStyles = {
-    width: `${width}vw`,
-  };
+  const visibleSchemas = schema.filter(
+    (singleSchema: any) => !singleSchema.hidden,
+  );
 
   return (
-    <EntitySelectorContainer key={`ES_${configProperty}`}>
-      {schema &&
-        schema.length > 0 &&
-        schema.map((singleSchema: any, index: number) => {
+    <EntitySelectorContainer
+      className={`t--${configProperty}`}
+      key={`ES_${configProperty}`}
+    >
+      {visibleSchemas &&
+        visibleSchemas.length > 0 &&
+        visibleSchemas.map((singleSchema: any, index: number) => {
           return (
-            allowedControlTypes.includes(singleSchema.controlType) && (
-              <React.Fragment key={`ES_FRAG_${singleSchema.configProperty}`}>
+            allowedControlTypes.includes(singleSchema.controlType) &&
+            !singleSchema.hidden && (
+              <EntitySelectorWrapper
+                key={`ES_FRAG_${singleSchema.configProperty}`}
+                marginRight={index + 1 === visibleSchemas.length ? "" : "1rem"}
+              >
                 {singleSchema.controlType === "DROP_DOWN" ? (
                   <FormControl
                     config={{
                       ...dropDownFieldConfig,
                       ...singleSchema,
-                      customStyles,
                       key: `ES_${singleSchema.configProperty}`,
                     }}
                     formName={props.formName}
@@ -72,20 +69,12 @@ function EntitySelectorComponent(props: any) {
                     config={{
                       ...inputFieldConfig,
                       ...singleSchema,
-                      customStyles,
                       key: `ES_${singleSchema.configProperty}`,
                     }}
                     formName={props.formName}
                   />
                 )}
-                {index < schema.length - 1 && (
-                  <CenteredIcon
-                    key={`ES_ICON_${configProperty}`}
-                    name="double-arrow-right"
-                    size={IconSize.SMALL}
-                  />
-                )}
-              </React.Fragment>
+              </EntitySelectorWrapper>
             )
           );
         })}
