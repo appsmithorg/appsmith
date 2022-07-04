@@ -47,7 +47,7 @@ import {
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import Button, { Category, Size } from "components/ads/Button";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
 import {

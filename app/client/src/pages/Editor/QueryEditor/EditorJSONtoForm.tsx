@@ -22,7 +22,7 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import log from "loglevel";
 import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import styled from "constants/DefaultTheme";
 import { TabComponent } from "components/ads/Tabs";
 import AdsIcon, { IconSize } from "components/ads/Icon";

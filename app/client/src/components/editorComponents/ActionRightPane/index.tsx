@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { useState } from "react";
 import history from "utils/history";
 import { getTypographyByKey } from "constants/DefaultTheme";
