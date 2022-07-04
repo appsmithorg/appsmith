@@ -1,15 +1,18 @@
 import { createSelector } from "reselect";
 import { AppState } from "reducers";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
 import WidgetFactory from "utils/WidgetFactory";
+import { getCanvasWidgets } from "./entitiesSelector";
 
 export const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
 
-const getCanvasWidgets = (state: AppState) => state.entities.canvasWidgets;
 export const getModalDropdownList = createSelector(
   getCanvasWidgets,
   (widgets) => {
@@ -41,7 +44,10 @@ export const getNextModalName = createSelector(
 export const getParentWidget = createSelector(
   getCanvasWidgets,
   (state: AppState, widgetId: string) => widgetId,
-  (canvasWidgets, widgetId: string): FlattenedWidgetProps | undefined => {
+  (
+    canvasWidgets: CanvasWidgetsReduxState,
+    widgetId: string,
+  ): FlattenedWidgetProps | undefined => {
     if (canvasWidgets.hasOwnProperty(widgetId)) {
       const widget = canvasWidgets[widgetId];
       if (widget.parentId && canvasWidgets.hasOwnProperty(widget.parentId)) {
