@@ -29,7 +29,6 @@ import {
   EVAL_ERROR_PATH,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -464,23 +463,8 @@ export const getAppData = (state: AppState) => state.entities.app;
 export const getAppStoreData = (state: AppState): AppStoreState =>
   state.entities.app.store;
 
-export const getCanvasWidgets = createSelector(
-  (state: AppState): CanvasWidgetsReduxState => state.entities.canvasWidgets,
-  (state: AppState): MainCanvasReduxState => state.ui.mainCanvas,
-  (
-    canvasWidgets: CanvasWidgetsReduxState,
-    mainCanvas: MainCanvasReduxState,
-  ) => {
-    return {
-      ...canvasWidgets,
-      [MAIN_CONTAINER_WIDGET_ID]: {
-        ...canvasWidgets[MAIN_CONTAINER_WIDGET_ID],
-        rightColumn: mainCanvas.width,
-        minHeight: mainCanvas.height,
-      },
-    } as CanvasWidgetsReduxState;
-  },
-);
+export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
+  state.entities.canvasWidgets;
 
 const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
 export const getCurrentPageWidgets = createSelector(

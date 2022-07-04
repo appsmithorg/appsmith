@@ -6,33 +6,15 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import _ from "lodash";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  WidgetType,
-} from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getActions, getPlugins } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
-import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 
-export const getWidgets = createSelector(
-  (state: AppState): CanvasWidgetsReduxState => state.entities.canvasWidgets,
-  (state: AppState): MainCanvasReduxState => state.ui.mainCanvas,
-  (
-    canvasWidgets: CanvasWidgetsReduxState,
-    mainCanvas: MainCanvasReduxState,
-  ) => {
-    return {
-      ...canvasWidgets,
-      [MAIN_CONTAINER_WIDGET_ID]: {
-        ...canvasWidgets[MAIN_CONTAINER_WIDGET_ID],
-        rightColumn: mainCanvas.width,
-        minHeight: mainCanvas.height,
-      },
-    } as CanvasWidgetsReduxState;
-  },
-);
+export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
+  return state.entities.canvasWidgets;
+};
 
 export const getWidgetsMeta = (state: AppState) => state.entities.meta;
 
@@ -50,16 +32,7 @@ export const getWidgetByID = (widgetId: string) => {
   );
 };
 
-//can only be used in sagas
 export const getWidget = (state: AppState, widgetId: string): WidgetProps => {
-  if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
-    const mainCanvas = state.ui.mainCanvas;
-    return {
-      ...state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID],
-      rightColumn: mainCanvas.width,
-      minHeight: mainCanvas.height,
-    };
-  }
   return state.entities.canvasWidgets[widgetId];
 };
 

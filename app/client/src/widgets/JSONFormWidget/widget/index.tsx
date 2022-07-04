@@ -28,7 +28,6 @@ import {
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -390,7 +389,7 @@ class JSONFormWidget extends BaseWidget<
 
 const mapStateToProps = (state: AppState) => {
   return {
-    canvasWidgets: getCanvasWidgets(state),
+    canvasWidgets: state.entities.canvasWidgets,
   };
 };
 

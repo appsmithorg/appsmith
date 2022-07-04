@@ -36,7 +36,6 @@ import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { builderURL } from "RouteBuilder";
 import { ApplicationVersion } from "actions/applicationActions";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { getWidgets } from "sagas/selectors";
 
 export const getWidgetConfigs = (state: AppState) =>
   state.entities.widgetConfig;
@@ -44,6 +43,9 @@ const getPageListState = (state: AppState) => state.entities.pageList;
 
 export const getProviderCategories = (state: AppState) =>
   state.ui.providers.providerCategories;
+
+const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
+  state.entities.canvasWidgets;
 
 export const getIsEditorInitialized = (state: AppState) =>
   state.ui.editor.initialized;
