@@ -2,11 +2,14 @@
 import { ObjectsRegistry } from "../../../support/Objects/Registry";
 import reconnectDatasourceModal from "../../../locators/ReconnectLocators";
 
+const themelocators = require("../../../locators/ThemeLocators.json");
+
 let homePage = ObjectsRegistry.HomePage,
   agHelper = ObjectsRegistry.AggregateHelper;
 
 const widgetName = "currencyinputwidget";
-const widgetInput = `.t--widget-${widgetName} input`;
+const wiggetClass = `.t--widget-${widgetName}`;
+const widgetInput = `${wiggetClass} input`;
 
 describe("Currency Input Issue", function() {
   before(function() {
@@ -38,8 +41,10 @@ describe("Currency Input Issue", function() {
     });
   });
 
-  it("2. Should check that widget input show any errors", function() {
+  it("2. should check that the widget input is not showing any error", function() {
     cy.get(widgetInput).type("123456789");
-    cy.get(".bp3-popover-content").should("not.exist");
+    cy.focused().then(() => {
+      cy.get(themelocators.popover).should("not.exist");
+    });
   });
 });
