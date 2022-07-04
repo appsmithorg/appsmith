@@ -286,7 +286,7 @@ public class GitFileUtils {
     public Mono<Path> initializeReadme(Path baseRepoSuffix,
                                        String viewModeUrl,
                                        String editModeUrl) throws IOException {
-        return fileUtils.initializeReadme(baseRepoSuffix,viewModeUrl, editModeUrl)
+        return fileUtils.initializeReadme(baseRepoSuffix, viewModeUrl, editModeUrl)
                 .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
     }
 

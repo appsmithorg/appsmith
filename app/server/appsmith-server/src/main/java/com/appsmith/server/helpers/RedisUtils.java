@@ -17,23 +17,19 @@ public class RedisUtils {
 
     private final static String REDIS_FILE_LOCK_VALUE= "inUse";
 
-    private final static String REDIS_FILE_RELEASE_VALUE = "isFree";
-
     private final static Duration FILE_LOCK_TIME_LIMIT = Duration.ofSeconds(20);
 
     public Mono<Boolean> addFileLock(String key) {
-        return redisOperations.opsForValue().get(key)
-                .flatMap(object -> {
-                    if (object.equals(REDIS_FILE_RELEASE_VALUE)) {
-                        return redisOperations.opsForValue().set(key, REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT);
-                    } else {
+        return redisOperations.hasKey(key)
+                .flatMap(isKeyPresent -> {
+                    if(Boolean.TRUE.equals(isKeyPresent)) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
                     }
-                })
-                .switchIfEmpty(redisOperations.opsForValue().set(key, REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT));
+                    return redisOperations.opsForValue().set(key, REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT);
+                });
     }
 
     public Mono<Boolean> releaseFileLock(String key) {
-        return redisOperations.opsForValue().set(key, REDIS_FILE_RELEASE_VALUE, FILE_LOCK_TIME_LIMIT);
+        return redisOperations.opsForValue().delete(key);
     }
 }
