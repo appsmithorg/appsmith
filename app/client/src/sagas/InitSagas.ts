@@ -88,7 +88,6 @@ function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       engine.loadAppData,
       action.payload,
     );
-    if (!toLoadPageId) return;
     yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
     yield call(engine.loadAppEntities, toLoadPageId, applicationId);
     yield call(engine.loadGit, applicationId);
