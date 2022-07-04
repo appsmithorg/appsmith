@@ -69,15 +69,6 @@ export interface CheckboxGroupContainerProps {
 
 export const CheckboxGroupContainer = styled.div<CheckboxGroupContainerProps>`
   ${labelLayoutStyles}
-   justify-content: ${({ compactMode, labelPosition }) => {
-     if (
-       labelPosition &&
-       labelPosition !== LabelPosition.Left &&
-       !compactMode
-     ) {
-       return "flex-start";
-     }
-   }};
   & .${LABEL_CONTAINER_CLASS} {
     ${({ labelPosition }) =>
       labelPosition === LabelPosition.Left && "min-height: 30px"};
