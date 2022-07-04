@@ -81,7 +81,6 @@ const TabsWrapper = styled.div<{
     ${(props) =>
       props.responseViewer &&
       `
-
       `}
   }
 
