@@ -627,18 +627,8 @@ export const widgetsMapWithParentModalId = (state: AppState) => {
     : getCanvasWidgetsWithParentId(state);
 };
 
-export const getIsOnboardingTasksView = createSelector(
-  getCanvasWidgets,
-  (widgets) => {
-    return Object.keys(widgets).length == 1;
-  },
-);
-
 export const getIsReconnectingDatasourcesModalOpen = (state: AppState) =>
   state.entities.datasources.isReconnectingModalOpen;
-
-export const getIsOnboardingWidgetSelection = (state: AppState) =>
-  state.ui.onBoarding.inOnboardingWidgetSelection;
 
 export const getPageActions = (pageId = "") => {
   return (state: AppState) => {
