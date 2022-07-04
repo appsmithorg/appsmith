@@ -47,6 +47,7 @@ describe("getFilteredErrors", () => {
         main_input: {
           isVisible: false,
           parentId: "0",
+          widgetId: "main_input_id",
           type: "INPUT_WIDGET_V2",
           ENTITY_TYPE: ENTITY_TYPE.WIDGET,
         },
@@ -59,7 +60,7 @@ describe("getFilteredErrors", () => {
       (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
       (TestData.dataTree as unknown) as DataTree,
     );
-    expect(result).toStrictEqual({});
+    expect(result).toStrictEqual(TestData.expectedResult);
   });
 
   it("hides error from widget in closed modal", () => {
@@ -143,7 +144,7 @@ describe("getFilteredErrors", () => {
       (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
       (TestData.dataTree as unknown) as DataTree,
     );
-    expect(result).toStrictEqual({});
+    expect(result).toStrictEqual(TestData.expectedResult);
   });
 
   it("hides error from widget in non-active tab", () => {
@@ -251,7 +252,7 @@ describe("getFilteredErrors", () => {
       (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
       (TestData.dataTree as unknown) as DataTree,
     );
-    expect(result).toStrictEqual({});
+    expect(result).toStrictEqual(TestData.expectedResult);
   });
 
   it("hides error from widget in active tab (hidden tab widget)", () => {
@@ -359,7 +360,7 @@ describe("getFilteredErrors", () => {
       (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
       (TestData.dataTree as unknown) as DataTree,
     );
-    expect(result).toStrictEqual({});
+    expect(result).toStrictEqual(TestData.expectedResult);
   });
 
   it("hides error from widget in active tab (tab widget inside hidden container)", () => {
@@ -493,7 +494,7 @@ describe("getFilteredErrors", () => {
       (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
       (TestData.dataTree as unknown) as DataTree,
     );
-    expect(result).toStrictEqual({});
+    expect(result).toStrictEqual(TestData.expectedResult);
   });
 
   it("hides error from widget in hidden container", () => {
@@ -577,6 +578,286 @@ describe("getFilteredErrors", () => {
       (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
       (TestData.dataTree as unknown) as DataTree,
     );
-    expect(result).toStrictEqual({});
+    expect(result).toStrictEqual(TestData.expectedResult);
+  });
+
+  it("shows error for widget with faulty binding for isVisible prop", () => {
+    const TestData = {
+      debuggerErrors: {
+        "main_input_id-isVisible": {
+          id: "main_input_id-isVisible",
+          logType: 5,
+          text: "The value at isVisible is invalid",
+          messages: [
+            {
+              message:
+                "TypeError: Cannot read properties of undefined (reading 'users')",
+              type: PropertyEvaluationErrorType.PARSE,
+            },
+          ],
+          source: {
+            id: "main_input_id",
+            name: "main_input",
+            type: ENTITY_TYPE.WIDGET,
+            propertyPath: "isVisible",
+          },
+          state: {
+            isVisible: "{{users}}",
+          },
+          analytics: {
+            widgetType: "INPUT_WIDGET_V2",
+          },
+          severity: Severity.ERROR,
+          timestamp: "02:40:10",
+        },
+      },
+      canvasWidgets: {
+        main_input_id: {
+          widgetName: "main_input",
+          type: "INPUT_WIDGET_V2",
+          widgetId: "main_input_id",
+          parentId: "0",
+        },
+      },
+      dataTree: {
+        main_input: {
+          isVisible: false,
+          parentId: "0",
+          widgetId: "main_input_id",
+          type: "INPUT_WIDGET_V2",
+          ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+        },
+      },
+      expectedResult: {
+        "main_input_id-isVisible": {
+          id: "main_input_id-isVisible",
+          logType: 5,
+          text: "The value at isVisible is invalid",
+          messages: [
+            {
+              message:
+                "TypeError: Cannot read properties of undefined (reading 'users')",
+              type: PropertyEvaluationErrorType.PARSE,
+            },
+          ],
+          source: {
+            id: "main_input_id",
+            name: "main_input",
+            type: ENTITY_TYPE.WIDGET,
+            propertyPath: "isVisible",
+          },
+          state: {
+            isVisible: "{{users}}",
+          },
+          analytics: {
+            widgetType: "INPUT_WIDGET_V2",
+          },
+          severity: Severity.ERROR,
+          timestamp: "02:40:10",
+        },
+      },
+    };
+    const result = getFilteredErrors.resultFunc(
+      TestData.debuggerErrors,
+      false,
+      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
+      (TestData.dataTree as unknown) as DataTree,
+    );
+    expect(result).toStrictEqual(TestData.expectedResult);
+  });
+
+  it("shows error for widget with faulty binding for isVisible prop (visible parent container)", () => {
+    const TestData = {
+      debuggerErrors: {
+        "container1_input_id-isVisible": {
+          id: "container1_input_id-isVisible",
+          logType: 5,
+          text: "The value at isVisible is invalid",
+          messages: [
+            {
+              message:
+                "TypeError: Cannot read properties of undefined (reading 'users')",
+              type: PropertyEvaluationErrorType.PARSE,
+            },
+          ],
+          source: {
+            id: "container1_input_id",
+            name: "container1_input",
+            type: ENTITY_TYPE.WIDGET,
+            propertyPath: "isVisible",
+          },
+          state: {
+            isVisible: "{{users}}",
+          },
+          analytics: {
+            widgetType: "INPUT_WIDGET_V2",
+          },
+          severity: Severity.ERROR,
+          timestamp: "02:40:10",
+        },
+      },
+      canvasWidgets: {
+        container1_input_id: {
+          widgetName: "container1_input",
+          type: "INPUT_WIDGET_V2",
+          widgetId: "container1_input_id",
+          parentId: "canvas_widget_id",
+        },
+        canvas_widget_id: {
+          widgetName: "ContainerCanvas",
+          type: "CANVAS_WIDGET",
+          widgetId: "canvas_widget_id",
+          parentId: "container1_id",
+        },
+        container1_id: {
+          widgetName: "Container1",
+          type: "CONTAINER_WIDGET",
+          widgetId: "container1_id",
+          parentId: "0",
+        },
+      },
+      dataTree: {
+        container1_input: {
+          type: "INPUT_WIDGET_V2",
+          widgetId: "container1_input_id",
+          isVisible: false,
+          parentId: "canvas_widget_id",
+          ENTITY_TYPE: "WIDGET",
+        },
+        ContainerCanvas: {
+          type: "CANVAS_WIDGET",
+          widgetId: "canvas_widget_id",
+          isVisible: true,
+          parentId: "container1_id",
+          ENTITY_TYPE: "WIDGET",
+        },
+        Container1: {
+          type: "CONTAINER_WIDGET",
+          widgetId: "container1_id",
+          isVisible: true,
+          parentId: "0",
+          ENTITY_TYPE: "WIDGET",
+        },
+      },
+      expectedResult: {
+        "container1_input_id-isVisible": {
+          id: "container1_input_id-isVisible",
+          logType: 5,
+          text: "The value at isVisible is invalid",
+          messages: [
+            {
+              message:
+                "TypeError: Cannot read properties of undefined (reading 'users')",
+              type: PropertyEvaluationErrorType.PARSE,
+            },
+          ],
+          source: {
+            id: "container1_input_id",
+            name: "container1_input",
+            type: ENTITY_TYPE.WIDGET,
+            propertyPath: "isVisible",
+          },
+          state: {
+            isVisible: "{{users}}",
+          },
+          analytics: {
+            widgetType: "INPUT_WIDGET_V2",
+          },
+          severity: Severity.ERROR,
+          timestamp: "02:40:10",
+        },
+      },
+    };
+    const result = getFilteredErrors.resultFunc(
+      TestData.debuggerErrors,
+      false,
+      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
+      (TestData.dataTree as unknown) as DataTree,
+    );
+    expect(result).toStrictEqual(TestData.expectedResult);
+  });
+
+  it("hides error for widget with faulty binding for isVisible prop (hidden parent container)", () => {
+    const TestData = {
+      debuggerErrors: {
+        "container1_input_id-isVisible": {
+          id: "container1_input_id-isVisible",
+          logType: 5,
+          text: "The value at isVisible is invalid",
+          messages: [
+            {
+              message:
+                "TypeError: Cannot read properties of undefined (reading 'users')",
+              type: PropertyEvaluationErrorType.PARSE,
+            },
+          ],
+          source: {
+            id: "container1_input_id",
+            name: "container1_input",
+            type: ENTITY_TYPE.WIDGET,
+            propertyPath: "isVisible",
+          },
+          state: {
+            isVisible: "{{users}}",
+          },
+          analytics: {
+            widgetType: "INPUT_WIDGET_V2",
+          },
+          severity: Severity.ERROR,
+          timestamp: "02:40:10",
+        },
+      },
+      canvasWidgets: {
+        container1_input_id: {
+          widgetName: "container1_input",
+          type: "INPUT_WIDGET_V2",
+          widgetId: "container1_input_id",
+          parentId: "canvas_widget_id",
+        },
+        canvas_widget_id: {
+          widgetName: "ContainerCanvas",
+          type: "CANVAS_WIDGET",
+          widgetId: "canvas_widget_id",
+          parentId: "container1_id",
+        },
+        container1_id: {
+          widgetName: "Container1",
+          type: "CONTAINER_WIDGET",
+          widgetId: "container1_id",
+          parentId: "0",
+        },
+      },
+      dataTree: {
+        container1_input: {
+          type: "INPUT_WIDGET_V2",
+          widgetId: "container1_input_id",
+          isVisible: false,
+          parentId: "canvas_widget_id",
+          ENTITY_TYPE: "WIDGET",
+        },
+        ContainerCanvas: {
+          type: "CANVAS_WIDGET",
+          widgetId: "canvas_widget_id",
+          isVisible: true,
+          parentId: "container1_id",
+          ENTITY_TYPE: "WIDGET",
+        },
+        Container1: {
+          type: "CONTAINER_WIDGET",
+          widgetId: "container1_id",
+          isVisible: false,
+          parentId: "0",
+          ENTITY_TYPE: "WIDGET",
+        },
+      },
+      expectedResult: {},
+    };
+    const result = getFilteredErrors.resultFunc(
+      TestData.debuggerErrors,
+      false,
+      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
+      (TestData.dataTree as unknown) as DataTree,
+    );
+    expect(result).toStrictEqual(TestData.expectedResult);
   });
 });

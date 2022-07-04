@@ -18,7 +18,12 @@ export const getFilteredErrors = createSelector(
 
     const alwaysShowEntities: Record<string, boolean> = {};
     Object.entries(errors).forEach(([, error]) => {
-      if (error.source?.propertyPath === "isVisible") {
+      const entity = error?.source?.name && dataTree[error.source.name];
+      if (
+        entity &&
+        isWidget(entity) &&
+        error.source?.propertyPath === "isVisible"
+      ) {
         alwaysShowEntities[error.source.id] = true;
       }
     });
@@ -28,11 +33,10 @@ export const getFilteredErrors = createSelector(
         // filter error - when widget or parent widget is hidden
         // parent widgets e.g. modal, tab, container
         if (entity && isWidget(entity)) {
-          if (alwaysShowEntities[entity.widgetId]) return true;
           if (!hasParentWidget(entity)) {
             return entity.isVisible
               ? true
-              : error.source?.propertyPath === "isVisible";
+              : alwaysShowEntities[entity.widgetId];
           } else {
             const isParentWidgetVisible = isParentVisible(
               entity,
@@ -41,8 +45,7 @@ export const getFilteredErrors = createSelector(
             );
             return entity.isVisible
               ? isParentWidgetVisible
-              : isParentWidgetVisible &&
-                  error.source?.propertyPath === "isVisible";
+              : isParentWidgetVisible && alwaysShowEntities[entity.widgetId];
           }
         }
         return true;
