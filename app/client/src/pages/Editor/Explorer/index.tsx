@@ -65,7 +65,6 @@ function ExplorerContent() {
   );
   const [activeSwitch, setActiveSwitch] = useState(switches[0]);
   const openWidgetPanel = useSelector(selectForceOpenWidgetPanel);
-  console.log(openWidgetPanel, selectForceOpenWidgetPanel);
 
   useEffect(() => {
     setActiveSwitch(switches[openWidgetPanel ? 1 : 0]);
