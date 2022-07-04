@@ -11,12 +11,17 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.TriggerRequestDTO;
+import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.config.ExecutionMethod;
 import com.external.config.GoogleSheetsMethodStrategy;
-import com.external.config.Method;
 import com.external.config.MethodConfig;
+import com.external.config.TemplateMethod;
+import com.external.config.TriggerMethod;
+import com.external.constants.FieldName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +42,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static java.lang.Boolean.TRUE;
 
 public class GoogleSheetsPlugin extends BasePlugin {
@@ -59,8 +69,8 @@ public class GoogleSheetsPlugin extends BasePlugin {
         private static final int SMART_JSON_SUBSTITUTION_INDEX = 13;
 
         private static final Set<String> jsonFields = new HashSet<>(Arrays.asList(
-                "rowObject",
-                "rowObjects"
+                FieldName.ROW_OBJECT,
+                FieldName.ROW_OBJECTS
         ));
 
         @Override
@@ -69,48 +79,42 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                                                 DatasourceConfiguration datasourceConfiguration,
                                                                 ActionConfiguration actionConfiguration) {
 
-            Boolean smartBsonSubstitution;
-            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            boolean smartJsonSubstitution;
+            final Map<String, Object> formData = actionConfiguration.getFormData();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
             // Default smart substitution to true
-            if (CollectionUtils.isEmpty(properties)) {
-                smartBsonSubstitution = true;
-            } else if (properties.size() > SMART_JSON_SUBSTITUTION_INDEX &&
-                    properties.get(SMART_JSON_SUBSTITUTION_INDEX) != null) {
-                Object ssubValue = properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue();
-                if (ssubValue instanceof Boolean) {
-                    smartBsonSubstitution = (Boolean) ssubValue;
-                } else if (ssubValue instanceof String) {
-                    smartBsonSubstitution = Boolean.parseBoolean((String) ssubValue);
-                } else {
-                    smartBsonSubstitution = true;
-                }
+            if (!validConfigurationPresentInFormData(formData, FieldName.SMART_SUBSTITUTION)) {
+                smartJsonSubstitution = true;
             } else {
-                smartBsonSubstitution = true;
+                Object ssubValue = getDataValueSafelyFromFormData(formData, FieldName.SMART_SUBSTITUTION, OBJECT_TYPE, true);
+                if (ssubValue instanceof Boolean) {
+                    smartJsonSubstitution = (Boolean) ssubValue;
+                } else if (ssubValue instanceof String) {
+                    smartJsonSubstitution = Boolean.parseBoolean((String) ssubValue);
+                } else {
+                    smartJsonSubstitution = true;
+                }
             }
 
             try {
                 // Smartly substitute in Json fields and replace all the bindings with values.
-                if (TRUE.equals(smartBsonSubstitution)) {
-                    properties.stream().parallel().forEach(property -> {
-                        if (property.getValue() != null) {
-                            String propertyValue = String.valueOf(property.getValue());
-                            String propertyKey = property.getKey();
+                if (TRUE.equals(smartJsonSubstitution)) {
+                    jsonFields.forEach(jsonField -> {
+                        String property = getDataValueSafelyFromFormData(formData, jsonField, STRING_TYPE, null);
+                        if (property != null) {
 
-                            if (jsonFields.contains(propertyKey)) {
-                                // First extract all the bindings in order
-                                List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(propertyValue);
-                                // Replace all the bindings with a placeholder
-                                String updatedValue = MustacheHelper.replaceMustacheWithPlaceholder(propertyValue, mustacheKeysInOrder);
+                            // First extract all the bindings in order
+                            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(property);
+                            // Replace all the bindings with a placeholder
+                            String updatedValue = MustacheHelper.replaceMustacheWithPlaceholder(property, mustacheKeysInOrder);
 
-                                updatedValue = (String) smartSubstitutionOfBindings(updatedValue,
-                                        mustacheKeysInOrder,
-                                        executeActionDTO.getParams(),
-                                        parameters);
+                            updatedValue = (String) smartSubstitutionOfBindings(updatedValue,
+                                    mustacheKeysInOrder,
+                                    executeActionDTO.getParams(),
+                                    parameters);
 
-                                property.setValue(updatedValue);
-                            }
+                            setDataValueSafelyInFormData(formData, jsonField, updatedValue);
                         }
                     });
                 }
@@ -138,12 +142,12 @@ public class GoogleSheetsPlugin extends BasePlugin {
             errorResult.setIsExecutionSuccess(false);
 
             // Check if method is defined
-            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            final Method method = CollectionUtils.isEmpty(properties)
+            final Map<String, Object> formData = actionConfiguration.getFormData();
+            final ExecutionMethod executionMethod = CollectionUtils.isEmpty(formData)
                     ? null
-                    : GoogleSheetsMethodStrategy.getMethod((String) properties.get(0).getValue(), objectMapper);
+                    : GoogleSheetsMethodStrategy.getExecutionMethod(formData, objectMapper);
 
-            if (method == null) {
+            if (executionMethod == null) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Missing Google Sheets method."
@@ -151,12 +155,12 @@ public class GoogleSheetsPlugin extends BasePlugin {
             }
 
             // Convert unreadable map to a DTO
-            MethodConfig methodConfig = new MethodConfig(properties);
+            MethodConfig methodConfig = new MethodConfig(formData);
 
             // Initializing webClient to be used for http call
             WebClient.Builder webClientBuilder = WebClient.builder();
 
-            method.validateMethodRequest(methodConfig);
+            executionMethod.validateExecutionMethodRequest(methodConfig);
 
             WebClient client = webClientBuilder
                     .exchangeStrategies(EXCHANGE_STRATEGIES)
@@ -167,10 +171,10 @@ public class GoogleSheetsPlugin extends BasePlugin {
             assert (oauth2.getAuthenticationResponse() != null);
 
             // Triggering the actual REST API call
-            return method.executePrerequisites(methodConfig, oauth2)
+            return executionMethod.executePrerequisites(methodConfig, oauth2)
                     // This method call will populate the request with all the configurations it needs for a particular method
                     .flatMap(res -> {
-                        return method.getClient(client, methodConfig)
+                        return executionMethod.getExecutionClient(client, methodConfig)
                                 .headers(headers -> headers.set(
                                         "Authorization",
                                         "Bearer " + oauth2.getAuthenticationResponse().getToken()))
@@ -217,7 +221,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                         JsonNode jsonNodeBody = objectMapper.readTree(jsonBody);
 
                                         if (response.getStatusCode().is2xxSuccessful()) {
-                                            result.setBody(method.transformResponse(jsonNodeBody, methodConfig));
+                                            result.setBody(executionMethod.transformExecutionResponse(jsonNodeBody, methodConfig));
                                         } else {
                                             result.setBody(jsonNodeBody
                                                     .get("error")
@@ -301,6 +305,87 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                              Object... args) {
             String jsonBody = (String) input;
             return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);
+        }
+
+        @Override
+        public Mono<TriggerResultDTO> trigger(Void connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+            final TriggerMethod triggerMethod = GoogleSheetsMethodStrategy.getTriggerMethod(request, objectMapper);
+            MethodConfig methodConfig = new MethodConfig(request);
+
+            // Initializing webClient to be used for http call
+            WebClient.Builder webClientBuilder = WebClient.builder();
+
+            triggerMethod.validateTriggerMethodRequest(methodConfig);
+
+            WebClient client = webClientBuilder
+                    .exchangeStrategies(EXCHANGE_STRATEGIES)
+                    .build();
+
+            // Authentication will already be valid at this point
+            final OAuth2 oauth2 = (OAuth2) datasourceConfiguration.getAuthentication();
+            assert (oauth2.getAuthenticationResponse() != null);
+
+            return triggerMethod.getTriggerClient(client, methodConfig)
+                    .headers(headers -> headers.set(
+                            "Authorization",
+                            "Bearer " + oauth2.getAuthenticationResponse().getToken()))
+                    .exchange()
+                    .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                    .map(response -> {
+                        // Choose body depending on response status
+                        byte[] body = response.getBody();
+
+                        if (body == null) {
+                            body = new byte[0];
+                        }
+                        String jsonBody = new String(body);
+                        JsonNode jsonNodeBody = null;
+                        try {
+                            jsonNodeBody = objectMapper.readTree(jsonBody);
+                        } catch (JsonProcessingException e) {
+                            throw Exceptions.propagate(
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                            jsonBody,
+                                            e.getMessage()
+                                    ));
+                        }
+
+                        if (response.getStatusCode().is2xxSuccessful()) {
+                            final JsonNode triggerResponse = triggerMethod.transformTriggerResponse(jsonNodeBody, methodConfig);
+                            final TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
+                            triggerResultDTO.setTrigger(triggerResponse);
+                            return triggerResultDTO;
+                        } else {
+                            throw Exceptions.propagate(
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            jsonNodeBody
+                                                    .get("error")
+                                                    .get("message")
+                                                    .asText())
+                            );
+                        }
+                    });
+        }
+
+        /**
+         * This overridden implementation conforms to the form/JS mode data structure that was introduced in UQI
+         * @param formData form data from action configuration object
+         * @param mappedColumns column name map from template table to user defined table
+         * @param pluginSpecificTemplateParams plugin specified fields like S3 bucket name etc
+         */
+        @Override
+        public void updateCrudTemplateFormData(Map<String, Object> formData, Map<String, String> mappedColumns, Map<String, String> pluginSpecificTemplateParams) {
+            pluginSpecificTemplateParams.forEach((k, v) -> {
+                if (formData.containsKey(k)) {
+                    setDataValueSafelyInFormData(formData, k, v);
+                }
+            });
+
+            final TemplateMethod templateMethod = GoogleSheetsMethodStrategy.getTemplateMethod(formData);
+
+            templateMethod.replaceMethodConfigTemplate(formData, mappedColumns);
         }
     }
 }

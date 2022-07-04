@@ -898,6 +898,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "datasourceQuery",
   );
 
+  cy.route("POST", "/api/v1/datasources/*/trigger").as("trigger");
+
   cy.route("PUT", "/api/v1/pages/crud-page/*").as("replaceLayoutWithCRUDPage");
   cy.route("POST", "/api/v1/pages/crud-page").as("generateCRUDPage");
 
@@ -1277,11 +1279,12 @@ Cypress.Commands.add(
   },
 );
 
+// the way we target form controls from now on has to change
+// we would be getting the form controls by their class names and not their xpaths.
+// the xpath method is flaky and highly subjected to change.
 Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
   if (fieldName) {
-    cy.xpath(
-      "//p[text()='" + fieldName + "']/parent::label/following-sibling::div",
-    ).then(($field) => {
+    cy.get(fieldName).then(($field) => {
       cy.updateCodeInput($field, valueToType);
     });
   } else {
@@ -1371,11 +1374,7 @@ Cypress.Commands.add(
     let toValidate = false;
     if (currentValue) toValidate = true;
     if (fieldName) {
-      cy.xpath(
-        "//p[text()='" +
-          fieldName +
-          "']/parent::label/following-sibling::div//div[@class='CodeMirror-code']",
-      ).click();
+      cy.get(fieldName).click();
     } else {
       cy.xpath("//div[@class='CodeMirror-code']")
         .first()

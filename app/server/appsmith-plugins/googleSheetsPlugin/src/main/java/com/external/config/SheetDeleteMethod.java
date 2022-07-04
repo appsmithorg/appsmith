@@ -3,7 +3,6 @@ package com.external.config;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.OAuth2;
-import com.external.constants.GoogleSheets;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -21,33 +20,28 @@ import java.util.Map;
 /**
  * API reference: https://developers.google.com/sheets/api/guides/migration#delete_a_sheet
  */
-public class DeleteSheetMethod implements Method {
+public class SheetDeleteMethod implements ExecutionMethod {
 
     ObjectMapper objectMapper;
 
-    public DeleteSheetMethod(ObjectMapper objectMapper) {
+    public SheetDeleteMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig) {
+    public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Url");
         }
-        if (GoogleSheets.SHEET.equalsIgnoreCase(methodConfig.getDeleteFormat())) {
-            if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet Name");
-            }
+        if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet Name");
         }
+
         return true;
     }
 
     @Override
     public Mono<Object> executePrerequisites(MethodConfig methodConfig, OAuth2 oauth2) {
-        if (GoogleSheets.SPREADSHEET.equalsIgnoreCase(methodConfig.getDeleteFormat())) {
-            return Mono.just(true);
-        }
-
         WebClient client = WebClient.builder()
                 .exchangeStrategies(EXCHANGE_STRATEGIES)
                 .build();
@@ -104,45 +98,33 @@ public class DeleteSheetMethod implements Method {
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
+    public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
 
-        if (GoogleSheets.SPREADSHEET.equalsIgnoreCase(methodConfig.getDeleteFormat())) {
-            UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_DRIVE_API_URL,
-                    methodConfig.getSpreadsheetId(), /* spreadsheet Id */
-                    true
-            );
+        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
+                methodConfig.getSpreadsheetId() /* spreadsheet Id */
+                        + ":batchUpdate", true);
 
-            return webClient.method(HttpMethod.DELETE)
-                    .uri(uriBuilder.build(true).toUri());
-        } else {
-            UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
-                    methodConfig.getSpreadsheetId() /* spreadsheet Id */
-                            + ":batchUpdate", true);
+        return webClient.method(HttpMethod.POST)
+                .uri(uriBuilder.build(true).toUri())
+                .body(BodyInserters.fromValue(
+                        Map.of(
+                                "requests", List.of(
+                                        Map.of(
+                                                "deleteSheet", Map.of(
+                                                        "sheetId", methodConfig.getSheetId()))),
+                                "includeSpreadsheetInResponse", false)));
 
-            return webClient.method(HttpMethod.POST)
-                    .uri(uriBuilder.build(true).toUri())
-                    .body(BodyInserters.fromValue(
-                            Map.of(
-                                    "requests", List.of(
-                                            Map.of(
-                                                    "deleteSheet", Map.of(
-                                                            "sheetId", methodConfig.getSheetId()))),
-                                    "includeSpreadsheetInResponse", false)));
-        }
     }
 
     @Override
-    public JsonNode transformResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
                     "Missing a valid response object.");
         }
 
-        String errorMessage = "Deleted spreadsheet successfully!";
-        if (GoogleSheets.SHEET.equalsIgnoreCase(methodConfig.getDeleteFormat())) {
-            errorMessage = "Deleted sheet " + methodConfig.getSheetName() + " successfully!";
-        }
+        String errorMessage = "Deleted sheet " + methodConfig.getSheetName() + " successfully!";
 
         return this.objectMapper.valueToTree(Map.of("message", errorMessage));
     }

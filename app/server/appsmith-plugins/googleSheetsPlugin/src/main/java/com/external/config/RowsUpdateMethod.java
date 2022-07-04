@@ -2,7 +2,9 @@ package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.OAuth2;
+import com.external.constants.FieldName;
 import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -26,16 +28,19 @@ import java.util.Map;
 /**
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
  */
-public class UpdateMethod implements Method {
+public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
 
     ObjectMapper objectMapper;
 
-    public UpdateMethod(ObjectMapper objectMapper) {
+    public RowsUpdateMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
+    public RowsUpdateMethod() {
+    }
+
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig) {
+    public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Spreadsheet Url");
         }
@@ -52,12 +57,15 @@ public class UpdateMethod implements Method {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Unexpected format for table header index. Please use a number starting from 1");
             }
+        } else {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    "Unexpected format for table header index. Please use a number starting from 1");
         }
-        final String body = methodConfig.getRowObject();
+        final String body = methodConfig.getRowObjects();
         try {
             this.getRowObjectFromBody(this.objectMapper.readTree(body));
         } catch (JsonProcessingException e) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObject(),
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
                     "Unable to parse request body. Expected a row object.");
         }
         return true;
@@ -68,9 +76,9 @@ public class UpdateMethod implements Method {
         WebClient client = WebClient.builder()
                 .exchangeStrategies(EXCHANGE_STRATEGIES)
                 .build();
-        final GetValuesMethod getValuesMethod = new GetValuesMethod(this.objectMapper);
+        final RowsGetMethod rowsGetMethod = new RowsGetMethod(this.objectMapper);
 
-        final String body = methodConfig.getRowObject();
+        final String body = methodConfig.getRowObjects();
         RowObject rowObjectFromBody = null;
         try {
             rowObjectFromBody = this.getRowObjectFromBody(this.objectMapper.readTree(body));
@@ -79,20 +87,20 @@ public class UpdateMethod implements Method {
         }
 
         assert rowObjectFromBody != null;
-        final String row = String.valueOf(rowObjectFromBody.getCurrentRowIndex());
+        final int row = Integer.parseInt(methodConfig.getTableHeaderIndex()) + rowObjectFromBody.getCurrentRowIndex() + 1;
         final MethodConfig newMethodConfig = methodConfig
                 .toBuilder()
-                .queryFormat("ROWS")
-                .rowOffset(row)
-                .rowLimit("1")
+                .queryFormat("RANGE")
+                .spreadsheetRange(row + ":" + row)
+                .projection(new ArrayList<>())
                 .build();
 
-        getValuesMethod.validateMethodRequest(newMethodConfig);
+        rowsGetMethod.validateExecutionMethodRequest(newMethodConfig);
 
         final RowObject finalRowObjectFromBody = rowObjectFromBody;
 
-        return getValuesMethod
-                .getClient(client, newMethodConfig)
+        return rowsGetMethod
+                .getExecutionClient(client, newMethodConfig)
                 .headers(headers -> headers.set(
                         "Authorization",
                         "Bearer " + oauth2.getAuthenticationResponse().getToken()))
@@ -129,8 +137,8 @@ public class UpdateMethod implements Method {
                     }
 
                     // This is the object with the original values in the referred row
-                    final JsonNode jsonNode = getValuesMethod
-                            .transformResponse(jsonNodeBody, methodConfig)
+                    final JsonNode jsonNode = rowsGetMethod
+                            .transformExecutionResponse(jsonNodeBody, methodConfig)
                             .get(0);
 
                     if (jsonNode == null) {
@@ -170,7 +178,7 @@ public class UpdateMethod implements Method {
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
+    public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
 
         RowObject rowObject = (RowObject) methodConfig.getBody();
 
@@ -196,7 +204,7 @@ public class UpdateMethod implements Method {
     }
 
     @Override
-    public JsonNode transformResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
@@ -214,4 +222,10 @@ public class UpdateMethod implements Method {
                 .initialize();
     }
 
+    @Override
+    public void replaceMethodConfigTemplate(Map<String, Object> formData, Map<String, String> mappedColumns) {
+        String rowObjects = PluginUtils.getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.ROW_OBJECTS);
+        rowObjects = PluginUtils.replaceMappedColumnInStringValue(mappedColumns, rowObjects);
+        PluginUtils.setDataValueSafelyInFormData(formData, FieldName.ROW_OBJECTS, rowObjects);
+    }
 }

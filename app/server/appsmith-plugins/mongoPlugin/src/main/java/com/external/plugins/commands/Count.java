@@ -1,5 +1,6 @@
 package com.external.plugins.commands;
 
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import lombok.Getter;
@@ -13,8 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COLLECTION;
@@ -37,7 +38,7 @@ public class Count extends MongoCommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
 
         if (validConfigurationPresentInFormData(formData, COUNT_QUERY)) {
-            this.query = (String) getValueSafelyFromFormData(formData, COUNT_QUERY);
+            this.query = PluginUtils.getDataValueSafelyFromFormData(formData, COUNT_QUERY, STRING_TYPE);
         }
     }
 
@@ -94,16 +95,16 @@ public class Count extends MongoCommand {
 
         Map<String, Object> configMap = new HashMap<>();
 
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "COUNT");
-        setValueSafelyInFormData(configMap, COUNT_QUERY, "{\"_id\": {\"$exists\": true}}");
-        setValueSafelyInFormData(configMap, COLLECTION, collectionName);
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "COUNT");
+        setDataValueSafelyInFormData(configMap, COUNT_QUERY, "{\"_id\": {\"$exists\": true}}");
+        setDataValueSafelyInFormData(configMap, COLLECTION, collectionName);
 
         String rawQuery = "{\n" +
                 "  \"count\": \"" + collectionName + "\",\n" +
                 "  \"query\": " + "{\"_id\": {\"$exists\": true}} \n" +
                 "}\n";
-        setValueSafelyInFormData(configMap, BODY, rawQuery);
+        setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
         return Collections.singletonList(new DatasourceStructure.Template(
                 "Count",

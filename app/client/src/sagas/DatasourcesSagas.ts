@@ -999,7 +999,10 @@ function* executeDatasourceQuerySaga(
   action: executeDatasourceQueryReduxAction<any>,
 ) {
   try {
-    const response: ApiResponse = yield DatasourcesApi.executeDatasourceQuery(
+    // const response: GenericApiResponse<any> = yield DatasourcesApi.executeDatasourceQuery(
+    //   action.payload,
+    // );
+    const response: ApiResponse = yield DatasourcesApi.executeGoogleSheetsDatasourceQuery(
       action.payload,
     );
     const isValidResponse: boolean = yield validateResponse(response);
@@ -1007,7 +1010,8 @@ function* executeDatasourceQuerySaga(
       yield put({
         type: ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_SUCCESS,
         payload: {
-          data: response.data,
+          // @ts-expect-error: we don't know what the response will be
+          data: response.data?.trigger,
           datasourceId: action.payload.datasourceId,
         },
       });
