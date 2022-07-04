@@ -20,6 +20,7 @@ describe("Theme validation usecase for multi-select widget", function() {
     cy.get(commonlocators.entityExplorersearch).should("be.visible");
     cy.get(commonlocators.entityExplorersearch)
       .clear()
+      .click()
       .type("multiselect");
     cy.dragAndDropToCanvas("multiselectwidgetv2", { x: 300, y: 80 });
     cy.wait("@updateLayout").should(
@@ -101,15 +102,19 @@ describe("Theme validation usecase for multi-select widget", function() {
 
     //Color
     cy.wait(3000);
-    cy.get(themelocator.inputColor).clear();
-    cy.get(themelocator.inputColor).type("purple");
+    cy.get(themelocator.inputColor)
+      .clear()
+      .click()
+      .type("purple");
     cy.get(themelocator.inputColor).should("have.value", "purple");
     cy.get(themelocator.color)
       .eq(1)
       .click({ force: true });
-    cy.get(themelocator.inputColor).clear();
     cy.wait(2000);
-    cy.get(themelocator.inputColor).type("brown");
+    cy.get(themelocator.inputColor)
+      .clear()
+      .click()
+      .type("brown");
     cy.get(themelocator.inputColor).should("have.value", "brown");
     cy.wait(2000);
     cy.contains("Color").click({ force: true });
