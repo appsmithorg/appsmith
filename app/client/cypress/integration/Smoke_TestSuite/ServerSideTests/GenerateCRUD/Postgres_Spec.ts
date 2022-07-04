@@ -173,6 +173,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
 
+    ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("public.vessels"));
@@ -694,6 +695,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
+    ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.vessels"));

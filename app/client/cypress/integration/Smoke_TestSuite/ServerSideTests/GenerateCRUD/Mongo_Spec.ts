@@ -101,7 +101,6 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._generatePageBtn);
     agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     //agHelper.ValidateToastMessage("Successfully generated a page");// Commenting this since FindQuery failure appears sometimes
-    agHelper.WaitUntilToastDisappear("Successfully generated a page");
     agHelper.ValidateNetworkStatus("@getActions", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
