@@ -7,12 +7,15 @@ import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -23,18 +26,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.appsmith.external.constants.FieldName.CHILDREN;
-import static com.appsmith.external.constants.FieldName.CONDITION;
-import static com.appsmith.external.constants.FieldName.KEY;
-import static com.appsmith.external.constants.FieldName.VALUE;
+import static com.appsmith.external.constants.CommonFieldName.CHILDREN;
+import static com.appsmith.external.constants.CommonFieldName.CONDITION;
+import static com.appsmith.external.constants.CommonFieldName.KEY;
+import static com.appsmith.external.constants.CommonFieldName.VALUE;
 
 @Slf4j
 public class PluginUtils {
 
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    public static final TypeReference<String> STRING_TYPE = new TypeReference<>() {
+        @Override
+        public Type getType() {
+            return String.class;
+        }
+    };
+    public static final TypeReference<Object> OBJECT_TYPE = new TypeReference<>() {
+    };
+
+    // Pattern to match all words in the text
+    private static final Pattern WORD_PATTERN = Pattern.compile("\\w+");
 
     /**
      * - Regex to match everything inside double or single quotes, including the quotes.
@@ -96,34 +112,75 @@ public class PluginUtils {
         return getValueSafelyFromFormData(formData, field) != null;
     }
 
+    public static <T> Boolean validDataConfigurationPresentInFormData(Map<String, Object> formData, String field, TypeReference<T> type) {
+        return getDataValueSafelyFromFormData(formData, field, type) != null;
+    }
+
+    private static <T> T getDataValueAsTypeFromFormData(Map<String, Object> formDataValueMap, TypeReference<T> type) {
+        assert formDataValueMap != null;
+        final Object formDataValue = formDataValueMap.get("data");
+        if (formDataValueMap.containsKey("viewType") && "json".equals(formDataValueMap.get("viewType")) && type != STRING_TYPE) {
+            try {
+                return objectMapper.readValue((String) formDataValue, type);
+            } catch (JsonProcessingException e) {
+                log.error("Could not parse String {} to type {}", formDataValue, type);
+                return null;
+            }
+        }
+        return formDataValue != null ? (T) formDataValue : null;
+    }
+
     /**
      * Get value from `formData` map and also type cast it to the class of type `T` before returning the value. In
      * case the value is null, then the defaultValue is returned.
      *
      * @param formData
-     * @param field : key path used to fetch value from formData
-     * @param type : returned value is type casted to the type of this object before return.
+     * @param field        : key path used to fetch value from formData
+     * @param type         : returned value is type casted to the type of this object before return.
      * @param defaultValue : this value is returned if the obtained value is null
-     * @param <T> : type parameter to which the obtained value is cast to.
+     * @param <T>          : type parameter to which the obtained value is cast to.
      * @return : obtained value (post type cast) if non-null, otherwise defaultValue
      */
-    public static <T> T getValueSafelyFromFormData(Map<String, Object> formData, String field, Class<T> type,
-                                                   T defaultValue) {
-        Object formDataValue = getValueSafelyFromFormData(formData, field);
-        return formDataValue != null ? (T) formDataValue : defaultValue;
+    public static <T> T getDataValueSafelyFromFormData(Map<String, Object> formData, String field, TypeReference<T> type,
+                                                       T defaultValue) {
+        Map<String, Object> formDataValueMap = (Map<String, Object>) getValueSafelyFromFormData(formData, field);
+        if (formDataValueMap == null) {
+            return defaultValue;
+        }
+        final T valueAsTypeFromFormData = getDataValueAsTypeFromFormData(formDataValueMap, type);
+        if (valueAsTypeFromFormData == null) {
+            return defaultValue;
+        }
+        return valueAsTypeFromFormData;
+    }
+
+    public static String getTrimmedStringDataValueSafelyFromFormData(Map<String, Object> formData, String field) {
+        Map<String, Object> formDataValueMap = (Map<String, Object>) getValueSafelyFromFormData(formData, field);
+        if (formDataValueMap == null) {
+            return null;
+        }
+        String stringValue = getDataValueAsTypeFromFormData(formDataValueMap, STRING_TYPE);
+        if (stringValue != null) {
+            stringValue = stringValue.trim();
+        }
+        return stringValue;
     }
 
     /**
      * Get value from `formData` map and also type cast it to the class of type `T` before returning the value.
      *
      * @param formData
-     * @param field : key path used to fetch value from formData
-     * @param type : returned value is type casted to the type of this object before return.
-     * @param <T> : type parameter to which the obtained value is cast to.
+     * @param field    : key path used to fetch value from formData
+     * @param type     : returned value is type casted to the type of this object before return.
+     * @param <T>      : type parameter to which the obtained value is cast to.
      * @return : obtained value (post type cast) if non-null, otherwise null.
      */
-    public static <T> T getValueSafelyFromFormData(Map<String, Object> formData, String field, Class<T> type) {
-        return (T) (getValueSafelyFromFormData(formData, field));
+    public static <T> T getDataValueSafelyFromFormData(Map<String, Object> formData, String field, TypeReference<T> type) {
+        Map<String, Object> formDataValueMap = (Map<String, Object>) getValueSafelyFromFormData(formData, field);
+        if (formDataValueMap == null) {
+            return null;
+        }
+        return getDataValueAsTypeFromFormData(formDataValueMap, type);
     }
 
     public static Object getValueSafelyFromFormData(Map<String, Object> formData, String field) {
@@ -158,15 +215,39 @@ public class PluginUtils {
 
     }
 
-    public static Object getValueSafelyFromFormDataOrDefault(Map<String, Object> formData, String field, Object defaultValue) {
+    public static void setDataValueSafelyInFormData(Map<String, Object> formData, String field, Object value) {
 
-        Object value = getValueSafelyFromFormData(formData, field);
-
-        if (value == null) {
-            return defaultValue;
+        // In case the formData has not been initialized before the fxn call, assign a new HashMap to the variable
+        if (formData == null) {
+            formData = new HashMap<>();
         }
 
-        return value;
+        // This field value contains nesting
+        if (field.contains(".")) {
+
+            String[] fieldNames = field.split("\\.");
+
+            // In case the parent key does not exist in the map, create one
+            formData.putIfAbsent(fieldNames[0], new HashMap<String, Object>());
+
+            Map<String, Object> nestedMap = (Map<String, Object>) formData.get(fieldNames[0]);
+
+            String[] trimmedFieldNames = Arrays.copyOfRange(fieldNames, 1, fieldNames.length);
+            String nestedFieldName = String.join(".", trimmedFieldNames);
+
+            // Now set the value from the new nested map using trimmed field name (without the parent key)
+            setDataValueSafelyInFormData(nestedMap, nestedFieldName, value);
+        } else {
+            // This is a top level field. Set the value
+            final Object currentValue = formData.get(field);
+            if (currentValue instanceof Map) {
+                ((Map<String, Object>) currentValue).put("data", value);
+            } else {
+                final HashMap<Object, Object> valueMap = new HashMap<>();
+                valueMap.put("data", value);
+                formData.put(field, valueMap);
+            }
+        }
     }
 
     public static void setValueSafelyInFormData(Map<String, Object> formData, String field, Object value) {
@@ -245,42 +326,44 @@ public class PluginUtils {
     }
 
     public static Condition parseWhereClause(Map<String, Object> whereClause) {
+        // Only proceed if this is a valid condition
+        if (whereClause == null || !(whereClause.containsKey(KEY) || whereClause.containsKey(CHILDREN))) {
+            return null;
+        }
         Condition condition = new Condition();
 
         Object unparsedOperator = whereClause.getOrDefault(CONDITION, ConditionalOperator.EQ.name());
 
         ConditionalOperator operator;
         try {
-
             operator = ConditionalOperator.valueOf(((String) unparsedOperator).trim().toUpperCase());
-
         } catch (IllegalArgumentException e) {
             // The operator could not be cast into a known type. Throw an exception
             log.error(e.getMessage());
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_UQI_WHERE_CONDITION_UNKNOWN, unparsedOperator);
         }
 
+        condition.setOperator(operator);
 
-        if (operator != null) {
-
-            condition.setOperator(operator);
-
-            // For logical operators, we must walk all the children and add the same as values to this condition
-            if (operator.equals(ConditionalOperator.AND) || operator.equals(ConditionalOperator.OR)) {
-                List<Condition> children = new ArrayList<>();
-                List<Map<String, Object>> conditionList = (List) whereClause.get(CHILDREN);
-                for (Map<String, Object> unparsedCondition : conditionList) {
-                    Condition childCondition = parseWhereClause(unparsedCondition);
+        // For logical operators, we must walk all the children and add the same as values to this condition
+        if (operator.equals(ConditionalOperator.AND) || operator.equals(ConditionalOperator.OR)) {
+            List<Condition> children = new ArrayList<>();
+            List<Map<String, Object>> conditionList = (List) whereClause.get(CHILDREN);
+            for (Map<String, Object> unparsedCondition : conditionList) {
+                Condition childCondition = parseWhereClause(unparsedCondition);
+                if (childCondition != null) {
                     children.add(childCondition);
                 }
-                condition.setValue(children);
-            } else {
-                // This is a comparison operator.
-                String key = (String) whereClause.get(KEY);
-                String value = (String) whereClause.get(VALUE);
-                condition.setPath(key);
-                condition.setValue(value);
             }
+            if (!children.isEmpty()) {
+                condition.setValue(children);
+            }
+        } else {
+            // This is a comparison operator.
+            String key = (String) whereClause.get(KEY);
+            String value = (String) whereClause.get(VALUE);
+            condition.setPath(key);
+            condition.setValue(value);
         }
 
         return condition;
@@ -306,5 +389,22 @@ public class PluginUtils {
 
     public static Object getValueSafelyFromPropertyList(List<Property> properties, int index) {
         return getValueSafelyFromPropertyList(properties, index, Object.class);
+    }
+
+    public static String replaceMappedColumnInStringValue(Map<String, String> mappedColumns, Object propertyValue) {
+        // In case the entire value finds a match in the mappedColumns, replace it
+        if (mappedColumns.containsKey((String) propertyValue)) {
+            return mappedColumns.get(propertyValue);
+        }
+
+        // If the column name is present inside a string (like json), then find all the words and replace
+        // the column name with user one.
+        Matcher matcher = WORD_PATTERN.matcher(propertyValue.toString());
+        if (matcher.find()) {
+            return matcher.replaceAll(key ->
+                    mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()));
+        }
+
+        return propertyValue.toString();
     }
 }

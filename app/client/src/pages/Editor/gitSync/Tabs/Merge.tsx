@@ -235,6 +235,7 @@ export default function Merge() {
         <Dropdown
           className={Classes.MERGE_DROPDOWN}
           containerClassName={"t--merge-branch-dropdown-destination"}
+          disabled={isFetchingBranches || isFetchingMergeStatus || isMerging}
           dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
           enableSearch
           fillOptions

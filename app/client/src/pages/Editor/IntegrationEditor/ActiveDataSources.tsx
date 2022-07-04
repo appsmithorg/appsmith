@@ -15,7 +15,6 @@ import {
 
 const QueryHomePage = styled.div`
   ${thinScrollbar};
-  padding: 5px;
   overflow: auto;
   display: flex;
   flex-direction: column;

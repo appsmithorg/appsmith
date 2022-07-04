@@ -148,6 +148,7 @@ export const onboardingContainerBlueprint = {
               },
               props: {
                 inputType: "TEXT",
+                label: "",
               },
             },
             {
@@ -181,6 +182,7 @@ export const onboardingContainerBlueprint = {
               },
               props: {
                 inputType: "TEXT",
+                label: "",
               },
             },
             {
@@ -214,6 +216,7 @@ export const onboardingContainerBlueprint = {
               },
               props: {
                 inputType: "TEXT",
+                label: "",
               },
             },
           ],

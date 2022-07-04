@@ -37,6 +37,7 @@ export class CommonLocators {
     _uploadBtn = "button.uppy-StatusBar-actionBtn--upload"
     _debuggerIcon = ".t--debugger svg"
     _errorTab = "[data-cy=t--tab-ERROR]"
+    _responseTab = "[data-cy=t--tab-response]"
     _debugErrorMsg = ".t--debugger-message"
     _debuggerLabel = "span.debugger-label"
     _modal = ".t--modal-widget"
@@ -44,9 +45,9 @@ export class CommonLocators {
     _entityNameEditing = (entityNameinLeftSidebar: string) => "//span[text()='" + entityNameinLeftSidebar + "']/parent::div[contains(@class, 't--entity-name editing')]/input"
     _jsToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " .t--js-toggle"
     _spanButton = (btnVisibleText: string) => "//span[text()='" + btnVisibleText + "']/parent::button"
-    _selectPropDropdown = (ddName: string) => "//div[contains(@class, 't--property-control-" + ddName + "')]//button[contains(@class, 't--open-dropdown-Select-Action')]"
-    _dropDownValue = (ddOption: string) => ".single-select:contains('" + ddOption + "')"
-    _selectOptionValue = (ddOption: string) => ".menu-item-link:contains('" + ddOption + "')"
+    _selectPropDropdown = (ddName: string) => "//div[contains(@class, 't--property-control-" + ddName.replace(/ +/g, "").toLowerCase() + "')]//button[contains(@class, 't--open-dropdown-Select-Action')]"
+    _dropDownValue = (dropdownOption: string) => ".single-select:contains('" + dropdownOption + "')"
+    _selectOptionValue = (dropdownOption: string) => ".menu-item-link:contains('" + dropdownOption + "')"
     _selectedDropdownValue = "//button[contains(@class, 'select-button')]/span[@class='bp3-button-text']"
     _actionTextArea = (actionName: string) => "//label[text()='" + actionName + "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea"
     _existingDefaultTextInput = ".t--property-control-defaulttext .CodeMirror-code"
@@ -55,7 +56,7 @@ export class CommonLocators {
     _openNavigationTab = (tabToOpen: string) => `#switcher--${tabToOpen}`
     _selectWidgetDropdown = (widgetType: string) => `//div[contains(@class, 't--draggable-${widgetType}')]//button`
     _selectWidgetDropdownInDeployed = (widgetType: string) => `//div[contains(@class, 't--widget-${widgetType}')]//button`
-    _inputFieldByName = (fieldName: string) => "//p[text()='" + fieldName + "']/parent::label/following-sibling::div"
+    _inputFieldByName = (fieldName: string) => "//p[text()='" + fieldName + "']/ancestor::label/parent::div/following-sibling::div"
     _existingFieldTextByName = (fieldName: string) => "//label[text()='" + fieldName + "']/ancestor::div[contains(@class, 't--property-control-" + fieldName.replace(/ +/g, "").toLowerCase() + "')]"
     _existingFieldValueByName = (fieldName: string) => this._existingFieldTextByName(fieldName) + "//div[contains(@class,'CodeMirror-code')]"
     _existingActualValueByName = (fieldName: string) => this._existingFieldValueByName(fieldName) + "//span/span"
@@ -70,8 +71,9 @@ export class CommonLocators {
     _jsonFormHeader = ".t--jsonform-body > div:first-child"
     _jsonFormWidget = ".t--widget-jsonformwidget"
     _lintErrorElement = `span.CodeMirror-lint-mark-error`
-    _datePicker = (date: number) => "//div[@class ='bp3-datepicker']//div[@class = 'DayPicker-Day']//div[text()='" + date + "']";
+    _datePicker = (date: number) => "//div[@class ='bp3-datepicker']//div[contains(@class, 'DayPicker-Day')]//div[text()='" + date + "']";
     _inputWidgetValueField= (fieldName: string, input : boolean = true) => `//label[contains(@class, 't--input-widget-label')][text()='${fieldName}']/ancestor::div[@data-testid='input-container']//${input ? "input" : "textarea"}`
-    _deleteIcon = "button .bp3-icon-delete";
-
+    _deleteIcon = "button .bp3-icon-delete"
+    _datePickerValue = "div[data-testid='datepicker-container'] input"
+    _switchToggle = (switchName: string) => "//div[contains(@class, 't--switch-widget-label')][text()='"+switchName+"']/parent::label/span"
 }

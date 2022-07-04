@@ -96,6 +96,7 @@ import {
   DEFAULT_BASE_URL_BUILDER_PARAMS,
   updateURLFactory,
 } from "RouteBuilder";
+import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErrorModal";
 
 const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -1014,6 +1015,7 @@ class Applications extends Component<
                 }}
               />
               <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+              <RepoLimitExceededErrorModal />
             </ApplicationsWrapper>
           )}
         </MediaQuery>

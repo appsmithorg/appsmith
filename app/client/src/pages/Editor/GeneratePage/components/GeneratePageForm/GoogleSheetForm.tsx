@@ -8,8 +8,7 @@ import { DROPDOWN_DIMENSION, DEFAULT_DROPDOWN_OPTION } from "../constants";
 import { SelectWrapper, Label, Bold } from "./styles";
 import TextInput from "components/ads/TextInput";
 import { GeneratePagePayload } from "./types";
-import { getSheetUrl } from "./hooks";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import styled from "styled-components";
 import {
   UseSheetListReturn,
@@ -192,6 +191,7 @@ function GoogleSheetForm(props: Props) {
     ) {
       fetchAllSpreadsheets({
         selectedDatasourceId: selectedDatasource.id,
+        pluginId: selectedDatasource?.data?.pluginId,
         requestObject: sheetQueryRequest,
       });
     }
@@ -203,18 +203,17 @@ function GoogleSheetForm(props: Props) {
     if (
       selectedDatasource.value &&
       selectedDatasource.id &&
-      selectedSpreadsheet.value &&
-      selectedSpreadsheet.id
+      selectedSpreadsheet.value
     ) {
       setSelectedSheet(DEFAULT_DROPDOWN_OPTION);
       fetchSheetsList({
         requestObject: sheetQueryRequest,
         selectedDatasourceId: selectedDatasource.id,
-        selectedSpreadsheetId: selectedSpreadsheet.id,
+        selectedSpreadsheetUrl: selectedSpreadsheet.value,
+        pluginId: selectedDatasource?.data?.pluginId,
       });
     }
   }, [
-    selectedSpreadsheet.id,
     selectedSpreadsheet.value,
     selectedDatasource.id,
     selectedDatasource.value,
@@ -228,12 +227,13 @@ function GoogleSheetForm(props: Props) {
   ) => {
     if (sheetValue && sheetObj) {
       setSelectedSheet(sheetObj);
-      if (selectedDatasource.id && selectedSpreadsheet.id) {
+      if (selectedDatasource.id && selectedSpreadsheet.value) {
         fetchColumnHeaderList({
           selectedDatasourceId: selectedDatasource.id,
-          selectedSpreadsheetId: selectedSpreadsheet.id,
+          selectedSpreadsheetUrl: selectedSpreadsheet.value,
           sheetName: sheetValue,
           tableHeaderIndex,
+          pluginId: selectedDatasource?.data?.pluginId,
           requestObject: sheetQueryRequest,
         });
       }
@@ -241,7 +241,7 @@ function GoogleSheetForm(props: Props) {
   };
 
   const onSubmit = () => {
-    if (selectedSpreadsheet.id) {
+    if (selectedSpreadsheet.value) {
       const columns: string[] = [];
       columnHeaderList.forEach(({ value }) => {
         if (value) columns.push(value);
@@ -251,7 +251,7 @@ function GoogleSheetForm(props: Props) {
         searchColumn: "",
         tableName: selectedSheet.value || "",
         pluginSpecificParams: {
-          sheetUrl: getSheetUrl(selectedSpreadsheet.id),
+          sheetUrl: selectedSpreadsheet.value,
           tableHeaderIndex,
           sheetName: selectedSheet.value,
         },
@@ -264,12 +264,13 @@ function GoogleSheetForm(props: Props) {
     debounce((value: string) => {
       if (
         selectedDatasource.id &&
-        selectedSpreadsheet.id &&
+        selectedSpreadsheet.value &&
         selectedSheet.value
       ) {
         fetchColumnHeaderList({
           selectedDatasourceId: selectedDatasource.id,
-          selectedSpreadsheetId: selectedSpreadsheet.id,
+          selectedSpreadsheetUrl: selectedSpreadsheet.value,
+          pluginId: selectedDatasource?.data?.pluginId,
           sheetName: selectedSheet.value,
           tableHeaderIndex: value,
           requestObject: sheetQueryRequest,
@@ -294,7 +295,7 @@ function GoogleSheetForm(props: Props) {
             Select sheet from <Bold>{selectedSpreadsheet.label}</Bold>
           </Label>
           <Dropdown
-            cypressSelector="t--table-dropdown"
+            cypressSelector="t--sheetName-dropdown"
             dropdownMaxHeight={"300px"}
             height={DROPDOWN_DIMENSION.HEIGHT}
             isLoading={isFetchingSheetsList}
@@ -332,6 +333,7 @@ function GoogleSheetForm(props: Props) {
               </TooltipWrapper>
             </Row>
             <TextInput
+              cypressSelector="t--tableHeaderIndex"
               dataType="text"
               fill
               onChange={tableHeaderIndexChangeHandler}

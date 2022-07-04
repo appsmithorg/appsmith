@@ -292,7 +292,7 @@ describe("Postgres - Datatype Numeric tests", function() {
     });
   });
 
-  it("18. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
+  it("18. Validate Drop of the Newly Created - numerictypes - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("dropTable");

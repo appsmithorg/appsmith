@@ -2,6 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.UserService;
@@ -35,6 +36,9 @@ public class WorkspaceControllerTest {
 
     @MockBean
     private CommonConfig commonConfig;
+
+    @MockBean
+    UserDataService userDataService;
 
     @Test
     @WithMockUser

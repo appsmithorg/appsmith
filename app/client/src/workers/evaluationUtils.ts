@@ -182,11 +182,41 @@ export const translateDiffEventToDataTreeDiffEvent = (
           },
         ];
       } else if (rhsChange || lhsChange) {
-        result.event = DataTreeDiffEvent.EDIT;
-        result.payload = {
-          propertyPath,
-          value: difference.rhs,
-        };
+        result = [
+          {
+            event: DataTreeDiffEvent.EDIT,
+            payload: {
+              propertyPath,
+              value: difference.rhs,
+            },
+          },
+        ];
+        /**
+         * If lhs is an array/object
+         * Add delete events for all memberExpressions
+         */
+        if (Array.isArray(difference.lhs)) {
+          difference.lhs.forEach((diff, idx) => {
+            (result as DataTreeDiff[]).push({
+              event: DataTreeDiffEvent.DELETE,
+              payload: {
+                propertyPath: `${propertyPath}[${idx}]`,
+              },
+            });
+          });
+        }
+
+        if (isTrueObject(difference.lhs)) {
+          Object.keys(difference.lhs).forEach((diffKey) => {
+            const path = `${propertyPath}.${diffKey}`;
+            (result as DataTreeDiff[]).push({
+              event: DataTreeDiffEvent.DELETE,
+              payload: {
+                propertyPath: path,
+              },
+            });
+          });
+        }
       } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to
         // old bindings being eligible
@@ -327,7 +357,9 @@ export const addDependantsOfNestedPropertyPaths = (
   return withNestedPaths;
 };
 
-export function isWidget(entity: DataTreeEntity): entity is DataTreeWidget {
+export function isWidget(
+  entity: Partial<DataTreeEntity>,
+): entity is DataTreeWidget {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -335,7 +367,9 @@ export function isWidget(entity: DataTreeEntity): entity is DataTreeWidget {
   );
 }
 
-export function isAction(entity: DataTreeEntity): entity is DataTreeAction {
+export function isAction(
+  entity: Partial<DataTreeEntity>,
+): entity is DataTreeAction {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -822,6 +856,22 @@ export const updateJSCollectionInDataTree = (
         }
       } else {
         varList.push(newVar.name);
+        const reactivePaths = jsCollection.reactivePaths;
+        reactivePaths[newVar.name] =
+          EvaluationSubstitutionType.SMART_SUBSTITUTE;
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.reactivePaths`,
+          reactivePaths,
+        );
+        const dynamicBindingPathList = jsCollection.dynamicBindingPathList;
+        dynamicBindingPathList.push({ key: newVar.name });
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.dynamicBindingPathList`,
+          dynamicBindingPathList,
+        );
+
         _.set(modifiedDataTree, `${jsCollection.name}.variables`, varList);
         _.set(
           modifiedDataTree,
@@ -830,15 +880,33 @@ export const updateJSCollectionInDataTree = (
         );
       }
     }
-    let newVarList: Array<string> = [];
+    let newVarList: Array<string> = varList;
     for (let i = 0; i < varList.length; i++) {
       const varListItem = varList[i];
       const existsInParsed = parsedBody.variables.find(
         (item) => item.name === varListItem,
       );
       if (!existsInParsed) {
+        const reactivePaths = jsCollection.reactivePaths;
+        delete reactivePaths[varListItem];
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.reactivePaths`,
+          reactivePaths,
+        );
+
+        let dynamicBindingPathList = jsCollection.dynamicBindingPathList;
+        dynamicBindingPathList = dynamicBindingPathList.filter(
+          (path) => path["key"] !== varListItem,
+        );
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.dynamicBindingPathList`,
+          dynamicBindingPathList,
+        );
+
+        newVarList = newVarList.filter((item) => item !== varListItem);
         delete modifiedDataTree[`${jsCollection.name}`][`${varListItem}`];
-        newVarList = varList.filter((item) => item !== varListItem);
       }
     }
     if (newVarList.length) {

@@ -1,4 +1,4 @@
-import marked from "marked";
+import marked, { Token } from "marked";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { algoliaHighlightTag } from "./utils";
 import log from "loglevel";
@@ -45,7 +45,7 @@ const updateYoutubeEmbeddingsWithIframe = (text: string) => {
 /**
  * strip: description tag from the top
  */
-const stripMarkdown = (text: string) =>
+const stripDescriptionMarkdown = (text: string) =>
   text.replace(/---\n[description]([\S\s]*?)---/gm, "");
 
 const getDocumentationCTA = (path: any) => {
@@ -110,27 +110,55 @@ const removeBadHighlights = (node: HTMLElement | Document, query: string) => {
   });
 };
 
+/**
+ * Walks link tokens and adds documentation repo as the domain for every relative URLs found.
+ * @param {string} value
+ * @returns String of compiled HTML
+ */
+const parseMarkdown = (value: string) => {
+  const aisOpenHTMLTag = `<${algoliaHighlightTag}>`;
+  const aisCloseHTMLTag = `</${algoliaHighlightTag}>`;
+
+  value = replaceHintTagsWithCode(stripDescriptionMarkdown(value));
+
+  marked.use({
+    walkTokens(token: unknown) {
+      const currentToken = token as Token;
+      if ("type" in currentToken && currentToken.type === "link") {
+        let href = currentToken.href;
+        try {
+          new URL(href);
+        } catch (e) {
+          href = `${HelpBaseURL}/${href}`;
+        }
+        currentToken.href = href
+          .replace(aisTag, "")
+          .replaceAll(aisOpenHTMLTag, "")
+          .replaceAll(aisCloseHTMLTag, "");
+      }
+    },
+  });
+  return marked(value);
+};
+
 const replaceHintTagsWithCode = (text: string) => {
   let result = text.replace(/{% hint .*?%}/, "```");
   result = result.replace(/{% endhint .*?%}/, "```");
-  result = marked(result);
   return result;
 };
+
+const aisTag = new RegExp(
+  `&lt;${algoliaHighlightTag}&gt;|&lt;/${algoliaHighlightTag}&gt;`,
+  "g",
+);
 
 const parseDocumentationContent = (item: any): string | undefined => {
   try {
     const { query, rawDocument } = item;
-    let value = rawDocument;
+    const value = rawDocument;
     if (!value) return;
 
-    const aisTag = new RegExp(
-      `&lt;${algoliaHighlightTag}&gt;|&lt;/${algoliaHighlightTag}&gt;`,
-      "g",
-    );
-    value = stripMarkdown(value);
-    value = replaceHintTagsWithCode(value);
-
-    const parsedDocument = marked(value);
+    const parsedDocument = parseMarkdown(value);
 
     const domparser = new DOMParser();
     const documentObj = domparser.parseFromString(parsedDocument, "text/html");
@@ -141,22 +169,8 @@ const parseDocumentationContent = (item: any): string | undefined => {
       match.innerHTML = match.innerHTML.replace(aisTag, "");
     });
 
-    // update link hrefs and target
-    const aisTagEncoded = new RegExp(
-      `%3C${algoliaHighlightTag}%3E|%3C/${algoliaHighlightTag}%3E`,
-      "g",
-    );
-
     Array.from(documentObj.querySelectorAll("a")).forEach((match) => {
       match.target = "_blank";
-      try {
-        const hrefURL = new URL(match.href);
-        const isRelativeURL = hrefURL.hostname === window.location.hostname;
-        match.href = !isRelativeURL
-          ? match.href
-          : `${HelpBaseURL}/${match.getAttribute("href")}`;
-        match.href = match.href.replace(aisTagEncoded, "");
-      } catch (e) {}
     });
 
     // update description title

@@ -1,6 +1,6 @@
 import Icon, { IconSize } from "components/ads/Icon";
 import Text, { Case, FontWeight, TextType } from "components/ads/Text";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { Colors } from "constants/Colors";
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";

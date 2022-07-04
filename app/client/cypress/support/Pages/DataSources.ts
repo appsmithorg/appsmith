@@ -31,7 +31,7 @@ export class DataSources {
   _dropdownTitle = (ddTitle: string) =>
     "//p[contains(text(),'" +
     ddTitle +
-    "')]/parent::label/following-sibling::div/div/div";
+    "')]/ancestor::label/parent::div/following-sibling::div/div/div";
   _reconnectModal = "div.reconnect-datasource-modal";
   _activeDSListReconnectModal = (dbName: string) =>
     "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']";
@@ -39,6 +39,8 @@ export class DataSources {
   _newDatabases = "#new-datasources";
   _selectDatasourceDropdown = "[data-cy=t--datasource-dropdown]";
   _selectTableDropdown = "[data-cy=t--table-dropdown]";
+  _selectSheetNameDropdown = "[data-cy=t--sheetName-dropdown]";
+  _selectTableHeaderIndexInput = "[data-cy=t--tableHeaderIndex]";
   _dropdownOption = ".bp3-popover-content .t--dropdown-option";
   _generatePageBtn = "[data-cy=t--generate-page-form-submit]";
   _selectedRow = ".tr.selected-row";
@@ -48,6 +50,10 @@ export class DataSources {
   _datasourceCardGeneratePageBtn = ".t--generate-template";
   _queryTableResponse =
     "//div[@data-guided-tour-id='query-table-response']//div[@class='tbody']//div[@class ='td']";
+  _queryResponseHeader = (header: string) =>
+    "//div[@data-guided-tour-id='query-table-response']//div[@class='table']//div[@role ='columnheader']//span[text()='" +
+    header +
+    "']";
   _refreshIcon = "button .bp3-icon-refresh";
   _addIcon = "button .bp3-icon-add";
   _queryError = "span.t--query-error";
@@ -268,6 +274,8 @@ export class DataSources {
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
+    this.ee.SelectEntityByName(datasourceName, "DATASOURCES");
+    this.ee.ExpandCollapseEntity(datasourceName, false);
     this.NavigateToDSCreateNew();
     this.agHelper.GetNClick(this._activeTab);
     cy.get(this._datasourceCard)
@@ -333,6 +341,12 @@ export class DataSources {
       .xpath(this._queryTableResponse)
       .eq(index)
       .invoke("text");
+  }
+
+  public AssertQueryResponseHeaders(columnHeaders: string[]) {
+    columnHeaders.forEach(($header) =>
+      this.agHelper.AssertElementVisible(this._queryResponseHeader($header)),
+    );
   }
 
   public AssertJSONFormHeader(
