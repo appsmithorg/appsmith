@@ -65,7 +65,6 @@ async function sendBackupErrorToAdmins(err, backupTimestamp) {
       });
     }
   } catch (err) {
-    console.log(err);
     await logger.backup_error(err.stack);
     return;
   }

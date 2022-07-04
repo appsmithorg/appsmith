@@ -54,9 +54,7 @@ async function run() {
     // console.log('Please remember to also take the `docker.env` separately since it includes sensitive, but critical information.')
 
   } catch (err) {
-    console.log(err);
     errorCode = 1;
-
     await logger.backup_error(err.stack);
 
     if (command_args.includes('--error_mail')) {
