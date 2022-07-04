@@ -839,10 +839,13 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   renderOauth2AdvancedSettings = () => {
-    const { authentication, authType } = this.props.formData;
+    const { authentication, authType, connection } = this.props.formData;
     const isGrantTypeAuthorizationCode =
       _.get(authentication, "grantType") === GrantType.AuthorizationCode;
     const isAuthenticationTypeOAuth2 = authType === AuthType.OAuth2;
+    const isConnectSelfSigned =
+      _.get(connection, "ssl.authType") === SSLType.SELF_SIGNED_CERTIFICATE;
+
     return (
       <>
         {isAuthenticationTypeOAuth2 && isGrantTypeAuthorizationCode && (
@@ -913,6 +916,16 @@ class DatasourceRestAPIEditor extends React.Component<
             "DEFAULT",
           )}
         </FormInputContainer>
+        {isAuthenticationTypeOAuth2 && isConnectSelfSigned && (
+          <FormInputContainer data-replay-id={btoa("selfsignedcert")}>
+            {this.renderCheckboxViaFormControl(
+              "authentication.useSelfSignedCert",
+              "Use Self-Signed Certificate for Authorization requests",
+              "",
+              false,
+            )}
+          </FormInputContainer>
+        )}
       </>
     );
   };
@@ -1139,6 +1152,30 @@ class DatasourceRestAPIEditor extends React.Component<
         config={config}
         formName={DATASOURCE_REST_API_FORM}
         multipleConfig={[]}
+      />
+    );
+  }
+
+  renderCheckboxViaFormControl(
+    configProperty: string,
+    label: string,
+    placeholderText: string,
+    isRequired: boolean,
+  ) {
+    return (
+      <FormControl
+        config={{
+          id: "",
+          isValid: false,
+          isRequired: isRequired,
+          controlType: "CHECKBOX",
+          configProperty: configProperty,
+          label: label,
+          conditionals: {},
+          placeholderText: placeholderText,
+          formName: DATASOURCE_REST_API_FORM,
+        }}
+        formName={DATASOURCE_REST_API_FORM}
       />
     );
   }
