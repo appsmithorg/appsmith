@@ -809,7 +809,6 @@ function renderField(props: {
       });
       break;
     case FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD:
-      console.log(props);
       viewElement = (view as (props: TabViewProps) => JSX.Element)({
         activeObj: props.activeNavigateToTab,
         switches: props.navigateToSwitches,
