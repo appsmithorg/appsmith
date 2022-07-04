@@ -547,14 +547,14 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     InputStream getConfigInputStream(Plugin plugin, String fileName) throws IOException {
         String resourcePath = UQI_QUERY_EDITOR_BASE_FOLDER + "/" + fileName;
-        if (Set.of(
-                "google-sheets-plugin",
-                "mongo-plugin",
-                "amazons3-plugin",
-                "firestore-plugin"
-        ).contains(plugin.getPackageName())) {
-            return new URL(BASE_UQI_URL + plugin.getPackageName() + "/editor/" + fileName).openStream();
-        }
+//        if (Set.of(
+//                "google-sheets-plugin",
+//                "mongo-plugin",
+//                "amazons3-plugin",
+//                "firestore-plugin"
+//        ).contains(plugin.getPackageName())) {
+//            return new URL(BASE_UQI_URL + plugin.getPackageName() + "/editor/" + fileName).openStream();
+//        }
         return pluginManager
                 .getPlugin(plugin.getPackageName())
                 .getPluginClassLoader()
