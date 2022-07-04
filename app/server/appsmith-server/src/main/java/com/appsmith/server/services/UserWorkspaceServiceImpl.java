@@ -14,12 +14,12 @@ import org.springframework.stereotype.Service;
 public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl implements UserWorkspaceService {
 
     public UserWorkspaceServiceImpl(SessionUserService sessionUserService,
-                                       WorkspaceRepository workspaceRepository,
-                                       UserRepository userRepository,
-                                       UserDataRepository userDataRepository,
-                                       PolicyUtils policyUtils,
-                                       EmailSender emailSender,
-                                       UserDataService userDataService) {
+                                    WorkspaceRepository workspaceRepository,
+                                    UserRepository userRepository,
+                                    UserDataRepository userDataRepository,
+                                    PolicyUtils policyUtils,
+                                    EmailSender emailSender,
+                                    UserDataService userDataService) {
 
         super(sessionUserService, workspaceRepository, userRepository, userDataRepository, policyUtils, emailSender,
                 userDataService);
