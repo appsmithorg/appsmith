@@ -141,5 +141,7 @@
   "v2Key": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
   "v3Key": "6LcnzQgfAAAAAMwMlQLppqx7STvZ6pZJoDMXti8k",
   "invalidKey": "abc123",
-  "errorMsg": "Google Re-Captcha token generation failed! Please check the Re-captcha site key."
+  "errorMsg": "Google Re-Captcha token generation failed! Please check the Re-captcha site key.",
+  "treeTextBindingValue": "{{TreeSelect1.selectedOptionValue}}",
+  "multiSelectTextBindingValue": "{{MultiSelect1.selectedOptionValues}}"
 }
