@@ -67,12 +67,12 @@ function MainContainer() {
           id="app-body"
         >
           <Switch key={BUILDER_PATH}>
-            <SentryRoute component={WidgetsEditor} exact path={BUILDER_PATH} />
             <SentryRoute
               component={WidgetsEditor}
               exact
               path={BUILDER_PATH_DEPRECATED}
             />
+            <SentryRoute component={WidgetsEditor} exact path={BUILDER_PATH} />
             <SentryRoute
               component={WidgetsEditor}
               exact

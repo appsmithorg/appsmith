@@ -165,11 +165,11 @@ function AppRouter(props: {
                 path={VIEWER_PATH_DEPRECATED}
               />
               <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
-              <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
               <SentryRoute
                 component={EditorLoader}
                 path={BUILDER_CUSTOM_PATH}
               />
+              <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
               <SentryRoute
                 component={AppViewerLoader}
                 path={VIEWER_CUSTOM_PATH}
