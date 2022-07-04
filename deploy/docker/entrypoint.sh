@@ -319,7 +319,6 @@ else
 fi
 
 init_keycloak
-sleep 10
 check_setup_custom_ca_certificates
 mount_letsencrypt_directory
 
