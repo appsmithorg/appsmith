@@ -357,7 +357,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Mono<Map> getFormConfig(String pluginId) {
-//        if (!formCache.containsKey(pluginId)) {
+        if (!formCache.containsKey(pluginId)) {
             final Mono<Map> formMono = loadPluginResource(pluginId, "form.json")
                     .doOnError(throwable ->
                             // Remove this pluginId from the cache so it is tried again next time.
@@ -402,7 +402,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     });
 
             formCache.put(pluginId, resourceMono);
-//        }
+        }
 
         return formCache.get(pluginId);
     }
