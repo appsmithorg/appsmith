@@ -4,6 +4,7 @@ import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import lombok.Getter;
@@ -20,8 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static com.external.plugins.constants.FieldName.AGGREGATE;
@@ -46,11 +47,11 @@ public class Aggregate extends MongoCommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
 
         if (validConfigurationPresentInFormData(formData, AGGREGATE_PIPELINES)) {
-            this.pipeline = (String) getValueSafelyFromFormData(formData, AGGREGATE_PIPELINES);
+            this.pipeline = PluginUtils.getDataValueSafelyFromFormData(formData, AGGREGATE_PIPELINES, STRING_TYPE);
         }
 
         if (validConfigurationPresentInFormData(formData, AGGREGATE_LIMIT)) {
-            this.limit = (String) getValueSafelyFromFormData(formData, AGGREGATE_LIMIT);
+            this.limit = PluginUtils.getDataValueSafelyFromFormData(formData, AGGREGATE_LIMIT, STRING_TYPE);
         }
     }
 
@@ -150,11 +151,11 @@ public class Aggregate extends MongoCommand {
 
         Map<String, Object> configMap = new HashMap<>();
 
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
-        setValueSafelyInFormData(configMap, COLLECTION, collectionName);
-        setValueSafelyInFormData(configMap, AGGREGATE_PIPELINES, "[ {\"$sort\" : {\"_id\": 1} } ]");
-        setValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "10");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, collectionName);
+        setDataValueSafelyInFormData(configMap, AGGREGATE_PIPELINES, "[ {\"$sort\" : {\"_id\": 1} } ]");
+        setDataValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "10");
 
         String rawQuery = "{\n" +
                 "  \"aggregate\": \"" + collectionName + "\",\n" +
@@ -162,7 +163,7 @@ public class Aggregate extends MongoCommand {
                 "  \"limit\": 10,\n" +
                 "  \"explain\": \"true\"\n" + // Specifies to return the information on the processing of the pipeline. (This also avoids the use of the 'cursor' aggregate key according to Mongo doc)
                 "}\n";
-        setValueSafelyInFormData(configMap, BODY, rawQuery);
+        setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
         return Collections.singletonList(new DatasourceStructure.Template(
                 "Aggregate",

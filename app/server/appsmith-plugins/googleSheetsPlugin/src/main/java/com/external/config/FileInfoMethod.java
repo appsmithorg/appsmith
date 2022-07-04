@@ -23,11 +23,11 @@ import java.util.Map;
  * API reference: https://developers.google.com/drive/api/v3/reference/files/get
  * For allowed fields: https://developers.google.com/drive/api/v3/reference/files
  */
-public class InfoMethod implements Method {
+public class FileInfoMethod implements ExecutionMethod, TriggerMethod {
 
     ObjectMapper objectMapper;
 
-    public InfoMethod(ObjectMapper objectMapper) {
+    public FileInfoMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
@@ -81,7 +81,7 @@ public class InfoMethod implements Method {
     }
 
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig) {
+    public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Spreadsheet Url");
         }
@@ -90,7 +90,7 @@ public class InfoMethod implements Method {
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
+    public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
 
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_DRIVE_API_URL,
                 methodConfig.getSpreadsheetId() +
@@ -102,11 +102,11 @@ public class InfoMethod implements Method {
     }
 
     @Override
-    public JsonNode transformResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
-                AppsmithPluginError.PLUGIN_ERROR,
-                "Missing a valid response object.");
+                    AppsmithPluginError.PLUGIN_ERROR,
+                    "Missing a valid response object.");
         }
 
         Map<String, Object> responseObj = new HashMap<>();
@@ -114,11 +114,47 @@ public class InfoMethod implements Method {
             responseObj.put("sheets", methodConfig.getBody());
         }
         Iterator<String> fieldNames = response.fieldNames();
-        while(fieldNames.hasNext()) {
+        while (fieldNames.hasNext()) {
             String fieldName = fieldNames.next();
             responseObj.put(fieldName, response.get(fieldName));
         }
         return this.objectMapper.valueToTree(responseObj);
     }
 
+    @Override
+    public boolean validateTriggerMethodRequest(MethodConfig methodConfig) {
+        return this.validateExecutionMethodRequest(methodConfig);
+    }
+
+    @Override
+    public WebClient.RequestHeadersSpec<?> getTriggerClient(WebClient webClient, MethodConfig methodConfig) {
+        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
+                methodConfig.getSpreadsheetId());
+        uriBuilder.queryParam("fields", "sheets/properties");
+        return webClient.method(HttpMethod.GET)
+                .uri(uriBuilder.build(false).toUri())
+                .body(BodyInserters.empty());
+    }
+
+    @Override
+    public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig) {
+        if (response == null) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_ERROR,
+                    "Missing a valid response object.");
+        }
+
+        final JsonNode sheets = response.get("sheets");
+        List<Map<String, String>> sheetsList = new ArrayList<>();
+        for (JsonNode sheet : sheets) {
+            final JsonNode properties = sheet.get("properties");
+            if (!properties.get("title").asText().isEmpty()) {
+                sheetsList.add(Map.of(
+                        "label", properties.get("title").asText(),
+                        "value", properties.get("title").asText()
+                ));
+            }
+        }
+        return this.objectMapper.valueToTree(sheetsList);
+    }
 }

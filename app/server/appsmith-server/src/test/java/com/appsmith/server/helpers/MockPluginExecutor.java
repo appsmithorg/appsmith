@@ -50,7 +50,7 @@ public class MockPluginExecutor implements PluginExecutor {
     }
 
     @Override
-    public Mono<TriggerResultDTO> trigger(TriggerRequestDTO request) {
+    public Mono<TriggerResultDTO> trigger(Object connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
         return Mono.empty();
     }
 

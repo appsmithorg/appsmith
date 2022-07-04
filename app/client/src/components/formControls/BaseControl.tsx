@@ -46,7 +46,7 @@ export interface ControlData {
   id: string;
   label: string;
   alternateViewTypes?: ViewTypes[];
-  tooltipText?: string;
+  tooltipText?: string | Record<string, string>;
   configProperty: string;
   controlType: ControlType;
   propertyValue?: any;
@@ -64,12 +64,13 @@ export interface ControlData {
   isRequired?: boolean;
   conditionals?: ConditonalObject; // Object that contains the conditionals config
   hidden?: HiddenType;
-  placeholderText?: string;
+  placeholderText?: string | Record<string, string>;
   schema?: any;
   errorText?: string;
   showError?: boolean;
   encrypted?: boolean;
   subtitle?: string;
+  showLineNumbers?: boolean;
   url?: string;
   urlText?: string;
   logicalTypes?: string[];
@@ -80,11 +81,13 @@ export interface ControlData {
   identifier?: string;
   sectionName?: string;
   disabled?: boolean;
+  staticDependencyPathList?: string[];
 }
-export type FormConfig = Omit<ControlData, "configProperty"> & {
+export type FormConfigType = Omit<ControlData, "configProperty"> & {
   configProperty?: string;
-  children?: FormConfig[];
+  children?: FormConfigType[];
   options?: DropdownOption[];
+  fetchOptionsConditionally?: boolean;
 };
 
 export interface ControlFunctions {
