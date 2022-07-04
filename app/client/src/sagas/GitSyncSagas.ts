@@ -859,9 +859,8 @@ function* discardChanges() {
     );
     if (isValidResponse) {
       yield put(discardChangesSuccess(response?.data));
-      const pageId: string = yield select(getCurrentPageId);
       localStorage.setItem("GIT_DISCARD_CHANGES", "success");
-      window.open(builderURL({ pageId: pageId }), "_self");
+      location.reload();
     }
   } catch (error) {
     yield put(discardChangesFailure({ error }));
