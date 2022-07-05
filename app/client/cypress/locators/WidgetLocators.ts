@@ -5,7 +5,9 @@ export const WIDGET = {
   CURRENCY_INPUT_WIDGET: "currencyinputwidget",
   BUTTON_WIDGET: "buttonwidget",
   MULTISELECT_WIDGET: "multiselectwidgetv2",
-  TREESELECT_WIDGET: "singleselecttreewidget"
+  TREESELECT_WIDGET: "singleselecttreewidget",
+  TAB: "tabswidget",
+  TABLE: "tablewidget"
 } as const;
 
 export const PROPERTY_SELECTOR = {

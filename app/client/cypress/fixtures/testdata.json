@@ -143,5 +143,7 @@
   "invalidKey": "abc123",
   "errorMsg": "Google Re-Captcha token generation failed! Please check the Re-captcha site key.",
   "treeTextBindingValue": "{{TreeSelect1.selectedOptionValue}}",
-  "multiSelectTextBindingValue": "{{MultiSelect1.selectedOptionValues}}"
+  "multiSelectTextBindingValue": "{{MultiSelect1.selectedOptionValues}}",
+  "tabBindingValue": "{{Tabs1.selectedTab}}",
+  "tableBindingValue": "{{Table1.selectedRow.step}}"
 }

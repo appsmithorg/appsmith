@@ -23,9 +23,11 @@ const widgetsToTest = {
     widgetName: "MultiSelect1",
     widgetPrefixName: "MultiSelect1",
     textBindingValue: "{{MultiSelect1.selectedOptionValues}}",
-    WIDGET_TYPE : { 
-      action: () => { cy.toggleJsAndUpdate() }
-   },
+    WIDGET_TYPE: {
+      action: () => {
+        cy.toggleJsAndUpdate();
+      },
+    },
   },
   [WIDGET.TREESELECT_WIDGET]: {
     testCases: [
@@ -57,7 +59,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
     it("2. Bind Button on click  and Text widget content", () => {
       // Set onClick action, storing value
       cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
-      
+
       cy.get(PROPERTY_SELECTOR.onClick)
         .find(".t--js-toggle")
         .click();
