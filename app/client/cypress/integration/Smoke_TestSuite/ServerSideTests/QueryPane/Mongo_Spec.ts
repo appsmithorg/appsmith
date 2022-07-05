@@ -651,6 +651,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
+    ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("AuthorNAwards"));
