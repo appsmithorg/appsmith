@@ -45,7 +45,6 @@ describe("Validate Mongo CRUD with JSON Form", () => {
       cy.wrap("Mongo " + guid).as("dsName");
     });
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.WaitUntilToastDisappear("datasource updated successfully");
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "pokemon");
     GenerateCRUDNValidateDeployPage(
