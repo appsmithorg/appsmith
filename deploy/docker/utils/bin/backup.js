@@ -57,7 +57,7 @@ async function run() {
     errorCode = 1;
     await logger.backup_error(err.stack);
 
-    if (command_args.includes('--error_mail')) {
+    if (command_args.includes('--error-mail')) {
       await mailer.sendBackupErrorToAdmins(err, timestamp);
     }
   } finally {
