@@ -1,5 +1,9 @@
 import DataTreeEvaluator from "../DataTreeEvaluator";
-import { asyncTagUnevalTree, unEvalTree } from "./mockData/mockUnEvalTree";
+import {
+  asyncTagUnevalTree,
+  unEvalTree,
+  unEvalTree2,
+} from "./mockData/mockUnEvalTree";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { DataTreeDiff } from "workers/evaluationUtils";
 import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
@@ -372,6 +376,55 @@ describe("DataTreeEvaluator", () => {
           dataTreeEvaluator.dependencyMap["Api1.data[2][2]"],
         ).toStrictEqual(undefined);
         expect(dataTreeEvaluator.dependencyMap["Text1.text"]).toStrictEqual([]);
+      });
+    });
+  });
+
+  describe("triggerfield dependency map", () => {
+    beforeEach(() => {
+      // @ts-expect-error: Types are not available
+      dataTreeEvaluator.createFirstTree(unEvalTree2 as DataTree);
+    });
+    it("Creates correct triggerFieldDependencyMap", () => {
+      expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
+        "Button3.onClick": ["Api1", "Button2", "Api2"],
+        "Button2.onClick": ["Api2"],
+      });
+    });
+    it("Creates correct triggerFieldInverseDependencyMap", () => {
+      expect(dataTreeEvaluator.triggerFieldInverseDependencyMap).toEqual({
+        Api1: ["Button3.onClick"],
+        Api2: ["Button3.onClick", "Button2.onClick"],
+        Button2: ["Button3.onClick"],
+      });
+    });
+    it("Correctly updates triggerFieldDependencyMap and triggerFieldInverseDependencyMap", () => {
+      const newUnEvalTree = ({ ...unEvalTree2 } as unknown) as DataTree;
+      // delete Api2
+      delete newUnEvalTree["Api2"];
+      dataTreeEvaluator.updateDataTree(newUnEvalTree);
+      expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
+        "Button3.onClick": ["Api1", "Button2"],
+        "Button2.onClick": [],
+      });
+      expect(dataTreeEvaluator.triggerFieldInverseDependencyMap).toEqual({
+        Api1: ["Button3.onClick"],
+        Button2: ["Button3.onClick"],
+      });
+
+      // Add Api2
+      // @ts-expect-error: Types are not available
+      newUnEvalTree["Api2"] = { ...unEvalTree2 }["Api2"];
+      dataTreeEvaluator.updateDataTree(newUnEvalTree);
+      expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
+        "Button3.onClick": ["Api1", "Button2", "Api2"],
+        "Button2.onClick": ["Api2"],
+      });
+
+      expect(dataTreeEvaluator.triggerFieldInverseDependencyMap).toEqual({
+        Api1: ["Button3.onClick"],
+        Api2: ["Button3.onClick", "Button2.onClick"],
+        Button2: ["Button3.onClick"],
       });
     });
   });
