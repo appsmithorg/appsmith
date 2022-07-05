@@ -8,11 +8,9 @@ describe("FirstTimeUserOnboarding", function() {
     });
   });
 
-  it("onboarding flow - should check page entitiy selection in explorer", function() {
+  it("onboarding flow - should check preview mode", function() {
     cy.get(OnboardingLocator.introModalBuild).click();
-    cy.get(".t--entity-name:contains(Page1)")
-      .trigger("mouseover")
-      .click({ force: true });
+    cy.get(OnboardingLocator.previewModeToggle).click();
     cy.get(OnboardingLocator.dropTarget).should("be.visible");
   });
 

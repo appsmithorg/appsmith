@@ -13,6 +13,7 @@
   "datasourcePage": ".t--integrationsHomePage",
   "datasourceMock": ".t--mock-datasource",
   "createQuery": ".t--create-query",
+  "previewModeToggle": ".t--switch-preview-mode-toggle",
   "widgetSidebar": ".t--widget-sidebar",
   "snipingBanner": ".t--sniping-mode-banner",
   "snipingTextWidget": ".t--snipeable-textwidget",
