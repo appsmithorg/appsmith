@@ -7,7 +7,7 @@ import { createReducer } from "utils/AppsmithUtils";
 const initialState: OnboardingState = {
   // Signposting
   inOnboardingWidgetSelection: false,
-  enableFirstTimeUserOnboarding: true,
+  enableFirstTimeUserOnboarding: false,
   forceOpenWidgetPanel: false,
   firstTimeUserOnboardingApplicationId: "",
   firstTimeUserOnboardingComplete: false,
