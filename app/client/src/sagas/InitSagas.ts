@@ -76,7 +76,7 @@ export function* failFastApiCalls(
   return true;
 }
 
-function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
+export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
   try {
     const engine: AppEngine = AppEngineFactory.create(
       action.payload.mode,
