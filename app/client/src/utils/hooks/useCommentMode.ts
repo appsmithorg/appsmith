@@ -1,19 +1,23 @@
 import { matchBuilderPath, matchViewerPath } from "constants/routes";
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getCommentMode } from "selectors/commentsSelectors";
 
 export const useCommentMode = () => {
   const commentMode = useSelector(getCommentMode);
-  const isCommentMode = useRef<boolean>(false);
+  const [isCommentMode, setCommentMode] = useState(commentMode);
   useEffect(() => {
     const pathName = window.location.pathname;
     const onEditorOrViewerPage =
       matchBuilderPath(pathName) || matchViewerPath(pathName);
 
-    if ((window as any).isCommentModeForced) isCommentMode.current = true;
-    else isCommentMode.current = commentMode && !!onEditorOrViewerPage;
-  }, [window.location.pathname, commentMode]);
+    if ((window as any).isCommentModeForced) setCommentMode(true);
+    else setCommentMode(commentMode && !!onEditorOrViewerPage);
+  }, [
+    window.location.pathname,
+    commentMode,
+    (window as any).isCommentModeForced,
+  ]);
 
-  return isCommentMode.current;
+  return isCommentMode;
 };
