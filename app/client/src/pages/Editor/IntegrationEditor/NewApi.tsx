@@ -6,7 +6,6 @@ import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import PlusLogo from "assets/images/Plus-logo.svg";
-import GraphQLLogo from "assets/images/Graphql-logo.svg";
 import { Plugin } from "api/PluginApi";
 import { createNewApiAction } from "actions/apiPaneActions";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
@@ -309,9 +308,9 @@ function NewApiScreen(props: Props) {
           <CardContentWrapper>
             <div className="content-icon-wrapper">
               <img
-                alt="GRAPHQL"
-                className="graphqlImage t--graphqlImage content-icon"
-                src={GraphQLLogo}
+                alt="New"
+                className="curlImage t--plusImage content-icon"
+                src={PlusLogo}
               />
             </div>
             <p className="textBtn">Create new GraphQL API</p>
