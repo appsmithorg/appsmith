@@ -41,8 +41,7 @@ const TabsWrapper = styled.div<{
     flex-direction: ${(props) => (!!props.vertical ? "column" : "row")};
     align-items: ${(props) => (!!props.vertical ? "stretch" : "center")};
     border-bottom: none;
-    gap: ${(props) =>
-      !props.vertical ? `${props.theme.spaces[12] + 2}px` : 0};
+    gap: ${(props) => (!props.vertical ? `${props.theme.spaces[12]}px` : 0)};
     color: ${(props) => props.theme.colors.tabs.normal};
     path {
       fill: ${(props) => props.theme.colors.tabs.icon};
@@ -135,8 +134,8 @@ const TabsWrapper = styled.div<{
 
 export const TabTitle = styled.span<{ responseViewer?: boolean }>`
   font-size: ${(props) => props.theme.typography.h4.fontSize}px;
-  font-weight: ${(props) => props.theme.fontWeights[1]};
-  line-height: ${(props) => props.theme.spaces[11]}px;
+  font-weight: ${(props) => props.theme.fontWeights[2]};
+  line-height: ${(props) => props.theme.spaces[7]}px;
   letter-spacing: ${(props) => props.theme.typography.h4.letterSpacing}px;
   margin: 0;
   display: flex;
