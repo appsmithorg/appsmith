@@ -356,6 +356,12 @@ Cypress.Commands.add("createPostgresDatasource", () => {
   cy.testSaveDatasource();
 });
 
+// this can be modified further when google sheets automation is done.
+Cypress.Commands.add("createGoogleSheetsDatasource", () => {
+  cy.NavigateToDatasourceEditor();
+  cy.get(datasourceEditor.GoogleSheets).click();
+});
+
 Cypress.Commands.add("deleteDatasource", (datasourceName) => {
   cy.NavigateToQueryEditor();
   cy.get(pages.integrationActiveTab)
