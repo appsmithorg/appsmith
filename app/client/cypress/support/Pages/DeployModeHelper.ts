@@ -10,14 +10,15 @@ export class DeployMode {
     }`;
   _jsonFormRadioFieldByName = (fieldName: string) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='radiogroup-container']//input`;
-    _jsonFormDatepickerFieldByName = (fieldName: string) =>
+  _jsonFormDatepickerFieldByName = (fieldName: string) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='datepicker-container']//input`;
   _jsonSelectDropdown = "button.select-button";
-  _clearDropdown = "button.select-button span.cancel-icon"
+  _clearDropdown = "button.select-button span.cancel-icon";
 
   //refering PublishtheApp from command.js
   public DeployApp(
-    eleToCheckInDeployPage: string = this.locator._backToEditor, toCheckFailureToast= true
+    eleToCheckInDeployPage: string = this.locator._backToEditor,
+    toCheckFailureToast = true,
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
     // Wait before publish
@@ -40,7 +41,8 @@ export class DeployMode {
 
     this.agHelper.WaitUntilEleAppear(eleToCheckInDeployPage);
     localStorage.setItem("inDeployedMode", "true");
-    toCheckFailureToast && this.agHelper.AssertElementAbsence(this.locator._toastMsg);//Validating bug - 14141 + 14252
+    toCheckFailureToast &&
+      this.agHelper.AssertElementAbsence(this.locator._toastMsg); //Validating bug - 14141 + 14252
     this.agHelper.Sleep(2000); //for Depoy page to settle!
   }
 
@@ -54,7 +56,7 @@ export class DeployMode {
     });
   }
 
-   public NavigateBacktoEditor() {
+  public NavigateBacktoEditor() {
     cy.get(this.locator._backToEditor).click();
     this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");
