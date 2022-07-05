@@ -31,7 +31,7 @@ export class DataSources {
   _dropdownTitle = (ddTitle: string) =>
     "//p[contains(text(),'" +
     ddTitle +
-    "')]/parent::label/following-sibling::div/div/div";
+    "')]/ancestor::label/parent::div/following-sibling::div/div/div";
   _reconnectModal = "div.reconnect-datasource-modal";
   _activeDSListReconnectModal = (dbName: string) =>
     "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']";
@@ -39,6 +39,8 @@ export class DataSources {
   _newDatabases = "#new-datasources";
   _selectDatasourceDropdown = "[data-cy=t--datasource-dropdown]";
   _selectTableDropdown = "[data-cy=t--table-dropdown]";
+  _selectSheetNameDropdown = "[data-cy=t--sheetName-dropdown]";
+  _selectTableHeaderIndexInput = "[data-cy=t--tableHeaderIndex]";
   _dropdownOption = ".bp3-popover-content .t--dropdown-option";
   _generatePageBtn = "[data-cy=t--generate-page-form-submit]";
   _selectedRow = ".tr.selected-row";
