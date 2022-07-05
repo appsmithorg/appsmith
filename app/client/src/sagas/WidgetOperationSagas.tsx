@@ -143,8 +143,9 @@ import { getSlidingCanvasName } from "constants/componentClassNameConstants";
 import { matchGeneratePagePath } from "constants/routes";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
-import { generateDynamicHeightComputationTree } from "ce/actions/dynamicHeightActions";
+import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import { updateMultipleWidgetProperties } from "actions/widgetActions";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -789,13 +790,14 @@ function* updateCanvasSize(
     // Check this out when non canvas widgets are updating snapRows
     // erstwhile: Math.round((rows * props.snapRowSpace) / props.parentRowSpace),
     yield put(
-      batchUpdateWidgetProperty(
-        canvasWidgetId,
-        {
-          modify: { bottomRow: newBottomRow },
-        },
-        false,
-      ),
+      updateMultipleWidgetProperties({
+        [canvasWidgetId]: [
+          {
+            propertyPath: "bottomRow",
+            propertyValue: newBottomRow,
+          },
+        ],
+      }),
     );
   }
 }

@@ -4,8 +4,10 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { setDynamicHeightLayoutTree } from "actions/canvasActions";
 import { UpdateWidgetDynamicHeightPayload } from "actions/controlActions";
-import { checkContainersForDynamicHeightUpdate } from "ce/actions/dynamicHeightActions";
+import { updateMultipleWidgetProperties } from "actions/widgetActions";
+import { checkContainersForDynamicHeightUpdate } from "actions/dynamicHeightActions";
 import {
+  CANVAS_MIN_HEIGHT,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   WidgetHeightLimits,
@@ -260,19 +262,20 @@ export function* updateWidgetDynamicHeightSaga(
             // For each child widget id.
             for (const childWidgetId of children) {
               // If we've changed the widget's bottomRow via computations
-              if (changesSoFar.hasOwnProperty(childWidgetId)) {
-                minHeightInRows = Math.max(
-                  minHeightInRows,
-                  changesSoFar[childWidgetId].bottomRow,
-                );
-                // If we need to get the existing bottomRow from the state
-              } else {
-                const childWidget: FlattenedWidgetProps =
-                  stateWidgets[childWidgetId];
+              const { detachFromLayout } = stateWidgets[childWidgetId];
+              // We ignore widgets like ModalWidget which don't occupy parent's space.
+              // detachFromLayout helps us identify such widgets
+              if (!detachFromLayout) {
+                if (changesSoFar.hasOwnProperty(childWidgetId)) {
+                  minHeightInRows = Math.max(
+                    minHeightInRows,
+                    changesSoFar[childWidgetId].bottomRow,
+                  );
+                  // If we need to get the existing bottomRow from the state
+                } else {
+                  const childWidget: FlattenedWidgetProps =
+                    stateWidgets[childWidgetId];
 
-                // We ignore widgets like ModalWidget which don't occupy parent's space.
-                // detachFromLayout helps us identify such widgets
-                if (!childWidget.detachFromLayout) {
                   minHeightInRows = Math.max(
                     minHeightInRows,
                     childWidget.bottomRow,
@@ -280,6 +283,8 @@ export function* updateWidgetDynamicHeightSaga(
                 }
               }
             }
+
+            minHeightInRows = Math.ceil(minHeightInRows);
 
             // Add extra rows, this is to accommodate for padding and margins in the parent
             minHeightInRows =
@@ -363,12 +368,14 @@ export function* updateWidgetDynamicHeightSaga(
                 {
                   propertyPath: "height",
                   propertyValue:
-                    minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                    (minHeightInRows + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+                    GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
                 },
                 {
                   propertyPath: "minHeight",
                   propertyValue:
-                    minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                    (minHeightInRows + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+                    GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
                 },
               ];
             }
@@ -426,22 +433,28 @@ export function* updateWidgetDynamicHeightSaga(
       stateWidgets[MAIN_CONTAINER_WIDGET_ID].children || [];
     // Let's consider the minimum Canvas Height
     // TODO (abhinav): Move this value (100) to WidgetConstants or some other such place
-    let maxCanvasHeight = 100;
+    let maxCanvasHeight = CANVAS_MIN_HEIGHT;
     // The same logic to compute the minimum height of the MainContainer
     // Based on how many rows are being occuped by children.
     for (const childWidgetId of mainCanvasChildren) {
       if (changesSoFar.hasOwnProperty(childWidgetId)) {
-        maxCanvasHeight = Math.max(
-          maxCanvasHeight,
-          changesSoFar[childWidgetId].bottomRow *
-            GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-        );
+        const { detachFromLayout } = stateWidgets[childWidgetId];
+        if (!detachFromLayout) {
+          maxCanvasHeight = Math.max(
+            maxCanvasHeight,
+            changesSoFar[childWidgetId].bottomRow *
+              GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          );
+        }
       } else {
         const childWidget = stateWidgets[childWidgetId];
-        maxCanvasHeight = Math.max(
-          maxCanvasHeight,
-          childWidget.bottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-        );
+        const detachFromLayout = stateWidgets[childWidgetId];
+        if (!detachFromLayout) {
+          maxCanvasHeight = Math.max(
+            maxCanvasHeight,
+            childWidget.bottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          );
+        }
       }
     }
 
@@ -476,10 +489,7 @@ export function* updateWidgetDynamicHeightSaga(
     // Push all updates to the CanvasWidgetsReducer.
     // Note that we're not calling `UPDATE_LAYOUT`
     // as we don't need to trigger an eval
-    yield put({
-      type: ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
-      payload: widgetsToUpdate,
-    });
+    yield put(updateMultipleWidgetProperties(widgetsToUpdate));
 
     log.debug(
       "Dynamic Height: Overall time taken: ",

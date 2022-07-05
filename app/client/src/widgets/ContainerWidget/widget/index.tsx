@@ -170,9 +170,7 @@ class ContainerWidget extends BaseWidget<
     const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     childWidgetData.rightColumn = componentWidth;
-    childWidgetData.bottomRow = this.props.shouldScrollContents
-      ? childWidgetData.bottomRow
-      : componentHeight;
+    childWidgetData.bottomRow = componentHeight;
     childWidgetData.minHeight = componentHeight;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.shouldScrollContents = false;

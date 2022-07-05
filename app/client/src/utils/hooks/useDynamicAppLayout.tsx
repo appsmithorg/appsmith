@@ -137,9 +137,7 @@ export const useDynamicAppLayout = () => {
     const { width: rightColumn } = mainCanvasProps || {};
 
     if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
-      dispatch(
-        updateCanvasLayoutAction(calculatedWidth, mainCanvasProps?.height),
-      );
+      dispatch(updateCanvasLayoutAction(calculatedWidth));
     }
   };
 
@@ -153,9 +151,7 @@ export const useDynamicAppLayout = () => {
    */
   useEffect(() => {
     if (calculatedMinHeight !== mainCanvasProps?.height) {
-      dispatch(
-        updateCanvasLayoutAction(mainCanvasProps?.width, calculatedMinHeight),
-      );
+      dispatch(updateCanvasLayoutAction(mainCanvasProps?.width));
     }
   }, [screenHeight, mainCanvasProps?.height]);
 

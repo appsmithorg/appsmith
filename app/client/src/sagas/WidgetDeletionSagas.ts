@@ -37,7 +37,7 @@ import {
   isExploringSelector,
 } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
-import { generateDynamicHeightComputationTree } from "ce/actions/dynamicHeightActions";
+import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -211,6 +211,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
         yield put(updateAndSaveLayout(finalWidgets));
+        yield put(generateDynamicHeightComputationTree(true));
         const analyticsEvent = isShortcut
           ? "WIDGET_DELETE_VIA_SHORTCUT"
           : "WIDGET_DELETE";
@@ -278,6 +279,8 @@ function* deleteAllSelectedWidgetsSaga(
     resizeCanvasToLowestWidget(finalWidgets, parentId);
 
     yield put(updateAndSaveLayout(finalWidgets));
+    yield put(generateDynamicHeightComputationTree(true));
+
     yield put(selectWidgetInitAction(""));
     const bulkDeleteKey = selectedWidgets.join(",");
     if (!disallowUndo) {

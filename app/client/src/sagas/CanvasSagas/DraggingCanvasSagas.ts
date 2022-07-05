@@ -21,7 +21,7 @@ import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
-import { generateDynamicHeightComputationTree } from "ce/actions/dynamicHeightActions";
+import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -118,6 +118,7 @@ function* addWidgetAndMoveWidgetsSaga(
       throw Error;
     }
     yield put(updateAndSaveLayout(updatedWidgetsOnAddAndMove));
+    yield put(generateDynamicHeightComputationTree(true));
     yield put({
       type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
       payload: [newWidget.newWidgetId],
