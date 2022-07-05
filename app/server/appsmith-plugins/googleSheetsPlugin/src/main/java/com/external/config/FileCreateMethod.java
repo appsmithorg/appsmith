@@ -35,16 +35,16 @@ import java.util.stream.StreamSupport;
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/create
  */
 @Slf4j
-public class CreateMethod implements Method {
+public class FileCreateMethod implements ExecutionMethod {
 
     ObjectMapper objectMapper;
 
-    public CreateMethod(ObjectMapper objectMapper) {
+    public FileCreateMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig) {
+    public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetName() == null || methodConfig.getSpreadsheetName().isBlank()) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
@@ -54,7 +54,7 @@ public class CreateMethod implements Method {
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
+    public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
 
         Spreadsheet spreadsheet = new Spreadsheet();
         spreadsheet.setProperties(new SpreadsheetProperties().set("title", methodConfig.getSpreadsheetName()));
