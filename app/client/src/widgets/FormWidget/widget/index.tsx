@@ -67,7 +67,7 @@ class FormWidget extends ContainerWidget {
 
   getChildContainer = () => {
     const { childWidgets = [] } = this.props;
-    return childWidgets[0];
+    return { ...childWidgets[0] };
   };
 
   updateFormData() {
@@ -96,12 +96,16 @@ class FormWidget extends ContainerWidget {
 
     if (childContainer.children) {
       const isInvalid = this.checkInvalidChildren(childContainer.children);
-      childContainer.children.forEach((grandChild: WidgetProps) => {
-        if (isInvalid) grandChild.isFormValid = false;
-        // Add submit and reset handlers
-        grandChild.onReset = this.handleResetInputs;
-        grandChild.skipWidgetPropsHydration = true;
-      });
+      childContainer.children = childContainer.children.map(
+        (child: WidgetProps) => {
+          const grandChild = { ...child };
+          if (isInvalid) grandChild.isFormValid = false;
+          // Add submit and reset handlers
+          grandChild.onReset = this.handleResetInputs;
+          grandChild.skipWidgetPropsHydration = true;
+          return grandChild;
+        },
+      );
     }
 
     // TODO(Ashit): Fix this

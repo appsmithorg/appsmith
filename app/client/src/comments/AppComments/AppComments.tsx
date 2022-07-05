@@ -1,12 +1,11 @@
 import { tailwindLayers } from "constants/Layers";
 import React from "react";
-import { useSelector } from "react-redux";
-import { commentModeSelector } from "selectors/commentsSelectors";
+import { useCommentMode } from "utils/hooks/useCommentMode";
 import AppCommentsHeader from "./AppCommentsHeader";
 import AppCommentThreads from "./AppCommentThreads";
 
 function AppComments() {
-  const isCommentMode = useSelector(commentModeSelector);
+  const isCommentMode = useCommentMode();
 
   if (!isCommentMode) return null;
 

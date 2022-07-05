@@ -24,6 +24,10 @@ export const unpublishedCommentThreadSelector = (refId: string) => (
   state: AppState,
 ) => state.ui.comments.unpublishedCommentThreads[refId];
 
+export const getCommentMode = (state: AppState) =>
+  state.ui.comments?.isCommentMode;
+
+//TODO, remove logic from below selector
 export const commentModeSelector = (state: AppState) => {
   const pathName = window.location.pathname;
   const onEditorOrViewerPage =

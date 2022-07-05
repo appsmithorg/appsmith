@@ -3,7 +3,7 @@ import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import { isEmpty, throttle } from "lodash";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
+import { getWidgetSpacesSelectorForContainerWhileDraggingOrResizing } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import {
   CollidingSpace,
@@ -70,7 +70,9 @@ export const useReflow = (
 
   const isReflowing = useRef<boolean>(false);
 
-  const reflowSpacesSelector = getWidgetSpacesSelectorForContainer(parentId);
+  const reflowSpacesSelector = getWidgetSpacesSelectorForContainerWhileDraggingOrResizing(
+    parentId,
+  );
   const widgetSpaces: WidgetSpace[] = useSelector(reflowSpacesSelector) || [];
 
   const prevPositions = useRef<OccupiedSpace[] | undefined>(OGPositions);

@@ -132,10 +132,11 @@ export const updateAndSaveLayout = (
   widgets: CanvasWidgetsReduxState,
   isRetry?: boolean,
   shouldReplay?: boolean,
+  updatedWidgetIds?: string[],
 ) => {
   return {
     type: ReduxActionTypes.UPDATE_LAYOUT,
-    payload: { widgets, isRetry, shouldReplay },
+    payload: { widgets, isRetry, shouldReplay, updatedWidgetIds },
   };
 };
 

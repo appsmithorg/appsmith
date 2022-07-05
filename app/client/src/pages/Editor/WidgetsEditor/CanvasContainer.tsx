@@ -26,6 +26,7 @@ import { IconSize } from "components/ads/Icon";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
+import { isEqual } from "lodash";
 
 const Container = styled.section<{
   background: string;
@@ -49,9 +50,8 @@ function CanvasContainer() {
   const dispatch = useDispatch();
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
-  // const widgets = useSelector(getCanvasWidgetDsl);
   const canvasWidth = useSelector(getCanvasWidth);
-  const widgetsStructure = useSelector(getCanvasWidgetsStructure);
+  const widgetsStructure = useSelector(getCanvasWidgetsStructure, isEqual);
   const pages = useSelector(getViewModePageList);
   const theme = useSelector(getCurrentThemeDetails);
   const isPreviewMode = useSelector(previewModeSelector);

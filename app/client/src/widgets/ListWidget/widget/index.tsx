@@ -75,7 +75,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
     this.props.updateWidgetMetaProperty(
       "templateBottomRow",
-      get(this.props.children, "0.children.0.bottomRow"),
+      get(this.props.childWidgets, "0.children.0.bottomRow"),
     );
 
     // generate childMetaPropertyMap
@@ -255,12 +255,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     if (
-      get(this.props.children, "0.children.0.bottomRow") !==
-      get(prevProps.children, "0.children.0.bottomRow")
+      get(this.props.childWidgets, "0.children.0.bottomRow") !==
+      get(prevProps.childWidgets, "0.children.0.bottomRow")
     ) {
       this.props.updateWidgetMetaProperty(
         "templateBottomRow",
-        get(this.props.children, "0.children.0.bottomRow"),
+        get(this.props.childWidgets, "0.children.0.bottomRow"),
         {
           triggerPropertyName: "onPageSizeChange",
           dynamicString: this.props.onPageSizeChange,
@@ -811,7 +811,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const { pageNo, serverSidePaginationEnabled } = this.props;
     const { perPage, shouldPaginate } = this.shouldPaginate();
     const templateBottomRow = get(
-      this.props.children,
+      this.props.childWidgets,
       "0.children.0.bottomRow",
     );
     const templateHeight =

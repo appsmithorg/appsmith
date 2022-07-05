@@ -1,12 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useCallback, useEffect, useState } from "react";
-import { commentModeSelector } from "selectors/commentsSelectors";
+import { useCommentMode } from "utils/hooks/useCommentMode";
 import { snipingModeSelector } from "selectors/editorSelectors";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
-  const isCommentMode = useSelector(commentModeSelector);
+  const isCommentMode = useCommentMode();
   const isSnipingMode = useSelector(snipingModeSelector);
 
   // TODO(abhinav/Satish): Performance bottleneck
@@ -36,7 +36,7 @@ export const useShowPropertyPane = () => {
 
 export const useShowTableFilterPane = () => {
   const dispatch = useDispatch();
-  const isCommentMode = useSelector(commentModeSelector);
+  const isCommentMode = useCommentMode();
 
   return useCallback(
     (widgetId?: string, callForDragOrResize?: boolean, force = false) => {

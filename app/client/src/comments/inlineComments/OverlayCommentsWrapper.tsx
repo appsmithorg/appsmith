@@ -1,8 +1,8 @@
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import Comments from "./Comments";
-import { commentModeSelector } from "selectors/commentsSelectors";
+import { useCommentMode } from "utils/hooks/useCommentMode";
 import {
   createUnpublishedCommentThreadRequest,
   dragCommentThread,
@@ -70,7 +70,7 @@ function OverlayCommentsWrapper(props: Props) {
   );
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const isCommentMode = useSelector(commentModeSelector);
+  const isCommentMode = useCommentMode();
   const dispatch = useDispatch();
 
   const proceedToNextTourStep = useProceedToNextTourStep({

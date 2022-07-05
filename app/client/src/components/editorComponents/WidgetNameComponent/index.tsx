@@ -20,7 +20,7 @@ import {
 } from "selectors/editorSelectors";
 import { bindDataToWidget } from "actions/propertyPaneActions";
 import { hideErrors } from "selectors/debuggerSelectors";
-import { commentModeSelector } from "selectors/commentsSelectors";
+import { useCommentMode } from "utils/hooks/useCommentMode";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 
 const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
@@ -57,7 +57,7 @@ type WidgetNameComponentProps = {
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const dispatch = useDispatch();
-  const isCommentMode = useSelector(commentModeSelector);
+  const isCommentMode = useCommentMode();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   const showTableFilterPane = useShowTableFilterPane();

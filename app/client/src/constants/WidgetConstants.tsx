@@ -138,6 +138,13 @@ export const WIDGET_STATIC_PROPS = {
   noContainerOffset: false,
 };
 
+export const WIDGET_DSL_STRUCTURE_PROPS = {
+  children: true,
+  type: true,
+  widgetId: true,
+  parentId: true,
+};
+
 export type TextSize = keyof typeof TextSizes;
 
 export const DEFAULT_FONT_SIZE = THEMEING_TEXT_SIZES.base;

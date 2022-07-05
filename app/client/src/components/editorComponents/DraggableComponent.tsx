@@ -9,7 +9,7 @@ import {
   useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
-import { commentModeSelector } from "selectors/commentsSelectors";
+import { useCommentMode } from "utils/hooks/useCommentMode";
 import {
   previewModeSelector,
   snipingModeSelector,
@@ -71,7 +71,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to set a widget as focused/selected
   const { focusWidget, selectWidget } = useWidgetSelection();
 
-  const isCommentMode = useSelector(commentModeSelector);
+  const isCommentMode = useCommentMode();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging

@@ -1,7 +1,6 @@
 import { debounce, get } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useMemo } from "react";
-import { getWidgets } from "sagas/selectors";
 
 import {
   DefaultLayoutType,
@@ -22,8 +21,10 @@ import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 import { getAppMode } from "selectors/entitiesSelector";
 import { updateCanvasLayoutAction } from "actions/editorActions";
-import { calculateDynamicHeight } from "utils/DSLMigrations";
-import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
+import {
+  getIsCanvasInitialized,
+  getMainCanvasCalculatedMinHeight,
+} from "selectors/mainCanvasSelectors";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -34,19 +35,12 @@ export const useDynamicAppLayout = () => {
   const isExplorerPinned = useSelector(getExplorerPinned);
   const appMode: APP_MODE | undefined = useSelector(getAppMode);
   const { height: screenHeight, width: screenWidth } = useWindowSizeHooks();
+  const calculatedMinHeight = useSelector(getMainCanvasCalculatedMinHeight);
   const mainCanvasProps = useSelector(getMainCanvasProps);
   const isPreviewMode = useSelector(previewModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
-  const canvasWidgets = useSelector(getWidgets);
   const isCanvasInitialized = useSelector(getIsCanvasInitialized);
   const appLayout = useSelector(getCurrentApplicationLayout);
-
-  /**
-   * calculates min height
-   */
-  const calculatedMinHeight = useMemo(() => {
-    return calculateDynamicHeight(canvasWidgets, mainCanvasProps?.height);
-  }, [mainCanvasProps]);
 
   /**
    * app layout range i.e minWidth and maxWidth for the current layout

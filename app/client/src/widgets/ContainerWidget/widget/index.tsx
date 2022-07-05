@@ -163,7 +163,7 @@ class ContainerWidget extends BaseWidget<
   };
 
   renderChildWidget(childWidgetData: CanvasWidgetStructure): React.ReactNode {
-    const childWidget = childWidgetData;
+    const childWidget = { ...childWidgetData };
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
 

@@ -14,10 +14,10 @@ import {
   showCommentsIntroCarousel,
 } from "actions/commentActions";
 import {
-  commentModeSelector,
   getAppCommentThreads,
   getCommentsState,
 } from "selectors/commentsSelectors";
+import { useCommentMode } from "utils/hooks/useCommentMode";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useLocation } from "react-router";
 import history from "utils/history";
@@ -114,7 +114,7 @@ const Container = styled.div`
 const useUpdateCommentMode = async (currentUser?: User) => {
   const location = useLocation();
   const dispatch = useDispatch();
-  const isCommentMode = useSelector(commentModeSelector);
+  const isCommentMode = useCommentMode();
   const setCommentModeInStore = useCallback(
     (updatedIsCommentMode) =>
       dispatch(setCommentModeAction(updatedIsCommentMode)),
@@ -329,7 +329,7 @@ function ToggleCommentModeButton({
 }: ToggleCommentModeButtonProps) {
   const dispatch = useDispatch();
   const isExploring = useSelector(isExploringSelector);
-  const isCommentMode = useSelector(commentModeSelector);
+  const isCommentMode = useCommentMode();
   const isPreviewMode = useSelector(previewModeSelector);
   const currentUser = useSelector(getCurrentUser);
   const appId = useSelector(getCurrentApplicationId) || "";

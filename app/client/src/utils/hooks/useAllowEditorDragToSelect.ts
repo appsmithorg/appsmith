@@ -1,5 +1,5 @@
 import { AppState } from "reducers";
-import { commentModeSelector } from "selectors/commentsSelectors";
+import { useCommentMode } from "utils/hooks/useCommentMode";
 import {
   previewModeSelector,
   snipingModeSelector,
@@ -31,7 +31,7 @@ export const useAllowEditorDragToSelect = () => {
 
   // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging || !!isSelecting;
-  const isCommentMode = useSelector(commentModeSelector);
+  const isCommentMode = useCommentMode();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
 

@@ -51,7 +51,6 @@ import { setExplorerPinnedAction } from "actions/explorerActions";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath, matchGeneratePagePath } from "constants/routes";
-import { commentModeSelector } from "selectors/commentsSelectors";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -420,7 +419,6 @@ const mapStateToProps = (state: AppState) => ({
   selectedWidgets: getSelectedWidgets(state),
   isDebuggerOpen: state.ui.debugger.isOpen,
   appMode: getAppMode(state),
-  isCommentMode: commentModeSelector(state),
   isPreviewMode: previewModeSelector(state),
   isExplorerPinned: getExplorerPinned(state),
 });

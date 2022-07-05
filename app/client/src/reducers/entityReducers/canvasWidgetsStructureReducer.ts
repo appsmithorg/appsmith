@@ -7,7 +7,7 @@ import {
 import { WidgetProps } from "widgets/BaseWidget";
 import { CanvasWidgetStructure } from "widgets/constants";
 import { pick } from "lodash";
-import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
+import { WIDGET_DSL_STRUCTURE_PROPS } from "constants/WidgetConstants";
 
 export type FlattenedWidgetProps<orType = never> =
   | (WidgetProps & {
@@ -30,13 +30,7 @@ function denormalize(
     denormalize(childId, widgets),
   );
 
-  const staticProps = [
-    ...Object.keys(WIDGET_STATIC_PROPS),
-    "isVisible",
-    "isLoading",
-    "isDisabled",
-    "backgroundColor",
-  ];
+  const staticProps = [...Object.keys(WIDGET_DSL_STRUCTURE_PROPS)];
 
   const structure = pick(rootWidget, staticProps) as CanvasWidgetStructure;
 

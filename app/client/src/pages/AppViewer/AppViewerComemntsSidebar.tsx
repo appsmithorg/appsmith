@@ -1,11 +1,10 @@
 import React from "react";
-import { useSelector } from "react-redux";
 
 import AppComments from "comments/AppComments/AppComments";
-import { commentModeSelector } from "selectors/commentsSelectors";
+import { useCommentMode } from "utils/hooks/useCommentMode";
 
 function AppViewerCommentsSidebar() {
-  const isCommentMode = useSelector(commentModeSelector);
+  const isCommentMode = useCommentMode();
 
   // only renders the sidebar in comments mode
   if (!isCommentMode) return null;

@@ -5,6 +5,8 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
+import { Diff, diff } from "deep-diff";
+import { uniq } from "lodash";
 
 const initialState: CanvasWidgetsReduxState = {};
 
@@ -25,10 +27,41 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
-    return action.payload.widgets;
+    let listOfUpdatedWidgets;
+    if (action.payload.updatedWidgetIds) {
+      listOfUpdatedWidgets = action.payload.updatedWidgetIds;
+    } else {
+      const updateLayoutDiff = diff(state, action.payload.widgets);
+      if (!updateLayoutDiff) return state;
+
+      listOfUpdatedWidgets = getUpdatedWidgetLists(updateLayoutDiff);
+    }
+
+    for (const widgetId of listOfUpdatedWidgets) {
+      const updatedWidget = action.payload.widgets[widgetId];
+      if (updatedWidget) {
+        state[widgetId] = updatedWidget;
+      } else {
+        delete state[widgetId];
+      }
+    }
   },
 });
 
+const getUpdatedWidgetLists = (
+  updateLayoutDiff: Diff<
+    CanvasWidgetsReduxState,
+    {
+      [widgetId: string]: WidgetProps;
+    }
+  >[],
+) => {
+  return uniq(
+    updateLayoutDiff
+      .map((diff: Diff<CanvasWidgetsReduxState>) => diff.path?.[0])
+      .filter((widgetId) => !!widgetId),
+  );
+};
 export interface CanvasWidgetsReduxState {
   [widgetId: string]: FlattenedWidgetProps;
 }

@@ -23,7 +23,7 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import WidgetFactory from "utils/WidgetFactory";
 import { AppState } from "reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import { commentModeSelector } from "selectors/commentsSelectors";
+import { useCommentMode } from "utils/hooks/useCommentMode";
 import { getBoundariesFromSelectedWidgets } from "sagas/WidgetOperationUtils";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
 
@@ -166,7 +166,7 @@ function WidgetsMultiSelectBox(props: {
   snapRowSpace: number;
 }): any {
   const dispatch = useDispatch();
-  const isCommentMode = useSelector(commentModeSelector);
+  const isCommentMode = useCommentMode();
   const canvasWidgets = useSelector(getCanvasWidgets);
   const selectedWidgetIDs = useSelector(getSelectedWidgets);
   const selectedWidgets = selectedWidgetIDs.map(

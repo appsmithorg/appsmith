@@ -13,27 +13,20 @@ import {
   createCanvasWidget,
   getChildWidgets,
   createLoadingWidget,
+  getRenderMode,
 } from "selectors/editorSelectors";
 import { AppState } from "reducers";
 import { CanvasWidgetStructure } from "./constants";
 import { getCanvasWidget } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
-import { klona } from "klona";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
 function withWidgetProps(WrappedWidget: typeof BaseWidget) {
-  function WrappedComponent(
+  function WrappedPropsComponent(
     props: CanvasWidgetStructure & { skipWidgetPropsHydration?: boolean },
   ) {
-    const {
-      children,
-      renderMode,
-      skipWidgetPropsHydration,
-      type,
-      widgetId,
-      widgetName,
-    } = props;
+    const { children, skipWidgetPropsHydration, type, widgetId } = props;
 
     const canvasWidget = useSelector((state: AppState) =>
       getCanvasWidget(state, widgetId),
@@ -41,11 +34,12 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const mainCanvasProps = useSelector((state: AppState) =>
       getMainCanvasProps(state),
     );
+    const renderMode = useSelector(getRenderMode);
     const evaluatedWidget = useSelector((state: AppState) =>
-      getWidgetEvalValues(state, widgetName),
+      getWidgetEvalValues(state, canvasWidget?.widgetName),
     );
     const isLoading = useSelector((state: AppState) =>
-      getIsWidgetLoading(state, widgetName),
+      getIsWidgetLoading(state, canvasWidget?.widgetName),
     );
 
     const childWidgets = useSelector((state: AppState) => {
@@ -54,7 +48,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       return getChildWidgets(state, widgetId);
     }, equal);
 
-    let widgetProps: WidgetProps | null = null;
+    let widgetProps: WidgetProps = {} as WidgetProps;
 
     if (!skipWidgetPropsHydration) {
       const canvasWidgetProps = (() => {
@@ -66,8 +60,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           : createLoadingWidget(canvasWidget);
       })();
 
-      widgetProps = klona(canvasWidgetProps);
-
+      widgetProps = { ...canvasWidgetProps };
       /**
        * MODAL_WIDGET by default is to be hidden unless the isVisible property is found.
        * If the isVisible property is undefined and the widget is MODAL_WIDGET then isVisible
@@ -76,12 +69,16 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
        * is set to true
        */
       widgetProps.isVisible =
-        widgetProps.isVisible ?? widgetProps.type !== "MODAL_WIDGET";
+        canvasWidgetProps.isVisible ??
+        canvasWidgetProps.type !== "MODAL_WIDGET";
 
-      if (
-        widgetId !== MAIN_CONTAINER_WIDGET_ID &&
-        props.type === "CANVAS_WIDGET"
-      ) {
+      if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
+        widgetProps.rightColumn = canvasWidgetProps.rightColumn;
+        widgetProps.bottomRow = canvasWidgetProps.bottomRow;
+        widgetProps.minHeight = canvasWidgetProps.minHeight;
+        widgetProps.parentColumnSpace = canvasWidgetProps.parentColumnSpace;
+        widgetProps.parentRowSpace = canvasWidgetProps.parentRowSpace;
+      } else if (props.type === "CANVAS_WIDGET") {
         widgetProps.rightColumn = props.rightColumn;
         widgetProps.bottomRow = props.bottomRow;
         widgetProps.minHeight = props.minHeight;
@@ -101,6 +98,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.children = children;
 
       widgetProps.isLoading = isLoading;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       widgetProps.childWidgets = childWidgets;
     }
 
@@ -122,11 +121,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
    * Now the metaHOC is the first layer and then the withWidgetProps so a proxy
    * might not be need. These needs to be double checked are removed.
    */
-  WrappedComponent.getMetaPropertiesMap = WrappedWidget.getMetaPropertiesMap;
-  WrappedComponent.getDefaultPropertiesMap =
+  WrappedPropsComponent.getMetaPropertiesMap =
+    WrappedWidget.getMetaPropertiesMap;
+  WrappedPropsComponent.getDefaultPropertiesMap =
     WrappedWidget.getDefaultPropertiesMap;
-
-  return WrappedComponent;
+  return WrappedPropsComponent;
 }
 
 export default withWidgetProps;

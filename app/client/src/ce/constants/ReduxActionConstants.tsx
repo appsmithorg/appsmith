@@ -982,6 +982,7 @@ export interface UpdateCanvasPayload {
   currentPageName: string;
   currentApplicationId: string;
   pageActions: PageAction[][];
+  updatedWidgetIds?: string[];
 }
 
 export interface ShowPropertyPanePayload {

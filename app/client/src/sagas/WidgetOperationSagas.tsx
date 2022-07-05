@@ -41,7 +41,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, isString, set } from "lodash";
+import _, { cloneDeep, isString, set, uniq } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import {
@@ -612,6 +612,8 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
     stateWidgets,
   );
 
+  const updatedWidgetIds = uniq(updatedWidgets.map((each) => each.widgetId));
+
   log.debug(
     "Batch multi-widget properties update calculations took: ",
     performance.now() - start,
@@ -619,7 +621,9 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
   );
 
   // Save the layout
-  yield put(updateAndSaveLayout(updatedStateWidgets));
+  yield put(
+    updateAndSaveLayout(updatedStateWidgets, false, false, updatedWidgetIds),
+  );
 }
 
 function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {

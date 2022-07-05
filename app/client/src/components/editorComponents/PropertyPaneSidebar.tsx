@@ -12,7 +12,7 @@ import WidgetPropertyPane from "pages/Editor/PropertyPane";
 import { previewModeSelector } from "selectors/editorSelectors";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
-import { commentModeSelector } from "selectors/commentsSelectors";
+import { useCommentMode } from "utils/hooks/useCommentMode";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
@@ -44,7 +44,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   );
 
   const isPreviewMode = useSelector(previewModeSelector);
-  const isCommentMode = useSelector(commentModeSelector);
+  const isCommentMode = useCommentMode();
   const themingStack = useSelector(getAppThemingStack);
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
