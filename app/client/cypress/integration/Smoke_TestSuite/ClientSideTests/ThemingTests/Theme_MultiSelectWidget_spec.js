@@ -35,8 +35,8 @@ describe("Theme validation usecase for multi-select widget", function() {
     //cy.contains("Border").click({ force: true });
     cy.get(themelocator.border).should("have.length", "3");
     cy.borderMouseover(0, "none");
-    cy.borderMouseover(1, "md");
-    cy.borderMouseover(2, "lg");
+    cy.borderMouseover(1, "M");
+    cy.borderMouseover(2, "L");
     cy.get(themelocator.border)
       .eq(1)
       .click({ force: true });
@@ -52,9 +52,9 @@ describe("Theme validation usecase for multi-select widget", function() {
     //cy.contains("Shadow").click({ force: true });
     cy.wait(2000);
     cy.shadowMouseover(0, "none");
-    cy.shadowMouseover(1, "sm");
-    cy.shadowMouseover(2, "md");
-    cy.shadowMouseover(3, "lg");
+    cy.shadowMouseover(1, "S");
+    cy.shadowMouseover(2, "M");
+    cy.shadowMouseover(3, "L");
     cy.xpath(themelocator.shadow)
       .eq(3)
       .click({ force: true });
@@ -76,12 +76,8 @@ describe("Theme validation usecase for multi-select widget", function() {
 
       cy.get(themelocator.fontsSelected)
         .eq(0)
-        .should("have.text", "System Default");
+        .should("have.text", "Nunito Sans");
 
-      cy.get(themelocator.fontsSelected).each(($ele, i) => {
-        //cy.log($ele);
-        expect($ele).to.have.text(this.testdata.dropdownValues[i]);
-      });
       cy.get(".ads-dropdown-options-wrapper div")
         .children()
         .eq(2)

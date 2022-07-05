@@ -78,6 +78,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     private static final String UQI_QUERY_EDITOR_BASE_FOLDER = "editor";
     private static final String UQI_QUERY_EDITOR_ROOT_FILE = "root.json";
+    private static final String BASE_UQI_URL = "https://raw.githubusercontent.com/appsmithorg/uqi-configurations/master/";
 
     private static final String KEY_EDITOR = "editor";
     private static final String KEY_CONFIG_PROPERTY = "configProperty";
@@ -544,23 +545,37 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         return templates;
     }
 
+    InputStream getConfigInputStream(Plugin plugin, String fileName) throws IOException {
+        String resourcePath = UQI_QUERY_EDITOR_BASE_FOLDER + "/" + fileName;
+//        if (Set.of(
+//                "google-sheets-plugin",
+//                "mongo-plugin",
+//                "amazons3-plugin",
+//                "firestore-plugin"
+//        ).contains(plugin.getPackageName())) {
+//            return new URL(BASE_UQI_URL + plugin.getPackageName() + "/editor/" + fileName).openStream();
+//        }
+        return pluginManager
+                .getPlugin(plugin.getPackageName())
+                .getPluginClassLoader()
+                .getResourceAsStream(resourcePath);
+    }
+
     /**
      * This function reads from the folder editor/ starting with file root.json. root.json declares all the combination
      * of commands that would be present as well as the files from which the action types should be loaded.
+     *
      * @param plugin
      * @return Map of the editor in the format expected by the client for displaying all the UI fields with conditionals
      */
     @Override
     public Map loadEditorPluginResourceUqi(Plugin plugin) {
-
         String resourcePath = UQI_QUERY_EDITOR_BASE_FOLDER + "/" + UQI_QUERY_EDITOR_ROOT_FILE;
 
         ObjectNode rootTree;
 
-        try (InputStream resourceAsStream = pluginManager
-                .getPlugin(plugin.getPackageName())
-                .getPluginClassLoader()
-                .getResourceAsStream(resourcePath)) {
+        try (InputStream resourceAsStream = getConfigInputStream(plugin, UQI_QUERY_EDITOR_ROOT_FILE)) {
+
             if (resourceAsStream == null) {
                 throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), "form resource " + resourcePath + " not found");
             }
@@ -597,7 +612,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         if (filesArray != null) {
             for (JsonNode fileName : filesArray) {
 
-                String path = UQI_QUERY_EDITOR_BASE_FOLDER + "/" + fileName.asText();
+                String path = fileName.asText();
                 try {
                     final JsonNode templateConfig = loadPluginResourceGivenPluginAsJsonNode(plugin, path);
                     templateChildrenNode.add(templateConfig);
@@ -645,10 +660,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     private JsonNode loadPluginResourceGivenPluginAsJsonNode(Plugin plugin, String resourcePath) {
-        try (InputStream resourceAsStream = pluginManager
-                .getPlugin(plugin.getPackageName())
-                .getPluginClassLoader()
-                .getResourceAsStream(resourcePath)) {
+        try (InputStream resourceAsStream = getConfigInputStream(plugin, resourcePath)) {
 
             if (resourceAsStream == null) {
                 throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), "form resource " + resourcePath + " not found");

@@ -263,7 +263,7 @@ describe("Git sync:", function() {
         cy.get(gitSyncLocators.branchListItem).contains(childBranchKey);
         cy.get(gitSyncLocators.branchListItem).contains(parentBranchKey);
 
-        cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}abcd`);
+        cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}abcde`);
         cy.get(gitSyncLocators.branchListItem).should("not.exist");
 
         cy.get(gitSyncLocators.branchSearchInput).clear();
