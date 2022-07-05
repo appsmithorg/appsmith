@@ -1,6 +1,6 @@
 import {
   ADMIN_SETTINGS_PATH,
-  GEN_TEMPLATE_FORM_ROUTE,
+  GENERATE_TEMPLATE_FORM_PATH,
   GEN_TEMPLATE_URL,
   TEMPLATES_PATH,
 } from "constants/routes";
@@ -160,7 +160,7 @@ export const generateTemplateURL = (props: URLBuilderParams): string =>
 export const generateTemplateFormURL = (props: URLBuilderParams): string =>
   urlBuilder.build({
     ...props,
-    suffix: `${GEN_TEMPLATE_URL}${GEN_TEMPLATE_FORM_ROUTE}`,
+    suffix: GENERATE_TEMPLATE_FORM_PATH,
   });
 
 export const onboardingCheckListUrl = (props: URLBuilderParams): string =>
