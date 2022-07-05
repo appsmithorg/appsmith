@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import ContextMenuTrigger from "../ContextMenuTrigger";
@@ -8,7 +8,7 @@ import {
   deleteJSCollection,
 } from "actions/jsActionActions";
 import { ContextMenuPopoverModifiers } from "../helpers";
-import { noop } from "lodash";
+import { groupBy, noop } from "lodash";
 import { useNewJSCollectionName } from "./helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -24,6 +24,10 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { getPageListAsOptions } from "selectors/entitiesSelector";
+import store from "store";
+import { selectJSCollections } from "selectors/editorSelectors";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 type EntityContextMenuProps = {
   id: string;
@@ -50,26 +54,53 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
     [],
   );
 
+  const getEntityName = useCallback(() => {
+    const state = store.getState();
+    const jsCollections = selectJSCollections(state);
+    return (
+      name: string,
+      destinationPageId: string,
+      isCopyOperation?: boolean,
+    ) => {
+      const groupedActions = groupBy(jsCollections, "config.pageId");
+      const pageActions = groupedActions[destinationPageId] || [];
+      const actionNames = pageActions.map(
+        (action: JSCollectionData) => action.config.name,
+      );
+      return actionNames.indexOf(name) > -1
+        ? getNextEntityName(
+            isCopyOperation ? `${name}Copy` : name,
+            actionNames,
+            true,
+          )
+        : name;
+    };
+  }, []);
+
   const copyJSCollectionToPage = useCallback(
-    (actionId: string, actionName: string, pageId: string) =>
+    (actionId: string, actionName: string, pageId: string) => {
+      const nextEntityName = getEntityName();
       dispatch(
         copyJSCollectionRequest({
           id: actionId,
           destinationPageId: pageId,
           name: nextEntityName(actionName, pageId, true),
         }),
-      ),
+      );
+    },
     [dispatch, nextEntityName],
   );
   const moveJSCollectionToPage = useCallback(
-    (actionId: string, actionName: string, destinationPageId: string) =>
+    (actionId: string, actionName: string, destinationPageId: string) => {
+      const nextEntityName = getEntityName();
       dispatch(
         moveJSCollectionRequest({
           id: actionId,
           destinationPageId,
           name: nextEntityName(actionName, destinationPageId, false),
         }),
-      ),
+      );
+    },
     [dispatch, nextEntityName, props.pageId],
   );
   const deleteJSCollectionFromPage = useCallback(
