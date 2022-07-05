@@ -505,10 +505,6 @@ class FilePickerWidget extends BaseWidget<
     }
   }
 
-  componentWillUnmount() {
-    this.state.uppy.close();
-  }
-
   getPageView() {
     return (
       <FilePickerComponent
