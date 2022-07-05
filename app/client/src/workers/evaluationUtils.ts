@@ -662,6 +662,29 @@ export const addErrorToEntityProperty = (
   return dataTree;
 };
 
+export const removeLintErrorsFromEntityProperty = (
+  dataTree: DataTree,
+  path: string,
+) => {
+  const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
+  if (propertyPath) {
+    const existingNonLintErrors = (_.get(
+      dataTree,
+      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
+      [],
+    ) as EvaluationError[]).filter(
+      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    );
+
+    _.set(
+      dataTree,
+      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
+      existingNonLintErrors,
+    );
+  }
+  return dataTree;
+};
+
 // For the times when you need to know if something truly an object like { a: 1, b: 2}
 // typeof, lodash.isObject and others will return false positives for things like array, null, etc
 export const isTrueObject = (
