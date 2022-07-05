@@ -24,7 +24,11 @@ export const HighlighedCodeContainer = styled("div")<{
   line-height: 21px !important;
 
   min-height: inherit;
-  padding: 6px 10px !important;
+  padding-top: 6px !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  padding-bottom: ${({ containsCode }) =>
+    containsCode ? "6px" : 0}; !important;
 
   pre {
     margin: 0 !important;
@@ -69,7 +73,7 @@ export const LazyEditorWrapper = styled("div")`
 
 export const ContentWrapper = styled("div")<{ containsCode: boolean }>`
   overflow: hidden;
-  height: ${({ containsCode }) => (containsCode ? "auto" : "38px")};
+  height: ${({ containsCode }) => (containsCode ? "auto" : "36px")};
   min-height: 36px;
   border: 1px solid;
   border-color: inherit;
@@ -80,5 +84,5 @@ export const ContentWrapper = styled("div")<{ containsCode: boolean }>`
 `;
 
 export const NoCodeText = styled("div")`
-  color: #858282 !important;
+  color: rgb(75, 72, 72) !important;
 `;

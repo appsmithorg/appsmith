@@ -118,7 +118,7 @@ function CodeEditor(props: any) {
     }
     // If !inputValue; then use placeholder
     if (!str?.toString()?.length) str = props?.placeholder || "";
-    setText(str);
+    setText(str.toString());
   }, [props?.input?.value, props?.placeholder]);
 
   const getText = (): string => {
