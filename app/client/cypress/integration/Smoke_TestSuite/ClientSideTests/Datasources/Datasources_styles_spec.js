@@ -17,28 +17,7 @@ describe("Validate Datasource Panel Styles", function() {
     cy.get(pages.integrationCreateNew).click();
   });
 
-  it("1. Tabs style", function() {
-    //Check gap between tab items
-    cy.get("[data-cy=t--datasource-tab] .react-tabs__tab-list").should(
-      "have.css",
-      "gap",
-      "32px",
-    );
-    //Check styles of tab titles.
-    cy.get(".tab-title")
-      .should("have.css", "font-size", "16px")
-      .and("have.css", "font-weight", "400")
-      .and("have.css", "line-height", "24px")
-      .and("have.css", "letter-spacing", "-0.24px");
-    //Check selected tab item style
-    cy.get(".react-tabs__tab--selected .tab-title").should(
-      "have.css",
-      "color",
-      backgroundColorGray900,
-    );
-  });
-
-  it("2. Mock datasource card design", () => {
+  it("1. Mock datasource card design", () => {
     cy.get(pages.integrationCreateNew).click();
     //Card container style
     cy.datasourceCardContainerStyle(".t--mock-datasource-list");
@@ -62,7 +41,7 @@ describe("Validate Datasource Panel Styles", function() {
     cy.datasourceNameStyle("[data-testid=mockdatasource-name]");
   });
 
-  it("3. Database datasource card design", () => {
+  it("2. Database datasource card design", () => {
     cy.get(pages.integrationCreateNew).click();
     //Card container style
     cy.datasourceCardContainerStyle(
@@ -86,7 +65,7 @@ describe("Validate Datasource Panel Styles", function() {
     );
   });
 
-  it("4. New API datasource card design", () => {
+  it("3. New API datasource card design", () => {
     cy.get(pages.integrationCreateNew).click();
     //Card container style
     cy.datasourceCardContainerStyle(
@@ -106,7 +85,7 @@ describe("Validate Datasource Panel Styles", function() {
     cy.datasourceNameStyle(".t--createBlankApiCard .textBtn");
   });
 
-  it("Datasource title font size", () => {
+  it("4. Datasource title font size", () => {
     cy.get(".t--integrationsHomePage").should("have.css", "font-size", "20px");
   });
 
