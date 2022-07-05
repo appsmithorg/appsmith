@@ -1,13 +1,12 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
 import {
   moveJSCollectionRequest,
   copyJSCollectionRequest,
   deleteJSCollection,
 } from "actions/jsActionActions";
 import { ContextMenuPopoverModifiers } from "../helpers";
-import { noop } from "lodash";
+import noop from "lodash/noop";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { getJSEntityName } from "./helpers";
 import styled from "styled-components";

@@ -1,4 +1,3 @@
-import { useSelector } from "react-redux";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { groupBy } from "lodash";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
