@@ -27,7 +27,7 @@ async function run() {
     utils.stop(['backend', 'rts']);
 
     console.log('Available free space at /appsmith-stacks');
-    const availSpaceInBytes = Number(shell.exec('df --output=avail -B 1 /appsmith-stacks | tail -n 1'));
+    const availSpaceInBytes = parseInt(shell.exec('df --output=avail -B 1 /appsmith-stacks | tail -n 1'), 10);
     console.log('\n');
 
     if (availSpaceInBytes < Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES) {
