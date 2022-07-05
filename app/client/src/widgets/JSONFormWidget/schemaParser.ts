@@ -492,6 +492,7 @@ class SchemaParser {
     const FieldComponent = FIELD_MAP[fieldType];
     const bindingTemplate = getBindingTemplate(widgetName);
     const fieldStylesheet = getFieldStylesheet(
+      widgetName,
       fieldType,
       fieldThemeStylesheets,
     );

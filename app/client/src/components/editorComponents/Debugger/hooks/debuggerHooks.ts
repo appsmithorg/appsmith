@@ -9,7 +9,7 @@ import {
   getCurrentPageId,
   selectURLSlugs,
 } from "selectors/editorSelectors";
-import { getAction } from "selectors/entitiesSelector";
+import { getAction, getPlugins } from "selectors/entitiesSelector";
 import { onApiEditor, onQueryEditor, onCanvas } from "../helpers";
 import { getSelectedWidget } from "selectors/ui";
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -19,6 +19,7 @@ import { isWidget, isAction, isJSAction } from "workers/evaluationUtils";
 import history from "utils/history";
 import { jsCollectionIdURL } from "RouteBuilder";
 import store from "store";
+import { PluginType } from "entities/Action";
 
 export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
@@ -104,6 +105,7 @@ export const useSelectedEntity = () => {
 
 export const useEntityLink = () => {
   const pageId = useSelector(getCurrentPageId);
+  const plugins = useSelector(getPlugins);
   const applicationId = useSelector(getCurrentApplicationId);
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
@@ -116,6 +118,10 @@ export const useEntityLink = () => {
       navigateToWidget(entity.widgetId, entity.type, pageId || "");
     } else if (isAction(entity)) {
       const actionConfig = getActionConfig(entity.pluginType);
+      let plugin;
+      if (entity?.pluginType === PluginType.SAAS) {
+        plugin = plugins.find((plugin) => plugin?.id === entity?.pluginId);
+      }
       const url =
         applicationId &&
         actionConfig?.getURL(
@@ -124,6 +130,7 @@ export const useEntityLink = () => {
           pageId || "",
           entity.actionId,
           entity.pluginType,
+          plugin,
         );
 
       if (url) {

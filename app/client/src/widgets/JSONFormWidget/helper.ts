@@ -2,12 +2,18 @@ import { isNil, isPlainObject, merge } from "lodash";
 import { LabelValueType } from "rc-select/lib/interface/generator";
 
 import {
+  isDynamicValue,
+  getDynamicBindings,
+  combineDynamicBindings,
+} from "utils/DynamicBindingUtils";
+import {
   ARRAY_ITEM_KEY,
   FieldThemeStylesheet,
   FieldType,
   inverseFieldType,
   Schema,
   SchemaItem,
+  getBindingTemplate,
 } from "./constants";
 
 type ConvertFormDataOptions = {
@@ -42,13 +48,37 @@ const valueLookup = (
 };
 
 export const getFieldStylesheet = (
+  widgetName: string,
   fieldType: FieldType,
   fieldThemeStylesheets?: FieldThemeStylesheet,
 ) => {
+  const computedFieldStylesheet: { [key: string]: string } = {};
   const fieldTypeKey = inverseFieldType[fieldType];
-  return fieldThemeStylesheets && fieldTypeKey in fieldThemeStylesheets
-    ? fieldThemeStylesheets[fieldTypeKey]
-    : {};
+
+  if (fieldThemeStylesheets && fieldTypeKey in fieldThemeStylesheets) {
+    const fieldStylesheet = fieldThemeStylesheets[fieldTypeKey];
+
+    Object.keys(fieldStylesheet).map((fieldPropertyKey) => {
+      const fieldStylesheetValue = fieldStylesheet[fieldPropertyKey];
+
+      if (isDynamicValue(fieldStylesheetValue)) {
+        const { jsSnippets, stringSegments } = getDynamicBindings(
+          fieldStylesheet[fieldPropertyKey],
+        );
+        const js = combineDynamicBindings(jsSnippets, stringSegments);
+        const { prefixTemplate, suffixTemplate } = getBindingTemplate(
+          widgetName,
+        );
+        const computedValue = `${prefixTemplate}${js}${suffixTemplate}`;
+
+        computedFieldStylesheet[fieldPropertyKey] = computedValue;
+      } else {
+        computedFieldStylesheet[fieldPropertyKey] = fieldStylesheetValue;
+      }
+    });
+  }
+
+  return computedFieldStylesheet;
 };
 
 const convertObjectTypeToFormData = (

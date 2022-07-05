@@ -3,7 +3,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let dataSet: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
-  jsEditor = ObjectsRegistry.JSEditor,
+  propPane = ObjectsRegistry.PropertyPane,
   table = ObjectsRegistry.Table,
   deployMode = ObjectsRegistry.DeployMode;
 
@@ -16,16 +16,15 @@ describe("Verify various Table property bugs", function () {
 
   it("1. Adding Data to Table Widget", function () {
     ee.DragDropWidgetNVerify("tablewidget", 250, 250);
-    jsEditor.EnterJSContext("Table Data", JSON.stringify(dataSet.TableURLColumnType));
+    propPane.UpdatePropertyFieldValue("Table Data", JSON.stringify(dataSet.TableURLColumnType));
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
     cy.get('body').type("{esc}");
   });
 
   it("2. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when empty", function () {
     table.ChangeColumnType('image', 'URL')
-    jsEditor.EnterJSContext("Display Text",
-      `{{currentRow.image.toString().includes('7') ? currentRow.image.toString().split('full/')[1] : "" }}`,
-      true)
+    propPane.UpdatePropertyFieldValue("Display Text",
+      `{{currentRow.image.toString().includes('7') ? currentRow.image.toString().split('full/')[1] : "" }}`)
 
     deployMode.DeployApp()
 
@@ -58,9 +57,8 @@ describe("Verify various Table property bugs", function () {
     ee.SelectEntityByName("Table1", 'WIDGETS')
     agHelper.GetNClick(table._columnSettings('image'))
 
-    jsEditor.EnterJSContext("Display Text",
-      `{{currentRow.image.toString().includes('7') ? currentRow.image.toString().split('full/')[1] : null }}`,
-      true)
+    propPane.UpdatePropertyFieldValue("Display Text",
+      `{{currentRow.image.toString().includes('7') ? currentRow.image.toString().split('full/')[1] : null }}`)
 
     deployMode.DeployApp()
 
@@ -91,9 +89,8 @@ describe("Verify various Table property bugs", function () {
     ee.SelectEntityByName("Table1", 'WIDGETS')
     agHelper.GetNClick(table._columnSettings('image'))
 
-    jsEditor.EnterJSContext("Display Text",
-      `{{currentRow.image.toString().includes('7') ? currentRow.image.toString().split('full/')[1] : undefined }}`,
-      true)
+    propPane.UpdatePropertyFieldValue("Display Text",
+      `{{currentRow.image.toString().includes('7') ? currentRow.image.toString().split('full/')[1] : undefined }}`)
 
     deployMode.DeployApp()
 
