@@ -1099,6 +1099,10 @@ export const transformDSL = (
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
+  if (currentDSL.version === 59) {
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
+
   return currentDSL;
 };
 

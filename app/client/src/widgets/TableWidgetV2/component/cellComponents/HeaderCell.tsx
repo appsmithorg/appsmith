@@ -135,6 +135,7 @@ export function HeaderCell(props: {
     <div
       {...column.getHeaderProps()}
       className="th header-reorder"
+      data-header={props.columnName}
       onClick={!disableSort && props ? handleSortColumn : undefined}
     >
       <div className={!props.isHidden ? `draggable-header` : "hidden-header"}>

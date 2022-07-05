@@ -145,6 +145,7 @@ export function InlineCellEditor({
     <Wrapper
       accentColor={accentColor}
       allowCellWrapping={allowCellWrapping}
+      className="t--inlined-cell-editor"
       compactMode={compactMode}
       textSize={textSize}
       verticalAlignment={verticalAlignment}

@@ -826,7 +826,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleColumnSorting = (columnAccessor: string, isAsc: boolean) => {
     const columnId = this.getColumnIdByAlias(columnAccessor);
-    this.resetSelectedRowIndex(true);
+    this.resetSelectedRowIndex(false);
 
     let sortOrderProps;
 

@@ -12,7 +12,7 @@ import TextInput, { TextInputProps } from "components/ads/TextInput";
 import Dropdown from "components/ads/Dropdown";
 import { IconWrapper } from "constants/IconConstants";
 import { InputWrapper } from "components/ads/TextInput";
-import { Checkbox } from "components/ads";
+import Checkbox from "components/ads/Checkbox";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;

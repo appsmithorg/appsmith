@@ -1,5 +1,4 @@
 import { getCellText } from "./DefaultCell";
-import { CellLayoutProperties } from "../Constants";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 
 describe("DefaultRendere - ", () => {
@@ -55,9 +54,13 @@ describe("DefaultRendere - ", () => {
           expected: "[object Object]",
         },
       ].forEach((testValue) => {
-        expect(getCellText(testValue.value, testValue.columnType)).toEqual(
-          testValue.expected,
-        );
+        expect(
+          getCellText(
+            testValue.value,
+            testValue.columnType,
+            testValue.cellProperties.displayText,
+          ),
+        ).toEqual(testValue.expected);
       });
     });
   });

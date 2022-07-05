@@ -5,17 +5,19 @@ describe("Validates getFilteredTableData Properties", () => {
   it("validates generated filtered table data", () => {
     const { getFilteredTableData } = derivedProperty;
     const input = {
-      sanitizedTableData: [
+      processedTableData: [
         { id: 123, name: "John Doe" },
         { id: 234, name: "Jane Doe" },
       ],
       sortOrder: { column: "id", order: "desc" },
-      columnOrder: ["name", "id"],
+      columnOrder: ["name", "id", "extra"],
       primaryColumns: {
         id: {
           index: 1,
           width: 150,
           id: "id",
+          originalId: "id",
+          alias: "id",
           horizontalAlignment: "LEFT",
           verticalAlignment: "CENTER",
           columnType: "text",
@@ -34,6 +36,8 @@ describe("Validates getFilteredTableData Properties", () => {
           index: 0,
           width: 150,
           id: "name",
+          originalId: "name",
+          alias: "name",
           horizontalAlignment: "LEFT",
           verticalAlignment: "CENTER",
           columnType: "text",
@@ -52,6 +56,8 @@ describe("Validates getFilteredTableData Properties", () => {
           index: 2,
           width: 150,
           id: "extra",
+          originalId: "extra",
+          alias: "extra",
           horizontalAlignment: "LEFT",
           verticalAlignment: "CENTER",
           columnType: "text",
@@ -124,20 +130,21 @@ describe("Validates getFilteredTableData Properties", () => {
         },
       ],
     };
+
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort((a, b) => {
+      return input.columnOrder[a.id] < input.columnOrder[b.id];
+    });
+
     const expected = [
       {
         id: 234,
         name: "Jane Doe",
         extra: "Extra2",
-        __originalIndex__: 1,
-        __primaryKey__: undefined,
       },
       {
         id: 123,
         name: "John Doe",
         extra: "Extra1",
-        __originalIndex__: 0,
-        __primaryKey__: undefined,
       },
     ];
 
@@ -148,12 +155,14 @@ describe("Validates getFilteredTableData Properties", () => {
   it("validates generated filtered table data for empty values", () => {
     const { getFilteredTableData } = derivedProperty;
     const input = {
-      sanitizedTableData: [],
+      processedTableData: [],
       sortOrder: { column: "id", order: "desc" },
       columnOrder: ["name", "id"],
       primaryColumns: {},
       columns: [],
+      orderedTableColumns: [],
     };
+
     const expected = [];
 
     let result = getFilteredTableData(input, moment, _);
@@ -163,18 +172,20 @@ describe("Validates getFilteredTableData Properties", () => {
   it("validates generated filtered table data to be sorted correctly based on column type", () => {
     const { getFilteredTableData } = derivedProperty;
     const input = {
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe" },
         { id: 123, name: "John Doe" },
         { id: 234, name: "Jane Doe" },
       ],
       sortOrder: { column: "id", order: "desc" },
-      columnOrder: ["name", "id"],
+      columnOrder: ["name", "id", "extra"],
       primaryColumns: {
         id: {
           index: 1,
           width: 150,
           id: "id",
+          alias: "id",
+          originalId: "id",
           horizontalAlignment: "LEFT",
           verticalAlignment: "CENTER",
           columnType: "number",
@@ -193,6 +204,8 @@ describe("Validates getFilteredTableData Properties", () => {
           index: 0,
           width: 150,
           id: "name",
+          alias: "name",
+          originalId: "name",
           horizontalAlignment: "LEFT",
           verticalAlignment: "CENTER",
           columnType: "text",
@@ -211,6 +224,8 @@ describe("Validates getFilteredTableData Properties", () => {
           index: 2,
           width: 150,
           id: "extra",
+          alias: "extra",
+          originalId: "extra",
           horizontalAlignment: "LEFT",
           verticalAlignment: "CENTER",
           columnType: "text",
@@ -283,27 +298,26 @@ describe("Validates getFilteredTableData Properties", () => {
         },
       ],
     };
+
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort((a, b) => {
+      return input.columnOrder[a.id] < input.columnOrder[b.id];
+    });
+
     const expected = [
       {
         id: 1234,
         name: "Jim Doe",
         extra: "",
-        __originalIndex__: 0,
-        __primaryKey__: undefined,
       },
       {
         id: 234,
         name: "Jane Doe",
         extra: "Extra2",
-        __originalIndex__: 2,
-        __primaryKey__: undefined,
       },
       {
         id: 123,
         name: "John Doe",
         extra: "Extra1",
-        __originalIndex__: 1,
-        __primaryKey__: undefined,
       },
     ];
 
@@ -314,7 +328,7 @@ describe("Validates getFilteredTableData Properties", () => {
   it("validates generated filtered table data with null values to be sorted correctly", () => {
     const { getFilteredTableData } = derivedProperty;
     const input = {
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", age: 28 },
         { id: 123, name: "John Doe" },
         { id: 234, name: "Jane Doe", age: 22 },
@@ -327,6 +341,8 @@ describe("Validates getFilteredTableData Properties", () => {
           index: 1,
           width: 150,
           id: "id",
+          alias: "id",
+          originalId: "id",
           horizontalAlignment: "LEFT",
           verticalAlignment: "CENTER",
           columnType: "number",
@@ -345,6 +361,8 @@ describe("Validates getFilteredTableData Properties", () => {
           index: 0,
           width: 150,
           id: "name",
+          alias: "name",
+          originalId: "name",
           horizontalAlignment: "LEFT",
           verticalAlignment: "CENTER",
           columnType: "text",
@@ -363,6 +381,8 @@ describe("Validates getFilteredTableData Properties", () => {
           index: 2,
           width: 150,
           id: "age",
+          alias: "age",
+          originalId: "age",
           horizontalAlignment: "LEFT",
           verticalAlignment: "CENTER",
           columnType: "number",
@@ -435,34 +455,31 @@ describe("Validates getFilteredTableData Properties", () => {
         },
       ],
     };
+
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort((a, b) => {
+      return input.columnOrder[a.id] < input.columnOrder[b.id];
+    });
+
     const expected = [
       {
         id: 2345,
         name: "Jane Doeson",
         age: 30,
-        __originalIndex__: 3,
-        __primaryKey__: undefined,
       },
       {
         id: 1234,
         name: "Jim Doe",
         age: 28,
-        __originalIndex__: 0,
-        __primaryKey__: undefined,
       },
       {
         id: 234,
         name: "Jane Doe",
         age: 22,
-        __originalIndex__: 2,
-        __primaryKey__: undefined,
       },
       {
         id: 123,
         name: "John Doe",
         age: null,
-        __originalIndex__: 1,
-        __primaryKey__: undefined,
       },
     ];
 
@@ -473,7 +490,7 @@ describe("Validates getFilteredTableData Properties", () => {
   it("validates generated filtered table data with empty string values to be sorted correctly", () => {
     const { getFilteredTableData } = derivedProperty;
     const input = {
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", age: 28 },
         { id: 123, name: "" },
         { id: 234, name: "Jane Doe", age: 22 },
@@ -486,6 +503,8 @@ describe("Validates getFilteredTableData Properties", () => {
           index: 1,
           width: 150,
           id: "id",
+          alias: "id",
+          originalId: "id",
           horizontalAlignment: "LEFT",
           verticalAlignment: "CENTER",
           columnType: "number",
@@ -504,6 +523,8 @@ describe("Validates getFilteredTableData Properties", () => {
           index: 0,
           width: 150,
           id: "name",
+          alias: "name",
+          originalId: "name",
           horizontalAlignment: "LEFT",
           verticalAlignment: "CENTER",
           columnType: "text",
@@ -522,6 +543,8 @@ describe("Validates getFilteredTableData Properties", () => {
           index: 2,
           width: 150,
           id: "age",
+          alias: "age",
+          originalId: "age",
           horizontalAlignment: "LEFT",
           verticalAlignment: "CENTER",
           columnType: "number",
@@ -594,34 +617,31 @@ describe("Validates getFilteredTableData Properties", () => {
         },
       ],
     };
+
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort((a, b) => {
+      return input.columnOrder[a.id] < input.columnOrder[b.id];
+    });
+
     const expected = [
       {
         id: 1234,
         name: "Jim Doe",
         age: 28,
-        __originalIndex__: 0,
-        __primaryKey__: undefined,
       },
       {
         id: 2345,
         name: "Jane Doeson",
         age: 30,
-        __originalIndex__: 3,
-        __primaryKey__: undefined,
       },
       {
         id: 234,
         name: "Jane Doe",
         age: 22,
-        __originalIndex__: 2,
-        __primaryKey__: undefined,
       },
       {
         id: 123,
         name: "",
         age: null,
-        __originalIndex__: 1,
-        __primaryKey__: undefined,
       },
     ];
 
@@ -632,7 +652,7 @@ describe("Validates getFilteredTableData Properties", () => {
   it("validates generated filtered table data to be filtered correctly in empty comparison", () => {
     const { getFilteredTableData } = derivedProperty;
     const input = {
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe" },
         { id: 123, name: "John Doe" },
         { id: 234, name: "Jane Doe" },
@@ -652,6 +672,8 @@ describe("Validates getFilteredTableData Properties", () => {
           index: 1,
           width: 150,
           id: "id",
+          alias: "id",
+          originalId: "id",
           horizontalAlignment: "LEFT",
           verticalAlignment: "CENTER",
           columnType: "number",
@@ -670,6 +692,8 @@ describe("Validates getFilteredTableData Properties", () => {
           index: 0,
           width: 150,
           id: "name",
+          alias: "name",
+          originalId: "name",
           horizontalAlignment: "LEFT",
           verticalAlignment: "CENTER",
           columnType: "text",
@@ -688,6 +712,8 @@ describe("Validates getFilteredTableData Properties", () => {
           index: 2,
           width: 150,
           id: "extra",
+          alias: "extra",
+          originalId: "extra",
           horizontalAlignment: "LEFT",
           verticalAlignment: "CENTER",
           columnType: "text",
@@ -760,6 +786,11 @@ describe("Validates getFilteredTableData Properties", () => {
         },
       ],
     };
+
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort((a, b) => {
+      return input.columnOrder[a.id] < input.columnOrder[b.id];
+    });
+
     const expected = [];
 
     let result = getFilteredTableData(input, moment, _);
@@ -767,9 +798,10 @@ describe("Validates getFilteredTableData Properties", () => {
   });
 
   it("validates generated sanitized table data with valid property keys", () => {
-    const { getSanitizedTableData } = derivedProperty;
+    const { getProcessedTableData } = derivedProperty;
 
     const input = {
+      transientTableData: {},
       tableData: [
         {
           "1": "abc",
@@ -821,6 +853,8 @@ describe("Validates getFilteredTableData Properties", () => {
         "@user": "user 1",
         "@name": "name 1",
         ÜserÑame: "john",
+        "__originalIndex__": 0,
+        "__primaryKey__": undefined,
       },
       {
         "1": "asd",
@@ -837,9 +871,13 @@ describe("Validates getFilteredTableData Properties", () => {
         "@user": "user 2",
         "@name": "name 2",
         ÜserÑame: "mike",
+        "__originalIndex__": 1,
+        "__primaryKey__": undefined,
       },
     ];
-    let result = getSanitizedTableData(input, moment, _);
+
+    let result = getProcessedTableData(input, moment, _);
+  
     expect(result).toStrictEqual(expected);
   });
 });
@@ -851,7 +889,7 @@ describe("Validate getSelectedRow function", () => {
       multiRowSelection: true,
       selectedRowIndices: [0, 1],
       selectedRowIndex: 1,
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -861,7 +899,6 @@ describe("Validate getSelectedRow function", () => {
       id: 234,
       name: "Jane Doe",
       extra: "Extra2",
-      __originalIndex__: 2,
     });
   });
 
@@ -871,7 +908,7 @@ describe("Validate getSelectedRow function", () => {
       multiRowSelection: true,
       selectedRowIndices: [],
       selectedRowIndex: 1,
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -881,7 +918,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
 
@@ -891,7 +927,7 @@ describe("Validate getSelectedRow function", () => {
       multiRowSelection: false,
       selectedRowIndices: [],
       selectedRowIndex: 1,
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -901,7 +937,6 @@ describe("Validate getSelectedRow function", () => {
       id: 234,
       name: "Jane Doe",
       extra: "Extra2",
-      __originalIndex__: 2,
     });
   });
 
@@ -911,7 +946,7 @@ describe("Validate getSelectedRow function", () => {
       multiRowSelection: true,
       selectedRowIndices: [],
       selectedRowIndex: -1,
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -922,7 +957,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
 
@@ -932,7 +966,7 @@ describe("Validate getSelectedRow function", () => {
       multiRowSelection: true,
       selectedRowIndices: ["test"],
       selectedRowIndex: -1,
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -943,7 +977,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
   it("Single row selection, with indices undefined", () => {
@@ -952,7 +985,7 @@ describe("Validate getSelectedRow function", () => {
       multiRowSelection: true,
       selectedRowIndices: undefined,
       selectedRowIndex: -1,
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -963,7 +996,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
   it("Single row selection, with invalid indices", () => {
@@ -972,7 +1004,7 @@ describe("Validate getSelectedRow function", () => {
       multiRowSelection: true,
       selectedRowIndices: [undefined],
       selectedRowIndex: -1,
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -983,7 +1015,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
   it("Single row selection, with invalid indices", () => {
@@ -992,7 +1023,7 @@ describe("Validate getSelectedRow function", () => {
       multiRowSelection: true,
       selectedRowIndices: [null],
       selectedRowIndex: -1,
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -1003,7 +1034,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
   it("Single row selection, with invalid indices", () => {
@@ -1012,7 +1042,7 @@ describe("Validate getSelectedRow function", () => {
       multiRowSelection: true,
       selectedRowIndices: ["1", "2"],
       selectedRowIndex: -1,
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -1023,7 +1053,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
   it("Single row selection, with invalid indices", () => {
@@ -1032,7 +1061,7 @@ describe("Validate getSelectedRow function", () => {
       multiRowSelection: true,
       selectedRowIndices: "1",
       selectedRowIndex: -1,
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -1043,7 +1072,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
   it("Single row selection, with invalid indices", () => {
@@ -1052,7 +1080,7 @@ describe("Validate getSelectedRow function", () => {
       multiRowSelection: true,
       selectedRowIndices: "test",
       selectedRowIndex: -1,
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -1063,7 +1091,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
 });
@@ -1073,17 +1100,16 @@ describe("Validate getTriggeredRow function", () => {
     const { getTriggeredRow } = derivedProperty;
     const input = {
       triggeredRowIndex: 1,
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
     expect(getTriggeredRow(input, moment, _)).toStrictEqual({
-      id: 234,
-      name: "Jane Doe",
-      extra: "Extra2",
-      __originalIndex__: 2,
+      id: 123,
+      name: "John Doe",
+      extra: "Extra1",
     });
   });
 
@@ -1091,7 +1117,7 @@ describe("Validate getTriggeredRow function", () => {
     const { getTriggeredRow } = derivedProperty;
     const input = {
       triggeredRowIndex: 0,
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -1101,7 +1127,6 @@ describe("Validate getTriggeredRow function", () => {
       id: 1234,
       name: "Jim Doe",
       extra: "",
-      __originalIndex__: 0,
     });
   });
 
@@ -1109,7 +1134,7 @@ describe("Validate getTriggeredRow function", () => {
     const { getTriggeredRow } = derivedProperty;
     const input = {
       triggeredRowIndex: -1,
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -1120,7 +1145,6 @@ describe("Validate getTriggeredRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
 
@@ -1128,7 +1152,7 @@ describe("Validate getTriggeredRow function", () => {
     const { getTriggeredRow } = derivedProperty;
     const input = {
       triggeredRowIndex: "test",
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -1139,14 +1163,14 @@ describe("Validate getTriggeredRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
+
   it("with invalid triggered row index", () => {
     const { getTriggeredRow } = derivedProperty;
     const input = {
       triggeredRowIndex: undefined,
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -1157,7 +1181,6 @@ describe("Validate getTriggeredRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
 });
@@ -1166,8 +1189,9 @@ describe("Validate getSelectedRows function", () => {
   it("with valid index", () => {
     const { getSelectedRows } = derivedProperty;
     const input = {
+      multiRowSelection: true,
       selectedRowIndices: [1],
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -1178,7 +1202,6 @@ describe("Validate getSelectedRows function", () => {
         id: 234,
         name: "Jane Doe",
         extra: "Extra2",
-        __originalIndex__: 2,
       },
     ]);
   });
@@ -1186,8 +1209,9 @@ describe("Validate getSelectedRows function", () => {
   it("with valid indices", () => {
     const { getSelectedRows } = derivedProperty;
     const input = {
+      multiRowSelection: true,
       selectedRowIndices: [0, 1],
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -1198,13 +1222,11 @@ describe("Validate getSelectedRows function", () => {
         id: 1234,
         name: "Jim Doe",
         extra: "",
-        __originalIndex__: 0,
       },
       {
         id: 234,
         name: "Jane Doe",
         extra: "Extra2",
-        __originalIndex__: 2,
       },
     ]);
   });
@@ -1213,7 +1235,7 @@ describe("Validate getSelectedRows function", () => {
     const { getSelectedRows } = derivedProperty;
     const input = {
       selectedRowIndices: [0, "test"],
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -1226,7 +1248,7 @@ describe("Validate getSelectedRows function", () => {
     const { getSelectedRows } = derivedProperty;
     const input = {
       selectedRowIndices: [],
-      sanitizedTableData: [
+      processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
@@ -1237,7 +1259,7 @@ describe("Validate getSelectedRows function", () => {
 });
 
 describe("Validate getOrderedTableColumns function", () => {
-  it.only("should test tht it returns the columns array from the primaryColumn", () => {
+  it("should test tht it returns the columns array from the primaryColumn", () => {
     const { getOrderedTableColumns } = derivedProperty;
 
     const input = {
@@ -1270,7 +1292,7 @@ describe("Validate getOrderedTableColumns function", () => {
     expect(getOrderedTableColumns(input, moment, _)).toStrictEqual(expected);
   });
 
-  it.only("should test that it returns the columns array from the primaryColumn based on column order", () => {
+  it("should test that it returns the columns array from the primaryColumn based on column order", () => {
     const { getOrderedTableColumns } = derivedProperty;
 
     const input = {
@@ -1303,10 +1325,10 @@ describe("Validate getOrderedTableColumns function", () => {
     expect(getOrderedTableColumns(input, moment, _)).toStrictEqual(expected);
   });
 
-  it.only("should test that it returns the columns array from the primaryColumn based on column order and sets sort order details", () => {
+  it("should test that it returns the columns array from the primaryColumn based on column order and sets sort order details", () => {
     const { getOrderedTableColumns } = derivedProperty;
 
-    const input = {
+    let input = {
       columnOrder: ["name", "id"],
       primaryColumns: {
         id: {
@@ -1324,7 +1346,7 @@ describe("Validate getOrderedTableColumns function", () => {
       },
     };
 
-    const expected = [
+    let expected = [
       {
         index: 0,
         id: "name",
@@ -1373,7 +1395,7 @@ describe("Validate getOrderedTableColumns function", () => {
     expect(getOrderedTableColumns(input, moment, _)).toStrictEqual(expected);
   });
 
-  it.only("should test that it removes the column with empty name", () => {
+  it("should test that it removes the column with empty name", () => {
     const { getOrderedTableColumns } = derivedProperty;
 
     const input = {

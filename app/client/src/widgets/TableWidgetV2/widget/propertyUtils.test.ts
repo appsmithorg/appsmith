@@ -252,10 +252,8 @@ describe("PropertyUtils - ", () => {
       {
         propertyPath: "primaryColumns.column3",
         propertyValue: {
-          buttonColor: "#03B365",
           id: "column3",
           labelColor: "#FFFFFF",
-          menuColor: "#03B365",
         },
       },
     ]);

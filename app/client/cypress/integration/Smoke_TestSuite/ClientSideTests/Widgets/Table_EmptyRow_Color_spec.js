@@ -1,4 +1,3 @@
-const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/tableNewDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
@@ -18,7 +17,7 @@ describe("Table Widget empty row color validation", function() {
     cy.selectColor("cellbackground", -27);
     cy.wait("@updateLayout");
     cy.get(commonlocators.editPropBackButton).click({ force: true });
-
+    cy.wait(1000);
     cy.editColumn("email");
     cy.selectColor("cellbackground", -33);
     cy.wait("@updateLayout");
