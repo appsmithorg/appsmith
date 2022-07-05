@@ -41,6 +41,7 @@ describe("Postgres - Datatype Numeric tests", function() {
     dataSources.EnterQuery(query);
     cy.get(".CodeMirror textarea").focus();
     dataSources.RunQuery();
+    ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(
