@@ -1,0 +1,18 @@
+{
+  "identifier": "DELETE",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'DELETE_ONE' && actionConfiguration.formData.entityType.data == 'ROWS'}}"
+  },
+  "children": [
+    {
+      "label": "Row Index",
+      "tooltipText": "The rowIndex property of the row object returned by the fetch query",
+      "propertyName": "rows_delete_rowIndex",
+      "configProperty": "actionConfiguration.formData.rowIndex.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "isRequired": true,
+      "placeholderText": "{{Table1.selectedRow.rowIndex}}"
+    }
+  ]
+}
