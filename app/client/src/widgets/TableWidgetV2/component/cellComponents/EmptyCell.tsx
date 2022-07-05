@@ -1,5 +1,6 @@
 import React from "react";
 import { Cell, Row } from "react-table";
+import { getPropertyValue } from "widgets/TableWidgetV2/widget/utilities";
 import { ReactTableColumnProps } from "../Constants";
 import { EmptyCell, EmptyRow } from "../TableStyledWrappers";
 import { renderBodyCheckBoxCell } from "./CheckboxCell";
@@ -29,14 +30,16 @@ export const renderEmptyRows = (
         <div {...rowProps} className="tr" key={index}>
           {multiRowSelection &&
             renderBodyCheckBoxCell(false, accentColor, borderRadius)}
-          {row.cells.map((cell: Cell<Record<string, unknown>>) => {
+          {row.cells.map((cell: Cell<Record<string, unknown>>, index) => {
             const cellProps = cell.getCellProps();
             if (
-              columns[0]?.columnProperties?.cellBackground &&
+              columns[index]?.columnProperties?.cellBackground &&
               cellProps.style
             ) {
-              cellProps.style.background =
-                columns[0].columnProperties.cellBackground;
+              cellProps.style.background = getPropertyValue(
+                columns[index].columnProperties.cellBackground,
+                0,
+              );
             }
             return <div {...cellProps} className="td" key={cellProps.key} />;
           })}
