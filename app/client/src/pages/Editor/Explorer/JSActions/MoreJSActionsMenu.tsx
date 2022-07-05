@@ -20,6 +20,7 @@ import {
   CONTEXT_MOVE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { getPageListAsOptions } from "selectors/entitiesSelector";
 
 type EntityContextMenuProps = {
   id: string;
@@ -103,13 +104,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
     [dispatch],
   );
 
-  const menuPages = useSelector((state: AppState) => {
-    return state.entities.pageList.pages.map((page) => ({
-      label: page.pageName,
-      id: page.pageId,
-      value: page.pageName,
-    }));
-  });
+  const menuPages = useSelector(getPageListAsOptions);
 
   return (
     <TreeDropdown
