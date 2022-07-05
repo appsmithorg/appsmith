@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
-
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
-public class GetStructureMethod implements Method {
+public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
 
     ObjectMapper objectMapper;
     FilterDataService filterDataService;
@@ -41,7 +41,7 @@ public class GetStructureMethod implements Method {
     Pattern findOffsetRowPattern = Pattern.compile("(\\d+):");
 
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig) {
+    public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
                 if (Integer.parseInt(methodConfig.getTableHeaderIndex()) <= 0) {
@@ -52,12 +52,15 @@ public class GetStructureMethod implements Method {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Unexpected format for table header index. Please use a number starting from 1");
             }
+        } else {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    "Unexpected format for table header index. Please use a number starting from 1");
         }
         return true;
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
+    public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
 
         final List<String> ranges = validateInputs(methodConfig);
 
@@ -96,9 +99,9 @@ public class GetStructureMethod implements Method {
     }
 
     @Override
-    public JsonNode transformResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
-            throw new AppsmithPluginException( AppsmithPluginError.PLUGIN_ERROR, "Missing a valid response object.");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing a valid response object.");
         }
 
         ArrayNode valueRanges = (ArrayNode) response.get("valueRanges");
@@ -173,5 +176,52 @@ public class GetStructureMethod implements Method {
         }
 
         return headerSet;
+    }
+
+    @Override
+    public boolean validateTriggerMethodRequest(MethodConfig methodConfig) {
+        return this.validateExecutionMethodRequest(methodConfig);
+    }
+
+    @Override
+    public WebClient.RequestHeadersSpec<?> getTriggerClient(WebClient webClient, MethodConfig methodConfig) {
+        return this.getExecutionClient(webClient, methodConfig);
+    }
+
+    @Override
+    public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig) {
+        if (response == null) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing a valid response object.");
+        }
+
+        ArrayNode valueRanges = (ArrayNode) response.get("valueRanges");
+        ArrayNode headers = (ArrayNode) valueRanges.get(0).get("values");
+        ArrayNode values = valueRanges.get(1) != null ? (ArrayNode) valueRanges.get(1).get("values") : null;
+        int valueSize = 0;
+
+        if (headers == null || headers.isEmpty()) {
+            return this.objectMapper.createArrayNode();
+        }
+        if (values != null) {
+            for (int i = 0; i < values.size(); i++) {
+                valueSize = Math.max(valueSize, values.get(i).size());
+            }
+        }
+
+        headers = (ArrayNode) headers.get(0);
+        Set<String> columnsSet = sanitizeHeaders(headers, valueSize);
+
+        List<Map<String, String>> columnsList = new ArrayList<>();
+        columnsSet
+                .stream()
+                .forEach(columnName -> {
+                    columnsList.add(Map.of(
+                            "label", columnName,
+                            "value", columnName
+                    ));
+                });
+
+
+        return this.objectMapper.valueToTree(columnsList);
     }
 }
