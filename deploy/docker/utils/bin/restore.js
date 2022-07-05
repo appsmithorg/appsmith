@@ -26,9 +26,9 @@ async function getBackupFileName() {
   }
   console.log('----------------------------------------------------------------');
 
-  var backupFileIndex = Number(readlineSync.question('Please enter the backup file index: '));
+  var backupFileIndex = parseInt(readlineSync.question('Please enter the backup file index: '));
   if (!isNaN(backupFileIndex) && Number.isInteger(backupFileIndex) && (backupFileIndex >= 0) && (backupFileIndex < backupFiles.length)) {
-    return backupFiles[Number(backupFileIndex)];
+    return backupFiles[parseInt(backupFileIndex)];
   }
   else {
     console.log('Invalid input, please try the command again with a valid option');
