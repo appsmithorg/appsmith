@@ -6,7 +6,8 @@ import { TabTitle, TabComponent, TabProp } from "components/ads/Tabs";
 import { Tab, TabList, Tabs } from "react-tabs";
 
 const StyledTabComponent = styled(TabComponent)`
-  border: 3px solid red;
+  height: auto;
+
   .react-tabs__tab-list {
     display: none;
   }

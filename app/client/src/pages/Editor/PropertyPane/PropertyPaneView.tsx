@@ -23,13 +23,7 @@ import styled from "styled-components";
 import { InputWrapper } from "components/ads/TextInput";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 
-const PropertyPaneContent = styled.div`
-  .react-tabs .react-tabs__tab-list {
-    display: none;
-  }
-`;
-
-const StyledSearchInput = styled(SearchInput)`
+export const StyledSearchInput = styled(SearchInput)`
   position: sticky;
   top: 52px;
   z-index: 10;
@@ -181,7 +175,7 @@ function PropertyPaneView(
         )}
       </div>
 
-      <PropertyPaneContent
+      <div
         className="t--property-pane-view"
         data-guided-tour-id="property-pane"
       >
@@ -232,7 +226,7 @@ function PropertyPaneView(
             type={widgetProperties.type}
           />
         )}
-      </PropertyPaneContent>
+      </div>
     </div>
   );
 }

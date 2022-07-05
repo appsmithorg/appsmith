@@ -25,6 +25,8 @@ export type PanelConfig = {
   titlePropertyName: string;
   panelIdPropertyName: string;
   children: PropertyPaneConfig[];
+  contentChildren?: PropertyPaneConfig[];
+  styleChildren?: PropertyPaneConfig[];
   updateHook: (
     props: any,
     propertyPath: string,

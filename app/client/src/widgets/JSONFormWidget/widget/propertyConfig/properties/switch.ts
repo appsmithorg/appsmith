@@ -59,6 +59,39 @@ const PROPERTIES = {
       dependencies: ["schema", "sourceData"],
     },
   ],
+  content: {
+    data: [
+      {
+        propertyName: "defaultValue",
+        label: "Default Selected",
+        helpText: "Sets the On/Off default state of the field",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        customJSControl: "JSON_FORM_COMPUTE_VALUE",
+        validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.SWITCH),
+        dependencies: ["schema", "sourceData"],
+      },
+    ],
+    events: [
+      {
+        helpText: "Triggers an action when the switch state is changed",
+        propertyName: "onChange",
+        label: "onChange",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        additionalAutoComplete: getAutocompleteProperties,
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.SWITCH),
+        dependencies: ["schema", "sourceData"],
+      },
+    ],
+  },
 };
 
 export default PROPERTIES;

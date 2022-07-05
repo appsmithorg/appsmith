@@ -381,6 +381,7 @@ export function TabComponent(
 
   return (
     <TabsWrapper
+      className={props.className}
       data-cy={props.cypressSelector}
       responseViewer={props.responseViewer}
       shouldOverflow={props.overflow}

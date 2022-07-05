@@ -116,6 +116,88 @@ function generatePanelPropertyConfig(
         },
       },
     ],
+    // Add contentChildren & styleChildren here
+    // And make use of them in PanelPropertiesEditor
+    contentChildren: [
+      {
+        sectionName: "Data",
+        children: [
+          ...COMMON_PROPERTIES.content.data,
+          ...INPUT_PROPERTIES.content.data,
+          ...SWITCH_PROPERTIES.content.data,
+          ...SELECT_PROPERTIES.content.data,
+          ...RADIO_GROUP_PROPERTIES.content.data,
+          ...MULTI_SELECT_PROPERTIES.content.data,
+          ...DATE_PROPERTIES.content.data,
+          ...CHECKBOX_PROPERTIES.general,
+          {
+            propertyName: "children",
+            label: "Field Configuration",
+            controlType: "FIELD_CONFIGURATION",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            panelConfig: generatePanelPropertyConfig(nestingLevel - 1),
+            hidden: (...args: HiddenFnParams) => {
+              return getSchemaItem(...args).compute((schemaItem) => {
+                return (
+                  schemaItem.fieldType !== FieldType.OBJECT &&
+                  isEmpty(schemaItem.children)
+                );
+              });
+            },
+            dependencies: ["schema", "childStylesheet"],
+          },
+        ],
+      },
+      {
+        sectionName: "Validation",
+        children: [
+          ...INPUT_PROPERTIES.content.validation,
+          ...DATE_PROPERTIES.content.validation,
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          ...COMMON_PROPERTIES.content.general,
+          ...INPUT_PROPERTIES.content.general,
+          ...SELECT_PROPERTIES.content.general,
+          ...MULTI_SELECT_PROPERTIES.content.general,
+          ...COMMON_PROPERTIES.content.generalSwitch,
+          ...MULTI_SELECT_PROPERTIES.content.toggles,
+          ...DATE_PROPERTIES.content.general,
+        ],
+      },
+      {
+        sectionName: "Events",
+        children: [
+          ...CHECKBOX_PROPERTIES.actions,
+          ...DATE_PROPERTIES.content.events,
+          ...MULTI_SELECT_PROPERTIES.content.events,
+          ...INPUT_PROPERTIES.content.events,
+          ...SWITCH_PROPERTIES.content.events,
+          ...SELECT_PROPERTIES.content.events,
+          ...COMMON_PROPERTIES.content.events,
+          ...RADIO_GROUP_PROPERTIES.content.events,
+        ],
+      },
+    ],
+    styleChildren: [
+      {
+        sectionName: "Label Styles",
+        children: [...COMMON_PROPERTIES.style.label],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [...COMMON_PROPERTIES.style.borderShadow],
+      },
+      {
+        sectionName: "Color",
+        children: [...COMMON_PROPERTIES.style.color],
+      },
+      ...OBJECT_PROPERTIES.sections,
+      ...ARRAY_PROPERTIES.sections,
+    ],
   } as PanelConfig;
 }
 
