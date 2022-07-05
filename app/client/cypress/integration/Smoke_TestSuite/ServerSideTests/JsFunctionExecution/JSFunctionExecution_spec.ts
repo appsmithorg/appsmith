@@ -6,11 +6,13 @@ const jsEditor = ObjectsRegistry.JSEditor,
   ee = ObjectsRegistry.EntityExplorer,
   table = ObjectsRegistry.Table,
   agHelper = ObjectsRegistry.AggregateHelper,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  propPane = ObjectsRegistry.PropertyPane;
 
 let onPageLoadAndConfirmExecuteFunctionsLength: number,
   getJSObject: any,
-  functionsLength: number, jsObj: any;
+  functionsLength: number,
+  jsObj: string;
 
 describe("JS Function Execution", function() {
   interface IFunctionSettingData {
@@ -50,6 +52,22 @@ describe("JS Function Execution", function() {
     ee.DragDropWidgetNVerify("tablewidget", 300, 300);
     ee.NavigateToSwitcher("explorer");
   });
+  function assertAsyncFunctionsOrder(data: IFunctionSettingData[]) {
+    // sorts functions alphabetically
+    const sortFunctions = (data: IFunctionSettingData[]) =>
+      data.sort((a, b) => a.name.localeCompare(b.name));
+    cy.get(jsEditor._asyncJSFunctionSettings).then(function($lis) {
+      const asyncFunctionLength = $lis.length;
+      // Assert number of async functions
+      expect(asyncFunctionLength).to.equal(functionsLength);
+      Object.values(sortFunctions(data)).forEach((functionSetting, idx) => {
+        // Assert alphabetical order
+        expect($lis.eq(idx)).to.have.id(
+          jsEditor._getJSFunctionSettingsId(functionSetting.name),
+        );
+      });
+    });
+  }
 
   it("1. Allows execution of js function when lint warnings(not errors) are present in code", function() {
     jsEditor.CreateJSObject(
@@ -155,9 +173,8 @@ describe("JS Function Execution", function() {
         toRun: false,
         shouldCreateNewJSObj: true,
       });
-
       // Assert presence of toast message
-      agHelper.ValidateToastMessage(invalidJSObjectStartToastMessage);
+      agHelper.WaitUntilToastDisappear(invalidJSObjectStartToastMessage);
 
       // Assert presence of lint error at the start line
       cy.get(locator._lintErrorElement)
@@ -170,8 +187,75 @@ describe("JS Function Execution", function() {
     assertInvalidJSObjectStart(jsObjectStartingWithANewLine, jsObjectStartLine);
     assertInvalidJSObjectStart(jsObjectStartingWithASpace, jsObjectStartLine);
   });
+  it("5. Verify that js function execution errors are logged in debugger and removed when function is deleted", () => {
+    const JS_OBJECT_WITH_PARSE_ERROR = `export default {
+      myVar1: [],
+      myVar2: {},
+      myFun1: () => {
+        //write code here
+        return Table1.unknown.name
+      }
+    }`;
 
-  it("5. Supports the use of large JSON data (doesn't crash)", () => {
+    const JS_OBJECT_WITHOUT_PARSE_ERROR = `export default {
+      myVar1: [],
+      myVar2: {},
+      myFun1: () => {
+        //write code here
+        return Table1.unknown
+      }
+    }`;
+
+    const JS_OBJECT_WITH_DELETED_FUNCTION = `export default {
+      myVar1: [],
+      myVar2: {}
+    }`;
+
+    // Create js object
+    jsEditor.CreateJSObject(JS_OBJECT_WITH_PARSE_ERROR, {
+      paste: true,
+      completeReplace: true,
+      toRun: true,
+      shouldCreateNewJSObj: true,
+    });
+
+    // Assert that there is a function execution parse error
+    jsEditor.AssertParseError(true, true);
+    // click the debug icon
+    agHelper.GetNClick(jsEditor._debugCTA);
+    // Assert that errors tab is not empty
+    cy.contains("No signs of trouble here!").should("not.exist");
+    // Assert presence of typeError
+    cy.contains(
+      "TypeError: Cannot read properties of undefined (reading 'name')",
+    ).should("exist");
+
+    // Fix parse error and assert that debugger error is removed
+    jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR);
+    agHelper.GetNClick(jsEditor._runButton);
+    jsEditor.AssertParseError(false, true);
+    agHelper.GetNClick(locator._errorTab);
+    cy.contains(
+      "TypeError: Cannot read properties of undefined (reading 'name')",
+    ).should("not.exist");
+
+    // Switch back to response tab
+    agHelper.GetNClick(locator._responseTab);
+    // Re-introduce parse errors
+    jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR);
+    agHelper.GetNClick(jsEditor._runButton);
+    // Assert that there is a function execution parse error
+    jsEditor.AssertParseError(true, true);
+
+    // Delete function
+    jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION);
+    // Assert that parse error is removed from debugger when function is deleted
+    agHelper.GetNClick(locator._errorTab);
+    cy.contains(
+      "TypeError: Cannot read properties of undefined (reading 'name')",
+    ).should("not.exist");
+  });
+  it("6. Supports the use of large JSON data (doesn't crash)", () => {
     const jsObjectWithLargeJSONData = `export default{
       largeData: ${JSON.stringify(largeJSONData)},
       myfun1: ()=> this.largeData
@@ -199,7 +283,7 @@ describe("JS Function Execution", function() {
 
     cy.get("@jsObjName").then((jsObjName) => {
       ee.SelectEntityByName("Table1", "WIDGETS");
-      jsEditor.EnterJSContext("Table Data", `{{${jsObjName}.largeData}}`);
+      propPane.UpdatePropertyFieldValue("Table Data", `{{${jsObjName}.largeData}}`);
     });
 
     // Deploy App and test that table loads properly
@@ -211,7 +295,7 @@ describe("JS Function Execution", function() {
     });
   });
 
-  it("6. Doesn't cause cyclic dependency when function name is edited", () => {
+  it("7. Doesn't cause cyclic dependency when function name is edited", () => {
     const syncJSCode = `export default {
       myFun1 :()=>{
         return "yes"
@@ -254,7 +338,6 @@ describe("JS Function Execution", function() {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    agHelper.WaitUntilToastDisappear("created successfully");
 
     // change sync function name and test that cyclic dependency is not created
     jsEditor.EditJSObj(syncJSCodeWithRenamedFunction1);
@@ -268,15 +351,13 @@ describe("JS Function Execution", function() {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    agHelper.WaitUntilToastDisappear("created successfully");
     // change async function name and test that cyclic dependency is not created
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction1);
     agHelper.AssertElementAbsence(locator._toastMsg);
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2);
     agHelper.AssertElementAbsence(locator._toastMsg);
   });
-
-  it("7. Maintains order of async functions in settings tab alphabetically at all times", function() {
+  it("8. Maintains order of async functions in settings tab alphabetically at all times", function() {
     functionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.length;
     // Number of functions set to run on page load and should also confirm before execute
     onPageLoadAndConfirmExecuteFunctionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.filter(
@@ -341,7 +422,7 @@ describe("JS Function Execution", function() {
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
   });
 
-  it("8. Verify Asyn methods alphabetical order after clone page and after rename", () => {
+  it("9. Verify Async methods have alphabetical order after cloning page and renaming it", () => {
     const FUNCTIONS_SETTINGS_RENAMED_DATA: IFunctionSettingData[] = [
       {
         name: "newGetId",
@@ -379,7 +460,7 @@ describe("JS Function Execution", function() {
       agHelper.Sleep();
     }
 
-    ee.SelectEntityByName(jsObj as string, "QUERIES/JS");
+    ee.SelectEntityByName(jsObj, "QUERIES/JS");
 
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
@@ -391,21 +472,4 @@ describe("JS Function Execution", function() {
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
   });
-
-  function assertAsyncFunctionsOrder(data: IFunctionSettingData[]) {
-    // sorts functions alphabetically
-    const sortFunctions = (data: IFunctionSettingData[]) =>
-      data.sort((a, b) => a.name.localeCompare(b.name));
-    cy.get(jsEditor._asyncJSFunctionSettings).then(function($lis) {
-      const asyncFunctionLength = $lis.length;
-      // Assert number of async functions
-      expect(asyncFunctionLength).to.equal(functionsLength);
-      Object.values(sortFunctions(data)).forEach((functionSetting, idx) => {
-        // Assert alphabetical order
-        expect($lis.eq(idx)).to.have.id(
-          jsEditor._getJSFunctionSettingsId(functionSetting.name),
-        );
-      });
-    });
-  }
 });
