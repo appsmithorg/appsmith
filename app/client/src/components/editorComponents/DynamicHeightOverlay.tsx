@@ -17,6 +17,7 @@ interface OverlayDisplayProps {
 }
 
 const OverlayDisplay = styled.div<OverlayDisplayProps>`
+  display: ${(props) => (props.isActive ? "block" : "none")};
   position: absolute;
   top: 0;
   left: 0;
