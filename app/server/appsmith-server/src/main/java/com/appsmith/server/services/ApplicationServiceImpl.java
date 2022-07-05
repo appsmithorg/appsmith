@@ -28,10 +28,11 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   ConfigService configService,
                                   CommentThreadRepository commentThreadRepository,
                                   SessionUserService sessionUserService,
-                                  ResponseUtils responseUtils) {
+                                  ResponseUtils responseUtils,
+                                  PermissionGroupService permissionGroupService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policyUtils,
-                configService, commentThreadRepository, sessionUserService, responseUtils);
+                configService, commentThreadRepository, sessionUserService, responseUtils, permissionGroupService);
 
     }
 }

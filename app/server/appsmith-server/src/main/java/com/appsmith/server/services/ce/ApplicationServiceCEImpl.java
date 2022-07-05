@@ -33,6 +33,7 @@ import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
@@ -68,24 +69,29 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     private final SessionUserService sessionUserService;
     private final ResponseUtils responseUtils;
 
+    private final PermissionGroupService permissionGroupService;
+
     @Autowired
     public ApplicationServiceCEImpl(Scheduler scheduler,
-                                  Validator validator,
-                                  MongoConverter mongoConverter,
-                                  ReactiveMongoTemplate reactiveMongoTemplate,
-                                  ApplicationRepository repository,
-                                  AnalyticsService analyticsService,
-                                  PolicyUtils policyUtils,
-                                  ConfigService configService,
-                                  CommentThreadRepository commentThreadRepository,
-                                  SessionUserService sessionUserService,
-                                  ResponseUtils responseUtils) {
+                                    Validator validator,
+                                    MongoConverter mongoConverter,
+                                    ReactiveMongoTemplate reactiveMongoTemplate,
+                                    ApplicationRepository repository,
+                                    AnalyticsService analyticsService,
+                                    PolicyUtils policyUtils,
+                                    ConfigService configService,
+                                    CommentThreadRepository commentThreadRepository,
+                                    SessionUserService sessionUserService,
+                                    ResponseUtils responseUtils,
+                                    PermissionGroupService permissionGroupService) {
+
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
         this.commentThreadRepository = commentThreadRepository;
         this.sessionUserService = sessionUserService;
         this.responseUtils = responseUtils;
+        this.permissionGroupService = permissionGroupService;
     }
 
     @Override
@@ -268,12 +274,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .flatMap(application -> {
 
-                    if (application.getIsPublic().equals(applicationAccessDTO.getPublicAccess())) {
+                    if ((application.getPublicPermissionGroup() != null) && applicationAccessDTO.getPublicAccess()) {
                         // No change. The required public access is the same as current public access. Do nothing
                         return Mono.just(application);
                     }
 
-                    if (application.getIsPublic() == null && applicationAccessDTO.getPublicAccess().equals(false)) {
+                    if (application.getPublicPermissionGroup() == null && applicationAccessDTO.getPublicAccess().equals(false)) {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
 
