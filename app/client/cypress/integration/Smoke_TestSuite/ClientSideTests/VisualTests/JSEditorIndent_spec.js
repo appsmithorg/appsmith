@@ -8,7 +8,7 @@ describe("JSEditor Indendation - Visual tests", () => {
   //  2. Run test in headless mode with any browser except chrome.(to maintain same resolution in CI)
   //  3. New screenshot will be generated in the snapshot folder.
 
-  it("1. JSEditor validation for Prettify Code with lint errors, triggered by menu option", () => {
+  it("1. TC 1864 : JSEditor validation for Prettify Code with lint errors, triggered by menu option", () => {
     jsEditor.CreateJSObject(
       `export default {
 myVar1: [], myVar2: {},myFun1: () => {
@@ -32,7 +32,9 @@ return Promise.all(allFuncs).then(() => showAlert("Wonderful! all apis executed"
       },
     );
 
-    cy.get("[name='expand-more']").click({ multiple: true, force: true });
+    cy.get("[name='expand-more']")
+      .eq(1)
+      .click({ force: true });
 
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify1");
     cy.get(".t--more-action-menu")
@@ -49,11 +51,9 @@ return Promise.all(allFuncs).then(() => showAlert("Wonderful! all apis executed"
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify1");
   });
 
-  it("2. JSEditor validation for Prettify Code with no errors, triggered by menu option", () => {
+  it("2. TC 1916, 1917 : JSEditor validation for Prettify Code with no errors, triggered by menu option", () => {
     jsEditor.CreateJSObject(
       `export default {
-myVar1: [],
-myVar2: {},
 myFun1: () => {
 console.log("hi");
 console.log("hidchjvxz sd,bcjmsd");
@@ -84,13 +84,15 @@ myFun2: async () => {
 }`,
       {
         paste: true,
-        completeReplace: false,
+        completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
       },
     );
 
-    cy.get("[name='expand-more']").click({ multiple: true, force: true });
+    cy.get("[name='expand-more']")
+      .eq(1)
+      .click({ force: true });
 
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify2");
     cy.get(".t--more-action-menu")
@@ -120,7 +122,7 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
   });
 
-  it("3. JSEditor validation for Prettify Code with lint errors, triggered by keyboard shortcut", () => {
+  it("3. TC 1863 : JSEditor validation for Prettify Code with lint errors, triggered by keyboard shortcut", () => {
     jsEditor.CreateJSObject(
       `export default {
 myVar1: [],
@@ -147,7 +149,9 @@ myFun2: async () => {
       },
     );
 
-    cy.get("[name='expand-more']").click({ multiple: true, force: true });
+    cy.get("[name='expand-more']")
+      .eq(1)
+      .click({ force: true });
 
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify3");
     cy.get("div.CodeMirror").type("{shift+cmd+p}");
@@ -159,7 +163,7 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify3");
   });
 
-  it("4. JSEditor validation for Prettify Code with no errors, triggered by keyboard shortcut", () => {
+  it("4. TC 1863 : JSEditor validation for Prettify Code with no errors, triggered by keyboard shortcut", () => {
     jsEditor.CreateJSObject(
       `export default {
 myVar1: [],
@@ -194,13 +198,15 @@ myFun2: async () => {
 }`,
       {
         paste: true,
-        completeReplace: false,
+        completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
       },
     );
 
-    cy.get("[name='expand-more']").click({ multiple: true, force: true });
+    cy.get("[name='expand-more']")
+      .eq(1)
+      .click({ force: true });
 
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify4");
     cy.get("div.CodeMirror").type("{shift+cmd+p}");
@@ -234,7 +240,9 @@ myFun2: async () => {
       shouldCreateNewJSObj: true,
     });
 
-    cy.get("[name='expand-more']").click({ multiple: true, force: true });
+    cy.get("[name='expand-more']")
+      .eq(1)
+      .click({ force: true });
 
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforeGoLineStartSmart5");
 
@@ -242,8 +250,6 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterGoLineStartSmart5");
 
     cy.get("div.CodeMirror").type("{cmd+leftArrow}");
-    cy.get("div.CodeMirror").matchImageSnapshot(
-      "jsObjAfterGoLineStartSmartTwice5",
-    );
+    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterGoLineStartSmart5");
   });
 });
