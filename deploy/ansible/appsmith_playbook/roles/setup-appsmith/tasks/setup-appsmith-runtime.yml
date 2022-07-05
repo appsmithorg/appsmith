@@ -37,3 +37,12 @@
     owner: "{{ cloud_user }}"
     group: "{{ cloud_group }}"
   become: yes
+
+- name: setup ssh key for {{ default_user }} user
+  copy:
+    src: templates/init-ssh.sh
+    dest: /var/lib/cloud/scripts/per-instance
+    mode: 0755
+    owner: "{{ default_user }}"
+    group: "{{ cloud_group }}"
+  become: yes

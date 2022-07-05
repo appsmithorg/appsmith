@@ -31,3 +31,5 @@ install_dir: '~/appsmith'
 cloud_user: appsmith
 cloud_group: appsmith
 cloud_directory: '/home/appsmith/appsmith'
+
+default_user: ubuntu

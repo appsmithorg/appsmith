@@ -83,7 +83,7 @@ echo "Downloading the Docker Compose file..."
 mkdir -p "$install_dir"
 (
     cd "$install_dir"
-    curl -L https://github.com/appsmithorg/appsmith/raw/master/deploy/aws_ami/docker-compose.yml -o $PWD/docker-compose.yml
+    curl -L https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.3/.gitbook/assets/docker-compose%20\(1\).yml -o $PWD/docker-compose.yml
 )
 
 # Step 2: Pulling the latest container images
