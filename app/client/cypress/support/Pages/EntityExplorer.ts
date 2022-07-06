@@ -104,6 +104,7 @@ export class EntityExplorer {
     entityNameinLeftSidebar: string,
     action = "Delete",
     subAction = "",
+    jsDelete = false,
   ) {
     this.agHelper.Sleep();
     cy.xpath(this._contextMenu(entityNameinLeftSidebar))
@@ -114,6 +115,10 @@ export class EntityExplorer {
     if (subAction) {
       cy.xpath(this._contextMenuItem(subAction)).click({ force: true });
       this.agHelper.Sleep(500);
+    }
+    if (action == "Delete") {
+      jsDelete && this.agHelper.ValidateNetworkStatus("@deleteJSCollection");
+      jsDelete && this.agHelper.WaitUntilToastDisappear("deleted successfully");
     }
   }
 
