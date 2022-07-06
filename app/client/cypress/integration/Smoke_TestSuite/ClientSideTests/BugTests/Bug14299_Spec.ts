@@ -125,7 +125,7 @@ describe("[Bug]: The data from the query does not show up on the widget #14299",
     ee.ActionContextMenuByEntityName(
       "JSObject1",
       "Delete",
-      "Are you sure?",
+      "Are you sure?", true
     );
     deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
     deployMode.NavigateBacktoEditor();
