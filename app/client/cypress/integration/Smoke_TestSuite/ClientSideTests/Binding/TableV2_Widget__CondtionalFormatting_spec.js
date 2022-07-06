@@ -4,7 +4,8 @@ describe("Table Widget V2 condtional formatting to remain consistent", function(
   before(() => {
     cy.addDsl(dsl);
   });
-  it("check the cell styles before and after sorting", function() {
+
+  it("1. check the cell styles before and after sorting", function() {
     cy.openPropertyPane("tablewidgetv2");
     //Check Font weight, font style, and text color before sorting
     cy.readTableV2dataValidateCSS("0", "1", "font-weight", "700");

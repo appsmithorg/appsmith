@@ -12,7 +12,8 @@ describe("Text-Table v2 Binding Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Text-Table Binding Functionality For Id", function() {
+
+  it("1. Text-Table Binding Functionality For Id", function() {
     cy.openPropertyPane("tablewidgetv2");
     /**
      * @param(Index)  Provide index value to select the row.
@@ -41,7 +42,8 @@ describe("Text-Table v2 Binding Functionality", function() {
       });
     });
   });
-  it("Text-Table Binding Functionality For Email", function() {
+
+  it("2. Text-Table Binding Functionality For Email", function() {
     cy.get(publish.backToEditor).click();
     cy.isSelectRow(2);
     cy.openPropertyPane("textwidget");
@@ -67,7 +69,8 @@ describe("Text-Table v2 Binding Functionality", function() {
       });
     });
   });
-  it("Text-Table Binding Functionality For Total Length", function() {
+
+  it("3. Text-Table Binding Functionality For Total Length", function() {
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{Table1.pageSize}}");
@@ -91,7 +94,8 @@ describe("Text-Table v2 Binding Functionality", function() {
           });
       });
   });
-  it("Table Widget Functionality To Verify Default Row Selection is working", function() {
+
+  it("4. Table Widget Functionality To Verify Default Row Selection is working", function() {
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tablewidgetv2");
     cy.testJsontext("defaultselectedrow", "2");
@@ -110,7 +114,8 @@ describe("Text-Table v2 Binding Functionality", function() {
       cy.get(commonlocators.TextInside).should("have.text", tabValueP);
     });
   });
-  it("Text-Table Binding Functionality For Username", function() {
+
+  it("5. Text-Table Binding Functionality For Username", function() {
     cy.get(publish.backToEditor).click();
     /**
      * @param(Index)  Provide index value to select the row.
@@ -139,7 +144,4 @@ describe("Text-Table v2 Binding Functionality", function() {
       });
     });
   });
-});
-afterEach(() => {
-  // put your clean up code if any
 });

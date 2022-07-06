@@ -9,7 +9,7 @@ describe("Binding the Table and input Widget", function() {
     cy.addDsl(dsl);
   });
 
-  it("Input widget test with default value from table widget", function() {
+  it("1. Input widget test with default value from table widget", function() {
     cy.SearchEntityandOpen("Input1");
     cy.testJsontext("defaulttext", testdata.defaultInputWidget + "}}");
 
@@ -20,7 +20,7 @@ describe("Binding the Table and input Widget", function() {
     );
   });
 
-  it("validation of data displayed in input widgets based on search value set", function() {
+  it("2. validation of data displayed in input widgets based on search value set", function() {
     cy.SearchEntityandOpen("Table1");
     cy.testJsontext("defaultsearchtext", "2736212");
 

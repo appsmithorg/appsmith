@@ -5,7 +5,7 @@ describe("Test Create Api and Bind to Table widget V2", function() {
     cy.addDsl(dsl);
   });
 
-  it("Validate onSearchTextChanged function is called when configured for search text", function() {
+  it("1. Validate onSearchTextChanged function is called when configured for search text", function() {
     cy.wait(5000);
     // input text in search bar
     cy.get(".t--widget-tablewidgetv2 .t--search-input input")
@@ -37,9 +37,5 @@ describe("Test Create Api and Bind to Table widget V2", function() {
     cy.readTableV2dataPublish("0", "0").then((tabData) => {
       expect(tabData).to.eq("#1");
     });
-  });
-
-  afterEach(() => {
-    // put your clean up code if any
   });
 });

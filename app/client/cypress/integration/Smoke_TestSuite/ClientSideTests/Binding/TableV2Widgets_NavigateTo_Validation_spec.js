@@ -10,7 +10,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function() 
     cy.addDsl(dsl);
   });
 
-  it("Table Widget V2 Functionality with multiple page", function() {
+  it("1. Table Widget V2 Functionality with multiple page", function() {
     cy.openPropertyPane("tablewidgetv2");
     cy.widgetText(
       "Table1",
@@ -27,7 +27,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function() 
     cy.assertPageSave();
   });
 
-  it("Create MyPage and valdiate if its successfully created", function() {
+  it("2. Create MyPage and valdiate if its successfully created", function() {
     cy.Createpage(pageid);
     cy.addDsl(dsl2);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -36,7 +36,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function() 
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
   });
 
-  it("Validate NavigateTo Page functionality ", function() {
+  it("3. Validate NavigateTo Page functionality ", function() {
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
