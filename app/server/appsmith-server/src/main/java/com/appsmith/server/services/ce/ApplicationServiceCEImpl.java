@@ -1,9 +1,9 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
@@ -33,13 +33,13 @@ import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
-import com.appsmith.server.services.UserService;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +80,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     private final TenantService tenantService;
 
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     @Autowired
     public ApplicationServiceCEImpl(Scheduler scheduler,
@@ -96,7 +96,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                     ResponseUtils responseUtils,
                                     PermissionGroupService permissionGroupService,
                                     TenantService tenantService,
-                                    UserService userService) {
+                                    UserRepository userRepository) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
@@ -106,7 +106,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         this.responseUtils = responseUtils;
         this.permissionGroupService = permissionGroupService;
         this.tenantService = tenantService;
-        this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -330,7 +330,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
                         if (applicationAccessDTO.getPublicAccess()) {
                             // Assign anonymousUser to use the newly created permission group
-                            updatedPermissionGroupMono = userService.findByEmail(ANONYMOUS_USER).zipWith(permissionGroupMono)
+                            updatedPermissionGroupMono = userRepository.findByEmail(ANONYMOUS_USER).zipWith(permissionGroupMono)
                                     .flatMap(tuple -> {
                                         User anonymousUser = tuple.getT1();
                                         PermissionGroup permissionGroup = tuple.getT2();
