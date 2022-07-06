@@ -279,6 +279,7 @@
   },
   "husky": {
     "hooks": {
+      "post-merge": "git-secrets --register-aws",
       "pre-commit": "lint-staged && git secrets --scan -r"
     }
   },
