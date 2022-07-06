@@ -228,7 +228,7 @@ function PageListItem(props: PageListItemProps) {
               </TooltipComponent>
             </Actions>
           </div>
-          <CustomURLSlug page={item} />
+          {/* <CustomURLSlug page={item} /> */}
         </div>
         {/* Disabling drag on action items as attempting to drag also invokes the click event.
          Clicks events in child elements could be disabled once we upgrade react-use-gesture to
@@ -245,7 +245,7 @@ type CustomURLSlugProp = {
 const isPageLoading = (pageId: string) => (state: AppState) =>
   state.entities.pageList.loading[pageId];
 
-function CustomURLSlug(props: CustomURLSlugProp) {
+export function CustomURLSlug(props: CustomURLSlugProp) {
   const { page } = props;
   const applicationVersion = useSelector(selectApplicationVersion);
   const [customSlug, setCustomSlug] = useState(page.customSlug || "");
