@@ -89,11 +89,12 @@ export function PageMenu(props: AppViewerHeaderProps) {
           "-left-full": !isOpen,
           "left-0": isOpen,
         })}
+        ref={menuRef}
         style={{
           height: `calc(100% - ${headerHeight}px)`,
         }}
       >
-        <div className="flex-grow py-3 overflow-y-auto" ref={menuRef}>
+        <div className="flex-grow py-3 overflow-y-auto">
           {appPages.map((page) => (
             <NavLink
               activeClassName="border-r-3 font-semibold"
@@ -139,7 +140,16 @@ export function PageMenu(props: AppViewerHeaderProps) {
             />
           )}
           <PrimaryCTA className="t--back-to-editor--mobile" url={props.url} />
-          {!hideWatermark && <BrandingBadge />}
+          {!hideWatermark && (
+            <a
+              className="flex hover:no-underline"
+              href="https://appsmith.com"
+              rel="noreferrer"
+              target="_blank"
+            >
+              <BrandingBadge />
+            </a>
+          )}
         </div>
       </div>
     </>
