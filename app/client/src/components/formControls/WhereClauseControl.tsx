@@ -31,14 +31,14 @@ export type whereClauseValueType = {
 const valueFieldConfig: any = {
   key: "value",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
-  placeholderText: "value",
+  placeholderText: "Value",
 };
 
 // Form config for the key field
 const keyFieldConfig: any = {
   key: "key",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
-  placeholderText: "key",
+  placeholderText: "Column name",
 };
 
 // Form config for the condition field
@@ -339,7 +339,7 @@ function ConditionBlock(props: any) {
                       onDeletePressed(index);
                     }}
                     size={IconSize.SMALL}
-                    top={"14px"}
+                    top={"24px"}
                   />
                 </ConditionBox>
               ) : (

@@ -31,7 +31,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
       dataSources.NavigateFromActiveDS(guid, true);
       agHelper.GetNClick(dataSources._templateMenu);
       agHelper.RenameWithInPane("ParamsTest");
-      agHelper.EnterValue(
+      dataSources.EnterQuery(
         "SELECT * FROM public.users where id = {{this?.params?.condition || '1=1'}} order by id",
       );
       jsEditor.CreateJSObject(
@@ -73,7 +73,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
   it("2. With Optional chaining : {{ (function() { return this?.params?.condition })() }}", function() {
     ee.SelectEntityByName("ParamsTest", "QUERIES/JS");
-    agHelper.EnterValue(
+    dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(function() { return this?.params?.condition })() || '1=1'}} order by id",
     );
     deployMode.DeployApp(locator._spanButton("Submit"));
@@ -88,7 +88,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
   it("3. With Optional chaining : {{ (() => { return this?.params?.condition })() }}", function() {
     ee.SelectEntityByName("ParamsTest", "QUERIES/JS");
-    agHelper.EnterValue(
+    dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this?.params?.condition })() || '1=1'}} order by id",
     );
     deployMode.DeployApp(locator._spanButton("Submit"));
@@ -103,7 +103,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
   it("4. With Optional chaining : {{ this?.params.condition }}", function() {
     ee.SelectEntityByName("ParamsTest", "QUERIES/JS");
-    agHelper.EnterValue(
+    dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{this?.params.condition || '1=1'}} order by id",
     );
     deployMode.DeployApp(locator._spanButton("Submit"));
@@ -118,7 +118,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
   it("5. With Optional chaining : {{ (function() { return this?.params.condition })() }}", function() {
     ee.SelectEntityByName("ParamsTest", "QUERIES/JS");
-    agHelper.EnterValue(
+    dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(function() { return this?.params.condition })() || '1=1'}} order by id",
     );
     deployMode.DeployApp(locator._spanButton("Submit"));
@@ -133,7 +133,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
   it("6. With Optional chaining : {{ (() => { return this?.params.condition })() }}", function() {
     ee.SelectEntityByName("ParamsTest", "QUERIES/JS");
-    agHelper.EnterValue(
+    dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this?.params.condition })() || '1=1'}} order by id",
     );
     deployMode.DeployApp(locator._spanButton("Submit"));
@@ -148,7 +148,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
   it("7. With No Optional chaining : {{ this.params.condition }}", function() {
     ee.SelectEntityByName("ParamsTest", "QUERIES/JS");
-    agHelper.EnterValue(
+    dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{this.params.condition || '1=1'}} order by id",
     );
     deployMode.DeployApp(locator._spanButton("Submit"));
@@ -163,7 +163,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
   it("8. With No Optional chaining : {{ (function() { return this.params.condition })() }}", function() {
     ee.SelectEntityByName("ParamsTest", "QUERIES/JS");
-    agHelper.EnterValue(
+    dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(function() { return this.params.condition })() || '1=1'}} order by id",
     );
     deployMode.DeployApp(locator._spanButton("Submit"));
@@ -178,7 +178,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
   it("9. With No Optional chaining : {{ (() => { return this.params.condition })() }}", function() {
     ee.SelectEntityByName("ParamsTest", "QUERIES/JS");
-    agHelper.EnterValue(
+    dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })() || '1=1'}} order by id",
     );
     deployMode.DeployApp(locator._spanButton("Submit"));
@@ -193,7 +193,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
   it("10. With Optional chaining : {{ this.params.condition }} && direct paramter passed", function() {
     ee.SelectEntityByName("ParamsTest", "QUERIES/JS");
-    agHelper.EnterValue(
+    dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })() || '7'}} order by id",
     );
 
@@ -212,7 +212,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
   it("11. With Optional chaining : {{ this.params.condition }} && no optional paramter passed", function() {
     ee.SelectEntityByName("ParamsTest", "QUERIES/JS");
-    agHelper.EnterValue(
+    dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })()}} order by id",
     );
     deployMode.DeployApp(locator._spanButton("Submit"));

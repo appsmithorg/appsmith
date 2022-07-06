@@ -37,7 +37,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     });
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.WaitUntilToastDisappear("datasource updated successfully");
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "film");
 
@@ -90,7 +89,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     });
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.WaitUntilToastDisappear("datasource updated successfully");
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "suppliers");
 
@@ -105,7 +103,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    propPane.ChangeTheme("Modern");
+    propPane.ChangeTheme("Sunrise");
   });
 
   it("3. Generate CRUD page from datasource present in ACTIVE section", function() {
@@ -166,13 +164,14 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("CreateVessels");
-    agHelper.EnterValue(tableCreateQuery);
+    dataSources.EnterQuery(tableCreateQuery);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
 
+    ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("public.vessels"));
@@ -276,7 +275,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 	WHERE "ship_id" = {{data_table.selectedRow.ship_id}};`;
 
     ee.SelectEntityByName("UpdateQuery", "QUERIES/JS");
-    agHelper.EnterValue(updateQuery);
+    dataSources.EnterQuery(updateQuery);
     agHelper.AssertAutoSave();
     ee.ExpandCollapseEntity("QUERIES/JS", false);
   });
@@ -518,7 +517,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     );`;
 
     ee.SelectEntityByName("InsertQuery", "QUERIES/JS");
-    agHelper.EnterValue(insertQuery);
+    dataSources.EnterQuery(insertQuery);
     agHelper.AssertAutoSave();
     ee.ExpandCollapseEntity("QUERIES/JS", false);
   });
@@ -688,12 +687,13 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropVessels");
-    agHelper.EnterValue(deleteTblQuery);
+    dataSources.EnterQuery(deleteTblQuery);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
+    ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.vessels"));
@@ -704,7 +704,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropVessels");
-    agHelper.EnterValue(deleteTblQuery);
+    dataSources.EnterQuery(deleteTblQuery);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
