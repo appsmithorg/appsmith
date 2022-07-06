@@ -1333,7 +1333,7 @@ public class DatabaseChangelog2 {
         final Map<String, Object> newWhereClause = new HashMap<>();
         newWhereClause.put("condition", "AND");
         final List<Object> convertedConditionArray = new ArrayList<>();
-        newWhereClause.put("children", convertedConditionArray);
+
 
         if (oldWhereClauseArray instanceof List) {
             ((ArrayList) oldWhereClauseArray)
@@ -1342,11 +1342,16 @@ public class DatabaseChangelog2 {
                         if (oldWhereClauseCondition != null) {
                             Map<String, Object> newWhereClauseCondition = new HashMap<>();
                             final Map clauseCondition = (Map) oldWhereClauseCondition;
+                            if (clauseCondition.isEmpty()) {
+                                return;
+                            }
                             if (clauseCondition.containsKey("path")) {
                                 newWhereClauseCondition.put("key", clauseCondition.get("path"));
                             }
                             if (clauseCondition.containsKey("operator")) {
                                 newWhereClauseCondition.put("condition", clauseCondition.get("operator"));
+                            } else {
+                                newWhereClauseCondition.put("condition", "LT");
                             }
                             if (clauseCondition.containsKey("value")) {
                                 newWhereClauseCondition.put("value", clauseCondition.get("value"));
@@ -1354,6 +1359,10 @@ public class DatabaseChangelog2 {
                             convertedConditionArray.add(newWhereClauseCondition);
                         }
                     });
+        }
+
+        if (!convertedConditionArray.isEmpty()) {
+            newWhereClause.put("children", convertedConditionArray);
         }
 
         return newWhereClause;
