@@ -170,7 +170,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     ee.ActionContextMenuByEntityName(
       jsName as string,
       "Delete",
-      "Are you sure?",
+      "Are you sure?", true
     );
 
     ee.ActionContextMenuByEntityName("GetUser", "Delete", "Are you sure?");
@@ -220,7 +220,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       ee.ActionContextMenuByEntityName(
         jsName as string,
         "Delete",
-        "Are you sure?",
+        "Are you sure?", true
       );
     });
   });
@@ -559,7 +559,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     ee.ActionContextMenuByEntityName(
       jsName as string,
       "Delete",
-      "Are you sure?",
+      "Are you sure?", true
     );
   });
 
