@@ -8,6 +8,8 @@
   },
   "cracoConfig": "craco.dev.config.js",
   "dependencies": {
+    "@babel/helper-builder-react-jsx": "^7.18.6",
+    "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
     "@blueprintjs/core": "^3.36.0",
     "@blueprintjs/datetime": "^3.23.6",
     "@blueprintjs/icons": "^3.10.0",
