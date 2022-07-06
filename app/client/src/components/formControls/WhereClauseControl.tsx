@@ -339,7 +339,7 @@ function ConditionBlock(props: any) {
                       onDeletePressed(index);
                     }}
                     size={IconSize.SMALL}
-                    top={"14px"}
+                    top={"24px"}
                   />
                 </ConditionBox>
               ) : (
