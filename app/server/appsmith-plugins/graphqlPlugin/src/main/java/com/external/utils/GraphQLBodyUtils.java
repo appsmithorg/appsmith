@@ -7,7 +7,6 @@ import com.appsmith.external.models.Property;
 import graphql.parser.InvalidSyntaxException;
 import graphql.parser.Parser;
 import org.json.JSONObject;
-import net.minidev.json.parser.ParseException;
 import org.json.JSONException;
 
 import java.util.ArrayList;
@@ -52,7 +51,6 @@ public class GraphQLBodyUtils {
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                     "Invalid GraphQL body: " + e.getMessage());
         }
-
         final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
         String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
         if (!isEmpty(variables)) {

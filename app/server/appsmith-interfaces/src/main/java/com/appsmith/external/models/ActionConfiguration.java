@@ -11,6 +11,7 @@ import org.springframework.http.HttpMethod;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 
@@ -55,12 +56,13 @@ public class ActionConfiguration implements AppsmithDomain {
     String prev;
 
     /**
-     * This field is supposed to contain all action config data that may contain valid references to itself. This
-     * field has been excluded from dynamic binding path map computation in PageLoadActionUtilCEImpl.java so that any
-     * self referencing binding in this data path will not cause a cyclic dependency error. This field should ideally
-     * replace the usage of `next` and `prev` fields defined above. 
+     * This field is supposed to hold a set of paths that are expected to contain bindings that refer to the same action
+     * object i.e. a cyclic reference. e.g. A GraphQL API response can contain pagination cursors that are required
+     * to be configured in the pagination tab of the same API. We don't want to treat these cyclic references as
+     * cyclic dependency errors.
      */
-    Object selfReferencingData;
+    @Transient
+    Set<String> selfReferencingDataPaths;
 
     // DB action fields
 

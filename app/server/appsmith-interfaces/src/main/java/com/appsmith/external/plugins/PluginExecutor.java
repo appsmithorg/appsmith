@@ -222,4 +222,14 @@ public interface PluginExecutor<C> extends ExtensionPoint {
     default ActionConfiguration extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
         return actionConfiguration;
     }
+
+    /**
+     * This method returns a set of paths that are expected to contain bindings that refer to the same action
+     * object i.e. a cyclic reference. e.g. A REST API response can contain pagination related URL that would
+     * have to be configured in the pagination tab of the same API. We don't want to treat these cyclic
+     * references as cyclic dependency errors.
+     */
+    default Set<String> getSelfReferencingDataPaths() {
+        return Set.of("prev", "next");
+    }
 }

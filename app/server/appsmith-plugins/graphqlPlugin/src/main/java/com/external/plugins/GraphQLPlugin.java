@@ -261,5 +261,16 @@ public class GraphQLPlugin extends BasePlugin {
             String jsonBody = (String) input;
             return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);
         }
+
+        /**
+         * This method returns a set of paths that are expected to contain bindings that refer to the
+         * same action object i.e. a cyclic reference. e.g. A GraphQL API response can contain pagination
+         * cursors that are required to be configured in the pagination tab of the same API. We don't want to treat
+         * these cyclic references as cyclic dependency errors.
+         */
+        @Override
+        public Set<String> getSelfReferencingDataPaths() {
+            return Set.of("pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value");
+        }
     }
 }

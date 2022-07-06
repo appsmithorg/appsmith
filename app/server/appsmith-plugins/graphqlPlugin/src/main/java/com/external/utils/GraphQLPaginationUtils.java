@@ -8,7 +8,6 @@ import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
 import org.json.JSONObject;
-import net.minidev.json.parser.ParseException;
 import org.json.JSONException;
 
 import java.util.HashMap;
@@ -19,28 +18,20 @@ import java.util.Set;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
 import static com.appsmith.external.helpers.PluginUtils.parseStringIntoJSONObject;
-import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInPropertyList;
 import static com.external.utils.GraphQLBodyUtils.PAGINATION_DATA_INDEX;
-import static com.external.utils.GraphQLConstants.CURSOR;
-import static com.external.utils.GraphQLConstants.LIMIT;
 import static com.external.utils.GraphQLConstants.LIMIT_VAL;
 import static com.external.utils.GraphQLConstants.LIMIT_VARIABLE_NAME;
-import static com.external.utils.GraphQLConstants.NAME;
-import static com.external.utils.GraphQLConstants.NEXT;
 import static com.external.utils.GraphQLConstants.NEXT_CURSOR_VAL;
 import static com.external.utils.GraphQLConstants.NEXT_CURSOR_VARIABLE_NAME;
 import static com.external.utils.GraphQLConstants.NEXT_LIMIT_VAL;
 import static com.external.utils.GraphQLConstants.NEXT_LIMIT_VARIABLE_NAME;
-import static com.external.utils.GraphQLConstants.OFFSET;
 import static com.external.utils.GraphQLConstants.OFFSET_VAL;
 import static com.external.utils.GraphQLConstants.OFFSET_VARIABLE_NAME;
-import static com.external.utils.GraphQLConstants.PREV;
 import static com.external.utils.GraphQLConstants.PREV_CURSOR_VAL;
 import static com.external.utils.GraphQLConstants.PREV_CURSOR_VARIABLE_NAME;
 import static com.external.utils.GraphQLConstants.PREV_LIMIT_VAL;
 import static com.external.utils.GraphQLConstants.PREV_LIMIT_VARIABLE_NAME;
-import static com.external.utils.GraphQLConstants.VALUE;
 import static com.external.utils.GraphQLHintMessageUtils.getHintMessagesForDuplicatesInQueryVariables;
 import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
@@ -48,14 +39,21 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class GraphQLPaginationUtils {
     public static Map getPaginationData(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
+        List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+        if (properties.size() < PAGINATION_DATA_INDEX + 1) {
+            return null;
+        }
+
         Map<String, Object> paginationData = null;
         if (PaginationType.PAGE_NO.equals(actionConfiguration.getPaginationType())) {
-            paginationData = getValueSafelyFromFormData((Map) actionConfiguration.getSelfReferencingData(),
-                    "paginationData.limitBased", Map.class, null);
+            paginationData =
+                    getValueSafelyFromFormData((Map) properties.get(PAGINATION_DATA_INDEX).getValue(),
+                    "limitBased", Map.class, null);
         }
         else if (PaginationType.CURSOR.equals(actionConfiguration.getPaginationType())) {
-            paginationData = getValueSafelyFromFormData((Map) actionConfiguration.getSelfReferencingData(),
-                    "paginationData.cursorBased", Map.class, null);
+            paginationData =
+                    getValueSafelyFromFormData((Map) properties.get(PAGINATION_DATA_INDEX).getValue(),
+                    "cursorBased", Map.class, null);
         }
 
         if (isEmpty(paginationData)) {
