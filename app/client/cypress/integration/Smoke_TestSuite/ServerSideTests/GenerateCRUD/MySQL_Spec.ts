@@ -44,7 +44,6 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     });
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.WaitUntilToastDisappear("datasource updated successfully");
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(
       dataSources._dropdownOption,
@@ -95,7 +94,6 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     });
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.WaitUntilToastDisappear("datasource updated successfully");
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "customers");
 
@@ -162,13 +160,14 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("CreateProductLines");
-    agHelper.EnterValue(tableCreateQuery);
+    dataSources.EnterQuery(tableCreateQuery);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
 
+    ee.ExpandCollapseEntity("DATASOURCES")
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("productlines"));
@@ -303,7 +302,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("CreateStores");
-    agHelper.EnterValue(tableCreateQuery);
+    dataSources.EnterQuery(tableCreateQuery);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
@@ -583,12 +582,13 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropStores");
-    agHelper.EnterValue(deleteTblQuery);
+    dataSources.EnterQuery(deleteTblQuery);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
+    ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("Stores"));
@@ -599,7 +599,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropStores");
-    agHelper.EnterValue(deleteTblQuery);
+    dataSources.EnterQuery(deleteTblQuery);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
