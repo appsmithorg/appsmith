@@ -145,5 +145,9 @@
   "treeTextBindingValue": "{{TreeSelect1.selectedOptionValue}}",
   "multiSelectTextBindingValue": "{{MultiSelect1.selectedOptionValues}}",
   "tabBindingValue": "{{Tabs1.selectedTab}}",
-  "tableBindingValue": "{{Table1.selectedRow.step}}"
+  "tableBindingValue": "{{Table1.selectedRow.step}}",
+  "switchGroupBindingValue": "{{SwitchGroup1.selectedValues}}",
+  "switchBindingValue": "{{Switch1.selectedValue}}",
+  "selectBindingValue": "{{Select1.selectedOptionValue}}",
+  "currencyBindingValue": "{{CurrencyInput1.selectedValue}}"
 }

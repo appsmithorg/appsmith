@@ -7,7 +7,10 @@ export const WIDGET = {
   MULTISELECT_WIDGET: "multiselectwidgetv2",
   TREESELECT_WIDGET: "singleselecttreewidget",
   TAB: "tabswidget",
-  TABLE: "tablewidget"
+  TABLE: "tablewidget",
+  SWITCHGROUP: "switchgroupwidget",
+  SWITCH: "switchwidget",
+  SELECT: "selectwidget"
 } as const;
 
 export const PROPERTY_SELECTOR = {
