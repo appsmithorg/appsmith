@@ -8,14 +8,16 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRepository, PermissionGroup, String>
@@ -47,9 +49,14 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     }
     
     public Mono<PermissionGroup> assignToUser(PermissionGroup permissionGroup, User user) {
+        return bulkAssignToUsers(permissionGroup, List.of(user));
+    }
+
+    @Override
+    public Mono<PermissionGroup> bulkAssignToUsers(PermissionGroup permissionGroup, List<User> users) {
         return repository.findById(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS)
                 .flatMap(pg -> {
-                    pg.getAsignedToUserIds().add(user.getId());
+                    pg.getAsignedToUserIds().addAll(users.stream().map(User::getId).collect(Collectors.toList()));
                     return repository.updateById(pg.getId(), pg, AclPermission.ASSIGN_PERMISSION_GROUPS);
                 });
     }

@@ -720,12 +720,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                .collectList()
                .cache();
 
-       // Add user to user group
-       Mono<UserGroup> bulkAddUserResultMono = Mono.zip(permissionGroupMono, inviteUsersMono)
+       // assign permission group to the invited users.
+       Mono<PermissionGroup> bulkAddUserResultMono = Mono.zip(permissionGroupMono, inviteUsersMono)
                .flatMap(tuple -> {
-                   UserGroup userGroup = tuple.getT1();
+                   PermissionGroup permissionGroup = tuple.getT1();
                    List<User> users = tuple.getT2();
-                   return userGroupService.bulkAddUsers(userGroup, users);
+                   return permissionGroupService.bulkAssignToUsers(permissionGroup, users);
                }).cache();
 
        // Send analytics event and don't wait for the result
@@ -742,9 +742,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                    return Mono.empty();
                });
 
-       return Mono.zip(bulkAddUserResultMono, sendAnalyticsEventMono).then(inviteUsersMono);
-
-        return null;
+        return Mono.zip(bulkAddUserResultMono, sendAnalyticsEventMono).then(inviteUsersMono);
     }
 
     private Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader,

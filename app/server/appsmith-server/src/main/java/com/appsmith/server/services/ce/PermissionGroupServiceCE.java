@@ -7,6 +7,7 @@ import com.appsmith.server.services.CrudService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Set;
 
 public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, String> {
@@ -18,5 +19,7 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
     Mono<PermissionGroup> getById(String id, AclPermission permission);
 
     Mono<PermissionGroup> assignToUser(PermissionGroup permissionGroup, User user);
+
+    Mono<PermissionGroup> bulkAssignToUsers(PermissionGroup permissionGroup, List<User> users);
     
 }
