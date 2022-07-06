@@ -50,7 +50,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.RenameWithInPane("GetUser");
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      agHelper.EnterValue(
+      dataSources.EnterQuery(
         "SELECT * FROM public.users where id = {{" +
           jsObjName +
           ".getId.data}}",
@@ -418,7 +418,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     dataSources.NavigateFromActiveDS(guid, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("getCitiesList");
-    agHelper.EnterValue(
+    dataSources.EnterQuery(
       "SELECT distinct city FROM public.city order by city ASC",
     );
 
@@ -460,7 +460,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       // dataSources.NavigateToActiveDSQueryPane(guid);
       // agHelper.GetNClick(dataSources._templateMenu);
       // agHelper.RenameWithInPane("getCountry");
-      // agHelper.EnterValue(
+      // dataSources.EnterQuery(
       //   "SELECT country FROM public.city as City join public.country Country on City.country_id=Country.country_id where City.city = {{" +
       //     jsObjName +
       //     ".getSelectedCity()}}",

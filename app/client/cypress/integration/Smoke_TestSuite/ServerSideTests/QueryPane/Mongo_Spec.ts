@@ -44,7 +44,6 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.WaitUntilToastDisappear("datasource updated successfully");
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "friends");
 
@@ -643,15 +642,16 @@ describe("Validate Mongo Query Pane Validations", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
 
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
+    agHelper.RenameWithInPane("DropAuthorNAwards"); //Due to template appearing after renaming
     agHelper.GetNClick(dataSources._templateMenu);
 
-    agHelper.RenameWithInPane("DropAuthorNAwards");
-    agHelper.EnterValue(dropCollection);
+    dataSources.EnterQuery(dropCollection);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
+    ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("AuthorNAwards"));
@@ -663,7 +663,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropAuthorNAwards");
-    agHelper.EnterValue(dropCollection);
+    dataSources.EnterQuery(dropCollection);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 

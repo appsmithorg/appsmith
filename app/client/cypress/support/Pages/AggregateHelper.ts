@@ -139,7 +139,11 @@ export class AggregateHelper {
     });
   }
 
-  public WaitUntilToastDisappear(msgToCheckforDisappearance: string | "", index = 0 , length = 1) {
+  public WaitUntilToastDisappear(
+    msgToCheckforDisappearance: string | "",
+    index = 0,
+    length = 1,
+  ) {
     this.ValidateToastMessage(msgToCheckforDisappearance, index, length);
     cy.waitUntil(() => cy.get(this.locator._toastMsg), {
       errorMsg: msgToCheckforDisappearance + " did not disappear",
@@ -444,8 +448,11 @@ export class AggregateHelper {
   public ToggleSwitch(
     switchName: string,
     toggle: "check" | "uncheck" = "check",
+    jsonSwitch = false,
   ) {
-    const locator = cy.xpath(this.locator._switchToggle(switchName));
+    const locator = jsonSwitch
+      ? cy.xpath(this.locator._jsonToggle(switchName))
+      : cy.xpath(this.locator._switchToggle(switchName));
     const parentLoc = locator.parent("label");
     if (toggle == "check")
       parentLoc.then(($parent) => {
@@ -551,10 +558,6 @@ export class AggregateHelper {
           this.UpdateCodeInput($field, valueToEnter);
         },
       );
-    } else {
-      cy.get(this.locator._codeEditorTarget).then(($field: any) => {
-        this.UpdateCodeInput($field, valueToEnter);
-      });
     }
     this.AssertAutoSave();
   }
