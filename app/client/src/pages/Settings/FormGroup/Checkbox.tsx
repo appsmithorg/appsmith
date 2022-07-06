@@ -23,7 +23,7 @@ const CheckboxWrapper = styled.div`
   gap: 16px;
 `;
 
-const StyledAuthButton = styled(Button)`
+const UpgradeButton = styled(Button)`
   height: 30px;
   width: 94px;
   padding: 8px 16px;
@@ -74,7 +74,7 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
         />
         <div>{labelSuffix}</div>
         {props.needsUpgrade && (
-          <StyledAuthButton
+          <UpgradeButton
             category={Category.tertiary}
             onClick={() => onUpgrade()}
             text="Upgrade"
