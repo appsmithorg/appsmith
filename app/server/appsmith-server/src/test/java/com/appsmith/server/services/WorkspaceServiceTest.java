@@ -13,7 +13,7 @@ import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.UserAndGroupDTO;
+import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -422,7 +422,7 @@ public class WorkspaceServiceTest {
         testWorkspace.setWebsite("https://test.com");
 
         Mono<Workspace> createWorkspaceMono = workspaceService.create(testWorkspace);
-        Mono<List<UserAndGroupDTO>> usersMono = createWorkspaceMono
+        Mono<List<UserAndPermissionGroupDTO>> usersMono = createWorkspaceMono
                 .flatMap(workspace -> userWorkspaceService.getWorkspaceMembers(workspace.getId()));
 
 //        Mono<UserGroup> adminUserGroup = createWorkspaceMono

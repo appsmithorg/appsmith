@@ -6,7 +6,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
-import com.appsmith.server.dtos.UserAndGroupDTO;
+import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -20,9 +20,17 @@ import com.appsmith.server.services.UserDataService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -69,7 +77,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                .flatMapMany(tuple -> {
                    Workspace workspace = tuple.getT1();
                    User user = tuple.getT2();
-                   return permissionGroupService.getAllByUserAndDefaultWorkspace(user, workspace);
+                   return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, AclPermission.READ_PERMISSION_GROUPS);
                })
                //TODO do we handle case of multiple default permission group ids
                .single()
@@ -82,7 +90,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                // If we cannot find the groups, that means either user is not part of any default group or current user has no access to the group
                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change userGroup of a member")));
 
-        return oldDefaultPermissionGroupsMono.flatMap(permissionGroup -> permissionGroupService.unassignSelf(permissionGroup))
+        return oldDefaultPermissionGroupsMono.flatMap(permissionGroup -> permissionGroupService.unassignFromSelf(permissionGroup))
                .then(userMono);
     }
 
@@ -96,7 +104,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
      */
     @Transactional
     @Override
-    public Mono<UserAndGroupDTO> updatePermissionGroupForMember(String workspaceId, UpdatePermissionGroupDTO changeUserGroupDTO, String originHeader) {
+    public Mono<UserAndPermissionGroupDTO> updatePermissionGroupForMember(String workspaceId, UpdatePermissionGroupDTO changeUserGroupDTO, String originHeader) {
         if (changeUserGroupDTO.getUsername() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAME));
         }
@@ -111,123 +119,111 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, changeUserGroupDTO.getUsername())))
                 .cache();
 
-//        Mono<UserGroup> oldDefaultUserGroupMono = Mono.zip(workspaceMono, userMono)
-//                .flatMapMany(tuple -> {
-//                    Workspace workspace = tuple.getT1();
-//                    User user = tuple.getT2();
-//                    return userGroupService.getAllByUserIdAndDefaultWorkspaceId(user.getId(), workspace.getId(), AclPermission.MANAGE_USER_GROUPS);
-//                })
-//                //TODO do we handle case of multiple default group ids
-//                .single()
-//                .flatMap(userGroup -> {
-//                    if(userGroup.getName().startsWith(FieldName.ADMINISTRATOR) && userGroup.getUsers().size() == 1) {
-//                        return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR));
-//                    }
-//                    return Mono.just(userGroup);
-//                })
-//                // If we cannot find the groups, that means either user is not part of any default group or current user has no access to the group
-//                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change userGroup of a member")));
-//
-//        // Remove the user from the old group
-//        Mono<UserGroup> userGroupRemovedMono = oldDefaultUserGroupMono
-//                .zipWith(userMono)
-//                .flatMap(pair -> userGroupService.removeUser(pair.getT1(), pair.getT2()));
-//
-//        // If new group id is not present, just remove the old group and return UserAndGroupDTO
-//        if(!StringUtils.hasText(changeUserGroupDTO.getNewGroupId())) {
-//            return userGroupRemovedMono.then(userMono)
-//                    .map(user ->UserAndGroupDTO.builder().username(user.getUsername()).name(user.getName()).build());
-//        }
-//
-//        // Get the new group
-//        Mono<UserGroup> newDefaultUserGroupMono = Mono.zip(workspaceMono, userMono)
-//                .flatMap(tuple -> {
-//                    Workspace workspace = tuple.getT1();
-//                    User user = tuple.getT2();
-//                    return userGroupService.getByIdAndDefaultWorkspaceId(user.getId(), workspace.getId(), AclPermission.INVITE_USER_GROUPS);
-//                })
-//                // If we cannot find the group, that means either newGroupId is not a default group or current user has no access to the group
-//                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change userGroup of a member")));
-//
-//        // Add the user to the new group
-//        Mono<UserGroup> userGroupAddedMono = newDefaultUserGroupMono
-//                .zipWith(userMono)
-//                .flatMap(pair -> userGroupService.addUser(pair.getT1(), pair.getT2()));
-//
-//        // Remove the old group, add the new group and then return UserAndGroupDTO
-//        return userGroupRemovedMono
-//                .then(userGroupAddedMono).zipWith(userMono)
-//                .map(pair -> {
-//                    User user = pair.getT2();
-//                    UserGroup newUserGroup = pair.getT1();
-//                    return UserAndGroupDTO.builder()
-//                        .username(user.getUsername())
-//                        .name(user.getName())
-//                        .groupName(newUserGroup.getName())
-//                        .groupId(newUserGroup.getId())
-//                        .build();
-//                });
+       Mono<PermissionGroup> oldDefaultPermissionGroupMono = Mono.zip(workspaceMono, userMono)
+               .flatMapMany(tuple -> {
+                   Workspace workspace = tuple.getT1();
+                   User user = tuple.getT2();
+                   return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, AclPermission.READ_PERMISSION_GROUPS);
+               })
+               //TODO do we handle case of multiple default permission group ids
+               .single()
+               .flatMap(permissionGroup -> {
+                   if(permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR) && permissionGroup.getAssignedToUserIds().size() == 1) {
+                       return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR));
+                   }
+                   return Mono.just(permissionGroup);
+               })
+               // If we cannot find the groups, user has not been assigned any default permission group
+               .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change permissionGroup of a member")));
 
-        return null;
+       // Unassigned old pernmission group from user
+       Mono<PermissionGroup> permissionGroupUnassignedMono = oldDefaultPermissionGroupMono
+               .zipWith(userMono)
+               .flatMap(pair -> permissionGroupService.unassignFromUser(pair.getT1(), pair.getT2()));
+
+       // If new permission group id is not present, just unassign old permission group and return PermissionAndGroupDTO
+       if(!StringUtils.hasText(changeUserGroupDTO.getNewPermissionGroup())) {
+           return permissionGroupUnassignedMono.then(userMono)
+                   .map(user ->UserAndPermissionGroupDTO.builder().username(user.getUsername()).name(user.getName()).build());
+       }
+
+       // Get the new permission group
+       Mono<PermissionGroup> newDefaultPermissionGroupMono = permissionGroupService.getById(changeUserGroupDTO.getNewPermissionGroup(), AclPermission.ASSIGN_PERMISSION_GROUPS)
+               // If we cannot find the group, that means either newGroupId is not a default group or current user has no access to the group
+               .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change permissionGroup of a member")));
+
+       // Assign new permission  group to user
+       Mono<PermissionGroup> permissionGroupAssignedMono = newDefaultPermissionGroupMono
+               .zipWith(userMono)
+               .flatMap(pair -> permissionGroupService.assignToUser(pair.getT1(), pair.getT2()));
+
+       // Unassign old permission group, assign new permission group and return UserandPermissionGroupDTO
+       return permissionGroupUnassignedMono
+               .then(permissionGroupAssignedMono).zipWith(userMono)
+               .map(pair -> {
+                   User user = pair.getT2();
+                   PermissionGroup newPermissionGroup = pair.getT1();
+                   return UserAndPermissionGroupDTO.builder()
+                       .username(user.getUsername())
+                       .name(user.getName())
+                       .permissionGroupName(newPermissionGroup.getName())
+                       .permissionGroupId(newPermissionGroup.getId())
+                       .build();
+               });
     }
 
     @Override
-    public Mono<List<UserAndGroupDTO>> getWorkspaceMembers(String workspaceId) {
+    public Mono<List<UserAndPermissionGroupDTO>> getWorkspaceMembers(String workspaceId) {
 
-//        // Read the workspace
-//        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, AclPermission.READ_WORKSPACES);
-//
-//        // Get default user group ids
-//        Mono<Set<String>> defaultUserGroups = workspaceMono
-//                .flatMap(workspace -> Mono.just(workspace.getDefaultUserGroups()));
-//
-//        // Get default user groups
-//        Flux<UserGroup> userGroupFlux = defaultUserGroups
-//                .flatMapMany(userGroupIds -> userGroupService.getAllByIds(userGroupIds, AclPermission.READ_USER_GROUPS));
-//
-//        // Create a list of UserAndGroupDTO from UserGroup list
-//        Mono<List<UserAndGroupDTO>> userAndGroupDTOsMono = userGroupFlux
-//                .collectList()
-//                .map(this::mapUserGroupListToUserAndGroupDTOList).cache();
-//
-//        // Create a map of User.username to User
-//        Mono<Map<String, User>> userMapMono = userAndGroupDTOsMono
-//                .flatMapMany(Flux::fromIterable)
-//                .map(UserAndGroupDTO::getUsername)
-//                .collect(Collectors.toSet())
-//                .flatMapMany(usernames -> userRepository.findAllByEmails(usernames))
-//                .collectMap(User::getUsername)
-//                .cache();
-//
-//        // Update name in the list of UserAndGroupDTO
-//        userAndGroupDTOsMono = userAndGroupDTOsMono
-//                .flatMapMany(Flux::fromIterable)
-//                .zipWith(userMapMono)
-//                .map(tuple -> {
-//                    UserAndGroupDTO userAndGroupDTO = tuple.getT1();
-//                    Map<String, User> userMap = tuple.getT2();
-//                    userAndGroupDTO.setName(userMap.get(userAndGroupDTO.getUsername()).getName()); // update name
-//                    return userAndGroupDTO;
-//                }).collectList().cache();
-//
-//        return userAndGroupDTOsMono;
+       // Read the workspace
+       Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, AclPermission.READ_WORKSPACES);
 
-        return null;
+       // Get default user groups
+       Flux<PermissionGroup> userGroupFlux = workspaceMono
+               .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace));
+
+       // Create a list of UserAndGroupDTO from UserGroup list
+       Mono<List<UserAndPermissionGroupDTO>> userAndPermissionGroupDTOsMono = userGroupFlux
+               .collectList()
+               .map(this::mapPermissionGroupListToUserAndPermissionGroupDTOList).cache();
+
+       // Create a map of User.userId to User
+       Mono<Map<String, User>> userMapMono = userAndPermissionGroupDTOsMono
+               .flatMapMany(Flux::fromIterable)
+               .map(UserAndPermissionGroupDTO::getUserId)
+               .collect(Collectors.toSet())
+               .flatMapMany(userIds -> userRepository.findAllById(userIds))
+               .collectMap(User::getUsername)
+               .cache();
+
+       // Update name and username in the list of UserAndGroupDTO
+       userAndPermissionGroupDTOsMono = userAndPermissionGroupDTOsMono
+               .flatMapMany(Flux::fromIterable)
+               .zipWith(userMapMono)
+               .map(tuple -> {
+                   UserAndPermissionGroupDTO userAndPermissionGroupDTO = tuple.getT1();
+                   Map<String, User> userMap = tuple.getT2();
+                   userAndPermissionGroupDTO.setUsername(userMap.get(userAndPermissionGroupDTO.getUserId()).getUsername()); // update name
+                   userAndPermissionGroupDTO.setName(userMap.get(userAndPermissionGroupDTO.getUserId()).getName()); // update name
+                   return userAndPermissionGroupDTO;
+               }).collectList().cache();
+
+       return userAndPermissionGroupDTOsMono;
     }
 
-//    private List<UserAndGroupDTO> mapUserGroupListToUserAndGroupDTOList(List<UserGroup> userGroupList) {
-//        Set<UserInGroup> userInGroups = new HashSet<>(); // Set of already collected users
-//        List<UserAndGroupDTO> userAndGroupDTOList = new ArrayList<>();
-//        userGroupList.forEach(userGroup -> {
-//            userGroup.getUsers().stream().filter(userInGroup -> !userInGroups.contains(userInGroup)).forEach(userInGroup -> {
-//                userAndGroupDTOList.add(UserAndGroupDTO.builder()
-//                        .username(userInGroup.getUsername())
-//                        .groupName(userGroup.getName())
-//                        .groupId(userGroup.getId())
-//                        .build()); // collect user
-//                userInGroups.add(userInGroup); // update set of already collected users
-//            });
-//        });
-//        return userAndGroupDTOList;
-//    }
+   private List<UserAndPermissionGroupDTO> mapPermissionGroupListToUserAndPermissionGroupDTOList(List<PermissionGroup> permissionGroupList) {
+       Set<String> userIds = new HashSet<>(); // Set of already collected users
+       List<UserAndPermissionGroupDTO> userAndGroupDTOList = new ArrayList<>();
+       permissionGroupList.forEach(permissionGroup -> {
+           permissionGroup.getAssignedToUserIds().stream().filter(userId -> !userIds.contains(userId)).forEach(userId -> {
+               userAndGroupDTOList.add(UserAndPermissionGroupDTO.builder()
+                       .userId(userId)
+                       .permissionGroupName(permissionGroup.getName())
+                       .permissionGroupId(permissionGroup.getId())
+                       .build()); // collect user
+               userIds.add(userId); // update set of already collected users
+           });
+       });
+       return userAndGroupDTOList;
+   }
 }

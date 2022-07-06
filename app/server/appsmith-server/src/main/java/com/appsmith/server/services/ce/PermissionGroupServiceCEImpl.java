@@ -69,12 +69,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     }
 
     @Override
-    public Flux<PermissionGroup> getAllByUserAndDefaultWorkspace(User user, Workspace defaultWorkspace) {
-        return repository.findAllByAssignedToUserIdsInAndDefaultWorkspaceId(user.getId(), defaultWorkspace.getId());
-    }
-
-    @Override
-    public Mono<PermissionGroup> unassignSelf(PermissionGroup permissionGroup) {
+    public Mono<PermissionGroup> unassignFromSelf(PermissionGroup permissionGroup) {
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> {
                     permissionGroup.getAssignedToUserIds().remove(user.getId());
@@ -85,5 +80,19 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     @Override
     public Flux<PermissionGroup> getByDefaultWorkspace(Workspace workspace) {
         return repository.findByDefaultWorkspaceId(workspace.getId());
+    }
+
+    @Override
+    public Flux<PermissionGroup> getAllByAssignedToUserAndDefaultWorkspace(User user, Workspace defaultWorkspace, AclPermission permission) {
+        return repository.findAllByAssignedToUserIdAndDefaultWorkspaceId(user.getId(), defaultWorkspace.getId(), permission);
+    }
+
+    @Override
+    public Mono<PermissionGroup> unassignFromUser(PermissionGroup permissionGroup, User user) {
+        return repository.findById(permissionGroup.getId(), AclPermission.MANAGE_PERMISSION_GROUPS)
+                .flatMap(pg -> {
+                    pg.getAssignedToUserIds().remove(user.getId());
+                    return repository.updateById(pg.getId(), pg, AclPermission.MANAGE_PERMISSION_GROUPS);
+                });
     }
 }
