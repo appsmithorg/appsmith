@@ -279,7 +279,7 @@
   },
   "husky": {
     "hooks": {
-      "post-merge": "git-secrets --register-aws && echo secrets registered",
+      "post-checkout": "git-secrets --register-aws && echo secrets registered",
       "pre-commit": "lint-staged && git secrets --scan -r"
     }
   },
