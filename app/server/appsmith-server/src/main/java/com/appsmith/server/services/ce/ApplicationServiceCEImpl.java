@@ -382,23 +382,23 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     private Mono<? extends Application> generateAndSetPoliciesForView(Application application, String permissionGroupId,
-                                                                      Boolean publicAccess) {
+                                                                      Boolean addViewAccess) {
 
 
-        Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermissionForObject(READ_APPLICATIONS, permissionGroupId);
+        Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermissionWithPermissionGroup(READ_APPLICATIONS, permissionGroupId);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermissionForObject(EXECUTE_DATASOURCES, permissionGroupId);
+        Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermissionWithPermissionGroup(EXECUTE_DATASOURCES, permissionGroupId);
         Map<String, Policy> themePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
                 applicationPolicyMap, Application.class, Theme.class
         );
 
         final Flux<NewPage> updatedPagesFlux = policyUtils
-                .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
+                .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, addViewAccess);
         // Use the same policy map as actions for action collections since action collections have the same kind of permissions
         final Flux<ActionCollection> updatedActionCollectionsFlux = policyUtils
-                .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, isPublic);
-        Flux<Theme> updatedThemesFlux = policyUtils.updateThemePolicies(application, themePolicyMap, isPublic);
+                .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, addViewAccess);
+        Flux<Theme> updatedThemesFlux = policyUtils.updateThemePolicies(application, themePolicyMap, addViewAccess);
         final Flux<NewAction> updatedActionsFlux = updatedPagesFlux
                 .collectList()
                 .thenMany(updatedActionCollectionsFlux)
@@ -406,7 +406,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .then(Mono.justOrEmpty(application.getId()))
                 .thenMany(updatedThemesFlux)
                 .collectList()
-                .flatMapMany(applicationId -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, isPublic));
+                .flatMapMany(applicationId -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, addViewAccess));
 
         return updatedActionsFlux
                 .collectList()
@@ -428,14 +428,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         }
                     }
 
-                    return policyUtils.updateWithNewPoliciesToDatasourcesByDatasourceIds(datasourceIds, datasourcePolicyMap, isPublic)
+                    return policyUtils.updateWithNewPoliciesToDatasourcesByDatasourceIds(datasourceIds, datasourcePolicyMap, addViewAccess)
                             .collectList();
                 })
                 .thenReturn(application)
                 .flatMap(app -> {
                     Application updatedApplication;
 
-                    if (isPublic) {
+                    if (addViewAccess) {
                         updatedApplication = policyUtils.addPoliciesToExistingObject(applicationPolicyMap, application);
                     } else {
                         updatedApplication = policyUtils.removePoliciesFromExistingObject(applicationPolicyMap, application);

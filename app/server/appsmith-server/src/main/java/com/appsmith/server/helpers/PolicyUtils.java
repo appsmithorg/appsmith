@@ -163,7 +163,7 @@ public class PolicyUtils {
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
-    public Map<String, Policy> generatePolicyFromPermissionForObject(AclPermission permission, String permissionGroupId) {
+    public Map<String, Policy> generatePolicyFromPermissionWithPermissionGroup(AclPermission permission, String permissionGroupId) {
 
         Policy policyWithCurrentPermission = Policy.builder().permission(permission.getValue())
                 .permissionGroups(Set.of(permissionGroupId))
