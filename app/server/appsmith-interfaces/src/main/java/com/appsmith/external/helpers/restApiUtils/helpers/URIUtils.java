@@ -21,21 +21,12 @@ import java.util.Set;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class URIUtils {
     public static final Set<String> DISALLOWED_HOSTS = Set.of(
             "169.254.169.254",
             "metadata.google.internal"
     );
-
-    protected static URIUtils uriUtils;
-    public static URIUtils getInstance() {
-        if (uriUtils == null) {
-            uriUtils = new URIUtils();
-        }
-
-        return uriUtils;
-    }
 
     public URI createUriWithQueryParams(ActionConfiguration actionConfiguration,
                                         DatasourceConfiguration datasourceConfiguration, String url,

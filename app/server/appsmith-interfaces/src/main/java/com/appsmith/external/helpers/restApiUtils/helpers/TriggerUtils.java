@@ -53,7 +53,7 @@ import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class TriggerUtils {
 
     public static String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
@@ -65,18 +65,7 @@ public class TriggerUtils {
             "application/pkcs8",
             "application/x-binary");
 
-    public static HeaderUtils headerUtils = HeaderUtils.getInstance();
-
-    protected static TriggerUtils triggerUtils;
-    public static TriggerUtils getInstance() {
-        if (triggerUtils == null) {
-            triggerUtils = new TriggerUtils();
-        }
-
-        return triggerUtils;
-    }
-
-
+    public static HeaderUtils headerUtils = new HeaderUtils();
 
     public Mono<ActionExecutionResult> triggerApiCall(WebClient client, HttpMethod httpMethod, URI uri,
                                                              Object requestBody,

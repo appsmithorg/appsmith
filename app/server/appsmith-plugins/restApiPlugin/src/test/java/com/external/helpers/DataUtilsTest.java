@@ -83,7 +83,7 @@ public class DataUtilsTest {
 
     @Before
     public void setUp() {
-        dataUtils = DataUtils.getInstance();
+        dataUtils = new DataUtils();
     }
 
     @Test

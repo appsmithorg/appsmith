@@ -82,7 +82,7 @@ public class RestApiPluginTest {
 
     @Before
     public void setUp() {
-        hintMessageUtils = HintMessageUtils.getInstance();
+        hintMessageUtils = new HintMessageUtils();
     }
 
     @Test
