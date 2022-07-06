@@ -279,8 +279,7 @@
   },
   "husky": {
     "hooks": {
-      "post-checkout": "git-secrets --register-aws && echo secrets registered",
-      "pre-commit": "lint-staged && git secrets --scan -r"
+      "pre-commit": "lint-staged && sh $(git rev-parse --show-toplevel)/app/client/check-secrets-in-commit.sh"
     }
   },
   "resolutions": {
