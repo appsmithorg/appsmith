@@ -12,4 +12,6 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
     Flux<PermissionGroup> findAllByIds(Set<String> ids);
 
     Mono<PermissionGroup> save(PermissionGroup permissionGroup);
+
+    Mono<Void> delete(String id);
 }

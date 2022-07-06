@@ -32,7 +32,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   PermissionGroupService permissionGroupService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policyUtils,
-                configService, commentThreadRepository, sessionUserService, responseUtils, permissionGroupService);
+                configService, commentThreadRepository, sessionUserService, responseUtils, permissionGroupService, tenantService);
 
     }
 }

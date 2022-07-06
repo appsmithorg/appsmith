@@ -14,6 +14,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
@@ -35,6 +36,7 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +73,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     private final PermissionGroupService permissionGroupService;
 
+    private final TenantService tenantService;
+
     @Autowired
     public ApplicationServiceCEImpl(Scheduler scheduler,
                                     Validator validator,
@@ -83,7 +87,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                     CommentThreadRepository commentThreadRepository,
                                     SessionUserService sessionUserService,
                                     ResponseUtils responseUtils,
-                                    PermissionGroupService permissionGroupService) {
+                                    PermissionGroupService permissionGroupService,
+                                    TenantService tenantService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
@@ -92,6 +97,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         this.sessionUserService = sessionUserService;
         this.responseUtils = responseUtils;
         this.permissionGroupService = permissionGroupService;
+        this.tenantService = tenantService;
     }
 
     @Override
@@ -272,26 +278,67 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         Mono<Application> updateApplicationMono = repository
                 .findById(id, MAKE_PUBLIC_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
+                // Validity checks before proceeding further
                 .flatMap(application -> {
 
-                    if ((application.getPublicPermissionGroup() != null) && applicationAccessDTO.getPublicAccess()) {
-                        // No change. The required public access is the same as current public access. Do nothing
+                            if ((application.getPublicPermissionGroup() != null) && applicationAccessDTO.getPublicAccess()) {
+                                // No change. The required public access is the same as current public access. Do nothing
+                                return Mono.just(application);
+                            }
+
+                            if (application.getPublicPermissionGroup() == null && applicationAccessDTO.getPublicAccess().equals(false)) {
+                                return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                            }
+
+                            return Mono.just(application);
+                })
+                .flatMap(application -> {
+
+                    // if public access is being enabled, then create a public permission group for the application
+                    if (applicationAccessDTO.getPublicAccess()) {
+                        return createPublicPermissionGroup(application)
+                                .flatMap(publicPermissionGroup -> {
+                                    application.setPublicPermissionGroup(publicPermissionGroup.getId());
+                                    return generateAndSetPoliciesForView(application, publicPermissionGroup.getId(), applicationAccessDTO.getPublicAccess());
+                                });
+                    } else {
+                        // if public access is being disabled, then remove the public permission group for the application
+                        // and delete the mapping between anonymous user and the public permission group.
+                        String existingPermissionGroupId = application.getPublicPermissionGroup();
+                        if (StringUtils.hasLength(existingPermissionGroupId)) {
+                            application.setPublicPermissionGroup(null);
+                            return permissionGroupService.delete(existingPermissionGroupId)
+                                    .then(generateAndSetPoliciesForView(application, existingPermissionGroupId,
+                                            applicationAccessDTO.getPublicAccess()));
+                        }
+
+                        // This is an erroneous situation where the user tried to turn off public access for an application
+                        // but there wasn't an existing permission group for the same. Return back without doing anything.
                         return Mono.just(application);
                     }
 
-                    if (application.getPublicPermissionGroup() == null && applicationAccessDTO.getPublicAccess().equals(false)) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                    }
-
-                    application.setIsPublic(applicationAccessDTO.getPublicAccess());
-                    return generateAndSetPoliciesForPublicView(application, applicationAccessDTO.getPublicAccess());
                 });
+
 
         //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
         //  subscriber has cancelled its subscription, the create method will still generates its event.
         return Mono.create(sink -> updateApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
         );
+    }
+
+    private Mono<PermissionGroup> createPublicPermissionGroup(Application application) {
+        return tenantService.getDefaultTenantId()
+                .flatMap(tenantId -> createPublicPermissionGroup(application, tenantId));
+    }
+
+    private Mono<PermissionGroup> createPublicPermissionGroup(Application application, String tenantId) {
+        PermissionGroup publicPermissionGroup = new PermissionGroup();
+        publicPermissionGroup.setName(application.getName() + " Public");
+        publicPermissionGroup.setTenantId(tenantId);
+        publicPermissionGroup.setDescription("Default permissions generated for sharing an application for viewing.");
+
+        return permissionGroupService.create(publicPermissionGroup);
     }
 
     @Override
@@ -334,17 +381,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 });
     }
 
-    private Mono<? extends Application> generateAndSetPoliciesForPublicView(Application application, Boolean isPublic) {
+    private Mono<? extends Application> generateAndSetPoliciesForView(Application application, String permissionGroupId,
+                                                                      Boolean publicAccess) {
 
-        User user = new User();
-        user.setName(FieldName.ANONYMOUS_USER);
-        user.setEmail(FieldName.ANONYMOUS_USER);
-        user.setIsAnonymous(true);
 
-        Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermission(Set.of(READ_APPLICATIONS), user);
+        Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermissionForObject(READ_APPLICATIONS, permissionGroupId);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(EXECUTE_DATASOURCES), user);
+        Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermissionForObject(EXECUTE_DATASOURCES, permissionGroupId);
         Map<String, Policy> themePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
                 applicationPolicyMap, Application.class, Theme.class
         );

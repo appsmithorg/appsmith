@@ -145,7 +145,7 @@ public class PolicyUtils {
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
-    public Map<String, Policy> generatePolicyFromPermissionForObject(PermissionGroup permissionGroup, String objectId) {
+    public Map<String, Policy> generatePolicyFromPermissionGroupForObject(PermissionGroup permissionGroup, String objectId) {
         Set<Permission> permissions = permissionGroup.getPermissions();
         return permissions.stream()
                 .filter(perm -> perm.getDocumentId().equals(objectId))
@@ -160,6 +160,18 @@ public class PolicyUtils {
                     return policiesForPermissionGroup;
                 })
                 .flatMap(Collection::stream)
+                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+    }
+
+    public Map<String, Policy> generatePolicyFromPermissionForObject(AclPermission permission, String permissionGroupId) {
+
+        Policy policyWithCurrentPermission = Policy.builder().permission(permission.getValue())
+                .permissionGroups(Set.of(permissionGroupId))
+                .build();
+        // Generate any and all lateral policies that might come with the current permission
+        Set<Policy> policiesForPermission = policyGenerator.getLateralPolicies(permission, Set.of(permissionGroupId), null);
+        policiesForPermission.add(policyWithCurrentPermission);
+        return policiesForPermission.stream()
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
