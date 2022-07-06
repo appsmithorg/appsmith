@@ -39,6 +39,7 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.UserService;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,7 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 
 
 @Slf4j
@@ -78,6 +80,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     private final TenantService tenantService;
 
+    private final UserService userService;
+
     @Autowired
     public ApplicationServiceCEImpl(Scheduler scheduler,
                                     Validator validator,
@@ -91,7 +95,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                     SessionUserService sessionUserService,
                                     ResponseUtils responseUtils,
                                     PermissionGroupService permissionGroupService,
-                                    TenantService tenantService) {
+                                    TenantService tenantService,
+                                    UserService userService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
@@ -101,6 +106,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         this.responseUtils = responseUtils;
         this.permissionGroupService = permissionGroupService;
         this.tenantService = tenantService;
+        this.userService = userService;
     }
 
     @Override
@@ -297,29 +303,54 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 })
                 .flatMap(application -> {
 
-                    // if public access is being enabled, then create a public permission group for the application
+                    Mono<PermissionGroup> permissionGroupMono = null;
+
                     if (applicationAccessDTO.getPublicAccess()) {
-                        return createPublicPermissionGroup(application)
-                                .flatMap(publicPermissionGroup -> {
-                                    application.setPublicPermissionGroup(publicPermissionGroup.getId());
-                                    return generateAndSetPoliciesForView(application, publicPermissionGroup.getId(), applicationAccessDTO.getPublicAccess());
-                                });
+
+                        // if public access is being enabled, then create a public permission group for the application
+                        permissionGroupMono = createPublicPermissionGroup(application)
+                                .cache();
+
                     } else {
-                        // if public access is being disabled, then remove the public permission group for the application
-                        // and delete the mapping between anonymous user and the public permission group.
+
                         String existingPermissionGroupId = application.getPublicPermissionGroup();
                         if (StringUtils.hasLength(existingPermissionGroupId)) {
+                            permissionGroupMono = permissionGroupService.findById(existingPermissionGroupId).cache();
                             application.setPublicPermissionGroup(null);
-                            return permissionGroupService.delete(existingPermissionGroupId)
-                                    .then(generateAndSetPoliciesForView(application, existingPermissionGroupId,
-                                            applicationAccessDTO.getPublicAccess()));
                         }
-
-                        // This is an erroneous situation where the user tried to turn off public access for an application
-                        // but there wasn't an existing permission group for the same. Return back without doing anything.
-                        return Mono.just(application);
                     }
 
+                    if (permissionGroupMono != null) {
+
+                        Mono<Application> updatedApplicationMono = permissionGroupMono
+                                .flatMap(permissionGroup -> generateAndSetPoliciesForView(application, permissionGroup,
+                                        applicationAccessDTO.getPublicAccess()));
+
+                        Mono<Void> updatedPermissionGroupMono;
+
+                        if (applicationAccessDTO.getPublicAccess()) {
+                            // Assign anonymousUser to use the newly created permission group
+                            updatedPermissionGroupMono = userService.findByEmail(ANONYMOUS_USER).zipWith(permissionGroupMono)
+                                    .flatMap(tuple -> {
+                                        User anonymousUser = tuple.getT1();
+                                        PermissionGroup permissionGroup = tuple.getT2();
+                                        return permissionGroupService
+                                                .assignToUser(permissionGroup, anonymousUser);
+                                    }).then();
+
+                        } else {
+                            // Delete the permission group since this application is no longer public
+                            updatedPermissionGroupMono = permissionGroupMono
+                                    .flatMap(permissionGroup -> permissionGroupService.delete(permissionGroup.getId()));
+
+                        }
+
+                        return updatedPermissionGroupMono
+                                .then(updatedApplicationMono);
+                    }
+
+                    // This is an erroneous scenario where permissionGroupMono has not been initialized yet.
+                    return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                 });
 
 
@@ -384,8 +415,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 });
     }
 
-    private Mono<? extends Application> generateAndSetPoliciesForView(Application application, String permissionGroupId,
+    private Mono<? extends Application> generateAndSetPoliciesForView(Application application, PermissionGroup permissionGroup,
                                                                       Boolean addViewAccess) {
+
+        String permissionGroupId = permissionGroup.getId();
 
         Map<String, Policy> applicationPolicyMap = policyUtils
                 .generatePolicyFromPermissionWithPermissionGroup(READ_APPLICATIONS, permissionGroupId);
@@ -444,17 +477,17 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
                     if (addViewAccess) {
                         // the newly created permission group must be updated to store the top level permissions
-                        return permissionGroupService.findById(permissionGroupId)
-                                .flatMap(permissionGroup -> {
-                                    Set<Permission> permissionGroupPermissions = permissionGroup.getPermissions();
-                                    permissionGroupPermissions.add(new Permission(application.getId(), READ_APPLICATIONS));
-                                    permissionGroupPermissions.addAll(datasourcePermissions);
-                                    return permissionGroupService.update(permissionGroupId, permissionGroup);
-                                })
+                        Set<Permission> permissionGroupPermissions = permissionGroup.getPermissions();
+                        permissionGroupPermissions.add(new Permission(application.getId(), READ_APPLICATIONS));
+                        permissionGroupPermissions.addAll(datasourcePermissions);
+                        permissionGroup.setPermissions(permissionGroupPermissions);
+
+                        return permissionGroupService.update(permissionGroup.getId(), permissionGroup)
                                 .then(updatedDatasourcesMono);
-                    } else {
-                        return updatedDatasourcesMono;
                     }
+
+                    return updatedDatasourcesMono;
+
                 })
                 .thenReturn(application)
                 .flatMap(app -> {
@@ -632,6 +665,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     /**
      * Sets the updatedAt and modifiedBy fields of the Application
+     *
      * @param applicationId Application ID
      * @return Application Mono of updated Application
      */
@@ -668,6 +702,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      * feat/new-branch ----> new application in Appsmith
      * Get all the applications which refer to the current application and archive those first one by one
      * GitApplicationMetadata has a field called defaultApplicationId which refers to the main application
+     *
      * @param defaultApplicationId Main Application from which the branch was created
      * @return Application flux which match the condition
      */
