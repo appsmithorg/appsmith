@@ -41,7 +41,6 @@ const TabsWrapper = styled.div<{
     flex-direction: ${(props) => (!!props.vertical ? "column" : "row")};
     align-items: ${(props) => (!!props.vertical ? "stretch" : "center")};
     border-bottom: none;
-    gap: ${(props) => (!props.vertical ? `${props.theme.spaces[12]}px` : 0)};
     color: ${(props) => props.theme.colors.tabs.normal};
     path {
       fill: ${(props) => props.theme.colors.tabs.icon};
@@ -77,11 +76,9 @@ const TabsWrapper = styled.div<{
     position: relative;
     padding: 0;
 
-    ${(props) =>
-      props.responseViewer &&
-      `
-       
-      `}
+    padding: 0px 3px;
+    margin-right: ${(props) =>
+      !props.vertical ? `${props.theme.spaces[12] - 3}px` : 0};
   }
 
   .react-tabs__tab,
