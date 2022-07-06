@@ -66,68 +66,6 @@ const fetchParamsToPersist = () => {
   return params;
 };
 
-export const isURLDeprecated = (url: string) => {
-  return !!matchPath(url, {
-    path: Object.values(baseURLRegistry[URL_TYPE.DEFAULT]),
-    strict: false,
-    exact: false,
-  });
-};
-
-const doesItMatchSlugURLPath = (path: string) =>
-  matchPath<{ applicationSlug: string; pageSlug: string }>(path, {
-    path: Object.values(baseURLRegistry[URL_TYPE.SLUG]),
-    strict: false,
-    exact: false,
-  });
-
-const doesItMatchCustomSlugURLPath = (path: string) =>
-  matchPath<{ customSlug: string }>(path, {
-    path: Object.values(baseURLRegistry[URL_TYPE.CUSTOM_SLUG]),
-    strict: false,
-    exact: false,
-  });
-
-export const getUpdatedRoute = (path: string, params: Record<Slug, string>) => {
-  let updatedPath = path;
-  const matchSlugPath = doesItMatchSlugURLPath(path);
-  if (matchSlugPath && matchSlugPath.params) {
-    const { applicationSlug, pageSlug } = matchSlugPath?.params;
-    if (params.customSlug) {
-      updatedPath = updatedPath.replace(
-        `${applicationSlug}/${pageSlug}`,
-        `${params.customSlug}-`,
-      );
-      return updatedPath;
-    }
-    if (params.applicationSlug)
-      updatedPath = updatedPath.replace(
-        applicationSlug,
-        params.applicationSlug,
-      );
-    if (params.pageSlug)
-      updatedPath = updatedPath.replace(`${pageSlug}-`, `${params.pageSlug}-`);
-    return updatedPath;
-  }
-  const matchCustomPath = doesItMatchCustomSlugURLPath(path);
-  if (matchCustomPath && matchCustomPath.params) {
-    const { customSlug } = matchCustomPath.params;
-    if (customSlug) {
-      if (params.customSlug)
-        updatedPath = updatedPath.replace(
-          `${customSlug}`,
-          `${params.customSlug}-`,
-        );
-      else
-        updatedPath = updatedPath.replace(
-          `${customSlug}-`,
-          `${params.applicationSlug}/${params.pageSlug}-`,
-        );
-    }
-  }
-  return updatedPath;
-};
-
 export class URLBuilder {
   appParams: ApplicationURLParams;
   pageParams: Record<string, PageURLParams>;
@@ -177,13 +115,6 @@ export class URLBuilder {
     };
 
     return { ...currentAppParams, ...currentPageParams };
-  }
-
-  static updateSlugNamesInCurrentURL(params: Record<Slug, string>) {
-    const { pathname, search } = window.location;
-    if (isURLDeprecated(pathname)) return;
-    const newURL = getUpdatedRoute(pathname, params);
-    history.replace(newURL + search);
   }
 
   public updateURLParams(
