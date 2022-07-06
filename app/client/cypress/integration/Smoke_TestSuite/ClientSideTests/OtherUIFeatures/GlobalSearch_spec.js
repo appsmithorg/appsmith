@@ -167,7 +167,6 @@ describe("GlobalSearch", function() {
     cy.get(datasourceHomeLocators.apiTxt)
       .invoke("val")
       .then((title) => expect(title).includes("Api"));
-    cy.NavigateToHome();
   });
 
   it("8. navigatesToGoogleSheetsQuery does not break again: Bug 15012", () => {
@@ -187,5 +186,8 @@ describe("GlobalSearch", function() {
       .should("be.visible");
 
     cy.deleteDatasource("XYZ");
+
+    // this should be called at the end of the last test case in this spec file.
+    cy.NavigateToHome();
   });
 });
