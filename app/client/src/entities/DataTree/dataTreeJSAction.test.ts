@@ -38,6 +38,7 @@ describe("generateDataTreeJSAction", () => {
             collectionId: "1234",
             actionConfiguration: {
               timeoutInMillisecond: 10000,
+              // @ts-expect-error: paginationType does not exists on JSAction
               paginationType: "NONE",
               encodeParamsToggle: true,
               body: "async () => {\n\t\t//use async-await or promises\n\t}",
@@ -85,6 +86,7 @@ describe("generateDataTreeJSAction", () => {
             collectionId: "1234",
             actionConfiguration: {
               timeoutInMillisecond: 10000,
+              // @ts-expect-error: paginationType does not exists on JSAction
               paginationType: "NONE",
               encodeParamsToggle: true,
               body: "() => {\n\t\t//write code here\n\t}",
@@ -156,10 +158,18 @@ describe("generateDataTreeJSAction", () => {
         body: "SMART_SUBSTITUTE",
         myFun2: "SMART_SUBSTITUTE",
         myFun1: "SMART_SUBSTITUTE",
+        myVar1: "SMART_SUBSTITUTE",
+        myVar2: "SMART_SUBSTITUTE",
       },
       dynamicBindingPathList: [
         {
           key: "body",
+        },
+        {
+          key: "myVar1",
+        },
+        {
+          key: "myVar2",
         },
         {
           key: "myFun2",
@@ -184,6 +194,8 @@ describe("generateDataTreeJSAction", () => {
         body: "SMART_SUBSTITUTE",
         myFun1: "SMART_SUBSTITUTE",
         myFun2: "SMART_SUBSTITUTE",
+        myVar1: "SMART_SUBSTITUTE",
+        myVar2: "SMART_SUBSTITUTE",
       },
     };
     const result = generateDataTreeJSAction(jsCollection);
@@ -224,6 +236,7 @@ describe("generateDataTreeJSAction", () => {
             collectionId: "1234",
             actionConfiguration: {
               timeoutInMillisecond: 10000,
+              // @ts-expect-error: paginationType does not exists on JSAction
               paginationType: "NONE",
               encodeParamsToggle: true,
               body: "async () => {\n\t\t//use async-await or promises\n\t}",
@@ -271,6 +284,7 @@ describe("generateDataTreeJSAction", () => {
             collectionId: "1234",
             actionConfiguration: {
               timeoutInMillisecond: 10000,
+              // @ts-expect-error: paginationType does not exists on JSAction
               paginationType: "NONE",
               encodeParamsToggle: true,
               body: "() => {\n\t\t//write code here\n\t}",
@@ -343,10 +357,18 @@ describe("generateDataTreeJSAction", () => {
         body: "SMART_SUBSTITUTE",
         myFun2: "SMART_SUBSTITUTE",
         myFun1: "SMART_SUBSTITUTE",
+        myVar1: "SMART_SUBSTITUTE",
+        myVar2: "SMART_SUBSTITUTE",
       },
       dynamicBindingPathList: [
         {
           key: "body",
+        },
+        {
+          key: "myVar1",
+        },
+        {
+          key: "myVar2",
         },
         {
           key: "myFun2",
@@ -371,6 +393,8 @@ describe("generateDataTreeJSAction", () => {
         body: "SMART_SUBSTITUTE",
         myFun1: "SMART_SUBSTITUTE",
         myFun2: "SMART_SUBSTITUTE",
+        myVar1: "SMART_SUBSTITUTE",
+        myVar2: "SMART_SUBSTITUTE",
       },
     };
 

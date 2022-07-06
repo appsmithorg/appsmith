@@ -26,6 +26,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -70,6 +71,8 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -166,8 +169,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     application.setGitApplicationMetadata(gitApplicationMetadata);
                     return applicationService.save(application);
                 })
-                .flatMap(applicationService::setTransientFields)
-                .map(responseUtils::updateApplicationWithDefaultResources);
+                .flatMap(applicationService::setTransientFields);
     }
 
     @Override
@@ -474,9 +476,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.error(e);
                     }
 
+                    gitData.setLastCommittedAt(Instant.now());
+                    Mono<Application> branchedApplicationMono = updateGitMetadata(childApplication.getId(), gitData);
                     return Mono.zip(
                             repoPathMono,
                             currentUserMono,
+                            branchedApplicationMono,
                             Mono.just(childApplication)
                     );
                 })
@@ -776,6 +781,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         gitApplicationMetadata.setBrowserSupportedRemoteUrl(browserSupportedUrl);
 
                                         gitApplicationMetadata.setIsRepoPrivate(isRepoPrivate);
+                                        gitApplicationMetadata.setLastCommittedAt(Instant.now());
 
                                         // Set branchName for each application resource
                                         return importExportApplicationService.exportApplicationById(applicationId, SerialiseApplicationObjective.VERSION_CONTROL)
@@ -1172,9 +1178,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 srcBranchGitData.setIsRepoPrivate(null);
                                 // Save a new application in DB and update from the parent branch application
                                 srcBranchGitData.setGitAuth(null);
+                                srcBranchGitData.setLastCommittedAt(Instant.now());
                                 srcApplication.setId(null);
                                 srcApplication.setPages(null);
                                 srcApplication.setPublishedPages(null);
+                                srcApplication.setEditModeThemeId(null);
+                                srcApplication.setPublishedModeThemeId(null);
                                 srcApplication.setGitApplicationMetadata(srcBranchGitData);
                                 return Mono.zip(
                                         applicationService.save(srcApplication),
@@ -1282,6 +1291,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     // Save a new application in DB and update from the parent branch application
                     srcBranchGitData.setGitAuth(null);
                     srcBranchGitData.setIsRepoPrivate(null);
+                    srcBranchGitData.setLastCommittedAt(Instant.now());
                     srcApplication.setId(null);
                     srcApplication.setPages(null);
                     srcApplication.setPublishedPages(null);
@@ -1804,7 +1814,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                     mergeStatus.setConflictingFiles(((CheckoutConflictException) error)
                                                             .getConflictingPaths());
                                                 }
-                                                mergeStatus.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT);
+                                                mergeStatus.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT.getDocUrl());
                                                 return mergeStatus;
                                             });
                                 } catch (GitAPIException | IOException e) {
@@ -1973,6 +1983,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl())
                                 );
                                 gitApplicationMetadata.setIsRepoPrivate(isRepoPrivate);
+                                gitApplicationMetadata.setLastCommittedAt(Instant.now());
 
                                 application.setGitApplicationMetadata(gitApplicationMetadata);
                                 return Mono.just(application).zipWith(profileMono);
@@ -2054,8 +2065,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<GitAuth> generateSSHKey() {
-        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(null);
+    public Mono<GitAuth> generateSSHKey(String keyType) {
+        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
 
         GitDeployKeys gitDeployKeys = new GitDeployKeys();
         gitDeployKeys.setGitAuth(gitAuth);
@@ -2217,6 +2228,25 @@ public class GitServiceCEImpl implements GitServiceCE {
         return Mono.create(sink -> discardChangeMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
         );
+    }
+
+    /**
+     * In some scenarios:
+     * connect: after loading the modal, keyTypes is not available, so a network call has to be made to ssh-keypair.
+     * import: cannot make a ssh-keypair call because application Id doesn’t exist yet, so API fails.
+     * @return Git docs urls for all the scenarios, client will cache this data and use it
+     */
+    @Override
+    public Mono<List<GitDocsDTO>> getGitDocUrls() {
+        ErrorReferenceDocUrl[] docSet = ErrorReferenceDocUrl.values();
+        List<GitDocsDTO> gitDocsDTOList = new ArrayList<>();
+        for(ErrorReferenceDocUrl docUrl : docSet ) {
+            GitDocsDTO gitDocsDTO = new GitDocsDTO();
+            gitDocsDTO.setDocKey(docUrl);
+            gitDocsDTO.setDocUrl(docUrl.getDocUrl());
+            gitDocsDTOList.add(gitDocsDTO);
+        }
+        return Mono.just(gitDocsDTOList);
     }
 
     private Mono<Application> deleteApplicationCreatedFromGitImport(String applicationId, String workspaceId, String repoName) {

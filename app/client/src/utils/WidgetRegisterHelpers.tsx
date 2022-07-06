@@ -19,8 +19,7 @@ const generateWidget = memoize(function getWidgetComponent(
 ) {
   const widget = needsMeta ? withMeta(Widget) : Widget;
   return Sentry.withProfiler(
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     widget,
   );
 });
@@ -56,6 +55,7 @@ export const configureWidget = (config: WidgetConfiguration) => {
     type: config.type,
     hideCard: !!config.hideCard || !config.iconSVG,
     isDeprecated: !!config.isDeprecated,
+    replacement: config.replacement,
     displayName: config.name,
     key: generateReactKey(),
     iconSVG: config.iconSVG,

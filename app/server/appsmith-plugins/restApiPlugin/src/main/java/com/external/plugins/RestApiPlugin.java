@@ -320,7 +320,7 @@ public class RestApiPlugin extends BasePlugin {
                             });
                         }
                         sslContextSpec.sslContext(sslContextSpec1);
-                    });
+                    }).compress(true);
 
             if ("true".equals(System.getProperty("java.net.useSystemProxies"))
                     && (!System.getProperty("http.proxyHost", "").isEmpty() || !System.getProperty("https.proxyHost", "").isEmpty())) {
@@ -418,8 +418,16 @@ public class RestApiPlugin extends BasePlugin {
                     .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(stringResponseEntity -> {
                         HttpHeaders headers = stringResponseEntity.getHeaders();
-                        // Find the media type of the response to parse the body as required.
+                        /*
+                            Find the media type of the response to parse the body as required. In case the content-type
+                            header is not present in the response then set it to our default i.e. "text/plain" although
+                            the RFC 7231 standard suggests assuming "application/octet-stream" content-type in case
+                            it's not present in response header.
+                         */
                         MediaType contentType = headers.getContentType();
+                        if (contentType == null) {
+                            contentType = MediaType.TEXT_PLAIN;
+                        }
                         byte[] body = stringResponseEntity.getBody();
                         HttpStatus statusCode = stringResponseEntity.getStatusCode();
 
@@ -460,8 +468,7 @@ public class RestApiPlugin extends BasePlugin {
                              * Handle XML response. Currently we only handle JSON & Image responses. The other kind of responses
                              * are kept as is and returned as a string.
                              */
-                            if (MediaType.APPLICATION_JSON.equals(contentType) ||
-                                    MediaType.APPLICATION_JSON_UTF8.equals(contentType)) {
+                            if (contentType.includes(MediaType.APPLICATION_JSON)) {
                                 try {
                                     String jsonBody = new String(body, StandardCharsets.UTF_8);
                                     result.setBody(objectMapper.readTree(jsonBody));

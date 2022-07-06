@@ -5,7 +5,7 @@ import {
   NO_ASYNC_FUNCTIONS,
 } from "ce/constants/messages";
 import { AppIcon, Radio, RadioComponent } from "components/ads";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { JSAction } from "entities/JSCollection";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";

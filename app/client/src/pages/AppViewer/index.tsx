@@ -40,6 +40,7 @@ import {
 } from "actions/controlActions";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
+import { CANVAS_SELECTOR } from "constants/WidgetConstants";
 import { getShowBrandingBadge } from "@appsmith/selectors/workspaceSelectors";
 import { fetchPublishedPage } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
@@ -253,6 +254,7 @@ function AppViewer(props: Props) {
               backgroundColor={selectedTheme.properties.colors.backgroundColor}
             >
               <AppViewerBody
+                className={CANVAS_SELECTOR}
                 hasPages={pages.length > 1}
                 headerHeight={headerHeight}
                 showGuidedTourMessage={showGuidedTourMessage}

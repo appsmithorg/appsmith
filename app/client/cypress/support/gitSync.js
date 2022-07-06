@@ -276,6 +276,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("merge", (destinationBranch) => {
   cy.get(gitSyncLocators.bottomBarMergeButton).click();
+  cy.wait(3000); // wait for git status call to finish
   cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
   cy.get(commonLocators.dropdownmenu)
     .contains(destinationBranch)

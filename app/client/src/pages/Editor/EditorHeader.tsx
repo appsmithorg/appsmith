@@ -61,8 +61,7 @@ import { fetchUsersForWorkspace } from "actions/workspaceActions";
 import { WorkspaceUser } from "constants/workspaceConstants";
 
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core/lib/esnext/common";
+import { TooltipComponent } from "design-system";
 import {
   CLOSE_ENTITY_EXPLORER_MESSAGE,
   createMessage,
@@ -393,7 +392,7 @@ export function EditorHeader(props: EditorHeaderProps) {
           <TooltipComponent
             content={createMessage(LOGO_TOOLTIP)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-            position={Position.BOTTOM_LEFT}
+            position="bottom-left"
           >
             <AppsmithLink to={APPLICATIONS_URL}>
               <img
@@ -410,7 +409,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             disabled={isPopoverOpen}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
             openOnTargetFocus={false}
-            position={Position.BOTTOM}
+            position="bottom"
           >
             <EditorAppName
               applicationId={applicationId}
@@ -487,7 +486,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                       : createMessage(SHARE_BUTTON_TOOLTIP)
                   }
                   hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                  position={Position.BOTTOM}
+                  position="bottom"
                 >
                   <ShareButtonComponent />
                 </TooltipComponent>
@@ -498,7 +497,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               <TooltipComponent
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
                 hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                position={Position.BOTTOM_RIGHT}
+                position="bottom-right"
               >
                 <StyledDeployButton
                   className="t--application-publish-btn"

@@ -30,6 +30,12 @@ class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     return false;
   }
+
+  // Only applicable for JSONFormComputeControl & ComputeTablePropertyControl
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static getInputComputedValue(value: string, widgetName: string): string {
+    return "";
+  }
 }
 
 export interface ControlBuilder<T extends ControlProps> {
