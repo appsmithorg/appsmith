@@ -5,9 +5,8 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.QRbacPolicy;
-import com.appsmith.server.domains.QUser;
-import com.appsmith.server.domains.RbacPolicy;
+import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -76,12 +75,12 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     }
 
     protected Mono<Set<String>> getPermissionGroupsOfUser(User user) {
-        Criteria userIdCriteria = Criteria.where(fieldName(QRbacPolicy.rbacPolicy.userId)).is(user.getId());
+        Criteria userIdCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.asignedToUserIds)).in(user.getId());
 
         Query query = new Query();
         query.addCriteria(userIdCriteria);
-        return mongoOperations.find(query, RbacPolicy.class)
-                .flatMap(policy -> Flux.fromIterable(policy.getPermissionGroupIds()))
+        return mongoOperations.find(query, PermissionGroup.class)
+                .map(permissionGroup -> permissionGroup.getId())
                 .collect(Collectors.toSet());
     }
 

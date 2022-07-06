@@ -35,12 +35,11 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                 AssetService assetService,
                                 ApplicationRepository applicationRepository,
                                 PermissionGroupService permissionGroupService,
-                                RbacPolicyService rbacPolicyService,
                                 PolicyUtils policyUtils) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 pluginRepository, sessionUserService, userWorkspaceService, userRepository, roleGraph,
-                assetRepository, assetService, applicationRepository, permissionGroupService, rbacPolicyService,
+                assetRepository, assetService, applicationRepository, permissionGroupService,
                 policyUtils);
     }
 }

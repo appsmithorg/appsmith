@@ -1,6 +1,8 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -45,5 +47,13 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     @Override
     public Mono<PermissionGroup> findById(String permissionGroupId) {
         return repository.findById(permissionGroupId);
+    }
+
+    public Mono<PermissionGroup> assignToUser(PermissionGroup permissionGroup, User user) {
+        return repository.findById(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS)
+                .flatMap(pg -> {
+                    pg.getAsignedToUserIds().add(user.getId());
+                    return repository.updateById(pg.getId(), pg, AclPermission.ASSIGN_PERMISSION_GROUPS);
+                });
     }
 }

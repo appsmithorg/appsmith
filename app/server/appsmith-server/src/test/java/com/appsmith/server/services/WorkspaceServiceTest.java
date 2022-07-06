@@ -11,7 +11,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.RbacPolicy;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.UserAndGroupDTO;
@@ -22,7 +21,6 @@ import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.RbacPolicyRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -104,9 +102,6 @@ public class WorkspaceServiceTest {
     @Autowired
     private PermissionGroupRepository permissionGroupRepository;
 
-    @Autowired
-    private RbacPolicyRepository rbacPolicyRepository;
-
     Workspace workspace;
 
     @Before
@@ -136,16 +131,17 @@ public class WorkspaceServiceTest {
                     return permissionGroupRepository.findAllById(defaultPermissionGroups).collect(Collectors.toSet());
                 });
 
-        Mono<RbacPolicy> userPolicyMono = userMono
-                .flatMap(user -> rbacPolicyRepository.findByUserId(user.getId()));
+        Mono<Set<PermissionGroup>> userPermissionGroupsSetMono = userMono
+                .flatMapMany(user -> permissionGroupRepository.findByAssignedToUserIdsIn(user.getId()))
+                .collect(Collectors.toSet());
 
 
-        StepVerifier.create(Mono.zip(Mono.just(workspace), userMono, defaultPermissionGroupMono, userPolicyMono))
+        StepVerifier.create(Mono.zip(Mono.just(workspace), userMono, defaultPermissionGroupMono, userPermissionGroupsSetMono))
                 .assertNext(tuple -> {
                     Workspace workspace1 = tuple.getT1();
                     User user = tuple.getT2();
                     Set<PermissionGroup> permissionGroups = tuple.getT3();
-                    RbacPolicy userPolicy = tuple.getT4();
+                    Set<PermissionGroup> userPermissionGroups = tuple.getT4();
                     assertThat(workspace1.getName()).isEqualTo("api_user's apps");
                     assertThat(workspace1.getSlug()).isNotNull();
                     assertThat(workspace1.getEmail()).isEqualTo("api_user");
@@ -157,7 +153,11 @@ public class WorkspaceServiceTest {
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                             .findFirst().get();
 
-                    assertThat(userPolicy.getPermissionGroupIds()).containsAll(Set.of(adminPermissionGroup.getId()));
+                    Set<String> userPermissionGroupIds = userPermissionGroups.stream()
+                            .map(PermissionGroup::getId)
+                            .collect(Collectors.toSet());
+
+                    assertThat(userPermissionGroupIds.contains(adminPermissionGroup.getId()));
 
                 })
                 .verifyComplete();
