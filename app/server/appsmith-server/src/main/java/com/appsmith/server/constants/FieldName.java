@@ -128,5 +128,6 @@ public class FieldName {
     public static final Object GROUP_ID = "groupId";
     public static final Object USERNAME = "username";
     public static final Object NEW_GROUP_ID = "newGroupId";
+    public static final Object PERMISSION_GROUP_ID = null;
 
 }

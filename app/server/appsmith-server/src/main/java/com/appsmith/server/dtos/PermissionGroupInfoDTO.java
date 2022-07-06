@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode
-public class UserGroupInfoDTO {
+public class PermissionGroupInfoDTO {
     
     private String id;
 

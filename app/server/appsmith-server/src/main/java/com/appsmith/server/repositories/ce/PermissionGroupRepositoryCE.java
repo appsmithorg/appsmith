@@ -17,4 +17,8 @@ public interface PermissionGroupRepositoryCE extends BaseRepository<PermissionGr
 
     Flux<PermissionGroup> findByAssignedToUserIdsIn(String userId);
 
+    Flux<PermissionGroup> findAllByAssignedToUserIdsInAndDefaultWorkspaceId(String userId, String workspaceId);
+
+    Flux<PermissionGroup> findByDefaultWorkspaceId(String defaultWorkspaceId);
+
 }

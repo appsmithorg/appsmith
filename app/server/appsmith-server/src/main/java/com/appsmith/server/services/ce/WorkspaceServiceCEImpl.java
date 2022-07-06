@@ -13,7 +13,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.Permission;
-import com.appsmith.server.dtos.UserGroupInfoDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -443,30 +443,24 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     }
 
     @Override
-    public Mono<List<UserGroupInfoDTO>> getUserGroupsForWorkspace(String workspaceId) {
-//        if (!StringUtils.hasLength(workspaceId)) {
-//            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
-//        }
-//
-//        // Read the workspace
-//        Mono<Workspace> workspaceMono = repository.findById(workspaceId, AclPermission.READ_WORKSPACES);
-//
-//        // Get default user group ids
-//        Mono<Set<String>> defaultUserGroups = workspaceMono
-//                .flatMap(workspace -> Mono.just(workspace.getDefaultUserGroups()));
-//
-//        // Get default user groups
-//        Flux<UserGroup> userGroupFlux = defaultUserGroups
-//                .flatMapMany(userGroupIds -> userGroupService.getAllByIds(userGroupIds, AclPermission.READ_USER_GROUPS));
-//
-//        // Map to UserGroupInfoDTO
-//        Flux<UserGroupInfoDTO> userGroupInfoFlux = userGroupFlux
-//                .map(userGroup -> modelMapper.map(userGroup, UserGroupInfoDTO.class));
-//
-//        // Convert to List and return
-//        return userGroupInfoFlux.collectList();
+    public Mono<List<PermissionGroupInfoDTO>> getPermissionGroupsForWorkspace(String workspaceId) {
+       if (!StringUtils.hasLength(workspaceId)) {
+           return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+       }
 
-        return null;
+       // Read the workspace
+       Mono<Workspace> workspaceMono = repository.findById(workspaceId, AclPermission.READ_WORKSPACES);
+
+       // Get default permission groups
+       Flux<PermissionGroup> permissionGroupFlux = workspaceMono
+               .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace));
+
+       // Map to PermissionGroupInfoDTO
+       Flux<PermissionGroupInfoDTO> permissionGroupInfoFlux = permissionGroupFlux
+               .map(userGroup -> modelMapper.map(userGroup, PermissionGroupInfoDTO.class));
+
+       // Convert to List and return
+       return permissionGroupInfoFlux.collectList();
     }
 
     @Override

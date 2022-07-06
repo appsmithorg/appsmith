@@ -63,7 +63,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
      * @return
      */
     protected Mono<Set<String>> getCurrentPermissionGroups(User user) {
-        Criteria userIdCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.asignedToUserIds)).in(user.getId());
+        Criteria userIdCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).in(user.getId());
 
         Query query = new Query();
         query.addCriteria(userIdCriteria);

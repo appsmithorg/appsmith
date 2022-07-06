@@ -2,9 +2,10 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.UpdateUserGroupDTO;
+import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.dtos.UserAndGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -13,6 +14,7 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final PolicyUtils policyUtils;
     private final EmailSender emailSender;
     private final UserDataService userDataService;
+    private final PermissionGroupService permissionGroupService;
 
     private static final String UPDATE_ROLE_EXISTING_USER_TEMPLATE = "email/updateRoleExistingUserTemplate.html";
 
@@ -42,7 +45,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                                       UserDataRepository userDataRepository,
                                       PolicyUtils policyUtils,
                                       EmailSender emailSender,
-                                      UserDataService userDataService) {
+                                      UserDataService userDataService,
+                                      PermissionGroupService permissionGroupService) {
         this.sessionUserService = sessionUserService;
         this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
@@ -50,6 +54,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         this.policyUtils = policyUtils;
         this.emailSender = emailSender;
         this.userDataService = userDataService;
+        this.permissionGroupService = permissionGroupService;
     }
 
     @Override
@@ -60,27 +65,25 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         Mono<User>  userMono = sessionUserService.getCurrentUser().cache();
 
-//        Mono<UserGroup> oldDefaultUserGroupsMono = Mono.zip(workspaceMono, userMono)
-//                .flatMapMany(tuple -> {
-//                    Workspace workspace = tuple.getT1();
-//                    User user = tuple.getT2();
-//                    return userGroupService.getAllByUserIdAndDefaultWorkspaceId(user.getId(), workspace.getId(), AclPermission.READ_USER_GROUPS);
-//                })
-//                //TODO do we handle case of multiple default group ids
-//                .single()
-//                .flatMap(userGroup -> {
-//                    if(userGroup.getName().startsWith(FieldName.ADMINISTRATOR) && userGroup.getUsers().size() == 1) {
-//                        return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR));
-//                    }
-//                    return Mono.just(userGroup);
-//                })
-//                // If we cannot find the groups, that means either user is not part of any default group or current user has no access to the group
-//                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change userGroup of a member")));
-//
-//        return oldDefaultUserGroupsMono.flatMap(userGroup -> userGroupService.removeSelf(userGroup))
-//                .then(userMono);
+       Mono<PermissionGroup> oldDefaultPermissionGroupsMono = Mono.zip(workspaceMono, userMono)
+               .flatMapMany(tuple -> {
+                   Workspace workspace = tuple.getT1();
+                   User user = tuple.getT2();
+                   return permissionGroupService.getAllByUserAndDefaultWorkspace(user, workspace);
+               })
+               //TODO do we handle case of multiple default permission group ids
+               .single()
+               .flatMap(permissionGroup -> {
+                   if(permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR) && permissionGroup.getAssignedToUserIds().size() == 1) {
+                       return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR));
+                   }
+                   return Mono.just(permissionGroup);
+               })
+               // If we cannot find the groups, that means either user is not part of any default group or current user has no access to the group
+               .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change userGroup of a member")));
 
-        return null;
+        return oldDefaultPermissionGroupsMono.flatMap(permissionGroup -> permissionGroupService.unassignSelf(permissionGroup))
+               .then(userMono);
     }
 
     /**
@@ -93,7 +96,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
      */
     @Transactional
     @Override
-    public Mono<UserAndGroupDTO> updateUserGroupForMember(String workspaceId, UpdateUserGroupDTO changeUserGroupDTO, String originHeader) {
+    public Mono<UserAndGroupDTO> updatePermissionGroupForMember(String workspaceId, UpdatePermissionGroupDTO changeUserGroupDTO, String originHeader) {
         if (changeUserGroupDTO.getUsername() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAME));
         }

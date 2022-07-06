@@ -21,7 +21,7 @@ import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
-import com.appsmith.server.dtos.UserGroupInfoDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -266,7 +266,7 @@ public class ActionCollectionServiceTest {
         ActionCollectionDTO actionCollection =
                 layoutCollectionService.createCollection(actionCollectionDTO).block();
 
-        List<UserGroupInfoDTO> userGroupsDto = workspaceService.getUserGroupsForWorkspace(workspaceId).block();
+        List<PermissionGroupInfoDTO> userGroupsDto = workspaceService.getPermissionGroupsForWorkspace(workspaceId).block();
 
         String adminUserGroupId = userGroupsDto.stream()
                 .filter(userGroupInfoDTO -> userGroupInfoDTO.getName().startsWith(ADMINISTRATOR))

@@ -11,7 +11,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.UpdateUserGroupDTO;
+import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -292,7 +292,7 @@ public class UserWorkspaceServiceTest {
                     return commentThreadRepository.save(commentThread);
                 }).flatMap(commentThread -> {
                     // remove the test_developer user from the workspace
-                    return userWorkspaceService.updateUserGroupForMember(workspace.getId(), UpdateUserGroupDTO.builder().username("test_developer").build(), null)
+                    return userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), UpdatePermissionGroupDTO.builder().username("test_developer").build(), null)
                             .thenReturn(commentThread);
                 }).flatMap(commentThread ->
                         commentThreadRepository.findById(commentThread.getId())

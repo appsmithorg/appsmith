@@ -3,9 +3,12 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.SessionUserService;
+
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 
@@ -23,14 +26,18 @@ import java.util.stream.Collectors;
 public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRepository, PermissionGroup, String>
         implements PermissionGroupServiceCE {
 
+    private final SessionUserService sessionUserService;
+
     public PermissionGroupServiceCEImpl(Scheduler scheduler,
                                         Validator validator,
                                         MongoConverter mongoConverter,
                                         ReactiveMongoTemplate reactiveMongoTemplate,
                                         PermissionGroupRepository repository,
-                                        AnalyticsService analyticsService) {
+                                        AnalyticsService analyticsService,
+                                        SessionUserService sessionUserService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -56,8 +63,27 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     public Mono<PermissionGroup> bulkAssignToUsers(PermissionGroup permissionGroup, List<User> users) {
         return repository.findById(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS)
                 .flatMap(pg -> {
-                    pg.getAsignedToUserIds().addAll(users.stream().map(User::getId).collect(Collectors.toList()));
+                    pg.getAssignedToUserIds().addAll(users.stream().map(User::getId).collect(Collectors.toList()));
                     return repository.updateById(pg.getId(), pg, AclPermission.ASSIGN_PERMISSION_GROUPS);
                 });
+    }
+
+    @Override
+    public Flux<PermissionGroup> getAllByUserAndDefaultWorkspace(User user, Workspace defaultWorkspace) {
+        return repository.findAllByAssignedToUserIdsInAndDefaultWorkspaceId(user.getId(), defaultWorkspace.getId());
+    }
+
+    @Override
+    public Mono<PermissionGroup> unassignSelf(PermissionGroup permissionGroup) {
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> {
+                    permissionGroup.getAssignedToUserIds().remove(user.getId());
+                    return repository.updateById(permissionGroup.getId(), permissionGroup, AclPermission.READ_PERMISSION_GROUPS);
+                });
+    }
+
+    @Override
+    public Flux<PermissionGroup> getByDefaultWorkspace(Workspace workspace) {
+        return repository.findByDefaultWorkspaceId(workspace.getId());
     }
 }

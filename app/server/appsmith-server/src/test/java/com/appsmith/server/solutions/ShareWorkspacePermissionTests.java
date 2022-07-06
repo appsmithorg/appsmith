@@ -10,7 +10,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
-import com.appsmith.server.dtos.UserGroupInfoDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -165,7 +165,7 @@ public class ShareWorkspacePermissionTests {
     @WithUserDetails(value = "admin@solutiontest.com")
     public void testAdminInviteRoles() {
 
-        Mono<List<UserGroupInfoDTO>> userRolesForWorkspace = workspaceService.getUserGroupsForWorkspace(workspaceId);
+        Mono<List<PermissionGroupInfoDTO>> userRolesForWorkspace = workspaceService.getPermissionGroupsForWorkspace(workspaceId);
 
         StepVerifier.create(userRolesForWorkspace)
                 .assertNext(userGroupInfos -> {
@@ -198,7 +198,7 @@ public class ShareWorkspacePermissionTests {
     @WithUserDetails(value = "developer@solutiontest.com")
     public void testDeveloperInviteRoles() {
 
-        Mono<List<UserGroupInfoDTO>> userRolesForWorkspace = workspaceService.getUserGroupsForWorkspace(workspaceId);
+        Mono<List<PermissionGroupInfoDTO>> userRolesForWorkspace = workspaceService.getPermissionGroupsForWorkspace(workspaceId);
 
         StepVerifier.create(userRolesForWorkspace)
                 .assertNext(userGroupInfos -> {
