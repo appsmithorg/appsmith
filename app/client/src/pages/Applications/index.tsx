@@ -989,7 +989,6 @@ class Applications extends Component<
   componentDidMount() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
-    this.props.resetEditor();
     if (!this.props.userWorkspaces.length) {
       this.props.getAllApplication();
     }

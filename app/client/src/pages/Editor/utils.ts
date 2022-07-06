@@ -13,11 +13,7 @@ import {
 } from "@appsmith/constants/messages";
 import { URLBuilderParams } from "RouteBuilder";
 import { useSelector } from "react-redux";
-import {
-  getIsEditorInitialized,
-  selectURLSlugs,
-} from "selectors/editorSelectors";
-import { getIsInitialized } from "selectors/appViewSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 export const draggableElement = (
   id: string,
@@ -295,29 +291,18 @@ export function buildDeprecationWidgetMessage(
  * Eg. Deploy button in header.
  * @param urlBuilderFn
  * @param params
- * @returns {String} URL
+ * @returns URL
  */
 export function useHref<T extends URLBuilderParams>(
   urlBuilderFn: (params: T) => string,
   params: T,
 ) {
-  const isEditorInitialized = useSelector(getIsEditorInitialized);
-  const isViewerInitialized = useSelector(getIsInitialized);
-  const { applicationSlug, customSlug, pageSlug } = useSelector(selectURLSlugs);
   const [href, setHref] = useState("");
-
+  // Current pageId selector serves as delay to generate urls
+  const pageId = useSelector(getCurrentPageId);
   useEffect(() => {
-    if (isEditorInitialized || isViewerInitialized)
-      setHref(urlBuilderFn(params));
-  }, [
-    isEditorInitialized,
-    isViewerInitialized,
-    params,
-    applicationSlug,
-    pageSlug,
-    customSlug,
-    urlBuilderFn,
-  ]);
+    if (pageId) setHref(urlBuilderFn(params));
+  }, [params, urlBuilderFn, pageId]);
 
   return href;
 }
