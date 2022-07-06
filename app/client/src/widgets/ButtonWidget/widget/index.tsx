@@ -1,9 +1,6 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  WidgetType,
-} from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent, { ButtonType } from "../component";
 import {
   EventType,
@@ -21,6 +18,7 @@ import {
   ButtonPlacementTypes,
   ButtonPlacement,
 } from "components/constants";
+import FormWidget from "widgets/FormWidget/widget";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -132,8 +130,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         hidden: (
           props: ButtonWidgetProps,
           propertyPath: string,
-          parentWidgetId?: string,
-        ) => parentWidgetId === MAIN_CONTAINER_WIDGET_ID,
+          widgetParentProps?: WidgetProps,
+        ) => widgetParentProps?.type !== FormWidget.getWidgetType(),
         children: [
           {
             helpText:

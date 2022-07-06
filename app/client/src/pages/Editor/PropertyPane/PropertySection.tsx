@@ -12,6 +12,7 @@ import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import styled from "constants/DefaultTheme";
 import { getWidgetParent } from "sagas/selectors";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const SectionWrapper = styled.div`
   position: relative;
@@ -53,7 +54,7 @@ type PropertySectionProps = {
   hidden?: (
     props: any,
     propertyPath: string,
-    parentWidgetId?: string,
+    widgetParentProps?: WidgetProps,
   ) => boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
@@ -78,13 +79,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const parentWidget = useSelector(getWidgetParent(widgetProps.widgetId));
 
   if (props.hidden) {
-    if (
-      props.hidden(
-        widgetProps,
-        props.propertyPath || "",
-        parentWidget?.widgetId,
-      )
-    ) {
+    if (props.hidden(widgetProps, props.propertyPath || "", parentWidget)) {
       return null;
     }
   }

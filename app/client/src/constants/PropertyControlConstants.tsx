@@ -7,6 +7,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import { AppTheme } from "entities/AppTheming";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
@@ -18,7 +19,7 @@ export type PropertyPaneSectionConfig = {
   hidden?: (
     props: any,
     propertyPath: string,
-    parentWidgetId?: string,
+    widgetParentProps?: WidgetProps,
   ) => boolean;
   isDefaultOpen?: boolean;
   propertySectionPath?: string;
@@ -61,7 +62,7 @@ export type PropertyPaneControlConfig = {
   hidden?: (
     props: any,
     propertyPath: string,
-    parentWidgetId?: string,
+    widgetParentProps?: WidgetProps,
   ) => boolean;
   invisible?: boolean;
   isBindProperty: boolean;
