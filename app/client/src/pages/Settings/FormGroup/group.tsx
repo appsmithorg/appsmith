@@ -131,7 +131,7 @@ export default function Group({
                 return (
                   <div
                     className={setting.isHidden ? "hide" : ""}
-                    data-testid="admin-settings-group-toggle"
+                    data-testid="admin-settings-group-checkbox"
                     key={setting.name || setting.id}
                   >
                     <Checkbox setting={setting} />

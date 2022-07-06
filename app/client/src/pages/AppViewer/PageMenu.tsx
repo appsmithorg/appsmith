@@ -20,7 +20,7 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import BrandingBadge from "./BrandingBadgeMobile";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
-import { getAppsmithConfigs } from "ce/configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 type AppViewerHeaderProps = {
   isOpen?: boolean;
