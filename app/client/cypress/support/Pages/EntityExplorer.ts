@@ -157,6 +157,10 @@ export class EntityExplorer {
       jsDelete && this.agHelper.ValidateNetworkStatus("@deleteJSCollection");
       jsDelete && this.agHelper.AssertContains("deleted successfully");
     }
+    if (action == "Delete") {
+      jsDelete && this.agHelper.ValidateNetworkStatus("@deleteJSCollection");
+      jsDelete && this.agHelper.WaitUntilToastDisappear("deleted successfully");
+    }
   }
 
   public ActionTemplateMenuByEntityName(
