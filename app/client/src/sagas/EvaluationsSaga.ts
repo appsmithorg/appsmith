@@ -47,6 +47,7 @@ import {
 } from "actions/evaluationActions";
 import {
   evalErrorHandler,
+  handleJSFunctionExecutionErrorLog,
   logSuccessfulBindings,
   postEvalActionDispatcher,
   updateTernDefinitions,
@@ -350,7 +351,11 @@ export function* clearEvalCache() {
   return true;
 }
 
-export function* executeFunction(collectionName: string, action: JSAction) {
+export function* executeFunction(
+  collectionName: string,
+  action: JSAction,
+  collectionId: string,
+) {
   const functionCall = `${collectionName}.${action.name}()`;
   const { isAsync } = action.actionConfiguration;
   let response: {
@@ -381,17 +386,12 @@ export function* executeFunction(collectionName: string, action: JSAction) {
   const { errors, result } = response;
   const isDirty = !!errors.length;
 
-  // parse error of variables and function of jsobject
-  // matching of the response error type with normal error type
   yield call(
-    evalErrorHandler,
-    errors.map((error: any) => ({
-      type: error.errorType,
-      message: error.errorMessage,
-      context: {
-        propertyPath: error.originalBinding,
-      },
-    })),
+    handleJSFunctionExecutionErrorLog,
+    collectionId,
+    collectionName,
+    action,
+    errors,
   );
   return { result, isDirty };
 }
