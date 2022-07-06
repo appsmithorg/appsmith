@@ -20,12 +20,6 @@ enum URL_TYPE {
   CUSTOM_SLUG,
 }
 
-enum Slug {
-  applicationSlug = "applicationSlug",
-  pageSlug = "pageSlug",
-  customSlug = "customSlug",
-}
-
 const baseURLRegistry = {
   [URL_TYPE.DEFAULT]: {
     [APP_MODE.EDIT]: BUILDER_PATH_DEPRECATED,
