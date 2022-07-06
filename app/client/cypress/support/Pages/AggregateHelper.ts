@@ -330,10 +330,14 @@ export class AggregateHelper {
     }
 
     // //closing multiselect dropdown
-    cy.get("body").type("{esc}");
+    this.Escape();
     // cy.get(this.locator._widgetInDeployed(endpoint))
     //     .eq(index)
     //     .click()
+  }
+
+  public Escape(){
+    cy.get('body').type("{esc}");
   }
 
   public RemoveMultiSelectItems(items: string[]) {
