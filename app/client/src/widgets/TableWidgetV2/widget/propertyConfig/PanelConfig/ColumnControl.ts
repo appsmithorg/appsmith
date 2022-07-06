@@ -205,7 +205,7 @@ export default {
         "inlineEditingSaveOption",
       ],
       label: "Editable",
-      helpText: "Controls the inline editablity of the cell in the column",
+      helpText: "Controls the cell's editablity",
       defaultValue: false,
       controlType: "SWITCH",
       customJSControl: "TABLE_COMPUTE_VALUE",
