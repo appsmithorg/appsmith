@@ -12,7 +12,7 @@ const dsl = require("../../../../fixtures/formInputTableDsl.json");
     14.Ensure to add a longer query name and observe if it is truncated in the entity explorer
 */
 
-describe("Test ideas Entity Explorer", function() {
+describe("Test Entity Explorer", function() {
   before(() => {
     localStorage.setItem("ApiPaneV2", "ApiPaneV2");
     cy.NavigateToApiEditor();
@@ -24,12 +24,12 @@ describe("Test ideas Entity Explorer", function() {
   });
 
   it("1. Test user is able to see the query in the entity explorer", function() {
-    cy.contains(".t--datasource-name", "Test Airtable1.2")
+    cy.contains(".t--datasource-name", "Test Twilio")
       .find(queryLocators.createQuery)
       .click();
 
     cy.get(queryLocators.queryNameField).type("Test");
-    cy.get(ApiEditor.airtableImage).click(); //Only to save the query name
+    cy.get(ApiEditor.twilioImage).click(); //Only to save the query name
 
     cy.xpath(
       "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
@@ -55,7 +55,7 @@ describe("Test ideas Entity Explorer", function() {
 
     cy.contains(".t--entity-item", "Test").type("CREATE_MESSAGE_TEST1");
 
-    cy.get(ApiEditor.airtableImage).click(); //Only to save the query name
+    cy.get(ApiEditor.twilioImage).click(); //Only to save the query name
 
     cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1").should("exist");
   });

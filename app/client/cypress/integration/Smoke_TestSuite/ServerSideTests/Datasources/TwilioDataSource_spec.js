@@ -5,7 +5,7 @@ const datasource = require("../../../../fixtures/datasources.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 import ApiEditor from "../../../../locators/ApiEditor";
 
-describe("Airtable Active datasource test cases", function() {
+describe("Twilio Active datasource test cases", function() {
   before(() => {
     localStorage.setItem("ApiPaneV2", "ApiPaneV2");
     cy.NavigateToApiEditor();
@@ -15,25 +15,23 @@ describe("Airtable Active datasource test cases", function() {
   });
 
   it("1. Test user is displayed with Twilio setup on Datasource page along with the symbol", function() {
-    cy.get(datasourceEditor.Airtable).should("exist");
-    cy.get(ApiEditor.airtableImage).should("be.visible");
+    cy.get(datasourceEditor.Twilio).should("exist");
+    cy.get(ApiEditor.twilioImage).should("be.visible");
   });
 
   it("2. Test user is able to click on the Twilio for establishing a connection", function() {
-    cy.get(datasourceEditor.Airtable).click();
+    cy.get(datasourceEditor.Twilio).click();
     cy.get(".t--json-to-form-wrapper").should("exist");
   });
 
   it("3. Test user is displayed with Auth type and user is able to select Basic Auth", function() {
     cy.get(ApiEditor.dropdownTypeAuth).click();
-    //cy.contains(ApiEditor.test, 'Basic Auth').click()
-    cy.contains(ApiEditor.dropdownOption, "Bearer Token").click();
+    cy.contains(ApiEditor.test, "Basic Auth").click();
   });
 
   it("4. Test selection user must be displayed with Username and Password", function() {
-    cy.get(ApiEditor.labelAuth).contains("Bearer Token");
-    //cy.get(ApiEditor.labelAuth).contains("Username");
-    //cy.get(ApiEditor.labelAuth).contains("Password");
+    cy.get(ApiEditor.labelAuth).contains("Account SID");
+    cy.get(ApiEditor.labelAuth).contains("Auth Token");
   });
 
   it("5. Test user is displayed with following button", function() {
@@ -50,17 +48,24 @@ describe("Airtable Active datasource test cases", function() {
     cy.get(apiwidget.saveButton).should("exist");
     cy.get("[alt='Datasource']").should("be.visible");
     cy.get(datasourceEditor.datasourceTitle).should("exist");
-    cy.get(datasourceEditor.datasourceTitle).type("Test Airtable1.2");
+    cy.get(datasourceEditor.datasourceTitle).type("Test Twilio");
     cy.get(ApiEditor.backBtn).should("exist");
   });
 
   it("6. Test clicking on Save option the DS gets saved", function() {
     cy.get(
-      'input[name="datasourceConfiguration.authentication.bearerToken"]',
-    ).type(datasource.bearerToken);
+      'input[name="datasourceConfiguration.authentication.username"]',
+    ).type(datasource.username);
     cy.get(
-      'input[name="datasourceConfiguration.authentication.bearerToken"]',
-    ).should("have.value", datasource.bearerToken);
+      'input[name="datasourceConfiguration.authentication.username"]',
+    ).should("have.value", datasource.username);
+
+    cy.get(
+      'input[name="datasourceConfiguration.authentication.password"]',
+    ).type(datasource.password);
+    cy.get(
+      'input[name="datasourceConfiguration.authentication.password"]',
+    ).should("have.value", datasource.password);
 
     cy.get(".bp3-button-text:contains('Save')").click();
 
@@ -76,7 +81,7 @@ describe("Airtable Active datasource test cases", function() {
       .should("be.visible")
       .click({ force: true });
 
-    cy.get(datasourceEditor.Airtable).click();
+    cy.get(datasourceEditor.Twilio).click();
 
     cy.get(".t--delete-datasource").click();
     cy.get(".t--delete-datasource")
@@ -90,14 +95,14 @@ describe("Airtable Active datasource test cases", function() {
   });
 
   it("8. Test  delete if the DS is associated with a query the DS must show an error and unable to delete", function() {
-    cy.contains(".t--datasource-name", "Test Airtable1.2")
+    cy.contains(".t--datasource-name", "Test Twilio")
       .find(queryLocators.createQuery)
       .click();
     cy.get(queryLocators.queryNameField).type("Test");
-    cy.get(ApiEditor.airtableImage).click(); //Only to save the query name
+    cy.get(ApiEditor.twilioImage).click(); //Only to save the query name
     cy.get(ApiEditor.backBtn).click();
 
-    cy.contains(".t--datasource-name", "Test Airtable1.2").click();
+    cy.contains(".t--datasource-name", "Test Twilio").click();
     cy.get(".t--delete-datasource").click();
     cy.get(".t--delete-datasource")
       .contains("Are you sure?")

@@ -14,8 +14,8 @@ describe("Tests on active datasource behaviour ", function() {
   });
 
   it("1. Test to check that the saved Twilio is displayed under the Active tab section", function() {
-    cy.contains(".t--datasource-name", "Test Airtable1.2");
-    cy.get(".t--datasource-name:contains('Test Airtable1.2')").should("exist");
+    cy.contains(".t--datasource-name", "Test Twilio");
+    cy.get(".t--datasource-name:contains('Test Twilio')").should("exist");
   });
 
   it("2. Test that buttons displayed in for Twilio", function() {
@@ -24,11 +24,11 @@ describe("Tests on active datasource behaviour ", function() {
        3 - Action Icon
            a) Edit b) Delete
     */
-    cy.contains(".t--datasource-name", "Test Airtable1.2")
+    cy.contains(".t--datasource-name", "Test Twilio")
       .find(queryLocators.createQuery)
       .should("be.visible");
 
-    cy.contains(".t--datasource-name", "Test Airtable1.2")
+    cy.contains(".t--datasource-name", "Test Twilio")
       .find(".t--datasource-menu-option")
       .click();
 
@@ -37,7 +37,7 @@ describe("Tests on active datasource behaviour ", function() {
   });
 
   it("3. Test clicking on New Query user must be navigated to Query Pane", function() {
-    cy.contains(".t--datasource-name", "Test Airtable1.2")
+    cy.contains(".t--datasource-name", "Test Twilio")
       .find(queryLocators.createQuery)
       .click();
 
@@ -47,7 +47,7 @@ describe("Tests on active datasource behaviour ", function() {
   it("5/6. Test ensure that the existing Query must not be deleted", function() {
     cy.get(ApiEditor.backBtn).click();
 
-    cy.contains(".t--datasource-name", "Test Airtable1.2").click();
+    cy.contains(".t--datasource-name", "Test Twilio").click();
     cy.get(".t--delete-datasource").click();
     cy.get(".t--delete-datasource")
       .contains("Are you sure?")
@@ -62,7 +62,7 @@ describe("Tests on active datasource behaviour ", function() {
   it("7. Test clicking on Edit option of the action icon it is observed that the user is navigated into Datasource pane", function() {
     cy.get(ApiEditor.backBtn).click();
 
-    cy.contains(".t--datasource-name", "Test Airtable1.2")
+    cy.contains(".t--datasource-name", "Test Twilio")
       .find(".t--datasource-menu-option")
       .click();
 
