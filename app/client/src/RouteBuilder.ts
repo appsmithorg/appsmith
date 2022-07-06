@@ -33,7 +33,7 @@ export const fillPathname = (
   );
 };
 
-export function convertToQueryParams(
+export function getQueryStringfromObject(
   params: Record<string, string> = {},
 ): string {
   const paramKeys = Object.keys(params);

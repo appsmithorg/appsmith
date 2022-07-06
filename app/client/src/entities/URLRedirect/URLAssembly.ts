@@ -10,10 +10,9 @@ import {
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
-import { generatePath, matchPath } from "react-router";
-import { convertToQueryParams, URLBuilderParams } from "RouteBuilder";
+import { generatePath } from "react-router";
+import { getQueryStringfromObject, URLBuilderParams } from "RouteBuilder";
 import getQueryParamsObject from "utils/getQueryParamsObject";
-import history from "utils/history";
 
 enum URL_TYPE {
   DEFAULT,
@@ -54,7 +53,7 @@ export type PageURLParams = {
   customSlug?: string;
 };
 
-const fetchParamsToPersist = () => {
+const fetchQueryParamsToPersist = () => {
   const existingParams = getQueryParamsObject() || {};
   // not persisting the entire query currently, since that's the current behavior
   const { branch, embed } = existingParams;
@@ -183,11 +182,11 @@ export class URLBuilder {
 
     const basePath = this.generateBasePath(pageId, mode);
 
-    const paramsToPersist = fetchParamsToPersist();
+    const queryParamsToPersist = fetchQueryParamsToPersist();
 
-    const modifiedParams = { ...paramsToPersist, ...params };
+    const modifiedQueryParams = { ...queryParamsToPersist, ...params };
 
-    const queryString = convertToQueryParams(modifiedParams);
+    const queryString = getQueryStringfromObject(modifiedQueryParams);
 
     const suffixPath = suffix ? `/${suffix}` : "";
 
