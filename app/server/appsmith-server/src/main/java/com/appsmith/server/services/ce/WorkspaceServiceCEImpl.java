@@ -9,7 +9,6 @@ import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.RbacPolicy;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
@@ -29,7 +28,6 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.RbacPolicyService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +73,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final AssetService assetService;
     private final ApplicationRepository applicationRepository;
     private final PermissionGroupService permissionGroupService;
-    private final RbacPolicyService rbacPolicyService;
     private final PolicyUtils policyUtils;
     private final ModelMapper modelMapper;
 
@@ -96,7 +93,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                   AssetService assetService,
                                   ApplicationRepository applicationRepository,
                                   PermissionGroupService permissionGroupService,
-                                  RbacPolicyService rbacPolicyService,
                                   PolicyUtils policyUtils,
                                   ModelMapper modelMapper) {
 
@@ -110,7 +106,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         this.assetService = assetService;
         this.applicationRepository = applicationRepository;
         this.permissionGroupService = permissionGroupService;
-        this.rbacPolicyService = rbacPolicyService;
         this.policyUtils = policyUtils;
         this.modelMapper = modelMapper;
     }
@@ -218,13 +213,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                         .findFirst().get();
 
                                 // Create a policy for current user to become the administrator
-                                RbacPolicy userPolicy = new RbacPolicy();
-                                userPolicy.setUserId(user.getId());
-                                userPolicy.setPermissionGroupIds(Set.of(adminPermissionGroup.getId()));
-
-                                return rbacPolicyService.create(userPolicy)
-                                        // save the workspace with updated permissions
-                                        .then(repository.save(createdWorkspace));
+                                return permissionGroupService.assignToUser(adminPermissionGroup, user).then(Mono.just(createdWorkspace));
                             });
                 });
     }

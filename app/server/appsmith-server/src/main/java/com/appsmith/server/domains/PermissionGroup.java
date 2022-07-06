@@ -23,9 +23,9 @@ public class PermissionGroup extends BaseDomain {
 
     String description;
 
-
     String defaultWorkspaceId;
 
     Set<Permission> permissions = new HashSet<>();
 
+    Set<String> asignedToUserIds;
 }
