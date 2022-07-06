@@ -1,3 +1,4 @@
+import React from "react";
 import { isEmail } from "utils/formhelpers";
 import { apiRequestConfig } from "api/Api";
 import UserApi from "@appsmith/api/UserApi";
@@ -7,6 +8,7 @@ import {
   SettingSubtype,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
+import BrandingBadge from "pages/AppViewer/BrandingBadge";
 
 export const config: AdminConfigType = {
   type: SettingCategories.GENERAL,
@@ -70,8 +72,13 @@ export const config: AdminConfigType = {
       category: SettingCategories.GENERAL,
       controlType: SettingTypes.CHECKBOX,
       label: "Appsmith Watermark",
-      text: "Show Appsmith Watermark",
+      text: "Hide Appsmith Watermark",
       needsUpgrade: true,
+      isDisabled: () => true,
+      textSuffix: <BrandingBadge />,
+      upgradeLogEventName: "ADMIN_SETTINGS_UPGRADE_WATERMARK",
+      upgradeLogMessage:
+        "Hello, I would like to upgrade and start using branding options.",
     },
   ],
 } as AdminConfigType;

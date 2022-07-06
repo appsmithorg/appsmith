@@ -239,7 +239,9 @@ export type EventName =
   | "PAGE_NAME_CLICK"
   | "BACK_BUTTON_CLICK"
   | "WIDGET_TAB_CLICK"
-  | "ENTITY_EXPLORER_CLICK";
+  | "ENTITY_EXPLORER_CLICK"
+  | "ADMIN_SETTINGS_UPGRADE_WATERMARK"
+  | "ADMIN_SETTINGS_UPGRADE";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

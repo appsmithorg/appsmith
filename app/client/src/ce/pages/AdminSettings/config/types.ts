@@ -1,6 +1,7 @@
 import React from "react";
 import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { Dispatch } from "react";
+import { EventName } from "utils/AnalyticsUtil";
 
 export enum SettingTypes {
   TEXTINPUT = "TEXTINPUT",
@@ -39,6 +40,7 @@ export interface Setting {
   subCategory?: string;
   value?: string;
   text?: string;
+  textSuffix?: React.ReactElement;
   action?: (
     dispatch: Dispatch<ReduxAction<any>>,
     settings?: Record<string, any>,
@@ -56,6 +58,8 @@ export interface Setting {
   fieldName?: string;
   dropdownOptions?: Array<{ id: string; value: string; label?: string }>;
   needsUpgrade?: boolean;
+  upgradeLogEventName?: EventName;
+  upgradeIntercomEventMessage?: string;
 }
 
 export interface Category {

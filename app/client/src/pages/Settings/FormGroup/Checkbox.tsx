@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import {
   Field,
+  getFormValues,
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
 } from "redux-form";
@@ -8,10 +9,11 @@ import styled from "styled-components";
 import { FormGroup, SettingComponentProps } from "./Common";
 import { FormTextFieldProps } from "components/ads/formFields/TextField";
 import Checkbox from "components/ads/Checkbox";
-import { createMessage } from "@appsmith/constants/messages";
 import { Button, Category } from "components/ads";
-import BrandingBadge from "pages/AppViewer/BrandingBadge";
-import { isDisabled } from "@testing-library/user-event/dist/utils";
+import { useSelector } from "react-redux";
+import { SETTINGS_FORM_NAME } from "constants/forms";
+import useOnUpgrade from "utils/hooks/useOnUpgrade";
+import { EventName } from "utils/AnalyticsUtil";
 
 const CheckboxWrapper = styled.div`
   display: grid;
@@ -33,6 +35,9 @@ type CheckboxProps = {
   isDisabled?: boolean;
   needsUpgrade?: boolean;
   text: string;
+  labelSuffix?: React.ReactElement;
+  upgradeLogEventName?: EventName;
+  upgradeIntercomEventMessage?: string;
 };
 
 function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
@@ -42,7 +47,12 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
       input: Partial<WrappedFieldInputProps>;
     },
   ) {
+    const { labelSuffix } = props;
     const val = componentProps.input.value;
+    const { onUpgrade } = useOnUpgrade({
+      logEventName: props.upgradeLogEventName,
+      intercomMessage: props.upgradeIntercomEventMessage,
+    });
 
     function onCheckbox(value?: boolean) {
       const CheckboxValue = props.isDisabled ? !value : value;
@@ -58,17 +68,15 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
         <Checkbox
           cypressSelector={props.id}
           disabled={props.isDisabled}
-          isDefaultChecked={props.isDisabled ? !val : val}
+          isDefaultChecked={val}
           label={props.text}
           onCheckChange={onCheckbox}
         />
-        <BrandingBadge />
+        <div>{labelSuffix}</div>
         {props.needsUpgrade && (
           <StyledAuthButton
             category={Category.tertiary}
-            onClick={() => {
-              //
-            }}
+            onClick={() => onUpgrade()}
             text="Upgrade"
           />
         )}
@@ -81,7 +89,11 @@ const StyledFieldCheckboxGroup = styled.div`
   margin-bottom: 8px;
 `;
 
+const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
+
 export function CheckboxComponent({ setting }: SettingComponentProps) {
+  const settings = useSelector(formValuesSelector);
+
   return (
     <StyledFieldCheckboxGroup>
       <FormGroup setting={setting}>
@@ -90,8 +102,11 @@ export function CheckboxComponent({ setting }: SettingComponentProps) {
             label: setting.label,
             text: setting.text || "",
             id: setting.id,
-            isDisabled: setting.needsUpgrade,
+            isDisabled: setting.isDisabled && setting.isDisabled(settings),
             needsUpgrade: setting.needsUpgrade,
+            labelSuffix: setting.textSuffix,
+            upgradeLogEventName: setting.upgradeLogEventName,
+            upgradeIntercomEventMessage: setting.upgradeIntercomEventMessage,
           })}
           name={setting.name}
         />
