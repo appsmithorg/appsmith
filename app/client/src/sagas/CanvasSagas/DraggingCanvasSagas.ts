@@ -28,6 +28,7 @@ import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useB
 import { getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -65,7 +66,10 @@ export function* getCanvasSizeAfterWidgetMove(
     const occupiedSpacesByChildren: OccupiedSpace[] | undefined = yield select(
       getOccupiedSpacesSelectorForContainer(canvasWidgetId),
     );
-    const canvasMinHeight = mainCanvasMinHeight || canvasWidget.minHeight || 0;
+    const canvasMinHeight =
+      mainCanvasMinHeight ||
+      canvasWidget.minHeight ||
+      CANVAS_DEFAULT_MIN_HEIGHT_PX;
     const newRows = calculateDropTargetRows(
       movedWidgetIds,
       movedWidgetsBottomRow,

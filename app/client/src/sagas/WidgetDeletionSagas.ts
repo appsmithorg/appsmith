@@ -42,6 +42,7 @@ import {
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { getMainCanvasProps } from "selectors/editorSelectors";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -383,8 +384,9 @@ function resizeCanvasToLowestWidget(
   }
 
   let lowestBottomRow = Math.ceil(
-    (mainCanvasMinHeight || finalWidgets[parentId].minHeight || 0) /
-      GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    (mainCanvasMinHeight ||
+      finalWidgets[parentId].minHeight ||
+      CANVAS_DEFAULT_MIN_HEIGHT_PX) / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
   );
   const childIds = finalWidgets[parentId].children || [];
 
