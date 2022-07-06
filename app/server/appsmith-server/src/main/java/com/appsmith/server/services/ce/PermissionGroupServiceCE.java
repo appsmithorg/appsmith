@@ -14,4 +14,6 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
     Mono<PermissionGroup> save(PermissionGroup permissionGroup);
 
     Mono<Void> delete(String id);
+
+    Mono<PermissionGroup> findById(String permissionGroupId);
 }
