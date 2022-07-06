@@ -19,16 +19,19 @@ import java.util.Map;
 /**
  * API reference: https://developers.google.com/sheets/api/samples/rowcolumn#delete_rows_or_columns
  */
-public class DeleteRowMethod implements Method {
+public class RowsDeleteMethod implements ExecutionMethod, TemplateMethod {
 
     ObjectMapper objectMapper;
 
-    public DeleteRowMethod(ObjectMapper objectMapper) {
+    public RowsDeleteMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
+    public RowsDeleteMethod() {
+    }
+
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig) {
+    public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Spreadsheet Url");
         }
@@ -59,6 +62,9 @@ public class DeleteRowMethod implements Method {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Unexpected format for table header index. Please use a number starting from 1");
             }
+        } else {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    "Unexpected format for table header index. Please use a number starting from 1");
         }
         return true;
     }
@@ -119,7 +125,7 @@ public class DeleteRowMethod implements Method {
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
+    public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
 
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
@@ -145,7 +151,7 @@ public class DeleteRowMethod implements Method {
     }
 
     @Override
-    public JsonNode transformResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
