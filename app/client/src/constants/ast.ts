@@ -12,14 +12,19 @@ export enum SourceType {
 // what all properties can the node have.
 // We will just define the ones we are working with
 export enum NodeTypes {
-  MemberExpression = "MemberExpression",
   Identifier = "Identifier",
-  VariableDeclarator = "VariableDeclarator",
-  FunctionDeclaration = "FunctionDeclaration",
-  FunctionExpression = "FunctionExpression",
   AssignmentPattern = "AssignmentPattern",
   Literal = "Literal",
-  ExportDefaultDeclaration = "ExportDefaultDeclaration",
   Property = "Property",
+  // Declaration - https://github.com/estree/estree/blob/master/es5.md#declarations
+  FunctionDeclaration = "FunctionDeclaration",
+  ExportDefaultDeclaration = "ExportDefaultDeclaration",
+  VariableDeclarator = "VariableDeclarator",
+  // Expression - https://github.com/estree/estree/blob/master/es5.md#expressions
+  MemberExpression = "MemberExpression",
+  FunctionExpression = "FunctionExpression",
   ArrowFunctionExpression = "ArrowFunctionExpression",
+  ObjectExpression = "ObjectExpression",
+  ArrayExpression = "ArrayExpression",
+  ThisExpression = "ThisExpression",
 }

@@ -33,17 +33,17 @@ describe("Theme validation for default data", function() {
     //cy.contains("Border").click({ force: true });
     cy.get(themelocator.border).should("have.length", "3");
     cy.borderMouseover(0, "none");
-    cy.borderMouseover(1, "md");
-    cy.borderMouseover(2, "lg");
+    cy.borderMouseover(1, "M");
+    cy.borderMouseover(2, "L");
     cy.contains("Border").click({ force: true });
 
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
     cy.wait(2000);
     cy.shadowMouseover(0, "none");
-    cy.shadowMouseover(1, "sm");
-    cy.shadowMouseover(2, "md");
-    cy.shadowMouseover(3, "lg");
+    cy.shadowMouseover(1, "S");
+    cy.shadowMouseover(2, "M");
+    cy.shadowMouseover(3, "L");
     cy.contains("Shadow").click({ force: true });
 
     //Font
@@ -54,7 +54,7 @@ describe("Theme validation for default data", function() {
 
       cy.get(themelocator.fontsSelected)
         .eq(0)
-        .should("have.text", "System Default");
+        .should("have.text", "Nunito Sans");
     });
     cy.contains("Font").click({ force: true });
 
@@ -62,7 +62,7 @@ describe("Theme validation for default data", function() {
     //cy.contains("Color").click({ force: true });
     cy.wait(2000);
     cy.colorMouseover(0, "Primary Color");
-    cy.validateColor(0, "#16a34a");
+    cy.validateColor(0, "#553DE9");
     cy.colorMouseover(1, "Background Color");
     cy.validateColor(1, "#F6F6F6");
   });
