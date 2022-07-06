@@ -170,7 +170,7 @@ export class URLBuilder {
 
     if (!pageId) {
       throw new URIError(
-        "Missing URL params. If you are trying to set href inside a react component use the 'useHref' hook.",
+        "Missing pageId. If you are trying to set href inside a react component use the 'useHref' hook.",
       );
     }
 
