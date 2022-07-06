@@ -290,12 +290,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 // Validity checks before proceeding further
                 .flatMap(application -> {
 
-                    if ((application.getPublicPermissionGroup() != null) && applicationAccessDTO.getPublicAccess()) {
+                    if ((application.getDefaultPermissionGroup() != null) && applicationAccessDTO.getPublicAccess()) {
                         // No change. The required public access is the same as current public access. Do nothing
                         return Mono.just(application);
                     }
 
-                    if (application.getPublicPermissionGroup() == null && applicationAccessDTO.getPublicAccess().equals(false)) {
+                    if (application.getDefaultPermissionGroup() == null && applicationAccessDTO.getPublicAccess().equals(false)) {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
 
@@ -313,10 +313,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
                     } else {
 
-                        String existingPermissionGroupId = application.getPublicPermissionGroup();
+                        String existingPermissionGroupId = application.getDefaultPermissionGroup();
                         if (StringUtils.hasLength(existingPermissionGroupId)) {
                             permissionGroupMono = permissionGroupService.findById(existingPermissionGroupId).cache();
-                            application.setPublicPermissionGroup(null);
+                            application.setDefaultPermissionGroup(null);
                         }
                     }
 

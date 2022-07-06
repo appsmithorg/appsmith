@@ -51,7 +51,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
-import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
@@ -153,13 +152,14 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE));
         }
 
-        // Does the user have permissions to create a workspace?
-        boolean isManageOrgPolicyPresent = user.getPolicies().stream()
-                .anyMatch(policy -> policy.getPermission().equals(USER_MANAGE_WORKSPACES.getValue()));
-
-        if (!isManageOrgPolicyPresent) {
-            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Create organization"));
-        }
+        // TODO : Replace with a tenant level permission check.
+//        // Does the user have permissions to create a workspace?
+//        boolean isManageOrgPolicyPresent = user.getPolicies().stream()
+//                .anyMatch(policy -> policy.getPermission().equals(USER_MANAGE_WORKSPACES.getValue()));
+//
+//        if (!isManageOrgPolicyPresent) {
+//            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Create organization"));
+//        }
 
         if (workspace.getEmail() == null) {
             workspace.setEmail(user.getEmail());

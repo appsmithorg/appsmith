@@ -43,6 +43,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
@@ -100,6 +101,7 @@ import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
@@ -183,6 +185,9 @@ public class ApplicationServiceTest {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     String workspaceId;
 
@@ -746,21 +751,29 @@ public class ApplicationServiceTest {
         Application application = new Application();
         application.setName("validMakeApplicationPublic-Test");
 
-        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
-                .build();
-
-        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
-                .build();
-
         Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
@@ -775,17 +788,51 @@ public class ApplicationServiceTest {
                     return newPageService.findPageById(pageId, READ_PAGES, false);
                 });
 
+        Mono<PermissionGroup> appPermissionGroupMono = publicAppMono
+                .flatMap(publicApp -> {
+                    String permissionGroupId = publicApp.getDefaultPermissionGroup();
+                    assertThat(permissionGroupId).isNotNull();
+
+                    return permissionGroupRepository.findById(permissionGroupId);
+                });
+
+        User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
+
         StepVerifier
-                .create(Mono.zip(publicAppMono, pageMono))
+                .create(Mono.zip(publicAppMono, pageMono, appPermissionGroupMono))
                 .assertNext(tuple -> {
                     Application publicApp = tuple.getT1();
                     PageDTO page = tuple.getT2();
+                    PermissionGroup permissionGroup = tuple.getT3();
+
+                    String permissionGroupId = permissionGroup.getId();
 
                     assertThat(publicApp.getIsPublic()).isTrue();
+
+                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(), permissionGroupId))
+                            .build();
+
+                    Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(), permissionGroupId))
+                            .build();
+
                     assertThat(publicApp.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
 
                     // Check the child page's policies
                     assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
+
+                    // Finally assert that permission group has been assigned to anonymous user.
+                    assertThat(permissionGroup.getAssignedToUserIds()).hasSize(1);
+                    assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(anonymousUser.getId()));
                 })
                 .verifyComplete();
     }

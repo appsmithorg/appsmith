@@ -151,7 +151,7 @@ public class Application extends BaseDomain {
     Boolean exportWithConfiguration;
 
     @JsonIgnore
-    String publicPermissionGroup;
+    String defaultPermissionGroup;
 
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
