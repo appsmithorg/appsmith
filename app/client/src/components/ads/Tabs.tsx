@@ -74,7 +74,6 @@ const TabsWrapper = styled.div<{
     justify-content: center;
     border-color: transparent;
     position: relative;
-    padding: 0;
 
     padding: 0px 3px;
     margin-right: ${(props) =>
