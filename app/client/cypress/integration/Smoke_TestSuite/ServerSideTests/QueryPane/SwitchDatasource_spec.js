@@ -86,12 +86,17 @@ describe("Switch datasource", function() {
       .type("select * from public.users limit 10");
     cy.wait(3000);
     cy.runQuery();
+    cy.wait("@saveAction").should(
+      "have.nested.property",
+      "response.body.data.isValid",
+      true,
+    );
 
     cy.get(".t--switch-datasource").click();
     cy.contains(".t--datasource-option", postgresDatasourceNameSecond)
       .click()
       .wait(1000);
-
+    cy.runQuery();
     cy.wait("@saveAction").should(
       "have.nested.property",
       "response.body.data.isValid",
@@ -99,15 +104,16 @@ describe("Switch datasource", function() {
     );
   });
 
-  it("4. Confirm mongo datasource is not present in the switch datasources dropdown", function() {
+  it("5. Confirm mongo datasource is not present in the switch datasources dropdown", function() {
     cy.get(".t--switch-datasource").click();
     cy.get(".t--datasource-option").should("not.have", mongoDatasourceName);
   });
 
-  it("4. Delete the query and datasources", function() {
+  it("6. Delete the query and datasources", function() {
     cy.deleteQueryUsingContext();
 
     cy.deleteDatasource(postgresDatasourceName);
+    cy.deleteDatasource(postgresDatasourceNameSecond);
     cy.deleteDatasource(mongoDatasourceName);
   });
 });
