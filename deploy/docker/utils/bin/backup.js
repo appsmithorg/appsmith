@@ -6,9 +6,14 @@ const shell = require('shelljs');
 
 const utils = require('./utils');
 const Constants = require('./constants');
+const logger = require('./logger');
+const mailer = require('./mailer');
 
- 
+const command_args = process.argv.slice(3);
+
 async function run() {
+
+  const timestamp = new Date().toISOString().replace(/:/g, '-')
   let errorCode = 0;
   try {
     const check_supervisord_status_cmd = '/usr/bin/supervisorctl >/dev/null 2>&1';
@@ -21,7 +26,14 @@ async function run() {
 
     utils.stop(['backend', 'rts']);
 
-    const timestamp = new Date().toISOString().replace(/:/g, '-')
+    console.log('Available free space at /appsmith-stacks');
+    const availSpaceInBytes = parseInt(shell.exec('df --output=avail -B 1 /appsmith-stacks | tail -n 1'), 10);
+    console.log('\n');
+
+    if (availSpaceInBytes < Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES) {
+      throw new Error('Not enough space avaliable at /appsmith-stacks. Please ensure availability of atleast 5GB to backup successfully.');
+    }
+
     const backupRootPath = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'appsmithctl-backup-'));
     const backupContentsPath = backupRootPath + '/appsmith-backup-' + timestamp;
 
@@ -36,15 +48,18 @@ async function run() {
 
     const archivePath = await createFinalArchive(backupRootPath, timestamp);
 
-    await fsPromises.rm(backupRootPath, {recursive: true, force: true});
+    await fsPromises.rm(backupRootPath, { recursive: true, force: true });
 
     console.log('Finished taking a baceup at', archivePath);
     // console.log('Please remember to also take the `docker.env` separately since it includes sensitive, but critical information.')
 
   } catch (err) {
-    console.log(err);
     errorCode = 1;
+    await logger.backup_error(err.stack);
 
+    if (command_args.includes('--error-mail')) {
+      await mailer.sendBackupErrorToAdmins(err, timestamp);
+    }
   } finally {
     utils.start(['backend', 'rts']);
     process.exit(errorCode);
@@ -72,17 +87,17 @@ async function createGitStorageArchive(destFolder) {
 }
 
 async function createManifestFile(path) {
-  const content = await fsPromises.readFile('/opt/appsmith/rts/version.js', {encoding: 'utf8'});
+  const content = await fsPromises.readFile('/opt/appsmith/rts/version.js', { encoding: 'utf8' });
   const version = content.match(/\bexports\.VERSION\s*=\s*["']([^"]+)["']/)[1];
-  const manifest_data = {"appsmithVersion": version} 
+  const manifest_data = { "appsmithVersion": version }
   await fsPromises.writeFile(path + '/manifest.json', JSON.stringify(manifest_data));
 }
 
 async function exportDockerEnvFile(destFolder) {
   console.log('Exporting docker environment file');
-  const content = await fsPromises.readFile('/appsmith-stacks/configuration/docker.env', {encoding: 'utf8'});
+  const content = await fsPromises.readFile('/appsmith-stacks/configuration/docker.env', { encoding: 'utf8' });
   const output_lines = []
-  content.split(/\r?\n/).forEach(line =>  {
+  content.split(/\r?\n/).forEach(line => {
     if (!line.startsWith("APPSMITH_ENCRYPTION")) {
       output_lines.push(line)
     }

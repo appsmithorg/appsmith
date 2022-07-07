@@ -25,7 +25,7 @@ const inputFieldConfig: Partial<FormConfigType> = {
 // main container for the entity selector component
 const EntitySelectorContainer = styled.div`
   display: grid;
-  grid-gap: 20px;
+  grid-gap: 16px;
   grid-template-columns: repeat(auto-fill, 280px);
 `;
 
