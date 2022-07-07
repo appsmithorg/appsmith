@@ -56,7 +56,7 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
     });
 
     function onCheckbox(value?: boolean) {
-      const CheckboxValue = props.isDisabled ? !value : value;
+      const CheckboxValue = isPropertyDisabled ? !value : value;
       componentProps.input.onChange &&
         componentProps.input.onChange(CheckboxValue);
       componentProps.input.onBlur && componentProps.input.onBlur(CheckboxValue);
@@ -77,7 +77,7 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
         {props.needsUpgrade && (
           <UpgradeButton
             category={Category.tertiary}
-            onClick={() => onUpgrade()}
+            onClick={onUpgrade}
             text="Upgrade"
           />
         )}
