@@ -59,16 +59,12 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluateSync, {
-  createGlobalData,
   EvalResult,
   EvaluateContext,
-  EvaluationScriptType,
-  getScriptToEval,
   evaluateAsync,
 } from "workers/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
-import { getLintingErrors } from "workers/lint";
 import { error as logError } from "loglevel";
 import { JSUpdate } from "utils/JSPaneUtils";
 
@@ -89,6 +85,7 @@ import {
   parseJSActions,
 } from "workers/JSObject";
 
+import { lintTree } from "workers/linting";
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
   sortedDependencies: Array<string> = [];
@@ -249,7 +246,6 @@ export default class DataTreeEvaluator {
       Record<string, DataTreeJSAction>,
       Record<string, DataTreeJSAction>
     >[] = diff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) || [];
-
     const jsTranslatedDiffs = _.flatten(
       jsDifferences.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
@@ -355,6 +351,17 @@ export default class DataTreeEvaluator {
     );
     const evalStop = performance.now();
 
+    // Lint
+    const lintStart = performance.now();
+    lintTree(
+      localUnEvalTree,
+      newEvalTree,
+      this.sortedDependencies,
+      triggerPathsToLint,
+      this.resolvedFunctions,
+    );
+    const lintStop = performance.now();
+
     const evalTreeDiffsStart = performance.now();
 
     const evalTreeDiffsStop = performance.now();
@@ -364,25 +371,6 @@ export default class DataTreeEvaluator {
     // Need to check why big api responses are getting split between two eval runs
     this.oldUnEvalTree = klona(localUnEvalTree);
     this.evalTree = newEvalTree;
-
-    // Lint triggerPaths
-    if (triggerPathsToLint.length) {
-      triggerPathsToLint.forEach((triggerPath) => {
-        removeLintErrorsFromEntityProperty(this.evalTree, triggerPath);
-        const { entityName } = getEntityNameAndPropertyPath(triggerPath);
-        const entity = this.evalTree[entityName] as
-          | DataTreeWidget
-          | DataTreeAction;
-        const unEvalPropertyValue = _.get(this.evalTree as any, triggerPath);
-        const errors = this.lintTriggerPath(
-          unEvalPropertyValue,
-          entity,
-          this.evalTree,
-        );
-        errors.length &&
-          addErrorToEntityProperty(errors, this.evalTree, triggerPath);
-      });
-    }
     const timeTakenForSubTreeEval = {
       total: (totalEnd - totalStart).toFixed(2),
       findDifferences: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),
@@ -394,13 +382,14 @@ export default class DataTreeEvaluator {
         calculateSortOrderStop - calculateSortOrderStart
       ).toFixed(2),
       evaluate: (evalStop - evalStart).toFixed(2),
+      lint: (lintStop - lintStart).toFixed(2),
     };
     this.logs.push({ timeTakenForSubTreeEval });
 
     return {
       evaluationOrder,
       unEvalUpdates: translatedDiffs,
-      jsUpdates: jsUpdates,
+      jsUpdates,
       evalMetaUpdates,
     };
   }
@@ -757,12 +746,6 @@ export default class DataTreeEvaluator {
             }
             return _.set(currentTree, fullPropertyPath, evalPropertyValue);
           } else if (isATriggerPath) {
-            const errors = this.lintTriggerPath(
-              evalPropertyValue,
-              entity,
-              currentTree,
-            );
-            addErrorToEntityProperty(errors, currentTree, fullPropertyPath);
             return currentTree;
           } else if (isAction(entity)) {
             if (this.allActionValidationConfig) {
@@ -1732,30 +1715,6 @@ export default class DataTreeEvaluator {
 
   clearLogs() {
     this.logs = [];
-  }
-
-  private lintTriggerPath(
-    userScript: string,
-    entity: DataTreeEntity,
-    currentTree: DataTree,
-  ) {
-    const { jsSnippets } = getDynamicBindings(userScript, entity);
-    const script = getScriptToEval(
-      jsSnippets[0],
-      EvaluationScriptType.TRIGGERS,
-    );
-    const GLOBAL_DATA = createGlobalData(
-      currentTree,
-      this.resolvedFunctions,
-      true,
-    );
-
-    return getLintingErrors(
-      script,
-      GLOBAL_DATA,
-      jsSnippets[0],
-      EvaluationScriptType.TRIGGERS,
-    );
   }
 }
 

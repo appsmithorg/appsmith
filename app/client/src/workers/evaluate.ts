@@ -10,7 +10,6 @@ import unescapeJS from "unescape-js";
 import { Severity } from "entities/AppsmithConsole";
 import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
-import { getLintingErrors } from "workers/lint";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 
@@ -62,7 +61,7 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   `,
 };
 
-const getScriptType = (
+export const getScriptType = (
   evalArgumentsExist = false,
   isTriggerBased = false,
 ): EvaluationScriptType => {
@@ -192,30 +191,19 @@ export type EvaluateContext = {
 
 export const getUserScriptToEvaluate = (
   userScript: string,
-  GLOBAL_DATA: Record<string, unknown>,
   isTriggerBased: boolean,
   evalArguments?: Array<any>,
 ) => {
   const unescapedJS = sanitizeScript(userScript);
-  // If nothing is present to evaluate, return instead of linting
+  // If nothing is present to evaluate, return
   if (!unescapedJS.length) {
     return {
-      lintErrors: [],
       script: "",
     };
   }
   const scriptType = getScriptType(!!evalArguments, isTriggerBased);
   const script = getScriptToEval(unescapedJS, scriptType);
-  // We are linting original js binding,
-  // This will make sure that the character count is not messed up when we do unescapejs
-  const scriptToLint = getScriptToEval(userScript, scriptType);
-  const lintErrors = getLintingErrors(
-    scriptToLint,
-    GLOBAL_DATA,
-    userScript,
-    scriptType,
-  );
-  return { script, lintErrors };
+  return { script };
 };
 
 export default function evaluateSync(
@@ -227,7 +215,7 @@ export default function evaluateSync(
   evalArguments?: Array<any>,
 ): EvalResult {
   return (function() {
-    let errors: EvaluationError[] = [];
+    const errors: EvaluationError[] = [];
     let result;
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
@@ -238,9 +226,8 @@ export default function evaluateSync(
       evalArguments,
     );
     GLOBAL_DATA.ALLOW_ASYNC = false;
-    const { lintErrors, script } = getUserScriptToEvaluate(
+    const { script } = getUserScriptToEvaluate(
       userScript,
-      GLOBAL_DATA,
       false,
       evalArguments,
     );
@@ -252,8 +239,6 @@ export default function evaluateSync(
         triggers: [],
       };
     }
-
-    errors = lintErrors;
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
@@ -306,12 +291,7 @@ export async function evaluateAsync(
       { ...context, requestId },
       evalArguments,
     );
-    const { script } = getUserScriptToEvaluate(
-      userScript,
-      GLOBAL_DATA,
-      true,
-      evalArguments,
-    );
+    const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
     GLOBAL_DATA.ALLOW_ASYNC = true;
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
