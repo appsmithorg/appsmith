@@ -1766,19 +1766,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedAction.getApplicationId(), ""));
         analyticsProperties.put("pageId", ObjectUtils.defaultIfNull(unpublishedAction.getPageId(), ""));
         analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedAction.getWorkspaceId(), ""));
-        analyticsProperties.put("plugin", Map.of(
-                "id",
-                ObjectUtils.defaultIfNull(savedAction.getPluginId(), ""),
-                "type",
-                ObjectUtils.defaultIfNull(savedAction.getPluginType(), ""),
-                "name",
-                ObjectUtils.defaultIfNull(unpublishedAction.getPluginName(), "")));
+        analyticsProperties.put("pluginId", ObjectUtils.defaultIfNull(savedAction.getPluginId(), ""));
+        analyticsProperties.put("pluginType", ObjectUtils.defaultIfNull(savedAction.getPluginType(), ""));
+        analyticsProperties.put("pluginName", ObjectUtils.defaultIfNull(unpublishedAction.getPluginName(), ""));
         if (unpublishedAction.getDatasource() != null) {
-            analyticsProperties.put("datasource", Map.of(
-                    "id",
-                    ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getId(), ""),
-                    "name",
-                    ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getName(), "")));
+            analyticsProperties.put("dsId", ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getId(), ""));
+            analyticsProperties.put("dsName", ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getName(), ""));
+            analyticsProperties.put("dsIsTemplateOrMock", ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getIsTemplateOrMock(), ""));
         }
         return analyticsProperties;
     }

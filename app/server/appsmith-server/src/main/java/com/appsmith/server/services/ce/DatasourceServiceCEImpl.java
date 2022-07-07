@@ -445,6 +445,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         analyticsProperties.put("orgId", datasource.getWorkspaceId());
         analyticsProperties.put("pluginName", datasource.getPluginName());
         analyticsProperties.put("dsName", datasource.getName());
+        analyticsProperties.put("dsIsTemplateOrMock", datasource.getIsTemplateOrMock());
         return analyticsProperties;
     }
 
