@@ -567,7 +567,6 @@ public class GitExecutorImpl implements GitExecutor {
         return Mono.fromCallable(() -> {
             TransportConfigCallback config = new SshTransportConfigCallback(privateKey, publicKey);
             try (Git git = Git.open(repoPath.toFile())) {
-                log.debug(Thread.currentThread().getName() + ": fetch remote repo --------------------- " + git.getRepository());
                 String fetchMessages;
                 if(Boolean.TRUE.equals(isFetchAll)) {
                     fetchMessages = git.fetch()
