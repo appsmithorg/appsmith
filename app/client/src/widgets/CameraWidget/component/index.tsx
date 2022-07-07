@@ -22,7 +22,7 @@ import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
 import { useSelector } from "store";
 import { Colors } from "constants/Colors";
-import { TooltipComponent } from "design-system";
+import { getSupportedMimeTypes } from "utils/helpers";
 
 import {
   CameraMode,
@@ -206,7 +206,6 @@ export interface ControlPanelProps {
   fullScreenHandle: FullScreenHandle;
   onImageCapture: () => void;
   onImageSave: () => void;
-  onError: (errorMessage: string) => void;
   onMediaInputChange: (mediaDeviceInfo: MediaDeviceInfo) => void;
   onRecordingStart: () => void;
   onRecordingStop: () => void;
@@ -226,7 +225,6 @@ function ControlPanel(props: ControlPanelProps) {
     audioMuted,
     fullScreenHandle,
     mode,
-    onError,
     onImageCapture,
     onImageSave,
     onMediaInputChange,
@@ -248,22 +246,12 @@ function ControlPanel(props: ControlPanelProps) {
     return () => {
       switch (action) {
         case MediaCaptureActionTypes.IMAGE_CAPTURE:
-          // First, check for media device permissions
-          navigator.mediaDevices
-            .getUserMedia({ video: true, audio: false })
-            .then(() => {
-              onImageCapture();
-              onStatusChange(MediaCaptureStatusTypes.IMAGE_CAPTURED);
-            })
-            .catch((err) => {
-              onError(err.message);
-            });
-
+          onImageCapture();
+          onStatusChange(MediaCaptureStatusTypes.IMAGE_CAPTURED);
           break;
         case MediaCaptureActionTypes.IMAGE_SAVE:
           onImageSave();
           onStatusChange(MediaCaptureStatusTypes.IMAGE_SAVED);
-
           break;
         case MediaCaptureActionTypes.IMAGE_DISCARD:
           onResetMedia();
@@ -275,17 +263,8 @@ function ControlPanel(props: ControlPanelProps) {
           break;
 
         case MediaCaptureActionTypes.RECORDING_START:
-          // First, check for media device permissions
-          navigator.mediaDevices
-            .getUserMedia({ video: true, audio: true })
-            .then(() => {
-              onRecordingStart();
-              onStatusChange(MediaCaptureStatusTypes.VIDEO_RECORDING);
-            })
-            .catch((err) => {
-              onError(err.message);
-            });
-
+          onRecordingStart();
+          onStatusChange(MediaCaptureStatusTypes.VIDEO_RECORDING);
           break;
         case MediaCaptureActionTypes.RECORDING_STOP:
           onRecordingStop();
@@ -352,283 +331,225 @@ function ControlPanel(props: ControlPanelProps) {
     switch (status) {
       case MediaCaptureStatusTypes.IMAGE_DEFAULT:
         return (
-          <TooltipComponent content="Take photo" donotUsePortal position="top">
-            <StyledButton
-              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="white" icon="full-circle" iconSize={20} />}
-              onClick={handleControlClick(
-                MediaCaptureActionTypes.IMAGE_CAPTURE,
-              )}
-              variant={ButtonVariantTypes.SECONDARY}
-            />
-          </TooltipComponent>
+          <StyledButton
+            borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+            icon={<Icon color="white" icon="full-circle" iconSize={20} />}
+            onClick={handleControlClick(MediaCaptureActionTypes.IMAGE_CAPTURE)}
+            variant={ButtonVariantTypes.SECONDARY}
+          />
         );
 
       case MediaCaptureStatusTypes.IMAGE_CAPTURED:
         return (
           <>
-            <TooltipComponent content="Save" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.SHARP}
-                icon={<Icon color="white" icon="tick" iconSize={20} />}
-                onClick={handleControlClick(MediaCaptureActionTypes.IMAGE_SAVE)}
-                variant={ButtonVariantTypes.PRIMARY}
-              />
-            </TooltipComponent>
-            <TooltipComponent content="Discard" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-                icon={<Icon color="white" icon="cross" iconSize={20} />}
-                onClick={handleControlClick(
-                  MediaCaptureActionTypes.IMAGE_DISCARD,
-                )}
-                variant={ButtonVariantTypes.TERTIARY}
-              />
-            </TooltipComponent>
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.SHARP}
+              icon={<Icon color="white" icon="tick" iconSize={20} />}
+              onClick={handleControlClick(MediaCaptureActionTypes.IMAGE_SAVE)}
+              variant={ButtonVariantTypes.PRIMARY}
+            />
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+              icon={<Icon color="white" icon="cross" iconSize={20} />}
+              onClick={handleControlClick(
+                MediaCaptureActionTypes.IMAGE_DISCARD,
+              )}
+              variant={ButtonVariantTypes.TERTIARY}
+            />
           </>
         );
 
       case MediaCaptureStatusTypes.IMAGE_SAVED:
         return (
-          <TooltipComponent content="Refresh" donotUsePortal position="top">
-            <StyledButton
-              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="white" icon="refresh" iconSize={20} />}
-              onClick={handleControlClick(
-                MediaCaptureActionTypes.IMAGE_REFRESH,
-              )}
-              variant={ButtonVariantTypes.TERTIARY}
-            />
-          </TooltipComponent>
+          <StyledButton
+            borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+            icon={<Icon color="white" icon="refresh" iconSize={20} />}
+            onClick={handleControlClick(MediaCaptureActionTypes.IMAGE_REFRESH)}
+            variant={ButtonVariantTypes.TERTIARY}
+          />
         );
 
       case MediaCaptureStatusTypes.VIDEO_DEFAULT:
         return (
-          <TooltipComponent
-            content="Start recording"
-            donotUsePortal
-            position="top"
-          >
-            <StyledButton
-              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-              icon={<Icon color="#F22B2B" icon="full-circle" iconSize={20} />}
-              onClick={handleControlClick(
-                MediaCaptureActionTypes.RECORDING_START,
-              )}
-              variant={ButtonVariantTypes.SECONDARY}
-            />
-          </TooltipComponent>
+          <StyledButton
+            borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+            icon={<Icon color="#F22B2B" icon="full-circle" iconSize={20} />}
+            onClick={handleControlClick(
+              MediaCaptureActionTypes.RECORDING_START,
+            )}
+            variant={ButtonVariantTypes.SECONDARY}
+          />
         );
 
       case MediaCaptureStatusTypes.VIDEO_RECORDING:
         return (
           <>
-            <TooltipComponent
-              content="Stop recording"
-              donotUsePortal
-              position="top"
-            >
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-                icon={<Icon color="#F22B2B" icon="stop" iconSize={20} />}
-                onClick={handleControlClick(
-                  MediaCaptureActionTypes.RECORDING_STOP,
-                )}
-                variant={ButtonVariantTypes.SECONDARY}
-              />
-            </TooltipComponent>
-            <TooltipComponent content="Discard" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-                icon={<Icon color="white" icon="cross" iconSize={20} />}
-                onClick={handleControlClick(
-                  MediaCaptureActionTypes.RECORDING_DISCARD,
-                )}
-                variant={ButtonVariantTypes.TERTIARY}
-              />
-            </TooltipComponent>
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+              icon={<Icon color="#F22B2B" icon="stop" iconSize={20} />}
+              onClick={handleControlClick(
+                MediaCaptureActionTypes.RECORDING_STOP,
+              )}
+              variant={ButtonVariantTypes.SECONDARY}
+            />
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+              icon={<Icon color="white" icon="cross" iconSize={20} />}
+              onClick={handleControlClick(
+                MediaCaptureActionTypes.RECORDING_DISCARD,
+              )}
+              variant={ButtonVariantTypes.TERTIARY}
+            />
           </>
         );
 
       case MediaCaptureStatusTypes.VIDEO_CAPTURED:
         return (
           <>
-            <TooltipComponent content="Save" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.SHARP}
-                icon={<Icon color="white" icon="tick" iconSize={20} />}
-                onClick={handleControlClick(
-                  MediaCaptureActionTypes.RECORDING_SAVE,
-                )}
-                variant={ButtonVariantTypes.PRIMARY}
-              />
-            </TooltipComponent>
-            <TooltipComponent content="Play" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-                icon={<Icon color="white" icon="play" iconSize={20} />}
-                onClick={handleControlClick(MediaCaptureActionTypes.VIDEO_PLAY)}
-                variant={ButtonVariantTypes.TERTIARY}
-              />
-            </TooltipComponent>
-            <TooltipComponent content="Discard" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-                icon={<Icon color="white" icon="cross" iconSize={20} />}
-                onClick={handleControlClick(
-                  MediaCaptureActionTypes.RECORDING_DISCARD,
-                )}
-                variant={ButtonVariantTypes.TERTIARY}
-              />
-            </TooltipComponent>
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.SHARP}
+              icon={<Icon color="white" icon="tick" iconSize={20} />}
+              onClick={handleControlClick(
+                MediaCaptureActionTypes.RECORDING_SAVE,
+              )}
+              variant={ButtonVariantTypes.PRIMARY}
+            />
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+              icon={<Icon color="white" icon="play" iconSize={20} />}
+              onClick={handleControlClick(MediaCaptureActionTypes.VIDEO_PLAY)}
+              variant={ButtonVariantTypes.TERTIARY}
+            />
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+              icon={<Icon color="white" icon="cross" iconSize={20} />}
+              onClick={handleControlClick(
+                MediaCaptureActionTypes.RECORDING_DISCARD,
+              )}
+              variant={ButtonVariantTypes.TERTIARY}
+            />
           </>
         );
 
       case MediaCaptureStatusTypes.VIDEO_PLAYING:
         return (
           <>
-            <TooltipComponent content="Save" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.SHARP}
-                icon={<Icon color="white" icon="tick" iconSize={20} />}
-                onClick={handleControlClick(
-                  MediaCaptureActionTypes.RECORDING_SAVE,
-                )}
-                variant={ButtonVariantTypes.PRIMARY}
-              />
-            </TooltipComponent>
-            <TooltipComponent content="Pause" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-                icon={<Icon color="white" icon="pause" iconSize={20} />}
-                onClick={handleControlClick(
-                  MediaCaptureActionTypes.VIDEO_PAUSE,
-                )}
-                variant={ButtonVariantTypes.TERTIARY}
-              />
-            </TooltipComponent>
-            <TooltipComponent content="Discard" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-                icon={<Icon color="white" icon="cross" iconSize={20} />}
-                onClick={handleControlClick(
-                  MediaCaptureActionTypes.RECORDING_DISCARD,
-                )}
-                variant={ButtonVariantTypes.TERTIARY}
-              />
-            </TooltipComponent>
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.SHARP}
+              icon={<Icon color="white" icon="tick" iconSize={20} />}
+              onClick={handleControlClick(
+                MediaCaptureActionTypes.RECORDING_SAVE,
+              )}
+              variant={ButtonVariantTypes.PRIMARY}
+            />
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+              icon={<Icon color="white" icon="pause" iconSize={20} />}
+              onClick={handleControlClick(MediaCaptureActionTypes.VIDEO_PAUSE)}
+              variant={ButtonVariantTypes.TERTIARY}
+            />
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+              icon={<Icon color="white" icon="cross" iconSize={20} />}
+              onClick={handleControlClick(
+                MediaCaptureActionTypes.RECORDING_DISCARD,
+              )}
+              variant={ButtonVariantTypes.TERTIARY}
+            />
           </>
         );
 
       case MediaCaptureStatusTypes.VIDEO_PAUSED:
         return (
           <>
-            <TooltipComponent content="Save" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.SHARP}
-                icon={<Icon color="white" icon="tick" iconSize={20} />}
-                onClick={handleControlClick(
-                  MediaCaptureActionTypes.RECORDING_SAVE,
-                )}
-                variant={ButtonVariantTypes.PRIMARY}
-              />
-            </TooltipComponent>
-            <TooltipComponent content="Play" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-                icon={<Icon color="white" icon="play" iconSize={20} />}
-                onClick={handleControlClick(MediaCaptureActionTypes.VIDEO_PLAY)}
-                variant={ButtonVariantTypes.TERTIARY}
-              />
-            </TooltipComponent>
-            <TooltipComponent content="Discard" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-                icon={<Icon color="white" icon="cross" iconSize={20} />}
-                onClick={handleControlClick(
-                  MediaCaptureActionTypes.RECORDING_DISCARD,
-                )}
-                variant={ButtonVariantTypes.TERTIARY}
-              />
-            </TooltipComponent>
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.SHARP}
+              icon={<Icon color="white" icon="tick" iconSize={20} />}
+              onClick={handleControlClick(
+                MediaCaptureActionTypes.RECORDING_SAVE,
+              )}
+              variant={ButtonVariantTypes.PRIMARY}
+            />
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+              icon={<Icon color="white" icon="play" iconSize={20} />}
+              onClick={handleControlClick(MediaCaptureActionTypes.VIDEO_PLAY)}
+              variant={ButtonVariantTypes.TERTIARY}
+            />
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+              icon={<Icon color="white" icon="cross" iconSize={20} />}
+              onClick={handleControlClick(
+                MediaCaptureActionTypes.RECORDING_DISCARD,
+              )}
+              variant={ButtonVariantTypes.TERTIARY}
+            />
           </>
         );
 
       case MediaCaptureStatusTypes.VIDEO_SAVED:
         return (
           <>
-            <TooltipComponent content="Play" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-                icon={<Icon color="white" icon="play" iconSize={20} />}
-                onClick={handleControlClick(
-                  MediaCaptureActionTypes.VIDEO_PLAY_AFTER_SAVE,
-                )}
-                variant={ButtonVariantTypes.TERTIARY}
-              />
-            </TooltipComponent>
-            <TooltipComponent content="Refresh" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-                icon={<Icon color="white" icon="refresh" iconSize={20} />}
-                onClick={handleControlClick(
-                  MediaCaptureActionTypes.VIDEO_REFRESH,
-                )}
-                variant={ButtonVariantTypes.TERTIARY}
-              />
-            </TooltipComponent>
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+              icon={<Icon color="white" icon="play" iconSize={20} />}
+              onClick={handleControlClick(
+                MediaCaptureActionTypes.VIDEO_PLAY_AFTER_SAVE,
+              )}
+              variant={ButtonVariantTypes.TERTIARY}
+            />
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+              icon={<Icon color="white" icon="refresh" iconSize={20} />}
+              onClick={handleControlClick(
+                MediaCaptureActionTypes.VIDEO_REFRESH,
+              )}
+              variant={ButtonVariantTypes.TERTIARY}
+            />
           </>
         );
 
       case MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE:
         return (
           <>
-            <TooltipComponent content="Pause" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-                icon={<Icon color="white" icon="pause" iconSize={20} />}
-                onClick={handleControlClick(
-                  MediaCaptureActionTypes.VIDEO_PAUSE_AFTER_SAVE,
-                )}
-                variant={ButtonVariantTypes.TERTIARY}
-              />
-            </TooltipComponent>
-            <TooltipComponent content="Refresh" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-                icon={<Icon color="white" icon="refresh" iconSize={20} />}
-                onClick={handleControlClick(
-                  MediaCaptureActionTypes.VIDEO_REFRESH,
-                )}
-                variant={ButtonVariantTypes.TERTIARY}
-              />
-            </TooltipComponent>
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+              icon={<Icon color="white" icon="pause" iconSize={20} />}
+              onClick={handleControlClick(
+                MediaCaptureActionTypes.VIDEO_PAUSE_AFTER_SAVE,
+              )}
+              variant={ButtonVariantTypes.TERTIARY}
+            />
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+              icon={<Icon color="white" icon="refresh" iconSize={20} />}
+              onClick={handleControlClick(
+                MediaCaptureActionTypes.VIDEO_REFRESH,
+              )}
+              variant={ButtonVariantTypes.TERTIARY}
+            />
           </>
         );
 
       case MediaCaptureStatusTypes.VIDEO_PAUSED_AFTER_SAVE:
         return (
           <>
-            <TooltipComponent content="Play" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-                icon={<Icon color="white" icon="play" iconSize={20} />}
-                onClick={handleControlClick(
-                  MediaCaptureActionTypes.VIDEO_PLAY_AFTER_SAVE,
-                )}
-                variant={ButtonVariantTypes.TERTIARY}
-              />
-            </TooltipComponent>
-            <TooltipComponent content="Refresh" donotUsePortal position="top">
-              <StyledButton
-                borderRadius={ButtonBorderRadiusTypes.CIRCLE}
-                icon={<Icon color="white" icon="refresh" iconSize={20} />}
-                onClick={handleControlClick(
-                  MediaCaptureActionTypes.VIDEO_REFRESH,
-                )}
-                variant={ButtonVariantTypes.TERTIARY}
-              />
-            </TooltipComponent>
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+              icon={<Icon color="white" icon="play" iconSize={20} />}
+              onClick={handleControlClick(
+                MediaCaptureActionTypes.VIDEO_PLAY_AFTER_SAVE,
+              )}
+              variant={ButtonVariantTypes.TERTIARY}
+            />
+            <StyledButton
+              borderRadius={ButtonBorderRadiusTypes.CIRCLE}
+              icon={<Icon color="white" icon="refresh" iconSize={20} />}
+              onClick={handleControlClick(
+                MediaCaptureActionTypes.VIDEO_REFRESH,
+              )}
+              variant={ButtonVariantTypes.TERTIARY}
+            />
           </>
         );
 
@@ -639,33 +560,21 @@ function ControlPanel(props: ControlPanelProps) {
 
   const renderFullscreenControl = () => {
     return fullScreenHandle.active ? (
-      <TooltipComponent
-        content="Exit full screen"
-        donotUsePortal
-        position="top-right"
-      >
-        <StyledButton
-          borderRadius={ButtonBorderRadiusTypes.SHARP}
-          icon={
-            <Icon color="white" icon={<ExitFullScreenIcon />} iconSize={20} />
-          }
-          onClick={fullScreenHandle.exit}
-          variant={ButtonVariantTypes.TERTIARY}
-        />
-      </TooltipComponent>
+      <StyledButton
+        borderRadius={ButtonBorderRadiusTypes.SHARP}
+        icon={
+          <Icon color="white" icon={<ExitFullScreenIcon />} iconSize={20} />
+        }
+        onClick={fullScreenHandle.exit}
+        variant={ButtonVariantTypes.TERTIARY}
+      />
     ) : (
-      <TooltipComponent
-        content="Full screen"
-        donotUsePortal
-        position="top-right"
-      >
-        <StyledButton
-          borderRadius={ButtonBorderRadiusTypes.SHARP}
-          icon={<Icon color="white" icon={<FullScreenIcon />} iconSize={20} />}
-          onClick={fullScreenHandle.enter}
-          variant={ButtonVariantTypes.TERTIARY}
-        />
-      </TooltipComponent>
+      <StyledButton
+        borderRadius={ButtonBorderRadiusTypes.SHARP}
+        icon={<Icon color="white" icon={<FullScreenIcon />} iconSize={20} />}
+        onClick={fullScreenHandle.enter}
+        variant={ButtonVariantTypes.TERTIARY}
+      />
     );
   };
 
@@ -957,8 +866,10 @@ function CameraComponent(props: CameraComponentProps) {
 
   const handleRecordingStart = useCallback(() => {
     if (webcamRef.current && webcamRef.current.stream) {
+      const supportedVideoMimeType = getSupportedMimeTypes("video");
+
       mediaRecorderRef.current = new MediaRecorder(webcamRef.current.stream, {
-        mimeType: "video/webm",
+        mimeType: supportedVideoMimeType,
       });
       mediaRecorderRef.current.addEventListener(
         "dataavailable",
@@ -1077,7 +988,7 @@ function CameraComponent(props: CameraComponentProps) {
         <Webcam
           audio
           audioConstraints={audioConstraints}
-          mirrored={mode === CameraModeTypes.VIDEO ? false : mirrored}
+          mirrored={mirrored}
           muted
           onUserMedia={handleUserMedia}
           onUserMediaError={handleUserMediaErrors}
@@ -1096,7 +1007,6 @@ function CameraComponent(props: CameraComponentProps) {
           audioMuted={isAudioMuted}
           fullScreenHandle={fullScreenHandle}
           mode={mode}
-          onError={setError}
           onImageCapture={captureImage}
           onImageSave={onImageSave}
           onMediaInputChange={handleMediaDeviceChange}
