@@ -47,6 +47,12 @@ export const HighlighedCodeContainer = styled("div")<{
       font-family: monospace !important;
       line-height: 21px !important;
       font-size: 14px !important;
+      color: ${({ containsCode }) =>
+        containsCode ? "#063289" : "inherit"} !important;
+
+      .token {
+        color: #063289 !important;
+      }
     }
   }
 `;
