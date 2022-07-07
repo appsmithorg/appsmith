@@ -149,5 +149,8 @@
   "switchGroupBindingValue": "{{SwitchGroup1.selectedValues}}",
   "switchBindingValue": "{{Switch1.selectedValue}}",
   "selectBindingValue": "{{Select1.selectedOptionValue}}",
-  "currencyBindingValue": "{{CurrencyInput1.selectedValue}}"
+  "currencyBindingValue": "{{CurrencyInput1.selectedValue}}",
+  "multitreeselectBindingValue": "{{MultiTreeSelect1.selectedOptionValues}}",
+  "radiogroupselectBindingValue": "{{RadioGroup1.selectedOptionValue}}",
+  "listBindingValue": "{{List1.selectedItem}}"
 }

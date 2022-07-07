@@ -10,7 +10,10 @@ export const WIDGET = {
   TABLE: "tablewidget",
   SWITCHGROUP: "switchgroupwidget",
   SWITCH: "switchwidget",
-  SELECT: "selectwidget"
+  SELECT: "selectwidget",
+  MULTITREESELECT: "multiselectwidgetv2",
+  RADIO_GROUP: "radiogroupwidget",
+  LIST: "listwidget"
 } as const;
 
 export const PROPERTY_SELECTOR = {
