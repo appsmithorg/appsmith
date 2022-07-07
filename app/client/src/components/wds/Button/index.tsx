@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, forwardRef } from "react";
 import { IconName } from "@blueprintjs/icons";
 import { withTooltip } from "components/wds";
 
@@ -51,37 +51,42 @@ export enum VariantTypes {
   link = "link",
 }
 
-function Button(props: ButtonProps) {
-  const {
-    borderRadius,
-    boxShadow,
-    buttonColor,
-    buttonVariant,
-    className,
-    isDisabled,
-    variant,
-    ...rest
-  } = props;
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ children, ...props }, forwardedRef): JSX.Element => {
+    const {
+      borderRadius,
+      boxShadow,
+      buttonColor,
+      buttonVariant,
+      className,
+      isDisabled,
+      variant,
+      ...rest
+    } = props;
 
-  const computedClassnames = cx({
-    [styles.base]: true,
-    [styles[variant || "solid"]]: true,
-    [className || ""]: true,
-  });
+    const computedClassnames = cx({
+      [styles.base]: true,
+      [styles[variant || "solid"]]: true,
+      [className || ""]: true,
+    });
 
-  const cssVariables = useMemo(() => {
-    return getCSSVariables(props, "default");
-  }, [borderRadius, buttonColor, boxShadow]);
+    const cssVariables = useMemo(() => {
+      return getCSSVariables(props, "default");
+    }, [borderRadius, buttonColor, boxShadow]);
 
-  return (
-    <button
-      {...rest}
-      className={computedClassnames}
-      disabled={isDisabled}
-      style={cssVariables}
-    />
-  );
-}
+    return (
+      <button
+        {...rest}
+        className={computedClassnames}
+        disabled={isDisabled}
+        ref={forwardedRef}
+        style={cssVariables}
+      >
+        {children}
+      </button>
+    );
+  },
+);
 
 Button.defaultProps = {
   buttonVariant: ButtonVariantTypes.PRIMARY,

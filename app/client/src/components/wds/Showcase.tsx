@@ -1,16 +1,12 @@
 import React, { useState } from "react";
 
 import { Checkbox, Button } from "components/wds";
+import Overlay from "components/wds/Overlay";
+import Dialog from "components/wds/Dialog";
 import {
   borderRadiusOptions,
   boxShadowOptions,
 } from "constants/ThemeConstants";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuItem,
-  DropdownMenuContent,
-} from "components/wds";
 
 import "components/wds/styles.css";
 
@@ -20,6 +16,11 @@ function Showcase() {
   const [borderRadius, setBorderRadius] = useState<string | number>("0px");
   const [boxShadow, setBoxShadow] = useState<string | number>("none");
   const [primaryColor, setPrimaryColor] = useState("#553DE9");
+  const [isOpen, setIsOpen] = React.useState(false);
+  const noButtonRef = React.useRef(null);
+  const anchorRef = React.useRef(null);
+  const returnFocusRef = React.useRef(null);
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
   const cssVariables: any = {
     "--wds-radii": borderRadius || "0px",
@@ -27,7 +28,10 @@ function Showcase() {
   };
 
   return (
-    <div className="container min-h-screen pt-12 mx-auto" style={cssVariables}>
+    <div
+      className="container min-h-screen space-y-3 pt-12 mx-auto"
+      style={cssVariables}
+    >
       <h1 className="mt-12 space-y-8 text-3xl font-bold">
         Widgets Design System
       </h1>
@@ -58,7 +62,7 @@ function Showcase() {
           ))}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 mt-3">
           {Object.keys(boxShadowOptions).map((optionKey) => (
             <button
               className={`flex items-center justify-center w-8 h-8 bg-trueGray-100 ring-gray-700 cursor-pointer hover:bg-trueGray-50 ${
@@ -162,17 +166,49 @@ function Showcase() {
           Success Link
         </Button>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <button>Pawan</button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <input placeholder="filter" tabIndex={-1} />
-            <DropdownMenuItem>Item 1</DropdownMenuItem>
-            <DropdownMenuItem>Item 2</DropdownMenuItem>
-            <DropdownMenuItem>Item 3</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+          buttonColor="green"
+          className="w-32"
+          onClick={() => setIsOpen(!isOpen)}
+          ref={anchorRef}
+          variant="ghost"
+        >
+          open overlay
+        </Button>
+        {/* be sure to conditionally render the Overlay. This helps with performance and is required. */}
+        {isOpen && (
+          <Overlay
+            aria-labelledby="title"
+            height={200}
+            ignoreClickRefs={[anchorRef]}
+            initialFocusRef={noButtonRef}
+            onClickOutside={() => setIsOpen(false)}
+            onEscape={() => setIsOpen(!isOpen)}
+            returnFocusRef={anchorRef}
+            top={50}
+          >
+            <p>Hello world how are you</p>
+          </Overlay>
+        )}
+
+        <Button
+          className="w-32"
+          onClick={() => setIsDialogOpen(true)}
+          ref={returnFocusRef}
+          variant="ghost"
+        >
+          Open Dialog
+        </Button>
+        <Dialog
+          aria-labelledby="header-id"
+          isOpen={isDialogOpen}
+          onDismiss={() => setIsDialogOpen(false)}
+          returnFocusRef={returnFocusRef}
+        >
+          <input placeholder="helo" type="text" />
+          <input placeholder="helo2" type="text" />
+          <p>Dialog</p>
+        </Dialog>
       </div>
     </div>
   );

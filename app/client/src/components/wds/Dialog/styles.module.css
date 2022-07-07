@@ -1,0 +1,27 @@
+.base {
+  box-shadow: 0px 0px 0px 1px #e1e1e1;
+  border-radius: 0px;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  max-height: 80vh;
+  z-index: 999;
+  margin: 10vh auto;
+  background-color: white;
+  width: 500px;
+}
+
+.overlay:before {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  cursor: default;
+  content: ' ';
+  background: transparent;
+  z-index: 99;
+  background-color: black / 50%;
+}

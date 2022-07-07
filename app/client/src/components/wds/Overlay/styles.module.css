@@ -1,0 +1,16 @@
+.overlay {
+  background-color: white;
+  box-shadow: 0px 0px 0px 1px #e1e1e1;
+  position: absolute;
+  min-width: 192px;
+  max-width: 640px;
+  height: var(--wds-overlay-height);
+  width: auto;
+  border-radius: 12px;
+  overflow: hidden;
+  visibility: var(--styled-overlay-visibility);
+}
+
+.overlay :focus {
+  outline: none;
+}
