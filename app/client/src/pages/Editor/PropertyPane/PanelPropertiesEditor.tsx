@@ -20,6 +20,11 @@ import { SearchVariant } from "components/ads";
 import { StyledSearchInput } from "./PropertyPaneView";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import styled from "styled-components";
+
+const PanelWrapper = styled.div`
+  margin-top: 52px;
+`;
 
 function PanelHeader(props: PanelHeaderProps) {
   return (
@@ -214,7 +219,7 @@ export function PanelPropertiesEditor(
                 key: "content",
                 title: "CONTENT",
                 panelComponent: (
-                  <div className="px-3 pb-2" style={{ marginTop: "52px" }}>
+                  <PanelWrapper>
                     {panelConfigsWithStyleAndContent?.content &&
                       generatePropertyControl(
                         panelConfigsWithStyleAndContent?.content as PropertyPaneConfig[],
@@ -225,14 +230,14 @@ export function PanelPropertiesEditor(
                           theme,
                         },
                       )}
-                  </div>
+                  </PanelWrapper>
                 ),
               },
               {
                 key: "style",
                 title: "STYLE",
                 panelComponent: (
-                  <div className="px-3 pb-2" style={{ marginTop: "52px" }}>
+                  <PanelWrapper>
                     {panelConfigsWithStyleAndContent?.style &&
                       generatePropertyControl(
                         panelConfigsWithStyleAndContent?.style as PropertyPaneConfig[],
@@ -243,7 +248,7 @@ export function PanelPropertiesEditor(
                           theme,
                         },
                       )}
-                  </div>
+                  </PanelWrapper>
                 ),
               },
             ]}
@@ -251,14 +256,14 @@ export function PanelPropertiesEditor(
         </>
       ) : (
         panelConfigs && (
-          <div className="px-3 pb-2" style={{ marginTop: "52px" }}>
+          <PanelWrapper>
             {generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
               id: widgetProperties.widgetId,
               type: widgetProperties.type,
               panel,
               theme,
             })}
-          </div>
+          </PanelWrapper>
         )
       )}
     </div>
