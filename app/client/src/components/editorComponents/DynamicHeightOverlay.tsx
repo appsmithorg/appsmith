@@ -1,7 +1,19 @@
-import React, { memo, useEffect, useRef } from "react";
+import { focusWidget } from "actions/widgetActions";
+import React, { memo, useEffect, useMemo, useRef } from "react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { useDrag } from "react-use-gesture";
+import { AppState } from "reducers";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
 import styled from "styled-components";
+import {
+  useShowPropertyPane,
+  useShowTableFilterPane,
+  useWidgetDragResize,
+} from "utils/hooks/dragResizeHooks";
+import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const StyledDynamicHeightOverlay = styled.div`
   width: 100%;
@@ -70,7 +82,7 @@ const StyledDraggableOverlayHandleDot = styled.div`
 interface DragFunctions {
   onStart: () => void;
   onStop: () => void;
-  onUpdate: (n: number) => void;
+  onUpdate: (x: number, y: number) => void;
 }
 
 const DraggableOverlayHandleDot: React.FC<DragFunctions> = ({
@@ -92,8 +104,9 @@ const DraggableOverlayHandleDot: React.FC<DragFunctions> = ({
         onStop();
         return;
       }
+      const [mx, my] = state.movement;
 
-      onUpdate(state.movement[1]);
+      onUpdate(mx, my);
     },
     { axis: "y" },
   );
@@ -232,19 +245,45 @@ const OverlayHandles: React.FC<OverlayHandlesProps> = ({
   );
 };
 
-interface DynamicHeightOverlay extends MinMaxHeightProps {
+interface DynamicHeightOverlayProps extends MinMaxHeightProps, WidgetProps {
   onMaxHeightSet: (height: number) => void;
   onMinHeightSet: (height: number) => void;
 }
 
-const DynamicHeightOverlay: React.FC<DynamicHeightOverlay> = memo(
+const getSnappedValues = (
+  x: number,
+  y: number,
+  snapGrid: { x: number; y: number },
+) => {
+  return {
+    x: Math.round(x / snapGrid.x) * snapGrid.x,
+    y: Math.round(y / snapGrid.y) * snapGrid.y,
+  };
+};
+
+const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
   ({
     children,
     maxDynamicHeight,
     minDynamicHeight,
     onMaxHeightSet,
     onMinHeightSet,
+    ...props
   }) => {
+    const widgetId = props.widgetId;
+    const showPropertyPane = useShowPropertyPane();
+    const { selectWidget } = useWidgetSelection();
+    const selectedWidget = useSelector(
+      (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
+    );
+    const canvasWidgets = useSelector(getCanvasWidgets);
+    const parentWidgetToSelect = getParentToOpenIfAny(widgetId, canvasWidgets);
+    const showTableFilterPane = useShowTableFilterPane();
+    const { setIsResizing } = useWidgetDragResize();
+    const isResizing = useSelector(
+      (state: AppState) => state.ui.widgetDragResize.isResizing,
+    );
+
     const [isMinDotDragging, setIsMinDotDragging] = useState(false);
     const [isMaxDotDragging, setIsMaxDotDragging] = useState(false);
 
@@ -261,12 +300,41 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlay> = memo(
       setMaxY(maxDynamicHeight * 10);
     }, [maxDynamicHeight]);
 
-    function onMaxUpdate(dy: number) {
-      if (maxY + dy <= minY) {
-        setMindY(dy + (maxY - minY));
-      }
+    function onAnyDotStop() {
+      // Tell the Canvas that we've stopped resizing
+      // Put it later in the stack so that other updates like click, are not propagated to the parent container
+      setTimeout(() => {
+        setIsResizing && setIsResizing(false);
+      }, 0);
+      // Tell the Canvas to put the focus back to this widget
+      // By setting the focus, we enable the control buttons on the widget
+      selectWidget &&
+        selectedWidget !== props.widgetId &&
+        parentWidgetToSelect?.widgetId !== props.widgetId &&
+        selectWidget(props.widgetId);
 
-      setMaxdY(dy);
+      if (parentWidgetToSelect) {
+        selectWidget &&
+          selectedWidget !== parentWidgetToSelect.widgetId &&
+          selectWidget(parentWidgetToSelect.widgetId);
+        focusWidget(parentWidgetToSelect.widgetId);
+      } else {
+        selectWidget &&
+          selectedWidget !== props.widgetId &&
+          selectWidget(props.widgetId);
+      }
+      // Property pane closes after a resize/drag
+      showPropertyPane && showPropertyPane();
+    }
+
+    function onMaxUpdate(dx: number, dy: number) {
+      const snapped = getSnappedValues(dx, dy, snapGrid);
+
+      // if (maxY + dy <= minY) {
+      //   setMindY(dy + (maxY - minY));
+      // }
+
+      setMaxdY(snapped.y);
     }
 
     function updateMaxHeight(height: number) {
@@ -283,10 +351,12 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlay> = memo(
       setIsMaxDotDragging(false);
       const heightToSet = maxY + maxdY;
       updateMaxHeight(heightToSet);
+      setMaxY(maxY + maxdY);
       setMaxdY(0);
       if (heightToSet === minY + mindY) {
         updateMinHeight(heightToSet);
       }
+      onAnyDotStop();
     }
 
     /////////////////////////////////////////////////////////
@@ -295,16 +365,17 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlay> = memo(
       setMinY(minDynamicHeight * 10);
     }, [minDynamicHeight]);
 
-    function onMinUpdate(dy: number) {
+    function onMinUpdate(dx: number, dy: number) {
       if (minY + dy <= 10) {
         return;
       }
 
-      if (minY + dy >= maxY) {
-        setMaxdY(dy - (maxY - minY));
-      }
+      // if (minY + dy >= maxY) {
+      //   setMaxdY(dy - (maxY - minY));
+      // }
 
-      setMindY(dy);
+      const snapped = getSnappedValues(dx, dy, snapGrid);
+      setMindY(snapped.y);
     }
 
     function onMinStop() {
@@ -315,18 +386,38 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlay> = memo(
       if (heightToSet === maxY + maxdY) {
         updateMaxHeight(heightToSet);
       }
+      onAnyDotStop();
     }
 
     function onMinDotStart() {
       setIsMinDotDragging(true);
+      onAnyDotStart();
+    }
+
+    function onAnyDotStart() {
+      setIsResizing && !isResizing && setIsResizing(true);
+      selectWidget &&
+        selectedWidget !== props.widgetId &&
+        selectWidget(props.widgetId);
+      // Make sure that this tableFilterPane should close
+      showTableFilterPane && showTableFilterPane();
     }
 
     function onMaxDotStart() {
       setIsMaxDotDragging(true);
+      onAnyDotStart();
     }
 
     const [isMinDotActive, minHoverFns] = useHoverState();
     const [isMaxDotActive, maxHoverFns] = useHoverState();
+
+    const snapGrid = useMemo(
+      () => ({
+        x: props.parentColumnSpace,
+        y: props.parentRowSpace,
+      }),
+      [props.parentColumnSpace, props.parentRowSpace],
+    );
 
     return (
       <StyledDynamicHeightOverlay>
