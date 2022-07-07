@@ -513,21 +513,6 @@ const PROPERTIES = {
         dependencies: ["schema"],
       },
       {
-        propertyName: "allowDialCodeChange",
-        label: "Allow country code change",
-        helpText: "Search by country",
-        controlType: "SWITCH",
-        isJSConvertible: false,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        hidden: (...args: HiddenFnParams) =>
-          getSchemaItem(...args).fieldTypeNotMatches(
-            FieldType.PHONE_NUMBER_INPUT,
-          ),
-        dependencies: ["schema"],
-        validation: { type: ValidationTypes.BOOLEAN },
-      },
-      {
         helpText: "Changes the country code",
         propertyName: "dialCode",
         label: "Default Country Code",
@@ -558,6 +543,21 @@ const PROPERTIES = {
         dependencies: ["schema"],
         isBindProperty: false,
         isTriggerProperty: false,
+      },
+      {
+        propertyName: "allowDialCodeChange",
+        label: "Allow country code change",
+        helpText: "Search by country",
+        controlType: "SWITCH",
+        isJSConvertible: false,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(
+            FieldType.PHONE_NUMBER_INPUT,
+          ),
+        dependencies: ["schema"],
+        validation: { type: ValidationTypes.BOOLEAN },
       },
       {
         propertyName: "allowCurrencyChange",

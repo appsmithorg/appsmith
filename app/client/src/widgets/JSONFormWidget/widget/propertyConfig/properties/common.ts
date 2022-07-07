@@ -539,7 +539,7 @@ const COMMON_PROPERTIES = {
       {
         propertyName: "label",
         helpText: "Sets the label text of the field",
-        label: "Text",
+        label: "Label",
         controlType: "INPUT_TEXT",
         placeholderText: "Name:",
         isBindProperty: true,

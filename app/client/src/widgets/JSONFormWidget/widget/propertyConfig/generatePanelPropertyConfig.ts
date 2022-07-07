@@ -147,7 +147,22 @@ function generatePanelPropertyConfig(
             },
             dependencies: ["schema", "childStylesheet"],
           },
+          ...ARRAY_PROPERTIES.content.data,
         ],
+      },
+      {
+        sectionName: "Search and Filters",
+        children: [
+          ...SELECT_PROPERTIES.content.searchAndFilters,
+          ...MULTI_SELECT_PROPERTIES.content.searchAndFilters,
+        ],
+        hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
+          const schemaItem: SchemaItem = get(props, propertyPath, {});
+          return !(
+            schemaItem.fieldType === FieldType.SELECT ||
+            schemaItem.fieldType === FieldType.MULTISELECT
+          );
+        },
       },
       {
         sectionName: "Validation",
@@ -167,6 +182,7 @@ function generatePanelPropertyConfig(
           ...COMMON_PROPERTIES.content.generalSwitch,
           ...MULTI_SELECT_PROPERTIES.content.toggles,
           ...DATE_PROPERTIES.content.general,
+          ...ARRAY_PROPERTIES.content.general,
         ],
       },
       {

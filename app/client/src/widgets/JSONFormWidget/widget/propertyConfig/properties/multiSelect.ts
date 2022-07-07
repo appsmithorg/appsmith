@@ -349,6 +349,35 @@ const PROPERTIES = {
           ),
       },
     ],
+    searchAndFilters: [
+      {
+        propertyName: "isFilterable",
+        label: "Allow Searching",
+        helpText: "Makes the dropdown list filterable",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+        dependencies: ["schema"],
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
+      },
+      {
+        propertyName: "serverSideFiltering",
+        helpText: "Enables server side filtering of the data",
+        label: "Server Side Filtering",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        customJSControl: "JSON_FORM_COMPUTE_VALUE",
+        validation: { type: ValidationTypes.BOOLEAN },
+        dependencies: ["schema"],
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
+      },
+    ],
   },
 };
 

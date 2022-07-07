@@ -18,7 +18,7 @@ const PROPERTIES: Record<string, ExtendedControlConfig[]> = {
   general: [
     {
       propertyName: "defaultValue",
-      label: "Default Selected",
+      label: "Default State",
       helpText: "Sets the default checked state of the field",
       controlType: "SWITCH",
       isJSConvertible: true,
