@@ -6,7 +6,7 @@ import {
   FieldType,
   SchemaItem,
 } from "widgets/JSONFormWidget/constants";
-import { getSchemaItem, HiddenFnParams } from "./helper";
+import { getSchemaItem, HiddenFnParams, hiddenIfArrayOrObject } from "./helper";
 import {
   ARRAY_PROPERTIES,
   CHECKBOX_PROPERTIES,
@@ -155,6 +155,7 @@ function generatePanelPropertyConfig(
           ...INPUT_PROPERTIES.content.validation,
           ...DATE_PROPERTIES.content.validation,
         ],
+        hidden: hiddenIfArrayOrObject,
       },
       {
         sectionName: "General",
@@ -180,6 +181,7 @@ function generatePanelPropertyConfig(
           ...COMMON_PROPERTIES.content.events,
           ...RADIO_GROUP_PROPERTIES.content.events,
         ],
+        hidden: hiddenIfArrayOrObject,
       },
     ],
     styleChildren: [
@@ -188,12 +190,22 @@ function generatePanelPropertyConfig(
         children: [...COMMON_PROPERTIES.style.label],
       },
       {
-        sectionName: "Border and Shadow",
-        children: [...COMMON_PROPERTIES.style.borderShadow],
-      },
-      {
         sectionName: "Color",
         children: [...COMMON_PROPERTIES.style.color],
+        hidden: hiddenIfArrayOrObject,
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [...COMMON_PROPERTIES.style.borderShadow],
+        hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
+          const schemaItem: SchemaItem = get(props, propertyPath, {});
+          return (
+            schemaItem.fieldType === FieldType.ARRAY ||
+            schemaItem.fieldType === FieldType.OBJECT ||
+            schemaItem.fieldType === FieldType.RADIO_GROUP ||
+            schemaItem.fieldType === FieldType.SWITCH
+          );
+        },
       },
       ...OBJECT_PROPERTIES.sections,
       ...ARRAY_PROPERTIES.sections,
