@@ -11,6 +11,7 @@ declare global {
     // Zipy is added via script tags in index.html
     zipy: {
       identify: (uid: string, userInfo: Record<string, string>) => void;
+      anonymize: () => void;
     };
   }
 }
