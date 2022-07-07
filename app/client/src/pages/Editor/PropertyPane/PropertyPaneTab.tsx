@@ -26,6 +26,14 @@ const StyledTabs = styled(Tabs)`
     border: 0;
     margin: 0;
   }
+  .react-tabs__tab .tab-title {
+    font-weight: 500;
+    color: ${Colors.GRAY_700};
+  }
+
+  .react-tabs__tab--selected .tab-title {
+    color: ${Colors.GREY_900};
+  }
 
   .react-tabs__tab--selected {
     border: 0;

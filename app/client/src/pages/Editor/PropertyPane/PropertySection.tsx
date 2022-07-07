@@ -11,13 +11,17 @@ import { Collapse } from "@blueprintjs/core";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import styled from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 
 const SectionWrapper = styled.div`
   position: relative;
   .${Classes.COLLAPSE_BODY} {
     z-index: 1;
     position: relative;
+    padding-bottom: 4px;
   }
+  border-bottom: 1px solid ${Colors.GREY_4};
+  padding: 4px 16px 8px 16px;
 `;
 const SectionTitle = styled.div`
   display: grid;
