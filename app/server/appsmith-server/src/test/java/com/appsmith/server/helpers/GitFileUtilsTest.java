@@ -2,17 +2,17 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.models.ApplicationGitReference;
-import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,11 +25,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.HashMap;
@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@RunWith(SpringRunner.class)
 @SpringBootTest
 @DirtiesContext
 public class GitFileUtilsTest {
@@ -82,10 +83,9 @@ public class GitFileUtilsTest {
         return stringifiedFile
                 .map(data -> {
                     Gson gson = new Gson();
-                    Type fileType = new TypeToken<ApplicationJson>() {
-                    }.getType();
-                    return gson.fromJson(data, fileType);
-                });
+                    return gson.fromJson(data, ApplicationJson.class);
+                })
+                .map(JsonSchemaMigration::migrateApplicationToLatestSchema);
     }
 
     @Test
@@ -118,7 +118,7 @@ public class GitFileUtilsTest {
             assertThat(pageNames).contains(pageName);
         }
 
-        Map<String, Object> actionsCollections = applicationGitReference.getActionsCollections();
+        Map<String, Object> actionsCollections = applicationGitReference.getActionCollections();
         for (Map.Entry<String, Object> entry : actionsCollections.entrySet()) {
             assertThat(entry.getKey()).contains(NAME_SEPARATOR);
             String[] names = entry.getKey().split(NAME_SEPARATOR);
@@ -163,7 +163,7 @@ public class GitFileUtilsTest {
             assertThat(deletedAction.getUnpublishedAction().getValidName().replace(".", "-")).isNotEqualTo(queryName);
         }
 
-        Map<String, Object> actionsCollections = applicationGitReference.getActionsCollections();
+        Map<String, Object> actionsCollections = applicationGitReference.getActionCollections();
         for (Map.Entry<String, Object> entry : actionsCollections.entrySet()) {
             String[] names = entry.getKey().split(NAME_SEPARATOR);
             final String collectionName = names[0].replace(".", "-");
@@ -233,9 +233,10 @@ public class GitFileUtilsTest {
         });
 
         ApplicationGitReference applicationReference = new ApplicationGitReference();
+        applicationReference.setApplication(applicationJson.getExportedApplication());
         applicationReference.setPages(pageRef);
         applicationReference.setActions(actionRef);
-        applicationReference.setActionsCollections(actionCollectionRef);
+        applicationReference.setActionCollections(actionCollectionRef);
 
         Mockito.when(fileInterface.reconstructApplicationReferenceFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationReference));

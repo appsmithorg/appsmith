@@ -13,6 +13,7 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.IMAGE,
       false,
+      // @ts-expect-error: other Props are missing
       { isCellVisible: true },
       930,
       true,
@@ -37,6 +38,7 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.IMAGE,
       false,
+      // @ts-expect-error: other Props are missing
       { isCellVisible: true },
       930,
       true,
@@ -63,6 +65,7 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.IMAGE,
       false,
+      // @ts-expect-error: other Props are missing
       { isCellVisible: true },
       930,
       true,
@@ -88,6 +91,7 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.IMAGE,
       false,
+      // @ts-expect-error: other Props are missing
       { isCellVisible: true },
       930,
       true,
@@ -113,6 +117,7 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.IMAGE,
       false,
+      // @ts-expect-error: other Props are missing
       { isCellVisible: true },
       930,
       true,
@@ -139,6 +144,7 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.TEXT,
       false,
+      // @ts-expect-error: other Props are missing
       { isCellVisible: true },
       930,
       true,
@@ -154,6 +160,7 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.TEXT,
       false,
+      // @ts-expect-error: other Props are missing
       { isCellVisible: true },
       930,
       true,
@@ -169,6 +176,7 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.NUMBER,
       false,
+      // @ts-expect-error: other Props are missing
       { isCellVisible: true },
       930,
       true,
@@ -184,6 +192,7 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.NUMBER,
       false,
+      // @ts-expect-error: other Props are missing
       { isCellVisible: true },
       930,
       true,

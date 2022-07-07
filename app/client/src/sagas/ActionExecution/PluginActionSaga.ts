@@ -90,7 +90,7 @@ import {
   PluginTriggerFailureError,
   UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
-import { trimQueryString } from "utils/helpers";
+import { shouldBeDefined, trimQueryString } from "utils/helpers";
 import { JSCollection } from "entities/JSCollection";
 import {
   executeAppAction,
@@ -101,6 +101,7 @@ import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
 import { CURL_IMPORT_FORM } from "constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
+import { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
 import { getBasePath } from "pages/Editor/Explorer/helpers";
 import { isTrueObject } from "workers/evaluationUtils";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
@@ -222,11 +223,8 @@ function* evaluateActionParams(
   if (_.isNil(bindings) || bindings.length === 0) return [];
 
   // Evaluated all bindings of the actions. Pass executionParams if any
-  const values: any = yield call(
-    evaluateActionBindings,
-    bindings,
-    executionParams,
-  );
+  // @ts-expect-error: Values can take many types
+  const values = yield call(evaluateActionBindings, bindings, executionParams);
 
   // Add keys values to formData for the multipart submission
   for (let i = 0; i < bindings.length; i++) {
@@ -243,7 +241,7 @@ function* evaluateActionParams(
 
       for (const blobUrlPath of blobUrlPaths) {
         const blobUrl = value[blobUrlPath] as string;
-        const resolvedBlobValue = yield call(readBlob, blobUrl);
+        const resolvedBlobValue: unknown = yield call(readBlob, blobUrl);
         set(value, blobUrlPath, resolvedBlobValue);
       }
     }
@@ -252,6 +250,7 @@ function* evaluateActionParams(
       value = JSON.stringify(value);
     }
     if (isBlobUrl(value)) {
+      // @ts-expect-error: Values can take many types
       value = yield call(readBlob, value);
     }
     value = new Blob([value], { type: "text/plain" });
@@ -281,13 +280,16 @@ export default function* executePluginActionTriggerSaga(
     },
     actionId,
   );
-  const appMode = yield select(getAppMode);
-  const action: Action = yield select(getAction, actionId);
+  const appMode: APP_MODE | undefined = yield select(getAppMode);
+  const action = shouldBeDefined<Action>(
+    yield select(getAction, actionId),
+    `Action not found for id - ${actionId}`,
+  );
   const currentApp: ApplicationPayload = yield select(getCurrentApplication);
   AnalyticsUtil.logEvent("EXECUTE_ACTION", {
-    type: action.pluginType,
-    name: action.name,
-    pageId: action.pageId,
+    type: action?.pluginType,
+    name: action?.name,
+    pageId: action?.pageId,
     appId: currentApp.id,
     appMode: appMode,
     appName: currentApp.name,
@@ -398,7 +400,7 @@ function* runActionShortcutSaga() {
   });
 
   // get the current form name
-  const currentFormNames = yield select(getFormNames());
+  const currentFormNames: string[] = yield select(getFormNames());
 
   if (!match || !match.params) return;
   const { apiId, pageId, queryId } = match.params;
@@ -422,7 +424,9 @@ function* runActionShortcutSaga() {
   ) {
     // if the current form names include the curl form and there are no actionIds i.e. its not an api or query
     // get the form values and call the submit curl import form function with its data
-    const formValues = yield select(getFormValues(CURL_IMPORT_FORM));
+    const formValues: curlImportFormValues = yield select(
+      getFormValues(CURL_IMPORT_FORM),
+    );
 
     // if the user has not edited the curl input field, assign an empty string to it, so it doesnt throw an error.
     if (!formValues?.curl) formValues["curl"] = "";
@@ -440,20 +444,25 @@ function* runActionSaga(
   }>,
 ) {
   const actionId = reduxAction.payload.id;
-  const isSaving = yield select(isActionSaving(actionId));
-  const isDirty = yield select(isActionDirty(actionId));
-  const isSavingEntity = yield select(getIsSavingEntity);
+  const isSaving: boolean = yield select(isActionSaving(actionId));
+  const isDirty: boolean = yield select(isActionDirty(actionId));
+  const isSavingEntity: boolean = yield select(getIsSavingEntity);
   if (isSaving || isDirty || isSavingEntity) {
     if (isDirty && !isSaving) {
       yield put(updateAction({ id: actionId }));
     }
     yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
   }
-  const actionObject = yield select(getAction, actionId);
+  const actionObject = shouldBeDefined<Action>(
+    yield select(getAction, actionId),
+    `action not found for id - ${actionId}`,
+  );
+
   const datasourceUrl = get(
     actionObject,
     "datasource.datasourceConfiguration.url",
   );
+
   AppsmithConsole.info({
     text: "Execution started from user request",
     source: {
@@ -489,7 +498,7 @@ function* runActionSaga(
       return;
     }
     log.error(e);
-    error = e.message;
+    error = (e as Error).message;
   }
 
   // Error should be readable error if present.
@@ -559,7 +568,7 @@ function* runActionSaga(
     return;
   }
 
-  const pageName = yield select(getCurrentPageNameByActionId, actionId);
+  const pageName: string = yield select(getCurrentPageNameByActionId, actionId);
   let eventName: EventName = "RUN_API";
   if (actionObject.pluginType === PluginType.DB) {
     eventName = "RUN_QUERY";
@@ -614,7 +623,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
           modalType: ModalType.RUN_ACTION,
         };
 
-        const confirmed = yield call(
+        const confirmed: unknown = yield call(
           requestModalConfirmationSaga,
           modalPayload,
         );
@@ -640,10 +649,10 @@ function* executePageLoadAction(pageAction: PageAction) {
   if (pageAction.hasOwnProperty("collectionId")) {
     yield call(executeOnPageLoadJSAction, pageAction);
   } else {
-    const pageId = yield select(getCurrentPageId);
+    const pageId: string | undefined = yield select(getCurrentPageId);
     let currentApp: ApplicationPayload = yield select(getCurrentApplication);
     currentApp = currentApp || {};
-    const appMode = yield select(getAppMode);
+    const appMode: APP_MODE | undefined = yield select(getAppMode);
     AnalyticsUtil.logEvent("EXECUTE_ACTION", {
       type: pageAction.pluginType,
       name: pageAction.name,
@@ -732,6 +741,7 @@ function* executePageLoadActionsSaga() {
     );
     for (const actionSet of pageActions) {
       // Load all sets in parallel
+      // @ts-expect-error: no idea how to type this
       yield* yield all(
         actionSet.map((apiAction) => call(executePageLoadAction, apiAction)),
       );
@@ -771,10 +781,14 @@ function* executePluginActionSaga(
   let pluginAction;
   let actionId;
   if (isString(actionOrActionId)) {
+    // @ts-expect-error: plugin Action can take many types
     pluginAction = yield select(getAction, actionOrActionId);
     actionId = actionOrActionId;
   } else {
-    pluginAction = yield select(getAction, actionOrActionId.id);
+    pluginAction = shouldBeDefined<Action>(
+      yield select(getAction, actionOrActionId.id),
+      `Action not found for id -> ${actionOrActionId.id}`,
+    );
     actionId = actionOrActionId.id;
   }
 
@@ -785,7 +799,10 @@ function* executePluginActionSaga(
       modalType: ModalType.RUN_ACTION,
     };
 
-    const confirmed = yield call(requestModalConfirmationSaga, modalPayload);
+    const confirmed: unknown = yield call(
+      requestModalConfirmationSaga,
+      modalPayload,
+    );
 
     if (!confirmed) {
       yield put({
@@ -804,8 +821,8 @@ function* executePluginActionSaga(
   );
   yield put(executePluginActionRequest({ id: actionId }));
 
-  const appMode = yield select(getAppMode);
-  const timeout = yield select(getActionTimeout, actionId);
+  const appMode: APP_MODE | undefined = yield select(getAppMode);
+  const timeout: number | undefined = yield select(getActionTimeout, actionId);
 
   const executeActionRequest: ExecuteActionRequest = {
     actionId: actionId,
@@ -839,7 +856,10 @@ function* executePluginActionSaga(
     );
     let plugin: Plugin | undefined;
     if (!!pluginAction.pluginId) {
-      plugin = yield select(getPlugin, pluginAction.pluginId);
+      plugin = shouldBeDefined<Plugin>(
+        yield select(getPlugin, pluginAction.pluginId),
+        `Plugin not found for id - ${pluginAction.pluginId}`,
+      );
     }
 
     // sets the default display format for action response e.g Raw, Json or Table

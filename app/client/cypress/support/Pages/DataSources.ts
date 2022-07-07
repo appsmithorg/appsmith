@@ -31,7 +31,7 @@ export class DataSources {
   _dropdownTitle = (ddTitle: string) =>
     "//p[contains(text(),'" +
     ddTitle +
-    "')]/parent::label/following-sibling::div/div/div";
+    "')]/ancestor::label/parent::div/following-sibling::div/div/div";
   _reconnectModal = "div.reconnect-datasource-modal";
   _activeDSListReconnectModal = (dbName: string) =>
     "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']";
@@ -39,6 +39,8 @@ export class DataSources {
   _newDatabases = "#new-datasources";
   _selectDatasourceDropdown = "[data-cy=t--datasource-dropdown]";
   _selectTableDropdown = "[data-cy=t--table-dropdown]";
+  _selectSheetNameDropdown = "[data-cy=t--sheetName-dropdown]";
+  _selectTableHeaderIndexInput = "[data-cy=t--tableHeaderIndex]";
   _dropdownOption = ".bp3-popover-content .t--dropdown-option";
   _generatePageBtn = "[data-cy=t--generate-page-form-submit]";
   _selectedRow = ".tr.selected-row";
@@ -48,6 +50,10 @@ export class DataSources {
   _datasourceCardGeneratePageBtn = ".t--generate-template";
   _queryTableResponse =
     "//div[@data-guided-tour-id='query-table-response']//div[@class='tbody']//div[@class ='td']";
+  _queryResponseHeader = (header: string) =>
+    "//div[@data-guided-tour-id='query-table-response']//div[@class='table']//div[@role ='columnheader']//span[text()='" +
+    header +
+    "']";
   _refreshIcon = "button .bp3-icon-refresh";
   _addIcon = "button .bp3-icon-add";
   _queryError = "span.t--query-error";
@@ -57,6 +63,9 @@ export class DataSources {
     "//div/span[text()='Result:']/span[contains(text(),'" +
     recordCount +
     " Record')]";
+  _noRecordFound = "span[data-testid='no-data-table-message']";
+  _usePreparedStatement =
+    "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -216,6 +225,7 @@ export class DataSources {
   public SaveDatasource() {
     cy.get(this._saveDs).click();
     this.agHelper.ValidateNetworkStatus("@saveDatasource", 200);
+    this.agHelper.WaitUntilToastDisappear("datasource updated successfully");
 
     // cy.wait("@saveDatasource")
     //     .then((xhr) => {
@@ -265,6 +275,10 @@ export class DataSources {
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
+    this.ee.NavigateToSwitcher("explorer");
+    this.ee.ExpandCollapseEntity("DATASOURCES", false);
+    //this.ee.SelectEntityByName(datasourceName, "DATASOURCES");
+    //this.ee.ExpandCollapseEntity(datasourceName, false);
     this.NavigateToDSCreateNew();
     this.agHelper.GetNClick(this._activeTab);
     cy.get(this._datasourceCard)
@@ -276,11 +290,6 @@ export class DataSources {
         cy.get(btnLocator).click({ force: true });
       });
     this.agHelper.Sleep(2000); //for the CreateQuery/GeneratePage page to load
-  }
-
-  public NavigateToActiveDSviaEntityExplorer(datasourceName: string) {
-    this.ee.SelectEntityByName(datasourceName, "DATASOURCES");
-    cy.get(this._createQuery).click({ force: true });
   }
 
   public ValidateNSelectDropdown(
@@ -332,6 +341,12 @@ export class DataSources {
       .invoke("text");
   }
 
+  public AssertQueryResponseHeaders(columnHeaders: string[]) {
+    columnHeaders.forEach(($header) =>
+      this.agHelper.AssertElementVisible(this._queryResponseHeader($header)),
+    );
+  }
+
   public AssertJSONFormHeader(
     rowindex: number,
     colIndex: number,
@@ -351,5 +366,25 @@ export class DataSources {
         .GetText(this.locator._jsonFormHeader)
         .then(($header: any) => expect($header).to.eq(jsonHeaderString));
     });
+  }
+
+  public ToggleUsePreparedStatement(enable = true || false) {
+    if (enable)
+      cy.get(this._usePreparedStatement).check({
+        force: true,
+      });
+    else
+      cy.get(this._usePreparedStatement).uncheck({
+        force: true,
+      });
+
+    this.agHelper.AssertAutoSave();
+  }
+
+  public EnterQuery(query: string) {
+    cy.get(this.locator._codeEditorTarget).then(($field: any) => {
+      this.agHelper.UpdateCodeInput($field, query);
+    });
+    this.agHelper.AssertAutoSave();
   }
 }

@@ -11,6 +11,7 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { flushErrors } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
+import { User } from "constants/userConstants";
 import {
   ERROR_CODES,
   SERVER_ERROR_CODES,
@@ -40,9 +41,10 @@ export const getDefaultActionError = (action: string) =>
 
 export function* callAPI(apiCall: any, requestPayload: any) {
   try {
-    return yield call(apiCall, requestPayload);
+    const response: ApiResponse = yield call(apiCall, requestPayload);
+    return response;
   } catch (error) {
-    return yield error;
+    return error;
   }
 }
 
@@ -229,7 +231,7 @@ function* crashAppSaga(error: ErrorPayloadType) {
  * this saga do some logic before actually setting safeCrash to true
  */
 function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
-  const user = yield select(getCurrentUser);
+  const user: User | undefined = yield select(getCurrentUser);
   const code = get(action, "payload.code");
 
   // if user is not logged and the error is "PAGE_NOT_FOUND",
@@ -262,7 +264,7 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
 export function* flushErrorsAndRedirectSaga(
   action: ReduxAction<{ url?: string }>,
 ) {
-  const safeCrash = yield select(getSafeCrash);
+  const safeCrash: boolean = yield select(getSafeCrash);
 
   if (safeCrash) {
     yield put(flushErrors());

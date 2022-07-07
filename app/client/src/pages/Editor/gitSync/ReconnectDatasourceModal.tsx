@@ -48,7 +48,7 @@ import {
   setWorkspaceIdForImport,
 } from "actions/applicationActions";
 import { AuthType, Datasource } from "entities/Datasource";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useQuery } from "../utils";
@@ -425,11 +425,13 @@ function ReconnectDatasourceModal() {
   const importedApplication = useSelector(getImportedApplication);
   useEffect(() => {
     if (!queryIsImport) {
+      // @ts-expect-error: importedApplication is of type unknown
       const defaultPage = importedApplication?.pages?.find(
         (page: any) => page.isDefault,
       );
       if (defaultPage) {
         setPageId(defaultPage.id);
+        // @ts-expect-error: importedApplication is of type unknown
         setAppId(importedApplication?.id);
       }
     }
@@ -440,8 +442,10 @@ function ReconnectDatasourceModal() {
       setAppURL(
         builderURL({
           applicationVersion:
+            // @ts-expect-error: importedApplication is of type unknown
             importedApplication?.applicationVersion ||
             ApplicationVersion.SLUG_URL,
+          // @ts-expect-error: importedApplication is of type unknown
           applicationSlug: importedApplication?.slug || PLACEHOLDER_APP_SLUG,
           applicationId: appId,
           pageId: pageId,

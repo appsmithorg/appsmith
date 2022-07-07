@@ -9,10 +9,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import { IconWrapper } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import PageListItem, { Action } from "./PageListItem";
-import {
-  Page,
-  PageListPayload,
-} from "@appsmith/constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
   getPageList,
@@ -64,7 +61,7 @@ const NewPageButton = styled(Button)`
 
 const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
-type PageListPayloadWithId = PageListPayload & { id?: string };
+type PageListPayloadWithId = Page[] & { id?: string };
 
 function PagesEditor() {
   const theme = useTheme();

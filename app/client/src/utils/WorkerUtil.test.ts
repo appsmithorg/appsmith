@@ -252,6 +252,7 @@ describe("GracefulWorkerService", () => {
     const mockResponseChannel = mockChannel("response");
     runSaga(
       {},
+      // @ts-expect-error: type mismatch
       w.duplexRequestHandler,
       workerChannel,
       mockRequestChannel,
@@ -305,6 +306,7 @@ describe("GracefulWorkerService", () => {
     const workerRequestId = "testID";
     runSaga(
       {},
+      // @ts-expect-error: type mismatch
       w.duplexResponseHandler,
       workerRequestId,
       mockWorkerChannel,

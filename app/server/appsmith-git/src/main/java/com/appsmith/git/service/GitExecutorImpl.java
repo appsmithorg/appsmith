@@ -629,7 +629,7 @@ public class GitExecutorImpl implements GitExecutor {
                     }
                     errorMessage.append(" while merging branch: ").append(destinationBranch).append(" <= ").append(sourceBranch);
                     mergeStatus.setMessage(errorMessage.toString());
-                    mergeStatus.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT);
+                    mergeStatus.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT.getDocUrl());
                 }
                 mergeStatus.setStatus(mergeResult.getMergeStatus().name());
                 return mergeStatus;

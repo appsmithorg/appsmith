@@ -8,6 +8,7 @@ export const CONFIG = {
   name: "Phone Input",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["call"],
   defaults: {
     ...BaseConfig.defaults,
     widgetName: "PhoneInput",

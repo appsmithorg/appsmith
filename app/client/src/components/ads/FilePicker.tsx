@@ -14,8 +14,7 @@ import {
   ERROR_FILE_TOO_LARGE,
   REMOVE_FILE_TOOL_TIP,
 } from "@appsmith/constants/messages";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import { TooltipComponent } from "design-system";
 import Icon, { IconName, IconSize } from "./Icon";
 import { error as logError } from "loglevel";
 const CLOUDINARY_PRESETS_NAME = "";
@@ -456,10 +455,7 @@ function FilePickerComponent(props: FilePickerProps) {
           <Text className="success-text" type={TextType.H4}>
             Successfully Uploaded!
           </Text>
-          <TooltipComponent
-            content={REMOVE_FILE_TOOL_TIP()}
-            position={Position.TOP}
-          >
+          <TooltipComponent content={REMOVE_FILE_TOOL_TIP()} position="top">
             <IconWrapper className="icon-wrapper" onClick={() => removeFile()}>
               <Icon name="close" size={IconSize.XL} />
             </IconWrapper>

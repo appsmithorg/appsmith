@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   ApplicationPayload,
-  PageListPayload,
+  Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { NavLink } from "react-router-dom";
 import { getPageURL } from "utils/AppsmithUtils";
@@ -25,7 +25,7 @@ import { getShowBrandingBadge } from "@appsmith/selectors/workspaceSelectors";
 type AppViewerHeaderProps = {
   isOpen?: boolean;
   application?: ApplicationPayload;
-  pages: PageListPayload;
+  pages: Page[];
   url?: string;
   setMenuOpen?: (shouldOpen: boolean) => void;
   headerRef?: React.RefObject<HTMLDivElement>;
@@ -74,7 +74,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
       {/* BG OVERLAY */}
       <div
         className={classNames({
-          "fixed h-full w-full bg-black bg-opacity-30 transform transition-all": true,
+          "fixed h-full w-full bg-black/30 transform transition-all": true,
           "opacity-0 hidden": !isOpen,
           "opacity-100": isOpen,
         })}
@@ -100,7 +100,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
               activeStyle={{
                 borderColor: selectedTheme.properties.colors.primaryColor,
               }}
-              className="flex flex-col px-3 py-2 text-gray-700 no-underline border-transparent border-r-3 hover:no-underline focus:text-gray-700"
+              className="flex flex-col px-4 py-2 text-gray-700 no-underline border-transparent border-r-3 hover:no-underline focus:text-gray-700"
               key={page.pageId}
               to={{
                 pathname: getPageURL(page, appMode, application),

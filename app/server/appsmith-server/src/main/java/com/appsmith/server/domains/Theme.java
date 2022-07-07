@@ -16,7 +16,7 @@ import java.util.Map;
 @Document
 public class Theme extends BaseDomain {
     public static final String LEGACY_THEME_NAME = "classic";
-    public static final String DEFAULT_THEME_NAME = "classic";
+    public static final String DEFAULT_THEME_NAME = "default";
 
     // name will be used internally to identify system themes for import, export application and theme migration
     // it'll never change. We need to remove this from API response in future when FE uses displayName everywhere
@@ -46,5 +46,17 @@ public class Theme extends BaseDomain {
     public static class Colors {
         private String primaryColor;
         private String backgroundColor;
+    }
+
+    public void sanitiseToExportDBObject() {
+        this.setId(null);
+        if(this.isSystemTheme()) {
+            // for system theme, we only need theme name and isSystemTheme properties so set null to others
+            this.setProperties(null);
+            this.setConfig(null);
+            this.setStylesheet(null);
+        }
+        // set null to base domain properties also
+        this.sanitiseToExportBaseObject();
     }
 }
