@@ -153,7 +153,7 @@ describe("Git sync:", function() {
 
     cy.get(gitSyncLocators.gitPullCount);
 
-    cy.intercept("GET", "/api/v1/git/pull/*").as("gitPull");
+    cy.intercept("GET", "/api/v1/git/pull/app/*").as("gitPull");
 
     cy.get(gitSyncLocators.bottomBarPullButton).click();
 
