@@ -122,9 +122,18 @@ export const startFormEvaluations = (
   formData: QueryActionConfig,
   datasourceId: string,
   pluginId: string,
+  actionDiffPath?: string,
+  hasRouteChanged?: boolean,
 ) => {
   return {
     type: ReduxActionTypes.RUN_FORM_EVALUATION,
-    payload: { formId, actionConfiguration: formData, datasourceId, pluginId },
+    payload: {
+      formId,
+      actionConfiguration: formData,
+      datasourceId,
+      pluginId,
+      actionDiffPath,
+      hasRouteChanged,
+    },
   };
 };
