@@ -225,6 +225,7 @@ export class DataSources {
   public SaveDatasource() {
     cy.get(this._saveDs).click();
     this.agHelper.ValidateNetworkStatus("@saveDatasource", 200);
+    this.agHelper.WaitUntilToastDisappear("datasource updated successfully");
 
     // cy.wait("@saveDatasource")
     //     .then((xhr) => {
@@ -274,8 +275,10 @@ export class DataSources {
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
-    this.ee.SelectEntityByName(datasourceName, "DATASOURCES");
-    this.ee.ExpandCollapseEntity(datasourceName, false);
+    this.ee.NavigateToSwitcher("explorer");
+    this.ee.ExpandCollapseEntity("DATASOURCES", false);
+    //this.ee.SelectEntityByName(datasourceName, "DATASOURCES");
+    //this.ee.ExpandCollapseEntity(datasourceName, false);
     this.NavigateToDSCreateNew();
     this.agHelper.GetNClick(this._activeTab);
     cy.get(this._datasourceCard)
@@ -287,11 +290,6 @@ export class DataSources {
         cy.get(btnLocator).click({ force: true });
       });
     this.agHelper.Sleep(2000); //for the CreateQuery/GeneratePage page to load
-  }
-
-  public NavigateToActiveDSviaEntityExplorer(datasourceName: string) {
-    this.ee.SelectEntityByName(datasourceName, "DATASOURCES");
-    cy.get(this._createQuery).click({ force: true });
   }
 
   public ValidateNSelectDropdown(
@@ -380,6 +378,13 @@ export class DataSources {
         force: true,
       });
 
+    this.agHelper.AssertAutoSave();
+  }
+
+  public EnterQuery(query: string) {
+    cy.get(this.locator._codeEditorTarget).then(($field: any) => {
+      this.agHelper.UpdateCodeInput($field, query);
+    });
     this.agHelper.AssertAutoSave();
   }
 }

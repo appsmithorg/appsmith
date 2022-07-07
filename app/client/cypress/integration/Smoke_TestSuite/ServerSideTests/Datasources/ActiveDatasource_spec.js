@@ -1,11 +1,15 @@
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+let dataSources = ObjectsRegistry.DataSources;
+
 let datasourceName, actionName;
+
 describe("Mongo Active datasource test cases", function() {
   before(() => {
     cy.NavigateToDatasourceEditor();
-    cy.get(datasourceEditor.MongoDB).click();
-    cy.getPluginFormsAndCreateDatasource();
+    dataSources.CreatePlugIn("MongoDB");
     cy.fillMongoDatasourceForm();
     cy.get(datasourceEditor.saveBtn).click({ force: true });
     cy.wait("@createDatasource").then((httpResponse) => {
