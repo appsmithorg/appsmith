@@ -64,7 +64,7 @@ public interface GitServiceCE {
 
     Mono<ApplicationImportDTO> importApplicationFromGit(String organisationId, GitConnectDTO gitConnectDTO);
 
-    Mono<GitAuth> generateSSHKey();
+    Mono<GitAuth> generateSSHKey(String keyType);
 
     Mono<Boolean> testConnection(String defaultApplicationId);
 

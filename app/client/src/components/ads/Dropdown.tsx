@@ -17,11 +17,12 @@ import Spinner from "./Spinner";
 import { ReactComponent as Check } from "assets/icons/control/checkmark.svg";
 import { ReactComponent as Close } from "assets/icons/control/remove.svg";
 import { replayHighlightClass } from "globalStyles/portals";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
 import SegmentHeader from "components/ads/ListSegmentHeader";
 import { useTheme } from "styled-components";
 import { findIndex, isArray } from "lodash";
+import { TooltipComponent } from "design-system";
 import { SubTextPosition } from "components/constants";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
@@ -40,6 +41,8 @@ export type DropdownOption = {
   onSelect?: DropdownOnSelect;
   data?: any;
   isSectionHeader?: boolean;
+  disabled?: boolean;
+  disabledTooltipText?: string;
   hasCustomBadge?: boolean;
 };
 export interface DropdownSearchProps {
@@ -119,7 +122,7 @@ export interface DefaultDropDownValueNodeProps {
   isOpen?: boolean;
   hasError?: boolean;
   renderNode?: RenderOption;
-  selectedOptionClickHandler?: (option: DropdownOption) => void;
+  removeSelectedOptionClickHandler?: (option: DropdownOption) => void;
   placeholder?: string;
   showDropIcon?: boolean;
   optionWidth: string;
@@ -165,16 +168,22 @@ const StyledClose = styled(Close)`
 `;
 const SquareBox = styled.div<{
   checked: boolean;
+  backgroundColor?: string;
+  borderColor?: string;
 }>`
   width: 16px;
   height: 16px;
   box-sizing: border-box;
   margin-right: 10px;
-  background-color: ${(props) =>
-    props.checked ? Colors.GRAY_900 : Colors.WHITE};
+  background-color: ${(props) => {
+    if (props.backgroundColor) return props.backgroundColor;
+    props.checked ? Colors.GRAY_900 : Colors.WHITE;
+  }};
   border: 1.4px solid;
-  border-color: ${(props) =>
-    props.checked ? Colors.GRAY_900 : Colors.GRAY_400};
+  border-color: ${(props) => {
+    if (props.borderColor) return props.borderColor;
+    props.checked ? Colors.GRAY_900 : Colors.GRAY_400;
+  }};
 
   & svg {
     display: ${(props) => (props.checked ? "block" : "none")};
@@ -209,6 +218,13 @@ const Selected = styled.div<{
   justify-content: space-between;
   width: 100%;
   min-height: ${(props) => props.height};
+
+  ${(props) =>
+    props.isMultiSelect &&
+    `
+    min-height: 36px;
+    padding: 2px 8px;
+  `}
   cursor: ${(props) =>
     props.disabled || props.isLoading ? "not-allowed" : "pointer"};
   ${(props) =>
@@ -367,14 +383,17 @@ const StyledSubText = styled(Text)<{
 `;
 
 const OptionWrapper = styled.div<{
+  disabled?: boolean;
   selected: boolean;
   subTextPosition?: SubTextPosition;
   selectedHighlightBg?: string;
 }>`
   padding: ${(props) => props.theme.spaces[3] + 1}px
     ${(props) => props.theme.spaces[5]}px;
-  cursor: pointer;
+  ${(props) => (!props.disabled ? "cursor: pointer" : "")};
   display: flex;
+  width: 100%;
+  min-height: 36px;
   flex-direction: ${(props) =>
     props.subTextPosition === SubTextPosition.BOTTOM ? "column" : "row"};
   align-items: ${(props) =>
@@ -395,7 +414,9 @@ const OptionWrapper = styled.div<{
 
   .${Classes.TEXT} {
     color: ${(props) =>
-      props.selected
+      props.disabled
+        ? Colors.GRAY2
+        : props.selected
         ? props.theme.colors.dropdown.menu.hoverText
         : props.theme.colors.dropdown.menu.text};
   }
@@ -581,7 +602,7 @@ function TooltipWrappedText(
       boundary="window"
       content={label}
       disabled={!isEllipsisActive(targetRef.current)}
-      position={Position.TOP}
+      position="top"
     >
       <StyledText ref={targetRef} {...textProps}>
         {label}
@@ -597,9 +618,9 @@ function DefaultDropDownValueNode({
   labelRenderer,
   optionWidth,
   placeholder,
+  removeSelectedOptionClickHandler,
   renderNode,
   selected,
-  selectedOptionClickHandler,
   showDropIcon,
   showLabelOnly,
 }: DefaultDropDownValueNodeProps) {
@@ -621,10 +642,11 @@ function DefaultDropDownValueNode({
               <Chips key={s.value}>
                 <Text type={TextType.P1}>{s.label}</Text>
                 <StyledClose
+                  className={`t--remove-option-${s.label}`}
                   onClick={(event: any) => {
                     event.stopPropagation();
-                    if (selectedOptionClickHandler) {
-                      selectedOptionClickHandler(s as DropdownOption);
+                    if (removeSelectedOptionClickHandler) {
+                      removeSelectedOptionClickHandler(s as DropdownOption);
                     }
                   }}
                 />
@@ -694,7 +716,7 @@ function DefaultDropDownValueNode({
 
 interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   optionClickHandler: (option: DropdownOption) => void;
-  selectedOptionClickHandler: (option: DropdownOption) => void;
+  removeSelectedOptionClickHandler: (option: DropdownOption) => void;
   renderOption?: RenderOption;
   headerLabel?: string;
   highlightIndex?: number;
@@ -731,6 +753,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
   return (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
+      data-cy="dropdown-options-wrapper"
       data-testid="dropdown-options-wrapper"
       isOpen={props.isOpen}
       width={optionWidth}
@@ -775,78 +798,101 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
             });
           }
           return !option.isSectionHeader ? (
-            <OptionWrapper
-              aria-selected={isSelected}
-              className={`t--dropdown-option ${isSelected ? "selected" : ""}`}
-              key={index}
-              onClick={
-                // users should be able to unselect a selected option by clicking the option again.
-                isSelected && props.allowDeselection
-                  ? () => props.selectedOptionClickHandler(option)
-                  : () => props.optionClickHandler(option)
+            <TooltipComponent
+              content={
+                !!option.disabledTooltipText
+                  ? option.disabledTooltipText
+                  : "Action not supported"
               }
-              role="option"
-              selected={
-                props.isMultiSelect
-                  ? props.highlightIndex === index
-                  : isSelected
-              }
-              selectedHighlightBg={props.selectedHighlightBg}
-              subTextPosition={option.subTextPosition ?? SubTextPosition.LEFT}
+              disabled={!option.disabled}
+              key={`tootltip-${index}`}
+              styles={{
+                width: "100%",
+              }}
             >
-              {option.leftElement && (
-                <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
-              )}
-              {option.icon ? (
-                <SelectedIcon
-                  fillColor={option?.iconColor}
-                  hoverFillColor={option?.iconColor}
-                  name={option.icon}
-                  size={option.iconSize || IconSize.XL}
-                />
-              ) : null}
-              {props.isMultiSelect ? (
-                <SquareBox checked={isSelected}>
-                  <Check />
-                </SquareBox>
-              ) : null}
-              {props.showLabelOnly ? (
-                props.truncateOption ? (
-                  <>
-                    <TooltipWrappedText
-                      label={option.label || ""}
-                      type={TextType.P1}
-                    />
-                    {option.hasCustomBadge && props.customBadge}
-                  </>
-                ) : (
-                  <>
+              <OptionWrapper
+                aria-selected={isSelected}
+                className={`t--dropdown-option ${isSelected ? "selected" : ""}`}
+                data-cy={`t--dropdown-option-${option?.label}`}
+                disabled={option.disabled}
+                key={index}
+                onClick={
+                  // users should be able to unselect a selected option by clicking the option again.
+                  isSelected && props.allowDeselection
+                    ? () => props.removeSelectedOptionClickHandler(option)
+                    : () => props.optionClickHandler(option)
+                }
+                role="option"
+                selected={
+                  props.isMultiSelect
+                    ? props.highlightIndex === index
+                    : isSelected
+                }
+                selectedHighlightBg={props.selectedHighlightBg}
+                subTextPosition={option.subTextPosition ?? SubTextPosition.LEFT}
+              >
+                {option.leftElement && (
+                  <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
+                )}
+                {option.icon ? (
+                  <SelectedIcon
+                    fillColor={option?.iconColor}
+                    hoverFillColor={option?.iconColor}
+                    name={option.icon}
+                    size={option.iconSize || IconSize.XL}
+                  />
+                ) : null}
+                {props.isMultiSelect ? (
+                  isSelected ? (
+                    <SquareBox
+                      backgroundColor="#f86a2b"
+                      borderColor="#f86a2b"
+                      checked={isSelected}
+                    >
+                      <Check />
+                    </SquareBox>
+                  ) : (
+                    <SquareBox borderColor="#a9a7a7" checked={isSelected} />
+                  )
+                ) : null}
+                {props.showLabelOnly ? (
+                  props.truncateOption ? (
+                    <>
+                      <TooltipWrappedText
+                        label={option.label || ""}
+                        type={TextType.P1}
+                      />
+                      {option.hasCustomBadge && props.customBadge}
+                    </>
+                  ) : (
+                    <>
+                      <Text type={TextType.P1}>{option.label}</Text>
+                      {option.hasCustomBadge && props.customBadge}
+                    </>
+                  )
+                ) : option.label && option.value ? (
+                  <LabelWrapper className="label-container">
+                    <Text type={TextType.H5}>{option.value}</Text>
                     <Text type={TextType.P1}>{option.label}</Text>
-                    {option.hasCustomBadge && props.customBadge}
-                  </>
-                )
-              ) : option.label && option.value ? (
-                <LabelWrapper className="label-container">
-                  <Text type={TextType.H5}>{option.value}</Text>
-                  <Text type={TextType.P1}>{option.label}</Text>
-                </LabelWrapper>
-              ) : props.truncateOption ? (
-                <TooltipWrappedText
-                  label={option.value || ""}
-                  type={TextType.P1}
-                />
-              ) : (
-                <Text type={TextType.P1}>{option.value}</Text>
-              )}
-              {option.subText ? (
-                <StyledSubText
-                  subTextPosition={option.subTextPosition}
-                  type={TextType.P3}
-                >
-                  {option.subText}
-                </StyledSubText>
-              ) : null}
-            </OptionWrapper>
+                  </LabelWrapper>
+                ) : props.truncateOption ? (
+                  <TooltipWrappedText
+                    label={option.value || ""}
+                    type={TextType.P1}
+                  />
+                ) : (
+                  <Text type={TextType.P1}>{option.value}</Text>
+                )}
+                {option.subText ? (
+                  <StyledSubText
+                    subTextPosition={option.subTextPosition}
+                    type={TextType.P3}
+                  >
+                    {option.subText}
+                  </StyledSubText>
+                ) : null}
+              </OptionWrapper>
+            </TooltipComponent>
           ) : (
             <SegmentHeader
               style={{ paddingRight: theme.spaces[5] }}
@@ -881,7 +927,7 @@ export default function Dropdown(props: DropdownProps) {
   const [highlight, setHighlight] = useState(-1);
 
   const closeIfOpen = () => {
-    if (isOpen) {
+    if (isOpen && !props.isMultiSelect) {
       setIsOpen(false);
     }
   };
@@ -893,6 +939,10 @@ export default function Dropdown(props: DropdownProps) {
 
   const optionClickHandler = useCallback(
     (option: DropdownOption) => {
+      if (option.disabled) {
+        return;
+      }
+
       if (props.isMultiSelect) {
         // Multi select -> typeof selected is array of objects
         if (isArray(selected) && selected.length < 1) {
@@ -907,6 +957,7 @@ export default function Dropdown(props: DropdownProps) {
             option,
           ];
           setSelected(newOptions);
+          setIsOpen(true);
         }
       } else {
         // Single select -> typeof selected is object
@@ -920,10 +971,14 @@ export default function Dropdown(props: DropdownProps) {
   );
 
   //Removes selected option, should be called when allowDeselection=true
-  const selectedOptionClickHandler = useCallback(
+  const removeSelectedOptionClickHandler = useCallback(
     (optionToBeRemoved: DropdownOption) => {
       let selectedOptions: DropdownOption | DropdownOption[] = [];
-      setIsOpen(false);
+      if (props.isMultiSelect) {
+        setIsOpen(true);
+      } else {
+        setIsOpen(false);
+      }
       if (!Array.isArray(selected)) {
         if (optionToBeRemoved.value === selected.value) {
           selectedOptions = optionToBeRemoved;
@@ -1068,7 +1123,7 @@ export default function Dropdown(props: DropdownProps) {
     dropdownWrapperWidth = `${width}px`;
   }
 
-  let dropdownHeight = props.isMultiSelect ? "auto" : "38px";
+  let dropdownHeight = props.isMultiSelect ? "auto" : "36px";
   if (props.height) {
     dropdownHeight = props.height;
   }
@@ -1106,9 +1161,9 @@ export default function Dropdown(props: DropdownProps) {
           labelRenderer={props.labelRenderer}
           optionWidth={dropdownOptionWidth}
           placeholder={placeholder}
+          removeSelectedOptionClickHandler={removeSelectedOptionClickHandler}
           renderNode={renderOption}
           selected={selected}
-          selectedOptionClickHandler={selectedOptionClickHandler}
           showDropIcon={showDropIcon}
           showLabelOnly={props.showLabelOnly}
         />
@@ -1166,8 +1221,8 @@ export default function Dropdown(props: DropdownProps) {
           isOpen={isOpen}
           optionClickHandler={optionClickHandler}
           optionWidth={dropdownOptionWidth}
+          removeSelectedOptionClickHandler={removeSelectedOptionClickHandler}
           selected={selected ? selected : { id: undefined, value: undefined }}
-          selectedOptionClickHandler={selectedOptionClickHandler}
           wrapperBgColor={wrapperBgColor}
         />
       </Popover>

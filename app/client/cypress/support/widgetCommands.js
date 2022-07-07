@@ -648,6 +648,17 @@ Cypress.Commands.add("addAction", (value) => {
   cy.enterActionValue(value);
 });
 
+Cypress.Commands.add("addEvent", (value) => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .last()
+    .click();
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Show message")
+    .click();
+  cy.enterEventValue(value);
+});
+
 Cypress.Commands.add("onTableAction", (value, value1, value2) => {
   cy.get(commonlocators.dropdownSelectButton)
     .eq(value)
@@ -704,6 +715,26 @@ Cypress.Commands.add("enterActionValue", (value) => {
           force: true,
           parseSpecialCharSequences: false,
         });
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(200);
+    });
+});
+
+Cypress.Commands.add("enterEventValue", (value) => {
+  cy.get(commonlocators.optionchangetextDropdown)
+    .focus()
+    .type("{ctrl}{shift}{downarrow}")
+    .then(($cm) => {
+      if ($cm.val() !== "") {
+        cy.get(commonlocators.optionchangetextDropdown).clear({
+          force: true,
+        });
+      }
+
+      cy.get(commonlocators.optionchangetextDropdown).type(value, {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(200);
     });

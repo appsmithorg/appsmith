@@ -244,7 +244,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("imageRawBinary", undefined);
       return;
     }
-    // Set isDirty to true when an image is caputured
+    // Set isDirty to true when an image is captured
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }

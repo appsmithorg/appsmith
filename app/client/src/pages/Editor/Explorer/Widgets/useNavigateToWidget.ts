@@ -10,12 +10,13 @@ import { navigateToCanvas } from "./utils";
 import { getCurrentPageWidgets } from "selectors/entitiesSelector";
 import WidgetFactory from "utils/WidgetFactory";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import store from "store";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const useNavigateToWidget = () => {
   const params = useParams<ExplorerURLParams>();
-  const allWidgets = useSelector(getCurrentPageWidgets);
+
   const dispatch = useDispatch();
   const {
     selectWidget,
@@ -66,6 +67,7 @@ export const useNavigateToWidget = () => {
       isShiftSelect?: boolean,
       widgetsInStep?: string[],
     ) => {
+      const allWidgets = getCurrentPageWidgets(store.getState());
       // restrict multi-select across pages
       if (widgetId && (isMultiSelect || isShiftSelect) && !allWidgets[widgetId])
         return;
@@ -78,7 +80,7 @@ export const useNavigateToWidget = () => {
         selectSingleWidget(widgetId, widgetType, pageId, parentModalId);
       }
     },
-    [dispatch, params, selectWidget, allWidgets],
+    [dispatch, params, selectWidget],
   );
 
   return { navigateToWidget };
