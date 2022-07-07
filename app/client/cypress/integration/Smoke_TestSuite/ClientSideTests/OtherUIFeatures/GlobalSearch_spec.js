@@ -5,7 +5,6 @@ const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 const datasourceHomeLocators = require("../../../../locators/apiWidgetslocator.json");
 const datasourceLocators = require("../../../../locators/DatasourcesEditor.json");
 const appPage = require("../../../../locators/PgAdminlocators.json");
-import { isMacOrIOS } from "../../../../../src/utils/helpers";
 
 describe("GlobalSearch", function() {
   before(() => {
@@ -27,7 +26,8 @@ describe("GlobalSearch", function() {
   it("1. showsAndHidesUsingKeyboardShortcuts", () => {
     // wait for the page to load
     cy.get(commonlocators.canvas);
-    if (isMacOrIOS) {
+    const isMac = Cypress.platform === "darwin";
+    if (isMac) {
       cy.get("body").type("{cmd}{k}");
       cy.get(commonlocators.globalSearchModal);
       cy.get("body").type("{esc}");

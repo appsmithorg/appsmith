@@ -1,5 +1,4 @@
 const dsl = require("../../../../fixtures/widgetSelection.json");
-import { isMacOrIOS } from "../../../../../src/utils/helpers";
 
 describe("Widget Grouping", function() {
   before(() => {
@@ -18,7 +17,8 @@ describe("Widget Grouping", function() {
     cy.get(`.t--multi-selection-box`).should("have.length", 1);
 
     // Grouping
-    if (isMacOrIOS) {
+    const isMac = Cypress.platform === "darwin";
+    if (isMac) {
       cy.get("body").type("{cmd}{g}");
     } else {
       cy.get("body").type("{ctrl}{g}");
