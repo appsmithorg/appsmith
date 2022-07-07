@@ -331,10 +331,9 @@ class AnalyticsUtil {
     const userData = AnalyticsUtil.user;
     const appId = getApplicationId(windowDoc.location);
     if (userData) {
+      const { segment } = getAppsmithConfigs();
       let user: any = {};
-      if (
-        "RjXOhcfNipsu0kXtMGwxD4_YnA51rvQ1ljGUoz17ubU.KmE5hH9lYtfsMajXuF9Q7WlOSPWNThqM6s5g4FR0qsc"
-      ) {
+      if (segment.apiKey) {
         user = {
           userId: userData.username,
           email: userData.email,
@@ -372,9 +371,7 @@ class AnalyticsUtil {
     const userId = userData.username;
     if (windowDoc.analytics) {
       // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
-      if (
-        "RjXOhcfNipsu0kXtMGwxD4_YnA51rvQ1ljGUoz17ubU.KmE5hH9lYtfsMajXuF9Q7WlOSPWNThqM6s5g4FR0qsc"
-      ) {
+      if ("q4YswyzADiNKErBVj6x7wsUnM6e6mD7s") {
         const userProperties = {
           email: userData.email,
           name: userData.name,

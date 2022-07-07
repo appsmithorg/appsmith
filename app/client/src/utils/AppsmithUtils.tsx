@@ -92,23 +92,14 @@ export const initializeAnalyticsAndTrackers = () => {
 
   try {
     if (appsmithConfigs.smartLook.enabled && !(window as any).smartlook) {
-      // const { id } = appsmithConfigs.smartLook;
-      AnalyticsUtil.initializeSmartLook(
-        "ad774c3c4dd5cdf3fdd3b0b44073b9537ad73f11",
-      );
+      const { id } = appsmithConfigs.smartLook;
+      AnalyticsUtil.initializeSmartLook(id);
     }
 
-    if (AnalyticsUtil.isSmartlookInitialized()) {
-      AnalyticsUtil.customMixPanelEvent();
-    }
-    if (true && !(window as any).analytics) {
-      if (
-        "RjXOhcfNipsu0kXtMGwxD4_YnA51rvQ1ljGUoz17ubU.KmE5hH9lYtfsMajXuF9Q7WlOSPWNThqM6s5g4FR0qsc"
-      ) {
+    if (appsmithConfigs.segment.enabled && !(window as any).analytics) {
+      if (appsmithConfigs.segment.apiKey) {
         // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
-        AnalyticsUtil.initializeSegment(
-          "RjXOhcfNipsu0kXtMGwxD4_YnA51rvQ1ljGUoz17ubU.KmE5hH9lYtfsMajXuF9Q7WlOSPWNThqM6s5g4FR0qsc",
-        );
+        AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
       } else if (appsmithConfigs.segment.ceKey) {
         // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
         AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
