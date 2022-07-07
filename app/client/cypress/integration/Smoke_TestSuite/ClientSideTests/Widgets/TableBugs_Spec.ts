@@ -18,7 +18,7 @@ describe("Verify various Table property bugs", function () {
     ee.DragDropWidgetNVerify("tablewidget", 250, 250);
     propPane.UpdatePropertyFieldValue("Table Data", JSON.stringify(dataSet.TableURLColumnType));
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
-    cy.get('body').type("{esc}");
+    agHelper.Escape();
   });
 
   it("2. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when empty", function () {
