@@ -24,13 +24,24 @@ describe("Text Field Property Control", () => {
     cy.get(`${fieldPrefix}-name input`).should("have.value", defaultValue);
   });
 
-  it("throws max character error when exceeds maxChar limit", () => {
+  it("throws max character error when exceeds maxChar limit for default text", () => {
     cy.testJsontext("maxchars", 5);
     cy.get(`${fieldPrefix}-name input`).click();
     cy.get(".bp3-popover-content").should(($x) => {
-      expect($x).contain(
-        "Default Text length must be less than Max Chars allowed",
-      );
+      expect($x).contain("Default text length must be less than 5 characters");
+    });
+    cy.testJsontext("maxchars", "");
+  });
+
+  it("throws max character error when exceeds maxChar limit for input text", () => {
+    cy.testJsontext("defaultvalue", "").wait(200);
+    cy.get(`${fieldPrefix}-name input`)
+      .clear()
+      .type("abcdefghi");
+    cy.testJsontext("maxchars", 5).wait(200);
+    cy.get(`${fieldPrefix}-name input`).click();
+    cy.get(".bp3-popover-content").should(($x) => {
+      expect($x).contain("Input text length must be less than 5 characters");
     });
     cy.testJsontext("maxchars", "");
   });
