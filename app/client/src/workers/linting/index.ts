@@ -56,7 +56,8 @@ export const lintTree = (
         fullPropertyPath,
         resolvedFunctions,
       );
-      addErrorToEntityProperty(lintErrors, evalTree, fullPropertyPath);
+      lintErrors.length &&
+        addErrorToEntityProperty(lintErrors, evalTree, fullPropertyPath);
     }
   });
   // Lint triggerPaths
