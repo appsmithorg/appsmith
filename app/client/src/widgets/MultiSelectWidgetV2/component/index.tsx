@@ -113,6 +113,7 @@ function MultiSelectComponent({
   const {
     BackDrop,
     getPopupContainer,
+    isOpen,
     onKeyDown,
     onOpen,
     selectRef,
@@ -334,6 +335,7 @@ function MultiSelectComponent({
           onChange={onChange}
           onDropdownVisibleChange={onOpen}
           onFocus={onFocus}
+          open={isOpen}
           options={filteredOptions}
           placeholder={placeholder || "select option(s)"}
           ref={selectRef}

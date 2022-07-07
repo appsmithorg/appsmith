@@ -136,6 +136,7 @@ function SingleSelectTreeComponent({
   const {
     BackDrop,
     getPopupContainer,
+    isOpen,
     onKeyDown,
     onOpen,
     selectRef,
@@ -278,6 +279,7 @@ function SingleSelectTreeComponent({
           onChange={onSelectionChange}
           onClear={onClear}
           onDropdownVisibleChange={onOpen}
+          open={isOpen}
           placeholder={placeholder}
           ref={selectRef}
           searchValue={filter}
