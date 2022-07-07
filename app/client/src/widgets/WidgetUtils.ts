@@ -541,5 +541,6 @@ export const parseSchemaItem = (
   }
 };
 
-export const getMainCanvas = () =>
-  document.querySelector(`.${CANVAS_SELECTOR}`) as HTMLElement;
+export const getMainCanvas = () => {
+  return document.querySelector(`.${CANVAS_SELECTOR}`) as HTMLElement;
+};
