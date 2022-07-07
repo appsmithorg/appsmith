@@ -48,12 +48,17 @@ export const generateDataTreeJSAction = (
       dynamicBindingPathList.push({ key: action.name });
       dependencyMap["body"].push(action.name);
       actionsData[action.name] = {
-        data: (js.data && js.data[`${action.id}`]) || {},
+        data: (js.data && js.data[action.id]) || {},
       };
     }
   }
   return {
+    // properties: {
+    //   ...variableList,
+    //   ...actionsData,
+    // },
     ...variableList,
+    ...actionsData,
     name: js.config.name,
     actionId: js.config.id,
     pluginType: js.config.pluginType,
@@ -65,6 +70,5 @@ export const generateDataTreeJSAction = (
     dynamicBindingPathList: dynamicBindingPathList,
     variables: listVariables,
     dependencyMap: dependencyMap,
-    ...actionsData,
   };
 };

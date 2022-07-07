@@ -274,6 +274,7 @@ export const enhanceDataTreeWithFunctions = (
       typeof funcOrFuncCreator === "object" &&
       "qualifier" in funcOrFuncCreator
     ) {
+      // Ideally we should only loop through dataTree once and add dataTreeFunctions according to qualifier
       Object.entries(dataTree).forEach(([entityName, entity]) => {
         if (funcOrFuncCreator.qualifier(entity)) {
           const func = funcOrFuncCreator.func(entity);
