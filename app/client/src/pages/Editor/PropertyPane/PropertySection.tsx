@@ -11,6 +11,7 @@ import { Collapse } from "@blueprintjs/core";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import styled from "constants/DefaultTheme";
+import { noop } from "lodash";
 
 const SectionWrapper = styled.div`
   position: relative;
@@ -48,6 +49,7 @@ const SectionTitle = styled.div`
 type PropertySectionProps = {
   id: string;
   name: string;
+  collapsible?: boolean;
   children?: ReactNode;
   hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
@@ -78,13 +80,15 @@ export const PropertySection = memo((props: PropertySectionProps) => {
     <SectionWrapper className="t--property-pane-section-wrapper">
       <SectionTitle
         className={`t--property-pane-section-collapse-${className}`}
-        onClick={() => open(!isOpen)}
+        onClick={props.collapsible ? () => open(!isOpen) : noop}
       >
         <span>{props.name}</span>
-        <Icon
-          className={isOpen ? "open-collapse" : ""}
-          icon={IconNames.CHEVRON_RIGHT}
-        />
+        {props.collapsible && (
+          <Icon
+            className={isOpen ? "open-collapse" : ""}
+            icon={IconNames.CHEVRON_RIGHT}
+          />
+        )}
       </SectionTitle>
       {props.children && (
         <Collapse isOpen={isOpen} keepChildrenMounted>
