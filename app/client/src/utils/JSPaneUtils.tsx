@@ -155,6 +155,21 @@ export const getDifferenceInJSCollection = (
   } else {
     changedVariables = jsAction.variables;
   }
+  //delete variable
+  if (varList && varList.length > 0 && parsedBody.variables) {
+    for (let i = 0; i < varList.length; i++) {
+      const preVar = varList[i];
+      const existed = parsedBody.variables.find(
+        (jsVar: Variable) => jsVar.name === preVar.name,
+      );
+      if (!existed) {
+        const newvarList = varList.filter(
+          (deletedVar) => deletedVar.name !== preVar.name,
+        );
+        changedVariables = changedVariables.concat(newvarList);
+      }
+    }
+  }
   return {
     newActions: toBeAddedActions,
     updateActions: toBeUpdatedActions,

@@ -8,8 +8,7 @@ import { useDispatch } from "react-redux";
 
 import { clearLogs } from "actions/debuggerActions";
 import { Classes } from "components/ads/common";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core";
+import { TooltipComponent } from "design-system";
 import { CLEAR_LOG_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
@@ -73,7 +72,7 @@ function FilterHeader(props: FilterHeaderProps) {
       <TooltipComponent
         content={createMessage(CLEAR_LOG_TOOLTIP)}
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position={Position.BOTTOM}
+        position="bottom"
       >
         <Icon
           name="cancel"

@@ -158,10 +158,18 @@ describe("generateDataTreeJSAction", () => {
         body: "SMART_SUBSTITUTE",
         myFun2: "SMART_SUBSTITUTE",
         myFun1: "SMART_SUBSTITUTE",
+        myVar1: "SMART_SUBSTITUTE",
+        myVar2: "SMART_SUBSTITUTE",
       },
       dynamicBindingPathList: [
         {
           key: "body",
+        },
+        {
+          key: "myVar1",
+        },
+        {
+          key: "myVar2",
         },
         {
           key: "myFun2",
@@ -186,6 +194,8 @@ describe("generateDataTreeJSAction", () => {
         body: "SMART_SUBSTITUTE",
         myFun1: "SMART_SUBSTITUTE",
         myFun2: "SMART_SUBSTITUTE",
+        myVar1: "SMART_SUBSTITUTE",
+        myVar2: "SMART_SUBSTITUTE",
       },
     };
     const result = generateDataTreeJSAction(jsCollection);
@@ -347,10 +357,18 @@ describe("generateDataTreeJSAction", () => {
         body: "SMART_SUBSTITUTE",
         myFun2: "SMART_SUBSTITUTE",
         myFun1: "SMART_SUBSTITUTE",
+        myVar1: "SMART_SUBSTITUTE",
+        myVar2: "SMART_SUBSTITUTE",
       },
       dynamicBindingPathList: [
         {
           key: "body",
+        },
+        {
+          key: "myVar1",
+        },
+        {
+          key: "myVar2",
         },
         {
           key: "myFun2",
@@ -375,6 +393,8 @@ describe("generateDataTreeJSAction", () => {
         body: "SMART_SUBSTITUTE",
         myFun1: "SMART_SUBSTITUTE",
         myFun2: "SMART_SUBSTITUTE",
+        myVar1: "SMART_SUBSTITUTE",
+        myVar2: "SMART_SUBSTITUTE",
       },
     };
 
