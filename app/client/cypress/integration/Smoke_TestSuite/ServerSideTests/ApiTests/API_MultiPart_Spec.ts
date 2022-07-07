@@ -5,7 +5,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   jsEditor = ObjectsRegistry.JSEditor,
   apiPage = ObjectsRegistry.ApiPage,
   locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  propPane = ObjectsRegistry.PropertyPane;
 
 describe("Validate API request body panel", () => {
   it("1. Check whether input and type dropdown selector exist when multi-part is selected", () => {
@@ -127,7 +128,7 @@ describe("Validate API request body panel", () => {
     );
 
     ee.SelectEntityByName("Image1");
-    jsEditor.EnterJSContext("Image", "{{CloudinaryUploadApi.data.url}}");
+    propPane.UpdatePropertyFieldValue("Image", "{{CloudinaryUploadApi.data.url}}");
 
     ee.SelectEntityByName("CloudinaryUploadApi", "QUERIES/JS");
 
