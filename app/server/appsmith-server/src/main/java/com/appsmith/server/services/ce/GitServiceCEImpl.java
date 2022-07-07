@@ -128,7 +128,6 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final GitDeployKeysRepository gitDeployKeysRepository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
-    private final ReactiveRedisOperations<String, String> redisOperations;
     private final RedisUtils redisUtils;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
@@ -142,12 +141,6 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     private final static String GIT_PROFILE_ERROR = "Unable to find git author configuration for logged-in user. You can" +
             " set up a git profile from the user profile section.";
-
-    private final static String REDIS_FILE_LOCK_VALUE= "inUse";
-
-    private final static String REDIS_FILE_RELEASE_VALUE = "isFree";
-
-    private final static Duration FILE_LOCK_TIME_LIMIT = Duration.ofSeconds(20);
 
     private final static Duration RETRY_DELAY = Duration.ofSeconds(1);
     private final static Integer MAX_RETRIES = 20;
