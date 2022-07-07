@@ -94,7 +94,7 @@ export class URLBuilder {
 
   private getFormattedParams(pageId: string) {
     const currentAppParams = {
-      applicationSlug: this.appParams.applicationSlug,
+      applicationSlug: this.appParams.applicationSlug || PLACEHOLDER_APP_SLUG,
       applicationId: this.appParams.applicationId,
     };
     let currentPageParams = this.pageParams[pageId] || {};
