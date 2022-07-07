@@ -142,7 +142,7 @@ function PropertyPaneView(
 
   return (
     <div
-      className="w-full overflow-y-auto"
+      className="w-full overflow-y-scroll"
       key={`property-pane-${widgetProperties.widgetId}`}
     >
       <PropertyPaneTitle
