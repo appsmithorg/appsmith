@@ -7,6 +7,7 @@ export const CONFIG = {
   name: "FilePicker",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["upload"],
   defaults: {
     rows: 4,
     files: [],

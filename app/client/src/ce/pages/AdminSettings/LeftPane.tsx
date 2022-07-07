@@ -1,5 +1,4 @@
 import React from "react";
-import { Colors } from "constants/Colors";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
 import AdminConfig from "./config";
@@ -16,13 +15,12 @@ export const Wrapper = styled.div`
 export const HeaderContainer = styled.div``;
 
 export const StyledHeader = styled.div`
-  font-size: 14px;
+  font-size: 16px;
   height: 20px;
-  line-height: 17px;
+  line-height: 1.5;
   letter-spacing: -0.24px;
-  text-transform: uppercase;
   margin: 40px 16px 8px;
-  color: ${Colors.MASALA};
+  color: var(--appsmith-color-black-900);
   font-weight: 500;
 `;
 
@@ -88,7 +86,7 @@ export function Categories({
                 ? adminSettingsCategoryUrl({ category: config.slug })
                 : adminSettingsCategoryUrl({
                     category: parentCategory.slug,
-                    subCategory: config.slug,
+                    selected: config.slug,
                   })
             }
           >
@@ -110,11 +108,11 @@ export function Categories({
 
 export default function LeftPane() {
   const categories = getSettingsCategory();
-  const { category, subCategory } = useParams() as any;
+  const { category, selected: subCategory } = useParams() as any;
   return (
     <Wrapper>
       <HeaderContainer>
-        <StyledHeader>Appsmith Admin</StyledHeader>
+        <StyledHeader>Admin Settings</StyledHeader>
       </HeaderContainer>
       <Categories
         categories={categories}

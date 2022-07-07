@@ -1,4 +1,3 @@
-import { get, compact } from "lodash";
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
@@ -16,10 +15,11 @@ import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
-import { getWidgets } from "sagas/selectors";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 import { getAppThemingStack } from "selectors/appThemingSelectors";
+import equal from "fast-deep-equal";
+import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
 
 type Props = {
   width: number;
@@ -42,7 +42,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     props.onDragEnd,
     true,
   );
-  const canvasWidgets = useSelector(getWidgets);
+
   const isPreviewMode = useSelector(previewModeSelector);
   const isCommentMode = useSelector(commentModeSelector);
   const themingStack = useSelector(getAppThemingStack);
@@ -61,13 +61,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const keepThemeWhileDragging =
     prevSelectedWidgetId.current === undefined && shouldNotRenderPane;
 
-  const selectedWidgets = useMemo(
-    () =>
-      compact(
-        selectedWidgetIds.map((widgetId) => get(canvasWidgets, widgetId)),
-      ),
-    [canvasWidgets, selectedWidgetIds],
-  );
+  const selectedWidgets = useSelector(selectedWidgetsPresentInCanvas, equal);
+
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
 
   prevSelectedWidgetId.current =

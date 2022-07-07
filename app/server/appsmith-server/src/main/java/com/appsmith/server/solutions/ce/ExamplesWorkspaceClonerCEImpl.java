@@ -89,7 +89,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
      * @return Empty Mono.
      */
     private Mono<Workspace> cloneExamplesWorkspace(User user) {
-        if (!CollectionUtils.isEmpty(user.getOrganizationIds())) {
+        if (!CollectionUtils.isEmpty(user.getWorkspaceIds())) {
             // Don't create an examples workspace if the user already has some workspaces, perhaps because they
             // were invited to some.
             return Mono.empty();
@@ -147,7 +147,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                 })
                 .flatMap(newWorkspace -> {
                     User userUpdate = new User();
-                    userUpdate.setExamplesOrganizationId(newWorkspace.getId());
+                    userUpdate.setExamplesWorkspaceId(newWorkspace.getId());
                     userUpdate.setPasswordResetInitiated(user.getPasswordResetInitiated());
                     userUpdate.setSource(user.getSource());
                     userUpdate.setGroupIds(null);
@@ -193,7 +193,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                 })
                 .thenMany(applicationFlux)
                 .flatMap(application -> {
-                    application.setOrganizationId(toWorkspaceId);
+                    application.setWorkspaceId(toWorkspaceId);
 
                     final String defaultPageId = application.getPages().stream()
                             .filter(ApplicationPage::isDefault)
@@ -249,7 +249,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                             final String originalActionId = newAction.getId();
                                             log.info("Creating clone of action {}", originalActionId);
                                             makePristine(newAction);
-                                            newAction.setOrganizationId(toWorkspaceId);
+                                            newAction.setWorkspaceId(toWorkspaceId);
                                             ActionDTO action = newAction.getUnpublishedAction();
                                             action.setCollectionId(null);
 
@@ -267,7 +267,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                                                 return action;
                                                             });
                                                 } else {
-                                                    datasourceInsideAction.setOrganizationId(toWorkspaceId);
+                                                    datasourceInsideAction.setWorkspaceId(toWorkspaceId);
                                                 }
                                             }
                                             return Mono.zip(actionMono
@@ -300,7 +300,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                                         defaultResources.setPageId(savedPage.getId());
                                                         unpublishedCollection.setDefaultResources(defaultResources);
 
-                                                        actionCollection.setOrganizationId(toWorkspaceId);
+                                                        actionCollection.setWorkspaceId(toWorkspaceId);
                                                         actionCollection.setApplicationId(savedPage.getApplicationId());
 
                                                         DefaultResources defaultResources1 = new DefaultResources();
@@ -472,9 +472,9 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
-        String orgId = application.getOrganizationId();
-        if (!StringUtils.hasText(orgId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        String workspaceId = application.getWorkspaceId();
+        if (!StringUtils.hasText(workspaceId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         // Clean the object so that it will be saved as a new application for the currently signed in user.
@@ -487,14 +487,14 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
-        return applicationPageService.setApplicationPolicies(userMono, orgId, application)
+        return applicationPageService.setApplicationPolicies(userMono, workspaceId, application)
                 .flatMap(applicationToCreate ->
                         createSuffixedApplication(applicationToCreate, applicationToCreate.getName(), 0)
                 );
     }
 
     public Mono<Datasource> cloneDatasource(String datasourceId, String toWorkspaceId) {
-        final Mono<List<Datasource>> existingDatasourcesMono = datasourceRepository.findAllByOrganizationId(toWorkspaceId)
+        final Mono<List<Datasource>> existingDatasourcesMono = datasourceRepository.findAllByWorkspaceId(toWorkspaceId)
                 .collectList();
 
         return Mono.zip(datasourceRepository.findById(datasourceId), existingDatasourcesMono)
@@ -524,7 +524,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                             .switchIfEmpty(Mono.defer(() -> {
                                 // No matching existing datasource found, so create a new one.
                                 makePristine(templateDatasource);
-                                templateDatasource.setOrganizationId(toWorkspaceId);
+                                templateDatasource.setWorkspaceId(toWorkspaceId);
                                 return createSuffixedDatasource(templateDatasource);
                             }));
                 });
@@ -548,7 +548,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
         return datasourceService.create(datasource)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null
-                            && error.getMessage().contains("organization_datasource_deleted_compound_index")) {
+                            && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
                         // The duplicate key error is because of the `name` field.
                         return createSuffixedDatasource(datasource, name, 1 + suffix);
                     }
@@ -570,8 +570,8 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
         return applicationService.createDefault(application)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null
-                            // organization_application_deleted_gitApplicationMetadata_compound_index
-                            && error.getMessage().contains("organization_application_deleted_gitApplicationMetadata_compound_index")) {
+                            // workspace_application_deleted_gitApplicationMetadata_compound_index
+                            && error.getMessage().contains("workspace_application_deleted_gitApplicationMetadata_compound_index")) {
                         // The duplicate key error is because of the `name` field.
                         return createSuffixedApplication(application, name, 1 + suffix);
                     }

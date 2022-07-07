@@ -54,23 +54,25 @@ export const fetchActionsForView = ({
 
 export const fetchActionsForPage = (
   pageId: string,
-  postEvalActions: Array<AnyReduxAction> = [],
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_INIT,
     payload: { pageId },
-    postEvalActions,
   };
 };
 
 export const fetchActionsForPageSuccess = (
   actions: Action[],
-  postEvalActions?: Array<AnyReduxAction>,
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS,
     payload: actions,
-    postEvalActions,
+  };
+};
+
+export const fetchActionsForPageError = () => {
+  return {
+    type: ReduxActionErrorTypes.FETCH_ACTIONS_FOR_PAGE_ERROR,
   };
 };
 

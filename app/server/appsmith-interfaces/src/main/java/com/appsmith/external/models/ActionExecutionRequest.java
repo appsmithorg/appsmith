@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.http.HttpMethod;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,8 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ActionExecutionRequest {
+    String actionId;
+    Instant requestedAt;
     @JsonIgnore
     String query; // Only used for analytics. Not to be returned back to the client.
     Object body;

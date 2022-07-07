@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { Action, ApiActionConfig, PluginType } from "entities/Action";
 import styled from "styled-components";
-import Button from "components/ads/Button";
+import Button, { IconPositions } from "components/ads/Button";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { Toaster } from "components/ads/Toast";
 import { ERROR_ADD_API_INVALID_URL } from "@appsmith/constants/messages";
@@ -100,6 +100,7 @@ function NewActionButton(props: NewActionButtonProps) {
     <ActionButton
       className="t--create-query"
       icon="plus"
+      iconPosition={IconPositions.left}
       isLoading={isSelected || props.isLoading}
       onClick={createQueryAction}
       text={pluginType === PluginType.DB ? "New Query" : "New API"}

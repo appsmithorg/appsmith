@@ -99,10 +99,7 @@ jobs:
 
       - name: Run the jest tests
         if: github.event_name == 'pull_request'
-        uses: hetunandu/Jest-Coverage-Diff@feature/better-report-comments
-        with:
-          fullCoverageDiff: false
-          runCommand: cd app/client && REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation

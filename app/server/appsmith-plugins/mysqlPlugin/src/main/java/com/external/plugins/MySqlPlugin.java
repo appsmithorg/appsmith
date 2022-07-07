@@ -248,7 +248,7 @@ public class MySqlPlugin extends BasePlugin {
 
             String finalQuery = QueryUtils.removeQueryComments(query);
 
-            boolean isSelectOrShowQuery = getIsSelectOrShowQuery(finalQuery);
+            boolean isSelectOrShowOrDescQuery = getIsSelectOrShowOrDescQuery(finalQuery);
 
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
             final List<String> columnsList = new ArrayList<>();
@@ -276,7 +276,7 @@ public class MySqlPlugin extends BasePlugin {
 
             Mono<List<Map<String, Object>>> resultMono;
 
-            if (isSelectOrShowQuery) {
+            if (isSelectOrShowOrDescQuery) {
                 resultMono = resultFlux
                         .flatMap(result ->
                                 result.map((row, meta) -> {
@@ -475,19 +475,20 @@ public class MySqlPlugin extends BasePlugin {
 
         /**
          * 1. Check the type of sql query - i.e Select ... or Insert/Update/Drop
-         * 2. In case sql queries are chained together, then decide the type based on the last query. i.e In case of
-         * query "select * from test; updated test ..." the type of query will be based on the update statement.
+         * 2. In case sql queries are chained together, then decide the type based on the last query. i.e. In case of
+         * query "select * from test; update test ..." the type of query will be based on the update statement.
          * 3. This is used because the output returned to client is based on the type of the query. In case of a
          * select query rows are returned, whereas, in case of any other query the number of updated rows is
          * returned.
          */
-        private boolean getIsSelectOrShowQuery(String query) {
+        private boolean getIsSelectOrShowOrDescQuery(String query) {
             String[] queries = query.split(";");
 
             String lastQuery = queries[queries.length - 1].trim();
 
-            return (lastQuery.trim().split("\\s+")[0].equalsIgnoreCase("select")
-                    || lastQuery.trim().split("\\s+")[0].equalsIgnoreCase("show"));
+            return
+                    Arrays.asList("select", "show", "describe", "desc")
+                            .contains(lastQuery.trim().split("\\s+")[0].toLowerCase());
         }
 
         @Override

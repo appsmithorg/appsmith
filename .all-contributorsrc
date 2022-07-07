@@ -429,6 +429,16 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "AnaghHegde",
+      "name": "Anagh Hegde",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12005551?v=4",
+      "profile": "https://loopbackweb.wordpress.com/",
+      "contributions": [
+        "code",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,

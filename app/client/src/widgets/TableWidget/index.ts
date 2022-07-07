@@ -15,6 +15,7 @@ export const CONFIG = {
   name: "Table",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["datagrid"],
   defaults: {
     rows: 28,
     columns: 34,

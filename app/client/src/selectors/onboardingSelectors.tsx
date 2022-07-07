@@ -4,11 +4,17 @@ import {
 } from "pages/Applications/permissionHelpers";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
-import { getUserApplicationsOrgs } from "./applicationSelectors";
+import { getUserApplicationsWorkspaces } from "./applicationSelectors";
 import { getWidgets } from "sagas/selectors";
-import { getActionResponses, getActions } from "./entitiesSelector";
+import {
+  getActionResponses,
+  getActions,
+  getCanvasWidgets,
+} from "./entitiesSelector";
 import { getSelectedWidget } from "./ui";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
+import { previewModeSelector } from "./editorSelectors";
+import { commentModeSelector } from "./commentsSelectors";
 
 // Signposting selectors
 export const getEnableFirstTimeUserOnboarding = (state: AppState) => {
@@ -37,6 +43,32 @@ export const getIsFirstTimeUserOnboardingEnabled = createSelector(
 
 export const getInOnboardingWidgetSelection = (state: AppState) =>
   state.ui.onBoarding.inOnboardingWidgetSelection;
+
+export const getIsOnboardingWidgetSelection = (state: AppState) =>
+  state.ui.onBoarding.inOnboardingWidgetSelection;
+
+export const getIsOnboardingTasksView = createSelector(
+  getCanvasWidgets,
+  getIsFirstTimeUserOnboardingEnabled,
+  getIsOnboardingWidgetSelection,
+  previewModeSelector,
+  commentModeSelector,
+  (
+    widgets,
+    enableFirstTimeUserOnboarding,
+    isOnboardingWidgetSelection,
+    inPreviewMode,
+    inCommentMode,
+  ) => {
+    return (
+      Object.keys(widgets).length == 1 &&
+      enableFirstTimeUserOnboarding &&
+      !isOnboardingWidgetSelection &&
+      !inPreviewMode &&
+      !inCommentMode
+    );
+  },
+);
 
 // Guided Tour selectors
 export const isExploringSelector = (state: AppState) =>
@@ -310,14 +342,14 @@ export const showInfoMessageSelector = (state: AppState) =>
 
 export const loading = (state: AppState) => state.ui.onBoarding.loading;
 
-// To find an organisation where the user has permission to create an
+// To find an workspace where the user has permission to create an
 // application
-export const getOnboardingOrganisations = createSelector(
-  getUserApplicationsOrgs,
-  (userOrgs) => {
-    return userOrgs.filter((userOrg) =>
+export const getOnboardingWorkspaces = createSelector(
+  getUserApplicationsWorkspaces,
+  (userWorkspaces) => {
+    return userWorkspaces.filter((userWorkspace) =>
       isPermitted(
-        userOrg.organization.userPermissions || [],
+        userWorkspace.workspace.userPermissions || [],
         PERMISSION_TYPE.CREATE_APPLICATION,
       ),
     );

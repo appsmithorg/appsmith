@@ -79,6 +79,9 @@ export default function MultiSwitch<T>(props: MultiSwitchProps<T>) {
         <TabList>
           {props.tabs.map((tab) => (
             <Tab
+              className={`${
+                props.selected.value === tab.key ? "t--tab-selected" : ""
+              }`}
               data-cy={`tab--${tab.title}`}
               key={tab.key}
               onClick={() => props.onSelect(tab.key)}

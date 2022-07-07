@@ -7,7 +7,7 @@ export const PLACEHOLDER_APP_SLUG = "application";
 export const PLACEHOLDER_PAGE_ID = "pageId";
 export const PLACEHOLDER_PAGE_SLUG = "page";
 export const BASE_URL = "/";
-export const ORG_URL = "/org";
+export const WORKSPACE_URL = "/workspace";
 export const PAGE_NOT_FOUND_URL = "/404";
 export const SERVER_ERROR_URL = "/500";
 export const APPLICATIONS_URL = `/applications`;
@@ -28,8 +28,8 @@ export const SIGN_UP_URL = `${USER_AUTH_URL}/signup`;
 export const BASE_LOGIN_URL = `/login`;
 export const AUTH_LOGIN_URL = `${USER_AUTH_URL}/login`;
 export const SIGNUP_SUCCESS_URL = `/signup-success`;
-export const ORG_INVITE_USERS_PAGE_URL = `${ORG_URL}/invite`;
-export const ORG_SETTINGS_PAGE_URL = `${ORG_URL}/settings`;
+export const WORKSPACE_INVITE_USERS_PAGE_URL = `${WORKSPACE_URL}/invite`;
+export const WORKSPACE_SETTINGS_PAGE_URL = `${WORKSPACE_URL}/settings`;
 export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/(pages)?/:pageId?/edit`;
 export const BUILDER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
 export const VIEWER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId`;
@@ -54,7 +54,7 @@ export const GENERATE_TEMPLATE_FORM_PATH = `${GENERATE_TEMPLATE_PATH}${GEN_TEMPL
 export const BUILDER_CHECKLIST_PATH = `/checklist`;
 export const ADMIN_SETTINGS_PATH = "/settings";
 export const ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH = "/settings/general";
-export const ADMIN_SETTINGS_CATEGORY_PATH = "/settings/:category/:subCategory?";
+export const ADMIN_SETTINGS_CATEGORY_PATH = "/settings/:category/:selected?";
 export const BUILDER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
 export const VIEWER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId`;
 
@@ -74,6 +74,9 @@ export const matchViewerForkPath = (pathName: string) =>
   match(`${VIEWER_PATH_DEPRECATED}${VIEWER_FORK_PATH}`)(pathName);
 export const matchTemplatesPath = match(TEMPLATES_PATH);
 export const matchTemplatesIdPath = match(TEMPLATES_ID_PATH);
+export const matchGeneratePagePath = (pathName: string) =>
+  match(`${BUILDER_PATH}${GENERATE_TEMPLATE_PATH}`)(pathName) ||
+  match(`${BUILDER_PATH_DEPRECATED}${GENERATE_TEMPLATE_PATH}`)(pathName);
 
 export const addBranchParam = (branch: string) => {
   const url = new URL(window.location.href);

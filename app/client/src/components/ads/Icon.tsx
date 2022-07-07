@@ -66,7 +66,7 @@ import { ReactComponent as GearIcon } from "assets/icons/ads/gear.svg";
 import { ReactComponent as UserV2Icon } from "assets/icons/ads/user-v2.svg";
 import { ReactComponent as SupportIcon } from "assets/icons/ads/support.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
-import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIcon.svg";
+import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/workspaceIcon.svg";
 import { ReactComponent as SettingIcon } from "assets/icons/control/settings.svg";
 import { ReactComponent as DropdownIcon } from "assets/icons/ads/dropdown.svg";
 import { ReactComponent as ChatIcon } from "assets/icons/ads/app-icons/chat.svg";
@@ -131,6 +131,7 @@ import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
 import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
 import Pin3 from "remixicon-react/Pushpin2FillIcon";
 import QueryIcon from "remixicon-react/CodeSSlashLineIcon";
+import RemoveIcon from "remixicon-react/SubtractLineIcon";
 import RightArrowIcon from "remixicon-react/ArrowRightLineIcon";
 import RightArrowIcon2 from "remixicon-react/ArrowRightSLineIcon";
 import RocketIcon from "remixicon-react/RocketLineIcon";
@@ -158,6 +159,7 @@ import HamburgerIcon from "remixicon-react/MenuLineIcon";
 import MagicLineIcon from "remixicon-react/MagicLineIcon";
 import UserHeartLineIcon from "remixicon-react/UserHeartLineIcon";
 import DvdLineIcon from "remixicon-react/DvdLineIcon";
+import Group2LineIcon from "remixicon-react/Group2LineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -316,6 +318,7 @@ const ICON_LOOKUP = {
   "warning-line": <WarningLineIcon />,
   "warning-triangle": <WarningTriangleIcon />,
   "chat-help": <ChatIcon />,
+  "group-2-line": <Group2LineIcon />,
   billing: <BillingIcon />,
   book: <BookIcon />,
   bug: <BugIcon />,
@@ -354,6 +357,7 @@ const ICON_LOOKUP = {
   logout: <LogoutIcon />,
   manage: <ManageIcon />,
   member: <UserHeartLineIcon />,
+  minus: <RemoveIcon />,
   mobile: <MobileIcon />,
   open: <OpenIcon />,
   pin: <Pin />,

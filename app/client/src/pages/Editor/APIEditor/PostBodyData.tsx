@@ -141,6 +141,7 @@ function PostBodyData(props: Props) {
   return (
     <PostBodyContainer>
       <MultiSwitch
+        cypressSelector="t--api-body-tab-switch"
         onSelect={(title: string) => updateBodyContentType(title, apiId)}
         selected={displayFormat}
         tabs={POST_BODY_FORMAT_TITLES.map((el) => {

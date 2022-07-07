@@ -30,18 +30,16 @@ describe("Statusbar", () => {
     document.body.appendChild(container);
   });
 
-  it("is rendered", async (done) => {
+  it("is rendered", async () => {
     renderComponent(getStore(0));
     const statusbar = screen.queryAllByTestId("statusbar-container");
     expect(statusbar).toHaveLength(1);
-    done();
   });
 
-  it("is pro", async (done) => {
+  it("is pro", async () => {
     renderComponent(getStore(0));
     const statusbar = screen.queryAllByTestId("statusbar-container");
     expect(statusbar).not.toBeNull();
-    done();
   });
 
   it("is showing first step", async () => {
