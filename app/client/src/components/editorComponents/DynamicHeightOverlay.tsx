@@ -6,6 +6,7 @@ import { useDrag } from "react-use-gesture";
 import { AppState } from "reducers";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import styled from "styled-components";
+import EventEmitter from "utils/EventEmitter";
 import {
   useShowPropertyPane,
   useShowTableFilterPane,
@@ -296,6 +297,10 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     const finalMaxY = maxY + maxdY;
     const finalMinY = minY + mindY;
 
+    const [isPropertyPaneFieldFocues, setPropertyPaneFieldFocused] = useState(
+      false,
+    );
+
     useEffect(() => {
       setMaxY(maxDynamicHeight * 10);
     }, [maxDynamicHeight]);
@@ -330,9 +335,9 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     function onMaxUpdate(dx: number, dy: number) {
       const snapped = getSnappedValues(dx, dy, snapGrid);
 
-      // if (maxY + dy <= minY) {
-      //   setMindY(dy + (maxY - minY));
-      // }
+      if (maxY + snapped.y <= minY) {
+        setMindY(snapped.y + (maxY - minY));
+      }
 
       setMaxdY(snapped.y);
     }
@@ -370,11 +375,12 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
         return;
       }
 
-      // if (minY + dy >= maxY) {
-      //   setMaxdY(dy - (maxY - minY));
-      // }
-
       const snapped = getSnappedValues(dx, dy, snapGrid);
+
+      if (minY + snapped.y >= maxY) {
+        setMaxdY(snapped.y - (maxY - minY));
+      }
+
       setMindY(snapped.y);
     }
 
@@ -419,6 +425,48 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       [props.parentColumnSpace, props.parentRowSpace],
     );
 
+    function onPropertPaneFocusedFocusedHandler(propertyName: string) {
+      if (propertyName === "maxDynamicHeight") {
+        setPropertyPaneFieldFocused(true);
+      }
+
+      if (propertyName === "minDynamicHeight") {
+        setPropertyPaneFieldFocused(true);
+      }
+    }
+
+    function onPropertFieldBlurredHandler(propertyName: string) {
+      if (propertyName === "maxDynamicHeight") {
+        setPropertyPaneFieldFocused(false);
+      }
+
+      if (propertyName === "minDynamicHeight") {
+        setPropertyPaneFieldFocused(false);
+      }
+    }
+
+    useEffect(() => {
+      EventEmitter.add(
+        "property_pane_input_focused",
+        onPropertPaneFocusedFocusedHandler,
+      );
+      EventEmitter.add(
+        "property_pane_input_blurred",
+        onPropertFieldBlurredHandler,
+      );
+
+      return () => {
+        EventEmitter.remove(
+          "property_pane_input_focused",
+          onPropertPaneFocusedFocusedHandler,
+        );
+        EventEmitter.remove(
+          "property_pane_input_blurred",
+          onPropertFieldBlurredHandler,
+        );
+      };
+    }, []);
+
     return (
       <StyledDynamicHeightOverlay>
         <OverlayDisplay
@@ -426,7 +474,8 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
             isMinDotDragging ||
             isMaxDotDragging ||
             isMinDotActive ||
-            isMaxDotActive
+            isMaxDotActive ||
+            isPropertyPaneFieldFocues
           }
           maxY={finalMaxY}
         />

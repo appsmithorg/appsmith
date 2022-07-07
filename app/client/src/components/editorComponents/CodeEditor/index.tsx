@@ -182,7 +182,8 @@ export type EditorProps = EditorStyleProps &
     // Custom gutter
     customGutter?: CodeEditorGutter;
 
-    // On focus event handler
+    // On focus and blur event handler
+    onEditorBlur?: () => void;
     onEditorFocus?: () => void;
   };
 
@@ -508,6 +509,10 @@ class CodeEditor extends Component<Props, State> {
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
+
+    if (this.props.onEditorBlur) {
+      this.props.onEditorBlur();
+    }
   };
 
   handleBeforeChange = (

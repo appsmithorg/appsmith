@@ -17,6 +17,7 @@ import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
 export function InputText(props: {
   label: string;
   value: string;
+  onBlur?: () => void;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
   onFocus?: () => void;
   evaluatedValue?: any;
@@ -32,6 +33,7 @@ export function InputText(props: {
     evaluatedValue,
     expected,
     hideEvaluatedValue,
+    onBlur,
     onChange,
     onFocus,
     placeholder,
@@ -57,6 +59,7 @@ export function InputText(props: {
         }}
         isEditorHidden={!isOpen}
         mode={EditorModes.TEXT_WITH_BINDING}
+        onEditorBlur={onBlur}
         onEditorFocus={onFocus}
         placeholder={placeholder}
         size={EditorSize.EXTENDED}
@@ -76,6 +79,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
       expected,
       hideEvaluatedValue,
       label,
+      onBlur,
       onFocus,
       placeholderText,
       propertyValue,
@@ -88,6 +92,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
         expected={expected}
         hideEvaluatedValue={hideEvaluatedValue}
         label={label}
+        onBlur={onBlur}
         onChange={this.onTextChange}
         onFocus={onFocus}
         placeholder={placeholderText}
@@ -130,6 +135,7 @@ export interface InputControlProps extends ControlProps {
   isDisabled?: boolean;
   defaultValue?: any;
   onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 export default InputTextControl;

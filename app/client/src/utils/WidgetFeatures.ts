@@ -5,6 +5,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 
 // eslint-disable-next-line prettier/prettier
 import type { AutocompleteDataType } from "./autocomplete/TernServer";
+import EventEmitter from "./EventEmitter";
 
 export interface WidgetFeatures {
   dynamicHeight: boolean;
@@ -178,6 +179,12 @@ export const PropertyPaneConfigTemplates = {
       },
       {
         propertyName: "minDynamicHeight",
+        onBlur: () => {
+          EventEmitter.emit('property_pane_input_blurred', 'minDynamicHeight');
+        },
+        onFocus: () => {
+          EventEmitter.emit('property_pane_input_focused', 'minDynamicHeight');
+        },
         label: "Min Height (in rows)",
         helpText: "Minimum number of rows to occupy irrespective of contents",
         controlType: "INPUT_TEXT",
@@ -201,8 +208,11 @@ export const PropertyPaneConfigTemplates = {
       },
       {
         propertyName: "maxDynamicHeight",
+        onBlur: () => {
+          EventEmitter.emit('property_pane_input_blurred', 'maxDynamicHeight');
+        },
         onFocus: () => {
-          console.log("onFocus", "FOCUSED");
+          EventEmitter.emit('property_pane_input_focused', 'maxDynamicHeight');
         },
         label: "Max Height (in rows)",
         helpText: "Maximum Height, after which contents will scroll",
