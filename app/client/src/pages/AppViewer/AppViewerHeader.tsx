@@ -88,7 +88,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
     <ThemeProvider theme={props.lightTheme}>
       <>
         <nav
-          className="relative js-appviewer-header"
+          className="relative js-appviewer-header bg-white"
           data-testid={"t--appsmith-app-viewer-header"}
           ref={headerRef}
         >
@@ -118,7 +118,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             </div>
             <section className="relative flex items-center ml-auto space-x-3 z-1">
               {currentApplicationDetails && (
-                <>
+                <div className="hidden md:flex space-x-3">
                   {!shouldHideComments && <ToggleCommentModeButton />}
                   <FormDialogComponent
                     Form={AppInviteUsersForm}
@@ -150,7 +150,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                   <HeaderRightItemContainer>
                     <PrimaryCTA className="t--back-to-editor" url={props.url} />
                   </HeaderRightItemContainer>
-                </>
+                </div>
               )}
               {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
                 <HeaderRightItemContainer>
