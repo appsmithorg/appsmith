@@ -1,11 +1,10 @@
-import {
-  DataTree,
-  DataTreeAction,
-  DataTreeEntity,
-  DataTreeWidget,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { get } from "lodash";
-import { EvaluationError, getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  EvaluationError,
+  getDynamicBindings,
+  isDynamicValue,
+} from "utils/DynamicBindingUtils";
 import {
   createGlobalData,
   EvaluationScriptType,
@@ -77,18 +76,20 @@ export const lintTree = (
     triggerPaths.forEach((triggerPath) => {
       removeLintErrorsFromEntityProperty(evalTree, triggerPath);
       const { entityName } = getEntityNameAndPropertyPath(triggerPath);
-      const entity = unEvalTree[entityName] as DataTreeWidget | DataTreeAction;
+      const entity = unEvalTree[entityName];
       const unEvalPropertyValue = (get(
         unEvalTree,
         triggerPath,
       ) as unknown) as string;
-      const errors = lintTriggerPath(
-        unEvalPropertyValue,
-        entity,
-        GLOBAL_DATA_WITH_FUNCTIONS,
-      );
-
-      errors.length && addErrorToEntityProperty(errors, evalTree, triggerPath);
+      if (isDynamicValue(unEvalPropertyValue)) {
+        const errors = lintTriggerPath(
+          unEvalPropertyValue,
+          entity,
+          GLOBAL_DATA_WITH_FUNCTIONS,
+        );
+        errors.length &&
+          addErrorToEntityProperty(errors, evalTree, triggerPath);
+      }
     });
   }
 };

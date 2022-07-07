@@ -367,7 +367,7 @@ export default class DataTreeEvaluator {
     lintTree(
       localUnEvalTree,
       newEvalTree,
-      this.sortedDependencies,
+      evaluationOrder,
       triggerPathsToLint,
       this.resolvedFunctions,
     );
