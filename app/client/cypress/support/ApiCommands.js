@@ -59,8 +59,10 @@ Cypress.Commands.add("CreateAPI", (apiname) => {
   cy.get(explorer.blankAPI).click({ force: true });
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.renameWithInPane(apiname);
-  cy.WaitAutoSave();
+  if (apiname) {
+    cy.renameWithInPane(apiname);
+    cy.WaitAutoSave();
+  }
   // Added because api name edit takes some time to
   // reflect in api sidebar after the call passes.
   // eslint-disable-next-line cypress/no-unnecessary-waiting
