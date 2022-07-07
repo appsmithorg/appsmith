@@ -79,4 +79,10 @@ describe("<UserEdit />", () => {
       return expect(filtered).toHaveLength(0);
     });
   });
+  it("should mark group to be removed", () => {
+    renderComponent();
+    const activeGroups = screen.getAllByTestId("t--active-group-row");
+    userEvent.click(activeGroups[0]);
+    expect(activeGroups[0]).toHaveClass("removed");
+  });
 });

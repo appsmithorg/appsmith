@@ -34,6 +34,7 @@ type PageHeaderProps = {
   title?: string;
   isTitleEditable?: boolean;
   isEditingTitle?: boolean;
+  onEditTitle?: (name: string) => void;
 };
 
 const Container = styled.div`
@@ -56,7 +57,7 @@ const Container = styled.div`
 
 const StyledButton = styled(Button)`
   flex: 1 0 auto;
-  margin: 0 12px 0 16px;
+  margin: 0 12px 0 0;
   min-width: 88px;
 `;
 
@@ -77,14 +78,15 @@ function getSettingDetail(category: string, selected: string) {
 export function PageHeader(props: PageHeaderProps) {
   const [showConfirmationText, setShowConfirmationText] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [isEditing, setIsEditing] = useState(props.isEditingTitle || false);
   const params = useParams() as any;
   const { category, selected } = params;
   const details = getSettingDetail(category, selected);
   const pageTitle = getSettingLabel(details?.title || (selected ?? category));
   const {
     buttonText,
-    isEditingTitle,
     isTitleEditable,
+    onEditTitle,
     onSearch,
     pageMenuItems,
     searchPlaceholder,
@@ -95,10 +97,6 @@ export function PageHeader(props: PageHeaderProps) {
     onSearch?.(search.toLocaleUpperCase());
   };
 
-  const onEditPageName = (/*name: string*/) => {
-    // console.log(name);
-  };
-
   const onOptionSelect = (
     e: React.MouseEvent<Element, MouseEvent>,
     menuItem: MenuItemProps,
@@ -107,6 +105,9 @@ export function PageHeader(props: PageHeaderProps) {
       setShowOptions(true);
       setShowConfirmationText(true);
       showConfirmationText && menuItem?.onSelect?.(e, "delete");
+    } else if (menuItem.label === "rename") {
+      setIsEditing(true);
+      setShowOptions(false);
     } else {
       setShowConfirmationText(false);
       setShowOptions(false);
@@ -124,8 +125,9 @@ export function PageHeader(props: PageHeaderProps) {
               defaultValue={title ?? pageTitle}
               editInteractionKind={EditInteractionKind.DOUBLE}
               hideEditIcon
-              isEditingDefault={isEditingTitle ? true : false}
-              onTextChanged={onEditPageName}
+              isEditingDefault={isEditing}
+              onBlur={() => setIsEditing(false)}
+              onTextChanged={(name) => onEditTitle?.(name)}
               placeholder="Enter group name"
               type="text"
             />

@@ -20,7 +20,7 @@ const pageMenuItems = [
 function renderComponent() {
   render(
     <PageHeader
-      buttonText="Add users"
+      buttonText="Add"
       onSearch={handleChange as any}
       pageMenuItems={pageMenuItems}
       searchPlaceholder="Search users"
@@ -44,11 +44,11 @@ describe("<PageHeader />", () => {
     await userEvent.type(searchInput[0], "test value");
     expect(searchInput[0]).toHaveValue("test value");
   });
-  it("should have a button with text Add users", () => {
+  it("should have a button with text Add", () => {
     renderComponent();
     const button = screen.queryAllByTestId("t--acl-page-header-input");
     expect(button).toHaveLength(1);
-    expect(button[0]).toHaveTextContent("Add users");
+    expect(button[0]).toHaveTextContent("Add");
   });
   it("should filter user list based on search value", async () => {
     renderComponent();

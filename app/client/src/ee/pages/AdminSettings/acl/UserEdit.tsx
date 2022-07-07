@@ -3,7 +3,13 @@ import { useHistory } from "react-router";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
 import debounce from "lodash/debounce";
-import { IconSize, MenuItemProps, SearchVariant } from "components/ads";
+import {
+  IconSize,
+  MenuItemProps,
+  SearchVariant,
+  Toaster,
+  Variant,
+} from "components/ads";
 import { Icon, Menu, MenuItem } from "components/ads";
 import ProfileImage from "pages/common/ProfileImage";
 import { TabComponent, TabProp } from "components/ads/Tabs";
@@ -13,6 +19,7 @@ import {
   HelpPopoverStyle,
   BackButton,
   StyledSearchInput,
+  SaveButtonBar,
 } from "./components";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
 
@@ -100,11 +107,42 @@ export function UserEdit(props: UserEditProps) {
   const history = useHistory();
   const [data, setData] = useState<string[]>([]);
   const [searchValue, setSearchValue] = useState("");
+  const [removedActiveGroups, setRemovedActiveGroups] = useState<Array<any>>(
+    [],
+  );
+  const [isSaving, setIsSaving] = useState(false);
   const { searchPlaceholder, selectedUser } = props;
 
   useEffect(() => {
     setData(selectedUser.allRoles);
   }, []);
+
+  useEffect(() => {
+    setIsSaving(removedActiveGroups.length > 0);
+  }, [removedActiveGroups]);
+
+  const onRemoveGroup = (group: any) => {
+    const updateGroups = removedActiveGroups.includes(group)
+      ? removedActiveGroups.filter((grp) => grp !== group)
+      : [...removedActiveGroups, group];
+    setRemovedActiveGroups(updateGroups);
+  };
+
+  const onSaveChanges = () => {
+    const updatedGroups = selectedUser.allRoles.filter(
+      (role) => !removedActiveGroups.includes(role),
+    );
+    setData(updatedGroups);
+    setRemovedActiveGroups([]);
+    Toaster.show({
+      text: "Successfully Saved",
+      variant: Variant.success,
+    });
+  };
+
+  const onClearChanges = () => {
+    setRemovedActiveGroups([]);
+  };
 
   const tabs: TabProp[] = [
     {
@@ -114,6 +152,8 @@ export function UserEdit(props: UserEditProps) {
         <ActiveAllGroupsList
           activeGroups={data}
           activeOnly
+          onRemoveGroup={onRemoveGroup}
+          removedActiveGroups={removedActiveGroups}
           searchValue={searchValue}
         />
       ),
@@ -230,6 +270,9 @@ export function UserEdit(props: UserEditProps) {
           tabs={tabs}
         />
       </TabsWrapper>
+      {isSaving && (
+        <SaveButtonBar onClear={onClearChanges} onSave={onSaveChanges} />
+      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon, IconSize, SearchInput } from "components/ads";
+import { Button, Category, Icon, IconSize, SearchInput } from "components/ads";
 import styled, { createGlobalStyle } from "styled-components";
 
 export const AclWrapper = styled.div`
@@ -8,6 +8,23 @@ export const AclWrapper = styled.div`
   padding: 40px 30px 0 0;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   overflow: auto;
+`;
+
+export const SaveButtonBarWrapper = styled.div`
+  position: fixed;
+  bottom: 0;
+  height: ${(props) => props.theme.settings.footerHeight}px;
+  box-shadow: ${(props) => props.theme.settings.footerShadow};
+  z-index: 2;
+  background-color: ${(props) => props.theme.colors.homepageBackground};
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  width: calc(
+    100% - ${(props) => props.theme.homePage.leftPane.width}px -
+      ${(props) => props.theme.homePage.main.marginLeft}px - 30px
+  );
 `;
 
 export const TabsWrapper = styled.div`
@@ -58,11 +75,13 @@ export const BackButtonText = styled.span`
 `;
 
 export const StyledSearchInput = styled(SearchInput)`
+  flex-shrink: 0;
   > div {
     border-radius: 1px;
     border: 1px solid var(--appsmith-color-black-250);
     color: var(--appsmith-color-black-700);
     box-shadow: none;
+    margin: 0 16px 0 0;
 
     &:active,
     &:hover,
@@ -72,6 +91,38 @@ export const StyledSearchInput = styled(SearchInput)`
         0px 1px 3px rgba(0, 0, 0, 0.1);
     }
   }
+`;
+
+const StyledButton = styled(Button)`
+  height: 24px;
+  display: inline-block;
+`;
+
+const StyledSaveButton = styled(StyledButton)`
+  width: 128px;
+  height: 38px;
+  margin-right: 16px;
+
+  & .cs-spinner {
+    top: 11px;
+  }
+`;
+
+const StyledClearButton = styled(StyledButton)`
+  width: 68px;
+  height: 38px;
+`;
+
+const SaveButtonBarText = styled.div`
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.36;
+  letter-spacing: -0.24px;
+  margin-right: 24px;
+`;
+
+const ButtonsWrapper = styled.div`
+  flex-shrink: 0;
 `;
 
 export function BackButton() {
@@ -87,5 +138,47 @@ export function BackButton() {
       <Icon name="chevron-left" size={IconSize.XS} />
       <BackButtonText>Back</BackButtonText>
     </StyledBackButton>
+  );
+}
+
+export function SaveButtonBar({
+  onClear,
+  onSave,
+}: {
+  onClear: () => void;
+  onSave: () => void;
+}) {
+  return (
+    <SaveButtonBarWrapper>
+      <SaveButtonBarText>
+        These changes will affect the users ability to interact with various
+        aspects of the application. Are you sure ?
+      </SaveButtonBarText>
+      <ButtonsWrapper>
+        <StyledSaveButton
+          category={Category.primary}
+          className="t--admin-settings-save-button"
+          disabled={false}
+          isLoading={false}
+          onClick={() => {
+            /*console.log("hello save");*/
+            onSave();
+          }}
+          tag="button"
+          text="Save Changes"
+        />
+        <StyledClearButton
+          category={Category.tertiary}
+          className="t--admin-settings-reset-button"
+          disabled={false}
+          onClick={() => {
+            /*console.log("hello reset");*/
+            onClear();
+          }}
+          tag="button"
+          text="Clear"
+        />
+      </ButtonsWrapper>
+    </SaveButtonBarWrapper>
   );
 }

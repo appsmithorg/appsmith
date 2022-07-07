@@ -84,6 +84,14 @@ describe("<PermissionGroupListing />", () => {
       }
     });
   });
+  it("should test new group gets created on Add group button click", () => {
+    renderComponent();
+    const button = screen.getAllByTestId("t--acl-page-header-input");
+    button[0].click();
+    expect(window.location.pathname).toEqual(
+      `/settings/permission-groups/10102`,
+    );
+  });
   it("should list the correct options in the more menu", async () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
@@ -108,6 +116,7 @@ describe("<PermissionGroupListing />", () => {
       `Copy of ${permissionGroupTableData[0].permissionName}`,
     );
     expect(clonedGroup).toBeTruthy();
+    expect(clonedGroup?.nextSibling).toBeFalsy();
   });
   it("should navigate to permission group edit page when Edit list menu option is clicked", async () => {
     const { getAllByTestId } = renderComponent();

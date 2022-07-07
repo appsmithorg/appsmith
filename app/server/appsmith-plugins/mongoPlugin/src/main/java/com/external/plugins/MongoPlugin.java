@@ -8,6 +8,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -85,7 +86,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
@@ -233,8 +237,7 @@ public class MongoPlugin extends BasePlugin {
 
             Boolean smartBsonSubstitution = TRUE;
 
-            Object smartSubstitutionObject = getValueSafelyFromFormData(formData, SMART_SUBSTITUTION, Object.class,
-                    TRUE);
+            Object smartSubstitutionObject = PluginUtils.getDataValueSafelyFromFormData(formData, SMART_SUBSTITUTION, OBJECT_TYPE, TRUE);
             if (smartSubstitutionObject instanceof Boolean) {
                 smartBsonSubstitution = (Boolean) smartSubstitutionObject;
             } else if (smartSubstitutionObject instanceof String) {
@@ -252,12 +255,12 @@ public class MongoPlugin extends BasePlugin {
                             executeActionDTO.getParams(), parameters);
                 } else {
                     // For raw queries do smart replacements in BSON body
-                    final Object body = getValueSafelyFromFormData(formData, BODY);
+                    final Object body = PluginUtils.getDataValueSafelyFromFormData(formData, BODY, OBJECT_TYPE);
                     if (body != null) {
                         try {
                             String updatedRawQuery = smartSubstituteBSON((String) body,
                                     executeActionDTO.getParams(), parameters);
-                            setValueSafelyInFormData(formData, BODY, updatedRawQuery);
+                            setDataValueSafelyInFormData(formData, BODY, updatedRawQuery);
                         } catch (AppsmithPluginException e) {
                             ActionExecutionResult errorResult = new ActionExecutionResult();
                             errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
@@ -274,7 +277,7 @@ public class MongoPlugin extends BasePlugin {
             // In case the input type is form instead of raw, parse the same into BSON command
             String parsedRawCommand = convertMongoFormInputToRawCommand(actionConfiguration);
             if (parsedRawCommand != null) {
-                setValueSafelyInFormData(formData, BODY, parsedRawCommand);
+                setDataValueSafelyInFormData(formData, BODY, parsedRawCommand);
             }
 
             actionConfiguration.setFormData(formData);
@@ -306,7 +309,7 @@ public class MongoPlugin extends BasePlugin {
 
             final Map<String, Object> formData = actionConfiguration.getFormData();
 
-            String query = (String) getValueSafelyFromFormData(formData, BODY);
+            String query = PluginUtils.getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE);
             Bson command = Document.parse(query);
 
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
@@ -576,9 +579,9 @@ public class MongoPlugin extends BasePlugin {
 
             for (String bsonField : bsonFields) {
                 if (validConfigurationPresentInFormData(formData, bsonField)) {
-                    String preSmartSubValue = (String) getValueSafelyFromFormData(formData, bsonField);
+                    String preSmartSubValue = PluginUtils.getDataValueSafelyFromFormData(formData, bsonField, STRING_TYPE);
                     String postSmartSubValue = smartSubstituteBSON(preSmartSubValue, params, parameters);
-                    setValueSafelyInFormData(formData, bsonField, postSmartSubValue);
+                    setDataValueSafelyInFormData(formData, bsonField, postSmartSubValue);
                 }
             }
         }
@@ -887,7 +890,7 @@ public class MongoPlugin extends BasePlugin {
                       This translation must happen only if the user has not edited the raw mode. Hence, check that
                       user has not provided any raw query.
                      */
-                    if (isBlank(getValueSafelyFromFormData(formData, BODY, String.class))) {
+                    if (isBlank(getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE))) {
                         try {
                             String rawQuery = getRawQuery(actionConfiguration);
                             if (rawQuery != null) {

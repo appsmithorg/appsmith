@@ -78,6 +78,12 @@ describe("<UserGroupListing />", () => {
       }
     });
   });
+  it("should test new group gets created on Add group button click", () => {
+    renderComponent();
+    const button = screen.getAllByTestId("t--acl-page-header-input");
+    button[0].click();
+    expect(window.location.pathname).toEqual(`/settings/user-groups/10109`);
+  });
   it("should list the correct options in the more menu", async () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
@@ -98,6 +104,7 @@ describe("<UserGroupListing />", () => {
     await userEvent.click(cloneOption[0]);
     clonedGroup = queryByText(`Copy of ${userGroupTableData[0].rolename}`);
     expect(clonedGroup).toBeTruthy();
+    expect(clonedGroup?.nextSibling).toBeFalsy();
   });
   it("should navigate to edit page when Edit list menu item is clicked", async () => {
     const { getAllByTestId } = renderComponent();

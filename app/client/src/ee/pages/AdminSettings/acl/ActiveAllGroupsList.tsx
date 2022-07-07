@@ -1,12 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import {
   // Button,
   // Category,
   Icon,
   IconSize,
-  Toaster,
-  Variant,
 } from "components/ads";
 import { Colors } from "constants/Colors";
 import { ContentWrapper } from "./components";
@@ -47,8 +45,10 @@ const EachGroup = styled.div`
   cursor: pointer;
 
   &:hover {
-    background: var(--appsmith-color-black-100);
     .action-button {
+      visibility: visible;
+    }
+    .remixicon-icon {
       visibility: visible;
     }
   }
@@ -120,40 +120,23 @@ export type ActiveAllGroupsProps = {
   activeOnly?: boolean;
   title?: string;
   searchValue?: string;
+  addedAllGroups?: Array<any>;
+  removedActiveGroups: Array<any>;
+  onAddGroup?: (group: any) => void;
+  onRemoveGroup: (group: any) => void;
 };
 
 export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
-  const { activeGroups, activeOnly, allGroups, searchValue } = props;
-  const [removedActiveGroups, setRemovedActiveGroups] = useState<Array<any>>(
-    [],
-  );
-  const [addedAllGroups, setAddedAllGroups] = useState<Array<any>>([]);
-
-  const onAddGroup = (group: any) => {
-    if (addedAllGroups.includes(group)) {
-      const updateGroups = addedAllGroups.filter((grp) => grp !== group);
-      setAddedAllGroups(updateGroups);
-    } else {
-      setAddedAllGroups([...addedAllGroups, group]);
-      Toaster.show({
-        text: `${group} added successfully`,
-        variant: Variant.success,
-      });
-    }
-  };
-
-  const onRemoveGroup = (group: any) => {
-    if (removedActiveGroups.includes(group)) {
-      const updateGroups = removedActiveGroups.filter((grp) => grp !== group);
-      setRemovedActiveGroups(updateGroups);
-    } else {
-      setRemovedActiveGroups([...removedActiveGroups, group]);
-      Toaster.show({
-        text: `${group} removed successfully`,
-        variant: Variant.success,
-      });
-    }
-  };
+  const {
+    activeGroups,
+    activeOnly,
+    addedAllGroups,
+    allGroups,
+    onAddGroup,
+    onRemoveGroup,
+    removedActiveGroups,
+    searchValue,
+  } = props;
 
   return (
     <ContentWrapper>
@@ -213,14 +196,14 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
             <Title>All Groups</Title>
           </TitleWrapper>
           {allGroups?.map((group: any) => {
-            const addedGroup = addedAllGroups.includes(group);
+            const addedGroup = addedAllGroups?.includes(group);
             return (
               <EachGroup
                 className={addedGroup ? "added" : ""}
                 data-testid="t--all-group-row"
                 key={group}
                 onClick={() => {
-                  onAddGroup(group);
+                  onAddGroup?.(group);
                 }}
               >
                 <Icon fillColor={"#03B365"} name="plus" />

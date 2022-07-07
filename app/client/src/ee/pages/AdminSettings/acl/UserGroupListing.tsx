@@ -30,6 +30,7 @@ export type UserGroup = {
   allPermissions: string[];
   activePermissions: string[];
   allUsers: Partial<User>[];
+  isNew?: boolean;
 };
 
 export const userGroupTableData: UserGroup[] = [
@@ -218,14 +219,50 @@ export const userGroupTableData: UserGroup[] = [
 export function UserGroupListing() {
   const [data, setData] = useState<UserGroup[]>([]);
   const [searchValue, setSearchValue] = useState("");
+  const params = useParams() as any;
+  const selectedUserGroupId = params?.selected;
+  const selUserGroup = userGroupTableData.find(
+    (userGroup) => userGroup.id === selectedUserGroupId,
+  );
+  const [selectedUserGroup, setSelectedUserGroup] = useState(selUserGroup);
+  const [isNewGroup, setIsNewGroup] = useState(false);
 
   const history = useHistory();
+
+  useEffect(() => {
+    if (isNewGroup && params.selected) {
+      setSelectedUserGroup({
+        isEditing: false,
+        isDeleting: false,
+        rolename: "Untitled User Group",
+        isAppsmithProvided: false,
+        isNew: true,
+        id: "10109",
+        allPermissions: [
+          "Administrator",
+          "App Viewer",
+          "HR_Appsmith",
+          "devops_design",
+          "devops_eng_nov",
+          "marketing_nov",
+        ],
+        activePermissions: [],
+        allUsers: [],
+      });
+    } else {
+      const selUserGroup = userGroupTableData.find(
+        (userGroup) => userGroup.id === selectedUserGroupId,
+      );
+      setSelectedUserGroup(selUserGroup);
+      setIsNewGroup(false);
+    }
+  }, [params]);
 
   useEffect(() => {
     setData(userGroupTableData);
   }, [userGroupTableData]);
 
-  const onDeleteHanlder = (id: string) => {
+  const onDeleteHandler = (id: string) => {
     const updatedData = data.filter((userGroup) => {
       return userGroup.id !== id;
     });
@@ -237,6 +274,7 @@ export function UserGroupListing() {
       ...selected,
       id: uniqueId(),
       rolename: `Copy of ${selected.rolename}`,
+      isAppsmithProvided: false,
     };
     userGroupTableData.push(clonedData);
     setData([...userGroupTableData]);
@@ -269,11 +307,6 @@ export function UserGroupListing() {
       },
     },
   ];
-  const params = useParams() as any;
-  const selectedUserGroupId = params?.selected;
-  const selectedUserGroup = userGroupTableData.find(
-    (userGroup) => userGroup.id === selectedUserGroupId,
-  );
 
   const listMenuItems: MenuItemProps[] = [
     {
@@ -281,7 +314,11 @@ export function UserGroupListing() {
       icon: "duplicate",
       onSelect: (e, id) => {
         const selectedUserGroup = data.find((userGroup) => userGroup.id === id);
-        selectedUserGroup && onCloneHandler(selectedUserGroup);
+        selectedUserGroup &&
+          onCloneHandler({
+            ...selectedUserGroup,
+            isAppsmithProvided: false,
+          });
       },
       text: "Clone User Group",
     },
@@ -298,7 +335,7 @@ export function UserGroupListing() {
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: (e, key: string) => {
-        onDeleteHanlder(key);
+        onDeleteHandler(key);
       },
       text: "Delete User Group",
     },
@@ -315,8 +352,9 @@ export function UserGroupListing() {
     },
   ];
 
-  const onButtonClick = () => {
-    /*console.log("hello onClickHandler from group");*/
+  const onAddButtonClick = () => {
+    setIsNewGroup(true);
+    history.push(`/settings/user-groups/10109`);
   };
 
   const onSearch = debounce((search: string) => {
@@ -339,14 +377,14 @@ export function UserGroupListing() {
       {selectedUserGroup ? (
         <UserGroupAddEdit
           onClone={onCloneHandler}
-          onDelete={onDeleteHanlder}
+          onDelete={onDeleteHandler}
           selected={selectedUserGroup}
         />
       ) : (
         <>
           <PageHeader
             buttonText="Add Group"
-            onButtonClick={onButtonClick}
+            onButtonClick={onAddButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
             searchPlaceholder="Search user groups"

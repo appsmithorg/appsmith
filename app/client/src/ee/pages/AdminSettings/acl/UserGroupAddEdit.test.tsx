@@ -16,6 +16,12 @@ const listMenuItems = [
     label: "clone",
   },
   {
+    className: "rename-menu-item",
+    icon: "edit-underline",
+    text: "Rename User Group",
+    label: "rename",
+  },
+  {
     className: "delete-menu-item",
     icon: "delete-blank",
     onSelect: jest.fn(),
@@ -137,6 +143,16 @@ describe("<UserGroupAddEdit />", () => {
       expect(menuElements[index]).toHaveTextContent(option);
     });
   });
+  it("should show input box on group name on double clicking title", async () => {
+    const { getAllByTestId } = renderComponent();
+    const moreMenu = getAllByTestId("t--page-header-actions");
+    await userEvent.click(moreMenu[0]);
+    let titleEl = document.getElementsByClassName("t--editable-title");
+    expect(titleEl[0]).not.toContain("input");
+    await userEvent.dblClick(titleEl[0]);
+    titleEl = document.getElementsByClassName("t--editable-title");
+    expect(titleEl[0]).toContainHTML("input");
+  });
   /*it("should clone the group when Clone menu item is clicked", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
@@ -154,10 +170,20 @@ describe("<UserGroupAddEdit />", () => {
       { timeout: 1000 },
     );
   });*/
+  it("should show input box on group name on clicking rename menu item", async () => {
+    const { getAllByTestId } = renderComponent();
+    const moreMenu = getAllByTestId("t--page-header-actions");
+    await userEvent.click(moreMenu[0]);
+    const cloneOption = document.getElementsByClassName("rename-menu-item");
+    let titleEl = document.getElementsByClassName("t--editable-title");
+    expect(titleEl[0]).not.toContain("input");
+    await userEvent.click(cloneOption[0]);
+    titleEl = document.getElementsByClassName("t--editable-title");
+    expect(titleEl[0]).toContainHTML("input");
+  });
   /*it("should delete the group when Delete menu item is clicked", async () => {
     const { getAllByTestId, getByText } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
-    expect(getByText("Eng_New")).toBeTruthy();
     await userEvent.click(moreMenu[0]);
     const deleteOption = document.getElementsByClassName("delete-menu-item");
     expect(deleteOption[0]).toHaveTextContent("Delete User Group");
@@ -177,4 +203,27 @@ describe("<UserGroupAddEdit />", () => {
       { timeout: 1000 },
     );
   });*/
+  it("should contain two tabs", () => {
+    renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs.length).toEqual(2);
+    expect(tabs[0]).toHaveTextContent("Users");
+    expect(tabs[1]).toHaveTextContent("Permissions");
+  });
+  it("should mark group to be removed", () => {
+    renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    tabs[1].click();
+    const activeGroups = screen.getAllByTestId("t--active-group-row");
+    userEvent.click(activeGroups[0]);
+    expect(activeGroups[0]).toHaveClass("removed");
+  });
+  it("should mark group to be added", () => {
+    renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    tabs[1].click();
+    const allGroups = screen.getAllByTestId("t--all-group-row");
+    userEvent.click(allGroups[0]);
+    expect(allGroups[0]).toHaveClass("added");
+  });
 });
