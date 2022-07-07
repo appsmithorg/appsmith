@@ -14,7 +14,7 @@ describe("Postgres - Datatype Character tests", function() {
     cy.fixture("CharacterDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    propPane.ChangeTheme("Sharp");
+    propPane.ChangeTheme("Pacific");
   });
 
   it("1. Create Postgress DS", function() {
@@ -38,9 +38,10 @@ describe("Postgres - Datatype Character tests", function() {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("createTable");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
     cy.get(".CodeMirror textarea").focus();
     dataSources.RunQuery();
+    ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("public.chartypes"));
@@ -54,7 +55,7 @@ describe("Postgres - Datatype Character tests", function() {
     agHelper
       .GetText(dataSources._noRecordFound)
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
   });
 
   it("4. Creating INSERT query - chartypes", () => {
@@ -62,7 +63,7 @@ describe("Postgres - Datatype Character tests", function() {
     VALUES ({{Insertone.text}}, {{Insertasmany.text}}, {{Insertlimited.text}}::varchar(4), {{Insertunlimited.text}});`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "INSERT");
     agHelper.RenameWithInPane("insertRecord");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
   });
 
   it("5. Creating UPDATE query - chartypes", () => {
@@ -74,7 +75,7 @@ describe("Postgres - Datatype Character tests", function() {
   WHERE serialid = {{Table1.selectedRow.serialid}};`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "UPDATE");
     agHelper.RenameWithInPane("updateRecord");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
   });
 
   it("5. Creating DELETE query with condition - chartypes", () => {
@@ -82,21 +83,21 @@ describe("Postgres - Datatype Character tests", function() {
     WHERE serialId = {{Table1.selectedRow.serialid}};`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "DELETE");
     agHelper.RenameWithInPane("deleteRecord");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
   });
 
   it("6. Creating DELETE query for complete table empty - chartypes", () => {
     query = `DELETE FROM public."chartypes"`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "DELETE");
     agHelper.RenameWithInPane("deleteAllRecords");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
   });
 
   it("7. Creating DROP table query - chartypes", () => {
     query = `drop table public."chartypes"`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "DELETE");
     agHelper.RenameWithInPane("dropTable");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
     ee.ExpandCollapseEntity("QUERIES/JS", false);
     ee.ExpandCollapseEntity(dsName, false);
   });
@@ -230,7 +231,7 @@ describe("Postgres - Datatype Character tests", function() {
     agHelper.ClickButton("DeleteQuery", 1);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.Sleep(2500);//Allwowing time for delete to be success
+    agHelper.Sleep(2500); //Allwowing time for delete to be success
     table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
       expect($cellData).not.to.eq("2"); //asserting 2nd record is deleted
     });
