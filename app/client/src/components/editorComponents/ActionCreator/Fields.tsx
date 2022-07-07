@@ -927,7 +927,7 @@ function Fields(props: {
   if (fields[0].field === FieldType.ACTION_SELECTOR_FIELD) {
     const remainingFields = fields.slice(1);
     if (
-      remainingFields[0].field ===
+      remainingFields[0]?.field ===
       FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD
     ) {
       /* Navigate to does not follow the tree like structure
