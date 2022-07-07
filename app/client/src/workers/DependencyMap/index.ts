@@ -8,7 +8,7 @@ import {
   makeParentsDependOnChildren,
   isDynamicLeaf,
   isValidEntity,
-} from "../evaluationUtils";
+} from "workers/evaluationUtils";
 import {
   DataTree,
   DataTreeAction,
