@@ -1,8 +1,0 @@
-{
-  "identifier": "LIST",
-  "controlType": "SECTION",
-  "conditionals": {
-    "show": "{{actionConfiguration.formData.command.data === 'LIST'}}"
-  },
-  "children": []
-}
