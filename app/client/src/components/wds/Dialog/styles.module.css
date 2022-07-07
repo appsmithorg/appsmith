@@ -1,6 +1,6 @@
 .base {
   box-shadow: 0px 0px 0px 1px #e1e1e1;
-  border-radius: 0px;
+  border-radius: var(--wds-radii);
   position: fixed;
   top: 0;
   left: 50%;
@@ -23,5 +23,5 @@
   content: ' ';
   background: transparent;
   z-index: 99;
-  background-color: black / 50%;
+  background-color: rgba(0 0 0 / 30%)
 }

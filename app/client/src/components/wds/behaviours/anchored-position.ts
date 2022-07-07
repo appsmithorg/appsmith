@@ -17,7 +17,7 @@ export type AnchorSide =
  * Settings that customize how a floating element is positioned
  * with respect to an anchor element.
  */
-export interface PositionSettings {
+export type PositionSettings = {
   /**
    * Sets the side of the anchor element that the floating element should be
    * pinned to. This side is given by a string starting with either "inside" or
@@ -87,7 +87,7 @@ export interface PositionSettings {
    * this direction.
    */
   allowOutOfBounds: boolean;
-}
+};
 
 // For each outside anchor position, list the order of alternate positions to try in
 // the event that the original position overflows. See comment on `allowOutOfBounds`

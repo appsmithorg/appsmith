@@ -25,6 +25,34 @@ type InternalDialogProps = {
   children?: JSX.Element | JSX.Element[];
 };
 
+type DialogContextProps = Pick<
+  InternalDialogProps,
+  "isOpen" | "onDismiss" | "children"
+>;
+
+const DialogContext = React.createContext<DialogContextProps>({
+  isOpen: false,
+});
+
+const Dialog: React.FC<InternalDialogProps> = ({
+  children,
+  isOpen,
+  onDismiss,
+}: InternalDialogProps) => {
+  <MenuContext.Provider
+    value={{
+      anchorRef,
+      renderAnchor,
+      anchorId,
+      open: combinedOpenState,
+      onOpen,
+      onClose,
+    }}
+  >
+    {contents}
+  </MenuContext.Provider>;
+};
+
 const Dialog = forwardRef<HTMLDivElement, InternalDialogProps>(
   (
     {

@@ -209,6 +209,17 @@ function Showcase() {
           <input placeholder="helo2" type="text" />
           <p>Dialog</p>
         </Dialog>
+
+        {/* <Dialog>
+          <Dialog.Button className="w-32" variant="ghost">
+            Open Dialog
+          </Dialog.Button>
+          <Dialog.Content aria-labelledby="header-id">
+            <input placeholder="helo" type="text" />
+            <input placeholder="helo2" type="text" />
+            <p>Dialog</p>
+          </Dialog.Content>
+        </Dialog> */}
       </div>
     </div>
   );
