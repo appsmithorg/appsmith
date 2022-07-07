@@ -16,7 +16,6 @@ import {
 import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME, QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import {
-  DEFAULT_API_ACTION_CONFIG,
   POST_BODY_FORMAT_OPTIONS_ARRAY,
   POST_BODY_FORMAT_OPTIONS,
   REST_PLUGIN_PACKAGE_NAME,
@@ -24,6 +23,8 @@ import {
   EMPTY_KEY_VALUE_PAIRS,
   HTTP_METHOD,
   HTTP_METHODS_DEFAULT_FORMAT_TYPES,
+  DEFAULT_CREATE_API_CONFIG,
+  DEFAULT_CREATE_API_CONFIG_TYPE,
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
@@ -534,14 +535,21 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
  * @param action
  */
 function* handleCreateNewApiActionSaga(
-  action: ReduxAction<{ pageId: string; from: EventLocation }>,
+  action: ReduxAction<{
+    pageId: string;
+    from: EventLocation;
+    apiType?: string;
+  }>,
 ) {
   const organizationId: string = yield select(getCurrentOrgId);
-  const pluginId: string = yield select(
-    getPluginIdOfPackageName,
-    REST_PLUGIN_PACKAGE_NAME,
-  );
-  const { pageId } = action.payload;
+  const { pageId, apiType = REST_PLUGIN_PACKAGE_NAME } = action.payload;
+  const pluginId: string = yield select(getPluginIdOfPackageName, apiType);
+  let defaultConfig: DEFAULT_CREATE_API_CONFIG_TYPE;
+  if (apiType in DEFAULT_CREATE_API_CONFIG) {
+    defaultConfig = DEFAULT_CREATE_API_CONFIG[apiType];
+  } else {
+    defaultConfig = DEFAULT_CREATE_API_CONFIG[REST_PLUGIN_PACKAGE_NAME];
+  }
   if (pageId && pluginId) {
     const actions: ActionData[] = yield select(getActions);
     const pageActions = actions.filter(
@@ -552,15 +560,15 @@ function* handleCreateNewApiActionSaga(
     // It breaks embedded rest datasource flow.
     yield put(
       createActionRequest({
-        actionConfiguration: DEFAULT_API_ACTION_CONFIG,
+        actionConfiguration: defaultConfig.config,
         name: newActionName,
         datasource: {
-          name: "DEFAULT_REST_DATASOURCE",
+          name: defaultConfig.datasource.name,
           pluginId,
           organizationId,
         },
         eventData: {
-          actionType: "API",
+          actionType: defaultConfig.eventData.actionType,
           from: action.payload.from,
         },
         pageId,

@@ -16,8 +16,6 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core/lib/esnext/common";
 import { Text, TextType } from "components/ads";
 
 const QueryHeader = styled.div`
@@ -54,15 +52,9 @@ function QueryEditor(props: QueryProps) {
   return (
     <QueryWrapper>
       <QueryHeader>
-        <TooltipComponent
-          content="Add your query here!"
-          hoverOpenDelay={300}
-          position={Position.BOTTOM_LEFT}
-        >
-          <Text color={Colors.GRAY_700} type={TextType.H6}>
-            Query
-          </Text>
-        </TooltipComponent>
+        <Text color={Colors.GRAY_700} type={TextType.H6}>
+          Query
+        </Text>
       </QueryHeader>
       <Field component={CodeEditor} {...props} {...editorProps} />
     </QueryWrapper>
