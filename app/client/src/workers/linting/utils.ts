@@ -16,7 +16,6 @@ import {
 import { JSHINT as jshint, LintError } from "jshint";
 import { get, isEmpty, keys, last } from "lodash";
 import {
-  EvaluateContext,
   EvaluationScripts,
   EvaluationScriptType,
   ScriptTemplate,
@@ -51,18 +50,6 @@ export const getJSSnippetToLint = (
   return entity && isJSAction(entity) && propertyPath === "body"
     ? snippet.replace(/export default/g, "")
     : snippet;
-};
-
-export const getLintingContextData = (
-  entity: DataTreeEntity,
-): EvaluateContext => {
-  const contextData: EvaluateContext = {};
-  if (isAction(entity)) {
-    contextData.thisContext = {
-      params: {},
-    };
-  }
-  return contextData;
 };
 
 export const getPositionInEvaluationScript = (

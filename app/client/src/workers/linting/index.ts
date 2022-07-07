@@ -22,18 +22,29 @@ import {
 
 import {
   getJSSnippetToLint,
-  getLintingContextData,
   getLintingErrors,
   pathRequiresLinting,
 } from "./utils";
+import { klona } from "klona/full";
 
 export const lintTree = (
-  unEvalTree: DataTree,
+  unEvalDataTree: DataTree,
   evalTree: DataTree,
   sortedDependencies: string[],
   triggerPathsToLint: string[],
   resolvedFunctions: Record<string, any>,
 ) => {
+  const unEvalTree = klona(unEvalDataTree);
+  const GLOBAL_DATA_WITHOUT_FUNCTIONS = createGlobalData(
+    unEvalTree,
+    resolvedFunctions,
+    false,
+  );
+  const GLOBAL_DATA_WITH_FUNCTIONS = createGlobalData(
+    unEvalTree,
+    resolvedFunctions,
+    true,
+  );
   const triggerPaths = [...triggerPathsToLint];
   sortedDependencies.forEach((fullPropertyPath) => {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
@@ -50,11 +61,12 @@ export const lintTree = (
     if (pathRequiresLinting(unEvalTree, entity, fullPropertyPath)) {
       removeLintErrorsFromEntityProperty(evalTree, fullPropertyPath);
       const lintErrors = lintBindingPath(
-        unEvalTree,
         unEvalPropertyValue,
         entity,
         fullPropertyPath,
-        resolvedFunctions,
+        isJSAction(entity)
+          ? GLOBAL_DATA_WITH_FUNCTIONS
+          : GLOBAL_DATA_WITHOUT_FUNCTIONS,
       );
       lintErrors.length &&
         addErrorToEntityProperty(lintErrors, evalTree, fullPropertyPath);
@@ -73,8 +85,7 @@ export const lintTree = (
       const errors = lintTriggerPath(
         unEvalPropertyValue,
         entity,
-        unEvalTree,
-        resolvedFunctions,
+        GLOBAL_DATA_WITH_FUNCTIONS,
       );
 
       errors.length && addErrorToEntityProperty(errors, evalTree, triggerPath);
@@ -83,11 +94,10 @@ export const lintTree = (
 };
 
 const lintBindingPath = (
-  dataTree: DataTree,
   dynamicBinding: string,
   entity: DataTreeEntity,
   fullPropertyPath: string,
-  resolvedFunctions: Record<string, any>,
+  globalData: ReturnType<typeof createGlobalData>,
 ) => {
   let lintErrors: EvaluationError[] = [];
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
@@ -105,19 +115,11 @@ const lintBindingPath = (
         propertyPath,
       );
       if (jsSnippet) {
-        const GLOBAL_DATA: Record<string, any> = createGlobalData(
-          dataTree,
-          resolvedFunctions,
-          !!entity && isJSAction(entity),
-          getLintingContextData(entity),
-          undefined,
-        );
-        GLOBAL_DATA.ALLOW_ASYNC = false;
         const scriptType = getScriptType(false, false);
         const scriptToLint = getScriptToEval(jsSnippetToLint, scriptType);
         lintErrors = getLintingErrors(
           scriptToLint,
-          GLOBAL_DATA,
+          globalData,
           jsSnippetToLint,
           scriptType,
         );
@@ -130,16 +132,14 @@ const lintBindingPath = (
 const lintTriggerPath = (
   userScript: string,
   entity: DataTreeEntity,
-  currentTree: DataTree,
-  resolvedFunctions: Record<string, any>,
+  globalData: ReturnType<typeof createGlobalData>,
 ) => {
   const { jsSnippets } = getDynamicBindings(userScript, entity);
   const script = getScriptToEval(jsSnippets[0], EvaluationScriptType.TRIGGERS);
-  const GLOBAL_DATA = createGlobalData(currentTree, resolvedFunctions, true);
 
   return getLintingErrors(
     script,
-    GLOBAL_DATA,
+    globalData,
     jsSnippets[0],
     EvaluationScriptType.TRIGGERS,
   );
