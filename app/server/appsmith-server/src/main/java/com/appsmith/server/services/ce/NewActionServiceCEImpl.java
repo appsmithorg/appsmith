@@ -405,25 +405,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 })
                 .flatMap(repository::save)
                 .flatMap(savedAction -> {
-                    ActionDTO unpublishedAction = savedAction.getUnpublishedAction();
-                    Map<String, Object> analyticsProperties = new HashMap<>();
-                    analyticsProperties.put("pluginType", ObjectUtils.defaultIfNull(savedAction.getPluginType(), ""));
-                    analyticsProperties.put("pluginName", ObjectUtils.defaultIfNull(unpublishedAction.getPluginName(), ""));
-                    analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedAction.getApplicationId(), ""));
-                    analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedAction.getWorkspaceId(), ""));
-                    analyticsProperties.put("actionName", ObjectUtils.defaultIfNull(unpublishedAction.getValidName(), ""));
-                    if (unpublishedAction.getDatasource() != null) {
-                        analyticsProperties.put("dsName", ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getName(), ""));
-                    }
-
-                    Mono<NewAction> analyticsMono = analyticsService.sendCreateEvent(savedAction, analyticsProperties);
-
                     // If the default action is not set then current action will be the default one
                     if (StringUtils.isEmpty(savedAction.getDefaultResources().getActionId())) {
                         savedAction.getDefaultResources().setActionId(savedAction.getId());
-                        return analyticsMono.then(repository.save(savedAction));
+                        return repository.save(savedAction);
                     }
-                    return analyticsMono;
+                    return Mono.just(savedAction);
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
@@ -552,19 +539,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(this::extractAndSetNativeQueryFromFormData)
                 .cache();
 
-        Mono<ActionDTO> savedUpdatedActionMono = updatedActionMono
-                .flatMap(this::validateAndSaveActionToRepository)
-                .cache();
-
-        Mono<NewAction> analyticsUpdateMono = updatedActionMono
-                .flatMap(analyticsService::sendUpdateEvent);
-
-        // First Update the Action
-        return savedUpdatedActionMono
-                // Now send the update event to analytics service
-                .then(analyticsUpdateMono)
-                // Now return the updated action back.
-                .then(savedUpdatedActionMono);
+        return updatedActionMono
+                .flatMap(savedNewAction -> this.validateAndSaveActionToRepository(savedNewAction).zipWith(Mono.just(savedNewAction)))
+                .flatMap(zippedActions -> analyticsService
+                        .sendUpdateEvent(zippedActions.getT2(), this.getAnalyticsProperties(zippedActions.getT2()))
+                        .thenReturn(zippedActions.getT1()));
     }
 
     private Mono<NewAction> extractAndSetNativeQueryFromFormData(NewAction action) {
@@ -1259,15 +1238,19 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     // action, publishedAction would exist with empty datasource and default fields.
                     if (toDelete.getPublishedAction() != null && toDelete.getPublishedAction().getName() != null) {
                         toDelete.getUnpublishedAction().setDeletedAt(Instant.now());
-                        newActionMono = repository.save(toDelete);
+                        newActionMono = repository
+                                .save(toDelete)
+                                .flatMap(deletedAction -> analyticsService.sendArchiveEvent(deletedAction, getAnalyticsProperties(deletedAction)));
                     } else {
                         // This action was never published. This document can be safely archived
-                        newActionMono = repository.archive(toDelete).thenReturn(toDelete);
+                        newActionMono = repository
+                                .archive(toDelete)
+                                .thenReturn(toDelete)
+                                .flatMap(deletedAction -> analyticsService.sendDeleteEvent(deletedAction, getAnalyticsProperties(deletedAction)));
                     }
 
                     return newActionMono;
                 })
-                .flatMap(analyticsService::sendDeleteEvent)
                 .flatMap(updatedAction -> generateActionByViewMode(updatedAction, false));
     }
 
@@ -1674,7 +1657,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
         return actionMono
                 .flatMap(toDelete -> repository.archive(toDelete).thenReturn(toDelete))
-                .flatMap(analyticsService::sendDeleteEvent);
+                .flatMap(deletedAction -> analyticsService.sendDeleteEvent(deletedAction, getAnalyticsProperties(deletedAction)));
     }
 
     @Override
@@ -1775,5 +1758,29 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .map(NewAction::getId);
     }
 
+    @Override
+    public Map<String, Object> getAnalyticsProperties(NewAction savedAction) {
+        ActionDTO unpublishedAction = savedAction.getUnpublishedAction();
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        analyticsProperties.put("actionName", ObjectUtils.defaultIfNull(unpublishedAction.getValidName(), ""));
+        analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedAction.getApplicationId(), ""));
+        analyticsProperties.put("pageId", ObjectUtils.defaultIfNull(unpublishedAction.getPageId(), ""));
+        analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedAction.getWorkspaceId(), ""));
+        analyticsProperties.put("plugin", Map.of(
+                "id",
+                ObjectUtils.defaultIfNull(savedAction.getPluginId(), ""),
+                "type",
+                ObjectUtils.defaultIfNull(savedAction.getPluginType(), ""),
+                "name",
+                ObjectUtils.defaultIfNull(unpublishedAction.getPluginName(), "")));
+        if (unpublishedAction.getDatasource() != null) {
+            analyticsProperties.put("datasource", Map.of(
+                    "id",
+                    ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getId(), ""),
+                    "name",
+                    ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getName(), "")));
+        }
+        return analyticsProperties;
+    }
 
 }

@@ -125,7 +125,7 @@ public class ActionCollectionServiceImplTest {
                 .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
 
         Mockito
-                .when(analyticsService.sendDeleteEvent(Mockito.any()))
+                .when(analyticsService.sendDeleteEvent(Mockito.any(), Mockito.any()))
                 .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
     }
 

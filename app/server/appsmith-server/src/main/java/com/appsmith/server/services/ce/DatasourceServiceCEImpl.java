@@ -439,7 +439,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         return this.archiveById(id);
     }
 
-    private Map<String, Object> getAnalyticsProperties(Datasource datasource) {
+    @Override
+    public Map<String, Object> getAnalyticsProperties(Datasource datasource) {
         Map<String, Object> analyticsProperties = new HashMap<>();
         analyticsProperties.put("orgId", datasource.getWorkspaceId());
         analyticsProperties.put("pluginName", datasource.getPluginName());

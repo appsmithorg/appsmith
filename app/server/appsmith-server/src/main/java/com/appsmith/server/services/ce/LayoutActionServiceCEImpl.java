@@ -1,13 +1,13 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
 import com.appsmith.server.domains.Layout;
@@ -1172,7 +1172,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
                     return Mono.just(newAction);
                 })
-                .flatMap(newActionService::validateAndSaveActionToRepository);
+                .flatMap(savedNewAction -> newActionService.validateAndSaveActionToRepository(savedNewAction).zipWith(Mono.just(savedNewAction)))
+                .flatMap(zippedActions -> analyticsService
+                        .sendCreateEvent(zippedActions.getT2(), newActionService.getAnalyticsProperties(zippedActions.getT2()))
+                        .thenReturn(zippedActions.getT1()));
     }
 
 }
