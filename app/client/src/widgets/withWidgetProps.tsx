@@ -57,6 +57,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
           return computeMainContainerWidget(canvasWidget, mainCanvasProps);
         }
+
         return evaluatedWidget
           ? createCanvasWidget(canvasWidget, evaluatedWidget)
           : createLoadingWidget(canvasWidget);
