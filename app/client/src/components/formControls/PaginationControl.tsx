@@ -19,7 +19,7 @@ export const StyledFormLabel = styled(FormLabel)`
 export const FormControlContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: 20vw;
+  width: 280px;
   margin-right: 1rem;
 `;
 
@@ -29,7 +29,7 @@ const valueFieldConfig: any = {
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
   placeholderText: "value",
   customStyles: {
-    width: "20vw",
+    width: "280px",
   },
 };
 
@@ -77,7 +77,7 @@ export function Pagination(props: {
   );
 
   const defaultStyles = {
-    width: "20vw",
+    width: "280px",
     ...customStyles,
   };
 

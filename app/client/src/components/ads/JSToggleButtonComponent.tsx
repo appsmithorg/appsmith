@@ -2,27 +2,40 @@ import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ControlIcons } from "icons/ControlIcons";
+import { IconWrapper } from "constants/IconConstants";
 
 const JSToggleButtonWrapper = styled.button<{ active: boolean }>`
   margin: 4px;
   margin-top: 0px;
   cursor: pointer;
+
+  & ${IconWrapper} {
+    cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  }
+
   height: auto;
   width: 28px;
   height: 16px;
-  border: 0.5px solid ${Colors.BLACK};
+  border: 0.5px solid
+    ${(props) => (props.disabled ? Colors.GRAY_400 : Colors.GRAY_700)};
   background-color: ${(props) =>
-    props.active ? Colors.GREY_10 : Colors.GREY_2};
+    props.active
+      ? props.disabled
+        ? Colors.GRAY_400
+        : Colors.GRAY_800
+      : props.disabled
+      ? Colors.GRAY_200
+      : Colors.WHITE};
 
   &:hover {
     background-color: ${(props) =>
-      props.active ? Colors.GREY_9 : Colors.GREY_3};
-
-    &&& svg {
-      path {
-        fill: ${(props) => (props.active ? Colors.GREY_2 : Colors.GREY_9)};
-      }
-    }
+      props.disabled
+        ? props.active
+          ? Colors.GRAY_400
+          : Colors.GRAY_200
+        : props.active
+        ? Colors.GRAY_900
+        : Colors.GRAY_200};
   }
 
   & > div {
@@ -42,8 +55,7 @@ const JSToggleButtonWrapper = styled.button<{ active: boolean }>`
     }
 
     path {
-      fill: ${(props) =>
-        props.active ? props.theme.colors.GREY_2 : Colors.GREY_9};
+      fill: ${(props) => (props.active ? Colors.WHITE : Colors.GRAY_700)};
     }
   }
 `;
