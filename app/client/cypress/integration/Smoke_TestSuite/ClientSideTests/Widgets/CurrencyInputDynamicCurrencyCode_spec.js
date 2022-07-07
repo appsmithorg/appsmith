@@ -1,22 +1,50 @@
 const dynamicDSL = require("../../../../fixtures/CurrencyInputDynamic.json");
+const publish = require("../../../../locators/publishWidgetspage.json");
 
 const widgetName = "currencyinputwidget";
-const widgetInput = `.t--widget-${widgetName} input`;
 
 describe("Currency input widget - ", () => {
   before(() => {
     cy.addDsl(dynamicDSL);
   });
 
-  it("should check that widget can be used with dynamic default currency code", () => {
+  it("1. Should show empty dropdown for a typo", () => {
+    cy.openPropertyPane(widgetName);
+
+    // Turn on allowCurrencyChange
+    cy.get(".t--property-control-allowcurrencychange label")
+      .last()
+      .click({ force: true });
+    // Click on the currency change option
+    cy.get(".t--input-currency-change")
+      .first()
+      .click();
+    // Search with a typo
+    cy.get(".t--search-input input").type("gdp");
+    cy.wait(500);
+    // Assert the options dropdown is still open
+    cy.get(".t--search-input input").should("be.visible");
+
+    cy.PublishtheApp();
+    // Click on the currency change option
+    cy.get(".t--input-currency-change")
+      .first()
+      .click();
+    // Search with a typo
+    cy.get(".t--search-input input").type("gdp");
+    cy.wait(500);
+    // Assert the options dropdown is still open
+    cy.get(".t--search-input input").should("be.visible");
+    // Back to the editor
+    cy.get(publish.backToEditor).click();
+  });
+
+  it("2. should check that widget can be used with dynamic default currency code", () => {
     cy.openPropertyPane(widgetName);
     cy.get(".t--property-control-currency .CodeMirror-code").should(
       "contain",
       "{{appsmith.store.test}}",
     );
-    cy.get(".t--property-control-allowcurrencychange label")
-      .last()
-      .click({ force: true });
     cy.get(".t--input-currency-change")
       .first()
       .click();

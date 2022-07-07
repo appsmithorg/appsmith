@@ -521,3 +521,6 @@ export const getZoomLevel = (state: AppState) => {
  */
 export const getIsSavingEntity = (state: AppState) =>
   state.ui.editor.loadingStates.savingEntity;
+
+export const selectJSCollections = (state: AppState) =>
+  state.entities.jsActions;
