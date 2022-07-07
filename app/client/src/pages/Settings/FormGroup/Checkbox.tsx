@@ -38,6 +38,7 @@ type CheckboxProps = {
   labelSuffix?: React.ReactElement;
   upgradeLogEventName?: EventName;
   upgradeIntercomEventMessage?: string;
+  isPropertyDisabled?: boolean;
 };
 
 function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
@@ -47,7 +48,7 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
       input: Partial<WrappedFieldInputProps>;
     },
   ) {
-    const { labelSuffix } = props;
+    const { isPropertyDisabled, labelSuffix } = props;
     const val = componentProps.input.value;
     const { onUpgrade } = useOnUpgrade({
       logEventName: props.upgradeLogEventName,
@@ -68,7 +69,7 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
         <Checkbox
           cypressSelector={props.id}
           disabled={props.isDisabled}
-          isDefaultChecked={val}
+          isDefaultChecked={isPropertyDisabled ? !val : val}
           label={props.text}
           onCheckChange={onCheckbox}
         />
@@ -107,6 +108,7 @@ export function CheckboxComponent({ setting }: SettingComponentProps) {
             labelSuffix: setting.textSuffix,
             upgradeLogEventName: setting.upgradeLogEventName,
             upgradeIntercomEventMessage: setting.upgradeIntercomEventMessage,
+            isPropertyDisabled: !setting.name?.toLowerCase().includes("enable"),
           })}
           name={setting.name}
         />
