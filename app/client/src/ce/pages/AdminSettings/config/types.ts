@@ -59,7 +59,7 @@ export interface Setting {
   dropdownOptions?: Array<{ id: string; value: string; label?: string }>;
   needsUpgrade?: boolean;
   upgradeLogEventName?: EventName;
-  upgradeIntercomEventMessage?: string;
+  upgradeIntercomMessage?: string;
 }
 
 export interface Category {

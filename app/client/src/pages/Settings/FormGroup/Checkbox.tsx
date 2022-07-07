@@ -37,7 +37,7 @@ type CheckboxProps = {
   text: string;
   labelSuffix?: React.ReactElement;
   upgradeLogEventName?: EventName;
-  upgradeIntercomEventMessage?: string;
+  upgradeIntercomMessage?: string;
   isPropertyDisabled?: boolean;
 };
 
@@ -52,7 +52,7 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
     const val = componentProps.input.value;
     const { onUpgrade } = useOnUpgrade({
       logEventName: props.upgradeLogEventName,
-      intercomMessage: props.upgradeIntercomEventMessage,
+      intercomMessage: props.upgradeIntercomMessage,
     });
 
     function onCheckbox(value?: boolean) {
@@ -107,7 +107,7 @@ export function CheckboxComponent({ setting }: SettingComponentProps) {
             needsUpgrade: setting.needsUpgrade,
             labelSuffix: setting.textSuffix,
             upgradeLogEventName: setting.upgradeLogEventName,
-            upgradeIntercomEventMessage: setting.upgradeIntercomEventMessage,
+            upgradeIntercomMessage: setting.upgradeIntercomMessage,
             isPropertyDisabled: !setting.name?.toLowerCase().includes("enable"),
           })}
           name={setting.name}

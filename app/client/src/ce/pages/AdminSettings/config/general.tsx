@@ -7,10 +7,11 @@ import {
   SettingCategories,
   SettingSubtype,
   SettingTypes,
+  Setting,
 } from "@appsmith/pages/AdminSettings/config/types";
 import BrandingBadge from "pages/AppViewer/BrandingBadge";
 
-export const APPSMITH_INSTANCE_NAME_SETTING_SETTING = {
+export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
   id: "APPSMITH_INSTANCE_NAME",
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.TEXTINPUT,
@@ -19,7 +20,7 @@ export const APPSMITH_INSTANCE_NAME_SETTING_SETTING = {
   placeholder: "appsmith/prod",
 };
 
-export const APPSMITH__ADMIN_EMAILS_SETTING = {
+export const APPSMITH__ADMIN_EMAILS_SETTING: Setting = {
   id: "APPSMITH_ADMIN_EMAILS",
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.TEXTINPUT,
@@ -40,7 +41,7 @@ export const APPSMITH__ADMIN_EMAILS_SETTING = {
   },
 };
 
-export const APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE_SETTING = {
+export const APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE_SETTING: Setting = {
   id: "APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE",
   action: () => {
     const { host, protocol } = window.location;
@@ -55,7 +56,7 @@ export const APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE_SETTING = {
   text: "Download",
 };
 
-export const APPSMITH_DISABLE_TELEMETRY_SETTING = {
+export const APPSMITH_DISABLE_TELEMETRY_SETTING: Setting = {
   id: "APPSMITH_DISABLE_TELEMETRY",
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.TOGGLE,
@@ -65,7 +66,7 @@ export const APPSMITH_DISABLE_TELEMETRY_SETTING = {
     value ? "Don't share any data" : "Share Anonymous Telemetry",
 };
 
-export const APPSMITH_HIDE_WATERMARK_SETTING = {
+export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
   id: "APPSMITH_HIDE_WATERMARK",
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.CHECKBOX,
@@ -75,8 +76,8 @@ export const APPSMITH_HIDE_WATERMARK_SETTING = {
   isDisabled: () => true,
   textSuffix: <BrandingBadge />,
   upgradeLogEventName: "ADMIN_SETTINGS_UPGRADE_WATERMARK",
-  upgradeLogMessage:
-    "Hello, I would like to upgrade and start using branding options.",
+  upgradeIntercomMessage:
+    "Hello, I would like to upgrade and remove the watermark.",
 };
 
 export const config: AdminConfigType = {
