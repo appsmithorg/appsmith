@@ -16,7 +16,7 @@ describe("Validate API Panel CSS Styles", function() {
     cy.CreateAPI("test_styles");
   });
 
-  it("Quick access command background color", function() {
+  it("1.Quick access command background color", function() {
     //Get the first key component (can be any of key value component)
     //eq(1) is used because eq(0) is API serach bar.
     cy.get(ApiEditor.codeEditorWrapper)
@@ -28,7 +28,7 @@ describe("Validate API Panel CSS Styles", function() {
       .should("have.css", "background-color", backgroundColorGray200);
   });
 
-  it("HTTP method dropdown hover and selected background should be gray", function() {
+  it("2.HTTP method dropdown hover and selected background should be gray", function() {
     //Click on API http selector
     cy.get(ApiEditor.ApiVerb).click();
     //Default selection GET background-color check
@@ -45,7 +45,7 @@ describe("Validate API Panel CSS Styles", function() {
       .click();
   });
 
-  it("Commands help button center align", function() {
+  it("3.Commands help button center align", function() {
     //Get the first key component (can be any of key value component)
     //eq(1) is used because eq(0) is API serach bar.
     cy.get(ApiEditor.codeEditorWrapper)
@@ -77,7 +77,7 @@ describe("Validate API Panel CSS Styles", function() {
       );
   });
 
-  it("Select Datasource dropdown binding prompt background color", function() {
+  it("4.Select Datasource dropdown binding prompt background color", function() {
     cy.generateUUID().then((appName1) => {
       cy.generateUUID().then((appName2) => {
         //Create two datasource for testing binding prompt background-color
