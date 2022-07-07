@@ -426,8 +426,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(defaultApplication -> {
                     GitApplicationMetadata defaultGitMetadata = defaultApplication.getGitApplicationMetadata();
                     if (Optional.ofNullable(defaultGitMetadata).isEmpty()) {
-                        return redisUtils.releaseFileLock(defaultApplicationId)
-                                .then(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR)));
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
                     }
                     // Check if the repo is public for current application and if the user have changed the access after
                     // the connection
@@ -469,8 +468,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(branchedApplication -> {
                     GitApplicationMetadata gitApplicationMetadata = branchedApplication.getGitApplicationMetadata();
                     if (gitApplicationMetadata == null) {
-                        return redisUtils.releaseFileLock(defaultApplicationId)
-                                .then(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR)));
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
                     }
                     String errorEntity = "";
                     if (StringUtils.isEmptyOrNull(gitApplicationMetadata.getBranchName())) {
@@ -482,8 +480,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
 
                     if (!errorEntity.isEmpty()) {
-                        return redisUtils.releaseFileLock(defaultApplicationId)
-                                .then(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find " + errorEntity)));
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find " + errorEntity));
                     }
                     return Mono.zip(
                             importExportApplicationService
@@ -502,8 +499,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     try {
                         repoPathMono = fileUtils.saveApplicationToLocalRepo(baseRepoSuffix, applicationJson, gitData.getBranchName());
                     } catch (IOException | GitAPIException e) {
-                        return redisUtils.releaseFileLock(defaultApplicationId)
-                                .then(Mono.error(e));
+                        return Mono.error(e);
                     }
                     gitData.setLastCommittedAt(Instant.now());
                     Mono<Application> branchedApplicationMono = updateGitMetadata(childApplication.getId(), gitData);
@@ -516,13 +512,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                 })
                 .onErrorResume(e -> {
                     log.error("Error in commit flow: ", e);
-                    Mono<Boolean> fileLockMono = redisUtils.releaseFileLock(defaultApplicationId);
                     if (e instanceof RepositoryNotFoundException) {
-                        return fileLockMono.then(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_NOT_FOUND, defaultApplicationId)));
+                        return Mono.error(new AppsmithException(AppsmithError.REPOSITORY_NOT_FOUND, defaultApplicationId));
                     } else if (e instanceof AppsmithException) {
-                        return fileLockMono.then(Mono.error(e));
+                        return Mono.error(e);
                     }
-                    return fileLockMono.then(Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage())));
+                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                 })
                 .flatMap(tuple -> {
                     Path baseRepoPath = tuple.getT1();
@@ -552,8 +547,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 AppsmithError.INVALID_GIT_CONFIGURATION.getMessage(errorMessage),
                                 childApplication.getGitApplicationMetadata().getIsRepoPrivate()
                         )
-                                .flatMap(user -> redisUtils.releaseFileLock(defaultApplicationId)
-                                        .then(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, errorMessage))));
+                                .flatMap(user -> Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, errorMessage)));
                     }
                     result.append("Commit Result : ");
                     Mono<String> gitCommitMono = gitExecutor
@@ -568,7 +562,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         error.getClass().getName(),
                                         error.getMessage(),
                                         childApplication.getGitApplicationMetadata().getIsRepoPrivate()
-                                ).zipWith(redisUtils.releaseFileLock(defaultApplicationId)).then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", error.getMessage())));
+                                ).then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", error.getMessage())));
                             });
 
                     return Mono.zip(gitCommitMono, Mono.just(childApplication));
@@ -1191,9 +1185,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
                                     }))
                             .flatMap(status -> gitExecutor.checkoutToBranch(repoSuffix, srcBranch))
-                            .onErrorResume(error -> fileLockMono.then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", "Unable to find " + srcBranch))))
+                            .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", "Unable to find " + srcBranch)))
                             .zipWhen(isCheckedOut -> gitExecutor.fetchRemote(repoSuffix, defaultGitAuth.getPublicKey(), defaultGitAuth.getPrivateKey(), false)
-                                    .onErrorResume(error -> fileLockMono.then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "fetch", error)))))
+                                    .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "fetch", error))))
                             .flatMap(ignore -> gitExecutor.listBranches(repoSuffix, srcBranchGitData.getRemoteUrl(), defaultGitAuth.getPrivateKey(), defaultGitAuth.getPublicKey(), false)
                                     .flatMap(branchList -> {
                                         boolean isDuplicateName = branchList.stream()
@@ -1203,10 +1197,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                         .equals(branchDTO.getBranchName()));
 
                                         if (isDuplicateName) {
-                                            return fileLockMono.then(Mono.error(new AppsmithException(
+                                            return Mono.error(new AppsmithException(
                                                     AppsmithError.DUPLICATE_KEY_USER_ERROR,
                                                     "remotes/origin/" + branchDTO.getBranchName(),
-                                                    FieldName.BRANCH_NAME)));
+                                                    FieldName.BRANCH_NAME));
                                         }
                                         return gitExecutor.createAndCheckoutToBranch(repoSuffix, branchDTO.getBranchName());
                                     }))
@@ -1228,7 +1222,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         importExportApplicationService.exportApplicationById(srcApplicationId, SerialiseApplicationObjective.VERSION_CONTROL)
                                 );
                             })
-                            .onErrorResume(error -> fileLockMono.then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "branch", error.getMessage()))));
+                            .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "branch", error.getMessage())));
                 })
                 .flatMap(tuple -> {
                     Application savedApplication = tuple.getT1();
@@ -1426,8 +1420,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     GitStatusDTO status = tuple.getT2();
                     // Check if the repo is clean
                     if (!CollectionUtils.isNullOrEmpty(status.getModified())) {
-                        return redisUtils.releaseFileLock(defaultApplicationId)
-                                .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", "There are uncommitted changes present in your local. Please commit them first and then try git pull")));
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", "There are uncommitted changes present in your local. Please commit them first and then try git pull"));
                     }
                     return pullAndRehydrateApplication(defaultApplication, branchName);
                 });
@@ -1615,16 +1608,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .then(gitExecutor.resetToLastCommit(tuple.getT3(), branchName))
                                 .flatMap(status -> {
                                     if(Boolean.TRUE.equals(isFileLock)) {
-                                        return redisUtils.releaseFileLock(defaultApplicationId)
-                                                .then(branchedStatusMono);
+                                        return branchedStatusMono;
                                     }
                                     return branchedStatusMono;
                                 })
-                                .onErrorResume(error -> redisUtils.releaseFileLock(defaultApplicationId)
-                                        .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage()))));
+                                .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
                     } catch (GitAPIException | IOException e) {
-                        return redisUtils.releaseFileLock(defaultApplicationId)
-                                .then(Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, e.getMessage())));
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, e.getMessage()));
                     }
                 });
 
@@ -1659,8 +1649,6 @@ public class GitServiceCEImpl implements GitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH, destinationBranch));
         }
 
-        Mono<Boolean> fileLock = redisUtils.releaseFileLock(defaultApplicationId);
-
         Mono<MergeStatusDTO> mergeMono = getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
@@ -1674,7 +1662,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(defaultApplication -> {
                     GitApplicationMetadata gitApplicationMetadata = defaultApplication.getGitApplicationMetadata();
                     if (isInvalidDefaultApplicationGitMetadata(defaultApplication.getGitApplicationMetadata())) {
-                        return redisUtils.releaseFileLock(defaultApplicationId).then(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION)));
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                     }
                     Path repoSuffix = Paths.get(defaultApplication.getWorkspaceId(),
                             gitApplicationMetadata.getDefaultApplicationId(),
@@ -1684,16 +1672,16 @@ public class GitServiceCEImpl implements GitServiceCE {
                     Mono<Path> pathToFile = this.getStatus(defaultApplicationId, sourceBranch, false)
                             .flatMap(status -> {
                                 if (!Integer.valueOf(0).equals(status.getBehindCount())) {
-                                    return fileLock.then(Mono.error(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, status.getBehindCount(), sourceBranch)));
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, status.getBehindCount(), sourceBranch));
                                 } else if (!CollectionUtils.isNullOrEmpty(status.getModified())) {
-                                    return fileLock.then(Mono.error(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch)));
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch));
                                 }
                                 return this.getStatus(defaultApplicationId, destinationBranch, false)
                                         .map(status1 -> {
                                             if (!Integer.valueOf(0).equals(status.getBehindCount())) {
-                                                return fileLock.then(Mono.error(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, status.getBehindCount(), destinationBranch)));
+                                                return Mono.error(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, status.getBehindCount(), destinationBranch));
                                             } else if (!CollectionUtils.isNullOrEmpty(status.getModified())) {
-                                                return fileLock.then(Mono.error(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, destinationBranch)));
+                                                return Mono.error(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, destinationBranch));
                                             }
                                             return status1;
                                         });
@@ -1704,9 +1692,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .onErrorResume(error -> {
                                 log.error("Error in repo status check application " + defaultApplicationId, error);
                                 if (error instanceof AppsmithException) {
-                                    return fileLock.then(Mono.error(error));
+                                    return Mono.error(error);
                                 }
-                                return fileLock.then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error)));
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error));
                             });
                 })
                 .flatMap(tuple -> {
@@ -1727,9 +1715,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                         )
                         .flatMap(application -> {
                             if (error instanceof GitAPIException) {
-                                return fileLock.then(Mono.error(new AppsmithException(AppsmithError.GIT_MERGE_CONFLICTS, error.getMessage())));
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_MERGE_CONFLICTS, error.getMessage()));
                             }
-                            return fileLock.then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "merge", error.getMessage())));
+                            return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "merge", error.getMessage()));
                         })
                     );
                 })
@@ -1799,8 +1787,6 @@ public class GitServiceCEImpl implements GitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH, destinationBranch));
         }
 
-        Mono<Boolean> fileLockMono = redisUtils.releaseFileLock(defaultApplicationId);
-
         Mono<MergeStatusDTO> mergeableStatusMono = getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -1820,20 +1806,16 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .flatMap(status -> this.getStatus(defaultApplicationId, sourceBranch, false))
                             .flatMap(srcBranchStatus -> {
                                 if (!Integer.valueOf(0).equals(srcBranchStatus.getBehindCount())) {
-                                    return fileLockMono
-                                            .then(Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, srcBranchStatus.getBehindCount(), sourceBranch))));
+                                    return Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, srcBranchStatus.getBehindCount(), sourceBranch)));
                                 } else if (!CollectionUtils.isNullOrEmpty(srcBranchStatus.getModified())) {
-                                    return fileLockMono
-                                            .then(Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch))));
+                                    return Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch)));
                                 }
                                 return this.getStatus(defaultApplicationId, destinationBranch, false)
                                         .map(destBranchStatus -> {
                                             if (!Integer.valueOf(0).equals(destBranchStatus.getBehindCount())) {
-                                                fileLockMono
-                                                        .then(Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, destBranchStatus.getBehindCount(), destinationBranch))));
+                                                return Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES, destBranchStatus.getBehindCount(), destinationBranch)));
                                             } else if (!CollectionUtils.isNullOrEmpty(destBranchStatus.getModified())) {
-                                                fileLockMono
-                                                        .then(Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, destinationBranch))));
+                                                return Mono.error(Exceptions.propagate(new AppsmithException(AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, destinationBranch)));
                                             }
                                             return destBranchStatus;
                                         });
@@ -1841,9 +1823,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .onErrorResume(error -> {
                                 log.debug("Error in merge status check application " + defaultApplicationId, error);
                                 if (error instanceof AppsmithException) {
-                                    return fileLockMono.then(Mono.error(error));
+                                    return Mono.error(error);
                                 }
-                                return fileLockMono.then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error)));
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error));
                             })
                             .then(gitExecutor.isMergeBranch(repoSuffix, sourceBranch, destinationBranch))
                             .onErrorResume(error -> {
@@ -1863,7 +1845,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             });
                                 } catch (GitAPIException | IOException e) {
                                     log.error("Error while resetting to last commit", e);
-                                    return fileLockMono.then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "reset --hard HEAD", e.getMessage())));
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "reset --hard HEAD", e.getMessage()));
                                 }
                             });
                 });
