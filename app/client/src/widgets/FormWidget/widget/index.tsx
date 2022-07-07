@@ -102,7 +102,6 @@ class FormWidget extends ContainerWidget {
           if (isInvalid) grandChild.isFormValid = false;
           // Add submit and reset handlers
           grandChild.onReset = this.handleResetInputs;
-          grandChild.skipWidgetPropsHydration = true;
           return grandChild;
         },
       );

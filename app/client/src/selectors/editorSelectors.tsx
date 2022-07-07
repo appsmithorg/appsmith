@@ -351,6 +351,51 @@ export const getChildWidgets = createSelector(
   buildChildWidgetTree,
 );
 
+function buildFormChildWidgetTree(
+  canvasWidgets: CanvasWidgetsReduxState,
+  evaluatedDataTree: DataTree,
+  loadingEntities: LoadingEntitiesState,
+  widgetId: string,
+) {
+  const parentWidget = canvasWidgets[widgetId];
+
+  if (parentWidget.children) {
+    return parentWidget.children.map((childWidgetId) => {
+      const childWidget = canvasWidgets[childWidgetId];
+      const evaluatedWidget = evaluatedDataTree[
+        childWidget.widgetName
+      ] as DataTreeWidget;
+      const widget = evaluatedWidget
+        ? createFormCanvasWidget(childWidget, evaluatedWidget)
+        : createLoadingWidget(childWidget);
+
+      widget.isLoading = loadingEntities.has(childWidget.widgetName);
+
+      if (widget?.children?.length > 0) {
+        widget.children = buildFormChildWidgetTree(
+          canvasWidgets,
+          evaluatedDataTree,
+          loadingEntities,
+          childWidgetId,
+        );
+      }
+
+      return widget;
+    });
+  }
+
+  return [];
+}
+export const getFormChildWidgets = createSelector(
+  [
+    getCanvasWidgets,
+    getDataTree,
+    getLoadingEntities,
+    (_state: AppState, widgetId: string) => widgetId,
+  ],
+  buildFormChildWidgetTree,
+);
+
 const getOccupiedSpacesForContainer = (
   containerWidgetId: string,
   widgets: FlattenedWidgetProps[],
@@ -394,6 +439,46 @@ export const getOccupiedSpaces = createSelector(
     const occupiedSpaces: {
       [containerWidgetId: string]: OccupiedSpace[];
     } = {};
+    // Get all widgets with type "CONTAINER_WIDGET" and has children
+    const containerWidgets: FlattenedWidgetProps[] = Object.values(
+      widgets,
+    ).filter((widget) => widget.children && widget.children.length > 0);
+
+    // If we have any container widgets
+    if (containerWidgets) {
+      containerWidgets.forEach((containerWidget: FlattenedWidgetProps) => {
+        const containerWidgetId = containerWidget.widgetId;
+        // Get child widgets for the container
+        const childWidgets = Object.keys(widgets).filter(
+          (widgetId) =>
+            containerWidget.children &&
+            containerWidget.children.indexOf(widgetId) > -1 &&
+            !widgets[widgetId].detachFromLayout,
+        );
+        // Get the occupied spaces in this container
+        // Assign it to the containerWidgetId key in occupiedSpaces
+        occupiedSpaces[containerWidgetId] = getOccupiedSpacesForContainer(
+          containerWidgetId,
+          childWidgets.map((widgetId) => widgets[widgetId]),
+        );
+      });
+    }
+    // Return undefined if there are no occupiedSpaces.
+    return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : undefined;
+  },
+);
+
+export const getOccupiedSpacesWhileDraggingOrResizing = createSelector(
+  getWidgets,
+  getIsDraggingOrResizing,
+  (
+    widgets: CanvasWidgetsReduxState,
+    isDraggingOrResizing: boolean,
+  ): { [containerWidgetId: string]: OccupiedSpace[] } | undefined => {
+    const occupiedSpaces: {
+      [containerWidgetId: string]: OccupiedSpace[];
+    } = {};
+    if (!isDraggingOrResizing) return;
     // Get all widgets with type "CONTAINER_WIDGET" and has children
     const containerWidgets: FlattenedWidgetProps[] = Object.values(
       widgets,
@@ -576,6 +661,27 @@ export const createCanvasWidget = (
   );
   return {
     ...evaluatedWidget,
+    ...widgetStaticProps,
+  };
+};
+
+export const createFormCanvasWidget = (
+  canvasWidget: FlattenedWidgetProps,
+  evaluatedWidget: DataTreeWidget,
+) => {
+  const widgetStaticProps = pick(
+    canvasWidget,
+    Object.keys(WIDGET_STATIC_PROPS),
+  );
+  const evaluatedStaticProps = pick(evaluatedWidget, [
+    "value",
+    "isDirty",
+    "isValid",
+    "isLoading",
+    "children",
+  ]);
+  return {
+    ...evaluatedStaticProps,
     ...widgetStaticProps,
   };
 };
