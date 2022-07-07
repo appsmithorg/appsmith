@@ -9,7 +9,8 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   homePage = ObjectsRegistry.HomePage,
   apiPage = ObjectsRegistry.ApiPage,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  propPane = ObjectsRegistry.PropertyPane;
 
 describe("JSObjects OnLoad Actions tests", function() {
   before(() => {
@@ -49,13 +50,13 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.RenameWithInPane("GetUser");
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      agHelper.EnterValue(
+      dataSources.EnterQuery(
         "SELECT * FROM public.users where id = {{" +
           jsObjName +
           ".getId.data}}",
       );
       ee.SelectEntityByName("Table1", "WIDGETS");
-      jsEditor.EnterJSContext("Table Data", "{{GetUser.data}}");
+      propPane.UpdatePropertyFieldValue("Table Data", "{{GetUser.data}}");
       agHelper.ValidateToastMessage(
         (("[" + jsName) as string) +
           ".getId, GetUser] will be executed automatically on page load",
@@ -169,7 +170,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     ee.ActionContextMenuByEntityName(
       jsName as string,
       "Delete",
-      "Are you sure?",
+      "Are you sure?", true
     );
 
     ee.ActionContextMenuByEntityName("GetUser", "Delete", "Are you sure?");
@@ -219,7 +220,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       ee.ActionContextMenuByEntityName(
         jsName as string,
         "Delete",
-        "Are you sure?",
+        "Are you sure?", true
       );
     });
   });
@@ -275,7 +276,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       // cy.get(locator._toastMsg).contains(regex)
 
       ee.SelectEntityByName("Input1", "WIDGETS");
-      jsEditor.EnterJSContext(
+      propPane.UpdatePropertyFieldValue(
         "Default Text",
         "{{" + jsObjName + ".callQuotes.data}}",
       );
@@ -285,12 +286,14 @@ describe("JSObjects OnLoad Actions tests", function() {
         .and("contain", jsName as string)
         .and("contain", "will be executed automatically on page load");
 
+      agHelper.WaitUntilToastDisappear("Quotes");
+
       ee.SelectEntityByName("Input2");
-      jsEditor.EnterJSContext(
+      propPane.UpdatePropertyFieldValue(
         "Default Text",
         "{{" + jsObjName + ".callTrump.data.message}}",
       );
-      agHelper.ValidateToastMessage(
+      agHelper.WaitUntilToastDisappear(
         (("[" + jsName) as string) +
           ".callTrump] will be executed automatically on page load",
       );
@@ -300,19 +303,19 @@ describe("JSObjects OnLoad Actions tests", function() {
       //One Quotes confirmation - for API true
       agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
       agHelper.ClickButton("No");
-      agHelper.ValidateToastMessage('The action "Quotes" has failed');
+      agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');
 
       //Another for API called via JS callQuotes()
       agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
       agHelper.ClickButton("No");
-      agHelper.ValidateToastMessage('The action "Quotes" has failed');
+      //agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');No toast appears!
 
       //Confirmation - first JSObj then API
       agHelper.AssertElementVisible(
         jsEditor._dialogBody((jsName as string) + ".callTrump"),
       );
       agHelper.ClickButton("No");
-      agHelper.ValidateToastMessage(
+      agHelper.WaitUntilToastDisappear(
         "Failed to execute actions during page load",
       ); //When Confirmation is NO validate error toast!
       agHelper.AssertElementAbsence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is NO, dependent API confirmation should not appear
@@ -415,7 +418,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     dataSources.NavigateFromActiveDS(guid, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("getCitiesList");
-    agHelper.EnterValue(
+    dataSources.EnterQuery(
       "SELECT distinct city FROM public.city order by city ASC",
     );
 
@@ -457,7 +460,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       // dataSources.NavigateToActiveDSQueryPane(guid);
       // agHelper.GetNClick(dataSources._templateMenu);
       // agHelper.RenameWithInPane("getCountry");
-      // agHelper.EnterValue(
+      // dataSources.EnterQuery(
       //   "SELECT country FROM public.city as City join public.country Country on City.country_id=Country.country_id where City.city = {{" +
       //     jsObjName +
       //     ".getSelectedCity()}}",
@@ -468,7 +471,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       //jsEditor.EnableDisableAsyncFuncSettings("callCountry", false, true); Bug # 13826
 
       ee.SelectEntityByName("Select1", "WIDGETS");
-      jsEditor.EnterJSContext(
+      propPane.UpdatePropertyFieldValue(
         "Options",
         `{{ getCitiesList.data.map((row) => {
           return { label: row.city, value: row.city }
@@ -505,7 +508,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       // agHelper.GetNClick(locator._dropDownValue("callBooks"));
 
       ee.SelectEntityByName("JSONForm1");
-      jsEditor.EnterJSContext("Source Data", "{{getBooks.data}}");
+      propPane.UpdatePropertyFieldValue("Source Data", "{{getBooks.data}}");
       //this toast is not coming due to existing JSON date errors but its made true at API
       //agHelper.ValidateToastMessage("[getBooks] will be executed automatically on page load");
     });
@@ -556,7 +559,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     ee.ActionContextMenuByEntityName(
       jsName as string,
       "Delete",
-      "Are you sure?",
+      "Are you sure?", true
     );
   });
 

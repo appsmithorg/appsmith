@@ -413,17 +413,17 @@ describe("App Theming funtionality", function() {
       "exist",
     );
 
-    cy.xpath(applyTheme("Featured Themes", "Classic")).should("exist");
-    cy.xpath(themesDeletebtn("Featured Themes", "Classic")).should("not.exist");
+    cy.xpath(applyTheme("Featured Themes", "Earth")).should("exist");
+    cy.xpath(themesDeletebtn("Featured Themes", "Earth")).should("not.exist");
 
-    cy.xpath(applyTheme("Featured Themes", "Modern")).should("exist");
-    cy.xpath(themesDeletebtn("Featured Themes", "Modern")).should("not.exist");
+    cy.xpath(applyTheme("Featured Themes", "Sunrise")).should("exist");
+    cy.xpath(themesDeletebtn("Featured Themes", "Sunrise")).should("not.exist");
 
-    cy.xpath(applyTheme("Featured Themes", "Sharp")).should("exist");
-    cy.xpath(themesDeletebtn("Featured Themes", "Sharp")).should("not.exist");
+    cy.xpath(applyTheme("Featured Themes", "Pacific")).should("exist");
+    cy.xpath(themesDeletebtn("Featured Themes", "Pacific")).should("not.exist");
 
-    cy.xpath(applyTheme("Featured Themes", "Rounded")).should("exist");
-    cy.xpath(themesDeletebtn("Featured Themes", "Rounded")).should("not.exist");
+    cy.xpath(applyTheme("Featured Themes", "Pampas")).should("exist");
+    cy.xpath(themesDeletebtn("Featured Themes", "Pampas")).should("not.exist");
 
     // cy.contains("Featured Themes")
     //   .siblings()
@@ -474,8 +474,8 @@ describe("App Theming funtionality", function() {
   });
 
   it("7. Verify user able to change between saved theme & already existing Featured themes", () => {
-    //#region Modern
-    cy.xpath(applyTheme("Featured Themes", "Modern"))
+    //#region Pampas
+    cy.xpath(applyTheme("Featured Themes", "Pampas"))
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
@@ -486,7 +486,7 @@ describe("App Theming funtionality", function() {
       .eq(0)
       .invoke("css", "background-color")
       .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(85, 61, 233)");
+        expect(backgroudColor).to.eq("rgb(5, 150, 105)");
       });
 
     cy.contains("Applied Theme")
@@ -497,7 +497,7 @@ describe("App Theming funtionality", function() {
       .eq(1)
       .invoke("css", "background-color")
       .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(246, 246, 246)");
+        expect(backgroudColor).to.eq("rgb(236, 253, 245)");
       });
 
     //#endregion
@@ -530,8 +530,8 @@ describe("App Theming funtionality", function() {
 
     //#endregion
 
-    //#region Sharp
-    cy.xpath(applyTheme("Featured Themes", "Sharp"))
+    //#region Modern
+    cy.xpath(applyTheme("Featured Themes", "Modern"))
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
@@ -542,35 +542,7 @@ describe("App Theming funtionality", function() {
       .eq(0)
       .invoke("css", "background-color")
       .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(59, 125, 221)");
-      });
-
-    cy.contains("Applied Theme")
-      .click()
-      .parent()
-      .siblings()
-      .find(".t--theme-card > main > section > div > main")
-      .eq(1)
-      .invoke("css", "background-color")
-      .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(255, 255, 255)");
-      });
-
-    //#endregion
-
-    //#region Rounded
-    cy.xpath(applyTheme("Featured Themes", "Rounded"))
-      .click({ force: true })
-      .wait(1000); //Changing to one of featured themes
-    cy.contains("Applied Theme")
-      .click()
-      .parent()
-      .siblings()
-      .find(".t--theme-card > main > section > div > main")
-      .eq(0)
-      .invoke("css", "background-color")
-      .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(222, 21, 147)");
+        expect(backgroudColor).to.eq("rgb(85, 61, 233)");
       });
 
     cy.contains("Applied Theme")
@@ -582,6 +554,142 @@ describe("App Theming funtionality", function() {
       .invoke("css", "background-color")
       .then((backgroudColor) => {
         expect(backgroudColor).to.eq("rgb(246, 246, 246)");
+      });
+
+    //#endregion
+
+    //#region Sunrise
+    cy.xpath(applyTheme("Featured Themes", "Sunrise"))
+      .click({ force: true })
+      .wait(1000); //Changing to one of featured themes
+    cy.contains("Applied Theme")
+      .click()
+      .parent()
+      .siblings()
+      .find(".t--theme-card > main > section > div > main")
+      .eq(0)
+      .invoke("css", "background-color")
+      .then((backgroudColor) => {
+        expect(backgroudColor).to.eq("rgb(239, 68, 68)");
+      });
+
+    cy.contains("Applied Theme")
+      .click()
+      .parent()
+      .siblings()
+      .find(".t--theme-card > main > section > div > main")
+      .eq(1)
+      .invoke("css", "background-color")
+      .then((backgroudColor) => {
+        expect(backgroudColor).to.eq("rgb(255, 241, 242)");
+      });
+    //#endregion
+
+    //#region Water Lily
+    cy.xpath(applyTheme("Featured Themes", "Water Lily"))
+      .click({ force: true })
+      .wait(1000); //Changing to one of featured themes
+    cy.contains("Applied Theme")
+      .click()
+      .parent()
+      .siblings()
+      .find(".t--theme-card > main > section > div > main")
+      .eq(0)
+      .invoke("css", "background-color")
+      .then((backgroudColor) => {
+        expect(backgroudColor).to.eq("rgb(219, 39, 119)");
+      });
+
+    cy.contains("Applied Theme")
+      .click()
+      .parent()
+      .siblings()
+      .find(".t--theme-card > main > section > div > main")
+      .eq(1)
+      .invoke("css", "background-color")
+      .then((backgroudColor) => {
+        expect(backgroudColor).to.eq("rgb(253, 242, 248)");
+      });
+    //#endregion
+
+    //#region Pacific
+    cy.xpath(applyTheme("Featured Themes", "Pacific"))
+      .click({ force: true })
+      .wait(1000); //Changing to one of featured themes
+    cy.contains("Applied Theme")
+      .click()
+      .parent()
+      .siblings()
+      .find(".t--theme-card > main > section > div > main")
+      .eq(0)
+      .invoke("css", "background-color")
+      .then((backgroudColor) => {
+        expect(backgroudColor).to.eq("rgb(8, 145, 178)");
+      });
+
+    cy.contains("Applied Theme")
+      .click()
+      .parent()
+      .siblings()
+      .find(".t--theme-card > main > section > div > main")
+      .eq(1)
+      .invoke("css", "background-color")
+      .then((backgroudColor) => {
+        expect(backgroudColor).to.eq("rgb(236, 254, 255)");
+      });
+    //#endregion
+
+    //#region Earth
+    cy.xpath(applyTheme("Featured Themes", "Earth"))
+      .click({ force: true })
+      .wait(1000); //Changing to one of featured themes
+    cy.contains("Applied Theme")
+      .click()
+      .parent()
+      .siblings()
+      .find(".t--theme-card > main > section > div > main")
+      .eq(0)
+      .invoke("css", "background-color")
+      .then((backgroudColor) => {
+        expect(backgroudColor).to.eq("rgb(59, 130, 246)");
+      });
+
+    cy.contains("Applied Theme")
+      .click()
+      .parent()
+      .siblings()
+      .find(".t--theme-card > main > section > div > main")
+      .eq(1)
+      .invoke("css", "background-color")
+      .then((backgroudColor) => {
+        expect(backgroudColor).to.eq("rgb(239, 246, 255)");
+      });
+    //#endregion
+
+    //#region Moon
+    cy.xpath(applyTheme("Featured Themes", "Moon"))
+      .click({ force: true })
+      .wait(1000); //Changing to one of featured themes
+    cy.contains("Applied Theme")
+      .click()
+      .parent()
+      .siblings()
+      .find(".t--theme-card > main > section > div > main")
+      .eq(0)
+      .invoke("css", "background-color")
+      .then((backgroudColor) => {
+        expect(backgroudColor).to.eq("rgb(100, 116, 139)");
+      });
+
+    cy.contains("Applied Theme")
+      .click()
+      .parent()
+      .siblings()
+      .find(".t--theme-card > main > section > div > main")
+      .eq(1)
+      .invoke("css", "background-color")
+      .then((backgroudColor) => {
+        expect(backgroudColor).to.eq("rgb(248, 250, 252)");
       });
     //#endregion
 
@@ -893,11 +1001,12 @@ describe("App Theming funtionality", function() {
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
     //Changing to one of featured themes & then changing individual widget properties
-    cy.xpath(applyTheme("Featured Themes", "Rounded"))
+    cy.xpath(applyTheme("Featured Themes", "Sunrise"))
       .click({ force: true })
       .wait(2000);
 
     //Change individual widget properties for Button1
+    ee.NavigateToSwitcher("explorer");
     ee.ExpandCollapseEntity("WIDGETS"); //to expand widgets
     ee.SelectEntityByName("Button1");
 
@@ -919,11 +1028,11 @@ describe("App Theming funtionality", function() {
 
         cy.get(widgetsPage.widgetBtn)
           .eq(1)
-          .should("have.css", "background-color", "rgb(222, 21, 147)"); //old widgets still conforming to theme color
+          .should("have.css", "background-color", "rgb(239, 68, 68)"); //old widgets still conforming to theme color
         cy.get(widgetsPage.iconWidgetBtn).should(
           "have.css",
           "background-color",
-          "rgb(222, 21, 147)",
+          "rgb(239, 68, 68)",
         );
       });
 
@@ -996,11 +1105,11 @@ describe("App Theming funtionality", function() {
     ////old widgets still conforming to theme color
     cy.get(widgetsPage.widgetBtn)
       .eq(1)
-      .should("have.css", "background-color", "rgb(222, 21, 147)");
+      .should("have.css", "background-color", "rgb(239, 68, 68)");
     cy.get(publish.iconWidgetBtn).should(
       "have.css",
       "background-color",
-      "rgb(222, 21, 147)",
+      "rgb(239, 68, 68)",
     );
 
     //Verify Border radius
@@ -1044,7 +1153,7 @@ describe("App Theming funtionality", function() {
 
     cy.get(widgetsPage.widgetBtn)
       .eq(0)
-      .should("have.css", "background-color", "rgb(222, 21, 147)"); //verify widget reverted to theme color
+      .should("have.css", "background-color", "rgb(239, 68, 68)"); //verify widget reverted to theme color
 
     cy.get(".t--property-control-borderradius .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");
@@ -1058,23 +1167,23 @@ describe("App Theming funtionality", function() {
     cy.PublishtheApp();
 
     cy.wait(2000); //for theme to settle
-    cy.get("body").should("have.css", "font-family", "Roboto"); //Font for Rounded theme
+    cy.get("body").should("have.css", "font-family", "Rubik"); //Font for Rounded theme
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
       "background-color",
-      "rgb(246, 246, 246)",
+      "rgb(255, 241, 242)",
     ); //Background Color of canvas
     cy.get(widgetsPage.widgetBtn)
       .eq(0)
-      .should("have.css", "background-color", "rgb(222, 21, 147)"); //Widget Color
+      .should("have.css", "background-color", "rgb(239, 68, 68)"); //Widget Color
     cy.get(widgetsPage.widgetBtn)
       .eq(1)
-      .should("have.css", "background-color", "rgb(222, 21, 147)"); //Widget Color
+      .should("have.css", "background-color", "rgb(239, 68, 68)"); //Widget Color
     cy.get(publish.iconWidgetBtn).should(
       "have.css",
       "background-color",
-      "rgb(222, 21, 147)",
+      "rgb(239, 68, 68)",
     ); //Widget Color
 
     cy.get(widgetsPage.widgetBtn)
@@ -1105,21 +1214,21 @@ describe("App Theming funtionality", function() {
     cy.contains("Share").should(
       "have.css",
       "border-top-color",
-      "rgb(222, 21, 147)",
+      "rgb(239, 68, 68)",
     ); //Color
     cy.contains("Share")
       .closest("div")
-      .should("have.css", "font-family", "Roboto"); //Font
+      .should("have.css", "font-family", "Rubik"); //Font
 
     //Verify Edit App button
     cy.contains("Edit App").should(
       "have.css",
       "background-color",
-      "rgb(222, 21, 147)",
+      "rgb(239, 68, 68)",
     ); //Color
     cy.contains("Edit App")
       .closest("div")
-      .should("have.css", "font-family", "Roboto"); //Font
+      .should("have.css", "font-family", "Rubik"); //Font
 
     cy.get(publish.backToEditor)
       .click({ force: true })

@@ -1,6 +1,7 @@
 import React, { ReactElement, useCallback, useMemo } from "react";
+import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
 import { IPanelProps, Position } from "@blueprintjs/core";
 
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
@@ -41,7 +42,10 @@ function PropertyPaneView(
 ) {
   const dispatch = useDispatch();
   const { ...panel } = props;
-  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
+  const widgetProperties = useSelector(
+    getWidgetPropsForPropertyPaneView,
+    equal,
+  );
   const doActionsExist = useSelector(actionsExist);
   const hideConnectDataCTA = useMemo(() => {
     if (widgetProperties) {

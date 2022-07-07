@@ -64,7 +64,7 @@ export const EditorWrapper = styled.div<{
   top: 0;
   `
       : `position: relative;`}
-  min-height: 38px;
+  min-height: 36px;
   height: ${(props) => props.height || "auto"};
   background-color: ${(props) => editorBackground(props.editorTheme)};
   background-color: ${(props) => props.disabled && "#eef2f5"};
@@ -125,6 +125,7 @@ export const EditorWrapper = styled.div<{
       }};
       background: ${(props) => props.theme.colors.apiPane.bg};
       color: ${Colors.CHARCOAL};
+      ${(props) => props.size === EditorSize.COMPACT && `min-height: 36px;`}
       & {
         span.cm-operator {
           color: ${(props) => props.theme.colors.textDefault};
@@ -271,7 +272,7 @@ export const EditorWrapper = styled.div<{
     ${(props) => {
       let height = props.height || "auto";
       if (props.size === EditorSize.COMPACT && !props.isFocused) {
-        height = props.height || "38px";
+        height = props.height || "36px";
       }
       return `height: ${height}`;
     }}
