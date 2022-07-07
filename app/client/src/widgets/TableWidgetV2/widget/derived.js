@@ -59,7 +59,7 @@ export default {
       index = parsedTriggeredRowIndex;
     }
 
-    const rows = props.processedTableData || [];
+    const rows = props.filteredTableData || props.processedTableData || [];
     let triggeredRow;
 
     /*
@@ -67,7 +67,8 @@ export default {
      * It should have updated values.
      */
     if (index > -1) {
-      triggeredRow = { ...rows[index] };
+      const row = rows.find((row) => row.__originalIndex__ === index);
+      triggeredRow = { ...row };
     } else {
       /*
        *  If triggeredRowIndex is not a valid index, triggeredRow should
@@ -545,7 +546,9 @@ export default {
         .forEach((entry) => {
           const key = entry[0];
           const value = entry[1];
-          const row = tableData[key];
+          const row = tableData.find(
+            (row) => row.__originalIndex__ === Number(key),
+          );
 
           updatedRows.push({
             index: Number(key),
