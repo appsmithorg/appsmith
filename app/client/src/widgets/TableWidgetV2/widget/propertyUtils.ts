@@ -273,11 +273,18 @@ export const updateInlineEditingOptionDropdownVisibilityHook = (
         );
 
         if (edtiActionColumn && edtiActionColumn.id) {
+          const newColumnOrder = _.difference(props.columnOrder, [
+            edtiActionColumn.id,
+          ]);
           propertiesToUpdate = [
             ...propertiesToUpdate,
             {
               propertyPath: `primaryColumns.${edtiActionColumn.id}`,
               shouldDeleteProperty: true,
+            },
+            {
+              propertyPath: "columnOrder",
+              propertyValue: newColumnOrder,
             },
           ];
         }
@@ -456,10 +463,18 @@ export const updateInlineEditingSaveOptionHook = (
     );
 
     if (edtiActionColumn && edtiActionColumn.id) {
+      const newColumnOrder = _.difference(props.columnOrder, [
+        edtiActionColumn.id,
+      ]);
+
       return [
         {
           propertyPath: `primaryColumns.${edtiActionColumn.id}`,
           shouldDeleteProperty: true,
+        },
+        {
+          propertyPath: "columnOrder",
+          propertyValue: newColumnOrder,
         },
       ];
     }

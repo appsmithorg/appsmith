@@ -130,6 +130,7 @@ export const entityDefinitions = {
     selectedRows: generateTypeDef(widget.selectedRows),
     selectedRowIndices: generateTypeDef(widget.selectedRowIndices),
     triggeredRow: generateTypeDef(widget.triggeredRow),
+    updatedRow: generateTypeDef(widget.updatedRow),
     selectedRowIndex: "number",
     tableData: generateTypeDef(widget.tableData),
     pageNo: "number",
