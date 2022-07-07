@@ -29,7 +29,7 @@ const ForkButton = styled(Button)<{ disabled?: boolean }>`
   pointer-events: ${(props) => (!!props.disabled ? "none" : "auto")};
 `;
 
-const OrganizationList = styled.div`
+const WorkspaceList = styled.div`
   overflow: auto;
   max-height: 250px;
   margin-bottom: 10px;
@@ -53,7 +53,7 @@ export {
   StyledDialog,
   StyledRadioComponent,
   ForkButton,
-  OrganizationList,
+  WorkspaceList,
   ButtonWrapper,
   SpinnerWrapper,
 };

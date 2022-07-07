@@ -42,15 +42,15 @@ import {
 import { debounce } from "lodash";
 
 const Wrapper = styled.div`
-  padding: 18px;
+  padding: 15px;
   /* margin-top: 18px; */
   cursor: pointer;
 
   &:hover {
-    background: ${Colors.Gallery};
+    background-color: ${Colors.GREY_1};
 
     .bp3-collapse-body {
-      background: ${Colors.Gallery};
+      background-color: ${Colors.GREY_1};
     }
   }
 `;
@@ -72,8 +72,19 @@ const MenuWrapper = styled.div`
 `;
 
 const DatasourceImage = styled.img`
-  height: 24px;
+  height: 18px;
   width: auto;
+  margin: 0 auto;
+  max-width: 100%;
+`;
+
+const DatasourceIconWrapper = styled.div`
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: ${Colors.GREY_2};
+  display: flex;
+  align-items: center;
 `;
 
 const GenerateTemplateButton = styled(Button)`
@@ -89,9 +100,11 @@ const GenerateTemplateButton = styled(Button)`
 `;
 
 const DatasourceName = styled.span`
-  margin-left: 10px;
+  color: ${Colors.BLACK};
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.24px;
 `;
 
 const DatasourceCardHeader = styled.div`
@@ -105,6 +118,7 @@ const DatasourceNameWrapper = styled.div`
   flex-direction: row;
   align-items: center;
   display: flex;
+  gap: 13px;
 `;
 
 const DatasourceInfo = styled.div`
@@ -114,13 +128,14 @@ const DatasourceInfo = styled.div`
 const Queries = styled.div`
   color: ${Colors.DOVE_GRAY};
   font-size: 14px;
-  display: inline-block;
-  margin-top: 11px;
+  display: flex;
+  margin: 4px 0;
 `;
 
 const ButtonsWrapper = styled.div`
   display: flex;
   gap: 10px;
+  align-items: center;
 `;
 
 const MoreOptionsContainer = styled.div`
@@ -251,14 +266,21 @@ function DatasourceCard(props: DatasourceCardProps) {
         <DatasourceCardHeader className="t--datasource-name">
           <div style={{ flex: 1 }}>
             <DatasourceNameWrapper>
-              <DatasourceImage
-                alt="Datasource"
-                className="dataSourceImage"
-                src={pluginImages[datasource.pluginId]}
-              />
-              <DatasourceName>{datasource.name}</DatasourceName>
+              <DatasourceIconWrapper data-testid="active-datasource-icon-wrapper">
+                <DatasourceImage
+                  alt="Datasource"
+                  data-testid="active-datasource-image"
+                  src={pluginImages[datasource.pluginId]}
+                />
+              </DatasourceIconWrapper>
+              <DatasourceName data-testid="active-datasource-name">
+                {datasource.name}
+              </DatasourceName>
             </DatasourceNameWrapper>
-            <Queries className={`t--queries-for-${plugin.type}`}>
+            <Queries
+              className={`t--queries-for-${plugin.type}`}
+              data-testid="active-datasource-queries"
+            >
               {queriesWithThisDatasource
                 ? `${queriesWithThisDatasource} ${QUERY} on this page`
                 : "No query in this application is using this datasource"}
@@ -293,7 +315,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                   target={
                     <MoreOptionsContainer>
                       <Icon
-                        fillColor={Colors.GRAY2}
+                        fillColor={Colors.GREY_8}
                         name="comment-context-menu"
                         size={IconSize.XXXL}
                       />

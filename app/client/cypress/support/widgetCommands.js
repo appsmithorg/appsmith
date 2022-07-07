@@ -374,7 +374,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
-    .type("{uparrow}", { force: true })
+    .type("{ctrl}{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
     if ($cm.contents !== "") {
@@ -407,6 +407,25 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.wait(2500); //Allowing time for Evaluate value to capture value
 });
 
+Cypress.Commands.add("testJsontextclear", (endp, value, paste = true) => {
+  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .type("{ctrl}{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(($cm) => {
+    if ($cm.contents !== "") {
+      cy.log("The field is not empty");
+      cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+        .first()
+        .click({ force: true })
+        .focused({ force: true })
+        .clear({
+          force: true,
+        });
+    }
+  });
+});
 /**
  * Usage:
  * Find the element which has a code editor input and then pass it in the function
@@ -460,6 +479,32 @@ Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
     }
     cy.get(".CodeMirror textarea")
       .last()
+      .type(value, {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
+  });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(200);
+});
+
+Cypress.Commands.add("toggleJsAndUpdateWithIndex", (endp, value, index) => {
+  cy.get(".CodeMirror textarea")
+    .eq(index)
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(($cm) => {
+    if ($cm.contents !== "") {
+      cy.log("The field is empty");
+      cy.get(".CodeMirror textarea")
+        .eq(index)
+        .clear({
+          force: true,
+        });
+    }
+    cy.get(".CodeMirror textarea")
+      .eq(index)
       .type(value, {
         force: true,
         parseSpecialCharSequences: false,
@@ -603,6 +648,17 @@ Cypress.Commands.add("addAction", (value) => {
   cy.enterActionValue(value);
 });
 
+Cypress.Commands.add("addEvent", (value) => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .last()
+    .click();
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Show message")
+    .click();
+  cy.enterEventValue(value);
+});
+
 Cypress.Commands.add("onTableAction", (value, value1, value2) => {
   cy.get(commonlocators.dropdownSelectButton)
     .eq(value)
@@ -664,6 +720,26 @@ Cypress.Commands.add("enterActionValue", (value) => {
     });
 });
 
+Cypress.Commands.add("enterEventValue", (value) => {
+  cy.get(commonlocators.optionchangetextDropdown)
+    .focus()
+    .type("{ctrl}{shift}{downarrow}")
+    .then(($cm) => {
+      if ($cm.val() !== "") {
+        cy.get(commonlocators.optionchangetextDropdown).clear({
+          force: true,
+        });
+      }
+
+      cy.get(commonlocators.optionchangetextDropdown).type(value, {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(200);
+    });
+});
+
 Cypress.Commands.add("enterNavigatePageName", (value) => {
   cy.get("ul.tree")
     .children()
@@ -716,7 +792,7 @@ Cypress.Commands.add("DeleteModal", () => {
     .click({ force: true });
 });
 
-Cypress.Commands.add("Createpage", (pageName) => {
+Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
   let pageId;
   cy.get(pages.AddPage)
     .first()
@@ -734,7 +810,9 @@ Cypress.Commands.add("Createpage", (pageName) => {
       pageidcopy = pageName;
       cy.wrap(pageId).as("currentPageId");
     }
-    cy.get(generatePage.buildFromScratchActionCard).click();
+    if (navigateToCanvasPage) {
+      cy.get(generatePage.buildFromScratchActionCard).click();
+    }
     cy.get("#loading").should("not.exist");
   });
 });

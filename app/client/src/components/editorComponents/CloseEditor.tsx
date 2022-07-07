@@ -14,6 +14,7 @@ import {
   generateTemplateFormURL,
   integrationEditorURL,
 } from "RouteBuilder";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const IconContainer = styled.div`
   //width: 100%;
@@ -62,6 +63,12 @@ function CloseEditor() {
             params: getQueryParams(),
           })
         : redirectURL;
+
+    AnalyticsUtil.logEvent("BACK_BUTTON_CLICK", {
+      type: "BACK_BUTTON",
+      fromUrl: location.pathname,
+      toUrl: URL,
+    });
     history.push(URL);
   };
 

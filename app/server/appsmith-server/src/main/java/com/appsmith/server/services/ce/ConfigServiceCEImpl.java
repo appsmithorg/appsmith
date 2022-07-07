@@ -23,7 +23,7 @@ import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 @Slf4j
 public class ConfigServiceCEImpl implements ConfigServiceCE {
 
-    private static final String TEMPLATE_ORGANIZATION_CONFIG_NAME = "template-organization";
+    private static final String TEMPLATE_WORKSPACE_CONFIG_NAME = "template-workspace";
 
     private final ApplicationRepository applicationRepository;
     private final DatasourceRepository datasourceRepository;
@@ -88,15 +88,15 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
 
     @Override
     public Mono<String> getTemplateWorkspaceId() {
-        return repository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
+        return repository.findByName(TEMPLATE_WORKSPACE_CONFIG_NAME)
                 .filter(config -> config.getConfig() != null)
-                .flatMap(config -> Mono.justOrEmpty(config.getConfig().getAsString(FieldName.ORGANIZATION_ID)))
+                .flatMap(config -> Mono.justOrEmpty(config.getConfig().getAsString(FieldName.WORKSPACE_ID)))
                 .doOnError(error -> log.warn("Error getting template workspace ID", error));
     }
 
     @Override
     public Flux<Application> getTemplateApplications() {
-        return repository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
+        return repository.findByName(TEMPLATE_WORKSPACE_CONFIG_NAME)
                 .filter(config -> config.getConfig() != null)
                 .map(config -> defaultIfNull(
                         config.getConfig().getOrDefault("applicationIds", null),
@@ -109,7 +109,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
 
     @Override
     public Flux<Datasource> getTemplateDatasources() {
-        return repository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
+        return repository.findByName(TEMPLATE_WORKSPACE_CONFIG_NAME)
                 .filter(config -> config.getConfig() != null)
                 .map(config -> defaultIfNull(
                         config.getConfig().getOrDefault("datasourceIds", null),

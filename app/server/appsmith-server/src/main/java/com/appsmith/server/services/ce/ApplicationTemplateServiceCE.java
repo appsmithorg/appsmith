@@ -8,10 +8,11 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public interface ApplicationTemplateServiceCE {
-    Flux<ApplicationTemplate> getActiveTemplates(List<String> templateIds);
+    Mono<List<ApplicationTemplate>> getActiveTemplates(List<String> templateIds);
     Flux<ApplicationTemplate> getSimilarTemplates(String templateId);
-    Flux<ApplicationTemplate> getRecentlyUsedTemplates();
+    Mono<List<ApplicationTemplate>> getRecentlyUsedTemplates();
     Mono<ApplicationTemplate> getTemplateDetails(String templateId);
-    Mono<Application> importApplicationFromTemplate(String templateId, String organizationId);
+    Mono<Application> importApplicationFromTemplate(String templateId, String workspaceId);
+    Mono<Application> mergeTemplateWithApplication(String templateId, String applicationId, String workspaceId, String branchName, List<String> pagesToImport);
     Mono<ApplicationTemplate> getFilters();
 }

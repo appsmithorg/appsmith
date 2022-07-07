@@ -45,6 +45,8 @@ import { TourType } from "entities/Tour";
 import { getActiveTourType } from "selectors/tourSelectors";
 import { resetActiveTour } from "actions/tourActions";
 import store from "store";
+import { APP_MODE } from "entities/App";
+import { ApiResponse } from "api/ApiResponses";
 
 function* createUnpublishedCommentThread(
   action: ReduxAction<Partial<CreateCommentThreadRequest>>,
@@ -60,19 +62,23 @@ function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
     const newCommentThreadPayload = transformUnpublishCommentThreadToCreateNew(
       action.payload,
     );
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
-    const mode = yield select((state: AppState) => state.entities.app.mode);
-    const response = yield call(CommentsApi.createNewThread, {
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const pageId: string | undefined = yield select(getCurrentPageId);
+    const mode: APP_MODE = yield select(
+      (state: AppState) => state.entities.app.mode,
+    );
+    const response: ApiResponse = yield call(CommentsApi.createNewThread, {
       ...newCommentThreadPayload,
       applicationId,
       pageId,
       mode,
     });
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
+      //@ts-expect-error: response is of type unknown
       yield put(createCommentThreadSuccess(response.data));
+      //@ts-expect-error: response is of type unknown
       yield put(setVisibleThread(response.data.id));
       yield put(removeUnpublishedCommentThreads());
     }
@@ -107,12 +113,13 @@ function* updateCommentThreadPosition(
       },
       containerSizePosition,
     );
-    const response = yield CommentsApi.updateCommentThread(
+    const response: ApiResponse = yield CommentsApi.updateCommentThread(
       { position, refId, widgetType },
       draggingCommentThreadId,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      // @ts-expect-error: response is of type unknown
       yield put(updateCommentThreadSuccess(response.data));
     }
   } catch (error) {
@@ -130,18 +137,21 @@ function* addCommentToThread(
     const { payload } = action;
     const { callback, commentBody, commentThread } = payload;
 
-    const mode = yield select((state: AppState) => state.entities.app.mode);
-    const response = yield CommentsApi.createNewThreadComment(
+    const mode: APP_MODE = yield select(
+      (state: AppState) => state.entities.app.mode,
+    );
+    const response: ApiResponse = yield CommentsApi.createNewThreadComment(
       { body: commentBody, mode },
       commentThread.id,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put(
         addCommentToThreadSuccess({
           commentThreadId: commentThread.id,
+          //@ts-expect-error: response is of type unknown
           comment: response.data,
         }),
       );
@@ -158,9 +168,11 @@ function* addCommentToThread(
 function* fetchApplicationComments() {
   try {
     yield call(waitForInit);
-    const applicationId = yield select(getCurrentApplicationId);
-    const response = yield CommentsApi.fetchAppCommentThreads(applicationId);
-    const isValidResponse = yield validateResponse(response);
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const response: ApiResponse = yield CommentsApi.fetchAppCommentThreads(
+      applicationId,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       const commentThreads = response.data as CommentThread[];
@@ -184,12 +196,13 @@ function* setCommentResolution(
 ) {
   try {
     const { resolved, threadId } = action.payload;
-    const response = yield CommentsApi.updateCommentThread(
+    const response: ApiResponse = yield CommentsApi.updateCommentThread(
       { resolvedState: { active: resolved } },
       threadId,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      //@ts-expect-error: response is of type unknown
       yield put(updateCommentThreadSuccess(response.data));
     }
   } catch (error) {
@@ -205,12 +218,13 @@ function* pinCommentThread(
 ) {
   try {
     const { pin, threadId } = action.payload;
-    const response = yield CommentsApi.updateCommentThread(
+    const response: ApiResponse = yield CommentsApi.updateCommentThread(
       { pinnedState: { active: pin } },
       threadId,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      //@ts-expect-error: response is of type unknown
       yield put(updateCommentThreadSuccess(response.data));
     }
   } catch (error) {
@@ -226,8 +240,8 @@ function* deleteComment(
 ) {
   try {
     const { commentId, threadId } = action.payload;
-    const response = yield CommentsApi.deleteComment(commentId);
-    const isValidResponse = yield validateResponse(response);
+    const response: ApiResponse = yield CommentsApi.deleteComment(commentId);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(deleteCommentSuccess({ commentId, threadId }));
     }
@@ -242,8 +256,10 @@ function* deleteComment(
 function* unsubscribeCommentThread(action: ReduxAction<string>) {
   try {
     const threadId = action.payload;
-    const response = yield CommentsApi.unsubscribeCommentThread(threadId);
-    const isValidResponse = yield validateResponse(response);
+    const response: ApiResponse = yield CommentsApi.unsubscribeCommentThread(
+      threadId,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.UNSUBSCRIBE_COMMENT_THREAD_SUCCESS,
@@ -256,12 +272,13 @@ function* unsubscribeCommentThread(action: ReduxAction<string>) {
 function* markThreadAsRead(action: ReduxAction<{ threadId: string }>) {
   try {
     const { threadId } = action.payload;
-    const response = yield CommentsApi.updateCommentThread(
+    const response: ApiResponse = yield CommentsApi.updateCommentThread(
       { isViewed: true },
       threadId,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      //@ts-expect-error: response is of type unknown
       yield put(updateCommentThreadSuccess(response.data));
     }
   } catch (error) {
@@ -281,10 +298,14 @@ function* editComment(
 ) {
   try {
     const { body, commentId, commentThreadId } = action.payload;
-    const response = yield CommentsApi.updateComment({ body }, commentId);
-    const isValidResponse = yield validateResponse(response);
+    const response: ApiResponse = yield CommentsApi.updateComment(
+      { body },
+      commentId,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(
+        //@ts-expect-error: response is of type unknown
         updateCommentSuccess({ comment: response.data, commentThreadId }),
       );
     }
@@ -298,10 +319,12 @@ function* editComment(
 
 function* deleteCommentThread(action: ReduxAction<string>) {
   try {
-    const response = yield CommentsApi.deleteCommentThread(action.payload);
-    const isValidResponse = yield validateResponse(response);
+    const response: ApiResponse = yield CommentsApi.deleteCommentThread(
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const applicationId = yield select(getCurrentApplicationId);
+      const applicationId: string = yield select(getCurrentApplicationId);
       yield put(
         deleteCommentThreadSuccess({
           commentThreadId: action.payload,

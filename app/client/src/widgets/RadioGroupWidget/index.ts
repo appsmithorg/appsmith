@@ -8,6 +8,7 @@ export const CONFIG = {
   name: "Radio Group",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["choice"],
   defaults: {
     rows: 8,
     columns: 20,

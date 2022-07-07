@@ -3,7 +3,9 @@ package com.appsmith.server.constants;
 public class FieldName {
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
+    @Deprecated
     public static final String ORGANIZATION_ID = "organizationId";
+    public static final String WORKSPACE_ID = "workspaceId";
     public static final String DELETED = "deleted";
     public static final String CREATED_AT = "createdAt";
     public static final String DELETED_AT = "deletedAt";

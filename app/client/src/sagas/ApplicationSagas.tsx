@@ -16,10 +16,10 @@ import ApplicationApi, {
   FetchApplicationPayload,
   FetchApplicationResponse,
   FetchUnconfiguredDatasourceListResponse,
-  FetchUsersApplicationsOrgsResponse,
+  FetchUsersApplicationsWorkspacesResponse,
   ForkApplicationRequest,
   ImportApplicationRequest,
-  OrganizationApplicationObject,
+  WorkspaceApplicationObject,
   PublishApplicationRequest,
   PublishApplicationResponse,
   SetDefaultPageRequest,
@@ -28,7 +28,7 @@ import ApplicationApi, {
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
 import { validateResponse } from "./ErrorSagas";
-import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
+import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
@@ -42,7 +42,7 @@ import {
   resetCurrentApplication,
   setDefaultApplicationPageSuccess,
   setIsReconnectingDatasourcesModalOpen,
-  setOrgIdForImport,
+  setWorkspaceIdForImport,
   showReconnectDatasourceModal,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -54,7 +54,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Toaster } from "components/ads/Toast";
 import { APP_MODE } from "entities/App";
-import { Org, Organization } from "constants/orgConstants";
+import { Workspace, Workspaces } from "constants/workspaceConstants";
 import { Variant } from "components/ads/common";
 import { AppIconName } from "components/ads/AppIcon";
 import { AppColorCode } from "constants/DefaultTheme";
@@ -72,7 +72,7 @@ import {
   reconnectAppLevelWebsocket,
   reconnectPageLevelWebsocket,
 } from "actions/websocketActions";
-import { getCurrentOrg } from "selectors/organizationSelectors";
+import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 import {
   getCurrentStep,
@@ -122,7 +122,7 @@ export function* publishApplicationSaga(
       ApplicationApi.publishApplication,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS,
@@ -172,29 +172,31 @@ export function* publishApplicationSaga(
 
 export function* getAllApplicationSaga() {
   try {
-    const response: FetchUsersApplicationsOrgsResponse = yield call(
+    const response: FetchUsersApplicationsWorkspacesResponse = yield call(
       ApplicationApi.getAllApplication,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const organizationApplication: OrganizationApplicationObject[] = response.data.organizationApplications.map(
-        (userOrgs: OrganizationApplicationObject) => ({
-          organization: userOrgs.organization,
-          userRoles: userOrgs.userRoles,
-          applications: !userOrgs.applications
+      const workspaceApplication: WorkspaceApplicationObject[] = response.data.workspaceApplications.map(
+        (userWorkspaces: WorkspaceApplicationObject) => ({
+          workspace: userWorkspaces.workspace,
+          userRoles: userWorkspaces.userRoles,
+          applications: !userWorkspaces.applications
             ? []
-            : userOrgs.applications.map((application: ApplicationObject) => {
-                return {
-                  ...application,
-                  defaultPageId: getDefaultPageId(application.pages),
-                };
-              }),
+            : userWorkspaces.applications.map(
+                (application: ApplicationObject) => {
+                  return {
+                    ...application,
+                    defaultPageId: getDefaultPageId(application.pages),
+                  };
+                },
+              ),
         }),
       );
 
       yield put({
-        type: ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS,
-        payload: organizationApplication,
+        type: ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS,
+        payload: workspaceApplication,
       });
       const { newReleasesCount, releaseItems } = response.data || {};
       yield put({
@@ -204,7 +206,7 @@ export function* getAllApplicationSaga() {
     }
   } catch (error) {
     yield put({
-      type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_ORGS_ERROR,
+      type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_WORKSPACES_ERROR,
       payload: {
         error,
       },
@@ -247,9 +249,9 @@ export function* fetchAppAndPagesSaga(
       });
 
       yield put({
-        type: ReduxActionTypes.SET_CURRENT_ORG_ID,
+        type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
         payload: {
-          orgId: response.data.organizationId,
+          workspaceId: response.data.workspaceId,
         },
       });
 
@@ -299,7 +301,7 @@ export function* setDefaultApplicationPageSaga(
         ApplicationApi.setDefaultApplicationPage,
         request,
       );
-      const isValidResponse = yield validateResponse(response);
+      const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         yield put(
           setDefaultApplicationPageSuccess(request.id, request.applicationId),
@@ -419,10 +421,12 @@ export function* duplicateApplicationSaga(
       ApplicationApi.duplicateApplication,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const application: ApplicationPayload = {
+        // @ts-expect-error: response is of type unknown
         ...response.data,
+        // @ts-expect-error: response is of type unknown
         defaultPageId: getDefaultPageId(response.data.pages),
       };
       yield put({
@@ -464,7 +468,9 @@ export function* changeAppViewAccessSaga(
       yield put({
         type: ReduxActionTypes.CHANGE_APPVIEW_ACCESS_SUCCESS,
         payload: {
+          // @ts-expect-error: response is of type unknown
           id: response.data.id,
+          // @ts-expect-error: response is of type unknown
           isPublic: response.data.isPublic,
         },
       });
@@ -484,19 +490,21 @@ export function* createApplicationSaga(
     applicationName: string;
     icon: AppIconName;
     color: AppColorCode;
-    orgId: string;
+    workspaceId: string;
     resolve: any;
     reject: any;
   }>,
 ) {
-  const { applicationName, color, icon, orgId, reject } = action.payload;
+  const { applicationName, color, icon, reject, workspaceId } = action.payload;
   try {
-    const userOrgs = yield select(getUserApplicationsOrgsList);
-    const existingOrgs = userOrgs.filter(
-      (org: Organization) => org.organization.id === orgId,
+    const userWorkspaces: Workspaces[] = yield select(
+      getUserApplicationsWorkspacesList,
+    );
+    const existingWorkspaces = userWorkspaces.filter(
+      (workspace: Workspaces) => workspace.workspace.id === workspaceId,
     )[0];
-    const existingApplication = existingOrgs
-      ? existingOrgs.applications.find(
+    const existingApplication = existingWorkspaces
+      ? existingWorkspaces.applications.find(
           (application: ApplicationPayload) =>
             application.name === applicationName,
         )
@@ -519,13 +527,13 @@ export function* createApplicationSaga(
         name: applicationName,
         icon: icon,
         color: color,
-        orgId,
+        workspaceId,
       };
       const response: CreateApplicationResponse = yield call(
         ApplicationApi.createApplication,
         request,
       );
-      const isValidResponse = yield validateResponse(response);
+      const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         const application: ApplicationPayload = {
           ...response.data,
@@ -543,14 +551,14 @@ export function* createApplicationSaga(
         yield put({
           type: ReduxActionTypes.CREATE_APPLICATION_SUCCESS,
           payload: {
-            orgId,
+            workspaceId,
             application,
           },
         });
-        const isFirstTimeUserOnboardingEnabled = yield select(
+        const isFirstTimeUserOnboardingEnabled: boolean = yield select(
           getEnableFirstTimeUserOnboarding,
         );
-        const FirstTimeUserOnboardingApplicationId = yield select(
+        const FirstTimeUserOnboardingApplicationId: string = yield select(
           getFirstTimeUserOnboardingApplicationId,
         );
         let pageURL;
@@ -595,7 +603,7 @@ export function* createApplicationSaga(
       payload: {
         error,
         show: false,
-        orgId,
+        workspaceId,
       },
     });
   }
@@ -609,20 +617,23 @@ export function* forkApplicationSaga(
       ApplicationApi.forkApplication,
       action.payload,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(resetCurrentApplication());
       const application: ApplicationPayload = {
+        // @ts-expect-error: response is of type unknown
         ...response.data,
+        // @ts-expect-error: response is of type unknown
         defaultPageId: getDefaultPageId(response.data.pages),
       };
       yield put({
         type: ReduxActionTypes.FORK_APPLICATION_SUCCESS,
         payload: {
-          orgId: action.payload.organizationId,
+          workspaceId: action.payload.workspaceId,
           application,
         },
       });
+      // @ts-expect-error: response is of type unknown
       const defaultPage = response.data.pages.find(
         (page: ApplicationPagePayload) => page.isDefault,
       );
@@ -649,19 +660,23 @@ function* showReconnectDatasourcesModalSaga(
   action: ReduxAction<{
     application: ApplicationResponsePayload;
     unConfiguredDatasourceList: Array<Datasource>;
-    orgId: string;
+    workspaceId: string;
   }>,
 ) {
-  const { application, orgId, unConfiguredDatasourceList } = action.payload;
+  const {
+    application,
+    unConfiguredDatasourceList,
+    workspaceId,
+  } = action.payload;
   yield put(getAllApplications());
   yield put(importApplicationSuccess(application));
-  yield put(fetchPlugins({ orgId }));
+  yield put(fetchPlugins({ workspaceId }));
 
   yield put(
     setUnconfiguredDatasourcesDuringImport(unConfiguredDatasourceList || []),
   );
 
-  yield put(setOrgIdForImport(orgId));
+  yield put(setWorkspaceIdForImport(workspaceId));
   yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
 }
 
@@ -670,46 +685,39 @@ export function* importApplicationSaga(
 ) {
   try {
     const response: ApiResponse = yield call(
-      ApplicationApi.importApplicationToOrg,
+      ApplicationApi.importApplicationToWorkspace,
       action.payload,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const allOrgs: Org[] = yield select(getCurrentOrg);
-      const currentOrg = allOrgs.filter(
-        (el: Org) => el.id === action.payload.orgId,
+      const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
+      const currentWorkspace = allWorkspaces.filter(
+        (el: Workspace) => el.id === action.payload.workspaceId,
       );
-      if (currentOrg.length > 0) {
+      if (currentWorkspace.length > 0) {
         const {
+          // @ts-expect-error: response is of type unknown
           application: { applicationVersion, id, pages, slug: applicationSlug },
+          // @ts-expect-error: response is of type unknown
           isPartialImport,
-        }: {
-          application: {
-            id: string;
-            slug: string;
-            applicationVersion: number;
-            pages: {
-              default?: boolean;
-              id: string;
-              isDefault?: boolean;
-              slug: string;
-            }[];
-          };
-          isPartialImport: boolean;
         } = response.data;
 
+        // @ts-expect-error: response is of type unknown
         yield put(importApplicationSuccess(response.data?.application));
 
         if (isPartialImport) {
           yield put(
             showReconnectDatasourceModal({
+              // @ts-expect-error: response is of type unknown
               application: response.data?.application,
               unConfiguredDatasourceList:
+                // @ts-expect-error: response is of type unknown
                 response?.data.unConfiguredDatasourceList,
-              orgId: action.payload.orgId,
+              workspaceId: action.payload.workspaceId,
             }),
           );
         } else {
+          // @ts-expect-error: pages is of type any
           const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
           const pageURL = builderURL({
             applicationSlug: applicationSlug ?? PLACEHOLDER_APP_SLUG,
@@ -743,10 +751,10 @@ export function* importApplicationSaga(
 
 function* fetchReleases() {
   try {
-    const response: FetchUsersApplicationsOrgsResponse = yield call(
+    const response: FetchUsersApplicationsWorkspacesResponse = yield call(
       ApplicationApi.getAllApplication,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const { newReleasesCount, releaseItems } = response.data || {};
       yield put({
@@ -767,7 +775,7 @@ function* fetchReleases() {
 export function* fetchUnconfiguredDatasourceList(
   action: ReduxAction<{
     applicationId: string;
-    orgId: string;
+    workspaceId: string;
   }>,
 ) {
   try {
@@ -792,11 +800,17 @@ export function* fetchUnconfiguredDatasourceList(
 export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
   if (!datasource.datasourceConfiguration) {
     yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
-    const formConfig = yield select(getPluginForm, datasource.pluginId);
-    const initialValues = yield call(getConfigInitialValues, formConfig);
+    const formConfig: Record<string, unknown>[] = yield select(
+      getPluginForm,
+      datasource.pluginId,
+    );
+    const initialValues: unknown = yield call(
+      getConfigInitialValues,
+      formConfig,
+    );
     const payload = merge(initialValues, datasource);
     payload.isConfigured = false; // imported datasource as not configured yet
-    const response = yield DatasourcesApi.updateDatasource(
+    const response: ApiResponse = yield DatasourcesApi.updateDatasource(
       payload,
       datasource.id,
     );
@@ -811,10 +825,10 @@ export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
 }
 
 function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
-  const orgId = action.payload;
+  const workspaceId = action.payload;
 
   const pluginsAndDatasourcesCalls: boolean = yield failFastApiCalls(
-    [fetchPlugins({ orgId }), fetchDatasources({ orgId })],
+    [fetchPlugins({ workspaceId }), fetchDatasources({ workspaceId })],
     [
       ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
       ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
@@ -833,7 +847,7 @@ function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
   );
   if (!pluginFormCall) return;
 
-  const datasources: Array<Datasource> = yield select((state: AppState) => {
+  const datasources: Datasource[] = yield select((state: AppState) => {
     return state.entities.datasources.list;
   });
 

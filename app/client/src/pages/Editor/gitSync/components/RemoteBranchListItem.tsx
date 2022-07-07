@@ -1,7 +1,6 @@
 import React from "react";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
-import { Position } from "@blueprintjs/core";
 import Text, { TextType } from "components/ads/Text";
 import { BranchListItemContainer } from "./BranchListItemContainer";
 
@@ -20,7 +19,7 @@ export function RemoteBranchListItem({ branch, className, onClick }: any) {
         boundary="window"
         content={branch}
         disabled={!isEllipsisActive(textRef.current)}
-        position={Position.TOP}
+        position="top"
       >
         <Text ref={textRef} type={TextType.P1}>
           {branch}

@@ -301,14 +301,12 @@ export const viewerURL = (props?: Optional<URLBuilderParams>): string => {
 
 export function adminSettingsCategoryUrl({
   category,
-  subCategory,
+  selected,
 }: {
   category: string;
-  subCategory?: string;
+  selected?: string;
 }) {
-  return `${ADMIN_SETTINGS_PATH}/${category}${
-    subCategory ? "/" + subCategory : ""
-  }`;
+  return `${ADMIN_SETTINGS_PATH}/${category}${selected ? "/" + selected : ""}`;
 }
 
 export const templateIdUrl = ({ id }: { id: string }): string =>

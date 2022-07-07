@@ -39,7 +39,7 @@ const FormInputHelperText = styled.p<{ addMarginTop?: string }>`
   font-size: 12px;
   line-height: 16px;
   letter-spacing: -0.221538px;
-  margin: 0px;
+  margin: 0;
 
   ${(props) =>
     props.addMarginTop &&
@@ -77,44 +77,50 @@ const FormInputSwitchToJsonButton = styled.button`
   line-height: 14px;
   letter-spacing: 0.8px;
   text-transform: uppercase;
-  color: #6a86ce;
+  color: ${(props) => (props.disabled ? "gray" : "#6a86ce")};
   margin: 0 0 8px 0;
   border: none;
-  padding-left: 0px;
+  padding-left: 0;
   display: block;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? "default" : "pointer")};
   background-color: #fff;
 `;
 
 //Styled form label tag, intended to be used with Form Fields
-const StyledFormLabel = styled.label<{ config?: ControlProps }>`
+const StyledFormLabel = styled.label<{
+  config?: ControlProps;
+  extraStyles?: any;
+}>`
   display: inline-block;
   // TODO: replace condition with props.config?.dataType === "TOGGLE" 
   // required for large texts in CHECKBOX and SWITCH
   width: ${(props) => props.config?.customStyles?.width || "auto;"}
   min-width: ${(props) =>
-    props.config?.controlType === "SWITCH" ||
-    props.config?.controlType === "CHECKBOX"
+    props.extraStyles?.minWidth
+      ? props.extraStyles?.minWidth
+      : props.config?.controlType === "SWITCH" ||
+        props.config?.controlType === "CHECKBOX"
       ? "auto;"
       : "20vw;"} 
-  margin-left: ${(props) =>
-    // margin required for CHECKBOX
-    props.config?.controlType === "CHECKBOX" ? "0px;" : "16px;"} 
   font-weight: 400;
   font-size: 14px;
   line-height: 16px;
   letter-spacing: 0.02em;
   color: ${Colors.CHARCOAL};
   margin-bottom: ${(props) =>
-    props.config?.controlType === "CHECKBOX" ? "0px;" : "8px;"} 
+    props.extraStyles?.marginBottom
+      ? props.extraStyles?.marginBottom
+      : props.config?.controlType === "CHECKBOX"
+      ? "0;"
+      : "8px;"} 
   &:first-child {
-    margin-left: 0px;
+    margin-left: 0;
   }
   p {
     display: flex;
   }
   .label-icon-wrapper {
-    margin-bottom: 0px;
+    margin-bottom: 0;
     display: flex;
     align-items: center;
   }
@@ -132,12 +138,15 @@ const FormEncrytedSection = styled.div`
 interface FormLabelProps {
   config?: ControlProps;
   children: JSX.Element | React.ReactNode;
+  extraStyles?: any;
 }
 
 //Wrapper on styled <label/>
 function FormLabel(props: FormLabelProps) {
   return (
-    <StyledFormLabel config={props.config}>{props.children}</StyledFormLabel>
+    <StyledFormLabel config={props.config} extraStyles={props.extraStyles}>
+      {props.children}
+    </StyledFormLabel>
   );
 }
 

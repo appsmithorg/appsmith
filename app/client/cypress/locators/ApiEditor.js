@@ -22,6 +22,7 @@ export default {
   apiPaginationTab: ".t--apiFormPaginationType",
   apiTab: ".react-tabs__tab-list li",
   bodyType: ".t--apiFormPostBodyType",
+  bodyTypeSelected: '[data-cy="t--api-body-tab-switch"] .t--tab-selected',
   bodyTab: "Body",
   headersTab: "Header",
   jsonResponseTab: "[data-cy=t--tab-JSON]",

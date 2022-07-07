@@ -15,15 +15,17 @@ import {
   fetchUnreadNotificationsCountRequest,
   markNotificationAsReadSuccess,
 } from "actions/notificationActions";
+import { ApiResponse } from "api/ApiResponses";
 
 export function* fetchNotifications(action: ReduxAction<string>) {
   try {
-    const response = yield call(
+    const response: ApiResponse = yield call(
       NotificationApi.fetchNotifications,
       action.payload,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      //@ts-expect-error: response is of type unknown
       yield put(fetchNotificationsSuccess({ notifications: response.data }));
     }
   } catch (error) {
@@ -41,13 +43,18 @@ export function* fetchNotifications(action: ReduxAction<string>) {
  */
 function* markAllNotificationsAsRead() {
   try {
-    const response = yield call(NotificationApi.markAllNotificationsAsRead);
-    const isValidResponse = yield validateResponse(response);
+    const response: ApiResponse = yield call(
+      NotificationApi.markAllNotificationsAsRead,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(markAllNotificationsAsReadSuccess());
-      const response = yield call(NotificationApi.fetchNotifications);
-      const isValidResponse = yield validateResponse(response);
+      const response: ApiResponse = yield call(
+        NotificationApi.fetchNotifications,
+      );
+      const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
+        //@ts-expect-error: response is of type unknown
         yield put(resetNotifications({ notifications: response.data }));
       }
       yield put(fetchUnreadNotificationsCountRequest());
@@ -62,9 +69,12 @@ function* markAllNotificationsAsRead() {
 
 function* fetchUnreadNotificationsCount() {
   try {
-    const response = yield call(NotificationApi.fetchUnreadNotificationsCount);
-    const isValidResponse = yield validateResponse(response);
+    const response: ApiResponse = yield call(
+      NotificationApi.fetchUnreadNotificationsCount,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      //@ts-expect-error: response is of type unknown
       yield put(fetchUnreadNotificationsCountSuccess(response.data));
     }
   } catch (error) {
@@ -77,11 +87,13 @@ function* fetchUnreadNotificationsCount() {
 
 function* markNotificationAsRead(action: ReduxAction<string>) {
   try {
-    const response = yield call(NotificationApi.markNotificationsAsRead, [
-      action.payload,
-    ]);
-    const isValidResponse = yield validateResponse(response);
+    const response: ApiResponse = yield call(
+      NotificationApi.markNotificationsAsRead,
+      [action.payload],
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      //@ts-expect-error: response is of type unknown
       yield put(fetchUnreadNotificationsCountSuccess(response.data));
       yield put(markNotificationAsReadSuccess(action.payload));
     }

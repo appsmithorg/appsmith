@@ -5,7 +5,10 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { all, put, takeEvery, call } from "redux-saga/effects";
-import TemplatesAPI, { ImportTemplateResponse } from "api/TemplatesApi";
+import TemplatesAPI, {
+  FetchTemplateResponse,
+  ImportTemplateResponse,
+} from "api/TemplatesApi";
 import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
@@ -19,8 +22,10 @@ import { builderURL } from "RouteBuilder";
 
 function* getAllTemplatesSaga() {
   try {
-    const response = yield call(TemplatesAPI.getAllTemplates);
-    const isValid = yield validateResponse(response);
+    const response: FetchTemplateResponse = yield call(
+      TemplatesAPI.getAllTemplates,
+    );
+    const isValid: boolean = yield validateResponse(response);
     if (isValid) {
       yield put({
         type: ReduxActionTypes.GET_ALL_TEMPLATES_SUCCESS,
@@ -37,14 +42,14 @@ function* getAllTemplatesSaga() {
   }
 }
 
-function* importTemplateToOrganisationSaga(
-  action: ReduxAction<{ templateId: string; organizationId: string }>,
+function* importTemplateToWorkspaceSaga(
+  action: ReduxAction<{ templateId: string; workspaceId: string }>,
 ) {
   try {
     const response: ImportTemplateResponse = yield call(
       TemplatesAPI.importTemplate,
       action.payload.templateId,
-      action.payload.organizationId,
+      action.payload.workspaceId,
     );
     const isValid: boolean = yield validateResponse(response);
     if (isValid) {
@@ -62,14 +67,14 @@ function* importTemplateToOrganisationSaga(
         pageId: application.defaultPageId,
       });
       yield put({
-        type: ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_SUCCESS,
+        type: ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_SUCCESS,
         payload: response.data,
       });
       history.push(pageURL);
     }
   } catch (error) {
     yield put({
-      type: ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_ORGANISATION_ERROR,
+      type: ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_WORKSPACE_ERROR,
       payload: {
         error,
       },
@@ -79,11 +84,11 @@ function* importTemplateToOrganisationSaga(
 
 function* getSimilarTemplatesSaga(action: ReduxAction<string>) {
   try {
-    const response = yield call(
+    const response: FetchTemplateResponse = yield call(
       TemplatesAPI.getSimilarTemplates,
       action.payload,
     );
-    const isValid = yield validateResponse(response);
+    const isValid: boolean = yield validateResponse(response);
     if (isValid) {
       yield put({
         type: ReduxActionTypes.GET_SIMILAR_TEMPLATES_SUCCESS,
@@ -105,7 +110,7 @@ function* setTemplateNotificationSeenSaga(action: ReduxAction<boolean>) {
 }
 
 function* getTemplateNotificationSeenSaga() {
-  const showTemplateNotification = yield getTemplateNotificationSeen();
+  const showTemplateNotification: unknown = yield getTemplateNotificationSeen();
 
   if (showTemplateNotification) {
     yield put(setTemplateNotificationSeenAction(true));
@@ -116,11 +121,11 @@ function* getTemplateNotificationSeenSaga() {
 
 function* getTemplateSaga(action: ReduxAction<string>) {
   try {
-    const response = yield call(
+    const response: FetchTemplateResponse = yield call(
       TemplatesAPI.getTemplateInformation,
       action.payload,
     );
-    const isValid = yield validateResponse(response);
+    const isValid: boolean = yield validateResponse(response);
     if (isValid) {
       yield put({
         type: ReduxActionTypes.GET_TEMPLATE_SUCCESS,
@@ -146,8 +151,8 @@ export default function* watchActionSagas() {
       getSimilarTemplatesSaga,
     ),
     takeEvery(
-      ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_INIT,
-      importTemplateToOrganisationSaga,
+      ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_INIT,
+      importTemplateToWorkspaceSaga,
     ),
     takeEvery(
       ReduxActionTypes.GET_TEMPLATE_NOTIFICATION_SEEN,

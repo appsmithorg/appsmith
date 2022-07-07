@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 public class ApplicationPagesDTO {
 
-    String organizationId;
+    String workspaceId;
 
     Application application;
 

@@ -51,7 +51,7 @@ export const EditableTextWrapper = styled.div<{
     color: ${(props) => props.theme.colors.danger.main};
   }
 
-  :focus {
+  :focus-visible {
     outline: 1px solid var(--appsmith-input-focus-border-color) !important;
   }
 `;
@@ -69,7 +69,6 @@ export function EditableText(props: EditableTextProps) {
   const [savingState, setSavingState] = useState<SavingState>(
     SavingState.NOT_STARTED,
   );
-  const inputRef = React.useRef(null);
 
   const editMode = useCallback(
     (e: React.MouseEvent) => {
@@ -139,7 +138,6 @@ export function EditableText(props: EditableTextProps) {
         isEditing={isEditing}
         isEditingDefault={isEditingDefault}
         isInvalid={isInvalid}
-        ref={inputRef}
         savingState={savingState}
         setIsEditing={setIsEditing}
         setIsInvalid={setIsInvalid}

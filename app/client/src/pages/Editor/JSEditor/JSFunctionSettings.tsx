@@ -5,7 +5,7 @@ import {
   NO_ASYNC_FUNCTIONS,
 } from "ce/constants/messages";
 import { AppIcon, Radio, RadioComponent } from "components/ads";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { JSAction } from "entities/JSCollection";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
@@ -143,7 +143,10 @@ function SettingsItem({ action }: SettingsItemProps) {
   };
 
   return (
-    <SettingRow>
+    <SettingRow
+      className="t--async-js-function-settings"
+      id={`${action.name}-settings`}
+    >
       <SettingColumn grow>
         <span>{action.name}</span>
       </SettingColumn>

@@ -14,6 +14,7 @@ import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
+import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -35,6 +36,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -193,8 +196,8 @@ public class GitControllerCE {
     }
 
     @GetMapping("/import/keys")
-    public Mono<ResponseDTO<GitAuth>> generateKeyForGitImport() {
-        return service.generateSSHKey()
+    public Mono<ResponseDTO<GitAuth>> generateKeyForGitImport(@RequestParam(required = false) String keyType) {
+        return service.generateSSHKey(keyType)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
     
@@ -227,11 +230,17 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>((HttpStatus.OK.value()), result, null));
     }
 
-    @GetMapping("/protocol/keys")
+    @GetMapping("/protocol/key-types")
     public Mono<ResponseDTO<List<GitDeployKeyDTO>>> getSupportedKeys() {
         log.debug("Going to list the list of supported keys");
         return Mono.just(GitDeployKeyGenerator.getSupportedProtocols())
                 .map(gitDeployKeyDTOS -> new ResponseDTO<>(HttpStatus.OK.value(), gitDeployKeyDTOS, null));
+    }
+
+    @GetMapping("/doc-urls")
+    public Mono<ResponseDTO<List<GitDocsDTO>>> getGitDocs() {
+        return service.getGitDocUrls()
+                .map(gitDocDTO -> new ResponseDTO<>(HttpStatus.OK.value(), gitDocDTO, null));
     }
 
 }
