@@ -12,7 +12,7 @@ import {
   DropdownList,
   DropdownItem,
   DropdownTrigger,
-} from "components/ads/DropdownV2";
+} from "design-system";
 import {
   AppThemingMode,
   getAppThemingStack,
