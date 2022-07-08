@@ -394,6 +394,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       this.props.disabledWhenInvalid &&
       "isFormValid" in this.props &&
       !this.props.isFormValid;
+    const isDisabled = this.props.isDisabled || disabled;
     return (
       <ButtonComponent
         borderRadius={this.props.borderRadius}
@@ -405,10 +406,10 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         handleRecaptchaV2Loading={this.handleRecaptchaV2Loading}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
-        isDisabled={this.props.isDisabled || disabled}
+        isDisabled={isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
-        onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
+        onClick={isDisabled ? undefined : this.onButtonClickBound}
         placement={this.props.placement}
         recaptchaType={this.props.recaptchaType}
         text={this.props.text}
