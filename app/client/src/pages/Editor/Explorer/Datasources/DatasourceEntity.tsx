@@ -23,6 +23,8 @@ import {
   saasEditorDatasourceIdURL,
 } from "RouteBuilder";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useLocation } from "react-router";
 
 type ExplorerDatasourceEntityProps = {
   plugin: Plugin;
@@ -38,29 +40,35 @@ const ExplorerDatasourceEntity = React.memo(
     const guidedTourEnabled = useSelector(inGuidedTour);
     const dispatch = useDispatch();
     const icon = getPluginIcon(props.plugin);
+    const location = useLocation();
     const switchDatasource = useCallback(() => {
+      let url;
       if (props.plugin && props.plugin.type === PluginType.SAAS) {
-        history.push(
-          saasEditorDatasourceIdURL({
-            pluginPackageName: props.plugin.packageName,
-            datasourceId: props.datasource.id,
-            params: {
-              viewMode: true,
-            },
-          }),
-        );
+        url = saasEditorDatasourceIdURL({
+          pluginPackageName: props.plugin.packageName,
+          datasourceId: props.datasource.id,
+          params: {
+            viewMode: true,
+          },
+        });
       } else {
         dispatch(
           setDatsourceEditorMode({ id: props.datasource.id, viewMode: true }),
         );
-        history.push(
-          datasourcesEditorIdURL({
-            datasourceId: props.datasource.id,
-            params: getQueryParams(),
-          }),
-        );
+        url = datasourcesEditorIdURL({
+          datasourceId: props.datasource.id,
+          params: getQueryParams(),
+        });
       }
-    }, [props.datasource.id]);
+
+      AnalyticsUtil.logEvent("ENTITY_EXPLORER_CLICK", {
+        type: "DATASOURCES",
+        fromUrl: location.pathname,
+        toUrl: url,
+        name: props.datasource.name,
+      });
+      history.push(url);
+    }, [props.datasource.id, props.datasource.name, location.pathname]);
 
     const queryId = getQueryIdFromURL();
     const queryAction = useSelector((state: AppState) =>

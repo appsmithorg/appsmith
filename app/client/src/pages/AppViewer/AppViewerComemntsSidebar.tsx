@@ -11,7 +11,7 @@ function AppViewerCommentsSidebar() {
   if (!isCommentMode) return null;
 
   return (
-    <div className="relative flex border-r border-gray-200 z-3">
+    <div className="relative flex border-r border-gray-200 z-[3]">
       <div className="h-full p-0 overflow-y-auto w-80">
         <AppComments />
       </div>

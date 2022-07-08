@@ -10,6 +10,7 @@ export const CONFIG = {
   needsMeta: true,
   hideCard: true,
   isDeprecated: true,
+  replacement: "MULTI_SELECT_WIDGET_V2",
   defaults: {
     rows: 7,
     columns: 20,

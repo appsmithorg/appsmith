@@ -1,9 +1,8 @@
 import Api from "api/Api";
 import { AxiosPromise } from "axios";
-import { GenericApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import { PluginType } from "entities/Action";
 import { DependencyMap } from "utils/DynamicBindingUtils";
-import { DropdownOption } from "components/ads/Dropdown";
 
 export type PluginId = string;
 export type PluginPackageName = string;
@@ -54,15 +53,18 @@ export interface DefaultPlugin {
 
 class PluginsApi extends Api {
   static url = "v1/plugins";
+  static defaultDynamicTriggerURL(datasourceId: string): string {
+    return `/v1/datasources/${datasourceId}/trigger`;
+  }
   static fetchPlugins(
     workspaceId: string,
-  ): AxiosPromise<GenericApiResponse<Plugin[]>> {
+  ): AxiosPromise<ApiResponse<Plugin[]>> {
     return Api.get(PluginsApi.url, { workspaceId: workspaceId });
   }
 
   static fetchFormConfig(
     id: string,
-  ): AxiosPromise<GenericApiResponse<PluginFormPayload>> {
+  ): AxiosPromise<ApiResponse<PluginFormPayload>> {
     return Api.get(PluginsApi.url + `/${id}/form`);
   }
 
@@ -70,13 +72,11 @@ class PluginsApi extends Api {
   static fetchDynamicFormValues(
     url: string,
     body: Record<string, any>,
-  ): AxiosPromise<GenericApiResponse<DropdownOption[]>> {
+  ): AxiosPromise<ApiResponse> {
     return Api.post(url, body);
   }
 
-  static fetchDefaultPlugins(): AxiosPromise<
-    GenericApiResponse<DefaultPlugin[]>
-  > {
+  static fetchDefaultPlugins(): AxiosPromise<ApiResponse<DefaultPlugin[]>> {
     return Api.get(PluginsApi.url + `/default/icons`);
   }
 }

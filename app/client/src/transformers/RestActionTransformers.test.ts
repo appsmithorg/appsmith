@@ -34,6 +34,7 @@ const BASE_ACTION: ApiAction = {
     timeoutInMillisecond: 5000,
   },
   jsonPathKeys: [],
+  messages: [],
 };
 
 describe("Api action transformer", () => {

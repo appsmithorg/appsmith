@@ -74,15 +74,10 @@ const TabsWrapper = styled.div<{
     justify-content: center;
     border-color: transparent;
     position: relative;
+
     padding: 0px 3px;
     margin-right: ${(props) =>
       !props.vertical ? `${props.theme.spaces[12] - 3}px` : 0};
-
-    ${(props) =>
-      props.responseViewer &&
-      `
-       
-      `}
   }
 
   .react-tabs__tab,
@@ -134,10 +129,10 @@ const TabsWrapper = styled.div<{
 `;
 
 export const TabTitle = styled.span<{ responseViewer?: boolean }>`
-  font-size: ${(props) => props.theme.typography.h5.fontSize}px;
-  font-weight: ${(props) => props.theme.typography.h5.fontWeight};
-  line-height: ${(props) => props.theme.typography.h5.lineHeight - 3}px;
-  letter-spacing: ${(props) => props.theme.typography.h5.letterSpacing}px;
+  font-size: ${(props) => props.theme.typography.h4.fontSize}px;
+  font-weight: ${(props) => props.theme.fontWeights[2]};
+  line-height: ${(props) => props.theme.spaces[7]}px;
+  letter-spacing: ${(props) => props.theme.typography.h4.letterSpacing}px;
   margin: 0;
   display: flex;
   align-items: center;
@@ -215,18 +210,16 @@ const TabTitleWrapper = styled.div<{
     props.selected
       ? `
   background-color: transparent;
-  color: ${props.theme.colors.tabs.hover};
+  color: var(--appsmith-color-black-900);
   .${Classes.ICON} {
     svg {
-      fill: ${props.theme.colors.tabs.icon};
       path {
-        fill: ${props.theme.colors.tabs.icon};
+        fill:  var(--appsmith-color-black-900)
       }
     }
   }
 
   .tab-title {
-    font-weight: 700;
     ${props.responseViewer &&
       `
         font-weight: normal;

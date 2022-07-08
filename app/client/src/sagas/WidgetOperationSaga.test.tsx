@@ -1,6 +1,8 @@
+const updateAndSaveLayoutMock = jest.fn();
+
 import {
-  removeDynamicBindingProperties,
   setWidgetDynamicPropertySaga,
+  removeDynamicBindingProperties,
 } from "./WidgetOperationSagas";
 
 const widget = {
@@ -35,11 +37,8 @@ jest.mock("redux-saga/effects", () => {
   };
 });
 
-let updateAndSaveLayoutMock: any;
-
 jest.mock("actions/pageActions", () => {
   const originalModule = jest.requireActual("actions/pageActions");
-  updateAndSaveLayoutMock = jest.fn();
 
   return {
     __esModule: true,

@@ -151,7 +151,7 @@ public class MigrationHelperMethods {
             });
         }
     }
-
+    
     public static boolean isAutoUpdate(Application application) {
         if (application.getClientSchemaVersion() == null || application.getServerSchemaVersion() == null
                 || (JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion())
@@ -159,5 +159,20 @@ public class MigrationHelperMethods {
             return false;
         }
         return true;
+    }
+
+    public static void migrateGoogleSheetsActionsToUqi(ApplicationJson applicationJson) {
+        final List<NewAction> actionList = applicationJson.getActionList();
+
+        if (!CollectionUtils.isNullOrEmpty(actionList)) {
+            actionList.parallelStream()
+                    .forEach(newAction -> {
+                        // Determine plugin
+                        final String pluginName = newAction.getPluginId();
+                        if ("google-sheets-plugin".equals(pluginName)) {
+                            DatabaseChangelog2.migrateGoogleSheetsToUqi(newAction);
+                        }
+                    });
+        }
     }
 }

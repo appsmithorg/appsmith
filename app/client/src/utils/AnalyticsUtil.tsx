@@ -15,6 +15,7 @@ export type EventLocation =
   | "OMNIBAR";
 
 export type EventName =
+  | "APP_CRASH"
   | "SWITCH_DATASOURCE"
   | "LOGIN_CLICK"
   | "SIGNUP_CLICK"
@@ -234,7 +235,11 @@ export type EventName =
   | "MANUAL_UPGRADE_CLICK"
   | "PAGE_NOT_FOUND"
   | "SIMILAR_TEMPLATE_CLICK"
-  | "RUN_JS_FUNCTION";
+  | "RUN_JS_FUNCTION"
+  | "PAGE_NAME_CLICK"
+  | "BACK_BUTTON_CLICK"
+  | "WIDGET_TAB_CLICK"
+  | "ENTITY_EXPLORER_CLICK";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

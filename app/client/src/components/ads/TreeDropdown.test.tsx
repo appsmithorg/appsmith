@@ -306,7 +306,9 @@ describe("<TreeDropdown/>", () => {
     userEvent.keyboard("{Enter}");
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       {
+        // @ts-expect-error: Object is possibly undefined
         label: optionTree[2]?.children[1]?.label,
+        // @ts-expect-error: Object is possibly undefined
         value: optionTree[2]?.children[1]?.value,
         selfIndex: [2, 1],
       },
@@ -386,6 +388,7 @@ describe("<TreeDropdown/> - utilities", () => {
     expect(getItem(optionTree, [0, 1])).toStrictEqual(undefined);
     expect(getItem(optionTree, [-1])).toStrictEqual(undefined);
     expect(getItem(optionTree, [2, 1])).toStrictEqual(
+      // @ts-expect-error: Object is possibly undefined
       optionTree[2]?.children[1],
     );
   });
@@ -433,6 +436,7 @@ describe("<TreeDropdown/> - utilities", () => {
       ...optionTree.slice(2 + 1),
     ]);
     expect(
+      // @ts-expect-error: type mismatch
       setItem(optionTree, [2, 1], {
         ...getItem(optionTree, [2, 1]),
         value: "q2",
@@ -443,7 +447,9 @@ describe("<TreeDropdown/> - utilities", () => {
         ...optionTree[2],
         children: [
           ...(optionTree[2]?.children?.slice(0, 1) ?? []),
+          // @ts-expect-error: Object is possibly undefined
           { ...(optionTree[2]?.children[1] ?? {}), value: "q2" },
+          // @ts-expect-error: Object is possibly undefined
           ...(optionTree[2]?.children.slice(2) ?? []),
         ],
       },
@@ -588,8 +594,11 @@ describe("<TreeDropdown/> - utilities", () => {
     ];
     const output = [...input];
     output[1].isChildrenOpen = true;
+    // @ts-expect-error: Object is possibly undefined
     if (output[1]?.children[1]) output[1].children[1].isChildrenOpen = true;
+    // @ts-expect-error: Object is possibly undefined
     if (output[1]?.children[1]?.children[0])
+      // @ts-expect-error: Object is possibly undefined
       output[1].children[1].children[0].isChildrenOpen = true;
     expect(deepOpenChildren(input, [1, 1, 0])).toStrictEqual(output);
   });

@@ -13,10 +13,10 @@ export interface CreateUserRequest {
   password: string;
 }
 
-export interface CreateUserResponse extends ApiResponse {
+export type CreateUserResponse = ApiResponse & {
   email: string;
   id: string;
-}
+};
 
 export interface ForgotPasswordRequest {
   email: string;
@@ -33,9 +33,9 @@ export interface VerifyTokenRequest {
   token: string;
 }
 
-export interface FetchUserResponse extends ApiResponse {
+export type FetchUserResponse = ApiResponse & {
   id: string;
-}
+};
 
 export interface FetchUserRequest {
   id: string;

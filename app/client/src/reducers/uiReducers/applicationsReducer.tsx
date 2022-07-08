@@ -509,7 +509,7 @@ export interface ApplicationsReduxState {
   isSavingWorkspaceInfo: boolean;
   importingApplication: boolean;
   showAppInviteUsersDialog: boolean;
-  importedApplication: any;
+  importedApplication: unknown;
   isImportAppModalOpen: boolean;
   workspaceIdForImport: any;
   isDatasourceConfigForImportFetched?: boolean;
