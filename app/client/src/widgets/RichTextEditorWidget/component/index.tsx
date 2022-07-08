@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef, useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
 import { LabelPosition } from "components/constants";
@@ -75,12 +75,7 @@ export interface RichtextEditorComponentProps {
   isValid?: boolean;
   onValueChange: (valueAsString: string) => void;
 }
-interface State {
-  text: string;
-  isUserEdit: boolean;
-}
 
-const initValue = "<p></p>";
 export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const {
     compactMode,
@@ -94,40 +89,40 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     labelWidth,
   } = props;
 
-  const [value, setValue] = React.useState<State>({
-    text: props.value as string,
-    isUserEdit: false,
-  });
-
-  const editorRef = useRef<any>(null);
+  const [editorValue, setEditorValue] = useState<string>(props.value as string);
+  const initialRender = useRef(true);
 
   const toolbarConfig =
     "insertfile undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | forecolor backcolor emoticons' | help";
 
-  useEffect(() => {
-    if (!value.text && !props.value) return;
-    // This Prevents calling onTextChange when initialized
-    if (!value.isUserEdit) return;
-    const timeOutId = setTimeout(() => props.onValueChange(value.text), 1000);
-    return () => clearTimeout(timeOutId);
-  }, [value]);
+  const handleEditorChange = useCallback(
+    (newValue: string, editor: any) => {
+      // avoid updating value, when there is no actual change.
+      if (newValue !== editorValue) {
+        const isFocused = editor.hasFocus();
+        /**
+         * only change call the props.onValueChange when the editor is in focus.
+         * This prevents props.onValueChange from getting called whenever the defaultText is changed.
+         */
+        //
+        if (isFocused) {
+          setEditorValue(newValue);
+          props.onValueChange(newValue);
+        }
+      }
+    },
+    [props.onValueChange, editorValue],
+  );
 
+  // As this useEffect sets the initialRender.current value as false and order of hooks matter,
+  // we should always keep this useEffect logic at last part of component before return to make sure, initialRender.current value is consumed as expected in the component.
   useEffect(() => {
-    setValue({ text: props.value as string, isUserEdit: false });
-  }, [props.value]);
-
-  const onEditorChange = (newValue: string) => {
-    // Prevents cursur shift in Markdown
-    if (newValue === "" && props.isMarkdown) {
-      setValue({ text: initValue, isUserEdit: true });
+    if (!initialRender.current && editorValue !== props.value) {
+      setEditorValue(props.value as string);
     } else {
-      /**
-       * due to lazy data load, props.value can trigger after initialization
-       * in that case this method called, so handle by comparing newValue and props.value
-       */
-      setValue({ text: newValue, isUserEdit: newValue !== props.value });
+      initialRender.current = false;
     }
-  };
+  }, [props.value]);
 
   return (
     <StyledRTEditor
@@ -163,7 +158,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             height: "100%",
             menubar: false,
             toolbar_mode: "sliding",
-            forced_root_block: false,
+            forced_root_block: "p",
             branding: false,
             resize: false,
             browser_spellcheck: true,
@@ -199,13 +194,10 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             },
           }}
           key={`editor_${props.isToolbarHidden}`}
-          onEditorChange={onEditorChange}
-          onInit={(evt, editor) => {
-            editorRef.current = editor;
-          }}
+          onEditorChange={handleEditorChange}
           tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/tinymce.min.js"
           toolbar={props.isToolbarHidden ? false : toolbarConfig}
-          value={value.text}
+          value={editorValue}
         />
       </RichTextEditorInputWrapper>
     </StyledRTEditor>

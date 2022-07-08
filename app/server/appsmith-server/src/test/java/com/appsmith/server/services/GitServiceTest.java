@@ -1193,7 +1193,7 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class))).thenReturn(Mono.just(true));
         Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("textPath")));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(false)))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(false), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("status"));
 
         Application application1 = createApplicationConnectedToGit("listBranchForApplication_pruneBranchNoChangesInRemote_Success", "defaultBranch");
@@ -1236,7 +1236,7 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class))).thenReturn(Mono.just(true));
         Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("textPath")));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(false)))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(false), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("status"));
         Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
@@ -1290,7 +1290,7 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class))).thenReturn(Mono.just(true));
         Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("textPath")));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(false)))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(false), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("status"));
         Mockito.when(gitExecutor.checkoutRemoteBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just("feature1"));
@@ -1338,7 +1338,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(mergeStatusDTO));
         Mockito.when(gitExecutor.getStatus(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(gitStatusDTO));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(true)))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(true), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetched"));
         Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
@@ -1397,7 +1397,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.justOrEmpty(applicationJson));
         Mockito.when(gitExecutor.getStatus(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(new GitStatusDTO()));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.pullApplication(
                 Mockito.any(Path.class),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -1443,7 +1443,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(mergeStatus));
         Mockito.when(gitExecutor.getStatus(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(gitStatusDTO));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Boolean.TRUE));
@@ -1480,7 +1480,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(mergeStatus));
         Mockito.when(gitExecutor.getStatus(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(new GitStatusDTO()));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Boolean.FALSE));
@@ -1523,7 +1523,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(mergeStatus));
         Mockito.when(gitExecutor.getStatus(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(gitStatusDTO));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Boolean.FALSE));
@@ -1573,7 +1573,7 @@ public class GitServiceTest {
         gitBranchDTO.setBranchName("origin/branchInLocal");
         branchList.add(gitBranchDTO);
 
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.checkoutRemoteBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just("testBranch"));
@@ -1608,7 +1608,7 @@ public class GitServiceTest {
 
         Mockito.when(gitExecutor.listBranches(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(branchList));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
 
         Mono<Application> applicationMono = gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchInLocal");
@@ -1816,7 +1816,7 @@ public class GitServiceTest {
 
         Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.listBranches(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(branchList));
@@ -1841,7 +1841,7 @@ public class GitServiceTest {
 
         Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.listBranches(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(new ArrayList<>()));
@@ -2045,7 +2045,7 @@ public class GitServiceTest {
 
         Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.listBranches(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(new ArrayList<>()));
@@ -2228,7 +2228,7 @@ public class GitServiceTest {
 
         Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.listBranches(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(new ArrayList<>()));
@@ -2794,7 +2794,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(mergeStatusDTO));
         Mockito.when(gitExecutor.getStatus(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(gitStatusDTO));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(true)))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(true), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetched"));
         Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
@@ -2835,7 +2835,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(mergeStatusDTO));
         Mockito.when(gitExecutor.getStatus(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(gitStatusDTO));
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(true)))
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), eq(true), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetched"));
 
         gitService

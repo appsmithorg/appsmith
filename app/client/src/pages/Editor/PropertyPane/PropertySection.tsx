@@ -18,6 +18,10 @@ const SectionWrapper = styled.div`
     z-index: 1;
     position: relative;
   }
+
+  .bp3-collapse {
+    transition: none;
+  }
 `;
 const SectionTitle = styled.div`
   display: grid;

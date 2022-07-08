@@ -45,12 +45,14 @@ export class EntityExplorer {
   private _pageClone = ".single-select >div:contains('Clone')";
   private getPageLocator = (pageName: string) =>
     `.t--entity-name:contains(${pageName})`;
-  private _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + " Query']";
+  private _visibleTextSpan = (spanText: string) =>
+    "//span[text()='" + spanText + " Query']";
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
     section: "WIDGETS" | "QUERIES/JS" | "DATASOURCES" | "" = "",
   ) {
+    this.NavigateToSwitcher("explorer");
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
       .last()
@@ -102,6 +104,7 @@ export class EntityExplorer {
     entityNameinLeftSidebar: string,
     action = "Delete",
     subAction = "",
+    jsDelete = false,
   ) {
     this.agHelper.Sleep();
     cy.xpath(this._contextMenu(entityNameinLeftSidebar))
@@ -112,6 +115,10 @@ export class EntityExplorer {
     if (subAction) {
       cy.xpath(this._contextMenuItem(subAction)).click({ force: true });
       this.agHelper.Sleep(500);
+    }
+    if (action == "Delete") {
+      jsDelete && this.agHelper.ValidateNetworkStatus("@deleteJSCollection");
+      jsDelete && this.agHelper.WaitUntilToastDisappear("deleted successfully");
     }
   }
 
