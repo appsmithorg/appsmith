@@ -19,6 +19,10 @@ const SectionWrapper = styled.div`
   border-top: 1px solid ${Colors.GREY_4};
   padding: 4px 16px 8px 16px;
 
+  &:first-of-type {
+    border-top: 0;
+  }
+
   /* Referring to a nested SectionWrapper */
   & & {
     padding: 0;
