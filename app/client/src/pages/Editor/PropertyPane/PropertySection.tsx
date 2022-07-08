@@ -42,7 +42,7 @@ const SectionTitle = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s;
+    transition: none;
     &.open-collapse {
       transform: rotate(90deg);
     }
