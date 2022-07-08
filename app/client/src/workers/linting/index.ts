@@ -1,3 +1,4 @@
+import { klona } from "klona/full";
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { get } from "lodash";
 import {
@@ -24,7 +25,6 @@ import {
   getLintingErrors,
   pathRequiresLinting,
 } from "./utils";
-import { klona } from "klona/full";
 
 export const lintTree = (
   unEvalDataTree: DataTree,

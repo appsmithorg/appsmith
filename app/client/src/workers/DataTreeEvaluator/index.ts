@@ -85,7 +85,7 @@ import {
   parseJSActions,
 } from "workers/JSObject";
 
-import { lintTree } from "workers/linting";
+import { lintTree } from "workers/Linting";
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
   sortedDependencies: Array<string> = [];
@@ -139,6 +139,8 @@ export default class DataTreeEvaluator {
       jsUpdates,
       localUnEvalTree,
     );
+    // get All keys
+    this.allKeys = getAllPaths(localUnEvalTree);
     // Create dependency map
     const createDependencyStart = performance.now();
     this.dependencyMap = this.createDependencyMap(localUnEvalTree);
@@ -202,11 +204,17 @@ export default class DataTreeEvaluator {
         map: JSON.parse(JSON.stringify(this.dependencyMap)),
         inverseMap: JSON.parse(JSON.stringify(this.inverseDependencyMap)),
         sortedList: JSON.parse(JSON.stringify(this.sortedDependencies)),
+        triggerFieldMap: JSON.parse(
+          JSON.stringify(this.triggerFieldDependencyMap),
+        ),
+        triggerFieldInverseMap: JSON.parse(
+          JSON.stringify(this.triggerFieldInverseDependencyMap),
+        ),
       },
       lint: (lintStop - lintStart).toFixed(2),
     };
     this.logs.push({ timeTakenForFirstTree });
-    return { evalTree: this.evalTree, jsUpdates: jsUpdates, evalMetaUpdates };
+    return { evalTree: this.evalTree, jsUpdates, evalMetaUpdates };
   }
 
   isJSObjectFunction(dataTree: DataTree, jsObjectName: string, key: string) {
@@ -484,7 +492,6 @@ export default class DataTreeEvaluator {
 
   createDependencyMap(unEvalTree: DataTree): DependencyMap {
     let dependencyMap: DependencyMap = {};
-    this.allKeys = getAllPaths(unEvalTree);
     Object.keys(unEvalTree).forEach((entityName) => {
       const entity = unEvalTree[entityName];
       if (isAction(entity) || isWidget(entity) || isJSAction(entity)) {
@@ -519,8 +526,6 @@ export default class DataTreeEvaluator {
 
   createTriggerFieldDependencyMap(unEvalTree: DataTree): DependencyMap {
     let dependencyMap: DependencyMap = {};
-    this.allKeys = getAllPaths(unEvalTree);
-
     Object.keys(unEvalTree).forEach((entityName) => {
       const entity = unEvalTree[entityName];
       // Only widgets have triggerPaths
