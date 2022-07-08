@@ -191,6 +191,7 @@ function GlobalSearch() {
   const category = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );
+  const plugins = useSelector(getPlugins);
   const setCategory = useCallback(
     (category: SearchCategory) => {
       if (isSnippet(category)) {
@@ -401,8 +402,6 @@ function GlobalSearch() {
       activeItem.parentModalId,
     );
   };
-
-  const plugins = useSelector(getPlugins);
 
   const handleActionClick = (item: SearchItem) => {
     const { config } = item;
