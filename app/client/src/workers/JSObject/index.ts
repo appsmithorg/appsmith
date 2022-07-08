@@ -249,7 +249,7 @@ export function parseJSActions(
 
   Object.keys(jsUpdates).forEach((entityName) => {
     const parsedBody = jsUpdates[entityName].parsedBody;
-    console.log("$$$", parsedBody);
+
     if (!parsedBody) return;
     parsedBody.actions = parsedBody.actions.map((action) => {
       return {

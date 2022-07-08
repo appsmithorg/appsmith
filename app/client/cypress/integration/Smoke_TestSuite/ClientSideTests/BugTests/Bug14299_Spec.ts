@@ -40,7 +40,7 @@ describe("[Bug]: The data from the query does not show up on the widget #14299",
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("getAstronauts");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
     jsEditor.CreateJSObject(
       `export default {
       runAstros: () => {
@@ -56,16 +56,16 @@ describe("[Bug]: The data from the query does not show up on the widget #14299",
     );
 
     ee.SelectEntityByName("Table1");
-    jsEditor.EnterJSContext("Table Data", `{{JSObject1.runAstros.data}}`);
+    propPane.UpdatePropertyFieldValue("Table Data", `{{JSObject1.runAstros.data}}`);
 
     ee.SelectEntityByName("DatePicker1");
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Default Date",
       `{{moment(Table1.selectedRow.date_of_death)}}`,
     );
 
     ee.SelectEntityByName("Text1");
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Text",
       `Date: {{moment(Table1.selectedRow.date_of_death).toString()}}`,
     );
@@ -119,13 +119,14 @@ describe("[Bug]: The data from the query does not show up on the widget #14299",
   });
 
   it("4. Verify Deletion of the datasource after all created queries are Deleted", () => {
-    deployMode.NavigateBacktoEditor()
+    deployMode.NavigateBacktoEditor();
+    agHelper.WaitUntilToastDisappear("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.ActionContextMenuByEntityName("getAstronauts", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName(
       "JSObject1",
       "Delete",
-      "Are you sure?",
+      "Are you sure?", true
     );
     deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
     deployMode.NavigateBacktoEditor();

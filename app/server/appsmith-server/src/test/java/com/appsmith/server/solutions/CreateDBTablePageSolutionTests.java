@@ -16,8 +16,8 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.CRUDPageResponseDTO;
@@ -170,6 +170,7 @@ public class CreateDBTablePageSolutionTests {
     public void setup() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutorFromPackageName(Mockito.anyString())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (testWorkspace == null) {
             Workspace workspace = new Workspace();

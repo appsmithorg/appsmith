@@ -72,6 +72,10 @@ interface ArrowFunctionExpressionNode extends Expression, Function {
 }
 
 export interface ObjectExpressionNode extends Expression {
+  type: NodeTypes.ArrowFunctionExpression;
+}
+
+export interface ObjectExpression extends Expression {
   type: NodeTypes.ObjectExpression;
   properties: Array<PropertyNode>;
 }

@@ -83,6 +83,15 @@ Cypress.Commands.add("NavigateToDatasourceEditor", () => {
     .click({ force: true });
 });
 
+Cypress.Commands.add("NavigateToActiveDatasources", () => {
+  cy.get(explorer.addDBQueryEntity)
+    .last()
+    .click({ force: true });
+  cy.get(pages.integrationActiveTab)
+    .should("be.visible")
+    .click({ force: true });
+});
+
 Cypress.Commands.add("testDatasource", (expectedRes = true) => {
   cy.get(".t--test-datasource").click({ force: true });
   cy.wait("@testDatasource").should(
@@ -345,6 +354,12 @@ Cypress.Commands.add("createPostgresDatasource", () => {
   //cy.getPluginFormsAndCreateDatasource();
   cy.fillPostgresDatasourceForm();
   cy.testSaveDatasource();
+});
+
+// this can be modified further when google sheets automation is done.
+Cypress.Commands.add("createGoogleSheetsDatasource", () => {
+  cy.NavigateToDatasourceEditor();
+  cy.get(datasourceEditor.GoogleSheets).click();
 });
 
 Cypress.Commands.add("deleteDatasource", (datasourceName) => {
