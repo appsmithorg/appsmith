@@ -144,6 +144,9 @@ import VideoWidget, {
 import ProgressWidget, {
   CONFIG as PROGRESS_WIDGET_CONFIG,
 } from "widgets/ProgressWidget";
+import AutoLayoutContainerWidget, {
+  CONFIG as AUTO_LAYOUT_CONFIG,
+} from "widgets/AutoLayoutContainerWidget";
 import { registerWidget } from "./WidgetRegisterHelpers";
 import { WidgetConfiguration } from "widgets/constants";
 
@@ -192,6 +195,7 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [PhoneInputWidget, PHONE_INPUT_WIDGET_V2_CONFIG],
   [CurrencyInputWidget, CURRENCY_INPUT_WIDGET_V2_CONFIG],
   [JSONFormWidget, JSON_FORM_WIDGET_CONFIG],
+  [AutoLayoutContainerWidget, AUTO_LAYOUT_CONFIG],
 
   //Deprecated Widgets
   [InputWidget, INPUT_WIDGET_CONFIG],

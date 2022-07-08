@@ -110,3 +110,8 @@ export const SELECT_DEFAULT_HEIGHT = "32px";
  * Default margin bottom value for old select widgets
  */
 export const LABEL_MARGIN_OLD_SELECT = "5px";
+
+export enum LayoutDirection {
+  Horizontal = "Horizontal",
+  Vertical = "Vertical",
+}
