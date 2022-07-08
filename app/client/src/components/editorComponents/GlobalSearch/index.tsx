@@ -84,6 +84,8 @@ import {
   builderURL,
   jsCollectionIdURL,
 } from "RouteBuilder";
+import { getPlugins } from "selectors/entitiesSelector";
+import { PluginType } from "entities/Action";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   width: ${({ category, query }) =>
@@ -194,6 +196,7 @@ function GlobalSearch() {
   const category = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );
+  const plugins = useSelector(getPlugins);
   const setCategory = useCallback(
     (category: SearchCategory) => {
       if (isSnippet(category)) {
@@ -412,12 +415,18 @@ function GlobalSearch() {
     const { config } = item;
     const { id, pageId, pluginType } = config;
     const actionConfig = getActionConfig(pluginType);
+    let plugin;
+    // passing plugins for SAAS actions since they require it for computing urls.
+    if (pluginType === PluginType.SAAS) {
+      plugin = plugins.find((plugin) => plugin?.id === config?.pluginId);
+    }
     const url = actionConfig?.getURL(
       applicationSlug,
       pageIdToSlugMap[pageId] as string,
       pageId,
       id,
       pluginType,
+      plugin,
     );
     toggleShow();
     url && history.push(url);
