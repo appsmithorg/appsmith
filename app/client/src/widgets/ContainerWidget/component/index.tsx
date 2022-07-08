@@ -119,6 +119,7 @@ export interface ContainerComponentProps
   selected?: boolean;
   focused?: boolean;
   minHeight?: number;
+  onClickCapture?: (e: React.MouseEvent<HTMLElement>) => void;
 }
 
 export default ContainerComponent;

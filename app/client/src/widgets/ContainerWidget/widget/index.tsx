@@ -19,6 +19,7 @@ import { compact, map, sortBy } from "lodash";
 
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -27,6 +28,7 @@ class ContainerWidget extends BaseWidget<
   constructor(props: ContainerWidgetProps<WidgetProps>) {
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
+    this.onContainerClick = this.onContainerClick.bind(this);
   }
 
   static getPropertyPaneConfig() {
@@ -62,6 +64,20 @@ class ContainerWidget extends BaseWidget<
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
+          },
+        ],
+      },
+      {
+        sectionName: "Events",
+        children: [
+          {
+            helpText: "Triggers an action when the container is clicked",
+            propertyName: "onClick",
+            label: "onClick",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },
@@ -193,10 +209,29 @@ class ContainerWidget extends BaseWidget<
     );
   };
 
+  onContainerClick(e: React.MouseEvent<HTMLElement>) {
+    e.stopPropagation();
+
+    if (this.props.onClick) {
+      super.executeAction({
+        triggerPropertyName: "onClick",
+        dynamicString: this.props.onClick,
+        event: {
+          type: EventType.ON_CLICK,
+        },
+      });
+    }
+  }
+
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
+    const { onClick, ...rest } = props;
+
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
     return (
-      <ContainerComponent {...props}>
+      <ContainerComponent
+        onClickCapture={onClick ? this.onContainerClick : undefined}
+        {...rest}
+      >
         {props.type === "CANVAS_WIDGET" && (
           <>
             <CanvasDraggingArena
@@ -245,6 +280,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   containerStyle?: ContainerStyle;
   shouldScrollContents?: boolean;
   noPad?: boolean;
+  onClick?: string;
 }
 
 export default ContainerWidget;
