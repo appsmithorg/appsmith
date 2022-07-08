@@ -214,6 +214,19 @@ function generatePanelPropertyConfig(
         children: [...COMMON_PROPERTIES.style.label],
       },
       {
+        sectionName: "Icon",
+        children: [...INPUT_PROPERTIES.style.icon],
+        hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
+          const schemaItem: SchemaItem = get(props, propertyPath, {});
+          return !(
+            schemaItem.fieldType === FieldType.TEXT_INPUT ||
+            schemaItem.fieldType === FieldType.EMAIL_INPUT ||
+            schemaItem.fieldType === FieldType.PASSWORD_INPUT ||
+            schemaItem.fieldType === FieldType.NUMBER_INPUT
+          );
+        },
+      },
+      {
         sectionName: "Color",
         children: [...COMMON_PROPERTIES.style.color],
         hidden: hiddenIfArrayOrObject,

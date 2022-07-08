@@ -782,6 +782,51 @@ const PROPERTIES = {
       },
     ],
   },
+  style: {
+    icon: [
+      {
+        propertyName: "iconName",
+        label: "Select Icon",
+        helpText: "Sets the icon to be used in input field",
+        controlType: "ICON_SELECT",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotIncludes([
+            FieldType.TEXT_INPUT,
+            FieldType.EMAIL_INPUT,
+            FieldType.PASSWORD_INPUT,
+            FieldType.NUMBER_INPUT,
+          ]),
+        dependencies: ["schema"],
+      },
+      {
+        propertyName: "iconAlign",
+        label: "Alignment",
+        helpText: "Sets the icon alignment of input field",
+        controlType: "ICON_TABS",
+        options: [
+          {
+            icon: "VERTICAL_LEFT",
+            value: "left",
+          },
+          {
+            icon: "VERTICAL_RIGHT",
+            value: "right",
+          },
+        ],
+        isBindProperty: false,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem<InputFieldProps["schemaItem"]>(...args).compute(
+            (schemaItem) => !schemaItem.iconName,
+          ),
+        dependencies: ["schema"],
+      },
+    ],
+  },
 };
 
 export default PROPERTIES;
