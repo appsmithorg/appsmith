@@ -21,8 +21,14 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     }>,
   ) => {
     const { dataTree, updates } = action.payload;
-    if (Object.keys(dataTree).length) {
-      return dataTree;
+    if (Object.keys(state).length === 0) {
+      if (Object.keys(dataTree).length) {
+        return dataTree;
+      }
+      return state;
+    }
+    if (updates.length === 0) {
+      return state;
     }
     for (const update of updates) {
       // Null check for typescript
