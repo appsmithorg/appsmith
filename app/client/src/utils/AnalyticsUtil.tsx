@@ -434,7 +434,7 @@ class AnalyticsUtil {
     }
     windowDoc.analytics && windowDoc.analytics.reset();
     windowDoc.mixpanel && windowDoc.mixpanel.reset();
-    window.zipy.anonymize();
+    window.zipy && window.zipy.anonymize();
   }
 }
 
