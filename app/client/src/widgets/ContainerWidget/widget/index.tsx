@@ -210,7 +210,7 @@ class ContainerWidget extends BaseWidget<
   };
 
   onContainerClick(e: React.MouseEvent<HTMLElement>) {
-    e.stopPropagation();
+    // e.stopPropagation();
 
     if (this.props.onClick) {
       super.executeAction({
