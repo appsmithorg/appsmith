@@ -14,7 +14,7 @@ import {
   removeFunctions,
   validateWidgetProperty,
 } from "./evaluationUtils";
-import DataTreeEvaluator from "workers/DataTreeEvaluator/DataTreeEvaluator";
+import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayEntity from "entities/Replay";
 import evaluate, {
   evaluateAsync,
@@ -26,6 +26,7 @@ import { setFormEvaluationSaga } from "./formEval";
 import { isEmpty } from "lodash";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { Diff } from "deep-diff";
+import { EvalTreePayload } from "../sagas/EvaluationsSaga";
 
 const CANVAS = "canvas";
 
@@ -67,7 +68,7 @@ function messageEventListener(
               errors: [
                 {
                   type: EvalErrorTypes.CLONE_ERROR,
-                  message: e,
+                  message: (e as Error)?.message,
                   context: JSON.stringify(rest),
                 },
               ],
@@ -82,7 +83,10 @@ function messageEventListener(
 
 ctx.addEventListener(
   "message",
-  messageEventListener((method, requestData: any, requestId) => {
+  messageEventListener((method, requestData: any, requestId):
+    | EvalTreePayload
+    | boolean
+    | any => {
     switch (method) {
       case EVAL_WORKER_ACTIONS.SETUP: {
         setupEvaluationEnvironment();
@@ -107,7 +111,7 @@ ctx.addEventListener(
         let unEvalUpdates: DataTreeDiff[] = [];
         let jsUpdates: Record<string, any> = {};
         let evalMetaUpdates: EvalMetaUpdates = [];
-
+        let isCreateFirstTree = false;
         try {
           if (!dataTreeEvaluator) {
             replayMap = replayMap || {};
@@ -120,6 +124,7 @@ ctx.addEventListener(
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
               unevalTree,
             );
+            isCreateFirstTree = true;
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
             dataTree = dataTreeResponse.evalTree;
             jsUpdates = dataTreeResponse.jsUpdates;
@@ -148,6 +153,7 @@ ctx.addEventListener(
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
               unevalTree,
             );
+            isCreateFirstTree = true;
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
             dataTree = dataTreeResponse.evalTree;
             jsUpdates = dataTreeResponse.jsUpdates;
@@ -182,17 +188,17 @@ ctx.addEventListener(
             logs = logs.concat(replayMap[CANVAS]?.logs);
           replayMap[CANVAS]?.clearLogs();
           dataTreeEvaluator.clearLogs();
-        } catch (e) {
+        } catch (error) {
           if (dataTreeEvaluator !== undefined) {
             errors = dataTreeEvaluator.errors;
             logs = dataTreeEvaluator.logs;
           }
-          if (!(e instanceof CrashingError)) {
+          if (!(error instanceof CrashingError)) {
             errors.push({
               type: EvalErrorTypes.UNKNOWN_ERROR,
-              message: e.message,
+              message: (error as Error).message,
             });
-            console.error(e);
+            console.error(error);
           }
           dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
         }
@@ -206,6 +212,7 @@ ctx.addEventListener(
           unEvalUpdates,
           jsUpdates,
           evalMetaUpdates,
+          isCreateFirstTree,
         };
       }
       case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {

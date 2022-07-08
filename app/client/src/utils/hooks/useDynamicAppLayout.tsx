@@ -136,7 +136,7 @@ export const useDynamicAppLayout = () => {
     const calculatedWidth = calculateCanvasWidth();
     const { width: rightColumn } = mainCanvasProps || {};
 
-    if (rightColumn !== calculatedWidth) {
+    if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
       dispatch(
         updateCanvasLayoutAction(calculatedWidth, mainCanvasProps?.height),
       );

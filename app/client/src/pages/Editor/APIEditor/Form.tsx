@@ -65,9 +65,8 @@ import { Colors } from "constants/Colors";
 import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import ApiAuthentication from "./ApiAuthentication";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { Position } from "@blueprintjs/core/lib/esnext/common";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
 
@@ -410,7 +409,7 @@ function ImportedKeyValue(props: { datas: any }) {
                 <TooltipComponent
                   content={data.key}
                   hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                  position={Position.BOTTOM_LEFT}
+                  position="bottom-left"
                 >
                   <Text type={TextType.H6}>{data.key}</Text>
                 </TooltipComponent>
@@ -420,7 +419,7 @@ function ImportedKeyValue(props: { datas: any }) {
                   <TooltipComponent
                     content={data.value}
                     hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                    position={Position.BOTTOM_LEFT}
+                    position="bottom-left"
                   >
                     {data.value}
                   </TooltipComponent>

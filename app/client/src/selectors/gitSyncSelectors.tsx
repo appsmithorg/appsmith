@@ -144,7 +144,7 @@ export const getUseGlobalProfile = (state: AppState) =>
   state.ui.gitSync.useGlobalProfile;
 
 const FALLBACK_GIT_SYNC_DOCS_URL =
-  "https://docs.appsmith.com/core-concepts/git-sync";
+  "https://docs.appsmith.com/core-concepts/version-control-with-git";
 
 export const getDiscardDocUrl = (state: AppState) =>
   state.ui.gitSync.gitStatus?.discardDocUrl || FALLBACK_GIT_SYNC_DOCS_URL;

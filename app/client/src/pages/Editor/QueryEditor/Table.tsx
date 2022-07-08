@@ -13,7 +13,7 @@ import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { CellWrapper } from "widgets/TableWidget/component/TableStyledWrappers";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import { Theme } from "constants/DefaultTheme";
-import { uniqueId } from "lodash";
+import { isArray, uniqueId } from "lodash";
 
 interface TableProps {
   data: Record<string, any>[];
@@ -28,6 +28,10 @@ const TABLE_SIZES = {
   ROW_FONT_SIZE: 14,
   SCROLL_SIZE: 20,
 };
+
+const NoDataMessage = styled.span`
+  margin-left: 24px;
+`;
 
 export const TableWrapper = styled.div`
   width: 100%;
@@ -198,7 +202,7 @@ function Table(props: TableProps) {
   const data = React.useMemo(() => {
     const emptyString = "";
     /* Check for length greater than 0 of rows returned from the query for mappings keys */
-    if (props.data?.length > 0) {
+    if (!!props.data && isArray(props.data) && props.data.length > 0) {
       const keys = Object.keys(props.data[0]);
       keys.forEach((key) => {
         if (key === emptyString) {
@@ -286,7 +290,11 @@ function Table(props: TableProps) {
   );
 
   if (rows.length === 0 || headerGroups.length === 0)
-    return <span>No data records to show</span>;
+    return (
+      <NoDataMessage data-testid="no-data-table-message">
+        No data records to show
+      </NoDataMessage>
+    );
 
   return (
     <ErrorBoundary>

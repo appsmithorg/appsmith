@@ -23,7 +23,7 @@ import {
   TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { IconNames } from "@blueprintjs/icons";
-import { getStylesheetValue } from "./helpers";
+import { getPrimaryColumnStylesheetValue } from "./helpers";
 
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
@@ -712,7 +712,7 @@ export default [
                       value: "BOTTOM",
                     },
                   ],
-                  defaultValue: "LEFT",
+                  defaultValue: "CENTER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
@@ -736,7 +736,7 @@ export default [
                 {
                   propertyName: "textColor",
                   label: "Text Color",
-                  controlType: "COLOR_PICKER",
+                  controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
@@ -760,7 +760,7 @@ export default [
                 {
                   propertyName: "cellBackground",
                   label: "Cell Background",
-                  controlType: "COLOR_PICKER",
+                  controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
@@ -904,9 +904,9 @@ export default [
                 },
                 {
                   propertyName: "buttonColor",
-                  getStylesheetValue,
+                  getStylesheetValue: getPrimaryColumnStylesheetValue,
                   label: "Button Color",
-                  controlType: "COLOR_PICKER",
+                  controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                   helpText: "Changes the color of the button",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
@@ -989,6 +989,7 @@ export default [
                   label: "Border Radius",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
+                  getStylesheetValue: getPrimaryColumnStylesheetValue,
                   helpText:
                     "Rounds the corners of the icon button's outer border edge",
                   controlType: "BORDER_RADIUS_OPTIONS",
@@ -1048,10 +1049,11 @@ export default [
                   helpText:
                     "Sets the custom color preset based on the menu button variant",
                   label: "Menu Color",
-                  controlType: "COLOR_PICKER",
+                  controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   isBindProperty: true,
+                  getStylesheetValue: getPrimaryColumnStylesheetValue,
                   isTriggerProperty: false,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
                   validation: {
@@ -1207,7 +1209,7 @@ export default [
                             helpText:
                               "Sets the background color of a menu item",
                             label: "Background color",
-                            controlType: "COLOR_PICKER",
+                            controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                             isJSConvertible: true,
                             isBindProperty: true,
                             isTriggerProperty: false,
@@ -1224,7 +1226,7 @@ export default [
                             propertyName: "textColor",
                             helpText: "Sets the text color of a menu item",
                             label: "Text color",
-                            controlType: "COLOR_PICKER",
+                            controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                             isBindProperty: false,
                             isTriggerProperty: false,
                             updateHook: updateDerivedColumnsHook,
@@ -1294,7 +1296,7 @@ export default [
                             propertyName: "iconColor",
                             helpText: "Sets the icon color of a menu item",
                             label: "Icon color",
-                            controlType: "COLOR_PICKER",
+                            controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                             isBindProperty: false,
                             isTriggerProperty: false,
                             updateHook: updateDerivedColumnsHook,
@@ -1751,7 +1753,7 @@ export default [
             value: "BOTTOM",
           },
         ],
-        defaultValue: "LEFT",
+        defaultValue: "CENTER",
         isBindProperty: false,
         isTriggerProperty: false,
       },

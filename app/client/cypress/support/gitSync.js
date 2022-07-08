@@ -15,7 +15,7 @@ Cypress.Commands.add("revokeAccessGit", (appName) => {
     .click();
   cy.get(gitSyncLocators.disconnectAppNameInput).type(appName);
   cy.get(gitSyncLocators.disconnectButton).click();
-  cy.route("POST", "api/v1/git/disconnect/*").as("disconnect");
+  cy.route("POST", "api/v1/git/disconnect/app/*").as("disconnect");
   cy.get(gitSyncLocators.disconnectButton).click();
   cy.wait("@disconnect").should(
     "have.nested.property",
@@ -45,7 +45,7 @@ Cypress.Commands.add(
 
     cy.intercept(
       {
-        url: "api/v1/git/connect/*",
+        url: "api/v1/git/connect/app/*",
         hostname: window.location.host,
       },
       (req) => {
@@ -276,6 +276,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("merge", (destinationBranch) => {
   cy.get(gitSyncLocators.bottomBarMergeButton).click();
+  cy.wait(3000); // wait for git status call to finish
   cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
   cy.get(commonLocators.dropdownmenu)
     .contains(destinationBranch)
@@ -300,7 +301,7 @@ Cypress.Commands.add(
     let generatedKey;
     cy.intercept(
       {
-        url: "api/v1/git/connect/*",
+        url: "api/v1/git/connect/app/*",
         hostname: window.location.host,
       },
       (req) => {
@@ -390,6 +391,42 @@ Cypress.Commands.add("gitDiscardChanges", (assertResourceFound = true) => {
   } else {
     cy.get(".bold-text").should(($x) => {
       expect($x).contain("Page not found");
+    });
+  }
+});
+
+Cypress.Commands.add("regenerateSSHKey", (repo, generateKey = true) => {
+  let generatedKey;
+  cy.get(gitSyncLocators.bottomBarCommitButton).click();
+  cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
+  cy.wait(2000);
+  cy.get(gitSyncLocators.SSHKeycontextmenu).click();
+  cy.get(gitSyncLocators.regenerateSSHKey).click();
+  cy.contains(Cypress.env("MESSAGES").REGENERATE_KEY_CONFIRM_MESSAGE());
+  cy.xpath(gitSyncLocators.confirmButton).click();
+  cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
+    `generateKey-${repo}`,
+  );
+  if (generateKey) {
+    cy.wait(`@generateKey-${repo}`).then((result) => {
+      generatedKey = result.response.body.data.publicKey;
+      generatedKey = generatedKey.slice(0, generatedKey.length - 1);
+      // fetch the generated key and post to the github repo
+      cy.request({
+        method: "POST",
+        url: `${GITHUB_API_BASE}/repos/${Cypress.env(
+          "TEST_GITHUB_USER_NAME",
+        )}/${repo}/keys`,
+        headers: {
+          Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+        },
+        body: {
+          title: "key0",
+          key: generatedKey,
+        },
+      });
+
+      cy.get(gitSyncLocators.closeGitSyncModal);
     });
   }
 });

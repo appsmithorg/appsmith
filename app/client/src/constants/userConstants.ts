@@ -9,7 +9,7 @@ export enum CommentsOnboardingState {
 
 export type User = {
   email: string;
-  organizationIds: string[];
+  workspaceIds: string[];
   username: string;
   name: string;
   gender: Gender;
@@ -35,7 +35,7 @@ export const CurrentUserDetailsRequestPayload = {
 export const DefaultCurrentUserDetails: User = {
   name: ANONYMOUS_USERNAME,
   email: ANONYMOUS_USERNAME,
-  organizationIds: [],
+  workspaceIds: [],
   username: ANONYMOUS_USERNAME,
   gender: "MALE",
   isSuperUser: false,

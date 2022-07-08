@@ -97,7 +97,7 @@ export const useCurrentApplicationDatasource = () => {
   );
 };
 
-export const useOtherDatasourcesInOrganization = () => {
+export const useOtherDatasourcesInWorkspace = () => {
   const actions = useSelector(getActions);
   const allDatasources = useSelector(getDatasources);
   const datasourceIdsUsedInCurrentApplication = actions.reduce(
@@ -119,13 +119,13 @@ export const useOtherDatasourcesInOrganization = () => {
 
 export const useAppWideAndOtherDatasource = () => {
   const datasourcesUsedInApplication = useCurrentApplicationDatasource();
-  const otherDatasourceInOrg = useOtherDatasourcesInOrganization();
+  const otherDatasourceInWorkspace = useOtherDatasourcesInWorkspace();
 
   return {
     appWideDS: datasourcesUsedInApplication.sort((ds1, ds2) =>
       ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
     ),
-    otherDS: otherDatasourceInOrg.sort((ds1, ds2) =>
+    otherDS: otherDatasourceInWorkspace.sort((ds1, ds2) =>
       ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
     ),
   };
@@ -135,11 +135,11 @@ const MAX_DATASOURCE_SUGGESTIONS = 3;
 
 export const useDatasourceSuggestions = () => {
   const datasourcesUsedInApplication = useCurrentApplicationDatasource();
-  const otherDatasourceInOrg = useOtherDatasourcesInOrganization();
+  const otherDatasourceInWorkspace = useOtherDatasourcesInWorkspace();
   if (datasourcesUsedInApplication.length >= MAX_DATASOURCE_SUGGESTIONS)
     return [];
-  otherDatasourceInOrg.reverse();
-  return otherDatasourceInOrg.slice(
+  otherDatasourceInWorkspace.reverse();
+  return otherDatasourceInWorkspace.slice(
     0,
     MAX_DATASOURCE_SUGGESTIONS - datasourcesUsedInApplication.length,
   );

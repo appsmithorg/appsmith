@@ -2,7 +2,7 @@ import { getCanvasWidgetsPayload } from "sagas/PageSagas";
 import { updateCurrentPage } from "actions/pageActions";
 import { editorInitializer } from "utils/EditorUtils";
 import {
-  PageListPayload,
+  Page,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { initEditor } from "actions/initActions";
@@ -47,7 +47,7 @@ export const useMockDsl = (dsl: any) => {
       },
     ],
   });
-  const pages: PageListPayload = [
+  const pages: Page[] = [
     {
       pageName: mockResp.data.name,
       pageId: mockResp.data.id,
@@ -98,9 +98,9 @@ export const syntheticTestMouseEvent = (
 export function MockApplication({ children }: any) {
   editorInitializer();
   const dispatch = useDispatch();
-  dispatch(initEditor({ pageId: "page_id" }));
+  dispatch(initEditor({ pageId: "page_id", mode: APP_MODE.EDIT }));
   const mockResp: any = {
-    organizationId: "org_id",
+    workspaceId: "workspace_id",
     pages: [{ id: "page_id", name: "Page1", isDefault: true }],
     id: "app_id",
     isDefault: true,

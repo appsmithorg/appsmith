@@ -42,7 +42,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
-        final Mono<Workspace> targetWorkspaceMono = workspaceService.findById(targetWorkspaceId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
+        final Mono<Workspace> targetWorkspaceMono = workspaceService.findById(targetWorkspaceId, AclPermission.WORKSPACE_MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, targetWorkspaceId)));
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
@@ -116,13 +116,13 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
-    private Mono<Application> sendForkApplicationAnalyticsEvent(String applicationId, String orgId, Application application) {
+    private Mono<Application> sendForkApplicationAnalyticsEvent(String applicationId, String workspaceId, Application application) {
         return applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
                 .flatMap(sourceApplication -> {
 
                     final Map<String, Object> data = Map.of(
                             "forkedFromAppId", applicationId,
-                            "forkedToOrgId", orgId,
+                            "forkedToOrgId", workspaceId,
                             "forkedFromAppName", sourceApplication.getName()
                     );
 

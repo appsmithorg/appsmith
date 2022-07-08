@@ -28,6 +28,7 @@ import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import {
   getAllWidgetsInTree,
   updateListWidgetPropertiesOnChildDelete,
+  WidgetsInTree,
 } from "./WidgetOperationUtils";
 import { showUndoRedoToast } from "utils/replayHelpers";
 import WidgetFactory from "utils/WidgetFactory";
@@ -95,10 +96,12 @@ function* deleteTabChildSaga(
 
 function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
   const { widgetId } = deleteAction.payload;
-  const selectedWidget = yield select(getSelectedWidget);
+  const selectedWidget: FlattenedWidgetProps | undefined = yield select(
+    getSelectedWidget,
+  );
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
-  const guidedTourEnabled = yield select(inGuidedTour);
-  const isExploring = yield select(isExploringSelector);
+  const guidedTourEnabled: boolean = yield select(inGuidedTour);
+  const isExploring: boolean = yield select(isExploringSelector);
 
   if (guidedTourEnabled && !isExploring) {
     yield put(toggleShowDeviationDialog(true));
@@ -239,16 +242,16 @@ function* deleteAllSelectedWidgetsSaga(
 ) {
   try {
     const { disallowUndo = false } = deleteAction.payload;
-    const stateWidgets = yield select(getWidgets);
+    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const widgets = { ...stateWidgets };
     const selectedWidgets: string[] = yield select(getSelectedWidgets);
     if (!(selectedWidgets && selectedWidgets.length !== 1)) return;
-    const widgetsToBeDeleted = yield all(
+    const widgetsToBeDeleted: WidgetsInTree = yield all(
       selectedWidgets.map((eachId) => {
         return call(getAllWidgetsInTree, eachId, widgets);
       }),
     );
-    const flattenedWidgets: any = flattenDeep(widgetsToBeDeleted);
+    const flattenedWidgets = flattenDeep(widgetsToBeDeleted);
     const parentUpdatedWidgets = flattenedWidgets.reduce(
       (allWidgets: any, eachWidget: any) => {
         const { parentId, widgetId } = eachWidget;
@@ -343,8 +346,10 @@ function* postDelete(
  */
 function resizeCanvasToLowestWidget(
   finalWidgets: CanvasWidgetsReduxState,
-  parentId: string,
+  parentId: string | undefined,
 ) {
+  if (!parentId) return;
+
   if (
     !finalWidgets[parentId] ||
     finalWidgets[parentId].type !== WidgetTypes.CANVAS_WIDGET

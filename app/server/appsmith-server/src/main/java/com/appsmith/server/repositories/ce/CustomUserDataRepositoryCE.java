@@ -11,5 +11,5 @@ public interface CustomUserDataRepositoryCE extends AppsmithRepository<UserData>
 
     Mono<UpdateResult> saveReleaseNotesViewedVersion(String userId, String version);
 
-    Mono<UpdateResult> removeIdFromRecentlyUsedList(String userId, String organizationId, List<String> applicationIds);
+    Mono<UpdateResult> removeIdFromRecentlyUsedList(String userId, String workspaceId, List<String> applicationIds);
 }

@@ -253,7 +253,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
             comment.setApplicationId(commentThread.getApplicationId());
             comment.setPageId(commentThread.getPageId());
         }
-        comment.setOrgId(commentThread.getOrgId());
+        comment.setWorkspaceId(commentThread.getWorkspaceId());
         comment.setApplicationName(commentThread.getApplicationName());
         comment.setAuthorUsername(user.getUsername());
         String authorName = user.getName() != null ? user.getName() : user.getUsername();
@@ -688,7 +688,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
         initState.setAuthorName("");
         initState.setAuthorUsername("");
 
-        commentThread.setOrgId(application.getOrganizationId());
+        commentThread.setWorkspaceId(application.getWorkspaceId());
         commentThread.setPinnedState(initState);
         commentThread.setResolvedState(initState);
         commentThread.setApplicationId(application.getId());
@@ -732,7 +732,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
         comment.setAuthorName(APPSMITH_BOT_NAME);
         comment.setAuthorUsername(APPSMITH_BOT_USERNAME);
         comment.setApplicationId(commentThread.getApplicationId());
-        comment.setOrgId(commentThread.getOrgId());
+        comment.setWorkspaceId(commentThread.getWorkspaceId());
 
         final Set<Policy> policies = policyGenerator.getAllChildPolicies(
                 commentThread.getPolicies(),

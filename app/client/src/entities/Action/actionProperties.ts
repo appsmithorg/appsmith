@@ -11,6 +11,7 @@ import {
   SortingSubComponent,
   WhereClauseSubComponent,
   allowedControlTypes,
+  getViewType,
 } from "components/formControls/utils";
 import formControlTypes from "utils/formControl/formControlTypes";
 
@@ -52,6 +53,11 @@ export const getBindingAndReactivePathsOfAction = (
       bindingPaths,
     };
   }
+  // NOTE:
+  // there's a difference in how the bindingPaths should look when in component and json viewType mode.
+  // for example in json mode, sorting component bindingPath should be formData.sortBy.data.(column | order)
+  // in component mode, the sorting component binding path should be more specific e.g. formData.sortBy.data[0].(column | order)
+  // the condition below checks if the viewType of the config and computes the binding path respectively
   const recursiveFindBindingPaths = (formConfig: any) => {
     if (formConfig.children) {
       formConfig.children.forEach(recursiveFindBindingPaths);
@@ -64,13 +70,16 @@ export const getBindingAndReactivePathsOfAction = (
           );
         }
       } else if (
+        // this else if checks the viewType and computes the binding path respectively(as explained above),
+        // while the other else-ifs below checks specifically for component viewType mode.
         "alternateViewTypes" in formConfig &&
         Array.isArray(formConfig.alternateViewTypes) &&
         formConfig.alternateViewTypes.length > 0 &&
-        formConfig.alternateViewTypes.includes(ViewTypes.JSON)
+        formConfig.alternateViewTypes.includes(ViewTypes.JSON) &&
+        getViewType(action, formConfig.configProperty) === ViewTypes.JSON
       ) {
         bindingPaths[configPath] = getCorrectEvaluationSubstitutionType(
-          alternateViewTypeInputConfig.evaluationSubstitutionType,
+          alternateViewTypeInputConfig().evaluationSubstitutionType,
         );
       } else if (formConfig.controlType === formControlTypes.ARRAY_FIELD) {
         let actionValue = _.get(action, formConfig.configProperty);
@@ -188,16 +197,19 @@ export const getBindingAndReactivePathsOfAction = (
         }
       } else if (formConfig.controlType === formControlTypes.ENTITY_SELECTOR) {
         if (Array.isArray(formConfig.schema)) {
-          formConfig.schema.forEach((schemaField: any, index: number) => {
-            if (allowedControlTypes.includes(schemaField.controlType)) {
-              const columnPath = getBindingOrConfigPathsForEntitySelectorControl(
-                configPath,
-                index,
-              );
-              bindingPaths[columnPath] = getCorrectEvaluationSubstitutionType(
-                formConfig.evaluationSubstitutionType,
+          formConfig.schema.forEach((schemaField: any) => {
+            let columnPath = "";
+            if (
+              allowedControlTypes.includes(schemaField.controlType) &&
+              !!schemaField.configProperty
+            ) {
+              columnPath = getBindingOrConfigPathsForEntitySelectorControl(
+                schemaField.configProperty,
               );
             }
+            bindingPaths[columnPath] = getCorrectEvaluationSubstitutionType(
+              formConfig.evaluationSubstitutionType,
+            );
           });
         }
       }
@@ -249,9 +261,9 @@ export const getBindingOrConfigPathsForWhereClauseControl = (
 
 export const getBindingOrConfigPathsForEntitySelectorControl = (
   baseConfigProperty: string,
-  index: number,
 ): string => {
-  return `${baseConfigProperty}.column_${index + 1}`;
+  // Entity selector schemas/components have their own distinct configProperties and have little to do with their parents(They are independent entities).
+  return getDataTreeActionConfigPath(baseConfigProperty);
 };
 
 export const getDataTreeActionConfigPath = (propertyPath: string) =>
