@@ -129,7 +129,7 @@ function generatePanelPropertyConfig(
           ...RADIO_GROUP_PROPERTIES.content.data,
           ...MULTI_SELECT_PROPERTIES.content.data,
           ...DATE_PROPERTIES.content.data,
-          ...CHECKBOX_PROPERTIES.general,
+          ...CHECKBOX_PROPERTIES.content.general,
           {
             propertyName: "children",
             label: "Field Configuration",
@@ -148,6 +148,14 @@ function generatePanelPropertyConfig(
             dependencies: ["schema", "childStylesheet"],
           },
           ...ARRAY_PROPERTIES.content.data,
+        ],
+      },
+      {
+        sectionName: "Label",
+        children: [
+          ...COMMON_PROPERTIES.content.label,
+          ...CHECKBOX_PROPERTIES.content.label,
+          ...SWITCH_PROPERTIES.content.label,
         ],
       },
       {

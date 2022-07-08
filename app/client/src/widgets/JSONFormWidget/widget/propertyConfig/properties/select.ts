@@ -230,24 +230,6 @@ const PROPERTIES = {
           getSchemaItem(...args).fieldTypeNotMatches(FieldType.SELECT),
         dependencies: ["schema", "sourceData"],
       },
-      {
-        propertyName: "onFilterUpdate",
-        helpText: "Trigger an action on change of filterText",
-        label: "onFilterUpdate",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: true,
-        dependencies: ["schema", "sourceData"],
-        additionalAutoComplete: getAutocompleteProperties,
-        hidden: (...args: HiddenFnParams) =>
-          getSchemaItem<SelectFieldProps["schemaItem"]>(...args).compute(
-            (schemaItem) => {
-              if (schemaItem.fieldType !== FieldType.SELECT) return true;
-              return !schemaItem.serverSideFiltering;
-            },
-          ),
-      },
     ],
     searchAndFilters: [
       {
@@ -277,6 +259,24 @@ const PROPERTIES = {
         hidden: (...args: HiddenFnParams) =>
           getSchemaItem(...args).fieldTypeNotMatches(FieldType.SELECT),
         dependencies: ["schema", "sourceData"],
+      },
+      {
+        propertyName: "onFilterUpdate",
+        helpText: "Trigger an action on change of filterText",
+        label: "onFilterUpdate",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        dependencies: ["schema", "sourceData"],
+        additionalAutoComplete: getAutocompleteProperties,
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem<SelectFieldProps["schemaItem"]>(...args).compute(
+            (schemaItem) => {
+              if (schemaItem.fieldType !== FieldType.SELECT) return true;
+              return !schemaItem.serverSideFiltering;
+            },
+          ),
       },
     ],
   },

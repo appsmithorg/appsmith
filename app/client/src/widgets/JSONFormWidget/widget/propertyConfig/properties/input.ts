@@ -633,6 +633,19 @@ const PROPERTIES = {
         dependencies: ["schema", "sourceData"],
       },
       {
+        helpText: "Sets maximum allowed text length",
+        propertyName: "maxChars",
+        label: "Max Chars",
+        controlType: "JSON_FORM_COMPUTE_VALUE",
+        placeholderText: "255",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.NUMBER },
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.TEXT_INPUT),
+        dependencies: ["schema"],
+      },
+      {
         helpText: "Sets the minimum allowed value",
         propertyName: "minNum",
         label: "Min",
@@ -736,19 +749,6 @@ const PROPERTIES = {
         validation: { type: ValidationTypes.TEXT },
         hidden: (...args: HiddenFnParams) =>
           getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
-        dependencies: ["schema"],
-      },
-      {
-        helpText: "Sets maximum allowed text length",
-        propertyName: "maxChars",
-        label: "Max Chars",
-        controlType: "JSON_FORM_COMPUTE_VALUE",
-        placeholderText: "255",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.NUMBER },
-        hidden: (...args: HiddenFnParams) =>
-          getSchemaItem(...args).fieldTypeNotMatches(FieldType.TEXT_INPUT),
         dependencies: ["schema"],
       },
     ],

@@ -76,6 +76,29 @@ const PROPERTIES = {
         dependencies: ["schema", "sourceData"],
       },
     ],
+    label: [
+      {
+        propertyName: "alignWidget",
+        helpText: "Sets the alignment of the field",
+        label: "Alignment",
+        controlType: "DROP_DOWN",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        options: [
+          {
+            label: "Left",
+            value: "LEFT",
+          },
+          {
+            label: "Right",
+            value: "RIGHT",
+          },
+        ],
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.SWITCH),
+        dependencies: ["schema"],
+      },
+    ],
     events: [
       {
         helpText: "Triggers an action when the switch state is changed",

@@ -276,33 +276,6 @@ const PROPERTIES = {
     ],
     toggles: [
       {
-        propertyName: "isFilterable",
-        label: "Filterable",
-        helpText: "Makes the dropdown list filterable",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
-        dependencies: ["schema"],
-        hidden: (...args: HiddenFnParams) =>
-          getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
-      },
-      {
-        propertyName: "serverSideFiltering",
-        helpText: "Enables server side filtering of the data",
-        label: "Server Side Filtering",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        customJSControl: "JSON_FORM_COMPUTE_VALUE",
-        validation: { type: ValidationTypes.BOOLEAN },
-        dependencies: ["schema"],
-        hidden: (...args: HiddenFnParams) =>
-          getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
-      },
-      {
         propertyName: "allowSelectAll",
         helpText: "Controls the visibility of select all option in dropdown.",
         label: "Allow Select All",
@@ -329,24 +302,6 @@ const PROPERTIES = {
         dependencies: ["schema"],
         hidden: (...args: HiddenFnParams) =>
           getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
-      },
-      {
-        helpText: "Trigger an action on change of filterText",
-        propertyName: "onFilterUpdate",
-        label: "onFilterUpdate",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: true,
-        additionalAutoComplete: getAutocompleteProperties,
-        dependencies: ["schema"],
-        hidden: (...args: HiddenFnParams) =>
-          getSchemaItem<MultiSelectFieldProps["schemaItem"]>(...args).compute(
-            (schemaItem) => {
-              if (schemaItem.fieldType !== FieldType.MULTISELECT) return true;
-              return !schemaItem.serverSideFiltering;
-            },
-          ),
       },
     ],
     searchAndFilters: [
@@ -376,6 +331,24 @@ const PROPERTIES = {
         dependencies: ["schema"],
         hidden: (...args: HiddenFnParams) =>
           getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTISELECT),
+      },
+      {
+        helpText: "Trigger an action on change of filterText",
+        propertyName: "onFilterUpdate",
+        label: "onFilterUpdate",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        additionalAutoComplete: getAutocompleteProperties,
+        dependencies: ["schema"],
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem<MultiSelectFieldProps["schemaItem"]>(...args).compute(
+            (schemaItem) => {
+              if (schemaItem.fieldType !== FieldType.MULTISELECT) return true;
+              return !schemaItem.serverSideFiltering;
+            },
+          ),
       },
     ],
   },
