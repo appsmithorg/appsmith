@@ -42,6 +42,7 @@ describe("Import, Export and Fork application and validate data binding", functi
       cy.get(homePage.applicationName)
         .clear()
         .type(appName);
+      cy.wait(2000);
       cy.wrap(appName).as("appname");
       cy.get("body").click(0, 0);
       cy.wait(3000);
@@ -58,7 +59,7 @@ describe("Import, Export and Fork application and validate data binding", functi
     // fork application
     cy.get(homePage.homeIcon).click();
     cy.get(homePage.searchInput).type(`${appName}`);
-    cy.wait(2000);
+    cy.wait(3000);
     cy.get(homePage.applicationCard)
       .first()
       .trigger("mouseover");

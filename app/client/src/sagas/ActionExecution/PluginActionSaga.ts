@@ -30,7 +30,7 @@ import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import _, { get, isString, set } from "lodash";
+import _, { get, isArray, isString, set } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import { validateResponse } from "sagas/ErrorSagas";
@@ -187,6 +187,37 @@ function* readBlob(blobUrl: string): any {
 }
 
 /**
+ * This function resolves :
+ * - individual objects containing blob urls
+ * - blob urls directly
+ * - else returns the value unchanged
+ *
+ * @param value
+ */
+
+function* resolvingBlobUrls(value: any) {
+  if (isTrueObject(value)) {
+    const blobUrlPaths: string[] = [];
+    Object.keys(value).forEach((propertyName) => {
+      if (isBlobUrl(value[propertyName])) {
+        blobUrlPaths.push(propertyName);
+      }
+    });
+
+    for (const blobUrlPath of blobUrlPaths) {
+      const blobUrl = value[blobUrlPath] as string;
+      const resolvedBlobValue: unknown = yield call(readBlob, blobUrl);
+      set(value, blobUrlPath, resolvedBlobValue);
+    }
+  } else if (isBlobUrl(value)) {
+    // @ts-expect-error: Values can take many types
+    value = yield call(readBlob, value);
+  }
+
+  return value;
+}
+
+/**
  * Api1
  * URL: https://example.com/{{Text1.text}}
  * Body: {
@@ -231,28 +262,23 @@ function* evaluateActionParams(
     const key = bindings[i];
     let value = values[i];
 
-    if (isTrueObject(value)) {
-      const blobUrlPaths: string[] = [];
-      Object.keys(value).forEach((propertyName) => {
-        if (isBlobUrl(value[propertyName])) {
-          blobUrlPaths.push(propertyName);
-        }
-      });
-
-      for (const blobUrlPath of blobUrlPaths) {
-        const blobUrl = value[blobUrlPath] as string;
-        const resolvedBlobValue: unknown = yield call(readBlob, blobUrl);
-        set(value, blobUrlPath, resolvedBlobValue);
+    if (isArray(value)) {
+      const tempArr = [];
+      // array of objects containing blob urls that is loops and individual object is checked for resolution of blob urls.
+      for (const val of value) {
+        const newVal: unknown = yield call(resolvingBlobUrls, val);
+        tempArr.push(newVal);
       }
+      value = tempArr;
+    } else {
+      // @ts-expect-error: Values can take many types
+      value = yield call(resolvingBlobUrls, value);
     }
 
     if (typeof value === "object") {
       value = JSON.stringify(value);
     }
-    if (isBlobUrl(value)) {
-      // @ts-expect-error: Values can take many types
-      value = yield call(readBlob, value);
-    }
+
     value = new Blob([value], { type: "text/plain" });
 
     formData.append(encodeURIComponent(key), value);
