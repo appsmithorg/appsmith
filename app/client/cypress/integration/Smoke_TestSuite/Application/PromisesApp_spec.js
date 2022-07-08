@@ -14,7 +14,7 @@ describe("JSEditor tests", function() {
     cy.addDsl(dsl);
   });
   beforeEach(() => {
-    cy.startRoutesForDatasource();
+    cy.startServerAndRoutes();
   });
   it("Testing promises with resetWidget, storeValue action and API call", () => {
     cy.NavigateToAPI_Panel();
@@ -57,18 +57,15 @@ describe("JSEditor tests", function() {
         shouldCreateNewJSObj: true,
       },
     );
-    cy.wait(10000);
+    //cy.wait(10000);
     // run the jsObject
-    cy.get(jsEditorLocators.runButton)
-      .first()
-      .click();
+    /* cy.SelecJSFunctionAndRun('myFun1')
     cy.wait(3000);
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
-    );
-    cy.pause();
+    ); */
     cy.Createpage(newPage);
     cy.get(`.t--entity-item:contains(${newPage})`).click();
     cy.wait(1000);
@@ -93,9 +90,6 @@ describe("JSEditor tests", function() {
       "contain",
       "Switch widget has changed",
     );
-    cy.readTabledataPublish("0", "1").then((cellData) => {
-      expect(cellData).to.be.empty;
-    });
     // select an option from select widget
     cy.get(".bp3-button.select-button").click({ force: true });
     cy.get(".menu-item-text")
@@ -108,18 +102,6 @@ describe("JSEditor tests", function() {
       .then((text) => {
         expect(text).to.equal("Step 4: Value is Green and will default to Red");
       });
-    // navigate to page2
-    cy.get(`.t--entity-item:contains(${newPage})`)
-      .first()
-      .click();
-    cy.wait("@getPage");
-    cy.get(".t--entity-item:contains(Page1)")
-      .first()
-      .click();
-    cy.wait("@getPage");
-    cy.readTabledataPublish("0", "1").then((cellData) => {
-      expect(cellData).not.to.be.empty;
-    });
     // hit audio play button and trigger actions
     cy.openPropertyPane("audiowidget");
     cy.get(widgetsPage.autoPlay).click({ force: true });
@@ -133,5 +115,28 @@ describe("JSEditor tests", function() {
       "Success running API query",
       "GREEN",
     );
+  });
+  it("Testing dynamic widgets display using consecutive storeValue calls", () => {
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.get(".t--entity-item:contains(JSObject1)");
+    cy.xpath("//span[name='expand-more']").click();
+    cy.get("[data-cy='t--dropdown-option-clearStore']").click();
+    cy.get(jsEditorLocators.runButton)
+      .first()
+      .click();
+    cy.wait("@postExecute").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.xpath("//span[text()='Clear store']").click({ force: true });
+    cy.get(".t--draggable-textwidget span")
+      .eq(2)
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.equal(
+          "Step 4: Value is Green and will default to undefined",
+        );
+      });
   });
 });

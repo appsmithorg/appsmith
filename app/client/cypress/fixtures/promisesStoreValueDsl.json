@@ -135,7 +135,7 @@
                   ],
                   "shouldTruncate": false,
                   "truncateButtonColor": "#FFC13D",
-                  "text": "Automation TC3",
+                  "text": "Automation TC2",
                   "key": "86ix69se60",
                   "isDeprecated": false,
                   "rightColumn": 48,
@@ -252,7 +252,7 @@
                 {
                   "boxShadow": "none",
                   "widgetName": "Button2",
-                  "onClick": "{{TC1.clearStore()}}",
+                  "onClick": "{{JSObject1.clearStore()}}",
                   "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                   "displayName": "Button",
                   "iconSVG": "/static/media/icon.cca02633.svg",
