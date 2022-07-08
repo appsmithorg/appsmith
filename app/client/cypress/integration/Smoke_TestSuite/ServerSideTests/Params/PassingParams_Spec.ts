@@ -231,9 +231,8 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     ee.ActionContextMenuByEntityName(
       jsName as string,
       "Delete",
-      "Are you sure?",
+      "Are you sure?", true
     );
-    agHelper.ValidateNetworkStatus("@deleteJSCollection", 200);
     // //Bug 12532
     // ee.expandCollapseEntity('DATASOURCES')
     // ee.ActionContextMenuByEntityName(guid, 'Delete', 'Are you sure?')
