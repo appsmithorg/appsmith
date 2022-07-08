@@ -241,7 +241,6 @@ class DatasourceEditorRouter extends React.Component<Props> {
           datasourceId,
         }),
       );
-      return;
     }
 
     // Default to old flow
