@@ -16,7 +16,11 @@ describe("Test to check conditons for showing binding prompt", () => {
 
     testCases.forEach((testCase) => {
       expect(
-        showBindingPrompt(testCase.showEvaluatedValue, testCase.inputValue),
+        showBindingPrompt(
+          testCase.showEvaluatedValue,
+          testCase.inputValue,
+          false,
+        ),
       ).toBeTruthy();
     });
   });
@@ -33,7 +37,11 @@ describe("Test to check conditons for showing binding prompt", () => {
 
     testCases.forEach((testCase) => {
       expect(
-        showBindingPrompt(testCase.showEvaluatedValue, testCase.inputValue),
+        showBindingPrompt(
+          testCase.showEvaluatedValue,
+          testCase.inputValue,
+          false,
+        ),
       ).toBeFalsy();
     });
   });

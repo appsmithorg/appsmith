@@ -7,13 +7,15 @@ import {
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { isEqual } from "lodash";
 import { SelectedArenaDimensions } from "pages/common/CanvasArenas/CanvasSelectionArena";
+import { Task } from "redux-saga";
 import { all, cancel, put, select, take, takeLatest } from "redux-saga/effects";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { snapToGrid } from "utils/helpers";
 import { areIntersecting } from "utils/WidgetPropsUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import { getWidget } from "sagas/selectors";
+import { getWidgets } from "sagas/selectors";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 interface StartingSelectionState {
   lastSelectedWidgets: string[];
@@ -107,16 +109,24 @@ function* startCanvasSelectionSaga(
 ) {
   const lastSelectedWidgets: string[] = yield select(getSelectedWidgets);
   const widgetId = actionPayload.payload.widgetId || MAIN_CONTAINER_WIDGET_ID;
-  const mainContainer: WidgetProps = yield select(getWidget, widgetId);
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const mainContainer: WidgetProps = canvasWidgets[widgetId];
+
+  //filter out the parent container and keep only the widgets that are on `widgetId`'s canvas
   const lastSelectedWidgetsWithoutParent = lastSelectedWidgets.filter(
-    (each) => mainContainer && each !== mainContainer.parentId,
+    (each) =>
+      mainContainer &&
+      each !== mainContainer.parentId &&
+      canvasWidgets[each] &&
+      canvasWidgets[each].parentId === widgetId,
   );
+
   const widgetOccupiedSpaces:
     | {
         [containerWidgetId: string]: OccupiedSpace[];
       }
     | undefined = yield select(getOccupiedSpaces);
-  const selectionTask = yield takeLatest(
+  const selectionTask: Task = yield takeLatest(
     ReduxActionTypes.SELECT_WIDGETS_IN_AREA,
     selectAllWidgetsInAreaSaga,
     {

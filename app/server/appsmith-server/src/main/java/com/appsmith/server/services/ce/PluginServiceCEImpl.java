@@ -78,6 +78,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     private static final String UQI_QUERY_EDITOR_BASE_FOLDER = "editor";
     private static final String UQI_QUERY_EDITOR_ROOT_FILE = "root.json";
+    private static final String BASE_UQI_URL = "https://raw.githubusercontent.com/appsmithorg/uqi-configurations/master/";
 
     private static final String KEY_EDITOR = "editor";
     private static final String KEY_CONFIG_PROPERTY = "configProperty";
@@ -114,13 +115,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
         // Remove branch name as plugins are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
-        String organizationId = params.getFirst(FieldName.ORGANIZATION_ID);
-        if (organizationId == null) {
-            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        String workspaceId = params.getFirst(FieldName.WORKSPACE_ID);
+        if (workspaceId == null) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
-        Mono<Workspace> workspaceMono = workspaceService.getById(organizationId);
+        Mono<Workspace> workspaceMono = workspaceService.getById(workspaceId);
 
         return workspaceMono
                 .flatMapMany(org -> {
@@ -181,8 +182,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         if (pluginOrgDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
-        if (pluginOrgDTO.getOrganizationId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        if (pluginOrgDTO.getWorkspaceId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         return storeWorkspacePlugin(pluginOrgDTO, pluginOrgDTO.getStatus())
@@ -215,12 +216,12 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         if (pluginDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
-        if (pluginDTO.getOrganizationId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        if (pluginDTO.getWorkspaceId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
         //Find the workspace using id and plugin id -> This is to find if the workspace has the plugin installed
-        Mono<Workspace> workspaceMono = workspaceService.findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(),
+        Mono<Workspace> workspaceMono = workspaceService.findByIdAndPluginsPluginId(pluginDTO.getWorkspaceId(),
                 pluginDTO.getPluginId());
 
         return workspaceMono
@@ -239,7 +240,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     private Mono<Workspace> storeWorkspacePlugin(PluginWorkspaceDTO pluginDTO, WorkspacePluginStatus status) {
 
         Mono<Workspace> pluginInWorkspaceMono = workspaceService
-                .findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(), pluginDTO.getPluginId());
+                .findByIdAndPluginsPluginId(pluginDTO.getWorkspaceId(), pluginDTO.getPluginId());
 
 
         //If plugin is already present for the workspace, just return the workspace, else install and return workspace
@@ -254,8 +255,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                                 log.debug("Before publishing to the redis queue");
                                 //Publish the event to the pub/sub queue
                                 InstallPluginRedisDTO installPluginRedisDTO = new InstallPluginRedisDTO();
-                                installPluginRedisDTO.setOrganizationId(pluginDTO.getOrganizationId());
-                                installPluginRedisDTO.setPluginOrgDTO(pluginDTO);
+                                installPluginRedisDTO.setWorkspaceId(pluginDTO.getWorkspaceId());
+                                installPluginRedisDTO.setPluginWorkspaceDTO(pluginDTO);
                                 String jsonString;
                                 try {
                                     jsonString = objectMapper.writeValueAsString(installPluginRedisDTO);
@@ -268,7 +269,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                                         .subscribe();
                             })
                             //Now that the plugin jar has been successfully downloaded, go on and add the plugin to the workspace
-                            .then(workspaceService.getById(pluginDTO.getOrganizationId()))
+                            .then(workspaceService.getById(pluginDTO.getWorkspaceId()))
                             .flatMap(workspace -> {
 
                                 Set<WorkspacePlugin> workspacePluginList = workspace.getPlugins();
@@ -312,16 +313,16 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO) {
-        Mono<Plugin> pluginMono = repository.findById(installPluginRedisDTO.getPluginOrgDTO().getPluginId());
+        Mono<Plugin> pluginMono = repository.findById(installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
         return pluginMono
-                .flatMap(plugin -> downloadAndStartPlugin(installPluginRedisDTO.getOrganizationId(), plugin))
+                .flatMap(plugin -> downloadAndStartPlugin(installPluginRedisDTO.getWorkspaceId(), plugin))
                 .switchIfEmpty(Mono.defer(() -> {
-                    log.debug("During redisInstallPlugin, no plugin with plugin id {} found. Returning without download and install", installPluginRedisDTO.getPluginOrgDTO().getPluginId());
+                    log.debug("During redisInstallPlugin, no plugin with plugin id {} found. Returning without download and install", installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
                     return Mono.just(new Plugin());
                 })).block();
     }
 
-    private Mono<Plugin> downloadAndStartPlugin(String organizationId, Plugin plugin) {
+    private Mono<Plugin> downloadAndStartPlugin(String workspaceId, Plugin plugin) {
         if (plugin.getJarLocation() == null) {
             // Plugin jar location not set. Must be local
             /** TODO
@@ -332,7 +333,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         }
 
         String baseUrl = "../dist/plugins/";
-        String pluginJar = plugin.getName() + "-" + organizationId + ".jar";
+        String pluginJar = plugin.getName() + "-" + workspaceId + ".jar";
         log.debug("Going to download plugin jar with name : {}", baseUrl + pluginJar);
 
         try {
@@ -544,23 +545,37 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         return templates;
     }
 
+    InputStream getConfigInputStream(Plugin plugin, String fileName) throws IOException {
+        String resourcePath = UQI_QUERY_EDITOR_BASE_FOLDER + "/" + fileName;
+//        if (Set.of(
+//                "google-sheets-plugin",
+//                "mongo-plugin",
+//                "amazons3-plugin",
+//                "firestore-plugin"
+//        ).contains(plugin.getPackageName())) {
+//            return new URL(BASE_UQI_URL + plugin.getPackageName() + "/editor/" + fileName).openStream();
+//        }
+        return pluginManager
+                .getPlugin(plugin.getPackageName())
+                .getPluginClassLoader()
+                .getResourceAsStream(resourcePath);
+    }
+
     /**
      * This function reads from the folder editor/ starting with file root.json. root.json declares all the combination
      * of commands that would be present as well as the files from which the action types should be loaded.
+     *
      * @param plugin
      * @return Map of the editor in the format expected by the client for displaying all the UI fields with conditionals
      */
     @Override
     public Map loadEditorPluginResourceUqi(Plugin plugin) {
-
         String resourcePath = UQI_QUERY_EDITOR_BASE_FOLDER + "/" + UQI_QUERY_EDITOR_ROOT_FILE;
 
         ObjectNode rootTree;
 
-        try (InputStream resourceAsStream = pluginManager
-                .getPlugin(plugin.getPackageName())
-                .getPluginClassLoader()
-                .getResourceAsStream(resourcePath)) {
+        try (InputStream resourceAsStream = getConfigInputStream(plugin, UQI_QUERY_EDITOR_ROOT_FILE)) {
+
             if (resourceAsStream == null) {
                 throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), "form resource " + resourcePath + " not found");
             }
@@ -597,7 +612,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         if (filesArray != null) {
             for (JsonNode fileName : filesArray) {
 
-                String path = UQI_QUERY_EDITOR_BASE_FOLDER + "/" + fileName.asText();
+                String path = fileName.asText();
                 try {
                     final JsonNode templateConfig = loadPluginResourceGivenPluginAsJsonNode(plugin, path);
                     templateChildrenNode.add(templateConfig);
@@ -645,10 +660,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     private JsonNode loadPluginResourceGivenPluginAsJsonNode(Plugin plugin, String resourcePath) {
-        try (InputStream resourceAsStream = pluginManager
-                .getPlugin(plugin.getPackageName())
-                .getPluginClassLoader()
-                .getResourceAsStream(resourcePath)) {
+        try (InputStream resourceAsStream = getConfigInputStream(plugin, resourcePath)) {
 
             if (resourceAsStream == null) {
                 throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), "form resource " + resourcePath + " not found");

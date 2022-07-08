@@ -15,10 +15,9 @@ import { useSelector } from "react-redux";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { createMessage, SETTINGS_TOOLTIP } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { Position } from "@blueprintjs/core";
 
 // render over popover portals
 const Container = styled.div`
@@ -205,7 +204,7 @@ function ContextMenu(props: Props) {
       <TooltipComponent
         content={createMessage(SETTINGS_TOOLTIP)}
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position={Position.BOTTOM}
+        position="bottom"
       >
         <Action className={isOpen ? "active" : ""} type="button">
           <SettingsIcon

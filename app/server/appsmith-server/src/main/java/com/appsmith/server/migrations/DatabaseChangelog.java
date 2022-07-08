@@ -1,6 +1,7 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Connection;
@@ -128,13 +129,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_RESOURCES;
@@ -729,13 +730,13 @@ public class DatabaseChangelog {
                 policies = new HashSet<>();
             }
 
-            Optional<Policy> inviteUsersOptional = policies.stream().filter(policy -> policy.getPermission().equals(ORGANIZATION_INVITE_USERS.getValue())).findFirst();
+            Optional<Policy> inviteUsersOptional = policies.stream().filter(policy -> policy.getPermission().equals(WORKSPACE_INVITE_USERS.getValue())).findFirst();
             if (inviteUsersOptional.isPresent()) {
                 Policy inviteUserPolicy = inviteUsersOptional.get();
                 inviteUserPolicy.getUsers().addAll(invitePermissionUsernames);
             } else {
                 // this policy doesnt exist. create and add this to the policy set
-                Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_INVITE_USERS.getValue())
+                Policy inviteUserPolicy = Policy.builder().permission(WORKSPACE_INVITE_USERS.getValue())
                         .users(invitePermissionUsernames).build();
                 organization.getPolicies().add(inviteUserPolicy);
             }
@@ -1704,7 +1705,7 @@ public class DatabaseChangelog {
             mongoTemplate.updateFirst(
                     query(new Criteria().andOperator(
                             where(fieldName(QOrganization.organization.id)).is(org.getId()),
-                            where(fieldName(QOrganization.organization.policies) + ".permission").is(ORGANIZATION_INVITE_USERS.getValue())
+                            where(fieldName(QOrganization.organization.policies) + ".permission").is(WORKSPACE_INVITE_USERS.getValue())
                     )),
                     new Update().addToSet("policies.$.users").each(viewers.toArray()),
                     Organization.class
@@ -1851,7 +1852,7 @@ public class DatabaseChangelog {
         }
     }
 
-    private Set<String> getInvalidDynamicBindingPathsInAction(ObjectMapper mapper, NewAction action, List<String> dynamicBindingPathNames) {
+    private static Set<String> getInvalidDynamicBindingPathsInAction(ObjectMapper mapper, NewAction action, List<String> dynamicBindingPathNames) {
         Set<String> pathsToRemove = new HashSet<>();
         for (String path : dynamicBindingPathNames) {
 
@@ -2468,14 +2469,14 @@ public class DatabaseChangelog {
             }
 
             Optional<Policy> exportAppOrgLevelOptional = policies.stream()
-                    .filter(policy -> policy.getPermission().equals(ORGANIZATION_EXPORT_APPLICATIONS.getValue())).findFirst();
+                    .filter(policy -> policy.getPermission().equals(WORKSPACE_EXPORT_APPLICATIONS.getValue())).findFirst();
 
             if (exportAppOrgLevelOptional.isPresent()) {
                 Policy exportApplicationPolicy = exportAppOrgLevelOptional.get();
                 exportApplicationPolicy.getUsers().addAll(exportApplicationPermissionUsernames);
             } else {
                 // this policy doesnt exist. create and add this to the policy set
-                Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_EXPORT_APPLICATIONS.getValue())
+                Policy inviteUserPolicy = Policy.builder().permission(WORKSPACE_EXPORT_APPLICATIONS.getValue())
                         .users(exportApplicationPermissionUsernames).build();
                 organization.getPolicies().add(inviteUserPolicy);
             }
@@ -3678,7 +3679,7 @@ public class DatabaseChangelog {
      *                     reference, please check out the `s3MigrationMap` defined above.
      * @return : updated dynamicBindingPathList - ported to UQI model.
      */
-    private List<Property> getUpdatedDynamicBindingPathList(List<Property> dynamicBindingPathList,
+    static List<Property> getUpdatedDynamicBindingPathList(List<Property> dynamicBindingPathList,
                                                             ObjectMapper objectMapper, NewAction action,
                                                             Map<Integer, List<String>> migrationMap) {
         // Return if empty.
@@ -4659,25 +4660,31 @@ public class DatabaseChangelog {
 
             // Migrate unpublished action config data
             if (unpublishedAction.getActionConfiguration().getFormData() != null) {
-                Map formData = unpublishedAction.getActionConfiguration().getFormData();
+                Map<String, Object> formData = unpublishedAction.getActionConfiguration().getFormData();
 
-                String startAfter = getValueSafelyFromFormData(formData, START_AFTER, String.class, "{}");
-                unpublishedAction.getActionConfiguration().setNext(startAfter);
+                Object startAfter = PluginUtils.getValueSafelyFromFormData(formData, START_AFTER);
+                if (startAfter == null) {
+                    startAfter = "{}";
+                }
+                unpublishedAction.getActionConfiguration().setNext((String) startAfter);
 
-                String endBefore = getValueSafelyFromFormData(formData, END_BEFORE, String.class, "{}");
-                unpublishedAction.getActionConfiguration().setPrev(endBefore);
+                Object endBefore = PluginUtils.getValueSafelyFromFormData(formData, END_BEFORE);
+                if (endBefore == null) {
+                    endBefore = "{}";
+                }
+                unpublishedAction.getActionConfiguration().setPrev((String) endBefore);
             }
 
             // Migrate published action config data.
             ActionDTO publishedAction = firestoreAction.getPublishedAction();
             if (publishedAction != null && publishedAction.getActionConfiguration() != null &&
                     publishedAction.getActionConfiguration().getFormData() != null) {
-                Map formData = publishedAction.getActionConfiguration().getFormData();
+                Map<String, Object> formData = publishedAction.getActionConfiguration().getFormData();
 
-                String startAfter = getValueSafelyFromFormData(formData, START_AFTER, String.class, "{}");
+                String startAfter = PluginUtils.getDataValueSafelyFromFormData(formData, START_AFTER, STRING_TYPE, "{}");
                 publishedAction.getActionConfiguration().setNext(startAfter);
 
-                String endBefore = getValueSafelyFromFormData(formData, END_BEFORE, String.class, "{}");
+                String endBefore = PluginUtils.getDataValueSafelyFromFormData(formData, END_BEFORE, STRING_TYPE, "{}");
                 publishedAction.getActionConfiguration().setPrev(endBefore);
             }
 

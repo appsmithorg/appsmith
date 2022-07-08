@@ -263,7 +263,7 @@ describe("Canvas selection test cases", () => {
 
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <Canvas dsl={dsl} />
+        <Canvas dsl={dsl} pageId="" />
       </MockPageDSL>,
     );
     const selectionCanvas: any = component.queryByTestId(`canvas-${canvasId}`);

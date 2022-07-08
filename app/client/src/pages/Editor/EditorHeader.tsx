@@ -7,7 +7,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
-import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
+import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
@@ -22,8 +22,8 @@ import {
 } from "selectors/editorSelectors";
 import {
   getAllUsers,
-  getCurrentOrgId,
-} from "@appsmith/selectors/organizationSelectors";
+  getCurrentWorkspaceId,
+} from "@appsmith/selectors/workspaceSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import { EditInteractionKind, SavingState } from "components/ads/EditableText";
@@ -57,12 +57,11 @@ import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 
 import { retryPromise } from "utils/AppsmithUtils";
-import { fetchUsersForOrg } from "actions/orgActions";
-import { OrgUser } from "constants/orgConstants";
+import { fetchUsersForWorkspace } from "actions/workspaceActions";
+import { WorkspaceUser } from "constants/workspaceConstants";
 
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core/lib/esnext/common";
+import { TooltipComponent } from "design-system";
 import {
   CLOSE_ENTITY_EXPLORER_MESSAGE,
   createMessage,
@@ -221,14 +220,14 @@ type EditorHeaderProps = {
   pageId: string;
   isPublishing: boolean;
   publishedTime?: string;
-  orgId: string;
+  workspaceId: string;
   applicationId?: string;
   currentApplication?: ApplicationPayload;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
   lastUpdatedTime?: number;
   inOnboarding: boolean;
-  sharedUserList: OrgUser[];
+  sharedUserList: WorkspaceUser[];
   currentUser?: User;
 };
 
@@ -250,9 +249,9 @@ export function EditorHeader(props: EditorHeaderProps) {
     applicationId,
     currentApplication,
     isPublishing,
-    orgId,
     pageId,
     publishApplication,
+    workspaceId,
   } = props;
   const location = useLocation();
   const dispatch = useDispatch();
@@ -334,10 +333,10 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   //Fetch all users for the application to show the share button tooltip
   useEffect(() => {
-    if (orgId) {
-      dispatch(fetchUsersForOrg(orgId));
+    if (workspaceId) {
+      dispatch(fetchUsersForWorkspace(workspaceId));
     }
-  }, [orgId]);
+  }, [workspaceId]);
   const filteredSharedUserList = props.sharedUserList.filter(
     (user) => user.username !== props.currentUser?.username,
   );
@@ -348,7 +347,13 @@ export function EditorHeader(props: EditorHeaderProps) {
     <ThemeProvider theme={theme}>
       <HeaderWrapper className="pr-3" data-testid="t--appsmith-editor-header">
         <HeaderSection className="space-x-3">
-          <HamburgerContainer className="relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400">
+          <HamburgerContainer
+            className={classNames({
+              "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400": true,
+              "-translate-x-full opacity-0": isPreviewMode,
+              "translate-x-0 opacity-100": !isPreviewMode,
+            })}
+          >
             <TooltipComponent
               content={
                 <div className="flex items-center justify-between">
@@ -387,7 +392,7 @@ export function EditorHeader(props: EditorHeaderProps) {
           <TooltipComponent
             content={createMessage(LOGO_TOOLTIP)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-            position={Position.BOTTOM_LEFT}
+            position="bottom-left"
           >
             <AppsmithLink to={APPLICATIONS_URL}>
               <img
@@ -404,7 +409,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             disabled={isPopoverOpen}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
             openOnTargetFocus={false}
-            position={Position.BOTTOM}
+            position="bottom"
           >
             <EditorAppName
               applicationId={applicationId}
@@ -464,7 +469,6 @@ export function EditorHeader(props: EditorHeaderProps) {
                 bgColor: Colors.GEYSER_LIGHT,
               }}
               isOpen={showAppInviteUsersDialog}
-              orgId={orgId}
               title={
                 currentApplication
                   ? currentApplication.name
@@ -482,17 +486,18 @@ export function EditorHeader(props: EditorHeaderProps) {
                       : createMessage(SHARE_BUTTON_TOOLTIP)
                   }
                   hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                  position={Position.BOTTOM}
+                  position="bottom"
                 >
                   <ShareButtonComponent />
                 </TooltipComponent>
               }
+              workspaceId={workspaceId}
             />
             <DeploySection>
               <TooltipComponent
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
                 hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                position={Position.BOTTOM_RIGHT}
+                position="bottom-right"
               >
                 <StyledDeployButton
                   className="t--application-publish-btn"
@@ -547,7 +552,7 @@ const theme = getTheme(ThemeMode.LIGHT);
 
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,
-  orgId: getCurrentOrgId(state),
+  workspaceId: getCurrentWorkspaceId(state),
   applicationId: getCurrentApplicationId(state),
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),

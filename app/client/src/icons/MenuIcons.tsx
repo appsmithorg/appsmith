@@ -2,7 +2,7 @@ import React from "react";
 import { IconProps, IconWrapper } from "constants/IconConstants";
 import WidgetsIcon from "remixicon-react/FunctionLineIcon";
 import { ReactComponent as ApisIcon } from "assets/icons/menu/api.svg";
-import { ReactComponent as OrgIcon } from "assets/icons/menu/org.svg";
+import { ReactComponent as WorkspaceIcon } from "assets/icons/menu/workspace.svg";
 import PageIcon from "remixicon-react/PagesLineIcon";
 import { ReactComponent as DataSourcesIcon } from "assets/icons/menu/data-sources.svg";
 import { ReactComponent as QueriesIcon } from "assets/icons/menu/queries.svg";
@@ -80,9 +80,9 @@ export const MenuIcons: {
       <ApisIcon />
     </IconWrapper>
   ),
-  ORG_ICON: (props: IconProps) => (
+  WORKSPACE_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
-      <OrgIcon />
+      <WorkspaceIcon />
     </IconWrapper>
   ),
   PAGES_ICON: (props: IconProps) => (

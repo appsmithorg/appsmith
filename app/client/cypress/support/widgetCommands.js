@@ -341,6 +341,23 @@ Cypress.Commands.add("updateComputedValue", (value) => {
   cy.wait(1000);
 });
 
+Cypress.Commands.add("clearComputedValueFirst", () => {
+  cy.get(".CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(() => {
+    cy.get(".CodeMirror textarea")
+      .first()
+      .clear({
+        force: true,
+      });
+    cy.log("The field is empty");
+  });
+  cy.wait(1000);
+});
+
 Cypress.Commands.add("testCodeMirrorLast", (value) => {
   cy.get(".CodeMirror textarea")
     .last()
@@ -374,7 +391,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
-    .type("{uparrow}", { force: true })
+    .type("{ctrl}{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
     if ($cm.contents !== "") {
@@ -407,6 +424,25 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.wait(2500); //Allowing time for Evaluate value to capture value
 });
 
+Cypress.Commands.add("testJsontextclear", (endp, value, paste = true) => {
+  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .type("{ctrl}{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(($cm) => {
+    if ($cm.contents !== "") {
+      cy.log("The field is not empty");
+      cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+        .first()
+        .click({ force: true })
+        .focused({ force: true })
+        .clear({
+          force: true,
+        });
+    }
+  });
+});
 /**
  * Usage:
  * Find the element which has a code editor input and then pass it in the function
@@ -460,6 +496,32 @@ Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
     }
     cy.get(".CodeMirror textarea")
       .last()
+      .type(value, {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
+  });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(200);
+});
+
+Cypress.Commands.add("toggleJsAndUpdateWithIndex", (endp, value, index) => {
+  cy.get(".CodeMirror textarea")
+    .eq(index)
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(($cm) => {
+    if ($cm.contents !== "") {
+      cy.log("The field is empty");
+      cy.get(".CodeMirror textarea")
+        .eq(index)
+        .clear({
+          force: true,
+        });
+    }
+    cy.get(".CodeMirror textarea")
+      .eq(index)
       .type(value, {
         force: true,
         parseSpecialCharSequences: false,
@@ -603,6 +665,17 @@ Cypress.Commands.add("addAction", (value) => {
   cy.enterActionValue(value);
 });
 
+Cypress.Commands.add("addEvent", (value) => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .last()
+    .click();
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Show message")
+    .click();
+  cy.enterEventValue(value);
+});
+
 Cypress.Commands.add("onTableAction", (value, value1, value2) => {
   cy.get(commonlocators.dropdownSelectButton)
     .eq(value)
@@ -659,6 +732,26 @@ Cypress.Commands.add("enterActionValue", (value) => {
           force: true,
           parseSpecialCharSequences: false,
         });
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(200);
+    });
+});
+
+Cypress.Commands.add("enterEventValue", (value) => {
+  cy.get(commonlocators.optionchangetextDropdown)
+    .focus()
+    .type("{ctrl}{shift}{downarrow}")
+    .then(($cm) => {
+      if ($cm.val() !== "") {
+        cy.get(commonlocators.optionchangetextDropdown).clear({
+          force: true,
+        });
+      }
+
+      cy.get(commonlocators.optionchangetextDropdown).type(value, {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(200);
     });

@@ -1,8 +1,15 @@
-import { isBoolean, get, set } from "lodash";
-import { HiddenType } from "./BaseControl";
+import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
+import { isBoolean, get, set, isString } from "lodash";
+import {
+  ConditionalOutput,
+  FormConfigEvalObject,
+  FormEvalOutput,
+} from "reducers/evaluationReducers/formEvaluationReducer";
+import { FormConfigType, HiddenType } from "./BaseControl";
 import { diff, Diff } from "deep-diff";
 import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
 import { Action } from "@sentry/react/dist/types";
+import { klona } from "klona/full";
 
 export const evaluateCondtionWithType = (
   conditions: Array<boolean> | undefined,
@@ -102,12 +109,15 @@ export enum ViewTypes {
   COMPONENT = "component",
 }
 
-export const alternateViewTypeInputConfig = {
-  label: "",
-  isValid: true,
-  controlType: "QUERY_DYNAMIC_INPUT_TEXT",
-  evaluationSubstitutionType: "TEMPLATE",
-  inputType: "JSON",
+export const alternateViewTypeInputConfig = () => {
+  return {
+    label: "",
+    isValid: true,
+    controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+    evaluationSubstitutionType: "TEMPLATE",
+    inputType: "TEXT_WITH_BINDING",
+    // showLineNumbers: true,
+  };
 };
 
 export const getViewType = (values: any, configProperty: string) => {
@@ -139,11 +149,20 @@ export const switchViewType = (
   const jsonData = get(values, pathForJsonData);
   const componentData = get(values, pathForComponentData);
   const currentData = get(values, configProperty);
+  const stringifiedCurrentData = JSON.stringify(currentData, null, "\t");
 
   if (newViewType === ViewTypes.JSON) {
     changeFormValue(formName, pathForComponentData, currentData);
     if (!!jsonData) {
       changeFormValue(formName, configProperty, jsonData);
+    } else {
+      changeFormValue(
+        formName,
+        configProperty,
+        isString(currentData)
+          ? currentData
+          : stringifiedCurrentData.replace(/\\/g, ""),
+      );
     }
   } else {
     changeFormValue(formName, pathForJsonData, currentData);
@@ -221,8 +240,12 @@ export const getConfigInitialValues = (
       }
     }
     if ("children" in section) {
-      section.children.forEach((section: any) => {
-        parseConfig(section);
+      section.children.forEach((childSection: any) => {
+        parseConfig(childSection);
+      });
+    } else if ("schema" in section) {
+      section.schema.forEach((childSection: any) => {
+        parseConfig(childSection);
       });
     } else if (
       "configProperty" in section &&
@@ -282,6 +305,172 @@ export enum WhereClauseSubComponent {
 
 export const allowedControlTypes = ["DROP_DOWN", "QUERY_DYNAMIC_INPUT_TEXT"];
 
+const extractExpressionObject = (
+  config: string,
+  path: any,
+  parentPath: string,
+): FormConfigEvalObject => {
+  const bindingPaths: FormConfigEvalObject = {};
+  const expressions = config.match(DATA_BIND_REGEX_GLOBAL);
+  if (Array.isArray(expressions) && expressions.length > 0) {
+    const completePath = parentPath.length > 0 ? `${parentPath}.${path}` : path;
+    expressions.forEach((exp) => {
+      bindingPaths[completePath] = {
+        expression: exp,
+        output: "",
+      };
+    });
+  }
+  return bindingPaths;
+};
+
+export const extractEvalConfigFromFormConfig = (
+  formConfig: FormConfigType,
+  paths: string[],
+  parentPath = "",
+  bindingsFound: FormConfigEvalObject = {},
+) => {
+  paths.forEach((path: string) => {
+    if (!(path in formConfig)) return;
+    const config = get(formConfig, path, "");
+    if (typeof config === "string") {
+      bindingsFound = {
+        ...bindingsFound,
+        ...extractExpressionObject(config, path, parentPath),
+      };
+    } else if (typeof config === "object") {
+      bindingsFound = {
+        ...bindingsFound,
+        ...extractEvalConfigFromFormConfig(
+          config,
+          Object.keys(config),
+          parentPath.length > 0 ? `${parentPath}.${path}` : path,
+          bindingsFound,
+        ),
+      };
+    }
+  });
+
+  return bindingsFound;
+};
+
+// Extract the output of conditionals attached to the form from the state
+export const extractConditionalOutput = (
+  section: any,
+  formEvaluationState: FormEvalOutput,
+): ConditionalOutput => {
+  let conditionalOutput: ConditionalOutput = {};
+  if (
+    section.hasOwnProperty("propertyName") &&
+    formEvaluationState.hasOwnProperty(section.propertyName)
+  ) {
+    conditionalOutput = formEvaluationState[section.propertyName];
+  } else if (
+    section.hasOwnProperty("configProperty") &&
+    formEvaluationState.hasOwnProperty(section.configProperty)
+  ) {
+    conditionalOutput = formEvaluationState[section.configProperty];
+  } else if (
+    section.hasOwnProperty("identifier") &&
+    !!section.identifier &&
+    formEvaluationState.hasOwnProperty(section.identifier)
+  ) {
+    conditionalOutput = formEvaluationState[section.identifier];
+  }
+  return conditionalOutput;
+};
+
+// Function to check if the section config is allowed to render (Only for UQI forms)
+export const checkIfSectionCanRender = (
+  conditionalOutput: ConditionalOutput,
+) => {
+  // By default, allow the section to render. This is to allow for the case where no conditional is provided.
+  // The evaluation state disallows the section to render if the condition is not met. (Checkout formEval.ts)
+  let allowToRender = true;
+  if (
+    conditionalOutput.hasOwnProperty("visible") &&
+    typeof conditionalOutput.visible === "boolean"
+  ) {
+    allowToRender = conditionalOutput.visible;
+  }
+
+  if (
+    conditionalOutput.hasOwnProperty("evaluateFormConfig") &&
+    !!conditionalOutput.evaluateFormConfig &&
+    conditionalOutput.evaluateFormConfig.hasOwnProperty(
+      "updateEvaluatedConfig",
+    ) &&
+    typeof conditionalOutput.evaluateFormConfig.updateEvaluatedConfig ===
+      "boolean"
+  ) {
+    allowToRender = conditionalOutput.evaluateFormConfig.updateEvaluatedConfig;
+  }
+  return allowToRender;
+};
+
+// Function to check if the section config is enabled (Only for UQI forms)
+export const checkIfSectionIsEnabled = (
+  conditionalOutput: ConditionalOutput,
+) => {
+  // By default, the section is enabled. This is to allow for the case where no conditional is provided.
+  // The evaluation state disables the section if the condition is not met. (Checkout formEval.ts)
+  let enabled = true;
+  if (
+    conditionalOutput.hasOwnProperty("enabled") &&
+    typeof conditionalOutput.enabled === "boolean"
+  ) {
+    enabled = conditionalOutput.enabled;
+  }
+  return enabled;
+};
+
+// Function to modify the section config based on the output of evaluations
+export const modifySectionConfig = (section: any, enabled: boolean): any => {
+  if (!enabled) {
+    section.disabled = true;
+  } else {
+    section.disabled = false;
+  }
+
+  return section;
+};
+
+export const updateEvaluatedSectionConfig = (
+  section: any,
+  conditionalOutput: ConditionalOutput,
+  enabled = true,
+) => {
+  // we deep clone the section coming from the editorConfig to prevent any mutations of
+  // the editorConfig in the redux state.
+  // just spreading the object does a shallow clone(top level cloning), so we use the klona package to deep clone
+  // klona is faster than deepClone from lodash.
+
+  // leaving the commented code as a reminder of the above observation.
+  // const updatedSection = { ...section };
+  const updatedSection = klona(section);
+  let evaluatedConfig: FormConfigEvalObject = {};
+  if (
+    conditionalOutput.hasOwnProperty("evaluateFormConfig") &&
+    !!conditionalOutput.evaluateFormConfig &&
+    conditionalOutput.evaluateFormConfig.hasOwnProperty(
+      "updateEvaluatedConfig",
+    ) &&
+    typeof conditionalOutput.evaluateFormConfig.updateEvaluatedConfig ===
+      "boolean" &&
+    conditionalOutput.evaluateFormConfig.updateEvaluatedConfig
+  ) {
+    evaluatedConfig =
+      conditionalOutput.evaluateFormConfig.evaluateFormConfigObject;
+
+    const paths = Object.keys(evaluatedConfig);
+    paths.forEach((path: string) => {
+      set(updatedSection, path, evaluatedConfig[path].output);
+    });
+  }
+
+  return modifySectionConfig(updatedSection, enabled);
+};
+
 export function fixActionPayloadForMongoQuery(
   action?: Action,
 ): Action | undefined {
@@ -309,16 +498,14 @@ export function fixActionPayloadForMongoQuery(
           actionObjectDiff[i]?.path?.length &&
           actionObjectDiff[i]?.kind === "N"
         ) {
-          // Calculate path from path[] in diff
-          //@ts-ignore
+          // @ts-expect-error: Types are not available
           if (typeof actionObjectDiff[i]?.path[0] === "string") {
-            //@ts-ignore
+            // @ts-expect-error: Types are not available
             path = actionObjectDiff[i]?.path?.join(".");
           }
-          // get value from diff object
-          //@ts-ignore
+          // @ts-expect-error: Types are not available
           value = actionObjectDiff[i]?.rhs;
-          //@ts-ignore
+          // @ts-expect-error: Types are not available
           set(action, path, value);
         }
       }

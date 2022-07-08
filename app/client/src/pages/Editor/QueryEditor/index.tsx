@@ -47,7 +47,7 @@ import { diff, Diff } from "deep-diff";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { integrationEditorURL } from "RouteBuilder";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { merge } from "lodash";
+import { isArray, merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
 
 const EmptyStateContainer = styled.div`
@@ -63,12 +63,14 @@ const LoadingContainer = styled(CenteredWrapper)`
 type ReduxDispatchProps = {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
-  changeQueryPage: (queryId: string, isSaas: boolean) => void;
+  changeQueryPage: (queryId: string) => void;
   runFormEvaluation: (
     formId: string,
     formData: QueryActionConfig,
     datasourceId: string,
     pluginId: string,
+    actionDiffPath?: string,
+    hasRouteChanged?: boolean,
   ) => void;
   initFormEvaluation: (
     editorConfig: any,
@@ -130,7 +132,7 @@ class QueryEditor extends React.Component<Props> {
     // if the current action is non existent, do not dispatch change query page action
     // this action should only be dispatched when switching from an existent action.
     if (!this.props.pluginId) return;
-    this.props.changeQueryPage(this.props.actionId, this.props.isSaas);
+    this.props.changeQueryPage(this.props.actionId);
 
     // fixes missing where key issue by populating the action with a where object when the component is mounted.
     if (this.props.isSaas) {
@@ -171,6 +173,28 @@ class QueryEditor extends React.Component<Props> {
         PerformanceTransactionName.RUN_QUERY_CLICK,
       );
     }
+
+    const formDataDiff = diff(prevProps.formData, this.props.formData);
+
+    // actionDiffPath is the path of the form input which was changed by the user.
+    let actionDiffPath = "";
+    // hasRouteChanged tells us if the redux form state has changed (this usually happens when we route to another action.)
+    let hasRouteChanged = false;
+
+    // we compare the id of the formData, if the id's don't match, the formData has been changed, hence the route has changed.
+    if (prevProps?.formData?.id !== this.props?.formData?.id) {
+      hasRouteChanged = true;
+    }
+
+    if (
+      formDataDiff &&
+      !!formDataDiff[0] &&
+      "path" in formDataDiff[0] &&
+      isArray(formDataDiff[0].path)
+    ) {
+      actionDiffPath = formDataDiff[0].path.join(".");
+    }
+
     // Update the page when the queryID is changed by changing the
     // URL or selecting new query from the query pane
     // reusing same logic for changing query panes for switching query editor datasources, since the operations are similar.
@@ -178,7 +202,7 @@ class QueryEditor extends React.Component<Props> {
       prevProps.actionId !== this.props.actionId ||
       prevProps.pluginId !== this.props.pluginId
     ) {
-      this.props.changeQueryPage(this.props.actionId, this.props.isSaas);
+      this.props.changeQueryPage(this.props.actionId);
     }
     // If statement to debounce and track changes in the formData to update evaluations
     if (
@@ -188,13 +212,15 @@ class QueryEditor extends React.Component<Props> {
         (this.props.formData.hasOwnProperty("actionConfiguration") &&
           !!prevProps.formData &&
           prevProps.formData.hasOwnProperty("actionConfiguration") &&
-          !!diff(prevProps.formData, this.props.formData)))
+          !!formDataDiff))
     ) {
       this.props.runFormEvaluation(
         this.props.formData.id,
         this.props.formData.actionConfiguration,
         this.props.formData.datasource.id,
         this.props.formData.pluginId,
+        actionDiffPath,
+        hasRouteChanged,
       );
     }
   }
@@ -316,9 +342,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   // initialValues contains merge of action, editorConfig, settingsConfig and will be passed to redux form
   merge(initialValues, action);
 
-  // getting diff between action and initialValues
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+  // @ts-expect-error: Types are not available
   const actionObjectDiff: undefined | Diff<Action | undefined, Action>[] = diff(
     action,
     initialValues,
@@ -360,16 +384,27 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
   runAction: (actionId: string) => dispatch(runAction(actionId)),
-  changeQueryPage: (queryId: string, isSaas: boolean) => {
-    dispatch(changeQuery(queryId, isSaas));
+  changeQueryPage: (queryId: string) => {
+    dispatch(changeQuery(queryId));
   },
   runFormEvaluation: (
     formId: string,
     formData: QueryActionConfig,
     datasourceId: string,
     pluginId: string,
+    actionDiffPath?: string,
+    hasRouteChanged?: boolean,
   ) => {
-    dispatch(startFormEvaluations(formId, formData, datasourceId, pluginId));
+    dispatch(
+      startFormEvaluations(
+        formId,
+        formData,
+        datasourceId,
+        pluginId,
+        actionDiffPath,
+        hasRouteChanged,
+      ),
+    );
   },
   initFormEvaluation: (
     editorConfig: any,

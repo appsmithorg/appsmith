@@ -8,6 +8,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true, // Defines if this widget adds any meta properties
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
+  searchTags: ["graph", "visuals", "visualisations"],
   defaults: {
     rows: 32,
     columns: 24,

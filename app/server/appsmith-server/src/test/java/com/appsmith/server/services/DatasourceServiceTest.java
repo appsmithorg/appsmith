@@ -9,6 +9,7 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.services.EncryptionService;
@@ -54,6 +55,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -88,18 +90,18 @@ public class DatasourceServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    String orgId = "";
+    String workspaceId = "";
 
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
-        orgId = testWorkspace == null ? "" : testWorkspace.getId();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_WORKSPACES).block();
+        workspaceId = testWorkspace == null ? "" : testWorkspace.getId();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void datasourceDefaultNameCounterAsPerOrgId() {
+    public void datasourceDefaultNameCounterAsPerWorkspaceId() {
         //Create new workspace
         Workspace workspace11 = new Workspace();
         workspace11.setId("random-org-id-1");
@@ -108,7 +110,7 @@ public class DatasourceServiceTest {
         StepVerifier.create(workspaceService.create(workspace11)
                 .flatMap(org -> {
                     Datasource datasource = new Datasource();
-                    datasource.setOrganizationId(org.getId());
+                    datasource.setWorkspaceId(org.getId());
                     return datasourceService.create(datasource);
                 })
                 .flatMap(datasource1 -> {
@@ -120,14 +122,14 @@ public class DatasourceServiceTest {
                 .flatMap(object -> {
                     final Workspace org2 = object.getT2();
                     Datasource datasource2 = new Datasource();
-                    datasource2.setOrganizationId(org2.getId());
+                    datasource2.setWorkspaceId(org2.getId());
                     return Mono.zip(Mono.just(object.getT1()), datasourceService.create(datasource2));
                 }))
                 .assertNext(datasource -> {
                     assertThat(datasource.getT1().getName()).isEqualTo("Untitled Datasource");
-                    assertThat(datasource.getT1().getOrganizationId()).isEqualTo("random-org-id-1");
+                    assertThat(datasource.getT1().getWorkspaceId()).isEqualTo("random-org-id-1");
                     assertThat(datasource.getT2().getName()).isEqualTo("Untitled Datasource");
-                    assertThat(datasource.getT2().getOrganizationId()).isEqualTo("random-org-id-2");
+                    assertThat(datasource.getT2().getWorkspaceId()).isEqualTo("random-org-id-2");
                 })
                 .verifyComplete();
     }
@@ -137,7 +139,7 @@ public class DatasourceServiceTest {
     public void createDatasourceWithNullPluginId() {
         Datasource datasource = new Datasource();
         datasource.setName("DS-with-null-pluginId");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         StepVerifier
                 .create(datasourceService.create(datasource))
                 .assertNext(createdDatasource -> {
@@ -151,9 +153,9 @@ public class DatasourceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void createDatasourceWithNullOrganizationId() {
+    public void createDatasourceWithNullWorkspaceId() {
         Datasource datasource = new Datasource();
-        datasource.setName("DS-with-null-organizationId");
+        datasource.setName("DS-with-null-workspaceId");
         datasource.setPluginId("random plugin id");
         StepVerifier
                 .create(datasourceService.validateDatasource(datasource))
@@ -170,7 +172,7 @@ public class DatasourceServiceTest {
     public void createDatasourceWithId() {
         Datasource datasource = new Datasource();
         datasource.setId("randomId");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         StepVerifier
                 .create(datasourceService.create(datasource))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -186,7 +188,7 @@ public class DatasourceServiceTest {
         Mono<Plugin> pluginMono = pluginService.findByName("Not Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("DS-with-uninstalled-plugin");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -217,7 +219,7 @@ public class DatasourceServiceTest {
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("test datasource name");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -255,7 +257,7 @@ public class DatasourceServiceTest {
 
         Datasource datasource = new Datasource();
         datasource.setName("test db datasource");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Connection connection = new Connection();
         connection.setMode(Connection.Mode.READ_ONLY);
@@ -268,7 +270,7 @@ public class DatasourceServiceTest {
         datasourceConfiguration.setConnection(connection);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
 
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
 
@@ -309,7 +311,7 @@ public class DatasourceServiceTest {
 
         Datasource datasource = new Datasource();
         datasource.setName("test db datasource1");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Connection connection = new Connection();
         connection.setMode(Connection.Mode.READ_ONLY);
@@ -326,7 +328,7 @@ public class DatasourceServiceTest {
         datasourceConfiguration.setAuthentication(auth);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
 
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
 
@@ -376,12 +378,12 @@ public class DatasourceServiceTest {
         Datasource datasource1 = new Datasource();
         datasource1.setDatasourceConfiguration(new DatasourceConfiguration());
         datasource1.getDatasourceConfiguration().setUrl("http://test.com");
-        datasource1.setOrganizationId(orgId);
+        datasource1.setWorkspaceId(workspaceId);
 
         Datasource datasource2 = new Datasource();
         datasource2.setDatasourceConfiguration(new DatasourceConfiguration());
         datasource2.getDatasourceConfiguration().setUrl("http://test.com");
-        datasource2.setOrganizationId(orgId);
+        datasource2.setWorkspaceId(workspaceId);
 
         final Mono<Tuple2<Datasource, Datasource>> datasourcesMono = pluginMono
                 .flatMap(plugin -> {
@@ -418,7 +420,7 @@ public class DatasourceServiceTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
             datasource.setPluginId(plugin.getId());
@@ -444,7 +446,7 @@ public class DatasourceServiceTest {
 
         Datasource datasource = new Datasource();
         datasource.setName("test db datasource empty");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Connection connection = new Connection();
         connection.setMode(Connection.Mode.READ_ONLY);
@@ -461,7 +463,7 @@ public class DatasourceServiceTest {
         datasourceConfiguration.setAuthentication(auth);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
 
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
 
@@ -497,7 +499,7 @@ public class DatasourceServiceTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         Mono<Datasource> datasourceMono = pluginMono
                 .map(plugin -> {
                     datasource.setPluginId(plugin.getId());
@@ -524,7 +526,7 @@ public class DatasourceServiceTest {
 
         Mono<Datasource> datasourceMono = Mono
                 .zip(
-                        workspaceRepository.findByName("Spring Test Workspace", AclPermission.READ_ORGANIZATIONS),
+                        workspaceRepository.findByName("Spring Test Workspace", AclPermission.READ_WORKSPACES),
                         pluginService.findByName("Installed Plugin Name")
                 )
                 .flatMap(objects -> {
@@ -536,7 +538,7 @@ public class DatasourceServiceTest {
                     DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     datasourceConfiguration.setUrl("http://test.com");
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
-                    datasource.setOrganizationId(workspace.getId());
+                    datasource.setWorkspaceId(workspace.getId());
                     datasource.setPluginId(plugin.getId());
 
                     final Application application = new Application();
@@ -566,7 +568,7 @@ public class DatasourceServiceTest {
 
                     ActionDTO action = new ActionDTO();
                     action.setName("validAction");
-                    action.setOrganizationId(objects.getT1().getId());
+                    action.setWorkspaceId(objects.getT1().getId());
                     action.setPluginId(objects.getT2().getId());
                     action.setPageId(page.getId());
                     ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -590,7 +592,7 @@ public class DatasourceServiceTest {
 
         Mono<Datasource> datasourceMono = Mono
                 .zip(
-                        workspaceRepository.findByName("Spring Test Workspace", AclPermission.READ_ORGANIZATIONS),
+                        workspaceRepository.findByName("Spring Test Workspace", AclPermission.READ_WORKSPACES),
                         pluginService.findByName("Installed Plugin Name")
                 )
                 .flatMap(objects -> {
@@ -602,7 +604,7 @@ public class DatasourceServiceTest {
                     DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     datasourceConfiguration.setUrl("http://test.com");
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
-                    datasource.setOrganizationId(workspace.getId());
+                    datasource.setWorkspaceId(workspace.getId());
                     datasource.setPluginId(plugin.getId());
 
                     final Application application = new Application();
@@ -633,7 +635,7 @@ public class DatasourceServiceTest {
 
                     ActionDTO action = new ActionDTO();
                     action.setName("validAction");
-                    action.setOrganizationId(objects.getT1().getId());
+                    action.setWorkspaceId(objects.getT1().getId());
                     action.setPluginId(objects.getT2().getId());
                     action.setPageId(page.getId());
                     ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -676,7 +678,7 @@ public class DatasourceServiceTest {
         authenticationDTO.setPassword(password);
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
             datasource.setPluginId(plugin.getId());
@@ -707,7 +709,7 @@ public class DatasourceServiceTest {
         authenticationDTO.setDatabaseName("admin");
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
             datasource.setPluginId(plugin.getId());
@@ -743,7 +745,7 @@ public class DatasourceServiceTest {
         authenticationDTO.setPassword(password);
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         Datasource createdDatasource = pluginMono.map(plugin -> {
             datasource.setPluginId(plugin.getId());
@@ -792,7 +794,7 @@ public class DatasourceServiceTest {
         authenticationDTO.setPassword(password);
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         Datasource createdDatasource = pluginMono.map(plugin -> {
             datasource.setPluginId(plugin.getId());
@@ -826,7 +828,7 @@ public class DatasourceServiceTest {
         Mono<Plugin> pluginMono = pluginService.findByPackageName("installed-db-plugin");
         Datasource datasource = new Datasource();
         datasource.setName("test datasource name with invalid hostnames");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setEndpoints(new ArrayList<>());
         datasourceConfiguration.getEndpoints().add(new Endpoint("hostname/", 5432L));
@@ -869,7 +871,7 @@ public class DatasourceServiceTest {
         Mono<Plugin> pluginMono = pluginService.findByPackageName("installed-db-plugin");
         Datasource datasource = new Datasource();
         datasource.setName("test datasource name with hostname starting/ending with space");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setEndpoints(new ArrayList<>());
         datasourceConfiguration.getEndpoints().add(new Endpoint(" hostname ", 5432L));
@@ -904,7 +906,7 @@ public class DatasourceServiceTest {
         datasourceConfiguration.setEndpoints(new ArrayList<>());
         datasourceConfiguration.getEndpoints().add(endpoint);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
             datasource.setPluginId(plugin.getId());
@@ -943,7 +945,7 @@ public class DatasourceServiceTest {
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("testName 2");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://localhost");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -976,7 +978,7 @@ public class DatasourceServiceTest {
 
         Datasource datasource = new Datasource();
         datasource.setName("testName 3");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Connection connection = new Connection();
         connection.setMode(Connection.Mode.READ_ONLY);
@@ -984,7 +986,7 @@ public class DatasourceServiceTest {
         datasourceConfiguration.setConnection(connection);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
 
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
 
@@ -1029,7 +1031,7 @@ public class DatasourceServiceTest {
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("testName 4");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Endpoint endpoint = new Endpoint("http://localhost", 0L);
         datasourceConfiguration.setEndpoints(new ArrayList<>());
@@ -1065,7 +1067,7 @@ public class DatasourceServiceTest {
 
         Datasource datasource = new Datasource();
         datasource.setName("testName 5");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Connection connection = new Connection();
         connection.setMode(Connection.Mode.READ_ONLY);
@@ -1073,7 +1075,7 @@ public class DatasourceServiceTest {
         datasourceConfiguration.setConnection(connection);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
 
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
 
@@ -1120,7 +1122,7 @@ public class DatasourceServiceTest {
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("NPE check");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setEndpoints(new ArrayList<>());
         Endpoint nullEndpoint = null;
@@ -1148,16 +1150,16 @@ public class DatasourceServiceTest {
     public void get_WhenDatasourcesPresent_SortedAndIsRecentlyCreatedFlagSet() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        String organizationId = UUID.randomUUID().toString();
+        String workspaceId = UUID.randomUUID().toString();
         List<Datasource> datasourceList = List.of(
-                createDatasource("D", organizationId), // should have isRecentlyCreated=false
-                createDatasource("C", organizationId), // should have isRecentlyCreated=true
-                createDatasource("B", organizationId), // should have isRecentlyCreated=true
-                createDatasource("A", organizationId)  // should have isRecentlyCreated=true
+                createDatasource("D", workspaceId), // should have isRecentlyCreated=false
+                createDatasource("C", workspaceId), // should have isRecentlyCreated=true
+                createDatasource("B", workspaceId), // should have isRecentlyCreated=true
+                createDatasource("A", workspaceId)  // should have isRecentlyCreated=true
         );
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add(FieldName.ORGANIZATION_ID, organizationId);
+        params.add(fieldName(QDatasource.datasource.workspaceId), workspaceId);
 
         Mono<List<Datasource>> listMono = datasourceService.saveAll(datasourceList)
                 .thenMany(datasourceService.get(params))
@@ -1181,10 +1183,10 @@ public class DatasourceServiceTest {
         }).verifyComplete();
     }
 
-    private Datasource createDatasource(String name, String organizationId) {
+    private Datasource createDatasource(String name, String workspaceId) {
         Datasource datasource = new Datasource();
         datasource.setPluginId("mongo-plugin");
-        datasource.setOrganizationId(organizationId);
+        datasource.setWorkspaceId(workspaceId);
         datasource.setName(name);
         Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(AclPermission.READ_DATASOURCES), "api_user");
         datasource.setPolicies(Set.copyOf(policyMap.values()));
