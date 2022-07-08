@@ -12,6 +12,7 @@ import { Colors } from "constants/Colors";
 const Container = styled.div`
   width: 100%;
   align-items: center;
+  height: ${(props) => props.theme.pageTabsHeight};
 
   & {
     svg path,
@@ -128,7 +129,7 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
   }, [isScrolling, isScrollingLeft]);
 
   return appPages.length > 1 ? (
-    <Container className="relative hidden px-6 h-9 md:flex">
+    <Container className="relative hidden px-6 md:flex">
       <ScrollBtnContainer
         className="left-0"
         onMouseDown={() => startScrolling(true)}

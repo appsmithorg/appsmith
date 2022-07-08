@@ -44,6 +44,7 @@ const HeaderRow = styled.div`
   width: 100%;
   display: flex;
   flex-direction: row;
+  height: ${(props) => props.theme.viewerHeaderHeight};
   border-bottom: 1px solid
     ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
 `;
@@ -93,7 +94,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
           ref={headerRef}
         >
           <HtmlTitle name={currentApplicationDetails?.name} />
-          <HeaderRow className="relative h-12 px-3 py-3 md:px-6">
+          <HeaderRow className="relative px-3 py-3 md:px-6">
             <section className="flex items-center gap-3 z-1">
               <div
                 className="block w-5 h-5 cursor-pointer md:hidden"

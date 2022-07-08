@@ -39,6 +39,7 @@ const Container = styled.div<{
   maxWidth?: number;
   minSize?: number;
   isEditMode?: boolean;
+  isViewModePageTabsVisible?: boolean;
   backgroundColor: string;
   borderRadius: string;
 }>`
@@ -48,10 +49,23 @@ const Container = styled.div<{
         z-index: ${(props) => props.zIndex || 2 - 1};
       }
       position: fixed;
-      top: 0;
+      top: ${(props) =>
+        props.isEditMode
+          ? "0"
+          : props.isViewModePageTabsVisible
+          ? `Calc(${props.theme.pageTabsHeight} + ${props.theme.viewerHeaderHeight})`
+          : props.theme.viewerHeaderHeight};
       right: 0;
       bottom: 0;
-      height: 100vh;
+      height: ${(props) =>
+        props.isEditMode
+          ? "100vh"
+          : `calc(100vh - ${
+              props.isViewModePageTabsVisible
+                ? `${props.theme.pageTabsHeight} - ${props.theme.viewerHeaderHeight}`
+                : props.theme.viewerHeaderHeight
+            }
+            )`};
       z-index: ${(props) => props.zIndex};
       width: 100%;
       display: flex;
@@ -66,7 +80,7 @@ const Container = styled.div<{
 
           return `95%`;
         }};
-        max-height: 85%;
+        max-height: ${(props) => (props.isEditMode ? "85%" : "95%")};
         width: ${(props) => (props.width ? `${props.width}px` : "auto")};
         height: ${(props) => (props.height ? `${props.height}px` : "auto")};
         min-height: ${(props) => `${props.minSize}px`};
@@ -123,6 +137,7 @@ export type ModalComponentProps = {
   zIndex?: number;
   enableResize?: boolean;
   isEditMode?: boolean;
+  isViewModePageTabsVisible?: boolean;
   resizeModal?: (dimensions: UIElementSize) => void;
   maxWidth?: number;
   minSize?: number;
@@ -264,6 +279,7 @@ export default function ModalComponent(props: ModalComponentProps) {
           bottom={props.bottom}
           height={props.height}
           isEditMode={props.isEditMode}
+          isViewModePageTabsVisible={props.isViewModePageTabsVisible}
           left={props.left}
           maxWidth={props.maxWidth}
           minSize={props.minSize}
