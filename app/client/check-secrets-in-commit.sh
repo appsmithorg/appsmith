@@ -1,6 +1,6 @@
 #!/bin/bash
 if git config --get-all secrets.providers | grep aws; then
-  echo "AWS is installed"
+  echo "AWS is installed, checking your commit for secrets"
   git-secrets --scan -r
 else
   echo "Error faced while checking secrets in commit"
