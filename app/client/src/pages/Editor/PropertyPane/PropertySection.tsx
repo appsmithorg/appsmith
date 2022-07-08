@@ -18,6 +18,10 @@ const SectionWrapper = styled.div`
     z-index: 1;
     position: relative;
   }
+
+  .bp3-collapse {
+    transition: none;
+  }
 `;
 const SectionTitle = styled.div`
   display: grid;
@@ -87,7 +91,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
         />
       </SectionTitle>
       {props.children && (
-        <Collapse isOpen={isOpen} keepChildrenMounted transitionDuration={20}>
+        <Collapse isOpen={isOpen} keepChildrenMounted>
           <div
             className={`t--property-pane-section-${className}`}
             style={{ position: "relative", zIndex: 1 }}
