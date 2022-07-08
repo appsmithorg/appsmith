@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import { Column, useTable, useExpanded } from "react-table";
-import { Icon } from "components/ads";
+import { Column, useTable, useExpanded, Row } from "react-table";
+import { Icon, IconSize } from "components/ads";
 import { Checkbox } from "@blueprintjs/core";
+import { HighlightText } from "./helpers/HighlightText";
+import { getParentId } from "./utils/reactTableUtils";
 // import { replayHighlightClass } from "globalStyles/portals";
 
 export type PermissionGroupProps = {
   tabData: any;
+  expanded?: any;
+  searchValue?: string;
 };
 
 type hashtableType = {
@@ -989,7 +993,7 @@ export const hashtable: hashtableType = {
 
 const CheckboxWrapper = styled.div`
   display: inline-block;
-
+  padding-left: 2rem;
   &.hover-state {
     opacity: 0.4;
   }
@@ -1056,25 +1060,29 @@ const StyledTable = styled.table`
 
   tbody {
     tr {
-      height: 24px;
+      &.shown {
+        height: 24px;
+        td {
+          color: var(--appsmith-color-black-800);
+          font-size: 14px;
+          font-weight: normal;
+          line-height: 1.31;
+          letter-spacing: -0.24px;
+          padding: 0;
+          text-align: center;
 
-      td {
-        color: var(--appsmith-color-black-800);
-        font-size: 14px;
-        font-weight: normal;
-        line-height: 1.31;
-        letter-spacing: -0.24px;
-        padding: 0;
-        text-align: center;
+          label {
+            display: unset;
+            padding-left: 100%;
+          }
+        }
 
-        label {
-          display: unset;
-          padding-left: 100%;
+        &:hover {
+          background: var(--appsmith-color-black-100);
         }
       }
-
-      &:hover {
-        background: var(--appsmith-color-black-100);
+      &.hidden {
+        display: none;
       }
     }
   }
@@ -1086,6 +1094,7 @@ const ResourceCellWrapper = styled.div`
   display: flex;
   align-items: center;
   height: 36px;
+  gap: 12px;
 
   .remixicon-icon {
     height: 24px;
@@ -1130,13 +1139,25 @@ const getExpandedTrees = (data: any, pIndex?: string) => {
   return openTrees;
 };
 
-function Table({ columns, data }: { columns: any; data: any }) {
+// TODO: Performance improvements
+function Table({
+  columns,
+  data,
+  searchValue,
+}: {
+  columns: any;
+  data: any;
+  searchValue?: string;
+}) {
   const {
+    flatRows,
     getTableBodyProps,
     getTableProps,
     headerGroups,
     prepareRow,
     rows,
+    toggleAllRowsExpanded,
+    toggleRowExpanded,
   } = useTable(
     {
       columns,
@@ -1149,8 +1170,105 @@ function Table({ columns, data }: { columns: any; data: any }) {
     useExpanded,
   );
 
+  const expandedMapRef = useRef<Record<string, boolean> | null>(null);
+  const parentMapRef = useRef<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (searchValue && searchValue.trim().length > 0) {
+      expandedMapRef.current = findRows();
+      if (expandedMapRef.current) {
+        toggleAllRowsExpanded(false);
+        for (const key in expandedMapRef.current) {
+          toggleRowExpanded([key], true);
+        }
+      }
+    } else {
+      const initialTreeState = getExpandedTrees(data);
+      for (const key in initialTreeState) {
+        toggleRowExpanded([key], true);
+      }
+    }
+  }, [searchValue]);
+
+  /**
+   * Finds the rows that match the search value and returns a map of the rows that match
+   * @returns {Record<string, boolean>} expandedMap - map of expanded rows
+   */
+  const findRows = (): Record<string, boolean> => {
+    const rows = flatRows.filter((row: Row<any>) =>
+      row.original.name.includes(searchValue?.toLocaleLowerCase()),
+    );
+    return buildExpandedMap(rows);
+  };
+
+  /**
+   * Function to build the expanded map from search results
+   * @param rows array of react-table rows
+   * @returns map of expanded rows with keys as row ids and values as true just how react-table wants it.
+   */
+  const buildExpandedMap = (rows: Row<object>[]) => {
+    /*
+    To build the expanded map, we need to have the row path.
+    The row path is the path to the row in the tree.
+    Example: If the tree is: [{name: "A", subRows: [{name: "B"}, {name: "C"}]}, {name: "D"}]
+    The row path for the first row is "0" and the row path for the second row is "1" and so on.
+    The row path for the subRows is again "0.0" and "0.1" and so on.
+    So for "C" the row path is 0.0.1.
+    So now with this row path "0.0.1" we have to expand all its parent rows and add it in the expanded map.
+    Hence this function. And the result will be like this: {"0":true, "0.0":true, "0.0.1":true}
+    */
+    return rows
+      .map((row: Row<object>) => row.id)
+      .map((row: string) => {
+        return row
+          .split(".")
+          .reduce(
+            (
+              rowMap: Record<string, boolean>,
+              _row: string,
+              index: number,
+              array: string[],
+            ) => {
+              const key = array.slice(0, index + 1).join(".");
+              rowMap[key] = true;
+              return rowMap;
+            },
+            {},
+          );
+      })
+      .reduce((result, row) => ({ ...result, ...row }), {});
+  };
+
+  /**
+   *
+   * @param row - table row object
+   * @returns {string} className to show or hide the row
+   */
+  const getRowVisibility = (row: Row): string => {
+    /* The expanded map is built from the search results.
+       If the row is not in the expanded map, it should be hidden.
+       But on click of the row, it should get expanded and show its child rows.
+       Since the child rows won't be in the expanded map, I have to check if the parent row is in the expanded map.
+       If it is, then I can show the child rows.
+       This logic is to show the child rows when the parent row is expanded.
+     */
+    const parentId = getParentId(row.id, row.depth);
+
+    if (parentId) {
+      parentMapRef.current[parentId] = true;
+    }
+
+    const shouldHide =
+      searchValue &&
+      expandedMapRef.current &&
+      !expandedMapRef.current[row.id] &&
+      !parentMapRef.current[parentId];
+
+    return shouldHide ? "hidden" : "shown";
+  };
+
   return (
-    <StyledTable {...getTableProps()}>
+    <StyledTable {...getTableProps()} data-testid="t--permission-table">
       <thead className="table-header">
         {headerGroups.map((headerGroup, index) => (
           <tr {...headerGroup.getHeaderGroupProps()} key={index}>
@@ -1163,10 +1281,14 @@ function Table({ columns, data }: { columns: any; data: any }) {
         ))}
       </thead>
       <tbody {...getTableBodyProps()}>
-        {rows.map((row, i) => {
+        {rows.map((row) => {
           prepareRow(row);
           return (
-            <tr {...row.getRowProps()} key={i}>
+            <tr
+              {...row.getRowProps()}
+              className={searchValue ? getRowVisibility(row) : "shown"}
+              key={row.id}
+            >
               {row.cells.map((cell, index) => {
                 return (
                   <td {...cell.getCellProps()} key={index /*cell.row.id*/}>
@@ -1193,21 +1315,26 @@ export default function PermissionGroupsTree(props: PermissionGroupProps) {
         for (let i = 0; i < cellProps.row.depth; i++) {
           del.push(<Delimeter key={i} />);
         }
-
         return cellProps.row.canExpand ? (
           <ResourceCellWrapper {...cellProps.row.getToggleRowExpandedProps()}>
             {cellProps.row.depth ? del : null}
             {cellProps.row.isExpanded ? (
-              <Icon name="down-arrow" />
+              <Icon name="down-arrow" size={IconSize.XL} />
             ) : (
-              <Icon name="right-arrow-2" />
+              <Icon name="right-arrow-2" size={IconSize.XL} />
             )}
-            <ResourceName>{cellProps.cell.row.original.name}</ResourceName>
+            <HighlightText
+              highlight={props.searchValue}
+              text={cellProps.cell.row.original.name}
+            />
           </ResourceCellWrapper>
         ) : (
-          <ResourceCellWrapper>
+          <ResourceCellWrapper className="flat-row">
             {cellProps.row.depth ? del : null}
-            <ResourceName>{cellProps.cell.row.original.name}</ResourceName>
+            <HighlightText
+              highlight={props.searchValue}
+              text={cellProps.cell.row.original.name}
+            />
           </ResourceCellWrapper>
         );
       },
@@ -1277,5 +1404,7 @@ export default function PermissionGroupsTree(props: PermissionGroupProps) {
 
   const data = tabData.data;
 
-  return <Table columns={columns} data={data} />;
+  return (
+    <Table columns={columns} data={data} searchValue={props.searchValue} />
+  );
 }

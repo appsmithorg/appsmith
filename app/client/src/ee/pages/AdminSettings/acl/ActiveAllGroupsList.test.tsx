@@ -105,10 +105,7 @@ describe("<ActiveAllGroupsList />", () => {
       <UserGroupAddEdit {...userGroupAddEditProps} />,
     );
     const searchInput = getAllByTestId("t--acl-search-input");
-    const permissionsTab = getByText(
-      `Permissions (${userGroupAddEditProps.selected.activePermissions.length +
-        userGroupAddEditProps.selected.allPermissions.length})`,
-    );
+    const permissionsTab = getByText(`Permissions`);
     await userEvent.click(permissionsTab);
     await userEvent.type(searchInput[0], "devops");
 
