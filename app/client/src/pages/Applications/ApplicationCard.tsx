@@ -46,7 +46,7 @@ import {
   getIsErroredSavingAppName,
 } from "selectors/applicationSelectors";
 import { Classes as CsClasses } from "components/ads/common";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import {
   isVerticalEllipsisActive,
   truncateString,
@@ -538,9 +538,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     link.href = getExportAppAPIRoute(applicationId);
     link.id = id;
     document.body.appendChild(link);
-    // will fetch the file manually during cypress test run.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     if (!window.Cypress) {
       link.click();
     }

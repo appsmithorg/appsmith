@@ -306,9 +306,14 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
     errorMsg: "Build app from scratch not visible even aft 80 secs",
     timeout: 20000,
     interval: 1000,
-  }).then(($ele) => cy.wrap($ele).should("be.visible"));
+  }).then(($ele) =>
+    cy
+      .wrap($ele)
+      .should("be.visible")
+      .click(),
+  );
 
-  cy.get(generatePage.buildFromScratchActionCard).click();
+  //cy.get(generatePage.buildFromScratchActionCard).click();
 
   /* The server created app always has an old dsl so the layout will migrate
    * To avoid race conditions between that update layout and this one
@@ -316,6 +321,7 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
    */
   cy.wait("@updateLayout");
 });
+
 Cypress.Commands.add("renameEntity", (entityName, renamedEntity) => {
   cy.get(`.t--entity-item:contains(${entityName})`).within(() => {
     cy.get(".t--context-menu").click({ force: true });

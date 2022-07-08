@@ -13,7 +13,7 @@ import {
   ReduxActionWithMeta,
   ReduxFormActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { getFormData } from "selectors/formSelectors";
+import { GetFormData, getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME, QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import {
   DEFAULT_API_ACTION_CONFIG,
@@ -32,7 +32,10 @@ import { Property } from "api/ActionAPI";
 import { createNewApiName, getQueryParams } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugin } from "selectors/entitiesSelector";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
+import {
+  ActionData,
+  ActionDataState,
+} from "reducers/entityReducers/actionsReducer";
 import {
   createActionRequest,
   setActionProperty,
@@ -65,7 +68,6 @@ import {
   datasourcesEditorIdURL,
   integrationEditorURL,
 } from "RouteBuilder";
-import { isEmpty } from "lodash";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -189,18 +191,21 @@ function* handleUpdateBodyContentType(
   );
   const indexToUpdate = getIndextoUpdate(headers, contentTypeHeaderIndex);
 
-  // If the user has selected "None" or "Raw" as the body type & there was a content-type
+  // If the user has selected "None" as the body type & there was a content-type
   // header present in the API configuration, keep the previous content type header
-  // this is done to ensure user input isn't cleared off if they switch to raw or none mode.
+  // this is done to ensure user input isn't cleared off if they switch to none mode.
   // however if the user types in a new value, we use the updated value (formValueChangeSaga - line 426).
   if (
     displayFormatValue === POST_BODY_FORMAT_OPTIONS.NONE &&
     indexToUpdate !== -1
   ) {
-    headers[indexToUpdate] = {
-      key: previousContentType ? CONTENT_TYPE_HEADER_KEY : "",
-      value: previousContentType ? previousContentType : "",
-    };
+    //Checking if any type was seleccted before
+    if (contentTypeHeaderIndex !== -1) {
+      headers[indexToUpdate] = {
+        key: previousContentType ? CONTENT_TYPE_HEADER_KEY : "",
+        value: previousContentType ? previousContentType : "",
+      };
+    }
   } else {
     headers[indexToUpdate] = {
       key: CONTENT_TYPE_HEADER_KEY,
@@ -232,11 +237,11 @@ function* handleUpdateBodyContentType(
 }
 
 function* updateExtraFormDataSaga() {
-  const formData = yield select(getFormData, API_EDITOR_FORM_NAME);
+  const formData: GetFormData = yield select(getFormData, API_EDITOR_FORM_NAME);
   const { values } = formData;
 
   // when initializing, check if theres a display format present, if not use Json display format as default.
-  const extraFormData = yield select(getDisplayFormat, values.id);
+  const extraFormData: GetFormData = yield select(getDisplayFormat, values.id);
 
   const headers: Array<{ key: string; value: string }> =
     get(values, "actionConfiguration.headers") || [];
@@ -399,6 +404,8 @@ export function* updateFormFields(
       contentTypeHeaderIndex,
     );
 
+    //When user switches to GET method, content type remains same (empty or any type)
+    //This condition handles other HTTP methods
     if (value !== HTTP_METHOD.GET) {
       // if user switches to other methods that is not GET and apiContentType is undefined set default apiContentType to JSON.
       if (apiContentType === POST_BODY_FORMAT_OPTIONS.NONE) {
@@ -411,24 +418,6 @@ export function* updateFormFields(
         key: CONTENT_TYPE_HEADER_KEY,
         value: apiContentType,
       };
-    } else {
-      // when user switches to GET method, do not clear off content type headers, instead leave them.
-      if (isEmpty(values?.actionConfiguration?.body)) {
-        apiContentType = HTTP_METHODS_DEFAULT_FORMAT_TYPES.GET;
-        extraFormDataToBeChanged = true;
-      }
-
-      if (contentTypeHeaderIndex > -1) {
-        actionConfigurationHeaders[contentTypeHeaderIndex] = {
-          key: CONTENT_TYPE_HEADER_KEY,
-          value: apiContentType,
-        };
-      } else {
-        actionConfigurationHeaders[indexToUpdate] = {
-          key: CONTENT_TYPE_HEADER_KEY,
-          value: HTTP_METHODS_DEFAULT_FORMAT_TYPES.GET,
-        };
-      }
     }
 
     yield put(
@@ -515,8 +504,8 @@ function* formValueChangeSaga(
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const { id, pluginType } = actionPayload.payload;
-  const action: Action = yield select(getAction, id);
-  const data = { ...action };
+  const action: Action | undefined = yield select(getAction, id);
+  const data = action ? { ...action } : {};
 
   if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
@@ -533,12 +522,12 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
 }
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
-  const plugin: Plugin = yield select(
+  const plugin: Plugin | undefined = yield select(
     getPlugin,
     actionPayload.payload.pluginId,
   );
   // Only look at API plugins
-  if (plugin.type !== PluginType.API) return;
+  if (plugin && plugin.type !== PluginType.API) return;
 
   history.push(
     datasourcesEditorIdURL({
@@ -561,7 +550,7 @@ function* handleCreateNewApiActionSaga(
   );
   const { pageId } = action.payload;
   if (pageId && pluginId) {
-    const actions: ActionData[] = yield select(getActions);
+    const actions: ActionDataState = yield select(getActions);
     const pageActions = actions.filter(
       (a: ActionData) => a.config.pageId === pageId,
     );
@@ -596,7 +585,7 @@ function* handleApiNameChangeSuccessSaga(
   action: ReduxAction<{ actionId: string }>,
 ) {
   const { actionId } = action.payload;
-  const actionObj = yield select(getAction, actionId);
+  const actionObj: Action | undefined = yield select(getAction, actionId);
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
   if (!actionObj) {
     // Error case, log to sentry

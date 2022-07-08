@@ -1,21 +1,19 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.dtos.ExecuteActionDTO;
-import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -26,14 +24,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
 
@@ -75,6 +71,9 @@ public class MockDataServiceTest {
 
     @Autowired
     NewActionService newActionService;
+
+    @Autowired
+    PluginRepository pluginRepository;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -238,48 +237,6 @@ public class MockDataServiceTest {
                     assertThat(createdDatasource.getDatasourceConfiguration().getProperties().get(0).getKey()).isEqualTo("Use Mongo Connection String URI");
                     assertThat(auth.getDatabaseName()).isEqualTo("movies");
                     assertThat(auth.getUsername()).isEqualTo("mockdb-admin");
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void testGetDataFromMockDB() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-        Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
-
-        Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
-        MockDataSource mockDataSource = new MockDataSource();
-        mockDataSource.setName("Users");
-        mockDataSource.setWorkspaceId(workspaceId);
-        mockDataSource.setPackageName("postgres-plugin");
-        mockDataSource.setPluginId(plugin.getId());
-        Datasource datasourceMono = mockDataService.createMockDataSet(mockDataSource).block();
-
-        ActionDTO action = new ActionDTO();
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("select * from users;");
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-
-        action.setActionConfiguration(actionConfiguration);
-        action.setWorkspaceId(workspaceId);
-        action.setPageId(testPage.getId());
-        action.setName("testActionExecuteDbQuery");
-        action.setDatasource(datasourceMono);
-
-        Mono<ActionExecutionResult> resultMono = layoutActionService.createSingleAction(action)
-                .flatMap(savedAction -> {
-                    ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-                    executeActionDTO.setActionId(savedAction.getId());
-                    executeActionDTO.setViewMode(false);
-                    return newActionService.executeAction(executeActionDTO);
-                });
-
-        StepVerifier
-                .create(resultMono)
-                .assertNext(result -> {
-                    assertThat(result).isNotNull();
-                    assertThat(result.getIsExecutionSuccess());
                 })
                 .verifyComplete();
     }

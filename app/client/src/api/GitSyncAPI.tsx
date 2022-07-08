@@ -47,7 +47,7 @@ class GitSyncAPI extends Api {
     doPush,
   }: CommitPayload): AxiosPromise<ApiResponse> {
     return Api.post(
-      `${GitSyncAPI.baseURL}/commit/${applicationId}?branchName=${branch}`,
+      `${GitSyncAPI.baseURL}/commit/app/${applicationId}?branchName=${branch}`,
       {
         commitMessage,
         doPush,
@@ -60,7 +60,7 @@ class GitSyncAPI extends Api {
     destinationBranch,
     sourceBranch,
   }: MergeBranchPayload): AxiosPromise<ApiResponse> {
-    return Api.post(`${GitSyncAPI.baseURL}/merge/${applicationId}`, {
+    return Api.post(`${GitSyncAPI.baseURL}/merge/app/${applicationId}`, {
       sourceBranch,
       destinationBranch,
     });
@@ -71,18 +71,21 @@ class GitSyncAPI extends Api {
     destinationBranch,
     sourceBranch,
   }: MergeStatusPayload) {
-    return Api.post(`${GitSyncAPI.baseURL}/merge/status/${applicationId}`, {
+    return Api.post(`${GitSyncAPI.baseURL}/merge/status/app/${applicationId}`, {
       sourceBranch,
       destinationBranch,
     });
   }
 
   static pull({ applicationId }: { applicationId: string }) {
-    return Api.get(`${GitSyncAPI.baseURL}/pull/${applicationId}`);
+    return Api.get(`${GitSyncAPI.baseURL}/pull/app/${applicationId}`);
   }
 
   static connect(payload: ConnectToGitPayload, applicationId: string) {
-    return Api.post(`${GitSyncAPI.baseURL}/connect/${applicationId}`, payload);
+    return Api.post(
+      `${GitSyncAPI.baseURL}/connect/app/${applicationId}`,
+      payload,
+    );
   }
 
   static getGlobalConfig() {
@@ -97,39 +100,48 @@ class GitSyncAPI extends Api {
     const queryParams = {} as { pruneBranches?: boolean };
     if (pruneBranches) queryParams.pruneBranches = true;
     return Api.get(
-      `${GitSyncAPI.baseURL}/branch/${applicationId}`,
+      `${GitSyncAPI.baseURL}/branch/app/${applicationId}`,
       queryParams,
     );
   }
 
   static checkoutBranch(applicationId: string, branch: string) {
-    return Api.get(`${GitSyncAPI.baseURL}/checkout-branch/${applicationId}`, {
-      branchName: branch,
-    });
+    return Api.get(
+      `${GitSyncAPI.baseURL}/checkout-branch/app/${applicationId}`,
+      {
+        branchName: branch,
+      },
+    );
   }
 
   static createNewBranch(applicationId: string, branch: string) {
-    return Api.post(`${GitSyncAPI.baseURL}/create-branch/${applicationId}`, {
-      branchName: branch,
-    });
+    return Api.post(
+      `${GitSyncAPI.baseURL}/create-branch/app/${applicationId}`,
+      {
+        branchName: branch,
+      },
+    );
   }
 
   static getLocalConfig(applicationId: string) {
-    return Api.get(`${GitSyncAPI.baseURL}/profile/${applicationId}`);
+    return Api.get(`${GitSyncAPI.baseURL}/profile/app/${applicationId}`);
   }
 
   static setLocalConfig(payload: GitConfig, applicationId: string) {
-    return Api.put(`${GitSyncAPI.baseURL}/profile/${applicationId}`, payload);
+    return Api.put(
+      `${GitSyncAPI.baseURL}/profile/app/${applicationId}`,
+      payload,
+    );
   }
 
   static getGitStatus({ applicationId, branch }: GitStatusParam) {
     return Api.get(
-      `${GitSyncAPI.baseURL}/status/${applicationId}?branchName=${branch}`,
+      `${GitSyncAPI.baseURL}/status/app/${applicationId}?branchName=${branch}`,
     );
   }
 
   static disconnectGit({ applicationId }: { applicationId: string }) {
-    return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
+    return Api.post(`${GitSyncAPI.baseURL}/disconnect/app/${applicationId}`);
   }
 
   static importApp(payload: ConnectToGitPayload, workspaceId: string) {
@@ -154,14 +166,14 @@ class GitSyncAPI extends Api {
     applicationId: string,
     branchName: string,
   ): AxiosPromise<ApiResponse> {
-    return Api.delete(GitSyncAPI.baseURL + "/branch/" + applicationId, {
+    return Api.delete(GitSyncAPI.baseURL + "/branch/app/" + applicationId, {
       branchName,
     });
   }
 
   static discardChanges(applicationId: string, doPull: boolean) {
     return Api.put(
-      `${GitSyncAPI.baseURL}/discard/${applicationId}?doPull=${doPull}`,
+      `${GitSyncAPI.baseURL}/discard/app/${applicationId}?doPull=${doPull}`,
     );
   }
 }

@@ -133,7 +133,8 @@ public class GitFileUtils {
                 .collect(Collectors.toList());
 
         ApplicationJson applicationMetadata = new ApplicationJson();
-
+        Map<String, Set<String>> updatedResources = applicationJson.getUpdatedResources();
+        applicationJson.setUpdatedResources(null);
         copyProperties(applicationJson, applicationMetadata, keys);
         applicationReference.setMetadata(applicationMetadata);
 
@@ -197,12 +198,12 @@ public class GitFileUtils {
                     String prefix = actionCollection.getUnpublishedCollection() != null ?
                             actionCollection.getUnpublishedCollection().getName() + NAME_SEPARATOR + actionCollection.getUnpublishedCollection().getPageId()
                             : actionCollection.getPublishedCollection().getName() + NAME_SEPARATOR + actionCollection.getPublishedCollection().getPageId();
-
                     removeUnwantedFieldFromActionCollection(actionCollection);
 
                     resourceMap.put(prefix, actionCollection);
                 });
         applicationReference.setActionCollections(new HashMap<>(resourceMap));
+        applicationReference.setUpdatedResources(updatedResources);
         resourceMap.clear();
 
         // Send datasources

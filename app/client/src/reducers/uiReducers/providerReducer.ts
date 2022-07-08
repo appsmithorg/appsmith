@@ -154,6 +154,7 @@ const providersReducer = createReducer(initialState, {
     action: ProviderTemplates,
   ) => {
     const updatedProviderTemplates = state.providerTemplates.map((item) => {
+      // @ts-expect-error: type mismatch template id does not exists on ProviderTemplateArray[]
       if (item.templateData.id === action.data.templateId) {
         item.addToPageStatus = true;
         item.addToPageLoading = false;

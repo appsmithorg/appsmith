@@ -122,7 +122,7 @@ export function* publishApplicationSaga(
       ApplicationApi.publishApplication,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS,
@@ -175,7 +175,7 @@ export function* getAllApplicationSaga() {
     const response: FetchUsersApplicationsWorkspacesResponse = yield call(
       ApplicationApi.getAllApplication,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const workspaceApplication: WorkspaceApplicationObject[] = response.data.workspaceApplications.map(
         (userWorkspaces: WorkspaceApplicationObject) => ({
@@ -301,7 +301,7 @@ export function* setDefaultApplicationPageSaga(
         ApplicationApi.setDefaultApplicationPage,
         request,
       );
-      const isValidResponse = yield validateResponse(response);
+      const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         yield put(
           setDefaultApplicationPageSuccess(request.id, request.applicationId),
@@ -421,10 +421,12 @@ export function* duplicateApplicationSaga(
       ApplicationApi.duplicateApplication,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const application: ApplicationPayload = {
+        // @ts-expect-error: response is of type unknown
         ...response.data,
+        // @ts-expect-error: response is of type unknown
         defaultPageId: getDefaultPageId(response.data.pages),
       };
       yield put({
@@ -466,7 +468,9 @@ export function* changeAppViewAccessSaga(
       yield put({
         type: ReduxActionTypes.CHANGE_APPVIEW_ACCESS_SUCCESS,
         payload: {
+          // @ts-expect-error: response is of type unknown
           id: response.data.id,
+          // @ts-expect-error: response is of type unknown
           isPublic: response.data.isPublic,
         },
       });
@@ -493,7 +497,9 @@ export function* createApplicationSaga(
 ) {
   const { applicationName, color, icon, reject, workspaceId } = action.payload;
   try {
-    const userWorkspaces = yield select(getUserApplicationsWorkspacesList);
+    const userWorkspaces: Workspaces[] = yield select(
+      getUserApplicationsWorkspacesList,
+    );
     const existingWorkspaces = userWorkspaces.filter(
       (workspace: Workspaces) => workspace.workspace.id === workspaceId,
     )[0];
@@ -527,7 +533,7 @@ export function* createApplicationSaga(
         ApplicationApi.createApplication,
         request,
       );
-      const isValidResponse = yield validateResponse(response);
+      const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         const application: ApplicationPayload = {
           ...response.data,
@@ -549,10 +555,10 @@ export function* createApplicationSaga(
             application,
           },
         });
-        const isFirstTimeUserOnboardingEnabled = yield select(
+        const isFirstTimeUserOnboardingEnabled: boolean = yield select(
           getEnableFirstTimeUserOnboarding,
         );
-        const FirstTimeUserOnboardingApplicationId = yield select(
+        const FirstTimeUserOnboardingApplicationId: string = yield select(
           getFirstTimeUserOnboardingApplicationId,
         );
         let pageURL;
@@ -611,11 +617,13 @@ export function* forkApplicationSaga(
       ApplicationApi.forkApplication,
       action.payload,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(resetCurrentApplication());
       const application: ApplicationPayload = {
+        // @ts-expect-error: response is of type unknown
         ...response.data,
+        // @ts-expect-error: response is of type unknown
         defaultPageId: getDefaultPageId(response.data.pages),
       };
       yield put({
@@ -625,6 +633,7 @@ export function* forkApplicationSaga(
           application,
         },
       });
+      // @ts-expect-error: response is of type unknown
       const defaultPage = response.data.pages.find(
         (page: ApplicationPagePayload) => page.isDefault,
       );
@@ -687,35 +696,28 @@ export function* importApplicationSaga(
       );
       if (currentWorkspace.length > 0) {
         const {
+          // @ts-expect-error: response is of type unknown
           application: { applicationVersion, id, pages, slug: applicationSlug },
+          // @ts-expect-error: response is of type unknown
           isPartialImport,
-        }: {
-          application: {
-            id: string;
-            slug: string;
-            applicationVersion: number;
-            pages: {
-              default?: boolean;
-              id: string;
-              isDefault?: boolean;
-              slug: string;
-            }[];
-          };
-          isPartialImport: boolean;
         } = response.data;
 
+        // @ts-expect-error: response is of type unknown
         yield put(importApplicationSuccess(response.data?.application));
 
         if (isPartialImport) {
           yield put(
             showReconnectDatasourceModal({
+              // @ts-expect-error: response is of type unknown
               application: response.data?.application,
               unConfiguredDatasourceList:
+                // @ts-expect-error: response is of type unknown
                 response?.data.unConfiguredDatasourceList,
               workspaceId: action.payload.workspaceId,
             }),
           );
         } else {
+          // @ts-expect-error: pages is of type any
           const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
           const pageURL = builderURL({
             applicationSlug: applicationSlug ?? PLACEHOLDER_APP_SLUG,
@@ -752,7 +754,7 @@ function* fetchReleases() {
     const response: FetchUsersApplicationsWorkspacesResponse = yield call(
       ApplicationApi.getAllApplication,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const { newReleasesCount, releaseItems } = response.data || {};
       yield put({
@@ -798,11 +800,17 @@ export function* fetchUnconfiguredDatasourceList(
 export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
   if (!datasource.datasourceConfiguration) {
     yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
-    const formConfig = yield select(getPluginForm, datasource.pluginId);
-    const initialValues = yield call(getConfigInitialValues, formConfig);
+    const formConfig: Record<string, unknown>[] = yield select(
+      getPluginForm,
+      datasource.pluginId,
+    );
+    const initialValues: unknown = yield call(
+      getConfigInitialValues,
+      formConfig,
+    );
     const payload = merge(initialValues, datasource);
     payload.isConfigured = false; // imported datasource as not configured yet
-    const response = yield DatasourcesApi.updateDatasource(
+    const response: ApiResponse = yield DatasourcesApi.updateDatasource(
       payload,
       datasource.id,
     );
@@ -839,7 +847,7 @@ function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
   );
   if (!pluginFormCall) return;
 
-  const datasources: Array<Datasource> = yield select((state: AppState) => {
+  const datasources: Datasource[] = yield select((state: AppState) => {
     return state.entities.datasources.list;
   });
 

@@ -45,6 +45,7 @@ const TEST_JS_FUNCTION = {
   confirmBeforeExecute: false,
   userPermissions: ["read:actions", "execute:actions", "manage:actions"],
   validName: "JSObject1.myFun234y",
+  cacheResponse: "",
 };
 
 describe("GetJSResponseViewState", () => {

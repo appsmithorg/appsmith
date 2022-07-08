@@ -221,7 +221,7 @@ const StyledMenu = styled(Menu)<{
   min-width: 0px;
   overflow: hidden;
 
-  .${BClasses.MENU_ITEM}:hover {
+  ${BClasses.MENU_ITEM}:hover {
     background-color: ${({ backgroundColor }) => lightenColor(backgroundColor)};
   }
 `;
@@ -336,22 +336,6 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
   } = props;
 
   const isRightAlign = iconAlign === Alignment.RIGHT;
-
-  if (iconAlign === Alignment.RIGHT) {
-    return (
-      <BaseButton
-        alignText={getAlignText(isRightAlign, iconName)}
-        borderRadius={borderRadius}
-        boxShadow={boxShadow}
-        buttonColor={buttonColor}
-        buttonVariant={buttonVariant}
-        disabled={isDisabled}
-        fill
-        rightIcon={iconName}
-        text={label}
-      />
-    );
-  }
 
   return (
     <DragContainer

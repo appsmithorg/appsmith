@@ -1,5 +1,6 @@
 package com.external.plugins.commands;
 
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import lombok.Getter;
@@ -13,8 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COLLECTION;
@@ -45,23 +46,23 @@ public class Find extends MongoCommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
 
         if (validConfigurationPresentInFormData(formData, FIND_QUERY)) {
-            this.query = (String) getValueSafelyFromFormData(formData, FIND_QUERY);
+            this.query = PluginUtils.getDataValueSafelyFromFormData(formData, FIND_QUERY, STRING_TYPE);
         }
 
         if (validConfigurationPresentInFormData(formData, FIND_SORT)) {
-            this.sort = (String) getValueSafelyFromFormData(formData, FIND_SORT);
+            this.sort = PluginUtils.getDataValueSafelyFromFormData(formData, FIND_SORT, STRING_TYPE);
         }
 
         if (validConfigurationPresentInFormData(formData, FIND_PROJECTION)) {
-            this.projection = (String) getValueSafelyFromFormData(formData, FIND_PROJECTION);
+            this.projection = PluginUtils.getDataValueSafelyFromFormData(formData, FIND_PROJECTION, STRING_TYPE);
         }
 
         if (validConfigurationPresentInFormData(formData, FIND_LIMIT)) {
-            this.limit = (String) getValueSafelyFromFormData(formData, FIND_LIMIT);
+            this.limit = PluginUtils.getDataValueSafelyFromFormData(formData, FIND_LIMIT, STRING_TYPE);
         }
 
         if (validConfigurationPresentInFormData(formData, FIND_SKIP)) {
-            this.skip = (String) getValueSafelyFromFormData(formData, FIND_SKIP);
+            this.skip = PluginUtils.getDataValueSafelyFromFormData(formData, FIND_SKIP, STRING_TYPE);
         }
     }
 
@@ -118,15 +119,15 @@ public class Find extends MongoCommand {
     private DatasourceStructure.Template generateFindTemplate(String collectionName, String filterFieldName, String filterFieldValue) {
         Map<String, Object> configMap = new HashMap<>();
 
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "FIND");
-        setValueSafelyInFormData(configMap, COLLECTION, collectionName);
-        setValueSafelyInFormData(configMap, FIND_SORT, "{\"_id\": 1}");
-        setValueSafelyInFormData(configMap, FIND_LIMIT, "10");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setDataValueSafelyInFormData(configMap, COLLECTION, collectionName);
+        setDataValueSafelyInFormData(configMap, FIND_SORT, "{\"_id\": 1}");
+        setDataValueSafelyInFormData(configMap, FIND_LIMIT, "10");
 
         String query = filterFieldName == null ? "{}" :
                 "{ \"" + filterFieldName + "\": \"" + filterFieldValue + "\"}";
-        setValueSafelyInFormData(configMap, FIND_QUERY, query);
+        setDataValueSafelyInFormData(configMap, FIND_QUERY, query);
 
         String rawQuery = "{\n" +
                 "  \"find\": \"" + collectionName + "\",\n" +
@@ -141,7 +142,7 @@ public class Find extends MongoCommand {
                 "  },\n" +
                 "  \"limit\": 10\n" +
                 "}\n";
-        setValueSafelyInFormData(configMap, BODY, rawQuery);
+        setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
         return new DatasourceStructure.Template(
                 "Find",
@@ -153,10 +154,10 @@ public class Find extends MongoCommand {
     private DatasourceStructure.Template generateFindByIdTemplate(String collectionName) {
         Map<String, Object> configMap = new HashMap<>();
 
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "FIND");
-        setValueSafelyInFormData(configMap, FIND_QUERY, "{\"_id\": ObjectId(\"id_to_query_with\")}");
-        setValueSafelyInFormData(configMap, COLLECTION, collectionName);
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setDataValueSafelyInFormData(configMap, FIND_QUERY, "{\"_id\": ObjectId(\"id_to_query_with\")}");
+        setDataValueSafelyInFormData(configMap, COLLECTION, collectionName);
 
         String rawQuery = "{\n" +
                 "  \"find\": \"" + collectionName + "\",\n" +
@@ -164,7 +165,7 @@ public class Find extends MongoCommand {
                 "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
                 "  }\n" +
                 "}\n";
-        setValueSafelyInFormData(configMap, BODY, rawQuery);
+        setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
         return new DatasourceStructure.Template(
                 "Find by ID",

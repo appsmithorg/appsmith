@@ -11,10 +11,12 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import reactor.core.publisher.Mono;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -62,12 +64,14 @@ public interface GitServiceCE {
 
     Mono<ApplicationImportDTO> importApplicationFromGit(String organisationId, GitConnectDTO gitConnectDTO);
 
-    Mono<GitAuth> generateSSHKey();
+    Mono<GitAuth> generateSSHKey(String keyType);
 
     Mono<Boolean> testConnection(String defaultApplicationId);
 
     Mono<Application> deleteBranch(String defaultApplicationId, String branchName);
 
     Mono<Application> discardChanges(String defaultApplicationId, String branchName, Boolean doPull);
+
+    Mono<List<GitDocsDTO>> getGitDocUrls();
 
 }

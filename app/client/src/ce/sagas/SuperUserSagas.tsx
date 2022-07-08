@@ -25,13 +25,14 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
 
 export function* FetchAdminSettingsSaga() {
-  const response = yield call(UserApi.fetchAdminSettings);
-  const isValidResponse = yield validateResponse(response);
+  const response: ApiResponse = yield call(UserApi.fetchAdminSettings);
+  const isValidResponse: boolean = yield validateResponse(response);
 
   if (isValidResponse) {
     const { appVersion } = getAppsmithConfigs();
 
     const settings = {
+      //@ts-expect-error: response is of type unknown
       ...response.data,
       APPSMITH_CURRENT_VERSION: appVersion.id,
     };
@@ -56,8 +57,11 @@ export function* SaveAdminSettingsSaga(
 ) {
   const settings = action.payload;
   try {
-    const response = yield call(UserApi.saveAdminSettings, settings);
-    const isValidResponse = yield validateResponse(response);
+    const response: ApiResponse = yield call(
+      UserApi.saveAdminSettings,
+      settings,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       Toaster.show({
@@ -114,9 +118,12 @@ function* RestryRestartServerPoll() {
 
 export function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
   try {
-    const response = yield call(UserApi.sendTestEmail, action.payload);
-    const currentUser = yield select(getCurrentUser);
-    const isValidResponse = yield validateResponse(response);
+    const response: ApiResponse = yield call(
+      UserApi.sendTestEmail,
+      action.payload,
+    );
+    const currentUser: User | undefined = yield select(getCurrentUser);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       let actionElement;
@@ -134,7 +141,8 @@ export function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
         actionElement,
         text: createMessage(
           response.data
-            ? TEST_EMAIL_SUCCESS(currentUser?.email)
+            ? // @ts-expect-error: currentUser can be undefined
+              TEST_EMAIL_SUCCESS(currentUser?.email)
             : TEST_EMAIL_FAILURE,
         ),
         hideProgressBar: true,

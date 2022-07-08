@@ -726,6 +726,9 @@ export const ReduxActionTypes = {
   SET_ACTIVE_JS_ACTION: "SET_ACTIVE_JS_ACTION",
   RECORD_RECENTLY_ADDED_WIDGET: "RECORD_RECENTLY_ADDED_WIDGET",
   REMOVE_FROM_RECENTLY_ADDED_WIDGET: "REMOVE_FROM_RECENTLY_ADDED_WIDGET",
+  INIT_TRIGGER_VALUES: "INIT_TRIGGER_VALUES",
+  FETCH_TRIGGER_VALUES_INIT: "FETCH_TRIGGER_VALUES_INIT",
+  FETCH_TRIGGER_VALUES_SUCCESS: "FETCH_TRIGGER_VALUES_SUCCESS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -1005,8 +1008,6 @@ export interface ClonePageSuccessPayload {
   layoutId: string;
   isDefault: boolean;
 }
-
-export type PageListPayload = Array<Page>;
 
 export interface ApplicationPayload {
   id: string;
