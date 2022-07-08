@@ -112,6 +112,7 @@ export type EvalTreePayload = {
   jsUpdates: Record<string, JSUpdate>;
   logs: any[];
   unEvalUpdates: DataTreeDiff[];
+  updates: Diff<DataTree, DataTree>[];
   isCreateFirstTree: boolean;
 };
 

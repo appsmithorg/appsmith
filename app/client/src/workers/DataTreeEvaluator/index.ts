@@ -225,7 +225,7 @@ export default class DataTreeEvaluator {
     let localUnEvalTree = Object.assign({}, unEvalTree);
     const totalStart = performance.now();
     let jsUpdates: Record<string, JSUpdate> = {};
-    const oldEvalTree = _.cloneDeep(this.evalTree);
+    const oldEvalTree = klona(this.evalTree);
     // Calculate diff
     const diffCheckTimeStart = performance.now();
     //update uneval tree from previously saved current state of collection
