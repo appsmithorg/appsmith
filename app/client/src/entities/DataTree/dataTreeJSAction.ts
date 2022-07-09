@@ -60,7 +60,7 @@ const getJSObjectProperties = ({
         const confirmBeforeExecute = !!(
           actionConfig && actionConfig.confirmBeforeExecute
         );
-        // if edited an action
+
         actionsConfigMap[name] = {
           name,
           confirmBeforeExecute,
@@ -159,12 +159,14 @@ const generateDataTreeJSActionMemoize = (
   dependencyMap["body"] = [];
 
   const actionNames = [];
-  const actionsData: Record<string, any> = {};
+  const actionsReturnedData: Record<string, any> = {};
   if (actions) {
     for (let i = 0; i < actions.length; i++) {
       const action = actions[i];
       const actionConfig = actionsConfigMap[action.name];
       meta[action.name] = {
+        // ideally we shouldn't use meta object for following values as these are not changed by app viewers
+        // it should be moved to actionsConfig
         arguments: action.arguments,
         isAsync: actionConfig.isAsync,
         confirmBeforeExecute: actionConfig.confirmBeforeExecute,
@@ -173,7 +175,7 @@ const generateDataTreeJSActionMemoize = (
       bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
       dynamicBindingPathList.push({ key: action.name });
       dependencyMap["body"].push(action.name);
-      actionsData[action.name] = {
+      actionsReturnedData[action.name] = {
         data: actionConfig.data,
       };
       actionNames.push(action.name);
@@ -194,7 +196,7 @@ const generateDataTreeJSActionMemoize = (
     dependencyMap: dependencyMap,
     properties: {
       ...variablesMap,
-      ...actionsData,
+      ...actionsReturnedData,
     },
     actionsConfig: actionsConfigMap,
   };

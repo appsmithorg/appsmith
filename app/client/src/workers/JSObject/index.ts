@@ -1,8 +1,9 @@
 import { Diff, diff } from "deep-diff";
 import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
+import { Variable } from "entities/JSCollection";
 import { flatten, set, unset } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
-import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
+import { JSUpdate, ParsedFunction, ParsedJSSubAction } from "utils/JSPaneUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import { isFunctionAsync } from "workers/evaluate";
 import {
@@ -27,7 +28,7 @@ const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
  * @param entityName
  * @returns
  */
-export function saveResolvedFunctionsAndJSUpdates(
+export function updateResolvedFunctions(
   dataTreeEvalRef: DataTreeEvaluator,
   entity: DataTreeJSAction,
   jsUpdates: Record<string, JSUpdate>,
@@ -39,9 +40,10 @@ export function saveResolvedFunctionsAndJSUpdates(
     unset(dataTreeEvalRef.resolvedFunctions, entityName);
 
     const actionConfigs = Object.values(entity.actionsConfig);
-    const actions: any = [];
-    const variables = entity.variables.map((variableName) => ({
-      [variableName]: entity.properties[variableName],
+    const actions: ParsedJSSubAction[] = [];
+    const variables: Array<Variable> = entity.variables.map((variableName) => ({
+      name: variableName,
+      value: entity.properties[variableName],
     }));
 
     actionConfigs.forEach((action) => {
@@ -61,7 +63,7 @@ export function saveResolvedFunctionsAndJSUpdates(
             name: action.name,
             body: action.body,
             arguments: action.arguments,
-            parsedFunction: result,
+            parsedFunction: result as ParsedFunction,
             isAsync: action.isAsync,
           });
         }
@@ -75,6 +77,7 @@ export function saveResolvedFunctionsAndJSUpdates(
       actions: actions,
       variables,
     };
+
     set(jsUpdates, `${entityName}`, {
       parsedBody,
       id: entity.actionId,
@@ -94,6 +97,33 @@ export function saveResolvedFunctionsAndJSUpdates(
   }
   return jsUpdates;
 }
+/**
+ * It checks if modified propertyPath is either
+ * - `actionsConfig.functionName`: on function add or remove (or rename)
+ *
+ * OR
+ * - `actionsConfig.functionName.body`: on function body edit
+ * @param propertyPath
+ * @returns
+ */
+const isJSActionsConfigEditPath = (propertyPath: string) => {
+  const subPaths = propertyPath.split(".");
+  switch (subPaths.length) {
+    case 2:
+      // on function add or remove, `actionsConfig.functionName` is modified
+      if (subPaths[0] === "actionsConfig") {
+        return true;
+      }
+      break;
+    case 3:
+      // on function edit, `actionsConfig.functionName.body` is modified
+      if (subPaths[0] === "actionsConfig" && subPaths[2] === "body") {
+        return true;
+      }
+      break;
+  }
+  return false;
+};
 
 export function getJSActionUpdates(
   dataTreeEvalRef: DataTreeEvaluator,
@@ -121,16 +151,18 @@ export function getJSActionUpdates(
   let jsUpdates: Record<string, JSUpdate> = {};
   if (!!oldUnEvalTree) {
     if (differences) {
+      const modifiedJSObjectMap: Record<string, DataTreeJSAction> = {};
       differences.forEach((diff) => {
         const { entityName, propertyPath } = getEntityNameAndPropertyPath(
           diff.payload.propertyPath,
         );
         const entity = unEvalDataTree[entityName];
-
         const isJSObjectAction = isJSAction(entity);
+        // Only if JSObject function's actionConfig is modified
+        // then update resolved functions
         if (
           !isJSObjectAction ||
-          (isJSObjectAction && propertyPath !== "actionsConfig")
+          (isJSObjectAction && !isJSActionsConfigEditPath(propertyPath))
         ) {
           return false;
         }
@@ -140,23 +172,31 @@ export function getJSActionUpdates(
           diff.event === DataTreeDiffEvent.NEW ||
           diff.event === DataTreeDiffEvent.DELETE
         ) {
-          jsUpdates = saveResolvedFunctionsAndJSUpdates(
+          modifiedJSObjectMap[entityName] = entity;
+        }
+      });
+
+      const modifiedJSObjects = Object.entries(modifiedJSObjectMap);
+
+      if (modifiedJSObjects.length) {
+        modifiedJSObjects.forEach(([entityName, entity]) => {
+          jsUpdates = updateResolvedFunctions(
             dataTreeEvalRef,
             entity,
             jsUpdates,
             entityName,
           );
-        }
-      });
+        });
+      }
     }
   } else {
-    // Only for create first tree
+    // for create first tree we add resolved functions for each js object function
     Object.keys(unEvalDataTree).forEach((entityName) => {
       const entity = unEvalDataTree[entityName];
       if (!isJSAction(entity)) {
         return;
       }
-      jsUpdates = saveResolvedFunctionsAndJSUpdates(
+      jsUpdates = updateResolvedFunctions(
         dataTreeEvalRef,
         entity,
         jsUpdates,

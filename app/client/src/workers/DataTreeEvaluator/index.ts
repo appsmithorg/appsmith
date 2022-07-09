@@ -190,21 +190,18 @@ export default class DataTreeEvaluator {
   } {
     const localUnEvalTree = Object.assign({}, unEvalTree);
     const totalStart = performance.now();
-    let jsUpdates: Record<string, JSUpdate> = {};
+
     // Calculate diff
     const diffCheckTimeStart = performance.now();
 
-    //save parsed functions in resolveJSFunctions, update current state of js collection
-    const parsedCollections = getJSActionUpdates(
+    // save parsed functions in resolveJSFunctions
+    const { jsUpdates } = getJSActionUpdates(
       this,
       localUnEvalTree,
       this.oldUnEvalTree,
     );
 
-    jsUpdates = parsedCollections.jsUpdates;
-
-    const differences: Diff<DataTree, DataTree>[] =
-      diff(this.oldUnEvalTree, localUnEvalTree) || [];
+    const differences = diff(this.oldUnEvalTree, localUnEvalTree) || [];
     // Since eval tree is listening to possible events that don't cause differences
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {

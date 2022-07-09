@@ -81,6 +81,7 @@ import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
+import { klona } from "klona";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const workspaceId: string = yield select(getCurrentWorkspaceId);
@@ -449,13 +450,15 @@ function* handleUpdateJSCollectionBody(
     getJSCollection,
     actionPayload.payload.id,
   );
-  // @ts-expect-error: Object jsCollection is possibly undefined
-  jsCollection["body"] = actionPayload.payload.body;
+  const newJSCollection = klona(jsCollection);
+  if (newJSCollection) {
+    newJSCollection["body"] = actionPayload.payload.body;
+  }
 
   try {
-    if (jsCollection) {
+    if (newJSCollection) {
       const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.updateJSCollection(
-        jsCollection,
+        newJSCollection,
       );
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {

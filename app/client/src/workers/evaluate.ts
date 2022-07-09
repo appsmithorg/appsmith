@@ -8,7 +8,7 @@ import {
 import unescapeJS from "unescape-js";
 import { Severity } from "entities/AppsmithConsole";
 import { enhanceDataTreeWithFunctions } from "./Actions";
-import { isEmpty, merge } from "lodash";
+import { isEmpty } from "lodash";
 import { getLintingErrors } from "workers/lint";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
@@ -133,6 +133,26 @@ const addDataTreeToGlobalData = ({
   return GLOBAL_DATA;
 };
 
+/**
+ * merge resolvedFunctions and ranActionsData as jsFunctions
+ * this enable JSObject.functionName() and JSObject.FunctionName.data both to work together.
+ * @param param0
+ * @returns
+ */
+const mergeFunctionAndData = (
+  resolvedFunctionObj: Record<string, unknown>,
+  propertyData: Record<string, unknown>,
+) => {
+  const mergedJSFunction = { ...resolvedFunctionObj };
+  Object.entries(mergedJSFunction).forEach(
+    ([jsFunctionName, jsResolvedFunction]) => {
+      // @ts-expect-error: type unknown error is expected here
+      jsResolvedFunction.data = propertyData[jsFunctionName];
+    },
+  );
+  return mergedJSFunction;
+};
+
 const addResolvedFunctionsToGlobalData = ({
   dataTree,
   GLOBAL_DATA,
@@ -147,19 +167,23 @@ const addResolvedFunctionsToGlobalData = ({
       const entity = dataTree[entityName];
       const resolvedObject = resolvedFunctions[entityName];
       if (isJSObject(entity)) {
-        // TODO
-        // reinvestigate confirmationPromise for confirmBeforeExecute
-        // check git history for previous implementation
+        /* 
+          TODO
+          reinvestigate confirmationPromise for confirmBeforeExecute
+          check git history for previous implementation
+        */
         const jSObjectEntity = entity;
-        const jsFunctions = merge({}, resolvedObject, entity.data);
-
-        // properties will have variables and js functions with response data
-        jSObjectEntity.properties = {
+        const jsFunctions = mergeFunctionAndData(
+          resolvedObject,
+          jSObjectEntity.properties,
+        );
+        // jsObjectProperties will have variables and js functions with response data
+        const jsObjectProperties = {
           ...jSObjectEntity.properties,
           ...jsFunctions,
         };
-        // update global data with js functions
-        GLOBAL_DATA[entityName] = jSObjectEntity.properties;
+        // update global data with jsObjectProperties
+        GLOBAL_DATA[entityName] = jsObjectProperties;
       }
     });
   }

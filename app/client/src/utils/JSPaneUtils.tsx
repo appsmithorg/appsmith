@@ -5,13 +5,14 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { isEqual } from "lodash";
 
+export type ParsedFunction = () => unknown;
+
 export type ParsedJSSubAction = {
   name: string;
   body: string;
   arguments: Array<Variable>;
   isAsync: boolean;
-  // parsedFunction - used only to determine if function is async
-  parsedFunction?: () => unknown;
+  parsedFunction?: ParsedFunction;
 };
 
 export type ParsedBody = {
