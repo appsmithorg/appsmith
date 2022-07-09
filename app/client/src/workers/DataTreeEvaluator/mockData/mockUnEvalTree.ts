@@ -581,7 +581,7 @@ export const asyncTagUnevalTree: DataTree = {
   } as unknown) as DataTreeAppsmith,
 };
 
-export const unEvalTree2 = {
+export const lintingUnEvalTree = {
   Api2: {
     run: {},
     clear: {},
