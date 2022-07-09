@@ -11,7 +11,10 @@ import {
   EvaluationScriptType,
   ScriptTemplate,
 } from "workers/evaluate";
-import { getLintSeverity } from "components/editorComponents/CodeEditor/lintHelpers";
+import {
+  getLintErrorMessage,
+  getLintSeverity,
+} from "components/editorComponents/CodeEditor/lintHelpers";
 import { ECMA_VERSION } from "constants/ast";
 import { UNWANTED_LINT_ERRORS } from "components/editorComponents/CodeEditor/constants";
 
@@ -93,7 +96,7 @@ export const getLintingErrors = (
       errorType: PropertyEvaluationErrorType.LINT,
       raw: script,
       severity: getLintSeverity(lintError.code),
-      errorMessage: lintError.reason,
+      errorMessage: getLintErrorMessage(lintError.reason),
       errorSegment: lintError.evidence,
       originalBinding,
       // By keeping track of these variables we can highlight the exact text that caused the error.

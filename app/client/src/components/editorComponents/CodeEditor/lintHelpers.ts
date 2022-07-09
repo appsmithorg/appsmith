@@ -10,6 +10,7 @@ import {
   INVALID_JSOBJECT_START_STATEMENT,
   JS_OBJECT_START_STATEMENT,
   LintTooltipDirection,
+  REFINED_LINT_ERROR_MESSAGES,
   VALID_JS_OBJECT_BINDING_POSITION,
   WARNING_LINT_ERRORS,
 } from "./constants";
@@ -184,4 +185,10 @@ export const getLintTooltipDirection = (
   } else {
     return LintTooltipDirection.right;
   }
+};
+
+export const getLintErrorMessage = (reason: string): string => {
+  return reason in REFINED_LINT_ERROR_MESSAGES
+    ? REFINED_LINT_ERROR_MESSAGES[reason]
+    : reason;
 };
