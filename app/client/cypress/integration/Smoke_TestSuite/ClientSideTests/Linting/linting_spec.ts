@@ -128,9 +128,9 @@ describe("Linting", () => {
   });
   it("Doesn't show lint error when JSObject is renamed", () => {
     ee.SelectEntityByName("JSObject1", "QUERIES/JS");
-    jsEditor.RenameJSObjFromExplorer("JSObject1", "JSObject2");
+    jsEditor.RenameJSObjFromPane("JSObject2");
     clickButtonAndAssertLintError(false);
-    jsEditor.RenameJSObjFromExplorer("JSObject2", "JSObject1");
+    jsEditor.RenameJSObjFromPane("JSObject1");
     clickButtonAndAssertLintError(false);
   });
 
