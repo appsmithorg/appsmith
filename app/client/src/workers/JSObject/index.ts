@@ -35,62 +35,53 @@ export function saveResolvedFunctionsAndJSUpdates(
 ) {
   const correctFormat = regex.test(entity.body);
   if (correctFormat) {
-    try {
-      // delete previous function
-      unset(dataTreeEvalRef.resolvedFunctions, entityName);
+    // delete resolved functions of this entity
+    unset(dataTreeEvalRef.resolvedFunctions, entityName);
 
-      const actionConfigs = Object.values(entity.actionsConfig);
-      const actions: any = [];
-      const variables = entity.variables.map((variableName) => ({
-        variableName: entity.properties[variableName],
-      }));
+    const actionConfigs = Object.values(entity.actionsConfig);
+    const actions: any = [];
+    const variables = entity.variables.map((variableName) => ({
+      [variableName]: entity.properties[variableName],
+    }));
 
-      actionConfigs.forEach((action) => {
-        try {
-          // TODO: we will also need to save the returned data from action and set it into data field of action
-          // this is to support response data getting saved
-          const result = new Function(`return (${action.body})()`);
+    actionConfigs.forEach((action) => {
+      try {
+        // TODO: we will also need to save the returned data from action and set it into data field of action
+        // this is to support response data getting saved
+        const result = new Function(`return (${action.body})()`);
 
-          if (!!result) {
-            set(
-              dataTreeEvalRef.resolvedFunctions,
-              `${entityName}.${action.name}`,
-              result,
-            );
+        if (!!result) {
+          set(
+            dataTreeEvalRef.resolvedFunctions,
+            `${entityName}.${action.name}`,
+            result,
+          );
 
-            actions.push({
-              name: action.name,
-              body: action.body,
-              arguments: action.arguments,
-              parsedFunction: result,
-              isAsync: action.isAsync,
-            });
-          }
-        } catch {
-          // in case we need to handle error state
+          actions.push({
+            name: action.name,
+            body: action.body,
+            arguments: action.arguments,
+            parsedFunction: result,
+            isAsync: action.isAsync,
+          });
         }
-      });
+      } catch {
+        // in case we need to handle error state
+      }
+    });
 
-      const parsedBody = {
-        body: entity.body,
-        actions: actions,
-        variables,
-      };
-      set(jsUpdates, `${entityName}`, {
-        parsedBody,
-        id: entity.actionId,
-      });
-      // When parsing fails
-      // } else {
-      //   set(jsUpdates, `${entityName}`, {
-      //     parsedBody: undefined,
-      //     id: entity.actionId,
-      //   });
-      // }
-    } catch (e) {
-      //if we need to push error as popup in case
-    }
+    const parsedBody = {
+      body: entity.body,
+      actions: actions,
+      variables,
+    };
+    set(jsUpdates, `${entityName}`, {
+      parsedBody,
+      id: entity.actionId,
+    });
   } else {
+    // As parsing has moved to DataTreeJsAction
+    // Figure out how to handle this error
     const errors = {
       type: EvalErrorTypes.PARSE_JS_ERROR,
       context: {
@@ -104,7 +95,7 @@ export function saveResolvedFunctionsAndJSUpdates(
   return jsUpdates;
 }
 
-export function parseJSActions(
+export function getJSActionUpdates(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalDataTree: DataTree,
   oldUnEvalTree?: DataTree,
@@ -128,40 +119,38 @@ export function parseJSActions(
   }
 
   let jsUpdates: Record<string, JSUpdate> = {};
-  if (!!differences && !!oldUnEvalTree) {
-    differences.forEach((diff) => {
-      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-        diff.payload.propertyPath,
-      );
-      const entity = unEvalDataTree[entityName];
-
-      if (!isJSAction(entity)) {
-        return false;
-      }
-
-      if (diff.event === DataTreeDiffEvent.DELETE) {
-        // when JSObject is deleted, we remove it from resolvedFunctions
-        if (
-          dataTreeEvalRef.resolvedFunctions &&
-          dataTreeEvalRef.resolvedFunctions[diff.payload.propertyPath]
-        ) {
-          delete dataTreeEvalRef.resolvedFunctions[diff.payload.propertyPath];
-        }
-      }
-
-      if (
-        (diff.event === DataTreeDiffEvent.EDIT && propertyPath === "body") ||
-        (diff.event === DataTreeDiffEvent.NEW && propertyPath === "")
-      ) {
-        jsUpdates = saveResolvedFunctionsAndJSUpdates(
-          dataTreeEvalRef,
-          entity,
-          jsUpdates,
-          entityName,
+  if (!!oldUnEvalTree) {
+    if (differences) {
+      differences.forEach((diff) => {
+        const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+          diff.payload.propertyPath,
         );
-      }
-    });
+        const entity = unEvalDataTree[entityName];
+
+        const isJSObjectAction = isJSAction(entity);
+        if (
+          !isJSObjectAction ||
+          (isJSObjectAction && propertyPath !== "actionsConfig")
+        ) {
+          return false;
+        }
+
+        if (
+          diff.event === DataTreeDiffEvent.EDIT ||
+          diff.event === DataTreeDiffEvent.NEW ||
+          diff.event === DataTreeDiffEvent.DELETE
+        ) {
+          jsUpdates = saveResolvedFunctionsAndJSUpdates(
+            dataTreeEvalRef,
+            entity,
+            jsUpdates,
+            entityName,
+          );
+        }
+      });
+    }
   } else {
+    // Only for create first tree
     Object.keys(unEvalDataTree).forEach((entityName) => {
       const entity = unEvalDataTree[entityName];
       if (!isJSAction(entity)) {
@@ -193,5 +182,6 @@ export function parseJSActions(
       } as ParsedJSSubAction;
     });
   });
+
   return { jsUpdates };
 }

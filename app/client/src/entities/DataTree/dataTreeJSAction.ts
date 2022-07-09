@@ -15,72 +15,102 @@ import { JSAction, Variable } from "entities/JSCollection";
 const reg = /this\./g;
 
 const getJSObjectProperties = ({
-  actionsConfig,
-  actionsData,
   body,
+  ranActionsData,
+  savedActions,
+  savedVariables,
 }: {
   body: string;
-  actionsConfig: JSAction[];
-  actionsData: JSCollectionData["data"];
+  savedActions: JSAction[];
+  ranActionsData: JSCollectionData["data"];
+  savedVariables: Variable[];
 }) => {
+  const bodyWithoutExport = body.replace(/export default/g, "");
+  const parseStartTime = performance.now();
   const variables: Variable[] = [];
-  const actions: Array<{
+  let actions: Array<{
     name: string;
     body: string;
     arguments: Variable[];
   }> = [];
-  const bodyWithoutExport = body.replace(/export default/g, "");
-  const parseStartTime = performance.now();
-  const actionsConfigMap: ActionsConfigMap = {};
+  let actionsConfigMap: ActionsConfigMap = {};
+  try {
+    const parsedObject = parseJSObjectWithAST(bodyWithoutExport);
+    parsedObject.forEach(({ arguments: args, key: name, type, value }) => {
+      if (isTypeOfFunction(type)) {
+        let params: Variable[] = [];
+        if (args && args.length) {
+          params = args.map(({ defaultValue, paramName }) => ({
+            name: paramName,
+            value: defaultValue,
+          }));
+        }
 
-  const parsedObject = parseJSObjectWithAST(bodyWithoutExport);
-  const parseEndTime = performance.now();
-  const JSObjectASTParseTime = parseEndTime - parseStartTime;
-  debug({ JSObjectASTParseTime });
+        actions.push({
+          name,
+          body: value, // functionString
+          arguments: params,
+        });
 
-  parsedObject.forEach(({ arguments: args, key: name, type, value }) => {
-    if (isTypeOfFunction(type)) {
-      let params: Variable[] = [];
-      if (args && args.length) {
-        params = args.map(({ defaultValue, paramName }) => ({
-          name: paramName,
-          value: defaultValue,
-        }));
+        const actionConfig = savedActions.find(
+          (config) => config.name === name,
+        );
+        const data =
+          actionConfig && ranActionsData && ranActionsData[actionConfig.id];
+        const confirmBeforeExecute = !!(
+          actionConfig && actionConfig.confirmBeforeExecute
+        );
+        // if edited an action
+        actionsConfigMap[name] = {
+          name,
+          confirmBeforeExecute,
+          arguments: params,
+          isAsync: !!(actionConfig && actionConfig.actionConfiguration.isAsync),
+          data,
+          body: value,
+        };
+        const parseEndTime = performance.now();
+        const JSObjectASTParseTime = parseEndTime - parseStartTime;
+        debug({ JSObjectASTParseTime });
+      } else if (type !== "literal") {
+        variables.push({
+          name,
+          value,
+        });
       }
+    });
+    return {
+      actions,
+      variables,
+      actionsConfigMap,
+    };
+  } catch (error) {
+    // return last saved action and variables
+    actionsConfigMap = {};
+    actions = savedActions.map(
+      ({ actionConfiguration, confirmBeforeExecute, id: actionId, name }) => {
+        actionsConfigMap[name] = {
+          name,
+          confirmBeforeExecute: !!confirmBeforeExecute,
+          arguments: actionConfiguration.jsArguments,
+          isAsync: !!actionConfiguration.isAsync,
+          data: ranActionsData && ranActionsData[actionId],
+          body: actionConfiguration.body,
+        };
+        return {
+          name,
+          body: actionConfiguration.body,
+          arguments: actionConfiguration.jsArguments,
+        };
+      },
+    );
 
-      actions.push({
-        name,
-        body: value, // functionString
-        arguments: params,
-      });
-
-      const actionConfig = actionsConfig.find((config) => config.name === name);
-      const data = actionConfig && actionsData && actionsData[actionConfig.id];
-      const confirmBeforeExecute = !!(
-        actionConfig && actionConfig.confirmBeforeExecute
-      );
-      // if edited an action
-      actionsConfigMap[name] = {
-        name,
-        confirmBeforeExecute,
-        arguments: params,
-        isAsync: !!(actionConfig && actionConfig.actionConfiguration.isAsync),
-        data,
-        body: value,
-      };
-    } else if (type !== "literal") {
-      variables.push({
-        name,
-        value,
-      });
-    }
-  });
-
-  return {
-    actions,
-    variables,
-    actionsConfigMap,
-  };
+    return {
+      actions,
+      variables: savedVariables,
+      actionsConfigMap,
+    };
+  }
 };
 
 export const parseJSObjectMemoize = memoize(getJSObjectProperties, {
@@ -97,8 +127,8 @@ const generateDataTreeJSActionMemoize = (
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
   const variablesMap: Record<string, any> = {};
 
-  const actionsConfig = js.config.actions;
-
+  const savedActions = js.config.actions;
+  const savedVariables = js.config.variables;
   const listVariables: Array<string> = [];
   const bodyWithoutThisReference = js.config.body.replace(
     reg,
@@ -111,8 +141,9 @@ const generateDataTreeJSActionMemoize = (
 
   const { actions, actionsConfigMap, variables } = parseJSObjectMemoize({
     body: bodyWithoutThisReference,
-    actionsConfig,
-    actionsData: js.data,
+    savedActions,
+    savedVariables,
+    ranActionsData: js.data,
   });
 
   if (variables) {

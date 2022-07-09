@@ -79,7 +79,7 @@ import {
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
 import { EvalMetaUpdates } from "./types";
-import { parseJSActions } from "workers/JSObject";
+import { getJSActionUpdates } from "workers/JSObject";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -107,7 +107,7 @@ export default class DataTreeEvaluator {
 
   /**
    * This method takes unEvalTree as input and does following
-   * 1. parseJSActions and updates JS
+   * 1. getJSActionUpdates and updates JS
    * 2. Creates dependencyMap, sorted dependencyMap
    * 3. Generates inverseDependencyTree
    * 4. Finally, evaluates the unEvalTree and returns that with JSUpdates
@@ -120,13 +120,12 @@ export default class DataTreeEvaluator {
     const totalStart = performance.now();
     // cloneDeep will make sure not to omit key which has value as undefined.
     const localUnEvalTree = klona(unEvalTree);
-    let jsUpdates: Record<string, JSUpdate> = {};
+
     //parse js collection to get functions
     //save current state of js collection action and variables to be added to uneval tree
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
-    const parsedCollections = parseJSActions(this, localUnEvalTree);
-    jsUpdates = parsedCollections.jsUpdates;
+    const { jsUpdates } = getJSActionUpdates(this, localUnEvalTree);
 
     // Create dependency map
     const createDependencyStart = performance.now();
@@ -196,7 +195,7 @@ export default class DataTreeEvaluator {
     const diffCheckTimeStart = performance.now();
 
     //save parsed functions in resolveJSFunctions, update current state of js collection
-    const parsedCollections = parseJSActions(
+    const parsedCollections = getJSActionUpdates(
       this,
       localUnEvalTree,
       this.oldUnEvalTree,
