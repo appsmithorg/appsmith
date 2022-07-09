@@ -754,7 +754,7 @@ export const unEvalTree2 = {
     pluginType: "JS",
     ENTITY_TYPE: "JSACTION",
     body:
-      'export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: async () => {\n\t\t//write code here\n\tawait storeValue("name", "name", false).then(()=>{})\n\t\treturn resetWidget("Button2").then(()=>{})\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}',
+      'export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: async () => {\n\t\t//write code here\n\tawait storeValue("name", "name", false).then(()=>{})\n\t\treturn resetWidget("Button2").then(()=>{})\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t AbsentEntity.run()}\n}',
     meta: {
       myFun2: {
         arguments: [],
@@ -878,7 +878,7 @@ export const unEvalTree2 = {
         key: "borderRadius",
       },
     ],
-    text: "Submit",
+    text: "",
     isDisabled: false,
     key: "enfgkhlzev",
     isDeprecated: false,
@@ -988,7 +988,7 @@ export const unEvalTree2 = {
   Button2: {
     boxShadow: "none",
     widgetName: "Button2",
-    onClick: "{{Api2.run()}}",
+    onClick: "{{Api2.run(); AbsentEntity.run()}}",
     buttonColor: "{{appsmith.theme.colors.primaryColor}}",
     dynamicPropertyPathList: [
       {
