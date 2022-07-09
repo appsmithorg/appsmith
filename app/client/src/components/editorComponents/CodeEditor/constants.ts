@@ -12,6 +12,12 @@ export const UNWANTED_LINT_ERRORS = {
   codes: ["E041"],
   reasons: ["'currentRow' is not defined.", "'currentItem' is not defined."],
 };
+
+// Refined error messages
+export const REFINED_LINT_ERROR_MESSAGES: Record<string, string> = {
+  "'await' is not defined.":
+    "'await' expressions are only allowed within async functions. Did you mean to mark this function as 'async'?",
+};
 export const LINT_TOOLTIP_CLASS = "CodeMirror-lint-tooltip";
 export const LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS = "CodeMirror-lint-tooltip-left";
 export enum LintTooltipDirection {
