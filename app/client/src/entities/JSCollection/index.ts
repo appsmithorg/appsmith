@@ -3,7 +3,7 @@ import { PluginType } from "entities/Action";
 
 export type Variable = {
   name: string;
-  value: any;
+  value: unknown;
 };
 export interface JSCollection {
   id: string;

@@ -125,15 +125,7 @@ const addDataTreeToGlobalData = ({
   Object.keys(dataTree).forEach((entityName) => {
     const entity = dataTree[entityName];
     if (isJSObject(entity)) {
-      const jSObjectEntity = entity;
-      const variables: Record<string, unknown> = {};
-      jSObjectEntity.variables.forEach((variableName) => {
-        variables[variableName] = jSObjectEntity[variableName];
-      });
-      jSObjectEntity.properties = {
-        ...variables,
-      };
-      GLOBAL_DATA[entityName] = jSObjectEntity.properties;
+      GLOBAL_DATA[entityName] = entity.properties;
     } else {
       GLOBAL_DATA[entityName] = dataTree[entityName];
     }

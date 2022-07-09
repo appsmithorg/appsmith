@@ -69,6 +69,15 @@ export interface DataTreeAction
   datasourceUrl: string;
 }
 
+export type JSActionProperty = {
+  name: string;
+  data: unknown;
+  isAsync: boolean;
+  confirmBeforeExecute: boolean;
+  body: string;
+  arguments: Variable[];
+};
+
 export interface DataTreeJSAction {
   pluginType: PluginType.JS;
   name: string;
@@ -81,6 +90,8 @@ export interface DataTreeJSAction {
   reactivePaths: Record<string, EvaluationSubstitutionType>;
   variables: Array<string>;
   dependencyMap: DependencyMap;
+  properties: Record<string, Record<string, any>>;
+  actionsConfig: Record<string, JSActionProperty>;
 }
 
 export interface MetaArgs {

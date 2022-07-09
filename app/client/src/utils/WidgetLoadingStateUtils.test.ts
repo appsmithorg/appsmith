@@ -22,6 +22,8 @@ const JS_object_tree: DataTreeJSAction = {
   reactivePaths: {},
   variables: [],
   dependencyMap: {},
+  properties: {},
+  actionsConfig: {},
 };
 
 // @ts-expect-error: meta property not provided

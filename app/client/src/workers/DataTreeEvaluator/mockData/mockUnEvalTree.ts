@@ -5,6 +5,7 @@ import {
   DataTreeWidget,
   DataTreeAppsmith,
   ENTITY_TYPE,
+  DataTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
 
 export const unEvalTree = {
@@ -396,7 +397,7 @@ export const asyncTagUnevalTree: DataTree = {
     logBlackList: {},
     datasourceUrl: "",
   },
-  JSObject1: {
+  JSObject1: ({
     name: "JSObject1",
     actionId: "627217a38a368d6f1efcd0d8",
     pluginType: PluginType.JS,
@@ -433,8 +434,8 @@ export const asyncTagUnevalTree: DataTree = {
     myFun1: {
       data: {},
     },
-  },
-  JSObject2: {
+  } as unknown) as DataTreeJSAction,
+  JSObject2: ({
     name: "JSObject2",
     actionId: "627babc60b47255c28138865",
     pluginType: PluginType.JS,
@@ -471,7 +472,7 @@ export const asyncTagUnevalTree: DataTree = {
     callApi: {
       data: {},
     },
-  },
+  } as unknown) as DataTreeJSAction,
   MainContainer: ({
     widgetName: "MainContainer",
     backgroundColor: "none",

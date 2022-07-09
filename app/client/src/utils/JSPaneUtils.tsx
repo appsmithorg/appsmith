@@ -3,6 +3,7 @@ import { JSCollection, JSAction, Variable } from "entities/JSCollection";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import AppsmithConsole from "utils/AppsmithConsole";
+import { isEqual } from "lodash";
 
 export type ParsedJSSubAction = {
   name: string;
@@ -141,9 +142,7 @@ export const getDifferenceInJSCollection = (
       if (!!existedVar) {
         const existedValue = existedVar.value;
         if (
-          (!!existedValue &&
-            existedValue.toString() !==
-              (newVar.value && newVar.value.toString())) ||
+          (!!existedValue && !isEqual(existedValue, newVar.value)) ||
           (!existedValue && !!newVar.value)
         ) {
           changedVariables.push(newVar);
@@ -163,10 +162,10 @@ export const getDifferenceInJSCollection = (
         (jsVar: Variable) => jsVar.name === preVar.name,
       );
       if (!existed) {
-        const newvarList = varList.filter(
+        const newVarList = varList.filter(
           (deletedVar) => deletedVar.name !== preVar.name,
         );
-        changedVariables = changedVariables.concat(newvarList);
+        changedVariables = changedVariables.concat(newVarList);
       }
     }
   }

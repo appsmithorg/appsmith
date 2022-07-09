@@ -79,11 +79,7 @@ import {
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
 import { EvalMetaUpdates } from "./types";
-import {
-  getJSEntities,
-  getUpdatedLocalUnEvalTreeAfterJSUpdates,
-  parseJSActions,
-} from "workers/JSObject";
+import { parseJSActions } from "workers/JSObject";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -96,7 +92,6 @@ export default class DataTreeEvaluator {
   oldUnEvalTree: DataTree = {};
   errors: EvalError[] = [];
   resolvedFunctions: Record<string, any> = {};
-  currentJSCollectionState: Record<string, any> = {};
   logs: unknown[] = [];
   allActionValidationConfig?: { [actionId: string]: ActionValidationConfigMap };
   public hasCyclicalDependency = false;
@@ -124,7 +119,7 @@ export default class DataTreeEvaluator {
   createFirstTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
     // cloneDeep will make sure not to omit key which has value as undefined.
-    let localUnEvalTree = klona(unEvalTree);
+    const localUnEvalTree = klona(unEvalTree);
     let jsUpdates: Record<string, JSUpdate> = {};
     //parse js collection to get functions
     //save current state of js collection action and variables to be added to uneval tree
@@ -132,10 +127,7 @@ export default class DataTreeEvaluator {
     //and functions are saved in dataTree as strings
     const parsedCollections = parseJSActions(this, localUnEvalTree);
     jsUpdates = parsedCollections.jsUpdates;
-    localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
-      jsUpdates,
-      localUnEvalTree,
-    );
+
     // Create dependency map
     const createDependencyStart = performance.now();
     this.dependencyMap = this.createDependencyMap(localUnEvalTree);
@@ -189,24 +181,6 @@ export default class DataTreeEvaluator {
     return false;
   }
 
-  updateLocalUnEvalTree(dataTree: DataTree) {
-    //add functions and variables to unevalTree
-    Object.keys(this.currentJSCollectionState).forEach((update) => {
-      const updates = this.currentJSCollectionState[update];
-      if (!!dataTree[update]) {
-        Object.keys(updates).forEach((key) => {
-          const data = _.get(dataTree, `${update}.${key}.data`, undefined);
-          if (this.isJSObjectFunction(dataTree, update, key)) {
-            _.set(dataTree, `${update}.${key}`, new String(updates[key]));
-            _.set(dataTree, `${update}.${key}.data`, data);
-          } else {
-            _.set(dataTree, `${update}.${key}`, updates[key]);
-          }
-        });
-      }
-    });
-  }
-
   updateDataTree(
     unEvalTree: DataTree,
   ): {
@@ -215,40 +189,20 @@ export default class DataTreeEvaluator {
     jsUpdates: Record<string, JSUpdate>;
     evalMetaUpdates: EvalMetaUpdates;
   } {
-    let localUnEvalTree = Object.assign({}, unEvalTree);
+    const localUnEvalTree = Object.assign({}, unEvalTree);
     const totalStart = performance.now();
     let jsUpdates: Record<string, JSUpdate> = {};
     // Calculate diff
     const diffCheckTimeStart = performance.now();
-    //update uneval tree from previously saved current state of collection
-    this.updateLocalUnEvalTree(localUnEvalTree);
-    //get difference in js collection body to be parsed
-    const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
-    const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
-    const jsDifferences: Diff<
-      Record<string, DataTreeJSAction>,
-      Record<string, DataTreeJSAction>
-    >[] = diff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) || [];
 
-    const jsTranslatedDiffs = _.flatten(
-      jsDifferences.map((diff) =>
-        translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
-      ),
-    );
     //save parsed functions in resolveJSFunctions, update current state of js collection
     const parsedCollections = parseJSActions(
       this,
       localUnEvalTree,
-      jsTranslatedDiffs,
       this.oldUnEvalTree,
     );
 
     jsUpdates = parsedCollections.jsUpdates;
-    //update local data tree if js body has updated (remove/update/add js functions or variables)
-    localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
-      jsUpdates,
-      localUnEvalTree,
-    );
 
     const differences: Diff<DataTree, DataTree>[] =
       diff(this.oldUnEvalTree, localUnEvalTree) || [];
