@@ -7,16 +7,17 @@ export const WARNING_LINT_ERRORS = {
   W014:
     "Misleading line break before '{a}'; readers may interpret this as an expression boundary.",
 };
-
+// These lint errors should be overlooked
+export const UNWANTED_LINT_ERRORS = {
+  codes: ["E041"],
+  reasons: ["'currentRow' is not defined.", "'currentItem' is not defined."],
+};
 export const LINT_TOOLTIP_CLASS = "CodeMirror-lint-tooltip";
-
 export const LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS = "CodeMirror-lint-tooltip-left";
-
 export enum LintTooltipDirection {
   left = "left",
   right = "right",
 }
-
 export const JS_OBJECT_START_STATEMENT = "export default";
 export const INVALID_JSOBJECT_START_STATEMENT = `JSObject must start with '${JS_OBJECT_START_STATEMENT}'`;
 export const CODE_EDITOR_START_POSITION: Position = { line: 0, ch: 0 };

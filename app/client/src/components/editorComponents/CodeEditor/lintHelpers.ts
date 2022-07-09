@@ -119,7 +119,7 @@ export const getLintAnnotations = (
         if (variable) {
           variableLength =
             variableLength === 1
-              ? variable.length
+              ? String(variable).length
               : Math.min(variable.length, variableLength);
         }
       }

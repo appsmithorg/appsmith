@@ -13,6 +13,7 @@ import {
 } from "workers/evaluate";
 import { getLintSeverity } from "components/editorComponents/CodeEditor/lintHelpers";
 import { ECMA_VERSION } from "constants/ast";
+import { UNWANTED_LINT_ERRORS } from "components/editorComponents/CodeEditor/constants";
 
 export const getPositionInEvaluationScript = (
   type: EvaluationScriptType,
@@ -86,7 +87,6 @@ export const getLintingErrors = (
   };
 
   jshint(script, options);
-
   return jshint.errors.filter(lintErrorFilters).map((lintError) => {
     const ch = lintError.character;
     return {
@@ -106,10 +106,8 @@ export const getLintingErrors = (
 };
 
 const lintErrorFilters = (lintError: LintError) => {
-  if (lintError.reason === "'currentRow' is not defined.") {
-    return false;
-  } else if (lintError.reason === "'currentItem' is not defined.") {
-    return false;
-  }
-  return true;
+  return !(
+    UNWANTED_LINT_ERRORS.reasons.includes(lintError.reason) ||
+    UNWANTED_LINT_ERRORS.codes.includes(lintError.code)
+  );
 };
