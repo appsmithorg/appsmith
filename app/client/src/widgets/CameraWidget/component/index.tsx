@@ -22,7 +22,7 @@ import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
 import { useSelector } from "store";
 import { Colors } from "constants/Colors";
-import { getSupportedMimeTypes } from "utils/helpers";
+import { getSupportedMimeTypes, isMac } from "utils/helpers";
 
 import {
   CameraMode,
@@ -95,6 +95,7 @@ const CameraContainer = styled.div<CameraContainerProps>`
     video {
       height: 100%;
     }
+    background: ${Colors.BLACK};
   }
 `;
 
@@ -171,6 +172,15 @@ const TimerContainer = styled.div`
   color: #ffffff;
 `;
 
+const DeviceButtonContainer = styled.div`
+  position: relative;
+`;
+
+const DeviceMenuContainer = styled.div`
+  position: absolute;
+  bottom: 34px;
+`;
+
 export interface StyledButtonProps {
   variant: ButtonVariant;
   borderRadius: ButtonBorderRadius;
@@ -241,6 +251,47 @@ function ControlPanel(props: ControlPanelProps) {
     videoInputs,
     videoMuted,
   } = props;
+  const [isOpenAudioDeviceMenu, setIsOpenAudioDeviceMenu] = useState<boolean>(
+    false,
+  );
+  const [isOpenVideoDeviceMenu, setIsOpenVideoDeviceMenu] = useState<boolean>(
+    false,
+  );
+
+  // Close the device menu by user click anywhere on the screen when fullscreen is true
+  useEffect(() => {
+    if (fullScreenHandle.active) {
+      const handleClickOutside = () => {
+        if (fullScreenHandle.node.current) {
+          isOpenVideoDeviceMenu && setIsOpenVideoDeviceMenu(false);
+          isOpenAudioDeviceMenu && setIsOpenAudioDeviceMenu(false);
+        }
+      };
+
+      document.addEventListener("click", handleClickOutside, false);
+      return () => {
+        document.removeEventListener("click", handleClickOutside, false);
+      };
+    }
+  }, [fullScreenHandle, isOpenVideoDeviceMenu, isOpenAudioDeviceMenu]);
+
+  // Close the device menu when user exit from full screen mode
+  useEffect(() => {
+    if (fullScreenHandle.active) {
+      setIsOpenVideoDeviceMenu(false);
+      setIsOpenAudioDeviceMenu(false);
+    }
+  }, [fullScreenHandle]);
+
+  const handleOnAudioCaretClick = (isMenuOpen: boolean) => {
+    isOpenVideoDeviceMenu && setIsOpenVideoDeviceMenu(false);
+    setIsOpenAudioDeviceMenu(isMenuOpen);
+  };
+
+  const handleOnVideoCaretClick = (isMenuOpen: boolean) => {
+    isOpenAudioDeviceMenu && setIsOpenAudioDeviceMenu(false);
+    setIsOpenVideoDeviceMenu(isMenuOpen);
+  };
 
   const handleControlClick = (action: MediaCaptureAction) => {
     return () => {
@@ -311,17 +362,23 @@ function ControlPanel(props: ControlPanelProps) {
           <DevicePopover
             deviceType={DeviceTypes.MICROPHONE}
             disabled={audioMuted}
+            fullScreenHandle={fullScreenHandle}
+            isMenuOpen={isOpenAudioDeviceMenu}
             items={audioInputs}
             onDeviceMute={onToggleAudio}
             onItemClick={onMediaInputChange}
+            onMenuClick={handleOnAudioCaretClick}
           />
         )}
         <DevicePopover
           deviceType={DeviceTypes.CAMERA}
           disabled={videoMuted}
+          fullScreenHandle={fullScreenHandle}
+          isMenuOpen={isOpenVideoDeviceMenu}
           items={videoInputs}
           onDeviceMute={onToggleVideo}
           onItemClick={onMediaInputChange}
+          onMenuClick={handleOnVideoCaretClick}
         />
       </>
     );
@@ -559,6 +616,11 @@ function ControlPanel(props: ControlPanelProps) {
   };
 
   const renderFullscreenControl = () => {
+    // Remove fullscreen functionality for ios mobile devices
+    // due to fullscreen API is not supported to ios mobile devices.
+    // https://caniuse.com/fullscreen
+    if (isMac(true)) return null;
+
     return fullScreenHandle.active ? (
       <StyledButton
         borderRadius={ButtonBorderRadiusTypes.SHARP}
@@ -641,13 +703,25 @@ function DeviceMenu(props: DeviceMenuProps) {
 export interface DevicePopoverProps {
   deviceType: DeviceType;
   disabled?: boolean;
+  fullScreenHandle: FullScreenHandle;
+  isMenuOpen: boolean;
   items: MediaDeviceInfo[];
   onDeviceMute?: (isMute: boolean) => void;
   onItemClick: (item: MediaDeviceInfo) => void;
+  onMenuClick: (isMenuOpen: boolean) => void;
 }
 
 function DevicePopover(props: DevicePopoverProps) {
-  const { deviceType, disabled, items, onDeviceMute, onItemClick } = props;
+  const {
+    deviceType,
+    disabled,
+    fullScreenHandle,
+    isMenuOpen,
+    items,
+    onDeviceMute,
+    onItemClick,
+    onMenuClick,
+  } = props;
 
   const handleDeviceMute = useCallback(() => {
     if (onDeviceMute) {
@@ -675,12 +749,31 @@ function DevicePopover(props: DevicePopoverProps) {
         minimal
         onClick={handleDeviceMute}
       />
-      <Popover2
-        content={<DeviceMenu items={items} onItemClick={onItemClick} />}
-        portalContainer={document.getElementById("art-board") || undefined}
-      >
-        <Button minimal rightIcon={<Icon color="white" icon="caret-down" />} />
-      </Popover2>
+      {!fullScreenHandle.active ? (
+        <Popover2
+          content={<DeviceMenu items={items} onItemClick={onItemClick} />}
+          minimal
+          portalContainer={document.getElementById("art-board") || undefined}
+        >
+          <Button
+            minimal
+            rightIcon={<Icon color="white" icon="caret-down" />}
+          />
+        </Popover2>
+      ) : (
+        <DeviceButtonContainer>
+          <Button
+            minimal
+            onClick={() => onMenuClick(!isMenuOpen)}
+            rightIcon={<Icon color="white" icon="caret-down" />}
+          />
+          {isMenuOpen && (
+            <DeviceMenuContainer>
+              <DeviceMenu items={items} onItemClick={onItemClick} />
+            </DeviceMenuContainer>
+          )}
+        </DeviceButtonContainer>
+      )}
     </>
   );
 }

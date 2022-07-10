@@ -233,10 +233,15 @@ export const resolveAsSpaceChar = (value: string, limit?: number) => {
     .slice(0, limit || 30);
 };
 
-export const isMac = () => {
+export const isMac = (isIPhone?: boolean) => {
   const platform =
     typeof navigator !== "undefined" ? navigator.platform : undefined;
-  return !platform ? false : /Mac|iPod|iPhone|iPad/.test(platform);
+
+  return !platform
+    ? false
+    : isIPhone
+    ? /iPhone|iPad/.test(platform)
+    : /Mac|iPod|iPhone|iPad/.test(platform);
 };
 
 /**
