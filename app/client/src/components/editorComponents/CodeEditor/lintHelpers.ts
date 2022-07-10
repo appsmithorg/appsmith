@@ -75,15 +75,32 @@ export const getFirstNonEmptyPosition = (lines: string[]): Position => {
     : CODE_EDITOR_START_POSITION;
 };
 
+export const filterLintErrors = (
+  errors: EvaluationError[],
+  contextData?: Record<string, Record<string, unknown>>,
+) => {
+  return errors.filter(
+    (error) =>
+      error.errorType === PropertyEvaluationErrorType.LINT &&
+      // Remove all errors where additional dynamic data is reported as undefined
+      !(
+        contextData &&
+        error.code === "W117" &&
+        error.variables &&
+        error.variables[0] &&
+        error.variables[0] in contextData
+      ),
+  );
+};
+
 export const getLintAnnotations = (
   value: string,
   errors: EvaluationError[],
   isJSObject?: boolean,
+  contextData?: Record<string, Record<string, unknown>>,
 ): Annotation[] => {
   const annotations: Annotation[] = [];
-  const lintErrors = errors.filter(
-    (error) => error.errorType === PropertyEvaluationErrorType.LINT,
-  );
+  const lintErrors = filterLintErrors(errors, contextData);
   const lines = value.split("\n");
   if (
     isJSObject &&
