@@ -8,9 +8,9 @@ export const WARNING_LINT_ERRORS = {
     "Misleading line break before '{a}'; readers may interpret this as an expression boundary.",
 };
 // These lint errors should be overlooked
-export const UNWANTED_LINT_ERRORS = {
+export const UNWANTED_LINT_ERRORS: Record<string, string[]> = {
   codes: ["E041"],
-  reasons: ["'currentRow' is not defined.", "'currentItem' is not defined."],
+  reasons: [],
 };
 
 // Refined error messages

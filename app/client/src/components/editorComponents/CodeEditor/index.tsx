@@ -704,7 +704,12 @@ class CodeEditor extends Component<Props, State> {
   };
 
   lintCode(editor: CodeMirror.Editor) {
-    const { dataTreePath, dynamicData } = this.props;
+    const {
+      additionalDynamicData,
+      dataTreePath,
+      dynamicData,
+      isJSObject,
+    } = this.props;
 
     if (!dataTreePath || !this.updateLintingCallback || !editor) {
       return;
@@ -719,7 +724,8 @@ class CodeEditor extends Component<Props, State> {
     const annotations = getLintAnnotations(
       editor.getValue(),
       errors,
-      this.props.isJSObject,
+      isJSObject,
+      additionalDynamicData,
     );
 
     this.updateLintingCallback(editor, annotations);
