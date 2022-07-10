@@ -12,6 +12,7 @@ export type ParsedJSSubAction = {
   body: string;
   arguments: Array<Variable>;
   isAsync: boolean;
+  // parsedFunction - used only to determine if function is async
   parsedFunction?: ParsedFunction;
 };
 
@@ -30,7 +31,7 @@ export const getDifferenceInJSCollection = (
   jsAction: JSCollection,
 ) => {
   const newActions: ParsedJSSubAction[] = [];
-  const toBearchivedActions: JSAction[] = [];
+  const toBeArchivedActions: JSAction[] = [];
   const toBeUpdatedActions: JSAction[] = [];
   const nameChangedActions = [];
   const toBeAddedActions: Partial<JSAction>[] = [];
@@ -68,14 +69,14 @@ export const getDifferenceInJSCollection = (
         (js: ParsedJSSubAction) => js.name === preAction.name,
       );
       if (!existed) {
-        toBearchivedActions.push(preAction);
+        toBeArchivedActions.push(preAction);
       }
     }
   }
   //check if new is name changed from deleted actions
-  if (toBearchivedActions.length && newActions.length) {
+  if (toBeArchivedActions.length && newActions.length) {
     for (let i = 0; i < newActions.length; i++) {
-      const nameChange = toBearchivedActions.find(
+      const nameChange = toBeArchivedActions.find(
         (js) => js.actionConfiguration.body === newActions[i].body,
       );
       if (nameChange) {
@@ -83,7 +84,7 @@ export const getDifferenceInJSCollection = (
           (js) => js.id === nameChange.id,
         );
         if (updateExisting) {
-          const indexOfArchived = toBearchivedActions.findIndex((js) => {
+          const indexOfArchived = toBeArchivedActions.findIndex((js) => {
             js.id === updateExisting.id;
           });
           //will be part of new nameChangedActions for now
@@ -99,7 +100,7 @@ export const getDifferenceInJSCollection = (
             pageId: updateExisting.pageId,
           });
           newActions.splice(i, 1);
-          toBearchivedActions.splice(indexOfArchived, 1);
+          toBeArchivedActions.splice(indexOfArchived, 1);
         }
       }
     }
@@ -124,9 +125,9 @@ export const getDifferenceInJSCollection = (
       toBeAddedActions.push(obj);
     }
   }
-  if (toBearchivedActions.length > 0) {
-    for (let i = 0; i < toBearchivedActions.length; i++) {
-      const action = toBearchivedActions[i];
+  if (toBeArchivedActions.length > 0) {
+    for (let i = 0; i < toBeArchivedActions.length; i++) {
+      const action = toBeArchivedActions[i];
       const deleteArchived = jsAction.actions.findIndex((js) => {
         action.id === js.id;
       });
@@ -173,7 +174,7 @@ export const getDifferenceInJSCollection = (
   return {
     newActions: toBeAddedActions,
     updateActions: toBeUpdatedActions,
-    deletedActions: toBearchivedActions,
+    deletedActions: toBeArchivedActions,
     nameChangedActions: nameChangedActions,
     changedVariables: changedVariables,
   };
