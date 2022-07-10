@@ -7,9 +7,14 @@ const jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper,
   dataSources = ObjectsRegistry.DataSources;
 
-const clickButtonAndAssertLintError = (shouldExist: boolean) => {
+const clickButtonAndAssertLintError = (
+  shouldExist: boolean,
+  shouldWait = false,
+) => {
   // Check for presence/ absence of lint error
   ee.SelectEntityByName("Button1", "WIDGETS");
+  // Sometimes wait for page to switch
+  shouldWait && agHelper.Sleep(2000);
   shouldExist
     ? agHelper.AssertElementExist(locator._lintErrorElement)
     : agHelper.AssertElementAbsence(locator._lintErrorElement);
@@ -127,11 +132,14 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
   });
   it("Doesn't show lint error when JSObject is renamed", () => {
+    ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("JSObject1", "QUERIES/JS");
     jsEditor.RenameJSObjFromPane("JSObject2");
-    clickButtonAndAssertLintError(false);
+    clickButtonAndAssertLintError(false, true);
+    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.SelectEntityByName("JSObject2", "QUERIES/JS");
     jsEditor.RenameJSObjFromPane("JSObject1");
-    clickButtonAndAssertLintError(false);
+    clickButtonAndAssertLintError(false, true);
   });
 
   it("Shows correct lint error with multiple entities in triggerfield", () => {
