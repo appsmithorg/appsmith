@@ -20,8 +20,10 @@ export const ERROR_EMPTY_APPLICATION_NAME = () =>
   `Application name can't be empty`;
 export const API_PATH_START_WITH_SLASH_ERROR = () => `Path cannot start with /`;
 export const FIELD_REQUIRED_ERROR = () => `This field is required`;
-export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = () =>
-  `Default Text length must be less than Max Chars allowed`;
+export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = (max: number) =>
+  `Default text length must be less than ${max} characters`;
+export const INPUT_TEXT_MAX_CHAR_ERROR = (max: number) =>
+  `Input text length must be less than ${max} characters`;
 export const INPUT_DEFAULT_TEXT_MAX_NUM_ERROR = () =>
   `Default Text value must be less than Max number allowed`;
 export const INPUT_DEFAULT_TEXT_MIN_NUM_ERROR = () =>
@@ -430,7 +432,6 @@ export const CLEAR_INTERVAL = () => `Clear interval`;
 export const GET_GEO_LOCATION = () => `Get Geolocation`;
 export const WATCH_GEO_LOCATION = () => `Watch Geolocation`;
 export const STOP_WATCH_GEO_LOCATION = () => `Stop watching Geolocation`;
-export const POST_MESSAGE = () => `Post message to a target window`;
 
 //js actions
 export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>

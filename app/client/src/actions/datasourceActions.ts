@@ -210,6 +210,7 @@ export type executeDatasourceQuerySuccessPayload<T> = {
   responseMeta: ResponseMeta;
   data: {
     body: T;
+    trigger: T;
     headers: Record<string, string[]>;
     statusCode: string;
     isExecutionSuccess: boolean;

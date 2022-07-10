@@ -511,6 +511,45 @@ describe("translateDiffEvent", () => {
 
     expect(expectedTranslations).toStrictEqual(actualTranslations);
   });
+
+  it("deletes member expressions when Array changes to string", () => {
+    const diffs: Diff<any, any>[] = [
+      {
+        kind: "E",
+        path: ["Api1", "data"],
+        lhs: [{ id: "{{a}}" }, { id: "{{a}}" }],
+        rhs: `{ id: "{{a}}" }, { id: "{{a}}" }`,
+      },
+    ];
+
+    const expectedTranslations: DataTreeDiff[] = [
+      {
+        payload: {
+          propertyPath: "Api1.data",
+          value: `{ id: "{{a}}" }, { id: "{{a}}" }`,
+        },
+        event: DataTreeDiffEvent.EDIT,
+      },
+      {
+        payload: {
+          propertyPath: "Api1.data[0]",
+        },
+        event: DataTreeDiffEvent.DELETE,
+      },
+      {
+        payload: {
+          propertyPath: "Api1.data[1]",
+        },
+        event: DataTreeDiffEvent.DELETE,
+      },
+    ];
+
+    const actualTranslations = flatten(
+      diffs.map((diff) => translateDiffEventToDataTreeDiffEvent(diff, {})),
+    );
+
+    expect(expectedTranslations).toEqual(actualTranslations);
+  });
 });
 
 describe("overrideWidgetProperties", () => {
