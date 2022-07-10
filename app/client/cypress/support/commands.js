@@ -1667,3 +1667,16 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add("openDropdown", (option) => {
+  const query =
+    "//div[text()='" +
+    option +
+    "']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]";
+
+  cy.xpath(query)
+    .invoke("attr", "name")
+    .then((arrow) => {
+      cy.xpath(query).trigger("click", { multiple: true, force: true });
+    });
+});

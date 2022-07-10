@@ -7,7 +7,6 @@ import ApiEditor from "../../../../locators/ApiEditor";
     5. Ensure Long body form is added
     6. Ensure use the method from the drop-down
     9. Ensure user is able to add special characters to the name from Pane
-    16. Ensure user is able to Name conventions that are appropriate when moved/Copied
 */
 
 describe("Test Query Pane  ", function() {
@@ -126,7 +125,15 @@ describe("Test Query Pane  ", function() {
   });
 
   it("12. Test user is able to edit the query pane and the changes get saved", function() {
-    cy.get(".Datasources__ShowAll-g3whk1-0").click(); //Show all datasources
+    const query1 =
+      ':nth-child(2) > :nth-child(1) > [style="display: block;"] > .t--form-control-QUERY_DYNAMIC_INPUT_TEXT > [style="width: 35vw; min-height: 38px;"] > .styledComponents__DynamicAutocompleteInputWrapper-gizjok-2 > .EvaluatedValuePopup__Wrapper-dlvj8d-0 > .styledComponents__EditorWrapper-gizjok-0 > [data-testid=code-editor-target] > .CodeMirror > .CodeMirror-scroll > .CodeMirror-sizer > [style="position: relative; top: 0px;"] > .CodeMirror-lines';
+    const query2 =
+      ':nth-child(3) > :nth-child(1) > [style="display: block;"] > .t--form-control-QUERY_DYNAMIC_INPUT_TEXT > [style="width: 35vw; min-height: 38px;"] > .styledComponents__DynamicAutocompleteInputWrapper-gizjok-2 > .EvaluatedValuePopup__Wrapper-dlvj8d-0 > .styledComponents__EditorWrapper-gizjok-0 > [data-testid=code-editor-target] > .CodeMirror > .CodeMirror-scroll > .CodeMirror-sizer > [style="position: relative; top: 0px;"] > .CodeMirror-lines > [style="position: relative; outline: none;"] > .CodeMirror-code > .CodeMirror-line';
+
+    cy.NavigateToApiEditor();
+
+    cy.get("[data-cy=t--tab-ACTIVE]").click();
+
     cy.contains(".t--datasource-name", "Test Twilio")
       .find(queryLocators.createQuery)
       .click();
@@ -135,23 +142,14 @@ describe("Test Query Pane  ", function() {
     cy.get(ApiEditor.twilioImage).click(); //Only to save the query name
     cy.get(ApiEditor.dropdownTypeAuth).click();
     cy.contains(ApiEditor.dropdownOption, "List Message").click();
-    cy.get(
-      ':nth-child(2) > :nth-child(1) > [style="display: block;"] > .t--form-control-QUERY_DYNAMIC_INPUT_TEXT > [style="width: 35vw; min-height: 38px;"] > .styledComponents__DynamicAutocompleteInputWrapper-gizjok-2 > .EvaluatedValuePopup__Wrapper-dlvj8d-0 > .styledComponents__EditorWrapper-gizjok-0 > [data-testid=code-editor-target] > .CodeMirror > .CodeMirror-scroll > .CodeMirror-sizer > [style="position: relative; top: 0px;"] > .CodeMirror-lines',
-    ).type("12345");
-    cy.get(
-      ':nth-child(3) > :nth-child(1) > [style="display: block;"] > .t--form-control-QUERY_DYNAMIC_INPUT_TEXT > [style="width: 35vw; min-height: 38px;"] > .styledComponents__DynamicAutocompleteInputWrapper-gizjok-2 > .EvaluatedValuePopup__Wrapper-dlvj8d-0 > .styledComponents__EditorWrapper-gizjok-0 > [data-testid=code-editor-target] > .CodeMirror > .CodeMirror-scroll > .CodeMirror-sizer > [style="position: relative; top: 0px;"] > .CodeMirror-lines > [style="position: relative; outline: none;"] > .CodeMirror-code > .CodeMirror-line',
-    ).type("123456789");
+
+    cy.get(query1).type("12345");
+    cy.get(query2).type("123456789");
     cy.get(ApiEditor.backBtn).click();
 
     cy.contains(".t--entity-item", "Test").click();
-    cy.contains(
-      ':nth-child(2) > :nth-child(1) > [style="display: block;"] > .t--form-control-QUERY_DYNAMIC_INPUT_TEXT > [style="width: 35vw; min-height: 38px;"] > .styledComponents__DynamicAutocompleteInputWrapper-gizjok-2 > .EvaluatedValuePopup__Wrapper-dlvj8d-0 > .styledComponents__EditorWrapper-gizjok-0 > [data-testid=code-editor-target] > .CodeMirror > .CodeMirror-scroll > .CodeMirror-sizer > [style="position: relative; top: 0px;"] > .CodeMirror-lines',
-      "12345",
-    ).should("exist");
-    cy.contains(
-      ':nth-child(3) > :nth-child(1) > [style="display: block;"] > .t--form-control-QUERY_DYNAMIC_INPUT_TEXT > [style="width: 35vw; min-height: 38px;"] > .styledComponents__DynamicAutocompleteInputWrapper-gizjok-2 > .EvaluatedValuePopup__Wrapper-dlvj8d-0 > .styledComponents__EditorWrapper-gizjok-0 > [data-testid=code-editor-target] > .CodeMirror > .CodeMirror-scroll > .CodeMirror-sizer > [style="position: relative; top: 0px;"] > .CodeMirror-lines > [style="position: relative; outline: none;"] > .CodeMirror-code > .CodeMirror-line',
-      "123456789",
-    ).should("exist");
+    cy.contains(query1, "12345").should("exist");
+    cy.contains(query2, "123456789").should("exist");
   });
 
   it("13. Test user is able to COPY query into the same page from Query Pane", function() {
@@ -168,17 +166,8 @@ describe("Test Query Pane  ", function() {
     cy.Createpage("Page2");
     cy.contains(".t--entity-name", "Page1").click();
 
-    cy.xpath(
-      "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-    )
-      .invoke("attr", "name")
-      .then((arrow) => {
-        cy.xpath(
-          "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-        )
-          .trigger("click", { multiple: true, force: true })
-          .wait(1000);
-      });
+    cy.openDropdown("QUERIES/JS");
+    cy.wait(1000);
 
     cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST").click();
     cy.get(".t--more-action-menu").should("exist");
@@ -189,32 +178,16 @@ describe("Test Query Pane  ", function() {
     cy.contains(".t--entity-name", "Page2").click();
     cy.wait(1000);
 
-    cy.xpath(
-      "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-    )
-      .invoke("attr", "name")
-      .then((arrow) => {
-        cy.xpath(
-          "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-        ).trigger("click", { multiple: true, force: true });
-      });
+    cy.openDropdown("QUERIES/JS");
+
     cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy").should("exist");
   });
 
   it("15. Test user is able to MOVE query into the Different page from Query Pane", function() {
     cy.contains(".t--entity-name", "Page1").click();
+    cy.wait(1000);
 
-    cy.xpath(
-      "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-    )
-      .invoke("attr", "name")
-      .then((arrow) => {
-        cy.xpath(
-          "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-        )
-          .trigger("click", { multiple: true, force: true })
-          .wait(1000);
-      });
+    cy.openDropdown("QUERIES/JS");
 
     cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST").click();
     cy.get(".t--more-action-menu").should("exist");
@@ -225,16 +198,41 @@ describe("Test Query Pane  ", function() {
     cy.contains(".t--entity-name", "Page2").click();
     cy.wait(1000);
 
-    cy.xpath(
-      "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-    )
-      .invoke("attr", "name")
-      .then((arrow) => {
-        cy.xpath(
-          "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-        ).trigger("click", { multiple: true, force: true });
-      });
+    cy.openDropdown("QUERIES/JS");
 
     cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST").should("exist");
   });
+
+  it("16. Test user is able to Name conventions that are appropriate when moved/Copied", function() {
+    cy.contains(".t--entity-name", "Page1").click();
+    cy.wait(1000);
+
+    cy.openDropdown("QUERIES/JS");
+
+    cy.copyQuery("CREATE_MESSAGE_TESTCopy", "Page1", "Copy to page");
+    cy.copyQuery("CREATE_MESSAGE_TESTCopy", "Page1", "Copy to page");
+    cy.copyQuery("CREATE_MESSAGE_TESTCopy", "Page1", "Copy to page");
+
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopyCopy2").should(
+      "exist",
+    );
+
+    cy.copyQuery("CREATE_MESSAGE_TESTCopy", "Page2", "Move to page");
+
+    cy.contains(".t--entity-name", "Page2").click();
+    cy.wait(1000);
+
+    cy.openDropdown("QUERIES/JS");
+
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy1").should("exist");
+  });
+});
+
+Cypress.Commands.add("copyQuery", (query, page, type) => {
+  cy.contains(".t--entity-item", query)
+    .find(".entity-context-menu-icon")
+    .click({ force: true });
+
+  cy.selectAction(type);
+  cy.selectAction(page);
 });

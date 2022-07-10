@@ -115,6 +115,8 @@ describe("Twilio Active datasource test cases", function() {
   });
 
   it("9. Test Password is encrypted", function() {
+    cy.get(ApiEditor.dropdownTypeAuth).click();
+    cy.contains(ApiEditor.test, "Basic Auth").click();
     cy.get("[type='password']").should("exist");
   });
 

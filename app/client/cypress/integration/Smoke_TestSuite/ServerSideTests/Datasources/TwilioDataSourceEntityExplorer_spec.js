@@ -4,7 +4,6 @@ import ApiEditor from "../../../../locators/ApiEditor";
 const dsl = require("../../../../fixtures/formInputTableDsl.json");
 
 /* TO-DO
-    6. Ensure the user is able to Name conventions that are appropriate when moved/Copied
     8. Ensure the user is able to add special characters as names and is reflected into the
     9. Ensure the user is able to copy the binding from the entity explorer and bind to a widget
     11.Ensure the user is able to copy the binding from the entity explorer
@@ -31,17 +30,8 @@ describe("Test Entity Explorer", function() {
     cy.get(queryLocators.queryNameField).type("Test");
     cy.get(ApiEditor.twilioImage).click(); //Only to save the query name
 
-    cy.xpath(
-      "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-    )
-      .invoke("attr", "name")
-      .then((arrow) => {
-        cy.xpath(
-          "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-        )
-          .trigger("click", { multiple: true, force: true })
-          .wait(1000);
-      });
+    cy.openDropdown("QUERIES/JS");
+    cy.wait(1000);
 
     cy.contains(".t--entity-item", "Test").should("exist");
   });
@@ -53,130 +43,94 @@ describe("Test Entity Explorer", function() {
 
     cy.selectAction("Edit Name");
 
-    cy.contains(".t--entity-item", "Test").type("CREATE_MESSAGE_TEST1");
+    cy.contains(".t--entity-item", "Test").type("CREATE_MESSAGE_TEST");
 
     cy.get(ApiEditor.twilioImage).click(); //Only to save the query name
 
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1").should("exist");
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST").should("exist");
   });
 
   it("3. Test the user is able to COPY query into the same page from entity explorer", function() {
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1")
-      .find(".entity-context-menu-icon")
-      .click({ force: true });
+    cy.copyQuery("CREATE_MESSAGE_TEST", "Page1", "Copy to page");
 
-    cy.selectAction("Copy to page");
-    cy.selectAction("Page1");
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1Copy").should("exist");
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy").should("exist");
   });
 
   it("4. Test the user is able to COPY query into the Different page from entity explorer", function() {
     cy.Createpage("Page2");
     cy.contains(".t--entity-name", "Page1").click();
 
-    cy.xpath(
-      "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-    )
-      .invoke("attr", "name")
-      .then((arrow) => {
-        cy.xpath(
-          "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-        )
-          .trigger("click", { multiple: true, force: true })
-          .wait(1000);
-      });
+    cy.openDropdown("QUERIES/JS");
+    cy.wait(1000);
 
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1")
-      .find(".entity-context-menu-icon")
-      .click({ force: true });
-
-    cy.selectAction("Copy to page");
-    cy.selectAction("Page2");
+    cy.copyQuery("CREATE_MESSAGE_TEST", "Page2", "Copy to page");
 
     cy.contains(".t--entity-name", "Page2").click();
     cy.wait(1000);
 
-    cy.xpath(
-      "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-    )
-      .invoke("attr", "name")
-      .then((arrow) => {
-        cy.xpath(
-          "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-        ).trigger("click", { multiple: true, force: true });
-      });
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1").should("exist");
+    cy.openDropdown("QUERIES/JS");
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST").should("exist");
   });
 
   it("5. Test the user is able to MOVE query into the Different page from entity explorer", function() {
     cy.contains(".t--entity-name", "Page1").click();
     cy.wait(1000);
 
-    cy.xpath(
-      "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-    )
-      .invoke("attr", "name")
-      .then((arrow) => {
-        cy.xpath(
-          "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-        ).trigger("click", { multiple: true, force: true });
-      });
+    cy.openDropdown("QUERIES/JS");
 
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1Copy")
-      .find(".entity-context-menu-icon")
-      .click({ force: true });
-
-    cy.selectAction("Move to page");
-    cy.selectAction("Page2");
+    cy.copyQuery("CREATE_MESSAGE_TESTCopy", "Page2", "Move to page");
 
     cy.contains(".t--entity-name", "Page2").click();
     cy.wait(1000);
 
-    cy.xpath(
-      "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-    )
-      .invoke("attr", "name")
-      .then((arrow) => {
-        cy.xpath(
-          "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-        ).trigger("click", { multiple: true, force: true });
-      });
+    cy.openDropdown("QUERIES/JS");
 
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1Copy").should("exist");
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy").should("exist");
+  });
+
+  it("6. Test the user is able to Name conventions that are appropriate when moved/Copied.", function() {
+    cy.contains(".t--entity-name", "Page1").click();
+    cy.wait(1000);
+
+    cy.openDropdown("QUERIES/JS");
+
+    cy.copyQuery("CREATE_MESSAGE_TEST", "Page1", "Copy to page");
+    cy.copyQuery("CREATE_MESSAGE_TEST", "Page1", "Copy to page");
+    cy.copyQuery("CREATE_MESSAGE_TEST", "Page1", "Copy to page");
+    cy.copyQuery("CREATE_MESSAGE_TESTCopy", "Page1", "Copy to page");
+
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy1").should("exist");
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy2").should("exist");
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopyCopy").should(
+      "exist",
+    );
+
+    cy.copyQuery("CREATE_MESSAGE_TEST", "Page2", "Move to page");
+
+    cy.contains(".t--entity-name", "Page2").click();
+    cy.wait(1000);
+
+    cy.openDropdown("QUERIES/JS");
+
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1").should("exist");
   });
 
   it("7. Test the user is able to delete the query from the Entity explorer", function() {
     cy.contains(".t--entity-name", "Page2").click();
     cy.wait(1000);
 
-    cy.xpath(
-      "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-    )
-      .invoke("attr", "name")
-      .then((arrow) => {
-        cy.xpath(
-          "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-        ).trigger("click", { multiple: true, force: true });
-      });
+    cy.openDropdown("QUERIES/JS");
 
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1Copy")
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy")
       .find(".entity-context-menu-icon")
       .click({ force: true });
 
     cy.selectAction("Delete");
     cy.selectAction("Are you sure?");
 
-    cy.xpath(
-      "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-    )
-      .invoke("attr", "name")
-      .then((arrow) => {
-        cy.xpath(
-          "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-        ).trigger("click", { multiple: true, force: true });
-      });
+    cy.openDropdown("QUERIES/JS");
 
-    cy.get(".t--entity-item:contains('CREATE_MESSAGE_TEST1')").should(
+    cy.get(".t--entity-item:contains('CREATE_MESSAGE_TEST')").should(
       "not.exist",
     );
   });
@@ -196,19 +150,8 @@ describe("Test Entity Explorer", function() {
 
   it("10. Test the user is able to click Show BIndings and added binding are displayed to the user", function() {
     cy.contains(".t--entity-name", "Page1").click();
-    cy.wait(1000);
 
-    cy.xpath(
-      "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-    )
-      .invoke("attr", "name")
-      .then((arrow) => {
-        cy.xpath(
-          "//div[text()='QUERIES/JS']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]",
-        ).trigger("click", { multiple: true, force: true });
-      });
-
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1")
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy")
       .find(".entity-context-menu-icon")
       .click({ force: true });
 
@@ -217,14 +160,14 @@ describe("Test Entity Explorer", function() {
     cy.contains(".sticky", "BINDINGS").should("exist");
     cy.contains(
       ".language-appsmith-binding",
-      "{{CREATE_MESSAGE_TEST1.isLoading}}",
+      "{{CREATE_MESSAGE_TESTCopy.isLoading}}",
     ).should("exist");
   });
 
   it("11.Test the user is able to copy the binding from the entity explorer", function() {
     cy.contains(
       ".language-appsmith-binding",
-      "{{CREATE_MESSAGE_TEST1.isLoading}}",
+      "{{CREATE_MESSAGE_TESTCopy.isLoading}}",
     ).click();
   });
 
@@ -234,17 +177,19 @@ describe("Test Entity Explorer", function() {
   });
 
   it("13.Test add a longer query name and observe the behavior of the entity explorer", function() {
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1")
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy1")
       .find(".entity-context-menu-icon")
       .click({ force: true });
 
     cy.selectAction("Edit Name");
 
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1").type(
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy1").type(
       "CREATE MESSAGE TEST LONG NAME MORE MORE MORE LONGER",
     );
 
-    cy.get("[alt='entityIcon']").click(); //Only to save the query name
+    cy.get("[alt='entityIcon']").click({ multiple: true }); //Only to save the query name
+
+    cy.wait(3000);
 
     cy.contains(
       ".t--entity-item",
@@ -261,4 +206,15 @@ describe("Test Entity Explorer", function() {
       "exist",
     );
   });
+});
+
+Cypress.Commands.add("copyQuery", (query, page, type) => {
+  cy.contains(".t--entity-item", query)
+    .find(".entity-context-menu-icon")
+    .click({ force: true });
+
+  cy.selectAction(type);
+  cy.selectAction(page);
+
+  cy.wait(1000);
 });
