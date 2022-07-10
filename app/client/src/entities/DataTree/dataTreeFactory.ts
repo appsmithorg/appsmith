@@ -92,6 +92,7 @@ export interface DataTreeJSAction {
   dependencyMap: DependencyMap;
   properties: Record<string, Record<string, any>>;
   actionsConfig: Record<string, JSActionProperty>;
+  dependencyPathResolver?: Record<string, string>;
 }
 
 export interface MetaArgs {

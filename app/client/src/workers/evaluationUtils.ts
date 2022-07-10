@@ -802,3 +802,17 @@ export const overrideWidgetProperties = (params: {
     }
   }
 };
+
+export const getDependencyPathResolver = (unEvalDataTree: DataTree) => {
+  let dependencyPathResolvers: Record<string, string> = {};
+  Object.keys(unEvalDataTree).forEach((entityName) => {
+    const entity = unEvalDataTree[entityName];
+    if (isJSAction(entity) && entity.dependencyPathResolver) {
+      dependencyPathResolvers = {
+        ...dependencyPathResolvers,
+        ...entity.dependencyPathResolver,
+      };
+    }
+  });
+  return dependencyPathResolvers;
+};

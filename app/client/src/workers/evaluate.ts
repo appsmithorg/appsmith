@@ -144,10 +144,13 @@ const mergeFunctionAndData = (
   propertyData: Record<string, unknown>,
 ) => {
   const mergedJSFunction = { ...resolvedFunctionObj };
+
   Object.entries(mergedJSFunction).forEach(
     ([jsFunctionName, jsResolvedFunction]) => {
-      // @ts-expect-error: type unknown error is expected here
-      jsResolvedFunction.data = propertyData[jsFunctionName];
+      if (propertyData[jsFunctionName]) {
+        // @ts-expect-error: type unknown error is expected here
+        jsResolvedFunction.data = propertyData[jsFunctionName].data;
+      }
     },
   );
   return mergedJSFunction;

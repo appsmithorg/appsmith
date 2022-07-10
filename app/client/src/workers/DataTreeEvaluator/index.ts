@@ -21,7 +21,6 @@ import {
   DataTreeJSAction,
   DataTreeObjectEntity,
   DataTreeWidget,
-  ENTITY_TYPE,
   EvaluationSubstitutionType,
   PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
@@ -48,6 +47,7 @@ import {
   validateActionProperty,
   addWidgetPropertyDependencies,
   overrideWidgetProperties,
+  getDependencyPathResolver,
 } from "workers/evaluationUtils";
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -399,11 +399,21 @@ export default class DataTreeEvaluator {
   }
 
   createDependencyMap(unEvalTree: DataTree): DependencyMap {
+    // entity like JSObject has path resolvers where we need to fix the path
+    let dependencyPathResolvers: Record<string, string> = {};
     let dependencyMap: DependencyMap = {};
     this.allKeys = getAllPaths(unEvalTree);
+
     Object.keys(unEvalTree).forEach((entityName) => {
       const entity = unEvalTree[entityName];
-      if (isAction(entity) || isWidget(entity) || isJSAction(entity)) {
+      const isEntityJSObject = isJSAction(entity);
+      if (isAction(entity) || isWidget(entity) || isEntityJSObject) {
+        if (isEntityJSObject && entity.dependencyPathResolver) {
+          dependencyPathResolvers = {
+            ...dependencyPathResolvers,
+            ...entity.dependencyPathResolver,
+          };
+        }
         const entityListedDependencies = this.listEntityDependencies(
           entity,
           entityName,
@@ -413,15 +423,20 @@ export default class DataTreeEvaluator {
     });
     Object.keys(dependencyMap).forEach((key) => {
       dependencyMap[key] = _.flatten(
-        dependencyMap[key].map((path) => {
+        dependencyMap[key].map((binding) => {
           try {
-            return extractReferencesFromBinding(path, this.allKeys);
+            const references = extractReferencesFromBinding({
+              binding,
+              allKeys: this.allKeys,
+              dependencyPathResolvers,
+            });
+            return references;
           } catch (error) {
             this.errors.push({
               type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
               message: (error as Error).message,
               context: {
-                script: path,
+                script: binding,
               },
             });
             return [];
@@ -1187,19 +1202,24 @@ export default class DataTreeEvaluator {
     const diffCalcEnd = performance.now();
     const subDepCalcStart = performance.now();
     if (didUpdateDependencyMap) {
+      const dependencyPathResolvers = getDependencyPathResolver(unEvalDataTree);
       // TODO Optimise
       Object.keys(this.dependencyMap).forEach((key) => {
         this.dependencyMap[key] = _.uniq(
           _.flatten(
-            this.dependencyMap[key].map((path) => {
+            this.dependencyMap[key].map((binding) => {
               try {
-                return extractReferencesFromBinding(path, this.allKeys);
+                return extractReferencesFromBinding({
+                  binding,
+                  allKeys: this.allKeys,
+                  dependencyPathResolvers,
+                });
               } catch (error) {
                 this.errors.push({
                   type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
                   message: (error as Error).message,
                   context: {
-                    script: path,
+                    script: binding,
                   },
                 });
                 return [];
@@ -1354,15 +1374,19 @@ export default class DataTreeEvaluator {
     dataTree: DataTree,
     propertyPath: string,
   ) {
+    let dependencyPathResolvers: Record<string, string> = {};
     const possibleRefs: DependencyMap = {};
     Object.keys(dataTree).forEach((entityName) => {
       const entity = dataTree[entityName];
-      if (
-        isValidEntity(entity) &&
-        (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION ||
-          entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION ||
-          entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET)
-      ) {
+      const isEntityJSObject = isJSAction(entity);
+      if (isAction(entity) || isWidget(entity) || isEntityJSObject) {
+        if (isEntityJSObject && entity.dependencyPathResolver) {
+          dependencyPathResolvers = {
+            ...dependencyPathResolvers,
+            ...entity.dependencyPathResolver,
+          };
+        }
+
         const entityPropertyBindings = this.listEntityDependencies(
           entity,
           entityName,
@@ -1373,7 +1397,11 @@ export default class DataTreeEvaluator {
             propertyBindings.map((binding) => {
               {
                 try {
-                  return extractReferencesFromBinding(binding, this.allKeys);
+                  return extractReferencesFromBinding({
+                    binding,
+                    allKeys: this.allKeys,
+                    dependencyPathResolvers,
+                  });
                 } catch (error) {
                   this.errors.push({
                     type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
@@ -1471,20 +1499,38 @@ export default class DataTreeEvaluator {
   }
 }
 
-export const extractReferencesFromBinding = (
-  script: string,
-  allPaths: Record<string, true>,
-): string[] => {
+export const extractReferencesFromBinding = ({
+  allKeys,
+  binding,
+  dependencyPathResolvers,
+}: {
+  binding: string;
+  allKeys: Record<string, true>;
+  dependencyPathResolvers: Record<string, string>;
+}): string[] => {
   const references: Set<string> = new Set<string>();
-  const identifiers = extractIdentifiersFromCode(script);
+  const identifiers = extractIdentifiersFromCode(binding);
+  const pathsToReplace = Object.keys(dependencyPathResolvers);
+  // identifier = JSObject1.myFun2.data.users[0].a
+  // pathsToReplace = ["JSObject1.myFun2"]
 
-  identifiers.forEach((identifier: string) => {
+  identifiers.forEach((identifier) => {
+    let modifiedIdentifier = identifier;
+    for (let index = 0; index < pathsToReplace.length; index++) {
+      const pathToReplace = pathsToReplace[index];
+      if (identifier.includes(pathToReplace)) {
+        const newPath = dependencyPathResolvers[pathToReplace];
+        modifiedIdentifier = modifiedIdentifier.replace(pathToReplace, newPath);
+        break;
+      }
+    }
+
     // If the identifier exists directly, add it and return
-    if (allPaths.hasOwnProperty(identifier)) {
-      references.add(identifier);
+    if (allKeys.hasOwnProperty(modifiedIdentifier)) {
+      references.add(modifiedIdentifier);
       return;
     }
-    const subpaths = _.toPath(identifier);
+    const subpaths = _.toPath(modifiedIdentifier);
     let current = "";
     // We want to keep going till we reach top level, but not add top level
     // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
@@ -1493,7 +1539,7 @@ export const extractReferencesFromBinding = (
     while (subpaths.length > 1) {
       current = convertPathToString(subpaths);
       // We've found the dep, add it and return
-      if (allPaths.hasOwnProperty(current)) {
+      if (allKeys.hasOwnProperty(current)) {
         references.add(current);
         return;
       }

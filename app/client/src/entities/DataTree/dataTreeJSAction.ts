@@ -151,14 +151,16 @@ const generateDataTreeJSActionMemoize = (
       const variable = variables[i];
       variablesMap[variable.name] = variable.value;
       listVariables.push(variable.name);
-      dynamicBindingPathList.push({ key: variable.name });
-      bindingPaths[variable.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+
+      const propertyPath = `properties.${variable.name}`;
+      dynamicBindingPathList.push({ key: propertyPath });
+      // check why variable smart substitution is not working
+      bindingPaths[propertyPath] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
     }
   }
   const dependencyMap: DependencyMap = {};
   dependencyMap["body"] = [];
 
-  const actionNames = [];
   const actionsReturnedData: Record<string, any> = {};
   if (actions) {
     for (let i = 0; i < actions.length; i++) {
@@ -171,16 +173,32 @@ const generateDataTreeJSActionMemoize = (
         isAsync: actionConfig.isAsync,
         confirmBeforeExecute: actionConfig.confirmBeforeExecute,
       };
-      // As all js object function referred to as action is user javascript code, we add them as binding paths.
-      bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
-      dynamicBindingPathList.push({ key: action.name });
-      dependencyMap["body"].push(action.name);
+
       actionsReturnedData[action.name] = {
         data: actionConfig.data,
       };
-      actionNames.push(action.name);
+
+      const propertyPath = `properties.${action.name}`;
+      // As all js object function referred to as action is user javascript code, we add them as binding paths.
+
+      // actions are not bindings, verify it once
+      // bindingPaths[propertyPath] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+      dynamicBindingPathList.push({ key: propertyPath });
+      dependencyMap["body"].push(propertyPath);
     }
   }
+
+  const JSObjectProperties = {
+    ...variablesMap,
+    ...actionsReturnedData,
+  };
+
+  const dependencyPathResolver: Record<string, string> = {};
+  Object.keys(JSObjectProperties).forEach((propertyName) => {
+    const propertyPath = `${js.config.name}.${propertyName}`;
+    const actualPath = `${js.config.name}.properties.${propertyName}`;
+    dependencyPathResolver[propertyPath] = actualPath;
+  });
 
   return {
     name: js.config.name,
@@ -194,10 +212,8 @@ const generateDataTreeJSActionMemoize = (
     dynamicBindingPathList: dynamicBindingPathList,
     variables: listVariables,
     dependencyMap: dependencyMap,
-    properties: {
-      ...variablesMap,
-      ...actionsReturnedData,
-    },
+    dependencyPathResolver,
+    properties: JSObjectProperties,
     actionsConfig: actionsConfigMap,
   };
 };
