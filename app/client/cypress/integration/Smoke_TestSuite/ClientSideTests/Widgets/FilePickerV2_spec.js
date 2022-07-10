@@ -27,4 +27,13 @@ describe("File picker widget v2", () => {
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
   });
+
+  it("Check if the uploaded data retains when shifting to query page", () => {
+    cy.createAndFillApi("{{FilePicker1.files[0]}}", "");
+    cy.get(".t--more-action-menu")
+      .first()
+      .click({ force: true });
+    cy.get(explorer.widgetSwitchId).click();
+    cy.get(`.t--widget-${widgetName}`).should("contain", "1 files selected");
+  });
 });

@@ -14,7 +14,7 @@ describe("Postgres - Datatype Numeric tests", function() {
     cy.fixture("NumericDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    propPane.ChangeTheme("Modern");
+    propPane.ChangeTheme("Moon");
   });
 
   it("1. Create Postgress DS", function() {
@@ -38,9 +38,10 @@ describe("Postgres - Datatype Numeric tests", function() {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("createTable");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
     cy.get(".CodeMirror textarea").focus();
     dataSources.RunQuery();
+    ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(
@@ -62,7 +63,7 @@ describe("Postgres - Datatype Numeric tests", function() {
     VALUES ({{Insertbigint.text}}, {{Insertdecimal.text}}, {{Insertnumeric.text}})`;
     ee.ActionTemplateMenuByEntityName("public.numerictypes", "INSERT");
     agHelper.RenameWithInPane("insertRecord");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
   });
 
   it("5. Creating UPDATE query - numerictypes", () => {
@@ -73,7 +74,7 @@ describe("Postgres - Datatype Numeric tests", function() {
   WHERE serialid = {{Table1.selectedRow.serialid}};`;
     ee.ActionTemplateMenuByEntityName("public.numerictypes", "UPDATE");
     agHelper.RenameWithInPane("updateRecord");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
   });
 
   it("5. Creating DELETE query with condition - numerictypes", () => {
@@ -81,21 +82,21 @@ describe("Postgres - Datatype Numeric tests", function() {
     WHERE serialId ={{Table1.selectedRow.serialid}}`;
     ee.ActionTemplateMenuByEntityName("public.numerictypes", "DELETE");
     agHelper.RenameWithInPane("deleteRecord");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
   });
 
   it("6. Creating DELETE query for complete table empty - numerictypes", () => {
     query = `DELETE FROM public."numerictypes"`;
     ee.ActionTemplateMenuByEntityName("public.numerictypes", "DELETE");
     agHelper.RenameWithInPane("deleteAllRecords");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
   });
 
   it("7. Creating DROP table query - numerictypes", () => {
     query = `drop table public."numerictypes"`;
     ee.ActionTemplateMenuByEntityName("public.numerictypes", "DELETE");
     agHelper.RenameWithInPane("dropTable");
-    agHelper.EnterValue(query);
+    dataSources.EnterQuery(query);
     ee.ExpandCollapseEntity("QUERIES/JS", false);
     ee.ExpandCollapseEntity(dsName, false);
   });
