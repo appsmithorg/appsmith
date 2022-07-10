@@ -62,7 +62,7 @@ export const parseJSObjectMemoize = memoize(getJSObjectProperties, {
 
 type ActionsConfigMap = Record<string, JSActionProperty>;
 
-const generateDataTreeJSActionMemoize = (
+export const generateDataTreeJSAction = (
   js: JSCollectionData,
 ): DataTreeJSAction => {
   const meta: Record<string, MetaArgs> = {};
@@ -200,10 +200,3 @@ const generateDataTreeJSActionMemoize = (
     actionsConfig: actionsConfigMap,
   };
 };
-
-export const generateDataTreeJSAction = memoize(
-  generateDataTreeJSActionMemoize,
-  {
-    maxSize: 1000,
-  },
-);

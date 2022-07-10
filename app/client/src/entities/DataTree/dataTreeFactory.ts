@@ -218,10 +218,10 @@ export class DataTreeFactory {
     const end = performance.now();
 
     const out = {
-      total: end - start,
-      widgets: endWidgets - startWidgets,
-      actions: endActions - startActions,
-      jsActions: endJsActions - startJsActions,
+      total: `${(end - start).toFixed(6)} ms`,
+      widgets: `${(endWidgets - startWidgets).toFixed(6)} ms`,
+      actions: `${(endActions - startActions).toFixed(6)} ms`,
+      jsActions: `${(endJsActions - startJsActions).toFixed(6)} ms`,
     };
 
     log.debug("### Create unevalTree timing", out);
