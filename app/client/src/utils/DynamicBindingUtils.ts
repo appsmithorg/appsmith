@@ -14,6 +14,7 @@ import forge from "node-forge";
 import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
+import { Position } from "codemirror";
 
 export type DependencyMap = Record<string, Array<string>>;
 export type FormEditorConfigs = Record<string, any[]>;
@@ -443,6 +444,7 @@ export type EvaluationError = {
   code?: string;
   line?: number;
   ch?: number;
+  scriptPos?: Position;
 };
 
 export interface DataTreeEvaluationProps {

@@ -9,7 +9,7 @@ export const WARNING_LINT_ERRORS = {
 };
 // These lint errors should be overlooked
 export const UNWANTED_LINT_ERRORS: Record<string, string[]> = {
-  codes: ["E041"],
+  codes: ["E041", "W032"],
   reasons: [],
 };
 

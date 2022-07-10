@@ -14,7 +14,6 @@ import {
   VALID_JS_OBJECT_BINDING_POSITION,
   WARNING_LINT_ERRORS,
 } from "./constants";
-
 export const getIndexOfRegex = (
   str: string,
   regex: RegExp,
@@ -126,6 +125,18 @@ export const getLintAnnotations = (
       variables,
     } = error;
 
+    /** Some error messages reference line numbers, these line numbers
+     * need to be re-calculated depending on the binding location.
+     * */
+    const possibleLineNumbersInErrorMessage = new Set<number>();
+    if (variables) {
+      variables.forEach((variable) => {
+        if (isNumber(variable)) {
+          possibleLineNumbersInErrorMessage.add(variable);
+        }
+      });
+    }
+
     if (!originalBinding) {
       return annotations;
     }
@@ -157,6 +168,18 @@ export const getLintAnnotations = (
         // So we need to subtract number of tabs to get accurate position
         const tabs = lineContent.slice(0, currentCh).match(/\t/g)?.length || 0;
 
+        let message = errorMessage;
+        Array.from(possibleLineNumbersInErrorMessage).forEach(
+          (possibleLineNumber) => {
+            message = message.replaceAll(
+              `line ${possibleLineNumber}`,
+              `line ${bindingLocation.line +
+                possibleLineNumber +
+                1 -
+                (error.scriptPos?.line ?? 0)}`,
+            );
+          },
+        );
         const from = {
           line: currentLine,
           ch: currentCh - tabs - 1,
@@ -168,7 +191,7 @@ export const getLintAnnotations = (
         annotations.push({
           from,
           to,
-          message: errorMessage,
+          message,
           severity,
         });
       }
