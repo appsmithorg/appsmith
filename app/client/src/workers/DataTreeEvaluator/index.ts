@@ -557,9 +557,8 @@ export default class DataTreeEvaluator {
           const { entityName, propertyPath } = getEntityNameAndPropertyPath(
             fullPropertyPath,
           );
-          const entity = currentTree[entityName] as
-            | DataTreeWidget
-            | DataTreeAction;
+          const entity = currentTree[entityName];
+
           const unEvalPropertyValue = _.get(
             currentTree as any,
             fullPropertyPath,
@@ -568,8 +567,10 @@ export default class DataTreeEvaluator {
           const isADynamicBindingPath =
             (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
             isPathADynamicBinding(entity, propertyPath);
+
           const isATriggerPath =
             isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
+
           let evalPropertyValue;
           const requiresEval =
             isADynamicBindingPath &&
@@ -672,9 +673,14 @@ export default class DataTreeEvaluator {
             _.set(currentTree, fullPropertyPath, evalPropertyValue);
             return currentTree;
           } else if (isJSAction(entity)) {
-            const variableList: Array<string> =
-              _.get(entity, "variables") || [];
-            if (variableList.indexOf(propertyPath) > -1) {
+            const variableList = entity.variables;
+            // In variable list, we store variable names and propertyPath for variable is `properties.variableName`
+            // hence remove `properties.` before checking in variableList
+            const modifiedPropertyPath = propertyPath.replace(
+              "properties.",
+              "",
+            );
+            if (variableList.indexOf(modifiedPropertyPath) > -1) {
               const currentEvaluatedValue = _.get(
                 currentTree,
                 getEvalValuePath(fullPropertyPath, {
