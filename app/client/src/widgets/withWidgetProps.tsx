@@ -95,7 +95,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
         // Form Widget Props
         widgetProps.onReset = props.onReset;
-        widgetProps.isFormValid = props.isFormValid;
+        if ("isFormValid" in props) widgetProps.isFormValid = props.isFormValid;
       }
 
       widgetProps.children = children;
