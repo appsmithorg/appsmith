@@ -344,6 +344,23 @@ Cypress.Commands.add("updateComputedValue", (value) => {
   cy.wait(1000);
 });
 
+Cypress.Commands.add("clearComputedValueFirst", () => {
+  cy.get(".CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(() => {
+    cy.get(".CodeMirror textarea")
+      .first()
+      .clear({
+        force: true,
+      });
+    cy.log("The field is empty");
+  });
+  cy.wait(1000);
+});
+
 Cypress.Commands.add("testCodeMirrorLast", (value) => {
   cy.EnableAllCodeEditors();
   cy.get(".CodeMirror textarea")

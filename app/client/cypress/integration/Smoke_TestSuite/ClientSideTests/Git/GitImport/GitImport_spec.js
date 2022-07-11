@@ -130,8 +130,8 @@ describe("Git import flow", function() {
     cy.xpath("//input[@value='Success']").should("be.visible");
   });
 
-  // commenting these test until issue with git status call is fixed
-  /*it("Create a new branch, clone page and validate data on that branch in deploy and edit mode", () => {
+  // Skipping these test until issue with git status call is fixed
+  it.skip("Create a new branch, clone page and validate data on that branch in deploy and edit mode", () => {
     cy.createGitBranch(newBranch);
     cy.get(".tbody")
       .first()
@@ -199,7 +199,7 @@ describe("Git import flow", function() {
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
   });
-  it("Switch to master and verify data in edit and deploy mode", () => {
+  it.skip("Switch to master and verify data in edit and deploy mode", () => {
     cy.switchGitBranch("master");
     cy.wait(2000);
     // validate data binding in edit and deploy mode
@@ -221,7 +221,7 @@ describe("Git import flow", function() {
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
   });
-  it("Add widget to master, merge then checkout to child branch and verify data", () => {
+  it.skip("Add widget to master, merge then checkout to child branch and verify data", () => {
     cy.get(explorer.widgetSwitchId).click();
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
@@ -237,6 +237,6 @@ describe("Git import flow", function() {
   });
 
   after(() => {
-    cy.deleteTestGithubRepo(repoName);
-  }); */
+    //cy.deleteTestGithubRepo(repoName);
+  });
 });
