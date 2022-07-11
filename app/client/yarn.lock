@@ -6192,10 +6192,10 @@ depd@^1.1.2, depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.1-alpha.3":
-  version "1.0.1-alpha.3"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.1-alpha.3.tgz#8c95f2d3c184385002acb4557220fda084c428a6"
-  integrity sha512-9osesSikPHxSnJu762QFXK8YMmo5zGSod61/y06sStWcRDU4Q3cMILK/+t9LqvVB43yp6/cVXtq6Laz4prwcBQ==
+"design-system@npm:@appsmithorg/design-system@1.0.4-beta.1":
+  version "1.0.4-beta.1"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.4-beta.1.tgz#752383f3f25921c57de7618046d9c56589ecd2ec"
+  integrity sha512-AZUhobfOFOwtRushfElbqt+RKhkd5r8QKPtnjwbuxVQM7vPpI0m9mu8dEbUI7f5HWZlBz2dxg9CSnyNh2ULZ5w==
 
 destroy@1.2.0:
   version "1.2.0"

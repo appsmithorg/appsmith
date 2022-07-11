@@ -14,7 +14,7 @@ import MockDataSources from "./MockDataSources";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { getDatasources, getMockDatasources } from "selectors/entitiesSelector";
 import { Datasource, MockDatasource } from "entities/Datasource";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
 import { thinScrollbar } from "constants/DefaultTheme";
