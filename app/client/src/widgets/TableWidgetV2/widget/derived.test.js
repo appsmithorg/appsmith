@@ -2,7 +2,7 @@ import derivedProperty from "./derived";
 import moment from "moment";
 import _ from "lodash";
 describe("Validates getFilteredTableData Properties", () => {
-  it("validates generated filtered table data", () => {
+  it("validates generate filtered table data", () => {
     const { getFilteredTableData } = derivedProperty;
     const input = {
       processedTableData: [
@@ -1476,14 +1476,16 @@ describe("getUpdatedRows -", () => {
           column1: "newValue",
         },
       },
-      filteredTableData: [
+      processedTableData: [
         {
           column1: "oldValue",
           column2: "oldValue",
+          __originalIndex__: 0,
         },
         {
           column1: "newValue",
           column2: "oldValue",
+          __originalIndex__: 1,
         },
       ],
     };
@@ -1502,14 +1504,16 @@ describe("getUpdatedRows -", () => {
           column1: "newValue",
         },
       },
-      filteredTableData: [
+      processedTableData: [
         {
           column1: "oldValue",
           column2: "oldValue",
+          __originalIndex__: 0,
         },
         {
           column1: "newValue",
           column2: "oldValue",
+          __originalIndex__: 1,
         },
       ],
     };
@@ -1540,14 +1544,16 @@ describe("getUpdatedRows -", () => {
           column1: "newValue",
         },
       },
-      filteredTableData: [
+      processedTableData: [
         {
           column1: "oldValue1",
           column2: "oldValue1",
+          __originalIndex__: 0,
         },
         {
           column1: "newValue",
           column2: "oldValue2",
+          __originalIndex__: 1,
         },
       ],
     };
@@ -1580,26 +1586,30 @@ describe("getUpdatedRows -", () => {
           column2: "newValue1",
         },
       },
-      filteredTableData: [
+      processedTableData: [
         {
           column1: "oldValue1",
           column2: "oldValue1",
           column3: "oldValue1",
+          __originalIndex__: 0,
         },
         {
           column1: "newValue",
           column2: "newValue1",
           column3: "oldValue2",
+          __originalIndex__: 1,
         },
         {
           column1: "oldValue3",
           column2: "oldValue3",
           column3: "oldValue3",
+          __originalIndex__: 2,
         },
         {
           column1: "oldValue3",
           column2: "oldValue3",
           column3: "oldValue4",
+          __originalIndex__: 3,
         },
       ],
     };
