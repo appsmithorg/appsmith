@@ -17,10 +17,12 @@ import {
   findIndex,
   isArray,
   isEqual,
+  isNil,
   isNumber,
   isString,
   LoDashStatic,
 } from "lodash";
+import derivedProperties from "./parseDerivedProperties";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -30,6 +32,8 @@ export function defaultOptionValueValidation(
   let isValid;
   let parsed;
   let message = "";
+  const isServerSideFiltered = props.serverSideFiltering;
+  let options = props.options ?? [];
 
   /*
    * Function to check if the object has `label` and `value`
@@ -68,6 +72,48 @@ export function defaultOptionValueValidation(
     message = `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`;
   }
 
+  if (isValid && !_.isEmpty(parsed)) {
+    /*
+     * When options is "[ {label: 'green', value: 'green'} ]"
+     */
+    // TODO: options might be a query string
+    if (typeof options === "string") {
+      try {
+        const parsedOptions = JSON.parse(options);
+        if (_.isArray(parsedOptions)) {
+          options = parsedOptions;
+        }
+      } catch (e) {}
+    }
+
+    if (!isServerSideFiltered) {
+      const parsedValue = (parsed as any).hasOwnProperty("value")
+        ? (parsed as any).value
+        : parsed;
+      const valueIndex = _.findIndex(
+        options,
+        (option) => option.value === parsedValue,
+      );
+      if (valueIndex === -1) {
+        isValid = false;
+        message = `Default value is missing in options. Please update the value.`;
+      }
+    } else {
+      const parsedValue = (parsed as any).hasOwnProperty("value")
+        ? (parsed as any).value
+        : parsed;
+      const valueIndex = _.findIndex(
+        options,
+        (option) => option.value === parsedValue,
+      );
+      if (valueIndex === -1) {
+        if (!hasLabelValue(parsed)) {
+          isValid = false;
+          message = `Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data`;
+        }
+      }
+    }
+  }
   return {
     isValid,
     parsed,
@@ -145,6 +191,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                 },
               },
             },
+            dependencies: ["serverSideFiltering", "options"],
           },
           {
             helpText: "Sets a Placeholder Text",
@@ -427,7 +474,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      defaultValue: "defaultOptionValue",
       value: "defaultOptionValue",
       label: "defaultOptionValue",
       filterText: "",
@@ -445,9 +491,10 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
-      selectedOptionLabel: `{{(()=>{const label = _.isPlainObject(this.label) ? this.label?.label : this.label; return label; })()}}`,
-      selectedOptionValue: `{{(()=>{const value = _.isPlainObject(this.value) ? this.value?.value : this.value; return value; })()}}`,
+      isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
+      selectedOptionValue: `{{(()=>{${derivedProperties.getSelectedOptionValue}})()}}`,
+
+      selectedOptionLabel: `{{(()=>{${derivedProperties.getSelectedOptionLabel}})()}}`,
     };
   }
 
@@ -525,8 +572,10 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
     // Check if the value has changed. If no option
     // selected till now, there is a change
-    if (this.props.selectedOptionValue) {
-      isChanged = !(this.props.selectedOptionValue === selectedOption.value);
+    if (!isNil(this.props.selectedOptionValue)) {
+      isChanged =
+        !(this.props.selectedOptionValue === selectedOption.value) &&
+        !(this.props.selectedOptionLabel === selectedOption.label);
     }
     if (isChanged) {
       if (!this.props.isDirty) {
@@ -592,7 +641,6 @@ export interface SelectWidgetProps extends WidgetProps {
   label?: any;
   isRequired: boolean;
   isFilterable: boolean;
-  defaultValue: string | { value: string; label: string };
   selectedOptionLabel: string;
   serverSideFiltering: boolean;
   onFilterUpdate: string;

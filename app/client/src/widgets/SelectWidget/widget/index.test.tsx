@@ -35,7 +35,17 @@ describe("defaultOptionValueValidation - ", () => {
 
     testValues.forEach(([input, expected]) => {
       expect(
-        defaultOptionValueValidation(input, {} as SelectWidgetProps, _),
+        defaultOptionValueValidation(
+          input,
+          {
+            options: [
+              { label: "Blue", value: "1" },
+              { label: "Green", value: 1 },
+            ],
+            serverSideFiltering: false,
+          } as SelectWidgetProps,
+          _,
+        ),
       ).toEqual(expected);
     });
   });
@@ -44,7 +54,14 @@ describe("defaultOptionValueValidation - ", () => {
     const input = "green";
 
     expect(
-      defaultOptionValueValidation(input, {} as SelectWidgetProps, _),
+      defaultOptionValueValidation(
+        input,
+        {
+          options: [{ label: "Green", value: "green" }],
+          serverSideFiltering: false,
+        } as SelectWidgetProps,
+        _,
+      ),
     ).toEqual({
       isValid: true,
       parsed: "green",
@@ -59,7 +76,14 @@ describe("defaultOptionValueValidation - ", () => {
     };
 
     expect(
-      defaultOptionValueValidation(input, {} as SelectWidgetProps, _),
+      defaultOptionValueValidation(
+        input,
+        {
+          options: [{ label: "Green", value: "green" }],
+          serverSideFiltering: false,
+        } as SelectWidgetProps,
+        _,
+      ),
     ).toEqual({
       isValid: true,
       parsed: {
@@ -99,7 +123,18 @@ describe("defaultOptionValueValidation - ", () => {
 
     testValues.forEach(([input, expected]) => {
       expect(
-        defaultOptionValueValidation(input, {} as SelectWidgetProps, _),
+        defaultOptionValueValidation(
+          input,
+          {
+            options: [
+              { label: "null", value: "null" },
+              { label: "undefined", value: "undefined" },
+              { label: "true", value: "true" },
+            ],
+            serverSideFiltering: false,
+          } as SelectWidgetProps,
+          _,
+        ),
       ).toEqual(expected);
     });
   });
@@ -162,7 +197,18 @@ describe("defaultOptionValueValidation - ", () => {
 
     testValues.forEach(([input, expected]) => {
       expect(
-        defaultOptionValueValidation(input, {} as SelectWidgetProps, _),
+        defaultOptionValueValidation(
+          input,
+          {
+            options: [
+              { label: "null", value: "null" },
+              { label: "undefined", value: "undefined" },
+              { label: "true", value: "true" },
+            ],
+            serverSideFiltering: false,
+          } as SelectWidgetProps,
+          _,
+        ),
       ).toEqual(expected);
     });
   });
