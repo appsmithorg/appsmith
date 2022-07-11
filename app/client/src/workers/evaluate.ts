@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
@@ -101,37 +102,43 @@ export function setupEvaluationEnvironment() {
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
-type ResolvedFunctions = Record<string, Record<string, unknown>>;
-
-type GlobalContext = Record<string, unknown>;
-type ThisContext = Record<string, unknown>;
-
-type GlobalData = Record<string, any> & {
-  ARGUMENTS?: Array<unknown>;
-  THIS_CONTEXT?: ThisContext;
-} & GlobalContext;
-
-const addDataTreeToGlobalData = ({
-  dataTree,
-  GLOBAL_DATA,
-}: {
-  dataTree: DataTree;
-  GLOBAL_DATA: GlobalData;
-}) => {
-  Object.keys(dataTree).forEach((entityName) => {
-    GLOBAL_DATA[entityName] = dataTree[entityName];
-  });
-  return GLOBAL_DATA;
-};
-
-const addResolvedFunctionsToGlobalData = ({
-  GLOBAL_DATA,
-  resolvedFunctions,
-}: {
-  dataTree: DataTree;
-  GLOBAL_DATA: GlobalData;
-  resolvedFunctions: ResolvedFunctions;
-}) => {
+export const createGlobalData = (
+  dataTree: DataTree,
+  resolvedFunctions: Record<string, any>,
+  isTriggerBased: boolean,
+  context?: EvaluateContext,
+  evalArguments?: Array<any>,
+) => {
+  const GLOBAL_DATA: Record<string, any> = {};
+  ///// Adding callback data
+  GLOBAL_DATA.ARGUMENTS = evalArguments;
+  //// Adding contextual data not part of data tree
+  GLOBAL_DATA.THIS_CONTEXT = {};
+  if (context) {
+    if (context.thisContext) {
+      GLOBAL_DATA.THIS_CONTEXT = context.thisContext;
+    }
+    if (context.globalContext) {
+      Object.entries(context.globalContext).forEach(([key, value]) => {
+        GLOBAL_DATA[key] = value;
+      });
+    }
+  }
+  if (isTriggerBased) {
+    //// Add internal functions to dataTree;
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
+      dataTree,
+      context?.requestId,
+    );
+    ///// Adding Data tree with functions
+    Object.keys(dataTreeWithFunctions).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
+    });
+  } else {
+    Object.keys(dataTree).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTree[datum];
+    });
+  }
   if (!isEmpty(resolvedFunctions)) {
     Object.keys(resolvedFunctions).forEach((datum: any) => {
       const resolvedObject = resolvedFunctions[datum];
@@ -161,57 +168,6 @@ const addResolvedFunctionsToGlobalData = ({
       });
     });
   }
-
-  return GLOBAL_DATA;
-};
-
-export const createGlobalData = (
-  dataTree: DataTree,
-  resolvedFunctions: ResolvedFunctions,
-  isTriggerBased: boolean,
-  context?: EvaluateContext,
-  evalArguments?: Array<unknown>,
-): Record<string, any> => {
-  let GLOBAL_DATA: GlobalData = {};
-
-  ///// Adding arguments
-  GLOBAL_DATA.ARGUMENTS = evalArguments;
-
-  //// Adding contextual data not part of data tree
-  GLOBAL_DATA.THIS_CONTEXT = {};
-  if (context) {
-    if (context.thisContext) {
-      GLOBAL_DATA.THIS_CONTEXT = context.thisContext;
-    }
-    if (context.globalContext) {
-      Object.entries(context.globalContext).forEach(([key, value]) => {
-        GLOBAL_DATA[key] = value;
-      });
-    }
-  }
-
-  if (isTriggerBased) {
-    //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
-      dataTree,
-      context?.requestId,
-    );
-    // Adding Data tree with functions
-    GLOBAL_DATA = addDataTreeToGlobalData({
-      dataTree: dataTreeWithFunctions,
-      GLOBAL_DATA,
-    });
-  } else {
-    GLOBAL_DATA = addDataTreeToGlobalData({ dataTree, GLOBAL_DATA });
-  }
-
-  ///// Adding resolved functions
-  GLOBAL_DATA = addResolvedFunctionsToGlobalData({
-    dataTree,
-    GLOBAL_DATA,
-    resolvedFunctions,
-  });
-
   return GLOBAL_DATA;
 };
 
@@ -356,7 +312,6 @@ export async function evaluateAsync(
       true,
       evalArguments,
     );
-
     GLOBAL_DATA.ALLOW_ASYNC = true;
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
