@@ -3,7 +3,6 @@ import React, {
   useState,
   useRef,
   useContext,
-  useMemo,
   useCallback,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
@@ -25,7 +24,7 @@ import {
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
 import { noop, omit } from "lodash";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import Button, { Category, Size, IconPositions } from "components/ads/Button";
 import Icon, { IconSize } from "components/ads/Icon";
 import Menu from "components/ads/Menu";
@@ -39,7 +38,10 @@ import ColorSelector from "components/ads/ColorSelector";
 import MenuDivider from "components/ads/MenuDivider";
 import IconSelector from "components/ads/IconSelector";
 import { useSelector } from "react-redux";
-import { UpdateApplicationPayload } from "api/ApplicationApi";
+import {
+  ApplicationPagePayload,
+  UpdateApplicationPayload,
+} from "api/ApplicationApi";
 import {
   getIsFetchingApplications,
   getIsSavingAppName,
@@ -60,6 +62,7 @@ import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
 import { builderURL, viewerURL } from "RouteBuilder";
 import history from "utils/history";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -439,12 +442,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const applicationId = props.application?.id;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
 
-  const defaultPageSlug = useMemo(() => {
-    const pages = props.application.pages || [];
-    const defaultPage = pages.find((page) => page.isDefault);
-    return defaultPage?.slug || defaultPage?.name;
-  }, []);
-
   useEffect(() => {
     let colorCode;
     if (props.application.color) {
@@ -595,22 +592,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
   if (showGitBadge) {
     params.branch = showGitBadge;
   }
-  const viewApplicationURL = viewerURL({
-    applicationSlug: props.application.slug as string,
-    applicationVersion: props.application.applicationVersion,
-    pageSlug: defaultPageSlug || "page",
-    applicationId: props.application.id,
-    pageId: props.application.defaultPageId as string,
-    params,
-  });
-  const editApplicationURL = builderURL({
-    applicationSlug: props.application.slug as string,
-    applicationVersion: props.application.applicationVersion,
-    applicationId: props.application.id,
-    pageSlug: defaultPageSlug || "page",
-    pageId: props.application.defaultPageId as string,
-    params,
-  });
 
   const appNameText = (
     <Text cypressSelector="t--app-card-name" type={TextType.H3}>
@@ -740,14 +721,59 @@ export function ApplicationCard(props: ApplicationCardProps) {
     return editedBy + " edited " + editedOn;
   };
 
-  const LaunchAppInMobile = useCallback(() => {
-    history.push(viewApplicationURL);
-  }, [viewApplicationURL]);
+  function setURLParams() {
+    const page:
+      | ApplicationPagePayload
+      | undefined = props.application.pages.find(
+      (page) => page.id === props.application.defaultPageId,
+    );
+    if (!page) return;
+    urlBuilder.updateURLParams(
+      {
+        applicationSlug: props.application.slug,
+        applicationVersion: props.application.applicationVersion,
+        applicationId: props.application.id,
+      },
+      props.application.pages.map((page) => ({
+        pageSlug: page.slug,
+        customSlug: page.customSlug,
+        pageId: page.id,
+      })),
+    );
+  }
+
+  const launchApp = useCallback(
+    (e) => {
+      e.stopPropagation();
+      setURLParams();
+      history.push(
+        viewerURL({
+          pageId: props.application.defaultPageId,
+          params,
+        }),
+      );
+    },
+    [props.application.defaultPageId],
+  );
+
+  const editApp = useCallback(
+    (e) => {
+      e.stopPropagation();
+      setURLParams();
+      history.push(
+        builderURL({
+          pageId: props.application.defaultPageId,
+          params,
+        }),
+      );
+    },
+    [props.application.defaultPageId],
+  );
 
   return (
     <Container
       isMobile={props.isMobile}
-      onClick={props.isMobile ? LaunchAppInMobile : noop}
+      onClick={props.isMobile ? launchApp : noop}
     >
       <NameWrapper
         className="t--application-card"
@@ -800,14 +826,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     <EditButton
                       className="t--application-edit-link"
                       fill
-                      href={editApplicationURL}
                       icon={"edit"}
                       iconPosition={IconPositions.left}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        history.push(editApplicationURL);
-                      }}
+                      onClick={editApp}
                       size={Size.medium}
                       text="Edit"
                     />
@@ -817,14 +838,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       category={Category.tertiary}
                       className="t--application-view-link"
                       fill
-                      href={viewApplicationURL}
                       icon={"rocket"}
                       iconPosition={IconPositions.left}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        history.push(viewApplicationURL);
-                      }}
+                      onClick={launchApp}
                       size={Size.medium}
                       text="Launch"
                     />

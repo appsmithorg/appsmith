@@ -20,7 +20,7 @@ import {
 } from "@appsmith/constants/messages";
 import FilePickerV2 from "components/ads/FilePickerV2";
 import { Colors } from "constants/Colors";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";

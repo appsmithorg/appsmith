@@ -13,7 +13,7 @@ import WorkspaceInviteUsersForm, {
   InviteButtonWidth,
 } from "./WorkspaceInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import Toggle from "components/ads/Toggle";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { Colors } from "constants/Colors";
