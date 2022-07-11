@@ -73,9 +73,18 @@ function PropertyPaneView(
   }, [widgetProperties?.type, excludeList]);
   const [searchText, setSearchText] = useState("");
 
-  const debouncedSetSearchText = debounce(setSearchText, 250, {
-    maxWait: 1000,
-  });
+  const debouncedSetSearchText = useCallback(
+    debounce(
+      (text) => {
+        setSearchText(text.trim());
+      },
+      250,
+      {
+        maxWait: 1000,
+      },
+    ),
+    [],
+  );
 
   /**
    * on delete button click

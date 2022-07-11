@@ -13,6 +13,18 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import Boxed from "../GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
 import Fuse from "fuse.js";
+import { IconNames } from "@blueprintjs/icons";
+import { Icon, IconSize } from "components/ads";
+import styled from "styled-components";
+import { Colors } from "constants/Colors";
+
+const EmptySearchResultWrapper = styled.div`
+  color: ${Colors.GRAY_700};
+
+  svg {
+    fill: ${Colors.GRAY_400};
+  }
+`;
 
 export enum PropertyPaneGroup {
   CONTENT,
@@ -50,7 +62,7 @@ export const generatePropertyControl = (
             hidden={sectionConfig.hidden}
             id={config.id || sectionConfig.sectionName}
             isDefaultOpen={sectionConfig.isDefaultOpen}
-            key={config.id + props.id + props.searchQuery?.trim()}
+            key={config.id + props.id + props.searchQuery}
             name={sectionConfig.sectionName}
             propertyPath={sectionConfig.propertySectionPath}
           >
@@ -81,6 +93,21 @@ export const generatePropertyControl = (
   });
 };
 
+function EmptySearchResult() {
+  return (
+    <EmptySearchResultWrapper className="mt-12 p-3">
+      <Icon
+        className="flex justify-center"
+        name={IconNames.SEARCH}
+        size={IconSize.XXXL}
+      />
+      <p className="pt-3 text-center">
+        No Properties found based on your search
+      </p>
+    </EmptySearchResultWrapper>
+  );
+}
+
 export function PropertyControlsGenerator(
   props: PropertyControlsGeneratorProps,
 ) {
@@ -110,7 +137,7 @@ export function PropertyControlsGenerator(
   // }, []);
 
   let res = config;
-  if (props.searchQuery && props.searchQuery.trim() !== "") {
+  if (props.searchQuery && props.searchQuery !== "") {
     const results = fuse.search(props.searchQuery);
     const r: PropertyPaneConfig[] = [];
     for (const result of results) {
@@ -128,7 +155,11 @@ export function PropertyControlsGenerator(
     res = r;
   }
 
-  return (
+  return props.searchQuery &&
+    props.searchQuery.length > 0 &&
+    res.length === 0 ? (
+    <EmptySearchResult />
+  ) : (
     <>{generatePropertyControl(res as readonly PropertyPaneConfig[], props)}</>
   );
 }
