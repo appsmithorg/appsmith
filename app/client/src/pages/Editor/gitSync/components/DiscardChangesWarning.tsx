@@ -11,7 +11,7 @@ import {
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Text, TextType } from "components/ads";
+import { Text, TextType } from "design-system";
 import { useSelector } from "react-redux";
 import { getCurrentPageName } from "selectors/editorSelectors";
 import { getGitStatus } from "selectors/gitSyncSelectors";
