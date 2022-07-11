@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -29,7 +29,10 @@ import {
   SuggestedWidget as SuggestedWidgetsType,
 } from "api/ActionAPI";
 import { Colors } from "constants/Colors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
 
 const SideBar = styled.div`
@@ -215,6 +218,7 @@ function ActionSidebar({
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
+  const pageId = useSelector(getCurrentPageId);
   const params = useParams<{
     pageId: string;
     apiId?: string;
@@ -234,6 +238,9 @@ function ActionSidebar({
       }),
     );
   };
+  const navigateToCanvas = useCallback(() => {
+    history.push(builderURL({ pageId }));
+  }, [pageId]);
   const hasWidgets = Object.keys(widgets).length > 1;
 
   const showSuggestedWidgets =
@@ -244,13 +251,9 @@ function ActionSidebar({
     return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
   }
 
-  const navigeteToCanvas = () => {
-    history.push(builderURL());
-  };
-
   return (
     <SideBar>
-      <BackButton onClick={navigeteToCanvas}>
+      <BackButton onClick={navigateToCanvas}>
         <Icon
           fillColor={Colors.DOVE_GRAY}
           keepColors

@@ -234,13 +234,12 @@ class DatasourceEditorRouter extends React.Component<Props> {
       }
       history.push(
         saasEditorDatasourceIdURL({
-          applicationSlug: this.props.applicationSlug,
-          pageSlug: this.props.pageSlug,
           pageId,
           pluginPackageName,
           datasourceId,
         }),
       );
+      return null;
     }
 
     // Default to old flow
