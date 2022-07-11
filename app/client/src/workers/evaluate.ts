@@ -12,7 +12,6 @@ import { isEmpty } from "lodash";
 import { getLintingErrors } from "workers/lint";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
-import { isJSObject } from "workers/evaluationUtils";
 
 export type EvalResult = {
   result: any;
