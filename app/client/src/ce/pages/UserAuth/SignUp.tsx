@@ -140,8 +140,8 @@ export function SignUp(props: SignUpFormProps) {
         .then(function(token: any) {
           const actionURL =
             signupURL.indexOf("?") > -1
-              ? `${signupURL}?recaptchaToken=${token}`
-              : `${signupURL}&recaptchaToken=${token}`;
+              ? `${signupURL}&recaptchaToken=${token}`
+              : `${signupURL}?recaptchaToken=${token}`;
           formElement && formElement.setAttribute("action", actionURL);
           formElement && formElement.submit();
         });
