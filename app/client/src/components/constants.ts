@@ -98,6 +98,7 @@ export enum LabelPosition {
   Auto = "Auto",
   Top = "Top",
   Left = "Left",
+  Right = "Right",
 }
 
 /**

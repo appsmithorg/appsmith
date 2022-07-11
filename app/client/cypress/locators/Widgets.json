@@ -140,7 +140,7 @@
     "colorsAvailable": ".bp3-popover-dismiss",
     "listWidget":"[type=LIST_WIDGET]",
     "itemContainerWidget":"[type=CONTAINER_WIDGET]",
-    "listWidgetName":".t--propery-page-title",
+    "listWidgetName":".t--property-pane-title",
     "toggleBackground": ".t--property-control-background .t--js-toggle",
     "toggleItemBackground": ".t--property-control-itembackground .t--js-toggle",
     "chartPlotGroup": "g.raphael-group-63-plot-group",

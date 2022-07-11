@@ -78,7 +78,7 @@ public class PageServiceTest {
     LayoutService layoutService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     ApplicationService applicationService;
@@ -116,15 +116,15 @@ public class PageServiceTest {
 
     static String applicationId = null;
 
-    static String orgId;
+    static String workspaceId;
 
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
         purgeAllPages();
-        if (StringUtils.isEmpty(orgId)) {
+        if (StringUtils.isEmpty(workspaceId)) {
             User apiUser = userService.findByEmail("api_user").block();
-            orgId = apiUser.getOrganizationIds().iterator().next();
+            workspaceId = apiUser.getWorkspaceIds().iterator().next();
         }
     }
 
@@ -132,7 +132,7 @@ public class PageServiceTest {
         if (application == null) {
             Application newApp = new Application();
             newApp.setName(UUID.randomUUID().toString());
-            application = applicationPageService.createApplication(newApp, orgId).block();
+            application = applicationPageService.createApplication(newApp, workspaceId).block();
             applicationId = application.getId();
         }
     }
@@ -143,14 +143,14 @@ public class PageServiceTest {
         GitApplicationMetadata gitData = new GitApplicationMetadata();
         gitData.setBranchName(uniquePrefix + "_pageServiceTest");
         newApp.setGitApplicationMetadata(gitData);
-        return applicationPageService.createApplication(newApp, orgId)
+        return applicationPageService.createApplication(newApp, workspaceId)
                 .flatMap(application -> {
                     application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                     return applicationService.save(application)
                             .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(tuple -> importExportApplicationService.importApplicationInOrganization(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                 .block();
     }
 
@@ -308,6 +308,47 @@ public class PageServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void updatePage_WhenCustomSlugSet_CustomSlugIsNotUpdated() {
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("Before Page Name Change");
+        testPage.setCustomSlug("my-custom-slug");
+        setupTestApplication();
+        testPage.setApplicationId(application.getId());
+
+        Mono<PageDTO> pageMono = applicationPageService.createPage(testPage)
+                .flatMap(page -> {
+                    PageDTO newPage = new PageDTO();
+                    newPage.setId(page.getId());
+                    newPage.setName("New Page Name");
+                    return newPageService.updatePage(page.getId(), newPage);
+                });
+
+        StepVerifier
+                .create(pageMono)
+                .assertNext(page -> {
+                    assertThat(page).isNotNull();
+                    assertThat(page.getId()).isNotNull();
+                    assertThat(page.getName()).isEqualTo("New Page Name");
+                    assertThat(page.getSlug()).isEqualTo(TextUtils.makeSlug(page.getName()));
+                    assertThat(page.getCustomSlug()).isEqualTo("my-custom-slug");
+
+                    // Check for the policy object not getting overwritten during update
+                    assertThat(page.getPolicies()).isNotEmpty();
+                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void clonePage() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -327,7 +368,7 @@ public class PageServiceTest {
         action.setName("PageAction");
         action.setActionConfiguration(new ActionConfiguration());
         Datasource datasource = new Datasource();
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         datasource.setName("datasource test name for page test");
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
@@ -368,7 +409,7 @@ public class PageServiceTest {
         actionCollectionDTO.setName("testCollection1");
         actionCollectionDTO.setPageId(page.getId());
         actionCollectionDTO.setApplicationId(applicationId);
-        actionCollectionDTO.setOrganizationId(orgId);
+        actionCollectionDTO.setWorkspaceId(workspaceId);
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
         actionCollectionDTO.setBody("collectionBody");
@@ -474,7 +515,7 @@ public class PageServiceTest {
         action.setName("PageAction");
         action.setActionConfiguration(new ActionConfiguration());
         Datasource datasource = new Datasource();
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         datasource.setName("datasource test for clone page");
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
@@ -515,7 +556,7 @@ public class PageServiceTest {
         actionCollectionDTO.setName("testCollection1");
         actionCollectionDTO.setPageId(page.getId());
         actionCollectionDTO.setApplicationId(gitConnectedApplication.getId());
-        actionCollectionDTO.setOrganizationId(orgId);
+        actionCollectionDTO.setWorkspaceId(workspaceId);
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
         actionCollectionDTO.setBody("collectionBody");
@@ -666,11 +707,11 @@ public class PageServiceTest {
     public void reOrderPageFromHighOrderToLowOrder() {
 
         User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
+        workspaceId = apiUser.getWorkspaceIds().iterator().next();
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
 
-        application = applicationPageService.createApplication(newApp, orgId).block();
+        application = applicationPageService.createApplication(newApp, workspaceId).block();
         applicationId = application.getId();
         final String[] pageIds = new String[4];
 
@@ -717,11 +758,11 @@ public class PageServiceTest {
     public void reOrderPageFromLowOrderToHighOrder() {
 
         User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
+        workspaceId = apiUser.getWorkspaceIds().iterator().next();
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
 
-        application = applicationPageService.createApplication(newApp, orgId).block();
+        application = applicationPageService.createApplication(newApp, workspaceId).block();
         applicationId = application.getId();
         final String[] pageIds = new String[4];
 

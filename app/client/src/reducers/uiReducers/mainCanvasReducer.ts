@@ -8,6 +8,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { UpdateCanvasLayoutPayload } from "actions/controlActions";
 
 const initialState: MainCanvasReduxState = {
+  initialized: false,
   width: 0,
   height: 0,
 };
@@ -30,12 +31,14 @@ const mainCanvasReducer = createImmerReducer(initialState, {
   ) => {
     state.width = action.payload.width || state.width;
     state.height = action.payload.height || state.height;
+    state.initialized = true;
   },
 });
 
 export interface MainCanvasReduxState {
   width: number;
   height: number;
+  initialized: boolean;
 }
 
 export default mainCanvasReducer;

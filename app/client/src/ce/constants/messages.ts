@@ -20,8 +20,14 @@ export const ERROR_EMPTY_APPLICATION_NAME = () =>
   `Application name can't be empty`;
 export const API_PATH_START_WITH_SLASH_ERROR = () => `Path cannot start with /`;
 export const FIELD_REQUIRED_ERROR = () => `This field is required`;
-export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = () =>
-  `Default Text length must be less than Max Chars allowed`;
+export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = (max: number) =>
+  `Default text length must be less than ${max} characters`;
+export const INPUT_TEXT_MAX_CHAR_ERROR = (max: number) =>
+  `Input text length must be less than ${max} characters`;
+export const INPUT_DEFAULT_TEXT_MAX_NUM_ERROR = () =>
+  `Default Text value must be less than Max number allowed`;
+export const INPUT_DEFAULT_TEXT_MIN_NUM_ERROR = () =>
+  `Default Text value must be greater than Min number allowed`;
 export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
@@ -184,7 +190,7 @@ export const SIGN_IN = () => `Sign in`;
 export const CREATE_NEW_APPLICATION = () => `Create new`;
 export const SEARCH_APPS = () => `Search for apps...`;
 export const GETTING_STARTED = () => `GETTING STARTED`;
-export const ORGANIZATIONS_HEADING = () => `ORGANIZATIONS`;
+export const WORKSPACES_HEADING = () => `ORGANIZATIONS`;
 export const WELCOME_TOUR = () => `Welcome Tour`;
 export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
@@ -446,6 +452,7 @@ export const PARSE_JS_FUNCTION_ERROR = (message: string) =>
   `Syntax error: ${message}`;
 
 export const EXECUTING_FUNCTION = () => `Executing function`;
+export const UPDATING_JS_COLLECTION = () => `Updating...`;
 export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
 export const EXPORT_DEFAULT_BEGINNING = () =>
@@ -478,14 +485,14 @@ export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
 export const IMPORT_APPLICATION_MODAL_LABEL = () =>
   "Where would you like to import your application from?";
 export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
+export const UPLOADING_JSON = () => "Uploading JSON file";
+export const UPLOADING_APPLICATION = () => "Uploading application";
 export const IMPORT_APP_FROM_GIT_TITLE = () => "Import from a Git repo (Beta)";
 export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
   "Drag and drop your file or upload from your computer";
 export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
   "Import an application from its git repository using its SSH URL";
-export const IMPORT_FROM_GIT_REPOSITORY = () => "Import from Git Repository";
-export const IMPORT_FROM_GIT_REPOSITORY_MESSAGE = () =>
-  "While importing Appsmith will does not import the datasource credentials to prevent a breach. After a successfull import you can add the credentials manually so the application behaves normally!";
+export const IMPORT_FROM_GIT_REPOSITORY = () => "Import from git repository";
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS = () =>
   "Reconnect missing datasource credentials";
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION = () =>
@@ -703,8 +710,8 @@ export const DISCONNECT_EXISTING_REPOSITORIES = () =>
 export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>
   "To make space for newer repositories you can remove existing repositories.";
 export const CONTACT_SUPPORT = () => "Contact Support";
-export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (orgName: string) =>
-  `Hey there, Thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${orgName}. Could you tell us how many private repos you’d require and why? We'll get back to you in a short while.`;
+export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (workspaceName: string) =>
+  `Hey there, Thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${workspaceName}. Could you tell us how many private repos you’d require and why? We'll get back to you in a short while.`;
 export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories kindly upgrade.";
@@ -763,6 +770,8 @@ export const DISCARD_CHANGES = () => "Discard changes";
 // GIT DEPLOY begin
 export const DEPLOY = () => "Deploy";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
+export const CHANGES_SINCE_LAST_DEPLOYMENT = () =>
+  "Changes since last deployment";
 export const CHANGES_ONLY_USER = () => "Changes since last commit";
 export const CHANGES_MADE_SINCE_LAST_COMMIT = () =>
   "Changes made since last commit";
@@ -770,7 +779,18 @@ export const CHANGES_ONLY_MIGRATION = () =>
   "Appsmith update changes since last commit";
 export const CHANGES_USER_AND_MIGRATION = () =>
   "Appsmith update and user changes since last commit";
+export const CURRENT_PAGE_DISCARD_WARNING = (page: string) =>
+  `Current page (${page}) is in the discard list.`;
 // GIT DEPLOY end
+
+// GIT CHANGE LIST begin
+export const CHANGES_FROM_APPSMITH = () =>
+  "Some changes are platform upgrades from Appsmith.";
+export const TRY_TO_PULL = () =>
+  "We will try to pull before pushing your changes.";
+export const NOT_PUSHED_YET = () =>
+  "These are the commits that haven't been pushed to remote yet.";
+// GIT CHANGE LIST end
 
 // GIT DELETE BRANCH begin
 export const DELETE = () => "Delete";
@@ -1031,15 +1051,6 @@ export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
 export const DISCONNECT_AUTH_ERROR = () =>
   "Cannot disconnect the only connected authentication method.";
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
-//Reflow Beta Screen
-export const REFLOW_BETA_CHECKBOX_LABEL = () =>
-  "Turn on new drag & drop experience";
-export const REFLOW_INFO_CARD_HEADER = () => "New Drag & Drop Experience";
-export const REFLOW_INFO_CARD_CONTENT_1 = () =>
-  "When dropping a new widget, other widgets now automatically move out of the way.";
-export const REFLOW_INFO_CARD_CONTENT_2 = () =>
-  "Widgets next to the canvas edge will shrink to make space for the new widget.";
-export const REFLOW_LEARN_MORE = () => "LEARN MORE";
 //
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us more about what you do at work?";
@@ -1051,8 +1062,15 @@ export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
 export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
+export const WIDGET_DEPRECATION_MESSAGE = (widgetName: string) =>
+  `The ${widgetName}widget you are currently using is now deprecated.`;
+export const DEPRECATION_WIDGET_REPLACEMENT_MESSAGE = (
+  replacingWidgetName: string,
+) =>
+  ` You can drag a new ${replacingWidgetName} widget and configure it in place of the deprecated widget.`;
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
+export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
@@ -1066,7 +1084,8 @@ export const ADD_QUERY_JS_TOOLTIP = () => "Create New";
 export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
 export const GENERATE_APPLICATION_DESCRIPTION = () =>
   "Quickly generate a page to perform CRUD operations on your database tables";
-export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";
+export const DELETE_WORKSPACE_SUCCESSFUL = () =>
+  "Organization deleted successfully";
 // theming
 export const CHANGE_APP_THEME = (name: string) => `Theme ${name} Applied`;
 export const SAVE_APP_THEME = (name: string) => `Theme ${name} Saved`;
@@ -1139,7 +1158,7 @@ export const END_TUTORIAL = () => "END TUTORIAL";
 export const TITLE = () =>
   "In this tutorial we’ll build a tool to display customer information";
 export const DESCRIPTION = () =>
-  "This tool has a table that displays customer data and a form to update a particular customer record. Try out the tool below before you start building this.";
+  "This tool has a table that displays customer data and a form to update a particular customer record. Try out the tool below before you start building.";
 export const BUTTON_TEXT = () => "Start Building";
 // -- Rating --
 export const RATING_TITLE = () =>
@@ -1179,7 +1198,7 @@ export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "NEW DATASOURCE";
 export const MORE = () => "MORE";
 export const SHOW_LESS = () => "SHOW LESS";
 export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
-export const SELECT_ORGANISATION = () => "Select Organization";
+export const SELECT_WORKSPACE = () => "Select Organization";
 export const FORK_TEMPLATE = () => "FORK TEMPLATE";
 export const TEMPLATES = () => "TEMPLATES";
 export const FORK_THIS_TEMPLATE = () => "Fork this template";

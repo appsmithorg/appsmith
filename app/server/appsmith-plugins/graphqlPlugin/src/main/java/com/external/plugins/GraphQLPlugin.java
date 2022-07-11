@@ -3,16 +3,20 @@ package com.external.plugins;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.helpers.RequestCaptureFilter;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
+import com.external.utils.GraphQLHintMessageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -29,9 +33,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.external.utils.BodyUtils.convertToGraphQLPOSTBodyFormat;
-import static com.external.utils.BodyUtils.getGraphQLQueryParamsForBodyAndVariables;
-import static com.external.utils.BodyUtils.validateBodyAndVariablesSyntax;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInPropertyList;
+import static com.external.utils.GraphQLBodyUtils.PAGINATION_DATA_INDEX;
+import static com.external.utils.GraphQLPaginationUtils.updateVariablesWithPaginationValues;
+import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
+import static com.external.utils.GraphQLBodyUtils.convertToGraphQLPOSTBodyFormat;
+import static com.external.utils.GraphQLBodyUtils.getGraphQLQueryParamsForBodyAndVariables;
+import static com.external.utils.GraphQLBodyUtils.validateBodyAndVariablesSyntax;
+import static java.lang.Boolean.TRUE;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class GraphQLPlugin extends BasePlugin {
 
@@ -45,6 +56,9 @@ public class GraphQLPlugin extends BasePlugin {
 
         public GraphQLPluginExecutor(SharedConfig sharedConfig) {
             super(sharedConfig);
+
+            GraphQLHintMessageUtils hintMessageUtils = new GraphQLHintMessageUtils();
+            super.setHintMessageUtils(hintMessageUtils);
         }
 
         /**
@@ -68,10 +82,38 @@ public class GraphQLPlugin extends BasePlugin {
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
-            // TODO: handle smart substitution for query body and query variables
-            // TODO: handle cursor pagination
+            // TODO: handle smart substitution for query body
+
+            String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
+            Boolean smartSubstitution = this.smartSubstitutionUtils.isSmartSubstitutionEnabled(properties);
+            if (TRUE.equals(smartSubstitution)) {
+                /* Apply smart JSON substitution logic to mustache binding values in query variables */
+                if (!isEmpty(variables)) {
+                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(variables);
+                    // Replace all the bindings with a ? as expected in a prepared statement.
+                    String updatedVariables = MustacheHelper.replaceMustacheWithPlaceholder(variables, mustacheKeysInOrder);
+
+                    try {
+                        updatedVariables = (String) smartSubstitutionOfBindings(updatedVariables,
+                                mustacheKeysInOrder,
+                                executeActionDTO.getParams(),
+                                parameters);
+                        setValueSafelyInPropertyList(properties, QUERY_VARIABLES_INDEX, updatedVariables);
+                    } catch (AppsmithPluginException e) {
+                        ActionExecutionResult errorResult = new ActionExecutionResult();
+                        errorResult.setIsExecutionSuccess(false);
+                        errorResult.setErrorInfo(e);
+                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                        return Mono.just(errorResult);
+                    }
+                }
+            }
 
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+
+            if (isEmpty(variables)) {
+                setValueSafelyInPropertyList(properties, QUERY_VARIABLES_INDEX, "{}");
+            }
 
             /* Check if the query body and query variables have the correct GraphQL syntax. */
             try {
@@ -80,23 +122,27 @@ public class GraphQLPlugin extends BasePlugin {
                 return Mono.error(e);
             }
 
+            Set<String> hintMessages = new HashSet<String>();
+            if (actionConfiguration.getPaginationType() != null && !PaginationType.NONE.equals(actionConfiguration.getPaginationType())) {
+                updateVariablesWithPaginationValues(actionConfiguration, executeActionDTO, hintMessages);
+            }
+
             // Filter out any empty headers
             headerUtils.removeEmptyHeaders(actionConfiguration);
 
-            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, parameters);
+            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, parameters,
+                    hintMessages);
         }
 
         public Mono<ActionExecutionResult> executeCommon(APIConnection apiConnection,
                                                          DatasourceConfiguration datasourceConfiguration,
                                                          ActionConfiguration actionConfiguration,
-                                                         List<Map.Entry<String, String>> insertedParams) {
+                                                         List<Map.Entry<String, String>> insertedParams,
+                                                         Set<String> hintMessages) {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
             initUtils.initializeResponseWithError(errorResult);
-
-            // Set of hint messages that can be returned to the user.
-            Set<String> hintMessages = new HashSet<String>();
 
             // Initializing request URL
             String url = initUtils.initializeRequestUrl(actionConfiguration, datasourceConfiguration);
@@ -203,6 +249,28 @@ public class GraphQLPlugin extends BasePlugin {
             return triggerUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
                     objectMapper,
                     hintMessages, errorResult, requestCaptureFilter);
+        }
+
+        @Override
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
+                                             Object... args) {
+            String jsonBody = (String) input;
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);
+        }
+
+        /**
+         * This method returns a set of paths that are expected to contain bindings that refer to the
+         * same action object i.e. a cyclic reference. e.g. A GraphQL API response can contain pagination
+         * cursors that are required to be configured in the pagination tab of the same API. We don't want to treat
+         * these cyclic references as cyclic dependency errors.
+         */
+        @Override
+        public Set<String> getSelfReferencingDataPaths() {
+            return Set.of("pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value");
         }
     }
 }

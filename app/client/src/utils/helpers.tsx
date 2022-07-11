@@ -12,7 +12,7 @@ import {
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
 import { get, set, isNil } from "lodash";
-import { Org } from "constants/orgConstants";
+import { Workspace } from "constants/workspaceConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -24,8 +24,10 @@ import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
 import { matchPath } from "react-router";
 import {
+  BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  VIEWER_CUSTOM_PATH,
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
@@ -469,11 +471,11 @@ export const renameKeyInObject = (object: any, key: string, newKey: string) => {
   return object;
 };
 
-// Can be used to check if the user has developer role access to org
-export const getCanCreateApplications = (currentOrg: Org) => {
-  const userOrgPermissions = currentOrg.userPermissions || [];
+// Can be used to check if the user has developer role access to workspace
+export const getCanCreateApplications = (currentWorkspace: Workspace) => {
+  const userWorkspacePermissions = currentWorkspace.userPermissions || [];
   const canManage = isPermitted(
-    userOrgPermissions,
+    userWorkspacePermissions,
     PERMISSION_TYPE.CREATE_APPLICATION,
   );
   return canManage;
@@ -687,6 +689,22 @@ export const captureInvalidDynamicBindingPath = (
   return currentDSL;
 };
 
+/**
+ * Function to handle undefined returned in case of using [].find()
+ * @param result
+ * @param errorMessage
+ * @returns the result if not undefined or throws an Error
+ */
+export function shouldBeDefined<T>(
+  result: T | undefined | null,
+  errorMessage: string,
+): T {
+  if (result === undefined || result === null) {
+    throw new TypeError(errorMessage);
+  }
+
+  return result;
+}
 /*
  * Check if a value is null / undefined / empty string
  *
@@ -719,6 +737,13 @@ export const getUpdatedRoute = (
   });
   if (match?.params) {
     const { applicationSlug, pageSlug } = match?.params;
+    if (params.customSlug) {
+      updatedPath = updatedPath.replace(
+        `${applicationSlug}/${pageSlug}`,
+        `${params.customSlug}-`,
+      );
+      return updatedPath;
+    }
     if (params.applicationSlug)
       updatedPath = updatedPath.replace(
         applicationSlug,
@@ -726,6 +751,24 @@ export const getUpdatedRoute = (
       );
     if (params.pageSlug)
       updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
+    return updatedPath;
+  }
+  const matchCustomPath = matchPath<{ customSlug: string }>(path, {
+    path: [BUILDER_CUSTOM_PATH, VIEWER_CUSTOM_PATH],
+  });
+  if (matchCustomPath?.params) {
+    const { customSlug } = matchCustomPath.params;
+    if (params.customSlug) {
+      updatedPath = updatedPath.replace(
+        `${customSlug}`,
+        `${params.customSlug}-`,
+      );
+    } else {
+      updatedPath = updatedPath.replace(
+        `${customSlug}`,
+        `${params.applicationSlug}/${params.pageSlug}-`,
+      );
+    }
   }
   return updatedPath;
 };
@@ -737,3 +780,9 @@ export const updateSlugNamesInURL = (params: Record<string, string>) => {
   const newURL = getUpdatedRoute(pathname, params);
   history.replace(newURL + search);
 };
+
+export function AutoBind(target: any, _: string, descriptor: any) {
+  if (typeof descriptor.value === "function")
+    descriptor.value = descriptor.value.bind(target);
+  return descriptor;
+}

@@ -20,9 +20,9 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
       removedPaths: [string];
     }>,
   ) => {
-    const { dataTree, updates } = action.payload;
+    const { updates } = action.payload;
     if (updates.length === 0) {
-      return dataTree;
+      return state;
     }
     for (const update of updates) {
       // Null check for typescript

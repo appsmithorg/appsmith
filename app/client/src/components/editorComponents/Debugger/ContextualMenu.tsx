@@ -5,7 +5,7 @@ import { Classes as BPClasses, Position } from "@blueprintjs/core";
 import { Popover2, IPopover2Props } from "@blueprintjs/popover2";
 import { Dispatch } from "redux";
 import { useDispatch } from "react-redux";
-import Text, { FontWeight, TextType } from "components/ads/Text";
+import { Text, FontWeight, TextType } from "design-system";
 import { Message, SourceEntity } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";

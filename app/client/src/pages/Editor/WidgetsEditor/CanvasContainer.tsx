@@ -23,6 +23,7 @@ import {
 import Spinner from "components/ads/Spinner";
 import useGoogleFont from "utils/hooks/useGoogleFont";
 import { IconSize } from "components/ads/Icon";
+import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 
 const Container = styled.section<{
@@ -56,6 +57,9 @@ function CanvasContainer() {
   const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
 
+  const isLayoutingInitialized = useDynamicAppLayout();
+  const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
+
   useEffect(() => {
     return () => {
       dispatch(forceOpenWidgetPanel(false));
@@ -71,11 +75,11 @@ function CanvasContainer() {
   );
   let node: ReactNode;
 
-  if (isFetchingPage) {
+  if (isPageInitializing) {
     node = pageLoading;
   }
 
-  if (!isFetchingPage && widgets) {
+  if (!isPageInitializing && widgets) {
     node = <Canvas dsl={widgets} pageId={params.pageId} />;
   }
   // calculating exact height to not allow scroll at this component,
@@ -100,7 +104,7 @@ function CanvasContainer() {
       }}
     >
       {isAppThemeChanging && (
-        <div className="fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white z-2 bg-opacity-70">
+        <div className="fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white/70 z-[2]">
           <Spinner size={IconSize.XXL} />
         </div>
       )}

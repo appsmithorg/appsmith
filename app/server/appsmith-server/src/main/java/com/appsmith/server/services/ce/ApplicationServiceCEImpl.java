@@ -19,6 +19,8 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.GitAuthDTO;
+import com.appsmith.server.dtos.GitDeployKeyDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
@@ -144,14 +146,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Application> findByIdAndOrganizationId(String id, String organizationId, AclPermission permission) {
-        return repository.findByIdAndOrganizationId(id, organizationId, permission)
+    public Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {
+        return repository.findByIdAndWorkspaceId(id, workspaceId, permission)
                 .flatMap(this::setTransientFields);
     }
 
     @Override
-    public Flux<Application> findByOrganizationId(String organizationId, AclPermission permission) {
-        return setTransientFields(repository.findByOrganizationId(organizationId, permission));
+    public Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
+        return setTransientFields(repository.findByWorkspaceId(workspaceId, permission));
     }
 
     @Override
@@ -230,9 +232,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         .onErrorResume(error -> {
                             if (error instanceof DuplicateKeyException) {
                                 // Error message : E11000 duplicate key error collection: appsmith.application index:
-                                // organization_application_deleted_gitApplicationMetadata_compound_index dup key:
+                                // workspace_application_deleted_gitApplicationMetadata_compound_index dup key:
                                 // { organizationId: "******", name: "AppName", deletedAt: null }
-                                if (error.getCause().getMessage().contains("organization_application_deleted_gitApplicationMetadata_compound_index")) {
+                                if (error.getCause().getMessage().contains("workspace_application_deleted_gitApplicationMetadata_compound_index")) {
                                     return Mono.error(
                                             new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME)
                                     );
@@ -299,8 +301,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Flux<Application> findAllApplicationsByOrganizationId(String organizationId) {
-        return repository.findByOrganizationId(organizationId);
+    public Flux<Application> findAllApplicationsByWorkspaceId(String workspaceId) {
+        return repository.findByWorkspaceId(workspaceId);
     }
 
     @Override
@@ -423,8 +425,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      * @return public key which will be used by user to copy to relevant platform
      */
     @Override
-    public Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId) {
-        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
+    public Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId, String keyType) {
+        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
         return repository.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)
@@ -470,7 +472,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     assert application.getId() != null;
                     final Map<String, Object> data = Map.of(
                             "applicationId", application.getId(),
-                            "organizationId", application.getOrganizationId(),
+                            "organizationId", application.getWorkspaceId(),
                             "isRegeneratedKey", gitAuth.isRegeneratedKey()
                     );
 
@@ -489,13 +491,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      * @return public SSH key
      */
     @Override
-    public Mono<GitAuth> getSshKey(String applicationId) {
+    public Mono<GitAuthDTO> getSshKey(String applicationId) {
         return repository.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                 )
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    List<GitDeployKeyDTO> gitDeployKeyDTOList =GitDeployKeyGenerator.getSupportedProtocols();
                     if (gitData == null) {
                         return Mono.error(new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION,
@@ -505,7 +508,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     // Check if the application is root application
                     if (applicationId.equals(gitData.getDefaultApplicationId())) {
                         gitData.getGitAuth().setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
-                        return Mono.just(gitData.getGitAuth());
+                        GitAuthDTO gitAuthDTO = new GitAuthDTO();
+                        gitAuthDTO.setPublicKey(gitData.getGitAuth().getPublicKey());
+                        gitAuthDTO.setPrivateKey(gitData.getGitAuth().getPrivateKey());
+                        gitAuthDTO.setDocUrl(gitData.getGitAuth().getDocUrl());
+                        gitAuthDTO.setGitSupportedSSHKeyType(gitDeployKeyDTOList);
+                        return Mono.just(gitAuthDTO);
                     }
                     if (gitData.getDefaultApplicationId() == null) {
                         throw new AppsmithException(
@@ -513,11 +521,18 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                 "Can't find root application. Please configure the application with git"
                         );
                     }
+
+
                     return repository.findById(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS)
                             .map(rootApplication -> {
+                                GitAuthDTO gitAuthDTO = new GitAuthDTO();
                                 GitAuth gitAuth = rootApplication.getGitApplicationMetadata().getGitAuth();
                                 gitAuth.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
-                                return gitAuth;
+                                gitAuthDTO.setPublicKey(gitAuth.getPublicKey());
+                                gitAuthDTO.setPrivateKey(gitAuth.getPrivateKey());
+                                gitAuthDTO.setDocUrl(gitAuth.getDocUrl());
+                                gitAuthDTO.setGitSupportedSSHKeyType(gitDeployKeyDTOList);
+                                return gitAuthDTO;
                             });
                 });
     }
@@ -585,13 +600,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByOrgId(String organizationId) {
-        return repository.getGitConnectedApplicationWithPrivateRepoCount(organizationId);
+    public Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByWorkspaceId(String workspaceId) {
+        return repository.getGitConnectedApplicationWithPrivateRepoCount(workspaceId);
     }
 
     @Override
-    public Flux<Application> getGitConnectedApplicationsByOrganizationId(String organizationId) {
-        return repository.getGitConnectedApplicationByOrganizationId(organizationId);
+    public Flux<Application> getGitConnectedApplicationsByWorkspaceId(String workspaceId) {
+        return repository.getGitConnectedApplicationByWorkspaceId(workspaceId);
     }
 
     public String getRandomAppCardColor() {

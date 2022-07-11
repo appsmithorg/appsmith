@@ -10,15 +10,18 @@ import { Plugin } from "api/PluginApi";
 import { createNewApiAction } from "actions/apiPaneActions";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
-import { getGraphQLPlugin, PluginType } from "entities/Action";
+import { PluginType } from "entities/Action";
 import { Spinner } from "@blueprintjs/core";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { selectURLSlugs } from "selectors/editorSelectors";
 import { curlImportPageURL } from "RouteBuilder";
+import {
+  GRAPHQL_PLUGIN_PACKAGE_NAME,
+  REST_PLUGIN_PACKAGE_NAME,
+} from "constants/ApiEditorConstants";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -29,9 +32,9 @@ const StyledContainer = styled.div`
     margin: 0;
     justify-content: center;
     text-align: center;
-    letter-spacing: -0.17px;
-    color: ${Colors.OXFORD_BLUE};
-    font-weight: 500;
+    letter-spacing: -0.24px;
+    color: ${Colors.BLACK};
+    font-weight: 400;
     text-decoration: none !important;
     flex-wrap: wrap;
     white-space: nowrap;
@@ -84,17 +87,15 @@ const ApiCard = styled.div`
   justify-content: space-between;
   height: 64px;
   &:hover {
-    background: ${Colors.Gallery};
+    background-color: ${Colors.GREY_1};
     cursor: pointer;
   }
 
   .content-icon-wrapper {
-    width: 40px;
-    height: 40px;
-    border-radius: 20px;
-    padding: 6px 0;
-    margin: 0 8px;
-    background: #f0f0f0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: ${Colors.GREY_2};
     display: flex;
     align-items: center;
 
@@ -121,10 +122,16 @@ const ApiCard = styled.div`
 const CardContentWrapper = styled.div`
   display: flex;
   align-items: center;
+  gap: 13px;
+  padding-left: 13.5px;
 `;
 
 type ApiHomeScreenProps = {
-  createNewApiAction: (pageId: string, from: EventLocation) => void;
+  createNewApiAction: (
+    pageId: string,
+    from: EventLocation,
+    apiType?: string,
+  ) => void;
   history: {
     replace: (data: string) => void;
     push: (data: string) => void;
@@ -144,6 +151,7 @@ type Props = ApiHomeScreenProps;
 const API_ACTION = {
   IMPORT_CURL: "IMPORT_CURL",
   CREATE_NEW_API: "CREATE_NEW_API",
+  CREATE_NEW_GRAPHQL_API: "CREATE_NEW_GRAPHQL_API",
   CREATE_DATASOURCE_FORM: "CREATE_DATASOURCE_FORM",
   AUTH_API: "AUTH_API",
 };
@@ -176,16 +184,20 @@ function NewApiScreen(props: Props) {
     }
   }, [authApiPlugin, props.createDatasourceFromForm]);
 
-  const handleCreateNew = () => {
+  const handleCreateNew = (source: string) => {
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-      source: "CREATE_NEW_API",
+      source,
     });
     if (pageId) {
-      createNewApiAction(pageId, "API_PANE");
+      createNewApiAction(
+        pageId,
+        "API_PANE",
+        source === API_ACTION.CREATE_NEW_GRAPHQL_API
+          ? GRAPHQL_PLUGIN_PACKAGE_NAME
+          : REST_PLUGIN_PACKAGE_NAME,
+      );
     }
   };
-
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   // On click of any API card, handleOnClick action should be called to check if user came from generate-page flow.
   // if yes then show UnsupportedDialog for the API which are not supported to generate CRUD page.
@@ -207,7 +219,8 @@ function NewApiScreen(props: Props) {
     }
     switch (actionType) {
       case API_ACTION.CREATE_NEW_API:
-        handleCreateNew();
+      case API_ACTION.CREATE_NEW_GRAPHQL_API:
+        handleCreateNew(actionType);
         break;
       case API_ACTION.IMPORT_CURL: {
         AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
@@ -219,8 +232,6 @@ function NewApiScreen(props: Props) {
 
         delete queryParams.isGeneratePageMode;
         const curlImportURL = curlImportPageURL({
-          applicationSlug,
-          pageSlug,
           pageId,
           params: {
             from: "datasources",
@@ -243,24 +254,22 @@ function NewApiScreen(props: Props) {
     }
   };
 
+  // Api plugins with Graphql
   const API_PLUGINS = plugins.filter(
-    (p) => p.type === PluginType.SAAS || p.type === PluginType.REMOTE,
+    (p) =>
+      p.packageName === GRAPHQL_PLUGIN_PACKAGE_NAME ||
+      p.type === PluginType.SAAS ||
+      p.type === PluginType.REMOTE,
   );
-
-  const graphqlPlugin = getGraphQLPlugin(plugins);
-
-  if (graphqlPlugin) {
-    API_PLUGINS.push(graphqlPlugin);
-  }
 
   return (
     <StyledContainer>
-      <ApiCardsContainer>
+      <ApiCardsContainer data-testid="newapi-datasource-card-container">
         <ApiCard
           className="t--createBlankApiCard create-new-api"
           onClick={() => handleOnClick(API_ACTION.CREATE_NEW_API)}
         >
-          <CardContentWrapper>
+          <CardContentWrapper data-testid="newapi-datasource-content-wrapper">
             <div className="content-icon-wrapper">
               <img
                 alt="New"
@@ -285,6 +294,21 @@ function NewApiScreen(props: Props) {
               />
             </div>
             <p className="textBtn">CURL import</p>
+          </CardContentWrapper>
+        </ApiCard>
+        <ApiCard
+          className="t--createBlankCurlCard"
+          onClick={() => handleOnClick(API_ACTION.CREATE_NEW_GRAPHQL_API)}
+        >
+          <CardContentWrapper>
+            <div className="content-icon-wrapper">
+              <img
+                alt="New"
+                className="curlImage t--plusImage content-icon"
+                src={PlusLogo}
+              />
+            </div>
+            <p className="textBtn">Create new GraphQL API</p>
           </CardContentWrapper>
         </ApiCard>
         {authApiPlugin && (

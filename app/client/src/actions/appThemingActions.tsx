@@ -166,3 +166,14 @@ export const updateisBetaCardShownAction = (payload: boolean) => {
     payload,
   };
 };
+
+/**
+ * reset theme
+ *
+ * @returns
+ */
+export const resetThemeAction = () => {
+  return {
+    type: ReduxActionTypes.RESET_APP_THEME_INIT,
+  };
+};

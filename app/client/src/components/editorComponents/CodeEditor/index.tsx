@@ -178,6 +178,7 @@ export type EditorProps = EditorStyleProps &
     handleMouseLeave?: () => void;
     isReadOnly?: boolean;
     isRawView?: boolean;
+    isJSObject?: boolean;
     // Custom gutter
     customGutter?: CodeEditorGutter;
   };
@@ -267,8 +268,7 @@ class CodeEditor extends Component<Props, State> {
         options.foldGutter = true;
         gutters.add("CodeMirror-linenumbers");
         gutters.add("CodeMirror-foldgutter");
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-expect-error: Types are not available
         options.foldOptions = {
           widget: () => {
             return "\u002E\u002E\u002E";
@@ -285,9 +285,7 @@ class CodeEditor extends Component<Props, State> {
         options.value = inputValue;
       }
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore This is an undocumented option of codemirror available
-      // with the Codemirror Constructor
+      // @ts-expect-error: Types are not available
       options.finishInit = (editor: CodeMirror.Editor) => {
         // If you need to do something with the editor right after it’s been created,
         // put that code here.
@@ -418,8 +416,7 @@ class CodeEditor extends Component<Props, State> {
     this.editor.off("postPick", () =>
       this.handleAutocompleteVisibility(this.editor),
     );
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore: No types available
+    // @ts-expect-error: Types are not available
     this.editor.closeHint();
   }
 
@@ -479,7 +476,9 @@ class CodeEditor extends Component<Props, State> {
     const mode = cm.getModeAt(cm.getCursor());
     if (
       mode &&
-      [EditorModes.JAVASCRIPT, EditorModes.JSON].includes(mode.name)
+      [EditorModes.JAVASCRIPT, EditorModes.JSON, EditorModes.GRAPHQL].includes(
+        mode.name,
+      )
     ) {
       this.editor.setOption("matchBrackets", true);
     } else {
@@ -644,8 +643,7 @@ class CodeEditor extends Component<Props, State> {
     if (isModifierKey(key)) return;
     const code = `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`;
     if (isCloseKey(code) || isCloseKey(key)) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       cm.closeHint();
       return;
     }
@@ -682,7 +680,11 @@ class CodeEditor extends Component<Props, State> {
       [],
     ) as EvaluationError[];
 
-    const annotations = getLintAnnotations(editor.getValue(), errors);
+    const annotations = getLintAnnotations(
+      editor.getValue(),
+      errors,
+      this.props.isJSObject,
+    );
 
     this.updateLintingCallback(editor, annotations);
   }

@@ -75,11 +75,11 @@ jobs:
           fetch-depth: 0
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
-      - name: Use Node.js 14.15.4
+      - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v1
         with:
-          node-version: "14.15.4"
+          node-version: "16.14.0"
 
       - name: Get yarn cache directory path
         if: steps.run_result.outputs.run_result != 'success'
@@ -340,11 +340,11 @@ jobs:
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
-      - name: Use Node.js 14.15.4
+      - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v1
         with:
-          node-version: "14.15.4"
+          node-version: "16.14.0"
 
       # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
       # first 11 characters. This can be used to build images for several branches
@@ -581,11 +581,11 @@ jobs:
             exit 1
           fi
 
-      - name: Use Node.js 14.15.4
+      - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v1
         with:
-          node-version: "14.15.4"
+          node-version: "16.14.0"
 
       - name: Get yarn cache directory path
         if: steps.run_result.outputs.run_result != 'success'

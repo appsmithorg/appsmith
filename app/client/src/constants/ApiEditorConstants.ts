@@ -42,6 +42,7 @@ export const GRAPHQL_HTTP_METHOD_OPTIONS = [
 ];
 
 export const REST_PLUGIN_PACKAGE_NAME = "restapi-plugin";
+export const GRAPHQL_PLUGIN_PACKAGE_NAME = "graphql-plugin";
 
 export const EMPTY_KEY_VALUE_PAIRS = [
   { key: "", value: "" },
@@ -86,7 +87,7 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   httpMethod: DEFAULT_METHOD_TYPE,
   headers: EMPTY_KEY_VALUE_PAIRS.slice(),
   queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
-  body: `{{\n\t{}\n}}`,
+  body: "",
   bodyFormData: [],
   formData: {
     apiContentType: HTTP_METHODS_DEFAULT_FORMAT_TYPES[DEFAULT_METHOD_TYPE],
@@ -112,8 +113,7 @@ export const DEFAULT_GRAPHQL_ACTION_CONFIG: ApiActionConfig = {
     { key: "", value: "" },
   ],
   queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
-  query: "",
-  variable: "",
+  body: "",
   formData: {
     apiContentType: POST_BODY_FORMAT_OPTIONS.JSON,
   },
@@ -128,6 +128,42 @@ export const DEFAULT_GRAPHQL_ACTION_CONFIG: ApiActionConfig = {
     },
   ],
 };
+
+// Start: Default Create API Config for Rest as well as Graphql
+export type DEFAULT_CREATE_API_CONFIG_TYPE = {
+  config: ApiActionConfig;
+  datasource: {
+    name: string;
+  };
+  eventData: {
+    actionType: string;
+  };
+};
+
+export const DEFAULT_CREATE_API_CONFIG: Record<
+  string,
+  DEFAULT_CREATE_API_CONFIG_TYPE
+> = {
+  [REST_PLUGIN_PACKAGE_NAME]: {
+    config: DEFAULT_API_ACTION_CONFIG,
+    datasource: {
+      name: "DEFAULT_REST_DATASOURCE",
+    },
+    eventData: {
+      actionType: "API",
+    },
+  },
+  [GRAPHQL_PLUGIN_PACKAGE_NAME]: {
+    config: DEFAULT_GRAPHQL_ACTION_CONFIG,
+    datasource: {
+      name: "DEFAULT_GRAPHQL_DATASOURCE",
+    },
+    eventData: {
+      actionType: "GRAPHQL",
+    },
+  },
+};
+// End: Default Create API Config for Rest as well as Graphql
 
 export enum ApiResponseTypes {
   JSON = "JSON",

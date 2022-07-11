@@ -7,9 +7,8 @@ import { getWidget } from "sagas/selectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
-import { getAction } from "selectors/entitiesSelector";
+import { getAction, getPlugins } from "selectors/entitiesSelector";
 import { onApiEditor, onQueryEditor, onCanvas } from "../helpers";
 import { getSelectedWidget } from "selectors/ui";
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -18,6 +17,8 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { isWidget, isAction, isJSAction } from "workers/evaluationUtils";
 import history from "utils/history";
 import { jsCollectionIdURL } from "RouteBuilder";
+import store from "store";
+import { PluginType } from "entities/Action";
 
 export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
@@ -102,28 +103,32 @@ export const useSelectedEntity = () => {
 };
 
 export const useEntityLink = () => {
-  const dataTree = useSelector(getDataTree);
   const pageId = useSelector(getCurrentPageId);
+  const plugins = useSelector(getPlugins);
   const applicationId = useSelector(getCurrentApplicationId);
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const { navigateToWidget } = useNavigateToWidget();
 
   const navigateToEntity = useCallback(
     (name) => {
+      const dataTree = getDataTree(store.getState());
       const entity = dataTree[name];
+      if (!pageId) return;
       if (isWidget(entity)) {
         navigateToWidget(entity.widgetId, entity.type, pageId || "");
       } else if (isAction(entity)) {
         const actionConfig = getActionConfig(entity.pluginType);
+        let plugin;
+        if (entity?.pluginType === PluginType.SAAS) {
+          plugin = plugins.find((plugin) => plugin?.id === entity?.pluginId);
+        }
         const url =
           applicationId &&
           actionConfig?.getURL(
-            applicationSlug,
-            pageSlug,
-            pageId || "",
+            pageId,
             entity.actionId,
             entity.pluginType,
+            plugin,
           );
 
         if (url) {
@@ -132,15 +137,13 @@ export const useEntityLink = () => {
       } else if (isJSAction(entity)) {
         history.push(
           jsCollectionIdURL({
-            applicationSlug,
-            pageSlug,
             pageId,
             collectionId: entity.actionId,
           }),
         );
       }
     },
-    [dataTree],
+    [pageId],
   );
 
   return {

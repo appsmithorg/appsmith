@@ -24,6 +24,9 @@ const StyledDiv = styled.div`
   padding: 6px 12px;
   font-size: 14px;
   color: #768896;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 `;
 
 const SelectButton = styled(BaseButton)`
@@ -37,7 +40,8 @@ const SelectButton = styled(BaseButton)`
     border-color: ${Colors.PRIMARY_ORANGE} !important;
     font-size: 14px;
     &.bp3-button {
-      padding: 0px 0px;
+      padding: 6px 0px;
+      flex-shrink: 0;
     }
     span {
       color: ${Colors.PRIMARY_ORANGE} !important;
@@ -107,7 +111,9 @@ function RenderFilePicker(props: RenderFilePickerProps) {
         className={replayHighlightClass}
         style={{ flexDirection: "row", display: "flex", width: "20vw" }}
       >
-        <StyledDiv>{props?.input?.value?.name}</StyledDiv>
+        <StyledDiv title={props?.input?.value?.name}>
+          {props?.input?.value?.name}
+        </StyledDiv>
         <SelectButton
           buttonStyle="PRIMARY"
           buttonVariant={ButtonVariantTypes.SECONDARY}

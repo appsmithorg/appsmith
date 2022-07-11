@@ -6,7 +6,7 @@ import { mockGetCanvasWidgetDsl, useMockDsl } from "./testCommon";
 
 export function MockCanvas() {
   const dsl = useSelector(mockGetCanvasWidgetDsl);
-  return <Canvas dsl={dsl} />;
+  return <Canvas dsl={dsl} pageId="" />;
 }
 export function UpdatedMainContainer({ dsl }: any) {
   useMockDsl(dsl);

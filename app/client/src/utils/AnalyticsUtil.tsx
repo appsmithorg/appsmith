@@ -6,6 +6,16 @@ import * as Sentry from "@sentry/react";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { sha256 } from "js-sha256";
 
+declare global {
+  interface Window {
+    // Zipy is added via script tags in index.html
+    zipy: {
+      identify: (uid: string, userInfo: Record<string, string>) => void;
+      anonymize: () => void;
+    };
+  }
+}
+
 export type EventLocation =
   | "LIGHTNING_MENU"
   | "API_PANE"
@@ -15,6 +25,7 @@ export type EventLocation =
   | "OMNIBAR";
 
 export type EventName =
+  | "APP_CRASH"
   | "SWITCH_DATASOURCE"
   | "LOGIN_CLICK"
   | "SIGNUP_CLICK"
@@ -197,7 +208,7 @@ export type EventName =
   | "GS_DEFAULT_CONFIGURATION_EDIT_BUTTON_CLICK"
   | "GS_DEFAULT_CONFIGURATION_CHECKBOX_TOGGLED"
   | "GS_CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK"
-  | "GS_IMPORT_VIA_GIT_CLICK"
+  | "GS_IMPORT_VIA_GIT_CARD_CLICK"
   | "GS_CONTACT_SALES_CLICK"
   | "GS_REGENERATE_SSH_KEY_CONFIRM_CLICK"
   | "GS_REGENERATE_SSH_KEY_MORE_CLICK"
@@ -234,7 +245,11 @@ export type EventName =
   | "MANUAL_UPGRADE_CLICK"
   | "PAGE_NOT_FOUND"
   | "SIMILAR_TEMPLATE_CLICK"
-  | "RUN_JS_FUNCTION";
+  | "RUN_JS_FUNCTION"
+  | "PAGE_NAME_CLICK"
+  | "BACK_BUTTON_CLICK"
+  | "WIDGET_TAB_CLICK"
+  | "ENTITY_EXPLORER_CLICK";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -402,6 +417,14 @@ class AnalyticsUtil {
     if (smartLook.enabled) {
       smartlookClient.identify(userId, { email: userData.email });
     }
+
+    // If zipy was included, identify this user on the platform
+    if (window.zipy && userId) {
+      window.zipy.identify(userId, {
+        email: userData.email,
+        username: userData.username,
+      });
+    }
   }
 
   static reset() {
@@ -411,6 +434,7 @@ class AnalyticsUtil {
     }
     windowDoc.analytics && windowDoc.analytics.reset();
     windowDoc.mixpanel && windowDoc.mixpanel.reset();
+    window.zipy && window.zipy.anonymize();
   }
 }
 

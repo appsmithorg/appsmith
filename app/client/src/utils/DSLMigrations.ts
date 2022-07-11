@@ -59,6 +59,7 @@ import {
 } from "./migrations/PhoneInputWidgetMigrations";
 import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/CurrencyInputWidgetMigrations";
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
+import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -209,11 +210,9 @@ const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
         canExtend: false,
         isVisible: true,
       };
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error: Types are not available
       delete canvas.dynamicBindings;
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error: Types are not available
       delete canvas.dynamicProperties;
       if (canvas.children && canvas.children.length > 0)
         canvas.children = canvas.children.map(updateContainers);
@@ -1092,6 +1091,11 @@ export const transformDSL = (
 
   if (currentDSL.version === 57) {
     currentDSL = migrateStylingPropertiesForTheming(currentDSL);
+    currentDSL.version = 58;
+  }
+
+  if (currentDSL.version === 58) {
+    currentDSL = migrateCheckboxSwitchProperty(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

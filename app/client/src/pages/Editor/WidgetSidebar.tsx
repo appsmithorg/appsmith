@@ -1,49 +1,43 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
-import { IPanelProps } from "@blueprintjs/core";
 import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
-import produce from "immer";
-import { useLocation } from "react-router";
-
 import {
   createMessage,
   WIDGET_SIDEBAR_CAPTION,
 } from "@appsmith/constants/messages";
-import { matchBuilderPath } from "constants/routes";
-import { AppState } from "reducers";
+import Fuse from "fuse.js";
+import { WidgetCardProps } from "widgets/BaseWidget";
 
-function WidgetSidebar(props: IPanelProps) {
-  const location = useLocation();
+function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
-  const filterCards = (keyword: string) => {
-    let filteredCards = cards;
-    if (keyword.trim().length > 0) {
-      filteredCards = produce(cards, (draft) => {
-        cards.forEach((card, index) => {
-          if (card.displayName.toLowerCase().indexOf(keyword) === -1) {
-            delete draft[index];
-          }
-        });
-      });
-    }
-    setFilteredCards(filteredCards);
-  };
-  const isForceOpenWidgetPanel = useSelector(
-    (state: AppState) => state.ui.onBoarding.forceOpenWidgetPanel,
-  );
 
-  const onCanvas = matchBuilderPath(window.location.pathname);
+  let fuse: Fuse<WidgetCardProps, Fuse.FuseOptions<WidgetCardProps>>;
 
   useEffect(() => {
-    if (!onCanvas || isForceOpenWidgetPanel === false) {
-      props.closePanel();
+    fuse = new Fuse(cards, {
+      keys: ["displayName", "searchTags"],
+      threshold: 0.5,
+      distance: 20,
+    });
+  }, [cards]);
+
+  const filterCards = (keyword: string) => {
+    if (keyword.trim().length > 0) {
+      const searchResult = fuse.search(keyword);
+      setFilteredCards(searchResult as WidgetCardProps[]);
+    } else {
+      setFilteredCards(cards);
     }
-  }, [onCanvas, location, isForceOpenWidgetPanel]);
+  };
+
+  useEffect(() => {
+    if (isActive) searchInputRef.current?.focus();
+  }, [isActive]);
 
   /**
    * filter widgets
@@ -64,7 +58,9 @@ function WidgetSidebar(props: IPanelProps) {
   };
 
   return (
-    <div className="flex flex-col overflow-hidden">
+    <div
+      className={`flex flex-col overflow-hidden ${isActive ? "" : "hidden"}`}
+    >
       <ExplorerSearch
         autoFocus
         clear={clearSearchInput}

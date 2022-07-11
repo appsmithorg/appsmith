@@ -1,6 +1,6 @@
 import React from "react";
 import { FormGroup, SettingComponentProps } from "./Common";
-import SelectField from "components/ads/formFields/SelectField";
+import SelectField from "components/editorComponents/form/fields/SelectField";
 
 export default function DropDown(
   props: {

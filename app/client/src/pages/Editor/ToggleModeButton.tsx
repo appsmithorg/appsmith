@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import Pen from "remixicon-react/PencilFillIcon";
 import Eye from "remixicon-react/EyeLineIcon";
@@ -21,7 +21,6 @@ import {
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useLocation } from "react-router";
 import history from "utils/history";
-import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { TourType } from "entities/Tour";
 import useProceedToNextTourStep, {
   useIsTourStepActive,
@@ -45,11 +44,13 @@ import { getAppMode } from "../../selectors/applicationSelectors";
 import { setPreviewModeAction } from "actions/editorActions";
 import {
   getCurrentApplicationId,
+  getIsEditorInitialized,
   previewModeSelector,
 } from "selectors/editorSelectors";
 
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { isExploringSelector } from "selectors/onboardingSelectors";
+import { getIsInitialized } from "selectors/appViewSelectors";
 
 const ModeButton = styled.div<{
   active: boolean;
@@ -187,7 +188,7 @@ function EditModeReset() {
         </>
       }
       hoverOpenDelay={1000}
-      position={Position.BOTTOM}
+      position="bottom"
     >
       <Pen size={20} />
     </TooltipComponent>
@@ -204,7 +205,7 @@ function ViewModeReset() {
         </>
       }
       hoverOpenDelay={1000}
-      position={Position.BOTTOM}
+      position="bottom"
     >
       <Eye size={20} />
     </TooltipComponent>
@@ -279,7 +280,7 @@ function CommentModeBtn({
           </>
         }
         hoverOpenDelay={1000}
-        position={Position.BOTTOM}
+        position="bottom"
       >
         <div className="relative">
           <CommentIcon className="w-5 h-5 text-gray-900" />
@@ -296,16 +297,16 @@ export const useHideComments = () => {
   const [shouldHide, setShouldHide] = useState(true);
   const location = useLocation();
   const currentUser = useSelector(getCurrentUser);
+  const isEditorInitialized = useSelector(getIsEditorInitialized);
+  const isViewerInitialized = useSelector(getIsInitialized);
   useEffect(() => {
     const pathName = window.location.pathname;
-    const shouldShow = matchBuilderPath(pathName) || matchViewerPath(pathName);
+    const shouldShow =
+      (matchBuilderPath(pathName) && isEditorInitialized) ||
+      (matchViewerPath(pathName) && isViewerInitialized);
     // Disable comment mode toggle for anonymous users
-    setShouldHide(
-      !shouldShow ||
-        !currentUser ||
-        currentUser.username === ANONYMOUS_USERNAME,
-    );
-  }, [location, currentUser]);
+    setShouldHide(!shouldShow || currentUser?.username === ANONYMOUS_USERNAME);
+  }, [location, currentUser, isEditorInitialized, isViewerInitialized]);
 
   return shouldHide;
 };
@@ -416,7 +417,7 @@ function ToggleCommentModeButton({
                 </>
               }
               hoverOpenDelay={1000}
-              position={Position.BOTTOM}
+              position="bottom"
             >
               <ModeButton
                 active={isPreviewMode}

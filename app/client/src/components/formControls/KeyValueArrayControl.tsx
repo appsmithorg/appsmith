@@ -78,7 +78,9 @@ function KeyValueRow(
       if (value && keyFieldProps?.validationRegex) {
         const regex = new RegExp(keyFieldProps?.validationRegex);
 
-        return regex.test(value) ? undefined : keyFieldProps.validationMessage;
+        return regex.test(value)
+          ? { isValid: true }
+          : { isValid: false, message: keyFieldProps.validationMessage };
       }
 
       return undefined;

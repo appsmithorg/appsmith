@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { Datasource } from "entities/Datasource";
 import DatasourceCard from "./DatasourceCard";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import Button, { Category, Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { keyBy } from "lodash";
@@ -15,7 +15,6 @@ import {
 
 const QueryHomePage = styled.div`
   ${thinScrollbar};
-  padding: 5px;
   overflow: auto;
   display: flex;
   flex-direction: column;

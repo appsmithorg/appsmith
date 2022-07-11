@@ -5,7 +5,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -36,7 +36,7 @@ public class ApplicationPageServiceTest {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     CommentService commentService;
@@ -55,18 +55,18 @@ public class ApplicationPageServiceTest {
     }
 
     /**
-     * Creates an organization, an application and a page under that application
+     * Creates an workspace, an application and a page under that application
      * @param uniquePrefix unique string that'll be added as prefix to org and app names to avoid name collision
      * @return publisher of PageDTO
      */
     private Mono<PageDTO> createPageMono(String uniquePrefix) {
-        Organization unsavedOrg = new Organization();
-        unsavedOrg.setName(uniquePrefix + "_org");
-        return organizationService.create(unsavedOrg)
-                .flatMap(organization -> {
+        Workspace unsavedWorkspace = new Workspace();
+        unsavedWorkspace.setName(uniquePrefix + "_org");
+        return workspaceService.create(unsavedWorkspace)
+                .flatMap(workspace -> {
                     Application application = new Application();
                     application.setName(uniquePrefix + "_app");
-                    return applicationPageService.createApplication(application, organization.getId());
+                    return applicationPageService.createApplication(application, workspace.getId());
                 })
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();

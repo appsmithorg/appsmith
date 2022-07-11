@@ -1,6 +1,6 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
-/* Contains all methods related to Organisation features*/
+/* Contains all methods related to Workspace features*/
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
@@ -10,7 +10,7 @@ Cypress.Commands.add("borderMouseover", (index, text) => {
   cy.get(themelocator.border)
     .eq(index)
     .trigger("mouseover");
-  cy.wait(2000);
+  cy.wait(1000);
   cy.get(themelocator.popover).contains(text);
 });
 
@@ -18,7 +18,7 @@ Cypress.Commands.add("shadowMouseover", (index, text) => {
   cy.xpath(themelocator.shadow)
     .eq(index)
     .trigger("mouseover");
-  cy.wait(2000);
+  cy.wait(1000);
   cy.get(themelocator.popover).contains(text);
 });
 

@@ -17,6 +17,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.services.SharedConfig;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -25,19 +26,20 @@ import reactor.util.function.Tuple2;
 
 import java.util.Set;
 
+@Setter
 @Slf4j
 @Extension
 public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>, SmartSubstitutionInterface {
 
-    protected final SharedConfig sharedConfig;
-    protected final DataUtils dataUtils;
-    protected final SmartSubstitutionUtils smartSubstitutionUtils;
-    protected final URIUtils uriUtils;
-    protected final DatasourceUtils datasourceUtils;
-    protected final TriggerUtils triggerUtils;
-    protected final InitUtils initUtils;
-    protected final HeaderUtils headerUtils;
-    protected final HintMessageUtils hintMessageUtils;
+    protected SharedConfig sharedConfig;
+    protected DataUtils dataUtils;
+    protected SmartSubstitutionUtils smartSubstitutionUtils;
+    protected URIUtils uriUtils;
+    protected DatasourceUtils datasourceUtils;
+    protected TriggerUtils triggerUtils;
+    protected InitUtils initUtils;
+    protected HeaderUtils headerUtils;
+    protected HintMessageUtils hintMessageUtils;
 
 
     // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
@@ -46,14 +48,14 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
 
     protected BaseRestApiPluginExecutor(SharedConfig sharedConfig) {
         this.sharedConfig = sharedConfig;
-        this.dataUtils = DataUtils.getInstance();
-        this.smartSubstitutionUtils = SmartSubstitutionUtils.getInstance();
-        this.uriUtils = URIUtils.getInstance();
-        this.triggerUtils = TriggerUtils.getInstance();
-        this.initUtils = InitUtils.getInstance();
-        this.headerUtils = HeaderUtils.getInstance();
-        this.datasourceUtils = DatasourceUtils.getInstance();
-        this.hintMessageUtils = HintMessageUtils.getInstance();
+        this.dataUtils = new DataUtils();
+        this.smartSubstitutionUtils = new SmartSubstitutionUtils();
+        this.uriUtils = new URIUtils();
+        this.triggerUtils = new TriggerUtils();
+        this.initUtils = new InitUtils();
+        this.headerUtils = new HeaderUtils();
+        this.datasourceUtils = new DatasourceUtils();
+        this.hintMessageUtils = new HintMessageUtils();
         this.EXCHANGE_STRATEGIES = ExchangeStrategies
                 .builder()
                 .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(sharedConfig.getCodecSize()))

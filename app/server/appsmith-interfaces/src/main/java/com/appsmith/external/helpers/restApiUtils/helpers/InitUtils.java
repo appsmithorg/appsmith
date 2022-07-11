@@ -7,17 +7,8 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class InitUtils {
-
-    protected static InitUtils initUtils;
-    public static InitUtils getInstance() {
-        if (initUtils == null) {
-            initUtils = new InitUtils();
-        }
-
-        return initUtils;
-    }
 
     public String initializeRequestUrl(ActionConfiguration actionConfiguration,
                                             DatasourceConfiguration datasourceConfiguration ) {

@@ -241,14 +241,11 @@ class JSONFormWidget extends BaseWidget<
     const actionPayload = action && this.applyGlobalContextToAction(action);
 
     if (!equal(fieldState, this.props.fieldState)) {
-      /**
-       * Using syncUpdateWidgetMetaProperty to avoid race-condition when
-       * multiple properties are updating in quick succession. As sync fn
-       * does not support action execution as a callback, it has to be
-       * explicitly called.
-       */
-      this.props.syncUpdateWidgetMetaProperty("fieldState", fieldState);
-      actionPayload && this.executeAction(actionPayload);
+      this.props.updateWidgetMetaProperty(
+        "fieldState",
+        fieldState,
+        actionPayload,
+      );
     }
   };
 

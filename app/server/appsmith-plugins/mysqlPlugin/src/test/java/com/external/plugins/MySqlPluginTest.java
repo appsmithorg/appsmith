@@ -133,8 +133,8 @@ public class MySqlPluginTest {
                                     ")"
                             );
                 })
-                .flatMap(batch -> Mono.from(batch.execute()))
-                .block();
+                .flatMapMany(batch -> Flux.from(batch.execute()))
+                .blockLast(); //wait until completion of all the queries
 
         return;
     }
@@ -255,8 +255,8 @@ public class MySqlPluginTest {
                                 "GRANT ALL PRIVILEGES ON *.* TO 'mysql'@'%' WITH GRANT OPTION;\n" +
                                 "FLUSH PRIVILEGES;")
                         )
-                .flatMap(batch -> Mono.from(batch.execute()))
-                .block();
+                .flatMapMany(batch -> Flux.from(batch.execute()))
+                .blockLast(); //wait until completion of all the queries
 
 
         // change to ordinary user
@@ -537,8 +537,8 @@ public class MySqlPluginTest {
                             .add("insert into test_real_types values (1, 1.123, 3.123, 5.123)")
                             .add("insert into test_real_types values (2, 11.123, 13.123, 15.123)")
                 )
-                .flatMap(batch -> Mono.from(batch.execute()))
-                .block();
+                .flatMapMany(batch -> Flux.from(batch.execute()))
+                .blockLast(); //wait until completion of all the queries
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -593,8 +593,8 @@ public class MySqlPluginTest {
                         connection.createBatch()
                                 .add("drop table test_real_types")
                 )
-                .flatMap(batch -> Mono.from(batch.execute()))
-                .block();
+                .flatMapMany(batch -> Flux.from(batch.execute()))
+                .blockLast(); //wait until completion of all the queries
     }
 
     @Test
@@ -610,8 +610,8 @@ public class MySqlPluginTest {
                             .add("insert into test_boolean_type values (2, True)")
                             .add("insert into test_boolean_type values (3, False)")
                 )
-                .flatMap(batch -> Mono.from(batch.execute()))
-                .block();
+                .flatMapMany(batch -> Flux.from(batch.execute()))
+                .blockLast(); //wait until completion of all the queries
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -649,8 +649,8 @@ public class MySqlPluginTest {
                         connection.createBatch()
                                 .add("drop table test_boolean_type")
                 )
-                .flatMap(batch -> Mono.from(batch.execute()))
-                .block();
+                .flatMapMany(batch -> Flux.from(batch.execute()))
+                .blockLast(); //wait until completion of all the queries
     }
 
     @Test
@@ -834,8 +834,8 @@ public class MySqlPluginTest {
                             .add(query_create_table_geometry_types)
                             .add(query_insert_geometry_types);
                 })
-                .flatMap(batch -> Mono.from(batch.execute()))
-                .block();
+                .flatMapMany(batch -> Flux.from(batch.execute()))
+                .blockLast(); //wait until completion of all the queries
 
         /* Test numeric types */
         testExecute(query_select_from_test_numeric_types);
@@ -1123,6 +1123,48 @@ public class MySqlPluginTest {
                                         .forEach(columnName -> foundColumnNames.add(columnName.trim()));
                             });
                     assertTrue(expectedColumnNames.equals(foundColumnNames));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteDescribeTableCmd() {
+        dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("describe users");
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    String expectedBody = "[{\"Field\":\"id\",\"Type\":\"int\",\"Null\":\"NO\",\"Key\":\"PRI\",\"Default\":null,\"Extra\":\"auto_increment\"},{\"Field\":\"username\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"UNI\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"password\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"email\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"UNI\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"spouse_dob\",\"Type\":\"date\",\"Null\":\"YES\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"dob\",\"Type\":\"date\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"yob\",\"Type\":\"year\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"time1\",\"Type\":\"time\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"created_on\",\"Type\":\"timestamp\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"updated_on\",\"Type\":\"datetime\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"}]";
+                    assertEquals(expectedBody, result.getBody().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteDescTableCmd() {
+        dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("desc users");
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    String expectedBody = "[{\"Field\":\"id\",\"Type\":\"int\",\"Null\":\"NO\",\"Key\":\"PRI\",\"Default\":null,\"Extra\":\"auto_increment\"},{\"Field\":\"username\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"UNI\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"password\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"email\",\"Type\":\"varchar(250)\",\"Null\":\"NO\",\"Key\":\"UNI\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"spouse_dob\",\"Type\":\"date\",\"Null\":\"YES\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"dob\",\"Type\":\"date\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"yob\",\"Type\":\"year\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"time1\",\"Type\":\"time\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"created_on\",\"Type\":\"timestamp\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"},{\"Field\":\"updated_on\",\"Type\":\"datetime\",\"Null\":\"NO\",\"Key\":\"\",\"Default\":null,\"Extra\":\"\"}]";
+                    assertEquals(expectedBody, result.getBody().toString());
                 })
                 .verifyComplete();
     }

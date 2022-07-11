@@ -1,7 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ConfigService;
@@ -70,8 +70,8 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
                     });
 
                     // Save new data for this plugin,
-                    // then make sure to install to organizations in case the default installation flag changed
-                    final Mono<List<Organization>> updatedPluginsOrganizationFlux = pluginService
+                    // then make sure to install to workspaces in case the default installation flag changed
+                    final Mono<List<Workspace>> updatedPluginsWorkspaceFlux = pluginService
                             .saveAll(updatablePlugins)
                             .filter(Plugin::getDefaultInstall)
                             .collectList()
@@ -79,8 +79,8 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
                             .collectList();
 
                     // Create plugin,
-                    // then install to all organizations if default installation is turned on
-                    final Mono<List<Organization>> organizationFlux =
+                    // then install to all workspaces if default installation is turned on
+                    final Mono<List<Workspace>> workspaceFlux =
                             Flux.fromIterable(insertablePlugins)
                                     .flatMap(pluginService::create)
                                     .filter(Plugin::getDefaultInstall)
@@ -88,8 +88,8 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
                                     .flatMapMany(pluginService::installDefaultPlugins)
                                     .collectList();
 
-                    return updatedPluginsOrganizationFlux
-                            .zipWith(organizationFlux)
+                    return updatedPluginsWorkspaceFlux
+                            .zipWith(workspaceFlux)
                             .then();
                 })
                 .subscribeOn(Schedulers.single())

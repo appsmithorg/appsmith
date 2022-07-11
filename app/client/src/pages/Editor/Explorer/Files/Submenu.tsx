@@ -23,10 +23,9 @@ import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
 import SubmenuHotKeys from "./SubmenuHotkeys";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { Colors } from "constants/Colors";
-import { Position } from "@blueprintjs/core";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { EntityClassNames } from "../Entity";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { ADD_QUERY_JS_BUTTON, createMessage } from "ce/constants/messages";
 
 const SubMenuContainer = styled.div`
@@ -222,6 +221,7 @@ export default function ExplorerSubMenu({
         onMenuClose();
       }}
       placement="right-start"
+      transitionDuration={0}
     >
       <TooltipComponent
         boundary="viewport"
@@ -234,9 +234,12 @@ export default function ExplorerSubMenu({
         }
         disabled={show}
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position={Position.RIGHT}
+        position="right"
       >
-        <EntityAddButton className={className} onClick={() => setShow(true)} />
+        <EntityAddButton
+          className={`${className} ${show ? "selected" : ""}`}
+          onClick={() => setShow(true)}
+        />
       </TooltipComponent>
     </Popover2>
   );

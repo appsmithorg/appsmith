@@ -1,5 +1,4 @@
 import React from "react";
-import { createNewQueryAction } from "actions/apiPaneActions";
 import { INTEGRATION_TABS } from "constants/routes";
 import { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
@@ -25,6 +24,7 @@ import { PluginType } from "entities/Action";
 import { integrationEditorURL } from "RouteBuilder";
 import AddLineIcon from "remixicon-react/AddLineIcon";
 import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import { createNewQueryAction } from "actions/apiPaneActions";
 
 export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
@@ -42,6 +42,7 @@ export const useFilteredFileOperations = (query = "") => {
   if (newApiActionIdx > -1) {
     actionOperations[newApiActionIdx].pluginId = restApiPlugin?.id;
   }
+
   return useMemo(() => {
     let fileOperations: any =
       actionOperations.filter((op) =>
@@ -65,7 +66,7 @@ export const useFilteredFileOperations = (query = "") => {
     if (filteredAppWideDS.length > 0) {
       fileOperations = [
         ...fileOperations,
-        ...filteredAppWideDS.map((ds: any) => ({
+        ...filteredAppWideDS.map((ds) => ({
           title: `New ${ds.name} Query`,
           shortTitle: `${ds.name} Query`,
           desc: `Create a query in ${ds.name}`,
@@ -79,7 +80,7 @@ export const useFilteredFileOperations = (query = "") => {
     if (otherFilteredDS.length > 0) {
       fileOperations = [
         ...fileOperations,
-        ...otherFilteredDS.map((ds: any) => ({
+        ...otherFilteredDS.map((ds) => ({
           title: `New ${ds.name} Query`,
           shortTitle: `${ds.name} Query`,
           desc: `Create a query in ${ds.name}`,
@@ -107,8 +108,6 @@ export const useFilteredFileOperations = (query = "") => {
         ) => {
           history.push(
             integrationEditorURL({
-              applicationSlug,
-              pageSlug,
               pageId,
               selectedTab: INTEGRATION_TABS.NEW,
             }),

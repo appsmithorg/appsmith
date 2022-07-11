@@ -23,6 +23,7 @@ export default function AdsSwitch(props: ISwitchProps) {
           ? props.className + " " + replayHighlightClass
           : replayHighlightClass
       }
+      tabIndex={0}
     />
   );
 }

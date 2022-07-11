@@ -7,11 +7,11 @@ import SettingsForm from "pages/Settings/SettingsForm";
 
 const Main = () => {
   const params = useParams() as any;
-  const { category, subCategory } = params;
+  const { category, selected: subCategory } = params;
   const wrapperCategory =
     AdminConfig.wrapperCategories[subCategory ?? category];
 
-  if (!!wrapperCategory && !!wrapperCategory.component) {
+  if (!!wrapperCategory?.component) {
     const { component: WrapperCategoryComponent } = wrapperCategory;
     return <WrapperCategoryComponent />;
   } else if (

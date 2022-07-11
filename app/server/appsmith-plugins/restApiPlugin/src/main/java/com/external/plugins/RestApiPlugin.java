@@ -73,7 +73,7 @@ public class RestApiPlugin extends BasePlugin {
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
-            Boolean smartJsonSubstitution = this.smartSubstitutionUtils.isJsonSmartSubstitutionEnabled(properties);
+            Boolean smartJsonSubstitution = this.smartSubstitutionUtils.isSmartSubstitutionEnabled(properties);
             if (TRUE.equals(smartJsonSubstitution)) {
                 // Do smart replacements in JSON body
                 if (actionConfiguration.getBody() != null) {
@@ -163,7 +163,6 @@ public class RestApiPlugin extends BasePlugin {
 
             WebClient.Builder webClientBuilder = triggerUtils.getWebClientBuilder(actionConfiguration,
                     datasourceConfiguration);
-
             String reqContentType = headerUtils.getRequestContentType(actionConfiguration, datasourceConfiguration);
 
             /* Check for content type */
@@ -190,8 +189,7 @@ public class RestApiPlugin extends BasePlugin {
 
             /* Triggering the actual REST API call */
             return triggerUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
-                    objectMapper,
-                    hintMessages, errorResult, requestCaptureFilter);
+                    objectMapper, hintMessages, errorResult, requestCaptureFilter);
         }
 
         private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,

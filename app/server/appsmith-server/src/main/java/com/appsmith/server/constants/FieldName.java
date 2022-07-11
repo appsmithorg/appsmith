@@ -3,7 +3,9 @@ package com.appsmith.server.constants;
 public class FieldName {
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
+    @Deprecated
     public static final String ORGANIZATION_ID = "organizationId";
+    public static final String WORKSPACE_ID = "workspaceId";
     public static final String DELETED = "deleted";
     public static final String CREATED_AT = "createdAt";
     public static final String DELETED_AT = "deletedAt";
@@ -12,7 +14,7 @@ public class FieldName {
     public static final String PLUGIN_TYPE = "pluginType";
     public static final String COLLECTION_ID = "collectionId";
     public static final String ACTION_ID = "actionId";
-    public static String ORGANIZATION = "organization";
+    public static String WORKSPACE = "organization";
     public static String ID = "id";
     public static final String NAME = "name";
     public static String PAGE_ID = "pageId";
@@ -78,6 +80,7 @@ public class FieldName {
     public static String CONTAINER_WIDGET = "CONTAINER_WIDGET";
     public static String CANVAS_WIDGET = "CANVAS_WIDGET";
     public static String FORM_WIDGET = "FORM_WIDGET";
+    public static String JSON_FORM_WIDGET = "JSON_FORM_WIDGET";
     public static String DROP_DOWN_WIDGET = "DROP_DOWN_WIDGET";
     public static String OPTIONS = "options";
     public static String DEFAULT_OPTION = "defaultOptionValue";

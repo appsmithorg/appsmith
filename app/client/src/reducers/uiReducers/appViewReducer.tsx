@@ -12,6 +12,9 @@ const initialState: AppViewReduxState = {
 };
 
 const appViewReducer = createReducer(initialState, {
+  [ReduxActionTypes.RESET_EDITOR_SUCCESS]: (state: AppViewReduxState) => {
+    return { ...state, initialized: false };
+  },
   [ReduxActionTypes.INITIALIZE_PAGE_VIEWER]: (state: AppViewReduxState) => {
     return { ...state, initialized: false };
   },

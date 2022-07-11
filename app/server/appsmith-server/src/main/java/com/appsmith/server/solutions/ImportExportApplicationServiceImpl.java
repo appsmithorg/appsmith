@@ -13,10 +13,10 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ce.ImportExportApplicationServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -30,14 +30,14 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                                               NewActionRepository newActionRepository,
                                               DatasourceRepository datasourceRepository,
                                               PluginRepository pluginRepository,
-                                              OrganizationService organizationService,
+                                              WorkspaceService workspaceService,
                                               ApplicationService applicationService,
                                               NewPageService newPageService,
                                               ApplicationPageService applicationPageService,
                                               NewPageRepository newPageRepository,
                                               NewActionService newActionService,
                                               SequenceService sequenceService,
-                                              ExamplesOrganizationCloner examplesOrganizationCloner,
+                                              ExamplesWorkspaceCloner examplesWorkspaceCloner,
                                               ActionCollectionRepository actionCollectionRepository,
                                               ActionCollectionService actionCollectionService,
                                               ThemeService themeService,
@@ -45,8 +45,8 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                                               AnalyticsService analyticsService) {
 
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
-                organizationService, applicationService, newPageService, applicationPageService, newPageRepository,
-                newActionService, sequenceService, examplesOrganizationCloner, actionCollectionRepository,
+                workspaceService, applicationService, newPageService, applicationPageService, newPageRepository,
+                newActionService, sequenceService, examplesWorkspaceCloner, actionCollectionRepository,
                 actionCollectionService, themeService, policyUtils, analyticsService);
     }
 }

@@ -3,7 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,7 +43,7 @@ public class PluginServiceCEImplTest {
     @MockBean
     AnalyticsService analyticsService;
     @MockBean
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
     @MockBean
     PluginManager pluginManager;
     @MockBean
@@ -60,7 +60,7 @@ public class PluginServiceCEImplTest {
         objectMapper = new ObjectMapper();
         pluginService = new PluginServiceCEImpl(
                 scheduler, validator, mongoConverter, reactiveMongoTemplate,
-                repository, analyticsService, organizationService, pluginManager, reactiveTemplate, topic, objectMapper);
+                repository, analyticsService, workspaceService, pluginManager, reactiveTemplate, topic, objectMapper);
     }
 
     @Test

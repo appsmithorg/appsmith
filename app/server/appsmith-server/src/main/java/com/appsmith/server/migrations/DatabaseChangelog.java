@@ -1,6 +1,7 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Connection;
@@ -36,10 +37,9 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.OrganizationPlugin;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
-import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QActionCollection;
@@ -65,11 +65,10 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
-import com.appsmith.server.dtos.OrganizationPluginStatus;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.TextUtils;
-import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
@@ -130,13 +129,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_RESOURCES;
@@ -244,11 +243,11 @@ public class DatabaseChangelog {
             }
 
             final Set<String> installedPlugins = organization.getPlugins()
-                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+                    .stream().map(WorkspacePlugin::getPluginId).collect(Collectors.toSet());
 
             if (!installedPlugins.contains(pluginId)) {
                 organization.getPlugins()
-                        .add(new OrganizationPlugin(pluginId, OrganizationPluginStatus.FREE));
+                        .add(new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
             }
 
             mongockTemplate.save(organization);
@@ -311,23 +310,11 @@ public class DatabaseChangelog {
         dropIndexIfExists(mongoTemplate, Organization.class, "name");
     }
 
-    @ChangeSet(order = "003", id = "add-org-slugs", author = "")
-    public void addOrgSlugs(MongockTemplate mongoTemplate, OrganizationService organizationService) {
-        // For all existing organizations, add a slug field, which should be unique.
-        // We are blocking here for adding a slug to each existing organization. This is bad and slow. Do NOT copy this
-        // code fragment into the services' control flow. This is a single migration code and is expected to run once in
-        // lifetime of a deployment.
-        for (Organization organization : mongoTemplate.findAll(Organization.class)) {
-            if (organization.getSlug() == null) {
-                organizationService.getNextUniqueSlug(organization.makeSlug())
-                        .doOnSuccess(slug -> {
-                            organization.setSlug(slug);
-                            mongoTemplate.save(organization);
-                        })
-                        .block();
-            }
-        }
-    }
+    /*
+     * @ChangeSet(order = "003", id = "add-org-slugs", author = "")
+     * This migration has been removed as it's no more required. A newer version of this migration has been added
+     * in the @ChangeLog(order = "008") with id="update-organization-slugs"
+     */
 
     /**
      * We are creating indexes manually because Spring's index resolver creates indexes on fields as well.
@@ -368,11 +355,6 @@ public class DatabaseChangelog {
                 makeIndex("email").unique()
         );
 
-        ensureIndexes(mongoTemplate, Organization.class,
-                createdAtIndex,
-                makeIndex("slug").unique()
-        );
-
         ensureIndexes(mongoTemplate, Page.class,
                 createdAtIndex,
                 makeIndex("applicationId", "name").unique().named("application_page_compound_index")
@@ -383,9 +365,12 @@ public class DatabaseChangelog {
                 makeIndex("email").unique().expire(3600, TimeUnit.SECONDS)
         );
 
-        ensureIndexes(mongoTemplate, Permission.class,
-                createdAtIndex
-        );
+        /*
+        Removing the code for ensuring index for a class which has never been used and now being removed.
+         */
+//        ensureIndexes(mongoTemplate, Permission.class,
+//                createdAtIndex
+//        );
 
         ensureIndexes(mongoTemplate, Plugin.class,
                 createdAtIndex,
@@ -513,12 +498,12 @@ public class DatabaseChangelog {
             }
 
             final Set<String> installedPlugins = organization.getPlugins()
-                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+                    .stream().map(WorkspacePlugin::getPluginId).collect(Collectors.toSet());
 
             for (Plugin defaultPlugin : defaultPlugins) {
                 if (!installedPlugins.contains(defaultPlugin.getId())) {
                     organization.getPlugins()
-                            .add(new OrganizationPlugin(defaultPlugin.getId(), OrganizationPluginStatus.FREE));
+                            .add(new WorkspacePlugin(defaultPlugin.getId(), WorkspacePluginStatus.FREE));
                 }
             }
 
@@ -745,13 +730,13 @@ public class DatabaseChangelog {
                 policies = new HashSet<>();
             }
 
-            Optional<Policy> inviteUsersOptional = policies.stream().filter(policy -> policy.getPermission().equals(ORGANIZATION_INVITE_USERS.getValue())).findFirst();
+            Optional<Policy> inviteUsersOptional = policies.stream().filter(policy -> policy.getPermission().equals(WORKSPACE_INVITE_USERS.getValue())).findFirst();
             if (inviteUsersOptional.isPresent()) {
                 Policy inviteUserPolicy = inviteUsersOptional.get();
                 inviteUserPolicy.getUsers().addAll(invitePermissionUsernames);
             } else {
                 // this policy doesnt exist. create and add this to the policy set
-                Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_INVITE_USERS.getValue())
+                Policy inviteUserPolicy = Policy.builder().permission(WORKSPACE_INVITE_USERS.getValue())
                         .users(invitePermissionUsernames).build();
                 organization.getPolicies().add(inviteUserPolicy);
             }
@@ -1720,7 +1705,7 @@ public class DatabaseChangelog {
             mongoTemplate.updateFirst(
                     query(new Criteria().andOperator(
                             where(fieldName(QOrganization.organization.id)).is(org.getId()),
-                            where(fieldName(QOrganization.organization.policies) + ".permission").is(ORGANIZATION_INVITE_USERS.getValue())
+                            where(fieldName(QOrganization.organization.policies) + ".permission").is(WORKSPACE_INVITE_USERS.getValue())
                     )),
                     new Update().addToSet("policies.$.users").each(viewers.toArray()),
                     Organization.class
@@ -1867,7 +1852,7 @@ public class DatabaseChangelog {
         }
     }
 
-    private Set<String> getInvalidDynamicBindingPathsInAction(ObjectMapper mapper, NewAction action, List<String> dynamicBindingPathNames) {
+    private static Set<String> getInvalidDynamicBindingPathsInAction(ObjectMapper mapper, NewAction action, List<String> dynamicBindingPathNames) {
         Set<String> pathsToRemove = new HashSet<>();
         for (String path : dynamicBindingPathNames) {
 
@@ -2484,14 +2469,14 @@ public class DatabaseChangelog {
             }
 
             Optional<Policy> exportAppOrgLevelOptional = policies.stream()
-                    .filter(policy -> policy.getPermission().equals(ORGANIZATION_EXPORT_APPLICATIONS.getValue())).findFirst();
+                    .filter(policy -> policy.getPermission().equals(WORKSPACE_EXPORT_APPLICATIONS.getValue())).findFirst();
 
             if (exportAppOrgLevelOptional.isPresent()) {
                 Policy exportApplicationPolicy = exportAppOrgLevelOptional.get();
                 exportApplicationPolicy.getUsers().addAll(exportApplicationPermissionUsernames);
             } else {
                 // this policy doesnt exist. create and add this to the policy set
-                Policy inviteUserPolicy = Policy.builder().permission(ORGANIZATION_EXPORT_APPLICATIONS.getValue())
+                Policy inviteUserPolicy = Policy.builder().permission(WORKSPACE_EXPORT_APPLICATIONS.getValue())
                         .users(exportApplicationPermissionUsernames).build();
                 organization.getPolicies().add(inviteUserPolicy);
             }
@@ -3129,11 +3114,11 @@ public class DatabaseChangelog {
             final Set<String> installedPlugins = organization
                     .getPlugins()
                     .stream()
-                    .map(OrganizationPlugin::getPluginId)
+                    .map(WorkspacePlugin::getPluginId)
                     .collect(Collectors.toSet());
 
             if (installedPlugins.contains(mongoUqiPlugin.getId())) {
-                OrganizationPlugin mongoUqiOrganizationPlugin = organization.getPlugins()
+                WorkspacePlugin mongoUqiOrganizationPlugin = organization.getPlugins()
                         .stream()
                         .filter(organizationPlugin -> organizationPlugin.getPluginId().equals(mongoUqiPlugin.getId()))
                         .findFirst()
@@ -3694,7 +3679,7 @@ public class DatabaseChangelog {
      *                     reference, please check out the `s3MigrationMap` defined above.
      * @return : updated dynamicBindingPathList - ported to UQI model.
      */
-    private List<Property> getUpdatedDynamicBindingPathList(List<Property> dynamicBindingPathList,
+    static List<Property> getUpdatedDynamicBindingPathList(List<Property> dynamicBindingPathList,
                                                             ObjectMapper objectMapper, NewAction action,
                                                             Map<Integer, List<String>> migrationMap) {
         // Return if empty.
@@ -4675,25 +4660,31 @@ public class DatabaseChangelog {
 
             // Migrate unpublished action config data
             if (unpublishedAction.getActionConfiguration().getFormData() != null) {
-                Map formData = unpublishedAction.getActionConfiguration().getFormData();
+                Map<String, Object> formData = unpublishedAction.getActionConfiguration().getFormData();
 
-                String startAfter = getValueSafelyFromFormData(formData, START_AFTER, String.class, "{}");
-                unpublishedAction.getActionConfiguration().setNext(startAfter);
+                Object startAfter = PluginUtils.getValueSafelyFromFormData(formData, START_AFTER);
+                if (startAfter == null) {
+                    startAfter = "{}";
+                }
+                unpublishedAction.getActionConfiguration().setNext((String) startAfter);
 
-                String endBefore = getValueSafelyFromFormData(formData, END_BEFORE, String.class, "{}");
-                unpublishedAction.getActionConfiguration().setPrev(endBefore);
+                Object endBefore = PluginUtils.getValueSafelyFromFormData(formData, END_BEFORE);
+                if (endBefore == null) {
+                    endBefore = "{}";
+                }
+                unpublishedAction.getActionConfiguration().setPrev((String) endBefore);
             }
 
             // Migrate published action config data.
             ActionDTO publishedAction = firestoreAction.getPublishedAction();
             if (publishedAction != null && publishedAction.getActionConfiguration() != null &&
                     publishedAction.getActionConfiguration().getFormData() != null) {
-                Map formData = publishedAction.getActionConfiguration().getFormData();
+                Map<String, Object> formData = publishedAction.getActionConfiguration().getFormData();
 
-                String startAfter = getValueSafelyFromFormData(formData, START_AFTER, String.class, "{}");
+                String startAfter = PluginUtils.getDataValueSafelyFromFormData(formData, START_AFTER, STRING_TYPE, "{}");
                 publishedAction.getActionConfiguration().setNext(startAfter);
 
-                String endBefore = getValueSafelyFromFormData(formData, END_BEFORE, String.class, "{}");
+                String endBefore = PluginUtils.getDataValueSafelyFromFormData(formData, END_BEFORE, STRING_TYPE, "{}");
                 publishedAction.getActionConfiguration().setPrev(endBefore);
             }
 
@@ -4901,7 +4892,7 @@ public class DatabaseChangelog {
 
         for (Application application : mongockTemplate.find(query, Application.class)) {
             if(!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()) {
-                GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
+                GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(null);
                 GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                 gitApplicationMetadata.setGitAuth(gitAuth);
                 application.setGitApplicationMetadata(gitApplicationMetadata);

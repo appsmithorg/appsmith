@@ -53,30 +53,16 @@ import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class TriggerUtils {
 
     public static String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
     public static String RESPONSE_DATA_TYPE = "X-APPSMITH-DATATYPE";
     public static int MAX_REDIRECTS = 5;
-    public static Set BINARY_DATA_TYPES = Set.of("application/zip",
-            "application/octet-stream",
-            "application/pdf",
-            "application/pkcs8",
-            "application/x-binary");
+    public static Set BINARY_DATA_TYPES = Set.of("application/zip", "application/octet-stream", "application/pdf",
+            "application/pkcs8", "application/x-binary");
 
-    public static HeaderUtils headerUtils = HeaderUtils.getInstance();
-
-    protected static TriggerUtils triggerUtils;
-    public static TriggerUtils getInstance() {
-        if (triggerUtils == null) {
-            triggerUtils = new TriggerUtils();
-        }
-
-        return triggerUtils;
-    }
-
-
+    public static HeaderUtils headerUtils = new HeaderUtils();
 
     public Mono<ActionExecutionResult> triggerApiCall(WebClient client, HttpMethod httpMethod, URI uri,
                                                              Object requestBody,
@@ -88,8 +74,16 @@ public class TriggerUtils {
                 .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                 .map(stringResponseEntity -> {
                     HttpHeaders headers = stringResponseEntity.getHeaders();
-                    // Find the media type of the response to parse the body as required.
+                        /*
+                            Find the media type of the response to parse the body as required. In case the content-type
+                            header is not present in the response then set it to our default i.e. "text/plain" although
+                            the RFC 7231 standard suggests assuming "application/octet-stream" content-type in case
+                            it's not present in response header.
+                         */
                     MediaType contentType = headers.getContentType();
+                    if (contentType == null) {
+                        contentType = MediaType.TEXT_PLAIN;
+                    }
                     byte[] body = stringResponseEntity.getBody();
                     HttpStatus statusCode = stringResponseEntity.getStatusCode();
 
@@ -130,8 +124,7 @@ public class TriggerUtils {
                          * Handle XML response. Currently we only handle JSON & Image responses. The other kind of responses
                          * are kept as is and returned as a string.
                          */
-                        if (MediaType.APPLICATION_JSON.equals(contentType) ||
-                                MediaType.APPLICATION_JSON_UTF8.equals(contentType)) {
+                        if (contentType.includes(MediaType.APPLICATION_JSON)) {
                             try {
                                 String jsonBody = new String(body, StandardCharsets.UTF_8);
                                 result.setBody(objectMapper.readTree(jsonBody));
@@ -301,6 +294,7 @@ public class TriggerUtils {
     }
 
     protected HttpClient getHttpClient(DatasourceConfiguration datasourceConfiguration) {
+        // Initializing webClient to be used for http call
         final ConnectionProvider provider = ConnectionProvider
                 .builder("rest-api-provider")
                 .maxIdleTime(Duration.ofSeconds(600))
@@ -326,7 +320,12 @@ public class TriggerUtils {
                         });
                     }
                     sslContextSpec.sslContext(sslContextSpec1);
-                });
+                }).compress(true);
+
+        if ("true".equals(System.getProperty("java.net.useSystemProxies"))
+                && (!System.getProperty("http.proxyHost", "").isEmpty() || !System.getProperty("https.proxyHost", "").isEmpty())) {
+            httpClient = httpClient.proxyWithSystemProperties();
+        }
 
         return httpClient;
     }

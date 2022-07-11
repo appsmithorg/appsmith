@@ -7,6 +7,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: false, // Defines if this widget adds any meta properties
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
+  searchTags: ["pdf"],
   defaults: {
     widgetName: "DocumentViewer",
     docUrl:

@@ -17,48 +17,32 @@ body:
     label: Success Metrics
     description: List of all metrics you are tracking and the desired goal.
     value: |
-      | Goal          | Metric         |
-      | ------------- | -------------- |
-      | e.g. Simplify user experience  | Customer satisfaction score increases  |
-      | e.g. Simplify onboarding flow  | Decrease churn rate down to 30%        |
+      | Metric         |
+      | -------------- |
+      | Customer satisfaction score increases  |
+      | Decrease churn rate down to 30%        |
   validations:
     required: true
 - type: textarea
   attributes:
-    label: Requirements 
+    label: Prioritised User Stories 
     value: |
-      | Requirement   | User Story    |
-      | ------------- | ------------- |
-      | e.g. Must be mobile responsive  | e.g. as a user, I want to be able to access the platform via mobile phone  |
-      | e.g. The user should be able to leave a comment | e.g as a user, I want to be able to communicate with the other members on the canvas  |
-  validations:
-    required: false
-- type: textarea
-  attributes:
-    label: Documentation
-    description: |
-      List the documentation tasks that you are already aware of, and maintain this list as you go along
-    placeholder: |
-      - Item 1
-      - Item 2
-      - Item 3
-  validations:
-    required: false
-- type: textarea
-  attributes:
-    label: Out of Scope
-    description: |
-      List the things that are out of scope or might be revisited after the first release.
-    placeholder: |
-      - Item 1
-      - Item 2
-      - Item 3
+      | User Story    |
+      | ------------- |
+      | e.g. as a user, I want to be able to access the platform via mobile phone  |
+      | e.g as a user, I want to be able to communicate with the other members on the canvas  |
   validations:
     required: false
 - type: input
   attributes:
     label: Developer Handoff Document in Figma
     description: Link to the developer Handoff Document. 
+  validations:
+    required: false
+- type: input
+  attributes:
+    label: Test Plan
+    description: Link to the Test Plan Document. 
   validations:
     required: false
 - type: textarea

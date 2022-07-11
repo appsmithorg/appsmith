@@ -10,9 +10,12 @@ export interface WidgetConfiguration {
   iconSVG?: string;
   defaults: Partial<WidgetProps> & WidgetConfigProps;
   hideCard?: boolean;
+  isDeprecated?: boolean;
+  replacement?: string;
   isCanvas?: boolean;
   needsMeta?: boolean;
   features?: WidgetFeatures;
+  searchTags?: string[];
   properties: {
     config: PropertyPaneConfig[];
     default: Record<string, string>;
@@ -44,6 +47,10 @@ export enum FileDataTypes {
 }
 
 export type AlignWidget = "LEFT" | "RIGHT";
+export enum AlignWidgetTypes {
+  LEFT = "LEFT",
+  RIGHT = "RIGHT",
+}
 
 // Minimum Rows for Widget Popups
 export const MinimumPopupRows = 12;

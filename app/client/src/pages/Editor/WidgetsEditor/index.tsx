@@ -17,17 +17,12 @@ import Debugger from "components/editorComponents/Debugger";
 import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
 import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
-import {
-  getIsOnboardingTasksView,
-  getIsOnboardingWidgetSelection,
-} from "selectors/entitiesSelector";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
 import {
-  getIsFirstTimeUserOnboardingEnabled,
+  getIsOnboardingTasksView,
   inGuidedTour,
 } from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
@@ -43,14 +38,7 @@ function WidgetsEditor() {
   const currentApp = useSelector(getCurrentApplication);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
-  const enableFirstTimeUserOnboarding = useSelector(
-    getIsFirstTimeUserOnboardingEnabled,
-  );
-  const isOnboardingWidgetSelection = useSelector(
-    getIsOnboardingWidgetSelection,
-  );
   const guidedTourEnabled = useSelector(inGuidedTour);
-  useDynamicAppLayout();
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
   });
@@ -114,9 +102,7 @@ function WidgetsEditor() {
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
-      {enableFirstTimeUserOnboarding &&
-      showOnboardingTasks &&
-      !isOnboardingWidgetSelection ? (
+      {showOnboardingTasks ? (
         <OnboardingTasks />
       ) : (
         <>

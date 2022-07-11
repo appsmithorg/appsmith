@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import FormControl from "pages/Editor/FormControl";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import styled from "styled-components";
@@ -74,6 +74,10 @@ function NestedComponents(props: any) {
                 sch = {
                   ...sch,
                   configProperty: `${field}.${sch.key}`,
+                  customStyles: {
+                    width: "20vw",
+                    ...props.customStyles,
+                  },
                 };
                 return (
                   <FormControl

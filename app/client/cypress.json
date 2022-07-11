@@ -14,13 +14,14 @@
 		"json": false
 	},
 	"ignoreTestFiles": [
-		"**/Smoke_TestSuite/Application/PgAdmin_spec*.js"
+		"**/Smoke_TestSuite/Application/PgAdmin_spec*.js",
+		"**/Smoke_TestSuite/Application/PromisesApp_spec.js"
 	],
 	"chromeWebSecurity": false,
 	"viewportHeight": 1100,
 	"viewportWidth": 1400,
 	"retries": {
-		"runMode": 2,
+		"runMode": 1,
 		"openMode": 0
 	}
 }

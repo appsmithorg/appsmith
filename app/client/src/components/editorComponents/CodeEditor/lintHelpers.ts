@@ -1,11 +1,18 @@
-import { last, isNumber } from "lodash";
+import { last, isNumber, isEmpty } from "lodash";
 import { Annotation, Position } from "codemirror";
 import {
   EvaluationError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
-import { LintTooltipDirection, WARNING_LINT_ERRORS } from "./constants";
+import {
+  CODE_EDITOR_START_POSITION,
+  INVALID_JSOBJECT_START_STATEMENT,
+  JS_OBJECT_START_STATEMENT,
+  LintTooltipDirection,
+  VALID_JS_OBJECT_BINDING_POSITION,
+  WARNING_LINT_ERRORS,
+} from "./constants";
 
 export const getIndexOfRegex = (
   str: string,
@@ -57,15 +64,40 @@ export const getKeyPositionInString = (
   return positions;
 };
 
+export const getFirstNonEmptyPosition = (lines: string[]): Position => {
+  const lineNumber = lines.findIndex((line) => !isEmpty(line));
+  return lineNumber > -1
+    ? {
+        line: lineNumber,
+        ch: lines[lineNumber].length,
+      }
+    : CODE_EDITOR_START_POSITION;
+};
+
 export const getLintAnnotations = (
   value: string,
   errors: EvaluationError[],
+  isJSObject?: boolean,
 ): Annotation[] => {
   const annotations: Annotation[] = [];
   const lintErrors = errors.filter(
     (error) => error.errorType === PropertyEvaluationErrorType.LINT,
   );
   const lines = value.split("\n");
+  if (
+    isJSObject &&
+    !isEmpty(lines) &&
+    !lines[0].startsWith(JS_OBJECT_START_STATEMENT)
+  ) {
+    return [
+      {
+        from: CODE_EDITOR_START_POSITION,
+        to: getFirstNonEmptyPosition(lines),
+        message: INVALID_JSOBJECT_START_STATEMENT,
+        severity: Severity.ERROR,
+      },
+    ];
+  }
   lintErrors.forEach((error) => {
     const {
       ch,
@@ -93,7 +125,9 @@ export const getLintAnnotations = (
       }
     }
 
-    const bindingPositions = getKeyPositionInString(value, originalBinding);
+    const bindingPositions = isJSObject
+      ? [VALID_JS_OBJECT_BINDING_POSITION]
+      : getKeyPositionInString(value, originalBinding);
 
     if (isNumber(line) && isNumber(ch)) {
       for (const bindingLocation of bindingPositions) {

@@ -1,6 +1,7 @@
 import React, { ReactElement, useCallback, useMemo } from "react";
+import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
 import { IPanelProps, Position } from "@blueprintjs/core";
 
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
@@ -12,6 +13,10 @@ import PropertyPaneConnections from "./PropertyPaneConnections";
 import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 import { WidgetType } from "constants/WidgetConstants";
+import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
+import { BannerMessage } from "components/ads/BannerMessage";
+import { Colors } from "constants/Colors";
+import { IconSize } from "components/ads";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -37,7 +42,10 @@ function PropertyPaneView(
 ) {
   const dispatch = useDispatch();
   const { ...panel } = props;
-  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
+  const widgetProperties = useSelector(
+    getWidgetPropsForPropertyPaneView,
+    equal,
+  );
   const doActionsExist = useSelector(actionsExist);
   const hideConnectDataCTA = useMemo(() => {
     if (widgetProperties) {
@@ -97,6 +105,18 @@ function PropertyPaneView(
 
   if (!widgetProperties) return null;
 
+  // Building Deprecation Messages
+  const {
+    currentWidgetName,
+    isDeprecated,
+    widgetReplacedWith,
+  } = isWidgetDeprecated(widgetProperties.type);
+  // generate messages
+  const deprecationMessage = buildDeprecationWidgetMessage(
+    currentWidgetName,
+    widgetReplacedWith,
+  );
+
   return (
     <div
       className="relative flex flex-col w-full pt-3 overflow-y-auto"
@@ -111,7 +131,7 @@ function PropertyPaneView(
       />
 
       <div
-        className="p-3 pb-24 overflow-x-hidden overflow-y-scroll t--property-pane-view"
+        className="pt-3 pb-24 overflow-x-hidden overflow-y-scroll t--property-pane-view"
         data-guided-tour-id="property-pane"
       >
         {!doActionsExist && !hideConnectDataCTA && (
@@ -122,7 +142,17 @@ function PropertyPaneView(
           />
         )}
         <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
-
+        {isDeprecated && (
+          <BannerMessage
+            backgroundColor={Colors.WARNING_ORANGE}
+            className="t--deprecation-warning"
+            icon="warning-line"
+            iconColor={Colors.WARNING_SOLID}
+            iconSize={IconSize.XXXXL}
+            message={deprecationMessage}
+            textColor={Colors.BROWN}
+          />
+        )}
         <PropertyControlsGenerator
           id={widgetProperties.widgetId}
           panel={panel}
