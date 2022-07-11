@@ -16,7 +16,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Text, TextType } from "components/ads";
+import { Text, TextType } from "design-system";
 
 const QueryHeader = styled.div`
   display: flex;
