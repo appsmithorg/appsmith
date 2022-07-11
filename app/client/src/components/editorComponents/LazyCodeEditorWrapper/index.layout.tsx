@@ -80,12 +80,12 @@ export const LazyEditorWrapper = styled("div")`
 export const ContentWrapper = styled("div")<{ containsCode: boolean }>`
   overflow: hidden;
   height: ${({ containsCode }) => (containsCode ? "auto" : "36px")};
-  min-height: 36px;
+  min-height: 34px;
   border: 1px solid;
   border-color: inherit;
 
   div:nth-child(1) {
-    min-height: 36px;
+    min-height: 34px;
   }
 `;
 
