@@ -27,13 +27,6 @@ const useDropdown = ({ inputRef, renderMode }: useDropdownProps) => {
   const popupContainer = useRef<HTMLElement>(getMainCanvas());
   const selectRef = useRef<Select<LabelValueType[]> | null>(null);
 
-  const closeBackDrop = useCallback(() => {
-    if (selectRef.current) {
-      selectRef.current.blur();
-      onOpen(false);
-    }
-  }, []);
-
   useEffect(() => {
     if (!popupContainer.current) {
       popupContainer.current = getMainCanvas();
@@ -73,6 +66,13 @@ const useDropdown = ({ inputRef, renderMode }: useDropdownProps) => {
     },
     [renderMode],
   );
+
+  const closeBackDrop = useCallback(() => {
+    if (selectRef.current) {
+      selectRef.current.blur();
+      onOpen(false);
+    }
+  }, [onOpen]);
 
   return {
     BackDrop,
