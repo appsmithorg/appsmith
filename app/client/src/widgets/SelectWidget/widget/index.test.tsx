@@ -212,4 +212,28 @@ describe("defaultOptionValueValidation - ", () => {
       ).toEqual(expected);
     });
   });
+
+  it("Should get tested with options", () => {
+    const input = "YELLOW";
+
+    expect(
+      defaultOptionValueValidation(
+        input,
+        {
+          options: [
+            { label: "Blue", value: "BLUE" },
+            { label: "Green", value: "GREEN" },
+          ],
+          serverSideFiltering: false,
+        } as SelectWidgetProps,
+        _,
+      ),
+    ).toEqual({
+      isValid: false,
+      parsed: "YELLOW",
+      messages: [
+        "Default value is missing in options. Please update the value.",
+      ],
+    });
+  });
 });
