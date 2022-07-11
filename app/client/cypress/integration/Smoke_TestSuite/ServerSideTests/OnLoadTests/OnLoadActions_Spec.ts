@@ -4,7 +4,7 @@ let dsl: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   apiPage = ObjectsRegistry.ApiPage,
-  jsEditor = ObjectsRegistry.JSEditor,
+  propPane = ObjectsRegistry.PropertyPane,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode;
 
@@ -61,30 +61,24 @@ describe("Layout OnLoad Actions tests", function() {
     //apiPage.RunAPI();
 
     //Adding dependency in right order matters!
-    ee.expandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("WIDGETS");
     ee.SelectEntityByName("Image1");
-    jsEditor.EnterJSContext("Image", `{{RandomFlora.data}}`, true);
+    propPane.UpdatePropertyFieldValue("Image", `{{RandomFlora.data}}`);
 
     ee.SelectEntityByName("Image2");
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Image",
-      `{{RandomUser.data.results[0].picture.large}}`,
-      true,
-    );
+      `{{RandomUser.data.results[0].picture.large}}`);
 
     ee.SelectEntityByName("Text1");
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Text",
-      `{{InspiringQuotes.data.quote.body}}\n--\n{{InspiringQuotes.data.quote.author}}\n`,
-      true,
-    );
+      `{{InspiringQuotes.data.quote.body}}\n--\n{{InspiringQuotes.data.quote.author}}\n`);
 
     ee.SelectEntityByName("Text2");
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Text",
-      `Hi, here is {{RandomUser.data.results[0].name.first}} & I'm {{RandomUser.data.results[0].dob.age}}'yo\nI live in {{RandomUser.data.results[0].location.country}}\nMy Suggestion : {{Suggestions.data.activity}}\n\nI'm {{Genderize.data.gender}}`,
-      true,
-    );
+      `Hi, here is {{RandomUser.data.results[0].name.first}} & I'm {{RandomUser.data.results[0].dob.age}}'yo\nI live in {{RandomUser.data.results[0].location.country}}\nMy Suggestion : {{Suggestions.data.activity}}\n\nI'm {{Genderize.data.gender}}`);
 
     // cy.url().then((url) => {
     //   const pageid = url.split("/")[4]?.split("-").pop();

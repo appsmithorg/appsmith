@@ -28,8 +28,7 @@ describe(".useDeepEffect", () => {
 
   it("production mode there are no errors thrown", () => {
     const env = process.env.NODE_ENV;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     process.env.NODE_ENV = "production";
     renderHook(() =>
       useDeepEffect(() => {
@@ -41,8 +40,7 @@ describe(".useDeepEffect", () => {
         "";
       }, []),
     );
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     process.env.NODE_ENV = env;
   });
 

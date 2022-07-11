@@ -13,15 +13,15 @@ let homePage = ObjectsRegistry.HomePage,
 
 describe("AForce - Community Issues page validations", function() {
   before(function() {
-    agHelper.clearLocalStorageCache();
+    agHelper.ClearLocalStorageCache();
   });
 
   beforeEach(() => {
-    agHelper.restoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.saveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
   let selectedRow: number;
@@ -119,7 +119,7 @@ describe("AForce - Community Issues page validations", function() {
   });
 
   it("4. Change Default selected row in table and verify", () => {
-    jsEditor.EnterJSContext("Default Selected Row", "1");
+    propPane.UpdatePropertyFieldValue("Default Selected Row", "1");
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
     table.AssertPageNumber(1);

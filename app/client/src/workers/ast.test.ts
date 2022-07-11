@@ -1,4 +1,4 @@
-import { extractIdentifiersFromCode } from "workers/ast";
+import { extractIdentifiersFromCode, parseJSObjectWithAST } from "workers/ast";
 
 describe("getAllIdentifiers", () => {
   it("works properly", () => {
@@ -226,5 +226,187 @@ describe("getAllIdentifiers", () => {
       const references = extractIdentifiersFromCode(perCase.script);
       expect(references).toStrictEqual(perCase.expectedResults);
     });
+  });
+});
+
+describe("parseJSObjectWithAST", () => {
+  it("parse js object", () => {
+    const body = `{
+	myVar1: [],
+	myVar2: {},
+	myFun1: () => {
+		//write code here
+	},
+	myFun2: async () => {
+		//use async-await or promises
+	}
+}`;
+    const parsedObject = [
+      {
+        key: "myVar1",
+        value: "[]",
+        type: "ArrayExpression",
+      },
+      {
+        key: "myVar2",
+        value: "{}",
+        type: "ObjectExpression",
+      },
+      {
+        key: "myFun1",
+        value: "() => {}",
+        type: "ArrowFunctionExpression",
+        arguments: [],
+      },
+      {
+        key: "myFun2",
+        value: "async () => {}",
+        type: "ArrowFunctionExpression",
+        arguments: [],
+      },
+    ];
+    const resultParsedObject = parseJSObjectWithAST(body);
+    expect(resultParsedObject).toStrictEqual(parsedObject);
+  });
+
+  it("parse js object with literal", () => {
+    const body = `{
+	myVar1: [],
+	myVar2: {
+		"a": "app",
+	},
+	myFun1: () => {
+		//write code here
+	},
+	myFun2: async () => {
+		//use async-await or promises
+	}
+}`;
+    const parsedObject = [
+      {
+        key: "myVar1",
+        value: "[]",
+        type: "ArrayExpression",
+      },
+      {
+        key: "myVar2",
+        value: '{\n  "a": "app"\n}',
+        type: "ObjectExpression",
+      },
+      {
+        key: "myFun1",
+        value: "() => {}",
+        type: "ArrowFunctionExpression",
+        arguments: [],
+      },
+      {
+        key: "myFun2",
+        value: "async () => {}",
+        type: "ArrowFunctionExpression",
+        arguments: [],
+      },
+    ];
+    const resultParsedObject = parseJSObjectWithAST(body);
+    expect(resultParsedObject).toStrictEqual(parsedObject);
+  });
+
+  it("parse js object with variable declaration inside function", () => {
+    const body = `{
+      myFun1: () => {
+        const a = {
+          conditions: [],
+          requires: 1,
+          testFunc: () => {},
+          testFunc2: function(){}
+        };
+      },
+      myFun2: async () => {
+        //use async-await or promises
+      }
+    }`;
+    const parsedObject = [
+      {
+        key: "myFun1",
+        value: `() => {
+  const a = {
+    conditions: [],
+    requires: 1,
+    testFunc: () => {},
+    testFunc2: function () {}
+  };
+}`,
+        type: "ArrowFunctionExpression",
+        arguments: [],
+      },
+      {
+        key: "myFun2",
+        value: "async () => {}",
+        type: "ArrowFunctionExpression",
+        arguments: [],
+      },
+    ];
+    const resultParsedObject = parseJSObjectWithAST(body);
+    expect(resultParsedObject).toStrictEqual(parsedObject);
+  });
+
+  it("parse js object with params of all types", () => {
+    const body = `{
+      myFun2: async (a,b = Array(1,2,3),c = "", d = [], e = this.myVar1, f = {}, g = function(){}, h = Object.assign({}), i = String(), j = storeValue()) => {
+        //use async-await or promises
+      },
+    }`;
+
+    const parsedObject = [
+      {
+        key: "myFun2",
+        value:
+          'async (a, b = Array(1, 2, 3), c = "", d = [], e = this.myVar1, f = {}, g = function () {}, h = Object.assign({}), i = String(), j = storeValue()) => {}',
+        type: "ArrowFunctionExpression",
+        arguments: [
+          {
+            paramName: "a",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "b",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "c",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "d",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "e",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "f",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "g",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "h",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "i",
+            defaultValue: undefined,
+          },
+          {
+            paramName: "j",
+            defaultValue: undefined,
+          },
+        ],
+      },
+    ];
+    const resultParsedObject = parseJSObjectWithAST(body);
+    expect(resultParsedObject).toEqual(parsedObject);
   });
 });

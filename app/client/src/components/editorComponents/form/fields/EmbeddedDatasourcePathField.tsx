@@ -37,7 +37,7 @@ import StoreAsDatasource, {
 import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
-import Text, { FontWeight, TextType } from "components/ads/Text";
+import { Text, FontWeight, TextType } from "design-system";
 import history from "utils/history";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";

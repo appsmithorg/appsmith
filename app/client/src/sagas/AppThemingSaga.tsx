@@ -38,6 +38,9 @@ import {
   UpdateWidgetPropertyPayload,
 } from "actions/controlActions";
 import { getPropertiesToUpdateForReset } from "entities/AppTheming/utils";
+import { ApiResponse } from "api/ApiResponses";
+import { AppTheme } from "entities/AppTheming";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 /**
  * init app theming
@@ -66,7 +69,9 @@ export function* initAppTheming() {
 export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
   try {
     const { applicationId } = action.payload;
-    const response = yield ThemingApi.fetchThemes(applicationId);
+    const response: ApiResponse<AppTheme> = yield ThemingApi.fetchThemes(
+      applicationId,
+    );
 
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
@@ -95,7 +100,10 @@ export function* fetchAppSelectedTheme(
 
   try {
     // eslint-disable-next-line
-    const response = yield ThemingApi.fetchSelected(applicationId, mode);
+    const response: ApiResponse<AppTheme[]> = yield ThemingApi.fetchSelected(
+      applicationId,
+      mode,
+    );
 
     yield put({
       type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
@@ -119,7 +127,7 @@ export function* updateSelectedTheme(
 ) {
   // eslint-disable-next-line
   const { shouldReplay = true, theme, applicationId } = action.payload;
-  const canvasWidgets = yield select(getCanvasWidgets);
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
 
   try {
     yield ThemingApi.updateTheme(applicationId, theme);
@@ -155,7 +163,7 @@ export function* changeSelectedTheme(
   action: ReduxAction<ChangeSelectedAppThemeAction>,
 ) {
   const { applicationId, shouldReplay = true, theme } = action.payload;
-  const canvasWidgets = yield select(getCanvasWidgets);
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
 
   try {
     yield ThemingApi.changeTheme(applicationId, theme);
@@ -200,7 +208,10 @@ export function* saveSelectedTheme(action: ReduxAction<SaveAppThemeAction>) {
   const { applicationId, name } = action.payload;
 
   try {
-    const response = yield ThemingApi.saveTheme(applicationId, { name });
+    const response: ApiResponse<AppTheme[]> = yield ThemingApi.saveTheme(
+      applicationId,
+      { name },
+    );
 
     yield put({
       type: ReduxActionTypes.SAVE_APP_THEME_SUCCESS,
@@ -264,7 +275,10 @@ function* closeisBetaCardShown() {
  */
 function* resetTheme() {
   try {
-    const canvasWidgets = yield select(getCanvasWidgets);
+    const canvasWidgets: CanvasWidgetsReduxState = yield select(
+      getCanvasWidgets,
+    );
+    // @ts-expect-error: Type the StyleSheet
     const themeStylesheet = yield select(getSelectedAppThemeStylesheet);
 
     const propertiesToUpdate: UpdateWidgetPropertyPayload[] = getPropertiesToUpdateForReset(

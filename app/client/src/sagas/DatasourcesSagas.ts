@@ -37,7 +37,7 @@ import {
   UpdateDatasourceSuccessAction,
   executeDatasourceQueryReduxAction,
 } from "actions/datasourceActions";
-import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
 import { Datasource } from "entities/Datasource";
 
@@ -80,7 +80,7 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { trimQueryString } from "utils/helpers";
+import { shouldBeDefined, trimQueryString } from "utils/helpers";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
@@ -98,13 +98,13 @@ function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
 ) {
   try {
-    let workspaceId = yield select(getCurrentWorkspaceId);
+    let workspaceId: string = yield select(getCurrentWorkspaceId);
     if (action.payload?.workspaceId) workspaceId = action.payload?.workspaceId;
 
-    const response: GenericApiResponse<Datasource[]> = yield DatasourcesApi.fetchDatasources(
+    const response: ApiResponse<Datasource[]> = yield DatasourcesApi.fetchDatasources(
       workspaceId,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
@@ -121,7 +121,7 @@ function* fetchDatasourcesSaga(
 
 function* fetchMockDatasourcesSaga() {
   try {
-    const response: GenericApiResponse<any> = yield DatasourcesApi.fetchMockDatasources();
+    const response: ApiResponse = yield DatasourcesApi.fetchMockDatasources();
     // not validating the api call here. If the call is unsuccessful it'll be unblocking. And we'll hide the mock DB section.
     yield put({
       type: ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
@@ -153,7 +153,8 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
   try {
     const { name, packageName, pluginId, workspaceId } = actionPayload.payload;
     const { isGeneratePageMode } = actionPayload.extraParams;
-    const response: GenericApiResponse<any> = yield DatasourcesApi.addMockDbToDatasources(
+    const pageId: string = yield select(getCurrentPageId);
+    const response: ApiResponse = yield DatasourcesApi.addMockDbToDatasources(
       name,
       workspaceId,
       pluginId,
@@ -171,6 +172,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       yield put({
         type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
       });
+      // @ts-expect-error: response is of type unknown
       yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
       const isGeneratePageInitiator = getIsGeneratePageInitiator(
         isGeneratePageMode,
@@ -179,7 +181,9 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       if (isGeneratePageInitiator) {
         history.push(
           generateTemplateFormURL({
+            pageId,
             params: {
+              // @ts-expect-error: response.data is of type unknown
               datasourceId: response.data.id,
             },
           }),
@@ -188,6 +192,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
         if (isInGuidedTour) return;
         history.push(
           integrationEditorURL({
+            pageId,
             selectedTab: INTEGRATION_TABS.ACTIVE,
             params: getQueryParams(),
           }),
@@ -207,24 +212,30 @@ export function* deleteDatasourceSaga(
 ) {
   try {
     const id = actionPayload.payload.id;
-    const response: GenericApiResponse<Datasource> = yield DatasourcesApi.deleteDatasource(
+    const response: ApiResponse<Datasource> = yield DatasourcesApi.deleteDatasource(
       id,
     );
+    const pageId: string = yield select(getCurrentPageId);
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      const pluginPackageName = yield select((state: AppState) =>
-        getPluginPackageFromDatasourceId(state, id),
+      const pluginPackageName = shouldBeDefined<string>(
+        yield select((state: AppState) =>
+          getPluginPackageFromDatasourceId(state, id),
+        ),
+        `Plugin package not found for the given id - ${id}`,
       );
       const datasourcePathWithoutQuery = trimQueryString(
         datasourcesEditorIdURL({
+          pageId,
           datasourceId: id,
         }),
       );
 
       const saasPathWithoutQuery = trimQueryString(
         saasEditorDatasourceIdURL({
+          pageId,
           pluginPackageName,
           datasourceId: id,
         }),
@@ -236,6 +247,7 @@ export function* deleteDatasourceSaga(
       ) {
         history.push(
           integrationEditorURL({
+            pageId,
             selectedTab: INTEGRATION_TABS.NEW,
             params: {
               ...getQueryParams(),
@@ -274,9 +286,12 @@ export function* deleteDatasourceSaga(
       }
     }
   } catch (error) {
-    const datasource = yield select(getDatasource, actionPayload.payload.id);
+    const datasource = shouldBeDefined<Datasource>(
+      yield select(getDatasource, actionPayload.payload.id),
+      `Datasource not found for id - ${actionPayload.payload.id}`,
+    );
     Toaster.show({
-      text: error.message,
+      text: (error as Error).message,
       variant: Variant.danger,
     });
     yield put({
@@ -284,10 +299,10 @@ export function* deleteDatasourceSaga(
       payload: { error, id: actionPayload.payload.id, show: false },
     });
     AppsmithConsole.error({
-      text: error.message,
+      text: (error as Error).message,
       source: {
         id: actionPayload.payload.id,
-        name: datasource?.name ?? "Datasource name is not set",
+        name: datasource.name,
         type: ENTITY_TYPE.DATASOURCE,
       },
     });
@@ -304,11 +319,11 @@ function* updateDatasourceSaga(
     const queryParams = getQueryParams();
     const datasourcePayload = _.omit(actionPayload.payload, "name");
     datasourcePayload.isConfigured = true; // when clicking save button, it should be changed as configured
-    const response: GenericApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
+    const response: ApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
       datasourcePayload,
       datasourcePayload.id,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
         datasourceName: response.data.name,
@@ -318,7 +333,7 @@ function* updateDatasourceSaga(
         variant: Variant.success,
       });
 
-      const state = yield select();
+      const state: AppState = yield select();
       const expandDatasourceId = state.ui.datasourcePane.expandDatasourceId;
       const datasourceStructure =
         state.entities.datasources.structure[response.data.id];
@@ -385,7 +400,7 @@ function* redirectAuthorizationCodeSaga(
   } else {
     try {
       // Get an "appsmith token" from the server
-      const response: ApiResponse = yield OAuthApi.getAppsmithToken(
+      const response: ApiResponse<string> = yield OAuthApi.getAppsmithToken(
         datasourceId,
         pageId,
         !!isImport,
@@ -427,7 +442,10 @@ function* getOAuthAccessTokenSaga(
   }
   try {
     // Get access token for datasource
-    const response = yield OAuthApi.getAccessToken(datasourceId, appsmithToken);
+    const response: ApiResponse<Datasource> = yield OAuthApi.getAccessToken(
+      datasourceId,
+      appsmithToken,
+    );
     if (validateResponse(response)) {
       // Update the datasource object
       yield put({
@@ -454,14 +472,14 @@ function* saveDatasourceNameSaga(
   actionPayload: ReduxAction<{ id: string; name: string }>,
 ) {
   try {
-    const response: GenericApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
+    const response: ApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
       {
         name: actionPayload.payload.name,
       },
       actionPayload.payload.id,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.SAVE_DATASOURCE_NAME_SUCCESS,
@@ -483,7 +501,7 @@ function* handleDatasourceNameChangeFailureSaga(
 }
 
 function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
-  let workspaceId = yield select(getCurrentWorkspaceId);
+  let workspaceId: string = yield select(getCurrentWorkspaceId);
 
   // test button within the import modal
   if (!workspaceId) {
@@ -493,7 +511,10 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     getFormData,
     DATASOURCE_DB_FORM,
   );
-  const datasource = yield select(getDatasource, actionPayload.payload.id);
+  const datasource = shouldBeDefined<Datasource>(
+    yield select(getDatasource, actionPayload.payload.id),
+    `Datasource not found for id - ${actionPayload.payload.id}`,
+  );
   const payload = {
     ...actionPayload.payload,
     name: datasource.name,
@@ -505,13 +526,13 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   }
 
   try {
-    const response: GenericApiResponse<Datasource> = yield DatasourcesApi.testDatasource(
+    const response: ApiResponse<Datasource> = yield DatasourcesApi.testDatasource(
       {
         ...payload,
         workspaceId,
       },
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     let messages: Array<string> = [];
     if (isValidResponse) {
       const responseData = response.data;
@@ -597,28 +618,32 @@ function* createDatasourceFromFormSaga(
   actionPayload: ReduxAction<CreateDatasourceConfig>,
 ) {
   try {
-    const workspaceId = yield select(getCurrentWorkspaceId);
+    const workspaceId: string = yield select(getCurrentWorkspaceId);
     yield call(
       checkAndGetPluginFormConfigsSaga,
       actionPayload.payload.pluginId,
     );
-    const formConfig = yield select(
+    const formConfig: Record<string, any>[] = yield select(
       getPluginForm,
       actionPayload.payload.pluginId,
     );
 
-    const initialValues = yield call(getConfigInitialValues, formConfig);
+    const initialValues: unknown = yield call(
+      getConfigInitialValues,
+      formConfig,
+    );
 
     const payload = merge(initialValues, actionPayload.payload);
+    // @ts-expect-error: isConfigured does not exists on type Payload
     payload.isConfigured = false;
 
-    const response: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
+    const response: ApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
       {
         ...payload,
         workspaceId,
       },
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.UPDATE_DATASOURCE_REFS,
@@ -650,10 +675,16 @@ function* createDatasourceFromFormSaga(
 }
 
 function* updateDraftsSaga() {
-  const values = yield select(getFormValues(DATASOURCE_DB_FORM));
+  const values: Record<string, unknown> = yield select(
+    getFormValues(DATASOURCE_DB_FORM),
+  );
 
   if (!values.id) return;
-  const datasource = yield select(getDatasource, values.id);
+  const datasource: Datasource | undefined = yield select(
+    getDatasource,
+    // @ts-expect-error: values is of type unknown
+    values.id,
+  );
   if (_.isEqual(values, datasource)) {
     yield put({
       type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
@@ -664,6 +695,7 @@ function* updateDraftsSaga() {
       type: ReduxActionTypes.UPDATE_DATASOURCE_DRAFT,
       payload: { id: values.id, draft: values },
     });
+    // @ts-expect-error: values is of type unknown
     yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.DATASOURCE));
   }
 }
@@ -676,7 +708,8 @@ function* changeDatasourceSaga(
 ) {
   const { datasource, shouldNotRedirect } = actionPayload.payload;
   const { id } = datasource;
-  const draft = yield select(getDatasourceDraft, id);
+  const draft: Record<string, unknown> = yield select(getDatasourceDraft, id);
+  const pageId: string = yield select(getCurrentPageId);
   let data;
 
   if (_.isEmpty(draft)) {
@@ -691,6 +724,7 @@ function* changeDatasourceSaga(
   // this redirects to the same route, so checking first.
   const datasourcePath = trimQueryString(
     datasourcesEditorIdURL({
+      pageId,
       datasourceId: datasource.id,
     }),
   );
@@ -698,11 +732,13 @@ function* changeDatasourceSaga(
   if (history.location.pathname !== datasourcePath)
     history.push(
       datasourcesEditorIdURL({
+        pageId,
         datasourceId: datasource.id,
         params: getQueryParams(),
       }),
     );
   yield put(
+    // @ts-expect-error: data is of type unknown
     updateReplayEntity(data.id, _.omit(data, ["name"]), ENTITY_TYPE.DATASOURCE),
   );
 }
@@ -739,8 +775,8 @@ function* formValueChangeSaga(
 
 function* storeAsDatasourceSaga() {
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const pageId: string | undefined = yield select(getCurrentPageId);
   let datasource = _.get(values, "datasource");
   datasource = _.omit(datasource, ["name"]);
   const originalHeaders = _.get(values, "actionConfiguration.headers", []);
@@ -770,9 +806,10 @@ function* storeAsDatasourceSaga() {
   );
 
   yield put(createDatasourceFromForm(datasource));
-  const createDatasourceSuccessAction = yield take(
+  const createDatasourceSuccessAction: unknown = yield take(
     ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
   );
+  // @ts-expect-error: createDatasourceSuccessAction is of type unknown
   const createdDatasource = createDatasourceSuccessAction.payload;
 
   // Update action to have this datasource
@@ -803,11 +840,12 @@ function* storeAsDatasourceSaga() {
 }
 
 function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
-  const state = yield select();
+  const state: AppState = yield select();
   const actionRouteInfo = _.get(state, "ui.datasourcePane.actionRouteInfo");
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = yield select(
     getGenerateCRUDEnabledPluginMap,
   );
+  const pageId: string = yield select(getCurrentPageId);
   const updatedDatasource = action.payload;
 
   const { queryParams = {} } = action;
@@ -823,6 +861,7 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   ) {
     history.push(
       generateTemplateFormURL({
+        pageId,
         params: {
           datasourceId: updatedDatasource.id,
         },
@@ -849,13 +888,17 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
 function* fetchDatasourceStructureSaga(
   action: ReduxAction<{ id: string; ignoreCache: boolean }>,
 ) {
-  const datasource = yield select(getDatasource, action.payload.id);
+  const datasource = shouldBeDefined<Datasource>(
+    yield select(getDatasource, action.payload.id),
+    `Datasource not found for id - ${action.payload.id}`,
+  );
+
   try {
-    const response: GenericApiResponse<any> = yield DatasourcesApi.fetchDatasourceStructure(
+    const response: ApiResponse = yield DatasourcesApi.fetchDatasourceStructure(
       action.payload.id,
       action.payload.ignoreCache,
     );
-    const isValidResponse = yield validateResponse(response, false);
+    const isValidResponse: boolean = yield validateResponse(response, false);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS,
@@ -905,13 +948,17 @@ function* fetchDatasourceStructureSaga(
 }
 
 function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
-  const datasource = yield select(getDatasource, action.payload.id);
+  const datasource = shouldBeDefined<Datasource>(
+    yield select(getDatasource, action.payload.id),
+    `Datasource is not found for it - ${action.payload.id}`,
+  );
+
   try {
-    const response: GenericApiResponse<any> = yield DatasourcesApi.fetchDatasourceStructure(
+    const response: ApiResponse = yield DatasourcesApi.fetchDatasourceStructure(
       action.payload.id,
       true,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_SUCCESS,
@@ -964,7 +1011,10 @@ function* executeDatasourceQuerySaga(
   action: executeDatasourceQueryReduxAction<any>,
 ) {
   try {
-    const response: GenericApiResponse<any> = yield DatasourcesApi.executeDatasourceQuery(
+    // const response: GenericApiResponse<any> = yield DatasourcesApi.executeDatasourceQuery(
+    //   action.payload,
+    // );
+    const response: ApiResponse = yield DatasourcesApi.executeGoogleSheetsDatasourceQuery(
       action.payload,
     );
     const isValidResponse: boolean = yield validateResponse(response);
@@ -972,12 +1022,14 @@ function* executeDatasourceQuerySaga(
       yield put({
         type: ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_SUCCESS,
         payload: {
-          data: response.data,
+          // @ts-expect-error: we don't know what the response will be
+          data: response.data?.trigger,
           datasourceId: action.payload.datasourceId,
         },
       });
     }
     if (action.onSuccessCallback) {
+      // @ts-expect-error: type mismatch for response
       action.onSuccessCallback(response);
     }
   } catch (error) {
@@ -988,6 +1040,7 @@ function* executeDatasourceQuerySaga(
       },
     });
     if (action.onErrorCallback) {
+      // @ts-expect-error: onErrorCallback expects string
       action.onErrorCallback(error);
     }
   }

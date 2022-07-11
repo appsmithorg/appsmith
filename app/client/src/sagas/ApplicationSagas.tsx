@@ -31,7 +31,6 @@ import { validateResponse } from "./ErrorSagas";
 import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
-import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { AppState } from "reducers";
 import {
   ApplicationVersion,
@@ -61,7 +60,6 @@ import { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 
 import {
@@ -122,7 +120,7 @@ export function* publishApplicationSaga(
       ApplicationApi.publishApplication,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS,
@@ -132,11 +130,8 @@ export function* publishApplicationSaga(
       const currentPageId: string = yield select(getCurrentPageId);
       const guidedTour: boolean = yield select(inGuidedTour);
       const currentStep: number = yield select(getCurrentStep);
-      const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
 
       let appicationViewPageUrl = viewerURL({
-        applicationSlug,
-        pageSlug,
         pageId: currentPageId,
       });
       if (guidedTour && currentStep === GUIDED_TOUR_STEPS.DEPLOY) {
@@ -175,7 +170,7 @@ export function* getAllApplicationSaga() {
     const response: FetchUsersApplicationsWorkspacesResponse = yield call(
       ApplicationApi.getAllApplication,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const workspaceApplication: WorkspaceApplicationObject[] = response.data.workspaceApplications.map(
         (userWorkspaces: WorkspaceApplicationObject) => ({
@@ -301,7 +296,7 @@ export function* setDefaultApplicationPageSaga(
         ApplicationApi.setDefaultApplicationPage,
         request,
       );
-      const isValidResponse = yield validateResponse(response);
+      const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         yield put(
           setDefaultApplicationPageSuccess(request.id, request.applicationId),
@@ -359,7 +354,7 @@ export function* updateApplicationSaga(
       if (request) {
         yield put({
           type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
-          payload: action.payload,
+          payload: response.data,
         });
       }
       if (request.currentApp) {
@@ -421,24 +416,21 @@ export function* duplicateApplicationSaga(
       ApplicationApi.duplicateApplication,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const application: ApplicationPayload = {
+        // @ts-expect-error: response is of type unknown
         ...response.data,
+        // @ts-expect-error: response is of type unknown
         defaultPageId: getDefaultPageId(response.data.pages),
       };
       yield put({
         type: ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS,
         payload: response.data,
       });
-      const { slug } = application;
-      const defaultPage = application.pages.find((page) => page.isDefault);
+
       const pageURL = builderURL({
-        applicationVersion: application.applicationVersion,
-        applicationId: application.id,
-        applicationSlug: slug || PLACEHOLDER_APP_SLUG,
-        pageSlug: defaultPage?.slug || PLACEHOLDER_PAGE_SLUG,
-        pageId: application.defaultPageId as string,
+        pageId: application.defaultPageId,
       });
       history.push(pageURL);
     }
@@ -466,7 +458,9 @@ export function* changeAppViewAccessSaga(
       yield put({
         type: ReduxActionTypes.CHANGE_APPVIEW_ACCESS_SUCCESS,
         payload: {
+          // @ts-expect-error: response is of type unknown
           id: response.data.id,
+          // @ts-expect-error: response is of type unknown
           isPublic: response.data.isPublic,
         },
       });
@@ -493,7 +487,9 @@ export function* createApplicationSaga(
 ) {
   const { applicationName, color, icon, reject, workspaceId } = action.payload;
   try {
-    const userWorkspaces = yield select(getUserApplicationsWorkspacesList);
+    const userWorkspaces: Workspaces[] = yield select(
+      getUserApplicationsWorkspacesList,
+    );
     const existingWorkspaces = userWorkspaces.filter(
       (workspace: Workspaces) => workspace.workspace.id === workspaceId,
     )[0];
@@ -527,7 +523,7 @@ export function* createApplicationSaga(
         ApplicationApi.createApplication,
         request,
       );
-      const isValidResponse = yield validateResponse(response);
+      const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         const application: ApplicationPayload = {
           ...response.data,
@@ -536,8 +532,6 @@ export function* createApplicationSaga(
         AnalyticsUtil.logEvent("CREATE_APP", {
           appName: application.name,
         });
-        const defaultPage = response.data.pages.find((page) => page.isDefault);
-        const defaultPageSlug = defaultPage?.slug || PLACEHOLDER_PAGE_SLUG;
         // This sets ui.pageWidgets = {} to ensure that
         // widgets are cleaned up from state before
         // finishing creating a new application
@@ -549,14 +543,13 @@ export function* createApplicationSaga(
             application,
           },
         });
-        const isFirstTimeUserOnboardingEnabled = yield select(
+        const isFirstTimeUserOnboardingEnabled: boolean = yield select(
           getEnableFirstTimeUserOnboarding,
         );
-        const FirstTimeUserOnboardingApplicationId = yield select(
+        const FirstTimeUserOnboardingApplicationId: string = yield select(
           getFirstTimeUserOnboardingApplicationId,
         );
         let pageURL;
-
         if (
           isFirstTimeUserOnboardingEnabled &&
           FirstTimeUserOnboardingApplicationId === ""
@@ -567,18 +560,10 @@ export function* createApplicationSaga(
             payload: application.id,
           });
           pageURL = builderURL({
-            applicationId: application.id,
-            applicationVersion: application.applicationVersion,
-            applicationSlug: application.slug as string,
-            pageSlug: defaultPageSlug,
             pageId: application.defaultPageId as string,
           });
         } else {
           pageURL = generateTemplateURL({
-            applicationId: application.id,
-            applicationVersion: application.applicationVersion,
-            applicationSlug: application.slug as string,
-            pageSlug: defaultPageSlug,
             pageId: application.defaultPageId as string,
           });
         }
@@ -611,11 +596,13 @@ export function* forkApplicationSaga(
       ApplicationApi.forkApplication,
       action.payload,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(resetCurrentApplication());
       const application: ApplicationPayload = {
+        // @ts-expect-error: response is of type unknown
         ...response.data,
+        // @ts-expect-error: response is of type unknown
         defaultPageId: getDefaultPageId(response.data.pages),
       };
       yield put({
@@ -625,14 +612,7 @@ export function* forkApplicationSaga(
           application,
         },
       });
-      const defaultPage = response.data.pages.find(
-        (page: ApplicationPagePayload) => page.isDefault,
-      );
       const pageURL = builderURL({
-        applicationVersion: application.applicationVersion,
-        applicationId: application.id,
-        applicationSlug: application.slug || PLACEHOLDER_APP_SLUG,
-        pageSlug: defaultPage.slug || PLACEHOLDER_PAGE_SLUG,
         pageId: application.defaultPageId as string,
       });
       history.push(pageURL);
@@ -687,42 +667,31 @@ export function* importApplicationSaga(
       );
       if (currentWorkspace.length > 0) {
         const {
-          application: { applicationVersion, id, pages, slug: applicationSlug },
+          // @ts-expect-error: response is of type unknown
+          application: { pages },
+          // @ts-expect-error: response is of type unknown
           isPartialImport,
-        }: {
-          application: {
-            id: string;
-            slug: string;
-            applicationVersion: number;
-            pages: {
-              default?: boolean;
-              id: string;
-              isDefault?: boolean;
-              slug: string;
-            }[];
-          };
-          isPartialImport: boolean;
         } = response.data;
 
+        // @ts-expect-error: response is of type unknown
         yield put(importApplicationSuccess(response.data?.application));
 
         if (isPartialImport) {
           yield put(
             showReconnectDatasourceModal({
+              // @ts-expect-error: response is of type unknown
               application: response.data?.application,
               unConfiguredDatasourceList:
+                // @ts-expect-error: response is of type unknown
                 response?.data.unConfiguredDatasourceList,
               workspaceId: action.payload.workspaceId,
             }),
           );
         } else {
+          // @ts-expect-error: pages is of type any
+          // TODO: Update route params here
           const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
           const pageURL = builderURL({
-            applicationSlug: applicationSlug ?? PLACEHOLDER_APP_SLUG,
-            applicationId: id,
-            applicationVersion:
-              applicationVersion ?? ApplicationVersion.SLUG_URL,
-            pageSlug: defaultPage[0].slug || PLACEHOLDER_PAGE_SLUG,
             pageId: defaultPage[0].id,
           });
           history.push(pageURL);
@@ -752,7 +721,7 @@ function* fetchReleases() {
     const response: FetchUsersApplicationsWorkspacesResponse = yield call(
       ApplicationApi.getAllApplication,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const { newReleasesCount, releaseItems } = response.data || {};
       yield put({
@@ -798,11 +767,17 @@ export function* fetchUnconfiguredDatasourceList(
 export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
   if (!datasource.datasourceConfiguration) {
     yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
-    const formConfig = yield select(getPluginForm, datasource.pluginId);
-    const initialValues = yield call(getConfigInitialValues, formConfig);
+    const formConfig: Record<string, unknown>[] = yield select(
+      getPluginForm,
+      datasource.pluginId,
+    );
+    const initialValues: unknown = yield call(
+      getConfigInitialValues,
+      formConfig,
+    );
     const payload = merge(initialValues, datasource);
     payload.isConfigured = false; // imported datasource as not configured yet
-    const response = yield DatasourcesApi.updateDatasource(
+    const response: ApiResponse = yield DatasourcesApi.updateDatasource(
       payload,
       datasource.id,
     );
@@ -839,7 +814,7 @@ function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
   );
   if (!pluginFormCall) return;
 
-  const datasources: Array<Datasource> = yield select((state: AppState) => {
+  const datasources: Datasource[] = yield select((state: AppState) => {
     return state.entities.datasources.list;
   });
 

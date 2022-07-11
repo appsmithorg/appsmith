@@ -9,12 +9,10 @@ import { ControlIcons } from "icons/ControlIcons";
 import { IconWrapper } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import PageListItem, { Action } from "./PageListItem";
-import {
-  Page,
-  PageListPayload,
-} from "@appsmith/constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
+  getCurrentPageId,
   getPageList,
 } from "selectors/editorSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -64,7 +62,7 @@ const NewPageButton = styled(Button)`
 
 const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
-type PageListPayloadWithId = PageListPayload & { id?: string };
+type PageListPayloadWithId = Page[] & { id?: string };
 
 function PagesEditor() {
   const theme = useTheme();
@@ -75,6 +73,7 @@ function PagesEditor() {
   )?.map((page) => ({ ...page, id: page.pageId }));
   const currentApp = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId) as string;
+  const pageId = useSelector(getCurrentPageId);
 
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGES_LIST_LOAD", {
@@ -118,8 +117,8 @@ function PagesEditor() {
    * @return void
    */
   const onClose = useCallback(() => {
-    history.push(builderURL());
-  }, []);
+    history.push(builderURL({ pageId }));
+  }, [pageId]);
 
   /**
    * Draggable List Render item

@@ -1,7 +1,7 @@
 import { Classes, CommonComponentProps } from "./common";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import Text, { TextType } from "./Text";
+import { Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 

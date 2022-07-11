@@ -1000,13 +1000,14 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         publishedActionCollectionsListMono,
                         publishThemeMono
                 )
-                .then(sendApplicationPublishedEvent(publishApplicationAndPages, publishedActionsListMono, publishedActionCollectionsListMono, applicationId));
+                .then(sendApplicationPublishedEvent(publishApplicationAndPages, publishedActionsListMono, publishedActionCollectionsListMono, applicationId, isPublishedManually));
     }
 
     private Mono<Application> sendApplicationPublishedEvent(Mono<List<NewPage>> publishApplicationAndPages,
                                                             Mono<List<NewAction>> publishedActionsFlux,
                                                             Mono<List<ActionCollection>> publishedActionsCollectionFlux,
-                                                            String applicationId) {
+                                                            String applicationId,
+                                                            boolean isPublishedManually) {
         return Mono.zip(
                         publishApplicationAndPages,
                         publishedActionsFlux,
@@ -1023,6 +1024,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     extraProperties.put("appId", defaultIfNull(application.getId(), ""));
                     extraProperties.put("appName", defaultIfNull(application.getName(), ""));
                     extraProperties.put("orgId", defaultIfNull(application.getWorkspaceId(), ""));
+                    extraProperties.put("isManual", defaultIfNull(isPublishedManually, ""));
                     extraProperties.put("publishedAt", defaultIfNull(application.getLastDeployedAt(), ""));
 
                     return analyticsService.sendObjectEvent(AnalyticsEvents.PUBLISH_APPLICATION, application, extraProperties);

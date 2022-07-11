@@ -55,8 +55,10 @@ describe(".fieldTypeUpdateHook", () => {
           originalIdentifier: ARRAY_ITEM_KEY,
           isSpellCheck: false,
           position: -1,
-          accentColor: "{{appsmith.theme.colors.primaryColor}}",
-          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          accentColor:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+          borderRadius:
+            "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           boxShadow: "none",
           labelTextSize: "0.875rem",
         },
@@ -366,6 +368,7 @@ describe(".updateChildrenDisabledStateHook", () => {
 describe(".getStylesheetValue", () => {
   it("returns valid stylesheet value", () => {
     const props = ({
+      widgetName: "Form1",
       schema: schemaTestData.initialDataset.schemaOutput,
     } as unknown) as JSONFormWidgetProps;
 
@@ -374,12 +377,13 @@ describe(".getStylesheetValue", () => {
       ["schema.__root_schema__.children.education.isDisabled", ""],
       [
         "schema.__root_schema__.children.name.borderRadius",
-        "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(Form1.sourceData, Form1.formData, Form1.fieldState)}}",
       ],
       ["schema", ""],
     ];
 
     inputAndExpectedOutput.forEach(([input, expectedOutput]) => {
+      //@ts-expect-error: type mismatch
       const result = getStylesheetValue(props, input, {
         childStylesheet: schemaTestData.fieldThemeStylesheets,
       });

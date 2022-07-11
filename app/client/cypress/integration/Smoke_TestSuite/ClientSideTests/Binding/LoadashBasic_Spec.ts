@@ -3,7 +3,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 let dataSet: any;
 let agHelper = ObjectsRegistry.AggregateHelper,
     ee = ObjectsRegistry.EntityExplorer,
-    jsEditor = ObjectsRegistry.JSEditor,
+    propPane = ObjectsRegistry.PropertyPane,
     locator = ObjectsRegistry.CommonLocators,
     deployMode = ObjectsRegistry.DeployMode;
 
@@ -21,13 +21,13 @@ describe("Loadash basic test with input Widget", () => {
 
     it("1. Input widget test with default value for atob method", () => {
         ee.SelectEntityByName("Input1", 'WIDGETS')
-        jsEditor.EnterJSContext("Default Text", dataSet.defaultInputBinding + "}}");
+        propPane.UpdatePropertyFieldValue("Default Text", dataSet.defaultInputBinding + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
     });
 
     it("2. Input widget test with default value for btoa method", function () {
         ee.SelectEntityByName("Input2")
-        jsEditor.EnterJSContext("Default Text", dataSet.loadashInput + "}}");
+        propPane.UpdatePropertyFieldValue("Default Text", dataSet.loadashInput + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
     });
 

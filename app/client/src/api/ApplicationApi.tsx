@@ -19,14 +19,15 @@ export interface ChangeAppViewAccessRequest {
   publicAccess: boolean;
 }
 
-export type PublishApplicationResponse = ApiResponse<unknown>;
+export type PublishApplicationResponse = ApiResponse;
 
 export interface ApplicationPagePayload {
   id: string;
   name: string;
   isDefault: boolean;
-  slug?: string;
+  slug: string;
   isHidden?: boolean;
+  customSlug?: string;
 }
 
 export type GitApplicationMetadata =

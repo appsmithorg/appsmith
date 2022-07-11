@@ -4,7 +4,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  propPane = ObjectsRegistry.PropertyPane;
 
 describe("Validate JSObjects binding to Input widget", () => {
   before(() => {
@@ -31,8 +32,8 @@ describe("Validate JSObjects binding to Input widget", () => {
       toRun: true,
       shouldCreateNewJSObj: true,
     });
-    ee.expandCollapseEntity("WIDGETS"); //to expand widgets
-    ee.expandCollapseEntity("Form1");
+    ee.ExpandCollapseEntity("WIDGETS"); //to expand widgets
+    ee.ExpandCollapseEntity("Form1");
     ee.SelectEntityByName("Input2");
     cy.get(locator._inputWidget)
       .last()
@@ -40,7 +41,7 @@ describe("Validate JSObjects binding to Input widget", () => {
       .should("equal", "Hello"); //Before mapping JSObject value of input
     cy.get("@jsObjName").then((jsObjName) => {
       jsOjbNameReceived = jsObjName;
-      jsEditor.EnterJSContext("Default Text", "{{" + jsObjName + ".myFun1()}}");
+      propPane.UpdatePropertyFieldValue("Default Text",  "{{" + jsObjName + ".myFun1()}}");
     });
     cy.get(locator._inputWidget)
       .last()
@@ -78,8 +79,8 @@ describe("Validate JSObjects binding to Input widget", () => {
     ee.SelectEntityByName(jsOjbNameReceived as string, "QUERIES/JS");
     jsEditor.EditJSObj(jsBody);
     agHelper.AssertAutoSave();
-    ee.expandCollapseEntity("WIDGETS");
-    ee.expandCollapseEntity("Form1");
+    ee.ExpandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("Form1");
     ee.SelectEntityByName("Input2");
     cy.get(locator._inputWidget).last().invoke("attr", "value").should("equal", 'Success'); //Function is renamed & reference is checked if updated properly!
     deployMode.DeployApp(locator._inputWidgetInDeployed)

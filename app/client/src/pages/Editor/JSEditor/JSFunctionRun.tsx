@@ -7,7 +7,7 @@ import Dropdown, {
 import Button, { Size } from "components/ads/Button";
 import FlagBadge from "components/utils/FlagBadge";
 import { JSCollection } from "entities/JSCollection";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { createMessage, NO_JS_FUNCTION_TO_RUN } from "ce/constants/messages";
 import { StyledButton } from "components/ads/Button";
 import { JSActionDropdownOption } from "./utils";

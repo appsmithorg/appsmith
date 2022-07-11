@@ -115,6 +115,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
                 onClick={() => {
                   this.props.history.replace(
                     saasEditorDatasourceIdURL({
+                      pageId: pageId || "",
                       pluginPackageName,
                       datasourceId,
                       params: {

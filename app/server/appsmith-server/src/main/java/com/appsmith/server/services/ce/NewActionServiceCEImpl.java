@@ -172,9 +172,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.sessionUserService = sessionUserService;
         this.policyUtils = policyUtils;
         this.authenticationValidator = authenticationValidator;
-        this.configService = configService;
         this.objectMapper = new ObjectMapper();
         this.responseUtils = responseUtils;
+        this.configService = configService;
     }
 
     @Override
@@ -336,6 +336,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Mono<Datasource> datasourceMono = Mono.just(action.getDatasource());
         if (action.getPluginType() != PluginType.JS) {
             if (action.getDatasource().getId() == null) {
+
+                // This is a nested datasource. If the action is in bad state (aka without workspace id, add the same)
+                if (action.getDatasource().getWorkspaceId() == null && action.getDatasource().getOrganizationId() != null) {
+                    action.getDatasource().setWorkspaceId(action.getDatasource().getOrganizationId());
+                }
+
                 datasourceMono = Mono.just(action.getDatasource())
                         .flatMap(datasourceService::validateDatasource);
             } else {
@@ -689,7 +695,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     Mono<ActionExecutionResult> executionMono = validatedDatasourceMono
                             .flatMap(datasource1 -> {
                                 if (plugin.isRemotePlugin()) {
-                                    return this.getRemoteDatasourceContext(plugin, datasource1);
+                                    return datasourceContextService.getRemoteDatasourceContext(plugin, datasource1);
                                 } else {
                                     return datasourceContextService.getDatasourceContext(datasource1);
                                 }
@@ -697,12 +703,24 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             // Now that we have the context (connection details), execute the action.
                             .flatMap(resourceContext -> validatedDatasourceMono
                                     .flatMap(datasource1 -> {
-                                        return (Mono<ActionExecutionResult>) pluginExecutor.executeParameterized(
+                                        final Instant requestedAt = Instant.now();
+                                        return ((Mono<ActionExecutionResult>) pluginExecutor.executeParameterized(
                                                 resourceContext.getConnection(),
                                                 executeActionDTO,
                                                 datasource1.getDatasourceConfiguration(),
                                                 actionConfiguration
-                                        );
+                                        )).map(actionExecutionResult -> {
+                                            ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
+                                            if (actionExecutionRequest == null) {
+                                                actionExecutionRequest = new ActionExecutionRequest();
+                                            }
+                                            actionExecutionRequest.setActionId(actionId);
+                                            actionExecutionRequest.setRequestedAt(requestedAt);
+
+                                            actionExecutionResult.setRequest(actionExecutionRequest);
+
+                                            return actionExecutionResult;
+                                        });
                                     })
                             );
 
@@ -733,6 +751,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 ActionExecutionResult result = new ActionExecutionResult();
                                 result.setBody(e.getMessage());
                                 result.setIsExecutionSuccess(false);
+                                final ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
+                                actionExecutionRequest.setActionId(actionId);
+                                actionExecutionRequest.setRequestedAt(Instant.now());
+                                result.setRequest(actionExecutionRequest);
                                 // Set the status code for Appsmith plugin errors
                                 if (e instanceof AppsmithPluginException) {
                                     result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
@@ -974,6 +996,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         if (actionExecutionRequest != null) {
             // Do a deep copy of request to not edit
             request = new ActionExecutionRequest(
+                    actionExecutionRequest.getActionId(),
+                    actionExecutionRequest.getRequestedAt(),
                     actionExecutionRequest.getQuery(),
                     actionExecutionRequest.getBody(),
                     actionExecutionRequest.getHeaders(),

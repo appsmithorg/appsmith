@@ -1,6 +1,6 @@
 import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import API from "api/Api";
-import { GenericApiResponse } from "./ApiResponses";
+import { ApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
 
 import { DatasourceAuthentication, Datasource } from "entities/Datasource";
@@ -25,7 +25,8 @@ export interface EmbeddedRestDatasourceRequest {
   pluginId: string;
 }
 
-type executeQueryData = Array<{ key?: string; value?: string }>;
+// type executeQueryData = Array<{ key?: string; value?: string }>;
+type executeQueryData = Record<string, any>;
 
 export interface executeDatasourceQueryRequest {
   datasourceId: string;
@@ -37,7 +38,7 @@ class DatasourcesApi extends API {
 
   static fetchDatasources(
     workspaceId: string,
-  ): AxiosPromise<GenericApiResponse<Datasource[]>> {
+  ): AxiosPromise<ApiResponse<Datasource[]>> {
     return API.get(DatasourcesApi.url + `?workspaceId=${workspaceId}`);
   }
 
@@ -71,9 +72,7 @@ class DatasourcesApi extends API {
     );
   }
 
-  static fetchMockDatasources(): AxiosPromise<
-    GenericApiResponse<Datasource[]>
-  > {
+  static fetchMockDatasources(): AxiosPromise<ApiResponse<Datasource[]>> {
     return API.get(DatasourcesApi.url + "/mocks");
   }
 
@@ -99,6 +98,13 @@ class DatasourcesApi extends API {
       DatasourcesApi.url + `/datasource-query` + `/${datasourceId}`,
       data,
     );
+  }
+
+  static executeGoogleSheetsDatasourceQuery({
+    data,
+    datasourceId,
+  }: executeDatasourceQueryRequest) {
+    return API.post(DatasourcesApi.url + `/${datasourceId}` + `/trigger`, data);
   }
 }
 

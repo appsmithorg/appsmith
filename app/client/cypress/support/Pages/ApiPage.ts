@@ -170,7 +170,7 @@ export class ApiPage {
     this.SelectPaneTab("Headers");
   }
 
-  OnPageLoadRun(enable = true || false) {
+  ToggleOnPageLoadRun(enable = true || false) {
     this.SelectPaneTab("Settings");
     if (enable)
       cy.get(this._onPageLoad).check({
@@ -182,7 +182,7 @@ export class ApiPage {
       });
   }
 
-  ConfirmBeforeRunningApi(enable = true || false) {
+  ToggleConfirmBeforeRunningApi(enable = true || false) {
     this.SelectPaneTab("Settings");
     if (enable)
       cy.get(this._confirmBeforeRunningAPI).check({

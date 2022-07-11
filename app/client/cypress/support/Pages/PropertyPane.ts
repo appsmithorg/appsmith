@@ -19,7 +19,6 @@ type filedTypeValues =
 
 export class PropertyPane {
   private agHelper = ObjectsRegistry.AggregateHelper;
-  private jsEditor = ObjectsRegistry.JSEditor;
   private locator = ObjectsRegistry.CommonLocators;
 
   _fieldConfig = (fieldName: string) =>
@@ -40,6 +39,9 @@ export class PropertyPane {
     ".t--property-control-" +
     controlToToggle.replace(/ +/g, "").toLowerCase() +
     " input[type='checkbox']";
+  _colorPickerV2Popover = ".t--colorpicker-v2-popover";
+  _colorPickerV2Color = ".t--colorpicker-v2-color";
+  _colorRing = ".border-2";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._fieldConfig(fieldName));
@@ -69,7 +71,17 @@ export class PropertyPane {
   public ChangeTheme(newTheme: string) {
     this.agHelper.GetNClick(this._changeThemeBtn, 0, true);
     this.agHelper.GetNClick(this._themeCard(newTheme));
-    this.agHelper.ValidateToastMessage("Theme " + newTheme + " Applied");
+    this.agHelper.WaitUntilToastDisappear("Theme " + newTheme + " Applied");
+  }
+
+  public ChangeColor(
+    colorIndex: number,
+    type: "Primary" | "Background" = "Primary",
+  ) {
+    const typeIndex = type == "Primary" ? 0 : 1;
+    this.agHelper.GetNClick(this._colorRing, typeIndex);
+    this.agHelper.GetNClick(this._colorPickerV2Popover);
+    this.agHelper.GetNClick(this._colorPickerV2Color, colorIndex);
   }
 
   public GetJSONFormConfigurationFileds() {
@@ -96,9 +108,9 @@ export class PropertyPane {
         .GetText(this.locator._existingActualValueByName("Property Name"))
         .then(($propName) => {
           placeHolderText = "{{sourceData." + $propName + "}}";
-          this.jsEditor.EnterJSContext("Placeholder", placeHolderText);
+          this.UpdatePropertyFieldValue("Placeholder", placeHolderText);
         });
-      this.jsEditor.EnterJSContext("Default Value", "");
+      this.UpdatePropertyFieldValue("Default Value", "");
       this.NavigateBackToPropertyPane();
     });
   }
@@ -114,5 +126,23 @@ export class PropertyPane {
         .should("not.be.checked");
     }
     this.agHelper.AssertAutoSave();
+  }
+
+  public SelectJSFunctionToExecute(
+    eventName: string,
+    jsName: string,
+    funcName: string,
+  ) {
+    this.agHelper.SelectPropertiesDropDown(eventName, "Execute a JS function");
+    this.agHelper.GetNClick(this.locator._dropDownValue(jsName), 0, true);
+    this.agHelper.GetNClick(this.locator._dropDownValue(funcName), 0, true);
+    this.agHelper.AssertAutoSave();
+  }
+
+  public UpdatePropertyFieldValue(propFieldName: string, valueToEnter: string) {
+    cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
+      ($field: any) => {
+        this.agHelper.UpdateCodeInput($field, valueToEnter);
+      });
   }
 }
