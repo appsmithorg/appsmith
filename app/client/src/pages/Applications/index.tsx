@@ -44,7 +44,7 @@ import {
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import Button, { Category, Size } from "components/ads/Button";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
 import {
@@ -89,11 +89,9 @@ import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
-import {
-  DEFAULT_BASE_URL_BUILDER_PARAMS,
-  updateURLFactory,
-} from "RouteBuilder";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErrorModal";
+import { resetEditorRequest } from "actions/initActions";
 
 const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -536,7 +534,7 @@ function ApplicationsSection(props: any) {
 
   useEffect(() => {
     // Clears URL params cache
-    updateURLFactory(DEFAULT_BASE_URL_BUILDER_PARAMS);
+    urlBuilder.resetURLParams();
   }, []);
 
   const duplicateApplicationDispatch = (applicationId: string) => {
@@ -975,6 +973,7 @@ type ApplicationProps = {
     hideHeaderShadow: boolean,
     showHeaderSeparator: boolean,
   ) => void;
+  resetEditor: () => void;
 };
 
 class Applications extends Component<
@@ -1042,6 +1041,9 @@ const mapStateToProps = (state: AppState) => ({
 const mapDispatchToProps = (dispatch: any) => ({
   getAllApplication: () => {
     dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT });
+  },
+  resetEditor: () => {
+    dispatch(resetEditorRequest());
   },
   searchApplications: (keyword: string) => {
     dispatch({

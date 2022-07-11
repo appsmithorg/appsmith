@@ -15,7 +15,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 
 import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import InfoWrapper from "./components/InfoWrapper";
 import { Colors } from "constants/Colors";
 import { Theme } from "constants/DefaultTheme";

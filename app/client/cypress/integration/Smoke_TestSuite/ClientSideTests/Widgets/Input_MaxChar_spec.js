@@ -10,9 +10,28 @@ describe("Input Widget Max Char Functionality", function() {
   it("Text Input maxChar shows error if defaultText longer", () => {
     cy.get(widgetsPage.innertext).click();
     cy.get(".bp3-popover-content").should(($x) => {
-      expect($x).contain(
-        "Default Text length must be less than Max Chars allowed",
-      );
+      expect($x).contain("Default text length must be less than 5 characters");
+    });
+  });
+
+  it("Text Input maxChar shows error if inputText longer than maxChar", () => {
+    cy.openPropertyPane("inputwidgetv2");
+    cy.clearComputedValueFirst();
+    cy.testJsontext("defaulttext", "");
+    cy.closePropertyPane("inputwidgetv2");
+
+    cy.get(widgetsPage.innertext)
+      .click({ force: true })
+      .type("1234567");
+
+    cy.openPropertyPane("inputwidgetv2");
+    cy.updateComputedValue(3);
+    cy.closePropertyPane("inputwidgetv2");
+
+    cy.get(widgetsPage.innertext).click();
+    cy.wait(1000);
+    cy.get(".bp3-popover-content").should(($x) => {
+      expect($x).contain("Input text length must be less than 3 characters");
     });
   });
 
