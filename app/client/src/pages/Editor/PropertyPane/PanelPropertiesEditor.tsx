@@ -192,10 +192,6 @@ export function PanelPropertiesEditor(
     }
   };
 
-  const isContentAndStyleConfigAvailable =
-    panelConfigsWithStyleAndContent?.content &&
-    panelConfigsWithStyleAndContent?.style;
-
   return (
     <div className="w-full overflow-y-auto">
       <PanelHeader
@@ -206,7 +202,8 @@ export function PanelPropertiesEditor(
         updatePropertyTitle={updatePropertyTitle}
       />
       {featureFlags.PROPERTY_PANE_GROUPING &&
-      isContentAndStyleConfigAvailable ? (
+      (panelConfigsWithStyleAndContent?.content ||
+        panelConfigsWithStyleAndContent?.style) ? (
         <>
           <StyledSearchInput
             fill
@@ -214,44 +211,36 @@ export function PanelPropertiesEditor(
             variant={SearchVariant.BACKGROUND}
           />
           <PropertyPaneTab
-            tabs={[
-              {
-                key: "content",
-                title: "CONTENT",
-                panelComponent: (
-                  <PanelWrapper>
-                    {panelConfigsWithStyleAndContent?.content &&
-                      generatePropertyControl(
-                        panelConfigsWithStyleAndContent?.content as PropertyPaneConfig[],
-                        {
-                          id: widgetProperties.widgetId,
-                          type: widgetProperties.type,
-                          panel,
-                          theme,
-                        },
-                      )}
-                  </PanelWrapper>
-                ),
-              },
-              {
-                key: "style",
-                title: "STYLE",
-                panelComponent: (
-                  <PanelWrapper>
-                    {panelConfigsWithStyleAndContent?.style &&
-                      generatePropertyControl(
-                        panelConfigsWithStyleAndContent?.style as PropertyPaneConfig[],
-                        {
-                          id: widgetProperties.widgetId,
-                          type: widgetProperties.type,
-                          panel,
-                          theme,
-                        },
-                      )}
-                  </PanelWrapper>
-                ),
-              },
-            ]}
+            contentComponent={
+              panelConfigsWithStyleAndContent?.content ? (
+                <PanelWrapper>
+                  {generatePropertyControl(
+                    panelConfigsWithStyleAndContent?.content as PropertyPaneConfig[],
+                    {
+                      id: widgetProperties.widgetId,
+                      type: widgetProperties.type,
+                      panel,
+                      theme,
+                    },
+                  )}
+                </PanelWrapper>
+              ) : null
+            }
+            styleComponent={
+              panelConfigsWithStyleAndContent.style ? (
+                <PanelWrapper>
+                  {generatePropertyControl(
+                    panelConfigsWithStyleAndContent?.style as PropertyPaneConfig[],
+                    {
+                      id: widgetProperties.widgetId,
+                      type: widgetProperties.type,
+                      panel,
+                      theme,
+                    },
+                  )}
+                </PanelWrapper>
+              ) : null
+            }
           />
         </>
       ) : (

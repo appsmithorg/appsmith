@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
-import Text, { TextProps, TextType } from "./Text";
+import { Text, TextProps, TextType } from "design-system";
 import { Popover, PopperBoundary, Position } from "@blueprintjs/core";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";
@@ -402,7 +402,7 @@ const OptionWrapper = styled.div<{
   background-color: ${(props) =>
     props.selected
       ? props.selectedHighlightBg || `var(--appsmith-color-black-200)`
-      : null};
+      : Colors.WHITE};
   &&& svg {
     rect {
       fill: ${(props) => props.theme.colors.dropdownIconBg};
