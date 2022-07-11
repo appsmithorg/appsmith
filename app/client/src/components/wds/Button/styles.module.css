@@ -19,6 +19,10 @@
   box-shadow: var(--wds-shadow);
 }
 
+.base:focus-visible {
+  box-shadow: 0px 0px 0px 1px lightblue;
+}
+
 .base:disabled {
   cursor: not-allowed;
 }

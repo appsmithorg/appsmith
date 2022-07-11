@@ -23,5 +23,6 @@ export function useProvidedStateOrCreate<T>(
     },
     [setExternalState],
   );
+
   return [state, setState] as const;
 }

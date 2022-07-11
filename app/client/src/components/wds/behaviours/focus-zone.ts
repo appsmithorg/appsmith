@@ -1,6 +1,6 @@
-import { polyfill as eventListenerSignalPolyfill } from "../polyfills/event-listener-signal.js";
+import { polyfill as eventListenerSignalPolyfill } from "../polyfills/event-listener-signal";
 import { isMacOS } from "../utils/user-agent.js";
-import { iterateFocusableElements } from "../utils/iterate-focusable-elements.js";
+import { iterateFocusableElements } from "../utils/iterate-focusable-elements";
 import { uniqueId } from "../utils/unique-id.js";
 
 eventListenerSignalPolyfill();

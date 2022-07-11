@@ -29,7 +29,7 @@ function Showcase() {
 
   return (
     <div
-      className="container min-h-screen space-y-3 pt-12 mx-auto"
+      className="container min-h-screen pt-12 mx-auto space-y-3"
       style={cssVariables}
     >
       <h1 className="mt-12 space-y-8 text-3xl font-bold">
@@ -191,23 +191,19 @@ function Showcase() {
           </Overlay>
         )}
 
-        <Button
-          className="w-32"
-          onClick={() => setIsDialogOpen(true)}
-          ref={returnFocusRef}
-          variant="ghost"
-        >
-          Open Dialog
-        </Button>
-        <Dialog
-          aria-labelledby="header-id"
-          isOpen={isDialogOpen}
-          onDismiss={() => setIsDialogOpen(false)}
-          returnFocusRef={returnFocusRef}
-        >
-          <input placeholder="helo" type="text" />
-          <input placeholder="helo2" type="text" />
-          <p>Dialog</p>
+        <Dialog aria-labelledby="header-id">
+          <Dialog.Button
+            className="w-32"
+            onClick={() => setIsDialogOpen(true)}
+            variant="ghost"
+          >
+            Open Dialog
+          </Dialog.Button>
+          <Dialog.Content>
+            <input placeholder="helo" type="text" />
+            <input placeholder="helo2" type="text" />
+            <p>Dialog</p>
+          </Dialog.Content>
         </Dialog>
 
         {/* <Dialog>
@@ -220,6 +216,10 @@ function Showcase() {
             <p>Dialog</p>
           </Dialog.Content>
         </Dialog> */}
+
+        <Button as="a" buttonColor={primaryColor} variant="solid">
+          Anchor Tag
+        </Button>
       </div>
     </div>
   );
