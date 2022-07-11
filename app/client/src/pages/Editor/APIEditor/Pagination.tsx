@@ -5,7 +5,7 @@ import styled from "constants/DefaultTheme";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
-import Text, { Case, TextType } from "components/ads/Text";
+import { Text, Case, TextType } from "design-system";
 import Button, { Category, Size } from "components/ads/Button";
 import {
   CodeEditorBorder,

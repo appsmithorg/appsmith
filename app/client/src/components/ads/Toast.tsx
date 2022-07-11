@@ -7,7 +7,7 @@ import {
 } from "./common";
 import styled from "styled-components";
 import Icon, { IconSize } from "./Icon";
-import Text, { TextType } from "./Text";
+import { Text, TextType } from "design-system";
 import { toast, ToastOptions, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
