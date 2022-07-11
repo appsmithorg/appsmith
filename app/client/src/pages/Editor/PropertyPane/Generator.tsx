@@ -46,6 +46,7 @@ export const generatePropertyControl = (
           step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
         >
           <PropertySection
+            collapsible={sectionConfig.collapsible ?? true}
             hidden={sectionConfig.hidden}
             id={config.id || sectionConfig.sectionName}
             isDefaultOpen={sectionConfig.isDefaultOpen}

@@ -24,7 +24,7 @@ import { InputWrapper } from "components/ads/TextInput";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import debounce from "lodash/debounce";
 
-const StyledSearchInput = styled(SearchInput)`
+export const StyledSearchInput = styled(SearchInput)`
   position: sticky;
   top: 52px;
   z-index: 10;

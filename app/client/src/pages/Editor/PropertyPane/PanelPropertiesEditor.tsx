@@ -16,6 +16,15 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import PropertyPaneTitle from "../PropertyPaneTitle";
 import { BindingText } from "../APIEditor/Form";
 import QuestionIcon from "remixicon-react/QuestionLineIcon";
+import { SearchVariant } from "components/ads";
+import { StyledSearchInput } from "./PropertyPaneView";
+import { PropertyPaneTab } from "./PropertyPaneTab";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import styled from "styled-components";
+
+const PanelWrapper = styled.div`
+  margin-top: 52px;
+`;
 
 function PanelHeader(props: PanelHeaderProps) {
   return (
@@ -71,6 +80,7 @@ export function PanelPropertiesEditor(
     PanelPropertiesEditorPanelProps &
     IPanelProps,
 ) {
+  const featureFlags = useSelector(selectFeatureFlags);
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
 
   const {
@@ -114,6 +124,31 @@ export function PanelPropertiesEditor(
       return path ? updateConfigPaths(configChildren, path) : configChildren;
     }
   }, [currentIndex, panelConfig, panelParentPropertyPath]);
+
+  // TODO(aswathkk): Once we remove the PROPERTY_PANE_GROUPING flag, rename this to panelConfigs
+  const panelConfigsWithStyleAndContent = useMemo(() => {
+    if (
+      currentIndex !== undefined &&
+      panelConfig.contentChildren &&
+      panelConfig.styleChildren
+    ) {
+      let path: string | undefined = undefined;
+      if (isString(currentIndex)) {
+        path = `${panelParentPropertyPath}.${currentIndex}`;
+      } else if (isNumber(currentIndex)) {
+        path = `${panelParentPropertyPath}[${currentIndex}]`;
+      }
+      const contentChildren = [...panelConfig.contentChildren];
+      const styleChildren = [...panelConfig.styleChildren];
+      return {
+        content: path
+          ? updateConfigPaths(contentChildren, path)
+          : contentChildren,
+        style: path ? updateConfigPaths(styleChildren, path) : styleChildren,
+      };
+    }
+  }, [currentIndex, panelConfig, panelParentPropertyPath]);
+
   const panel = useMemo(
     () => ({
       openPanel: props.openPanel,
@@ -156,8 +191,9 @@ export function PanelPropertiesEditor(
       }
     }
   };
+
   return (
-    <div className="relative flex flex-col w-full pt-3 overflow-y-auto">
+    <div className="w-full overflow-y-auto">
       <PanelHeader
         closePanel={closePanel}
         isEditable={panelConfig.editableTitle}
@@ -165,15 +201,60 @@ export function PanelPropertiesEditor(
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={updatePropertyTitle}
       />
-      <div className="p-3 pb-24 overflow-y-scroll">
-        {panelConfigs &&
-          generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
-            id: widgetProperties.widgetId,
-            type: widgetProperties.type,
-            panel,
-            theme,
-          })}
-      </div>
+      {featureFlags.PROPERTY_PANE_GROUPING &&
+      (panelConfigsWithStyleAndContent?.content ||
+        panelConfigsWithStyleAndContent?.style) ? (
+        <>
+          <StyledSearchInput
+            fill
+            placeholder="Search for controls, labels etc"
+            variant={SearchVariant.BACKGROUND}
+          />
+          <PropertyPaneTab
+            contentComponent={
+              panelConfigsWithStyleAndContent?.content ? (
+                <PanelWrapper>
+                  {generatePropertyControl(
+                    panelConfigsWithStyleAndContent?.content as PropertyPaneConfig[],
+                    {
+                      id: widgetProperties.widgetId,
+                      type: widgetProperties.type,
+                      panel,
+                      theme,
+                    },
+                  )}
+                </PanelWrapper>
+              ) : null
+            }
+            styleComponent={
+              panelConfigsWithStyleAndContent.style ? (
+                <PanelWrapper>
+                  {generatePropertyControl(
+                    panelConfigsWithStyleAndContent?.style as PropertyPaneConfig[],
+                    {
+                      id: widgetProperties.widgetId,
+                      type: widgetProperties.type,
+                      panel,
+                      theme,
+                    },
+                  )}
+                </PanelWrapper>
+              ) : null
+            }
+          />
+        </>
+      ) : (
+        panelConfigs && (
+          <PanelWrapper>
+            {generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
+              id: widgetProperties.widgetId,
+              type: widgetProperties.type,
+              panel,
+              theme,
+            })}
+          </PanelWrapper>
+        )
+      )}
     </div>
   );
 }
