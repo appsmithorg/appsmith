@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import InfoWrapper from "./InfoWrapper";
 import Link from "./Link";
 import {

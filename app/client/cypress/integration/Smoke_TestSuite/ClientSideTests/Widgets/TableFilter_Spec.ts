@@ -19,7 +19,7 @@ describe("Verify various Table_Filter combinations", function () {
     ee.DragDropWidgetNVerify("tablewidget", 250, 250);
     propPane.UpdatePropertyFieldValue("Table Data", JSON.stringify(dataSet.TableInput));
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
-    cy.get('body').type("{esc}");
+    agHelper.Escape();
     deployMode.DeployApp()
   });
 

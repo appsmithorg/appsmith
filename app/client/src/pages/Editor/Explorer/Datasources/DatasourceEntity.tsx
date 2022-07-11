@@ -23,6 +23,7 @@ import {
   saasEditorDatasourceIdURL,
 } from "RouteBuilder";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 
@@ -39,12 +40,14 @@ const ExplorerDatasourceEntity = React.memo(
   (props: ExplorerDatasourceEntityProps) => {
     const guidedTourEnabled = useSelector(inGuidedTour);
     const dispatch = useDispatch();
+    const pageId = useSelector(getCurrentPageId);
     const icon = getPluginIcon(props.plugin);
     const location = useLocation();
     const switchDatasource = useCallback(() => {
       let url;
       if (props.plugin && props.plugin.type === PluginType.SAAS) {
         url = saasEditorDatasourceIdURL({
+          pageId,
           pluginPackageName: props.plugin.packageName,
           datasourceId: props.datasource.id,
           params: {
@@ -56,6 +59,7 @@ const ExplorerDatasourceEntity = React.memo(
           setDatsourceEditorMode({ id: props.datasource.id, viewMode: true }),
         );
         url = datasourcesEditorIdURL({
+          pageId,
           datasourceId: props.datasource.id,
           params: getQueryParams(),
         });
