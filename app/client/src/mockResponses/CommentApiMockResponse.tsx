@@ -38,7 +38,7 @@ export const createNewThreadMockResponse = {
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
-    pageId: "",
+    pageId: "605c435a91dea93f0eaf91ba",
     comments: [
       {
         id: "60636f0591dea93f0eaf91d6",
@@ -79,7 +79,7 @@ export const fetchApplicationThreadsMockResponse = {
       },
       refId: "0",
       applicationId: "605c435a91dea93f0eaf91b8",
-      pageId: "",
+      pageId: "605c435a91dea93f0eaf91ba",
       comments: [
         {
           id: "605c436591dea93f0eaf91bc",
@@ -113,7 +113,7 @@ export const fetchApplicationThreadsMockResponse = {
       },
       refId: "0",
       applicationId: "605c435a91dea93f0eaf91b8",
-      pageId: "",
+      pageId: "605c435a91dea93f0eaf91ba",
       comments: [
         {
           id: "605c444c91dea93f0eaf91be",
@@ -147,7 +147,7 @@ export const fetchApplicationThreadsMockResponse = {
       },
       refId: "0",
       applicationId: "605c435a91dea93f0eaf91b8",
-      pageId: "",
+      pageId: "605c435a91dea93f0eaf91ba",
       comments: [
         {
           id: "605c519391dea93f0eaf91c0",
@@ -181,7 +181,7 @@ export const fetchApplicationThreadsMockResponse = {
       },
       refId: "0",
       applicationId: "605c435a91dea93f0eaf91b8",
-      pageId: "",
+      pageId: "605c435a91dea93f0eaf91ba",
       comments: [
         {
           id: "605c519c91dea93f0eaf91c2",
@@ -234,7 +234,7 @@ export const fetchApplicationThreadsMockResponse = {
       },
       refId: "0",
       applicationId: "605c435a91dea93f0eaf91b8",
-      pageId: "",
+      pageId: "605c435a91dea93f0eaf91ba",
       comments: [
         {
           id: "605c51e891dea93f0eaf91c5",
@@ -268,7 +268,7 @@ export const fetchApplicationThreadsMockResponse = {
       },
       refId: "0",
       applicationId: "605c435a91dea93f0eaf91b8",
-      pageId: "",
+      pageId: "605c435a91dea93f0eaf91ba",
       comments: [
         {
           id: "605c53b491dea93f0eaf91c7",
@@ -302,7 +302,7 @@ export const fetchApplicationThreadsMockResponse = {
       },
       refId: "0",
       applicationId: "605c435a91dea93f0eaf91b8",
-      pageId: "",
+      pageId: "605c435a91dea93f0eaf91ba",
       comments: [
         {
           id: "605cb30c91dea93f0eaf91cc",
@@ -336,7 +336,7 @@ export const fetchApplicationThreadsMockResponse = {
       },
       refId: "0",
       applicationId: "605c435a91dea93f0eaf91b8",
-      pageId: "",
+      pageId: "605c435a91dea93f0eaf91ba",
       comments: [
         {
           id: "6060c45e91dea93f0eaf91cf",
@@ -376,6 +376,7 @@ export const fetchPagesMockResponse = {
         id: "605c435a91dea93f0eaf91ba",
         name: "Page1",
         isDefault: true,
+        slug: "page-1",
       },
     ],
   },

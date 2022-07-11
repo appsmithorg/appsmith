@@ -15,13 +15,18 @@ import { Colors } from "constants/Colors";
 
 const SectionWrapper = styled.div`
   position: relative;
+  border-bottom: 1px solid ${Colors.GREY_4};
+  padding: 4px 16px 8px 16px;
+
   .${Classes.COLLAPSE_BODY} {
     z-index: 1;
     position: relative;
     padding-bottom: 4px;
   }
-  border-bottom: 1px solid ${Colors.GREY_4};
-  padding: 4px 16px 8px 16px;
+
+  .bp3-collapse {
+    transition: none;
+  }
 `;
 const SectionTitle = styled.div`
   display: grid;
@@ -42,7 +47,7 @@ const SectionTitle = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s;
+    transition: none;
     &.open-collapse {
       transform: rotate(90deg);
     }
@@ -91,7 +96,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
         />
       </SectionTitle>
       {props.children && (
-        <Collapse isOpen={isOpen} keepChildrenMounted>
+        <Collapse isOpen={isOpen} keepChildrenMounted transitionDuration={0}>
           <div
             className={`t--property-pane-section-${className}`}
             style={{ position: "relative", zIndex: 1 }}

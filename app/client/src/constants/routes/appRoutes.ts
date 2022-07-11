@@ -3,37 +3,12 @@
 // All solutions from closed issues on their repo have been tried. Ref: https://github.com/pillarjs/path-to-regexp/issues/193
 const { match } = require("path-to-regexp");
 
-export const PLACEHOLDER_APP_SLUG = "application";
-export const PLACEHOLDER_PAGE_ID = "pageId";
-export const PLACEHOLDER_PAGE_SLUG = "page";
-export const BASE_URL = "/";
-export const WORKSPACE_URL = "/workspace";
-export const PAGE_NOT_FOUND_URL = "/404";
-export const SERVER_ERROR_URL = "/500";
-export const APPLICATIONS_URL = `/applications`;
-
-export const TEMPLATES_PATH = "/templates";
-export const TEMPLATES_ID_PATH = "/templates/:templateId";
-
-export const USER_AUTH_URL = "/user";
-export const PROFILE = "/profile";
-export const GIT_PROFILE_ROUTE = `${PROFILE}/git`;
-export const USERS_URL = "/users";
-export const UNSUBSCRIBE_EMAIL_URL = "/unsubscribe/discussion/:threadId";
-export const SETUP = "/setup/welcome";
-export const FORGOT_PASSWORD_URL = `${USER_AUTH_URL}/forgotPassword`;
-export const RESET_PASSWORD_URL = `${USER_AUTH_URL}/resetPassword`;
-export const BASE_SIGNUP_URL = `/signup`;
-export const SIGN_UP_URL = `${USER_AUTH_URL}/signup`;
-export const BASE_LOGIN_URL = `/login`;
-export const AUTH_LOGIN_URL = `${USER_AUTH_URL}/login`;
-export const SIGNUP_SUCCESS_URL = `/signup-success`;
-export const WORKSPACE_INVITE_USERS_PAGE_URL = `${WORKSPACE_URL}/invite`;
-export const WORKSPACE_SETTINGS_PAGE_URL = `${WORKSPACE_URL}/settings`;
-export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/(pages)?/:pageId?/edit`;
+export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId/edit`;
 export const BUILDER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
 export const VIEWER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId`;
-export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/(pages)?/:pageId?`;
+export const BUILDER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId/edit`;
+export const VIEWER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId`;
+export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId`;
 export const VIEWER_FORK_PATH = `/fork`;
 export const INTEGRATION_EDITOR_PATH = `/datasources/:selectedTab`;
 export const API_EDITOR_BASE_PATH = `/api`;
@@ -58,24 +33,27 @@ export const ADMIN_SETTINGS_CATEGORY_PATH = "/settings/:category/:selected?";
 export const BUILDER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
 export const VIEWER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId`;
 
-export const matchApplicationPath = match(APPLICATIONS_URL);
 export const matchApiBasePath = match(API_EDITOR_BASE_PATH);
 export const matchApiPath = match(API_EDITOR_ID_PATH);
 export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_PATH);
 export const matchQueryBasePath = match(QUERIES_EDITOR_BASE_PATH);
 export const matchQueryPath = match(QUERIES_EDITOR_ID_PATH);
 export const matchBuilderPath = (pathName: string) =>
-  match(BUILDER_PATH)(pathName) || match(BUILDER_PATH_DEPRECATED)(pathName);
+  match(BUILDER_PATH)(pathName) ||
+  match(BUILDER_PATH_DEPRECATED)(pathName) ||
+  match(BUILDER_CUSTOM_PATH)(pathName);
 export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
 export const matchViewerPath = (pathName: string) =>
-  match(VIEWER_PATH)(pathName) || match(VIEWER_PATH_DEPRECATED)(pathName);
+  match(VIEWER_PATH)(pathName) ||
+  match(VIEWER_PATH_DEPRECATED)(pathName) ||
+  match(VIEWER_CUSTOM_PATH)(pathName);
 export const matchViewerForkPath = (pathName: string) =>
   match(`${VIEWER_PATH}${VIEWER_FORK_PATH}`)(pathName) ||
+  match(`${VIEWER_CUSTOM_PATH}${VIEWER_FORK_PATH}`)(pathName) ||
   match(`${VIEWER_PATH_DEPRECATED}${VIEWER_FORK_PATH}`)(pathName);
-export const matchTemplatesPath = match(TEMPLATES_PATH);
-export const matchTemplatesIdPath = match(TEMPLATES_ID_PATH);
 export const matchGeneratePagePath = (pathName: string) =>
   match(`${BUILDER_PATH}${GENERATE_TEMPLATE_PATH}`)(pathName) ||
+  match(`${BUILDER_CUSTOM_PATH}${GENERATE_TEMPLATE_PATH}`)(pathName) ||
   match(`${BUILDER_PATH_DEPRECATED}${GENERATE_TEMPLATE_PATH}`)(pathName);
 
 export const addBranchParam = (branch: string) => {
@@ -126,3 +104,7 @@ export const INTEGRATION_EDITOR_MODES = {
   AUTO: "auto",
   MOCK: "mock",
 };
+
+export const PLACEHOLDER_APP_SLUG = "application";
+export const PLACEHOLDER_PAGE_ID = "pageId";
+export const PLACEHOLDER_PAGE_SLUG = "page";

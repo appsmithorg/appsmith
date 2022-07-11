@@ -187,6 +187,7 @@ export const clonePageSuccess = (
   pageId: string,
   pageName: string,
   layoutId: string,
+  pageSlug: string,
 ) => {
   return {
     type: ReduxActionTypes.CLONE_PAGE_SUCCESS,
@@ -194,6 +195,7 @@ export const clonePageSuccess = (
       pageId,
       pageName,
       layoutId,
+      pageSlug,
     },
   };
 };
@@ -352,6 +354,7 @@ export type GenerateCRUDSuccess = {
     id: string;
     name: string;
     isDefault?: boolean;
+    slug: string;
   };
   isNewPage: boolean;
 };
@@ -485,4 +488,16 @@ export const resetPageList = () => ({
 
 export const resetApplicationWidgets = () => ({
   type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
+});
+
+export const fetchPageDSLs = () => ({
+  type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
+});
+
+export const setPageSlug = (payload: {
+  customSlug: string;
+  pageId: string;
+}) => ({
+  type: ReduxActionTypes.UPDATE_CUSTOM_SLUG_INIT,
+  payload,
 });
