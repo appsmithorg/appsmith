@@ -114,10 +114,8 @@ export const generateDataTreeJSAction = (
       variablesMap[variable.name] = variable.value;
       listVariables.push(variable.name);
 
-      const propertyPath = `properties.${variable.name}`;
-      dynamicBindingPathList.push({ key: propertyPath });
-      // check why variable smart substitution is not working
-      bindingPaths[propertyPath] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+      dynamicBindingPathList.push({ key: variable.name });
+      bindingPaths[variable.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
     }
   }
 
@@ -165,25 +163,13 @@ export const generateDataTreeJSAction = (
         data,
       };
 
-      const propertyPath = `properties.${actionName}`;
-      dynamicBindingPathList.push({ key: propertyPath });
-      dependencyMap["body"].push(propertyPath);
+      dynamicBindingPathList.push({ key: actionName });
+      dependencyMap["body"].push(actionName);
     }
   }
 
-  const JSObjectProperties = {
-    ...variablesMap,
-    ...actionsReturnedData,
-  };
-
-  const dependencyPathResolver: Record<string, string> = {};
-  Object.keys(JSObjectProperties).forEach((propertyName) => {
-    const propertyPath = `${js.config.name}.${propertyName}`;
-    const actualPath = `${js.config.name}.properties.${propertyName}`;
-    dependencyPathResolver[propertyPath] = actualPath;
-  });
-
   return {
+    ...variablesMap,
     name: js.config.name,
     actionId: js.config.id,
     pluginType: js.config.pluginType,
@@ -195,8 +181,7 @@ export const generateDataTreeJSAction = (
     dynamicBindingPathList: dynamicBindingPathList,
     variables: listVariables,
     dependencyMap: dependencyMap,
-    dependencyPathResolver,
-    properties: JSObjectProperties,
     actionsConfig: actionsConfigMap,
+    ...actionsReturnedData,
   };
 };

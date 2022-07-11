@@ -106,11 +106,8 @@ type ResolvedFunctions = Record<string, Record<string, unknown>>;
 
 type GlobalContext = Record<string, unknown>;
 type ThisContext = Record<string, unknown>;
-type JSObjectEval = {
-  properties: Record<string, unknown>;
-};
 
-type GlobalData = Record<string, JSObjectEval | unknown> & {
+type GlobalData = Record<string, any> & {
   ARGUMENTS?: Array<unknown>;
   THIS_CONTEXT?: ThisContext;
 } & GlobalContext;
@@ -123,41 +120,12 @@ const addDataTreeToGlobalData = ({
   GLOBAL_DATA: GlobalData;
 }) => {
   Object.keys(dataTree).forEach((entityName) => {
-    const entity = dataTree[entityName];
-    if (isJSObject(entity)) {
-      GLOBAL_DATA[entityName] = entity.properties;
-    } else {
-      GLOBAL_DATA[entityName] = dataTree[entityName];
-    }
+    GLOBAL_DATA[entityName] = dataTree[entityName];
   });
   return GLOBAL_DATA;
 };
 
-/**
- * merge resolvedFunctions and ranActionsData as jsFunctions
- * this enable JSObject.functionName() and JSObject.FunctionName.data both to work together.
- * @param param0
- * @returns
- */
-const mergeFunctionAndData = (
-  resolvedFunctionObj: Record<string, unknown>,
-  propertyData: Record<string, unknown>,
-) => {
-  const mergedJSFunction = { ...resolvedFunctionObj };
-
-  Object.entries(mergedJSFunction).forEach(
-    ([jsFunctionName, jsResolvedFunction]) => {
-      if (propertyData[jsFunctionName]) {
-        // @ts-expect-error: type unknown error is expected here
-        jsResolvedFunction.data = propertyData[jsFunctionName].data;
-      }
-    },
-  );
-  return mergedJSFunction;
-};
-
 const addResolvedFunctionsToGlobalData = ({
-  dataTree,
   GLOBAL_DATA,
   resolvedFunctions,
 }: {
@@ -166,28 +134,32 @@ const addResolvedFunctionsToGlobalData = ({
   resolvedFunctions: ResolvedFunctions;
 }) => {
   if (!isEmpty(resolvedFunctions)) {
-    Object.keys(resolvedFunctions).forEach((entityName) => {
-      const entity = dataTree[entityName];
-      const resolvedObject = resolvedFunctions[entityName];
-      if (isJSObject(entity)) {
-        /* 
-          TODO
-          reinvestigate confirmationPromise for confirmBeforeExecute
-          check git history for previous implementation
-        */
-        const jSObjectEntity = entity;
-        const jsFunctions = mergeFunctionAndData(
-          resolvedObject,
-          jSObjectEntity.properties,
-        );
-        // jsObjectProperties will have variables and js functions with response data
-        const jsObjectProperties = {
-          ...jSObjectEntity.properties,
-          ...jsFunctions,
-        };
-        // update global data with jsObjectProperties
-        GLOBAL_DATA[entityName] = jsObjectProperties;
-      }
+    Object.keys(resolvedFunctions).forEach((datum: any) => {
+      const resolvedObject = resolvedFunctions[datum];
+      Object.keys(resolvedObject).forEach((key: any) => {
+        const dataTreeKey = GLOBAL_DATA[datum];
+        if (dataTreeKey) {
+          const data = dataTreeKey[key]?.data;
+          //do not remove we will be investigating this
+          //const isAsync = dataTreeKey?.meta[key]?.isAsync || false;
+          //const confirmBeforeExecute =
+          dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
+          dataTreeKey[key] = resolvedObject[key];
+          // if (isAsync && confirmBeforeExecute) {
+          //   dataTreeKey[key] = confirmationPromise.bind(
+          //     {},
+          //     context?.requestId,
+          //     resolvedObject[key],
+          //     dataTreeKey.name + "." + key,
+          //   );
+          // } else {
+          //   dataTreeKey[key] = resolvedObject[key];
+          // }
+          if (!!data) {
+            dataTreeKey[key]["data"] = data;
+          }
+        }
+      });
     });
   }
 

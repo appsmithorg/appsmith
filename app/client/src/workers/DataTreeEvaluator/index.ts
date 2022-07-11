@@ -47,7 +47,6 @@ import {
   validateActionProperty,
   addWidgetPropertyDependencies,
   overrideWidgetProperties,
-  getDependencyPathResolver,
 } from "workers/evaluationUtils";
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -399,21 +398,13 @@ export default class DataTreeEvaluator {
   }
 
   createDependencyMap(unEvalTree: DataTree): DependencyMap {
-    // entity like JSObject has path resolvers where we need to fix the path
-    let dependencyPathResolvers: Record<string, string> = {};
     let dependencyMap: DependencyMap = {};
     this.allKeys = getAllPaths(unEvalTree);
 
     Object.keys(unEvalTree).forEach((entityName) => {
       const entity = unEvalTree[entityName];
-      const isEntityJSObject = isJSAction(entity);
-      if (isAction(entity) || isWidget(entity) || isEntityJSObject) {
-        if (isEntityJSObject && entity.dependencyPathResolver) {
-          dependencyPathResolvers = {
-            ...dependencyPathResolvers,
-            ...entity.dependencyPathResolver,
-          };
-        }
+
+      if (isAction(entity) || isWidget(entity) || isJSAction(entity)) {
         const entityListedDependencies = this.listEntityDependencies(
           entity,
           entityName,
@@ -428,7 +419,6 @@ export default class DataTreeEvaluator {
             const references = extractReferencesFromBinding({
               binding,
               allKeys: this.allKeys,
-              dependencyPathResolvers,
             });
             return references;
           } catch (error) {
@@ -674,13 +664,8 @@ export default class DataTreeEvaluator {
             return currentTree;
           } else if (isJSAction(entity)) {
             const variableList = entity.variables;
-            // In variable list, we store variable names and propertyPath for variable is `properties.variableName`
-            // hence remove `properties.` before checking in variableList
-            const modifiedPropertyPath = propertyPath.replace(
-              "properties.",
-              "",
-            );
-            if (variableList.indexOf(modifiedPropertyPath) > -1) {
+
+            if (variableList.indexOf(propertyPath) > -1) {
               const currentEvaluatedValue = _.get(
                 currentTree,
                 getEvalValuePath(fullPropertyPath, {
@@ -1208,7 +1193,6 @@ export default class DataTreeEvaluator {
     const diffCalcEnd = performance.now();
     const subDepCalcStart = performance.now();
     if (didUpdateDependencyMap) {
-      const dependencyPathResolvers = getDependencyPathResolver(unEvalDataTree);
       // TODO Optimise
       Object.keys(this.dependencyMap).forEach((key) => {
         this.dependencyMap[key] = _.uniq(
@@ -1218,7 +1202,6 @@ export default class DataTreeEvaluator {
                 return extractReferencesFromBinding({
                   binding,
                   allKeys: this.allKeys,
-                  dependencyPathResolvers,
                 });
               } catch (error) {
                 this.errors.push({
@@ -1380,19 +1363,11 @@ export default class DataTreeEvaluator {
     dataTree: DataTree,
     propertyPath: string,
   ) {
-    let dependencyPathResolvers: Record<string, string> = {};
     const possibleRefs: DependencyMap = {};
     Object.keys(dataTree).forEach((entityName) => {
       const entity = dataTree[entityName];
-      const isEntityJSObject = isJSAction(entity);
-      if (isAction(entity) || isWidget(entity) || isEntityJSObject) {
-        if (isEntityJSObject && entity.dependencyPathResolver) {
-          dependencyPathResolvers = {
-            ...dependencyPathResolvers,
-            ...entity.dependencyPathResolver,
-          };
-        }
 
+      if (isAction(entity) || isWidget(entity) || isJSAction(entity)) {
         const entityPropertyBindings = this.listEntityDependencies(
           entity,
           entityName,
@@ -1406,7 +1381,6 @@ export default class DataTreeEvaluator {
                   return extractReferencesFromBinding({
                     binding,
                     allKeys: this.allKeys,
-                    dependencyPathResolvers,
                   });
                 } catch (error) {
                   this.errors.push({
@@ -1508,35 +1482,20 @@ export default class DataTreeEvaluator {
 export const extractReferencesFromBinding = ({
   allKeys,
   binding,
-  dependencyPathResolvers,
 }: {
   binding: string;
   allKeys: Record<string, true>;
-  dependencyPathResolvers: Record<string, string>;
 }): string[] => {
   const references: Set<string> = new Set<string>();
   const identifiers = extractIdentifiersFromCode(binding);
-  const pathsToReplace = Object.keys(dependencyPathResolvers);
-  // identifier = JSObject1.myFun2.data.users[0].a
-  // pathsToReplace = ["JSObject1.myFun2"]
 
   identifiers.forEach((identifier) => {
-    let modifiedIdentifier = identifier;
-    for (let index = 0; index < pathsToReplace.length; index++) {
-      const pathToReplace = pathsToReplace[index];
-      if (identifier.includes(pathToReplace)) {
-        const newPath = dependencyPathResolvers[pathToReplace];
-        modifiedIdentifier = modifiedIdentifier.replace(pathToReplace, newPath);
-        break;
-      }
-    }
-
     // If the identifier exists directly, add it and return
-    if (allKeys.hasOwnProperty(modifiedIdentifier)) {
-      references.add(modifiedIdentifier);
+    if (allKeys.hasOwnProperty(identifier)) {
+      references.add(identifier);
       return;
     }
-    const subpaths = _.toPath(modifiedIdentifier);
+    const subpaths = _.toPath(identifier);
     let current = "";
     // We want to keep going till we reach top level, but not add top level
     // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
