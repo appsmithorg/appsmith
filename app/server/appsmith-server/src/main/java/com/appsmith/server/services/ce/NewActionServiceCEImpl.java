@@ -1772,7 +1772,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         if (unpublishedAction.getDatasource() != null) {
             analyticsProperties.put("dsId", ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getId(), ""));
             analyticsProperties.put("dsName", ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getName(), ""));
-            analyticsProperties.put("dsIsTemplateOrMock", ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getIsTemplateOrMock(), ""));
+            analyticsProperties.put("dsIsTemplate", ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getIsTemplate(), ""));
+            analyticsProperties.put("dsIsMock", ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getIsMock(), ""));
         }
         return analyticsProperties;
     }

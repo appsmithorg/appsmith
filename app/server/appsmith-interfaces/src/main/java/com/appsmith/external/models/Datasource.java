@@ -80,11 +80,17 @@ public class Datasource extends BaseDomain {
     Boolean isRecentlyCreated;
 
     /*
-     * This field is meant to indicate whether the datasource is part of a template, mock or a copy of the same.
+     * This field is meant to indicate whether the datasource is part of a template, or a copy of the same.
      * The field is not used anywhere in the codebase because templates are created directly in the DB, and the field
      * serves only as a DTO property.
      */
-    Boolean isTemplateOrMock;
+    Boolean isTemplate;
+
+    /*
+     * This field is meant to indicate whether the datasource is part of a mock DB, or a copy of the same.
+     * The field is set during the creation of the mock db
+     */
+    Boolean isMock;
 
     /**
      * This method is here so that the JSON version of this class' instances have a `isValid` field, for backwards
