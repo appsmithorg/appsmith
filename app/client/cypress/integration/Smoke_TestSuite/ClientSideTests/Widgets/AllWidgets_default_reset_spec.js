@@ -332,7 +332,7 @@ xdescribe(`Select widget test for validating reset action`, () => {
   });
 });
 
-describe(`CurrencyInput widget test for validating reset action`, () => {
+xdescribe(`CurrencyInput widget test for validating reset action`, () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -355,7 +355,7 @@ describe(`CurrencyInput widget test for validating reset action`, () => {
       `{{resetWidget("CurrencyInput1",true).then(() => showAlert("success"))}}`,
     );
     cy.openPropertyPane(WIDGET.TEXT);
-    cy.updateCodeInput(PROPERTY_SELECTOR.text, testdata.switchBindingValue);
+    cy.updateCodeInput(PROPERTY_SELECTOR.text, testdata.currencyBindingValue);
     cy.closePropertyPane();
 
     cy.get(getWidgetSelector(WIDGET.BUTTON_WIDGET)).click();
@@ -375,7 +375,7 @@ describe(`CurrencyInput widget test for validating reset action`, () => {
     cy.get("button:contains('Submit')").click({ force: true });
     cy.wait(1000);
     cy.get(".t--text-widget-container").each((item, index, list) => {
-      cy.wrap(item).should("not.contain.text", "");
+      cy.wrap(item).should("not.contain.text", "123");
     });
     cy.get(".t--toast-action span").contains("success");
   });
@@ -387,7 +387,7 @@ describe(`CurrencyInput widget test for validating reset action`, () => {
   });
 });
 
-xdescribe(`MultiTreeSelect widget test for validating reset action`, () => {
+describe(`MultiTreeSelect widget test for validating reset action`, () => {
     before(() => {
       cy.addDsl(dsl);
     });
