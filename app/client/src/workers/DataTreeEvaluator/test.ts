@@ -191,7 +191,7 @@ describe("DataTreeEvaluator", () => {
 
   describe("parseJsActions", () => {
     beforeEach(() => {
-      dataTreeEvaluator.createFirstTree({});
+      dataTreeEvaluator.createFirstTree(asyncTagUnevalTree);
     });
     it("set's isAsync tag for cross JsObject references", () => {
       const result = getJSActionUpdates(dataTreeEvaluator, asyncTagUnevalTree);
