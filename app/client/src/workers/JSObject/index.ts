@@ -5,7 +5,7 @@ import { flatten, set, unset } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedFunction, ParsedJSSubAction } from "utils/JSPaneUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import { isFunctionAsync } from "workers/evaluate";
+import evaluateSync, { isFunctionAsync } from "workers/evaluate";
 import {
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
@@ -32,6 +32,7 @@ export function updateResolvedFunctions(
   dataTreeEvalRef: DataTreeEvaluator,
   entity: DataTreeJSAction,
   jsUpdates: Record<string, JSUpdate>,
+  unEvalDataTree: DataTree,
   entityName: string,
 ) {
   const correctFormat = regex.test(entity.body);
@@ -48,9 +49,7 @@ export function updateResolvedFunctions(
 
     actionConfigs.forEach((action) => {
       try {
-        // TODO: we will also need to save the returned data from action and set it into data field of action
-        // this is to support response data getting saved
-        const result = new Function(`return (${action.body})()`);
+        const { result } = evaluateSync(action.body, unEvalDataTree, {}, true);
 
         if (!!result) {
           set(
@@ -184,6 +183,7 @@ export function getJSActionUpdates(
             dataTreeEvalRef,
             entity,
             jsUpdates,
+            unEvalDataTree,
             entityName,
           );
         });
@@ -200,6 +200,7 @@ export function getJSActionUpdates(
         dataTreeEvalRef,
         entity,
         jsUpdates,
+        unEvalDataTree,
         entityName,
       );
     });
