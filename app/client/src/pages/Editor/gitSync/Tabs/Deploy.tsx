@@ -51,7 +51,7 @@ import Statusbar, {
 } from "pages/Editor/gitSync/components/Statusbar";
 import GitChangesList from "../components/GitChangesList";
 import { TooltipComponent as Tooltip } from "design-system";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import InfoWrapper from "../components/InfoWrapper";
 import Link from "../components/Link";
 import ConflictInfo from "../components/ConflictInfo";
@@ -201,7 +201,11 @@ function Deploy() {
   }, []);
   const commitButtonDisabled = !hasChangesToCommit || !commitMessage;
   const commitButtonLoading = isCommittingInProgress;
-  const commitInputDisabled = !hasChangesToCommit || isCommittingInProgress;
+  const commitInputDisabled =
+    !hasChangesToCommit ||
+    isCommittingInProgress ||
+    isCommitAndPushSuccessful ||
+    isDiscarding;
 
   const commitRequired =
     !!gitStatus?.modifiedPages ||

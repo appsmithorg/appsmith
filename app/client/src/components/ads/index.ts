@@ -129,9 +129,6 @@ export { default as TableDropdown } from "./TableDropdown";
 
 export { default as TagInputComponent } from "./TagInputComponent";
 
-export { default as Text } from "./Text";
-export * from "./Text";
-
 export { default as TextInput } from "./TextInput";
 // export * from "./TextInput"; conflict on names
 
@@ -144,3 +141,5 @@ export { default as TreeDropdown } from "./TreeDropdown";
 export * from "./TreeDropdown";
 
 export { default as UserProfileImagePicker } from "./UserProfileImagePicker";
+
+export { default as JSToggleButton } from "./JSToggleButtonComponent";

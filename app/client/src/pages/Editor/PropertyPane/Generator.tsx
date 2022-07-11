@@ -128,9 +128,7 @@ export function PropertyControlsGenerator(
   }
 
   return (
-    <div className="px-3 pb-2">
-      {generatePropertyControl(res as readonly PropertyPaneConfig[], props)}
-    </div>
+    <>{generatePropertyControl(res as readonly PropertyPaneConfig[], props)}</>
   );
 }
 

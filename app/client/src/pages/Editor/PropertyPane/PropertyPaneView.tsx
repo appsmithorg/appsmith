@@ -24,12 +24,6 @@ import { InputWrapper } from "components/ads/TextInput";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import debounce from "lodash/debounce";
 
-const PropertyPaneContent = styled.div`
-  .react-tabs .react-tabs__tab-list {
-    display: none;
-  }
-`;
-
 const StyledSearchInput = styled(SearchInput)`
   position: sticky;
   top: 52px;
@@ -179,16 +173,17 @@ function PropertyPaneView(
     widgetReplacedWith,
   );
 
-  // TODO(aswathkk): remove this when PROPERTY_PANE_GROUPING feature is released
-  const isContentAndStyleConfigAvailable =
-    WidgetFactory.getWidgetPropertyPaneContentConfig(widgetProperties.type)
-      .length &&
-    WidgetFactory.getWidgetPropertyPaneStyleConfig(widgetProperties.type)
-      .length;
+  const isContentConfigAvailable = WidgetFactory.getWidgetPropertyPaneContentConfig(
+    widgetProperties.type,
+  ).length;
+
+  const isStyleConfigAvailable = WidgetFactory.getWidgetPropertyPaneStyleConfig(
+    widgetProperties.type,
+  ).length;
 
   return (
     <div
-      className="w-full overflow-y-auto"
+      className="w-full overflow-y-scroll"
       key={`property-pane-${widgetProperties.widgetId}`}
     >
       <PropertyPaneTitle
@@ -221,12 +216,12 @@ function PropertyPaneView(
         )}
       </div>
 
-      <PropertyPaneContent
+      <div
         className="t--property-pane-view"
         data-guided-tour-id="property-pane"
       >
         {featureFlags.PROPERTY_PANE_GROUPING &&
-        isContentAndStyleConfigAvailable ? (
+        (isContentConfigAvailable || isStyleConfigAvailable) ? (
           <>
             <StyledSearchInput
               fill
@@ -235,7 +230,30 @@ function PropertyPaneView(
               variant={SearchVariant.BACKGROUND}
             />
             <div>Search term: {searchText}</div>
-            <PropertyPaneTab tabs={tabs} />
+            <PropertyPaneTab
+              contentComponent={
+                isContentConfigAvailable ? (
+                  <PropertyControlsGenerator
+                    group={PropertyPaneGroup.CONTENT}
+                    id={widgetProperties.widgetId}
+                    panel={panel}
+                    theme={EditorTheme.LIGHT}
+                    type={widgetProperties.type}
+                  />
+                ) : null
+              }
+              styleComponent={
+                isStyleConfigAvailable ? (
+                  <PropertyControlsGenerator
+                    group={PropertyPaneGroup.STYLE}
+                    id={widgetProperties.widgetId}
+                    panel={panel}
+                    theme={EditorTheme.LIGHT}
+                    type={widgetProperties.type}
+                  />
+                ) : null
+              }
+            />
           </>
         ) : (
           <PropertyControlsGenerator
@@ -246,7 +264,7 @@ function PropertyPaneView(
             type={widgetProperties.type}
           />
         )}
-      </PropertyPaneContent>
+      </div>
     </div>
   );
 }
