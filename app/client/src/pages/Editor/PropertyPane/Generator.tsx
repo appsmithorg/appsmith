@@ -123,10 +123,6 @@ export function PropertyControlsGenerator(
       config = WidgetFactory.getWidgetPropertyPaneConfig(props.type);
   }
 
-  // let fuse: Fuse<PropertyPaneConfig[], Fuse.FuseOptions<any>>;
-
-  // useEffect(() => {
-  // TODO(aswathkk): Make use of Fuse.createIndex to make the indexing Faster
   const fuse = new Fuse(config, {
     includeMatches: true,
     keys: ["children.label"],
@@ -134,25 +130,26 @@ export function PropertyControlsGenerator(
     location: 0,
     distance: 100,
   });
-  // }, []);
 
   let res = config;
   if (props.searchQuery && props.searchQuery !== "") {
     const results = fuse.search(props.searchQuery);
-    const r: PropertyPaneConfig[] = [];
+    const searchResults: PropertyPaneConfig[] = [];
     for (const result of results) {
-      const indexSet = new Set(
-        result.matches
-          ?.filter((x) => x.key === "children.label")
-          .map((x) => x.refIndex) || [],
-      );
-      if (result.item.children)
-        r.push({
+      if (result.item.children && result.matches) {
+        const children = [];
+        for (const match of result.matches) {
+          if (match.key === "children.label" && match.refIndex !== undefined) {
+            children.push(result.item.children[match.refIndex]);
+          }
+        }
+        searchResults.push({
           ...result.item,
-          children: result.item.children.filter((_, i) => indexSet.has(i)),
+          children,
         });
+      }
     }
-    res = r;
+    res = searchResults;
   }
 
   return props.searchQuery &&
