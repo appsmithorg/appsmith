@@ -13,11 +13,7 @@ import { generateClassName } from "utils/generators";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import { AppState } from "reducers";
 import { commentModeSelector } from "selectors/commentsSelectors";
-import {
-  getCanvasWidth,
-  getIsViewModePageTabsVisible,
-  snipingModeSelector,
-} from "selectors/editorSelectors";
+import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
 
@@ -197,7 +193,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       isCommentMode,
       isDragging,
       isSnipingMode,
-      isViewModePageTabsVisible,
       selectedWidget,
       selectedWidgets,
       widgetId,
@@ -226,7 +221,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         height={this.props.height}
         isEditMode={isEditMode}
         isOpen={!!this.props.isVisible}
-        isViewModePageTabsVisible={isViewModePageTabsVisible}
         maxWidth={this.getMaxModalWidth()}
         minSize={minSize}
         onClose={this.closeModal}
@@ -305,7 +299,6 @@ const mapStateToProps = (state: AppState) => {
     mainCanvasWidth: getCanvasWidth(state),
     isCommentMode: commentModeSelector(state),
     isSnipingMode: snipingModeSelector(state),
-    isViewModePageTabsVisible: getIsViewModePageTabsVisible(state),
     selectedWidget: state.ui.widgetDragResize.lastSelectedWidget,
     selectedWidgets: state.ui.widgetDragResize.selectedWidgets,
     focusedWidget: state.ui.widgetDragResize.focusedWidget,

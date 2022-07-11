@@ -410,8 +410,6 @@ export type Theme = {
   headerHeight: string;
   smallHeaderHeight: string;
   bottomBarHeight: string;
-  viewerHeaderHeight: string;
-  pageTabsHeight: string;
   integrationsPageUnusableHeight: string;
   backBanner: string;
   homePage: any;
@@ -3015,8 +3013,6 @@ export const theme: Theme = {
   headerHeight: "48px",
   smallHeaderHeight: "32px",
   bottomBarHeight: "34px",
-  viewerHeaderHeight: "3rem",
-  pageTabsHeight: "2.25rem",
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",
   canvasBottomPadding: 200,

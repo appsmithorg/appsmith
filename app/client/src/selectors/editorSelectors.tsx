@@ -185,13 +185,6 @@ export const getViewModePageList = createSelector(
   },
 );
 
-export const getIsViewModePageTabsVisible = createSelector(
-  getViewModePageList,
-  (pageList: Page[]) => {
-    return pageList.length > 1;
-  },
-);
-
 export const getCurrentApplicationLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout;
 

@@ -39,7 +39,6 @@ const Container = styled.div<{
   maxWidth?: number;
   minSize?: number;
   isEditMode?: boolean;
-  isViewModePageTabsVisible?: boolean;
   backgroundColor: string;
   borderRadius: string;
 }>`
@@ -49,23 +48,13 @@ const Container = styled.div<{
         z-index: ${(props) => props.zIndex || 2 - 1};
       }
       position: fixed;
-      top: ${(props) =>
-        props.isEditMode
-          ? "0"
-          : props.isViewModePageTabsVisible
-          ? `Calc(${props.theme.pageTabsHeight} + ${props.theme.viewerHeaderHeight})`
-          : props.theme.viewerHeaderHeight};
+      top: var(--view-mode-header-height, 0);
       right: 0;
       bottom: 0;
       height: ${(props) =>
         props.isEditMode
           ? "100vh"
-          : `calc(100vh - ${
-              props.isViewModePageTabsVisible
-                ? `${props.theme.pageTabsHeight} - ${props.theme.viewerHeaderHeight}`
-                : props.theme.viewerHeaderHeight
-            }
-            )`};
+          : `calc(100vh - var(--view-mode-header-height, 0))`};
       z-index: ${(props) => props.zIndex};
       width: 100%;
       display: flex;
@@ -137,7 +126,6 @@ export type ModalComponentProps = {
   zIndex?: number;
   enableResize?: boolean;
   isEditMode?: boolean;
-  isViewModePageTabsVisible?: boolean;
   resizeModal?: (dimensions: UIElementSize) => void;
   maxWidth?: number;
   minSize?: number;
@@ -279,7 +267,6 @@ export default function ModalComponent(props: ModalComponentProps) {
           bottom={props.bottom}
           height={props.height}
           isEditMode={props.isEditMode}
-          isViewModePageTabsVisible={props.isViewModePageTabsVisible}
           left={props.left}
           maxWidth={props.maxWidth}
           minSize={props.minSize}
