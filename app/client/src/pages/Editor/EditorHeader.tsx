@@ -18,7 +18,6 @@ import {
   getCurrentPageId,
   getIsPublishingApplication,
   previewModeSelector,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import {
   getAllUsers,
@@ -86,6 +85,7 @@ import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
+import { useHref } from "./utils";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -264,6 +264,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   const user = useSelector(getCurrentUser);
   const shouldHideComments = useHideComments();
   const isPreviewMode = useSelector(previewModeSelector);
+  const deployLink = useHref(viewerURL, { pageId });
 
   useEffect(() => {
     if (window.location.href) {
@@ -340,7 +341,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   const filteredSharedUserList = props.sharedUserList.filter(
     (user) => user.username !== props.currentUser?.username,
   );
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const showModes = !shouldHideComments;
 
   return (
@@ -414,11 +414,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             <EditorAppName
               applicationId={applicationId}
               className="t--application-name editable-application-name max-w-48"
-              currentDeployLink={viewerURL({
-                applicationSlug,
-                pageSlug,
-                pageId,
-              })}
+              currentDeployLink={deployLink}
               defaultSavingState={
                 isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
               }
@@ -510,11 +506,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               </TooltipComponent>
 
               <DeployLinkButtonDialog
-                link={viewerURL({
-                  applicationSlug,
-                  pageSlug,
-                  pageId,
-                })}
+                link={deployLink}
                 trigger={
                   <StyledDeployIcon
                     fillColor="#fff"

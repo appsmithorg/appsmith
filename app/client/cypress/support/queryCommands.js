@@ -3,6 +3,7 @@
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
+const jsEditorLocators = require("../locators/JSEditor.json");
 const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
 const commonlocators = require("../locators/commonlocators.json");
@@ -280,5 +281,14 @@ Cypress.Commands.add("NavigateToAction", (actionName) => {
   cy.get(queryEditor.navigateToAction)
     .contains(actionName)
     .should("be.visible")
+    .click();
+});
+Cypress.Commands.add("SelecJSFunctionAndRun", (functionName) => {
+  cy.xpath("//span[@name='expand-more']")
+    .first()
+    .click();
+  cy.get(`[data-cy='t--dropdown-option-${functionName}']`).click();
+  cy.get(jsEditorLocators.runButton)
+    .first()
     .click();
 });
