@@ -223,6 +223,18 @@ function MultiSelectComponent({
     setFilter(event.target.value);
   }, []);
 
+  const onDropdownVisibleChange = (open: boolean) => {
+    onOpen(open);
+
+    /**
+     * Clear the search input on closing the widget
+     * and serverSideFiltering is off
+     */
+    if (!serverSideFiltering) {
+      setFilter("");
+    }
+  };
+
   const dropdownRender = useCallback(
     (
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
@@ -332,7 +344,7 @@ function MultiSelectComponent({
           notFoundContent="No Results Found"
           onBlur={onBlur}
           onChange={onChange}
-          onDropdownVisibleChange={onOpen}
+          onDropdownVisibleChange={onDropdownVisibleChange}
           onFocus={onFocus}
           options={filteredOptions}
           placeholder={placeholder || "select option(s)"}

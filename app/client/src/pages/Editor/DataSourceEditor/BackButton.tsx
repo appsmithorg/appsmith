@@ -7,6 +7,8 @@ import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { Colors } from "constants/Colors";
 import { builderURL, generateTemplateFormURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useSelector } from "react-redux";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 const Back = styled.span`
   height: 30px;
@@ -18,11 +20,12 @@ const Back = styled.span`
 
 function BackButton() {
   const history = useHistory();
+  const pageId = useSelector(getCurrentPageId);
   const goBack = () => {
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
     const redirectURL = isGeneratePageInitiator
-      ? generateTemplateFormURL()
-      : builderURL();
+      ? generateTemplateFormURL({ pageId })
+      : builderURL({ pageId });
 
     AnalyticsUtil.logEvent("BACK_BUTTON_CLICK", {
       type: "BACK_BUTTON",

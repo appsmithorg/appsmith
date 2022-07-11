@@ -24,8 +24,10 @@ import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
 import { matchPath } from "react-router";
 import {
+  BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  VIEWER_CUSTOM_PATH,
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
@@ -735,6 +737,13 @@ export const getUpdatedRoute = (
   });
   if (match?.params) {
     const { applicationSlug, pageSlug } = match?.params;
+    if (params.customSlug) {
+      updatedPath = updatedPath.replace(
+        `${applicationSlug}/${pageSlug}`,
+        `${params.customSlug}-`,
+      );
+      return updatedPath;
+    }
     if (params.applicationSlug)
       updatedPath = updatedPath.replace(
         applicationSlug,
@@ -742,6 +751,24 @@ export const getUpdatedRoute = (
       );
     if (params.pageSlug)
       updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
+    return updatedPath;
+  }
+  const matchCustomPath = matchPath<{ customSlug: string }>(path, {
+    path: [BUILDER_CUSTOM_PATH, VIEWER_CUSTOM_PATH],
+  });
+  if (matchCustomPath?.params) {
+    const { customSlug } = matchCustomPath.params;
+    if (params.customSlug) {
+      updatedPath = updatedPath.replace(
+        `${customSlug}`,
+        `${params.customSlug}-`,
+      );
+    } else {
+      updatedPath = updatedPath.replace(
+        `${customSlug}`,
+        `${params.applicationSlug}/${params.pageSlug}-`,
+      );
+    }
   }
   return updatedPath;
 };
@@ -753,3 +780,9 @@ export const updateSlugNamesInURL = (params: Record<string, string>) => {
   const newURL = getUpdatedRoute(pathname, params);
   history.replace(newURL + search);
 };
+
+export function AutoBind(target: any, _: string, descriptor: any) {
+  if (typeof descriptor.value === "function")
+    descriptor.value = descriptor.value.bind(target);
+  return descriptor;
+}

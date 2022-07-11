@@ -4,6 +4,7 @@ const dsl = require("../../../../fixtures/MultipleWidgetDsl.json");
 const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 const datasourceHomeLocators = require("../../../../locators/apiWidgetslocator.json");
 const datasourceLocators = require("../../../../locators/DatasourcesEditor.json");
+const appPage = require("../../../../locators/PgAdminlocators.json");
 
 describe("GlobalSearch", function() {
   before(() => {
@@ -166,6 +167,27 @@ describe("GlobalSearch", function() {
     cy.get(datasourceHomeLocators.apiTxt)
       .invoke("val")
       .then((title) => expect(title).includes("Api"));
+  });
+
+  it("8. navigatesToGoogleSheetsQuery does not break again: Bug 15012", () => {
+    cy.createGoogleSheetsDatasource();
+    cy.renameDatasource("XYZ");
+    cy.wait(4000);
+    cy.get(appPage.dropdownChevronLeft).click();
+
+    cy.get(commonlocators.globalSearchTrigger).click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000); // modal open transition should be deterministic
+    cy.get(commonlocators.globalSearchInput).type("XYZ");
+    cy.get("body").type("{enter}");
+
+    cy.get(".t--save-datasource")
+      .contains("Save and Authorize")
+      .should("be.visible");
+
+    cy.deleteDatasource("XYZ");
+
+    // this should be called at the end of the last test case in this spec file.
     cy.NavigateToHome();
   });
 });
