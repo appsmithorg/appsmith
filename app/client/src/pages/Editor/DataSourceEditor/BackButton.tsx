@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Icon } from "@blueprintjs/core";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { useHistory } from "react-router-dom";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { Colors } from "constants/Colors";

@@ -13,7 +13,7 @@ import {
   LATEST_DP_SUBTITLE,
   LATEST_DP_TITLE,
 } from "@appsmith/constants/messages";
-import Text, { Case, TextType } from "components/ads/Text";
+import { Text, Case, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
