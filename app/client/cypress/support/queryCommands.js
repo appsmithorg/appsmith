@@ -15,6 +15,11 @@ const datasource = require("../locators/DatasourcesEditor.json");
 const formControls = require("../locators/FormControl.json");
 const queryLocators = require("../locators/QueryEditor.json");
 
+
+function assertApiResponseStatusCode(interception, statuscode) {
+  expect(interception.response.body.responseMeta.status).to.deep.eq(statuscode);
+}
+
 export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
@@ -77,11 +82,9 @@ Cypress.Commands.add("fillAuthenticatedAPIForm", () => {
 
 Cypress.Commands.add("runQuery", (expectedRes = true) => {
   cy.onlyQueryRun();
-  cy.wait("@postExecute").should(
-    "have.nested.property",
-    "response.body.data.isExecutionSuccess",
-    expectedRes,
-  );
+  cy.wait("@postExecute").then((interception) => {
+    expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+  });
 
   // cy.wait("@postExecute").should(
   //   "have.nested.property",
@@ -120,11 +123,9 @@ Cypress.Commands.add("deleteQuery", () => {
   cy.hoverAndClick();
   cy.get(apiwidget.delete).click({ force: true });
   cy.get(apiwidget.deleteConfirm).click({ force: true });
-  cy.wait("@deleteAction").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@deleteAction").should((interception) => {
+    assertApiResponseStatusCode(interception, 200);
+  });
 });
 
 Cypress.Commands.add("deleteQueryUsingContext", () => {
@@ -135,11 +136,9 @@ Cypress.Commands.add("deleteQueryUsingContext", () => {
   cy.get(queryEditor.deleteUsingContext)
     .contains("Are you sure?")
     .click();
-  cy.wait("@deleteAction").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+    cy.wait("@deleteAction").should((interception) => {
+      assertApiResponseStatusCode(interception, 200);
+    });
 });
 
 Cypress.Commands.add("runAndDeleteQuery", () => {

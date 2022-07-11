@@ -14,6 +14,10 @@ const backgroundColorGray1 = "rgb(250, 250, 250)";
 const backgroundColorGray2 = "rgb(240, 240, 240)";
 const backgroundColorGray8 = "rgb(113, 110, 110)";
 
+function assertApiResponseStatusCode(interception, statuscode) {
+  expect(interception.response.body.responseMeta.status).to.deep.eq(statuscode);
+}
+
 export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
@@ -52,11 +56,9 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
 
       // save datasource
       cy.get(".t--save-datasource").click();
-      cy.wait("@saveDatasource").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
+      cy.wait("@saveDatasource").should((interception) => {
+        assertApiResponseStatusCode(interception, 200);
+      });
       // select datasource to be deleted by datasource title
       cy.get(`${datasourceEditor.datasourceCard}`)
         .contains(datasourceTitle)
@@ -67,11 +69,9 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
       cy.get(".t--delete-datasource")
         .contains("Are you sure?")
         .click();
-      cy.wait("@deleteDatasource").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
+        cy.wait("@saveDatasource").should((interception) => {
+          assertApiResponseStatusCode(interception, 200);
+        });
     });
 });
 
@@ -95,11 +95,9 @@ Cypress.Commands.add("NavigateToActiveDatasources", () => {
 
 Cypress.Commands.add("testDatasource", (expectedRes = true) => {
   cy.get(".t--test-datasource").click({ force: true });
-  cy.wait("@testDatasource").should(
-    "have.nested.property",
-    "response.body.data.success",
-    expectedRes,
-  );
+  cy.wait("@saveDatasource").should((interception) => {
+    expect(interception.response.body.responseMeta.status).to.deep.eq(200);
+  });
 });
 
 Cypress.Commands.add("saveDatasource", () => {
@@ -373,11 +371,12 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
   cy.get(".t--delete-datasource")
     .contains("Are you sure?")
     .click();
-  cy.wait("@deleteDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+    cy.wait("@deleteDatasource").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.be.oneOf([
+        200,
+        409,
+      ]);
+    })
 });
 
 Cypress.Commands.add("renameDatasource", (datasourceName) => {
@@ -426,11 +425,9 @@ Cypress.Commands.add("createNewAuthApiDatasource", (renameVal) => {
   //Click on Authenticated API
   cy.get(apiWidgetslocator.createAuthApiDatasource).click();
   //Verify weather Authenticated API is successfully created.
-  cy.wait("@createDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  cy.wait("@createDatasource").should((interception) => {
+    assertApiResponseStatusCode(interception, 201);
+  });
   cy.get(datasourceEditor.datasourceTitleLocator).click();
   cy.get(`${datasourceEditor.datasourceTitleLocator} input`)
     .clear()
@@ -465,11 +462,12 @@ Cypress.Commands.add("deleteAuthApiDatasource", (renameVal) => {
     .contains("Are you sure?")
     .click();
   //Verify the status of deletion
-  cy.wait("@deleteDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@deleteDatasource").should((interception) => {
+    expect(interception.response.body.responseMeta.status).to.be.oneOf([
+      200,
+      409,
+    ]);
+  });
 });
 
 Cypress.Commands.add("createMockDatasource", () => {

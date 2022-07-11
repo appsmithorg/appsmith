@@ -9,6 +9,11 @@ const commonlocators = require("../locators/commonlocators.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 
+function assertApiResponseStatusCode(interception, statuscode) {
+  expect(interception.response.body.responseMeta.status).to.deep.eq(statuscode);
+}
+
+
 export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
@@ -251,11 +256,9 @@ Cypress.Commands.add("MoveAPIToHome", () => {
     .click({ force: true });
   cy.get(apiwidget.copyTo).click({ force: true });
   cy.get(apiwidget.home).click({ force: true });
-  cy.wait("@createNewApi").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  cy.wait("@createNewApi").should((interception) => {
+    expect(interception.response.body.responseMeta.status).to.deep.eq(201);
+  });
 });
 
 Cypress.Commands.add("MoveAPIToPage", (pageName) => {
@@ -266,11 +269,9 @@ Cypress.Commands.add("MoveAPIToPage", (pageName) => {
   cy.get(apiwidget.page)
     .contains(pageName)
     .click({ force: true });
-  cy.wait("@moveAction").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+    cy.wait("@moveAction").should((interception) => {
+      assertApiResponseStatusCode(interception, 200);
+    });
 });
 
 Cypress.Commands.add("copyEntityToPage", (pageName) => {
@@ -281,11 +282,9 @@ Cypress.Commands.add("copyEntityToPage", (pageName) => {
   cy.get(apiwidget.page)
     .contains(pageName)
     .click({ force: true });
-  cy.wait("@createNewApi").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+    cy.wait("@createNewApi").should((interception) => {
+      expect(interception.response.body.responseMeta.status).to.deep.eq(201);
+    });
 });
 
 Cypress.Commands.add("CopyAPIToHome", () => {
@@ -294,11 +293,9 @@ Cypress.Commands.add("CopyAPIToHome", () => {
     .click({ force: true });
   cy.get(apiwidget.copyTo).click({ force: true });
   cy.get(apiwidget.home).click({ force: true });
-  cy.wait("@createNewApi").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  cy.wait("@createNewApi").should((interception) => {
+    expect(interception.response.body.responseMeta.status).to.deep.eq(201);
+  });
 });
 
 Cypress.Commands.add("RenameEntity", (value, selectFirst) => {
@@ -361,11 +358,9 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("DeleteAPIFromSideBar", () => {
   cy.deleteEntity();
-  cy.wait("@deleteAction").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@deleteAction").should((interception) => {
+    assertApiResponseStatusCode(interception, 200);
+  });
 });
 
 Cypress.Commands.add("DeleteWidgetFromSideBar", () => {
@@ -373,11 +368,9 @@ Cypress.Commands.add("DeleteWidgetFromSideBar", () => {
     .last()
     .click({ force: true });
   cy.get(apiwidget.delete).click({ force: true });
-  cy.wait("@updateLayout").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@updateLayout").should((interception) => {
+    assertApiResponseStatusCode(interception, 200);
+  });
 });
 
 Cypress.Commands.add("deleteEntity", () => {
@@ -403,11 +396,9 @@ Cypress.Commands.add("DeleteAPI", () => {
   cy.get(apiwidget.deleteAPI)
     .first()
     .click({ force: true });
-  cy.wait("@deleteAction").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+    cy.wait("@deleteAction").should((interception) => {
+      assertApiResponseStatusCode(interception, 200);
+    });
 });
 
 Cypress.Commands.add("NavigateToApiEditor", () => {
@@ -416,11 +407,9 @@ Cypress.Commands.add("NavigateToApiEditor", () => {
 
 Cypress.Commands.add("testCreateApiButton", () => {
   cy.get(ApiEditor.createBlankApiCard).click({ force: true });
-  cy.wait("@createNewApi").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  cy.wait("@createNewApi").should((interception) => {
+    assertApiResponseStatusCode(interception, 201);
+  });
 });
 
 Cypress.Commands.add("createAndFillApi", (url, parameters) => {
