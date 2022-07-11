@@ -8,7 +8,7 @@ import {
   PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
-import { generatePropertyControl } from "./Generator";
+import PropertyControlsGenerator from "./Generator";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { get, isNumber, isPlainObject, isString } from "lodash";
 import { IPanelProps } from "@blueprintjs/core";
@@ -214,30 +214,26 @@ export function PanelPropertiesEditor(
             contentComponent={
               panelConfigsWithStyleAndContent?.content ? (
                 <PanelWrapper>
-                  {generatePropertyControl(
-                    panelConfigsWithStyleAndContent?.content as PropertyPaneConfig[],
-                    {
-                      id: widgetProperties.widgetId,
-                      type: widgetProperties.type,
-                      panel,
-                      theme,
-                    },
-                  )}
+                  <PropertyControlsGenerator
+                    config={panelConfigsWithStyleAndContent.content}
+                    id={widgetProperties.widgetId}
+                    panel={panel}
+                    theme={theme}
+                    type={widgetProperties.type}
+                  />
                 </PanelWrapper>
               ) : null
             }
             styleComponent={
               panelConfigsWithStyleAndContent.style ? (
                 <PanelWrapper>
-                  {generatePropertyControl(
-                    panelConfigsWithStyleAndContent?.style as PropertyPaneConfig[],
-                    {
-                      id: widgetProperties.widgetId,
-                      type: widgetProperties.type,
-                      panel,
-                      theme,
-                    },
-                  )}
+                  <PropertyControlsGenerator
+                    config={panelConfigsWithStyleAndContent.style}
+                    id={widgetProperties.widgetId}
+                    panel={panel}
+                    theme={theme}
+                    type={widgetProperties.type}
+                  />
                 </PanelWrapper>
               ) : null
             }
@@ -246,12 +242,13 @@ export function PanelPropertiesEditor(
       ) : (
         panelConfigs && (
           <PanelWrapper>
-            {generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
-              id: widgetProperties.widgetId,
-              type: widgetProperties.type,
-              panel,
-              theme,
-            })}
+            <PropertyControlsGenerator
+              config={(panelConfig as unknown) as PropertyPaneConfig[]}
+              id={widgetProperties.widgetId}
+              panel={panel}
+              theme={theme}
+              type={widgetProperties.type}
+            />
           </PanelWrapper>
         )
       )}

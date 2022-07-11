@@ -6,7 +6,6 @@ import {
 } from "constants/PropertyControlConstants";
 import { WidgetType } from "constants/WidgetConstants";
 import React from "react";
-import WidgetFactory from "utils/WidgetFactory";
 import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -26,14 +25,9 @@ const EmptySearchResultWrapper = styled.div`
   }
 `;
 
-export enum PropertyPaneGroup {
-  CONTENT,
-  STYLE,
-}
-
 export type PropertyControlsGeneratorProps = {
   id: string;
-  group?: PropertyPaneGroup;
+  config: readonly PropertyPaneConfig[];
   type: WidgetType;
   panel: IPanelProps;
   theme: EditorTheme;
@@ -111,19 +105,7 @@ function EmptySearchResult() {
 export function PropertyControlsGenerator(
   props: PropertyControlsGeneratorProps,
 ) {
-  let config: Readonly<PropertyPaneConfig[]>;
-  switch (props.group) {
-    case PropertyPaneGroup.CONTENT:
-      config = WidgetFactory.getWidgetPropertyPaneContentConfig(props.type);
-      break;
-    case PropertyPaneGroup.STYLE:
-      config = WidgetFactory.getWidgetPropertyPaneStyleConfig(props.type);
-      break;
-    default:
-      config = WidgetFactory.getWidgetPropertyPaneConfig(props.type);
-  }
-
-  const fuse = new Fuse(config, {
+  const fuse = new Fuse(props.config, {
     includeMatches: true,
     keys: ["children.label"],
     threshold: 0.5,
@@ -131,7 +113,7 @@ export function PropertyControlsGenerator(
     distance: 100,
   });
 
-  let res = config;
+  let config = props.config;
   if (props.searchQuery && props.searchQuery !== "") {
     const results = fuse.search(props.searchQuery);
     const searchResults: PropertyPaneConfig[] = [];
@@ -149,15 +131,17 @@ export function PropertyControlsGenerator(
         });
       }
     }
-    res = searchResults;
+    config = searchResults;
   }
 
   return props.searchQuery &&
     props.searchQuery.length > 0 &&
-    res.length === 0 ? (
+    config.length === 0 ? (
     <EmptySearchResult />
   ) : (
-    <>{generatePropertyControl(res as readonly PropertyPaneConfig[], props)}</>
+    <>
+      {generatePropertyControl(config as readonly PropertyPaneConfig[], props)}
+    </>
   );
 }
 

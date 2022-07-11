@@ -5,7 +5,7 @@ import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelecto
 import { IPanelProps, Position } from "@blueprintjs/core";
 
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
-import PropertyControlsGenerator, { PropertyPaneGroup } from "./Generator";
+import PropertyControlsGenerator from "./Generator";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
@@ -209,7 +209,9 @@ function PropertyPaneView(
               contentComponent={
                 isContentConfigAvailable ? (
                   <PropertyControlsGenerator
-                    group={PropertyPaneGroup.CONTENT}
+                    config={WidgetFactory.getWidgetPropertyPaneContentConfig(
+                      widgetProperties.type,
+                    )}
                     id={widgetProperties.widgetId}
                     panel={panel}
                     searchQuery={searchText}
@@ -221,7 +223,9 @@ function PropertyPaneView(
               styleComponent={
                 isStyleConfigAvailable ? (
                   <PropertyControlsGenerator
-                    group={PropertyPaneGroup.STYLE}
+                    config={WidgetFactory.getWidgetPropertyPaneStyleConfig(
+                      widgetProperties.type,
+                    )}
                     id={widgetProperties.widgetId}
                     panel={panel}
                     searchQuery={searchText}
@@ -234,6 +238,9 @@ function PropertyPaneView(
           </>
         ) : (
           <PropertyControlsGenerator
+            config={WidgetFactory.getWidgetPropertyPaneConfig(
+              widgetProperties.type,
+            )}
             id={widgetProperties.widgetId}
             panel={panel}
             searchQuery={searchText}
