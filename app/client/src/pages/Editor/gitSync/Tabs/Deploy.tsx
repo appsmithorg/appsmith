@@ -189,7 +189,7 @@ function Deploy() {
     if (currentBranch) {
       dispatch(
         commitToRepoInit({
-          commitMessage,
+          commitMessage: commitMessage.trim(),
           doPush,
         }),
       );
@@ -213,7 +213,8 @@ function Deploy() {
       dispatch(clearCommitSuccessfulState());
     };
   }, []);
-  const commitButtonDisabled = !hasChangesToCommit || !commitMessage;
+  const commitButtonDisabled =
+    !hasChangesToCommit || !commitMessage || commitMessage.trim().length < 1;
   const commitButtonLoading = isCommittingInProgress;
   const commitInputDisabled =
     !hasChangesToCommit ||
