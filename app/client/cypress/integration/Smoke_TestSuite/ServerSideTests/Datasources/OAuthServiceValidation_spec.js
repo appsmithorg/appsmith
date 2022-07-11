@@ -11,6 +11,9 @@ describe("Datasource form related tests", function() {
       .click({ force: true })
       .type(testdata.appUrl);
     cy.get(".t--store-as-datasource").click();
+    cy.wait("@createDatasource").then((interception) => {
+      cy.log(interception.response.body.data);
+    });
   });
 
   it("Add Oauth details to datasource and save", function() {

@@ -1,0 +1,127 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 4896,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 5120,
+        "containerStyle": "none",
+        "snapRows": 128,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 59,
+        "minHeight": 1292,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "boxShadow": "none",
+                "minDate": "",
+                "widgetName": "DatePicker1",
+                "dateFormat": "DD/MM/YYYY HH:mm",
+                "dynamicPropertyPathList": [
+                    {
+                        "key": "defaultDate"
+                    },
+                    {
+                        "key": "minDate"
+                    },
+                    {
+                        "key": "maxDate"
+                    }
+                ],
+                "topRow": 0,
+                "bottomRow": 4,
+                "shortcuts": false,
+                "parentRowSpace": 40,
+                "type": "DATE_PICKER_WIDGET2",
+                "parentColumnSpace": 74,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 20,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "accentColor"
+                    }
+                ],
+                "isDisabled": false,
+                "labelTextSize": "0.875rem",
+                "isRequired": false,
+                "defaultDate": "",
+                "rightColumn": 40,
+                "widgetId": "w4htilgv5t",
+                "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                "isVisible": true,
+                "datePickerType": "DATE_PICKER",
+                "label": "",
+                "version": 2,
+                "parentId": "0",
+                "isLoading": false,
+                "borderRadius": "0px",
+                "closeOnSelection": false,
+                "maxDate": ""
+            },
+            {
+                "boxShadow": "none",
+                "widgetName": "Text1",
+                "topRow": 12,
+                "bottomRow": 16,
+                "parentRowSpace": 40,
+                "type": "TEXT_WIDGET",
+                "parentColumnSpace": 74,
+                "overflow": "NONE",
+                "fontFamily": "System Default",
+                "dynamicTriggerPathList": [],
+                "leftColumn": 4,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "text"
+                    }
+                ],
+                "text": "{{DatePicker1.formattedDate}}",
+                "labelTextSize": "0.875rem",
+                "rightColumn": 20,
+                "textAlign": "LEFT",
+                "widgetId": "voohxsv4t2",
+                "isVisible": true,
+                "fontStyle": "BOLD",
+                "version": 1,
+                "textColor": "#231F20",
+                "parentId": "0",
+                "isLoading": false,
+                "borderRadius": "0px",
+                "fontSize": "0.875rem"
+            },
+            {
+                "boxShadow": "none",
+                "widgetName": "Text2",
+                "topRow": 12,
+                "bottomRow": 16,
+                "parentRowSpace": 40,
+                "type": "TEXT_WIDGET",
+                "parentColumnSpace": 74,
+                "overflow": "NONE",
+                "fontFamily": "System Default",
+                "leftColumn": 32,
+                "dynamicBindingPathList": [],
+                "text": "Label",
+                "labelTextSize": "0.875rem",
+                "rightColumn": 48,
+                "textAlign": "LEFT",
+                "widgetId": "xif8wugzjv",
+                "isVisible": true,
+                "fontStyle": "BOLD",
+                "version": 1,
+                "textColor": "#231F20",
+                "parentId": "0",
+                "isLoading": false,
+                "borderRadius": "0px",
+                "fontSize": "0.875rem"
+            }
+        ]
+    }
+}

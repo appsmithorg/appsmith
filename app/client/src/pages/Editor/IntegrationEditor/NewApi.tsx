@@ -17,7 +17,6 @@ import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { selectURLSlugs } from "selectors/editorSelectors";
 import { curlImportPageURL } from "RouteBuilder";
 import {
   GRAPHQL_PLUGIN_PACKAGE_NAME,
@@ -33,9 +32,9 @@ const StyledContainer = styled.div`
     margin: 0;
     justify-content: center;
     text-align: center;
-    letter-spacing: -0.17px;
-    color: ${Colors.OXFORD_BLUE};
-    font-weight: 500;
+    letter-spacing: -0.24px;
+    color: ${Colors.BLACK};
+    font-weight: 400;
     text-decoration: none !important;
     flex-wrap: wrap;
     white-space: nowrap;
@@ -88,17 +87,15 @@ const ApiCard = styled.div`
   justify-content: space-between;
   height: 64px;
   &:hover {
-    background: ${Colors.Gallery};
+    background-color: ${Colors.GREY_1};
     cursor: pointer;
   }
 
   .content-icon-wrapper {
-    width: 40px;
-    height: 40px;
-    border-radius: 20px;
-    padding: 6px 0;
-    margin: 0 8px;
-    background: #f0f0f0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: ${Colors.GREY_2};
     display: flex;
     align-items: center;
 
@@ -125,6 +122,8 @@ const ApiCard = styled.div`
 const CardContentWrapper = styled.div`
   display: flex;
   align-items: center;
+  gap: 13px;
+  padding-left: 13.5px;
 `;
 
 type ApiHomeScreenProps = {
@@ -200,8 +199,6 @@ function NewApiScreen(props: Props) {
     }
   };
 
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
-
   // On click of any API card, handleOnClick action should be called to check if user came from generate-page flow.
   // if yes then show UnsupportedDialog for the API which are not supported to generate CRUD page.
   const handleOnClick = (actionType: string, params?: any) => {
@@ -235,8 +232,6 @@ function NewApiScreen(props: Props) {
 
         delete queryParams.isGeneratePageMode;
         const curlImportURL = curlImportPageURL({
-          applicationSlug,
-          pageSlug,
           pageId,
           params: {
             from: "datasources",
@@ -269,12 +264,12 @@ function NewApiScreen(props: Props) {
 
   return (
     <StyledContainer>
-      <ApiCardsContainer>
+      <ApiCardsContainer data-testid="newapi-datasource-card-container">
         <ApiCard
           className="t--createBlankApiCard create-new-api"
           onClick={() => handleOnClick(API_ACTION.CREATE_NEW_API)}
         >
-          <CardContentWrapper>
+          <CardContentWrapper data-testid="newapi-datasource-content-wrapper">
             <div className="content-icon-wrapper">
               <img
                 alt="New"

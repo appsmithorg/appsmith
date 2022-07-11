@@ -13,7 +13,7 @@ import UserApi, {
   VerifyTokenRequest,
   TokenPasswordUpdateRequest,
   UpdateUserRequest,
-  LeaveOrgRequest,
+  LeaveWorkspaceRequest,
 } from "@appsmith/api/UserApi";
 import { AUTH_LOGIN_URL, SETUP } from "constants/routes";
 import history from "utils/history";
@@ -34,7 +34,7 @@ import {
   fetchFeatureFlagsError,
 } from "actions/userActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
+import { INVITE_USERS_TO_WORKSPACE_FORM } from "constants/forms";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -42,6 +42,7 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import {
   ANONYMOUS_USERNAME,
   CommentsOnboardingState,
+  User,
 } from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import localStorage from "utils/localStorage";
@@ -72,11 +73,12 @@ export function* createUserSaga(
       request,
     );
     //TODO(abhinav): DRY this
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
       const errorMessage = getResponseErrorMessage(response);
       yield call(reject, { _error: errorMessage });
     } else {
+      //@ts-expect-error: response is of type unknown
       const { email, id, name } = response.data;
       yield put({
         type: ReduxActionTypes.CREATE_USER_SUCCESS,
@@ -89,7 +91,7 @@ export function* createUserSaga(
       yield call(resolve);
     }
   } catch (error) {
-    yield call(reject, { _error: error.message });
+    yield call(reject, { _error: (error as Error).message });
     yield put({
       type: ReduxActionErrorTypes.CREATE_USER_ERROR,
       payload: {
@@ -106,8 +108,9 @@ export function* getCurrentUserSaga() {
     );
     const response: ApiResponse = yield call(UserApi.getCurrentUser);
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      //@ts-expect-error: response is of type unknown
       const { enableTelemetry } = response.data;
       if (enableTelemetry) {
         initializeAnalyticsAndTrackers();
@@ -115,15 +118,19 @@ export function* getCurrentUserSaga() {
       yield put(initAppLevelSocketConnection());
       yield put(initPageLevelSocketConnection());
       if (
+        //@ts-expect-error: response is of type unknown
         !response.data.isAnonymous &&
+        //@ts-expect-error: response is of type unknown
         response.data.username !== ANONYMOUS_USERNAME
       ) {
+        //@ts-expect-error: response is of type unknown
         enableTelemetry && AnalyticsUtil.identifyUser(response.data);
       }
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: response.data,
       });
+      //@ts-expect-error: response is of type unknown
       if (response.data.emptyInstance) {
         history.replace(SETUP);
       }
@@ -163,9 +170,11 @@ export function* forgotPasswordSaga(
       UserApi.forgotPassword,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
-      const errorMessage = yield getResponseErrorMessage(response);
+      const errorMessage: string | undefined = yield getResponseErrorMessage(
+        response,
+      );
       yield call(reject, { _error: errorMessage });
     } else {
       yield put({
@@ -175,7 +184,7 @@ export function* forgotPasswordSaga(
     }
   } catch (error) {
     log.error(error);
-    yield call(reject, { _error: error.message });
+    yield call(reject, { _error: (error as Error).message });
     yield put({
       type: ReduxActionErrorTypes.FORGOT_PASSWORD_ERROR,
     });
@@ -193,9 +202,11 @@ export function* resetPasswordSaga(
       token,
     };
     const response: ApiResponse = yield callAPI(UserApi.resetPassword, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
-      const errorMessage = yield getResponseErrorMessage(response);
+      const errorMessage: string | undefined = yield getResponseErrorMessage(
+        response,
+      );
       yield call(reject, { _error: errorMessage });
     } else {
       yield put({
@@ -205,11 +216,11 @@ export function* resetPasswordSaga(
     }
   } catch (error) {
     log.error(error);
-    yield call(reject, { _error: error.message });
+    yield call(reject, { _error: (error as Error).message });
     yield put({
       type: ReduxActionErrorTypes.RESET_USER_PASSWORD_ERROR,
       payload: {
-        error: error.message,
+        error: (error as Error).message,
       },
     });
   }
@@ -225,9 +236,11 @@ export function* invitedUserSignupSaga(
       UserApi.confirmInvitedUserSignup,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
-      const errorMessage = yield getResponseErrorMessage(response);
+      const errorMessage: string | undefined = yield getResponseErrorMessage(
+        response,
+      );
       yield call(reject, { _error: errorMessage });
     } else {
       yield put(invitedUserSignupSuccess());
@@ -235,20 +248,20 @@ export function* invitedUserSignupSaga(
     }
   } catch (error) {
     log.error(error);
-    yield call(reject, { _error: error.message });
+    yield call(reject, { _error: (error as Error).message });
     yield put(invitedUserSignupError(error));
   }
 }
 
 type InviteUserPayload = {
   email: string;
-  orgId: string;
+  workspaceId: string;
   roleName: string;
 };
 
 export function* inviteUser(payload: InviteUserPayload, reject: any) {
   const response: ApiResponse = yield callAPI(UserApi.inviteUser, payload);
-  const isValidResponse = yield validateResponse(response);
+  const isValidResponse: boolean = yield validateResponse(response);
   if (!isValidResponse) {
     let errorMessage = `${payload.email}:  `;
     errorMessage += getResponseErrorMessage(response);
@@ -259,17 +272,17 @@ export function* inviteUser(payload: InviteUserPayload, reject: any) {
 
 export function* inviteUsers(
   action: ReduxActionWithPromise<{
-    data: { usernames: string[]; orgId: string; roleName: string };
+    data: { usernames: string[]; workspaceId: string; roleName: string };
   }>,
 ) {
   const { data, reject, resolve } = action.payload;
   try {
     const response: ApiResponse = yield callAPI(UserApi.inviteUser, {
       usernames: data.usernames,
-      orgId: data.orgId,
+      workspaceId: data.workspaceId,
       roleName: data.roleName,
     });
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
       let errorMessage = `${data.usernames}:  `;
       errorMessage += getResponseErrorMessage(response);
@@ -278,13 +291,13 @@ export function* inviteUsers(
     yield put({
       type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
       payload: {
-        orgId: data.orgId,
+        workspaceId: data.workspaceId,
       },
     });
     yield put({
-      type: ReduxActionTypes.INVITED_USERS_TO_ORGANIZATION,
+      type: ReduxActionTypes.INVITED_USERS_TO_WORKSPACE,
       payload: {
-        orgId: data.orgId,
+        workspaceId: data.workspaceId,
         users: data.usernames.map((name: string) => ({
           username: name,
           roleName: data.roleName,
@@ -292,11 +305,11 @@ export function* inviteUsers(
       },
     });
     yield call(resolve);
-    yield put(reset(INVITE_USERS_TO_ORG_FORM));
+    yield put(reset(INVITE_USERS_TO_WORKSPACE_FORM));
   } catch (error) {
-    yield call(reject, { _error: error.message });
+    yield call(reject, { _error: (error as Error).message });
     yield put({
-      type: ReduxActionErrorTypes.INVITE_USERS_TO_ORG_ERROR,
+      type: ReduxActionErrorTypes.INVITE_USERS_TO_WORKSPACE_ERROR,
       payload: {
         error,
       },
@@ -313,7 +326,7 @@ export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
       role,
       useCase,
     });
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
@@ -324,7 +337,7 @@ export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_USER_DETAILS_ERROR,
-      payload: error.message,
+      payload: (error as Error).message,
     });
   }
 }
@@ -338,7 +351,7 @@ export function* verifyResetPasswordTokenSaga(
       UserApi.verifyResetPasswordToken,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse && response.data) {
       yield put({
         type: ReduxActionTypes.RESET_PASSWORD_VERIFY_TOKEN_SUCCESS,
@@ -360,7 +373,7 @@ export function* verifyUserInviteSaga(action: ReduxAction<VerifyTokenRequest>) {
   try {
     const request: VerifyTokenRequest = action.payload;
     const response: ApiResponse = yield call(UserApi.verifyUserInvite, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(verifyInviteSuccess());
     }
@@ -374,10 +387,10 @@ export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
   try {
     const redirectURL = action.payload?.redirectURL;
     const response: ApiResponse = yield call(UserApi.logoutUser);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       AnalyticsUtil.reset();
-      const currentUser = yield select(getCurrentUser);
+      const currentUser: User | undefined = yield select(getCurrentUser);
       yield put(logoutUserSuccess(!!currentUser?.emptyInstance));
       localStorage.clear();
       yield put(flushErrorsAndRedirect(redirectURL || AUTH_LOGIN_URL));
@@ -389,7 +402,7 @@ export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
 }
 
 export function* waitForFetchUserSuccess() {
-  const currentUser = yield select(getCurrentUser);
+  const currentUser: string | undefined = yield select(getCurrentUser);
   if (!currentUser) {
     yield take(ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS);
   }
@@ -398,6 +411,7 @@ export function* waitForFetchUserSuccess() {
 function* removePhoto(action: ReduxAction<{ callback: (id: string) => void }>) {
   try {
     const response: ApiResponse = yield call(UserApi.deletePhoto);
+    //@ts-expect-error: response is of type unknown
     const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
     if (action.payload.callback) action.payload.callback(photoId);
   } catch (error) {
@@ -412,6 +426,7 @@ function* updatePhoto(
     const response: ApiResponse = yield call(UserApi.uploadPhoto, {
       file: action.payload.file,
     });
+    //@ts-expect-error: response is of type unknown
     const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
     if (action.payload.callback) action.payload.callback(photoId);
   } catch (error) {
@@ -424,6 +439,7 @@ function* fetchFeatureFlags() {
     const response: ApiResponse = yield call(UserApi.fetchFeatureFlags);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      // @ts-expect-error: response.data is of type unknown
       yield put(fetchFeatureFlagsSuccess(response.data));
     }
   } catch (error) {
@@ -433,11 +449,14 @@ function* fetchFeatureFlags() {
 }
 
 function* updateFirstTimeUserOnboardingSage() {
-  const enable = yield getEnableFirstTimeUserOnboarding();
+  const enable: string | null = yield getEnableFirstTimeUserOnboarding();
 
   if (enable) {
-    const applicationId = yield getFirstTimeUserOnboardingApplicationId() || "";
-    const introModalVisibility = yield getFirstTimeUserOnboardingIntroModalVisibility();
+    const applicationId: string = yield getFirstTimeUserOnboardingApplicationId() ||
+      "";
+    const introModalVisibility:
+      | string
+      | null = yield getFirstTimeUserOnboardingIntroModalVisibility();
     yield put({
       type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
       payload: true,
@@ -475,7 +494,7 @@ export default function* userSagas() {
       ReduxActionTypes.RESET_PASSWORD_VERIFY_TOKEN_INIT,
       verifyResetPasswordTokenSaga,
     ),
-    takeLatest(ReduxActionTypes.INVITE_USERS_TO_ORG_INIT, inviteUsers),
+    takeLatest(ReduxActionTypes.INVITE_USERS_TO_WORKSPACE_INIT, inviteUsers),
     takeLatest(ReduxActionTypes.LOGOUT_USER_INIT, logoutSaga),
     takeLatest(ReduxActionTypes.VERIFY_INVITE_INIT, verifyUserInviteSaga),
     takeLatest(
@@ -488,7 +507,7 @@ export default function* userSagas() {
     ),
     takeLatest(ReduxActionTypes.REMOVE_PROFILE_PHOTO, removePhoto),
     takeLatest(ReduxActionTypes.UPLOAD_PROFILE_PHOTO, updatePhoto),
-    takeLatest(ReduxActionTypes.LEAVE_ORG_INIT, leaveOrgSaga),
+    takeLatest(ReduxActionTypes.LEAVE_WORKSPACE_INIT, leaveWorkspaceSaga),
     takeLatest(ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT, fetchFeatureFlags),
     takeLatest(
       ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
@@ -501,11 +520,13 @@ export default function* userSagas() {
   ]);
 }
 
-export function* leaveOrgSaga(action: ReduxAction<LeaveOrgRequest>) {
+export function* leaveWorkspaceSaga(
+  action: ReduxAction<LeaveWorkspaceRequest>,
+) {
   try {
-    const request: LeaveOrgRequest = action.payload;
-    const response: ApiResponse = yield call(UserApi.leaveOrg, request);
-    const isValidResponse = yield validateResponse(response);
+    const request: LeaveWorkspaceRequest = action.payload;
+    const response: ApiResponse = yield call(UserApi.leaveWorkspace, request);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,

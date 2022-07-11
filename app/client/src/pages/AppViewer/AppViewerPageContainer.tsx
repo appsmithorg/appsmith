@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { Link, RouteComponentProps, withRouter } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
 import { AppViewerRouteParams } from "constants/routes";
@@ -11,7 +11,6 @@ import AppPage from "./AppPage";
 import {
   getCanvasWidgetDsl,
   getCurrentPageName,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -19,7 +18,6 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "../Applications/permissionHelpers";
-import { fetchPublishedPage } from "actions/pageActions";
 import { builderURL } from "RouteBuilder";
 
 const Section = styled.section<{
@@ -36,18 +34,11 @@ const Section = styled.section<{
 type AppViewerPageContainerProps = RouteComponentProps<AppViewerRouteParams>;
 
 function AppViewerPageContainer(props: AppViewerPageContainerProps) {
-  const dispatch = useDispatch();
   const currentPageName = useSelector(getCurrentPageName);
   const widgets = useSelector(getCanvasWidgetDsl);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const currentApplication = useSelector(getCurrentApplication);
   const { match } = props;
-  const { pageId } = match.params;
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
-
-  useEffect(() => {
-    pageId && dispatch(fetchPublishedPage(pageId, true));
-  }, [pageId, location.pathname]);
 
   // get appsmith editr link
   const appsmithEditorLink = useMemo(() => {
@@ -63,8 +54,6 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
           Please add widgets to this page in the&nbsp;
           <Link
             to={builderURL({
-              applicationSlug: applicationSlug,
-              pageSlug: pageSlug,
               pageId: props.match.params.pageId as string,
             })}
           >

@@ -128,6 +128,30 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   static getControlType() {
     return "DROP_DOWN";
   }
+
+  static canDisplayValueInUI(
+    config: DropDownControlProps,
+    value: any,
+  ): boolean {
+    const allowedValues = new Set(
+      config?.options?.map((x: { value: string | number }) =>
+        x.value.toString(),
+      ),
+    );
+    if (config.isMultiSelect) {
+      try {
+        const values = JSON.parse(value);
+        for (const x of values) {
+          if (!allowedValues.has(x.toString())) return false;
+        }
+      } catch {
+        return false;
+      }
+      return true;
+    } else {
+      return allowedValues.has(value);
+    }
+  }
 }
 
 export interface DropDownControlProps extends ControlProps {

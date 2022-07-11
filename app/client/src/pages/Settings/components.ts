@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { Classes } from "@blueprintjs/core";
 
 export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -25,6 +26,12 @@ export const SettingsSubHeader = styled.div`
 
 export const SettingsFormWrapper = styled.div`
   max-width: 40rem;
+
+  .openid_tag {
+    .${Classes.TAG_REMOVE} {
+      display: none;
+    }
+  }
 `;
 
 export const BottomSpace = styled.div`
@@ -32,7 +39,3 @@ export const BottomSpace = styled.div`
 `;
 
 export const ContentWrapper = styled.div``;
-
-export const AclWrapper = styled.div`
-  margin: 0 42px 0 0;
-`;

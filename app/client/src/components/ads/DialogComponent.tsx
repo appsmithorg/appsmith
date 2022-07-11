@@ -189,7 +189,9 @@ export function DialogComponent(props: DialogComponentProps) {
         width={props.width}
       >
         {getHeader && getHeader()}
-        <div className={Classes.DIALOG_BODY}>{props.children}</div>
+        <div className={Classes.DIALOG_BODY} data-testid="t--dialog-component">
+          {props.children}
+        </div>
       </StyledDialog>
     </>
   );

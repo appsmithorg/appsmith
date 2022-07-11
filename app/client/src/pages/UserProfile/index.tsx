@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PageWrapper from "pages/common/PageWrapper";
 import styled from "styled-components";
 import { TabComponent, TabProp } from "components/ads/Tabs";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { Icon } from "@blueprintjs/core";
 // import { Link } from "react-router-dom";
 import General from "./General";

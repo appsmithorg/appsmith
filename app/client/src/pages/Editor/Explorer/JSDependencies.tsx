@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { Colors } from "constants/Colors";
 import { BindingText } from "pages/Editor/APIEditor/CommonEditorForm";
 import { extraLibraries } from "utils/DynamicBindingUtils";

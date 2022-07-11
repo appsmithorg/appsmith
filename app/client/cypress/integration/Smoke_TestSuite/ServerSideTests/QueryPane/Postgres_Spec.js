@@ -2,7 +2,9 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
+let ee = ObjectsRegistry.EntityExplorer;
 let datasourceName;
 
 describe("Validate CRUD queries for Postgres along with UI flow verifications", function() {
@@ -304,6 +306,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate(deleteTblQuery);
     cy.runQuery();
+    ee.ExpandCollapseEntity("DATASOURCES");
     cy.actionContextMenuByEntityName(datasourceName, "Refresh");
     cy.xpath("//div[text()='public.users_crud']").should("not.exist"); //validating drop is successful!
     cy.deleteQueryUsingContext();
@@ -331,7 +334,17 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.deleteQueryUsingContext();
   });
 
-  it("12. Deletes the datasource", () => {
+  it("12. Bug 14493: The application is breaking when user runs the query with result as empty array", function() {
+    cy.NavigateToActiveDSQueryPane(datasourceName);
+    cy.get(queryLocators.templateMenu).click({ force: true });
+    cy.typeValueNValidate(
+      "select * from public.users where name='Ayush1234' ORDER BY id LIMIT 10",
+    );
+    cy.runQuery();
+    cy.deleteQueryUsingContext();
+  });
+
+  it("13. Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });

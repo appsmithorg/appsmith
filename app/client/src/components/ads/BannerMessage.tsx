@@ -10,6 +10,8 @@ type Props = {
   iconColor: string;
   iconSize: IconSize;
   messageHeader?: string;
+  ctaText?: string;
+  ctaURL?: string;
   message: string;
   textColor: string;
 };
@@ -53,7 +55,25 @@ const MessageHeader = styled.h2`
   padding-bottom: 5px;
 `;
 
+const CTALink = styled.a<{
+  textColor: string;
+}>`
+  padding-top: 8px;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 16px;
+  :hover {
+    color: ${(props) => props.textColor};
+  }
+`;
+
 export function BannerMessage(props: Props) {
+  const handleCTAOnClick = (e: any) => {
+    if (props.ctaURL) {
+      window.open(props.ctaURL, "_blank");
+    }
+    e.preventDefault();
+  };
   return (
     <MessageContainer
       backgroundColor={props.backgroundColor}
@@ -70,6 +90,15 @@ export function BannerMessage(props: Props) {
           <MessageHeader>{props.messageHeader}</MessageHeader>
         )}
         <MessageText>{props.message}</MessageText>
+        {props.ctaText && props.ctaURL && (
+          <CTALink
+            href={props.ctaURL}
+            onClick={handleCTAOnClick}
+            textColor={props.textColor}
+          >
+            {props.ctaText}
+          </CTALink>
+        )}
       </MessageWrapper>
     </MessageContainer>
   );

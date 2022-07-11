@@ -32,7 +32,7 @@ public class PostmanImporterServiceCEImpl extends BaseApiImporter implements Pos
     }
 
     @Override
-    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String orgId, String branchName) {
+    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String workspaceId, String branchName) {
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Datasource datasource = new Datasource();

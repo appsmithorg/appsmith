@@ -1,4 +1,5 @@
 import * as styledComponents from "styled-components";
+import { ThemedStyledComponentsModule } from "styled-components";
 import { Colors, Color } from "./Colors";
 import * as FontFamilies from "./Fonts";
 import tinycolor from "tinycolor2";
@@ -11,13 +12,21 @@ import { typography, Typography, TypographyKeys } from "./typography";
 import { LabelPosition } from "components/constants";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
+const themedStyled = {
+  default: styledComponents.default,
+  css: styledComponents.css,
+  createGlobalStyle: styledComponents.createGlobalStyle,
+  keyframes: styledComponents.keyframes,
+  ThemeProvider: styledComponents.ThemeProvider,
+} as ThemedStyledComponentsModule<Theme>;
+
 const {
   createGlobalStyle,
   css,
   default: styled,
   keyframes,
   ThemeProvider,
-} = styledComponents as styledComponents.ThemedStyledComponentsModule<Theme>;
+} = themedStyled;
 
 export const IntentColors: Record<string, Color> = {
   primary: Colors.GREEN,
@@ -654,6 +663,7 @@ const lightShades = [
   "#FFDEDE",
   "#575757",
   "#191919",
+  "#E7E7E7",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -934,12 +944,12 @@ type ColorType = {
   applications: {
     bg: ShadeColor;
     textColor: ShadeColor;
-    orgColor: ShadeColor;
+    workspaceColor: ShadeColor;
     iconColor: ShadeColor;
     hover: {
       bg: ShadeColor;
       textColor: ShadeColor;
-      orgColor: ShadeColor;
+      workspaceColor: ShadeColor;
     };
     cardMenuIcon: ShadeColor;
   };
@@ -1947,12 +1957,12 @@ export const dark: ColorType = {
   applications: {
     bg: darkShades[4],
     textColor: darkShades[7],
-    orgColor: darkShades[7],
+    workspaceColor: darkShades[7],
     iconColor: darkShades[7],
     hover: {
       bg: darkShades[5],
       textColor: darkShades[8],
-      orgColor: darkShades[9],
+      workspaceColor: darkShades[9],
     },
     cardMenuIcon: darkShades[7],
   },
@@ -2475,7 +2485,7 @@ export const light: ColorType = {
       border: lightShades[13],
       bg: lightShades[11],
       text: lightShades[8],
-      hover: lightShades[2],
+      hover: lightShades[21],
       hoverText: lightShades[10],
       subText: lightShades[15],
     },
@@ -2587,12 +2597,12 @@ export const light: ColorType = {
   applications: {
     bg: lightShades[3],
     textColor: lightShades[7],
-    orgColor: lightShades[7],
+    workspaceColor: lightShades[7],
     iconColor: lightShades[7],
     hover: {
       bg: lightShades[5],
       textColor: lightShades[8],
-      orgColor: lightShades[9],
+      workspaceColor: lightShades[9],
     },
     cardMenuIcon: lightShades[17],
   },
@@ -2733,7 +2743,7 @@ export const light: ColorType = {
   codeMirror: {
     background: {
       defaultState: lightShades[0],
-      hoverState: lightShades[12],
+      hoverState: lightShades[21],
     },
     text: "#090707",
     dataType: {

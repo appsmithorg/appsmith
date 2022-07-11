@@ -1,6 +1,5 @@
 import React from "react";
-
-import BaseControl, { ControlProps } from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import ColorPickerComponent from "components/ads/ColorPickerComponentV2";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 
@@ -30,6 +29,10 @@ class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
 
   static getControlType() {
     return "COLOR_PICKER";
+  }
+
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    return !isDynamicValue(value);
   }
 }
 

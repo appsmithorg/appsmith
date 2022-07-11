@@ -12,7 +12,7 @@ const isVisible = {
   "!doc": "Boolean value indicating if the widget is in visible state",
 };
 
-export const entityDefinitions: Record<string, unknown> = {
+export const entityDefinitions = {
   APPSMITH: (entity: DataTreeAppsmith) => {
     const generatedTypeDef = generateTypeDef(
       _.omit(entity, "ENTITY_TYPE", EVALUATION_PATH),
@@ -695,3 +695,5 @@ export const getPropsForJSActionEntity = ({
   }
   return properties;
 };
+
+export type EntityDefinitionsOptions = keyof typeof entityDefinitions;

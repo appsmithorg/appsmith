@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
-import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
+import { getUserApplicationsWorkspaces } from "selectors/applicationSelectors";
 import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { AppState } from "reducers";
@@ -35,21 +35,21 @@ type ForkApplicationModalProps = {
 
 function ForkApplicationModal(props: ForkApplicationModalProps) {
   const { isModalOpen, setModalClose } = props;
-  const [organization, selectOrganization] = useState<{
+  const [workspace, selectWorkspace] = useState<{
     label: string;
     value: string;
   }>({ label: "", value: "" });
   const dispatch = useDispatch();
-  const userOrgs = useSelector(getUserApplicationsOrgs);
+  const userWorkspaces = useSelector(getUserApplicationsWorkspaces);
   const forkingApplication = useSelector(
     (state: AppState) => state.ui.applications.forkingApplication,
   );
 
   useEffect(() => {
-    if (!userOrgs.length) {
+    if (!userWorkspaces.length) {
       dispatch(getAllApplications());
     }
-  }, [userOrgs.length]);
+  }, [userWorkspaces.length]);
 
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const { pathname } = useLocation();
@@ -61,38 +61,38 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
       type: ReduxActionTypes.FORK_APPLICATION_INIT,
       payload: {
         applicationId: props.applicationId,
-        organizationId: organization?.value,
+        workspaceId: workspace?.value,
       },
     });
   };
 
-  const organizationList = useMemo(() => {
-    const filteredUserOrgs = userOrgs.filter((item) => {
+  const workspaceList = useMemo(() => {
+    const filteredUserWorkspaces = userWorkspaces.filter((item) => {
       const permitted = isPermitted(
-        item.organization.userPermissions ?? [],
+        item.workspace.userPermissions ?? [],
         PERMISSION_TYPE.CREATE_APPLICATION,
       );
       return permitted;
     });
 
-    if (filteredUserOrgs.length) {
-      selectOrganization({
-        label: filteredUserOrgs[0].organization.name,
-        value: filteredUserOrgs[0].organization.id,
+    if (filteredUserWorkspaces.length) {
+      selectWorkspace({
+        label: filteredUserWorkspaces[0].workspace.name,
+        value: filteredUserWorkspaces[0].workspace.id,
       });
     }
 
-    return filteredUserOrgs.map((org) => {
+    return filteredUserWorkspaces.map((workspace) => {
       return {
-        label: org.organization.name,
-        value: org.organization.id,
+        label: workspace.workspace.name,
+        value: workspace.workspace.id,
       };
     });
-  }, [userOrgs]);
+  }, [userWorkspaces]);
 
   const modalHeading = isFetchingApplications
     ? createMessage(FORK_APP_MODAL_LOADING_TITLE)
-    : !organizationList.length
+    : !workspaceList.length
     ? createMessage(FORK_APP_MODAL_EMPTY_TITLE)
     : createMessage(FORK_APP_MODAL_SUCCESS_TITLE);
 
@@ -111,17 +111,15 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
           <Spinner size={IconSize.XXXL} />
         </SpinnerWrapper>
       ) : (
-        !!organizationList.length && (
+        !!workspaceList.length && (
           <>
             <Dropdown
               boundary="viewport"
               dropdownMaxHeight={"200px"}
               fillOptions
-              onSelect={(_, dropdownOption) =>
-                selectOrganization(dropdownOption)
-              }
-              options={organizationList}
-              selected={organization}
+              onSelect={(_, dropdownOption) => selectWorkspace(dropdownOption)}
+              options={workspaceList}
+              selected={workspace}
               showLabelOnly
               width={"100%"}
             />
@@ -136,7 +134,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
                 text={createMessage(CANCEL)}
               />
               <Button
-                className="t--fork-app-to-org-button"
+                className="t--fork-app-to-workspace-button"
                 isLoading={forkingApplication}
                 onClick={forkApplication}
                 size={Size.large}

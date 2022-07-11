@@ -2,7 +2,7 @@ import { createSelector } from "reselect";
 
 import { AppState } from "reducers";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -33,7 +33,6 @@ import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
-import { builderURL } from "RouteBuilder";
 import { ApplicationVersion } from "actions/applicationActions";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 
@@ -156,7 +155,8 @@ export const selectURLSlugs = createSelector(
     const applicationSlug = application?.slug || PLACEHOLDER_APP_SLUG;
     const currentPage = pages.find((page) => page.pageId === pageId);
     const pageSlug = currentPage?.slug || PLACEHOLDER_PAGE_SLUG;
-    return { applicationSlug, pageSlug };
+    const customSlug = currentPage?.customSlug;
+    return { applicationSlug, pageSlug, customSlug };
   },
 );
 
@@ -206,7 +206,7 @@ export const getWidgetCards = createSelector(
       (config) => !config.hideCard,
     );
 
-    const _cards = cards.map((config) => {
+    const _cards: WidgetCardProps[] = cards.map((config) => {
       const {
         columns,
         detachFromLayout = false,
@@ -214,6 +214,7 @@ export const getWidgetCards = createSelector(
         iconSVG,
         key,
         rows,
+        searchTags,
         type,
       } = config;
       return {
@@ -224,6 +225,7 @@ export const getWidgetCards = createSelector(
         detachFromLayout,
         displayName,
         icon: iconSVG,
+        searchTags,
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
@@ -520,13 +522,5 @@ export const getZoomLevel = (state: AppState) => {
 export const getIsSavingEntity = (state: AppState) =>
   state.ui.editor.loadingStates.savingEntity;
 
-export const getEditorURL = createSelector(
-  getCurrentPageId,
-  selectURLSlugs,
-  (pageId: string, { applicationSlug, pageSlug }) =>
-    builderURL({
-      applicationSlug,
-      pageSlug,
-      pageId,
-    }),
-);
+export const selectJSCollections = (state: AppState) =>
+  state.entities.jsActions;
