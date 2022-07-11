@@ -44,18 +44,95 @@ describe("MultiSelect Widget Functionality", function() {
       "defaultvalue",
       '[\n  {\n    "label": "Option 3",\n    "value": "3"\n  }\n]',
     );
+
     cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-selection-item-content")
       .first()
       .should("have.text", "Option 3");
   });
 
-  it("3. Dropdown Functionality To Validate Options", function() {
+  it("3. Clears the search field when widget is closed and serverSideFiltering is off", () => {
+    // Turn on the filterable for the widget
+    cy.togglebar('.t--property-control-filterable input[type="checkbox"]');
+    // open the widget
+    cy.get(formWidgetsPage.multiselectwidgetv2)
+      .find(".rc-select-selection-search-input")
+      .first()
+      .focus({ force: true })
+      .type("{uparrow}", { force: true });
+    // Search for Option 2 in the search input
+    cy.get(".rc-select-dropdown input[type='text']")
+      .click()
+      .type("Option 2");
+    // Select Option 2
+    cy.get(".multi-select-dropdown")
+      .contains("Option 2")
+      .click({ force: true });
+    // Assert Option 2 is selected
+    cy.get(".rc-select-selection-item-content")
+      .eq(1)
+      .should("have.text", "Option 2");
+    // Close the widget
+    cy.openPropertyPane("multiselectwidgetv2");
+    // Reopen the widget
+    cy.get(formWidgetsPage.multiselectwidgetv2)
+      .find(".rc-select-selection-search-input")
+      .first()
+      .focus({ force: true })
+      .type("{uparrow}", { force: true });
+    // Assert if the search input is empty
+    cy.get(".rc-select-dropdown input[type='text']")
+      .invoke("val")
+      .should("be.empty");
+  });
+
+  it("4. Does not clear the search field when widget is closed and serverSideFiltering is on", () => {
+    // Turn on server side filtering for the widget
+    cy.togglebar(
+      '.t--property-control-serversidefiltering input[type="checkbox"]',
+    );
+    // open the widget
+    cy.get(formWidgetsPage.multiselectwidgetv2)
+      .find(".rc-select-selection-search-input")
+      .first()
+      .focus({ force: true })
+      .type("{uparrow}", { force: true });
+    // Search for Option 2 in the search input
+    cy.get(".rc-select-dropdown input[type='text']")
+      .click()
+      .type("Option 2");
+    // Click on Option 2
+    cy.get(".multi-select-dropdown")
+      .contains("Option 2")
+      .click({ force: true });
+    // Close the widget
+    cy.openPropertyPane("multiselectwidgetv2");
+    // Reopen the widget
+    cy.get(formWidgetsPage.multiselectwidgetv2)
+      .find(".rc-select-selection-search-input")
+      .first()
+      .focus({ force: true })
+      .type("{uparrow}", { force: true });
+    // Assert if the search input is not empty
+    cy.get(".rc-select-dropdown input[type='text']")
+      .invoke("val")
+      .should("not.be.empty");
+    // Turn off the filterable property for the widget
+    cy.togglebarDisable(
+      '.t--property-control-filterable input[type="checkbox"]',
+    );
+    // Turn off server side filtering for the widget
+    cy.togglebarDisable(
+      '.t--property-control-serversidefiltering input[type="checkbox"]',
+    );
+  });
+
+  it("5. Dropdown Functionality To Validate Options", function() {
     cy.get(".rc-select-selector").click({ force: true });
     cy.dropdownMultiSelectDynamic("Option 2");
   });
 
-  it("4. Dropdown Functionality To Check Allow select all option", function() {
+  it("6. Dropdown Functionality To Check Allow select all option", function() {
     // select all option is not enable
     cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-selection-item-content")
@@ -84,7 +161,7 @@ describe("MultiSelect Widget Functionality", function() {
       .should("have.text", "Option 2");
   });
 
-  it("5. Check isDirty meta property", function() {
+  it("7. Check isDirty meta property", function() {
     cy.openPropertyPane(WIDGET.TEXT);
     cy.updateCodeInput(PROPERTY_SELECTOR.text, `{{MultiSelect2.isDirty}}`);
     // Init isDirty by changing defaultOptionValue
@@ -157,7 +234,7 @@ describe("MultiSelect Widget Functionality", function() {
     },
   ];
 
-  it("6. Verify MultiSelect resets to default value", function() {
+  it("8. Verify MultiSelect resets to default value", function() {
     resetTestCases.forEach((testCase) => {
       const {
         defaultValue,
@@ -194,7 +271,7 @@ describe("MultiSelect Widget Functionality", function() {
     });
   });
 
-  it("7. Verify MultiSelect deselection behavior", function() {
+  it("9. Verify MultiSelect deselection behavior", function() {
     cy.openPropertyPane("multiselectwidgetv2");
     // set options
     jsEditor.EnterJSContext(
@@ -211,7 +288,7 @@ describe("MultiSelect Widget Functionality", function() {
       .should("have.text", "");
   });
 
-  it("8. Dropdown Functionality To Unchecked Visible Widget", function() {
+  it("10. Dropdown Functionality To Unchecked Visible Widget", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
@@ -220,7 +297,7 @@ describe("MultiSelect Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("9. Dropdown Functionality To Check Visible Widget", function() {
+  it("11. Dropdown Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
