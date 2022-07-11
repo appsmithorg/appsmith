@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
@@ -47,25 +47,49 @@ const StyledTabs = styled(Tabs)`
 `;
 
 type PropertyPaneTabProps = {
-  tabs: Array<TabProp>;
+  styleComponent: JSX.Element | null;
+  contentComponent: JSX.Element | null;
 };
 
 export function PropertyPaneTab(props: PropertyPaneTabProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
+  const tabs = useMemo(() => {
+    const arr: TabProp[] = [];
+    if (props.contentComponent) {
+      arr.push({
+        key: "content",
+        title: "CONTENT",
+        panelComponent: props.contentComponent,
+      });
+    }
+    if (props.styleComponent) {
+      arr.push({
+        key: "style",
+        title: "STYLE",
+        panelComponent: props.styleComponent,
+      });
+    }
+    return arr;
+  }, [props.styleComponent, props.contentComponent]);
+
   return (
     <>
       <StyledTabs onSelect={setSelectedIndex} selectedIndex={selectedIndex}>
         <TabList>
-          <Tab>
-            <TabTitle className="tab-title">CONTENT</TabTitle>
-          </Tab>
-          <Tab>
-            <TabTitle className="tab-title">STYLE</TabTitle>
-          </Tab>
+          {props.contentComponent && (
+            <Tab>
+              <TabTitle className="tab-title">CONTENT</TabTitle>
+            </Tab>
+          )}
+          {props.styleComponent && (
+            <Tab>
+              <TabTitle className="tab-title">STYLE</TabTitle>
+            </Tab>
+          )}
         </TabList>
       </StyledTabs>
-      <StyledTabComponent selectedIndex={selectedIndex} tabs={props.tabs} />
+      <StyledTabComponent selectedIndex={selectedIndex} tabs={tabs} />
     </>
   );
 }
