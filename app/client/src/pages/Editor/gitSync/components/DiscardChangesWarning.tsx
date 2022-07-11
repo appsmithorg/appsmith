@@ -10,7 +10,7 @@ import {
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import Text, { TextType } from "../../../../components/ads/Text";
+import { Text, TextType } from "design-system";
 
 function DiscardWarningMessage() {
   return (

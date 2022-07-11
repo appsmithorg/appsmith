@@ -4,7 +4,7 @@ import { connect, useDispatch } from "react-redux";
 import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Button, { Category, Size } from "components/ads/Button";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { Colors } from "constants/Colors";
