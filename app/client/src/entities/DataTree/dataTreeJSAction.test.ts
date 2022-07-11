@@ -134,10 +134,35 @@ describe("generateDataTreeJSAction", () => {
       },
     };
     const expected = {
-      myVar1: [],
-      myVar2: {},
+      myVar1: "[]",
+      myVar2: "{}",
       name: "JSObject2",
       actionId: "1234",
+      actionsConfig: {
+        myFun1: {
+          arguments: [],
+          body: "() => {}",
+          confirmBeforeExecute: false,
+          data: undefined,
+          isAsync: false,
+          name: "myFun1",
+        },
+        myFun2: {
+          arguments: [],
+          body: "async () => {}",
+          confirmBeforeExecute: false,
+          data: {
+            users: [
+              {
+                id: 1,
+                name: "John",
+              },
+            ],
+          },
+          isAsync: true,
+          name: "myFun2",
+        },
+      },
       pluginType: "JS",
       ENTITY_TYPE: "JSACTION",
       body:
@@ -156,8 +181,6 @@ describe("generateDataTreeJSAction", () => {
       },
       bindingPaths: {
         body: "SMART_SUBSTITUTE",
-        myFun2: "SMART_SUBSTITUTE",
-        myFun1: "SMART_SUBSTITUTE",
         myVar1: "SMART_SUBSTITUTE",
         myVar2: "SMART_SUBSTITUTE",
       },
@@ -172,15 +195,15 @@ describe("generateDataTreeJSAction", () => {
           key: "myVar2",
         },
         {
-          key: "myFun2",
+          key: "myFun1",
         },
         {
-          key: "myFun1",
+          key: "myFun2",
         },
       ],
       variables: ["myVar1", "myVar2"],
       dependencyMap: {
-        body: ["myFun2", "myFun1"],
+        body: ["myFun1", "myFun2"],
       },
       myFun2: {
         data: {
@@ -188,12 +211,10 @@ describe("generateDataTreeJSAction", () => {
         },
       },
       myFun1: {
-        data: {},
+        data: undefined,
       },
       reactivePaths: {
         body: "SMART_SUBSTITUTE",
-        myFun1: "SMART_SUBSTITUTE",
-        myFun2: "SMART_SUBSTITUTE",
         myVar1: "SMART_SUBSTITUTE",
         myVar2: "SMART_SUBSTITUTE",
       },
@@ -333,10 +354,37 @@ describe("generateDataTreeJSAction", () => {
     };
 
     const expected = {
-      myVar1: [],
-      myVar2: {},
+      myVar1: "[]",
+      myVar2: "{}",
       name: "JSObject2",
       actionId: "1234",
+      actionsConfig: {
+        myFun1: {
+          arguments: [],
+          body: `() => {
+  return JSObject2.myFun2;
+}`,
+          confirmBeforeExecute: false,
+          data: undefined,
+          isAsync: false,
+          name: "myFun1",
+        },
+        myFun2: {
+          arguments: [],
+          body: "async () => {}",
+          confirmBeforeExecute: false,
+          data: {
+            users: [
+              {
+                id: 1,
+                name: "John",
+              },
+            ],
+          },
+          isAsync: true,
+          name: "myFun2",
+        },
+      },
       pluginType: "JS",
       ENTITY_TYPE: "JSACTION",
       body:
@@ -355,8 +403,6 @@ describe("generateDataTreeJSAction", () => {
       },
       bindingPaths: {
         body: "SMART_SUBSTITUTE",
-        myFun2: "SMART_SUBSTITUTE",
-        myFun1: "SMART_SUBSTITUTE",
         myVar1: "SMART_SUBSTITUTE",
         myVar2: "SMART_SUBSTITUTE",
       },
@@ -371,15 +417,15 @@ describe("generateDataTreeJSAction", () => {
           key: "myVar2",
         },
         {
-          key: "myFun2",
+          key: "myFun1",
         },
         {
-          key: "myFun1",
+          key: "myFun2",
         },
       ],
       variables: ["myVar1", "myVar2"],
       dependencyMap: {
-        body: ["myFun2", "myFun1"],
+        body: ["myFun1", "myFun2"],
       },
       myFun2: {
         data: {
@@ -387,12 +433,10 @@ describe("generateDataTreeJSAction", () => {
         },
       },
       myFun1: {
-        data: {},
+        data: undefined,
       },
       reactivePaths: {
         body: "SMART_SUBSTITUTE",
-        myFun1: "SMART_SUBSTITUTE",
-        myFun2: "SMART_SUBSTITUTE",
         myVar1: "SMART_SUBSTITUTE",
         myVar2: "SMART_SUBSTITUTE",
       },
