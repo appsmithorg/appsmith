@@ -1,6 +1,9 @@
 import React from "react";
 
-import TreeDropdown, { TreeDropdownOption } from "components/ads/TreeDropdown";
+import TreeDropdown, {
+  Setter,
+  TreeDropdownOption,
+} from "components/ads/TreeDropdown";
 import {
   ControlWrapper,
   FieldWrapper,
@@ -277,13 +280,7 @@ const views = {
             defaultText={props.defaultText}
             displayValue={props.displayValue}
             getDefaults={props.getDefaults}
-            onSelect={(
-              value,
-              defaultValue?: string,
-              isUpdatedViaKeyboard = false,
-            ) => {
-              props.set(value, defaultValue, isUpdatedViaKeyboard);
-            }}
+            onSelect={props.set as Setter}
             optionTree={props.options}
             selectedLabelModifier={props.selectedLabelModifier}
             selectedValue={props.get(props.value, false) as string}

@@ -37,7 +37,7 @@ export type TreeDropdownOption = DropdownOption & {
   args?: Array<any>;
 };
 
-type Setter = (
+export type Setter = (
   value: TreeDropdownOption,
   defaultVal?: string,
   isUpdatedViaKeyboard?: boolean,
