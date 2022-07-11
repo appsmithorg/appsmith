@@ -3,7 +3,6 @@ const puppeteer = require("puppeteer");
 var sanitize = require("sanitize-filename");
 const fs = require("fs");
 const path = require("path");
-const cp = require("child_process");
 
 const {
   delay,
