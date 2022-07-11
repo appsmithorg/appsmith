@@ -8,7 +8,7 @@ import {
 import { useSelector } from "react-redux";
 import { getPluginImages } from "selectors/entitiesSelector";
 import { Classes } from "components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { FormIcons } from "icons/FormIcons";
 import _ from "lodash";
 import { TooltipComponent } from "design-system";

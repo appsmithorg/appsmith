@@ -31,7 +31,6 @@ import { validateResponse } from "./ErrorSagas";
 import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
-import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { AppState } from "reducers";
 import {
   ApplicationVersion,
@@ -61,7 +60,6 @@ import { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 
 import {
@@ -132,11 +130,8 @@ export function* publishApplicationSaga(
       const currentPageId: string = yield select(getCurrentPageId);
       const guidedTour: boolean = yield select(inGuidedTour);
       const currentStep: number = yield select(getCurrentStep);
-      const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
 
       let appicationViewPageUrl = viewerURL({
-        applicationSlug,
-        pageSlug,
         pageId: currentPageId,
       });
       if (guidedTour && currentStep === GUIDED_TOUR_STEPS.DEPLOY) {
@@ -359,7 +354,7 @@ export function* updateApplicationSaga(
       if (request) {
         yield put({
           type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
-          payload: action.payload,
+          payload: response.data,
         });
       }
       if (request.currentApp) {
@@ -433,14 +428,9 @@ export function* duplicateApplicationSaga(
         type: ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS,
         payload: response.data,
       });
-      const { slug } = application;
-      const defaultPage = application.pages.find((page) => page.isDefault);
+
       const pageURL = builderURL({
-        applicationVersion: application.applicationVersion,
-        applicationId: application.id,
-        applicationSlug: slug || PLACEHOLDER_APP_SLUG,
-        pageSlug: defaultPage?.slug || PLACEHOLDER_PAGE_SLUG,
-        pageId: application.defaultPageId as string,
+        pageId: application.defaultPageId,
       });
       history.push(pageURL);
     }
@@ -542,8 +532,6 @@ export function* createApplicationSaga(
         AnalyticsUtil.logEvent("CREATE_APP", {
           appName: application.name,
         });
-        const defaultPage = response.data.pages.find((page) => page.isDefault);
-        const defaultPageSlug = defaultPage?.slug || PLACEHOLDER_PAGE_SLUG;
         // This sets ui.pageWidgets = {} to ensure that
         // widgets are cleaned up from state before
         // finishing creating a new application
@@ -562,7 +550,6 @@ export function* createApplicationSaga(
           getFirstTimeUserOnboardingApplicationId,
         );
         let pageURL;
-
         if (
           isFirstTimeUserOnboardingEnabled &&
           FirstTimeUserOnboardingApplicationId === ""
@@ -573,18 +560,10 @@ export function* createApplicationSaga(
             payload: application.id,
           });
           pageURL = builderURL({
-            applicationId: application.id,
-            applicationVersion: application.applicationVersion,
-            applicationSlug: application.slug as string,
-            pageSlug: defaultPageSlug,
             pageId: application.defaultPageId as string,
           });
         } else {
           pageURL = generateTemplateURL({
-            applicationId: application.id,
-            applicationVersion: application.applicationVersion,
-            applicationSlug: application.slug as string,
-            pageSlug: defaultPageSlug,
             pageId: application.defaultPageId as string,
           });
         }
@@ -633,15 +612,7 @@ export function* forkApplicationSaga(
           application,
         },
       });
-      // @ts-expect-error: response is of type unknown
-      const defaultPage = response.data.pages.find(
-        (page: ApplicationPagePayload) => page.isDefault,
-      );
       const pageURL = builderURL({
-        applicationVersion: application.applicationVersion,
-        applicationId: application.id,
-        applicationSlug: application.slug || PLACEHOLDER_APP_SLUG,
-        pageSlug: defaultPage.slug || PLACEHOLDER_PAGE_SLUG,
         pageId: application.defaultPageId as string,
       });
       history.push(pageURL);
@@ -697,7 +668,7 @@ export function* importApplicationSaga(
       if (currentWorkspace.length > 0) {
         const {
           // @ts-expect-error: response is of type unknown
-          application: { applicationVersion, id, pages, slug: applicationSlug },
+          application: { pages },
           // @ts-expect-error: response is of type unknown
           isPartialImport,
         } = response.data;
@@ -718,13 +689,9 @@ export function* importApplicationSaga(
           );
         } else {
           // @ts-expect-error: pages is of type any
+          // TODO: Update route params here
           const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
           const pageURL = builderURL({
-            applicationSlug: applicationSlug ?? PLACEHOLDER_APP_SLUG,
-            applicationId: id,
-            applicationVersion:
-              applicationVersion ?? ApplicationVersion.SLUG_URL,
-            pageSlug: defaultPage[0].slug || PLACEHOLDER_PAGE_SLUG,
             pageId: defaultPage[0].id,
           });
           history.push(pageURL);

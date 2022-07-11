@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { debounce } from "lodash";
 import TextInput, { notEmptyValidator } from "components/ads/TextInput";
 import { useDispatch, useSelector } from "react-redux";
