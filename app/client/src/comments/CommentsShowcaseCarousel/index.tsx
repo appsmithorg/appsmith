@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import ShowcaseCarousel, { Steps } from "components/ads/ShowcaseCarousel";
 import ProfileForm, { PROFILE_FORM, fieldNames } from "./ProfileForm";
 import CommentsCarouselModal from "./CommentsCarouselModal";
