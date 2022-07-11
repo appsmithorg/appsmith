@@ -159,7 +159,6 @@ function SingleSelectTreeComponent({
     [],
   );
   const onClear = useCallback(() => onChange([], []), []);
-
   const clearButton = useMemo(
     () =>
       filter ? (
@@ -211,6 +210,12 @@ function SingleSelectTreeComponent({
     ),
     [loading, isFilterable, filter, onQueryChange],
   );
+
+  const onDropdownVisibleChange = (open: boolean) => {
+    onOpen(open);
+    // Clear the search input on closing the widget
+    setFilter("");
+  };
 
   return (
     <TreeSelectContainer
@@ -278,7 +283,7 @@ function SingleSelectTreeComponent({
           notFoundContent="No Results Found"
           onChange={onSelectionChange}
           onClear={onClear}
-          onDropdownVisibleChange={onOpen}
+          onDropdownVisibleChange={onDropdownVisibleChange}
           open={isOpen}
           placeholder={placeholder}
           ref={selectRef}

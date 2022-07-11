@@ -210,6 +210,12 @@ function MultiTreeSelectComponent({
 
   const onClear = useCallback(() => onChange([], []), []);
 
+  const onDropdownVisibleChange = (open: boolean) => {
+    onOpen(open);
+    // clear the search input on closing the widget
+    setFilter("");
+  };
+
   return (
     <TreeSelectContainer
       accentColor={accentColor}
@@ -278,7 +284,7 @@ function MultiTreeSelectComponent({
           notFoundContent="No Results Found"
           onChange={onChange}
           onClear={onClear}
-          onDropdownVisibleChange={onOpen}
+          onDropdownVisibleChange={onDropdownVisibleChange}
           open={isOpen}
           placeholder={placeholder}
           ref={selectRef}
