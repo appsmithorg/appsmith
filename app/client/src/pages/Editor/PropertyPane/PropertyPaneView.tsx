@@ -125,40 +125,6 @@ function PropertyPaneView(
     ];
   }, [onCopy, onDelete]);
 
-  const tabs = useMemo(
-    () => [
-      {
-        key: "content",
-        title: "CONTENT",
-        panelComponent: (
-          <PropertyControlsGenerator
-            group={PropertyPaneGroup.CONTENT}
-            id={widgetProperties.widgetId}
-            panel={panel}
-            searchQuery={searchText}
-            theme={EditorTheme.LIGHT}
-            type={widgetProperties.type}
-          />
-        ),
-      },
-      {
-        key: "style",
-        title: "STYLE",
-        panelComponent: (
-          <PropertyControlsGenerator
-            group={PropertyPaneGroup.STYLE}
-            id={widgetProperties.widgetId}
-            panel={panel}
-            searchQuery={searchText}
-            theme={EditorTheme.LIGHT}
-            type={widgetProperties.type}
-          />
-        ),
-      },
-    ],
-    [widgetProperties.widgetId, panel, searchText, widgetProperties.type],
-  );
-
   if (!widgetProperties) return null;
 
   // Building Deprecation Messages
@@ -237,6 +203,7 @@ function PropertyPaneView(
                     group={PropertyPaneGroup.CONTENT}
                     id={widgetProperties.widgetId}
                     panel={panel}
+                    searchQuery={searchText}
                     theme={EditorTheme.LIGHT}
                     type={widgetProperties.type}
                   />
@@ -248,6 +215,7 @@ function PropertyPaneView(
                     group={PropertyPaneGroup.STYLE}
                     id={widgetProperties.widgetId}
                     panel={panel}
+                    searchQuery={searchText}
                     theme={EditorTheme.LIGHT}
                     type={widgetProperties.type}
                   />
