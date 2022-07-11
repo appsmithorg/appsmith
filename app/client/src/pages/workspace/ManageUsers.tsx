@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import history from "utils/history";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import { useLocation } from "react-router-dom";

@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "constants/DefaultTheme";
 import StatusLoader from "./StatusLoader";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import { Classes } from "components/ads";
 

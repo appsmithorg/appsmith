@@ -15,6 +15,7 @@ const initialState: PageListReduxState = {
   applicationId: "",
   currentPageId: "",
   defaultPageId: "",
+  loading: {},
 };
 
 export const pageListReducer = createReducer(initialState, {
@@ -53,6 +54,7 @@ export const pageListReducer = createReducer(initialState, {
       pageId: string;
       layoutId: string;
       isDefault: boolean;
+      slug: string;
     }>,
   ) => {
     const _state = state;
@@ -99,6 +101,36 @@ export const pageListReducer = createReducer(initialState, {
     ...state,
     currentPageId: action.payload.id,
   }),
+  [ReduxActionTypes.UPDATE_CUSTOM_SLUG_INIT]: (
+    state: PageListReduxState,
+    action: ReduxAction<{ pageId: string }>,
+  ) => ({
+    ...state,
+    loading: {
+      ...state.loading,
+      [action.payload.pageId]: true,
+    },
+  }),
+  [ReduxActionTypes.UPDATE_CUSTOM_SLUG_SUCCESS]: (
+    state: PageListReduxState,
+    action: ReduxAction<{ pageId: string }>,
+  ) => ({
+    ...state,
+    loading: {
+      ...state.loading,
+      [action.payload.pageId]: false,
+    },
+  }),
+  [ReduxActionErrorTypes.UPDATE_CUSTOM_SLUG_ERROR]: (
+    state: PageListReduxState,
+    action: ReduxAction<{ pageId: string }>,
+  ) => ({
+    ...state,
+    loading: {
+      ...state.loading,
+      [action.payload.pageId]: false,
+    },
+  }),
   [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: (
     state: PageListReduxState,
     action: ReduxAction<{
@@ -106,6 +138,7 @@ export const pageListReducer = createReducer(initialState, {
       name: string;
       isHidden?: boolean;
       slug: string;
+      customSlug: string;
     }>,
   ) => {
     const pages = [...state.pages];
@@ -119,6 +152,7 @@ export const pageListReducer = createReducer(initialState, {
         pageName: action.payload.name,
         isHidden: !!action.payload.isHidden,
         slug: action.payload.slug,
+        customSlug: action.payload.customSlug,
       };
       pages.splice(updatedPageIndex, 1, updatedPage);
     }
@@ -142,6 +176,7 @@ export const pageListReducer = createReducer(initialState, {
         pageId: action.payload.page.id,
         layoutId: action.payload.page.layouts[0].id,
         isDefault: !!action.payload.page.isDefault,
+        slug: action.payload.page.slug,
       };
       _state.pages.push({ ...newPage, latest: true });
     }
@@ -190,6 +225,7 @@ export interface PageListReduxState {
   currentPageId: string;
   appLayout?: AppLayoutConfig;
   isGeneratingTemplatePage?: boolean;
+  loading: Record<string, boolean>;
 }
 
 export default pageListReducer;
