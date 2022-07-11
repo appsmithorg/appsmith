@@ -93,9 +93,10 @@ module.exports = class Perf {
     }
 
     this.currentTrace = action;
-    await delay(5000, `before starting trace ${action}`);
+    await delay(3000, `before starting trace ${action}`);
     await this.page._client.send("HeapProfiler.enable");
     await this.page._client.send("HeapProfiler.collectGarbage");
+    await delay(1000, `After clearing memory`);
 
     const path = `${APP_ROOT}/traces/${action}-${getFormattedTime()}-chrome-profile.json`;
 
