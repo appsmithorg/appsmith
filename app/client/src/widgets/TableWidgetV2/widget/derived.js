@@ -533,8 +533,7 @@ export default {
       !!Object.keys(props.transientTableData).length
     ) {
       const updatedRows = [];
-      const tableData =
-        props.filteredTableData || props.processedTableData || props.tableData;
+      const tableData = props.processedTableData || props.tableData;
 
       /* updatedRows is not sorted by index */
       Object.entries(props.transientTableData)
