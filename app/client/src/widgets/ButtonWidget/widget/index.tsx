@@ -150,7 +150,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         children: [
           {
             propertyName: "buttonVariant",
-            label: "Button Type",
+            label: "Button Variant",
             controlType: "DROP_DOWN",
             helpText: "Sets the variant of the icon button",
             options: [
@@ -290,23 +290,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         ],
       },
       {
-        sectionName: "Shadow",
-        children: [
-          {
-            propertyName: "boxShadow",
-            label: "Button Shadow",
-            helpText:
-              "Enables you to cast a drop shadow from the frame of the widget",
-            controlType: "BOX_SHADOW_OPTIONS",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-      {
-        sectionName: "Border",
+        sectionName: "Border and Shadow",
         children: [
           {
             propertyName: "borderRadius",
@@ -320,6 +304,17 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             validation: {
               type: ValidationTypes.TEXT,
             },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
