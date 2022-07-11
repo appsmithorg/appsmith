@@ -406,48 +406,6 @@ describe("translateDiffEvent", () => {
     expect(expectedTranslations).toStrictEqual(actualTranslations);
   });
 
-  it("handles JsObject function renaming", () => {
-    // cyclic dependency case
-    const lhs = new String("() => {}");
-    _.set(lhs, "data", {});
-    const diffs: Diff<any, any>[] = [
-      {
-        kind: "E",
-        path: ["JsObject", "myFun1"],
-        rhs: "() => {}",
-        lhs,
-      },
-    ];
-
-    const expectedTranslations: DataTreeDiff[] = [
-      {
-        event: DataTreeDiffEvent.DELETE,
-        payload: {
-          propertyPath: "JsObject.myFun1.data",
-        },
-      },
-      {
-        event: DataTreeDiffEvent.EDIT,
-        payload: {
-          propertyPath: "JsObject.myFun1",
-          value: "() => {}",
-        },
-      },
-    ];
-
-    const actualTranslations = flatten(
-      diffs.map((diff) =>
-        translateDiffEventToDataTreeDiffEvent(diff, {
-          JsObject: ({
-            ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-          } as unknown) as DataTreeEntity,
-        }),
-      ),
-    );
-
-    expect(expectedTranslations).toStrictEqual(actualTranslations);
-  });
-
   it("lists array accessors when object is replaced by an array", () => {
     const diffs: Diff<any, any>[] = [
       {
