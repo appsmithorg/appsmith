@@ -37,7 +37,7 @@ async function run() {
     const backupRootPath = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'appsmithctl-backup-'));
     const backupContentsPath = backupRootPath + '/appsmith-backup-' + timestamp;
 
-    await fsPromises.mkdir(backupContentsPath);
+    await fsPromises.mkdir(backupContentsPaths);
 
     await exportDatabase(backupContentsPath);
 
@@ -58,7 +58,12 @@ async function run() {
     await logger.backup_error(err.stack);
 
     if (command_args.includes('--error-mail')) {
-      await mailer.sendBackupErrorToAdmins(err, timestamp);
+      const currentTS = new Date().getTime();
+      const lastMailTS = await utils.getLastBackupErrorMailSentInMilliSec();
+      if ((lastMailTS + Constants.DURATION_BETWEEN_BACKUP_ERROR_MAILS_IN_MILLI_SEC) < currentTS){
+        await mailer.sendBackupErrorToAdmins(err, timestamp);
+        await utils.updateLastBackupErrorMailSentInMilliSec(currentTS);
+      }
     }
   } finally {
     utils.start(['backend', 'rts']);
