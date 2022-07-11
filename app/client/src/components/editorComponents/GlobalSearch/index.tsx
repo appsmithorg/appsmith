@@ -54,10 +54,6 @@ import { HelpBaseURL } from "constants/HelpConstants";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  selectPageSlugToIdMap,
-  selectURLSlugs,
-} from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { get, noop } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -85,7 +81,6 @@ import {
   jsCollectionIdURL,
 } from "RouteBuilder";
 import { getPlugins } from "selectors/entitiesSelector";
-import { PluginType } from "entities/Action";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   width: ${({ category, query }) =>
@@ -408,26 +403,12 @@ function GlobalSearch() {
     );
   };
 
-  const { applicationSlug } = useSelector(selectURLSlugs);
-  const pageIdToSlugMap = useSelector(selectPageSlugToIdMap);
-
   const handleActionClick = (item: SearchItem) => {
     const { config } = item;
-    const { id, pageId, pluginType } = config;
+    const { id, pageId, pluginId, pluginType } = config;
     const actionConfig = getActionConfig(pluginType);
-    let plugin;
-    // passing plugins for SAAS actions since they require it for computing urls.
-    if (pluginType === PluginType.SAAS) {
-      plugin = plugins.find((plugin) => plugin?.id === config?.pluginId);
-    }
-    const url = actionConfig?.getURL(
-      applicationSlug,
-      pageIdToSlugMap[pageId] as string,
-      pageId,
-      id,
-      pluginType,
-      plugin,
-    );
+    const plugin = plugins.find((plugin) => plugin?.id === pluginId);
+    const url = actionConfig?.getURL(pageId, id, pluginType, plugin);
     toggleShow();
     url && history.push(url);
   };
@@ -437,8 +418,6 @@ function GlobalSearch() {
     const { id, pageId } = config;
     history.push(
       jsCollectionIdURL({
-        applicationSlug,
-        pageSlug: pageIdToSlugMap[pageId],
         pageId,
         collectionId: id,
       }),
@@ -450,7 +429,6 @@ function GlobalSearch() {
     toggleShow();
     history.push(
       datasourcesEditorIdURL({
-        pageSlug: pageIdToSlugMap[item.pageId],
         pageId: item.pageId,
         datasourceId: item.id,
         params: getQueryParams(),
@@ -462,7 +440,6 @@ function GlobalSearch() {
     toggleShow();
     history.push(
       builderURL({
-        pageSlug: pageIdToSlugMap[item.pageId] as string,
         pageId: item.pageId,
       }),
     );
@@ -516,13 +493,7 @@ function GlobalSearch() {
       handleSnippetClick(e, item),
     [SEARCH_ITEM_TYPES.actionOperation]: (e: SelectEvent, item: any) => {
       if (item.action) dispatch(item.action(currentPageId, "OMNIBAR"));
-      else if (item.redirect)
-        item.redirect(
-          applicationSlug,
-          pageIdToSlugMap[currentPageId],
-          currentPageId,
-          "OMNIBAR",
-        );
+      else if (item.redirect) item.redirect(currentPageId, "OMNIBAR");
       dispatch(toggleShowGlobalSearchModal());
     },
   };

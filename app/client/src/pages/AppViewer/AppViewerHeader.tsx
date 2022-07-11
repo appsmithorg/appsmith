@@ -8,8 +8,10 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { getEditorURL } from "selectors/appViewSelectors";
-import { getViewModePageList } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getViewModePageList,
+} from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
@@ -33,6 +35,8 @@ import CloseIcon from "remixicon-react/CloseFillIcon";
 import PageMenu from "./PageMenu";
 import BackToHomeButton from "./BackToHomeButton";
 import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
+import { useHref } from "pages/Editor/utils";
+import { builderURL } from "RouteBuilder";
 
 /**
  * ----------------------------------------------------------------------------
@@ -55,7 +59,6 @@ const HeaderRightItemContainer = styled.div`
 `;
 
 type AppViewerHeaderProps = {
-  url?: string;
   currentApplicationDetails?: ApplicationPayload;
   pages: Page[];
   currentWorkspaceId: string;
@@ -81,6 +84,8 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
   );
+  const pageId = useSelector(getCurrentPageId);
+  const editorURL = useHref(builderURL, { pageId });
 
   if (hideHeader) return <HtmlTitle />;
 
@@ -148,7 +153,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                   />
 
                   <HeaderRightItemContainer>
-                    <PrimaryCTA className="t--back-to-editor" url={props.url} />
+                    <PrimaryCTA className="t--back-to-editor" url={editorURL} />
                   </HeaderRightItemContainer>
                 </div>
               )}
@@ -180,7 +185,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
           isOpen={isMenuOpen}
           pages={pages}
           setMenuOpen={setMenuOpen}
-          url={props.url}
+          url={editorURL}
         />
         <TourCompletionMessage />
       </>
@@ -190,7 +195,6 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
 
 const mapStateToProps = (state: AppState): AppViewerHeaderProps => ({
   pages: getViewModePageList(state),
-  url: getEditorURL(state),
   currentApplicationDetails: state.ui.applications.currentApplication,
   currentWorkspaceId: getCurrentWorkspaceId(state),
   currentUser: getCurrentUser(state),
