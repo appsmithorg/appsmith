@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import RequestTemplateSvg from "assets/images/request-template.svg";
 import { Button, Size } from "components/ads";
 import { Colors } from "constants/Colors";
