@@ -281,6 +281,7 @@ abstract class BaseWidget<
         resizeDisabled={this.props.resizeDisabled}
         selected={this.props.selected}
         style={style}
+        useAutoLayout={this.props.useAutoLayout}
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
       >
@@ -327,8 +328,13 @@ abstract class BaseWidget<
     );
   }
 
+  addAutoLayoutWrapper(content: ReactNode) {
+    return <div style={{ position: "unset" }}>{content}</div>;
+  }
+
   private getWidgetView(): ReactNode {
     let content: ReactNode;
+    console.log(this.props);
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getCanvasView();
@@ -341,7 +347,12 @@ abstract class BaseWidget<
           content = this.makeDraggable(content);
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
-          content = this.makePositioned(content);
+          if (
+            this.props.useAutoLayout &&
+            !this.props.widgetName.toUpperCase().includes("AUTO")
+          ) {
+            content = this.addAutoLayoutWrapper(content);
+          } else content = this.makePositioned(content);
         }
         return content;
 
@@ -414,6 +425,7 @@ abstract class BaseWidget<
     isDeletable: true,
     resizeDisabled: false,
     disablePropertyPane: false,
+    useAutoLayout: false,
   };
 }
 
@@ -462,6 +474,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   // MODAL_WIDGET is also detached from layout.
   detachFromLayout?: boolean;
   noContainerOffset?: boolean; // This won't offset the child in parent
+  useAutoLayout?: boolean;
 }
 
 export const WIDGET_STATIC_PROPS = {

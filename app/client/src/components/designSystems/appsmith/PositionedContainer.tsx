@@ -27,6 +27,7 @@ export type PositionedContainerProps = {
   selected?: boolean;
   focused?: boolean;
   resizeDisabled?: boolean;
+  useAutoLayout?: boolean;
 };
 
 export const checkIsDropTarget = memoize(function isDropTarget(
@@ -97,7 +98,11 @@ export function PositionedContainer(props: PositionedContainerProps) {
         }
       : {};
     const styles: CSSProperties = {
-      position: "absolute",
+      // TODO: remove the widget type check. Add check for parent type.
+      position:
+        props?.useAutoLayout && !props.widgetType?.includes("AUTOLAYOUT")
+          ? "unset"
+          : "absolute",
       left: x,
       top: y,
       height:

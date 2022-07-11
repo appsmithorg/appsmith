@@ -63,6 +63,12 @@ class CanvasWidget extends ContainerWidget {
     childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
     if (this.props.noPad) childWidgetData.noContainerOffset = true;
     childWidgetData.parentId = this.props.widgetId;
+    // Pass layout controls to children
+    // TODO: remove the hard check on widget name
+    if (this.props.widgetName !== "MainContainer") {
+      childWidgetData.useAutoLayout = this.props.useAutoLayout;
+      childWidgetData.direction = this.props.direction;
+    }
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   }

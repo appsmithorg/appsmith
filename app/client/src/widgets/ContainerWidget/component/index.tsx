@@ -11,6 +11,7 @@ import WidgetStyleContainer, {
 import { pick } from "lodash";
 import { ComponentProps } from "widgets/BaseComponent";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { LayoutDirection } from "components/constants";
 
 const scrollContents = css`
   overflow-y: auto;
@@ -30,6 +31,14 @@ const StyledContainerComponent = styled.div<
   box-shadow: ${(props) =>
     props.selected ? "inset 0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
   border-radius: ${({ borderRadius }) => borderRadius};
+
+  display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
+  flex-direction: ${({ direction }) =>
+    direction === LayoutDirection.Vertical ? "column" : "row"};
+  justify-content: flex-start;
+  align-items: ${({ direction }) =>
+    direction === LayoutDirection.Vertical ? "stretch" : "flex-start"};
+  flex-wrap: wrap;
 
   ${(props) =>
     props.shouldScrollContents === true
@@ -99,6 +108,8 @@ function ContainerComponent(props: ContainerComponentProps) {
         "borderWidth",
         "borderRadius",
         "boxShadow",
+        "useAutoLayout",
+        "direction",
       ])}
     >
       <ContainerComponentWrapper {...props} />
@@ -119,6 +130,8 @@ export interface ContainerComponentProps
   selected?: boolean;
   focused?: boolean;
   minHeight?: number;
+  useAutoLayout?: boolean;
+  direction?: string;
 }
 
 export default ContainerComponent;

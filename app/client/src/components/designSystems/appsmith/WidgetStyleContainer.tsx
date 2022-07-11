@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import styled from "styled-components";
 import { ContainerStyle } from "widgets/ContainerWidget/component";
 import { Color } from "constants/Colors";
+import { LayoutDirection } from "components/constants";
 
 export enum BoxShadowTypes {
   NONE = "NONE",
@@ -24,6 +25,8 @@ export interface WidgetStyleContainerProps {
   borderRadius?: number;
   boxShadow?: BoxShadow;
   className?: string;
+  useAutoLayout?: boolean;
+  direction?: string;
 }
 
 const WidgetStyle = styled.div<WidgetStyleContainerProps>`
@@ -35,6 +38,14 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
   border-color: ${(props) => props.borderColor || "transparent"};
   border-style: solid;
   background-color: ${(props) => props.backgroundColor || "transparent"};
+
+  display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
+  flex-direction: ${({ direction }) =>
+    direction === LayoutDirection.Vertical ? "column" : "row"};
+  justify-content: flex-start;
+  align-items: ${({ direction }) =>
+    direction === LayoutDirection.Vertical ? "stretch" : "flex-start"};
+  flex-wrap: wrap;
 
   & > div {
     height: 100%;
