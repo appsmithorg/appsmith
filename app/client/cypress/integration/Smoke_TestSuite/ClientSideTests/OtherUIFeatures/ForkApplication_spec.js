@@ -83,6 +83,7 @@ describe("Fork application across workspaces", function() {
         cy.get(homePage.signOutIcon).click();
 
         cy.visit(forkableAppUrl);
+        cy.wait(8000);
         cy.get(applicationLocators.forkButton)
           .first()
           .click({ force: true });

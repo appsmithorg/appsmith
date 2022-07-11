@@ -28,6 +28,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { builderURL } from "RouteBuilder";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 type EntityContextMenuProps = {
   id: string;
@@ -40,6 +41,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const guidedTourEnabled = useSelector(inGuidedTour);
   const dispatch = useDispatch();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const pageId = useSelector(getCurrentPageId);
   const copyActionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) =>
       dispatch(
@@ -161,7 +163,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
           onSelect: () => {
             confirmDelete
               ? deleteActionFromPage(props.id, props.name, () => {
-                  history.push(builderURL());
+                  history.push(builderURL({ pageId }));
                   setConfirmDelete(false);
                 })
               : setConfirmDelete(true);
