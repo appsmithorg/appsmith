@@ -138,11 +138,11 @@ export function SignUp(props: SignUpFormProps) {
           action: "submit",
         })
         .then(function(token: any) {
-          formElement &&
-            formElement.setAttribute(
-              "action",
-              `${signupURL}?recaptchaToken=${token}`,
-            );
+          const actionURL =
+            signupURL.indexOf("?") > -1
+              ? `${signupURL}?recaptchaToken=${token}`
+              : `${signupURL}&recaptchaToken=${token}`;
+          formElement && formElement.setAttribute("action", actionURL);
           formElement && formElement.submit();
         });
     } else {
