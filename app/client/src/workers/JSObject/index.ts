@@ -43,7 +43,7 @@ export function updateResolvedFunctions(
     const actions: ParsedJSSubAction[] = [];
     const variables: Array<Variable> = entity.variables.map((variableName) => ({
       name: variableName,
-      value: entity.properties[variableName],
+      value: entity[variableName],
     }));
 
     actionConfigs.forEach((action) => {
