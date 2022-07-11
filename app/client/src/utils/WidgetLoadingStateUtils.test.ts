@@ -22,7 +22,6 @@ const JS_object_tree: DataTreeJSAction = {
   reactivePaths: {},
   variables: [],
   dependencyMap: {},
-  properties: {},
   actionsConfig: {},
 };
 
