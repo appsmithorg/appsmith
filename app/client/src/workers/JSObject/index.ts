@@ -2,7 +2,11 @@ import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
-import { isTypeOfFunction, parseJSObjectWithAST } from "workers/ast";
+import {
+  getExportedJSObject,
+  isTypeOfFunction,
+  parseJSObjectWithAST,
+} from "workers/ast";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import evaluateSync, { isFunctionAsync } from "workers/evaluate";
 import {
@@ -52,8 +56,6 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   return localUnEvalTree;
 };
 
-const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
-
 /**
  * Here we parse the JSObject and then determine
  * 1. it's nature : async or sync
@@ -74,9 +76,9 @@ export function saveResolvedFunctionsAndJSUpdates(
   unEvalDataTree: DataTree,
   entityName: string,
 ) {
-  const correctFormat = regex.test(entity.body);
-  if (correctFormat) {
-    const body = entity.body.replace(/export default/g, "");
+  const exportedJObject = getExportedJSObject(entity.body);
+  if (exportedJObject) {
+    const body = exportedJObject;
     try {
       delete dataTreeEvalRef.resolvedFunctions[`${entityName}`];
       delete dataTreeEvalRef.currentJSCollectionState[`${entityName}`];
@@ -171,7 +173,7 @@ export function saveResolvedFunctionsAndJSUpdates(
         entity: entity,
         propertyPath: entity.name + ".body",
       },
-      message: "Start object with export default",
+      message: "JSObject must include a default export",
     };
     dataTreeEvalRef.errors.push(errors);
   }

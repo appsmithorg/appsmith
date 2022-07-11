@@ -1,6 +1,6 @@
 import { parse, Node } from "acorn";
 import { ancestor, simple } from "acorn-walk";
-import { ECMA_VERSION, NodeTypes } from "constants/ast";
+import { ECMA_VERSION, NodeTypes, SourceType } from "constants/ast";
 import { isFinite, isString } from "lodash";
 import { sanitizeScript } from "./evaluate";
 import { generate } from "astring";
@@ -157,8 +157,8 @@ const wrapCode = (code: string) => {
   `;
 };
 
-export const getAST = (code: string) =>
-  parse(code, { ecmaVersion: ECMA_VERSION });
+export const getAST = (code: string, sourceType = SourceType.script) =>
+  parse(code, { ecmaVersion: ECMA_VERSION, sourceType });
 
 /**
  * An AST based extractor that fetches all possible identifiers in a given
@@ -408,4 +408,26 @@ export const parseJSObjectWithAST = (
   });
 
   return [...parsedObjectProperties];
+};
+
+export const getExportedJSObject = (code: string) => {
+  let ast: Node = { end: 0, start: 0, type: "" };
+  let exportedJSObject = "";
+  try {
+    ast = getAST(code, SourceType.module);
+  } catch (e) {
+    return exportedJSObject;
+  }
+
+  ancestor(ast, {
+    ObjectExpression(node, ancestors: Node[]) {
+      if (
+        ancestors[1].type === NodeTypes.ExportDefaultDeclaration &&
+        ancestors[0].type === NodeTypes.Program
+      ) {
+        exportedJSObject = generate(node);
+      }
+    },
+  });
+  return exportedJSObject;
 };
