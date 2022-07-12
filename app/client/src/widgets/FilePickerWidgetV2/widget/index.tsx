@@ -373,13 +373,21 @@ class FilePickerWidget extends BaseWidget<
       });
     }
 
-    this.state.uppy.on("file-removed", (file: any) => {
-      const updatedFiles = this.props.selectedFiles
-        ? this.props.selectedFiles.filter((dslFile) => {
-            return file.id !== dslFile.id;
-          })
-        : [];
-      this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
+    this.state.uppy.on("file-removed", (file: any, reason: any) => {
+      /**
+       * The below line will not update the selectedFiles meta prop when cancel-all event is triggered.
+       * cancel-all event occurs when close or reset function of uppy is executed.
+       * Uppy provides an argument called reason. It helps us to distinguish on which event the file-removed event was called.
+       * Refer to the following issue to know about reason prop: https://github.com/transloadit/uppy/pull/2323
+       */
+      if (reason !== "cancel-all") {
+        const updatedFiles = this.props.selectedFiles
+          ? this.props.selectedFiles.filter((dslFile) => {
+              return file.id !== dslFile.id;
+            })
+          : [];
+        this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
+      }
     });
 
     this.state.uppy.on("files-added", (files: any[]) => {

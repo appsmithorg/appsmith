@@ -19,6 +19,7 @@ import { DSLWidget } from "widgets/constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { AppState } from "reducers";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 
 export const useMockDsl = (dsl: any) => {
   const dispatch = useDispatch();
@@ -30,6 +31,7 @@ export const useMockDsl = (dsl: any) => {
       applicationId: "app_id",
       isDefault: true,
       isHidden: false,
+      slug: "page-1",
       layouts: [
         {
           id: "layout_id",
@@ -56,6 +58,7 @@ export const useMockDsl = (dsl: any) => {
       pageId: mockResp.data.id,
       isDefault: mockResp.data.isDefault,
       isHidden: !!mockResp.data.isHidden,
+      slug: mockResp.data.slug,
     },
   ];
   dispatch({
@@ -146,14 +149,39 @@ export function MockApplication({ children }: any) {
   dispatch(initEditor({ pageId: "page_id", mode: APP_MODE.EDIT }));
   const mockResp: any = {
     workspaceId: "workspace_id",
-    pages: [{ id: "page_id", name: "Page1", isDefault: true }],
+    pages: [{ id: "page_id", name: "Page1", isDefault: true, slug: "page-1" }],
     id: "app_id",
     isDefault: true,
-    name: "Page1",
+    name: "appName",
+    slug: "app-name",
+    applicationVersion: 2,
   };
+  urlBuilder.updateURLParams(
+    {
+      applicationId: mockResp.id,
+      applicationSlug: mockResp.slug,
+      applicationVersion: mockResp.applicationVersion,
+    },
+    [
+      {
+        pageId: mockResp.pages[0].id,
+        pageSlug: mockResp.pages[0].slug,
+      },
+    ],
+  );
   dispatch({
     type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
     payload: mockResp,
+  });
+  dispatch({
+    type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
+    payload: {
+      pages: mockResp.pages,
+    },
+  });
+  dispatch({
+    type: ReduxActionTypes.SWITCH_CURRENT_PAGE_ID,
+    payload: { id: "page_id", slug: "page-1" },
   });
   return children;
 }
