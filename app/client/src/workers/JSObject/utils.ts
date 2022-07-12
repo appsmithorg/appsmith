@@ -271,11 +271,10 @@ export const removeFunctionsAndVariableJSCollection = (
   return modifiedDataTree;
 };
 
-const exportDefaultObjectregex = new RegExp(
-  /^export default[\s]*?({[\s\S]*?})/,
-);
+const exportDefaultObjectregex = new RegExp(/export default[\s]*?({[\s\S]*})/);
 
 export const extractExportDefaultObject = (code: string) => {
   const regexArr = exportDefaultObjectregex.exec(code);
-  return regexArr ? regexArr[1] : "";
+  if (!regexArr) return "";
+  return regexArr[1].replace(/export default/g, "");
 };
