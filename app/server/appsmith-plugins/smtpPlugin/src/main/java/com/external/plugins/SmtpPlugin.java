@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -42,8 +43,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-
 public class SmtpPlugin extends BasePlugin {
     private static final String BASE64_DELIMITER = ";base64,";
 
@@ -61,14 +60,14 @@ public class SmtpPlugin extends BasePlugin {
             Message message = new MimeMessage(connection);
             ActionExecutionResult result = new ActionExecutionResult();
             try {
-                String fromAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.from");
-                String toAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.to");
-                String ccAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.cc");
-                String bccAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.bcc");
-                String subject = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.subject");
-                Boolean isReplyTo = (Boolean) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.isReplyTo");
+                String fromAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.from");
+                String toAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.to");
+                String ccAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.cc");
+                String bccAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.bcc");
+                String subject = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.subject");
+                Boolean isReplyTo = (Boolean) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.isReplyTo");
                 String replyTo = Boolean.TRUE.equals(isReplyTo) ?
-                        (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.replyTo") : null;
+                        (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.replyTo") : null;
 
                 if (!StringUtils.hasText(toAddress)) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -106,7 +105,7 @@ public class SmtpPlugin extends BasePlugin {
                 message.setContent(multipart);
 
                 // Look for any attachments that need to be sent along with this email
-                String attachmentsStr = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.attachments");
+                String attachmentsStr = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.attachments");
 
                 if (StringUtils.hasText(attachmentsStr)) {
                     MultipartFormDataDTO[] attachmentData = objectMapper.readValue(

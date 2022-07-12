@@ -26,7 +26,7 @@ import {
 import styled from "styled-components";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import { closeAllModals } from "actions/widgetActions";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -38,6 +38,7 @@ import PagesEditor from "./PagesEditor";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -66,6 +67,7 @@ function EditorsRouter() {
   const [isVisible, setIsVisible] = React.useState(
     () => !matchBuilderPath(pathname),
   );
+  const pageId = useSelector(getCurrentPageId);
 
   useEffect(() => {
     const isOnBuilder = matchBuilderPath(pathname);
@@ -80,9 +82,9 @@ function EditorsRouter() {
       );
       e.stopPropagation();
       setIsVisible(false);
-      history.replace(builderURL());
+      history.replace(builderURL({ pageId }));
     },
-    [pathname],
+    [pathname, pageId],
   );
 
   const preventClose = useCallback((e: React.MouseEvent) => {

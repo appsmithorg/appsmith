@@ -1,6 +1,6 @@
 import React from "react";
 import { CommonComponentProps, Classes } from "components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import styled from "styled-components";
 import { Position, Classes as BlueprintClasses } from "@blueprintjs/core";
 import Menu from "components/ads/Menu";
@@ -113,7 +113,7 @@ export default function ProfileDropdown(props: TagProps) {
     <Menu
       className="profile-menu t--profile-menu"
       modifiers={props.modifiers}
-      position={Position.BOTTOM}
+      position={Position.BOTTOM_RIGHT}
       target={Profile}
     >
       <UserInformation>

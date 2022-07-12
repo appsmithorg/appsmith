@@ -6,6 +6,16 @@ import * as Sentry from "@sentry/react";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { sha256 } from "js-sha256";
 
+declare global {
+  interface Window {
+    // Zipy is added via script tags in index.html
+    zipy: {
+      identify: (uid: string, userInfo: Record<string, string>) => void;
+      anonymize: () => void;
+    };
+  }
+}
+
 export type EventLocation =
   | "LIGHTNING_MENU"
   | "API_PANE"
@@ -407,6 +417,14 @@ class AnalyticsUtil {
     if (smartLook.enabled) {
       smartlookClient.identify(userId, { email: userData.email });
     }
+
+    // If zipy was included, identify this user on the platform
+    if (window.zipy && userId) {
+      window.zipy.identify(userId, {
+        email: userData.email,
+        username: userData.username,
+      });
+    }
   }
 
   static reset() {
@@ -416,6 +434,7 @@ class AnalyticsUtil {
     }
     windowDoc.analytics && windowDoc.analytics.reset();
     windowDoc.mixpanel && windowDoc.mixpanel.reset();
+    window.zipy && window.zipy.anonymize();
   }
 }
 

@@ -13,7 +13,7 @@ import {
 import styled, { ThemeContext } from "styled-components";
 import { noop } from "lodash";
 
-import Text, { TextType } from "./Text";
+import { Text, TextType } from "design-system";
 import Spinner from "./Spinner";
 import { CommonComponentProps } from "./common";
 import Icon, { IconSize } from "./Icon";

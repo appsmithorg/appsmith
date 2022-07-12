@@ -23,7 +23,7 @@ import history from "utils/history";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import DataSourceOption from "../DataSourceOption";
-import { convertToQueryParams } from "RouteBuilder";
+import { getQueryStringfromObject } from "RouteBuilder";
 import { IconName, IconSize } from "components/ads/Icon";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
@@ -465,7 +465,7 @@ function GeneratePageForm() {
         delete queryParams.datasourceId;
         delete queryParams.new_page;
         const redirectURL =
-          window.location.pathname + convertToQueryParams(queryParams);
+          window.location.pathname + getQueryStringfromObject(queryParams);
         history.replace(redirectURL);
       }
     }

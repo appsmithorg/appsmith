@@ -42,6 +42,7 @@ import {
   fetchMergeStatusFailure,
   fetchMergeStatusSuccess,
   GenerateSSHKeyPairReduxAction,
+  GenerateSSHKeyPairResponsePayload,
   generateSSHKeyPairSuccess,
   getSSHKeyPairError,
   GetSSHKeyPairReduxAction,
@@ -56,7 +57,6 @@ import {
   setShowRepoLimitErrorModal,
   switchGitBranchInit,
   updateLocalGitConfigSuccess,
-  GenerateSSHKeyPairResponsePayload,
 } from "actions/gitSyncActions";
 
 import { showReconnectDatasourceModal } from "actions/applicationActions";
@@ -719,11 +719,8 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
             );
             pageId = defaultPage ? defaultPage.id : "";
           }
-
+          // TODO: Update URL Params
           const pageURL = builderURL({
-            applicationId: app.id,
-            applicationSlug: app.slug,
-            applicationVersion: app.applicationVersion,
             pageId,
           });
           history.push(pageURL);
@@ -862,14 +859,8 @@ function* discardChanges() {
     );
     if (isValidResponse) {
       yield put(discardChangesSuccess(response?.data));
-      // yield fetchGitStatusSaga();
-      const applicationId: string = yield select(getCurrentApplicationId);
-      const pageId: string = yield select(getCurrentPageId);
       localStorage.setItem("GIT_DISCARD_CHANGES", "success");
-      window.open(
-        builderURL({ applicationId: applicationId, pageId: pageId }),
-        "_self",
-      );
+      location.reload();
     }
   } catch (error) {
     yield put(discardChangesFailure({ error }));
@@ -900,7 +891,11 @@ export default function* gitSyncSagas() {
       ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_INIT,
       updateLocalGitConfig,
     ),
-    takeLatest(ReduxActionTypes.FETCH_GIT_STATUS_INIT, fetchGitStatusSaga),
+    throttle(
+      5 * 1000,
+      ReduxActionTypes.FETCH_GIT_STATUS_INIT,
+      fetchGitStatusSaga,
+    ),
     takeLatest(ReduxActionTypes.MERGE_BRANCH_INIT, mergeBranchSaga),
     throttle(
       5 * 1000,

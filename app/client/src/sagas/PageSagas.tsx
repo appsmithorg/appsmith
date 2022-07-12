@@ -73,7 +73,6 @@ import {
   getCurrentLayoutId,
   getCurrentPageId,
   getCurrentPageName,
-  selectPageSlugById,
 } from "selectors/editorSelectors";
 import {
   executePageLoadActions,
@@ -115,6 +114,7 @@ import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { builderURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
+import { takeEvery } from "redux-saga/effects";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -556,6 +556,7 @@ export function* createPageSaga(
           pageName: response.data.name,
           layoutId: response.data.layouts[0].id,
           slug: response.data.slug,
+          customSlug: response.data.customSlug,
         },
       });
       // Add this to the page DSLs for entity explorer
@@ -566,11 +567,11 @@ export function* createPageSaga(
           dsl: extractCurrentDSL(response),
         },
       });
+      // TODO: Update URL params here
       // route to generate template for new page created
       if (!createPageAction.payload.blockNavigation) {
         history.push(
           builderURL({
-            pageSlug: response.data.slug,
             pageId: response.data.id,
           }),
         );
@@ -629,14 +630,13 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
           dsl: undefined,
         },
       });
-      const pageSlug: string = yield select(selectPageSlugById(defaultPageId));
+      // Update route params here
       const currentPageId: string = yield select(
         (state: AppState) => state.entities.pageList.currentPageId,
       );
       if (currentPageId === action.payload.id)
         history.push(
           builderURL({
-            pageSlug,
             pageId: defaultPageId,
           }),
         );
@@ -665,6 +665,7 @@ export function* clonePageSaga(
           response.data.id,
           response.data.name,
           response.data.layouts[0].id,
+          response.data.slug,
         ),
       );
       // Add this to the page DSLs for entity explorer
@@ -680,10 +681,11 @@ export function* clonePageSaga(
       yield put(fetchJSCollectionsForPage(response.data.id));
       yield put(selectMultipleWidgetsAction([]));
 
+      // TODO: Update URL params here.
+
       if (!clonePageAction.payload.blockNavigation) {
         history.push(
           builderURL({
-            pageSlug: response.data.slug,
             pageId: response.data.id,
           }),
         );
@@ -912,9 +914,6 @@ function* fetchPageDSLSaga(pageId: string) {
 
 export function* populatePageDSLsSaga() {
   try {
-    yield put({
-      type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
-    });
     const pageIds: string[] = yield select((state: AppState) =>
       state.entities.pageList.pages.map((page: Page) => page.pageId),
     );
@@ -961,6 +960,37 @@ export function* setPageOrderSaga(action: ReduxAction<SetPageOrderRequest>) {
       type: ReduxActionErrorTypes.SET_PAGE_ORDER_ERROR,
       payload: {
         error,
+      },
+    });
+  }
+}
+
+function* setCustomSlugSaga(
+  action: ReduxAction<{ pageId: string; customSlug: string }>,
+) {
+  const { customSlug, pageId } = action.payload;
+  const response: ApiResponse<Page> = yield call(PageApi.updatePage, {
+    id: pageId,
+    customSlug,
+  });
+  try {
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (!isValidResponse) return;
+    yield put({
+      type: ReduxActionTypes.UPDATE_PAGE_SUCCESS,
+      payload: response.data,
+    });
+    yield put({
+      type: ReduxActionTypes.UPDATE_CUSTOM_SLUG_SUCCESS,
+      payload: {
+        pageId,
+      },
+    });
+  } catch (e) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_CUSTOM_SLUG_ERROR,
+      payload: {
+        pageId,
       },
     });
   }
@@ -1025,7 +1055,6 @@ export function* generateTemplatePageSaga(
 
       history.replace(
         builderURL({
-          pageSlug: response.data.page.slug,
           pageId,
         }),
       );
@@ -1073,5 +1102,7 @@ export default function* pageSagas() {
       generateTemplatePageSaga,
     ),
     takeLatest(ReduxActionTypes.SET_PAGE_ORDER_INIT, setPageOrderSaga),
+    takeLatest(ReduxActionTypes.POPULATE_PAGEDSLS_INIT, populatePageDSLsSaga),
+    takeEvery(ReduxActionTypes.UPDATE_CUSTOM_SLUG_INIT, setCustomSlugSaga),
   ]);
 }

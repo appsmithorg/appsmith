@@ -12,7 +12,6 @@ import TemplatesAPI, {
   FetchTemplateResponse,
   TemplateFiltersResponse,
 } from "api/TemplatesApi";
-import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
 import {
@@ -85,18 +84,12 @@ function* importTemplateToWorkspaceSaga(
         ...response.data,
         defaultPageId: getDefaultPageId(response.data.pages) as string,
       };
-      const defaultPage = response.data.pages.find((page) => page.isDefault);
-      const defaultPageSlug = defaultPage?.slug || PLACEHOLDER_PAGE_SLUG;
-      const pageURL = builderURL({
-        applicationId: application.id,
-        applicationSlug: application.slug,
-        applicationVersion: application.applicationVersion,
-        pageSlug: defaultPageSlug,
-        pageId: application.defaultPageId,
-      });
       yield put({
         type: ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_SUCCESS,
         payload: response.data,
+      });
+      const pageURL = builderURL({
+        pageId: application.defaultPageId,
       });
       history.push(pageURL);
     }
