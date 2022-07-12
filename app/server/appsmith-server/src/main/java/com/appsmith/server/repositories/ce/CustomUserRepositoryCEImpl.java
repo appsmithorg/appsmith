@@ -50,6 +50,19 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
         return mongoOperations.findOne(query, User.class);
     }
 
+    @Override
+    public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
+        Criteria emailCriteria = where(fieldName(QUser.user.email)).is(email);
+        Criteria tenantIdCriteria = where(fieldName(QUser.user.tenantId)).is(tenantId);
+
+        Criteria andCriteria = new Criteria();
+        andCriteria.andOperator(emailCriteria, tenantIdCriteria);
+
+        Query query = new Query();
+        query.addCriteria(andCriteria);
+        return mongoOperations.findOne(query, User.class);
+    }
+
     /**
      * Fetch minmal information from *a* user document in the database, and if found, return `true`, if empty, return `false`.
      * @return Boolean, indicated where there exists at least one user in the system or not.

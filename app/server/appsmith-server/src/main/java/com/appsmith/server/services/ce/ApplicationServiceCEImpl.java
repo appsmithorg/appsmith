@@ -60,11 +60,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 
 @Slf4j
@@ -323,8 +326,17 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     if (permissionGroupMono != null) {
 
                         Mono<Application> updatedApplicationMono = permissionGroupMono
-                                .flatMap(permissionGroup -> generateAndSetPoliciesForView(application, permissionGroup,
-                                        applicationAccessDTO.getPublicAccess()));
+                                .zipWith(Mono.just(application))
+                                .flatMap(tuple -> {
+                                    PermissionGroup permissionGroup = tuple.getT1();
+                                    Application application1 = tuple.getT2();
+
+                                    // Set the default permission group before saving the application with new permissions
+                                    application1.setDefaultPermissionGroup(permissionGroup.getId());
+
+                                    return generateAndSetPoliciesForView(application1, permissionGroup,
+                                            applicationAccessDTO.getPublicAccess());
+                                });
 
                         Mono<Void> updatedPermissionGroupMono;
 
@@ -351,7 +363,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
                     // This is an erroneous scenario where permissionGroupMono has not been initialized yet.
                     return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                });
+                })
+                .flatMap(this::setTransientFields);
 
 
         //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
@@ -371,6 +384,20 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         publicPermissionGroup.setName(application.getName() + " Public");
         publicPermissionGroup.setTenantId(tenantId);
         publicPermissionGroup.setDescription("Default permissions generated for sharing an application for viewing.");
+
+        Set<Policy> applicationPolicies = application.getPolicies();
+        Policy makePublicPolicy = applicationPolicies.stream()
+                .filter(policy -> policy.getPermission().equals(MAKE_PUBLIC_APPLICATIONS.getValue()))
+                .findFirst()
+                .get();
+
+        // Let this newly created permission group be assignable by everyone who has permission for make public application
+        Policy assignPermissionGroup = Policy.builder()
+                .permission(ASSIGN_PERMISSION_GROUPS.getValue())
+                .permissionGroups(makePublicPolicy.getPermissionGroups())
+                .build();
+
+        publicPermissionGroup.setPolicies(Set.of(assignPermissionGroup));
 
         return permissionGroupService.create(publicPermissionGroup);
     }
@@ -509,13 +536,46 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     private Flux<Application> setTransientFields(Flux<Application> applicationsFlux) {
+
+        // Set isPublic field if the application is public
+        Flux<Application> updatedApplicationWithIsPublicFlux = applicationsFlux
+                .flatMap(application -> {
+
+                    // default the application to be private
+                    application.setIsPublic(FALSE);
+
+                    // if no default permission group exists, then the application can not be public
+                    if (application.getDefaultPermissionGroup() == null) {
+                        return Mono.just(application);
+                    }
+
+                    Mono<User> anonymousUserMono = userRepository.findByEmail(ANONYMOUS_USER);
+                    Mono<PermissionGroup> defaultPermissionGroupMono =
+                            permissionGroupService.findById(application.getDefaultPermissionGroup())
+                                    .switchIfEmpty(Mono.just(new PermissionGroup()));
+
+                    return Mono.zip(anonymousUserMono, defaultPermissionGroupMono)
+                            .flatMap(tuple -> {
+                                User anonymousUser = tuple.getT1();
+                                PermissionGroup permissionGroup = tuple.getT2();
+
+                                // If the permission group is assigned to anonymous user, only then the application
+                                // would be public.
+                                if (permissionGroup.getAssignedToUserIds().contains(anonymousUser.getId())) {
+                                    application.setIsPublic(TRUE);
+                                }
+
+                                return Mono.just(application);
+                            });
+                });
+
         return configService.getTemplateApplications()
                 .map(application -> application.getId())
                 .defaultIfEmpty("")
                 .collectList()
                 .cache()
                 .repeat()
-                .zipWith(applicationsFlux)
+                .zipWith(updatedApplicationWithIsPublicFlux)
                 .map(tuple -> {
                     List<String> templateApplicationIds = tuple.getT1();
                     Application application = tuple.getT2();

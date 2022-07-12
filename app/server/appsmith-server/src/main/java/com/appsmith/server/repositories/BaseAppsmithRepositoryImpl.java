@@ -76,10 +76,13 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     }
 
     protected Mono<Set<String>> getPermissionGroupsOfUser(User user) {
-        Criteria userIdCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.asignedToUserIds)).in(user.getId());
 
         Query query = new Query();
-        query.addCriteria(userIdCriteria);
+
+        query.fields()
+                .elemMatch(fieldName(QPermissionGroup.permissionGroup.asignedToUserIds),
+                        new Criteria("$eq").is(user.getId()));
+
         return mongoOperations.find(query, PermissionGroup.class)
                 .map(permissionGroup -> permissionGroup.getId())
                 .collect(Collectors.toSet());
@@ -92,7 +95,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         query.addCriteria(anonymousUserCriteria);
 
         return mongoOperations.findOne(query, User.class)
-                .flatMap(user -> getAllPermissionGroupsForUser(user));
+                .flatMap(anonymousUser -> getPermissionGroupsOfUser(anonymousUser));
     }
 
     public static final String fieldName(Path path) {

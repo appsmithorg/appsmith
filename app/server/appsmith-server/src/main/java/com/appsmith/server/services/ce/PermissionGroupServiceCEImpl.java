@@ -3,6 +3,8 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -55,6 +57,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 .flatMap(pg -> {
                     pg.getAssignedToUserIds().add(user.getId());
                     return repository.updateById(pg.getId(), pg, AclPermission.ASSIGN_PERMISSION_GROUPS);
-                });
+                })
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)));
     }
 }
