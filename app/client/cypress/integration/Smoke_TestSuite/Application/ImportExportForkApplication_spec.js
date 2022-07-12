@@ -44,7 +44,8 @@ describe("Import, Export and Fork application and validate data binding", functi
         .type(appName);
       cy.wait(2000);
       cy.wrap(appName).as("appname");
-      cy.wait(2000);
+      cy.get("body").click(0, 0);
+      cy.wait(3000);
       // validating data binding for the imported application
       cy.xpath("//input[@value='Submit']").should("be.visible");
       cy.xpath("//span[text()='schema_name']").should("be.visible");
