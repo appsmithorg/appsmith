@@ -91,7 +91,7 @@ class VerticalLayoutWidget extends BaseWidget<
     const layoutProps = {
       useAutoLayout: true,
       direction: LayoutDirection.Vertical,
-      justifyContent: "space-around",
+      justifyContent: "flex-start",
       alignItems: "stretch",
     };
 

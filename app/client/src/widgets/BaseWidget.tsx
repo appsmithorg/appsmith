@@ -39,6 +39,7 @@ import PreventInteractionsOverlay from "components/editorComponents/PreventInter
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
+import { LayoutDirection } from "components/constants";
 
 /***
  * BaseWidget
@@ -333,11 +334,26 @@ abstract class BaseWidget<
   }
 
   addAutoLayoutWrapper(content: ReactNode) {
-    let size = {};
+    let size = {},
+      margin = {};
     if (this.props.autoLayout && this.props.alignItems === "stretch") {
       size = {
         width: "100%",
         height: "auto",
+      };
+    }
+    if (
+      this.props.useAutoLayout &&
+      this.props.direction === LayoutDirection.Vertical
+    ) {
+      margin = {
+        marginTop: 8,
+        marginBottom: 4,
+      };
+    } else {
+      margin = {
+        marginLeft: 8,
+        marginRight: 8,
       };
     }
     return (
@@ -345,6 +361,7 @@ abstract class BaseWidget<
         style={{
           position: "unset",
           ...size,
+          ...margin,
         }}
       >
         {content}

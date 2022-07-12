@@ -4,7 +4,7 @@ import styled from "styled-components";
 const Container = styled.div<VerticalLayoutComponentProps>`
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: flex-start;
   align-items: center;
 `;
 
