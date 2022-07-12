@@ -12749,19 +12749,7 @@ rc-resize-observer@^1.0.0:
     rc-util "^5.0.0"
     resize-observer-polyfill "^1.5.1"
 
-rc-select@^12.1.10:
-  version "12.1.13"
-  resolved "https://registry.npmjs.org/rc-select/-/rc-select-12.1.13.tgz"
-  dependencies:
-    "@babel/runtime" "^7.10.1"
-    classnames "2.x"
-    rc-motion "^2.0.1"
-    rc-overflow "^1.0.0"
-    rc-trigger "^5.0.4"
-    rc-util "^5.9.8"
-    rc-virtual-list "^3.2.0"
-
-rc-select@~13.2.1:
+rc-select@13.2.1, rc-select@~13.2.1:
   version "13.2.1"
   resolved "https://registry.npmjs.org/rc-select/-/rc-select-13.2.1.tgz"
   integrity sha512-L2cJFAjVEeDiNVa/dlOVKE79OUb0J7sUBvWN3Viav3XHcjvv9Ovn4D8J9QhBSlDXeGuczZ81CZI3BbdHD25+Gg==
