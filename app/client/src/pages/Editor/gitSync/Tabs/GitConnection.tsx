@@ -36,7 +36,7 @@ import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
@@ -112,7 +112,7 @@ const Container = styled.div`
   }
 
   &::-webkit-scrollbar {
-    width: 0px;
+    width: 0;
   }
 `;
 

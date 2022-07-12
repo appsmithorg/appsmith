@@ -5,6 +5,7 @@ import BaseControl, {
   ControlFunctions,
   ControlData,
 } from "components/propertyControls/BaseControl";
+import { isArray } from "lodash";
 
 class PropertyControlFactory {
   static controlMap: Map<ControlType, ControlBuilder<ControlProps>> = new Map();
@@ -37,12 +38,16 @@ class PropertyControlFactory {
     hideEvaluatedValue?: boolean,
   ): JSX.Element {
     let controlBuilder;
+    let evaluatedValue = controlData.evaluatedValue;
 
     if (preferEditor) {
       controlBuilder = customEditor
         ? this.controlMap.get(customEditor)
         : this.controlMap.get("CODE_EDITOR");
     } else {
+      if (customEditor === "COMPUTE_VALUE" && isArray(evaluatedValue)) {
+        evaluatedValue = evaluatedValue[0];
+      }
       controlBuilder = this.controlMap.get(controlData.controlType);
     }
 
@@ -50,6 +55,7 @@ class PropertyControlFactory {
       const controlProps: ControlProps = {
         ...controlData,
         ...controlFunctions,
+        evaluatedValue,
         key: controlData.id,
         customJSControl: customEditor,
         additionalAutoComplete,

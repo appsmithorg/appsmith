@@ -153,6 +153,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
   try {
     const { name, packageName, pluginId, workspaceId } = actionPayload.payload;
     const { isGeneratePageMode } = actionPayload.extraParams;
+    const pageId: string = yield select(getCurrentPageId);
     const response: ApiResponse = yield DatasourcesApi.addMockDbToDatasources(
       name,
       workspaceId,
@@ -180,6 +181,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       if (isGeneratePageInitiator) {
         history.push(
           generateTemplateFormURL({
+            pageId,
             params: {
               // @ts-expect-error: response.data is of type unknown
               datasourceId: response.data.id,
@@ -190,6 +192,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
         if (isInGuidedTour) return;
         history.push(
           integrationEditorURL({
+            pageId,
             selectedTab: INTEGRATION_TABS.ACTIVE,
             params: getQueryParams(),
           }),
@@ -212,6 +215,7 @@ export function* deleteDatasourceSaga(
     const response: ApiResponse<Datasource> = yield DatasourcesApi.deleteDatasource(
       id,
     );
+    const pageId: string = yield select(getCurrentPageId);
 
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -224,12 +228,14 @@ export function* deleteDatasourceSaga(
       );
       const datasourcePathWithoutQuery = trimQueryString(
         datasourcesEditorIdURL({
+          pageId,
           datasourceId: id,
         }),
       );
 
       const saasPathWithoutQuery = trimQueryString(
         saasEditorDatasourceIdURL({
+          pageId,
           pluginPackageName,
           datasourceId: id,
         }),
@@ -241,6 +247,7 @@ export function* deleteDatasourceSaga(
       ) {
         history.push(
           integrationEditorURL({
+            pageId,
             selectedTab: INTEGRATION_TABS.NEW,
             params: {
               ...getQueryParams(),
@@ -702,6 +709,7 @@ function* changeDatasourceSaga(
   const { datasource, shouldNotRedirect } = actionPayload.payload;
   const { id } = datasource;
   const draft: Record<string, unknown> = yield select(getDatasourceDraft, id);
+  const pageId: string = yield select(getCurrentPageId);
   let data;
 
   if (_.isEmpty(draft)) {
@@ -716,6 +724,7 @@ function* changeDatasourceSaga(
   // this redirects to the same route, so checking first.
   const datasourcePath = trimQueryString(
     datasourcesEditorIdURL({
+      pageId,
       datasourceId: datasource.id,
     }),
   );
@@ -723,6 +732,7 @@ function* changeDatasourceSaga(
   if (history.location.pathname !== datasourcePath)
     history.push(
       datasourcesEditorIdURL({
+        pageId,
         datasourceId: datasource.id,
         params: getQueryParams(),
       }),
@@ -835,6 +845,7 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = yield select(
     getGenerateCRUDEnabledPluginMap,
   );
+  const pageId: string = yield select(getCurrentPageId);
   const updatedDatasource = action.payload;
 
   const { queryParams = {} } = action;
@@ -850,6 +861,7 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   ) {
     history.push(
       generateTemplateFormURL({
+        pageId,
         params: {
           datasourceId: updatedDatasource.id,
         },
