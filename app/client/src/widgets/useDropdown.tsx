@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { getMainCanvas } from "./WidgetUtils";
 import styled from "styled-components";
 import Select from "rc-select";
@@ -22,12 +22,14 @@ const FOCUS_TIMEOUT = 500;
 
 // TODO: Refactor More functionalities in MultiSelect, MultiTreeSelect and TreeSelect Components
 const useDropdown = ({ inputRef, renderMode }: useDropdownProps) => {
+  // This is to make the dropdown controlled
+  const [isOpen, setIsOpen] = useState(false);
   const popupContainer = useRef<HTMLElement>(getMainCanvas());
   const selectRef = useRef<Select<LabelValueType[]> | null>(null);
 
-  const closeBackDrop = useCallback(() => {
-    if (selectRef.current) {
-      selectRef.current.blur();
+  useEffect(() => {
+    if (!popupContainer.current) {
+      popupContainer.current = getMainCanvas();
     }
   }, []);
 
@@ -48,6 +50,7 @@ const useDropdown = ({ inputRef, renderMode }: useDropdownProps) => {
   // When Dropdown is opened disable scrolling within the app except the list of options
   const onOpen = useCallback(
     (open: boolean) => {
+      setIsOpen(open);
       if (open) {
         setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
         // for more context, the Element we attach to in view mode doesn't have an overflow style, so this only applies to edit mode.
@@ -58,15 +61,24 @@ const useDropdown = ({ inputRef, renderMode }: useDropdownProps) => {
         if (popupContainer.current && renderMode === RenderModes.CANVAS) {
           popupContainer.current.style.overflowY = "auto";
         }
+        selectRef.current?.blur();
       }
     },
     [renderMode],
   );
 
+  const closeBackDrop = useCallback(() => {
+    if (selectRef.current) {
+      selectRef.current.blur();
+      onOpen(false);
+    }
+  }, [onOpen]);
+
   return {
     BackDrop,
     getPopupContainer,
     onOpen,
+    isOpen,
     selectRef,
     onKeyDown,
   };

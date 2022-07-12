@@ -8,11 +8,7 @@ import { theme } from "constants/DefaultTheme";
 import { Icon, NonIdealState, Spinner } from "@blueprintjs/core";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import AppPage from "./AppPage";
-import {
-  getCanvasWidth,
-  getCurrentPageName,
-  selectURLSlugs,
-} from "selectors/editorSelectors";
+import { getCanvasWidth, getCurrentPageName } from "selectors/editorSelectors";
 import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import {
@@ -43,7 +39,6 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
   const isFetchingPage = useSelector(getIsFetchingPage);
   const currentApplication = useSelector(getCurrentApplication);
   const { match } = props;
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   // get appsmith editr link
   const appsmithEditorLink = useMemo(() => {
@@ -59,8 +54,6 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
           Please add widgets to this page in the&nbsp;
           <Link
             to={builderURL({
-              applicationSlug: applicationSlug,
-              pageSlug: pageSlug,
               pageId: props.match.params.pageId as string,
             })}
           >

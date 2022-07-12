@@ -30,10 +30,7 @@ import {
   getPageNameByPageId,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
-import {
-  getCurrentPageId,
-  selectPageSlugById,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import JSActionAPI, { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -179,13 +176,11 @@ function* copyJSCollectionSaga(
 
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
-  const jsAction: JSCollection = yield select(getJSCollection, id);
-  const pageSlug: string = yield select(selectPageSlugById(jsAction.pageId));
+  const { pageId }: JSCollection = yield select(getJSCollection, id);
   history.push(
     jsCollectionIdURL({
-      pageSlug,
-      pageId: jsAction.pageId,
-      collectionId: jsAction.id,
+      pageId: pageId,
+      collectionId: id,
     }),
   );
 }
@@ -267,6 +262,7 @@ export function* deleteJSCollectionSaga(
 ) {
   try {
     const id = actionPayload.payload.id;
+    const pageId: string = yield select(getCurrentPageId);
     const response: ApiResponse = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
@@ -275,7 +271,7 @@ export function* deleteJSCollectionSaga(
         text: createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name),
         variant: Variant.success,
       });
-      history.push(builderURL());
+      history.push(builderURL({ pageId }));
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,
         text: "JS object was deleted",
