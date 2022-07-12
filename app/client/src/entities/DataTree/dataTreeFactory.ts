@@ -71,7 +71,6 @@ export interface DataTreeAction
 
 export type JSActionProperty = {
   name: string;
-  data: unknown;
   isAsync: boolean;
   confirmBeforeExecute: boolean;
   body: string;

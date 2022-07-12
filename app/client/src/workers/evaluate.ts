@@ -13,6 +13,7 @@ import { isEmpty } from "lodash";
 import { getLintingErrors } from "workers/lint";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { isJSObject } from "./evaluationUtils";
 
 export type EvalResult = {
   result: any;
@@ -139,35 +140,9 @@ export const createGlobalData = (
       GLOBAL_DATA[datum] = dataTree[datum];
     });
   }
-  if (!isEmpty(resolvedFunctions)) {
-    Object.keys(resolvedFunctions).forEach((datum: any) => {
-      const resolvedObject = resolvedFunctions[datum];
-      Object.keys(resolvedObject).forEach((key: any) => {
-        const dataTreeKey = GLOBAL_DATA[datum];
-        if (dataTreeKey) {
-          const data = dataTreeKey[key]?.data;
-          //do not remove we will be investigating this
-          //const isAsync = dataTreeKey?.meta[key]?.isAsync || false;
-          //const confirmBeforeExecute =
-          dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
-          dataTreeKey[key] = resolvedObject[key];
-          // if (isAsync && confirmBeforeExecute) {
-          //   dataTreeKey[key] = confirmationPromise.bind(
-          //     {},
-          //     context?.requestId,
-          //     resolvedObject[key],
-          //     dataTreeKey.name + "." + key,
-          //   );
-          // } else {
-          //   dataTreeKey[key] = resolvedObject[key];
-          // }
-          if (!!data) {
-            dataTreeKey[key]["data"] = data;
-          }
-        }
-      });
-    });
-  }
+
+  addResolvedFunctionToGlobalData(dataTree, GLOBAL_DATA, resolvedFunctions);
+
   return GLOBAL_DATA;
 };
 
@@ -366,35 +341,8 @@ export function isFunctionAsync(
     Object.keys(dataTreeWithFunctions).forEach((datum) => {
       GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
     });
-    if (!isEmpty(resolvedFunctions)) {
-      Object.keys(resolvedFunctions).forEach((datum: any) => {
-        const resolvedObject = resolvedFunctions[datum];
-        Object.keys(resolvedObject).forEach((key: any) => {
-          const dataTreeKey = GLOBAL_DATA[datum];
-          if (dataTreeKey) {
-            const data = dataTreeKey[key]?.data;
-            //do not remove, we will be investigating this
-            // const isAsync = dataTreeKey.meta[key]?.isAsync || false;
-            // const confirmBeforeExecute =
-            //   dataTreeKey.meta[key]?.confirmBeforeExecute || false;
-            dataTreeKey[key] = resolvedObject[key];
-            // if (isAsync && confirmBeforeExecute) {
-            //   dataTreeKey[key] = confirmationPromise.bind(
-            //     {},
-            //     "",
-            //     resolvedObject[key],
-            //     key,
-            //   );
-            // } else {
-            //   dataTreeKey[key] = resolvedObject[key];
-            // }
-            if (!!data) {
-              dataTreeKey[key].data = data;
-            }
-          }
-        });
-      });
-    }
+
+    addResolvedFunctionToGlobalData(dataTree, GLOBAL_DATA, resolvedFunctions);
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
@@ -430,3 +378,36 @@ export function isFunctionAsync(
     return isAsync;
   })();
 }
+
+const addResolvedFunctionToGlobalData = (
+  dataTree: DataTree,
+  GLOBAL_DATA: Record<string, any>,
+  resolvedFunctions: Record<string, any>,
+) => {
+  if (!isEmpty(resolvedFunctions)) {
+    Object.keys(resolvedFunctions).forEach((entityName) => {
+      const resolvedObject = resolvedFunctions[entityName];
+      const entity = dataTree[entityName];
+      const isEntityAJSObject = isJSObject(entity);
+      Object.keys(resolvedObject).forEach((funcName) => {
+        const dataTreeKey = GLOBAL_DATA[entityName];
+        if (dataTreeKey) {
+          let data = undefined;
+          if (isEntityAJSObject) {
+            data = dataTreeKey[`${funcName}.data`];
+          }
+
+          // TODO: Investigate the confirmBeforeExecute promise implementation
+          // check git history for older implementation
+
+          dataTreeKey[funcName] = resolvedObject[funcName];
+
+          if (!!data) {
+            dataTreeKey[funcName].data = data;
+          }
+        }
+      });
+    });
+  }
+  return GLOBAL_DATA;
+};

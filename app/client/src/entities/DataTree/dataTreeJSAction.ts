@@ -123,7 +123,8 @@ export const generateDataTreeJSAction = (
   dependencyMap["body"] = [];
 
   const actionsConfigMap: ActionsConfigMap = {};
-  const actionsReturnedData: Record<string, any> = {};
+  const actionsData: Record<string, any> = {};
+
   if (actions) {
     for (let i = 0; i < actions.length; i++) {
       const { arguments: args, body, name: actionName } = actions[i];
@@ -131,7 +132,7 @@ export const generateDataTreeJSAction = (
         (config) => config.name === actionName,
       );
 
-      let data = undefined;
+      let data: unknown = undefined;
       let confirmBeforeExecute = false;
       let isAsync = false;
       if (actionConfig) {
@@ -145,7 +146,6 @@ export const generateDataTreeJSAction = (
         confirmBeforeExecute,
         arguments: args,
         isAsync,
-        data,
         body,
       };
 
@@ -159,9 +159,11 @@ export const generateDataTreeJSAction = (
         confirmBeforeExecute,
       };
 
-      actionsReturnedData[actionName] = {
-        data,
-      };
+      actionsData[actionName] = body;
+      actionsData[`${actionName}.data`] = data;
+
+      bindingPaths[actionName] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+      bindingPaths[`${actionName}.data`] = EvaluationSubstitutionType.TEMPLATE;
 
       dynamicBindingPathList.push({ key: actionName });
       dependencyMap["body"].push(actionName);
@@ -182,6 +184,6 @@ export const generateDataTreeJSAction = (
     variables: listVariables,
     dependencyMap: dependencyMap,
     actionsConfig: actionsConfigMap,
-    ...actionsReturnedData,
+    ...actionsData,
   };
 };
