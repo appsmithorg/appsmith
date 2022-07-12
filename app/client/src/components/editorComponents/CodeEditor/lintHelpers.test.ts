@@ -181,7 +181,7 @@ describe("getLintAnnotations()", () => {
     `;
     const errors: EvaluationError[] = [];
 
-    const res = getLintAnnotations(value, errors, true);
+    const res = getLintAnnotations(value, errors);
     expect(res).toEqual([
       {
         from: {

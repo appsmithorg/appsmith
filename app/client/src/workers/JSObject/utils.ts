@@ -270,3 +270,12 @@ export const removeFunctionsAndVariableJSCollection = (
   set(modifiedDataTree, `${entity.name}.meta`, meta);
   return modifiedDataTree;
 };
+
+const exportDefaultObjectregex = new RegExp(
+  /^export default[\s]*?({[\s\S]*?})/,
+);
+
+export const extractExportDefaultObject = (code: string) => {
+  const regexArr = exportDefaultObjectregex.exec(code);
+  return regexArr ? regexArr[1] : "";
+};

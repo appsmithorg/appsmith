@@ -70,7 +70,7 @@ import { substituteDynamicBindingWithValues } from "workers/evaluationSubstituti
 import { Severity } from "entities/AppsmithConsole";
 import { getLintingErrors } from "workers/lint";
 import { error as logError } from "loglevel";
-import { extractIdentifiersFromCode, getExportedJSObject } from "workers/ast";
+import { extractIdentifiersFromCode } from "workers/ast";
 import { JSUpdate } from "utils/JSPaneUtils";
 
 import {
@@ -84,6 +84,7 @@ import {
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
 } from "workers/JSObject";
+import { extractExportDefaultObject } from "workers/JSObject/utils";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -832,7 +833,7 @@ export default class DataTreeEvaluator {
       const values = jsSnippets.map((jsSnippet, index) => {
         const toBeSentForEval =
           entity && isJSAction(entity) && propertyPath === "body"
-            ? getExportedJSObject(jsSnippet)
+            ? extractExportDefaultObject(jsSnippet)
             : jsSnippet;
         if (jsSnippet) {
           const result = this.evaluateDynamicBoundValue(

@@ -2,11 +2,7 @@ import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
-import {
-  getExportedJSObject,
-  isTypeOfFunction,
-  parseJSObjectWithAST,
-} from "workers/ast";
+import { isTypeOfFunction, parseJSObjectWithAST } from "workers/ast";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import evaluateSync, { isFunctionAsync } from "workers/evaluate";
 import {
@@ -16,6 +12,7 @@ import {
   isJSAction,
 } from "workers/evaluationUtils";
 import {
+  extractExportDefaultObject,
   removeFunctionsAndVariableJSCollection,
   updateJSCollectionInUnEvalTree,
 } from "workers/JSObject/utils";
@@ -76,7 +73,7 @@ export function saveResolvedFunctionsAndJSUpdates(
   unEvalDataTree: DataTree,
   entityName: string,
 ) {
-  const exportedJObject = getExportedJSObject(entity.body);
+  const exportedJObject = extractExportDefaultObject(entity.body);
   if (exportedJObject) {
     const body = exportedJObject;
     try {

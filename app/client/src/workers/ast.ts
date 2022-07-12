@@ -409,25 +409,3 @@ export const parseJSObjectWithAST = (
 
   return [...parsedObjectProperties];
 };
-
-export const getExportedJSObject = (code: string) => {
-  let ast: Node = { end: 0, start: 0, type: "" };
-  let exportedJSObject = "";
-  try {
-    ast = getAST(code, SourceType.module);
-  } catch (e) {
-    return exportedJSObject;
-  }
-
-  ancestor(ast, {
-    ObjectExpression(node, ancestors: Node[]) {
-      if (
-        ancestors[1].type === NodeTypes.ExportDefaultDeclaration &&
-        ancestors[0].type === NodeTypes.Program
-      ) {
-        exportedJSObject = generate(node);
-      }
-    },
-  });
-  return exportedJSObject;
-};

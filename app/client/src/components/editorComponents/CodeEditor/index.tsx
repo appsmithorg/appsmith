@@ -677,13 +677,7 @@ class CodeEditor extends Component<Props, State> {
       getEvalErrorPath(dataTreePath),
       [],
     ) as EvaluationError[];
-
-    const annotations = getLintAnnotations(
-      editor.getValue(),
-      errors,
-      this.props.isJSObject,
-    );
-
+    const annotations = getLintAnnotations(editor.getValue(), errors);
     this.updateLintingCallback(editor, annotations);
   }
 
