@@ -409,7 +409,7 @@ describe("Table widget inline editing functionality", () => {
     cy.saveTableCellValue(0, 0);
     cy.get(".t--widget-textwidget .bp3-ui-text").should(
       "contain",
-      `[  {    "index": 0,    "updatedFields": {      "step": "newValue"    },    "allFields": {      "step": "newValue",      "task": "Drop a table",      "status": "✅",      "action": "",      "EditActions1": ""    }  }]`,
+      `[  {    "index": 0,    "updatedFields": {      "step": "newValue"    },    "allFields": {      "step": "newValue",      "task": "Drop a table",      "status": "✅",      "action": ""    }  }]`,
     );
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
@@ -468,6 +468,7 @@ describe("Table widget inline editing functionality", () => {
         .contains(data.columnType)
         .click();
       cy.wait("@updateLayout");
+      cy.wait(500);
       cy.get(".t--property-control-onsubmit").should(data.expected);
     });
 
@@ -521,6 +522,7 @@ describe("Table widget inline editing functionality", () => {
         .contains(data.columnType)
         .click();
       cy.wait("@updateLayout");
+      cy.wait(500);
       cy.get(".t--property-control-onsubmit").should(data.expected);
     });
   });
