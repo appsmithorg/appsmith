@@ -15,7 +15,6 @@ const datasource = require("../locators/DatasourcesEditor.json");
 const formControls = require("../locators/FormControl.json");
 const queryLocators = require("../locators/QueryEditor.json");
 
-
 function assertApiResponseStatusCode(interception, statuscode) {
   expect(interception.response.body.responseMeta.status).to.deep.eq(statuscode);
 }
@@ -136,9 +135,9 @@ Cypress.Commands.add("deleteQueryUsingContext", () => {
   cy.get(queryEditor.deleteUsingContext)
     .contains("Are you sure?")
     .click();
-    cy.wait("@deleteAction").should((interception) => {
-      assertApiResponseStatusCode(interception, 200);
-    });
+  cy.wait("@deleteAction").should((interception) => {
+    assertApiResponseStatusCode(interception, 200);
+  });
 });
 
 Cypress.Commands.add("runAndDeleteQuery", () => {

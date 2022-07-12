@@ -69,9 +69,9 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
       cy.get(".t--delete-datasource")
         .contains("Are you sure?")
         .click();
-        cy.wait("@saveDatasource").should((interception) => {
-          assertApiResponseStatusCode(interception, 200);
-        });
+      cy.wait("@saveDatasource").should((interception) => {
+        assertApiResponseStatusCode(interception, 200);
+      });
     });
 });
 
@@ -95,18 +95,23 @@ Cypress.Commands.add("NavigateToActiveDatasources", () => {
 
 Cypress.Commands.add("testDatasource", (expectedRes = true) => {
   cy.get(".t--test-datasource").click({ force: true });
-  cy.wait("@saveDatasource").should((interception) => {
+  cy.wait("@testDatasource").should((interception) => {
     expect(interception.response.body.responseMeta.status).to.deep.eq(200);
   });
 });
 
 Cypress.Commands.add("saveDatasource", () => {
   cy.get(".t--save-datasource").click({ force: true });
+  cy.wait("@saveDatasource").should((interception) => {
+    assertApiResponseStatusCode(interception, 200);
+  });
+  /*
   cy.wait("@saveDatasource")
     .then((xhr) => {
       cy.log(JSON.stringify(xhr.response.body));
     })
     .should("have.nested.property", "response.body.responseMeta.status", 200);
+    */
 });
 
 Cypress.Commands.add("testSaveDatasource", (expectedRes = true) => {
@@ -371,12 +376,12 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
   cy.get(".t--delete-datasource")
     .contains("Are you sure?")
     .click();
-    cy.wait("@deleteDatasource").should((interception) => {
-      expect(interception.response.body.responseMeta.status).to.be.oneOf([
-        200,
-        409,
-      ]);
-    })
+  cy.wait("@deleteDatasource").should((interception) => {
+    expect(interception.response.body.responseMeta.status).to.be.oneOf([
+      200,
+      409,
+    ]);
+  });
 });
 
 Cypress.Commands.add("renameDatasource", (datasourceName) => {

@@ -352,9 +352,9 @@ Cypress.Commands.add(
     cy.get(explorer.editEntityField)
       .clear()
       .type(updatedName + "{enter}", { force: true });
-      cy.wait("@saveDatasource").should((interception) => {
-        assertApiResponseStatusCode(interception, 200);
-      });
+    cy.wait("@saveDatasource").should((interception) => {
+      assertApiResponseStatusCode(interception, 200);
+    });
   },
 );
 
@@ -872,7 +872,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.intercept("POST");
   cy.intercept("GET", "/api/v1/pages/*").as("getPage");
-  cy.intercept("GET", "/api/v1/applications/*/pages/*/edit").as("getAppPageEdit");
+  cy.intercept("GET", "/api/v1/applications/*/pages/*/edit").as(
+    "getAppPageEdit",
+  );
   cy.intercept("GET", "/api/v1/actions*").as("getActions");
   cy.intercept("GET", "api/v1/providers/categories").as("getCategories");
   cy.intercept("GET", "api/v1/import/templateCollections").as(
@@ -892,7 +894,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.intercept("POST", "/api/v1/datasources/*/trigger").as("trigger");
 
-  cy.intercept("PUT", "/api/v1/pages/crud-page/*").as("replaceLayoutWithCRUDPage");
+  cy.intercept("PUT", "/api/v1/pages/crud-page/*").as(
+    "replaceLayoutWithCRUDPage",
+  );
   cy.intercept("POST", "/api/v1/pages/crud-page").as("generateCRUDPage");
 
   cy.intercept("GET", "/api/v1/workspaces").as("workspaces");
@@ -905,11 +909,14 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/actions/executeOnLoad/*").as("setExecuteOnLoad");
 
   cy.intercept("POST", "/api/v1/actions").as("createNewApi");
-  cy.intercept("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as("curlImport");
-  cy.intercept("DELETE", "/api/v1/actions/*").as("deleteAction");
-  cy.intercept("GET", "/api/v1/marketplace/providers?category=*&page=*&size=*").as(
-    "get3PProviders",
+  cy.intercept("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as(
+    "curlImport",
   );
+  cy.intercept("DELETE", "/api/v1/actions/*").as("deleteAction");
+  cy.intercept(
+    "GET",
+    "/api/v1/marketplace/providers?category=*&page=*&size=*",
+  ).as("get3PProviders");
   cy.intercept("GET", "/api/v1/marketplace/templates?providerId=*").as(
     "get3PProviderTemplates",
   );
@@ -925,7 +932,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/actions/move").as("moveAction");
 
   cy.intercept("POST", "/api/v1/workspaces").as("createWorkspace");
-  cy.intercept("POST", "api/v1/applications/import/*").as("importNewApplication");
+  cy.intercept("POST", "api/v1/applications/import/*").as(
+    "importNewApplication",
+  );
   cy.intercept("GET", "api/v1/applications/export/*").as("exportApplication");
   cy.intercept("GET", "/api/v1/workspaces/roles?workspaceId=*").as("getRoles");
   cy.intercept("GET", "/api/v1/users/me").as("getMe");
@@ -939,8 +948,12 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/pages/*/view?*").as("viewPage");
   cy.intercept("POST", "/api/v1/workspaces/*/logo").as("updateLogo");
   cy.intercept("DELETE", "/api/v1/workspaces/*/logo").as("deleteLogo");
-  cy.intercept("POST", "/api/v1/applications/*/fork/*").as("postForkAppWorkspace");
-  cy.intercept("PUT", "/api/v1/users/leaveWorkspace/*").as("leaveWorkspaceApiCall");
+  cy.intercept("POST", "/api/v1/applications/*/fork/*").as(
+    "postForkAppWorkspace",
+  );
+  cy.intercept("PUT", "/api/v1/users/leaveWorkspace/*").as(
+    "leaveWorkspaceApiCall",
+  );
   cy.intercept("DELETE", "api/v1/workspaces/*").as("deleteWorkspaceApiCall");
 
   cy.intercept("POST", "/api/v1/comments/threads").as("createNewThread");
@@ -950,11 +963,19 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "api/v1/git/commit/app/*").as("commit");
   cy.intercept("POST", "/api/v1/git/import/*").as("importFromGit");
   cy.intercept("POST", "/api/v1/git/merge/app/*").as("mergeBranch");
-  cy.intercept("PUT", "api/v1/collections/actions/refactor").as("renameJsAction");
+  cy.intercept("PUT", "api/v1/collections/actions/refactor").as(
+    "renameJsAction",
+  );
 
-  cy.intercept("POST", "/api/v1/collections/actions").as("createNewJSCollection");
-  cy.intercept("DELETE", "/api/v1/collections/actions/*").as("deleteJSCollection");
-  cy.intercept("POST", "/api/v1/pages/crud-page").as("replaceLayoutWithCRUDPage");
+  cy.intercept("POST", "/api/v1/collections/actions").as(
+    "createNewJSCollection",
+  );
+  cy.intercept("DELETE", "/api/v1/collections/actions/*").as(
+    "deleteJSCollection",
+  );
+  cy.intercept("POST", "/api/v1/pages/crud-page").as(
+    "replaceLayoutWithCRUDPage",
+  );
 
   cy.intercept("POST", "/api/v1/users/super").as("createSuperUser");
   cy.intercept("POST", "/api/v1/actions/execute").as("postExecute");

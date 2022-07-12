@@ -16,7 +16,6 @@ const generatePage = require("../locators/GeneratePage.json");
 
 let pageidcopy = " ";
 
-
 function assertApiResponseStatusCode(interception, statuscode) {
   expect(interception.response.body.responseMeta.status).to.deep.eq(statuscode);
 }
@@ -36,9 +35,9 @@ Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
     .children()
     .contains(zoomValue)
     .click();
-    cy.wait("@updateLayout").should((interception) => {
-      assertApiResponseStatusCode(interception, 200);
-    });
+  cy.wait("@updateLayout").should((interception) => {
+    assertApiResponseStatusCode(interception, 200);
+  });
   cy.get(commonlocators.selectedZoomlevel)
     .last()
     .invoke("text")
@@ -56,9 +55,9 @@ Cypress.Commands.add("changeColumnType", (dataType) => {
     .children()
     .contains(dataType)
     .click();
-    cy.wait("@updateLayout").should((interception) => {
-      assertApiResponseStatusCode(interception, 200);
-    });
+  cy.wait("@updateLayout").should((interception) => {
+    assertApiResponseStatusCode(interception, 200);
+  });
   /*
       cy.get(commonlocators.selectedColType)
         .first()
@@ -129,9 +128,9 @@ Cypress.Commands.add("copyJSObjectToPage", (pageName) => {
   cy.get(apiwidget.page)
     .contains(pageName)
     .click();
-    cy.wait("@createNewJSCollection").should((interception) => {
-      assertApiResponseStatusCode(interception, 201);
-    });
+  cy.wait("@createNewJSCollection").should((interception) => {
+    assertApiResponseStatusCode(interception, 201);
+  });
 });
 
 Cypress.Commands.add("AddActionWithModal", () => {

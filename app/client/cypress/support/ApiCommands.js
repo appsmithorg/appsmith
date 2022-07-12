@@ -13,7 +13,6 @@ function assertApiResponseStatusCode(interception, statuscode) {
   expect(interception.response.body.responseMeta.status).to.deep.eq(statuscode);
 }
 
-
 export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
@@ -269,9 +268,9 @@ Cypress.Commands.add("MoveAPIToPage", (pageName) => {
   cy.get(apiwidget.page)
     .contains(pageName)
     .click({ force: true });
-    cy.wait("@moveAction").should((interception) => {
-      assertApiResponseStatusCode(interception, 200);
-    });
+  cy.wait("@moveAction").should((interception) => {
+    assertApiResponseStatusCode(interception, 200);
+  });
 });
 
 Cypress.Commands.add("copyEntityToPage", (pageName) => {
@@ -282,9 +281,9 @@ Cypress.Commands.add("copyEntityToPage", (pageName) => {
   cy.get(apiwidget.page)
     .contains(pageName)
     .click({ force: true });
-    cy.wait("@createNewApi").should((interception) => {
-      expect(interception.response.body.responseMeta.status).to.deep.eq(201);
-    });
+  cy.wait("@createNewApi").should((interception) => {
+    expect(interception.response.body.responseMeta.status).to.deep.eq(201);
+  });
 });
 
 Cypress.Commands.add("CopyAPIToHome", () => {
@@ -396,9 +395,9 @@ Cypress.Commands.add("DeleteAPI", () => {
   cy.get(apiwidget.deleteAPI)
     .first()
     .click({ force: true });
-    cy.wait("@deleteAction").should((interception) => {
-      assertApiResponseStatusCode(interception, 200);
-    });
+  cy.wait("@deleteAction").should((interception) => {
+    assertApiResponseStatusCode(interception, 200);
+  });
 });
 
 Cypress.Commands.add("NavigateToApiEditor", () => {
