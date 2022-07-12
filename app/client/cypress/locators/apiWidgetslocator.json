@@ -60,8 +60,5 @@
   "paramValue": ".t--actionConfiguration\\.queryParameters\\[0\\]\\.value\\.0",
   "multipartTypeDropdown": "button:contains('Type')",
   "confirmBeforeExecute": "[name=confirmBeforeExecute]",
-  "runQueryButton": ".t--apiFormRunBtn",
-  "createBlankApiGraphQL": ".t--createBlankApi-graphql-plugin",
-  "graphqlQueryEditor": ".t--graphql-query-editor .CodeMirror textarea",
-  "graphqlVariableEditor": ".t--graphql-variable-editor .CodeMirror textarea"
+  "runQueryButton": ".t--apiFormRunBtn"
 }

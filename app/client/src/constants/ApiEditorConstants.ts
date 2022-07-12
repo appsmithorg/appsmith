@@ -103,6 +103,29 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
 export const DEFAULT_PROVIDER_OPTION = "Business Software";
 export const CONTENT_TYPE_HEADER_KEY = "content-type";
 
+// Graphql Pagination type
+type GRAPHQL_PAGINATION_INDIVIDUAL_TYPE = {
+  name?: any;
+  type?: any;
+  value?: any;
+};
+export type GRAPHQL_PAGINATION_TYPE = {
+  cursorBased?: {
+    next?: {
+      limit?: GRAPHQL_PAGINATION_INDIVIDUAL_TYPE & { isSeparate: boolean };
+      cursor?: GRAPHQL_PAGINATION_INDIVIDUAL_TYPE;
+    };
+    previous?: {
+      limit?: GRAPHQL_PAGINATION_INDIVIDUAL_TYPE;
+      cursor?: GRAPHQL_PAGINATION_INDIVIDUAL_TYPE;
+    };
+  };
+  limitBased?: {
+    limit?: GRAPHQL_PAGINATION_INDIVIDUAL_TYPE;
+    offset?: GRAPHQL_PAGINATION_INDIVIDUAL_TYPE;
+  };
+};
+
 // Graphql Default Config
 export const DEFAULT_GRAPHQL_ACTION_CONFIG: ApiActionConfig = {
   timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
@@ -125,6 +148,12 @@ export const DEFAULT_GRAPHQL_ACTION_CONFIG: ApiActionConfig = {
     {
       // Query Variables
       value: "",
+    },
+    {
+      /* 
+        Pagination data having structure : GRAPHQL_PAGINATION_TYPE
+      */
+      value: {},
     },
   ],
 };

@@ -43,5 +43,6 @@
     "mockDatabaseUsername": "fakeapi",
     "mockDatabasePassword": "LimitedAccess123#",
     "readonly":"readonly",
-    "authenticatedApiUrl": "https://fakeapi.com"
+    "authenticatedApiUrl": "https://fakeapi.com",
+    "graphqlApiUrl": "https://api.spacex.land/graphql"
 }
