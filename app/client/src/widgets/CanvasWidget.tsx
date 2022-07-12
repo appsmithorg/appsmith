@@ -68,6 +68,8 @@ class CanvasWidget extends ContainerWidget {
     if (this.props.widgetName !== "MainContainer") {
       childWidgetData.useAutoLayout = this.props.useAutoLayout;
       childWidgetData.direction = this.props.direction;
+      childWidgetData.justifyContent = this.props.justifyContent;
+      childWidgetData.alignItems = this.props.alignItems;
     }
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);

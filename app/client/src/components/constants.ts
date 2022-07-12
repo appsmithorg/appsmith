@@ -115,3 +115,11 @@ export enum LayoutDirection {
   Horizontal = "Horizontal",
   Vertical = "Vertical",
 }
+
+export enum JustifyContent {
+  FlexStart = "flex-start",
+  Center = "center",
+  SpaceAround = "space-around",
+  SpaceBetween = "space-between",
+  SpaceEvenly = "space-evenly",
+}

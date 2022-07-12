@@ -215,6 +215,10 @@ abstract class BaseWidget<
    * @param content
    */
   makeResizable(content: ReactNode) {
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    console.log(
+      `widgetName: ${this.props.widgetName} & width: ${componentWidth}`,
+    );
     return (
       <ResizableComponent
         {...this.props}
@@ -329,12 +333,27 @@ abstract class BaseWidget<
   }
 
   addAutoLayoutWrapper(content: ReactNode) {
-    return <div style={{ position: "unset" }}>{content}</div>;
+    let size = {};
+    if (this.props.autoLayout && this.props.alignItems === "stretch") {
+      size = {
+        width: "100%",
+        height: "auto",
+      };
+    }
+    return (
+      <div
+        style={{
+          position: "unset",
+          ...size,
+        }}
+      >
+        {content}
+      </div>
+    );
   }
 
   private getWidgetView(): ReactNode {
     let content: ReactNode;
-    console.log(this.props);
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getCanvasView();
@@ -342,7 +361,11 @@ abstract class BaseWidget<
         content = this.addPreventInteractionOverlay(content);
         content = this.addOverlayComments(content);
         if (!this.props.detachFromLayout) {
-          if (!this.props.resizeDisabled) content = this.makeResizable(content);
+          if (
+            !this.props.resizeDisabled &&
+            !(this.props.useAutoLayout && this.props.alignItems === "stretch")
+          )
+            content = this.makeResizable(content);
           content = this.showWidgetName(content);
           content = this.makeDraggable(content);
           content = this.makeSnipeable(content);

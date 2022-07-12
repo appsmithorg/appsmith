@@ -180,6 +180,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       updateDropTargetRows,
     };
   }, [updateDropTargetRows, occupiedSpacesByChildren]);
+
   return (
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget

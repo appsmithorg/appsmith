@@ -6,7 +6,7 @@ import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import AutoLayoutContainerComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { LayoutDirection } from "components/constants";
+import { JustifyContent, LayoutDirection } from "components/constants";
 import { ContainerStyle } from "widgets/ContainerWidget/component";
 
 class AutoLayoutContainerWidget extends BaseWidget<
@@ -37,7 +37,7 @@ class AutoLayoutContainerWidget extends BaseWidget<
           !props?.useAutoLayout,
         children: [
           {
-            helpText: "Controls the visibility of the widget",
+            helpText: "Controls the direction of layout",
             propertyName: "direction",
             label: "Direction",
             controlType: "DROP_DOWN",
@@ -45,6 +45,24 @@ class AutoLayoutContainerWidget extends BaseWidget<
             options: [
               { label: "Horizontal", value: LayoutDirection.Horizontal },
               { label: "Vertical", value: LayoutDirection.Vertical },
+            ],
+            isJSConvertible: false,
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Controls alignment of the content",
+            propertyName: "justifyContent",
+            label: "Align content",
+            controlType: "DROP_DOWN",
+            defaultValue: JustifyContent.FlexStart,
+            options: [
+              { label: "Flex start", value: JustifyContent.FlexStart },
+              { label: "Center", value: JustifyContent.Center },
+              { label: "Space around", value: JustifyContent.SpaceAround },
+              { label: "Space between", value: JustifyContent.SpaceBetween },
+              { label: "Space evently", value: JustifyContent.SpaceEvenly },
             ],
             isJSConvertible: false,
             isBindProperty: false,
@@ -181,6 +199,7 @@ class AutoLayoutContainerWidget extends BaseWidget<
     // Pass layout controls to children
     childWidgetData.useAutoLayout = this.props.useAutoLayout;
     childWidgetData.direction = this.props.direction;
+    childWidgetData.justifyContent = this.props.justifyContent;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   }

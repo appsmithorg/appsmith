@@ -35,9 +35,8 @@ const StyledContainerComponent = styled.div<
   display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
   flex-direction: ${({ direction }) =>
     direction === LayoutDirection.Vertical ? "column" : "row"};
-  justify-content: flex-start;
-  align-items: ${({ direction }) =>
-    direction === LayoutDirection.Vertical ? "stretch" : "flex-start"};
+  justify-content: ${({ justifyContent }) => justifyContent || "flex-start"};
+  align-items: ${({ alignItems }) => alignItems || "flex-start"};
   flex-wrap: wrap;
 
   ${(props) =>
@@ -132,6 +131,8 @@ export interface ContainerComponentProps
   minHeight?: number;
   useAutoLayout?: boolean;
   direction?: string;
+  justifyContent?: string;
+  alignItems?: string;
 }
 
 export default ContainerComponent;

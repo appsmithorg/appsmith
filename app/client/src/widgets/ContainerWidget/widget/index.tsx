@@ -182,6 +182,8 @@ class ContainerWidget extends BaseWidget<
     // Pass layout controls to children
     childWidgetData.useAutoLayout = this.props.useAutoLayout;
     childWidgetData.direction = this.props.direction;
+    childWidgetData.justifyContent = this.props.justifyContent;
+    childWidgetData.alignItems = this.props.alignItems;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   }

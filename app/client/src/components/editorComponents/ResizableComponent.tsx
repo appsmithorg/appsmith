@@ -276,12 +276,12 @@ export const ResizableComponent = memo(function ResizableComponent(
       updateDropTargetRows && updateDropTargetRows([props.parentId], bottom);
     }
   };
-
+  console.log(props);
   return (
     <Resizable
       allowResize={!isMultiSelectedWidget}
       componentHeight={dimensions.height}
-      componentWidth={dimensions.width}
+      componentWidth={props?.alignItems === "stretch" ? 200 : dimensions.width}
       enable={isEnabled}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
