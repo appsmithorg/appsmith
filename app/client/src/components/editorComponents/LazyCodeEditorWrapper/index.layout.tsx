@@ -1,7 +1,5 @@
 import styled from "styled-components";
 
-import { Icon } from "components/ads";
-
 export const ReadOnlyInput = styled.input`
   width: 100%;
   background-color: rgba(0, 0, 0, 0) !important;
@@ -55,22 +53,6 @@ export const HighlighedCodeContainer = styled("div")<{
       }
     }
   }
-`;
-
-export const LintErrorContainer = styled.div`
-  background-color: white;
-  padding: 8px;
-
-  position: absolute;
-  bottom: 30px;
-  left: 50px;
-  box-shadow: 0px 4px 8px 1px rgba(0, 0, 0, 0.3);
-
-  display: flex;
-`;
-
-export const IconWrapper = styled(Icon)`
-  margin-right: 4px;
 `;
 
 export const LazyEditorWrapper = styled("div")`
