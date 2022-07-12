@@ -407,7 +407,6 @@ export const asyncTagUnevalTree: DataTree = {
 return JSObject2.callApi();
 }`,
         confirmBeforeExecute: false,
-        data: undefined,
         isAsync: false,
         name: "myFun1",
       },
@@ -457,7 +456,6 @@ return JSObject2.callApi();
 return Api1.run();
 }`,
         confirmBeforeExecute: false,
-        data: undefined,
         isAsync: false,
         name: "callApi",
       },
