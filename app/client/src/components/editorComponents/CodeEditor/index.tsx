@@ -18,6 +18,7 @@ import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
 import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
+import "codemirror/addon/comment/comment";
 
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -51,10 +52,10 @@ import {
   EditorWrapper,
   IconContainer,
 } from "components/editorComponents/CodeEditor/styledComponents";
-import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
-import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
+import { bindingMarker } from "components/editorComponents/CodeEditor/helpers/mark";
+import { bindingHint } from "components/editorComponents/CodeEditor/helpers/hint";
 import BindingPrompt from "./BindingPrompt";
-import { showBindingPrompt } from "./BindingPromptHelper";
+import { showBindingPrompt } from "./helpers/BindingPrompt";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
@@ -73,8 +74,8 @@ import {
   removeNewLineChars,
   addEventToHighlightedElement,
   removeEventFromHighlightedElement,
-} from "./codeEditorUtils";
-import { commandsHelper } from "./commandsHelper";
+} from "./utils/codeEditor";
+import { commandsHelper } from "./helpers/commands";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
 import { getPluginIdToImageLocation } from "sagas/selectors";
@@ -82,7 +83,6 @@ import { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
-import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { startingEntityUpdation } from "actions/editorActions";
 import { SlashCommandPayload } from "entities/Action";
@@ -93,6 +93,8 @@ import {
   LINT_TOOLTIP_CLASS,
   LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
 } from "./constants";
+import { getCodeCommentKeyMap, handleCodeComment } from "./utils/comment";
+import { getLintAnnotations, getLintTooltipDirection } from "./helpers/lint";
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -257,7 +259,9 @@ class CodeEditor extends Component<Props, State> {
         options.scrollbarStyle = "null";
       }
 
-      options.extraKeys = {};
+      options.extraKeys = {
+        [getCodeCommentKeyMap()]: handleCodeComment,
+      };
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {
         options.extraKeys["Tab"] = false;
       }

@@ -3,13 +3,13 @@ import {
   EvaluationError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { CODE_EDITOR_START_POSITION } from "./constants";
+import { CODE_EDITOR_START_POSITION } from "../constants";
 import {
   getKeyPositionInString,
   getLintAnnotations,
   getAllWordOccurrences,
   getFirstNonEmptyPosition,
-} from "./lintHelpers";
+} from "./lint";
 
 describe("getAllWordOccurences()", function() {
   it("should get all the indexes", () => {

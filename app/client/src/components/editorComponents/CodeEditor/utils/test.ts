@@ -1,4 +1,4 @@
-import { removeNewLineChars, getInputValue } from "./codeEditorUtils";
+import { removeNewLineChars, getInputValue } from "./codeEditor";
 
 describe("remove new line code", () => {
   it("removed new lines", () => {

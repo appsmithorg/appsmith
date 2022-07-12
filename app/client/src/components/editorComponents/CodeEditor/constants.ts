@@ -16,7 +16,6 @@ export enum LintTooltipDirection {
   left = "left",
   right = "right",
 }
-
 export const JS_OBJECT_START_STATEMENT = "export default";
 export const INVALID_JSOBJECT_START_STATEMENT = `JSObject must start with '${JS_OBJECT_START_STATEMENT}'`;
 export const CODE_EDITOR_START_POSITION: Position = { line: 0, ch: 0 };

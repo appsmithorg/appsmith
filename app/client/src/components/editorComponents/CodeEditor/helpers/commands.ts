@@ -4,12 +4,12 @@ import {
   AutocompleteDataType,
   CommandsCompletion,
 } from "utils/autocomplete/TernServer";
-import { generateQuickCommands } from "./generateQuickCommands";
+import { generateQuickCommands } from "../generateQuickCommands";
 import { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
+import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/utils/codeEditor";
 import { SlashCommandPayload } from "entities/Action";
 
 export const commandsHelper: HintHelper = (editor, data: DataTree) => {

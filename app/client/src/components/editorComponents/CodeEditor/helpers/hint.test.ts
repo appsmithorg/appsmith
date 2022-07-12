@@ -1,5 +1,5 @@
-import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
-import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEditorMock";
+import { bindingHint } from "components/editorComponents/CodeEditor/helpers/hint";
+import { MockCodemirrorEditor } from "../../../../../test/__mocks__/CodeMirrorEditorMock";
 
 describe("hint helpers", () => {
   describe("binding hint helper", () => {

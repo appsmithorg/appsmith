@@ -1,4 +1,4 @@
-import { showBindingPrompt } from "./BindingPromptHelper";
+import { showBindingPrompt } from "./BindingPrompt";
 
 describe("Test to check conditons for showing binding prompt", () => {
   it("Show binding prompt", () => {

@@ -12,7 +12,7 @@ import {
   LintTooltipDirection,
   VALID_JS_OBJECT_BINDING_POSITION,
   WARNING_LINT_ERRORS,
-} from "./constants";
+} from "../constants";
 
 export const getIndexOfRegex = (
   str: string,

@@ -29,8 +29,8 @@ import {
   EditorSize,
   HintHelper,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
-import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
+import { bindingMarker } from "components/editorComponents/CodeEditor/helpers/mark";
+import { bindingHint } from "components/editorComponents/CodeEditor/helpers/hint";
 import StoreAsDatasource, {
   DatasourceIcon,
 } from "components/editorComponents/StoreAsDatasource";
