@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { ReactComponent as Layout } from "assets/icons/ads/layout-7.svg";
 import { ReactComponent as Database } from "assets/icons/ads/database-3.svg";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import { getCanvasWidgets, getPageList } from "selectors/entitiesSelector";
 import { useDispatch, useSelector } from "react-redux";
@@ -50,13 +50,9 @@ type routeId = {
   pageSlug: string;
 };
 
-const goToGenPageForm = ({
-  applicationSlug,
-  pageId,
-  pageSlug,
-}: routeId): void => {
+const goToGenPageForm = ({ pageId }: routeId): void => {
   AnalyticsUtil.logEvent("GEN_CRUD_PAGE_ACTION_CARD_CLICK");
-  history.push(generateTemplateFormURL({ applicationSlug, pageSlug, pageId }));
+  history.push(generateTemplateFormURL({ pageId }));
 };
 
 function CanvasTopSection() {

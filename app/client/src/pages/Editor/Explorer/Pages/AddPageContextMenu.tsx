@@ -3,8 +3,7 @@ import { ReactComponent as Layout } from "assets/icons/ads/layout-7.svg";
 import { ReactComponent as Database } from "assets/icons/ads/database-3.svg";
 import { ReactComponent as AddPage } from "assets/icons/ads/file-add-line.svg";
 import { Popover2 } from "@blueprintjs/popover2";
-import Text, { TextType } from "components/ads/Text";
-import { TooltipComponent as Tooltip } from "design-system";
+import { TooltipComponent as Tooltip, Text, TextType } from "design-system";
 import { EntityClassNames } from "../Entity";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
@@ -13,9 +12,8 @@ import styled from "styled-components";
 import history from "utils/history";
 import { generateTemplateFormURL } from "RouteBuilder";
 import { useParams } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { ExplorerURLParams } from "../helpers";
-import { selectURLSlugs } from "selectors/editorSelectors";
 import { showTemplatesModal } from "actions/templateActions";
 import { Colors } from "constants/Colors";
 import {
@@ -60,7 +58,6 @@ function AddPageContextMenu({
   const [show, setShow] = useState(openMenu);
   const dispatch = useDispatch();
   const { pageId } = useParams<ExplorerURLParams>();
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const ContextMenuItems = [
     {
@@ -72,10 +69,7 @@ function AddPageContextMenu({
     {
       title: createMessage(GENERATE_PAGE_ACTION_TITLE),
       icon: <Database />,
-      onClick: () =>
-        history.push(
-          generateTemplateFormURL({ applicationSlug, pageSlug, pageId }),
-        ),
+      onClick: () => history.push(generateTemplateFormURL({ pageId })),
       "data-cy": "generate-page",
     },
     {

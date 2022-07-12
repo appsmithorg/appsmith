@@ -16,7 +16,7 @@ import {
   importTemplateIntoApplication,
 } from "actions/templateActions";
 import Icon, { IconSize } from "components/ads/Icon";
-import Text, { FontWeight, TextType } from "components/ads/Text";
+import { Text, FontWeight, TextType } from "design-system";
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Masonry from "react-masonry-css";

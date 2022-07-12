@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { Checkmark } from "components/ads/Checkbox";
 import { Classes, Size } from "components/ads";
 import Icon from "components/ads/Icon";
