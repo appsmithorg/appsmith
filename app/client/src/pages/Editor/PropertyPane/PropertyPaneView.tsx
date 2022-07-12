@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useMemo, useState } from "react";
+import React, { ReactElement, useCallback, useMemo } from "react";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
@@ -22,7 +22,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import styled from "styled-components";
 import { InputWrapper } from "components/ads/TextInput";
 import { PropertyPaneTab } from "./PropertyPaneTab";
-import debounce from "lodash/debounce";
+import { useSearchText } from "./helpers";
 
 export const StyledSearchInput = styled(SearchInput)`
   position: sticky;
@@ -71,20 +71,7 @@ function PropertyPaneView(
 
     return true;
   }, [widgetProperties?.type, excludeList]);
-  const [searchText, setSearchText] = useState("");
-
-  const debouncedSetSearchText = useCallback(
-    debounce(
-      (text) => {
-        setSearchText(text.trim());
-      },
-      250,
-      {
-        maxWait: 1000,
-      },
-    ),
-    [],
-  );
+  const { searchText, setSearchText } = useSearchText("");
 
   /**
    * on delete button click
@@ -200,7 +187,7 @@ function PropertyPaneView(
           <>
             <StyledSearchInput
               fill
-              onChange={debouncedSetSearchText}
+              onChange={setSearchText}
               placeholder="Search for controls, labels etc"
               variant={SearchVariant.BACKGROUND}
             />

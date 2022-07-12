@@ -21,6 +21,7 @@ import { StyledSearchInput } from "./PropertyPaneView";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import styled from "styled-components";
+import { useSearchText } from "./helpers";
 
 const PanelWrapper = styled.div`
   margin-top: 52px;
@@ -163,6 +164,8 @@ export function PanelPropertiesEditor(
     }
   }, [widgetProperties.widgetId]);
 
+  const { searchText, setSearchText } = useSearchText("");
+
   if (!widgetProperties) return null;
   const updatePropertyTitle = (title: string) => {
     if (panelConfig.titlePropertyName) {
@@ -207,6 +210,7 @@ export function PanelPropertiesEditor(
         <>
           <StyledSearchInput
             fill
+            onChange={setSearchText}
             placeholder="Search for controls, labels etc"
             variant={SearchVariant.BACKGROUND}
           />
@@ -218,6 +222,7 @@ export function PanelPropertiesEditor(
                     config={panelConfigsWithStyleAndContent.content}
                     id={widgetProperties.widgetId}
                     panel={panel}
+                    searchQuery={searchText}
                     theme={theme}
                     type={widgetProperties.type}
                   />
@@ -231,6 +236,7 @@ export function PanelPropertiesEditor(
                     config={panelConfigsWithStyleAndContent.style}
                     id={widgetProperties.widgetId}
                     panel={panel}
+                    searchQuery={searchText}
                     theme={theme}
                     type={widgetProperties.type}
                   />
@@ -246,6 +252,7 @@ export function PanelPropertiesEditor(
               config={(panelConfig as unknown) as PropertyPaneConfig[]}
               id={widgetProperties.widgetId}
               panel={panel}
+              searchQuery={searchText}
               theme={theme}
               type={widgetProperties.type}
             />
