@@ -57,7 +57,6 @@ function CodeEditor(props: any) {
   const [containsCode, setContainsCode] = useState<boolean>(false);
   const [containsObject, setContainsObject] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
-  const dynamicData = useSelector((state: AppState) => state.evaluations.tree);
   let handle: number;
   const handleFocus = (): void => {
     (window as any).cancelIdleCallback(handle);
