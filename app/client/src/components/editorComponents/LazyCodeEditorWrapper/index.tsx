@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
 import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import js from "react-syntax-highlighter/dist/cjs/languages/prism/javascript";
 import { duotoneLight } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { ascetic } from "react-syntax-highlighter/dist/cjs/styles/hljs";
 
 import Editor from "components/editorComponents/CodeEditor";
-import { AppState } from "reducers";
+
 import {
   ContentWrapper,
   HighlighedCodeContainer,
