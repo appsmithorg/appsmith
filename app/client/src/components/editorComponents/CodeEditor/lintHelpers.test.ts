@@ -173,7 +173,7 @@ describe("getLintAnnotations()", () => {
     ]);
   });
 
-  it("should return proper annotation when jsobject does not start with expected statement", () => {
+  it("should not return annotation when jsobject does not start with export default expected statement", () => {
     const value = `// An invalid JS Object
     export default {
 
@@ -182,20 +182,7 @@ describe("getLintAnnotations()", () => {
     const errors: EvaluationError[] = [];
 
     const res = getLintAnnotations(value, errors);
-    expect(res).toEqual([
-      {
-        from: {
-          line: 0,
-          ch: 0,
-        },
-        to: {
-          line: 0,
-          ch: 23,
-        },
-        message: "JSObject must start with 'export default'",
-        severity: "error",
-      },
-    ]);
+    expect(res).toEqual([]);
   });
 });
 
