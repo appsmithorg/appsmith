@@ -99,6 +99,8 @@ export interface Datasource extends BaseDatasource {
   structure?: DatasourceStructure;
   messages?: string[];
   success?: boolean;
+  isMock?: boolean;
+  isTemplate?: boolean;
 }
 
 export interface MockDatasource {
