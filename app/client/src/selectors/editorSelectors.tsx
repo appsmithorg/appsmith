@@ -35,8 +35,12 @@ import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { ApplicationVersion } from "actions/applicationActions";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { getIsDraggingOrResizing, getIsResizing } from "./widgetSelectors";
 import { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
+
+const getIsDraggingOrResizing = (state: AppState) =>
+  state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
+
+const getIsResizing = (state: AppState) => state.ui.widgetDragResize.isResizing;
 
 export const getWidgetConfigs = (state: AppState) =>
   state.entities.widgetConfig;
